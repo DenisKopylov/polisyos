@@ -1,0 +1,23 @@
+{
+  "source_sha": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "mypy",
+    "--follow-imports=silent",
+    "src/polisyos/scientist/methods/doe/stress_report.py",
+    "src/polisyos/scientist/methods/doe/designs.py",
+    "src/polisyos/scientist/methods/backtesting/adversarial.py",
+    "src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py"
+  ],
+  "environment": {
+    "PYTHONPATH": "src:.",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "outcome": "ERROR",
+  "process_exit_code": 137,
+  "signal": "SIGKILL",
+  "stdout_bytes": 0,
+  "complete_wrapper_deciding_message": "/bin/bash: line 1: 274316 Killed /workspace/e02-D-locked-env/bin/python -m mypy --follow-imports=silent src/polisyos/scientist/methods/doe/stress_report.py src/polisyos/scientist/methods/doe/designs.py src/polisyos/scientist/methods/backtesting/adversarial.py src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py > /workspace/e02-D3-receipts/stress/frozen82-mypy-four-paths.txt",
+  "measurement_scope": "Observed shell message; outer cat returned0, not the mypy process outcome. Wall/peakRSS final measurement unavailable. Cause not established. No type-check verdict."
+}

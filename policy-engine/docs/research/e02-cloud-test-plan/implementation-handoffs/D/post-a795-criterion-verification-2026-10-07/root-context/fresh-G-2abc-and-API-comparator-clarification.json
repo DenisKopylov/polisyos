@@ -1,0 +1,876 @@
+{
+  "schema": "D.E02.fresh-G-2abc-observation-and-public-comparator-clarification.v1",
+  "writer": "/root",
+  "method": "Fresh authorized GitHub connector read; ordinary fetch credentials invalid. Do not label this as locally fetched/merged2abc.",
+  "G": {
+    "previous_locally_available": "9806442ddb47d624a2940bac75d9d6248e934c48",
+    "fresh_connector_head": "2abc17f46a033a7879663486ff9946a95786601f",
+    "tree": "375301dd0c86a6168f4f747d8c56d9e0acb9567c",
+    "local_object_available": false,
+    "merged_into_D": false
+  },
+  "D_remote": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "main": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "complete_compare": {
+    "repository_full_name": "DenisKopylov/polisyos",
+    "base": "9806442ddb47d624a2940bac75d9d6248e934c48",
+    "head": "2abc17f46a033a7879663486ff9946a95786601f",
+    "status": "ahead",
+    "ahead_by": 2,
+    "behind_by": 0,
+    "total_commits": 2,
+    "too_large": null,
+    "base_commit": {
+      "sha": "9806442ddb47d624a2940bac75d9d6248e934c48",
+      "url": "https://api.github.com/repos/DenisKopylov/polisyos/commits/9806442ddb47d624a2940bac75d9d6248e934c48",
+      "html_url": "https://github.com/DenisKopylov/polisyos/commit/9806442ddb47d624a2940bac75d9d6248e934c48"
+    },
+    "merge_base_commit": {
+      "sha": "9806442ddb47d624a2940bac75d9d6248e934c48",
+      "url": "https://api.github.com/repos/DenisKopylov/polisyos/commits/9806442ddb47d624a2940bac75d9d6248e934c48",
+      "html_url": "https://github.com/DenisKopylov/polisyos/commit/9806442ddb47d624a2940bac75d9d6248e934c48"
+    },
+    "files": [
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/A-resume-after-2605-delta.md",
+        "status": "added",
+        "additions": 14,
+        "deletions": 0,
+        "changes": 14,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/D-resume-after-a795-all45.md",
+        "status": "modified",
+        "additions": 1,
+        "deletions": 1,
+        "changes": 2,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/E-resume-after-b2-public-boundaries.md",
+        "status": "added",
+        "additions": 33,
+        "deletions": 0,
+        "changes": 33,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/F-resume-after-4ee-profile-consistency.md",
+        "status": "added",
+        "additions": 13,
+        "deletions": 0,
+        "changes": 13,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/README.md",
+        "status": "modified",
+        "additions": 7,
+        "deletions": 3,
+        "changes": 10,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D-cost-AST-consumers.json",
+        "status": "modified",
+        "additions": 42,
+        "deletions": 58,
+        "changes": 100,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D-cost-AST-consumers.md",
+        "status": "modified",
+        "additions": 3,
+        "deletions": 3,
+        "changes": 6,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D45-actions.md",
+        "status": "modified",
+        "additions": 1,
+        "deletions": 1,
+        "changes": 2,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/README.md",
+        "status": "modified",
+        "additions": 2,
+        "deletions": 2,
+        "changes": 4,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/A-HTTP-cost.md",
+        "status": "added",
+        "additions": 33,
+        "deletions": 0,
+        "changes": 33,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/A-evidence.md",
+        "status": "added",
+        "additions": 43,
+        "deletions": 0,
+        "changes": 43,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/A-handoff-gaps.json",
+        "status": "added",
+        "additions": 68,
+        "deletions": 0,
+        "changes": 68,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/A-runtime.md",
+        "status": "added",
+        "additions": 68,
+        "deletions": 0,
+        "changes": 68,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/A-wave3-runtime.md",
+        "status": "added",
+        "additions": 42,
+        "deletions": 0,
+        "changes": 42,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/D-API-erratum.json",
+        "status": "added",
+        "additions": 82,
+        "deletions": 0,
+        "changes": 82,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/D-API-erratum.md",
+        "status": "added",
+        "additions": 36,
+        "deletions": 0,
+        "changes": 36,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/E-API.md",
+        "status": "added",
+        "additions": 40,
+        "deletions": 0,
+        "changes": 40,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/E-fit-inlet.md",
+        "status": "added",
+        "additions": 27,
+        "deletions": 0,
+        "changes": 27,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/E-gates-A-consumers.json",
+        "status": "added",
+        "additions": 188,
+        "deletions": 0,
+        "changes": 188,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/E-gates-A-consumers.md",
+        "status": "added",
+        "additions": 37,
+        "deletions": 0,
+        "changes": 37,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/E-identity-inputs.md",
+        "status": "added",
+        "additions": 46,
+        "deletions": 0,
+        "changes": 46,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/E-law-composition.md",
+        "status": "added",
+        "additions": 52,
+        "deletions": 0,
+        "changes": 52,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/E-native-diagnostics.md",
+        "status": "added",
+        "additions": 19,
+        "deletions": 0,
+        "changes": 19,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/E-posterior-math.md",
+        "status": "added",
+        "additions": 35,
+        "deletions": 0,
+        "changes": 35,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/E-to-A-reason-carry.json",
+        "status": "added",
+        "additions": 111,
+        "deletions": 0,
+        "changes": 111,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/E-to-A-reason-carry.md",
+        "status": "added",
+        "additions": 45,
+        "deletions": 0,
+        "changes": 45,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/E54-current-decisions.json",
+        "status": "added",
+        "additions": 2157,
+        "deletions": 0,
+        "changes": 2157,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/E54-current-decisions.md",
+        "status": "added",
+        "additions": 132,
+        "deletions": 0,
+        "changes": 132,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/F-DiD-pretrend.md",
+        "status": "added",
+        "additions": 43,
+        "deletions": 0,
+        "changes": 43,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/F-graph-profile.md",
+        "status": "added",
+        "additions": 42,
+        "deletions": 0,
+        "changes": 42,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/F-installed-surface.md",
+        "status": "added",
+        "additions": 33,
+        "deletions": 0,
+        "changes": 33,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/F-native-checks.md",
+        "status": "added",
+        "additions": 32,
+        "deletions": 0,
+        "changes": 32,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/F-native-metadata-diagnostic.md",
+        "status": "added",
+        "additions": 13,
+        "deletions": 0,
+        "changes": 13,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/README.md",
+        "status": "added",
+        "additions": 51,
+        "deletions": 0,
+        "changes": 51,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/admission.json",
+        "status": "added",
+        "additions": 153,
+        "deletions": 0,
+        "changes": 153,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/final-delivery-readback.json",
+        "status": "added",
+        "additions": 48,
+        "deletions": 0,
+        "changes": 48,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/final-delivery-readback.md",
+        "status": "added",
+        "additions": 12,
+        "deletions": 0,
+        "changes": 12,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/final-semantic-delta.json",
+        "status": "added",
+        "additions": 58,
+        "deletions": 0,
+        "changes": 58,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/final-semantic-delta.md",
+        "status": "added",
+        "additions": 11,
+        "deletions": 0,
+        "changes": 11,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/identity.md",
+        "status": "added",
+        "additions": 37,
+        "deletions": 0,
+        "changes": 37,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/late-PR-metadata.md",
+        "status": "added",
+        "additions": 29,
+        "deletions": 0,
+        "changes": 29,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/outputs.json",
+        "status": "added",
+        "additions": 180,
+        "deletions": 0,
+        "changes": 180,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/outputs/E-attempt1.stderr",
+        "status": "added",
+        "additions": 45,
+        "deletions": 0,
+        "changes": 45,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/outputs/E-attempt1.stdout",
+        "status": "added",
+        "additions": 0,
+        "deletions": 0,
+        "changes": 0,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/outputs/E-attempt2.stderr",
+        "status": "added",
+        "additions": 14,
+        "deletions": 0,
+        "changes": 14,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/outputs/E-attempt2.stdout",
+        "status": "added",
+        "additions": 0,
+        "deletions": 0,
+        "changes": 0,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/outputs/E-diagnostic-summary.json",
+        "status": "added",
+        "additions": 263,
+        "deletions": 0,
+        "changes": 263,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/outputs/E-execution-receipt.json",
+        "status": "added",
+        "additions": 68,
+        "deletions": 0,
+        "changes": 68,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/outputs/E-final.stderr",
+        "status": "added",
+        "additions": 0,
+        "deletions": 0,
+        "changes": 0,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/outputs/E-final.stdout.json",
+        "status": "added",
+        "additions": 1556,
+        "deletions": 0,
+        "changes": 1556,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/outputs/F-DiD-result.json",
+        "status": "added",
+        "additions": 760,
+        "deletions": 0,
+        "changes": 760,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/outputs/F-DiD-semantic-verification.json",
+        "status": "added",
+        "additions": 41,
+        "deletions": 0,
+        "changes": 41,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/outputs/F-DiD.stderr",
+        "status": "added",
+        "additions": 0,
+        "deletions": 0,
+        "changes": 0,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/outputs/F-DiD.stdout",
+        "status": "added",
+        "additions": 65,
+        "deletions": 0,
+        "changes": 65,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/outputs/F-clean-ADMG-control.stderr",
+        "status": "added",
+        "additions": 0,
+        "deletions": 0,
+        "changes": 0,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/outputs/F-clean-ADMG-control.stdout",
+        "status": "added",
+        "additions": 122,
+        "deletions": 0,
+        "changes": 122,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/outputs/F-direct-attempt1.stderr",
+        "status": "added",
+        "additions": 7,
+        "deletions": 0,
+        "changes": 7,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/outputs/F-direct-attempt1.stdout",
+        "status": "added",
+        "additions": 3,
+        "deletions": 0,
+        "changes": 3,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/outputs/F-direct-attempt2.stderr",
+        "status": "added",
+        "additions": 17,
+        "deletions": 0,
+        "changes": 17,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/outputs/F-direct-attempt2.stdout",
+        "status": "added",
+        "additions": 5,
+        "deletions": 0,
+        "changes": 5,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/outputs/F-direct-attempt3.stderr",
+        "status": "added",
+        "additions": 0,
+        "deletions": 0,
+        "changes": 0,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/outputs/F-direct-attempt3.stdout",
+        "status": "added",
+        "additions": 104,
+        "deletions": 0,
+        "changes": 104,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/outputs/F-existing-positive.junit.xml",
+        "status": "added",
+        "additions": 1,
+        "deletions": 0,
+        "changes": 1,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/outputs/F-existing-positive.stderr",
+        "status": "added",
+        "additions": 0,
+        "deletions": 0,
+        "changes": 0,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/outputs/F-existing-positive.stdout",
+        "status": "added",
+        "additions": 9,
+        "deletions": 0,
+        "changes": 9,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/outputs/F-graph.junit.xml",
+        "status": "added",
+        "additions": 1,
+        "deletions": 0,
+        "changes": 1,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/outputs/F-graph.stderr",
+        "status": "added",
+        "additions": 0,
+        "deletions": 0,
+        "changes": 0,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/outputs/F-graph.stdout",
+        "status": "added",
+        "additions": 9,
+        "deletions": 0,
+        "changes": 9,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/outputs/F-orchestration-abort.txt",
+        "status": "added",
+        "additions": 12,
+        "deletions": 0,
+        "changes": 12,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/outputs/F-scoped-receipt.json",
+        "status": "added",
+        "additions": 162,
+        "deletions": 0,
+        "changes": 162,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/outputs/F-summary-receipt.json",
+        "status": "added",
+        "additions": 187,
+        "deletions": 0,
+        "changes": 187,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/owners-companions.md",
+        "status": "added",
+        "additions": 54,
+        "deletions": 0,
+        "changes": 54,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/pins.json",
+        "status": "added",
+        "additions": 117,
+        "deletions": 0,
+        "changes": 117,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/publication-check.md",
+        "status": "added",
+        "additions": 7,
+        "deletions": 0,
+        "changes": 7,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/storage-native-receipt.json",
+        "status": "added",
+        "additions": 34,
+        "deletions": 0,
+        "changes": 34,
+        "previous_filename": null
+      },
+      {
+        "filename": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/storage.md",
+        "status": "added",
+        "additions": 7,
+        "deletions": 0,
+        "changes": 7,
+        "previous_filename": null
+      }
+    ]
+  },
+  "new_source_test_config_paths": [],
+  "new_D_document_delta_read": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/D-resume-after-a795-all45.md",
+      "patch_bytes": 9763,
+      "patch_sha256": "415cd0499f4567cc1767184a8c5269ee3e2c87dd195407eab7a23fe8a3289683"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D-cost-AST-consumers.json",
+      "patch_bytes": 12343,
+      "patch_sha256": "6e0f0f2df7d9efa043b62987d7b88ca21c3f3b51cc6248163d44a9b313de6a2c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D-cost-AST-consumers.md",
+      "patch_bytes": 6130,
+      "patch_sha256": "e5028117bb2dc7784f19356ac173c24c4e48598778b661b94d341ce839f9ea86"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D45-actions.md",
+      "patch_bytes": 2117,
+      "patch_sha256": "3b721ce46f76772b63f637b2e447b3bb51975defc6093beeaac2c44a1da89058"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/README.md",
+      "patch_bytes": 5952,
+      "patch_sha256": "516a9cc6f840fbf21f41bc95fb6060641326b05a85dc298bd79a64bb7be029b9"
+    }
+  ],
+  "new_errata_read": [
+    {
+      "source": "2abc17f46a033a7879663486ff9946a95786601f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/D-API-erratum.md",
+      "bytes": 5066,
+      "sha256": "385690ec51f6247922849fdc2799e9c67da031f11f1e6cd57d3298cb2b94145f"
+    },
+    {
+      "source": "2abc17f46a033a7879663486ff9946a95786601f",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-thirteenth-wave/D-API-erratum.json",
+      "bytes": 4853,
+      "sha256": "9c0938e0be67353940572e49fdc2acb408efa95bea9de2bba3aa8441bce870e8"
+    }
+  ],
+  "root_independent_static_exports": [
+    {
+      "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/src/polisyos/scientist/__init__.py",
+      "blob": "568c5962fb5929aaf904ee51d8359725229423b6",
+      "bytes": 7829,
+      "sha256": "ab721e4a2e6da23e8786a1f1af1f7cc8a4a7b90d02384882b21de70b1cbb3e90",
+      "count": 39,
+      "names": [
+        "decision_packet_invocation_input_refs",
+        "require_canonical_decision_packet_invocation",
+        "DECISION_PACKET_INVOCATION_KIND",
+        "DecisionPacketInvocationRecord",
+        "CanonicalDecisionPacketInvocation",
+        "CompletedDecisionPacketExecution",
+        "EpochCertificateIssuanceNonReceipt",
+        "EpochCertificateIssuanceOwner",
+        "PersistedEpochCertificateIssuancePreparation",
+        "require_canonical_decision_packet_execution",
+        "DecisionValidityService",
+        "GOVERNANCE_MONITOR_EVENT_KIND",
+        "resolve_governance_monitor_event",
+        "BudgetState",
+        "ClaimLedgerCurrentHeadProjection",
+        "ClaimLedgerOwnerPort",
+        "ClaimLifecycleBridgeAdvanced",
+        "EpochClaimLifecycleBridgeService",
+        "ExperimentState",
+        "KnowledgeToolkit",
+        "ScientistLegalBenchmarkRunner",
+        "ScientistRetrievalBenchmarkOutcome",
+        "ToolContractSummary",
+        "ToolDefinition",
+        "ToolLoopResult",
+        "ToolRegistry",
+        "build_governance_pipeline",
+        "build_default_claim_ledger_owner",
+        "build_epoch_claim_lifecycle_bridge",
+        "build_knowledge_tool_registry",
+        "create_traced_gateway_client",
+        "discover_scientist_nodes",
+        "get_metrics",
+        "get_tracer",
+        "load_governance_passes",
+        "run_experiment",
+        "run_tool_loop",
+        "summarize_tool_contracts",
+        "tool_contract_default_blockers"
+      ]
+    },
+    {
+      "sha": "9806442ddb47d624a2940bac75d9d6248e934c48",
+      "path": "policy-engine/src/polisyos/scientist/__init__.py",
+      "blob": "568c5962fb5929aaf904ee51d8359725229423b6",
+      "bytes": 7829,
+      "sha256": "ab721e4a2e6da23e8786a1f1af1f7cc8a4a7b90d02384882b21de70b1cbb3e90",
+      "count": 39,
+      "names": [
+        "decision_packet_invocation_input_refs",
+        "require_canonical_decision_packet_invocation",
+        "DECISION_PACKET_INVOCATION_KIND",
+        "DecisionPacketInvocationRecord",
+        "CanonicalDecisionPacketInvocation",
+        "CompletedDecisionPacketExecution",
+        "EpochCertificateIssuanceNonReceipt",
+        "EpochCertificateIssuanceOwner",
+        "PersistedEpochCertificateIssuancePreparation",
+        "require_canonical_decision_packet_execution",
+        "DecisionValidityService",
+        "GOVERNANCE_MONITOR_EVENT_KIND",
+        "resolve_governance_monitor_event",
+        "BudgetState",
+        "ClaimLedgerCurrentHeadProjection",
+        "ClaimLedgerOwnerPort",
+        "ClaimLifecycleBridgeAdvanced",
+        "EpochClaimLifecycleBridgeService",
+        "ExperimentState",
+        "KnowledgeToolkit",
+        "ScientistLegalBenchmarkRunner",
+        "ScientistRetrievalBenchmarkOutcome",
+        "ToolContractSummary",
+        "ToolDefinition",
+        "ToolLoopResult",
+        "ToolRegistry",
+        "build_governance_pipeline",
+        "build_default_claim_ledger_owner",
+        "build_epoch_claim_lifecycle_bridge",
+        "build_knowledge_tool_registry",
+        "create_traced_gateway_client",
+        "discover_scientist_nodes",
+        "get_metrics",
+        "get_tracer",
+        "load_governance_passes",
+        "run_experiment",
+        "run_tool_loop",
+        "summarize_tool_contracts",
+        "tool_contract_default_blockers"
+      ]
+    },
+    {
+      "sha": "8e864f4ed0eeedf509d836381b20976c413f2443",
+      "path": "policy-engine/src/polisyos/scientist/__init__.py",
+      "blob": "14ec83d7813924b29683a5c8dba41ed30f4f3020",
+      "bytes": 8231,
+      "sha256": "e0bd86c731ef53a6d4bb9713589aadecf39742282471bc725bac4947f7594fe3",
+      "count": 42,
+      "names": [
+        "NativeSearchService",
+        "SearchServiceCheckpoint",
+        "SearchLoopRunner",
+        "decision_packet_invocation_input_refs",
+        "require_canonical_decision_packet_invocation",
+        "DECISION_PACKET_INVOCATION_KIND",
+        "DecisionPacketInvocationRecord",
+        "CanonicalDecisionPacketInvocation",
+        "CompletedDecisionPacketExecution",
+        "EpochCertificateIssuanceNonReceipt",
+        "EpochCertificateIssuanceOwner",
+        "PersistedEpochCertificateIssuancePreparation",
+        "require_canonical_decision_packet_execution",
+        "DecisionValidityService",
+        "GOVERNANCE_MONITOR_EVENT_KIND",
+        "resolve_governance_monitor_event",
+        "BudgetState",
+        "ClaimLedgerCurrentHeadProjection",
+        "ClaimLedgerOwnerPort",
+        "ClaimLifecycleBridgeAdvanced",
+        "EpochClaimLifecycleBridgeService",
+        "ExperimentState",
+        "KnowledgeToolkit",
+        "ScientistLegalBenchmarkRunner",
+        "ScientistRetrievalBenchmarkOutcome",
+        "ToolContractSummary",
+        "ToolDefinition",
+        "ToolLoopResult",
+        "ToolRegistry",
+        "build_governance_pipeline",
+        "build_default_claim_ledger_owner",
+        "build_epoch_claim_lifecycle_bridge",
+        "build_knowledge_tool_registry",
+        "create_traced_gateway_client",
+        "discover_scientist_nodes",
+        "get_metrics",
+        "get_tracer",
+        "load_governance_passes",
+        "run_experiment",
+        "run_tool_loop",
+        "summarize_tool_contracts",
+        "tool_contract_default_blockers"
+      ]
+    }
+  ],
+  "exact_added_exports_vs_G_main": [
+    "polisyos.scientist.NativeSearchService",
+    "polisyos.scientist.SearchLoopRunner",
+    "polisyos.scientist.SearchServiceCheckpoint"
+  ],
+  "five_path_local_delta_proof": [
+    {
+      "base": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+      "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "scoped_paths": [
+        "policy-engine/src/polisyos/scientist/__init__.py",
+        "policy-engine/architecture/public_surface/inventory.json",
+        "policy-engine/docs/reference/public-surface.md",
+        "policy-engine/architecture/public_surface/contract.toml",
+        "policy-engine/docs/reference/generated-artifacts.md"
+      ],
+      "complete_scoped_delta": []
+    },
+    {
+      "base": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "candidate": "8e864f4ed0eeedf509d836381b20976c413f2443",
+      "scoped_paths": [
+        "policy-engine/src/polisyos/scientist/__init__.py",
+        "policy-engine/architecture/public_surface/inventory.json",
+        "policy-engine/docs/reference/public-surface.md",
+        "policy-engine/architecture/public_surface/contract.toml",
+        "policy-engine/docs/reference/generated-artifacts.md"
+      ],
+      "complete_scoped_delta": []
+    }
+  ],
+  "surface_scope": "Candidate42 scientist exports versus G/main39; ancestor5bd73d8 introduced3aliases and5eca5d0 inventoried/documented them. Own final3b→a795→8e scoped surface unchanged. Static inventory scope, no runtime/generator proof; no HTTP/OpenAPI/DTO/client signature change or new regeneration requirement for this own delta.",
+  "compatibility": "Checkpoint formats internal, but required-history persisted restore through stable public NativeSearchService is breaking. Structured service-required-history-admission impact=breaking; retain old artifact/original compatible reader or explicit new run. No automatic migration. bayesian_candidate_generator.v3 actual schema name.",
+  "canonical_inventory_companion_scope": "Cost public_surface_inventory_reviewed=true records accepted scoped static inventory review, not no additive Python exports relative to G/main or whole-D acceptance.",
+  "old_locator_advisory": "G5a corrected the formerly malformed CBC locators; local original advisory/receipts stay immutable historical.",
+  "runtime_change_or_rerun": false,
+  "formal_G_acceptance": 0,
+  "unchanged_evidence_rule": "No source/test/config delta in new G docs; own frozen8e selected proofs retained at actual execution pins. Cannot claim composed/currentG execution or whole current import proof."
+}

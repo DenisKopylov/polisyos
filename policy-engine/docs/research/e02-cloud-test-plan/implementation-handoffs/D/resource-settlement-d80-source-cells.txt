@@ -1,0 +1,29 @@
+{
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "pydantic": "2.12.5",
+  "pytest": "9.0.2",
+  "source_sha": "d80bfc2bb6775ddad69ecdcc1271528db182af21",
+  "source_tree": "8522cf848bef68e009f802a0740e535b365352c3",
+  "modules": [
+    {
+      "name": "polisyos.scientist.orchestration.engine.budget_ledger",
+      "origin": "/workspace/e02-D2-receipts/oracle-resource-d80/archive/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "sha256": "80f68d9574cdf0c8fa51543b21c72e5aa48ab1b12c52c62d42221f7646b06fe2"
+    },
+    {
+      "name": "polisyos.scientist.orchestration.engine.budget_middleware",
+      "origin": "/workspace/e02-D2-receipts/oracle-resource-d80/archive/policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "sha256": "11041edf20629c00efb3c1bfc16d920061fe2d469e8f30fe12c95f7e3cf0a9a5"
+    },
+    {
+      "name": "polisyos.scientist.orchestration.llm.budget_enforcer",
+      "origin": "/workspace/e02-D2-receipts/oracle-resource-d80/archive/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "sha256": "c576cbf5e4cbe1e03158f03b974645036ab10d302f05d61e1bd102d56c381fb2"
+    },
+    {
+      "name": "polisyos.core.llm.response",
+      "origin": "/workspace/e02-D2-receipts/oracle-resource-d80/archive/policy-engine/src/polisyos/core/llm/response.py",
+      "sha256": "e1eb1142786bee44c0400547ac020bb45ca0df5037f995a593f7f0c6c8245627"
+    }
+  ]
+}

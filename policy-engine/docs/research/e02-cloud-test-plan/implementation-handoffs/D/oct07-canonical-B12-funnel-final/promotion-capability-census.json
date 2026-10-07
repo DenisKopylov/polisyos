@@ -1,0 +1,33 @@
+{
+  "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "scope": "Bounded actual source inventory diagnostic; runtime absence not asserted from AST. No new authority appointed.",
+  "files": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/evidence/claims/head_index.py",
+      "sha256": "23268c06c97b23de17dfed5225fd273fac80a325554f3d7ed9bcd0813fcca430"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+      "sha256": "31d00ab5bd721d4f3d63e7581df74a49bc87e91f548ed7bb61d4c9770d730c19"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+      "sha256": "1339af524b604462021425b9d88f5cbe278f1a8c927827cb3e26fa4f8f0cc6ba"
+    }
+  ],
+  "existing_other_purpose_capability": {
+    "path": "policy-engine/src/polisyos/scientist/evidence/claims/head_index.py",
+    "type": "_ClaimLedgerMutationPermit",
+    "shape": "Private fieldless identity singleton for concrete claim ledger owner; claims-specific current-head lock/CAS.",
+    "promotion_bridge": "not_established; not run/candidate/ticket/purpose/schema/time/revocation-bound promotion permit, cannot be reused to appoint promotion write authority."
+  },
+  "actual_funnel_consumer": {
+    "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+    "state": "Effectful normal callback returns bridge_missing, retained bool cannot establish admission, prepared payload remains read-only. Current defining-state7 and affected138 actual refusal/barrier/native-node controls PASS.",
+    "required_positive": "Existing appointed promotion-purpose issuer/verifier/write owner plus subject/current run-ticket/basis and revoke/effect same commit boundary, valid persisted effect exactly1/fresh readback. UNRUN until owner input."
+  },
+  "canonical_write_registry": {
+    "path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+    "scope": "Existing ChampionRegistry local pointer authority is separate from typed promotion admission; no expected_predecessor API/new registry created."
+  }
+}

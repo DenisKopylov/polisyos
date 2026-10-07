@@ -1,0 +1,57 @@
+candidate_sha=12ee3c730f6ac9b6cff292e70eef4437f8c37b22
+archive_product=/dev/shm/search-pareto-12ee-ddxucvpe/policy-engine
+argv=['/workspace/e02-D-locked-env/bin/python', '-m', 'pytest', '-o', 'addopts=', '-q', 'tests/unit/remediation/test_ctl_02.py', 'tests/unit/remediation/test_opt_02.py', 'tests/unit/remediation/test_opt_03_continuation.py', 'tests/unit/remediation/test_ctl_03_nested.py', 'tests/unit/remediation/test_opt_02_strategy_consumers.py', 'tests/unit/scientist/search/strategies/test_bayesian.py', 'tests/unit/scientist/search/strategies/test_multi_objective.py', 'tests/unit/scientist/search/strategies/test_neural.py', 'tests/unit/scientist/search/strategies/test_space_codec.py', 'tests/unit/scientist/search/strategies/test_random_grid.py', 'tests/unit/scientist/search/strategies/test_adapter.py', 'tests/unit/scientist/methods/autotune/test_bayesian_generator.py']
+PYTHONPATH=src:.
+3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]
+2.10.0+cu128 0.16.1 1.15.1
+/dev/shm/search-pareto-12ee-ddxucvpe/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py
+........................................................................ [ 72%]
+............................                                             [100%]
+=============================== warnings summary ===============================
+../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+tests/unit/remediation/test_opt_03_continuation.py: 12 warnings
+tests/unit/remediation/test_opt_02_strategy_consumers.py: 1 warning
+tests/unit/scientist/search/strategies/test_bayesian.py: 5 warnings
+tests/unit/scientist/search/strategies/test_neural.py: 1 warning
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/analytic.py:340: NumericsWarning: ExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 ExpectedImprovement 	 --> 	 LogExpectedImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_batch_shape_when_deps_available
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/monte_carlo.py:400: NumericsWarning: qExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 qExpectedImprovement 	 --> 	 qLogExpectedImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+tests/unit/scientist/search/strategies/test_multi_objective.py::test_mo_batch_shape_when_deps_available
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/multi_objective/monte_carlo.py:110: NumericsWarning: qExpectedHypervolumeImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 qExpectedHypervolumeImprovement 	 --> 	 qLogExpectedHypervolumeImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+tests/unit/scientist/search/strategies/test_adapter.py::test_adapter_syncs_history_and_status
+  /dev/shm/search-pareto-12ee-ddxucvpe/policy-engine/tests/unit/scientist/search/strategies/test_adapter.py:40: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    timestamp=datetime.utcnow(),
+
+tests/unit/scientist/search/strategies/test_adapter.py::test_adapter_syncs_history_and_status
+  /dev/shm/search-pareto-12ee-ddxucvpe/policy-engine/tests/unit/scientist/search/strategies/test_adapter.py:51: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    timestamp=datetime.utcnow(),
+
+tests/unit/scientist/search/strategies/test_adapter.py::test_adapter_exposes_raw_directional_score_not_negated_search_score
+  /dev/shm/search-pareto-12ee-ddxucvpe/policy-engine/tests/unit/scientist/search/strategies/test_adapter.py:96: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    timestamp=datetime.utcnow(),
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+100 passed, 26 warnings in 17.23s
+EXIT_CODE=0

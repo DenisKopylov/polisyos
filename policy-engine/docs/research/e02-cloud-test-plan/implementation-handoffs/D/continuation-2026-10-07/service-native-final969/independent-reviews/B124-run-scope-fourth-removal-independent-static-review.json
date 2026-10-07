@@ -1,0 +1,22 @@
+{
+  "schema": "D.e02.B124.run-scope-fourth-removal-static-independent-review.v1",
+  "reviewer": "/root/census_oct07",
+  "created_utc": "2026-10-07T10:40:11.516853+00:00",
+  "decision": "GO_FOURTH_SCOPE_ONLY_REMOVAL_ACTUAL_RUN_BARRIER",
+  "manifest_sha256": "97951a52714a42f8d1597dc3c568063f156dbd45c7bddf3439555d7dc5378403",
+  "plugin": {
+    "bytes": 1772,
+    "sha256": "3714f3d51f3c6314a5dfc7e16c0a92df203a043fd290134943eef3e01e09e13a"
+  },
+  "prior_static_review": {
+    "path": "/dev/shm/e02-D-census-review-oct07/B124-B111-three-removal-plugins-independent-static-review.json",
+    "sha256": "d4379acd29fae429848a0075135a479506c0758d368c0c7cefea94b4887dc7ab",
+    "unchanged_files": 4
+  },
+  "full_delta_read": "Calls original _deduplication_members with actual canonical admission/qualified reads/finite status/basis and replaces only returned scope digest with configuration-only old discriminator. Real generated member hashes/context/ACK/history/pending unchanged. Actual tell wrapper delegates real method then fresh FileSystemCAS verified snapshot and prints lossless raw canonical checkpoint plus actual physical evaluator calls.",
+  "P37": "Two independently run actual services/equal admitted config/different recorded ledger run IDs/shared helper; barrier reached actual lookup and original qualified membership accepted.",
+  "P38": "Old config-only scope lets Breset erase Ameasured Jan; actual barrier test evaluates wrongly admitted Aproposal through actual native producer/tell/CAS before final assertion. Repeated real Jan call/fresh history2 distinguishes mutable shared-scope clash under retained markers.",
+  "runtime": "UNRUN; require actual physical-trace assertion FAIL and full stdout/JUnit/fresh raw checkpoint observation, not barrier timeout/setup error.",
+  "formal_closed": false,
+  "accepted_in_G": false
+}

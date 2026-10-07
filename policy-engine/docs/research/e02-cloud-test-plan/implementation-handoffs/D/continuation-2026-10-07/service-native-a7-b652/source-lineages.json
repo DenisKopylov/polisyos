@@ -1,0 +1,38 @@
+{
+  "a7efe4b431986c3d79f490879cf49dbdedb1349e": {
+    "source_tree": "e809693afe3b84e02d473b5744142d026afbe509",
+    "tracked_input_denominator": 15484,
+    "source_test_config_denominator": 6313,
+    "source_test_config_missing": [],
+    "canonical_manifest_sha256": "c10de1abc3952aed5363710a89225713e937d49d65a028b6454d3cde55d8725e",
+    "portable_complete_manifest": "input-manifests/a7efe4b431986c3d79f490879cf49dbdedb1349e.json.gz",
+    "compressed_output": {
+      "sha256": "2299a9c7ae65f6f97c16be798db397f74d03a4868c441187c3748acf11a274ea",
+      "bytes": 888184
+    }
+  },
+  "c0e03e084460b97475d13ec393069ff59ca4d5ee": {
+    "source_tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2",
+    "tracked_input_denominator": 15481,
+    "source_test_config_denominator": 6312,
+    "source_test_config_missing": [],
+    "canonical_manifest_sha256": "5a5b2a08b0c71fac2b250e71e99e339df9e8c0e804159d99560c32a83a80f7e1",
+    "portable_complete_manifest": "input-manifests/c0e03e084460b97475d13ec393069ff59ca4d5ee.json.gz",
+    "compressed_output": {
+      "sha256": "7b7320a85346bf00ff6d786ab73c146c0a1304b201f146e472ef56ff4446940a",
+      "bytes": 887885
+    }
+  },
+  "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e": {
+    "source_tree": "e677b5e24493a7083287c3bea31bca1892c3be29",
+    "tracked_input_denominator": 15486,
+    "source_test_config_denominator": 6314,
+    "source_test_config_missing": [],
+    "canonical_manifest_sha256": "53a4ef84c0a1edc98afbe055b0ca5452b2c9f894bc1494a6c39ff0d693a13cf7",
+    "portable_complete_manifest": "input-manifests/b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e.json.gz",
+    "compressed_output": {
+      "sha256": "238c461d864458802200872d452a38ebfdddc3c5e09d6420233cee4c1f29f35d",
+      "bytes": 888348
+    }
+  }
+}

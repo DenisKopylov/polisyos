@@ -1,0 +1,14 @@
+{
+  "source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+  "tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2",
+  "complete_output": "stdout.json",
+  "complete_output_sha256": "9b4204d16bbfea64d82ead0f0376d7cf747fbf5455f33c95b0de151aa2491301",
+  "command_exit": 0,
+  "report_status": "contract_errors",
+  "contract_error_count": 82,
+  "finding_count": 6,
+  "owned_profile_matches": [],
+  "predicate": "report-only command completion is not contract PASS; own MO/Grid added modules below warning; global diagnostics retain full errors",
+  "global_error_provenance": "not_established; no slice-base P41 replay or inherited-red claim",
+  "sparse_global_contract_inputs": "source paths outside hashed src/tests/tools/architecture denominator may be unavailable in sparse checkout; full diagnostic outputs are bounded to available materialization"
+}

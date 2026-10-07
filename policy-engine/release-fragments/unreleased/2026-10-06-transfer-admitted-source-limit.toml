@@ -1,0 +1,11 @@
+id = "2026-10-06-transfer-admitted-source-limit"
+title = "Apply numerical transfer source limits after content admission"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-runtime"
+summary = "WarmStartBridge discovers the current native vector catalog once, then applies its source limit only to nonempty histories admitted through the existing exact CAS and complete numerical-basis reader. Incompatible, unavailable and malformed histories retain diagnostic counts and cannot hide a later compatible source. Bounded idea discovery and exact-reference replay remain available."
+surface_classification = "internal: internal-only"
+evidence = ["tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py", "tests/unit/scientist/search/test_transfer_context_criteria.py"]
+compatibility = "Existing finite top_k idea discovery retains its bounded candidate window. Explicit top_k=None requests one whole-catalog ANN discovery; max_runs is an optional post-admission source limit. No history codec, numerical basis or persisted checkpoint format changes."
+limitations = "Whole-catalog discovery scales with the current index; no global exact-nearest ranking, acceleration or institutional source authorization is claimed. Exact selected ArtifactRef admission and replay do not invoke ANN."
+generated_client_compatibility = "not_applicable"

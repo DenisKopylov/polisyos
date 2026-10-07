@@ -1,0 +1,90 @@
+{
+  "schema": "policyos.e02.independent_f258_packaging_binding.v1",
+  "verdict": "PASS_WITHIN_PACKAGING_SCOPE",
+  "source_sha": "9a8f72e42b48e59820b6983eda2f94816a1a4aed",
+  "source_tree": "27b6c1a313aed5a88a6c9dc135df36035c168f71",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/independent-service-f258-output.json.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/independent-service-f258-packaging-correction.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/independent-service-f258-packaging.README.md"
+  ],
+  "correction_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/independent-service-f258-packaging-correction.json",
+  "correction_bytes": 4780,
+  "correction_sha256": "4a54ace8ba4016c77e90e99c630f03b2b74e3b08699722d52dcfb219578f6a43",
+  "original_transport": {
+    "source_sha": "334f3b0e8a1e7313dbe05fec46331f1c52a9c5ad",
+    "source_tree": "cc989c429d03a07972e061d06d8fb7c0c8d1343d",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/independent-service-f258-output.json.gz",
+    "git_blob": "087caab0be5e55d1e3f6cdc0328ff3e8c22d2d36",
+    "bytes": 209293,
+    "sha256": "87d7375a40bbbfeacb58d94be706ee0b0a047f4db63a6b9a172eab7b94369d3c",
+    "raw_bytes": 979363,
+    "raw_sha256": "d26fdd61420a78d7a4979aa3acb875804e6f74ef97181fc2997d7dc796e53cc0"
+  },
+  "current_transport": {
+    "source_sha": "9a8f72e42b48e59820b6983eda2f94816a1a4aed",
+    "source_tree": "27b6c1a313aed5a88a6c9dc135df36035c168f71",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/independent-service-f258-output.json.gz",
+    "git_blob": "0b536cef7f0fc2aaeff76ad5aedb770c048958b7",
+    "bytes": 208188,
+    "sha256": "6b3c990bf15cbae25378ccdd07401527f92657992914c2f06748e7b73ac9872d",
+    "raw_bytes": 975657,
+    "raw_sha256": "7ebb2b61ea141cc79a76aa92b581df54400bdaa736aaca6b978f3a5fc78bb42d"
+  },
+  "references": [
+    {
+      "member_index": 54,
+      "member_name": "owner_fb9/champion-profile-final-verify.py.txt",
+      "json_pointer": "/members/54/content",
+      "reference": {
+        "bytes": 2218,
+        "encoding": "utf-8",
+        "git_blob": "931afecb68048a22a5af8329a7332953d2ea1a35",
+        "kind": "tracked_git_input_ref",
+        "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-service-profile/champion-profile-final-verify.py.txt@104bd75695daf89ed76d146b10042227a600bc68",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-service-profile/champion-profile-final-verify.py.txt",
+        "sha256": "027e678329e3b46ec84e992488f67021aaa16d0986b9b95579a3a1f2b2e77ab8",
+        "source_sha": "104bd75695daf89ed76d146b10042227a600bc68"
+      },
+      "original_body_equals_pinned_git": true
+    },
+    {
+      "member_index": 57,
+      "member_name": "owner_fb9/champion-profile-final-removal.py.txt",
+      "json_pointer": "/members/57/content",
+      "reference": {
+        "bytes": 1467,
+        "encoding": "utf-8",
+        "git_blob": "a6097c24d45f13bfa310afcf3c2b5eb41a0f1163",
+        "kind": "tracked_git_input_ref",
+        "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-service-profile/champion-profile-final-removal.py.txt@104bd75695daf89ed76d146b10042227a600bc68",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-service-profile/champion-profile-final-removal.py.txt",
+        "sha256": "ef05a3a28783e7c6001168ddcb91438abf83dbe4d16268b476aba7c8e20d77be",
+        "source_sha": "104bd75695daf89ed76d146b10042227a600bc68"
+      },
+      "original_body_equals_pinned_git": true
+    }
+  ],
+  "verification": {
+    "member_count": 60,
+    "changed_member_indices": [
+      54,
+      57
+    ],
+    "unchanged_complete_member_records": 58,
+    "all_other_root_fields_and_member_order_unchanged": true,
+    "all_retained_base64_body_hashes_and_sizes_match": true,
+    "all_other_entry_fields_unchanged": true,
+    "resolving_only_two_refs_recovers_old_semantics": true,
+    "restoring_only_two_content_tokens_recovers_exact_old_raw_bytes": true,
+    "original_carrier_preserved_at_pinned_git": true
+  },
+  "runtime_executed": false,
+  "source_or_test_edits": 0,
+  "closure_ids": [],
+  "limitations": [
+    "Reference resolution is this explicit packaging extension; no universal runtime artifact schema compatibility is inferred.",
+    "No runtime, numerical, authority, closure, or all-carrier P37 verdict is inferred.",
+    "The c879 original-review scope output is retained per parent disposition and was not modified."
+  ]
+}

@@ -2,16 +2,22 @@
 from __future__ import annotations
 
 import ast
+import json
 from dataclasses import dataclass
-from pathlib import Path
+from typing import TYPE_CHECKING
 
+from tools.lib.fs import iter_repository_files, measure_file_reads, measured_read_text
 from tools.lib.imports import repo_root_from
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 REPO_ROOT = repo_root_from(__file__)
 SRC_ROOT = REPO_ROOT / "src"
 
 _STATE_BUCKETS = {"inputs", "artifacts_index", "reports_index", "params", "budgets"}
 _SKIP_FILES = {"__init__.py", "errors.py", "state_keys.py"}
+_NODE_SPEC_CONSTRUCTORS = {"NodeSpec", "OutputAwareNodeSpec"}
 
 
 @dataclass(frozen=True)
@@ -83,7 +89,10 @@ def _string_subscript(node: ast.AST) -> str | None:
 def _extract_execute_requirements(tree: ast.Module) -> ReadRequirements:
     visitor = _StateReadVisitor()
     for parsed in ast.walk(tree):
-        if isinstance(parsed, ast.FunctionDef) and parsed.name == "execute":
+        if (
+            isinstance(parsed, (ast.FunctionDef, ast.AsyncFunctionDef))
+            and parsed.name == "execute"
+        ):
             visitor.visit(parsed)
     return ReadRequirements(exact=visitor.exact, prefix=visitor.prefix)
 
@@ -103,31 +112,75 @@ def _read_value_to_path(value: ast.AST) -> str | None:
     return None
 
 
+def _is_spec_binding(node: ast.AST) -> bool:
+    """Recognize syntactic writes without deciding execution or lexical reachability."""
+    if isinstance(node, ast.Name):
+        return node.id == "_SPEC" and isinstance(node.ctx, (ast.Store, ast.Del))
+    if isinstance(node, ast.alias):
+        return (node.asname or node.name.split(".", 1)[0]) == "_SPEC"
+    if isinstance(node, ast.arg):
+        return node.arg == "_SPEC"
+    if isinstance(node, ast.MatchMapping):
+        return node.rest == "_SPEC"
+    # Other parsed name-bearing nodes bind definitions, captures or type parameters.
+    return getattr(node, "name", None) == "_SPEC"
+
+
+def _extract_spec_binding(tree: ast.Module) -> ast.Assign | ast.AnnAssign | None:
+    """Admit one direct declaration; unsupported or ambiguous bindings stay undecided."""
+    bindings = [node for node in ast.walk(tree) if _is_spec_binding(node)]
+    if not bindings:
+        return None
+    if len(bindings) != 1:
+        raise ValueError("ambiguous_spec_binding")
+    binding = bindings[0]
+    parents = {
+        child: node for node in ast.walk(tree) for child in ast.iter_child_nodes(node)
+    }
+    declaration = parents.get(binding)
+    if not isinstance(binding, ast.Name) or not isinstance(binding.ctx, ast.Store):
+        raise ValueError("unsupported_spec_binding")
+    if not isinstance(declaration, (ast.Assign, ast.AnnAssign)):
+        raise ValueError("unsupported_spec_binding")
+    if parents.get(declaration) is not tree:
+        raise ValueError("unsupported_spec_binding_scope")
+    targets = (
+        [declaration.target]
+        if isinstance(declaration, ast.AnnAssign)
+        else declaration.targets
+    )
+    if len(targets) != 1 or targets[0] is not binding:
+        raise ValueError("unsupported_spec_binding")
+    return declaration
+
+
 def _extract_spec_reads(tree: ast.Module) -> tuple[set[str], set[str]]:
     exact: set[str] = set()
     prefix: set[str] = set()
-    for parsed in ast.walk(tree):
-        if not isinstance(parsed, ast.Assign):
+    declaration = _extract_spec_binding(tree)
+    if declaration is None:
+        return exact, prefix
+    if not (
+        isinstance(declaration.value, ast.Call)
+        and isinstance(declaration.value.func, ast.Name)
+        and declaration.value.func.id in _NODE_SPEC_CONSTRUCTORS
+    ):
+        raise ValueError("unsupported_spec_constructor")
+    if declaration.value.args or any(
+        kw.arg is None for kw in declaration.value.keywords
+    ):
+        raise ValueError("unsupported_spec_arguments")
+    for kw in declaration.value.keywords:
+        if kw.arg != "state_reads":
             continue
-        if not any(
-            isinstance(target, ast.Name) and target.id == "_SPEC" for target in parsed.targets
-        ):
-            continue
-        if not isinstance(parsed.value, ast.Call):
-            continue
-        if not isinstance(parsed.value.func, ast.Name) or parsed.value.func.id != "NodeSpec":
-            continue
-        for kw in parsed.value.keywords:
-            if kw.arg != "state_reads":
-                continue
-            if not isinstance(kw.value, (ast.List, ast.Tuple)):
-                continue
-            for entry in kw.value.elts:
-                path = _read_value_to_path(entry)
-                if not path:
-                    continue
-                exact.add(path)
-                prefix.add(path.split(".", 1)[0])
+        if not isinstance(kw.value, (ast.List, ast.Tuple)):
+            raise ValueError("unsupported_state_reads_expression")
+        for entry in kw.value.elts:
+            path = _read_value_to_path(entry)
+            if not path:
+                raise ValueError("unsupported_state_reads_entry")
+            exact.add(path)
+            prefix.add(path.split(".", 1)[0])
     return exact, prefix
 
 
@@ -151,32 +204,78 @@ def _iter_node_files() -> list[Path]:
         SRC_ROOT / "polisyos" / "scientist" / "nodes" / "builtins",
         SRC_ROOT / "polisyos" / "scientist" / "engine" / "builtins",
     ]
-    files: list[Path] = []
-    for root in roots:
-        for file_path in root.rglob("*.py"):
-            if file_path.name in _SKIP_FILES:
-                continue
-            files.append(file_path)
-    return sorted(files)
+    return sorted(
+        path
+        for path in iter_repository_files(SRC_ROOT)
+        if path.suffix == ".py"
+        and path.name not in _SKIP_FILES
+        and any(path.is_relative_to(root) for root in roots)
+    )
 
 
 def main() -> int:
     errors: list[str] = []
-    for file_path in _iter_node_files():
-        source = file_path.read_text(encoding="utf-8")
-        tree = ast.parse(source)
-        spec_exact, spec_prefix = _extract_spec_reads(tree)
-        requirements = _extract_execute_requirements(tree)
-        for prefix in sorted(requirements.prefix):
-            if not _covers_prefix(spec_exact, spec_prefix, prefix):
-                errors.append(f"{file_path}: missing state_reads prefix '{prefix}'")
-        for exact in sorted(requirements.exact):
-            if not _covers_exact(spec_exact, spec_prefix, exact):
-                errors.append(f"{file_path}: missing state_reads path '{exact}'")
-
+    incomplete: list[dict[str, str]] = []
+    with measure_file_reads(REPO_ROOT) as reads:
+        try:
+            files = _iter_node_files()
+        except (OSError, RuntimeError) as error:
+            files = []
+            incomplete.append({"path": str(SRC_ROOT), "reason": type(error).__name__})
+        for file_path in files:
+            try:
+                tree = ast.parse(measured_read_text(file_path, encoding="utf-8"))
+            except (OSError, UnicodeError, SyntaxError) as error:
+                incomplete.append(
+                    {"path": str(file_path), "reason": type(error).__name__}
+                )
+                continue
+            try:
+                spec_exact, spec_prefix = _extract_spec_reads(tree)
+            except ValueError as error:
+                incomplete.append({"path": str(file_path), "reason": str(error)})
+                continue
+            requirements = _extract_execute_requirements(tree)
+            for prefix in sorted(requirements.prefix):
+                if not _covers_prefix(spec_exact, spec_prefix, prefix):
+                    errors.append(f"{file_path}: missing state_reads prefix '{prefix}'")
+            for exact in sorted(requirements.exact):
+                if not _covers_exact(spec_exact, spec_prefix, exact):
+                    errors.append(f"{file_path}: missing state_reads path '{exact}'")
+        receipt = reads.snapshot(complete_verdict=not incomplete)
+        receipt.update(
+            {
+                "verdict": "UNRUN" if incomplete else "FAIL" if errors else "PASS",
+                "selected_input_denominator": len(files),
+                "selected_paths": [str(path) for path in files],
+                "selector": [
+                    "src/polisyos/scientist/nodes/builtins/**/*.py",
+                    "src/polisyos/scientist/engine/builtins/**/*.py",
+                ],
+                "exclusions": sorted(_SKIP_FILES),
+                "enumeration": (
+                    "Git tracked paths; complete filesystem set only for non-Git fixtures"
+                ),
+                "unresolved_inputs": incomplete,
+            }
+        )
+        receipt["unresolved_by_construction"].append(
+            "Only direct state-name reads in sync/async execute and one unambiguous "
+            "direct module Assign/AnnAssign unqualified _SPEC call to "
+            "NodeSpec/OutputAwareNodeSpec are interpreted; aliases, indirect reads, "
+            "runtime dispatch, dynamic writes/object mutation and files outside the "
+            "declared selector are undecided. Nested/dead or multiple syntactic "
+            "_SPEC bindings are unresolved rather than unioned; reachability and "
+            "runtime reaching definitions are not established."
+        )
+        print("state_reads measurement: " + json.dumps(receipt, sort_keys=True))
+    for issue in errors:
+        print(issue)
+    for issue in incomplete:
+        print(f"{issue['path']}: state_reads unresolved {issue['reason']}")
+    if incomplete:
+        return 2
     if errors:
-        for issue in errors:
-            print(issue)
         return 1
     print("state_reads contract check passed")
     return 0

@@ -1,0 +1,155 @@
+{
+  "source": "a30c140eedc5c0514a93409d4b4040a715231d28",
+  "assessed_production_source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "assessed_scope": "actual execution on given frozen HEAD; selected existing FunnelOrchestrator input/version/control-role callback and history test; no Node/debit/CAS or prior-run relabeling claim",
+  "tree": "7a36d6ab724daac3866c348b39bd79c7fe7fd350",
+  "head_after": "a30c140eedc5c0514a93409d4b4040a715231d28",
+  "status_after": "",
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "actual_command": [
+    "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/run_current_funnel_identity_cohort.py",
+    "a30c140eedc5c0514a93409d4b4040a715231d28",
+    "B156-role-removal1-a30c",
+    "tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_submit_cache_is_scoped_to_effective_context",
+    "-p",
+    "remove_funnel_evaluation_role"
+  ],
+  "pytest_argv": [
+    "-o",
+    "addopts=",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp=/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role-removal1-a30c-fixtures",
+    "--junitxml=/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role-removal1-a30c.junit.xml",
+    "-vv",
+    "-rA",
+    "tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_submit_cache_is_scoped_to_effective_context",
+    "-p",
+    "remove_funnel_evaluation_role"
+  ],
+  "env_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1",
+    "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src",
+    "TMPDIR": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel",
+    "HYPOTHESIS_STORAGE_DIRECTORY": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/hypothesis",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer",
+    "E02_B66_TARGET_ROOT": "/dev/shm/e02-D-oct07-continuation",
+    "E02_B66_TARGET_SHA": "a30c140eedc5c0514a93409d4b4040a715231d28",
+    "POLISYOS_METRICS_PORT": "57755"
+  },
+  "exit": 1,
+  "wall_seconds": 3.4721200466156006,
+  "phase_counts": {
+    "call:failed": 1,
+    "setup:passed": 1,
+    "teardown:passed": 1
+  },
+  "outputs": {
+    "B156-role-removal1-a30c.stdout.txt": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role-removal1-a30c.stdout.txt",
+      "bytes": 5256,
+      "sha256": "10d1d0c5cc7bcb4e1336cf33ba20062bc842d8eff25ebee084a8c19a80bfddde"
+    },
+    "B156-role-removal1-a30c.stderr.txt": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role-removal1-a30c.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "B156-role-removal1-a30c.junit.xml": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role-removal1-a30c.junit.xml",
+      "bytes": 3643,
+      "sha256": "80477640f5b1bf8290f094e10dd8bdd0e65021dfe3a9e6c1d0a889f869ce560d"
+    },
+    "B156-role-removal1-a30c.phases.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role-removal1-a30c.phases.json",
+      "bytes": 3800,
+      "sha256": "e37fa6fe3e2297eb206c1b9a904272db2f04257fe85fa5faf3e13d0c71633d93"
+    },
+    "B156-role-removal1-a30c.inputs.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role-removal1-a30c.inputs.json",
+      "bytes": 1202106,
+      "sha256": "1fe30b2d4b57399421ce02e064861e647e2a6b063be28d47e010e7ac99693904"
+    },
+    "B156-role-removal1-a30c.modules.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role-removal1-a30c.modules.json",
+      "bytes": 148976,
+      "sha256": "146fa808f3a7b4088f6bc635f0af3ed4109471c237fee4d1089bbcc31a5089cf"
+    },
+    "B156-role-removal1-a30c.environment.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role-removal1-a30c.environment.json",
+      "bytes": 10567,
+      "sha256": "854ec905713feec9bfeeabe4f9ebe71349faf0dfcb0063bfffae54586c5ee02f"
+    },
+    "B156-role-removal1-a30c.cgroup-before.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role-removal1-a30c.cgroup-before.json",
+      "bytes": 507,
+      "sha256": "7880f04b0a0ffa0e0cab7865011c07449255e1d9fb5485f6edee7695d268df94"
+    },
+    "B156-role-removal1-a30c.cgroup-after.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role-removal1-a30c.cgroup-after.json",
+      "bytes": 507,
+      "sha256": "978b86579c8c0e716148278634a5b4ba17186933496bbee1631000383f7bb136"
+    },
+    "B156-role-removal1-a30c.cgroup-during.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role-removal1-a30c.cgroup-during.json",
+      "bytes": 1605,
+      "sha256": "55158c765d94af63bed1df424440dd0afa1e1e3e5045ac0bf37f1807c8261961"
+    },
+    "B156-role-removal1-a30c.deciding-ledgers.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role-removal1-a30c.deciding-ledgers.json",
+      "bytes": 124,
+      "sha256": "a55cabda156047b0a363fb65395e54a9a19fb9fb6a08d48608d42fdce432e9c8"
+    },
+    "B156-role-removal1-a30c.deciding-cas.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role-removal1-a30c.deciding-cas.json",
+      "bytes": 220,
+      "sha256": "2b1da53c3bef25a607e7e52ac14ae9e5b5a9ae3c3f4356ca95a60ab71a093257"
+    },
+    "B156-role-removal1-a30c.deciding-node-observations.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role-removal1-a30c.deciding-node-observations.json",
+      "bytes": 190,
+      "sha256": "6c06be39bf4f6b22179b9cfc39e3a40386a4be4c2819ed81b7888f5d84663e30"
+    }
+  },
+  "input_denominator": 6323,
+  "input_available": 6322,
+  "input_digest": "43f4d9ee9ea04db0140bba4732ed98cdeb964c445dccf79cacf28b859048fa2a",
+  "changed_paths": [],
+  "same_source_and_inputs": true,
+  "standard_asset_before_sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7",
+  "standard_asset_after_sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7",
+  "standard_asset_unchanged": true,
+  "runtime_profile": "Actual existing FunnelOrchestrator submit/advance cache identity and callback/history consumer. Deterministic supplied stage callback, input-version/role controls, no physical debit/Node/CAS/scientific/permission witness in this selector.",
+  "P41": "no inherited-red attribution; source/input stability only",
+  "cgroup_before": {
+    "unix_time": 1791399149.6536472,
+    "files": {
+      "memory.current": "15448117248\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 58\noom_group_kill 0\n",
+      "memory.events.local": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 0\noom_group_kill 0\n",
+      "memory.peak": "17183465472\n",
+      "pids.current": "1004\n",
+      "pids.max": "max\n"
+    },
+    "scope": "shared cgroup observation; event deltas do not attribute a kill to this process"
+  },
+  "cgroup_after": {
+    "unix_time": 1791399153.1273055,
+    "files": {
+      "memory.current": "15647944704\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 58\noom_group_kill 0\n",
+      "memory.events.local": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 0\noom_group_kill 0\n",
+      "memory.peak": "17183465472\n",
+      "pids.current": "1012\n",
+      "pids.max": "max\n"
+    },
+    "scope": "shared cgroup observation; event deltas do not attribute a kill to this process"
+  },
+  "deciding_ledger_count": 0,
+  "deciding_cas_count": 0,
+  "deciding_node_observation_count": 0
+}

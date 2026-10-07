@@ -1,0 +1,40 @@
+{
+  "P41": "not_established; no slice-base inherited-red claim",
+  "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "assessed_product_tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+  "backend": {
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "hnswlib": "0.8.0",
+    "numpy": "2.3.5",
+    "pytest": "9.0.2",
+    "scipy": "1.16.3",
+    "torch": "2.10.0"
+  },
+  "complete_declared_executable_inputs": 6863,
+  "deciding_sha256": {
+    "after.json": "c18f918a6cceb3ddd63463678032f8779effa9a77317de69cc3c33ded869e079",
+    "assessed-source-equivalence.json": "0e6e8b6a73d649e5d3323de82b6c3ea927430693118aef10dbd999ede8913c7b",
+    "before.json": "c18f918a6cceb3ddd63463678032f8779effa9a77317de69cc3c33ded869e079",
+    "command.json": "fa78bf734a71b58fa82f94efe640744e7d26b3880cadd8d9792f60481643e5f0",
+    "events.jsonl": "6d89be6936532d1baa8c0b6ea0a8ea626a564a43e0dc3c54b6c5019f6c5fe21c",
+    "junit.xml": "844f1e3430824d7cc980c37c0886e845ee04d5363430a70e1c6def30beaeb4bf",
+    "origins.json": "9be1d47062a96365b51d627508fa21eed8b3ede566312e1a3ca85dd1797d29d7"
+  },
+  "elapsed_seconds": 5.6373568499984685,
+  "exitcode": 0,
+  "mode": "legacy6",
+  "outer_complete_stdout_stderr": "Captured by caller; hash only after process ends",
+  "property": "Actual supported-v2 positive then persisted schema1/absent and real candidate placeholder refusal through fresh native/CAS WarmStartBridge; no numeric promotion; all min/max",
+  "resource_posix": {
+    "children_maxrss_kib": 866876,
+    "children_system_seconds": 0.074748,
+    "children_user_seconds": 0.035257,
+    "self_maxrss_kib": 866876,
+    "self_system_seconds": 0.667481,
+    "self_user_seconds": 5.4912410000000005
+  },
+  "source": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+  "source_and_executable_inputs_unchanged": true,
+  "tree": "5738498b09aadca51e0bb73fa6d104e3354dc603"
+}

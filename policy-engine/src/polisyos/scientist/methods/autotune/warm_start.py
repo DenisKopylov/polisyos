@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import logging
-import math
-from typing import TYPE_CHECKING
+from copy import deepcopy
+from typing import TYPE_CHECKING, Any
 
 from .models import BenchmarkEvaluation, BenchmarkSplit
 
@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from polisyos.scientist.methods.search.strategies.transfer import (
+        NumericTransferBasis,
         RunFingerprint,
         TransferLearningManager,
     )
@@ -35,14 +36,19 @@ class WarmStartBridge:
         self._manager = transfer_manager
         self._max_evals = max_evals
         self._top_k_runs = top_k_runs
+        self._last_load_report: dict[str, Any] = {}
 
     def load_warm_start(
         self,
         fingerprint: RunFingerprint,
     ) -> list[Evaluation]:
-        """Find similar runs and retrieve their evaluations for warm-start."""
-        similar = self._manager.find_similar_runs(fingerprint, top_k=self._top_k_runs)
+        """Discover once and apply the source limit only to admitted history."""
+        if self._top_k_runs <= 0 or self._max_evals <= 0:
+            self._last_load_report = self._manager._report()
+            return []
+        similar = self._manager.find_similar_runs(fingerprint, top_k=None)
         if not similar:
+            self._last_load_report = self._manager._report()
             logger.info("WarmStartBridge: no similar runs found for %s", fingerprint.run_id)
             return []
 
@@ -50,7 +56,9 @@ class WarmStartBridge:
             similar,
             max_evals=self._max_evals,
             target_fingerprint=fingerprint,
+            max_runs=self._top_k_runs,
         )
+        self._last_load_report = deepcopy(self._manager.last_admission_report)
         logger.info(
             "WarmStartBridge: loaded %d warm-start evaluations from %d similar runs",
             len(evals),
@@ -58,73 +66,64 @@ class WarmStartBridge:
         )
         return evals
 
-    @staticmethod
+    @property
+    def last_load_report(self) -> dict[str, Any]:
+        """Keep source-load refusals visible after receiving callbacks run."""
+        return deepcopy(self._last_load_report)
+
+    @property
+    def last_admission_report(self) -> dict:
+        """Expose row refusals from the same canonical admission reader."""
+        return self._manager.last_admission_report
+
+    def target_basis(self, fingerprint: RunFingerprint) -> NumericTransferBasis:
+        """Read and snapshot the explicit owner-configured numerical target."""
+        return self._manager.target_basis(fingerprint)
+
+    def admit_warm_start(
+        self, evaluations: list[Evaluation], target_basis: NumericTransferBasis
+    ) -> list[Evaluation]:
+        """Re-resolve source content for initialization and checkpoint restoration."""
+        return self._manager.admit_warm_start(evaluations, target_basis)
+
     def evaluations_to_benchmarks(
+        self,
         evaluations: list[Evaluation],
         *,
+        target_basis: NumericTransferBasis,
         loop_id: str,
         suite_id: str = "warm_start",
         primary_metric: str = "score",
     ) -> list[BenchmarkEvaluation]:
-        """Convert search-strategy Evaluations to BenchmarkEvaluations."""
-        from polisyos.core.artifacts.manifest import ArtifactRef
-
-        results: list[BenchmarkEvaluation] = []
-        for ev in evaluations:
-            try:
-                ref = ArtifactRef(
-                    artifact_id=ev.candidate_id,
-                    kind="search.candidate",
-                    media_type="application/json",
-                )
-            except (TypeError, ValueError) as exc:
-                logger.warning(
-                    "WarmStartBridge: skipping candidate without an artifact reference %s: %s",
-                    ev.candidate_id,
-                    exc,
-                )
-                continue
-
-            metrics: dict[str, float] = {}
-            directions: dict[str, str] = {}
-            for objective in ev.objectives:
-                if not math.isfinite(objective.raw_value):
-                    continue
-                metrics[objective.name] = objective.raw_value
-                directions[objective.name] = objective.direction.value
-            if primary_metric not in metrics:
-                logger.warning(
-                    "WarmStartBridge: skipping candidate %s without measured %s",
-                    ev.candidate_id,
-                    primary_metric,
-                )
-                continue
-
-            source_run_id = ev.metadata.get("source_run_id", "unknown")
-            metadata = {
-                "warm_start": True,
-                "source_candidate_id": ev.candidate_id,
-                "params": dict(ev.params),
-                "directions": directions,
-                "direction": directions[primary_metric],
-            }
-            if source_run_id != "unknown":
-                metadata["source_run_id"] = source_run_id
-            if ev.provenance_ref is not None:
-                metadata["provenance_ref"] = ev.provenance_ref
-
+        """Rehydrate original measured values without creating promotion evidence."""
+        if primary_metric != target_basis.metric:
+            raise ValueError("Reverse replay metric disagrees with configured basis")
+        results = []
+        for evaluation in self.admit_warm_start(evaluations, target_basis):
+            original = self._manager._original_benchmark(evaluation, target_basis)
+            metadata = dict(original.metadata)
+            metadata.update(
+                warm_start=True,
+                source_candidate_id=evaluation.candidate_id,
+                source_run_id=evaluation.metadata.get("source_run_id"),
+                provenance_ref=evaluation.provenance_ref,
+                source_loop_id=original.loop_id,
+                source_suite_id=original.suite_id,
+                transfer_history_ref=evaluation.metadata["transfer_history_ref"],
+                source_row_index=evaluation.metadata["source_row_index"],
+            )
             results.append(
-                BenchmarkEvaluation(
-                    loop_id=loop_id,
-                    suite_id=suite_id,
-                    candidate_ref=ref,
-                    selection_metrics=metrics,
-                    holdout_metrics={},
-                    promotable=False,
-                    status="warm_start_limited",
-                    notes=[f"transferred from {source_run_id}"],
-                    runtime_split_type=BenchmarkSplit.SELECTION,
-                    metadata=metadata,
+                original.model_copy(
+                    deep=True,
+                    update={
+                        "loop_id": loop_id,
+                        "suite_id": suite_id,
+                        "holdout_metrics": {},
+                        "promotable": False,
+                        "status": "warm_start_limited",
+                        "runtime_split_type": BenchmarkSplit.SELECTION,
+                        "metadata": metadata,
+                    },
                 )
             )
         return results

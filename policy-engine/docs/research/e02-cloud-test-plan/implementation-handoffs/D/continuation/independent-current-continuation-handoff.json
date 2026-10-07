@@ -1,0 +1,92 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "role": "Independent numerical oracle/reviewer; owns only declared test/proof companions and separately admitted autotune lazy facade",
+  "closure_ids": [],
+  "base_sha": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+  "proof_commit": "a1d222c2932bb2f108f5f4d6818a4b083fdea5e6",
+  "proof_tree": "44919a96da19cba16970182ecb40e1f34dd942bf",
+  "branch": "codex/e02-D-published-oracle",
+  "receipt_bindings": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/gp-profile4-independent-review.json",
+      "commit": "22b5fd724414416e3d617f0546479b122ed6f313",
+      "bytes": 8775,
+      "sha256": "137bb8751854b99f469fac20bd7a25bcfcaeccb7c8ecd7f2ff9a3ec753c05e17"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/neural-cba-independent-review.json",
+      "commit": "22b5fd724414416e3d617f0546479b122ed6f313",
+      "bytes": 39174,
+      "sha256": "207f709f66b983f83a4994f7912c5384e38da297a77dadb1af7bde71b802bd14"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-collection-independent-review.json",
+      "commit": "a1d222c2932bb2f108f5f4d6818a4b083fdea5e6",
+      "bytes": 29342,
+      "sha256": "c6e6a0f861a45face94223d425d9bb42a7795dd91112e6457639ed1c4d473345"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/canonical-companions-independent-read-review.json",
+      "commit": "18699ce536fca6ce174ff1caf1435a79912f0920",
+      "bytes": 7635,
+      "sha256": "3076a1b5c1aa304acecf9b9f63d9b4413ed865a21826a66d9861aa15fa692e0f"
+    }
+  ],
+  "deciding_runtime": {
+    "GP": "Exactd38 profile4 unchanged23PASS0FAIL/ERROR/SKIP;857 product origins matchGit; original profile3 marker-only mutation atomically refuses. Learned mean/fullcov in original units use independent NumPy expected matrices.",
+    "optional_collection": "Original3 and expanded7file-levelSKIP/UNRUN0ERROR; expanded source473 origins matchGit. No loadedTorch/BoTorch/GPyTorch/HNSW; collectonlyexit5 preserved.2 contract import casesPASS are nonnumerical mechanism.",
+    "NN": "Independent complete cba source/evidence review validates author68PASS plus historical4overflowFAIL and final-warm-assignment removal1FAIL.84encoded members82declaredMATCH+2computedmissing;24 actualCAS inputs/fullrefs bind. No duplicated numerical runtime here."
+  },
+  "source_versions": {
+    "GP": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+    "GP_scalar_successor": "67250d22dfae8f95cd44d9029d9c10dccfc69c3c",
+    "GP_test_only_direct_CAS": "350519adde62860982fba8e14e72ce83ef421d65 ERROR/UNRUN actual-9; core unchanged; no inheritedPASS",
+    "search_optional_guards": "83b87b845210bdb579f47b4cc2418a3d9804e2fe",
+    "NN": "cba802e22e1f1198aa971f529228ab2c1fd35cf7",
+    "NN_migration_companion": "0e370297bb89ff0fc6dbf376f4ed2afa0d0195d2",
+    "geometry_math": "e2b1c6f7e7157e72d4a56008da5edb85f01a9312",
+    "geometry_reference_preflight": "163a3b51630bca46b99ce660b40749fb79ed6b40"
+  },
+  "guard_body_independent_review": [
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py",
+      "old_sha256": "679af8d6ec70cb1e93ec64b9531aca2d27010585fb51c6076e23ca844849940f",
+      "guard_source": "83b87b845210bdb579f47b4cc2418a3d9804e2fe",
+      "new_sha256": "6f9af1ce83fa2c46bf9580497b2e1faae3777c768782f1ed90facaacae3fbff0",
+      "function_class_AST_identical": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_scalar_admission.py",
+      "old_sha256": "d51fd4bca3eb27f57b360f2a5390efe2a86b762df98c90b34fa63f99d72aa9bc",
+      "guard_source": "83b87b845210bdb579f47b4cc2418a3d9804e2fe",
+      "new_sha256": "9f916ed3257622082812daa12afd592ba6b5da64995490e0258c19b164c2cb73",
+      "function_class_AST_identical": true
+    }
+  ],
+  "companion_dispositions": {
+    "GP": "Own7f9 structured profile4 breaking internal format record/operator recipe plus historicalprofile3 retained; exact scoped validation0findings, no fullgate claim.",
+    "NN": "Owner0e370 resolves requested structured breaking record+linked73-line operator recipe; fullappend-onlydelta read/no src/test changes.",
+    "B04": "Historical/current source-bound missing state-read disposition remains held; no waiver.",
+    "B19": "Historical77errors precisely53 validatorbudgets+9 extraction dates+15 failclosed dates;6reportonly. Not77 missingbudgets; no invented new PASS.",
+    "B23": "Historical10 publiclinks errors remain held; no waiver or newly appointed publication authority.",
+    "public_children": "Supported manifest entrypoints/export list governs; internal child __all__ alone does not promote public API. Root/G inventory acceptance separate."
+  },
+  "preservation": {
+    "agent_added_caps": false,
+    "manual_deletion": false,
+    "cleanup_candidate_paths": "Exact paths enumerated separately in referenced GP/optional receipts; earlier source/application temporary behavior is not a universal immutability claim."
+  },
+  "remaining_owner_actions": [
+    "Root accepts or holds original45/46 criterion ledger; no closure_ids asserted here.",
+    "New directnativeCAS test350 remains resource ERROR/UNRUN pending a new permitted capability window.",
+    "Root independently reviews our admitted lazy autotune production change; this agent is not its independent acceptor.",
+    "Await immutable stress/challenge adapter source for next read-only review."
+  ],
+  "limits": [
+    "Synthetic expected matrices and technicalCAS fixtures establish bounded mechanism/numerical consistency, not empirical scientific history or institutional source authority.",
+    "Optional installed-runtime denial is not execution in the actually minimal environment missing pytest/pydantic.",
+    "No repeated unchanged GP26, broad backend union, test quota/cap, new fullsource archive or cleanup.",
+    "Historical preparation failures and interrupted runs remain explicit; no inherited native PASS for unexecuted assertions."
+  ]
+}

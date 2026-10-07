@@ -1,0 +1,125 @@
+{
+  "schema": "D.FUN.held-minimum-original-inputs.v1",
+  "production_source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "source_context": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+  "root_writer_publication_pending": true,
+  "formal_closed": 0,
+  "accepted_in_G": false,
+  "packets": [
+    {
+      "key": "native_draw_producer",
+      "finding_ids": [
+        "B157"
+      ],
+      "criterion_binding": "Original acceptance/card in original10-and-carry-context.json; complete original minimum fields retained here",
+      "current_disposition": "held",
+      "required_positive_check": "UNRUN",
+      "capability_state": "producer_missing",
+      "requested_canonical_owner": "A/B actual numerical sample/draw stage owner; D FUN-02 consumes effective config",
+      "appointment_established": false,
+      "producer": "Actual L3/L4 stage producer exposes executed draws/work for the same candidate/config boundary.",
+      "bridge": "Existing effective-config L3 reduction/L4 restoration plus native stage adapter.",
+      "actual_consumer": "Actual direct L4 vs L3->L4 FunnelOrchestrator on the same boundary.",
+      "minimum_owner_supplied_content": [
+        "Exact candidate/input/seed/config/basis refs",
+        "Actual executed sample/draw/work count and source result ref",
+        "L3 reduced effective request, actual cheaper work/cost evidence",
+        "L4 full effective request on both paths",
+        "Unmutated caller context and exact run/evaluation/attempt scope"
+      ],
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/2",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "source_packet_ref": {
+        "git_ref": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/owner-inputs.json",
+        "json_pointer": "/packets/2",
+        "sha256": "b75a27f8f699beb5a82a7a3ca9e519c9633e6b0cfdf604b2ec6ba85a0809e9c2"
+      },
+      "consumer_available": "Existing native Node/Funnel/effective-config/calibration/promotion guard consumers are present; missing positive producer/law/current permit cannot be replaced by fixture",
+      "bounded_controls": "New literal Node/resource consumer retains ordinary permitted work and no promotion effects. This does not establish native numerical draws, refinement law, or current authority positive.",
+      "negative_required_with_owner_input": "Keep sample-count markers; remove actual L3 reduction or L4 restoration; independent native executed-work oracle must fail.",
+      "production_request": "Exact minimal refs and declared profile only. No cloud production data transfer; any required data-dependent execution remains local read-only."
+    },
+    {
+      "key": "same_scope_refinement",
+      "finding_ids": [
+        "B161"
+      ],
+      "criterion_binding": "Original acceptance/card in original10-and-carry-context.json; complete original minimum fields retained here",
+      "current_disposition": "held",
+      "required_positive_check": "UNRUN",
+      "capability_state": "not_established",
+      "requested_canonical_owner": "Requested same-scope uncertainty/refinement law owner; A evidence producer/E calibration/D FUN-03",
+      "appointment_established": false,
+      "producer": "Real subsequent estimator output is authorized to refine the same value/subject/input/rule/time scope.",
+      "bridge": "Existing L5 tracker update and reentrant funnel consume authorized same-scope relation; preserve independent components.",
+      "actual_consumer": "Legitimate later estimate changes current result without erasing independent0.8 or unknown risks.",
+      "minimum_owner_supplied_content": [
+        "Actual prior and later estimate refs",
+        "Same subject/value/input/rule/time comparison basis",
+        "Owner supplied permitted refinement relation/conditions",
+        "Producer evidence for later value/interval",
+        "Independent risk components that remain unaffected"
+      ],
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/3",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "source_packet_ref": {
+        "git_ref": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/owner-inputs.json",
+        "json_pointer": "/packets/3",
+        "sha256": "b75a27f8f699beb5a82a7a3ca9e519c9633e6b0cfdf604b2ec6ba85a0809e9c2"
+      },
+      "consumer_available": "Existing native Node/Funnel/effective-config/calibration/promotion guard consumers are present; missing positive producer/law/current permit cannot be replaced by fixture",
+      "bounded_controls": "New literal Node/resource consumer retains ordinary permitted work and no promotion effects. This does not establish native numerical draws, refinement law, or current authority positive.",
+      "negative_required_with_owner_input": "Wrong subject/value/input/rule/time cannot supersede; authorized refinement must not erase independent high/unknown components.",
+      "production_request": "Exact minimal refs and declared profile only. No cloud production data transfer; any required data-dependent execution remains local read-only."
+    },
+    {
+      "key": "typed_write_permit",
+      "finding_ids": [
+        "B164"
+      ],
+      "criterion_binding": "Original acceptance/card in original10-and-carry-context.json; complete original minimum fields retained here",
+      "current_disposition": "held",
+      "required_positive_check": "UNRUN",
+      "capability_state": "not_established",
+      "requested_canonical_owner": "Actual purpose-bound permit issuer/current verifier and serialized commit owner to be confirmed by A/B/G; D FUN-03 consumer",
+      "appointment_established": false,
+      "producer": "Existing authorized owner produces a current typed permit for the specific write purpose and committed subject.",
+      "bridge": "Existing purpose-bound issuer/verifier/revoke-vs-commit writer bridge supplied by authoritative owner.",
+      "actual_consumer": "Actual Level6/native commit effect; prepared payload read remains separately allowed.",
+      "minimum_owner_supplied_content": [
+        "Actual issued permit ref and purpose/subject/input binding",
+        "Existing current verifier/owner API and source",
+        "Serialized revoke-before-commit writer protocol",
+        "Real prepared payload/ref and permitted write target",
+        "Positive current permit plus revoked/lost-permission control"
+      ],
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "pointer": "/packets/4",
+        "source_file_sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+      },
+      "source_packet_ref": {
+        "git_ref": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/owner-inputs.json",
+        "json_pointer": "/packets/4",
+        "sha256": "b75a27f8f699beb5a82a7a3ca9e519c9633e6b0cfdf604b2ec6ba85a0809e9c2"
+      },
+      "consumer_available": "Existing native Node/Funnel/effective-config/calibration/promotion guard consumers are present; missing positive producer/law/current permit cannot be replaced by fixture",
+      "bounded_controls": "New literal Node/resource consumer retains ordinary permitted work and no promotion effects. This does not establish native numerical draws, refinement law, or current authority positive.",
+      "negative_required_with_owner_input": "Wrong issuer/purpose/subject/expired/stale/revoked permit gives zero effects; revoke-after-preflight-before-commit serialized with actual write; valid owner-issued effect exactly once/fresh readback.",
+      "production_request": "Exact minimal refs and declared profile only. No cloud production data transfer; any required data-dependent execution remains local read-only."
+    }
+  ],
+  "historical_label_correction": "Prior B164 bridge_missing packet is preserved by immutable reference; current requested authority appointment/current verifier is not_established, not an invented existing owner or subsystem."
+}

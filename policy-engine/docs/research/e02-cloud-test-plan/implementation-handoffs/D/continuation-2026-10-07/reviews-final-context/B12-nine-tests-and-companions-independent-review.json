@@ -1,0 +1,180 @@
+{
+  "schema": "e02.D.independent-review.v1",
+  "reviewer": "census_oct07",
+  "status": "GO_CANONICAL_OWNER_COMPANIONS_SELECTED_MERGES_RUNTIME_UNRUN",
+  "base": "6af43b3bb055a11c2f5bb41fb6cb66ca1623f668",
+  "supplier": "f0111fefcb6fa48e8ccb4aab213a14694dc206ad",
+  "patch": {
+    "path": "/dev/shm/e02-D-funnel-oct07/canonical-B12-ready-companions-6af-v1.patch",
+    "sha256": "5da48ead8d1b1ebec6f712a22e3860a41bb114ff1a300f5207b327973b43a7f7",
+    "bytes": 135527
+  },
+  "full_changed_code_read": "All2966 linesof135527B selectedpatch read sequentially; complete newownercompletion669/unknown689/protected277/required718 tests plus entire alteredtests/docs/releases delta. Unchanged selectedtest bodies independently compared to immutableowner exactAST.",
+  "verified_rows": [
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py",
+      "canonical_B_blob": "38c14640e53d1bffddaac44fc48b2a0ebe42722c",
+      "canonical_B_sha256": "e014ebecd3342c76e4e3d529d32fe0a72a0708b49f90375e59792526a077116d",
+      "chosen_sha256": "e014ebecd3342c76e4e3d529d32fe0a72a0708b49f90375e59792526a077116d",
+      "chosen_bytes": 26912,
+      "chosen_exact_B": true,
+      "selection_reason": "ExactcanonicalB source, unchangedD assertions formowner-source subset.",
+      "canonical_B_test_function_AST_exact": 14
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+      "canonical_B_blob": "f1b5da1a9d4ca25720379dd6202318a9c26b6f35",
+      "canonical_B_sha256": "9b42cb92d53718bdd73e488cc425f5df5a7f332a952d1f9f7cc227a17533d8b1",
+      "chosen_sha256": "9b42cb92d53718bdd73e488cc425f5df5a7f332a952d1f9f7cc227a17533d8b1",
+      "chosen_bytes": 26797,
+      "chosen_exact_B": true,
+      "selection_reason": "ExactcanonicalB source, unchangedD assertions formowner-source subset.",
+      "canonical_B_test_function_AST_exact": 7
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_protected_audit_admission_e02.py",
+      "canonical_B_blob": "eb48529c4b1698069eb033bd0a64ef0d411ee873",
+      "canonical_B_sha256": "b2f169797b06613024bbd3665fc0c502bb82eb86eb26a9e115cf12b7982865f9",
+      "chosen_sha256": "b2f169797b06613024bbd3665fc0c502bb82eb86eb26a9e115cf12b7982865f9",
+      "chosen_bytes": 11658,
+      "chosen_exact_B": true,
+      "selection_reason": "ExactcanonicalB source, unchangedD assertions formowner-source subset.",
+      "canonical_B_test_function_AST_exact": 1
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py",
+      "canonical_B_blob": "ec582bc0e36cf1c61541ab104783646fbb6e3862",
+      "canonical_B_sha256": "b21c5ffbc777e708f7426674acb599f0bca9bbebea47837a95d2abaf242fe949",
+      "chosen_sha256": "b21c5ffbc777e708f7426674acb599f0bca9bbebea47837a95d2abaf242fe949",
+      "chosen_bytes": 33838,
+      "chosen_exact_B": true,
+      "selection_reason": "ExactcanonicalB source, unchangedD assertions formowner-source subset.",
+      "canonical_B_test_function_AST_exact": 4
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+      "canonical_B_blob": "a8a6ad561cc598fb72c7fd6c0e2170b0d11dd36f",
+      "canonical_B_sha256": "2cd4013df96e19c5620ad8d05cf6d79151f0c532eb00b1d4638ea6975bec8a01",
+      "chosen_sha256": "2cd4013df96e19c5620ad8d05cf6d79151f0c532eb00b1d4638ea6975bec8a01",
+      "chosen_bytes": 13720,
+      "chosen_exact_B": true,
+      "selection_reason": "ExactcanonicalB source, unchangedD assertions formowner-source subset.",
+      "canonical_B_test_function_AST_exact": 11
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+      "canonical_B_blob": "0e99193a709e6db5c663eb2ac69f2f1c4a3169ae",
+      "canonical_B_sha256": "8736dff32a452af960f0de1ac944106a9f7939751527a50d94e204330d0b7821",
+      "chosen_sha256": "dee7ed70cfa3022ab16eca771b54e236c3e4d2b9e6b7449db1eb13095b57ecd4",
+      "chosen_bytes": 21288,
+      "chosen_exact_B": false,
+      "selection_reason": "Threewaymerge adds canonicalB assertions/status/retainedcompletioncases; retainsD SDK-shaped SimpleNamespace ratherthan manufacturedMagicMock fields; soleconflict imports resolvedunion.",
+      "canonical_B_test_function_AST_exact": 16,
+      "non_test_helper_differences": [
+        "_make_response_mock"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+      "canonical_B_blob": "41e01cbaf59832e3d2890b72ed03144b98d8ff08",
+      "canonical_B_sha256": "bad07ae1d13e7df68db4fb1a4c864003d6715fec21ab07ae1ad1f4417a0a70b9",
+      "chosen_sha256": "36d129bfa3ad1823801963fc01a50dfa3727da58c37b994591c256798564127f",
+      "chosen_bytes": 6615,
+      "chosen_exact_B": false,
+      "selection_reason": "Threewaymerge keepsD actualGatewayLLMResponse helper; explicitsupplied zero/count fixturedeclaresusageknown, notinheriteddefaultzero. CanonicalB newactual metricassertions preserved; MagicMock optionalcost status manufacturedfields notrestored.",
+      "canonical_B_test_function_AST_exact": 13,
+      "non_test_helper_differences": [
+        "_mock_response"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "canonical_B_blob": "4ac872ce11f1232eed5c35f66b073a76fb2d9125",
+      "canonical_B_sha256": "8e2a53ddf3245f983a8f030f4b07767d9be729d5a7e523c58a61cc3ddb1105fb",
+      "chosen_sha256": "8e2a53ddf3245f983a8f030f4b07767d9be729d5a7e523c58a61cc3ddb1105fb",
+      "chosen_bytes": 21213,
+      "chosen_exact_B": true,
+      "selection_reason": "ExactcanonicalB source, unchangedD assertions formowner-source subset.",
+      "canonical_B_test_function_AST_exact": 24
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+      "canonical_B_blob": "e1ece585ee96f735db431cffaa870494721ca9e1",
+      "canonical_B_sha256": "576f2d1328f4346de00685898aacd6c90932847110b3bda7ad47dc0b690afb2d",
+      "chosen_sha256": "576f2d1328f4346de00685898aacd6c90932847110b3bda7ad47dc0b690afb2d",
+      "chosen_bytes": 48893,
+      "chosen_exact_B": true,
+      "selection_reason": "ExactcanonicalB source, unchangedD assertions formowner-source subset.",
+      "canonical_B_test_function_AST_exact": 28
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-durable-completion-obligations.toml",
+      "canonical_B_blob": "23c881a6455320db785d0dcf4d90eebd378cab9e",
+      "canonical_B_sha256": "93d9aa6d5c56a491ae91bbe959e39268d49c4fd49dc60bcde6b61682d47495f3",
+      "chosen_sha256": "93d9aa6d5c56a491ae91bbe959e39268d49c4fd49dc60bcde6b61682d47495f3",
+      "chosen_bytes": 1518,
+      "chosen_exact_B": true,
+      "selection_reason": "ExactcanonicalB supplied release/migration classification fragment.",
+      "toml_parsed": true
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-llm-unknown-cost-and-protected-audit.toml",
+      "canonical_B_blob": "41519923d46dc4d809a72043ae86f19cf51731b5",
+      "canonical_B_sha256": "d903404315f5ec8ac5a40f41a711cd8fbec76146dddba12935e94ff7e8fb4cf0",
+      "chosen_sha256": "d903404315f5ec8ac5a40f41a711cd8fbec76146dddba12935e94ff7e8fb4cf0",
+      "chosen_bytes": 2627,
+      "chosen_exact_B": true,
+      "selection_reason": "ExactcanonicalB supplied release/migration classification fragment.",
+      "toml_parsed": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/llm/README.md",
+      "canonical_B_blob": "8107f5b8311455bb1801714151508c8aaeef8158",
+      "canonical_B_sha256": "d9e3eadc763663af5f491522b65983486897a2b98359eac30ff011eb3d9722f0",
+      "chosen_sha256": "1998a327a03dd59b5f170f409ee0c48ad2dcb8a6fc4597c8b7a96e8a8e47272f",
+      "chosen_bytes": 5705,
+      "chosen_exact_B": false,
+      "selection_reason": "Append-only exactsupplied canonicalB selectedcompletion/migrationsections; retainsallD docscurrentbytes andguardnotes. Thisprofile qualifies earliergenerictelemetryfallback; no wholesaleREADMEoverwrite.",
+      "base_D_bytes_preserved_append_only": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+      "canonical_B_blob": "3d07bd0ce3d0c60a0f6c4dc73aed21cc66f32660",
+      "canonical_B_sha256": "62d99c160fda5d384222064516d9d70f0b1f8a982af07236dba9ef07b212af71",
+      "chosen_sha256": "7e822c13a34e70ab3ab9c9ba360d38ff540b4296533fa43401660f77637f0cd3",
+      "chosen_bytes": 6082,
+      "chosen_exact_B": false,
+      "selection_reason": "Append-only exactsupplied canonicalB selectedcompletion/migrationsections; retainsallD docscurrentbytes andguardnotes. Thisprofile qualifies earliergenerictelemetryfallback; no wholesaleREADMEoverwrite.",
+      "base_D_bytes_preserved_append_only": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/README.md",
+      "canonical_B_blob": "01d65054c4f5eb4446c66dfa3fb267b4660eb21e",
+      "canonical_B_sha256": "3342ba3ad22def30afb40a737d3ef66e9257be0f7074487ab4f5ebf0e204b4bc",
+      "chosen_sha256": "9f515b9201e4cb77052363ae8d647a9c12e2e9734a1a8922eea95cedec9cded7",
+      "chosen_bytes": 9363,
+      "chosen_exact_B": false,
+      "selection_reason": "Append-only exactsupplied canonicalB selectedcompletion/migrationsections; retainsallD docscurrentbytes andguardnotes. Thisprofile qualifies earliergenerictelemetryfallback; no wholesaleREADMEoverwrite.",
+      "base_D_bytes_preserved_append_only": true
+    }
+  ],
+  "review": [
+    "Nine definingfiles preserve ALL canonicalB testfunctionASTs exactly, including two D-shapedhelpermerges; seven chosenfiles exactBbytes. Tests remain paired to actual ledger/enforcer/cacheowner ports, not trace/flagproxy.",
+    "Completion tests use realfilesystem/lock/reopen/fork and process barrier actualreplace + controlledSIGKILL afterpublication; old/newcomplete snapshots and stableuncertainty fences beforephysicalwork. SIGKILL deliberately doesnotclaimpowerloss.",
+    "Unknowncost tests distinguish legitimate reportedzero/pricedknownusage/freeprice/observedzerocounts from missing/invalid/inaccessible/underflow evidence; actualfileprovideronce, canonicalfactory/decoder/cache/enforcer/ledger, cancellation and freshintersectingowner controls. Nonintersectingkey actualcontrol remainsseparate.",
+    "Required protectedaudit tests use actual chainedlocalbackend directoryrefusal, retain exact failedact/context and known monetaryreceipt, reconcile only constructor-bound owner whose publiceffect/readback verifier matchesexactrecord. Fixture owner verification remains bounded trustedcomposition, no institutional authority or generic permission.",
+    "Changedhelperenforcer retains DSimpleNamespaceactualfields and canonicalBnull/status behavior; costmetrics helper uses actualGatewayLLMResponse with explicit validatedobservedcount usage_statusknown, notdefaultzerolaw. AllBassertions exact AST retained.",
+    "Promptcache actualsyscall faults arm ownedsettlement only; intentpublication remains real, before/afterreplace unknownACK and exactretry restore originalchargeonce; directphysical/joinlateexpiry and unknownpending controls retain producerlineage.",
+    "TwoexactownerTOMLfragments parsed with wire1.2 complete1.0/1.1 migration/refusal, actualpublicexperimental classification and operatorrecipe. ThreeREADMEs append existingDbytes, nohistoryoverwrite; Decimalraw, internalownership vsdeployment billing and atomicprofilelimits explicit."
+  ],
+  "runtime_result": "UNRUN_ON_NEW_COMBINED_IMMUTABLE_CANDIDATE",
+  "next_verification": {
+    "native_owner_defining": "Run exactnine selectedBtests plusBHTTP30 onnewfrozenDcomposition; complete streams/JUnit and actualphases, nofullBacceptance. ExistingDstrictcost/raw/nativefixtures remainadditionalaffecteddenominator.",
+    "D_actual_consumers": "raworiginal24+invalid8; cacheexisting13+standalone3; 14affectedfiles old136+newnativeunknown2, exactfullsplit+ownedprereqrecheck; service actualproducer/checkpoint11; definingstate7 ifdependencychanged selectedcriteria.",
+    "runtime_scope": "NooptionalGP/vectorcodeinslice numericalPASS; currentminimalruntimevalidnativecost/funnelonly. Nativeworkerfactory→actualHTTPbytes→canonicalreceipt/pending→Dconsumer→freshfile/CAS/readback. Estimand/refinement/promotionauthorityremainownerheld."
+  },
+  "P37": "Tests bind exactcanonicalproducer/intent→durableledger→receipt/readback→ordinaryenforcer/cache/funnelconsumer. Definedbounds and explicitactualwork counters remain distinct from conditional deployment/financialtruth.",
+  "P38": "Markerpreserving unknown/absentreceipt/wrongpayload/booleanresolver/freshowner/kill/actualsyscall refusal expose trace/estimate/cacheflag proxies. Expectednegative and positive numericalresults require actualcurrentexecution, notstaticsyntax.",
+  "accepted_in_G": false,
+  "formal_finding_closed": false
+}

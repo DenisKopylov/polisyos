@@ -1,0 +1,37 @@
+{
+  "kind": "combined_dependency_profile_review_inputs",
+  "D_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+  "B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+  "executed": false,
+  "classification": "bounded exact owner CAS producer + D native transfer consumer, not root default source/adoption/G acceptance",
+  "files": [
+    {
+      "name": "B333-async-transitive.diff",
+      "bytes": 8913,
+      "sha256": "7523cf1fe14670421107e932c3bdb7bddbe73cc158c1c54f3f900da169e439ae"
+    },
+    {
+      "name": "B333-dependency-full.diff",
+      "bytes": 73846,
+      "sha256": "06fa78f60b343521738a16fe0953b15570867cad5e7deb571e6c2aad518b1844"
+    },
+    {
+      "name": "B333-module-map.json",
+      "bytes": 3408,
+      "sha256": "39f2c6771f2fba5ba096edd7dc148e199406e21c97a33f522256a7fede9d2f9b"
+    },
+    {
+      "name": "sitecustomize.py",
+      "bytes": 1803,
+      "sha256": "46249faf6bf51b1a62b709df255d94cfa0ddac761a0a6b6cb60b5adf6f14cb95"
+    }
+  ],
+  "positive_selector": "tests/unit/scientist/agent/test_vector_generation_consumer.py::test_exact_transfer_reference_beyond_1000_keys_survives_fresh_native_reader",
+  "additional_controls": [
+    "tests/unit/scientist/agent/test_vector_generation_consumer.py::test_valid_cas_legacy_native_nonfinite_refuses_before_pointer_publication",
+    "actual same exact bundle ref alteredbytes freshprocess refusal inside1002"
+  ],
+  "negative": "Existing in-memory remove_private_finite.py at D vector blob3e68 preserving real B CAS/native header/digest will make legacyNaN expectraise fail; run separate exact source pair namespace and record actual outcome only.",
+  "origin_contract": "Exact Git origin is also module.__file__, preserving existing fresh-reader source-path census as non-filesystem provenance; no actual code file copied.",
+  "transitive_extension": "Existing canonical B common.async_tools supplies explicit unbounded API consumed by mapped B async_store. Adds exact owner source, not D helper design or integrated adoption. Seven mapped executable modules; new helper only stdlib imports, no further changed dependency needed for this bounded profile."
+}

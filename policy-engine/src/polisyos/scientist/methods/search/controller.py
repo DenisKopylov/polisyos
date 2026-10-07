@@ -10,7 +10,6 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from enum import Enum
 from functools import wraps
-from math import isfinite
 from threading import Lock
 from typing import TYPE_CHECKING, Any, Protocol, cast
 from uuid import uuid4
@@ -18,7 +17,7 @@ from uuid import uuid4
 from pydantic import ValidationError
 
 from polisyos.common.logger import get_logger
-from polisyos.scientist.methods.search.contracts import ParetoViewProjection
+from polisyos.scientist.methods.search.contracts import EvaluationBundle, ParetoViewProjection
 from polisyos.scientist.methods.search.frontier import (
     FrontierPoint,
     dominates,
@@ -32,13 +31,17 @@ from polisyos.scientist.methods.search.run_state import (
     _EvaluationTransition,
 )
 from polisyos.scientist.methods.search.sentinels import extract_sentinel_metadata
-from polisyos.scientist.methods.search.stopping import StoppingCriterion
+from polisyos.scientist.methods.search.stopping import StoppingCriterion, _nonnegative_cost
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 
 if TYPE_CHECKING:
     from polisyos.core.observability import MetricsRegistry
     from polisyos.scientist.methods.search.pareto_registry import ParetoRegistry
-    from polisyos.scientist.methods.search.strategies.transfer import TransferLearningManager
+    from polisyos.scientist.methods.search.strategies.transfer import (
+        RunFingerprint,
+        TransferLearningManager,
+    )
+    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
     from polisyos.scientist.policy_design.objectives import (
         ObjectiveStack,
         PolicyEvaluationVector,
@@ -212,10 +215,14 @@ class SearchConfig:
     batch_size: int = 1
     resource_arbiter: Any | None = None
     transfer_manager: TransferLearningManager | None = None
+    transfer_fingerprint: RunFingerprint | None = None
     initial_evaluations: list[dict[str, Any]] = field(default_factory=list)
     policy_objective_stack: ObjectiveStack | None = None
     pareto_registry: ParetoRegistry | None = None
     max_empty_generation_attempts: int = 3
+    budget_middleware: BudgetMiddleware | None = None
+    budget_key: str = "run"
+    budget_cost_key: str = "cumulative_cost_usd"
 
     def __post_init__(self) -> None:
         """Validate the controller-owned hard bounds."""
@@ -223,6 +230,8 @@ class SearchConfig:
             raise ValueError("max_iterations_hard_limit must be >= 1")
         if self.max_empty_generation_attempts < 1:
             raise ValueError("max_empty_generation_attempts must be >= 1")
+        if (self.transfer_manager is None) != (self.transfer_fingerprint is None):
+            raise ValueError("transfer_manager and transfer_fingerprint must be supplied together")
 
 
 class SearchController:
@@ -258,6 +267,15 @@ class SearchController:
             raise ValueError("SearchController requires Stage A and Stage B evaluators")
         self._stage_a = stage_a_evaluator
         self._stage_b = stage_b_evaluator
+        if config.transfer_manager is not None:
+            from polisyos.scientist.methods.autotune.warm_start import WarmStartBridge
+
+            configure_transfer = getattr(candidate_generator, "configure_transfer", None)
+            if not callable(configure_transfer):
+                raise ValueError("configured generator does not support numeric transfer")
+            configure_transfer(
+                WarmStartBridge(config.transfer_manager), config.transfer_fingerprint
+            )
 
         self._run_lock = Lock()
         self._run_state = SearchRunState(status=SearchStatus.NOT_STARTED)
@@ -407,6 +425,7 @@ class SearchController:
         stage_a_passed: bool,
         stage_b_result: dict[str, Any],
         duration_seconds: float,
+        _apply_transition: bool = True,
     ) -> SearchIteration:
         """Accept one ask/tell result through the controller-owned transition.
 
@@ -433,6 +452,7 @@ class SearchController:
         elif policy_evaluation is not None:
             effective_objective = policy_evaluation.legacy_scalar_proxy
             effective_details = policy_evaluation.as_legacy_objectives()
+            stage_b_result = {**stage_b_result, "policy_evaluation": policy_evaluation}
 
         is_sentinel = extract_sentinel_metadata(candidate) is not None
         feedback = stage_b_result.get("feedback")
@@ -448,7 +468,7 @@ class SearchController:
             if effective_objective < self._best_objective:
                 self._best_objective = effective_objective
                 self._best_candidate = deepcopy(candidate)
-            if effective_details:
+            if effective_details or policy_evaluation is not None:
                 self._update_policy_or_legacy_frontier(
                     candidate=candidate,
                     objective_details=effective_details,
@@ -471,17 +491,23 @@ class SearchController:
         )
         transition = _EvaluationTransition(
             disposition=(
-                _EvaluationDisposition.SENTINEL
-                if is_sentinel
-                else _EvaluationDisposition.ORDINARY
+                _EvaluationDisposition.SENTINEL if is_sentinel else _EvaluationDisposition.ORDINARY
             ),
             record=record,
         )
-        self._run_state.apply_tell_transition(
-            transition,
-            stage_a_evaluated=self._config.enable_stage_a,
-            stage_b_evaluated=stage_a_passed,
-        )
+        if not is_sentinel and self._diversity_tracker is not None:
+            self._diversity_tracker.record_iteration(candidate)
+        if _apply_transition:
+            self._run_state.apply_tell_transition(
+                transition,
+                stage_a_evaluated=self._config.enable_stage_a,
+                stage_b_evaluated=stage_a_passed,
+            )
+        else:
+            if self._config.enable_stage_a:
+                self._run_state.stage_a_evaluations += 1
+            if stage_a_passed:
+                self._run_state.stage_b_evaluations += 1
         return record
 
     def _service_tell_snapshot(self) -> dict[str, Any]:
@@ -490,9 +516,7 @@ class SearchController:
         return {
             "best_candidate": deepcopy(snapshot.best_candidate),
             "best_objective": (
-                None
-                if snapshot.best_objective == float("inf")
-                else float(snapshot.best_objective)
+                None if snapshot.best_objective == float("inf") else float(snapshot.best_objective)
             ),
             "history_length": snapshot.history_size,
             "registry_update": {"search_id": snapshot.search_id},
@@ -560,9 +584,11 @@ class SearchController:
             "budget_required": bool(self._config.stopping.state_keys()),
             "budget_available": snapshot.budget_available,
             "budget_snapshot": deepcopy(snapshot.budget_snapshot),
-            "budget_spent": (
-                snapshot.budget_spent if snapshot.budget_available else None
-            ),
+            "budget_snapshot_source": snapshot.budget_snapshot_source,
+            "budget_evidence": deepcopy(snapshot.budget_evidence),
+            "budget_ledger_id": snapshot.budget_ledger_id,
+            "budget_ledger_revision": snapshot.budget_ledger_revision,
+            "budget_spent": (snapshot.budget_spent if snapshot.budget_available else None),
         }
         if self._diversity_tracker is not None:
             telemetry["diversity_unique_mechanisms_total"] = (
@@ -611,26 +637,105 @@ class SearchController:
             "empty_generation_attempts": self._run_state.empty_generation_attempts,
             "best_objective": self._best_objective,
             "budget_spent": self._run_state.budget_spent,
+            "budget_evidence": deepcopy(self._run_state.budget_evidence),
         }
         state.update(self._run_state.budget_snapshot)
         return state
 
-    def _refresh_budget_snapshot(self, context: dict[str, Any]) -> None:
+    def _refresh_budget_snapshot(self, context: dict[str, Any]) -> Exception | None:
         """Capture one detached snapshot from the declared budget owner.
 
         The controller never forwards the mutable evaluator context directly to
         stopping criteria.  Only keys explicitly requested by the criterion are
         copied into the run-owned snapshot, so both stopping checkpoints and the
         final report observe the same owner contract without creating a ledger.
+        A configured owner must admit the declared key before recorded state is
+        consumed. Pending/failed admission remains unavailable; its original
+        typed error is returned to the proposal boundary rather than priced zero.
         """
         required_keys = self._config.stopping.state_keys()
+        admission_error: Exception | None = None
         snapshot: dict[str, float] = {}
+        owner = self._config.budget_middleware
+        source = "legacy_context" if required_keys else "unavailable"
+        self._run_state.budget_ledger_id = None
+        self._run_state.budget_ledger_revision = None
+        evidence: dict[str, Any] = {
+            "source": source,
+            "receipt_revision_available": False,
+            "provider_cost_origin_available": False,
+            "recorded_by_provider": None,
+            "unavailable_reason": "budget_not_requested" if not required_keys else None,
+        }
+        if owner is not None:
+            source = "configured_owner_recorded_state"
+            evidence["source"] = source
+            identity = self._budget_owner_identity()
+            if identity is not None:
+                self._run_state.budget_ledger_id = identity[0]
+                evidence.update(canonical_contract=identity[1], coordination_mode=identity[2])
+            from polisyos.scientist.orchestration.engine.budget import BudgetExhaustedError
+
+            try:
+                pre_check = getattr(owner, "pre_check", None)
+                if not callable(pre_check):
+                    raise ValueError("budget_owner_admission_contract_missing")
+                pre_check("search.controller", budget_key=self._config.budget_key)
+            except BudgetExhaustedError as exc:
+                # Exhaustion is known accounting, unlike an unresolved charge.
+                admission_error = exc
+                evidence["admission"] = "exhausted"
+            except Exception as exc:
+                admission_error = exc
+                evidence["admission"] = "unavailable"
+                evidence["unavailable_reason"] = f"owner_admission_unavailable:{type(exc).__name__}"
+            else:
+                evidence["admission"] = "admitted"
+
+            accounting = None
+            if evidence["admission"] != "unavailable":
+                try:
+                    accounting = owner.budget_state.model_copy(deep=True)
+                except Exception as exc:
+                    admission_error = exc
+                    evidence["admission"] = "unavailable"
+                    evidence["unavailable_reason"] = f"owner_state_unavailable:{type(exc).__name__}"
+            if accounting is not None:
+                evidence["recorded_spend_key_present"] = self._config.budget_key in accounting.spent
+                providers = {
+                    key: _nonnegative_cost(value)
+                    for key, value in accounting.provider_spent.items()
+                }
+                if all(value is not None for value in providers.values()):
+                    evidence["recorded_by_provider"] = providers
+                if self._config.budget_cost_key in required_keys:
+                    value = _nonnegative_cost(
+                        accounting.spent.get(self._config.budget_key, Decimal(0))
+                    )
+                    if value is not None:
+                        snapshot[self._config.budget_cost_key] = value
+                    else:
+                        admission_error = ValueError("budget_recorded_cost_invalid")
+                        evidence["admission"] = "unavailable"
+                        evidence["unavailable_reason"] = "recorded_cost_invalid"
+                        evidence["recorded_by_provider"] = None
+                        evidence.pop("recorded_spend_key_present", None)
+                if required_keys and not snapshot and evidence["unavailable_reason"] is None:
+                    admission_error = ValueError("budget_owner_requested_cost_key_unavailable")
+                    evidence["admission"] = "unavailable"
+                    evidence["unavailable_reason"] = "configured_owner_cost_key_unavailable"
+                    evidence["recorded_by_provider"] = None
+                    evidence.pop("recorded_spend_key_present", None)
         for key in required_keys:
-            value = context.get(key)
-            if isinstance(value, (int, float, Decimal)) and not isinstance(value, bool):
-                numeric_value = float(value)
-                if isfinite(numeric_value):
-                    snapshot[key] = numeric_value
+            if owner is not None:
+                continue
+            value = _nonnegative_cost(context.get(key))
+            if value is not None:
+                snapshot[key] = value
+            else:
+                evidence["unavailable_reason"] = "context_cost_missing_or_invalid"
+        self._run_state.budget_snapshot_source = source
+        self._run_state.budget_evidence = evidence
         self._run_state.budget_snapshot = snapshot
         self._run_state.budget_available = bool(required_keys) and all(
             key in snapshot for key in required_keys
@@ -640,7 +745,25 @@ class SearchController:
         elif snapshot:
             self._run_state.budget_spent = next(iter(snapshot.values()))
         else:
-            self._run_state.budget_spent = 0.0
+            self._run_state.budget_spent = None
+        return admission_error
+
+    def _budget_owner_identity(self) -> tuple[str, str, str] | None:
+        """Use the public owner identity; in-memory accounting has no durable identity."""
+        owner = self._config.budget_middleware
+        if owner is None:
+            return None
+        try:
+            identity = getattr(owner, "settlement_owner_identity", None)
+        except (OSError, ValueError, RuntimeError):
+            return None
+        if (
+            isinstance(identity, tuple)
+            and len(identity) == 3
+            and all(isinstance(part, str) and part for part in identity)
+        ):
+            return identity
+        return None
 
     def _generate_candidates(
         self,
@@ -648,6 +771,9 @@ class SearchController:
         initial_candidate: dict[str, Any] | None,
         context: dict[str, Any],
     ) -> list[dict[str, Any]]:
+        admission_error = self._refresh_budget_snapshot(context)
+        if admission_error is not None:
+            raise admission_error
         if iteration == 0 and initial_candidate is not None:
             return [initial_candidate]
 
@@ -708,19 +834,46 @@ class SearchController:
 
     def _evaluate_candidate(
         self,
+        candidate: CandidatePayload,
+        iteration: int,
+        context: SearchContext,
+    ) -> _EvaluationTransition:
+        """Compatibility driver: evaluate, then use the same acceptance owner as tell."""
+        evaluation = self._evaluate_for_tell(candidate, iteration=iteration, context=context)
+        record = self._accept_tell(
+            candidate=candidate,
+            objective_value=evaluation.objective_value,
+            objective_details=evaluation.objective_details,
+            is_promising=evaluation.is_promising,
+            stage_a_passed=evaluation.stage_a_passed,
+            stage_b_result=evaluation.stage_b_result or {},
+            duration_seconds=evaluation.duration_seconds,
+            _apply_transition=False,
+        )
+        return _EvaluationTransition(
+            disposition=(
+                _EvaluationDisposition.SENTINEL
+                if extract_sentinel_metadata(candidate) is not None
+                else _EvaluationDisposition.ORDINARY
+            ),
+            record=record,
+        )
+
+    def _evaluate_for_tell(
+        self,
         candidate: dict[str, Any],
+        *,
         iteration: int,
         context: dict[str, Any],
-    ) -> _EvaluationTransition:
+    ) -> EvaluationBundle:
+        """Evaluate with detached outputs and no search-state acceptance writes."""
         candidate = deepcopy(candidate)
         iter_start = datetime.now(UTC)
-        is_sentinel = extract_sentinel_metadata(candidate) is not None
 
         stage_a_passed = True
         stage_a_score = 0.0
 
         if self._config.enable_stage_a:
-            self._stage_a_count += 1
             stage_a_score, stage_a_passed = self._stage_a(candidate, context)
             if not stage_a_passed:
                 logger.debug(f"Iteration {iteration}: Stage A rejected (score={stage_a_score:.4f})")
@@ -733,7 +886,6 @@ class SearchController:
         iter_duration = 0.0
 
         if stage_a_passed:
-            self._stage_b_count += 1
             arbiter = self._config.resource_arbiter
             if arbiter is not None:
                 with arbiter.acquire("jax"):
@@ -747,37 +899,17 @@ class SearchController:
                 stage_b_result,
             )
             policy_evaluation = policy_resolution.value
-            if policy_resolution.status == "invalid":
-                self._run_state.policy_evaluation_errors += 1
-            elif policy_evaluation is not None:
+            if policy_evaluation is not None:
                 objective_value = policy_evaluation.legacy_scalar_proxy
                 objective_details = policy_evaluation.as_legacy_objectives()
-            else:
+                stage_b_result = {**stage_b_result, "policy_evaluation": policy_evaluation}
+            elif policy_resolution.status == "missing":
                 obj_eval = self._config.objective.evaluate(sim_results)
                 objective_value = obj_eval.raw_value
                 objective_details = self._config.objective.evaluate_detailed(sim_results)
 
-            if (
-                policy_resolution.status != "invalid"
-                and not is_sentinel
-                and objective_value < self._best_objective
-            ):
-                self._best_objective = objective_value
-                self._best_candidate = deepcopy(candidate)
-                logger.info(f"Iteration {iteration}: New best objective = {objective_value:.6f}")
-
-            if not is_sentinel and policy_resolution.status != "invalid":
-                self._update_policy_or_legacy_frontier(
-                    candidate=candidate,
-                    objective_details=objective_details,
-                    policy_evaluation=policy_evaluation,
-                    stage_b_result=stage_b_result,
-                )
-
         iter_duration = (datetime.now(UTC) - iter_start).total_seconds()
-        record = SearchIteration(
-            iteration=iteration,
-            candidate=deepcopy(candidate),
+        return EvaluationBundle(
             objective_value=objective_value,
             objective_details=deepcopy(objective_details),
             is_promising=stage_a_passed
@@ -788,18 +920,11 @@ class SearchController:
             stage_b_result=deepcopy(stage_b_result),
             duration_seconds=iter_duration,
             policy_evaluation=deepcopy(policy_evaluation),
-            policy_evaluation_status=policy_resolution.status,
-            policy_evaluation_error=policy_resolution.reason,
-        )
-        if not is_sentinel and self._diversity_tracker is not None:
-            self._diversity_tracker.record_iteration(candidate)
-        return _EvaluationTransition(
-            disposition=(
-                _EvaluationDisposition.SENTINEL
-                if is_sentinel
-                else _EvaluationDisposition.ORDINARY
-            ),
-            record=record,
+            metadata={
+                "policy_evaluation_status": policy_resolution.status,
+                "policy_evaluation_error": policy_resolution.reason,
+                "iteration": iteration,
+            },
         )
 
     def _build_generation_context(
@@ -839,6 +964,14 @@ class SearchController:
                 current_best=self._best_candidate,
                 context=enriched,
             )
+        except _IMPORT_ERRORS as exc:
+            _search_degraded(
+                operation="build_generation_context",
+                reason="execution_plan_context_unavailable",
+                exc=exc,
+                details={"iteration": iteration},
+            )
+            return enriched
         except _SEARCH_DEGRADED_ERRORS as exc:
             _search_degraded(
                 operation="build_generation_context",
@@ -1124,9 +1257,9 @@ class SearchController:
             )
             from polisyos.scientist.methods.search.pareto_registry import ParetoView
 
-            self._run_state.pareto_projection = registry.get_snapshot(
-                self._search_id
-            ).project_view(ParetoView.GLOBAL_FEASIBLE)
+            self._run_state.pareto_projection = registry.get_snapshot(self._search_id).project_view(
+                ParetoView.GLOBAL_FEASIBLE
+            )
             self._pareto_front = registry.as_legacy_frontier_payload(self._search_id)
             return
 

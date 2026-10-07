@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-c",
+    "import json,sys,importlib,importlib.metadata,hashlib;from pathlib import Path\nresult={\"python\":sys.version,\"executable\":sys.executable,\"modules\":{}}\nfor name in [\"torch\",\"botorch\",\"gpytorch\",\"SALib\",\"numpy\",\"scipy\",\"polisyos.scientist.methods.autotune.runtime\",\"polisyos.scientist.methods.search.service\",\"polisyos.scientist.methods.search.sensitivity_adapter\",\"polisyos.scientist.methods.doe.sensitivity\"]:\n module=importlib.import_module(name);path=Path(module.__file__).resolve();result[\"modules\"][name]={\"path\":str(path),\"sha256\":hashlib.sha256(path.read_bytes()).hexdigest(),\"version\":getattr(module,\"__version__\",None)}\nprint(json.dumps(result,indent=2))\n"
+  ],
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "env": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine:/workspace/e02-D-locked-env/lib/python3.14/site-packages:/workspace/e02-D-doe-env/lib/python3.14/site-packages"
+  },
+  "source_sha": "96905636726483fdea3a98d9313871d825b54a9e",
+  "exit_code": 1,
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "d222933af9020cedce26106cfa2d262fa20bbea002fc4c116d1aa4341c19dae8",
+  "scope": "Actual import/version/origin diagnostic for the supplied supported mixed DOE runtime, not a new numerical test or sampler/analyzer-law claim."
+}

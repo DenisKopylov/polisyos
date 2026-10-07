@@ -1,0 +1,36 @@
+{
+  "original_occurrences": 10,
+  "proposed_closed": [
+    "B156",
+    "B158",
+    "B159",
+    "B160",
+    "B162",
+    "B163",
+    "B165"
+  ],
+  "held": [
+    "B157",
+    "B161",
+    "B164"
+  ],
+  "formal_closed": 0,
+  "accepted_in_G": false,
+  "current_actual_checks": {
+    "Node15_d23": "15PASS",
+    "ownerport_removal4_d23": "4FAIL expected money predicate",
+    "tracker3_5b": "3PASS subset of preserved13P5fixtureF",
+    "B156_a30c": "1PASS",
+    "role_removal1_a30c": "1FAIL expected callback2vs3"
+  },
+  "unique_deciding_contents": 409,
+  "actual_record_counts": {
+    "node15-tracker3-5b5": 424,
+    "node15-d23": 354,
+    "node-owner-port-removal4-d23": 104,
+    "B156-role1-a30c": 0,
+    "B156-role-removal1-a30c": 0
+  },
+  "historical_outputs": "3b17/origin-removal11 and A7 financial old outputs remain exact Git-pinned and source-qualified; no universal current replay or overlapping PASS sum",
+  "skipped_backends": "No optional GP/Torch/HNSW numerical properties invoked. Native scientific-work, refinement-law and current-permit positives UNRUN held, never PASS."
+}

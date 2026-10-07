@@ -1,0 +1,10 @@
+.......................................
+=============================== warnings summary ===============================
+../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+39 passed, 1 warning in 1.85s
+TRANSFER_CURRENT_RESULT {"mode": "lessons", "exitcode": 0, "output": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/lessons"}

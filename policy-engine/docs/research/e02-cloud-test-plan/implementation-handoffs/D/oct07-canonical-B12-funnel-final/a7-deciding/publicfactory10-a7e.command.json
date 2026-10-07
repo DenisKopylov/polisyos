@@ -1,0 +1,131 @@
+{
+  "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "tree": "e809693afe3b84e02d473b5744142d026afbe509",
+  "head_after": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "status_after": "",
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "actual_command": [
+    "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "/dev/shm/e02-D-funnel-oct07/run_frozen_B12_final_cohort.py",
+    "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+    "publicfactory10-a7e",
+    "tests/unit/scientist/methods/search/test_service_owner_budget_factory.py"
+  ],
+  "pytest_argv": [
+    "-o",
+    "addopts=",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp=/dev/shm/e02-D-funnel-oct07/publicfactory10-a7e-fixtures",
+    "--junitxml=/dev/shm/e02-D-funnel-oct07/publicfactory10-a7e.junit.xml",
+    "-vv",
+    "-rA",
+    "tests/unit/scientist/methods/search/test_service_owner_budget_factory.py"
+  ],
+  "env_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1",
+    "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src",
+    "TMPDIR": "/dev/shm/e02-D-funnel-oct07",
+    "HYPOTHESIS_STORAGE_DIRECTORY": "/dev/shm/e02-D-funnel-oct07/hypothesis",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer",
+    "E02_B66_TARGET_ROOT": "/dev/shm/e02-D-oct07-continuation",
+    "E02_B66_TARGET_SHA": "a7efe4b431986c3d79f490879cf49dbdedb1349e"
+  },
+  "exit": 1,
+  "wall_seconds": 9.658362627029419,
+  "phase_counts": {
+    "call:failed": 10,
+    "setup:passed": 10,
+    "teardown:passed": 10
+  },
+  "outputs": {
+    "publicfactory10-a7e.stdout.txt": {
+      "path": "/dev/shm/e02-D-funnel-oct07/publicfactory10-a7e.stdout.txt",
+      "bytes": 32453,
+      "sha256": "b56b9c781df50efddab2277515b285f1bfd124abd299ec52b9e423c70b509aa4"
+    },
+    "publicfactory10-a7e.stderr.txt": {
+      "path": "/dev/shm/e02-D-funnel-oct07/publicfactory10-a7e.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "publicfactory10-a7e.junit.xml": {
+      "path": "/dev/shm/e02-D-funnel-oct07/publicfactory10-a7e.junit.xml",
+      "bytes": 29276,
+      "sha256": "90babecd20f227c3f0ba1f8b9a734daa98d9afc17b7da5ef459f22adbef2ede6"
+    },
+    "publicfactory10-a7e.phases.json": {
+      "path": "/dev/shm/e02-D-funnel-oct07/publicfactory10-a7e.phases.json",
+      "bytes": 34799,
+      "sha256": "17fa7744b8801367d10f65a8105c3ae032d7c09a4b0d40e4367b607df95270da"
+    },
+    "publicfactory10-a7e.inputs.json": {
+      "path": "/dev/shm/e02-D-funnel-oct07/publicfactory10-a7e.inputs.json",
+      "bytes": 1200164,
+      "sha256": "fc79fc95fffb82abd392967aa04720dec6c70d5c7426bbc95b446d1023c886a1"
+    },
+    "publicfactory10-a7e.modules.json": {
+      "path": "/dev/shm/e02-D-funnel-oct07/publicfactory10-a7e.modules.json",
+      "bytes": 84641,
+      "sha256": "9432bd587cce32e37ac15c041ad08eca0faf0a379bb62aeda2fc480bd3a2053c"
+    },
+    "publicfactory10-a7e.environment.json": {
+      "path": "/dev/shm/e02-D-funnel-oct07/publicfactory10-a7e.environment.json",
+      "bytes": 10503,
+      "sha256": "1f413a8ecc6b7d5ed75ccd3de1209dc63bdce508facc922107d1fd5b7104e738"
+    },
+    "publicfactory10-a7e.cgroup-before.json": {
+      "path": "/dev/shm/e02-D-funnel-oct07/publicfactory10-a7e.cgroup-before.json",
+      "bytes": 507,
+      "sha256": "04642adf90835d5e66e132479e9988d099e0f5e3c759a5ba7ecfeb3fd125afe6"
+    },
+    "publicfactory10-a7e.cgroup-after.json": {
+      "path": "/dev/shm/e02-D-funnel-oct07/publicfactory10-a7e.cgroup-after.json",
+      "bytes": 507,
+      "sha256": "540a50ee519f084d584f110abd096d66d4b4b184c2af62329b93c30b1995a861"
+    },
+    "publicfactory10-a7e.deciding-ledgers.json": {
+      "path": "/dev/shm/e02-D-funnel-oct07/publicfactory10-a7e.deciding-ledgers.json",
+      "bytes": 4376,
+      "sha256": "4959c9ba8ab46abbed2f7e79939e8fd2e0cb9ec89ea3a177de4409c86d7f8361"
+    }
+  },
+  "input_denominator": 6313,
+  "input_available": 6313,
+  "input_digest": "44e6bfda7153bbaeeb3b3bcddb8f55d43ba426dd0894465d3f79a86f91e845f8",
+  "changed_paths": [],
+  "same_source_and_inputs": true,
+  "standard_asset_before_sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7",
+  "standard_asset_after_sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7",
+  "standard_asset_unchanged": true,
+  "runtime_profile": "Actual canonical B adopted local filesystem ledger/Decimal decoder/real configured native worker factory and D bounded consumer profile; no invoice/native estimand/promotion authority",
+  "P41": "no inherited-red attribution; source/input stability only",
+  "cgroup_before": {
+    "unix_time": 1791366329.8639984,
+    "files": {
+      "memory.current": "15497990144\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 38150438\noom 300\noom_kill 57\noom_group_kill 0\n",
+      "memory.events.local": "low 0\nhigh 0\nmax 38150438\noom 300\noom_kill 0\noom_group_kill 0\n",
+      "memory.peak": "17183465472\n",
+      "pids.current": "1018\n",
+      "pids.max": "max\n"
+    },
+    "scope": "shared cgroup observation; event deltas do not attribute a kill to this process"
+  },
+  "cgroup_after": {
+    "unix_time": 1791366339.5308192,
+    "files": {
+      "memory.current": "15820402688\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 38150438\noom 300\noom_kill 57\noom_group_kill 0\n",
+      "memory.events.local": "low 0\nhigh 0\nmax 38150438\noom 300\noom_kill 0\noom_group_kill 0\n",
+      "memory.peak": "17183465472\n",
+      "pids.current": "1036\n",
+      "pids.max": "max\n"
+    },
+    "scope": "shared cgroup observation; event deltas do not attribute a kill to this process"
+  },
+  "deciding_ledger_count": 10
+}

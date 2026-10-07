@@ -1,0 +1,208 @@
+{
+  "manifest_count": 115,
+  "manifest_sha256": "39eeaab40577eca546afa3834f9f790e0bb0cbaad5d9e7c56e0ed5828e428fa7",
+  "large_capture_hashes_verified": true,
+  "actual_reached_repository_Git_bindings": 318,
+  "complete_executable_input_denominator": 6861,
+  "full_input_dict_identical_to_independently_Git_verified_transfer_capture": true,
+  "source_equivalence_checked": true,
+  "scopes": [
+    {
+      "scope": "effective-public4",
+      "counts": {
+        "PASS": 4
+      },
+      "phases": 12,
+      "fit_starts_returns": [
+        0,
+        0
+      ],
+      "models": [],
+      "row_counts": []
+    },
+    {
+      "scope": "gp-defining",
+      "counts": {
+        "PASS": 33
+      },
+      "phases": 99,
+      "fit_starts_returns": [
+        9,
+        9
+      ],
+      "models": [
+        "SingleTaskGP",
+        "SingleTaskGP",
+        "SingleTaskGP",
+        "SingleTaskGP",
+        "SingleTaskGP",
+        "SingleTaskGP",
+        "SingleTaskGP",
+        "SingleTaskGP",
+        "SingleTaskGP"
+      ],
+      "row_counts": [
+        10,
+        10,
+        10,
+        10,
+        11,
+        10,
+        6,
+        7,
+        8
+      ]
+    },
+    {
+      "scope": "gp-warm-dedup1",
+      "counts": {
+        "PASS": 1
+      },
+      "phases": 3,
+      "fit_starts_returns": [
+        1,
+        1
+      ],
+      "models": [
+        "SingleTaskGP"
+      ],
+      "row_counts": [
+        8
+      ]
+    },
+    {
+      "scope": "mo-refusal19",
+      "counts": {
+        "PASS": 19
+      },
+      "phases": 57,
+      "fit_starts_returns": [
+        1,
+        1
+      ],
+      "models": [
+        "ModelListGP"
+      ],
+      "row_counts": [
+        {
+          "component_rows": [
+            8,
+            8
+          ]
+        }
+      ]
+    },
+    {
+      "scope": "mo-supported",
+      "counts": {
+        "PASS": 7
+      },
+      "phases": 21,
+      "fit_starts_returns": [
+        3,
+        3
+      ],
+      "models": [
+        "ModelListGP",
+        "ModelListGP",
+        "ModelListGP"
+      ],
+      "row_counts": [
+        {
+          "component_rows": [
+            8,
+            8
+          ]
+        },
+        {
+          "component_rows": [
+            8,
+            8
+          ]
+        },
+        {
+          "component_rows": [
+            8,
+            8
+          ]
+        }
+      ]
+    },
+    {
+      "scope": "optional-minimal",
+      "counts": {
+        "SKIP": 3,
+        "PASS": 3
+      },
+      "phases": 9,
+      "fit_starts_returns": [
+        0,
+        0
+      ],
+      "models": [],
+      "row_counts": []
+    },
+    {
+      "scope": "public-history2",
+      "counts": {
+        "PASS": 2
+      },
+      "phases": 6,
+      "fit_starts_returns": [
+        2,
+        2
+      ],
+      "models": [
+        "SingleTaskGP",
+        "SingleTaskGP"
+      ],
+      "row_counts": [
+        4,
+        4
+      ]
+    },
+    {
+      "scope": "state-effective",
+      "counts": {
+        "PASS": 100
+      },
+      "phases": 300,
+      "fit_starts_returns": [
+        4,
+        4
+      ],
+      "models": [
+        "SingleTaskGP",
+        "SingleTaskGP",
+        "SingleTaskGP",
+        "SingleTaskGP"
+      ],
+      "row_counts": [
+        8,
+        8,
+        8,
+        4
+      ]
+    },
+    {
+      "scope": "transfer-public3",
+      "counts": {
+        "PASS": 3
+      },
+      "phases": 9,
+      "fit_starts_returns": [
+        2,
+        2
+      ],
+      "models": [
+        "SingleTaskGP",
+        "SingleTaskGP"
+      ],
+      "row_counts": [
+        8,
+        7
+      ]
+    }
+  ],
+  "errors": []
+}

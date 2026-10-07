@@ -1,0 +1,56 @@
+{
+  "native": {
+    "selectors": [
+      "tests/unit/scientist/agent/test_vector_generation_consumer.py",
+      "tests/unit/scientist/agent/test_vector_transfer_process.py::test_actual_native_loader_exception_keeps_the_old_generation",
+      "tests/unit/scientist/agent/test_vector_memory.py::test_query_captures_one_generation_during_native_publication",
+      "tests/unit/scientist/agent/test_vector_memory.py::test_metadata_copies_and_failed_native_mutation_preserve_generation",
+      "tests/unit/scientist/agent/test_vector_memory.py::test_same_ref_altered_bytes_refuses_load_without_publishing",
+      "tests/unit/scientist/agent/test_vector_memory.py::test_same_native_ref_changed_bytes_preserves_published_generation",
+      "tests/unit/remediation/test_trn_02.py::test_failed_native_add_does_not_publish_a_second_python_record"
+    ],
+    "property": "Actual supported HNSW cosine/numeric boundary, immutable generation one-pointer old/new readers, real C++ load failure, native capacity/add rollback, qualified ref tamper, ordinary1002 donor discovery snapshots with exact selected history and freshchild26reads; actual persisted intake0empty/2rejected/1unavailable/2accepted."
+  },
+  "quota-replay": {
+    "selectors": [
+      "tests/unit/scientist/methods/search/strategies/test_transfer.py::test_exact_history_faithfully_rehydrates_and_ranks_direction_normalized_minima",
+      "tests/unit/scientist/methods/search/strategies/test_transfer.py::test_candidate_content_not_ref_markers_binds_the_physical_input",
+      "tests/unit/scientist/methods/search/strategies/test_transfer.py::test_checkpoint_replay_re_resolves_original_artifacts_on_cache_hit",
+      "tests/unit/scientist/methods/search/strategies/test_transfer.py::test_cache_full_identity_copy_lru_budget_and_exact_alias_lookup",
+      "tests/unit/scientist/methods/search/strategies/test_transfer.py::test_missing_basis_never_uses_first_source_as_target",
+      "tests/unit/scientist/methods/search/strategies/test_transfer.py::test_original_benchmark_outcome_is_admitted_without_dto_coercion",
+      "tests/unit/scientist/methods/search/strategies/test_transfer.py::test_every_role_ref_is_resolved_again_on_checkpoint_restore",
+      "tests/unit/scientist/methods/search/strategies/test_transfer.py::test_physical_out_of_bounds_cannot_hide_behind_clipped_normalization",
+      "tests/unit/scientist/methods/search/strategies/test_transfer.py::test_unknown_history_codec_refuses_before_caching_or_training",
+      "tests/unit/scientist/methods/search/strategies/test_transfer.py::test_original_benchmark_physical_input_cannot_coerce_boolean_to_number",
+      "tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py",
+      "tests/unit/scientist/methods/autotune/test_warm_start.py",
+      "tests/unit/scientist/search/test_warm_start.py::TestWarmStart"
+    ],
+    "property": "Actual qualified candidate/evaluation/role refs plus content-bound basis before quota; independent min/max and tie allocation, exact cold/warm immutable copy/LRU/budget, legacy refusal, forward/reverse metric/direction/missingholdout/nonpromotable lineage; current controller initial intake. No tenant/scientific authority."
+  },
+  "lessons": {
+    "selectors": [
+      "tests/unit/scientist/search/test_transfer_context_criteria.py",
+      "tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+      "tests/unit/scientist/search/test_lesson_transfer.py",
+      "tests/unit/scientist/search/test_lesson_as_of.py",
+      "tests/unit/scientist/search/test_lesson_partial_consumer.py"
+    ],
+    "property": "Actual local/query_with_transfer/materialize/context persistedCAS reader, same typed subject/overrides and trust/confidence/source/partial filters; future-asof refusal, retention/restart cannot refresh evidence. Authorized revalidation positive absent."
+  },
+  "intake-removal": {
+    "selectors": [
+      "tests/unit/scientist/agent/test_vector_generation_consumer.py::test_persisted_empty_transfer_history_is_not_a_rejected_or_unavailable_intake"
+    ],
+    "plugin": "/dev/shm/e02-D-transfer-final-receipt-a4nlymzm/remove_intake_distinction.py",
+    "property": "Remove only decoded intake distinctions after exact CAS resolve; real native/schema/ref markers remain: incompatible/unavailable/nonempty must disagree (expected3FAIL) while genuinelyempty remainsPASS."
+  },
+  "native-finite-removal": {
+    "selectors": [
+      "tests/unit/scientist/agent/test_vector_generation_consumer.py::test_valid_cas_legacy_native_nonfinite_refuses_before_pointer_publication"
+    ],
+    "plugin": "/dev/shm/e02-D-transfer-frozen469-06qbulta/remove_private_finite.py",
+    "property": "Remove only private native get_items finite admission; genuineCAS/nativeheader/schema/digest remain: oldgeneration must not publish actual storedNaN (expectedassertionFAIL)."
+  }
+}

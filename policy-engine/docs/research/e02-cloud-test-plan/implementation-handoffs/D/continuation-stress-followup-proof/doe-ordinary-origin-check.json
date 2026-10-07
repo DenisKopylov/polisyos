@@ -1,0 +1,88 @@
+{
+  "source_sha": "eb826b57fd9ea98550b93f840aca6d54e6454a27",
+  "predicate_basis": "independently_reconciled",
+  "rows": [
+    {
+      "module": "polisyos.scientist.methods.autotune.sensitivity_bridge",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+      "source_sha": "eb826b57fd9ea98550b93f840aca6d54e6454a27",
+      "sha256": "c1a3b0550a853e6442c2e325d39436eabf6c266e1da6694341715295f6e1b631",
+      "actual_origin": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+      "matches_git": true
+    },
+    {
+      "module": "polisyos.scientist.methods.doe._receipt",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "source_sha": "eb826b57fd9ea98550b93f840aca6d54e6454a27",
+      "sha256": "d067cd402809c5a7dcf8d33ddda2b5414b4d67f27021751becfd99556b4e565b",
+      "actual_origin": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "matches_git": true
+    },
+    {
+      "module": "polisyos.scientist.methods.doe.adaptive",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/adaptive.py",
+      "source_sha": "eb826b57fd9ea98550b93f840aca6d54e6454a27",
+      "sha256": "935d9741b7d5aa221aff65a065134eb101369baa305e4ca985158454e61d7632",
+      "actual_origin": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/adaptive.py",
+      "matches_git": true
+    },
+    {
+      "module": "polisyos.scientist.methods.doe.analysis",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+      "source_sha": "eb826b57fd9ea98550b93f840aca6d54e6454a27",
+      "sha256": "db87129797adc4c8c882655a95edd789b44381c47af85cff658e91e1f658e81c",
+      "actual_origin": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+      "matches_git": true
+    },
+    {
+      "module": "polisyos.scientist.methods.doe.designs",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "source_sha": "eb826b57fd9ea98550b93f840aca6d54e6454a27",
+      "sha256": "dbd911c4f805b1b1ee7f90c71c8f1bd4008620be403c907340f322e3296891d6",
+      "actual_origin": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "matches_git": true
+    },
+    {
+      "module": "polisyos.scientist.methods.doe.sampling",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "source_sha": "eb826b57fd9ea98550b93f840aca6d54e6454a27",
+      "sha256": "c27f8163d614b86bfd694560cdd7650a2736362763dfb404fb51d7d508601993",
+      "actual_origin": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "matches_git": true
+    },
+    {
+      "module": "polisyos.scientist.methods.doe.stress_report",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+      "source_sha": "eb826b57fd9ea98550b93f840aca6d54e6454a27",
+      "sha256": "cdf7ffe7bd6e3921749e7aa61624d43fa9e8f831495533bf22441744478cc4ee",
+      "actual_origin": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+      "matches_git": true
+    },
+    {
+      "module": "polisyos.scientist.methods.search.adversarial",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+      "source_sha": "eb826b57fd9ea98550b93f840aca6d54e6454a27",
+      "sha256": "a00f99197074360a8ec969d671180e01a57ffde37126f78addbba938b74698b1",
+      "actual_origin": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+      "matches_git": true
+    },
+    {
+      "module": "polisyos.scientist.methods.search.sensitivity_adapter",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+      "source_sha": "eb826b57fd9ea98550b93f840aca6d54e6454a27",
+      "sha256": "d57967bd6f677d3613e3e1b2900d4cd1156855c774d1bd2a536778729622bafc",
+      "actual_origin": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+      "matches_git": true
+    },
+    {
+      "module": "polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+      "source_sha": "eb826b57fd9ea98550b93f840aca6d54e6454a27",
+      "sha256": "19cf96ccdd90146d597c27e776b4bec34bb2999c588ac048d1ba895bcbdd261e",
+      "actual_origin": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+      "matches_git": true
+    }
+  ],
+  "count": 10,
+  "scope": "All10 actual producer/analysis/adapter/stress/blueprint module origins matched ordinary Git bytes."
+}

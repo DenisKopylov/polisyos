@@ -1,0 +1,29 @@
+{
+  "schema": "D.e02.current-human-cloud-cleanup-authority.v1",
+  "source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "latest_human_instruction_original": "В облаке можешь удалять не нужное самостоятельно, разрешаю",
+  "scope": "Unnecessary cloud data only; active Git/source/checkouts/environments, useful documentation, unique inputs, production and deciding outputs preserved. No new permission requested.",
+  "immutable_packet_reading_rule": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/root-G-verification-packet.json",
+    "json_pointer": "/cleanup",
+    "status": "superseded cleanup instruction snapshot, not factual claim that no deletion occurred",
+    "current_rule": "Latest explicit human authorization supersedes older cloud Trash-only restriction for unnecessary data. Exact completed deletion receipts stay committed; no Trash emptied."
+  },
+  "completed_receipt_refs": [
+    {
+      "source": "9aa2c6511c57b1b0f49fd71d7a1fc0e701af1922",
+      "role": "Earlier committed exact reproducible cleanup receipts/source-preservation/readback. Full source pin and original inputs retained in own history."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-through969/completed-mypy-generated-cache-cleanup.json",
+      "role": "Completed generated mypy cache only; 11596files/310244663bytes; command/output preserved, inactive check recorded."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-through969/completed-mypy-after-generated-cache-cleanup.json",
+      "role": "Second completed generated mypy cache only; exact inactive-user check/count/bytes receipt."
+    }
+  ],
+  "additional_final_cleanup": "No additional final cleanup performed while publication review reads source and deciding outputs. Remaining reproducible fixtures listed in owner packets may be removed only after Git publication/readback and inactive-user check.",
+  "main_or_production_deleted": false,
+  "Trash_emptied": false
+}

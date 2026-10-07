@@ -1,0 +1,72 @@
+{
+  "schema": "e02.D.final_accounting.independent_metadata_review.v1",
+  "reviewer": "gp_oct07; not accounting author; no GP mechanism self-review performed",
+  "verdict": "GO_METADATA_BOUNDED_PUBLICATION",
+  "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+  "package": "/dev/shm/e02-D-census-final-accounting-a795-sealed",
+  "package_manifest_sha256": "ae51035f25c33b127be459fd582b192ed40bece4b9a7a44953c82b33ddf32c45",
+  "package_files": 22,
+  "package_bytes": 1324685,
+  "denominator": {
+    "bundles": 17,
+    "unique_findings": 45,
+    "original_acceptance_occurrences": 46,
+    "owner_packets": 16,
+    "queues": 5,
+    "P37_gates": 230
+  },
+  "original_authority": "All46 raw text/offset/bytes/hash fragments and acceptances directly independently recomputed against immutable198 full B_r19/LA_r09; all17cards/full127bundle+282findingTSV and original617 binding/pointers match.",
+  "proposal_counts_unique": {
+    "closed": 39,
+    "limited": 1,
+    "held": 5
+  },
+  "proposal_counts_occurrence": {
+    "closed": 40,
+    "limited": 1,
+    "held": 5
+  },
+  "held_ids": [
+    "B131",
+    "B137",
+    "B157",
+    "B161",
+    "B164"
+  ],
+  "limited_ids": [
+    "B108"
+  ],
+  "formal_closed": 0,
+  "G_accepted": 0,
+  "P41_not_established_occurrences": 46,
+  "current_bound_original_unique": [
+    "B124",
+    "LA-015"
+  ],
+  "whole_current_verification_missing_occurrences": 38,
+  "runtime_metadata_scope": "Exact3b50/17/12 plusAST44/canonical63/selectedfragments3 separatedfrom actuala795Service31/22/removal1 and historical680Gfactory10/c0numerical proof. No summedwholePASS/renewedposterior claims; existing independent runtime/portable reviews content matched without rerunning or self-reviewing GPcode.",
+  "footprint_counts": {
+    "original_common_base": 3796,
+    "continuation_base": 554,
+    "merged_context": 28
+  },
+  "footprint_unique_current_paths": 3796,
+  "footprint_all_content_independently_Git_hashed": true,
+  "binding_checks": {
+    "recursive_Git_ref_occurrences": 583,
+    "resolved_JSON_pointers": 386,
+    "external_hash_refs": 229,
+    "unique_Git_objects_read": 3875,
+    "selected_owning_paths": 46
+  },
+  "capability_labels": "All16packet labels canonical/nullwhen available; laws/authority not_established, B157producer_missing, B164bridge_missing, currentwhole/globalcompanions verification_missing distinctfrom an ownedfixabledefect.",
+  "publication_boundary": "All22members+manifest exactlocallyavailable; canonical destinations remain pending rootcopy/commit/readback. This GO authorizes metadata integrity only, not G acceptance/formalclosure/mainpublication.",
+  "limitations": [
+    "No tests executed, no source/index/Git writes, no children/cleanup; scratchreview artifact only.",
+    "No originalscientific/tenant/time/permit authority appointed; requiredrealpositive held5 and fiscalunitlaw limitation retained.",
+    "Completeimport closure of historicalreceipts notinferred; selectedowningblobchecks do not renew old runtime.",
+    "Production_invocation diagnostic UNRUN/signal9/missingdecidingreceipt preserved; noPID-specificcause/OOM/inheritedwaiver assertion."
+  ],
+  "unchanged_source_before_after": true
+}

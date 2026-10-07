@@ -1,0 +1,79 @@
+................................................                         [100%]
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+tests/unit/scientist/methods/search/strategies/test_effective_actions.py::test_neural_actual_fit_and_acquisition_emits_attainable_action
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/analytic.py:340: NumericsWarning: ExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 ExpectedImprovement 	 --> 	 LogExpectedImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+__________ test_history_identity_conflicts_fail_closed[candidate_id] ___________
+------------------------------ Captured log call -------------------------------
+WARNING  polisyos.scientist.methods.autotune.bayesian_generator:bayesian_generator.py:410 Skipping history entry 0: conflicting identity fields
+__________ test_history_identity_conflicts_fail_closed[evaluation_id] __________
+------------------------------ Captured log call -------------------------------
+WARNING  polisyos.scientist.methods.autotune.bayesian_generator:bayesian_generator.py:410 Skipping history entry 0: conflicting identity fields
+______________ test_history_identity_conflicts_fail_closed[split] ______________
+------------------------------ Captured log call -------------------------------
+WARNING  polisyos.scientist.methods.autotune.bayesian_generator:bayesian_generator.py:410 Skipping history entry 0: conflicting identity fields
+_____________ test_history_identity_conflicts_fail_closed[origin] ______________
+------------------------------ Captured log call -------------------------------
+WARNING  polisyos.scientist.methods.autotune.bayesian_generator:bayesian_generator.py:410 Skipping history entry 0: conflicting identity fields
+=========================== short test summary info ============================
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_generator.py::TestBayesianCandidateGeneratorFallback::test_generate_returns_current_best
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_generator.py::TestBayesianCandidateGeneratorFallback::test_generate_returns_last_history
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_generator.py::TestBayesianCandidateGeneratorFallback::test_generate_returns_context_when_empty
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_generator.py::TestBayesianCandidateGeneratorFallback::test_botorch_not_available
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_generator.py::TestBayesianCandidateGeneratorFallback::test_warm_start_no_crash
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_generator.py::TestBayesianCandidateGeneratorFallback::test_generate_protocol_compliance
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_generator.py::test_first_sobol_candidate_uses_native_search_space_protocol
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_generator.py::test_search_iteration_history_preserves_origin_params_split_and_full_ids
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_generator.py::test_history_identity_conflicts_fail_closed[candidate_id]
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_generator.py::test_history_identity_conflicts_fail_closed[evaluation_id]
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_generator.py::test_history_identity_conflicts_fail_closed[split]
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_generator.py::test_history_identity_conflicts_fail_closed[origin]
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_generator.py::test_history_without_score_is_not_a_successful_zero_observation
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_generator.py::TestBenchmarkToEvaluation::test_converts_evaluation
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_generator.py::TestBenchmarkToEvaluation::test_returns_none_for_missing_metric
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_generator.py::TestBenchmarkToEvaluation::test_preserves_full_identity_split_origin_and_candidate_params
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_generator.py::TestBenchmarkToEvaluation::test_rejects_metadata_split_conflicting_with_typed_runtime_split
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_generator.py::TestBenchmarkToEvaluation::test_merges_canonical_artifact_id_wire_identity_and_rejects_distinct_wire_id
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_mixed_public_space_matches_independent_physical_encoding
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_default_public_suggestion_consumes_real_seeded_torch_design
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_full_history_identity_reaches_actual_directional_training_and_json[minimize]
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_full_history_identity_reaches_actual_directional_training_and_json[maximize]
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_unmeasured_scalar_does_not_launder_through_history_into_training[False]
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_unmeasured_scalar_does_not_launder_through_history_into_training[True]
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_unmeasured_scalar_does_not_launder_through_history_into_training[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_present_untyped_stage_admission_is_rejected_without_scalar_fallback[false]
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_present_untyped_stage_admission_is_rejected_without_scalar_fallback[true]
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_present_untyped_stage_admission_is_rejected_without_scalar_fallback[0]
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_present_untyped_stage_admission_is_rejected_without_scalar_fallback[1]
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_present_untyped_stage_admission_is_rejected_without_scalar_fallback[None]
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_present_untyped_stage_admission_is_rejected_without_scalar_fallback[malformed5]
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_present_untyped_stage_admission_is_rejected_without_scalar_fallback[malformed6]
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_absent_and_declared_boolean_stage_contract_is_preserved[False-None-True]
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_absent_and_declared_boolean_stage_contract_is_preserved[True-True-True]
+PASSED tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_absent_and_declared_boolean_stage_contract_is_preserved[True-False-False]
+PASSED tests/unit/scientist/methods/search/strategies/test_effective_actions.py::test_fractional_integer_bounds_contain_every_executed_action[0.2-1.8]
+PASSED tests/unit/scientist/methods/search/strategies/test_effective_actions.py::test_fractional_integer_bounds_contain_every_executed_action[-1.8--0.2]
+PASSED tests/unit/scientist/methods/search/strategies/test_effective_actions.py::test_fractional_integer_bounds_contain_every_executed_action[0.2-0.8]
+PASSED tests/unit/scientist/methods/search/strategies/test_effective_actions.py::test_categorical_boolean_and_integer_have_distinct_encoding
+PASSED tests/unit/scientist/methods/search/strategies/test_effective_actions.py::test_invalid_normalized_coordinate_refuses[nan]
+PASSED tests/unit/scientist/methods/search/strategies/test_effective_actions.py::test_invalid_normalized_coordinate_refuses[inf]
+PASSED tests/unit/scientist/methods/search/strategies/test_effective_actions.py::test_invalid_normalized_coordinate_refuses[True]
+PASSED tests/unit/scientist/methods/search/strategies/test_effective_actions.py::test_native_duplicate_consumer_preserves_boolean_integer_category_identity
+PASSED tests/unit/scientist/methods/search/strategies/test_effective_actions.py::test_unrepresentable_affine_domain_refuses_at_admission[random]
+PASSED tests/unit/scientist/methods/search/strategies/test_effective_actions.py::test_unrepresentable_affine_domain_refuses_at_admission[public]
+PASSED tests/unit/scientist/methods/search/strategies/test_effective_actions.py::test_supported_logarithmic_endpoints_are_actual_in_bound_actions
+PASSED tests/unit/scientist/methods/search/strategies/test_effective_actions.py::test_multiobjective_native_tensor_converter_emits_executed_coordinate
+PASSED tests/unit/scientist/methods/search/strategies/test_effective_actions.py::test_neural_actual_fit_and_acquisition_emits_attainable_action
+48 passed, 3 warnings in 8.49s

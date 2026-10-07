@@ -1,0 +1,60 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+________ test_anonymous_report_retry_is_counted_once_at_actual_cas_path ________
+
+tmp_path = PosixPath('/dev/shm/e02-D-retry-red-full-da110845438f4f98a28e8603c3993b81/test_anonymous_report_retry_is0')
+
+    def test_anonymous_report_retry_is_counted_once_at_actual_cas_path(tmp_path: Path) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        registry = build_default_registry_bundle(store).bundle_ref
+        run = RunContext.start(store=store, registry_bundle=registry, run_id="retry-counts")
+        ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("retry-counts"))
+        base = _run([1.0, 3.0])
+        child = _run([1.0, 1.0])
+        ref = store.put_json(
+            base.model_dump(mode="json"),
+            PutOptions(kind="scientist.stress_test_report", media_type="application/json"),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        state = ExperimentState(
+            run_id="retry-counts", artifacts_index={ARTIFACT_STRESS_TEST_REPORT_REF: ref}
+        )
+        first = _ensure_stress_test_report(
+            ctx,
+            state,
+            evaluation_vector=PolicyEvaluationVector(candidate_id="c"),
+            supplemental_reports=[child],
+        )
+        retried_state = state.model_copy(
+            update={"artifacts_index": {ARTIFACT_STRESS_TEST_REPORT_REF: first}}
+        )
+        second = _ensure_stress_test_report(
+            ctx,
+            retried_state,
+            evaluation_vector=PolicyEvaluationVector(candidate_id="c"),
+            supplemental_reports=[child],
+        )
+    
+        def read(reference):
+            return StressTestReport.model_validate(
+                from_canonical_bytes(store.get_bytes(reference.artifact_id))
+            )
+    
+        assert read(first).scenario_evidence.attempted == 4
+>       assert read(second).scenario_evidence.attempted == 4
+E       AssertionError: assert 6 == 4
+E        +  where 6 = StressScenarioEvidence(attempted=6, finite_evaluated=6, violated_scenarios=1, unknown_or_nonfinite=0, planned_scenario... medium_occurrences=0, assessment_rule='component_assessments', objective_direction=None, vulnerability_threshold=None).attempted
+E        +    where StressScenarioEvidence(attempted=6, finite_evaluated=6, violated_scenarios=1, unknown_or_nonfinite=0, planned_scenario... medium_occurrences=0, assessment_rule='component_assessments', objective_direction=None, vulnerability_threshold=None) = StressTestReport(schema_version='1.1', report_id='stress.report.sha256_c42730049349378d74d321cd131c8d2becfc8b5ed60ab7d...il', 'unique_vulnerability_count': 1, 'unknown_or_nonfinite': 0, 'valid_evaluation_count': 2, 'violated_scenarios': 1}).scenario_evidence
+E        +      where StressTestReport(schema_version='1.1', report_id='stress.report.sha256_c42730049349378d74d321cd131c8d2becfc8b5ed60ab7d...il', 'unique_vulnerability_count': 1, 'unknown_or_nonfinite': 0, 'valid_evaluation_count': 2, 'violated_scenarios': 1}) = <function test_anonymous_report_retry_is_counted_once_at_actual_cas_path.<locals>.read at 0x7f780a8c83b0>(ArtifactRef(artifact_id=ArtifactID(root='sha256:12afd0646a437f1545536cb83bb9dc800f29ccd5f3316bdea07dc92ac84236ee'), kind='scientist.stress_test_report', media_type='application/json', manifest_profile_sha256=None))
+
+tests/unit/scientist/search/test_stress_scenario_evidence.py:268: AssertionError
+=============================== warnings summary ===============================
+../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/search/test_stress_scenario_evidence.py::test_anonymous_report_retry_is_counted_once_at_actual_cas_path
+RUNTIME_ENVIRONMENT={"executable": "/workspace/e02-D-locked-env/bin/python", "exit_code": 1, "modules": [{"module": "polisyos.scientist.methods.doe.designs", "path": "/dev/shm/e02-D-schema-red-full-hx_wf3to/policy-engine/src/polisyos/scientist/methods/doe/designs.py", "sha256": "2cdff56bdd7641bea47efe0bfb57677039389a72975e749c51089d4d5513586e"}, {"module": "polisyos.scientist.methods.doe.stress_report", "path": "/dev/shm/e02-D-schema-red-full-hx_wf3to/policy-engine/src/polisyos/scientist/methods/doe/stress_report.py", "sha256": "971db6f3af4a9d5f16e42eca5a297154f0d286cd9ade1fbc510b5665130ecab1"}, {"module": "polisyos.scientist.methods.doe.sampling", "path": "/dev/shm/e02-D-schema-red-full-hx_wf3to/policy-engine/src/polisyos/scientist/methods/doe/sampling.py", "sha256": "a8d629515b316b48055b763da9eede1a620769f0423890a61d15b09d8bfc3d8e"}, {"module": "polisyos.scientist.methods.search.adversarial", "path": "/dev/shm/e02-D-schema-red-full-hx_wf3to/policy-engine/src/polisyos/scientist/methods/search/adversarial.py", "sha256": "a00f99197074360a8ec969d671180e01a57ffde37126f78addbba938b74698b1"}, {"module": "polisyos.scientist.policy_design.adversary", "path": "/dev/shm/e02-D-schema-red-full-hx_wf3to/policy-engine/src/polisyos/scientist/policy_design/adversary.py", "sha256": "a057c4c59e9bcac81f1892e289b8999293814ecd6d333d843d81f92a839ac87e"}, {"module": "polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime", "path": "/dev/shm/e02-D-schema-red-full-hx_wf3to/policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py", "sha256": "3b56afa1f0fcb32d1871fc7e6465164651314a9130c22945330b4287fe0932e6"}, {"module": "polisyos.scientist.methods.search.funnel.level5_refutation_governance", "path": "/dev/shm/e02-D-schema-red-full-hx_wf3to/policy-engine/src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py", "sha256": "f2e4ae18185eda455a714719f6596419143cc70587af7dee3ba4ca9f728550b4"}, {"module": "polisyos.scientist.methods.search.funnel.orchestrator", "path": "/dev/shm/e02-D-schema-red-full-hx_wf3to/policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py", "sha256": "693f7646f03267b772284f003c3da3b2550e0be7f31d85b1a036fe902e506aff"}], "pydantic": "2.12.5", "pytest": "9.0.2", "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]"}

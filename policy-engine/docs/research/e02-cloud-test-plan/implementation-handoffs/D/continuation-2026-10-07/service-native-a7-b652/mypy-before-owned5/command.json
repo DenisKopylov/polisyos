@@ -1,0 +1,51 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "mypy",
+    "--config-file=mypy.ini",
+    "--cache-dir=/dev/shm/e02-D-runner-mypy-before-na8v4l_f/cache",
+    "--show-error-codes",
+    "src/polisyos/scientist/methods/autotune/runtime.py"
+  ],
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "env": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine"
+  },
+  "before": {
+    "HEAD": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+    "status": " M policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md\n M policy-engine/src/polisyos/core/llm/README.md\n M policy-engine/src/polisyos/core/llm/response.py\n M policy-engine/src/polisyos/scientist/methods/autotune/runtime.py\n M policy-engine/src/polisyos/scientist/methods/search/funnel/README.md\n M policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py\n M policy-engine/src/polisyos/scientist/methods/search/service.py\n M policy-engine/src/polisyos/scientist/orchestration/llm/README.md\n M policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py\n M policy-engine/tests/integration/scientist/methods/search/funnel/test_cache_settlement_binding.py\n M policy-engine/tests/integration/scientist/methods/search/funnel/test_native_resource_cost_stopping.py\n M policy-engine/tests/integration/scientist/methods/search/funnel/test_orchestrator.py\n M policy-engine/tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py\n M policy-engine/tests/unit/remediation/test_llm_01.py\n M policy-engine/tests/unit/scientist/methods/search/test_service_persistence.py\n M policy-engine/tests/unit/scientist/methods/search/test_typed_objective_persisted_projection.py\n?? policy-engine/release-fragments/unreleased/2026-10-07-native-search-budget-owner-port.toml\n?? policy-engine/release-notes/\n?? policy-engine/tests/unit/scientist/methods/search/test_service_owner_budget_factory.py\n",
+    "inputs": {
+      "src/polisyos/scientist/methods/autotune/runtime.py": "2de2a82c1adc7f49fa23025e880ab4385891d3a2a45aa45fc1fbc606f1be936f",
+      "src/polisyos/scientist/methods/search/service.py": "3df2c3a05c0571065f8ac45c260a03a80c1493ebfab1b0f532d9e90a5a83a6b1",
+      "src/polisyos/scientist/methods/search/stopping.py": "84aaa5c7a3737000985d39c6b3b8803bb03a052e64b702944ca322a2ae1234ee",
+      "src/polisyos/scientist/methods/search/controller.py": "9bbbd5b23c9ef43d18370f3bd0e25243eb56cdcd844a2d5f83744c30d4bbcc53",
+      "mypy.ini": "fb1ae483c1d597920e8418e908d95061010ccddcac4fe88d7a9c96144a646538"
+    }
+  },
+  "scope": "Targeted actual current runtime module under repository mypy config; dirty candidate diagnostic only, no inherited/P41 claim",
+  "exit_code": 1,
+  "seconds": 78.18355162499938,
+  "after": {
+    "HEAD": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+    "status": " M policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md\n M policy-engine/src/polisyos/core/llm/README.md\n M policy-engine/src/polisyos/core/llm/response.py\n M policy-engine/src/polisyos/scientist/methods/autotune/runtime.py\n M policy-engine/src/polisyos/scientist/methods/search/funnel/README.md\n M policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py\n M policy-engine/src/polisyos/scientist/methods/search/service.py\n M policy-engine/src/polisyos/scientist/orchestration/llm/README.md\n M policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py\n M policy-engine/tests/integration/scientist/methods/search/funnel/test_cache_settlement_binding.py\n M policy-engine/tests/integration/scientist/methods/search/funnel/test_native_resource_cost_stopping.py\n M policy-engine/tests/integration/scientist/methods/search/funnel/test_orchestrator.py\n M policy-engine/tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py\n M policy-engine/tests/unit/remediation/test_llm_01.py\n M policy-engine/tests/unit/scientist/methods/search/test_service_persistence.py\n M policy-engine/tests/unit/scientist/methods/search/test_typed_objective_persisted_projection.py\n?? policy-engine/release-fragments/unreleased/2026-10-07-native-search-budget-owner-port.toml\n?? policy-engine/release-notes/\n?? policy-engine/tests/unit/scientist/methods/search/test_service_owner_budget_factory.py\n",
+    "inputs": {
+      "src/polisyos/scientist/methods/autotune/runtime.py": "2de2a82c1adc7f49fa23025e880ab4385891d3a2a45aa45fc1fbc606f1be936f",
+      "src/polisyos/scientist/methods/search/service.py": "3df2c3a05c0571065f8ac45c260a03a80c1493ebfab1b0f532d9e90a5a83a6b1",
+      "src/polisyos/scientist/methods/search/stopping.py": "84aaa5c7a3737000985d39c6b3b8803bb03a052e64b702944ca322a2ae1234ee",
+      "src/polisyos/scientist/methods/search/controller.py": "9bbbd5b23c9ef43d18370f3bd0e25243eb56cdcd844a2d5f83744c30d4bbcc53",
+      "mypy.ini": "fb1ae483c1d597920e8418e908d95061010ccddcac4fe88d7a9c96144a646538"
+    }
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 808,
+      "sha256": "2adf38d1d9097b4614b0a2b754af0b075ed095b8b22a377941376ab231679f81"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

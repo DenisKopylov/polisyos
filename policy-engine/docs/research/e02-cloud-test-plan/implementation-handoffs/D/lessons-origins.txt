@@ -1,0 +1,4 @@
+python /workspace/e02-D-locked-env/bin/python 3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]
+polisyos.scientist.methods.search.lessons /workspace/e02-D2-receipts/transfer/lessons-healthy/policy-engine/src/polisyos/scientist/methods/search/lessons.py
+polisyos.scientist.methods.search.controller /workspace/e02-D2-receipts/transfer/lessons-healthy/policy-engine/src/polisyos/scientist/methods/search/controller.py
+polisyos.scientist.methods.search.transfer_context /workspace/e02-D2-receipts/transfer/lessons-healthy/policy-engine/src/polisyos/scientist/methods/search/transfer_context.py

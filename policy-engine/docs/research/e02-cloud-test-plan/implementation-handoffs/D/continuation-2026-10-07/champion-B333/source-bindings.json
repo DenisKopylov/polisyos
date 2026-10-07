@@ -1,0 +1,56 @@
+{
+  "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "tree": "e809693afe3b84e02d473b5744142d026afbe509",
+  "fixture_reviews_preparation_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+  "runtime_bindings": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+      "preparation_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "executed_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "preparation_sha256": "1339af524b604462021425b9d88f5cbe278f1a8c927827cb3e26fa4f8f0cc6ba",
+      "executed_sha256": "1339af524b604462021425b9d88f5cbe278f1a8c927827cb3e26fa4f8f0cc6ba",
+      "unchanged_bytes": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+      "preparation_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "executed_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "preparation_sha256": "75205f0519b23a9df94affa45de27d137ae4deee969663c388190873269db8c5",
+      "executed_sha256": "75205f0519b23a9df94affa45de27d137ae4deee969663c388190873269db8c5",
+      "unchanged_bytes": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "preparation_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "executed_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "preparation_sha256": "caa6b0463acdfd2d895942626f5e909c16e29492c705b589535836d18ffb7b3b",
+      "executed_sha256": "b64d2e6a49e173e58316bf843dab889a775d6b26c9ad6a81d10c2281bce94185",
+      "unchanged_bytes": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "preparation_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "executed_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "preparation_sha256": "d8909558cc43e4bb581025424f682cc2b0927d72bd36c62d5cd17db1fa19e115",
+      "executed_sha256": "3df2c3a05c0571065f8ac45c260a03a80c1493ebfab1b0f532d9e90a5a83a6b1",
+      "unchanged_bytes": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/common/serialization.py",
+      "preparation_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "executed_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "preparation_sha256": "485303bf79f150fa9df259d7354d3104a4bdb94d9114cddb6e17dcc424316f0d",
+      "executed_sha256": "485303bf79f150fa9df259d7354d3104a4bdb94d9114cddb6e17dcc424316f0d",
+      "unchanged_bytes": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py",
+      "preparation_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "executed_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "preparation_sha256": "f9a5a1453c99d51d1e09dd2f53f48f1d9547a0c1ca428560568dc1d304e1d0bf",
+      "executed_sha256": "f9a5a1453c99d51d1e09dd2f53f48f1d9547a0c1ca428560568dc1d304e1d0bf",
+      "unchanged_bytes": true
+    }
+  ],
+  "qualifier": "Actual a7 runtime executed changed producer; old reviews and owner-source-minimum preparationpins stay historical. CanonicalB source7map unchanged; no sourcecarry/P41 waiver."
+}

@@ -1,0 +1,643 @@
+{
+  "schema": "e02.D.original-criterion-witness-inventory.v1",
+  "unit": "D",
+  "source_sha": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+  "source_tree": "855ae45bd271d207ad3121276a5281454d1d38de",
+  "original_criterion_git_ref": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+  "original_criterion_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+  "original_criterion_blob_sha256": "fb6f8d6fd8e7ebaea6df25c469429cfe9d1f314a4e62caa6dbce514f164e76ad",
+  "scope": "13 unique IDs /14 original occurrences owned by service/CTL/OPT supplier inventory; complete D ledger stays root45/46, no criterion reductions",
+  "status": "author_inventory_pending_independent_review; ordinary missing checks are actionable, not relabelled limited",
+  "rows": [
+    {
+      "id": "B108@OPT-01",
+      "finding_id": "B108",
+      "criterion_card": "OPT-01",
+      "canonical_closure_owner": "OPT-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-opt-01",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          2897,
+          2910
+        ],
+        "byte_offset": 647789,
+        "bytes": 3817,
+        "sha256": "f43cecf8c2c66d6cc7bce5c5174b45fe7692e5018e1364c9798302104f8e4b55"
+      },
+      "canonical_content": {
+        "text": "**Приёмка и предел.** Эквивалентные кодировки balance/deficit дают одинаковый score; ноль не считается отсутствием; полностью отсутствующее, конфликтующее, non-finite и несовместимые единицы различены. Настоящие симуляционные producer и пользовательский search здесь не запускались.",
+        "byte_offset": 651124,
+        "bytes": 480,
+        "sha256": "8d4cbd469a454de4a7f4a26aa91c3fdf8aabf3b2b59bb77651b99146bcaa888c"
+      },
+      "canonical_card_pointer": "/canonical_cards/OPT-01",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "current_142",
+        "root_final_two"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/OPT-01",
+      "missing_input_pointer": "/findings/2/unreceived_inputs_or_APIs",
+      "continuation_evidence": {
+        "mechanism": "BudgetDeficitObjective existing balance/deficit alias/sign/zero/missing/conflict/nonfinite intake",
+        "current_witness": "Math Pareto/objective receipt exact own source; do not infer unit law from bare scalar",
+        "remaining": "Existing compute runner emits bare gov_balance; native MetricSpec gov_balance/government_balance unit_id is None. No appointed unit-bearing MetricSpec value/caller exists in this input; incompatible unit clause needs minimum owner contract, not invented results[unit].",
+        "next_owner": "MetricSpec/unit-law owner plus actual fiscal producer/caller; appointment not_established",
+        "check": "UNRUN unit-bearing consumer"
+      },
+      "finding_disposition": "open",
+      "formal_closure": "not_adjudicated",
+      "accepted_G": false
+    },
+    {
+      "id": "B113@OPT-02",
+      "finding_id": "B113",
+      "criterion_card": "OPT-02",
+      "canonical_closure_owner": "OPT-02",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-opt-02",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          2969,
+          2982
+        ],
+        "byte_offset": 666861,
+        "bytes": 3671,
+        "sha256": "1bd3fb58eb1fd1fbdc00d8a88c085a3c60b33ee11fab6f5e8c8c80c1c5d17115"
+      },
+      "canonical_content": {
+        "text": "**Приёмка.** Разные физические параметры дают разные ожидаемые координаты; категориальные размеры корректны; полные IDs переживают сериализацию; отсутствие результата не становится нулём. Проверить оба формата истории и фактический caller. Измерение реального качества GP и конкретное downstream-стирание записи по короткому ID не выполнялись; показана потеря информации на самом adapter.",
+        "byte_offset": 669842,
+        "bytes": 688,
+        "sha256": "a58659486c95650eb9a6228a8df62809daede33c44d147794b7f4e78d7ed7624"
+      },
+      "canonical_card_pointer": "/canonical_cards/OPT-02",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17",
+        "GP26"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/OPT-02",
+      "missing_input_pointer": "/findings/7/unreceived_inputs_or_APIs",
+      "continuation_evidence": {
+        "mechanism": "BayesianCandidateGenerator both dict and SearchIteration conversion and actual native GP train/JSON restore",
+        "selectors": [
+          "tests/unit/scientist/methods/autotune/test_bayesian_generator.py::test_search_iteration_history_preserves_origin_params_split_and_full_ids",
+          "tests/unit/scientist/methods/autotune/test_bayesian_generator.py::TestEvaluationConversions::test_preserves_full_identity_split_origin_and_candidate_params",
+          "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_full_history_identity_reaches_actual_directional_training_and_json"
+        ],
+        "remaining": "GP owner adds min/max actual MLL selector to final changed-dependency wave; production-specific quality/history optional criterion caveat is not a replacement for both ordinary formats. New StrategyAdapter persistence additionally needs its supported Scalar/default-extractor configured bridge, independent of hierarchical custom-callback owner input.",
+        "next_owner": "GP runtime author/reviewer and D native adapter owner",
+        "check": "UNRUN exact future freeze"
+      },
+      "finding_disposition": "open",
+      "formal_closure": "not_adjudicated",
+      "accepted_G": false
+    },
+    {
+      "id": "B116@OPT-04",
+      "finding_id": "B116",
+      "criterion_card": "OPT-04",
+      "canonical_closure_owner": "OPT-04",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-opt-04",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3011,
+          3024
+        ],
+        "byte_offset": 677489,
+        "bytes": 3727,
+        "sha256": "3f04f3ddd1d21f7ffbea51147028ae51287460255c7b5dc52ad9a1b487e49f98"
+      },
+      "canonical_content": {
+        "text": "**Приёмка.** Перепутанная пара A/B, чужой loop, неверный split и несовместимая suite не меняют pointer; одинаковая подтверждённая база допускает честное улучшение; ошибка возвращает конкретную несовместимость, а не общий low score. Проверить cache-replay оценки и штатный evaluator-to-registry путь.",
+        "byte_offset": 680728,
+        "bytes": 486,
+        "sha256": "838816f2bb639f8c98b0972d2433933f1d8c3f39d8d14f6ee03d52f59c4004ab"
+      },
+      "canonical_card_pointer": "/canonical_cards/OPT-04",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/OPT-04",
+      "missing_input_pointer": "/findings/10/unreceived_inputs_or_APIs",
+      "continuation_evidence": {
+        "mechanism": "existing native evaluator → immutable CAS candidate/evaluation/suite comparison → ChampionRegistry",
+        "receipt": "champion-original-b5.receipt.json",
+        "selectors": [
+          "test_native_evaluator_registry_and_fresh_process_read_exact_profiles_and_immutable_inputs",
+          "test_actual_reused_content_keeps_old_qualified_view_and_refuses_wrong_candidate_profile",
+          "test_native_seed_incumbent_is_actually_re_evaluated_on_active_immutable_suite"
+        ],
+        "remaining": "6-case module verifies qualified views/cache-content replay basis and active-suite incumbent reevaluation; independent receipt review pending. Existing API owner minimum CAS ref is a cross-owner integration edge, not a reason to omit ordinary local evaluator/cache-replay acceptance.",
+        "check": "PASS bounded exact b5; full original wrong-pair/loop/split/suite module coverage delta review required"
+      },
+      "finding_disposition": "open",
+      "formal_closure": "not_adjudicated",
+      "accepted_G": false
+    },
+    {
+      "id": "B117@OPT-04",
+      "finding_id": "B117",
+      "criterion_card": "OPT-04",
+      "canonical_closure_owner": "OPT-04",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-opt-04",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3025,
+          3038
+        ],
+        "byte_offset": 681216,
+        "bytes": 3986,
+        "sha256": "716aa89ce5b68d85b0487a8509806214c17d261958740f7363c2228a033f924d"
+      },
+      "canonical_content": {
+        "text": "**Приёмка и предел.** Управляемая последовательность B/C не ухудшает лучший актуальный результат по одной принятой политике; conflicting predicate возвращается явно. Авария на границе публикации даёт старое или новое согласованное состояние. На production workload конкурентное обращение к этому registry не измерялось; карточка применима при разрешении нескольких писателей. Новый распределённый реестр ради одного локального сценария не нужен.",
+        "byte_offset": 684423,
+        "bytes": 777,
+        "sha256": "9bc6c9b17b4234d10455cb41f4a8e6380c31163687291bb38242529bb954d319"
+      },
+      "canonical_card_pointer": "/canonical_cards/OPT-04",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/OPT-04",
+      "missing_input_pointer": "/findings/11/unreceived_inputs_or_APIs",
+      "continuation_evidence": {
+        "mechanism": "existing under-lock canonical reread and atomic local POSIX champion pointer; real competing writer/os._exit/fresh reader",
+        "receipt": "champion-original-b5.receipt.json",
+        "selectors": [
+          "test_competing_native_writer_refuses_actual_stale_pair_after_lock_held_reread",
+          "test_actual_process_exit_around_atomic_pointer_replace_has_complete_fresh_view[before-1]",
+          "test_actual_process_exit_around_atomic_pointer_replace_has_complete_fresh_view[after-2]"
+        ],
+        "remaining": "Census reviews complete actual outputs. No distributed or physical power-loss guarantee; original criterion does not demand production concurrency benchmark.",
+        "check": "PASS bounded exact b5"
+      },
+      "finding_disposition": "open",
+      "formal_closure": "not_adjudicated",
+      "accepted_G": false
+    },
+    {
+      "id": "B118@CTL-01",
+      "finding_id": "B118",
+      "criterion_card": "CTL-01",
+      "canonical_closure_owner": "CTL-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-ctl-01",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3164,
+          3177
+        ],
+        "byte_offset": 712429,
+        "bytes": 4038,
+        "sha256": "c92cdd35554b9006c3632ceb0314c7378ad6ab123b9abf3ce040c25f5ba12b90"
+      },
+      "canonical_content": {
+        "text": "**Приёмка.** Два независимых run на одном владельце эквивалентны двум новым владельцам; первый результат не изменяется после второго; расходы и sentinels учитываются в своей области. Одновременные run на одном изменяемом контроллере либо поддержаны отдельным состоянием, либо прямо запрещены. Нынешний `SearchLoopRunner`, создающий свежий контроллер, может избегать этого сценария.",
+        "byte_offset": 715794,
+        "bytes": 671,
+        "sha256": "0b2c57a0df378303470a151c0d9ffa22e3e8eaa952e3f607113478a80e9581f0"
+      },
+      "canonical_card_pointer": "/canonical_cards/CTL-01",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/CTL-01",
+      "missing_input_pointer": "/findings/12/unreceived_inputs_or_APIs",
+      "continuation_evidence": {
+        "mechanism": "fresh per-run SearchRunState, detached history/result, non-reentrant owner, native public factory",
+        "receipt": "ctl-original-b5.receipt.json",
+        "selectors": [
+          "tests/unit/scientist/methods/search/test_controller.py::test_repeated_native_runs_reset_acceptance_empty_generation_and_zero_evaluation",
+          "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py::test_public_runner_two_runs_detach_history_and_preserve_actual_cas_evaluation"
+        ],
+        "remaining": "Current b5 CTL10 proves repeated counters/empty/zero/old result. Native lifecycle original469 receipt covers actual factory and saved outputs; new adapter/controller contract requires final affected replay, including direct non-reentrancy existing checks. Distributed served HTTP dispatch is not original per-controller acceptance.",
+        "check": "PASS repeated run exact b5; additional final consumer replay UNRUN"
+      },
+      "finding_disposition": "open",
+      "formal_closure": "not_adjudicated",
+      "accepted_G": false
+    },
+    {
+      "id": "B119@CTL-01",
+      "finding_id": "B119",
+      "criterion_card": "CTL-01",
+      "canonical_closure_owner": "CTL-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-ctl-01",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3178,
+          3191
+        ],
+        "byte_offset": 716467,
+        "bytes": 3659,
+        "sha256": "c10292d6ac97feeb9e4cdb704950050d5f363157c2c7deb125810a2141891ac0"
+      },
+      "canonical_content": {
+        "text": "**Приёмка.** Постоянная пустота заканчивается точным частичным результатом или exhaustion; временная пустота допускает ограниченный переход к настоящему кандидату; бюджет генерации и оплаченные внешние вызовы не теряются. Генератор с отменой и отказом должен сохранять свою причину остановки.",
+        "byte_offset": 719593,
+        "bytes": 531,
+        "sha256": "2df8d82c78083a0795327b04b6d0175330efa9f45f87e41b60ae40f89c635f97"
+      },
+      "canonical_card_pointer": "/canonical_cards/CTL-01",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/CTL-01",
+      "missing_input_pointer": "/findings/13/unreceived_inputs_or_APIs",
+      "continuation_evidence": {
+        "mechanism": "native batch attempts/empty bounded transition/exhaustion/partial/cancel reason and existing paid-resource readback",
+        "receipt": "ctl-original-b5.receipt.json",
+        "selectors": [
+          "tests/unit/scientist/methods/search/test_service_batch_control_reasons.py",
+          "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py::test_native_empty_supplier_exhausts_without_accepting_history"
+        ],
+        "remaining": "Existing full reason module actually covers transient/persistent empty, StopIteration/ValueError/CancelledError/async cancel, acknowledged partial state/CAS/fresh reader, and provider settlement. Included original46996 unchanged at d610 only; future B1.2 pre_check contract warrants exact final replay. Empty scalar Sequence explicitly refuses before invalid state; it is not a successful empty generator profile.",
+        "check": "PASS CTL repeated empty exact b5; full reason final replay UNRUN"
+      },
+      "finding_disposition": "open",
+      "formal_closure": "not_adjudicated",
+      "accepted_G": false
+    },
+    {
+      "id": "B121@CTL-03",
+      "finding_id": "B121",
+      "criterion_card": "CTL-03",
+      "canonical_closure_owner": "CTL-03",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-ctl-03",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3206,
+          3221
+        ],
+        "byte_offset": 723586,
+        "bytes": 3721,
+        "sha256": "b47c247722c53867b98ba5f11bf37fa25f5a904284cf2cabf99661c5347c5203"
+      },
+      "canonical_content": {
+        "text": "**Приёмка.** Для явно объявленного бюджета новых оцениваний добавление пригодной истории не уменьшает его; контрольные вычисления расходуют ресурс, не становятся обучающими наблюдениями и не портят best/frontier. Проверяются комбинации с B118–B120.",
+        "byte_offset": 726866,
+        "bytes": 439,
+        "sha256": "926f2f672300e9dd03830f1677ba7354bf461218ef9c41841e1f9f6a72f30548"
+      },
+      "canonical_card_pointer": "/canonical_cards/CTL-03",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/CTL-03",
+      "missing_input_pointer": "/findings/15/unreceived_inputs_or_APIs",
+      "continuation_evidence": {
+        "mechanism": "single canonical transition keeps warm training/new ordinary/sentinel/resource counters distinct",
+        "selectors": [
+          "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py::test_native_route_forbids_private_full_evaluation_and_preserves_warm_sentinel_empty_stop",
+          "tests/unit/scientist/methods/search/test_service_persistence.py::test_same_actual_warm_corpus_fresh_reader_preserves_training_and_current_history",
+          "tests/unit/scientist/methods/search/test_controller.py::test_measured_provider_charge_drives_stopping_and_detached_report"
+        ],
+        "remaining": "Actual native lifecycle warm+sentinel+rejected+accepted values and counters historically46996; fresh warm restore and paid recorded resource controller exact b5 subset. Next final wave recomposes after B1.2/adapter/Grid state; external invoice truth not claimed.",
+        "check": "PASS paid stopping exact b5; final combined counter replay UNRUN"
+      },
+      "finding_disposition": "open",
+      "formal_closure": "not_adjudicated",
+      "accepted_G": false
+    },
+    {
+      "id": "B123@CTL-03",
+      "finding_id": "B123",
+      "criterion_card": "CTL-03",
+      "canonical_closure_owner": "CTL-03",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-ctl-03",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3236,
+          3249
+        ],
+        "byte_offset": 730419,
+        "bytes": 3954,
+        "sha256": "a36f027f31c7f0f4b9ff333811b9ecc4bb6a480853a13d7d026d2543593d9a95"
+      },
+      "canonical_content": {
+        "text": "**Не добавлять лишний всеобщий gate.** Корректный legacy-режим без typed-входа остаётся возможен. Использовать существующее разделение research/decision и типизированную диагностику; приведённые различия — требования к семантике, не новые обязательные статусы репозитория. Приёмка связывает сам resolver, реальный ObjectiveStack, потребителя best/frontier и последующую публикацию.",
+        "byte_offset": 733728,
+        "bytes": 643,
+        "sha256": "e38f999cb45a59fb619e7f89e35f20f752b4f0be6d279b6136de1f674b45befd"
+      },
+      "canonical_card_pointer": "/canonical_cards/CTL-03",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/CTL-03",
+      "missing_input_pointer": "/findings/17/unreceived_inputs_or_APIs",
+      "continuation_evidence": {
+        "mechanism": "typed resolver distinguishes absent legacy from malformed-present, blocks best and frontier with actual diagnostic",
+        "receipt": "ctl-original-b5.receipt.json",
+        "selectors": [
+          "tests/unit/scientist/methods/search/test_controller.py::test_present_malformed_typed_result_never_uses_legacy_scalar",
+          "tests/unit/scientist/methods/search/test_controller.py::test_absent_legacy_payload_accepts_scalar_but_malformed_present_cannot_retain_prior_best",
+          "tests/unit/scientist/search/test_search_loop.py::TestOptimizationFlow::test_malformed_typed_evaluation_cannot_fall_back_to_legacy_objective"
+        ],
+        "remaining": "10PASS includes resolver and actual SearchLoop stage supplier/best. Original text additionally requires real ObjectiveStack/frontier/subsequent publication; existing typed positive service readback is complementary but not invalid typed through actual Stack publication. Inspect/add exact actual Stack/CAS invalid-present negative and legacy positive; B164 authority is a distinct criterion.",
+        "check": "PASS resolver/best exact b5; full Stack/persisted invalid projection UNRUN"
+      },
+      "finding_disposition": "open",
+      "formal_closure": "not_adjudicated",
+      "accepted_G": false
+    },
+    {
+      "id": "B124@CTL-02",
+      "finding_id": "B124",
+      "criterion_card": "CTL-02",
+      "canonical_closure_owner": "CTL-02",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-ctl-02",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3250,
+          3263
+        ],
+        "byte_offset": 734373,
+        "bytes": 3809,
+        "sha256": "77a12566a323c32df2df5d2440997a01226630d79ef6fd1d1f5b939a3b1fa3c5"
+      },
+      "canonical_content": {
+        "text": "**Приёмка.** Разные даты реального действия дают разные предметные ключи; только дата загрузки/trace не вызывает лишнее вычисление. Тестируется нормальная дедупликация одного и того же канонического входа и сохранение нескольких оценок/реплик. Перестановка полей JSON не меняет смысл, а временные данные не удаляются только по суффиксу имени.",
+        "byte_offset": 737560,
+        "bytes": 620,
+        "sha256": "dcfbad092c0072a6fb2c7094e9b53f0fa51977ab80a742ace74838785f9a1133"
+      },
+      "canonical_card_pointer": "/canonical_cards/CTL-02",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/CTL-02",
+      "missing_input_pointer": "/findings/18/unreceived_inputs_or_APIs",
+      "continuation_evidence": {
+        "mechanism": "canonical policy_candidate_hash preserves semantic dates and exact JSON types; normalized actual action + replica identity dedup",
+        "selectors": [
+          "tests/unit/scientist/methods/search/strategies/test_strategy_state.py::test_nested_semantic_metadata_date_is_identity",
+          "tests/unit/scientist/search/strategies/test_bayesian.py::test_duplicate_detection_uses_canonical_integer_and_category_execution",
+          "tests/unit/scientist/search/strategies/test_bayesian.py::test_duplicate_detection_keeps_same_replicate_different_seed_distinct"
+        ],
+        "remaining": "Helper date test and GP duplicate/replica checks do not alone prove actual persisted policy registry date/trace/JSON permutation/replicas. Math actual ParetoRegistry fixture witness requested; add actual consumer test if absent. Do not apply arbitrary date law to scalar SearchSpace profiles without such input.",
+        "check": "UNRUN full ordinary persisted identity consumer"
+      },
+      "finding_disposition": "open",
+      "formal_closure": "not_adjudicated",
+      "accepted_G": false
+    },
+    {
+      "id": "B126@CTL-02",
+      "finding_id": "B126",
+      "criterion_card": "CTL-02",
+      "canonical_closure_owner": "CTL-02",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-ctl-02",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3278,
+          3291
+        ],
+        "byte_offset": 741368,
+        "bytes": 3791,
+        "sha256": "f05138039bb68e205dc185417722e7c5113d18276733c1e4f91577e83476e16d"
+      },
+      "canonical_content": {
+        "text": "**Приёмка.** Одинаковый логический индекс после 1+1+… и пакетной подготовки, до/после checkpoint и при чтении уже известной точки. Без смены объявленного algorithm-version исходное исследование не меняется из-за способа заполнения кэша.",
+        "byte_offset": 744753,
+        "bytes": 404,
+        "sha256": "0054a0cfb74b77d2cfa02a6671ed1ee829854b1a9cf1cbadb05537ffa85ef532"
+      },
+      "canonical_card_pointer": "/canonical_cards/CTL-02",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/CTL-02",
+      "missing_input_pointer": "/findings/20/unreceived_inputs_or_APIs",
+      "continuation_evidence": {
+        "mechanism": "Base/Sobol fixed logical prefix/cursor/seed/effective algorithm profile and JSON artifact/RNG restore",
+        "selectors": [
+          "tests/unit/scientist/search/strategies/test_space_codec.py::test_sobol_stream_is_stable_across_request_shape_and_checkpoint",
+          "tests/unit/scientist/search/strategies/test_space_codec.py::test_sobol_checkpoint_rejects_saved_prefix_divergence",
+          "tests/unit/scientist/search/strategies/test_space_codec.py::test_sobol_checkpoint_rejects_unknown_sampler_version",
+          "tests/unit/scientist/methods/search/strategies/test_strategy_state.py::test_actual_random_stream_survives_json_roundtrip"
+        ],
+        "remaining": "Base current overflow seam2PASS + removal2FAIL independently reviewed; full changed Base/Grid/MO/Adapter dependency wave uses actual GP/NN/RL/Random/Sobol profiles. Optional backend absence never proves property.",
+        "check": "PASS bounded Base seam b5; full future frozen prefix replay UNRUN"
+      },
+      "finding_disposition": "open",
+      "formal_closure": "not_adjudicated",
+      "accepted_G": false
+    },
+    {
+      "id": "B127@OPT-02",
+      "finding_id": "B127",
+      "criterion_card": "OPT-02",
+      "canonical_closure_owner": "OPT-02",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-opt-02",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3292,
+          3305
+        ],
+        "byte_offset": 745159,
+        "bytes": 3837,
+        "sha256": "ae9f5e873bb33019cfd9524bd407a26c8aa7a5ec84cd2af79a6f2e497427cc70"
+      },
+      "canonical_content": {
+        "text": "**Приёмка.** Бинарные, integer, categorical и continuous параметры; две разные relaxed-точки с одним эффективным действием; разрешённые независимые реплики; исчерпанное конечное пространство. Проверить фактический адаптер Evaluation и pending/completed-учёт: upstream-канонизация может уже защищать отдельный путь, чего этот локальный опыт не устанавливает.",
+        "byte_offset": 748404,
+        "bytes": 590,
+        "sha256": "0cb92c67b7ad455eb8cbb3bba8a88d7297d3ba6dd2e8ec6284edc152f670ac06"
+      },
+      "canonical_card_pointer": "/canonical_cards/OPT-02",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/OPT-02",
+      "missing_input_pointer": "/findings/21/unreceived_inputs_or_APIs",
+      "continuation_evidence": {
+        "mechanism": "canonical attainable projection full type identity, relaxed/effective coordinate distinction, pending/completed/replica/finite exhaustion",
+        "selectors": [
+          "tests/unit/scientist/methods/search/strategies/test_effective_actions.py",
+          "tests/unit/scientist/search/strategies/test_bayesian.py::test_duplicate_detection_uses_canonical_integer_and_category_execution",
+          "tests/unit/scientist/search/strategies/test_bayesian.py::test_duplicate_detection_keeps_same_replicate_different_seed_distinct",
+          "tests/unit/scientist/methods/search/test_strategy_adapter_factory_resume.py"
+        ],
+        "remaining": "Actual Scalar StrategyAdapter public factory → Evaluation sync → persisted pending2/completed1 → fresh resume → grid3 exhaustion bridge is being finished (e325 reviewed with decoder/space residual). Grid35 own state cohort separately. Existing GP min/max/NN/MO converter backend tests must execute final real profile.",
+        "check": "UNRUN exact new bridge freeze"
+      },
+      "finding_disposition": "open",
+      "formal_closure": "not_adjudicated",
+      "accepted_G": false
+    },
+    {
+      "id": "LA-014@SRV-01",
+      "finding_id": "LA-014",
+      "criterion_card": "SRV-01",
+      "canonical_closure_owner": "SRV-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-srv-01",
+      "original_fragment": {
+        "document_key": "LA_r09",
+        "lines": [
+          455,
+          481
+        ],
+        "byte_offset": 52637,
+        "bytes": 2835,
+        "sha256": "7846126004d9315f65d6e3dc9fa392b3942a05ba430f862e7c7176e87c11b0e2"
+      },
+      "canonical_content": {
+        "text": "**Приёмочная проверка.** Импорт contract-only не загружает controller; прежний ask/tell, run_search, unknown/duplicate candidate IDs, typed policy evaluation, frontier и resumed state сохраняют согласованный смысл.",
+        "byte_offset": 54712,
+        "bytes": 284,
+        "sha256": "a94d827f2038968fc442e5801bf48f5a675dcacfb375b927e2de05cc541665fd"
+      },
+      "canonical_card_pointer": "/canonical_cards/SRV-01",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/SRV-01",
+      "missing_input_pointer": "/findings/43/unreceived_inputs_or_APIs",
+      "continuation_evidence": {
+        "mechanism": "NativeSearchService contract-pure lazy import, real ask/tell identity and typed frontier/readback",
+        "receipt": "service-scoped-implementation-handoff-d610.json",
+        "selectors": [
+          "tests/unit/scientist/methods/search/test_service_persistence.py",
+          "tests/unit/scientist/methods/search/test_service_factory_fault_resume.py"
+        ],
+        "remaining": "Actual composed factory faults2PASS + cursor removal2expectedFAIL exactd610 and other96 typed/pending/unknown/duplicate/rollback scopes469 carryd610 exact allowed. Source dependencies subsequently changed; final replay required. Appointed external served caller/cutover context remains separate owner packet, not a blocker for native original API mechanism checks.",
+        "check": "PASS composed exact d610 only; final replay UNRUN"
+      },
+      "finding_disposition": "open",
+      "formal_closure": "not_adjudicated",
+      "accepted_G": false
+    },
+    {
+      "id": "LA-015@CTL-01",
+      "finding_id": "LA-015",
+      "criterion_card": "CTL-01",
+      "canonical_closure_owner": "SRV-03",
+      "role": "supplier_companion_only",
+      "task_anchor": "D.md#bundle-ctl-01",
+      "original_fragment": {
+        "document_key": "LA_r09",
+        "lines": [
+          482,
+          512
+        ],
+        "byte_offset": 55472,
+        "bytes": 3232,
+        "sha256": "b47c90844cb88bfc43a454c4d3b1b550ab9a19913fafce7b138c9df1a8b22f29"
+      },
+      "canonical_content": {
+        "text": "**Приёмочная проверка.** Новый запуск/продолжение, stopping, warm-history, пустое предложение, sentinel, отказ evaluator и совпадение final/history/frontier на известных сценариях. Проверить не только число итераций, но и предмет оценивания.",
+        "byte_offset": 57790,
+        "bytes": 384,
+        "sha256": "219f17404aedddcd4196a85dc9b05d5d28403c12812d551c241e26b850d285e8"
+      },
+      "canonical_card_pointer": "/canonical_cards/CTL-01",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/CTL-01",
+      "missing_input_pointer": "/findings/44/unreceived_inputs_or_APIs",
+      "continuation_evidence": {
+        "mechanism": "actual runner new/resumed/stopped/empty/sentinel/warm/failure lifecycle, complete final/history/frontier/physical subject matching",
+        "receipt": "service-scoped-implementation-handoff-d610.json",
+        "selectors": [
+          "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+          "tests/unit/scientist/methods/search/test_service_batch_control_reasons.py",
+          "tests/unit/scientist/methods/search/test_service_persistence.py",
+          "tests/unit/scientist/methods/search/test_service_factory_fault_resume.py"
+        ],
+        "remaining": "Composed physical-next proposal2 vs removal3 confirms restore; complete ordinary scenarios original46996 +d6102. Final changed bridge/B1.2 source replay required. LA015@CTL01 supplier only; sole closureSRV03. Reader-window/retirement/appointed external deployment remains explicit contract input, not fabricated from bounded native fixture.",
+        "check": "PASS historical bounded lineages, not current full PASS"
+      },
+      "finding_disposition": "open",
+      "formal_closure": "not_adjudicated",
+      "accepted_G": false
+    },
+    {
+      "id": "LA-015@SRV-03",
+      "finding_id": "LA-015",
+      "criterion_card": "SRV-03",
+      "canonical_closure_owner": "SRV-03",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-srv-03",
+      "original_fragment": {
+        "document_key": "LA_r09",
+        "lines": [
+          482,
+          512
+        ],
+        "byte_offset": 55472,
+        "bytes": 3232,
+        "sha256": "b47c90844cb88bfc43a454c4d3b1b550ab9a19913fafce7b138c9df1a8b22f29"
+      },
+      "canonical_content": {
+        "text": "**Приёмочная проверка.** Новый запуск/продолжение, stopping, warm-history, пустое предложение, sentinel, отказ evaluator и совпадение final/history/frontier на известных сценариях. Проверить не только число итераций, но и предмет оценивания.",
+        "byte_offset": 57790,
+        "bytes": 384,
+        "sha256": "219f17404aedddcd4196a85dc9b05d5d28403c12812d551c241e26b850d285e8"
+      },
+      "canonical_card_pointer": "/canonical_cards/SRV-03",
+      "evidence_keys": [
+        "original_243_delta",
+        "canonical_17"
+      ],
+      "command_outcome_pointer": "/canonical_command_outcomes/SRV-03",
+      "missing_input_pointer": "/findings/44/unreceived_inputs_or_APIs",
+      "continuation_evidence": {
+        "mechanism": "actual runner new/resumed/stopped/empty/sentinel/warm/failure lifecycle, complete final/history/frontier/physical subject matching",
+        "receipt": "service-scoped-implementation-handoff-d610.json",
+        "selectors": [
+          "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+          "tests/unit/scientist/methods/search/test_service_batch_control_reasons.py",
+          "tests/unit/scientist/methods/search/test_service_persistence.py",
+          "tests/unit/scientist/methods/search/test_service_factory_fault_resume.py"
+        ],
+        "remaining": "Composed physical-next proposal2 vs removal3 confirms restore; complete ordinary scenarios original46996 +d6102. Final changed bridge/B1.2 source replay required. LA015@CTL01 supplier only; sole closureSRV03. Reader-window/retirement/appointed external deployment remains explicit contract input, not fabricated from bounded native fixture.",
+        "check": "PASS historical bounded lineages, not current full PASS"
+      },
+      "finding_disposition": "open",
+      "formal_closure": "not_adjudicated",
+      "accepted_G": false
+    }
+  ],
+  "backend_metadata_correction": "ctl-champion-b5-backend-metadata-addendum.json",
+  "P37": "Each evidence row names real producer/consumer runtime and exact original clause; targeted PASS is narrower than finding disposition.",
+  "P38": "Each current candidate bridge will require actual marker-preserving removal or divergent physical/persisted proxy discriminator.",
+  "P41": "not_established; no inherited-red/source-base zero-overlap claim made."
+}

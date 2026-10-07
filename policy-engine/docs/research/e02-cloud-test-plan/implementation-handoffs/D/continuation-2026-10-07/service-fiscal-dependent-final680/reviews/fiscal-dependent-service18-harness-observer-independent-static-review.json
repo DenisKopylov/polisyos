@@ -1,0 +1,27 @@
+{
+  "schema": "D.e02.fiscal-dependent.native18.harness-independent-review.v1",
+  "reviewer": "/root/census_oct07",
+  "decision": "GO_BOUNDED_READONLY18_CONSUMER_CAPTURE_PROFILE",
+  "files": {
+    "run_fiscal_affected_service_wave.py": {
+      "sha256": "4f26b4ba9b437c81fb090a1158d3f560e5b780f4b3fc637088494f2b5936a954",
+      "bytes": 7640
+    },
+    "service_fiscal_observer.py": {
+      "sha256": "3f51d279b35fc03ade187ee05b6397ce1cf86ae61e0d3026fcd2ac5cb3a2f3b0",
+      "bytes": 1169
+    }
+  },
+  "selectors": [
+    "tests/unit/scientist/methods/search/test_service_batch_control_reasons.py",
+    "tests/unit/scientist/methods/search/test_service_control_cleanup_independent.py",
+    "tests/unit/scientist/methods/search/test_service_ask_publication_review.py"
+  ],
+  "scope": "Actual12+3+3 existing Serviceconsumer cells affected by objective fiscaladmission; no alteredfixture/numericalmethods/modelposterior/source. Other mappingmodes are existing historical harness, not requestednewuniverse.",
+  "source_admission": "ExactactualargvSHA+cleanmatchingDcheckout before; fulltrackedavailable/sparse hashmanifest immutable; after source/status/inputdelta retained. No unresolvedplaceholder command launched by review.",
+  "observer": "pytestreport only records actualsetup/call/teardown and importedmodulepaths/bytes/hash; no monkeypatch/helper substituting production. Importedmodulecensus doesnot establish assertedprotectedproperty by itself.",
+  "conflict_control": "Filelock onlysharedidentical deterministicinputmanifest, percohort output/fixturepath; no CPU/worker/threadquota.",
+  "runtime_status": "UNRUN until root newobjectiveimplementation freeze actualcommandcompletes; no positiveverdict from staticcapture",
+  "formal_closed": false,
+  "accepted_G": false
+}

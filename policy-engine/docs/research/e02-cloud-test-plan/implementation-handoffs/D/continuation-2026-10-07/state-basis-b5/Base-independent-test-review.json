@@ -1,0 +1,37 @@
+{
+  "schema": "polisyos.e02.D.independent_draft_review.v1",
+  "reviewer": "/root/census_oct07",
+  "author_is_reviewer": false,
+  "source": "d610095905262a9b5b05b60c894018a681119367",
+  "tree": "f5a8262d01929bcc96399ad9492e8aaf7489a8a1",
+  "read_only": true,
+  "G_accepted": false,
+  "runtime_candidate_claim": null,
+  "author": "/root/gp_oct07",
+  "artifact": "/dev/shm/e02-D-NN-state-finald610-mfgxf6wo/proposed_base_numeric_state_tests.patch",
+  "artifact_sha256": "37dc41ba39d0587a44ac8f11cd8e65144288e047a4820b067b0e1f767f39c106",
+  "result": "SOURCE_READY_IMMUTABLE_REPLAY_PENDING",
+  "apply_check_exit": 0,
+  "scope": [
+    "Two public BaseSearchStrategy.set_state probes preserve strategy identity/schema/space/seed/cursor/sampler markers; mutate only Sobol coordinate or Python gaussian cached value to unrepresentable integer 10**400.",
+    "Real RandomSearchStrategy initializes actual Sobol prefix; StrategyState.to_artifact gives immutable bytes, from_artifact gives separate decoded state. Complete artifact equality after refusal proves persisted runtime fields unchanged.",
+    "Both decode/validation paths precede native self._rng.setstate and all live assignment in Base.set_state. Current OverflowError already refuses invalid state, so this is exception/atomicity contract correction, not invalid-state acceptance or new GP numerical evidence."
+  ],
+  "P37": {
+    "predicate": "Malformed numerical checkpoint raises declared ValueError and runtime artifact remains byte identical.",
+    "basis": "Actual strategy state, actual supported sampler, same full markers, only raw scalar mutation."
+  },
+  "P38": {
+    "divergent_proxy": "Schema/cursor/space markers remain valid while raw state is unrepresentable; markers cannot admit state.",
+    "negative": "10**400 separately through Sobol and gaussian codecs."
+  },
+  "requirements_before_positive": [
+    "Review writer finite_real_scalar production widening independently.",
+    "Run both probes plus affected Base/RNG/Sobol and actual GP restore/continuation consumers on next immutable source because Base is shared dependency.",
+    "Do not carry old GP numerical PASS across changed Base restore dependency without affected consumer replay."
+  ],
+  "limitations": [
+    "No cross-version unsupported-profile claim.",
+    "No GP posterior oracle claim from random strategy state tests."
+  ]
+}

@@ -1,0 +1,155 @@
+........................FFFFFFFF                                         [100%]
+=================================== FAILURES ===================================
+___ test_actual_blueprint_existing_report_path_requires_scenario_basis[True] ___
+
+tmp_path = PosixPath('/dev/shm/e02-D-stress-red-fdc2c23c76dd4967936362214bacbf4b/test_actual_blueprint_existing1')
+legacy = True
+
+    @pytest.mark.parametrize("legacy", [False, True])
+    def test_actual_blueprint_existing_report_path_requires_scenario_basis(
+        tmp_path: Path, legacy: bool
+    ) -> None:
+        report = (
+            StressTestReport(report_id="historical", total_scenarios_evaluated=32, robustness_score=1.0)
+            if legacy
+            else _run([1.0] * 31 + [3.0])
+        )
+        store = FileSystemCAS(tmp_path / "cas")
+        registry = build_default_registry_bundle(store).bundle_ref
+        run = RunContext.start(store=store, registry_bundle=registry, run_id="blueprint-counts")
+        ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("blueprint-counts"))
+        ref = store.put_json(
+            report.model_dump(mode="json"),
+            PutOptions(
+                kind="scientist.stress_test_report",
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name="polisyos.scientist.StressTestReport", version=report.schema_version
+                ),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        original = store.get_bytes(ref.artifact_id)
+        state = ExperimentState(
+            run_id="blueprint-counts", artifacts_index={ARTIFACT_STRESS_TEST_REPORT_REF: ref}
+        )
+        published_ref = _ensure_stress_test_report(
+            ctx, state, evaluation_vector=PolicyEvaluationVector(candidate_id="c")
+        )
+        restored = StressTestReport.model_validate(
+            from_canonical_bytes(FileSystemCAS(tmp_path / "cas").get_bytes(published_ref.artifact_id))
+        )
+>       assert restored.robustness_score == (None if legacy else 31 / 32)
+E       AssertionError: assert 1.0 == None
+E        +  where 1.0 = StressTestReport(schema_version='1.0', report_id='historical', total_scenarios_evaluated=32, adversarial_plan_ref=None...e_vulnerability=None, overconservatism_vulnerability=None, decision_packet_ref=None, cas_artifact_id=None, metadata={}).robustness_score
+
+tests/unit/scientist/search/test_stress_scenario_evidence.py:213: AssertionError
+____________ test_typed_basis_requires_exact_supported_schema[2.0] _____________
+
+schema = '2.0'
+
+    @pytest.mark.parametrize("schema", ["2.0", "1.1-dev", "1.0"])
+    def test_typed_basis_requires_exact_supported_schema(schema: str) -> None:
+        payload = _run([1.0, 3.0]).model_dump(mode="json")
+        payload["schema_version"] = schema
+>       with pytest.raises(ValidationError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'pydantic_core._pydantic_core.ValidationError'>
+
+tests/unit/scientist/search/test_stress_scenario_evidence.py:222: Failed
+__________ test_typed_basis_requires_exact_supported_schema[1.1-dev] ___________
+
+schema = '1.1-dev'
+
+    @pytest.mark.parametrize("schema", ["2.0", "1.1-dev", "1.0"])
+    def test_typed_basis_requires_exact_supported_schema(schema: str) -> None:
+        payload = _run([1.0, 3.0]).model_dump(mode="json")
+        payload["schema_version"] = schema
+>       with pytest.raises(ValidationError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'pydantic_core._pydantic_core.ValidationError'>
+
+tests/unit/scientist/search/test_stress_scenario_evidence.py:222: Failed
+____________ test_typed_basis_requires_exact_supported_schema[1.0] _____________
+
+schema = '1.0'
+
+    @pytest.mark.parametrize("schema", ["2.0", "1.1-dev", "1.0"])
+    def test_typed_basis_requires_exact_supported_schema(schema: str) -> None:
+        payload = _run([1.0, 3.0]).model_dump(mode="json")
+        payload["schema_version"] = schema
+>       with pytest.raises(ValidationError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'pydantic_core._pydantic_core.ValidationError'>
+
+tests/unit/scientist/search/test_stress_scenario_evidence.py:222: Failed
+____________ test_new_schema_cannot_claim_score_without_typed_basis ____________
+
+    def test_new_schema_cannot_claim_score_without_typed_basis() -> None:
+>       with pytest.raises(ValidationError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'pydantic_core._pydantic_core.ValidationError'>
+
+tests/unit/scientist/search/test_stress_scenario_evidence.py:227: Failed
+________ test_anonymous_report_retry_is_counted_once_at_actual_cas_path ________
+
+tmp_path = PosixPath('/dev/shm/e02-D-stress-red-fdc2c23c76dd4967936362214bacbf4b/test_anonymous_report_retry_is0')
+
+    def test_anonymous_report_retry_is_counted_once_at_actual_cas_path(tmp_path: Path) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        registry = build_default_registry_bundle(store).bundle_ref
+        run = RunContext.start(store=store, registry_bundle=registry, run_id="retry-counts")
+        ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("retry-counts"))
+        base = _run([1.0, 3.0])
+        child = _run([1.0, 1.0])
+        ref = store.put_json(
+            base.model_dump(mode="json"),
+>           PutOptions(kind="scientist.stress_test_report"),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+E       TypeError: ArtifactWriteOptions.__init__() missing 1 required positional argument: 'media_type'
+
+tests/unit/scientist/search/test_stress_scenario_evidence.py:240: TypeError
+__________ test_same_anonymous_report_as_base_is_not_an_extra_attempt __________
+
+    def test_same_anonymous_report_as_base_is_not_an_extra_attempt() -> None:
+        base = _run([1.0, 3.0])
+        merged = _recompute_stress_test_report(_merge_stress_test_reports(base, [base]))
+>       assert merged.scenario_evidence.attempted == 2
+E       AssertionError: assert 4 == 2
+E        +  where 4 = StressScenarioEvidence(attempted=4, finite_evaluated=4, violated_scenarios=2, unknown_or_nonfinite=0, planned_scenario... medium_occurrences=0, assessment_rule='component_assessments', objective_direction=None, vulnerability_threshold=None).attempted
+E        +    where StressScenarioEvidence(attempted=4, finite_evaluated=4, violated_scenarios=2, unknown_or_nonfinite=0, planned_scenario... medium_occurrences=0, assessment_rule='component_assessments', objective_direction=None, vulnerability_threshold=None) = StressTestReport(schema_version='1.1', report_id='stress.report.sha256_c42730049349378d74d321cd131c8d2becfc8b5ed60ab7d...ite_scenarios', 'score_formula': '(finite_evaluated-violated_scenarios)/finite_evaluated', 'score_status': 'observed'}).scenario_evidence
+
+tests/unit/scientist/search/test_stress_scenario_evidence.py:286: AssertionError
+_________ test_budget_port_uses_ordinary_typed_context_not_json_state __________
+
+tmp_path = PosixPath('/dev/shm/e02-D-stress-red-fdc2c23c76dd4967936362214bacbf4b/test_budget_port_uses_ordinary0')
+
+    def test_budget_port_uses_ordinary_typed_context_not_json_state(tmp_path: Path) -> None:
+        from polisyos.scientist.nodes.builtins.decide import run_policy_blueprint_runtime as runtime
+        from polisyos.scientist.orchestration.engine import BudgetMiddleware, BudgetState
+    
+        context_type = getattr(runtime, "PolicyBudgetExecutionContext", None)
+>       assert context_type is not None, "ordinary blueprint context port is missing"
+E       AssertionError: ordinary blueprint context port is missing
+E       assert None is not None
+
+tests/unit/scientist/search/test_stress_scenario_evidence.py:295: AssertionError
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/search/test_stress_scenario_evidence.py::test_actual_blueprint_existing_report_path_requires_scenario_basis[True]
+FAILED tests/unit/scientist/search/test_stress_scenario_evidence.py::test_typed_basis_requires_exact_supported_schema[2.0]
+FAILED tests/unit/scientist/search/test_stress_scenario_evidence.py::test_typed_basis_requires_exact_supported_schema[1.1-dev]
+FAILED tests/unit/scientist/search/test_stress_scenario_evidence.py::test_typed_basis_requires_exact_supported_schema[1.0]
+FAILED tests/unit/scientist/search/test_stress_scenario_evidence.py::test_new_schema_cannot_claim_score_without_typed_basis
+FAILED tests/unit/scientist/search/test_stress_scenario_evidence.py::test_anonymous_report_retry_is_counted_once_at_actual_cas_path
+FAILED tests/unit/scientist/search/test_stress_scenario_evidence.py::test_same_anonymous_report_as_base_is_not_an_extra_attempt
+FAILED tests/unit/scientist/search/test_stress_scenario_evidence.py::test_budget_port_uses_ordinary_typed_context_not_json_state
+RUNTIME_ENVIRONMENT={"executable": "/workspace/e02-D-locked-env/bin/python", "exit_code": 1, "modules": [{"module": "polisyos.scientist.methods.doe.designs", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/designs.py", "sha256": "2cdff56bdd7641bea47efe0bfb57677039389a72975e749c51089d4d5513586e"}, {"module": "polisyos.scientist.methods.doe.stress_report", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/stress_report.py", "sha256": "971db6f3af4a9d5f16e42eca5a297154f0d286cd9ade1fbc510b5665130ecab1"}, {"module": "polisyos.scientist.methods.doe.sampling", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/sampling.py", "sha256": "a8d629515b316b48055b763da9eede1a620769f0423890a61d15b09d8bfc3d8e"}, {"module": "polisyos.scientist.methods.search.adversarial", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/search/adversarial.py", "sha256": "a00f99197074360a8ec969d671180e01a57ffde37126f78addbba938b74698b1"}, {"module": "polisyos.scientist.policy_design.adversary", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/policy_design/adversary.py", "sha256": "a057c4c59e9bcac81f1892e289b8999293814ecd6d333d843d81f92a839ac87e"}, {"module": "polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py", "sha256": "3b56afa1f0fcb32d1871fc7e6465164651314a9130c22945330b4287fe0932e6"}, {"module": "polisyos.scientist.methods.search.funnel.level5_refutation_governance", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py", "sha256": "f2e4ae18185eda455a714719f6596419143cc70587af7dee3ba4ca9f728550b4"}, {"module": "polisyos.scientist.methods.search.funnel.orchestrator", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py", "sha256": "693f7646f03267b772284f003c3da3b2550e0be7f31d85b1a036fe902e506aff"}], "pydantic": "2.12.5", "pytest": "9.0.2", "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]"}

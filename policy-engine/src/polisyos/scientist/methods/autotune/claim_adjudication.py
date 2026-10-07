@@ -28,8 +28,11 @@ from .models import (
     MutationArtifact,
     PromotionPolicy,
     SearchLoopSpec,
+    benchmark_comparison_basis,
+    benchmark_evaluator_profile,
+    load_benchmark_inputs,
     load_model_artifact,
-    read_split_manifest,
+    resolve_comparison_incumbent,
 )
 from .registry import ChampionRegistry
 from .runtime import ChampionBackedRuntimeLoader, PydanticMutationCodec
@@ -152,17 +155,17 @@ class ClaimGoldEvaluator(BenchmarkedEvaluator):
         store = context.get("store") or self._store
         if store is None:
             raise ValueError("ClaimGoldEvaluator requires a CAS store")
+        incumbent = resolve_comparison_incumbent(
+            context.get("registry") or self._registry, context, CLAIM_ADJUDICATION_LOOP_ID
+        )
         suite = load_model_artifact(store, suite_ref, BenchmarkSuite)
         config = load_model_artifact(store, candidate_ref, ClaimAdjudicationSearchConfig)
-        if suite.dataset_path is None or suite.split_manifest_path is None:
-            raise ValueError("ClaimGoldEvaluator requires dataset_path and split_manifest_path")
         predictor = context.get("claim_predictor")
         if not callable(predictor):
             raise ValueError(
                 "context['claim_predictor'] must be callable for claim adjudication benchmark evaluation"
             )
-        rows = _read_jsonl(Path(suite.dataset_path))
-        split_manifest = read_split_manifest(Path(suite.split_manifest_path))
+        rows, split_manifest = load_benchmark_inputs(store, suite)
         per_item, invalid_count, total_cost = self._predict_dataset(
             rows=rows,
             config=config,
@@ -175,6 +178,7 @@ class ClaimGoldEvaluator(BenchmarkedEvaluator):
             rows=rows,
             predictor=predictor,
             context=context,
+            incumbent=incumbent,
         )
         selection_metrics = _claim_metrics(
             [
@@ -206,6 +210,13 @@ class ClaimGoldEvaluator(BenchmarkedEvaluator):
             suite_id=suite.suite_id,
             suite_version=suite.suite_version,
             candidate_ref=candidate_ref,
+            comparison_basis=benchmark_comparison_basis(
+                store,
+                suite_ref,
+                context.get("policy") or default_claim_adjudication_promotion_policy(),
+                benchmark_evaluator_profile(self),
+            ),
+            runtime_split_type=BenchmarkSplit.HOLDOUT,
             selection_metrics=selection_metrics,
             holdout_metrics=holdout_metrics,
             sample_counts=sample_counts,
@@ -213,6 +224,12 @@ class ClaimGoldEvaluator(BenchmarkedEvaluator):
             promotable=all(guardrails.values()),
             notes=[f"holdout_recall_delta_pp:{recall_delta_pp:.3f}"],
             metadata={"invalid_predictions": invalid_count, "total_cost": total_cost},
+            comparison_predecessor_candidate_ref=(
+                incumbent.candidate_ref if incumbent is not None else None
+            ),
+            comparison_predecessor_evaluation_ref=(
+                incumbent.evaluation_ref if incumbent is not None else None
+            ),
         )
 
     def _champion_recall(
@@ -223,20 +240,19 @@ class ClaimGoldEvaluator(BenchmarkedEvaluator):
         rows: list[dict[str, Any]],
         predictor: Any,
         context: dict[str, Any],
+        incumbent,
     ) -> float:
         registry = context.get("registry") or self._registry
         store = context.get("store") or self._store
         if registry is None or store is None:
             return 0.0
-        champion = registry.get(CLAIM_ADJUDICATION_LOOP_ID)
+        champion = incumbent
         if champion is None or champion.candidate_ref.artifact_id == candidate_ref.artifact_id:
             return 0.0
         champion_cfg = load_model_artifact(
             store, champion.candidate_ref, ClaimAdjudicationSearchConfig
         )
-        split_manifest = read_split_manifest(
-            Path(suite.split_manifest_path or DEFAULT_CLAIM_GOLD_SPLIT_PATH)
-        )
+        _, split_manifest = load_benchmark_inputs(store, suite)
         champion_items, invalid_count, total_cost = self._predict_dataset(
             rows=rows,
             config=champion_cfg,

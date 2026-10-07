@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import itertools
+from collections.abc import Mapping
 
 from polisyos.scientist.methods.search.strategies.base import BaseSearchStrategy
 from polisyos.scientist.methods.search.strategies.errors import StrategyExhaustedError
@@ -10,6 +11,7 @@ from polisyos.scientist.methods.search.strategies.types import (
     Evaluation,
     ParameterType,
     PolicyCandidate,
+    StrategyState,
 )
 
 
@@ -23,9 +25,11 @@ class GridSearchStrategy(BaseSearchStrategy):
         points_per_dim: int = 5,
         max_candidates: int = 5000,
     ):
+        if type(points_per_dim) is not int or points_per_dim < 2:
+            raise ValueError("points_per_dim must be an integer >= 2")
+        if type(max_candidates) is not int or max_candidates < 1:
+            raise ValueError("max_candidates must be a positive integer")
         super().__init__(space=space, seed=seed)
-        if points_per_dim < 2:
-            raise ValueError("points_per_dim must be >= 2")
         self._points_per_dim = points_per_dim
         self._max_candidates = max_candidates
         self._grid_params = self._build_grid_params()
@@ -50,18 +54,58 @@ class GridSearchStrategy(BaseSearchStrategy):
             source_strategy="grid",
         )
 
-    def get_state(self):
+    def suggest_batch(
+        self,
+        evaluations: list[Evaluation],
+        batch_size: int,
+    ) -> list[PolicyCandidate]:
+        """Return the remaining finite subjects without discarding a short batch."""
+        if type(batch_size) is not int or batch_size < 0:
+            raise ValueError("grid_batch_size_requires_nonnegative_integer")
+        remaining = len(self._grid_params) - self._cursor
+        if remaining <= 0:
+            return []
+        return super().suggest_batch(evaluations, min(batch_size, remaining))
+
+    def get_state(self) -> StrategyState:
         state = super().get_state()
         state.metadata = {
             **state.metadata,
+            "grid_state_version": 1,
             "cursor": self._cursor,
             "points_per_dim": self._points_per_dim,
+            "max_candidates": self._max_candidates,
+            "grid_size": len(self._grid_params),
         }
         return state
 
-    def set_state(self, state):
+    def set_state(self, state: StrategyState) -> None:
+        metadata = state.metadata
+        if not isinstance(metadata, Mapping):
+            raise ValueError("Grid checkpoint is incompatible: metadata must be an object")
+        if (
+            type(metadata.get("grid_state_version")) is not int
+            or metadata.get("grid_state_version") != 1
+        ):
+            raise ValueError("Grid checkpoint is incompatible: unsupported state version")
+        for name, expected in (
+            ("points_per_dim", self._points_per_dim),
+            ("max_candidates", self._max_candidates),
+            ("grid_size", len(self._grid_params)),
+        ):
+            value = metadata.get(name)
+            if type(value) is not int or value != expected:
+                raise ValueError(f"Grid checkpoint is incompatible: {name} changed")
+        if metadata.get("space") != self._space.sobol_space_fingerprint():
+            raise ValueError("Grid checkpoint is incompatible: search space changed")
+        cursor = metadata.get("cursor")
+        if type(cursor) is not int or not 0 <= cursor <= len(self._grid_params):
+            raise ValueError("Grid checkpoint is incompatible: cursor must be in the grid")
+
+        # Validate the whole grid profile before Base can mutate its live state.
+        # Base then admits its saved RNG/sampler; cursor assignment cannot fail.
         super().set_state(state)
-        self._cursor = int(state.metadata.get("cursor", 0))
+        self._cursor = cursor
 
     def _build_grid_params(self) -> list[dict[str, object]]:
         per_dim_values: list[list[object]] = []

@@ -1,0 +1,30 @@
+{
+  "decision": "GO_ONLY_HISTORICAL_SOURCE_QUALIFIED_FINANCIAL_CALLER_EDGE",
+  "reviewer": "/root/census_oct07",
+  "qualification_input": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/A7-financial-current-async-call-edge-qualification-v2.json",
+    "sha256": "07b8f6168f16f43c28e3f123b3d794a2184366c26d560a08d98e4f0911bbb178"
+  },
+  "historical_execution_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "qualified_source_context": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "selected_unchanged_paths": 17,
+  "changed_imported_async_module_declared": true,
+  "source_checks": "All17 whole selected test/financial/native-caller blobs independently rehashed from exact A7 and CBC Git; full async top-definition AST map independently recomputed using same Python3.14.7 AST profile",
+  "actual_call_edge": "Native cached generate uses asyncio.run with actual async enforcer/traced/gateway/ledger direct-await chain. Raw response-text cases are async pytest direct awaits. Listed protected financial paths have no async_tools import/call; native worker sync wrappers use direct asyncio.run outside an event loop and unchanged explicit fallback inside an event loop.",
+  "predicate_basis": {
+    "source_identity": "recomputed",
+    "selected_caller_edge": "independently_reconciled",
+    "A7_protected_runtime_assertions": "consumer_asserted",
+    "complete_current_import_dependency_closure": "not_established"
+  },
+  "permitted_claim": "A7 actual cache18/raw32 results retain original execution pin and may contribute scoped historical source-qualified financial evidence; new literal Node/current consumer assertions have distinct receipts",
+  "excluded_claims": [
+    "No new current cache18/raw32 execution",
+    "No whole current PASS or unchanged imported-module byte closure",
+    "No deployed/unobserved dynamic branch/shared-executor property",
+    "No G acceptance or P41 inherited-red attribution"
+  ],
+  "remaining_if_expanding_scope": "An assertion about active event-loop/shared executor or whole current financial runtime requires its actual affected caller. Preserved historical evidence alone does not make that assertion.",
+  "required_original_output_channel": "Committed original A7 full deciding outputs and lossless ledger artifacts remain authority; this small review does not replace them or assert ignored inventory cloud availability",
+  "tests_replayed": false
+}

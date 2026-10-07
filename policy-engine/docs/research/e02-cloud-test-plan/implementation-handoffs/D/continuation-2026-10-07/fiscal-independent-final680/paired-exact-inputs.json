@@ -1,0 +1,105 @@
+{
+  "scope": "same13actualcanonicalrawinputs; original nonzero preserved by both decoders",
+  "pairs": [
+    {
+      "case": "positive_tiny_balance",
+      "actual_input_wire_sha256": "1a3dbd12c185f9a20c8236872c5180df29f7ef4ecdb7b5544a7d0ca6232f2428",
+      "same_raw_bytes": true,
+      "old969": "FAIL",
+      "current680": "PASS"
+    },
+    {
+      "case": "negative_tiny_balance",
+      "actual_input_wire_sha256": "07da382d3f87d9a27c7286b5882c0a33d52de6234fd1a538558d4cf84aed7b78",
+      "same_raw_bytes": true,
+      "old969": "FAIL",
+      "current680": "PASS"
+    },
+    {
+      "case": "positive_tiny_deficit",
+      "actual_input_wire_sha256": "a43eac871a4c272667b339b2fb022b0a2e22687aba19d68a58d0935f6fa9e9df",
+      "same_raw_bytes": true,
+      "old969": "FAIL",
+      "current680": "PASS"
+    },
+    {
+      "case": "negative_tiny_deficit",
+      "actual_input_wire_sha256": "296287e1f9f16241dd14e0b5f5ea6c2a4bc2a2bf701a53960a9be8730092f98a",
+      "same_raw_bytes": true,
+      "old969": "FAIL",
+      "current680": "PASS"
+    },
+    {
+      "case": "tiny_balance_alias_conflict",
+      "actual_input_wire_sha256": "f4f1af54d6ed2a6f57523c13dea38a9c742238a11c47a631cab1322ff31d08a2",
+      "same_raw_bytes": true,
+      "old969": "FAIL",
+      "current680": "PASS"
+    },
+    {
+      "case": "legacy_numeric_string_tiny",
+      "actual_input_wire_sha256": "433b8adc3653b1fef2021d70cf207cdea05e93c2c25f123c2f0d5c519235877f",
+      "same_raw_bytes": true,
+      "old969": "FAIL",
+      "current680": "PASS"
+    },
+    {
+      "case": "genuine_decimal_zero",
+      "actual_input_wire_sha256": "0f58d247e2eed884e761123dfed2c3e705dd49c321c46ebce69bd18f16b3f214",
+      "same_raw_bytes": true,
+      "old969": "PASS",
+      "current680": "PASS"
+    },
+    {
+      "case": "genuine_integer_zero",
+      "actual_input_wire_sha256": "d5f29a9a9f0e951d27046fbdafecfac60006b9428b7b439e12f13edb6b9d7e5b",
+      "same_raw_bytes": true,
+      "old969": "PASS",
+      "current680": "PASS"
+    },
+    {
+      "case": "ordinary_decimal_balance",
+      "actual_input_wire_sha256": "66bfd86bc43c9cd9df020fd1e9a9239c5f035d5d09143b2b48ca2de64a3319c4",
+      "same_raw_bytes": true,
+      "old969": "PASS",
+      "current680": "PASS"
+    },
+    {
+      "case": "representable_small_deficit",
+      "actual_input_wire_sha256": "df73043bfabaaea7652d248e5e8b0d6b3e450da7ae638dfaba41d87d1d750d92",
+      "same_raw_bytes": true,
+      "old969": "PASS",
+      "current680": "PASS"
+    },
+    {
+      "case": "malformed_present_no_fallback",
+      "actual_input_wire_sha256": "d1fa4bc3f5458370916985aec49b7ad6a743e36692dc6c38a3e4c390ff371cb9",
+      "same_raw_bytes": true,
+      "old969": "PASS",
+      "current680": "PASS"
+    },
+    {
+      "case": "boolean_false_not_zero",
+      "actual_input_wire_sha256": "e8c386ef559f7d375f2ba526944da16746c7be4953db0f5d87dcf2310e5aae8f",
+      "same_raw_bytes": true,
+      "old969": "PASS",
+      "current680": "PASS"
+    },
+    {
+      "case": "null_balance_legacy_fallback",
+      "actual_input_wire_sha256": "15b3e4208eb43520249f3582f2c9ac0336138cc4b660f373e100b485ae98b43a",
+      "same_raw_bytes": true,
+      "old969": "PASS",
+      "current680": "PASS"
+    }
+  ],
+  "old_counts": {
+    "PASS": 7,
+    "FAIL": 6
+  },
+  "current_counts": {
+    "PASS": 13,
+    "FAIL": 0
+  },
+  "source393": "not_claimed; no available exactbaseline"
+}

@@ -1,0 +1,96 @@
+{
+  "schema": "D.final3b31.requested50.independent-runtime-review.v1",
+  "candidate": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+  "verdict": "GO_BOUNDED_EXACT_SOURCE_50_NOT_WHOLE_D",
+  "checks": {
+    "PASS": 50,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "exact_nodeid_denominator": 50,
+  "complete_testcase_phases": 150,
+  "receipt_admission_independently_reconciled": true,
+  "full_tracked_denominator": {
+    "paths": 17350,
+    "available": 8456,
+    "explicit_sparse_unavailable": 8894,
+    "all_available_bytes_equal_actual_candidate_Git_blobs": true
+  },
+  "complete_deciding_file_hashes_reconciled": 2236,
+  "origins": [
+    {
+      "pid": 624890,
+      "repository_origin_count": 0,
+      "async_function_counts": {},
+      "observed_subprocess_count": 1
+    },
+    {
+      "pid": 624892,
+      "repository_origin_count": 842,
+      "async_function_counts": {
+        "<module>": 1,
+        "SharedExecutorReentrancyError": 1,
+        "<generic parameters of _SharedFuture>": 1,
+        "_SharedFuture": 1,
+        "_SharedExecutor": 1,
+        "<generic parameters of submit>": 1,
+        "<generic parameters of _await_awaitable>": 1,
+        "<generic parameters of _run_coro_in_fresh_loop>": 1,
+        "<generic parameters of run_coro_sync>": 1,
+        "<generic parameters of run_blocking_async>": 1,
+        "shutdown_run_coro_sync_executor": 1
+      },
+      "observed_subprocess_count": 1
+    },
+    {
+      "pid": 625141,
+      "repository_origin_count": 828,
+      "async_function_counts": {
+        "<module>": 1,
+        "SharedExecutorReentrancyError": 1,
+        "<generic parameters of _SharedFuture>": 1,
+        "_SharedFuture": 1,
+        "_SharedExecutor": 1,
+        "<generic parameters of submit>": 1,
+        "<generic parameters of _await_awaitable>": 1,
+        "<generic parameters of _run_coro_in_fresh_loop>": 1,
+        "<generic parameters of run_coro_sync>": 1,
+        "<generic parameters of run_blocking_async>": 1,
+        "shutdown_run_coro_sync_executor": 1
+      },
+      "observed_subprocess_count": 0
+    }
+  ],
+  "elapsed_seconds": 36.553280565014575,
+  "sampled_peak_process_family_rss_kib": 1109540,
+  "receipt": {
+    "external_source": "/tmp/e02-D-requested-three-final3b31-dj53_wdl/run/receipt.json",
+    "sha256": "02b8e0130ec9005f492e441c82e47e7525238a2d189b1b580be1bf3ee90a578e",
+    "bytes": 717255
+  },
+  "junit": {
+    "external_source": "/tmp/e02-D-requested-three-final3b31-dj53_wdl/run/junit.xml",
+    "sha256": "5e48de01336adc7e7b81c63cbc4668fe3c51bcf8004b0cdf107d4d79e46c6dbb",
+    "bytes": 9602
+  },
+  "P37": {
+    "case_input_and_origin_admission": "independently_reconciled",
+    "actual_candidate_identity_and_CAS_persistence": "recomputed",
+    "scientific_evaluator_authority": "not_established"
+  },
+  "P38": "Actual50 unchanged-selector candidate/value/date/replica/dedup/frontier/checkpoint semantics and ordinary Legacy alias; import/root/iterations alone are not proof. Current typed unavailable versus genuine zero and marker controls executed; no numerical GP/backend selected.",
+  "contributions": [
+    "B124@CTL-02",
+    "B111 native quantity consumer",
+    "LA-014@SRV-01",
+    "LA-015 native lifecycle contribution"
+  ],
+  "limits": [
+    "All50 are exact3b31 execution, not carried48+2 arithmetic. No whole acceptance for adjacent numeric front/GP profiles from these50.",
+    "Normal-exit sys.modules observations do not enumerate removed transient imports or arbitrary native fork/exec modules; sparse8894 remain named unread boundaries.",
+    "Current3b31 no new replay of old969 four removal controls; actualfalse-marker/missing/duplicate/malformed cases are selected50 positives.",
+    "G680 budgetfactory10 not rerun or relabeled current. Formalclosure/Gacceptance remain0."
+  ]
+}

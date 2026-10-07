@@ -1,0 +1,152 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "continuation-current-B1.1-raw-HTTP-cost-review",
+  "branch": "codex/e02-D-published-funnel",
+  "closure_ids": [],
+  "finding_ids": [
+    "B120"
+  ],
+  "bundle_ids": [
+    "CTL-03"
+  ],
+  "slice_base_sha": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+  "candidate_sha": "04bc57aa74c58d24af1921976158d8e6e32283a0",
+  "candidate_tree_sha": "e7a57f986d8022b16a05b613947e8c76e067e906",
+  "test_source_sha": "04bc57aa74c58d24af1921976158d8e6e32283a0",
+  "test_path": "policy-engine/tests/integration/core/llm/test_gateway_response_text_cost.py",
+  "test_sha256": "ebc3b9dcc195f865d1c7c76735ce4b4b3dc1aff3c537afcc214b872e8cbcdcc3",
+  "own_delta": "Evidence/owner input only; no product, test, fixture or helper change in this review.",
+  "canonical_criterion_ref": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/D.md@96eb9b9fb7f2acfa872dc741cbfdd96949c5d203#bundle-ctl-03",
+  "baseline_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/baseline-map.json@d259a0102b143c83b145ad9d1b0e5d128eca72f0#/findings/B120",
+  "adopted_B_dependency_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/B-dependency.json@c9406ad21d4638a3abecac860802436fd3863406",
+  "adopted_contract": "Current canonical B1.1 spend_receipts, settle_spend_safe/resolve_spend_safe. No historical D1.0 resource-event overlay.",
+  "actual_runtime_chain": [
+    "Literal unquoted JSON response text from a controlled HTTP transport",
+    "Inherited actual GatewayLLMClient._post_json -> json.loads(raw_text) -> Gateway normalized/raw envelope",
+    "Strict D extract_llm_response_data -> existing B LLMBudgetEnforcer",
+    "Actual B BudgetMiddleware/FileBudgetLedger settlement and persisted schema1.1 spend_receipts",
+    "Three healthy controls reopen a fresh FileBudgetLedger and verify exact key/amount/provider/digest, remaining capacity and released reservation"
+  ],
+  "checks": {
+    "current_native": {
+      "outcome": "FAIL",
+      "classification": "current_product_failure_at_B_response_text_parser",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "/tmp/e02-D-current-b11-gateway-221cd6f9fbc847128e2e07e6f2ff25a8/runner.py",
+        "-q",
+        "-ra",
+        "tests/integration/core/llm/test_gateway_response_text_cost.py",
+        "--basetemp",
+        "/tmp/e02-D-current-b11-ledgers-7689e8f1a9934dcebaf85d17275f02d5",
+        "--junitxml",
+        "/tmp/e02-D-current-b11-gateway-221cd6f9fbc847128e2e07e6f2ff25a8/actual.xml"
+      ],
+      "cwd": "/workspace/e02-D-published-funnel/policy-engine",
+      "exit_code": 1,
+      "executed_tests": 24,
+      "PASS": 3,
+      "FAIL": 21,
+      "ERROR": 0,
+      "SKIP": 0,
+      "pytest_seconds": 0.322,
+      "wall_seconds": 2.0338262659934117,
+      "source_before_after_clean_unchanged": true,
+      "loaded_origin_hashes_MATCH": 10,
+      "metadata_member": "actual.json",
+      "output_member": "complete.txt",
+      "junit_member": "actual.xml",
+      "complete_output_sha256": "f4c5d4196972381a79556566df51f02c95f2b9bee608788e827a1f51459a42e5"
+    },
+    "denominator": "Entire one tracked Python test file: 20 parameterized raw-loss cases (two roots x five declared USD fields x two signed nonzero lexemes), one actual enforcer/persisted-ledger underflow case, three true-zero/paid fresh-reopen controls.",
+    "raw_loss_20": "FAIL at original-value assertion: both 1e-1000 and -1e-1000 become float zero before D intake. These cases stop at that assertion; their later extract_llm_response_data rejection assertion did not execute.",
+    "persisted_underflow_1": {
+      "outcome": "FAIL",
+      "observation": "Expected provider-cost ValueError is absent. Retained native ledger bytes contain spend0.0/provider_spent0.0, a committed amount0.0 receipt at revision2, followed by reservation release at revision3. The failed test stops before its intended fresh typed snapshot assertions.",
+      "ledger_member": "ledgers/test_response_text_underflow_c0/ledger.json"
+    },
+    "healthy_controls_3": "PASS: literal0,0.0,1 maintain exact recorded amount, primary-key remaining capacity, provider/key/digest receipt and reservation release on fresh typed ledger reopen.",
+    "P41": "No inherited attribution or disjoint-input proof is claimed. FAIL is not relabeled FAIL_AS_REQUIRED; no production mechanism was removed for this run."
+  },
+  "property": {
+    "statement": "A declared nonzero provider USD value cannot become a successful zero-cost settlement at the response-text intake boundary. Genuine zero and supported finite paid values remain available.",
+    "runtime_path": [
+      "Gateway HTTP text decoder",
+      "raw/normalized response artifact",
+      "strict core cost intake",
+      "B enforcer/middleware/ledger",
+      "persisted receipt and fresh reader"
+    ],
+    "proxy_divergence": "The downstream guard tests the normalized float value; JSON1e-1000 has already become0.0, so genuine-zero admission succeeds while the original number was nonzero. A dict-only producer cannot demonstrate this physical decoder boundary.",
+    "negative_controls": [
+      "Actual positive and negative tiny JSON numeric lexemes across all five declared USD fields and both raw roots",
+      "Native underflow -> false-zero persisted B1.1 event; no decoder override",
+      "Genuine0/0.0/1 preserve their successful receipt/reopen behavior"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "same_class": "P40: previously declared reported-cost invalid-present/nonzero-underflow class one producer boundary deeper. This current B1.1 witness is an additional worked example of the held decoder limitation, not a new D patch ladder.",
+  "environment": {
+    "executable": "/workspace/e02-D-locked-env/bin/python",
+    "python": "3.14.7",
+    "PYTHONPATH": "src:.",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer",
+    "cl100k_sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7",
+    "native_post_json_inherited": true,
+    "backend_modules_loaded": {
+      "botorch": false,
+      "gpytorch": false,
+      "hnswlib": false,
+      "torch": false
+    },
+    "numerical_fit_requested": false,
+    "versions_ref": "complete.txt E02_BACKEND_FLAGS",
+    "origin_ref": "complete.txt E02_ACTUAL_PRODUCT_ORIGINS contains all10 actual loaded paths/hashes versus exact frozen Git blobs",
+    "artificial_limits": "none; no CPU/process/worker/thread/time quotas; shared Python environment read-only",
+    "transport": "Only HTTP session exchange is fixture-controlled; decoder, cost intake, enforcer, middleware and ledger run unchanged. No live provider/invoice claim.",
+    "RSS": "not captured for this short run; no resource-cause inference claimed"
+  },
+  "complete_output_bundle": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-gateway-b11-current-proof/output.json.gz",
+    "sha256": "adcf6dbb5b9a627043dfc6215742068fbf99879f6b241e108ff1238f1413290d",
+    "uncompressed_sha256": "239b7a475d4cf5caabfdd4943a36744608d466dd75668b968930b745bb0cc1cb",
+    "compressed_bytes": 6472,
+    "uncompressed_bytes": 84645,
+    "member_count": 9,
+    "encoding": "gzip UTF8 JSON exact member text; all9 original byte sequences validated losslessly",
+    "members": "Full stdout/stderr, complete JUnit, actual run metadata, unchanged invocation/origin harness and four complete fresh ledger files; existing tracked source cited rather than copied."
+  },
+  "payload_commit": "08c53946395b53be61ea1ac7b22ac37060b6cfde",
+  "finding_residual": {
+    "finding_id": "B120",
+    "state": "partial",
+    "engineering_current": "FAIL: lossless raw-number intake is not supplied by the current B parser; actual underflow can yield a successful zero receipt.",
+    "previous_bounded_pass_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-cost-stopping.json@1159cad1c970c783b30c943cf2eb38b61265f48d",
+    "previous_scope": "The separate actual full/split native paid factory/funnel/controller/stopping five-case proof remains source-bound; it does not erase this current response-text failure.",
+    "missing_input_or_capability": "B lossless response-text numeric cost representation reaching the existing strict D intake. Other receipt/snapshot/reservation profiles remain separate previously declared owner contracts.",
+    "semantic_held": "B/G original criterion acceptance remains held for this raw intake edge; no missing institutional permission or invoice is required to reproduce the finite cost custody defect.",
+    "next_owner": "B W09 Gateway decoder owner; D reruns this unchanged actual24 consumer after exact published B producer correction; G finding acceptance",
+    "capability_state": "bridge_missing"
+  },
+  "owner_input_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-gateway-b11-owner-input.json",
+  "limitations_and_next_owner": [
+    "No B product correction is authored by D. Gateway source seam and minimal contract are in the separate owner-input packet.",
+    "No whole-suite, deployed provider or formal finding-closure verdict. Numerical GP/default transfer behavior was not run."
+  ],
+  "preservation": {
+    "original_output_dir": "/tmp/e02-D-current-b11-gateway-221cd6f9fbc847128e2e07e6f2ff25a8",
+    "fresh_basetemp": "/tmp/e02-D-current-b11-ledgers-7689e8f1a9934dcebaf85d17275f02d5",
+    "manual_deletion": "none",
+    "originals": "All original stdout/JUnit/harness/ledger inputs retained. Payload is a lossless copy, not a replacement.",
+    "storage_boundary": "Publication waited for observed0KiB overlay capacity; no source/output deletion or failed staging attempt. Parent restored native Git metadata capacity with preserved original/admin bytes and unchanged HEAD/tree/stage/debug/status; proof /tmp/e02-D-index-split-preservation-wep3mop3/applied.json. Normal Node22 commit hooks remain active."
+  },
+  "review_base_sha": "04bc57aa74c58d24af1921976158d8e6e32283a0",
+  "predicate_limitations": "Controlled literal inputs, native runtime/source origin guards and exact persisted bytes recomputed; external invoice authority not_established and outside this bounded numerical intake verdict",
+  "implementation_commits": [],
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-gateway-b11-current-proof/output.json.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-gateway-b11-current.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-gateway-b11-owner-input.json"
+  ]
+}

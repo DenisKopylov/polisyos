@@ -4,9 +4,12 @@ from __future__ import annotations
 
 import dataclasses
 import json
+import math
 from collections.abc import Mapping
 from dataclasses import dataclass
+from decimal import Decimal, DecimalException
 from enum import Enum
+from numbers import Real
 from typing import Any, Literal, cast
 
 from polisyos.common.logger import get_logger
@@ -347,6 +350,38 @@ def _fenced_json_payloads(text: str) -> tuple[str, ...]:
             block = block[4:].strip()
         payloads.append(block)
     return tuple(payloads)
+
+
+def finite_real_scalar(raw: object) -> float | None:
+    """Internal admission of finite, float-representable real numerical inputs."""
+    if isinstance(raw, bool) or not isinstance(raw, Real):
+        return None
+    try:
+        value = float(raw)
+    except (TypeError, ValueError, OverflowError):
+        return None
+    return value if math.isfinite(value) else None
+
+
+def _finite_checkpoint_json_number(token: str) -> float:
+    """Admit a checkpoint JSON float token without losing original nonzero.
+
+    This is an internal persisted-checkpoint profile. Generic JSON/LLM loaders
+    keep their existing numeric contracts, including owner-specific Decimal use.
+    """
+    if token in {"NaN", "Infinity", "-Infinity"}:
+        raise ValueError(f"checkpoint_invalid_numeric_constant:{token}")
+    try:
+        value = float(token)
+        original = Decimal(token)
+    except (ValueError, OverflowError, DecimalException) as exc:
+        raise ValueError("checkpoint_numeric_out_of_range") from exc
+    if finite_real_scalar(value) is None:
+        raise ValueError("checkpoint_numeric_out_of_range")
+    if value == 0 and original != 0:
+        raise ValueError("checkpoint_numeric_underflow")
+    return value
+
 
 __all__ = [
     "JsonDataVisitor",

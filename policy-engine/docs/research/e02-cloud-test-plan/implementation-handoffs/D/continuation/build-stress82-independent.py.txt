@@ -1,0 +1,175 @@
+"""Bind a read-only independent source review to complete moderate author evidence."""
+from pathlib import Path
+import hashlib
+import json
+import shutil
+import subprocess
+import xml.etree.ElementTree as ET
+
+REPO = Path('/workspace/e02-D-published-oracle')
+RAW = Path('/workspace/e02-D3-receipts/stress')
+DOC = REPO / 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation'
+OUT = DOC / 'stress82-independent'
+OUT.mkdir(exist_ok=True)
+BASE = '96eb9b9fb7f2acfa872dc741cbfdd96949c5d203'
+SOURCE = '82d3532fd53a74206ee4f31a2fc7150cc1e4962e'
+RED = '6331544a406af1c50b7c32f118ac881903ca978b'
+
+def git(*args):
+    return subprocess.check_output(['git', *args], cwd=REPO)
+
+def digest(data):
+    return hashlib.sha256(data).hexdigest()
+
+def source_file(sha, path):
+    data = git('show', f'{sha}:{path}')
+    return {'path': path, 'source_sha': sha, 'git_blob': git('rev-parse', f'{sha}:{path}').decode().strip(), 'bytes': len(data), 'sha256': digest(data)}
+
+def summary_junit(path):
+    root = ET.fromstring(path.read_bytes())
+    suites = [root] if root.tag == 'testsuite' else list(root.findall('testsuite'))
+    return {k: sum(int(s.attrib.get(k, 0)) for s in suites) for k in ['tests', 'failures', 'errors', 'skipped']}
+
+names = [
+    'challenge-frozen-complete.txt', 'challenge-frozen-resource.json', 'challenge-frozen-junit.xml',
+    'schema-context-frozen-b-complete.txt', 'schema-context-frozen-b-resource.json', 'schema-context-frozen-b-junit.xml',
+    'schema-context-frozen-complete.txt', 'schema-context-frozen-resource.json',
+    'challenge-red-complete.txt', 'challenge-red-resource.json', 'challenge-red-junit.xml',
+    'challenge-intake-red-complete.txt', 'challenge-intake-red-resource.json', 'challenge-intake-red-junit.xml',
+    'projection-red-complete.txt', 'projection-red-resource.json', 'projection-red-junit.xml',
+    'empty-component-red-complete.txt', 'empty-component-red-resource.json',
+    'removal-example_fraction-complete.txt', 'removal-example_fraction-resource.json', 'removal-example_fraction-junit.xml',
+    'removal-raw_bool-complete.txt', 'removal-raw_bool-resource.json',
+    'doe-composition-full-inputs.json', 'doe-bridge-complete.txt', 'doe-bridge-resource.json',
+    'doe-bridge-full-complete.txt', 'doe-bridge-full-resource.json',
+    'doe-bridge-full-b-complete.txt', 'doe-bridge-full-b-resource.json',
+    'state-reads-blueprint-scope.json', 'state-reads-complete.txt',
+    'frozen82-mypy-four-paths-process-error.json', 'frozen82-mypy-four-paths.txt',
+]
+copied = []
+for name in names:
+    shutil.copyfile(RAW / name, OUT / name)
+    data = (OUT / name).read_bytes()
+    copied.append({'path': f'stress82-independent/{name}', 'original_path': str(RAW / name), 'bytes': len(data), 'sha256': digest(data)})
+for name in ['challenge_runtime_runner.py', 'runtime_runner.py']:
+    target = OUT / (name + '.txt')
+    shutil.copyfile(RAW / name, target)
+    copied.append({'path': 'stress82-independent/' + target.name, 'original_path': str(RAW / name), 'bytes': target.stat().st_size, 'sha256': digest(target.read_bytes())})
+helper_path = 'policy-engine/tests/integration/scientist/methods/search/stress_property_removal_probe.py'
+helper_sha = '5e93c25cb78714b4d8e121bdf7e401c5a1b6cc73'
+helper = git('show', f'{helper_sha}:{helper_path}')
+(OUT / 'property-removal-helper.py.txt').write_bytes(helper)
+copied.append({'path': 'stress82-independent/property-removal-helper.py.txt', 'source_sha': helper_sha, 'source_path': helper_path, 'bytes': len(helper), 'sha256': digest(helper)})
+
+origin_checks = []
+for name, sha in [('challenge-frozen-complete.txt', SOURCE), ('schema-context-frozen-b-complete.txt', 'c2cbd72c0d11dab73b277c97f389840dfd187b17'), ('projection-red-complete.txt', RED)]:
+    text = (OUT / name).read_text()
+    line = next(line for line in text.splitlines() if line.startswith('RUNTIME_ENVIRONMENT='))
+    footer = json.loads(line.split('=', 1)[1])
+    for module in footer['modules']:
+        if module['path'] is None:
+            origin_checks.append({'log': name, 'source_sha': sha, 'module': module['module'], 'status': 'UNIMPORTED'})
+            continue
+        path = 'policy-engine/' + module['path'].split('/policy-engine/', 1)[1]
+        expected = source_file(sha, path)
+        actual = module['sha256']
+        assert actual == expected['sha256'], (name, module['module'])
+        origin_checks.append({'log': name, 'source_sha': sha, 'module': module['module'], 'loaded_path': module['path'], 'source_path': path, 'sha256': actual, 'status': 'MATCH'})
+
+composition = json.loads((OUT / 'doe-composition-full-inputs.json').read_bytes())
+composition_checks = []
+for row in composition['D_git_profile']:
+    actual = git('rev-parse', f"{row['source_sha']}:{row['path']}").decode().strip()
+    assert actual == row['git_object']
+    composition_checks.append({**row, 'status': 'MATCH'})
+for row in composition['E_overlays']:
+    actual = source_file(row['source_sha'], row['path'])
+    assert actual['sha256'] == row['sha256'] and actual['bytes'] == row['bytes']
+    composition_checks.append({**actual, 'status': 'MATCH'})
+assert digest((OUT / 'doe-composition-full-inputs.json').read_bytes()) == json.loads((OUT / 'doe-bridge-full-resource.json').read_bytes())['inputs_sha256']
+
+changed = git('diff', '--name-only', BASE, SOURCE).decode().splitlines()
+source_manifest = [source_file(SOURCE, path) for path in changed]
+assert git('diff', '--name-only', SOURCE, RED, '--', 'policy-engine/src') == b''
+data = (OUT / 'canonical-onefile-state-reads.json').read_bytes()
+copied.append({'path': 'stress82-independent/canonical-onefile-state-reads.json', 'role': 'independent stdlib canonical AST check deciding output', 'bytes': len(data), 'sha256': digest(data)})
+criteria = json.loads(git('show', f'{BASE}:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json'))
+criteria = [row for row in criteria['criterion_occurrences'] if row['id'] in ['B106@STR-01', 'B107@STR-01']]
+for row in criteria:
+    assert digest(row['canonical_content']['text'].encode()) == row['canonical_content']['sha256']
+
+observations = []
+for prefix in ['challenge-frozen', 'schema-context-frozen-b', 'challenge-red', 'challenge-intake-red', 'projection-red', 'removal-example_fraction']:
+    resource = json.loads((OUT / (prefix + '-resource.json')).read_bytes())
+    counts = summary_junit(OUT / (prefix + '-junit.xml'))
+    observations.append({'id': prefix, 'resource': resource, 'junit_counts': counts, 'complete_output': f'stress82-independent/{prefix}-complete.txt', 'role': 'author runtime independently read and source/hash reconciled; no duplicate backend execution'})
+assert observations[0]['junit_counts'] == {'tests': 54, 'failures': 0, 'errors': 0, 'skipped': 0}
+assert observations[-1]['junit_counts'] == {'tests': 2, 'failures': 1, 'errors': 0, 'skipped': 0}
+unrun = []
+for prefix in ['schema-context-frozen', 'empty-component-red', 'removal-raw_bool', 'doe-bridge', 'doe-bridge-full', 'doe-bridge-full-b']:
+    resource = json.loads((OUT / (prefix + '-resource.json')).read_bytes())
+    unrun.append({'id': prefix, 'status': 'ERROR/UNRUN', 'resource': resource, 'complete_output': f'stress82-independent/{prefix}-complete.txt', 'no_passing_backend_verdict': True})
+
+review = {
+    'schema': 'e02.D.independent-source-review.v1', 'reviewer': 'numerical_oracle', 'role': 'independent non-author read-only source/test/evidence review',
+    'source_sha': SOURCE, 'source_tree': git('rev-parse', SOURCE + '^{tree}').decode().strip(), 'base_sha': BASE,
+    'verdict': 'HOLD: frozen82 observed finite-counter/case/retry mechanisms supported; aggregate-empty-component completeness fails on identical production bytes',
+    'closure_ids': [], 'original_criteria': criteria,
+    'full_changed_source_and_test_manifest': source_manifest,
+    'source_review': {
+        'full_product_diff_and_changed_tests_read': True,
+        'bounded_supported_properties': [
+            '32 finite executions /31 nonviolations publish31/32 from occurrence counters independent of top-k1/20',
+            '10 occurrences remain10 even with one retained issue example',
+            'unknown attempted results stay outside the finite denominator; empty/zero finite sets publish null rather than established robustness',
+            'case producer rejects non-bool passed before coercion; case profile uses declared case outcomes instead of inventing objective threshold units',
+            'known schema1.0/1.1 admission; legacy evidence stays unavailable; malformed threshold refused before sampling',
+            'named-suite replacement and anonymous same-content retry preserve counters; same bound identity with changed content refuses',
+            'actual typed context forwards an existing BudgetMiddleware owner; plain ExecutionContext remains unmanaged',
+        ],
+        'scientific_case_rules_and_runners': 'unchanged by frozen82; provided expected_outcome/pass status is consumer_asserted, not independently authenticated or recomputed',
+        'B107_scope': 'Existing objective-direction producer unchanged except strict threshold intake; new challenge_case_pass adapter does not establish a new metric sign/threshold policy or replace all original B107 direction/worst-case acceptance controls.',
+        'bounded_vs_authority': 'Observed set fraction and internal budget-owner port are mechanism evidence; no population failure probability, uncertainty calibration, scientific source universe, billing authority, deployed factory adoption or empirical policy effectiveness is claimed.'
+    },
+    'deciding_runtime_observations': observations,
+    'blocking_same_class_counterexample': {
+        'classification': 'B106 report-level completeness cannot ignore a declared empty component',
+        'actual_runtime_sha': RED, 'production_source_diff_from_frozen82': [],
+        'test_path': 'policy-engine/tests/unit/scientist/search/test_challenge_scenario_projection.py',
+        'test_name': 'test_empty_component_stays_incomplete_beside_a_complete_case_set',
+        'input': 'Four complete passing cases merged with a named zero-case typed challenge suite.',
+        'actual': 'total finite4, observed fraction1.0, set_adequacy_status complete',
+        'required': 'Retain observed fraction but mark report partial and is_robust false because one declared component is incomplete.',
+        'mechanism': 'Aggregate planned/attempted/finite sums become equal positive counts; original evidence.complete ignores per-component complete predicates.',
+        'adjacent_actual_native_red': 'Same exact-production633 run also has phaseD4 CAS manifest1.0/body1.1 mismatch and three absent serializer resource/evaluation-status projections. Three serializer fixtures assert DTO projection, not executed paid billing.',
+        'test_harness_correction': 'Original633 empty test has a later unreachable ten-occurrence assertion misplaced at its tail. Corrected063a4723a09e881febef2aa06ac33d210d74d1a1 moves only that assertion; the first complete-vs-partial failure is unchanged and valid. Corrected replay was SIGKILL, not a new verdict.',
+        'owner': 'baseline_census', 'corrective_candidate': 'ee6d0024cc9dd7e1c27381f6fdfe112c465b6581', 'corrective_candidate_verdict': 'SEPARATE REVIEW; not inferred from this frozen82 review'
+    },
+    'marker_preserving_removal': {
+        'helper_sha': helper_sha, 'helper_path': helper_path,
+        'method': 'Mutates actual loaded blueprint defining function in memory before test import; original source bytes independently required; retained scenario_evidence/schema_version/score_scope/score_status.',
+        'actual_selected_counts': {'tests': 2, 'failures': 1, 'passes': 1},
+        'why_controls_discriminate': 'Cap1 replaces ten true violated occurrences with one retained example and DTO rejects score/basis disagreement. Cap10 equals all ten occurrences and therefore passes. This is1FAIL/1PASS, not2FAIL.',
+        'raw_bool_removal': 'Actual136.003s SIGKILL -9/no completed verdict; ERROR/UNRUN retained.'
+    },
+    'origin_integrity': origin_checks, 'origin_integrity_verdict': 'MATCH for every actually loaded selected origin; unimported modules are not exercised',
+    'E_D_composition_input_integrity': composition_checks, 'E_D_composition_verdict': 'Integrity MATCH only. Initial missing architecture startup ERROR plus two complete-profile actual SIGKILL -9 runs leave native composition ERROR/UNRUN; no E PASS.',
+    'unrun_attempts': unrun,
+    'quality': {
+        'B04_frozen_blueprint_onefile': 'Independent exact canonical AST extraction/check PASS, complete result stress82-independent/canonical-onefile-state-reads.json. No backend imports or full scan.',
+        'B04_whole_checker': 'Actual9 missing-contract errors in run_causal_evaluation.py held; this one-file PASS is not a whole gate PASS.',
+        'mypy_four_paths': json.loads((OUT / 'frozen82-mypy-four-paths-process-error.json').read_bytes()),
+        'mypy_verdict': 'ERROR/UNRUN: shell137/empty output; no completed type-check verdict; outer capture shell success is not type-check PASS.',
+        'B19_B23': 'Earlier independently published canonical disposition remains53 validator budget+9 extraction date+15 fail-closed date errors, plus10 public link errors; no waiver/closure inferred.'
+    },
+    'environment': {'actual_runtime_executable': '/workspace/e02-D-locked-env/bin/python', 'python': '3.14.7', 'pydantic': '2.12.5', 'pytest': '9.0.2', 'profile': 'author actual locked runtime with native Polisyos imports and selected origin footers; independent reviewer uses only stdlib for metadata/hash/AST checks', 'new_reviewer_backend_tests': 0, 'new_cpu_process_worker_thread_caps': 0, 'new_snapshots_or_dependency_installs': 0},
+    'preservation': {'policy': 'No cleanup/deletion performed by reviewer; only copies moderate deciding bytes to own lease.', 'artifact_paths': 'Original resource records retain exact source/scratch/basetemp paths; no claim that every historical transient still exists.', 'source_writer_lane': 'Never edited or imported by reviewer; source read only through immutable Git objects.'},
+    'lossless_copied_evidence': copied,
+    'metadata_preparation_note': 'Initial builder incorrectly asserted26 loaded origins; all actual byte checks succeeded but count assertion failed. Corrected to actual25 MATCH and1 UNIMPORTED. This was a stdlib metadata preparation failure, not a backend result; source/test/evidence unchanged.',
+}
+origin_matches = sum(row['status'] == 'MATCH' for row in origin_checks)
+assert origin_matches == 25
+(DOC / 'stress82-independent-review.json').write_text(json.dumps(review, indent=2, ensure_ascii=False) + '\n')
+binding = {'source_sha': SOURCE, 'source_tree': review['source_tree'], 'origin_matches': origin_matches, 'unimported': sum(row['status'] == 'UNIMPORTED' for row in origin_checks), 'composition_matches': len(composition_checks), 'copied_files': len(copied), 'copied_bytes': sum(row['bytes'] for row in copied), 'review_sha256': digest((DOC / 'stress82-independent-review.json').read_bytes()), 'verdict': review['verdict']}
+(OUT / 'binding-output.json').write_text(json.dumps(binding, indent=2) + '\n')
+print(json.dumps(binding, indent=2))

@@ -1,0 +1,157 @@
+{
+  "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "tree": "e809693afe3b84e02d473b5744142d026afbe509",
+  "head_after": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "status_after": "",
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "actual_command": [
+    "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "/dev/shm/e02-D-funnel-oct07/run_frozen_B12_final_cohort.py",
+    "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+    "affected138-a7e",
+    "tests/integration/scientist/methods/search/funnel/test_orchestrator.py",
+    "tests/integration/scientist/methods/search/funnel/test_default_worker_resource_scopes.py",
+    "tests/integration/scientist/methods/search/funnel/test_resource_receipt_replay.py",
+    "tests/integration/scientist/methods/search/funnel/test_resource_receipt_replay_modes.py",
+    "tests/integration/scientist/methods/search/funnel/test_native_resource_cost_stopping.py",
+    "tests/integration/scientist/methods/search/funnel/test_paid_outcome_blueprint_projection.py",
+    "tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py",
+    "tests/unit/remediation/test_llm_01.py",
+    "tests/unit/remediation/test_fun_02.py",
+    "tests/unit/remediation/test_fun_03.py",
+    "tests/unit/scientist/search/funnel/test_types.py",
+    "tests/unit/scientist/search/funnel/test_orchestrator.py",
+    "tests/unit/scientist/search/funnel/test_level3_medium.py",
+    "tests/unit/scientist/search/funnel/test_level4_full.py"
+  ],
+  "pytest_argv": [
+    "-o",
+    "addopts=",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp=/dev/shm/e02-D-funnel-oct07/affected138-a7e-fixtures",
+    "--junitxml=/dev/shm/e02-D-funnel-oct07/affected138-a7e.junit.xml",
+    "-vv",
+    "-rA",
+    "tests/integration/scientist/methods/search/funnel/test_orchestrator.py",
+    "tests/integration/scientist/methods/search/funnel/test_default_worker_resource_scopes.py",
+    "tests/integration/scientist/methods/search/funnel/test_resource_receipt_replay.py",
+    "tests/integration/scientist/methods/search/funnel/test_resource_receipt_replay_modes.py",
+    "tests/integration/scientist/methods/search/funnel/test_native_resource_cost_stopping.py",
+    "tests/integration/scientist/methods/search/funnel/test_paid_outcome_blueprint_projection.py",
+    "tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py",
+    "tests/unit/remediation/test_llm_01.py",
+    "tests/unit/remediation/test_fun_02.py",
+    "tests/unit/remediation/test_fun_03.py",
+    "tests/unit/scientist/search/funnel/test_types.py",
+    "tests/unit/scientist/search/funnel/test_orchestrator.py",
+    "tests/unit/scientist/search/funnel/test_level3_medium.py",
+    "tests/unit/scientist/search/funnel/test_level4_full.py"
+  ],
+  "env_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1",
+    "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src",
+    "TMPDIR": "/dev/shm/e02-D-funnel-oct07",
+    "HYPOTHESIS_STORAGE_DIRECTORY": "/dev/shm/e02-D-funnel-oct07/hypothesis",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer",
+    "E02_B66_TARGET_ROOT": "/dev/shm/e02-D-oct07-continuation",
+    "E02_B66_TARGET_SHA": "a7efe4b431986c3d79f490879cf49dbdedb1349e"
+  },
+  "exit": 0,
+  "wall_seconds": 33.79802846908569,
+  "phase_counts": {
+    "call:passed": 138,
+    "setup:passed": 138,
+    "teardown:passed": 138
+  },
+  "outputs": {
+    "affected138-a7e.stdout.txt": {
+      "path": "/dev/shm/e02-D-funnel-oct07/affected138-a7e.stdout.txt",
+      "bytes": 46978,
+      "sha256": "94b311bde19a64536d6532019fd7cf323682a9ab74a4a04685777092b9b9b282"
+    },
+    "affected138-a7e.stderr.txt": {
+      "path": "/dev/shm/e02-D-funnel-oct07/affected138-a7e.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "affected138-a7e.junit.xml": {
+      "path": "/dev/shm/e02-D-funnel-oct07/affected138-a7e.junit.xml",
+      "bytes": 23683,
+      "sha256": "91110736f8b768d701397616d6f974b28a9351c8f87718b71514d6118797cdc8"
+    },
+    "affected138-a7e.phases.json": {
+      "path": "/dev/shm/e02-D-funnel-oct07/affected138-a7e.phases.json",
+      "bytes": 108758,
+      "sha256": "4272de3d7cb5a457672f3b3cb522b38e3cbcb1e0479a5b08ff58bac130e2efa0"
+    },
+    "affected138-a7e.inputs.json": {
+      "path": "/dev/shm/e02-D-funnel-oct07/affected138-a7e.inputs.json",
+      "bytes": 1200164,
+      "sha256": "fc79fc95fffb82abd392967aa04720dec6c70d5c7426bbc95b446d1023c886a1"
+    },
+    "affected138-a7e.modules.json": {
+      "path": "/dev/shm/e02-D-funnel-oct07/affected138-a7e.modules.json",
+      "bytes": 415946,
+      "sha256": "29df04eb3cc22556eabd152a123aa1f05512d7286db55b01f3b9e0df159d95a7"
+    },
+    "affected138-a7e.environment.json": {
+      "path": "/dev/shm/e02-D-funnel-oct07/affected138-a7e.environment.json",
+      "bytes": 10503,
+      "sha256": "1f413a8ecc6b7d5ed75ccd3de1209dc63bdce508facc922107d1fd5b7104e738"
+    },
+    "affected138-a7e.cgroup-before.json": {
+      "path": "/dev/shm/e02-D-funnel-oct07/affected138-a7e.cgroup-before.json",
+      "bytes": 507,
+      "sha256": "9e2e81f409d99fc18024b3b7f8793b8471a7235fa0d592fe6ae6a761a22c931b"
+    },
+    "affected138-a7e.cgroup-after.json": {
+      "path": "/dev/shm/e02-D-funnel-oct07/affected138-a7e.cgroup-after.json",
+      "bytes": 506,
+      "sha256": "35ecf43fdaceb5e17f2f630285d47265a632067be2e15e3ff360d37910eb7b8f"
+    },
+    "affected138-a7e.deciding-ledgers.json": {
+      "path": "/dev/shm/e02-D-funnel-oct07/affected138-a7e.deciding-ledgers.json",
+      "bytes": 20423,
+      "sha256": "8b82f95cadf9b5b801780b533a3d7916a1db8b6fecb3edc72950b09448d0a1c1"
+    }
+  },
+  "input_denominator": 6313,
+  "input_available": 6313,
+  "input_digest": "44e6bfda7153bbaeeb3b3bcddb8f55d43ba426dd0894465d3f79a86f91e845f8",
+  "changed_paths": [],
+  "same_source_and_inputs": true,
+  "standard_asset_before_sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7",
+  "standard_asset_after_sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7",
+  "standard_asset_unchanged": true,
+  "runtime_profile": "Actual canonical B adopted local filesystem ledger/Decimal decoder/real configured native worker factory and D bounded consumer profile; no invoice/native estimand/promotion authority",
+  "P41": "no inherited-red attribution; source/input stability only",
+  "cgroup_before": {
+    "unix_time": 1791366329.7618375,
+    "files": {
+      "memory.current": "15465750528\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 38150438\noom 300\noom_kill 57\noom_group_kill 0\n",
+      "memory.events.local": "low 0\nhigh 0\nmax 38150438\noom 300\noom_kill 0\noom_group_kill 0\n",
+      "memory.peak": "17183465472\n",
+      "pids.current": "1018\n",
+      "pids.max": "max\n"
+    },
+    "scope": "shared cgroup observation; event deltas do not attribute a kill to this process"
+  },
+  "cgroup_after": {
+    "unix_time": 1791366363.641299,
+    "files": {
+      "memory.current": "16996810752\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 38162169\noom 300\noom_kill 57\noom_group_kill 0\n",
+      "memory.events.local": "low 0\nhigh 0\nmax 38162169\noom 300\noom_kill 0\noom_group_kill 0\n",
+      "memory.peak": "17183465472\n",
+      "pids.current": "1119\n",
+      "pids.max": "max\n"
+    },
+    "scope": "shared cgroup observation; event deltas do not attribute a kill to this process"
+  },
+  "deciding_ledger_count": 49
+}

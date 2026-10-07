@@ -1,0 +1,1025 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "generator-source-bound-continuation",
+  "closure_ids": [],
+  "covered_finding_ids": [
+    "B112",
+    "B113",
+    "B114",
+    "B115",
+    "B127"
+  ],
+  "bundle_ids": [
+    "OPT-02",
+    "OPT-03"
+  ],
+  "slice_base_sha": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+  "slice_base_tree_sha": "e063183d3c82809b17c4d3c55de94a3c9edc249c",
+  "candidate_sha": "83b87b845210bdb579f47b4cc2418a3d9804e2fe",
+  "candidate_tree_sha": "429968004488138e30ad423c2576614f82b1de23",
+  "production_source_sha": "67250d22dfae8f95cd44d9029d9c10dccfc69c3c",
+  "core_gp_source_sha": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+  "branch": "codex/e02-D-published-search",
+  "pull_request": null,
+  "implementation_commits": [
+    "a82a02b816b619d706b398100024a9bb5b0daf21",
+    "e2b1c6f7e7157e72d4a56008da5edb85f01a9312",
+    "5fad9f31b491a4aff4c0f9a87c25922e61abbdf6",
+    "bde05d6f4848f87326a9d01113a42c1101a06181",
+    "e287cc9954fc95ea44aca44573f59aa90fe8b53d",
+    "163a3b51630bca46b99ce660b40749fb79ed6b40",
+    "2a129be622ac8c54a37021b1aa6becbdfc4305d6",
+    "dfe296816c95bee372ffea66d972826e5eb126a5",
+    "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+    "67250d22dfae8f95cd44d9029d9c10dccfc69c3c",
+    "350519adde62860982fba8e14e72ce83ef421d65",
+    "83b87b845210bdb579f47b4cc2418a3d9804e2fe"
+  ],
+  "changed_paths_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/candidate-changed-paths.json",
+  "criteria": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/D.md#OPT-02-and-OPT-03; original criteria remain binding, no inferred finding closure",
+  "baseline_cells": {
+    "status": "navigation_only",
+    "canonical_baseline": "policy-engine/docs/research/e02-cloud-test-plan/results/routes.tsv",
+    "quantity_predecessor_receipt_sha": "2a129be622ac8c54a37021b1aa6becbdfc4305d6"
+  },
+  "environment": {
+    "python": "3.14.7",
+    "runtime": "/workspace/e02-D-locked-env/bin/python",
+    "torch_distribution": "2.10.0",
+    "torch_binary": "2.10.0+cu128",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "numpy": "2.3.5",
+    "pytest": "9.0.2",
+    "ruff": "0.14.10",
+    "pydantic": "2.12.5",
+    "execution": "CPU; actual versions/module origins/native calls retained in each successful junit.native.json; no parent Torch import; no artificial limits"
+  },
+  "checks": [
+    {
+      "id": "bde-wrapper13",
+      "outcome": "PASS",
+      "meaning": "Historical wrapper plus actual CAS workflow, before fitted-row association fix",
+      "files": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/bde-wrapper13/complete.txt",
+          "sha256": "9d2d01bbd13671b92d1611f6b71c294ccc4cfd096c2f22b93658fbfdf1ac0e1a",
+          "bytes": 4018
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/bde-wrapper13/junit.native.json",
+          "sha256": "d90415688ecb0170dec1f19c53c2fbe7986a2bd6d1691d02185e6b4be2d0908b",
+          "bytes": 2103
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/bde-wrapper13/junit.xml",
+          "sha256": "1514aa991c1cac95f2fbd754c52c92f289db119efbd351129e1a0ccc7bfb2516",
+          "bytes": 2615
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/bde-wrapper13/native_observer.py.txt",
+          "sha256": "1e55ce8aa95df57f3431a6f47b0bf64f2aed44bf85d81c5daa8cd75c53b90b51",
+          "bytes": 1869
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/bde-wrapper13/run.json",
+          "sha256": "5f72aebad94718d253773bae656a6a09341dd4b18c83e2e833a0b7a2a65f6f58",
+          "bytes": 4491
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/bde-wrapper13/run.py.txt",
+          "sha256": "e0681eaed7e2254c5d0f684732e4edf5d36a1bdd518be858d600e9d27122f397",
+          "bytes": 2198
+        }
+      ],
+      "source_sha": "bde05d6f4848f87326a9d01113a42c1101a06181",
+      "source_tree": "a1aec2dd7d1912c768210ab23cd698bb09a08be6",
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "native_observer",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "--basetemp=/dev/shm/search-quantity-final-b7d8b8be4f1d487bb85ec464be660de6",
+        "--junitxml=/workspace/e02-D2-receipts/search-generator-final-cc6b9f2a73484350bff628fdedfdc280/junit.xml",
+        "-q",
+        "-rA",
+        "tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py",
+        "tests/unit/scientist/methods/autotune/test_transfer_workflow.py"
+      ],
+      "environment_overrides": {
+        "PYTHONPATH": "src:.:/workspace/e02-D2-receipts/search-generator-final-cc6b9f2a73484350bff628fdedfdc280",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "cwd": "/workspace/e02-D-published-search/policy-engine",
+      "returncode": 0,
+      "wall_seconds": 34.003464781999355,
+      "source_after": "bde05d6f4848f87326a9d01113a42c1101a06181",
+      "status_after": "",
+      "output_sha256": "9d2d01bbd13671b92d1611f6b71c294ccc4cfd096c2f22b93658fbfdf1ac0e1a",
+      "junit": {
+        "tests": 13,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "id": "dfe-current14",
+      "outcome": "PASS",
+      "meaning": "Bounded current-row reader proof; alias control below falsified complete fitted association",
+      "files": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/dfe-current14/complete.txt",
+          "sha256": "9e1edfe96affa6fe83da36ddd0437b1858c2c8d55399692172f4d53fe60a7e65",
+          "bytes": 4337
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/dfe-current14/junit.native.json",
+          "sha256": "51f5d508ee5b2e84d8a77bd1e78ea5c10ef2312cf8160b5bb1674250fdbd6c27",
+          "bytes": 2104
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/dfe-current14/junit.xml",
+          "sha256": "6ed2d7dd6450abf39de6cd416a28bac673b827cb1ae48b8de27307ca66a66e17",
+          "bytes": 2811
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/dfe-current14/native_observer.py.txt",
+          "sha256": "1e55ce8aa95df57f3431a6f47b0bf64f2aed44bf85d81c5daa8cd75c53b90b51",
+          "bytes": 1869
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/dfe-current14/run.json",
+          "sha256": "ed00e118227dc628e80d37d0715528e7e01591003ce640db60e04d8b37918873",
+          "bytes": 17102
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/dfe-current14/run.py.txt",
+          "sha256": "8635037740153a74287f86acd48cd102b63884b48aff6108098309bcb93cd41d",
+          "bytes": 2200
+        }
+      ],
+      "source_sha": "dfe296816c95bee372ffea66d972826e5eb126a5",
+      "source_tree": "b03e30f8ef2514fb9609cc939b02af8159dd8601",
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "native_observer",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "--basetemp=/dev/shm/search-quantity-final-48fae44a2d5b43d286d9612df5a6b78f",
+        "--junitxml=/workspace/e02-D2-receipts/search-generator-current-b41d458110664a07b952a42bbf30f992/junit.xml",
+        "-q",
+        "-rA",
+        "tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py",
+        "tests/unit/scientist/methods/autotune/test_transfer_workflow.py"
+      ],
+      "environment_overrides": {
+        "PYTHONPATH": "src:.:/workspace/e02-D2-receipts/search-generator-current-b41d458110664a07b952a42bbf30f992",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "cwd": "/workspace/e02-D-published-search/policy-engine",
+      "returncode": 0,
+      "wall_seconds": 34.29714292399876,
+      "source_after": "dfe296816c95bee372ffea66d972826e5eb126a5",
+      "status_after": "",
+      "output_sha256": "9e1edfe96affa6fe83da36ddd0437b1858c2c8d55399692172f4d53fe60a7e65",
+      "junit": {
+        "tests": 14,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "id": "alias-preparation-error",
+      "outcome": "UNRUN",
+      "meaning": "Capture preparation FileNotFoundError hashing a selector containing ::testname; no pytest child",
+      "files": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/alias-preparation-error/native_observer.py.txt",
+          "sha256": "1e55ce8aa95df57f3431a6f47b0bf64f2aed44bf85d81c5daa8cd75c53b90b51",
+          "bytes": 1869
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/alias-preparation-error/run.py.txt",
+          "sha256": "e4cb0041ea1034d2ea2bdc521be09e91a3b712448ca29c05093c4c901be38627",
+          "bytes": 2215
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/alias-preparation-error/capture-error-transcription.txt",
+          "sha256": "52bda97c9cecccad3386728f4fdf6b496bf5b4b2de4600f921165c8741517c7a",
+          "bytes": 217
+        }
+      ]
+    },
+    {
+      "id": "dfe-alias-red",
+      "outcome": "FAIL",
+      "meaning": "Real fitted8 checkpoint accepts coherent aliased ID with unchanged tensors/model; exact uncommitted defining input bytes preserved",
+      "files": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/dfe-alias-red/complete.txt",
+          "sha256": "d626c390c907efcfc7f15667f84b7521c1eae5ce5193b161774fb26a0f65bfa4",
+          "bytes": 5908
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/dfe-alias-red/exact-defining-test.py.txt",
+          "sha256": "eecfc85c241b91721233d384514fe9bf5b5dc8910fe00ea3982b21f62928eb2c",
+          "bytes": 10470
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/dfe-alias-red/junit.native.json",
+          "sha256": "fb757cb4c491cc7c5dc82c7887cc7a64e19e9962e72df99b20a36ee4354b1375",
+          "bytes": 2101
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/dfe-alias-red/junit.xml",
+          "sha256": "b0316a2121ca6a58f9c4f3e187a1c4f2f27d27a69b38d6d304bb1183563c0961",
+          "bytes": 4732
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/dfe-alias-red/native_observer.py.txt",
+          "sha256": "1e55ce8aa95df57f3431a6f47b0bf64f2aed44bf85d81c5daa8cd75c53b90b51",
+          "bytes": 1869
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/dfe-alias-red/run.json",
+          "sha256": "72c40c65d158bdc2b84c5e7c687486f5dd4b4934f26393e6e5b30362cec181dd",
+          "bytes": 17151
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/dfe-alias-red/run.py.txt",
+          "sha256": "8eea4c79fcec095bde6fa0e64a6e243d40a23ab04c34548b951af122fec9c98b",
+          "bytes": 2230
+        }
+      ],
+      "source_sha": "dfe296816c95bee372ffea66d972826e5eb126a5",
+      "source_tree": "b03e30f8ef2514fb9609cc939b02af8159dd8601",
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "native_observer",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "--basetemp=/dev/shm/search-quantity-final-d827f8024ff24527a90108faebaf22b7",
+        "--junitxml=/workspace/e02-D2-receipts/search-generator-id-binding-d54a9c4c11094edfa6631eceb1ae1b9e/junit.xml",
+        "-q",
+        "-rA",
+        "tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py::test_standalone_current_transferred_rows_are_readmitted_before_model_restore"
+      ],
+      "environment_overrides": {
+        "PYTHONPATH": "src:.:/workspace/e02-D2-receipts/search-generator-id-binding-d54a9c4c11094edfa6631eceb1ae1b9e",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "cwd": "/workspace/e02-D-published-search/policy-engine",
+      "returncode": 1,
+      "wall_seconds": 23.068027831002837,
+      "source_after": "dfe296816c95bee372ffea66d972826e5eb126a5",
+      "status_after": " M policy-engine/tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py\n",
+      "output_sha256": "d626c390c907efcfc7f15667f84b7521c1eae5ce5193b161774fb26a0f65bfa4",
+      "junit": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "id": "d38-native34",
+      "outcome": "PASS",
+      "meaning": "Canonical ordered fitted source-row reconciliation; actual native/CAS/resume/scalar/serialization consumers",
+      "files": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/d38-native34/complete.txt",
+          "sha256": "0122bcd60807ba1d694be10f3a8711d004273213cde7fa68d3d057e65ab057c3",
+          "bytes": 7149
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/d38-native34/junit.native.json",
+          "sha256": "d3489620a3ef1a723109fa6ec193447011afd9c96b80c9075f686f2e5d93e72a",
+          "bytes": 4128
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/d38-native34/junit.xml",
+          "sha256": "44d41e35f29e0b1278bbad845c8295a0723d02d435aa627915746f64d29d8db6",
+          "bytes": 6562
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/d38-native34/native_observer.py.txt",
+          "sha256": "e85ae61e31695bbe075fe953b84510571651536dbad434932a57db10cc1cac50",
+          "bytes": 2255
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/d38-native34/run.json",
+          "sha256": "871fe6cb348c41d38327883e2451445d6bf260276838a16a7f0de9f71df45a56",
+          "bytes": 19370
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/d38-native34/run.py.txt",
+          "sha256": "b9b8c4d7acb41f279fe53bceeac46d7b888eebabf082bc1fff748ce4d244ecfb",
+          "bytes": 2482
+        }
+      ],
+      "source_sha": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+      "source_tree": "d4e217a2b4e620e22bc0f2fa1a8bf2fcdb6fe3e0",
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "native_observer",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "--basetemp=/dev/shm/search-quantity-final-05e509da3f2040f193d479147995f370",
+        "--junitxml=/workspace/e02-D2-receipts/search-fitted-source-final-d918ab80f4324f228d84574ea10d02a2/junit.xml",
+        "-q",
+        "-rA",
+        "tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py",
+        "tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+        "tests/unit/scientist/methods/search/strategies/test_gp_scalar_admission.py",
+        "tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py",
+        "tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+        "tests/unit/common/test_fast_json_serialization.py"
+      ],
+      "environment_overrides": {
+        "PYTHONPATH": "src:.:/workspace/e02-D2-receipts/search-fitted-source-final-d918ab80f4324f228d84574ea10d02a2",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "cwd": "/workspace/e02-D-published-search/policy-engine",
+      "returncode": 0,
+      "wall_seconds": 171.5586582100077,
+      "source_after": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+      "status_after": "",
+      "output_sha256": "0122bcd60807ba1d694be10f3a8711d004273213cde7fa68d3d057e65ab057c3",
+      "junit": {
+        "tests": 34,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "id": "672-scalar7",
+      "outcome": "PASS",
+      "meaning": "Actual batch invalid scalar omission, remaining valid rows retained; JSON int/float domain preserved",
+      "files": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-scalar7/complete.txt",
+          "sha256": "5c18bd10fd306d9a82423b1f97cd3f05ebba207cb4a94ab5e800314df8d8bf46",
+          "bytes": 2306
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-scalar7/junit.native.json",
+          "sha256": "9e11056ad4f45bbee70797b6ffee666ea3ade33097ca231aadc58114fdcfad9e",
+          "bytes": 2401
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-scalar7/junit.xml",
+          "sha256": "491e5b854a3f8761de9454cdf4a37f43dc588eb90a89c343e20b382902384f15",
+          "bytes": 1959
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-scalar7/native_observer.py.txt",
+          "sha256": "e85ae61e31695bbe075fe953b84510571651536dbad434932a57db10cc1cac50",
+          "bytes": 2255
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-scalar7/run.json",
+          "sha256": "6a569987a1a2987ebaf9fbf47086ba9d2105e90fc67bffa4a0922526c940509b",
+          "bytes": 18268
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-scalar7/run.py.txt",
+          "sha256": "6ca70e7163a3fea17e869bf73c93c46ab75c637d4920654149eccb393164fc47",
+          "bytes": 2126
+        }
+      ],
+      "source_sha": "67250d22dfae8f95cd44d9029d9c10dccfc69c3c",
+      "source_tree": "2ee58c2092076318ec8429c10655f8071b385350",
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "native_observer",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "--basetemp=/dev/shm/search-quantity-final-30457438256b411695c228eb0e22a4f5",
+        "--junitxml=/workspace/e02-D2-receipts/search-scalar-final-fd74554aaf16461c9b5e2af9dc50d0fe/junit.xml",
+        "-q",
+        "-rA",
+        "tests/unit/scientist/methods/search/strategies/test_gp_scalar_admission.py"
+      ],
+      "environment_overrides": {
+        "PYTHONPATH": "src:.:/workspace/e02-D2-receipts/search-scalar-final-fd74554aaf16461c9b5e2af9dc50d0fe",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "cwd": "/workspace/e02-D-published-search/policy-engine",
+      "returncode": 0,
+      "wall_seconds": 23.23809968799469,
+      "source_after": "67250d22dfae8f95cd44d9029d9c10dccfc69c3c",
+      "status_after": "",
+      "output_sha256": "5c18bd10fd306d9a82423b1f97cd3f05ebba207cb4a94ab5e800314df8d8bf46",
+      "junit": {
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "id": "672-property-removal",
+      "outcome": "FAIL",
+      "meaning": "FAIL_AS_REQUIRED: child-only reconciliation removal accepts distinct-ID permutation with model/hash/markers retained",
+      "files": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-property-removal/association_removal.py.txt",
+          "sha256": "75664f826ff785a0a5de8c1fe87919c3dc3232f9e3cb5922fcce91b00d34cd65",
+          "bytes": 420
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-property-removal/complete.txt",
+          "sha256": "c9177bb1a676ff815118bd322eb011a9b7c0ad7c2617bc1cf724f19bb026e7d1",
+          "bytes": 6264
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-property-removal/junit.native.json",
+          "sha256": "e4415e55504e694fd901569f9775d6bcefcea800c837f401f0d0f2d41a459bbe",
+          "bytes": 3969
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-property-removal/junit.xml",
+          "sha256": "2a473468f0cf7159a882ce6d16aa8a629286246dc27ca08733387c1fe51f265d",
+          "bytes": 4996
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-property-removal/native_observer.py.txt",
+          "sha256": "e85ae61e31695bbe075fe953b84510571651536dbad434932a57db10cc1cac50",
+          "bytes": 2255
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-property-removal/run.json",
+          "sha256": "427c02b41fb01af7dbb1affb703a4ee62372fb1c94aa80962c38e0fd85e735db",
+          "bytes": 18433
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-property-removal/run.py.txt",
+          "sha256": "b595ff4d7ff3597e17d34b6e77445013556b89db3c8be3cba0a48e4a20733546",
+          "bytes": 2254
+        }
+      ],
+      "source_sha": "67250d22dfae8f95cd44d9029d9c10dccfc69c3c",
+      "source_tree": "2ee58c2092076318ec8429c10655f8071b385350",
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "native_observer",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "--basetemp=/dev/shm/search-quantity-final-8d7f0f042a0348d998c6d2bde9b6b3b5",
+        "--junitxml=/workspace/e02-D2-receipts/search-fitted-association-removal-706671f68a744c9fbd4aa634653e6cb5/junit.xml",
+        "-q",
+        "-rA",
+        "-k",
+        "test_standalone_current_transferred_rows_are_readmitted_before_model_restore",
+        "-p",
+        "association_removal",
+        "tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py"
+      ],
+      "environment_overrides": {
+        "PYTHONPATH": "src:.:/workspace/e02-D2-receipts/search-fitted-association-removal-706671f68a744c9fbd4aa634653e6cb5",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "cwd": "/workspace/e02-D-published-search/policy-engine",
+      "returncode": 1,
+      "wall_seconds": 83.16371856899059,
+      "source_after": "67250d22dfae8f95cd44d9029d9c10dccfc69c3c",
+      "status_after": "",
+      "output_sha256": "c9177bb1a676ff815118bd322eb011a9b7c0ad7c2617bc1cf724f19bb026e7d1",
+      "junit": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "id": "350-native-append-unrun",
+      "outcome": "ERROR",
+      "meaning": "SIGKILL -9 before output/JUnit/origin verdict; appended direct-native same-CAS-corruption assertion UNRUN",
+      "files": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/350-native-append-unrun/complete.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/350-native-append-unrun/native_observer.py.txt",
+          "sha256": "e85ae61e31695bbe075fe953b84510571651536dbad434932a57db10cc1cac50",
+          "bytes": 2255
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/350-native-append-unrun/run.json",
+          "sha256": "a9a6661d736466b1e5f4786ad9c6ec381a8f01d7affd0021b7b5166a8e1de158",
+          "bytes": 18383
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/350-native-append-unrun/run.py.txt",
+          "sha256": "d2931e2621682c33b6b9760799174cf6f1266abb604030887cddedd58de2aa55",
+          "bytes": 2220
+        }
+      ],
+      "source_sha": "350519adde62860982fba8e14e72ce83ef421d65",
+      "source_tree": "1bb1e07d0e64353deed535db20dd29f23b971168",
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "native_observer",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "--basetemp=/dev/shm/search-quantity-final-526082aa65c747ff95be283734ad1a14",
+        "--junitxml=/workspace/e02-D2-receipts/search-native-source-final-bf0aa956f6b7466383c94c78c7414317/junit.xml",
+        "-q",
+        "-rA",
+        "-k",
+        "test_standalone_current_transferred_rows_are_readmitted_before_model_restore",
+        "tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py"
+      ],
+      "environment_overrides": {
+        "PYTHONPATH": "src:.:/workspace/e02-D2-receipts/search-native-source-final-bf0aa956f6b7466383c94c78c7414317",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+      },
+      "cwd": "/workspace/e02-D-published-search/policy-engine",
+      "returncode": -9,
+      "wall_seconds": 47.35609168600058,
+      "source_after": "350519adde62860982fba8e14e72ce83ef421d65",
+      "status_after": "",
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "672-quality-history",
+      "outcome": "ERROR",
+      "meaning": "Initial capture AssertionError had no saved subprocess stdout/result; later saved Ruff outputs are bounded separate checks",
+      "files": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-quality-history/release-gate.py.txt",
+          "sha256": "7a840eda1c34bafd205352285712c37903d343d482594c75ef52d00a40672eac",
+          "bytes": 896
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-quality-history/ruff-check-complete.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "bytes": 19
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-quality-history/ruff-check.json",
+          "sha256": "f3ae9133aed5ccc340b3102221f4cdf1c385ec43ba2f1e00666717f20d6f6522",
+          "bytes": 8511
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-quality-history/ruff-format-complete.txt",
+          "sha256": "2afb1c293434bc55d84b35d54454a0bf9aa84e41cda426817a5c6693d432e37a",
+          "bytes": 27
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-quality-history/ruff-format.json",
+          "sha256": "86a3a1ccb3002fe77d9a37d8db300cedc963fd4cac1c421740b60f538ffaf001",
+          "bytes": 8527
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-quality-history/capture-error-transcription.txt",
+          "sha256": "8f0d4c35a29b8db66a6cb40bb7a621e271882aabf0ef47c4f76addf8983c77c6",
+          "bytes": 206
+        }
+      ]
+    }
+  ],
+  "light_quality": {
+    "source_sha": "83b87b845210bdb579f47b4cc2418a3d9804e2fe",
+    "directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/83-quality",
+    "outcome": "PASS",
+    "scope": "14 owned changed Python paths Ruff check/format; two own recognized breaking release fragments; existing AST/guard-body reconciliation",
+    "startup_error": "First release-gate capture lacked PYTHONPATH and ended ModuleNotFoundError tools; full error and metadata preserved in 83-quality/*.startup-error. Corrected named PYTHONPATH=src:. replay exit0; no source change."
+  },
+  "property": {
+    "statement": "Configured original source rows are re-resolved and numerically reconciled, in exact order, against fitted record IDs and raw GP X/Y before numerical model mutation. Existing learned transforms, model, RNG and allowed refit schedule are preserved.",
+    "runtime_path": [
+      "full original CAS refs and configured numeric_transfer_basis.v1 reader",
+      "internal BGC wrapper v2/indexed converted history",
+      "native StrategyState GP version4/full fitted_evaluations",
+      "fresh same configured admission then ID/X/Y reconciliation",
+      "load actual model/transforms/RNG; native suggest and allowed due refit"
+    ],
+    "proxy_divergence": "At dfe, coherent alias IDs/hash plus unchanged tensors/model admitted a different fitted source identity. Wrapper set/subset coverage and saved hashes alone did not establish ordered numerical association.",
+    "negative_controls": [
+      "original dfe coherent alias actual FAIL",
+      "duplicate and distinct-ID permutation atomically refused after correction",
+      "current-row changed fullref/basis/direction/outcome refused before live mutation",
+      "same original CAS ref with changed original measurement refuses wrapper restore",
+      "child-only reconciliation removal keeps all model/hash/policy markers and FAILS distinct-ID permutation control"
+    ],
+    "authority_purpose": "conditional technical numerical continuation, never institutional source authorization or scientific optimization advantage",
+    "version": "native GP4 and BGC wrapper2; older incomplete profiles refused; migration recipe tracks original-byte preservation and fresh allowed fit"
+  },
+  "predicate_basis": "recomputed",
+  "predicate_scope": "Only configured technical row identity, supported numeric codec and native fitted quantities. Institutional truth/appointment is not established by this synthetic fixture.",
+  "independent_evidence": [
+    {
+      "receipt_sha": "22b5fd724414416e3d617f0546479b122ed6f313",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/gp-profile4-independent-review.json",
+      "verified_source_sha": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+      "outcome": "23 PASS / 0 SKIP",
+      "scope": "unchanged independent ten/eleven row original-unit full mean/covariance, fit counts, actual consumed RNG, profile4 support/profile3 atomic refusal; not a fresh83 replay"
+    },
+    {
+      "receipt_sha": "7d7b35876400a7b9a35e47f178e0dcdf158c9d00",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/mo-reference-independent-review.json",
+      "scope": "historical exact163 MO reference14 and e2 boxunion21; no fresh BGC execution"
+    }
+  ],
+  "successor_binding": {
+    "672_vs_d38": "GP/bounds/model algorithms byte-identical; Evaluation restores original JSON int/float supported domain and adds Fraction rejection; actual scalar7 rerun",
+    "350_vs_672": "only direct native same-CAS-corruption assertion appended; actual run SIGKILL before verdict, new assertion UNRUN",
+    "83_vs_350": "only optional backend importorskip and integration markers; every native function/class AST unchanged; optional absence means UNRUN, not numeric PASS"
+  },
+  "capability_state_or_finding_state": "bounded implementation_and_verification; final G acceptance and production-source claims remain held/open",
+  "limitations_and_next_owner": [
+    "G owns original finding-level acceptance, joined source and production history read-only rerun; closure_ids empty.",
+    "Configured numeric CAS identity is conditional: declared source units/evaluator semantics/owner authorization still require institutional supplier/G acceptance.",
+    "Controller/service ordinary run factory, full lifecycle and persisted raw history are gp_witness-owned; standalone BGC proof is not deployment or whole service acceptance.",
+    "A global eligible/feasible/unknown denominator, provider/export and served frontier chain remain open; prior proposed patch is not a consumer.",
+    "Native GP4 refuses v1-v3 and BGC wrapper2 refuses wrapper1; preserve bytes/recover original corpus and fresh allowed fit using linked breaking migration recipe.",
+    "350 new direct-native corrupted-CAS assertion is ERROR/UNRUN after SIGKILL, not inherited PASS; no P41 waiver or global verdict.",
+    "Current native numerical proof is locked CPU supported backend only, not cross-backend bit identity, arbitrary GP kernels or production history advantage.",
+    "Space raw-coordinate hugeint admission is newly granted same-class follow-up, not silently covered by current scalar7.",
+    "DOE delivered sensitivity ranking actual generator consumer remains next engineering slice; metadata alone is not consumer proof."
+  ],
+  "preservation": {
+    "created_helper": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/created-helper-preserved.txt",
+    "sha256": "0ddf2ecf2af57fdec87f7d3aa161a54a9f63f32bc6c88281c016e967a1f84ced",
+    "status": "abandoned uncommitted new-module source preserved by move; actual helper appended to existing serialization module",
+    "deletion": "none in this continuation payload; no global preservation claim"
+  },
+  "evidence_manifest": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/350-native-append-unrun/complete.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/350-native-append-unrun/native_observer.py.txt",
+      "bytes": 2255,
+      "sha256": "e85ae61e31695bbe075fe953b84510571651536dbad434932a57db10cc1cac50"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/350-native-append-unrun/run.json",
+      "bytes": 18383,
+      "sha256": "a9a6661d736466b1e5f4786ad9c6ec381a8f01d7affd0021b7b5166a8e1de158"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/350-native-append-unrun/run.py.txt",
+      "bytes": 2220,
+      "sha256": "d2931e2621682c33b6b9760799174cf6f1266abb604030887cddedd58de2aa55"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-property-removal/association_removal.py.txt",
+      "bytes": 420,
+      "sha256": "75664f826ff785a0a5de8c1fe87919c3dc3232f9e3cb5922fcce91b00d34cd65"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-property-removal/complete.txt",
+      "bytes": 6264,
+      "sha256": "c9177bb1a676ff815118bd322eb011a9b7c0ad7c2617bc1cf724f19bb026e7d1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-property-removal/junit.native.json",
+      "bytes": 3969,
+      "sha256": "e4415e55504e694fd901569f9775d6bcefcea800c837f401f0d0f2d41a459bbe"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-property-removal/junit.xml",
+      "bytes": 4996,
+      "sha256": "2a473468f0cf7159a882ce6d16aa8a629286246dc27ca08733387c1fe51f265d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-property-removal/native_observer.py.txt",
+      "bytes": 2255,
+      "sha256": "e85ae61e31695bbe075fe953b84510571651536dbad434932a57db10cc1cac50"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-property-removal/run.json",
+      "bytes": 18433,
+      "sha256": "427c02b41fb01af7dbb1affb703a4ee62372fb1c94aa80962c38e0fd85e735db"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-property-removal/run.py.txt",
+      "bytes": 2254,
+      "sha256": "b595ff4d7ff3597e17d34b6e77445013556b89db3c8be3cba0a48e4a20733546"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-quality-history/capture-error-transcription.txt",
+      "bytes": 206,
+      "sha256": "8f0d4c35a29b8db66a6cb40bb7a621e271882aabf0ef47c4f76addf8983c77c6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-quality-history/release-gate.py.txt",
+      "bytes": 896,
+      "sha256": "7a840eda1c34bafd205352285712c37903d343d482594c75ef52d00a40672eac"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-quality-history/ruff-check-complete.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-quality-history/ruff-check.json",
+      "bytes": 8511,
+      "sha256": "f3ae9133aed5ccc340b3102221f4cdf1c385ec43ba2f1e00666717f20d6f6522"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-quality-history/ruff-format-complete.txt",
+      "bytes": 27,
+      "sha256": "2afb1c293434bc55d84b35d54454a0bf9aa84e41cda426817a5c6693d432e37a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-quality-history/ruff-format.json",
+      "bytes": 8527,
+      "sha256": "86a3a1ccb3002fe77d9a37d8db300cedc963fd4cac1c421740b60f538ffaf001"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-scalar7/complete.txt",
+      "bytes": 2306,
+      "sha256": "5c18bd10fd306d9a82423b1f97cd3f05ebba207cb4a94ab5e800314df8d8bf46"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-scalar7/junit.native.json",
+      "bytes": 2401,
+      "sha256": "9e11056ad4f45bbee70797b6ffee666ea3ade33097ca231aadc58114fdcfad9e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-scalar7/junit.xml",
+      "bytes": 1959,
+      "sha256": "491e5b854a3f8761de9454cdf4a37f43dc588eb90a89c343e20b382902384f15"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-scalar7/native_observer.py.txt",
+      "bytes": 2255,
+      "sha256": "e85ae61e31695bbe075fe953b84510571651536dbad434932a57db10cc1cac50"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-scalar7/run.json",
+      "bytes": 18268,
+      "sha256": "6a569987a1a2987ebaf9fbf47086ba9d2105e90fc67bffa4a0922526c940509b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/672-scalar7/run.py.txt",
+      "bytes": 2126,
+      "sha256": "6ca70e7163a3fea17e869bf73c93c46ab75c637d4920654149eccb393164fc47"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/83-quality/ast-reconciliation.json",
+      "bytes": 742,
+      "sha256": "05b453a0145707fdcb93b5608189e1fcec425e298f7b5ce75766cd3372ab9a04"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/83-quality/release-gate.json",
+      "bytes": 320,
+      "sha256": "09c2cd2b7b54739ec12bac3d34be232c78fd0db94711ddb279a0b23e9d9bc5a4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/83-quality/release-gate.json.startup-error",
+      "bytes": 320,
+      "sha256": "b754a442f4c6066317a1ae820f6ab3e0711afdbfb03ecf36b959fe1aee3aee97"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/83-quality/release-gate.txt",
+      "bytes": 37,
+      "sha256": "c8de66d0083fdb890f3ab7ecb7e1ad7cb4cb135e94cf62d9b52c0fd37819a269"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/83-quality/release-gate.txt.startup-error",
+      "bytes": 842,
+      "sha256": "c8074f543b88b621869b00d62e62d897a550c727963a994e0036a47608ebbcdd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/83-quality/ruff-check.json",
+      "bytes": 2447,
+      "sha256": "7f67505a5faac7ee8558d056afd735e54a604ce9c64868ed06d8b96a0ed30429"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/83-quality/ruff-check.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/83-quality/ruff-format.json",
+      "bytes": 2463,
+      "sha256": "4e6025ffbfe71eebfb5919da3a978db31432a31df08bd8045e061cc2214e51ca"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/83-quality/ruff-format.txt",
+      "bytes": 27,
+      "sha256": "2afb1c293434bc55d84b35d54454a0bf9aa84e41cda426817a5c6693d432e37a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/alias-preparation-error/capture-error-transcription.txt",
+      "bytes": 217,
+      "sha256": "52bda97c9cecccad3386728f4fdf6b496bf5b4b2de4600f921165c8741517c7a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/alias-preparation-error/native_observer.py.txt",
+      "bytes": 1869,
+      "sha256": "1e55ce8aa95df57f3431a6f47b0bf64f2aed44bf85d81c5daa8cd75c53b90b51"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/alias-preparation-error/run.py.txt",
+      "bytes": 2215,
+      "sha256": "e4cb0041ea1034d2ea2bdc521be09e91a3b712448ca29c05093c4c901be38627"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/bde-wrapper13/complete.txt",
+      "bytes": 4018,
+      "sha256": "9d2d01bbd13671b92d1611f6b71c294ccc4cfd096c2f22b93658fbfdf1ac0e1a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/bde-wrapper13/junit.native.json",
+      "bytes": 2103,
+      "sha256": "d90415688ecb0170dec1f19c53c2fbe7986a2bd6d1691d02185e6b4be2d0908b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/bde-wrapper13/junit.xml",
+      "bytes": 2615,
+      "sha256": "1514aa991c1cac95f2fbd754c52c92f289db119efbd351129e1a0ccc7bfb2516"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/bde-wrapper13/native_observer.py.txt",
+      "bytes": 1869,
+      "sha256": "1e55ce8aa95df57f3431a6f47b0bf64f2aed44bf85d81c5daa8cd75c53b90b51"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/bde-wrapper13/run.json",
+      "bytes": 4491,
+      "sha256": "5f72aebad94718d253773bae656a6a09341dd4b18c83e2e833a0b7a2a65f6f58"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/bde-wrapper13/run.py.txt",
+      "bytes": 2198,
+      "sha256": "e0681eaed7e2254c5d0f684732e4edf5d36a1bdd518be858d600e9d27122f397"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/build-receipt.py.txt",
+      "bytes": 14117,
+      "sha256": "26fb6f296212ca48fdbeaff5292f9b4cbcec4699f609094fcf74fdedf8033846"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/candidate-changed-paths.json",
+      "bytes": 15701,
+      "sha256": "e4705941ee4a1562ec7a55c6e2897ff10899fe59262adfb7596c31adf621fa28"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/created-helper-preserved.txt",
+      "bytes": 522,
+      "sha256": "0ddf2ecf2af57fdec87f7d3aa161a54a9f63f32bc6c88281c016e967a1f84ced"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/d38-native34/complete.txt",
+      "bytes": 7149,
+      "sha256": "0122bcd60807ba1d694be10f3a8711d004273213cde7fa68d3d057e65ab057c3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/d38-native34/junit.native.json",
+      "bytes": 4128,
+      "sha256": "d3489620a3ef1a723109fa6ec193447011afd9c96b80c9075f686f2e5d93e72a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/d38-native34/junit.xml",
+      "bytes": 6562,
+      "sha256": "44d41e35f29e0b1278bbad845c8295a0723d02d435aa627915746f64d29d8db6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/d38-native34/native_observer.py.txt",
+      "bytes": 2255,
+      "sha256": "e85ae61e31695bbe075fe953b84510571651536dbad434932a57db10cc1cac50"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/d38-native34/run.json",
+      "bytes": 19370,
+      "sha256": "871fe6cb348c41d38327883e2451445d6bf260276838a16a7f0de9f71df45a56"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/d38-native34/run.py.txt",
+      "bytes": 2482,
+      "sha256": "b9b8c4d7acb41f279fe53bceeac46d7b888eebabf082bc1fff748ce4d244ecfb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/dfe-alias-red/complete.txt",
+      "bytes": 5908,
+      "sha256": "d626c390c907efcfc7f15667f84b7521c1eae5ce5193b161774fb26a0f65bfa4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/dfe-alias-red/exact-defining-test.py.txt",
+      "bytes": 10470,
+      "sha256": "eecfc85c241b91721233d384514fe9bf5b5dc8910fe00ea3982b21f62928eb2c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/dfe-alias-red/junit.native.json",
+      "bytes": 2101,
+      "sha256": "fb757cb4c491cc7c5dc82c7887cc7a64e19e9962e72df99b20a36ee4354b1375"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/dfe-alias-red/junit.xml",
+      "bytes": 4732,
+      "sha256": "b0316a2121ca6a58f9c4f3e187a1c4f2f27d27a69b38d6d304bb1183563c0961"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/dfe-alias-red/native_observer.py.txt",
+      "bytes": 1869,
+      "sha256": "1e55ce8aa95df57f3431a6f47b0bf64f2aed44bf85d81c5daa8cd75c53b90b51"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/dfe-alias-red/run.json",
+      "bytes": 17151,
+      "sha256": "72c40c65d158bdc2b84c5e7c687486f5dd4b4934f26393e6e5b30362cec181dd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/dfe-alias-red/run.py.txt",
+      "bytes": 2230,
+      "sha256": "8eea4c79fcec095bde6fa0e64a6e243d40a23ab04c34548b951af122fec9c98b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/dfe-current14/complete.txt",
+      "bytes": 4337,
+      "sha256": "9e1edfe96affa6fe83da36ddd0437b1858c2c8d55399692172f4d53fe60a7e65"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/dfe-current14/junit.native.json",
+      "bytes": 2104,
+      "sha256": "51f5d508ee5b2e84d8a77bd1e78ea5c10ef2312cf8160b5bb1674250fdbd6c27"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/dfe-current14/junit.xml",
+      "bytes": 2811,
+      "sha256": "6ed2d7dd6450abf39de6cd416a28bac673b827cb1ae48b8de27307ca66a66e17"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/dfe-current14/native_observer.py.txt",
+      "bytes": 1869,
+      "sha256": "1e55ce8aa95df57f3431a6f47b0bf64f2aed44bf85d81c5daa8cd75c53b90b51"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/dfe-current14/run.json",
+      "bytes": 17102,
+      "sha256": "ed00e118227dc628e80d37d0715528e7e01591003ce640db60e04d8b37918873"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-generator-continuation/dfe-current14/run.py.txt",
+      "bytes": 2200,
+      "sha256": "8635037740153a74287f86acd48cd102b63884b48aff6108098309bcb93cd41d"
+    }
+  ],
+  "criteria_refs": [
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/D.md:250",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/D.md:273"
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "-o",
+    "junit_family=xunit1",
+    "--basetemp",
+    "/dev/shm/e02-D-transfer-current-xikf2oa6/basetemp",
+    "--junitxml",
+    "/dev/shm/e02-D-transfer-current-xikf2oa6/junit.xml",
+    "-q",
+    "tests/unit/scientist/agent/test_vector_generation_consumer.py"
+  ],
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "source": "d610095905262a9b5b05b60c894018a681119367",
+  "tree": "f5a8262d01929bcc96399ad9492e8aaf7489a8a1",
+  "status": "## codex/e02-D-oct07-continuation\n",
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "TMPDIR": "/dev/shm/e02-D-transfer-current-xikf2oa6/tmp",
+    "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine"
+  },
+  "inputs": {
+    "policy-engine/src/polisyos/scientist/agent/vector_memory.py": "3e68ab919b915427300869d6b378d12f585d1f00",
+    "policy-engine/tests/unit/scientist/agent/test_vector_generation_consumer.py": "3c9199aa4e7eaf5baa0b21ecd56bd33aa7fb8cfc",
+    "policy-engine/tests/unit/scientist/agent/vector_generation_reader.py": "02a9e2074bdbfea3f57bcd950c6953a387cb6408",
+    "policy-engine/tests/unit/scientist/agent/test_vector_memory.py": "88753b5536a0cc4dc8121e4b016d29102745861b",
+    "policy-engine/tests/unit/remediation/test_trn_02.py": "fdd17afd4ea92030d599b4947d35c03caaf36d48",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py": "1a7e97f9b558f1a27c6977661b6797fcbbb38278",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py": "078d61b349147d0542e6012c49fcf205d09c0c0f",
+    "policy-engine/src/polisyos/core/artifacts/store.py": "092ffebacd3623539e8cb097e46a2ce9300bb606"
+  },
+  "seed": "HNSW default100; deterministic arc1001 snapshots; analytic measured donor2",
+  "input_denominator": "1002 real ordinary registered discovery histories;1001 contain unchanged donor2 rows; only originalsource is selected for numerical admission, no1002 measuredexecutions claim",
+  "numerical_worker_process_limits_introduced": false,
+  "start_utc": "2026-10-07T08:04:20.276296+00:00"
+}

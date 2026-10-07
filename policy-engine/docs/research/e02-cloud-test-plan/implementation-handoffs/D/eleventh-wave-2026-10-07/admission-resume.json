@@ -1,0 +1,276 @@
+{
+  "admin_records": [],
+  "branch_exists": true,
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/dev/shm/e02-D-oct07-continuation/policy-engine",
+        "check-ref-format",
+        "refs/heads/codex/e02-D-oct07-continuation"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/dev/shm/e02-D-oct07-continuation/policy-engine",
+        "check-ref-format",
+        "--branch",
+        "codex/e02-D-oct07-continuation"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "codex/e02-D-oct07-continuation\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/dev/shm/e02-D-oct07-continuation/policy-engine",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/dev/shm/e02-D-oct07-continuation/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/dev/shm/e02-D-oct07-continuation/policy-engine",
+        "worktree",
+        "list",
+        "--porcelain",
+        "-z"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "worktree /dev/shm/e02-D-oct07-continuation\u0000HEAD 617988f7cfb8e5cb74b6beba41704eb117b0e033\u0000branch refs/heads/codex/e02-D-oct07-continuation\u0000\u0000"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/dev/shm/e02-D-oct07-continuation",
+        "rev-parse",
+        "--show-toplevel"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/dev/shm/e02-D-oct07-continuation\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/dev/shm/e02-D-oct07-continuation",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/dev/shm/e02-D-oct07-continuation/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/dev/shm/e02-D-oct07-continuation",
+        "rev-parse",
+        "--absolute-git-dir"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "/dev/shm/e02-D-oct07-continuation/.git\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/dev/shm/e02-D-oct07-continuation",
+        "symbolic-ref",
+        "-q",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "refs/heads/codex/e02-D-oct07-continuation\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/dev/shm/e02-D-oct07-continuation",
+        "rev-parse",
+        "--verify",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "617988f7cfb8e5cb74b6beba41704eb117b0e033\n"
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/dev/shm/e02-D-oct07-continuation/policy-engine",
+        "show-ref",
+        "--verify",
+        "--quiet",
+        "refs/heads/codex/e02-D-oct07-continuation"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": ""
+    },
+    {
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "-C",
+        "/dev/shm/e02-D-oct07-continuation/policy-engine",
+        "worktree",
+        "list",
+        "--porcelain",
+        "-z"
+      ],
+      "exit_code": 0,
+      "predicate_class": "recomputed",
+      "stderr": "",
+      "stdout": "worktree /dev/shm/e02-D-oct07-continuation\u0000HEAD 617988f7cfb8e5cb74b6beba41704eb117b0e033\u0000branch refs/heads/codex/e02-D-oct07-continuation\u0000\u0000"
+    }
+  ],
+  "complete_verdict": true,
+  "filesystem_reads": [
+    {
+      "operation": "lstat",
+      "path": "/dev/shm/e02-D-oct07-continuation/.git/worktrees",
+      "predicate_class": "recomputed",
+      "result": {
+        "exists": false,
+        "kind": "absent",
+        "resolved": "/dev/shm/e02-D-oct07-continuation/.git/worktrees"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/dev/shm/e02-D-oct07-continuation",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 26,
+        "exists": true,
+        "inode": 283388,
+        "kind": "directory",
+        "resolved": "/dev/shm/e02-D-oct07-continuation"
+      },
+      "status": "observed"
+    },
+    {
+      "operation": "lstat",
+      "path": "/dev/shm/e02-D-oct07-continuation",
+      "predicate_class": "recomputed",
+      "result": {
+        "device": 26,
+        "exists": true,
+        "inode": 283388,
+        "kind": "directory",
+        "resolved": "/dev/shm/e02-D-oct07-continuation"
+      },
+      "status": "observed"
+    }
+  ],
+  "findings": [],
+  "finished_at": "2026-10-07T13:32:09.562480+00:00",
+  "measurement": {
+    "file_type_denominator": "Git porcelain/ref outputs; gitdir, commondir, HEAD, optional locked and .git markers; filesystem lstat/iterdir",
+    "path_denominator": "all Git worktree registrations, all linked admin directories, their required records and live backlinks, requested path",
+    "predicate_class": "independently_reconciled",
+    "selector": "exact branch ref AND exact worktree root; create availability or resume attachment"
+  },
+  "path_state": {
+    "device": 26,
+    "exists": true,
+    "inode": 283388,
+    "kind": "directory",
+    "resolved": "/dev/shm/e02-D-oct07-continuation"
+  },
+  "registrations": [
+    {
+      "HEAD": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+      "branch": "refs/heads/codex/e02-D-oct07-continuation",
+      "live": {
+        "branch": "refs/heads/codex/e02-D-oct07-continuation",
+        "common_dir": "/dev/shm/e02-D-oct07-continuation/.git",
+        "git_dir": "/dev/shm/e02-D-oct07-continuation/.git",
+        "head": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "root": "/dev/shm/e02-D-oct07-continuation"
+      },
+      "path_state": {
+        "device": 26,
+        "exists": true,
+        "inode": 283388,
+        "kind": "directory",
+        "resolved": "/dev/shm/e02-D-oct07-continuation"
+      },
+      "worktree": "/dev/shm/e02-D-oct07-continuation"
+    }
+  ],
+  "repository_common_dir": "/dev/shm/e02-D-oct07-continuation/.git",
+  "requested": {
+    "branch": "codex/e02-D-oct07-continuation",
+    "mode": "resume",
+    "path": "/dev/shm/e02-D-oct07-continuation"
+  },
+  "schema_version": "polisyos.workspace.worktree-admission.v1",
+  "selector_predicate_class": "consumer_asserted",
+  "started_at": "2026-10-07T13:32:09.544656+00:00",
+  "status": "admitted",
+  "unresolved_by_construction": [
+    {
+      "boundary": "moved_directories_outside_registered_paths",
+      "detail": "No wider filesystem/mount search; missing registered directories do not prove abandonment or prune safety."
+    },
+    {
+      "boundary": "non_atomic_observation",
+      "detail": "Git and filesystem reads are sequential, not an atomic snapshot; changes after or between reads can escape observation."
+    },
+    {
+      "boundary": "name_reservation",
+      "detail": "This read-only command reserves nothing. Root serializes commissioning, reruns immediately before creation and reads back exact attachment afterward."
+    },
+    {
+      "boundary": "external_prompt_writers",
+      "detail": "Receipt does not intercept or enforce arbitrary commissioning prompts."
+    }
+  ],
+  "unresolved_inputs": []
+}

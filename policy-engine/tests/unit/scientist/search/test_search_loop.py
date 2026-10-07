@@ -499,7 +499,7 @@ class TestStoppingCriteria:
 
     def test_improvement_plateau_triggers(self):
         """ImprovementPlateau should trigger when no improvement."""
-        criterion = ImprovementPlateau(patience=3, min_improvement=0.01)
+        criterion = ImprovementPlateau(patience=3, min_improvement=0.01, objective_unit="loss")
 
         history = [
             {"objective_value": 1.0},
@@ -514,7 +514,7 @@ class TestStoppingCriteria:
 
     def test_improvement_plateau_stops_after_zero_then_positive_loss(self):
         """A positive loss after a zero minimum is not infinite improvement."""
-        criterion = ImprovementPlateau(patience=2, min_improvement=0.01)
+        criterion = ImprovementPlateau(patience=2, min_improvement=0.01, objective_unit="loss")
 
         result = criterion.check(
             [
@@ -532,7 +532,7 @@ class TestStoppingCriteria:
 
     def test_improvement_plateau_preserves_negative_gain_after_zero(self):
         """A negative objective after zero remains a real improvement."""
-        criterion = ImprovementPlateau(patience=2, min_improvement=0.01)
+        criterion = ImprovementPlateau(patience=2, min_improvement=0.01, objective_unit="loss")
 
         result = criterion.check(
             [
@@ -547,7 +547,7 @@ class TestStoppingCriteria:
 
     def test_improvement_plateau_keeps_real_progress_open(self):
         """A normal positive relative gain still prevents an early stop."""
-        criterion = ImprovementPlateau(patience=2, min_improvement=0.01)
+        criterion = ImprovementPlateau(patience=2, min_improvement=0.01, objective_unit="loss")
 
         result = criterion.check(
             [

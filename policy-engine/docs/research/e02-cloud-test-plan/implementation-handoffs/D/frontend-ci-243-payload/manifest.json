@@ -1,0 +1,455 @@
+{
+  "version": "e02-D.frontend-ci-payload.v1",
+  "runtime_source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+  "runtime_source_tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+  "enumeration": "All regular scratch files directly in frontend-243 directory plus exact task-local pnpm launcher; generated after frozen execution. Browser engine/assets remain task-specific external native dependency path, full294-file manifest in payload. No old ignored archives used.",
+  "file_count": 44,
+  "original_bytes": 327122,
+  "compressed_bytes": 61089,
+  "files": [
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/architecture.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/architecture.txt.gz",
+      "original_bytes": 1275,
+      "original_sha256": "5f66bf40d69f05cfb4d141fc39614c0deb5f296ed57a25e115bf0ea77c444897",
+      "gzip_bytes": 591,
+      "gzip_sha256": "108c93540021729e13f77219d8aa397735df350f49ce420ecadb9a84765cad64",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/browser-assets-manifest.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/browser-assets-manifest.json.gz",
+      "original_bytes": 108628,
+      "original_sha256": "dc965bacc6258726023ba5e51786a93dd4965683c949f8ea8fe4793250573784",
+      "gzip_bytes": 9028,
+      "gzip_sha256": "56d2d4d6f03f151ec781686283f5bfb23d85c965034141419b6ccd0bf79d66c1",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/build.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/build.txt.gz",
+      "original_bytes": 1420,
+      "original_sha256": "60f72a19d7407f290dc9670008a942f5fd96a2c9fb52e0961eafa85a69038447",
+      "gzip_bytes": 595,
+      "gzip_sha256": "c5a9cf441fef95f8d2ddb456f0c1a7a70e0004ea73cfc5786dc82d7f434d4a8c",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/cdp-readiness.cjs",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/cdp-readiness.cjs.gz",
+      "original_bytes": 1430,
+      "original_sha256": "dfe3e05957725353cbbd36d7483150d781c32457e71d3b01ef9abca1d10144ca",
+      "gzip_bytes": 747,
+      "gzip_sha256": "a4e0bd33a1edba4b9839d4f8d9bc930a9ff37c10d453376861af93d69f709ecf",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/cdp-readiness.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/cdp-readiness.txt.gz",
+      "original_bytes": 5860,
+      "original_sha256": "e9a07a0d7a9f326bb2568ac4b46326b312edd7452af949234510846f9b996334",
+      "gzip_bytes": 1993,
+      "gzip_sha256": "ad09511d6547389b3e84cc3801279a5d64f67cdeadda61265511c51127b947a1",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/chromium-disk-install.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/chromium-disk-install.txt.gz",
+      "original_bytes": 4564,
+      "original_sha256": "7ce1ac733096b8ef4dc3b2bdba3459e39e00d71378c94c140d02513dec1a72e4",
+      "gzip_bytes": 442,
+      "gzip_sha256": "7da0f9fe0bf8c995b71f42c3e51044c1a284f1ebad281beca978a856a4b2e038",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/chromium-install.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/chromium-install.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_bytes": 20,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/chromium-path-correction.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/chromium-path-correction.json.gz",
+      "original_bytes": 816,
+      "original_sha256": "66b79f6a36f76007e07bbf1907852be89186b6bd5cda84f1fe01c9c66a585e31",
+      "gzip_bytes": 525,
+      "gzip_sha256": "e381d029585c4482871b2e6cc7ced89f30af122df53cc673c706f117108d4d0f",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/cleanup-observed.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/cleanup-observed.json.gz",
+      "original_bytes": 2881,
+      "original_sha256": "5a81472ed6531e3cb1588420bee355174ba5a0b8ec4636c4026cc2dd18832389",
+      "gzip_bytes": 1401,
+      "gzip_sha256": "e7266c4e0defb5554d3d97796f6f192fa970e7edf12da99b7c7984187ca6e256",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/contracts-pinned-pnpm.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/contracts-pinned-pnpm.json.gz",
+      "original_bytes": 485,
+      "original_sha256": "f24718cdfa38210d03434ccc4906a733f517a4c011433d5da1a4fcb0c5140739",
+      "gzip_bytes": 325,
+      "gzip_sha256": "cf46488f592f4577f8e9d02fb714fcbbecae93fffba50305f37fdda0181851d1",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/contracts-pinned-pnpm.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/contracts-pinned-pnpm.txt.gz",
+      "original_bytes": 1695,
+      "original_sha256": "616a2c438a5687c669240f0d0eeb9f0f52f986c1eea3f5541e488ba007c76949",
+      "gzip_bytes": 752,
+      "gzip_sha256": "f58ad5fbd2c7ae30b4f861ec2d05af914e028e00d3bb3f44248ae1106e1e35e1",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/contracts.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/contracts.json.gz",
+      "original_bytes": 553,
+      "original_sha256": "f1910746b60cce4d786db153f13cba804dc535ac4cb5242c3975fe9948b41b2c",
+      "gzip_bytes": 342,
+      "gzip_sha256": "44dff2d58ae176f5ba2539e17feb5a8292c5947426baa71b59ae4469db128d92",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/contracts.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/contracts.txt.gz",
+      "original_bytes": 4107,
+      "original_sha256": "bbc2d5ab9006e3852e61b4475536010d035870044deac27c2a1ca5813e108b44",
+      "gzip_bytes": 1183,
+      "gzip_sha256": "551312064c4ffa9a50b274cfbc96f163df98f7153cda0abef3081ceb8970b0f3",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/coverage-uncapped.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/coverage-uncapped.txt.gz",
+      "original_bytes": 1282,
+      "original_sha256": "41bf5ccbd73ac55abd18145b485aa150b978e1eadb2770980af7e08d350f4e44",
+      "gzip_bytes": 560,
+      "gzip_sha256": "b66b107e6218822562001a56db63e6bb79d9e57eb2ab02b9dcf80d9bd61776de",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/doctor-readiness-disk-browser.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/doctor-readiness-disk-browser.json.gz",
+      "original_bytes": 817,
+      "original_sha256": "c7d64d2c5c398b9a256ef8da23c648deaf0d638d0b62abfb4f74f2447ad0f677",
+      "gzip_bytes": 520,
+      "gzip_sha256": "540d7c02b048d9447aa396b1617e4f80e12019d3bd6d93ece7be838786852f19",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/doctor-readiness-disk-browser.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/doctor-readiness-disk-browser.txt.gz",
+      "original_bytes": 5988,
+      "original_sha256": "cf0f8095a4bfb9fc125239d7bd38a31a5619ef1b7d743bbe66df0eea335ebe20",
+      "gzip_bytes": 2210,
+      "gzip_sha256": "d9a9fac8258964add8e2c40a474f15db1bcbe28d8110ae3f5218bb46b05ac97c",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/doctor-readiness.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/doctor-readiness.json.gz",
+      "original_bytes": 905,
+      "original_sha256": "8b9d9ff3557a7e2ecfca4b3fe835b975a4c8f1a49447ac0e4abe7b905520cd04",
+      "gzip_bytes": 555,
+      "gzip_sha256": "31fbcbb1ce01332cbd5ab6e5ae563b960e3b5b4da85a2c575f734538cd544627",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/doctor-readiness.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/doctor-readiness.txt.gz",
+      "original_bytes": 4208,
+      "original_sha256": "6e6297f4a0dc12a304887e4e05643d493b3876fba6c05f4c4987cc021cb255bd",
+      "gzip_bytes": 1348,
+      "gzip_sha256": "7e0f0c646b84e7a17fbe6fd4ffa9759fe2f8e340c7992e0a4ee9ebade64b2595",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/exit-status-observed.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/exit-status-observed.json.gz",
+      "original_bytes": 6715,
+      "original_sha256": "0f9ad422f0dc78abc0b82b20f5249728dbeb4463d9ab7ead22bde4c79de15126",
+      "gzip_bytes": 996,
+      "gzip_sha256": "7b4909e9f01140e80080c736b0b6ff255279c657b08c41b6c199a2b1ef88b7d3",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/final-gate-statuses.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/final-gate-statuses.json.gz",
+      "original_bytes": 5150,
+      "original_sha256": "f4f94a3dea7e6088d5a1202b8c03f081b899980dcbace798a365bf09f46d3e59",
+      "gzip_bytes": 1727,
+      "gzip_sha256": "9db78b5d753394255d1891d005c71801be653e58a946ad867255a890eb35fa42",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/final-source-reconciliation.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/final-source-reconciliation.json.gz",
+      "original_bytes": 4152,
+      "original_sha256": "06cf2fe04e10d2863114d9850319ac587f5c0748c12aafd2dcdcb137689d8e97",
+      "gzip_bytes": 1414,
+      "gzip_sha256": "912bbd7e2b8fb9e99b5fdd11ee44ff8ca7ab665732ba96989eb5c44f21bb60f2",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/format.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/format.txt.gz",
+      "original_bytes": 1110,
+      "original_sha256": "94abb675b8850fdeee1f3c6a93e98d192606c7c5e26f6733c53fc7a8ae8b6f94",
+      "gzip_bytes": 503,
+      "gzip_sha256": "1538355617580481eb9bacf878e76a24dfbb40859c1eec9c16918fb5cc401c6c",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/lint.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/lint.txt.gz",
+      "original_bytes": 1406,
+      "original_sha256": "ec84c287129d34e1851dc06fd78af4354ea5b5faaf9aae52a1e893d9d397e1f7",
+      "gzip_bytes": 600,
+      "gzip_sha256": "705fe4bfc35c7908dd472cfdc6eed60787095aaeb30452d15acf0cd7ad0f90e5",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/node-package-profile.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/node-package-profile.txt.gz",
+      "original_bytes": 1900,
+      "original_sha256": "2e4db4a5199db2f85a6a92209ff5f7939745c7132d502200f8a11bf9d45cf24a",
+      "gzip_bytes": 581,
+      "gzip_sha256": "25fc3b6c161b551ebbcef84eb98b25be3bee33e211632bd8f8fae176a5055179",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/node-pnpm-readiness.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/node-pnpm-readiness.json.gz",
+      "original_bytes": 710,
+      "original_sha256": "7477929951bf3025f928d644ecd4e6089acb42f0791197182c5718f923f40aec",
+      "gzip_bytes": 383,
+      "gzip_sha256": "c984d070ffe98820f03dd4ef74bd4b3022d7e3eea06fe015c0e2d1202b164be7",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/node-pnpm-readiness.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/node-pnpm-readiness.txt.gz",
+      "original_bytes": 1710,
+      "original_sha256": "45989ff57141d14912a66c9d025d4aa697e4e413a486c89422b10403c87fe969",
+      "gzip_bytes": 657,
+      "gzip_sha256": "154476aac01443a9cd16864201aff67974883467c5587082d1888dd6c7ffa7fb",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/observed-deviations.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/observed-deviations.json.gz",
+      "original_bytes": 2480,
+      "original_sha256": "24a258a574092e56e8daf66b574fd529123363202ad21f6bc21127f00e30ffc3",
+      "gzip_bytes": 1376,
+      "gzip_sha256": "a76c510fa54ef73e73f3665e326c3dce3495011c577e7cbcf383267babd22d43",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/orchestration.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/orchestration.txt.gz",
+      "original_bytes": 2324,
+      "original_sha256": "e51fbfb508ee5a6b65f9979339eadf58cc9348ea5708e2321a1e4eacae22a780",
+      "gzip_bytes": 883,
+      "gzip_sha256": "5fe82ce8175d06ce5f3c73c388a8df089baaaf27b5df8d049eb9bad462312437",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/own-process-details-before-termination.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/own-process-details-before-termination.txt.gz",
+      "original_bytes": 27522,
+      "original_sha256": "149d603bc1df58bbbac74609d333518b6b49e334e67a8d2772d8f3505b18e6d6",
+      "gzip_bytes": 4314,
+      "gzip_sha256": "71342a85cb76646e9fad65f59db51fd00192ff76ada85f1ac9369fc9cf4d119e",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/own-processes-before-termination.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/own-processes-before-termination.txt.gz",
+      "original_bytes": 5270,
+      "original_sha256": "0c7cb6e7e1f10d94ff920e8a434c0afbaace611f5c03305605144bc47933a752",
+      "gzip_bytes": 1395,
+      "gzip_sha256": "af57137938164f743757d3d82515c7141c4e1f2b23e4b6ac832df52d3f2df555",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/own-termination.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/own-termination.txt.gz",
+      "original_bytes": 418,
+      "original_sha256": "cbd761a4437bbae9eddb9263a5943b817b18175148eb6fa7d9e7db9f547fdaa6",
+      "gzip_bytes": 142,
+      "gzip_sha256": "1171bde30290b93b97e1b890d6b78883951c41fb16bc7461b6a378b883a661b5",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/playwright-used-module-origin-corrected-stderr.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/playwright-used-module-origin-corrected-stderr.txt.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_bytes": 20,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/playwright-used-module-origin-corrected.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/playwright-used-module-origin-corrected.json.gz",
+      "original_bytes": 4123,
+      "original_sha256": "ca21c71e8ce956bae00d661a8d62a43ba7c9d4168f344ae6e38b7ebd4f6a629c",
+      "gzip_bytes": 938,
+      "gzip_sha256": "7e240f57e67c1c4f55e0d7b4ba44012408102dc538037ce06bf6725783545283",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/playwright-used-module-origin.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/playwright-used-module-origin.json.gz",
+      "original_bytes": 0,
+      "original_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_bytes": 20,
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/pnpm-launcher-profile.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/pnpm-launcher-profile.json.gz",
+      "original_bytes": 619,
+      "original_sha256": "7e6789dc6d0beca9c0905ffdf83abc474ca9ca92cfdccb76f22a2fc0dee172a2",
+      "gzip_bytes": 424,
+      "gzip_sha256": "742563b3fc751ac0def25eee01a833b1e0f51f01431dc660146856da12541307",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/processes-after-targeted-termination.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/processes-after-targeted-termination.txt.gz",
+      "original_bytes": 19237,
+      "original_sha256": "cc414258bfe1a8049be6612b4c05b6f0fda8b49dfd1da8e142145f43372776c6",
+      "gzip_bytes": 3337,
+      "gzip_sha256": "60836bcf752c449f3758a9fe8d976951e6c98d6105915053b7fd4fb6f273f975",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/resource-blocked-processes.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/resource-blocked-processes.txt.gz",
+      "original_bytes": 79970,
+      "original_sha256": "c2e25fa5c5e9435962b3c38a768d8d14d1f01227b0f5ffd46ae1b670457c1cf6",
+      "gzip_bytes": 11608,
+      "gzip_sha256": "536a59f6d2453968ad71df3c7e4faa3b5c24737a0ed6a93403cd7d281054c886",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/run-frontend.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/run-frontend.py.gz",
+      "original_bytes": 4872,
+      "original_sha256": "4651ac2ed0bd10562fc80fce105b0ae2bc45b85e6190f25b3e062ae96ca462d3",
+      "gzip_bytes": 2134,
+      "gzip_sha256": "fecd97ff565e2f136778bc8a77ac99097e3cd450e251733de52b3f45c3153228",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/run-successor-readiness.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/run-successor-readiness.py.gz",
+      "original_bytes": 2359,
+      "original_sha256": "41fc3d8110e9d70ee5cd92b03ed3ce1fecf5da814139240cd549e2d3ce5d2cbb",
+      "gzip_bytes": 1178,
+      "gzip_sha256": "19dd9170640b61ec64bcafb6c705a8101a4f52f704705c4ae66d268e6808453e",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/source-plan.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/source-plan.json.gz",
+      "original_bytes": 5008,
+      "original_sha256": "6b1d23871a9fe3b2c1572fce726f28831e42d08009129f8446ee9b54bf4f5df2",
+      "gzip_bytes": 1648,
+      "gzip_sha256": "ab5853a330bce95c3a6c2828d2cacfb08fe10b6fca87c523c4b778d26dec7e7f",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/successor-orchestration.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/successor-orchestration.txt.gz",
+      "original_bytes": 781,
+      "original_sha256": "e942866cea68ee097bc5af64e3fd2c504a53e1a4e45a6bddb96fe446b336dbb1",
+      "gzip_bytes": 510,
+      "gzip_sha256": "16717eadc0780cca1d051c8a81f27e9603ad8f562174767072f9049e05cd1d8d",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/typecheck.json",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/typecheck.json.gz",
+      "original_bytes": 552,
+      "original_sha256": "6ddb81dea2713ed42038a65e1b068ea436173d88c5cc23ca7f40a23ac9533a28",
+      "gzip_bytes": 340,
+      "gzip_sha256": "64a47cb868f98de725180f73376b5fc64e08201a231b3423ff6634e6646ce5f6",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/typecheck.txt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/typecheck.txt.gz",
+      "original_bytes": 1656,
+      "original_sha256": "ab46ffee545592ca31b35ecc94881f7bcdce1f626bf1028747035ff22267dd89",
+      "gzip_bytes": 681,
+      "gzip_sha256": "49517b872bb058d14e6df7edced7b46689ca9fcdd63854dc048af7c7b88e9a30",
+      "roundtrip_equal": true
+    },
+    {
+      "source_sha": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+      "original_path": "/workspace/e02-D2-receipts/frontend-243/bin/pnpm",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/frontend-ci-243-payload/pnpm-launcher.gz",
+      "original_bytes": 164,
+      "original_sha256": "42ce57d9a0f84b056f2f2d430d9ef295a3244912e1f0a69ccaab868705847946",
+      "gzip_bytes": 143,
+      "gzip_sha256": "a046e408791f0144b4f5d952e447ef0f0e11d6a8ca419047b20f5a5ff18eb0ad",
+      "roundtrip_equal": true
+    }
+  ],
+  "deciding_status_payload": "final-gate-statuses.json.gz",
+  "source_input_payload": "source-plan.json.gz",
+  "cleanup_deviation_payload": "cleanup-observed.json.gz",
+  "overall": "ERROR_UNRUN; no whole frontend/CI wrapper PASS; actual pinned-pnpm contracts1PASS plus genuine Chromium/DevTools readiness0 bounded separately."
+}

@@ -1,0 +1,17 @@
+{
+  "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "mypy",
+    "--follow-imports=silent",
+    "src/polisyos/scientist/methods/doe/stress_report.py",
+    "src/polisyos/scientist/methods/doe/designs.py",
+    "src/polisyos/scientist/methods/backtesting/adversarial.py",
+    "src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py"
+  ],
+  "exit_code": -9,
+  "wall_seconds": 83.46548886600067,
+  "peak_rss_kib": 524664,
+  "source_sha_after": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec"
+}

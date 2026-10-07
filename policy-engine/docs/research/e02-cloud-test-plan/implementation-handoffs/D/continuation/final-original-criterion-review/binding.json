@@ -1,0 +1,38 @@
+{
+  "schema": "e02.D.original_criterion_independent_binding.v1",
+  "reviewer": "criterion_closeout_review (not implementation author)",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-original-criterion-review/review.json",
+      "bytes": 158968,
+      "sha256": "b4b1fe7a68e74204d6da8be0760151d7635669b01bf4ba2c5018d720a6712c3f",
+      "meaning": "Original independently authored complete read-only deciding output, no new runtime claim"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-original-criterion-review/summary.json",
+      "bytes": 662,
+      "sha256": "4d72907813f57d2c5e541de4c5f5cfbc96cdb6d2d5548033f415e33b9b048ec8",
+      "meaning": "Original independently authored complete read-only deciding output, no new runtime claim"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-original-criterion-review/B119-scope-clarification.json",
+      "bytes": 1172,
+      "sha256": "eed290376aa6e6ad997e7e70e106f89070159811d02951219c55ba33542e7267",
+      "meaning": "Original independently authored complete read-only deciding output, no new runtime claim"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-original-criterion-review/B136-partial-consumer-delta.json",
+      "bytes": 44941,
+      "sha256": "b6d1c51f26b69a4305bf0d3747b56ab039b7533970e8da8ad53ac030dd33c2d7",
+      "meaning": "Original independently authored complete read-only deciding output, no new runtime claim"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-original-criterion-review/final-source-5050a940-review.json",
+      "bytes": 28550,
+      "sha256": "9cb5c21706769574ff778c02c90fe88bccd2675ec3b86d010e72cf23b0837284",
+      "meaning": "Original independently authored complete read-only deciding output, no new runtime claim"
+    }
+  ],
+  "current_accounting_source": "5050a940d990198f17de2b5dd9a3be691e153c05",
+  "scope": "Complete45ID/46occurrence originals, narrow5050 source delta and B136 actual40 outputs. B119scopeclarification supersedes overbroad first audit concern. New targeted runtimes/finalbroad outputs remain separately pinned. Packaging residual in5050 review corrected separately273616. No formal G acceptance."
+}

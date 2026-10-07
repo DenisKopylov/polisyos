@@ -1,0 +1,243 @@
+{
+  "historical_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "current_context": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "common_async_tools": {
+    "path": "policy-engine/src/polisyos/common/async_tools.py",
+    "a7_sha256": "5153fff118f7d791abb72b6878b409ca226ceceb2411fd413756f66a694d8406",
+    "cbc_sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+    "same_blob": false,
+    "top_level_definitions": {
+      "SharedExecutorReentrancyError": {
+        "a7_ast_sha256": null,
+        "cbc_ast_sha256": "a539d6a14b311ba4f4522cdeab1e745125cba717be8851d44018dad966101b85",
+        "same_ast": false
+      },
+      "_SharedExecutor": {
+        "a7_ast_sha256": null,
+        "cbc_ast_sha256": "b4da3bde17d72af0df9785ef568effb47dfe0f6231a8dddf748dbde21130b285",
+        "same_ast": false
+      },
+      "_SharedFuture": {
+        "a7_ast_sha256": null,
+        "cbc_ast_sha256": "d8c5386ad22249fab1853a8587152b264113923df15371aa066e18f7cec844e2",
+        "same_ast": false
+      },
+      "_await_awaitable": {
+        "a7_ast_sha256": "9cf952fc57a2f4e6215a75af968a4f0581957811aa363071424fc2b1504b1442",
+        "cbc_ast_sha256": "9cf952fc57a2f4e6215a75af968a4f0581957811aa363071424fc2b1504b1442",
+        "same_ast": true
+      },
+      "_get_shared_executor": {
+        "a7_ast_sha256": "931cba4092bab00784ace0a7388b6c4d99876dc3a6dcc04d53c14f1ec82845ec",
+        "cbc_ast_sha256": "f4746f710b334243c9916acc8c3bbd83e43d51dc121deca6e60f31be67bda7a1",
+        "same_ast": false
+      },
+      "_normalize_timeout": {
+        "a7_ast_sha256": "fbc1663ad0598f9c2a91666739375fa2c6d78e7ed9e305f06ee53b67ee7c5b4f",
+        "cbc_ast_sha256": "fbc1663ad0598f9c2a91666739375fa2c6d78e7ed9e305f06ee53b67ee7c5b4f",
+        "same_ast": true
+      },
+      "_run_coro_in_fresh_loop": {
+        "a7_ast_sha256": "648019dd19716cddd16024d66ded406f499c18ef277eee2885728f79104019a9",
+        "cbc_ast_sha256": "648019dd19716cddd16024d66ded406f499c18ef277eee2885728f79104019a9",
+        "same_ast": true
+      },
+      "get_shared_executor": {
+        "a7_ast_sha256": "dc9a203479f1cf3e9258bb9603b92fb3f593fdc638c0087d9cb6e85c8f11aeae",
+        "cbc_ast_sha256": "acabc68c86d840a87030d27e54882c7787cc6548186bc6bab706ef00035e433d",
+        "same_ast": false
+      },
+      "run_blocking_async": {
+        "a7_ast_sha256": "8c83486d7b711fff303481ccdad005f00cfda62521d71dc68bd9314b18a5efa5",
+        "cbc_ast_sha256": "ad6ea28d9af98d9addef12c83bba2249e0768e9e4f1b952f75dec5b01d036dbc",
+        "same_ast": false
+      },
+      "run_coro_sync": {
+        "a7_ast_sha256": "45a22a199e3565cda22680d38368f3187973639aa4cd3bcaa1b05940cbdbc473",
+        "cbc_ast_sha256": "45a22a199e3565cda22680d38368f3187973639aa4cd3bcaa1b05940cbdbc473",
+        "same_ast": true
+      },
+      "shutdown_run_coro_sync_executor": {
+        "a7_ast_sha256": "56954b48ea7ddbc81570c7c835db1d535ec12ad4560ce51fa5763b6bfee8790b",
+        "cbc_ast_sha256": "72374c1dac1abc0da44fd24eddaeeadf55b239d7f1c25b98f95eb73881091102",
+        "same_ast": false
+      }
+    }
+  },
+  "selected_financial_and_native_caller_paths": [
+    {
+      "path": "policy-engine/tests/integration/scientist/methods/search/funnel/test_cache_settlement_binding.py",
+      "a7_sha256": "5bd2171bcf7dc403095a51cef382d358d850bdc7fe0b71d55959973ed2815b95",
+      "cbc_sha256": "5bd2171bcf7dc403095a51cef382d358d850bdc7fe0b71d55959973ed2815b95",
+      "same_blob": true,
+      "async_tools_imports": [],
+      "async_tools_calls": [],
+      "direct_asyncio_calls": [
+        "asyncio.run",
+        "asyncio.run"
+      ]
+    },
+    {
+      "path": "policy-engine/tests/integration/core/llm/test_gateway_response_text_cost.py",
+      "a7_sha256": "aaf35bfdf97fdb35f3ff9e48ece8805ce656b600039b587a6851acb3dae96ecc",
+      "cbc_sha256": "aaf35bfdf97fdb35f3ff9e48ece8805ce656b600039b587a6851acb3dae96ecc",
+      "same_blob": true,
+      "async_tools_imports": [],
+      "async_tools_calls": [],
+      "direct_asyncio_calls": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget.py",
+      "a7_sha256": "76adb290dd270a7a8ce6fb0823bf1f035c00673f3662abf7cb35ca13d8209516",
+      "cbc_sha256": "76adb290dd270a7a8ce6fb0823bf1f035c00673f3662abf7cb35ca13d8209516",
+      "same_blob": true,
+      "async_tools_imports": [],
+      "async_tools_calls": [],
+      "direct_asyncio_calls": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "a7_sha256": "312f31fd3fd6062124b3124a526e4997f6d05e3d79b9c5ce0ec968dec5a41efe",
+      "cbc_sha256": "312f31fd3fd6062124b3124a526e4997f6d05e3d79b9c5ce0ec968dec5a41efe",
+      "same_blob": true,
+      "async_tools_imports": [],
+      "async_tools_calls": [],
+      "direct_asyncio_calls": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "a7_sha256": "6ad7d0eddbfa7aef9f6f32de5c35505047016367a8b6aa54edbdba99eba3c0f8",
+      "cbc_sha256": "6ad7d0eddbfa7aef9f6f32de5c35505047016367a8b6aa54edbdba99eba3c0f8",
+      "same_blob": true,
+      "async_tools_imports": [],
+      "async_tools_calls": [],
+      "direct_asyncio_calls": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "a7_sha256": "215adc1ee70c5ac0426db93126dff2a7e8bed23ca3e90bbcdeddc35da35d18da",
+      "cbc_sha256": "215adc1ee70c5ac0426db93126dff2a7e8bed23ca3e90bbcdeddc35da35d18da",
+      "same_blob": true,
+      "async_tools_imports": [],
+      "async_tools_calls": [],
+      "direct_asyncio_calls": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "a7_sha256": "4161bc6dfa38838c107228672fab9e1468087c19ae7ddb4f510247577fac29c3",
+      "cbc_sha256": "4161bc6dfa38838c107228672fab9e1468087c19ae7ddb4f510247577fac29c3",
+      "same_blob": true,
+      "async_tools_imports": [],
+      "async_tools_calls": [],
+      "direct_asyncio_calls": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+      "a7_sha256": "e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68",
+      "cbc_sha256": "e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68",
+      "same_blob": true,
+      "async_tools_imports": [],
+      "async_tools_calls": [],
+      "direct_asyncio_calls": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/llm/response.py",
+      "a7_sha256": "8e9d9cb25cc73257a55f76acbc1cdd66871a2e207b1efd7e19e7b12024a385ea",
+      "cbc_sha256": "8e9d9cb25cc73257a55f76acbc1cdd66871a2e207b1efd7e19e7b12024a385ea",
+      "same_blob": true,
+      "async_tools_imports": [],
+      "async_tools_calls": [],
+      "direct_asyncio_calls": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+      "a7_sha256": "6d680b37b3107322ec79e56d6e7959b6605c5af22be641d6305f65bc495f78a7",
+      "cbc_sha256": "6d680b37b3107322ec79e56d6e7959b6605c5af22be641d6305f65bc495f78a7",
+      "same_blob": true,
+      "async_tools_imports": [],
+      "async_tools_calls": [],
+      "direct_asyncio_calls": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/llm/traced_client.py",
+      "a7_sha256": "f982028c7533dacac0df93475177bd840857768744ebf0bfd8c2181af912b81a",
+      "cbc_sha256": "f982028c7533dacac0df93475177bd840857768744ebf0bfd8c2181af912b81a",
+      "same_blob": true,
+      "async_tools_imports": [],
+      "async_tools_calls": [],
+      "direct_asyncio_calls": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+      "a7_sha256": "e84db90c7c193c721602c506229cce6b7ab3d1af051e26ef032692992d66a7d5",
+      "cbc_sha256": "e84db90c7c193c721602c506229cce6b7ab3d1af051e26ef032692992d66a7d5",
+      "same_blob": true,
+      "async_tools_imports": [],
+      "async_tools_calls": [],
+      "direct_asyncio_calls": [
+        "asyncio.get_running_loop",
+        "asyncio.get_running_loop"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+      "a7_sha256": "edcf3b78c47eaf458fcad98023fc7247bd2bbe5500a5a00389b60033bfae1529",
+      "cbc_sha256": "edcf3b78c47eaf458fcad98023fc7247bd2bbe5500a5a00389b60033bfae1529",
+      "same_blob": true,
+      "async_tools_imports": [],
+      "async_tools_calls": [],
+      "direct_asyncio_calls": [
+        "asyncio.get_running_loop",
+        "asyncio.run"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/policy_design/translator.py",
+      "a7_sha256": "ff4e452cfda5d231951ac87da3dcb3e5fdd14e4e55791c8b050bf3a6343e14e4",
+      "cbc_sha256": "ff4e452cfda5d231951ac87da3dcb3e5fdd14e4e55791c8b050bf3a6343e14e4",
+      "same_blob": true,
+      "async_tools_imports": [],
+      "async_tools_calls": [],
+      "direct_asyncio_calls": [
+        "asyncio.get_running_loop",
+        "asyncio.get_running_loop",
+        "asyncio.run",
+        "asyncio.run"
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+      "a7_sha256": "227505c132e9a1e49bf7177fc42de3e80c0b0bd33bc1b76d2a9180d579fa75d1",
+      "cbc_sha256": "227505c132e9a1e49bf7177fc42de3e80c0b0bd33bc1b76d2a9180d579fa75d1",
+      "same_blob": true,
+      "async_tools_imports": [],
+      "async_tools_calls": [],
+      "direct_asyncio_calls": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level3_medium.py",
+      "a7_sha256": "5d59459e50babcfb74b5b6349cd2244a511231ebaef325be70a2d88aa4c9e923",
+      "cbc_sha256": "5d59459e50babcfb74b5b6349cd2244a511231ebaef325be70a2d88aa4c9e923",
+      "same_blob": true,
+      "async_tools_imports": [],
+      "async_tools_calls": [],
+      "direct_asyncio_calls": []
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/workflows/engine_simple.py",
+      "a7_sha256": "f1ebd51d43fdabc845d741b3b56ea20a4a5a9e37d8660a85e34a4f2a06653f2a",
+      "cbc_sha256": "f1ebd51d43fdabc845d741b3b56ea20a4a5a9e37d8660a85e34a4f2a06653f2a",
+      "same_blob": true,
+      "async_tools_imports": [],
+      "async_tools_calls": [],
+      "direct_asyncio_calls": []
+    }
+  ],
+  "predicate_basis": {
+    "cache18": "Historical controlled native cache tests call actual generate via asyncio.run; supported invoke adapter also calls asyncio.run. No selected financial/test module imports/calls the shared executor helpers. The current native policy workers use their own direct asyncio.run outside a running loop, unchanged source. This is source/caller-edge qualification, not a new runtime replay.",
+    "raw32": "Historical actual response-text cells are native async pytest operations/direct awaits. No selected module imports/calls changed shared executor helpers. Original runtime source remains A7.",
+    "limits": "Common async_tools blob did change. No blanket A7 module/input equality or new current PASS is asserted. Active-event-loop/shared-executor properties belong to their actual new caller tests. Source inspection cannot certify deployment-wide unobserved dynamic calls.",
+    "original_outputs": "Committed A7 actual command/fullstreams/lossless snapshots remain canonical evidence; only source identity/caller edge is carried."
+  },
+  "P41": "not_established/no inherited-red claim"
+}

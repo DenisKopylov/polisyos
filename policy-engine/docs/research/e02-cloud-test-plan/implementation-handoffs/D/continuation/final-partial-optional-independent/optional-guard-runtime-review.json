@@ -1,0 +1,334 @@
+{
+  "schema": "policyos.e02.independent_pytest_denominator.v1",
+  "capture_root": "/tmp/e02-D-optional-native-profile-b9fc7d005d39-4a89790f79a346c6b42bf517bc06ac72",
+  "read_only_metadata": true,
+  "new_runtime": false,
+  "formal_closed": 0,
+  "G_accepted": false,
+  "input_artifact_identities": {
+    "collected-nodeids.json": {
+      "bytes": 5208,
+      "sha256": "e905fe754be32f45532cbfe3033a6a44b78e047a3384ba2fc9bdf6b17a025035"
+    },
+    "events.jsonl": {
+      "bytes": 747038,
+      "sha256": "20afbf4b3aa4a251e2b6e60a1cc2501345d04f3322b128aed4b04333aac5ff7f"
+    },
+    "observer-summary.json": {
+      "bytes": 342186,
+      "sha256": "5ee1c3c5afe5f5ac1bf797b07b2621dc1fde627bcb0bf9203810331f409d24a1"
+    },
+    "junit.xml": {
+      "bytes": 12041,
+      "sha256": "aed1c8cee39193927ef52f1cbe6a6d99687a6ce3368e06eeb97c7013e90769d8"
+    },
+    "result.json": {
+      "bytes": 2327,
+      "sha256": "ac8187dbbd5717b9404ef3b2eb84184c198b7dd4e07fbc25ddb6a9e9ae716b7c"
+    },
+    "manifest.json": {
+      "bytes": 1568,
+      "sha256": "b4797c3989db1d27955c3ecc9d9b37ee434c4ce32a924ba493db5cfeaa232d5e"
+    }
+  },
+  "missing_final_artifacts": [],
+  "event_line_count": 430,
+  "collected_count": 38,
+  "unique_collected_count": 38,
+  "case_summary_count": 38,
+  "case_start_count": 38,
+  "case_finish_count": 38,
+  "phase_reports": {
+    "setup:skipped": 15,
+    "teardown:passed": 38,
+    "setup:passed": 23,
+    "call:skipped": 6,
+    "call:passed": 17
+  },
+  "collection_reports": [],
+  "runtime_failure_or_skip_refs": [
+    {
+      "nodeid": "tests/unit/scientist/agent/test_vector_memory.py::test_query_captures_one_generation_during_native_publication[load]",
+      "phase": "setup",
+      "outcome": "skipped",
+      "events_line": 256,
+      "reason_sha256": "42bdcbe39c98a78bbaa17e3376685e6d5bbc0cc284b4e7dc792a4cbe24991817",
+      "full_reason": "events.jsonl:256"
+    },
+    {
+      "nodeid": "tests/unit/scientist/agent/test_vector_memory.py::test_query_captures_one_generation_during_native_publication[update]",
+      "phase": "setup",
+      "outcome": "skipped",
+      "events_line": 260,
+      "reason_sha256": "42bdcbe39c98a78bbaa17e3376685e6d5bbc0cc284b4e7dc792a4cbe24991817",
+      "full_reason": "events.jsonl:260"
+    },
+    {
+      "nodeid": "tests/unit/scientist/agent/test_vector_memory.py::test_metadata_copies_and_failed_native_mutation_preserve_generation",
+      "phase": "setup",
+      "outcome": "skipped",
+      "events_line": 264,
+      "reason_sha256": "d4acbb6f179fef5200a17426f249fab308ac0087534c3f8aff535ec0c5247832",
+      "full_reason": "events.jsonl:264"
+    },
+    {
+      "nodeid": "tests/unit/scientist/agent/test_vector_memory.py::test_same_ref_altered_bytes_refuses_load_without_publishing",
+      "phase": "setup",
+      "outcome": "skipped",
+      "events_line": 268,
+      "reason_sha256": "56bc413d3bc8c51f7d5708b3e81d6ca6a4e35c231a272f5170e6c560405eabcb",
+      "full_reason": "events.jsonl:268"
+    },
+    {
+      "nodeid": "tests/unit/scientist/agent/test_vector_memory.py::test_real_bundle_envelope_refuses_disagreement_before_publication[outer-kind]",
+      "phase": "setup",
+      "outcome": "skipped",
+      "events_line": 272,
+      "reason_sha256": "ad81844a5d2fbcb77959a1581a2830e2a1f020110ca980e4402d6b821d88af98",
+      "full_reason": "events.jsonl:272"
+    },
+    {
+      "nodeid": "tests/unit/scientist/agent/test_vector_memory.py::test_real_bundle_envelope_refuses_disagreement_before_publication[outer-media]",
+      "phase": "setup",
+      "outcome": "skipped",
+      "events_line": 276,
+      "reason_sha256": "ad81844a5d2fbcb77959a1581a2830e2a1f020110ca980e4402d6b821d88af98",
+      "full_reason": "events.jsonl:276"
+    },
+    {
+      "nodeid": "tests/unit/scientist/agent/test_vector_memory.py::test_real_bundle_envelope_refuses_disagreement_before_publication[schema]",
+      "phase": "setup",
+      "outcome": "skipped",
+      "events_line": 280,
+      "reason_sha256": "ad81844a5d2fbcb77959a1581a2830e2a1f020110ca980e4402d6b821d88af98",
+      "full_reason": "events.jsonl:280"
+    },
+    {
+      "nodeid": "tests/unit/scientist/agent/test_vector_memory.py::test_real_bundle_envelope_refuses_disagreement_before_publication[missing-schema]",
+      "phase": "setup",
+      "outcome": "skipped",
+      "events_line": 284,
+      "reason_sha256": "ad81844a5d2fbcb77959a1581a2830e2a1f020110ca980e4402d6b821d88af98",
+      "full_reason": "events.jsonl:284"
+    },
+    {
+      "nodeid": "tests/unit/scientist/agent/test_vector_memory.py::test_real_bundle_envelope_refuses_disagreement_before_publication[dimension]",
+      "phase": "setup",
+      "outcome": "skipped",
+      "events_line": 288,
+      "reason_sha256": "ad81844a5d2fbcb77959a1581a2830e2a1f020110ca980e4402d6b821d88af98",
+      "full_reason": "events.jsonl:288"
+    },
+    {
+      "nodeid": "tests/unit/scientist/agent/test_vector_memory.py::test_real_bundle_envelope_refuses_disagreement_before_publication[count]",
+      "phase": "setup",
+      "outcome": "skipped",
+      "events_line": 292,
+      "reason_sha256": "ad81844a5d2fbcb77959a1581a2830e2a1f020110ca980e4402d6b821d88af98",
+      "full_reason": "events.jsonl:292"
+    },
+    {
+      "nodeid": "tests/unit/scientist/agent/test_vector_memory.py::test_real_bundle_envelope_refuses_disagreement_before_publication[capacity]",
+      "phase": "setup",
+      "outcome": "skipped",
+      "events_line": 296,
+      "reason_sha256": "ad81844a5d2fbcb77959a1581a2830e2a1f020110ca980e4402d6b821d88af98",
+      "full_reason": "events.jsonl:296"
+    },
+    {
+      "nodeid": "tests/unit/scientist/agent/test_vector_memory.py::test_real_bundle_envelope_refuses_disagreement_before_publication[index-kind]",
+      "phase": "setup",
+      "outcome": "skipped",
+      "events_line": 300,
+      "reason_sha256": "ad81844a5d2fbcb77959a1581a2830e2a1f020110ca980e4402d6b821d88af98",
+      "full_reason": "events.jsonl:300"
+    },
+    {
+      "nodeid": "tests/unit/scientist/agent/test_vector_memory.py::test_real_bundle_envelope_refuses_disagreement_before_publication[truncated-index]",
+      "phase": "setup",
+      "outcome": "skipped",
+      "events_line": 304,
+      "reason_sha256": "ad81844a5d2fbcb77959a1581a2830e2a1f020110ca980e4402d6b821d88af98",
+      "full_reason": "events.jsonl:304"
+    },
+    {
+      "nodeid": "tests/unit/scientist/agent/test_vector_memory.py::test_explicit_schema_absent_legacy_bundle_uses_default_native_view",
+      "phase": "setup",
+      "outcome": "skipped",
+      "events_line": 308,
+      "reason_sha256": "ee20942260da0b3b83b84e81498c2b02639b6e39132d5616be6cdb25c68ad77c",
+      "full_reason": "events.jsonl:308"
+    },
+    {
+      "nodeid": "tests/unit/scientist/agent/test_vector_memory.py::test_same_native_ref_changed_bytes_preserves_published_generation",
+      "phase": "setup",
+      "outcome": "skipped",
+      "events_line": 312,
+      "reason_sha256": "83e1c33dd01dccd124636ceaa0af8fc3e7ee3970e27e86be28141c0211ffd3cd",
+      "full_reason": "events.jsonl:312"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_trn_02.py::test_discovery_preserves_history_ref_and_reads_cas_without_second_ann",
+      "phase": "call",
+      "outcome": "skipped",
+      "events_line": 317,
+      "reason_sha256": "65cfb580482a638d710e87208e78ce1bb6ffb8ee9211f453331c2a3e6ffbcd3d",
+      "full_reason": "events.jsonl:317"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_trn_02.py::test_history_cache_is_bound_to_snapshot_and_consumer_sort_is_non_mutating",
+      "phase": "call",
+      "outcome": "skipped",
+      "events_line": 322,
+      "reason_sha256": "60e5bcd87f32e69353b9a60f4d8df83fe63cc1dc4856c966d68d09827737e112",
+      "full_reason": "events.jsonl:322"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_trn_02.py::test_failed_native_add_does_not_publish_a_second_python_record",
+      "phase": "call",
+      "outcome": "skipped",
+      "events_line": 327,
+      "reason_sha256": "e44602f57f81b3a083182d08c51b3cb00a9a63c3f5fedc2b66dcf905da85c667",
+      "full_reason": "events.jsonl:327"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_trn_02.py::test_failed_native_load_does_not_publish_partial_bundle",
+      "phase": "call",
+      "outcome": "skipped",
+      "events_line": 332,
+      "reason_sha256": "ddb15949ea4a1d7d7df1482c3d69fa37f10d53d1e3e85b9bac6d8afc49e7975f",
+      "full_reason": "events.jsonl:332"
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_trn_02.py::test_native_roundtrip_preserves_one_small_generation",
+      "phase": "call",
+      "outcome": "skipped",
+      "events_line": 337,
+      "reason_sha256": "b5bc024defa1efbfef04f7dafe510b2d78f8207552b51f2ae3e86c6816a50478",
+      "full_reason": "events.jsonl:337"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/autotune/test_bayesian_generator.py::test_first_sobol_candidate_uses_native_search_space_protocol",
+      "phase": "call",
+      "outcome": "skipped",
+      "events_line": 372,
+      "reason_sha256": "0b517713fabb920a16823c67d48638464baf674858c0a75525a4102eed4f22fb",
+      "full_reason": "events.jsonl:372"
+    }
+  ],
+  "unique_runtime_FAILED_case_count": 0,
+  "unique_runtime_FAILED_cases": [],
+  "runtime_SKIPPED_case_count": 21,
+  "runtime_SKIPPED_cases": [
+    "tests/unit/remediation/test_trn_02.py::test_discovery_preserves_history_ref_and_reads_cas_without_second_ann",
+    "tests/unit/remediation/test_trn_02.py::test_failed_native_add_does_not_publish_a_second_python_record",
+    "tests/unit/remediation/test_trn_02.py::test_failed_native_load_does_not_publish_partial_bundle",
+    "tests/unit/remediation/test_trn_02.py::test_history_cache_is_bound_to_snapshot_and_consumer_sort_is_non_mutating",
+    "tests/unit/remediation/test_trn_02.py::test_native_roundtrip_preserves_one_small_generation",
+    "tests/unit/scientist/agent/test_vector_memory.py::test_explicit_schema_absent_legacy_bundle_uses_default_native_view",
+    "tests/unit/scientist/agent/test_vector_memory.py::test_metadata_copies_and_failed_native_mutation_preserve_generation",
+    "tests/unit/scientist/agent/test_vector_memory.py::test_query_captures_one_generation_during_native_publication[load]",
+    "tests/unit/scientist/agent/test_vector_memory.py::test_query_captures_one_generation_during_native_publication[update]",
+    "tests/unit/scientist/agent/test_vector_memory.py::test_real_bundle_envelope_refuses_disagreement_before_publication[capacity]",
+    "tests/unit/scientist/agent/test_vector_memory.py::test_real_bundle_envelope_refuses_disagreement_before_publication[count]",
+    "tests/unit/scientist/agent/test_vector_memory.py::test_real_bundle_envelope_refuses_disagreement_before_publication[dimension]",
+    "tests/unit/scientist/agent/test_vector_memory.py::test_real_bundle_envelope_refuses_disagreement_before_publication[index-kind]",
+    "tests/unit/scientist/agent/test_vector_memory.py::test_real_bundle_envelope_refuses_disagreement_before_publication[missing-schema]",
+    "tests/unit/scientist/agent/test_vector_memory.py::test_real_bundle_envelope_refuses_disagreement_before_publication[outer-kind]",
+    "tests/unit/scientist/agent/test_vector_memory.py::test_real_bundle_envelope_refuses_disagreement_before_publication[outer-media]",
+    "tests/unit/scientist/agent/test_vector_memory.py::test_real_bundle_envelope_refuses_disagreement_before_publication[schema]",
+    "tests/unit/scientist/agent/test_vector_memory.py::test_real_bundle_envelope_refuses_disagreement_before_publication[truncated-index]",
+    "tests/unit/scientist/agent/test_vector_memory.py::test_same_native_ref_changed_bytes_preserves_published_generation",
+    "tests/unit/scientist/agent/test_vector_memory.py::test_same_ref_altered_bytes_refuses_load_without_publishing",
+    "tests/unit/scientist/methods/autotune/test_bayesian_generator.py::test_first_sobol_candidate_uses_native_search_space_protocol"
+  ],
+  "xfail_reports": [],
+  "junit_rows": 38,
+  "junit_outcomes": {
+    "SKIP": 21,
+    "PASS": 17
+  },
+  "junit_FAIL_ERROR_rows": [],
+  "call_failure_teardown_error_overlap": [],
+  "gaps": [],
+  "verdict": "PASS_DENOMINATOR_IDENTITY_RECONCILIATION_ONLY",
+  "numerical_properties": "Not inferred from import, skip, xfail or denominator success; actual source/backend execution is reviewed separately.",
+  "source_sha": "b9fc7d005d39ded686f276fae8eae617b683bac6",
+  "source_tree": "689ce50660504bb7d718d124ec2c41f4dd5d7ddd",
+  "snapshots": {
+    "captured_count": 5567,
+    "frozen_git_discrepancies": [],
+    "before_after_equal": true,
+    "files_equal": true,
+    "external_inputs_equal": true,
+    "git_state_equal": true,
+    "clean_before_after": true,
+    "tracked_source_python": 2701,
+    "tracked_test_python": 2860,
+    "missing_tracked_python_inputs": []
+  },
+  "loaded_origin_verification": {
+    "final_product_origins": 249,
+    "transient_exec_origins": 249,
+    "unique_paths": 249,
+    "frozen_git_discrepancies": []
+  },
+  "actual_backend_state": {
+    "torch": {
+      "installed_version": null,
+      "actually_loaded_in_main_process": false
+    },
+    "botorch": {
+      "installed_version": null,
+      "actually_loaded_in_main_process": false
+    },
+    "gpytorch": {
+      "installed_version": null,
+      "actually_loaded_in_main_process": false
+    },
+    "hnswlib": {
+      "installed_version": null,
+      "actually_loaded_in_main_process": false
+    },
+    "SALib": {
+      "installed_version": null,
+      "actually_loaded_in_main_process": false
+    },
+    "numpy": {
+      "installed_version": "2.3.5",
+      "actually_loaded_in_main_process": true,
+      "module_path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/numpy/__init__.py",
+      "module_version": "2.3.5",
+      "module_file_sha256": "93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38",
+      "module_file_bytes": 25919
+    },
+    "scipy": {
+      "installed_version": "1.16.3",
+      "actually_loaded_in_main_process": false
+    },
+    "pytest": {
+      "installed_version": "9.0.2",
+      "actually_loaded_in_main_process": true,
+      "module_path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/pytest/__init__.py",
+      "module_version": "9.0.2",
+      "module_file_sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766",
+      "module_file_bytes": 5582
+    },
+    "numpy._core._multiarray_umath:binary": {
+      "path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/numpy/_core/_multiarray_umath.cpython-314-x86_64-linux-gnu.so",
+      "bytes": 10800697,
+      "sha256": "61052ef771d926665ca135b1840662516f058d5c98843aa429ef2abdd7f46a04"
+    }
+  },
+  "runtime_classification": "17 complete PASS cases apply to six fallback and eleven conversion/DTO cases;21 native skips are UNRUN for HNSW/GP predicates. No numerical fit or missing-backend PASS claim.",
+  "capture_manifest_role": "manifest.json is the author capture input manifest; denominator checker accepts its filename as the execution-manifest role.",
+  "published_raw_output_reference": {
+    "commit": "6755e9cbedd88abb8c9d882efd5f923ccb2e2f2b",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-native-profile-proof/complete-data.json.gz",
+    "sha256": "4dcd692301dfb28eef60f36098697ad7ad84ac0db01926f76818e1591e2d7822",
+    "member_count": 10,
+    "after_json": "transport_member_ref to before.json; verified exact raw-byte reconstruction",
+    "author_handoff_commit": "415621e89b059d432f1b24a00262b73b3fe99e22",
+    "author_handoff_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-native-profile-handoff.json"
+  }
+}

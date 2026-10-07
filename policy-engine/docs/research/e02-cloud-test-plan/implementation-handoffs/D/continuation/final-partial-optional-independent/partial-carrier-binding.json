@@ -1,0 +1,70 @@
+{
+  "schema": "polisyos.e02.independent_c17_lossless_carrier_review.v1",
+  "new_runtime": false,
+  "source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+  "source_tree": "b09d9f3cfee71c429f9e9b655076a563fa3cfa0d",
+  "carrier_commit": "f5642cca00f084ddbc195c98541a30df058612db",
+  "carrier_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-wave-c17-partial/complete-output.json.xz",
+  "carrier_bytes": 976704,
+  "carrier_sha256": "2be4574286b788bfcb280d123054550407568891843e4c6267e877e6a8cea87a",
+  "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-wave-c17-partial/manifest.json",
+  "manifest_bytes": 223776,
+  "manifest_sha256": "36a01cc2d2190e584aff710b15f2ff858b7e1961b74ab1f540e76ea27af777b2",
+  "member_count": 682,
+  "unique_member_names": 682,
+  "raw_bytes": 7858094,
+  "member_errors": [],
+  "manifest_members_deep_equal": true,
+  "manifest_scalar_values_match": true,
+  "original_regular_walk_count": 682,
+  "missing_original_regular_files": [],
+  "carrier_names_absent_from_original_regular_files": [],
+  "nonregular_count": 56,
+  "nonregular_descriptors_equal": true,
+  "manifest_nonregular_and_input_refs_deep_equal": true,
+  "original_tracked_measurement_input_checks": [
+    {
+      "role": "final_runner",
+      "source_sha": "69e2d477b7e8f2e213bf545fbbad42881a9aefce",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-wave-input/runner.py.txt",
+      "bytes": 20589,
+      "sha256": "02ff94cbf1f2bc01af5f9687c7a31339802f5cde36cb9829b01f0f182702cd9b",
+      "original_bytes_equal": true
+    },
+    {
+      "role": "base_helper",
+      "source_sha": "e038bca98f9e33dca33cc49221a85311a5ab5704",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-proof/broad-wave-source-helpers.py.txt",
+      "bytes": 20492,
+      "sha256": "f383a1ff3bd2a22776b914e6d038d6f8883772acc78e051c27bb1db15f5a56e7",
+      "original_bytes_equal": true
+    },
+    {
+      "role": "observer",
+      "source_sha": "e038bca98f9e33dca33cc49221a85311a5ab5704",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-proof/broad-runtime-observer.py.txt",
+      "bytes": 12753,
+      "sha256": "1beccd4a0caa7af25a68c54a85341949d809f0e75d61cdf61d5d4ffbcfc8cf81",
+      "original_bytes_equal": true
+    },
+    {
+      "role": "plan_generator",
+      "source_sha": "6333d6205a4abd14e6ef246a668cbff51e72b482",
+      "carrier_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-root-wave-8c-interruption-proof/output.json.gz",
+      "member_pointer": "/members/11",
+      "member_name": "harness/e02-D-final-selector-plan.py",
+      "bytes": 12531,
+      "sha256": "e3e2ab9bfc9ee6fe86bfb9612f2c6f8bd383b1899f70ccb271492ba0794b3df8",
+      "original_bytes_equal": true
+    }
+  ],
+  "partial_runtime_verdict": "ERROR_SIGNAL_TERMINATION_PARTIAL_UNRUN",
+  "limitations": [
+    "Lossless transport integrity does not establish completion or override any actual failed case.",
+    "Subprocess bodies were not origin-enforced by the passive main-process observer.",
+    "No JUnit/session_finish/final observer summary exists; no whole-suite PASS or model-fit acceptance.",
+    "The carrier lists three direct historical input references; this review explicitly resolves the additional consumed base helper through its exact existing Git source."
+  ],
+  "formal_closed": 0,
+  "G_accepted": false
+}

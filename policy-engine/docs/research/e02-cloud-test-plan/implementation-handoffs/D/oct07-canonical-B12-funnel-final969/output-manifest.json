@@ -1,0 +1,172 @@
+{
+  "schema": "e02.D.FUN.final969_exact_copy.v1",
+  "source": "96905636726483fdea3a98d9313871d825b54a9e",
+  "tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "files": [
+    {
+      "source": "/dev/shm/e02-D-funnel-oct07/final969-append-v3/HANDOFF.json",
+      "destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/HANDOFF.json",
+      "bytes": 5407,
+      "sha256": "20d85bafe1269208a4a88ad6cd6704b54f5690e3728394d80c1cddbe7094ff92"
+    },
+    {
+      "source": "/dev/shm/e02-D-funnel-oct07/final969-append-v3/README.md",
+      "destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/README.md",
+      "bytes": 501,
+      "sha256": "f967093e59818a73b6527d8641bf7442a456e29a89cd6674d44d759880628425"
+    },
+    {
+      "source": "/dev/shm/e02-D-funnel-oct07/final969-append-v3/lossless/1e8567fe5ea4fcb53af6ca903a42641a2209d8a56dbea282001c7c880bf3632e.gz",
+      "destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/lossless/1e8567fe5ea4fcb53af6ca903a42641a2209d8a56dbea282001c7c880bf3632e.gz",
+      "bytes": 746,
+      "sha256": "6fa7615cb0bf2ca2ce2323ec1819fe888a508fc4a55d440f0b76957b0dedf5c0"
+    },
+    {
+      "source": "/dev/shm/e02-D-funnel-oct07/final969-append-v3/lossless/2f1159cf900d8900dcc0c41eb19ba0a961cd1802fad632e679177f6555cfaaf5.gz",
+      "destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/lossless/2f1159cf900d8900dcc0c41eb19ba0a961cd1802fad632e679177f6555cfaaf5.gz",
+      "bytes": 1951,
+      "sha256": "c06600fdcd839f4d22a5d9fc52072347ed9252ac8c5f4581ba8d2d56e8961129"
+    },
+    {
+      "source": "/dev/shm/e02-D-funnel-oct07/final969-append-v3/lossless/3895542d55975bc95f80fdced25060d6f89da0679a46c14551b0f0a0e5f7ea60.gz",
+      "destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/lossless/3895542d55975bc95f80fdced25060d6f89da0679a46c14551b0f0a0e5f7ea60.gz",
+      "bytes": 747,
+      "sha256": "219dc5166e74e8f66e29ccb22fd55cf38217d64ec3f4b39bd287de40b41cf03d"
+    },
+    {
+      "source": "/dev/shm/e02-D-funnel-oct07/final969-append-v3/lossless/4ca0461222133055cba6330cd06df2df2eb4e7c6b85b01ddd4edf169089ced76.gz",
+      "destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/lossless/4ca0461222133055cba6330cd06df2df2eb4e7c6b85b01ddd4edf169089ced76.gz",
+      "bytes": 274,
+      "sha256": "3fd193deafe0bf1004752c6e1a298526b2199d532bf0d98d62fa024ed32925bb"
+    },
+    {
+      "source": "/dev/shm/e02-D-funnel-oct07/final969-append-v3/lossless/4da12d31644735b0c7eef90ef53638c921170118ada06b93218bf7dbd1661c3d.gz",
+      "destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/lossless/4da12d31644735b0c7eef90ef53638c921170118ada06b93218bf7dbd1661c3d.gz",
+      "bytes": 201095,
+      "sha256": "b2d9c1a695ca79e7d0acbbb5098cb41ed43180dbe89468945e7950f2533c945c"
+    },
+    {
+      "source": "/dev/shm/e02-D-funnel-oct07/final969-append-v3/lossless/556d518111beec4928054bf55811eefc0ea9fb24d4c000304d5047d809ffcd6d.gz",
+      "destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/lossless/556d518111beec4928054bf55811eefc0ea9fb24d4c000304d5047d809ffcd6d.gz",
+      "bytes": 1121,
+      "sha256": "ba2d98eb0f340bdd916e523777084134f94d30ed682be8f6079ed625ab634292"
+    },
+    {
+      "source": "/dev/shm/e02-D-funnel-oct07/final969-append-v3/lossless/580c5012f9bd43814ac5eff24f02b1d582592dbaf048af4c43f307961bf21ead.gz",
+      "destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/lossless/580c5012f9bd43814ac5eff24f02b1d582592dbaf048af4c43f307961bf21ead.gz",
+      "bytes": 1197,
+      "sha256": "0fb6a71cc703062bb782363e92ccb789b518fc2e19e3e7bc30240c3f0ba390da"
+    },
+    {
+      "source": "/dev/shm/e02-D-funnel-oct07/final969-append-v3/lossless/5c47bed869f7c8143e8631325fb95ed85f0d4d9fc0eed443a51f679ff89716b1.gz",
+      "destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/lossless/5c47bed869f7c8143e8631325fb95ed85f0d4d9fc0eed443a51f679ff89716b1.gz",
+      "bytes": 742,
+      "sha256": "9a39bffa064676ca9271f5d4c936fe27ece99c3d491176dcfbe58e70a87206ec"
+    },
+    {
+      "source": "/dev/shm/e02-D-funnel-oct07/final969-append-v3/lossless/8a0482c64cfad1c30b1a8c8fff5a3bdbfa71e09060847b1a00723d7145790803.gz",
+      "destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/lossless/8a0482c64cfad1c30b1a8c8fff5a3bdbfa71e09060847b1a00723d7145790803.gz",
+      "bytes": 748,
+      "sha256": "0f12d22b67a4120f80d3832a82b7dc3968aaa15a09e43a2d10f8f48e4aaf7f96"
+    },
+    {
+      "source": "/dev/shm/e02-D-funnel-oct07/final969-append-v3/lossless/8b7c569b31aa94982268b39151d1d58e03e4612e731bfab073d61b55ed159ea4.gz",
+      "destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/lossless/8b7c569b31aa94982268b39151d1d58e03e4612e731bfab073d61b55ed159ea4.gz",
+      "bytes": 1943,
+      "sha256": "5e1a710598387dc54beacd9d651586556e1bd7d68368a032273b76bdb0ef8a15"
+    },
+    {
+      "source": "/dev/shm/e02-D-funnel-oct07/final969-append-v3/lossless/951cad9f318cf79b017045a50b0ace50949a3f7017c7778eb7b34516684b908a.gz",
+      "destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/lossless/951cad9f318cf79b017045a50b0ace50949a3f7017c7778eb7b34516684b908a.gz",
+      "bytes": 855,
+      "sha256": "9e35f3e53d7fb141bb1e79eedc771eaf80f96a45f77a19fe9b2c1a187f574617"
+    },
+    {
+      "source": "/dev/shm/e02-D-funnel-oct07/final969-append-v3/lossless/9d777c03f5958e833b683ddc5ab7cc1abf2b8a849724843f81ba4183c40330bf.gz",
+      "destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/lossless/9d777c03f5958e833b683ddc5ab7cc1abf2b8a849724843f81ba4183c40330bf.gz",
+      "bytes": 744,
+      "sha256": "3b6ad9db38b9c3f1df9caef4c537d1cd0441b42484b4558af2e3a041a8c7de5e"
+    },
+    {
+      "source": "/dev/shm/e02-D-funnel-oct07/final969-append-v3/lossless/a5be57767715d519057938fdc47b970d47e9a4dc92ae64b6a65085010e66d92f.gz",
+      "destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/lossless/a5be57767715d519057938fdc47b970d47e9a4dc92ae64b6a65085010e66d92f.gz",
+      "bytes": 339120,
+      "sha256": "cc81275408e1b6bc9731bca42db07e94cafda6e1b7704eb13e65ac6e525a802e"
+    },
+    {
+      "source": "/dev/shm/e02-D-funnel-oct07/final969-append-v3/lossless/c435a80414a25cafe662a528198549187530f696e48938fb2da700c97cdea224.gz",
+      "destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/lossless/c435a80414a25cafe662a528198549187530f696e48938fb2da700c97cdea224.gz",
+      "bytes": 755,
+      "sha256": "10cea3e650b79aecedcb79682fda94ef47cd9728d7d5c6778841f0a4e1a065f7"
+    },
+    {
+      "source": "/dev/shm/e02-D-funnel-oct07/final969-append-v3/lossless/ca128f58e08bcd500eeec8adb8318bcfac2f07f92a87ab62272ce38e5230131d.gz",
+      "destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/lossless/ca128f58e08bcd500eeec8adb8318bcfac2f07f92a87ab62272ce38e5230131d.gz",
+      "bytes": 1360,
+      "sha256": "8f6f11b1a1a275f8b792151a735cacf189b0442a01a070e6d84627d7c0bf1fa5"
+    },
+    {
+      "source": "/dev/shm/e02-D-funnel-oct07/final969-append-v3/lossless/df67bd48ee51acc99d7834ba42b8378348abda6f76decac59be2047006671faa.gz",
+      "destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/lossless/df67bd48ee51acc99d7834ba42b8378348abda6f76decac59be2047006671faa.gz",
+      "bytes": 742,
+      "sha256": "e32ce0bd459975c963b5ac5de8768a16ca4f5b121af580fe60fc97e585c12354"
+    },
+    {
+      "source": "/dev/shm/e02-D-funnel-oct07/final969-append-v3/lossless/e09e3e67bf3c2d78735bdac1595d29a28d886c464252e1c8e1dfd073ad3db718.gz",
+      "destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/lossless/e09e3e67bf3c2d78735bdac1595d29a28d886c464252e1c8e1dfd073ad3db718.gz",
+      "bytes": 1124,
+      "sha256": "92c5a8e323944504f33316deaabb4913c2219369b51f95654f05ffeff5e7127d"
+    },
+    {
+      "source": "/dev/shm/e02-D-funnel-oct07/final969-append-v3/lossless/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz",
+      "destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/lossless/e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855.gz",
+      "bytes": 20,
+      "sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "source": "/dev/shm/e02-D-funnel-oct07/final969-append-v3/lossless/e928e0d8db7c35c3e39452573452302dd9f1ab61cdcd1b149e6741ba960b9186.gz",
+      "destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/lossless/e928e0d8db7c35c3e39452573452302dd9f1ab61cdcd1b149e6741ba960b9186.gz",
+      "bytes": 274,
+      "sha256": "660cb15ba1ddcca1dce968589a938bf0cd23a8abc96176992637b4c4859238c7"
+    },
+    {
+      "source": "/dev/shm/e02-D-funnel-oct07/final969-append-v3/lossless/ea6bf82302d25af931ca2b75a8966a65e0e878ef4fef37daa608fd346f39774f.gz",
+      "destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/lossless/ea6bf82302d25af931ca2b75a8966a65e0e878ef4fef37daa608fd346f39774f.gz",
+      "bytes": 50523,
+      "sha256": "ab667c8ce56e001c01743a01ca4c7b442bb8bb65c0c91b72e57ef373b741b6db"
+    },
+    {
+      "source": "/dev/shm/e02-D-funnel-oct07/final969-append-v3/lossless/f3b607ac26ec62cdfbbca228d56264e5089a4f03587d227a32a615d77f744c2a.gz",
+      "destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/lossless/f3b607ac26ec62cdfbbca228d56264e5089a4f03587d227a32a615d77f744c2a.gz",
+      "bytes": 1119,
+      "sha256": "e2d2e90e682154a58590b7f28ca7ebf1244fa33f837db27d2280856f38805da8"
+    },
+    {
+      "source": "/dev/shm/e02-D-funnel-oct07/final969-append-v3/lossless/f7d0bea91ac0206cdcacd01dd49c12f2eeaa0be615a8e37bba42b2d61ee67ae7.gz",
+      "destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/lossless/f7d0bea91ac0206cdcacd01dd49c12f2eeaa0be615a8e37bba42b2d61ee67ae7.gz",
+      "bytes": 513,
+      "sha256": "ad68784d14435e85bbdd917675368d1514dc4f09ecb4537b2ec4ac1957443fe9"
+    },
+    {
+      "source": "/dev/shm/e02-D-funnel-oct07/final969-append-v3/lossless-manifest.json",
+      "destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/lossless-manifest.json",
+      "bytes": 11165,
+      "sha256": "755c13d88e1f77685bec957cb696b582d24c2c16430d28c0f9fe5171fa8a0d5e"
+    },
+    {
+      "source": "/dev/shm/e02-D-funnel-oct07/final969-append-v3/publicfactory10-final969.command.json",
+      "destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/publicfactory10-final969.command.json",
+      "bytes": 5850,
+      "sha256": "2f1159cf900d8900dcc0c41eb19ba0a961cd1802fad632e679177f6555cfaaf5"
+    },
+    {
+      "source": "/dev/shm/e02-D-funnel-oct07/final969-append-v3/summary.json",
+      "destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/summary.json",
+      "bytes": 2377,
+      "sha256": "5d9d3a3a6e9c02ae24419fd4586ab353d7a0b8adae4bc81d385fea472dd8cda3"
+    }
+  ],
+  "total_copy_files": 27,
+  "total_copy_bytes": 633013,
+  "destination_prefix": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/"
+}

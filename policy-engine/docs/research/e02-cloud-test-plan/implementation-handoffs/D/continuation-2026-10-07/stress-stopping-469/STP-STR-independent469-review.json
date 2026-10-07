@@ -1,0 +1,567 @@
+{
+  "schema": "e02.independent.runtime.review.v1",
+  "reviewer": "math_oct07",
+  "author": "root (orchestration only; production unchanged at469)",
+  "candidate": {
+    "commit": "46933aa2d97e236a949c490650a483c9a2838d98",
+    "tree": "91cd2360ef82a45b2cb069bfb2a15f74c6812c1d"
+  },
+  "review_result": "PASS for bounded B106/B107/B122 evidence; B41 original gate FAIL/open",
+  "criterion_occurrences": [
+    {
+      "id": "B106@STR-01",
+      "finding_id": "B106",
+      "criterion_card": "STR-01",
+      "canonical_closure_owner": "STR-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-str-01",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          2738,
+          2749
+        ],
+        "byte_offset": 614780,
+        "bytes": 2992,
+        "sha256": "250b3bd2f5bc433b540605f3c9e37eddab7a5c693326c6193bb94cc9d4c67e33"
+      },
+      "canonical_content": {
+        "text": "**Приёмка.** Изменение `collect_top_k` не изменяет итог той же серии. Десять проявлений одной проблемы и одно проявление не смешиваются. При нулевом количестве оценённых сценариев или непроверенных условиях score не должен выглядеть установленной устойчивостью. При адаптивном/раннем прекращении доля в обследованном наборе не является автоматически вероятностью отказа во всём пространстве.",
+        "byte_offset": 617064,
+        "bytes": 706,
+        "sha256": "1d212bb12a7346fc8c2480723fddd43da874e2e1daa2d2070a6233ab75795d43"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B106@STR-01",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STR-01.md",
+          "bytes": 11099,
+          "sha256": "e0532566d84e5e3d62d5e8b03a41eaf96d9a11aa155cc5475a0fb2a5d910d966"
+        }
+      },
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "proposal": "closed",
+      "formal_G_acceptance": "not_established",
+      "original_acceptance_preserved": true,
+      "current_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "complete_deciding_outputs": [
+        "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/targeted-stp-str.xml",
+        "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/actual-doe-consumer.stdout"
+      ],
+      "runtime_property": "Per-physical-scenario attempted/finite/violated/unknown counts precede grouping and top-k; assessed fraction23/38 identical for examples1/10; missing threshold, unknown/incomplete/zero denominator explicit unavailable/partial.",
+      "consumer": "Actual E Morris artifact→SensitivityAwareCandidateGenerator→run_stress_test→blueprint recompute→FileSystemCAS→freshStressTestReport reader.",
+      "residual": "Population probability/default deployment not established. Mutable postconstruction E SensitivityPlan cap is separate owner failure, not inferred fixed from initial plan admission.",
+      "historical_prior_accounting": {
+        "receipt": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "fields": {
+          "disposition": "OPEN_VERIFICATION_PENDING",
+          "conditional_engineering_proposal": "closed_bounded_engineering_if_final_exact_composed_checks_pass",
+          "current_attempt_source": {
+            "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+            "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+          },
+          "final_candidate_source": {
+            "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+            "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd",
+            "state": "FROZEN_CANDIDATE_RUNTIME_ERROR_UNRUN",
+            "predicate_basis": "not_established"
+          },
+          "finding_row_pointer": "/findings/1",
+          "previous_c17_attempt_source": {
+            "sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+            "tree": "b09d9f3cfee71c429f9e9b655076a563fa3cfa0d"
+          },
+          "final_environment_and_output_pointer": "/final_acceptance_wave"
+        }
+      },
+      "current_attempt_source": {
+        "sha": "46933aa2d97e236a949c490650a483c9a2838d98",
+        "tree": "91cd2360ef82a45b2cb069bfb2a15f74c6812c1d"
+      },
+      "final_candidate_source": {
+        "sha": "46933aa2d97e236a949c490650a483c9a2838d98",
+        "tree": "91cd2360ef82a45b2cb069bfb2a15f74c6812c1d",
+        "state": "COMPLETE_TARGETED_RUNTIME_WITH_B41_OWN_DEFECT",
+        "predicate_basis": "B106/B107/B122_established_bounded;B41_newmetadata_intake_FAIL"
+      },
+      "disposition": "CLOSED_PROPOSAL_G_DECISION_PENDING",
+      "conditional_engineering_proposal": "closed_bounded_original_criterion",
+      "final_environment_and_output_pointer": "/check_results"
+    },
+    {
+      "id": "B107@STR-01",
+      "finding_id": "B107",
+      "criterion_card": "STR-01",
+      "canonical_closure_owner": "STR-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-str-01",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          2750,
+          2761
+        ],
+        "byte_offset": 617772,
+        "bytes": 3238,
+        "sha256": "35367e5237da490c93fb99395113d7251a972437ec52e1a54a8003e74d63eb7e"
+      },
+      "canonical_content": {
+        "text": "**Приёмка.** Табличные контрпримеры для maximize-utility и minimize-cost, порога в обе стороны, отрицательных значений, отсутствующих/нечисленных результатов. Запись worst-case совпадает с определённым нарушением. Эта правка должна идти вместе с B106: правильный экстремум ещё не означает правильно посчитанную полноту/устойчивость.",
+        "byte_offset": 620436,
+        "bytes": 572,
+        "sha256": "83e4adcea92922a6991dbd16937e9dc47cca02d83f0beccf2eb7e2f43623e0a3"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B107@STR-01",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STR-01.md",
+          "bytes": 11099,
+          "sha256": "e0532566d84e5e3d62d5e8b03a41eaf96d9a11aa155cc5475a0fb2a5d910d966"
+        }
+      },
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "proposal": "closed",
+      "formal_G_acceptance": "not_established",
+      "original_acceptance_preserved": true,
+      "current_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "complete_deciding_outputs": [
+        "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/targeted-stp-str.xml",
+        "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/actual-doe-consumer.stdout"
+      ],
+      "runtime_property": "Independent direction and physical threshold tables maximize utility/minimize cost, negative values/missing/nonfinite, raw worst-case equals defined violated extreme.",
+      "consumer": "Actual adversarial public report and same38-scenario native cost threshold workflow; raw objective/history/worst-case consumers.",
+      "residual": "Scientific threshold producer/unit law remains declared fixture input, not population authority.",
+      "historical_prior_accounting": {
+        "receipt": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "fields": {
+          "disposition": "OPEN_VERIFICATION_PENDING",
+          "conditional_engineering_proposal": "closed_bounded_engineering_if_final_exact_composed_checks_pass",
+          "current_attempt_source": {
+            "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+            "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+          },
+          "final_candidate_source": {
+            "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+            "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd",
+            "state": "FROZEN_CANDIDATE_RUNTIME_ERROR_UNRUN",
+            "predicate_basis": "not_established"
+          },
+          "finding_row_pointer": "/findings/2",
+          "previous_c17_attempt_source": {
+            "sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+            "tree": "b09d9f3cfee71c429f9e9b655076a563fa3cfa0d"
+          },
+          "final_environment_and_output_pointer": "/final_acceptance_wave"
+        }
+      },
+      "current_attempt_source": {
+        "sha": "46933aa2d97e236a949c490650a483c9a2838d98",
+        "tree": "91cd2360ef82a45b2cb069bfb2a15f74c6812c1d"
+      },
+      "final_candidate_source": {
+        "sha": "46933aa2d97e236a949c490650a483c9a2838d98",
+        "tree": "91cd2360ef82a45b2cb069bfb2a15f74c6812c1d",
+        "state": "COMPLETE_TARGETED_RUNTIME_WITH_B41_OWN_DEFECT",
+        "predicate_basis": "B106/B107/B122_established_bounded;B41_newmetadata_intake_FAIL"
+      },
+      "disposition": "CLOSED_PROPOSAL_G_DECISION_PENDING",
+      "conditional_engineering_proposal": "closed_bounded_original_criterion",
+      "final_environment_and_output_pointer": "/check_results"
+    },
+    {
+      "id": "B122@STP-01",
+      "finding_id": "B122",
+      "criterion_card": "STP-01",
+      "canonical_closure_owner": "STP-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-stp-01",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3222,
+          3235
+        ],
+        "byte_offset": 727307,
+        "bytes": 3112,
+        "sha256": "d9413dc95965e6f0b64b056c37dd5a1452b59dd7605a5b9f033db4776ac50f9c"
+      },
+      "canonical_content": {
+        "text": "**Приёмка.** Ноль, малые значения обоих знаков, регресс и реальный прогресс; критерий после нормализации согласован с направлением цели. Ранее полученный полезный результат сохраняется независимо от того, что следующий шаг остановлен как плато. Повышение терпения и увеличение числа прогонов не устраняют ошибку знака.",
+        "byte_offset": 729833,
+        "bytes": 584,
+        "sha256": "9fb880ce2c75c7770deca54b1861fb86071f57aa1e4db5e51793fcfac56b115e"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B122@STP-01",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STP-01.md",
+          "bytes": 11176,
+          "sha256": "a9fb522de58a5c9e0524fa9cc209080d4f3f72e20f1b111f8872097b280a4d7c"
+        }
+      },
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "proposal": "closed",
+      "formal_G_acceptance": "not_established",
+      "original_acceptance_preserved": true,
+      "current_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "complete_deciding_outputs": [
+        "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/targeted-stp-str.xml",
+        "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/actual-doe-consumer.stdout"
+      ],
+      "runtime_property": "Independent Decimal signed gain and 0.01 absolute +0.01 relative default tolerance on declared unit/profile;0/small bothsign/regression/progress; native SearchController stops plateau and preserves previous best.",
+      "consumer": "Actual SearchController+GDP evaluator+Declared units/profile→plateau stopping→best result.",
+      "residual": "No convergence claim for absent unit/profile or arbitrary custom profile; default physical tolerance independently verified.",
+      "historical_prior_accounting": {
+        "receipt": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "fields": {
+          "disposition": "OPEN_VERIFICATION_PENDING",
+          "conditional_engineering_proposal": "closed_bounded_engineering_if_final_exact_composed_checks_pass",
+          "current_attempt_source": {
+            "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+            "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+          },
+          "final_candidate_source": {
+            "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+            "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd",
+            "state": "FROZEN_CANDIDATE_RUNTIME_ERROR_UNRUN",
+            "predicate_basis": "not_established"
+          },
+          "finding_row_pointer": "/findings/17",
+          "previous_c17_attempt_source": {
+            "sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+            "tree": "b09d9f3cfee71c429f9e9b655076a563fa3cfa0d"
+          },
+          "final_environment_and_output_pointer": "/final_acceptance_wave"
+        }
+      },
+      "current_attempt_source": {
+        "sha": "46933aa2d97e236a949c490650a483c9a2838d98",
+        "tree": "91cd2360ef82a45b2cb069bfb2a15f74c6812c1d"
+      },
+      "final_candidate_source": {
+        "sha": "46933aa2d97e236a949c490650a483c9a2838d98",
+        "tree": "91cd2360ef82a45b2cb069bfb2a15f74c6812c1d",
+        "state": "COMPLETE_TARGETED_RUNTIME_WITH_B41_OWN_DEFECT",
+        "predicate_basis": "B106/B107/B122_established_bounded;B41_newmetadata_intake_FAIL"
+      },
+      "disposition": "CLOSED_PROPOSAL_G_DECISION_PENDING",
+      "conditional_engineering_proposal": "closed_bounded_original_criterion",
+      "final_environment_and_output_pointer": "/check_results"
+    },
+    {
+      "id": "B41@STP-01",
+      "finding_id": "B41",
+      "criterion_card": "STP-01",
+      "canonical_closure_owner": "STP-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-stp-01",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          770,
+          783
+        ],
+        "byte_offset": 157036,
+        "bytes": 3079,
+        "sha256": "e1f40309a038a4a6b1e8e41e5c6aca361111791be6f58a32d8f4ccd8812d680a"
+      },
+      "canonical_content": {
+        "text": "**Проверка:** отказ/отсутствие текущего embedding не создаёт semantic-convergence; корректные одинаковые текущие векторы дают соответствующий ограниченный результат; другая размерность/версия embedding не сравнивается без совместимости. Приоритет условный до подтверждения использования detector в нужном пользовательском пути.",
+        "byte_offset": 159547,
+        "bytes": 566,
+        "sha256": "4a76b7b1923f16245bdc19a10b05570aa47c2ca063e8e1a2faf3eb0112576937"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B41@STP-01",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STP-01.md",
+          "bytes": 11176,
+          "sha256": "a9fb522de58a5c9e0524fa9cc209080d4f3f72e20f1b111f8872097b280a4d7c"
+        }
+      },
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "proposal": "open",
+      "formal_G_acceptance": "not_established",
+      "original_acceptance_preserved": true,
+      "current_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "complete_deciding_outputs": [
+        "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/targeted-stp-str.xml",
+        "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/actual-doe-consumer.stdout"
+      ],
+      "runtime_property": "Old6 analytic freshness cells pass, but missing/blank/type metadata falsely establishes semanticconvergence and current bool/string/overflow/nan/inf intake defective. Service production fix and ownfinal27 tests in progress; no original acceptance closure.",
+      "consumer": "Existing public check_with_text detector with fresh input/model/version; appointed production embedding caller not_established, original conditional priority preserved.",
+      "residual": "Final21 discriminating baseline17FAIL4PASS atd610; metadata/vector intake repair + independent review + exactnewfreeze runtime required.",
+      "historical_prior_accounting": {
+        "receipt": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "fields": {
+          "disposition": "OPEN_VERIFICATION_PENDING",
+          "conditional_engineering_proposal": "closed_bounded_engineering_if_final_exact_composed_checks_pass",
+          "current_attempt_source": {
+            "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+            "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+          },
+          "final_candidate_source": {
+            "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+            "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd",
+            "state": "FROZEN_CANDIDATE_RUNTIME_ERROR_UNRUN",
+            "predicate_basis": "not_established"
+          },
+          "finding_row_pointer": "/findings/0",
+          "previous_c17_attempt_source": {
+            "sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+            "tree": "b09d9f3cfee71c429f9e9b655076a563fa3cfa0d"
+          },
+          "final_environment_and_output_pointer": "/final_acceptance_wave"
+        }
+      },
+      "current_attempt_source": {
+        "sha": "46933aa2d97e236a949c490650a483c9a2838d98",
+        "tree": "91cd2360ef82a45b2cb069bfb2a15f74c6812c1d"
+      },
+      "final_candidate_source": {
+        "sha": "46933aa2d97e236a949c490650a483c9a2838d98",
+        "tree": "91cd2360ef82a45b2cb069bfb2a15f74c6812c1d",
+        "state": "COMPLETE_TARGETED_RUNTIME_WITH_B41_OWN_DEFECT",
+        "predicate_basis": "B106/B107/B122_established_bounded;B41_newmetadata_intake_FAIL"
+      },
+      "disposition": "OPEN_OWN_B41_REPAIR_REQUIRED_AT_THIS_SOURCE",
+      "conditional_engineering_proposal": "held_until_own_metadata_numeric_repair",
+      "final_environment_and_output_pointer": "/check_results"
+    }
+  ],
+  "check_results": {
+    "targeted153": {
+      "cases": 153,
+      "failed": 0,
+      "errored": 0,
+      "skipped": 0
+    },
+    "actual_doe_workflow": "PASS exit0; actual native SALib1.5.2; no backend skip",
+    "root_missingargs_removal": "ERROR harness argv omitted; no property verdict",
+    "root_producer_only_removal": {
+      "cases": 2,
+      "failed": 0,
+      "errored": 0,
+      "skipped": 0,
+      "interpretation": "inadequate discriminator; actual mutated blueprint not invoked"
+    },
+    "root_full_scenario_removal": {
+      "cases": 32,
+      "failed": 3,
+      "errored": 0,
+      "skipped": 0,
+      "interpretation": "3 expected FAIL; guarded wrong score and zero denominator; remaining29 unaffected PASS"
+    },
+    "independent_actual_doe_removal": {
+      "cases": 1,
+      "failed": 1,
+      "errored": 0,
+      "skipped": 0,
+      "interpretation": "1 expected FAIL on actual blueprint38 finite/15 physical violation stream with wrong top-k proxy37/38; report validator blocks; no setup/collection error"
+    }
+  },
+  "source_binding": {
+    "full_input_denominator": 6299,
+    "before_after_exact_equal": true,
+    "actual10producer_consumer_module_hashes_verified": {
+      "polisyos.scientist.methods.autotune.sensitivity_bridge": {
+        "path": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+        "sha256": "93d9e4a24dd8ac9c53411d1220b75612c56d2eb2c5e3580bb898f770e0239e98"
+      },
+      "polisyos.scientist.methods.doe._receipt": {
+        "path": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+        "sha256": "d067cd402809c5a7dcf8d33ddda2b5414b4d67f27021751becfd99556b4e565b"
+      },
+      "polisyos.scientist.methods.doe.adaptive": {
+        "path": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/doe/adaptive.py",
+        "sha256": "935d9741b7d5aa221aff65a065134eb101369baa305e4ca985158454e61d7632"
+      },
+      "polisyos.scientist.methods.doe.analysis": {
+        "path": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+        "sha256": "db87129797adc4c8c882655a95edd789b44381c47af85cff658e91e1f658e81c"
+      },
+      "polisyos.scientist.methods.doe.designs": {
+        "path": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+        "sha256": "dbd911c4f805b1b1ee7f90c71c8f1bd4008620be403c907340f322e3296891d6"
+      },
+      "polisyos.scientist.methods.doe.sampling": {
+        "path": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+        "sha256": "c27f8163d614b86bfd694560cdd7650a2736362763dfb404fb51d7d508601993"
+      },
+      "polisyos.scientist.methods.doe.stress_report": {
+        "path": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+        "sha256": "cdf7ffe7bd6e3921749e7aa61624d43fa9e8f831495533bf22441744478cc4ee"
+      },
+      "polisyos.scientist.methods.search.adversarial": {
+        "path": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+        "sha256": "a00f99197074360a8ec969d671180e01a57ffde37126f78addbba938b74698b1"
+      },
+      "polisyos.scientist.methods.search.sensitivity_adapter": {
+        "path": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+        "sha256": "af3d6c12ae461e550897eb5a32b3a6f5c2ba930e41533e99f7bd8b9ac42b0a46"
+      },
+      "polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime": {
+        "path": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+        "sha256": "19cf96ccdd90146d597c27e776b4bec34bb2999c588ac048d1ba895bcbdd261e"
+      }
+    },
+    "later_d610_delta": [
+      "policy-engine/tests/unit/scientist/agent/test_vector_generation_consumer.py",
+      "policy-engine/tests/unit/scientist/methods/search/test_service_factory_fault_resume.py"
+    ],
+    "carry": "Numerical STP/STR production/test/probe blobs unchanged; stronger removal separately executes ond610. 153 not represented as rerun ond610.",
+    "P41": "not_established: no inherited-red attribution/waiver or full sourcebase replay claimed."
+  },
+  "P37_predicate_basis": {
+    "B106": "Physical occurrence counter plus declared direction/threshold +status/completeness determine bounded observed fraction; markers alone insufficient.",
+    "B107": "Signed raw objective and threshold map worst-case/violations; field labels alone insufficient.",
+    "B122": "Declared unit/profile plus historical signed best and numeric tolerance determine plateau; best-score markers alone insufficient.",
+    "B41": "Currentfresh admitted vector/model/version/basis rather than two stale equal vectors; old code lacks substantive metadata/numeric admission."
+  },
+  "P38_proxy_divergence": {
+    "B106": "Actual38finite/15violated =23/38 versus retainedexample1 proxy37/38 or unique10 proxy28/38; changingtop-k cannot change physicalfraction.",
+    "B107": "Minimize costs threshold> differs from maximize utility threshold<; raw extrema preserved.",
+    "B122": "Smallnegative/zero objective exposes signed-denominator/regression proxy; independent Decimal oracle and controller distinguish.",
+    "B41": "Fresh marker+empty/coerced model/version or malformed measurement can fake cosine1; final17FAIL4PASS exposes defect beforefix."
+  },
+  "limitations": [
+    "No formallyacceptedG source/finding claim.",
+    "No population probability, calibrated scientificthreshold, production dataset, default deployment or E mutated-plan cap acceptance.",
+    "B41 newmetadata/vector defects must be repaired, reviewed and executed atnewexact source.",
+    "Historical passcounts not aggregated into newbroad replay."
+  ],
+  "file_bindings": {
+    "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/stress-scenario-fraction-removal.receipt.json": {
+      "bytes": 1157,
+      "sha256": "2c3e66ef4b9247d696163439e1d5e89dfd17356602f0ef94b35ac00038d9a6ba"
+    },
+    "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/stress-scenario-fraction-removal.xml": {
+      "bytes": 13537,
+      "sha256": "dda85e14ad3f050ffe80a864172ae7d33c770bf0557667777becaa5a53392e09"
+    },
+    "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/stress-scenario-fraction-removal.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/stress-scenario-fraction-removal.stdout": {
+      "bytes": 7855,
+      "sha256": "d56b4cecd41e01ecc5b00591962d314686bc8c7b7647db000236bf46e66b4477"
+    },
+    "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/stress-example-fraction-removal.receipt.json": {
+      "bytes": 1142,
+      "sha256": "bcc2c0708bda08a061b3bb31469ccd7197646470f4cf4815dd69263fc53a2516"
+    },
+    "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/stress-example-fraction-removal.xml": {
+      "bytes": 719,
+      "sha256": "ff321f166d4a4c06109302c288fb06bb1f4ba8257b477c60d0071573f1465aec"
+    },
+    "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/stress-example-fraction-removal.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/stress-example-fraction-removal.stdout": {
+      "bytes": 3352,
+      "sha256": "125ae9326bed5ae7365c23bcddc86c08f9a4c248f728d6c066d3adbb9ce6a1a4"
+    },
+    "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/receipt.json": {
+      "bytes": 4291,
+      "sha256": "49269103f4f1aab0f340ecb0b5ae9203430b9c36afd5a9bc150bcd2d5d860e4e"
+    },
+    "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/source-inputs-after.json": {
+      "bytes": 887648,
+      "sha256": "0feccaef3f29769df89a50c08859a599c39f91c7f095a98913df4883ba0bb4b0"
+    },
+    "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/stress-removal.stderr": {
+      "bytes": 563,
+      "sha256": "1dd884819a6cbe380e9216a8096a4224a4a32da4905179ab3bf7284c00f008d8"
+    },
+    "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/stress-removal.stdout": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/actual-doe-consumer.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/actual-doe-consumer.stdout": {
+      "bytes": 6859,
+      "sha256": "ccfc4b00ca8bdd9c1fa61a8a983548675fb07ff8ecb79d4c6b7548ff1b84ddbd"
+    },
+    "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/receipt-in-progress.json": {
+      "bytes": 4092,
+      "sha256": "8a7477b54e994df3987307a3c1492c89593cdcfc775b7e32da3b123e7364bc84"
+    },
+    "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/targeted-stp-str.xml": {
+      "bytes": 38737,
+      "sha256": "cf12f0631f899e2f8052bfb7b65bdaa573bdf20186d00eb035325cee337f5b46"
+    },
+    "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/targeted-stp-str.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/targeted-stp-str.stdout": {
+      "bytes": 826,
+      "sha256": "bbcc5c5d829742bd10a12048ef04022b18c8f93155289692ed2d50980367317b"
+    },
+    "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/environment.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/environment.stdout": {
+      "bytes": 223,
+      "sha256": "2345eabd10eb2fcc45f3227912734fca561a678cc564c71c26a41943518db1ad"
+    },
+    "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/source-inputs-before.json": {
+      "bytes": 887648,
+      "sha256": "0feccaef3f29769df89a50c08859a599c39f91c7f095a98913df4883ba0bb4b0"
+    },
+    "/tmp/e02-D-independent-STR-proxy-18htcpbt/result.json": {
+      "bytes": 837,
+      "sha256": "401f739f3578db41c56f54f9adf39883f3b7b3d5265690a52cb52cc5b5487233"
+    },
+    "/tmp/e02-D-independent-STR-proxy-18htcpbt/junit.xml": {
+      "bytes": 2268,
+      "sha256": "31820b617367efe13a39bea807fa6d3199241e0133647dfde095066ff4972a1a"
+    },
+    "/tmp/e02-D-independent-STR-proxy-18htcpbt/stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "/tmp/e02-D-independent-STR-proxy-18htcpbt/stdout.txt": {
+      "bytes": 5266,
+      "sha256": "acde0dc50d2a9f1f2eac2c099f461f71c2519d319b541db4ef7b543ee9bfd335"
+    },
+    "/tmp/e02-D-independent-STR-proxy-18htcpbt/run.py": {
+      "bytes": 914,
+      "sha256": "915f5f0f20111e01c6f765761fc7c33c37fdbac40c7bdb24a9a1c0f13f200f70"
+    },
+    "/tmp/e02-D-independent-STR-proxy-18htcpbt/root.txt": {
+      "bytes": 42,
+      "sha256": "56bcc37669d34ca76e96b79c1830abeb21b548252c3a95e79c6a2569d0303f1c"
+    },
+    "/tmp/e02-D-independent-STR-proxy-18htcpbt/request.json": {
+      "bytes": 1183,
+      "sha256": "5cd45462e4f8fa125f25f4e8ad41bef064aa1991184a15b4269e624b2fa9936d"
+    },
+    "/tmp/e02-D-independent-STR-proxy-18htcpbt/test_actual_doe_proxy.py": {
+      "bytes": 292,
+      "sha256": "0fe5c0f4309e86c34aa499c1d30c386a383de259dca0bfa188a102d476f67132"
+    }
+  }
+}

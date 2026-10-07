@@ -1,0 +1,117 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_standalone_current_transferred_rows_are_readmitted_before_model_restore _
+
+tmp_path = PosixPath('/dev/shm/search-quantity-final-d827f8024ff24527a90108faebaf22b7/test_standalone_current_transf0')
+
+    def test_standalone_current_transferred_rows_are_readmitted_before_model_restore(tmp_path):
+        from types import SimpleNamespace
+    
+        from polisyos.core.artifacts.manifest import ArtifactRef
+    
+        store, _, manager, source, target, original, basis = measured_history(tmp_path, count=8)
+        for row in original:
+            row.metadata.update(
+                source="search_iteration",
+                params_normalized=list(row.params_normalized),
+                candidate_id=row.candidate_id,
+                provenance_ref=row.provenance_ref,
+            )
+        source.history_ref = manager.register_run(source, original)
+        rows = manager.get_warm_start_evaluations([source], max_evals=8, target_fingerprint=target)
+        bridge = WarmStartBridge(manager, max_evals=0)
+    
+        def receiver():
+            generator = BayesianCandidateGenerator(
+                SearchSpace(basis.bounds["parameters"]),
+                primary_metric="score",
+                direction=MetricDirection.MINIMIZE,
+                compare_split=BenchmarkSplit.SELECTION,
+                n_initial=3,
+                seed=19,
+            )
+            generator.configure_transfer(bridge, target)
+            generator._optimizer._config = replace(
+                generator._optimizer._config,
+                num_restarts=2,
+                raw_samples=32,
+                refit_interval=20,
+                fallback_on_failure=False,
+            )
+            return generator
+    
+        history = [
+            SimpleNamespace(
+                candidate={"params": row.params},
+                stage_b_result=row.stage_b_result,
+                metadata=row.metadata,
+                objective_value=row.scalar_score,
+                stage_a_passed=True,
+                timestamp=row.timestamp,
+                duration_seconds=row.wall_time_seconds,
+            )
+            for row in rows
+        ]
+        original_generator = receiver()
+        assert not original_generator._optimizer._warm_evals
+        original_generator.generate(history, None, {})
+        assert len(original_generator._optimizer._fitted_train_X) == 8
+        checkpoint = original_generator.get_state()
+        assert len(checkpoint["history_rows"]) == 8
+        restored = receiver()
+        restored.set_state(deepcopy(checkpoint))
+        assert (
+            restored._optimizer._fitted_train_X.tolist()
+            == original_generator._optimizer._fitted_train_X.tolist()
+        )
+        assert (
+            restored._optimizer._fitted_train_y_bo.tolist()
+            == original_generator._optimizer._fitted_train_y_bo.tolist()
+        )
+    
+        # Coverage cannot be removed while the fitted model and history markers remain.
+        invalid = deepcopy(checkpoint)
+        invalid["history_rows"] = []
+        peer = receiver()
+        before = peer.get_state()
+        with pytest.raises(ValueError, match="coverage"):
+            peer.set_state(invalid)
+        assert peer.get_state() == before
+    
+        # A fitted identity must resolve to the actual saved numeric row, not
+        # merely occur somewhere among the admitted source record ids.
+        import json
+    
+        from polisyos.scientist.methods.search.strategies.types import StrategyState
+    
+        invalid = deepcopy(checkpoint)
+        native = StrategyState.from_artifact(original_generator._json_bytes(invalid["strategy_state"]))
+        native.metadata["fitted_record_ids"][0] = native.metadata["fitted_record_ids"][1]
+        native.metadata["refit_record_ids"][0] = native.metadata["refit_record_ids"][1]
+        native.metadata["corpus_sha256"] = original_generator._optimizer._corpus_digest(native.metadata)
+        invalid["strategy_state"] = json.loads(native.to_artifact())
+        peer = receiver()
+        before = peer.get_state()
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py:239: Failed
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py::test_standalone_current_transferred_rows_are_readmitted_before_model_restore
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/analytic.py:340: NumericsWarning: ExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 ExpectedImprovement 	 --> 	 LogExpectedImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py::test_standalone_current_transferred_rows_are_readmitted_before_model_restore
+1 failed, 3 warnings in 17.79s

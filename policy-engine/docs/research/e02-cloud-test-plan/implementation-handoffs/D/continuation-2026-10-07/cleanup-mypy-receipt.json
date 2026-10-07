@@ -1,0 +1,18 @@
+{
+  "authorization": "В облаке можешь удалять не нужное самостоятельно, разрешаю",
+  "scope": "unused reproducible mypy cache only",
+  "precheck": {
+    "path": "/dev/shm/e02-D2-champion-mypy-c847",
+    "count": 9644,
+    "size": 265209205,
+    "extensions": {
+      ".json": 9644
+    },
+    "symlinks": []
+  },
+  "open_fd_or_mapped_file_matches": [],
+  "started_at": 1791358909.7749152,
+  "action": "delete exact generated cache subtree; preserve code/input/output/env/Git",
+  "finished_at": 1791358909.8432066,
+  "path_exists_after": false
+}

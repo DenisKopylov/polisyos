@@ -1,0 +1,12 @@
+from __future__ import annotations
+import hashlib, json, subprocess, sys
+from pathlib import Path
+import pytest
+import polisyos.scientist.methods.search.run_state as state
+import polisyos.scientist.methods.search.service as service
+source = subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()
+assert source == '6b5195b5400ce10f5ed72e952a368648f0cc7ac9', source
+state.SearchRunState.snapshot = lambda self: self
+argv = ['tests/unit/scientist/methods/search/test_service_persistence.py::test_failed_tell_publication_restores_local_state_and_prior_durable_pending_view[fail_write]','--basetemp=/workspace/e02-D-continuation-receipts/champion-tell-negative-e30b930a655e4ae28c368297b330e88c2','--junitxml=/workspace/e02-D-continuation-receipts/champion-tell-removal-junit.xml']
+print(json.dumps({'source':source,'tree':subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip(),'python':sys.version,'argv':argv,'removal':'remove only deep snapshot isolation: rollback receives the live run ledger; actual CAS write failure, checkpoint/ref, candidate IDs and controller tell remain unchanged','origins':{module.__name__:{'path':module.__file__,'sha256':hashlib.sha256(Path(module.__file__).read_bytes()).hexdigest()} for module in (state,service)}},sort_keys=True),flush=True)
+raise SystemExit(pytest.main(argv))

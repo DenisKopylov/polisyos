@@ -1,0 +1,50 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "/dev/shm/e02-D-MO-finalc0e03-8qs2polc/run.py",
+    "/dev/shm/e02-D-MO-finalc0e03-8qs2polc",
+    "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+    "native"
+  ],
+  "pytest_argv": [
+    "-o",
+    "addopts=",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "-s",
+    "-ra",
+    "--basetemp=/dev/shm/e02-D-MO-finalc0e03-8qs2polc/basetemp",
+    "--junitxml=/dev/shm/e02-D-MO-finalc0e03-8qs2polc/junit.xml",
+    "tests/unit/scientist/methods/search/strategies/test_mo_checkpoint.py",
+    "tests/unit/scientist/methods/search/strategies/test_mo_objective_admission.py",
+    "tests/unit/scientist/methods/search/strategies/test_mo_reference_representability.py",
+    "tests/unit/scientist/search/strategies/test_multi_objective.py",
+    "tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py",
+    "tests/unit/scientist/methods/search/strategies/test_multiobjective_reference_independent_oracle.py",
+    "tests/unit/scientist/methods/autotune/test_pareto_subnormal_reindex_independent_oracle.py::test_mo_actual_derived_reference_rejects_finite_input_span_overflow_before_assignment",
+    "tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py::test_actual_multiobjective_fit_and_acquisition_then_typed_converter"
+  ],
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "source_sha": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+  "source_tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2",
+  "started_at": "2026-10-07T09:13:29.549552+00:00",
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "executable": "/workspace/e02-D-locked-env/bin/python",
+  "path": [
+    "/dev/shm/e02-D-MO-finalc0e03-8qs2polc",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine",
+    "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python314.zip",
+    "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14",
+    "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/lib-dynload",
+    "/workspace/e02-D-locked-env/lib/python3.14/site-packages"
+  ],
+  "thread_env": {
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null
+  },
+  "mode": "native"
+}

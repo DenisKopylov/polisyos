@@ -1,0 +1,166 @@
+{
+  "source_sha": "f2d5401c9cd8a02a74579e4c47b836042a12eb99",
+  "pathspec": ":(glob)policy-engine/tests/**/*.py",
+  "matching_python_paths_read": [
+    "policy-engine/tests/integration/scientist/orchestration/engine/test_skg_prepared_read_cache.py",
+    "policy-engine/tests/integration/test_c7_synthetic_full_pipeline.py",
+    "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g0_readiness.py",
+    "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g2_readiness.py",
+    "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g3_readiness.py",
+    "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g4_readiness.py",
+    "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g5_readiness.py",
+    "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g6_readiness.py",
+    "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g7_readiness.py",
+    "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g8_readiness.py",
+    "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_gl_readiness.py",
+    "policy-engine/tests/unit/berl/test_contracts.py",
+    "policy-engine/tests/unit/ir/analytics/test_phase_c_contracts.py",
+    "policy-engine/tests/unit/ir/test_dependent_sensitivity_contract.py",
+    "policy-engine/tests/unit/remediation/test_cal_04.py",
+    "policy-engine/tests/unit/remediation/test_scl_03.py",
+    "policy-engine/tests/unit/runtime/http/test_control_job_execution_intent.py",
+    "policy-engine/tests/unit/runtime/quality/test_credal_reference.py",
+    "policy-engine/tests/unit/runtime/quality/test_design_generation.py",
+    "policy-engine/tests/unit/runtime/quality/test_generation_source.py",
+    "policy-engine/tests/unit/runtime/quality/test_intervention_atom_binding.py",
+    "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+    "policy-engine/tests/unit/runtime/quality/test_second_domain_pack.py",
+    "policy-engine/tests/unit/scholar/test_api_web_bootstrap.py",
+    "policy-engine/tests/unit/scientist/cross_graph/test_cross_graph_evidence.py",
+    "policy-engine/tests/unit/scientist/discovery/test_prior_miner.py",
+    "policy-engine/tests/unit/scientist/evidence/test_verifier.py",
+    "policy-engine/tests/unit/scientist/governance/test_backtest_matrix.py",
+    "policy-engine/tests/unit/scientist/governance/test_calibration_validation.py",
+    "policy-engine/tests/unit/scientist/governance/test_incentive_compatibility_pass.py",
+    "policy-engine/tests/unit/scientist/nodes/builtins/planning/test_compile_cross_graph_evidence.py",
+    "policy-engine/tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py",
+    "policy-engine/tests/unit/scientist/nodes/builtins/planning/test_run_hierarchical_policy_search.py",
+    "policy-engine/tests/unit/scientist/nodes/test_build_policy_output_bundle.py",
+    "policy-engine/tests/unit/scientist/policy_design/test_phase_b_output.py",
+    "policy-engine/tests/unit/scientist/policy_design/test_phase_b_policy_design.py",
+    "policy-engine/tests/unit/scientist/search/test_phase_b_policy_runtime.py"
+  ],
+  "import_definition_findings": [
+    {
+      "kind": "definition",
+      "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g0_readiness.py",
+      "line": 42
+    },
+    {
+      "kind": "definition",
+      "path": "policy-engine/tests/unit/berl/test_contracts.py",
+      "line": 38
+    },
+    {
+      "kind": "definition",
+      "path": "policy-engine/tests/unit/ir/analytics/test_phase_c_contracts.py",
+      "line": 92
+    },
+    {
+      "kind": "definition",
+      "path": "policy-engine/tests/unit/ir/test_dependent_sensitivity_contract.py",
+      "line": 24
+    },
+    {
+      "kind": "definition",
+      "path": "policy-engine/tests/unit/remediation/test_scl_03.py",
+      "line": 126
+    },
+    {
+      "kind": "import",
+      "path": "policy-engine/tests/unit/runtime/http/test_control_job_execution_intent.py",
+      "line": 1639,
+      "module": "tests.unit.runtime.quality.test_design_generation",
+      "relative_level": 0
+    },
+    {
+      "kind": "definition",
+      "path": "policy-engine/tests/unit/runtime/quality/test_design_generation.py",
+      "line": 246
+    },
+    {
+      "kind": "import",
+      "path": "policy-engine/tests/unit/runtime/quality/test_generation_source.py",
+      "line": 11,
+      "module": "tests.unit.runtime.quality.test_design_generation",
+      "relative_level": 0
+    },
+    {
+      "kind": "definition",
+      "path": "policy-engine/tests/unit/runtime/quality/test_intervention_atom_binding.py",
+      "line": 81
+    },
+    {
+      "kind": "definition",
+      "path": "policy-engine/tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+      "line": 199
+    },
+    {
+      "kind": "definition",
+      "path": "policy-engine/tests/unit/scientist/cross_graph/test_cross_graph_evidence.py",
+      "line": 52
+    },
+    {
+      "kind": "definition",
+      "path": "policy-engine/tests/unit/scientist/discovery/test_prior_miner.py",
+      "line": 8
+    },
+    {
+      "kind": "definition",
+      "path": "policy-engine/tests/unit/scientist/evidence/test_verifier.py",
+      "line": 45
+    },
+    {
+      "kind": "definition",
+      "path": "policy-engine/tests/unit/scientist/governance/test_backtest_matrix.py",
+      "line": 30
+    },
+    {
+      "kind": "definition",
+      "path": "policy-engine/tests/unit/scientist/governance/test_incentive_compatibility_pass.py",
+      "line": 39
+    },
+    {
+      "kind": "definition",
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/planning/test_compile_cross_graph_evidence.py",
+      "line": 35
+    },
+    {
+      "kind": "import",
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py",
+      "line": 27,
+      "module": "tests.unit.scientist.nodes.builtins.planning.test_run_hierarchical_policy_search",
+      "relative_level": 0
+    },
+    {
+      "kind": "definition",
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/planning/test_run_hierarchical_policy_search.py",
+      "line": 70
+    },
+    {
+      "kind": "definition",
+      "path": "policy-engine/tests/unit/scientist/nodes/test_build_policy_output_bundle.py",
+      "line": 172
+    },
+    {
+      "kind": "definition",
+      "path": "policy-engine/tests/unit/scientist/policy_design/test_phase_b_output.py",
+      "line": 123
+    },
+    {
+      "kind": "definition",
+      "path": "policy-engine/tests/unit/scientist/policy_design/test_phase_b_policy_design.py",
+      "line": 80
+    },
+    {
+      "kind": "definition",
+      "path": "policy-engine/tests/unit/scientist/search/test_phase_b_policy_runtime.py",
+      "line": 167
+    }
+  ],
+  "method": "Complete pinned git grep -l -w _bundle over exact glob test Python selector, then full git show and AST of each selected file; source-only, not a caller/runtime absence claim",
+  "earlier_author_metadata_error": {
+    "retained_attempt": "/tmp/e02-D-broad-wave-final-bundle-helper-scope.json",
+    "error": "Original attempted two OR pathspecs tests and *.py; actual results included non-test Python paths despite test-only prose. This corrected exact glob selector supersedes that helper-location scope only; final harness and its complete input-scope proof are unchanged."
+  }
+}

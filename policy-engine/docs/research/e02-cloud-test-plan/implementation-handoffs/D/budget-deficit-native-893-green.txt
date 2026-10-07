@@ -1,0 +1,44 @@
+{"source_sha": "893e649bc477e8fceac5038d4cbc3b4337f6d76e", "source_tree": "ac0d0ef78d26aa697663c20ff67c00eb891133aa", "test_commit": "57d5ae63bb1c4fec25a0451ef40402db922e84c8", "test_sha256": "cfaaf873bea4c4b786303d55083238d2579171bfff535386562e6e708d97f641", "command": ["/workspace/e02-D-locked-env/bin/python", "-m", "pytest", "tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py", "--basetemp=/dev/shm/e02-oracle-fiscal-893-native30-47db582183564666b98fab07c8c2fd32", "-o", "addopts=", "-q", "-s", "-rA"], "cwd": "/dev/shm/e02-oracle-fiscal-893/archive/policy-engine", "basetemp": "/dev/shm/e02-oracle-fiscal-893-native30-47db582183564666b98fab07c8c2fd32", "nonexisting_before_pytest": true, "PYTHONPATH": "src:.", "PYTHONDONTWRITEBYTECODE": "1", "no_reviewer_CPU_process_worker_caps": true}
+..............................
+=============================== warnings summary ===============================
+../../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[absent-all]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[null-all]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[absent-primary-valid-deficit]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[null-primary-valid-deficit]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[null-primary-valid-balance-alias]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[zero-primary-wins]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[zero-balance-alias-wins]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[negative-balance-deficit]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[positive-balance-surplus]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[negative-deficit-absolute]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[equal-balance-aliases]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[conflicting-balance-aliases]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[equal-deficit-aliases]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[conflicting-deficit-aliases]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[present-malformed-primary-no-fallback]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[present-malformed-deficit-no-fallback]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[present-nan-primary-no-fallback]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[present-inf-primary-no-fallback]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[bool-false-primary-no-favorable-zero]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[bool-true-primary-no-favorable-zero]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[bool-false-alias-no-favorable-zero]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[bool-false-deficit-no-favorable-zero]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[bool-true-deficit-not-measurement]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_raw_deficit_presence_sign_and_unavailable_values[overflow-integer-primary-unavailable]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_public_native_controller_keeps_valid_seed_for_unusable_challenger[bool-false]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_public_native_controller_keeps_valid_seed_for_unusable_challenger[missing]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_public_native_controller_keeps_valid_seed_for_unusable_challenger[overflow-int]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_public_bayesian_generator_excludes_unmeasured_score_before_actual_gp_fit[bool-false]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_public_bayesian_generator_excludes_unmeasured_score_before_actual_gp_fit[bool-true]
+PASSED tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py::test_public_bayesian_generator_excludes_unmeasured_score_before_actual_gp_fit[overflow-int]
+30 passed, 2 warnings in 9.47s
+
+{"exit_code": 0}

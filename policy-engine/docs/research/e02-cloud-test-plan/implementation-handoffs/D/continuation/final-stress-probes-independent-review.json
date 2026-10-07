@@ -1,0 +1,435 @@
+{
+  "schema_version": "1",
+  "kind": "independent_final_source_stress_available_consumer_review",
+  "review_author": "/root/funnel_owner",
+  "implementation_author": "/root/baseline_census",
+  "product_test_original_probe_changes": [],
+  "original_source": {
+    "sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+    "tree": "b09d9f3cfee71c429f9e9b655076a563fa3cfa0d"
+  },
+  "selector_successor_source": {
+    "sha": "b9fc7d005d39ded686f276fae8eae617b683bac6",
+    "tree": "689ce50660504bb7d718d124ec2c41f4dd5d7ddd"
+  },
+  "interpretation": "Available ordinary data/custody/refusal mechanisms are exercised independently on actual minimal runtime. Original and successor executions remain separate; mutation is process-local only. No new scientific rule, product mechanism, test body or permission subsystem is supplied.",
+  "executions": [
+    {
+      "batch": "original_c17",
+      "family": "stress_absent_report_probe.py",
+      "mode": "positive",
+      "source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+      "tree": "b09d9f3cfee71c429f9e9b655076a563fa3cfa0d",
+      "status": "PASS_BOUNDED_NATIVE_CONSUMER",
+      "exitcode": 0,
+      "whole_process_wall_seconds": 20.833058007992804,
+      "loaded_product_paths": 1171,
+      "full_source_test_snapshots_clean_equal": true,
+      "origin_mismatches": 0,
+      "actual_junit_denominator": null,
+      "junit_passed": null,
+      "junit_failed": null,
+      "junit_errors": null,
+      "junit_skips": null
+    },
+    {
+      "batch": "original_c17",
+      "family": "stress_absent_report_probe.py",
+      "mode": "invent_attempt",
+      "source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+      "tree": "b09d9f3cfee71c429f9e9b655076a563fa3cfa0d",
+      "status": "FAIL_AS_REQUIRED_REMOVAL_WITH_COMPLETE_ORACLE_OUTPUT",
+      "exitcode": 1,
+      "whole_process_wall_seconds": 20.341463042990654,
+      "loaded_product_paths": 1171,
+      "full_source_test_snapshots_clean_equal": true,
+      "origin_mismatches": 0,
+      "actual_junit_denominator": null,
+      "junit_passed": null,
+      "junit_failed": null,
+      "junit_errors": null,
+      "junit_skips": null
+    },
+    {
+      "batch": "original_c17",
+      "family": "stress_case_intake_probe.py",
+      "mode": "positive",
+      "source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+      "tree": "b09d9f3cfee71c429f9e9b655076a563fa3cfa0d",
+      "status": "PASS_BOUNDED_NATIVE_CONSUMER",
+      "exitcode": 0,
+      "whole_process_wall_seconds": 7.939318419012125,
+      "loaded_product_paths": 249,
+      "full_source_test_snapshots_clean_equal": true,
+      "origin_mismatches": 0,
+      "actual_junit_denominator": null,
+      "junit_passed": null,
+      "junit_failed": null,
+      "junit_errors": null,
+      "junit_skips": null
+    },
+    {
+      "batch": "original_c17",
+      "family": "stress_case_intake_probe.py",
+      "mode": "remove_strict_bool",
+      "source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+      "tree": "b09d9f3cfee71c429f9e9b655076a563fa3cfa0d",
+      "status": "FAIL_AS_REQUIRED_REMOVAL_WITH_COMPLETE_ORACLE_OUTPUT",
+      "exitcode": 1,
+      "whole_process_wall_seconds": 4.091376882002805,
+      "loaded_product_paths": 249,
+      "full_source_test_snapshots_clean_equal": true,
+      "origin_mismatches": 0,
+      "actual_junit_denominator": null,
+      "junit_passed": null,
+      "junit_failed": null,
+      "junit_errors": null,
+      "junit_skips": null
+    },
+    {
+      "batch": "original_c17",
+      "family": "stress_property_removal_probe.py",
+      "mode": "example_fraction",
+      "source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+      "tree": "b09d9f3cfee71c429f9e9b655076a563fa3cfa0d",
+      "status": "FAIL_AS_REQUIRED_REMOVAL_WITH_COMPLETE_ORACLE_OUTPUT",
+      "exitcode": 1,
+      "whole_process_wall_seconds": 23.659173711988842,
+      "loaded_product_paths": 1174,
+      "full_source_test_snapshots_clean_equal": true,
+      "origin_mismatches": 0,
+      "actual_junit_denominator": 39,
+      "junit_passed": 36,
+      "junit_failed": 3,
+      "junit_errors": 0,
+      "junit_skips": 0
+    },
+    {
+      "batch": "original_c17",
+      "family": "stress_property_removal_probe.py",
+      "mode": "raw_bool",
+      "source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+      "tree": "b09d9f3cfee71c429f9e9b655076a563fa3cfa0d",
+      "status": "NOT_DETECTED_ORACLE_GAP",
+      "exitcode": 0,
+      "whole_process_wall_seconds": 27.360039811988827,
+      "loaded_product_paths": 1174,
+      "full_source_test_snapshots_clean_equal": true,
+      "origin_mismatches": 0,
+      "actual_junit_denominator": 39,
+      "junit_passed": 39,
+      "junit_failed": 0,
+      "junit_errors": 0,
+      "junit_skips": 0
+    },
+    {
+      "batch": "original_c17",
+      "family": "stress_doe_bridge_probe.py",
+      "mode": "SALib_dependency_preflight",
+      "source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+      "tree": "b09d9f3cfee71c429f9e9b655076a563fa3cfa0d",
+      "status": "UNRUN_MISSING_OPTIONAL_BACKEND",
+      "exitcode": 0,
+      "whole_process_wall_seconds": 2.555247367999982,
+      "loaded_product_paths": 0,
+      "full_source_test_snapshots_clean_equal": true,
+      "origin_mismatches": 0,
+      "actual_junit_denominator": null,
+      "junit_passed": null,
+      "junit_failed": null,
+      "junit_errors": null,
+      "junit_skips": null
+    },
+    {
+      "batch": "corrected_b9fc",
+      "family": "stress_property_selector_gap_corrected",
+      "mode": "baseline",
+      "source_sha": "b9fc7d005d39ded686f276fae8eae617b683bac6",
+      "tree": "689ce50660504bb7d718d124ec2c41f4dd5d7ddd",
+      "status": "PASS_BOUNDED_NATIVE_CONSUMER",
+      "exitcode": 0,
+      "whole_process_wall_seconds": 26.919459997006925,
+      "loaded_product_paths": 1174,
+      "full_source_test_snapshots_clean_equal": true,
+      "origin_mismatches": 0,
+      "actual_junit_denominator": 57,
+      "junit_passed": 57,
+      "junit_failed": 0,
+      "junit_errors": 0,
+      "junit_skips": 0
+    },
+    {
+      "batch": "corrected_b9fc",
+      "family": "stress_property_selector_gap_corrected",
+      "mode": "example_fraction",
+      "source_sha": "b9fc7d005d39ded686f276fae8eae617b683bac6",
+      "tree": "689ce50660504bb7d718d124ec2c41f4dd5d7ddd",
+      "status": "FAIL_AS_REQUIRED_REMOVAL_WITH_COMPLETE_ORACLE_OUTPUT",
+      "exitcode": 1,
+      "whole_process_wall_seconds": 28.341261145993485,
+      "loaded_product_paths": 1174,
+      "full_source_test_snapshots_clean_equal": true,
+      "origin_mismatches": 0,
+      "actual_junit_denominator": 57,
+      "junit_passed": 53,
+      "junit_failed": 4,
+      "junit_errors": 0,
+      "junit_skips": 0
+    },
+    {
+      "batch": "corrected_b9fc",
+      "family": "stress_property_selector_gap_corrected",
+      "mode": "raw_bool",
+      "source_sha": "b9fc7d005d39ded686f276fae8eae617b683bac6",
+      "tree": "689ce50660504bb7d718d124ec2c41f4dd5d7ddd",
+      "status": "FAIL_AS_REQUIRED_REMOVAL_WITH_COMPLETE_ORACLE_OUTPUT",
+      "exitcode": 1,
+      "whole_process_wall_seconds": 25.514915689011104,
+      "loaded_product_paths": 1174,
+      "full_source_test_snapshots_clean_equal": true,
+      "origin_mismatches": 0,
+      "actual_junit_denominator": 57,
+      "junit_passed": 53,
+      "junit_failed": 4,
+      "junit_errors": 0,
+      "junit_skips": 0
+    }
+  ],
+  "actual_selector_successor": {
+    "whole_files": [
+      "tests/unit/scientist/search/test_stress_scenario_evidence.py",
+      "tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py",
+      "tests/unit/scientist/search/test_challenge_scenario_projection.py"
+    ],
+    "planned_denominator": 54,
+    "actual_collected_denominator": 57,
+    "healthy_baseline": {
+      "passed": 57,
+      "failed": 0,
+      "errors": 0,
+      "skips": 0
+    },
+    "example_fraction_mutation": {
+      "passed": 53,
+      "failed": 4,
+      "errors": 0,
+      "skips": 0,
+      "failed_cases": [
+        "test_absent_threshold_does_not_assess_robustness",
+        "test_unknown_or_empty_finite_basis_remains_partial[values0-1.0]",
+        "test_unknown_or_empty_finite_basis_remains_partial[values1-None]",
+        "test_ten_same_issue_case_occurrences_remain_ten_after_presentation[1]"
+      ]
+    },
+    "raw_boolean_mutation": {
+      "passed": 53,
+      "failed": 4,
+      "errors": 0,
+      "skips": 0,
+      "failed_cases": [
+        "test_actual_case_intake_refuses_before_boolean_coercion[1]",
+        "test_actual_case_intake_refuses_before_boolean_coercion[false]",
+        "test_actual_case_intake_refuses_before_boolean_coercion[nan]",
+        "test_actual_case_intake_refuses_before_boolean_coercion[inf]"
+      ]
+    },
+    "negative_meaning": "These are actual test failures under deliberate removal; healthy same-file baseline is separate. Failed counterfactual cases are not product regression verdicts or invented positive authority."
+  },
+  "original_oracle_gap_preserved": {
+    "source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+    "mode": "raw_bool",
+    "original_whole_files": [
+      "tests/unit/scientist/search/test_stress_scenario_evidence.py",
+      "tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py"
+    ],
+    "actual_collected": 39,
+    "actual_passed": 39,
+    "exitcode": 0,
+    "mutation_detected": false,
+    "status": "NOT_DETECTED_ORACLE_GAP",
+    "cause_established": "The exact 39-node denominator has no malformed raw build_challenge_case_result intake tests. Existing third file supplies the four strict raw-boolean checks and ten-issue-count presentation checks.",
+    "correction": "Argument-only add the whole existing third test file to baseline and both unchanged mutation probe bodies. All original output remains retained, with no masking or synthetic merged denominator."
+  },
+  "mechanism_and_oracle": [
+    {
+      "mechanism": "ordinary absent-report intake and fresh CAS reader",
+      "actual_path": "RunContext.start \u2192 ExecutionContext \u2192 blueprint._ensure_stress_test_report \u2192 FileSystemCAS manifest/body \u2192 fresh FileSystemCAS canonical decoder \u2192 StressTestReport",
+      "positive": "Both empty base and empty base plus real 32 named case-adapter observations retain base count zero, known case count, unknown base component, schema1.1 manifest/body match and unavailable combined score/partial status.",
+      "negative": "Inventing only two zero-count fields produces actual FAIL: count/base-attempt checks false while schema, partial/unavailable labels, typed case component and CAS path survive.",
+      "limit": "Declared named fixture observations are not independently verified scientific case law or default producer appointment."
+    },
+    {
+      "mechanism": "actual strict raw case result producer boundary",
+      "actual_path": "adversarial.build_challenge_case_result \u2192 ChallengeCaseResult",
+      "positive": "False is an actual observed failure. Int1, string false, NaN and infinity are refused before bool coercion.",
+      "negative": "Removing strict guard and inserting bool casts admits all four malformed raw values despite retained ChallengeCaseResult/status/passed/summary markers. Standalone removal FAIL and corrected whole-file mutation has the four exact expected failing raw-intake cases.",
+      "limit": "Strict producer type admission does not authenticate the truth of a supplied scientific observation."
+    },
+    {
+      "mechanism": "scenario occurrence basis survives issue presentation",
+      "actual_path": "named case adapter/actual run_stress_test \u2192 typed StressScenarioEvidence \u2192 blueprint._recompute_stress_test_report \u2192 CAS/fresh DTO reader",
+      "positive": "Healthy same-three-file 57-case baseline includes finite scenario counts, unknown/unavailable/partial distinctions, actual 32-case source fraction, deduplicated/presented issue counts and fresh reader consistency.",
+      "negative": "Naive issue-example fraction gives actual failures for unavailable/partial finite basis plus ten true failure occurrences collapsed to one shown issue. The retained typed DTO rejects contradictory scores; empty finite basis also hits deliberate-mutant division by zero.",
+      "limit": "The mutant does not successfully publish a falsely approved report: downstream typed validation remains fail-closed. This is the producer/caller contract falsifier, not proof that every retained downstream guard is removed."
+    }
+  ],
+  "SALib_profile": {
+    "source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+    "status": "UNRUN_MISSING_OPTIONAL_BACKEND",
+    "actual_find_spec": null,
+    "scientific_probe_body_executed": false,
+    "scientific_positive_verdict": null,
+    "process_exitcode": 0,
+    "interpretation": "Operational preflight completed; zero does not mean scientific PASS. No substitute backend or cheap statistic replaces actual SALib DOE execution."
+  },
+  "environment": {
+    "executable": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "python": "3.14.7",
+    "installed_frozen_distributions": 148,
+    "profile_original_sha256": "8ac6a0f04c56b3d1ff0976c81aedb0b805e9a9efee486939467af01b93fd36d7",
+    "profile_receipt": {
+      "source_sha": "6a157f301b400fe46268bcc53610359bb9ee4a71",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-runtime-profile.json",
+      "sha256": "ffaad852c0b507931a7b2337a314446712aa9feb319d8450a9046068fe98d859"
+    },
+    "root_cwd": "/workspace/e02-D-published-root/policy-engine",
+    "source_PYTHONPATH": "/workspace/e02-D-published-root/policy-engine/src:/workspace/e02-D-published-root/policy-engine:<fresh output>",
+    "original_six_modes_serialized_after_root_broad_child_release": true,
+    "successor_modes_sequential": true,
+    "parent_allowed_separate_cache_minimal_guard_checks_in_other_process": true,
+    "actual_runtime_caps_added": false,
+    "timeouts_or_kills_sent": false,
+    "fresh_nonexisting_basetemp_and_cache_per_pytest": true,
+    "all_original_local_files_retained": true
+  },
+  "custody_verification": {
+    "payload_sha256": "b7f6471b24e45721a530395c9727c94a2ad7879eda84096473ce9c0c25972d8b",
+    "all_loaded_product_path_SHA256_and_Git_blobs_recomputed": true,
+    "source_version_path_pairs": 2348,
+    "actual_union_product_paths": 1174,
+    "errors": [],
+    "all20_full_source_test_snapshots_verified": true,
+    "files_per_snapshot": 6288,
+    "between_root_freezes_changed_input_paths": [
+      "policy-engine/src/polisyos/scientist/methods/search/README.md",
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/README.md",
+      "policy-engine/tests/unit/remediation/test_trn_02.py",
+      "policy-engine/tests/unit/scientist/agent/test_vector_memory.py",
+      "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_generator.py"
+    ],
+    "product_Python_differences_between_c17_and_b9fc": [],
+    "interpretation": "Original and successor verdicts remain separately source-bound; equal product Python does not merge their test denominators or outcomes.",
+    "all_full_source_test_raw_SHA256_and_blob_identities_recomputed_from_exact_Git": true,
+    "full_source_test_source_version_path_pairs_verified": 12576
+  },
+  "executed_inputs": {
+    "original_harness": {
+      "source_sha": "ea3b2f3d8672ef024644a8aeac2e5c981d95ee1d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-probes-independent-proof/runner.py.txt",
+      "git_blob": "4540a364aa6ae0d9415b22102e5971cb0eee76f7",
+      "sha256": "f0bbd00c56f6ad295409c35530fbf3faf9e072baff32ef108c603bda2f30046d",
+      "bytes": 7840
+    },
+    "baseline_successor_harness": {
+      "source_sha": "2e7361f52653b20155f760e0696cf09b3def67ed",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-probes-independent-proof/runner.py.txt",
+      "git_blob": "9930d7d1b7f7909c61c428aef3d9729fff340c12",
+      "sha256": "ffec952f0f6d4b40cfefbcf642af6a3d75be60cbc76a42dc39301485e232048f",
+      "bytes": 8201
+    },
+    "supervisor": {
+      "source_sha": "139cdbf6c557fd8a2be72336aeb4194693ec6862",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-probes-independent-proof/supervisor.py.txt",
+      "git_blob": "340a2f27b26907013e9f67791487e9eb8635e0c3",
+      "sha256": "c543a0c2dbef0e5e8cc2ccae63a5b1938a12deec91d0e8e8468004e6d673652c",
+      "bytes": 2651
+    },
+    "pytest_observer": {
+      "source_sha": "566574237b0e7a6c8bcb196425226d76c952efff",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-budget-B11-fixture-proof/observer.py.txt",
+      "git_blob": "9b2deee3d56ddfba86e85db90762923cc68b7f80",
+      "sha256": "386e3fb5cd7ca31633b5281b4b5f6c24d9ef220c13cf68db2e28393e310523f8",
+      "bytes": 1470
+    },
+    "original_tracked_probes": [
+      {
+        "source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+        "path": "policy-engine/tests/integration/scientist/methods/search/stress_absent_report_probe.py",
+        "git_blob": "7c602feb10b57e67cb4c7ad9261132f674de1e3c",
+        "sha256": "5b7ff27e6f5418d2f2cffdf624b1c3df9797747a432d0820d571eba45697d022",
+        "bytes": 9100
+      },
+      {
+        "source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+        "path": "policy-engine/tests/integration/scientist/methods/search/stress_case_intake_probe.py",
+        "git_blob": "e12dae825e90db18af1c601452f737b36f2f1b30",
+        "sha256": "d0977d77d24ee5491adc7a10b6a8f550f4c957340fd378fca388805288ecf746",
+        "bytes": 4091
+      },
+      {
+        "source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+        "path": "policy-engine/tests/integration/scientist/methods/search/stress_property_removal_probe.py",
+        "git_blob": "9d7dd8f5969eb5e458b24fb3c58195b3a1d69c3f",
+        "sha256": "b7f3a736ab2f48cb32059798888020b0a3f055bc7e8e5145d440a19513160ecd",
+        "bytes": 4557
+      },
+      {
+        "source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+        "path": "policy-engine/tests/integration/scientist/methods/search/stress_doe_bridge_probe.py",
+        "git_blob": "ee59a04829c87e28681565d168052ad26dcf0ef3",
+        "sha256": "37d18ab2da9b7ae406a9aaa7a13bd494bc10504bd991381f90bd6ceaa73d857a",
+        "bytes": 11758
+      }
+    ]
+  },
+  "complete_output": {
+    "source_sha": "bded2720864dfcb2f9d706461a835c0b051ac18b",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-probes-independent-proof/output.json.gz",
+    "git_blob": "798a265a05358176263ad6425d39dd79a63a5d2f",
+    "sha256": "b7f6471b24e45721a530395c9727c94a2ad7879eda84096473ce9c0c25972d8b",
+    "bytes": 1398322,
+    "decoded_sha256": "40aeeca59908145e83cb0275251984c2e439080a2793673bb7efd395240c34f9",
+    "decoded_bytes": 6491680,
+    "member_count": 1901,
+    "Git_reference_members": 16,
+    "identical_produced_output_references": 1583,
+    "every_raw_member_original_and_reference_verified": true,
+    "complete_scope": "All ten command streams, JUnit where applicable, nodeids/setup-call-teardown reports, every source/test before-after hash, all actual product origins, resource observations, commands/process records, fresh physical pytest registry/CAS files and standalone /dev/shm CAS trees.",
+    "deciding_index_pointer": "/members/deciding-index.json/raw_utf8",
+    "reader": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-probes-independent-proof/README.md@2e7361f52653b20155f760e0696cf09b3def67ed"
+  },
+  "root_broad_wave_kept_separate": {
+    "source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+    "status": "Parent reports natural SIGKILL -9 / exit137 partial; this targeted stress execution does not replace the interrupted broad union or waive its failures.",
+    "targeted_component_baseline_only": true
+  },
+  "residuals": [
+    {
+      "class": "missing_optional_backend",
+      "consumer": "actual SALib DOE bridge probe",
+      "missing_input": "Actual SALib backend in this supported minimal profile",
+      "requested_canonical_owner": "E DOE/backend provider and G profile acceptance",
+      "next_step": "Execute unchanged real DOE probe on a provisioned actual SALib profile and bind its true scientific inputs/consumer results separately."
+    },
+    {
+      "class": "outside_verified_scope",
+      "consumer": "scenario/case assessment and promotion/uncertainty interpretations",
+      "missing_input": "This mechanical probe does not independently verify scientific case-rule correctness or appoint a default scientific producer/basis. These are scope limits, not an inferred blocker for finite engineering criteria.",
+      "requested_canonical_owner": "scientific producer/input-law owner and G",
+      "next_step": "If an original criterion requests scientific rule/input-law correctness, use that actual supplied producer/profile and its criterion oracle separately. Observed sample fractions retain their sample meaning."
+    },
+    {
+      "class": "verification_pending",
+      "consumer": "whole root integration/original criterion denominator",
+      "missing_input": "Complete broad-root execution/remaining failure dispositions",
+      "requested_canonical_owner": "G integration/original criterion acceptance",
+      "next_step": "Reconcile the separate exact broad and targeted scopes; do not convert these 57 component cases into a whole-root PASS."
+    }
+  ],
+  "closure_ids": [],
+  "finding_ids": [],
+  "formal_findings_closed": 0,
+  "finding_acceptance": "G original-criterion reconciliation only",
+  "G_integration_accepted": false,
+  "no_active_child_or_shared_pytest_cache_hold": true
+}

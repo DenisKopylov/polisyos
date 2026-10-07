@@ -1,0 +1,2499 @@
+diff --git a/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py b/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py
+index afce09109..b56ea23f8 100644
+--- a/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py
++++ b/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py
+@@ -109,13 +109,11 @@ def _try_import_bayesian():
+         return None
+ 
+ 
+-class SearchSpace:
++class SearchSpace(NativeSearchSpace):
+     """Autotune adapter backed by the canonical strategy ``SearchSpace``."""
+ 
+     def __init__(self, bounds: list[dict[str, Any] | ParameterBounds]) -> None:
+-        self._native = NativeSearchSpace(
+-            bounds=[self._to_parameter_bound(bound) for bound in bounds]
+-        )
++        super().__init__(bounds=[self._to_parameter_bound(bound) for bound in bounds])
+ 
+     @staticmethod
+     def _to_parameter_bound(bound: dict[str, Any] | ParameterBounds) -> ParameterBounds:
+@@ -143,39 +141,8 @@ class SearchSpace:
+         )
+ 
+     @property
+-    def bounds(self) -> list[ParameterBounds]:
+-        """Return the canonical parameter bounds used by the strategy."""
+-        return self._native.bounds
+-
+-    @property
+-    def dim(self) -> int:
+-        return self._native.dim
+-
+-    @property
+-    def param_bounds(self) -> list[Any]:
+-        """Compatibility alias for consumers that inspect parameter bounds."""
+-        return self._native.bounds
+-
+-    @property
+-    def names(self) -> list[str]:
+-        """Return canonical expanded parameter names."""
+-        return self._native.names
+-
+-    def normalize(self, params: dict[str, Any]) -> tuple[float, ...]:
+-        """Normalize parameters through the canonical strategy implementation."""
+-        return self._native.normalize(params)
+-
+-    def denormalize(self, vector: tuple[float, ...]) -> dict[str, Any]:
+-        """Resolve a relaxed vector to the effective typed execution."""
+-        return self._native.denormalize(vector)
+-
+-    def sample_sobol(self, n_samples: int, seed: int = 42) -> list[tuple[float, ...]]:
+-        """Sample relaxed vectors through the canonical strategy implementation."""
+-        return self._native.sample_sobol(n_samples=n_samples, seed=seed)
+-
+-    def to_botorch_bounds(self) -> Any:
+-        """Delegate optional BoTorch bounds construction to the native space."""
+-        return self._native.to_botorch_bounds()
++    def param_bounds(self) -> list[ParameterBounds]:
++        return self.bounds
+ 
+ 
+ class BayesianCandidateGenerator:
+@@ -193,6 +160,8 @@ class BayesianCandidateGenerator:
+         compare_split: BenchmarkSplit = BenchmarkSplit.HOLDOUT,
+         n_initial: int = 6,
+         seed: int = 42,
++        warm_start_bridge: Any = None,
++        warm_start_fingerprint: Any = None,
+     ) -> None:
+         self._primary_metric = primary_metric
+         self._direction = direction
+@@ -203,18 +172,44 @@ class BayesianCandidateGenerator:
+         self._optimizer: Any = None
+         self._botorch_available = False
+         self._warm_evals: list[Any] = []
++        if (warm_start_bridge is None) != (warm_start_fingerprint is None):
++            raise ValueError("Warm-start bridge and configured target fingerprint must be paired")
++        numerical_basis = None
++        admission = None
++        if warm_start_bridge is not None:
++            numerical_basis = warm_start_bridge.target_basis(warm_start_fingerprint)
++            admission = warm_start_bridge.admit_warm_start
++            if (
++                numerical_basis.metric != primary_metric
++                or numerical_basis.direction.value != direction.value
++                or numerical_basis.split != compare_split.value
++            ):
++                raise ValueError(
++                    "Configured generator metric/direction/split differs from numerical target"
++                )
+ 
+         deps = _try_import_bayesian()
+         if deps is not None and search_space is not None:
+             BayesianConfig, BayesianOptimizer, _, _, _, _, _ = deps
+             try:
+                 cfg = BayesianConfig(n_initial=n_initial, seed=seed)
+-                self._optimizer = BayesianOptimizer(search_space, config=cfg)
+-                self._botorch_available = True
+-                if self._warm_evals:
+-                    self._optimizer.warm_start(self._warm_evals)
++                self._optimizer = BayesianOptimizer(
++                    search_space,
++                    config=cfg,
++                    numerical_basis=numerical_basis,
++                    warm_start_admission=admission,
++                )
++                self._botorch_available = self._optimizer.backend_available
+             except Exception as exc:
++                if numerical_basis is not None:
++                    raise ValueError(
++                        "Configured numerical warm-start receiver refused its basis"
++                    ) from exc
+                 logger.warning("BayesianCandidateGenerator: optimizer init failed: %s", exc)
++        if warm_start_bridge is not None:
++            if self._optimizer is None:
++                raise ValueError("Configured warm-start requires a native optimizer receiver")
++            self.warm_start(warm_start_bridge.load_warm_start(warm_start_fingerprint))
+ 
+     @property
+     def botorch_available(self) -> bool:
+@@ -258,7 +253,9 @@ class BayesianCandidateGenerator:
+         return dict(context) if context else {}
+ 
+     @staticmethod
+-    def _history_parts(entry: Any) -> tuple[
++    def _history_parts(
++        entry: Any,
++    ) -> tuple[
+         dict[str, Any],
+         dict[str, Any],
+         dict[str, Any],
+@@ -396,7 +393,9 @@ class BayesianCandidateGenerator:
+             try:
+                 normalized = tuple(self._search_space.normalize(params))
+             except (TypeError, ValueError):
+-                logger.warning("Skipping history entry %s: candidate params cannot be normalized", idx)
++                logger.warning(
++                    "Skipping history entry %s: candidate params cannot be normalized", idx
++                )
+                 continue
+ 
+             identity = self._history_identity(
+@@ -463,7 +462,9 @@ class BayesianCandidateGenerator:
+             timestamp = getattr(entry, "timestamp", None)
+             if not isinstance(timestamp, datetime):
+                 timestamp = datetime.now(UTC)
+-            duration = getattr(entry, "duration_seconds", entry_mapping.get("duration_seconds", 0.0))
++            duration = getattr(
++                entry, "duration_seconds", entry_mapping.get("duration_seconds", 0.0)
++            )
+             try:
+                 duration_seconds = float(duration)
+             except (TypeError, ValueError):
+@@ -552,11 +553,7 @@ def benchmark_to_evaluation(
+     if dim and len(params_normalized) != dim:
+         return None
+ 
+-    scalar = (
+-        -float(finite_value)
+-        if direction == MetricDirection.MAXIMIZE
+-        else float(finite_value)
+-    )
++    scalar = -float(finite_value) if direction == MetricDirection.MAXIMIZE else float(finite_value)
+     split_value = split.value
+     metadata = {
+         **benchmark_metadata,
+diff --git a/policy-engine/src/polisyos/scientist/methods/autotune/pareto.py b/policy-engine/src/polisyos/scientist/methods/autotune/pareto.py
+index 5ac88b50c..7179bac7f 100644
+--- a/policy-engine/src/polisyos/scientist/methods/autotune/pareto.py
++++ b/policy-engine/src/polisyos/scientist/methods/autotune/pareto.py
+@@ -140,9 +140,7 @@ class ParetoInputAssessment(BaseModel):
+             raise ValueError("omission input_index must be unique within an assessment")
+         if any(index >= self.input_count for index in omission_indices):
+             raise ValueError("omission input_index is outside the declared input_count")
+-        if self.status == "complete" and (
+-            self.input_count == 0 or self.unassessed_evaluations
+-        ):
++        if self.status == "complete" and (self.input_count == 0 or self.unassessed_evaluations):
+             raise ValueError("complete input assessment requires nonempty fully assessed inputs")
+         if self.status == "partial" and (
+             self.assessed_count == 0 or not self.unassessed_evaluations
+@@ -153,6 +151,34 @@ class ParetoInputAssessment(BaseModel):
+         return self
+ 
+ 
++class HypervolumeAssessment(BaseModel):
++    """Representability of the existing indicator, separate from front membership."""
++
++    model_config = ConfigDict(extra="forbid", frozen=True)
++    version: Literal["hypervolume-assessment.v1"] = "hypervolume-assessment.v1"
++    status: Literal["available", "unavailable"]
++    basis: Literal["recomputed", "not_established"]
++    reason: Literal["non_finite_derived_hypervolume", "catalog_union_not_recomputed"] | None = None
++
++    @model_validator(mode="after")
++    def _validate_status(self) -> Self:
++        if self.status == "available" and (self.basis != "recomputed" or self.reason is not None):
++            raise ValueError("Available hypervolume requires a recomputed indicator")
++        if self.status == "unavailable" and (
++            self.basis != "not_established" or self.reason is None
++        ):
++            raise ValueError("Unavailable hypervolume requires its declared limitation")
++        return self
++
++
++def validate_hypervolume(value: float | None, assessment: HypervolumeAssessment | None) -> None:
++    if assessment is not None and assessment.status == "unavailable":
++        if value is not None:
++            raise ValueError("Unavailable hypervolume must be null")
++    elif value is None or not math.isfinite(value):
++        raise ValueError("Hypervolume must be finite or explicitly unavailable")
++
++
+ class ParetoFront(BaseModel):
+     """Result of Pareto front computation."""
+ 
+@@ -160,7 +186,10 @@ class ParetoFront(BaseModel):
+ 
+     schema_version: Literal["1.0", "2.0"] = "1.0"
+     members: list[ParetoMember] = Field(default_factory=list)
+-    hypervolume: float = 0.0
++    hypervolume: float | None = 0.0
++    hypervolume_assessment: HypervolumeAssessment | None = Field(
++        default=None, exclude_if=lambda value: value is None
++    )
+     reference_point: dict[str, float] = Field(default_factory=dict)
+     coordinate_schema: ParetoCoordinateSchema | None = Field(
+         default_factory=lambda: ParetoCoordinateSchema(status="legacy_limited")
+@@ -175,6 +204,9 @@ class ParetoFront(BaseModel):
+             raise ValueError("v2 Pareto front requires input assessment")
+         if self.schema_version == "1.0" and self.input_assessment is not None:
+             raise ValueError("v1 Pareto front cannot carry v2 input assessment")
++        if self.schema_version == "1.0" and self.hypervolume_assessment is not None:
++            raise ValueError("v1 Pareto front cannot carry the typed indicator assessment")
++        validate_hypervolume(self.hypervolume, self.hypervolume_assessment)
+         _validate_coordinate_artifact(self)
+         return self
+ 
+@@ -209,7 +241,6 @@ def _validate_coordinate_artifact(front: ParetoFront) -> None:
+             front.members
+             or front.reference_point
+             or front.coordinate_reference_point
+-            or not math.isfinite(front.hypervolume)
+             or front.hypervolume != 0.0
+         ):
+             raise ValueError("incomplete coordinate schema cannot carry v1 values")
+@@ -222,8 +253,6 @@ def _validate_coordinate_artifact(front: ParetoFront) -> None:
+         raise ValueError("coordinate reference keys do not match the coordinate schema")
+     if any(not math.isfinite(value) for value in front.coordinate_reference_point.values()):
+         raise ValueError("coordinate reference point contains a non-finite value")
+-    if not math.isfinite(front.hypervolume):
+-        raise ValueError("complete coordinate artifact has a non-finite hypervolume")
+ 
+     display_keys: set[str] | None = None
+     for member in front.members:
+@@ -373,10 +402,19 @@ class ParetoPromoter:
+             [objective_vectors[i] for i in non_dominated_indices],
+             coordinate_ref_point,
+         )
++        hv_assessment = None
++        if not math.isfinite(hv):
++            hv = None
++            hv_assessment = HypervolumeAssessment(
++                status="unavailable",
++                basis="not_established",
++                reason="non_finite_derived_hypervolume",
++            )
+ 
+         return ParetoFront(
+             members=members,
+             hypervolume=hv,
++            hypervolume_assessment=hv_assessment,
+             reference_point=ref_point,
+             coordinate_schema=self._coordinate_schema,
+             coordinate_reference_point=coordinate_ref_point,
+@@ -393,9 +431,7 @@ class ParetoPromoter:
+         vector, missing, non_finite = self._assess_objective_vector(candidate)
+         if vector is None:
+             reason = "missing" if missing else "non-finite"
+-            raise ValueError(
+-                f"candidate is unassessed: {reason} required Pareto coordinate"
+-            )
++            raise ValueError(f"candidate is unassessed: {reason} required Pareto coordinate")
+         if not front.members:
+             return False
+         schema = front.coordinate_schema
+@@ -652,11 +688,7 @@ class ParetoPromoter:
+         """Worst value per objective as reference point."""
+         if not objectives:
+             return {}
+-        if any(
+-            not math.isfinite(value)
+-            for vector in objectives
+-            for value in vector
+-        ):
++        if any(not math.isfinite(value) for vector in objectives for value in vector):
+             return {}
+         return {
+             metric_name: min(vector[index] for vector in objectives)
+@@ -690,8 +722,7 @@ class ParetoPromoter:
+         if any(not math.isfinite(value) for value in ref_point.values()):
+             return 0.0
+         if any(
+-            len(objective) != len(keys)
+-            or any(not math.isfinite(value) for value in objective)
++            len(objective) != len(keys) or any(not math.isfinite(value) for value in objective)
+             for objective in front_objectives
+         ):
+             return 0.0
+diff --git a/policy-engine/src/polisyos/scientist/methods/search/frontier.py b/policy-engine/src/polisyos/scientist/methods/search/frontier.py
+index 591dccf33..d64563ea9 100644
+--- a/policy-engine/src/polisyos/scientist/methods/search/frontier.py
++++ b/policy-engine/src/polisyos/scientist/methods/search/frontier.py
+@@ -164,7 +164,7 @@ def _strip_volatile_candidate_fields(
+                 continue
+             sanitized[key] = _strip_volatile_candidate_fields(
+                 raw_item,
+-                technical=technical or lowered in _TECHNICAL_CANDIDATE_ENVELOPES,
++                technical=technical or (root and lowered in _TECHNICAL_CANDIDATE_ENVELOPES),
+                 root=False,
+             )
+         return sanitized
+diff --git a/policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py b/policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py
+index ba4244c0c..b760feb93 100644
+--- a/policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py
++++ b/policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py
+@@ -7,13 +7,17 @@ from datetime import UTC, datetime
+ from enum import Enum
+ from pathlib import Path
+ from tempfile import NamedTemporaryFile
+-from typing import Any
++from typing import Any, Literal, Self
+ 
+-from pydantic import BaseModel, ConfigDict, Field
++from pydantic import BaseModel, ConfigDict, Field, model_validator
+ 
+ from polisyos.core.artifacts.manifest import ArtifactRef
+ from polisyos.scientist.methods.autotune.models import BenchmarkEvaluation, PromotionPolicy
+-from polisyos.scientist.methods.autotune.pareto import ParetoPromoter
++from polisyos.scientist.methods.autotune.pareto import (
++    HypervolumeAssessment,
++    ParetoPromoter,
++    validate_hypervolume,
++)
+ from polisyos.scientist.methods.autotune.registry import default_search_registry_root
+ from polisyos.scientist.methods.search.contracts import (
+     ParetoBasisScope,
+@@ -84,17 +88,28 @@ class ParetoRegistrySnapshot(BaseModel):
+ 
+     model_config = ConfigDict(extra="forbid")
+ 
+-    schema_version: str = Field(default="2.0", pattern=r"^\d+\.\d+$")
++    schema_version: Literal["1.0", "2.0"] = "2.0"
+     loop_id: str = Field(min_length=1)
+     task_family: str = Field(default="policy", min_length=1)
+     domain: str = Field(default="general", min_length=1)
+     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+     entries: dict[str, ParetoRegistryEntry] = Field(default_factory=dict)
+     frontiers: dict[str, list[str]] = Field(default_factory=dict)
+-    hypervolume_by_view: dict[str, float] = Field(default_factory=dict)
++    hypervolume_by_view: dict[str, float | None] = Field(default_factory=dict)
++    hypervolume_assessments: dict[str, HypervolumeAssessment] = Field(default_factory=dict)
+     view_assessments: dict[str, ParetoViewAssessment] = Field(default_factory=dict)
+     objective_basis_by_view: dict[str, ParetoBasisScope] = Field(default_factory=dict)
+ 
++    @model_validator(mode="after")
++    def _validate_indicator_profiles(self) -> Self:
++        if self.schema_version == "1.0" and self.hypervolume_assessments:
++            raise ValueError("Historical snapshot cannot carry typed indicator assessments")
++        if not set(self.hypervolume_assessments) <= set(self.hypervolume_by_view):
++            raise ValueError("Hypervolume assessment lacks its view indicator")
++        for view, value in self.hypervolume_by_view.items():
++            validate_hypervolume(value, self.hypervolume_assessments.get(view))
++        return self
++
+     def project_view(
+         self,
+         view: ParetoView,
+@@ -109,18 +124,14 @@ class ParetoRegistrySnapshot(BaseModel):
+         """
+         view_key = _view_key(view, policy_family=policy_family)
+         identity_mismatch = any(
+-            candidate_hash != entry.candidate_hash
+-            for candidate_hash, entry in self.entries.items()
++            candidate_hash != entry.candidate_hash for candidate_hash, entry in self.entries.items()
+         )
+         eligible_hashes = sorted(
+             candidate_hash
+             for candidate_hash, entry in self.entries.items()
+             if entry.evaluation.feasible
+             and not entry.seed_only
+-            and (
+-                view is not ParetoView.POLICY_FAMILY
+-                or entry.policy_family == policy_family
+-            )
++            and (view is not ParetoView.POLICY_FAMILY or entry.policy_family == policy_family)
+         )
+         eligible_set = set(eligible_hashes)
+         stored_frontier_hashes = self.frontiers.get(view_key, [])
+@@ -129,9 +140,7 @@ class ParetoRegistrySnapshot(BaseModel):
+             or not set(stored_frontier_hashes) <= eligible_set
+         )
+         candidate_frontier_hashes = (
+-            ()
+-            if malformed_frontier or identity_mismatch
+-            else tuple(stored_frontier_hashes)
++            () if malformed_frontier or identity_mismatch else tuple(stored_frontier_hashes)
+         )
+         stored_assessment = self.view_assessments.get(view_key)
+         if stored_assessment is None:
+@@ -192,6 +201,7 @@ class ParetoRegistrySnapshot(BaseModel):
+         payload = self.model_dump(mode="json", exclude_none=True)
+         payload.pop("view_assessments", None)
+         payload.pop("objective_basis_by_view", None)
++        payload.pop("hypervolume_assessments", None)
+         return payload
+ 
+ 
+@@ -363,9 +373,14 @@ class ParetoRegistry:
+             entries=catalog_entries,
+             frontiers={ParetoView.GLOBAL_FEASIBLE.value: list(catalog_entries)},
+             hypervolume_by_view={
+-                ParetoView.GLOBAL_FEASIBLE.value: float(
+-                    local_snapshot.hypervolume_by_view.get(ParetoView.GLOBAL_FEASIBLE.value, 0.0)
+-                )
++                ParetoView.GLOBAL_FEASIBLE.value: None,
++            },
++            hypervolume_assessments={
++                ParetoView.GLOBAL_FEASIBLE.value: HypervolumeAssessment(
++                    status="unavailable",
++                    basis="not_established",
++                    reason="catalog_union_not_recomputed",
++                ),
+             },
+         )
+         self._write_catalog_snapshot(active_context, catalog)
+@@ -554,63 +569,41 @@ class ParetoRegistry:
+     def _recompute(self, snapshot: ParetoRegistrySnapshot) -> ParetoRegistrySnapshot:
+         entries = snapshot.entries
+         frontiers: dict[str, list[str]] = {}
+-        hypervolume: dict[str, float] = {}
++        hypervolume: dict[str, float | None] = {}
++        hv_assessments: dict[str, HypervolumeAssessment] = {}
+         view_assessments: dict[str, ParetoViewAssessment] = {}
+ 
+         feasible_entries = [
+             entry for entry in entries.values() if entry.evaluation.feasible and not entry.seed_only
+         ]
+-        (
+-            frontiers[ParetoView.GLOBAL_FEASIBLE.value],
+-            hypervolume[ParetoView.GLOBAL_FEASIBLE.value],
+-            view_assessments[ParetoView.GLOBAL_FEASIBLE.value],
+-        ) = self._frontier_hashes(
+-            feasible_entries,
+-            ParetoView.GLOBAL_FEASIBLE.value,
+-            snapshot.objective_basis_by_view.get(ParetoView.GLOBAL_FEASIBLE.value),
+-        )
+-        (
+-            frontiers[ParetoView.EQUITY_AWARE.value],
+-            hypervolume[ParetoView.EQUITY_AWARE.value],
+-            view_assessments[ParetoView.EQUITY_AWARE.value],
+-        ) = self._frontier_hashes(
+-            feasible_entries,
+-            ParetoView.EQUITY_AWARE.value,
+-            snapshot.objective_basis_by_view.get(ParetoView.EQUITY_AWARE.value),
+-        )
+-        (
+-            frontiers[ParetoView.LOW_RISK.value],
+-            hypervolume[ParetoView.LOW_RISK.value],
+-            view_assessments[ParetoView.LOW_RISK.value],
+-        ) = self._frontier_hashes(
+-            feasible_entries,
+-            ParetoView.LOW_RISK.value,
+-            snapshot.objective_basis_by_view.get(ParetoView.LOW_RISK.value),
+-        )
+-        (
+-            frontiers[ParetoView.IMPLEMENTATION_SIMPLE.value],
+-            hypervolume[ParetoView.IMPLEMENTATION_SIMPLE.value],
+-            view_assessments[ParetoView.IMPLEMENTATION_SIMPLE.value],
+-        ) = self._frontier_hashes(
+-            feasible_entries,
+-            ParetoView.IMPLEMENTATION_SIMPLE.value,
+-            snapshot.objective_basis_by_view.get(ParetoView.IMPLEMENTATION_SIMPLE.value),
+-        )
+-
++        view_inputs = [
++            (view.value, view.value, feasible_entries)
++            for view in (
++                ParetoView.GLOBAL_FEASIBLE,
++                ParetoView.EQUITY_AWARE,
++                ParetoView.LOW_RISK,
++                ParetoView.IMPLEMENTATION_SIMPLE,
++            )
++        ]
+         families = sorted(
+             {entry.policy_family for entry in feasible_entries if entry.policy_family}
+         )
+-        for family in families:
+-            family_entries = [entry for entry in feasible_entries if entry.policy_family == family]
+-            view_key = _view_key(ParetoView.POLICY_FAMILY, policy_family=family)
++        view_inputs.extend(
++            (
++                _view_key(ParetoView.POLICY_FAMILY, policy_family=family),
++                ParetoView.GLOBAL_FEASIBLE.value,
++                [entry for entry in feasible_entries if entry.policy_family == family],
++            )
++            for family in families
++        )
++        for view_key, objective_view, subset in view_inputs:
+             (
+                 frontiers[view_key],
+                 hypervolume[view_key],
+                 view_assessments[view_key],
++                hv_assessments[view_key],
+             ) = self._frontier_hashes(
+-                family_entries,
+-                ParetoView.GLOBAL_FEASIBLE.value,
+-                snapshot.objective_basis_by_view.get(view_key),
++                subset, objective_view, snapshot.objective_basis_by_view.get(view_key)
+             )
+ 
+         updated_entries: dict[str, ParetoRegistryEntry] = {}
+@@ -621,8 +614,7 @@ class ParetoRegistry:
+                 else sorted(
+                     view_name
+                     for view_name, hashes in frontiers.items()
+-                    if candidate_hash in hashes
+-                    and view_assessments[view_name].status == "complete"
++                    if candidate_hash in hashes and view_assessments[view_name].status == "complete"
+                 )
+             )
+             updated_entries[candidate_hash] = entry.model_copy(
+@@ -647,6 +639,7 @@ class ParetoRegistry:
+             entries=updated_entries,
+             frontiers=frontiers,
+             hypervolume_by_view=hypervolume,
++            hypervolume_assessments=hv_assessments,
+             view_assessments=view_assessments,
+             objective_basis_by_view=snapshot.objective_basis_by_view,
+         )
+@@ -656,7 +649,7 @@ class ParetoRegistry:
+         entries: list[ParetoRegistryEntry],
+         view_name: str,
+         declared_basis: ParetoBasisScope | None = None,
+-    ) -> tuple[list[str], float, ParetoViewAssessment]:
++    ) -> tuple[list[str], float | None, ParetoViewAssessment, HypervolumeAssessment]:
+         ordered_entries = sorted(entries, key=lambda entry: entry.candidate_hash)
+         if not entries:
+             return (
+@@ -673,6 +666,7 @@ class ParetoRegistry:
+                     input_count=0,
+                     assessed_count=0,
+                 ),
++                HypervolumeAssessment(status="available", basis="recomputed"),
+             )
+         observed_objective_maps = {
+             entry.candidate_hash: entry.evaluation.frontier_objectives(view_name)
+@@ -682,11 +676,7 @@ class ParetoRegistry:
+             list(declared_basis.coordinate_ids)
+             if declared_basis is not None and declared_basis.scope == "declared"
+             else sorted(
+-                {
+-                    axis
+-                    for objectives in observed_objective_maps.values()
+-                    for axis in objectives
+-                }
++                {axis for objectives in observed_objective_maps.values() for axis in objectives}
+             )
+         )
+         basis_scope = declared_basis or (
+@@ -695,11 +685,7 @@ class ParetoRegistry:
+             else ParetoBasisScope(scope="not_established")
+         )
+         objective_maps = {
+-            candidate_hash: {
+-                axis: objectives[axis]
+-                for axis in axis_names
+-                if axis in objectives
+-            }
++            candidate_hash: {axis: objectives[axis] for axis in axis_names if axis in objectives}
+             for candidate_hash, objectives in observed_objective_maps.items()
+         }
+         if not axis_names:
+@@ -716,6 +702,7 @@ class ParetoRegistry:
+                     unassessed_candidate_hashes=hashes,
+                     unresolved_axis_contract_candidate_hashes=hashes,
+                 ),
++                HypervolumeAssessment(status="available", basis="recomputed"),
+             )
+ 
+         evaluations_by_identity: dict[int, str] = {}
+@@ -754,9 +741,7 @@ class ParetoRegistry:
+                 non_finite_by_hash[candidate_hash] = item.non_finite_coordinate_ids
+         coverage = ParetoViewAssessment(
+             status=(
+-                front_assessment.status
+-                if basis_scope.scope == "declared"
+-                else "basis_limited"
++                front_assessment.status if basis_scope.scope == "declared" else "basis_limited"
+             ),
+             coverage_status=front_assessment.status,
+             basis_scope=basis_scope,
+@@ -766,7 +751,15 @@ class ParetoRegistry:
+             missing_coordinate_ids_by_candidate_hash=missing_by_hash,
+             non_finite_coordinate_ids_by_candidate_hash=non_finite_by_hash,
+         )
+-        return hashes, float(front.hypervolume), coverage
++        return (
++            hashes,
++            front.hypervolume,
++            coverage,
++            (
++                front.hypervolume_assessment
++                or HypervolumeAssessment(status="available", basis="recomputed")
++            ),
++        )
+ 
+     def _snapshot_path(self, loop_id: str) -> Path:
+         return self._root / "loops" / loop_id / "pareto_registry.json"
+diff --git a/policy-engine/src/polisyos/scientist/methods/search/strategies/_deps.py b/policy-engine/src/polisyos/scientist/methods/search/strategies/_deps.py
+index 058cb5388..b9c703fcb 100644
+--- a/policy-engine/src/polisyos/scientist/methods/search/strategies/_deps.py
++++ b/policy-engine/src/polisyos/scientist/methods/search/strategies/_deps.py
+@@ -33,6 +33,7 @@ try:  # pragma: no cover - environment dependent
+     from botorch.models.transforms.input import Normalize
+     from botorch.models.transforms.outcome import Standardize
+     from botorch.optim import optimize_acqf
++    from botorch.sampling.normal import SobolQMCNormalSampler
+     from botorch.utils.multi_objective.box_decompositions import NondominatedPartitioning
+     from botorch.utils.multi_objective.pareto import is_non_dominated
+     from gpytorch.mlls import ExactMarginalLogLikelihood, SumMarginalLogLikelihood
+@@ -49,6 +50,7 @@ except Exception as exc:  # pragma: no cover - environment dependent
+     Normalize = None  # type: ignore[assignment]
+     Standardize = None  # type: ignore[assignment]
+     optimize_acqf = None  # type: ignore[assignment]
++    SobolQMCNormalSampler = None  # type: ignore[assignment]
+     NondominatedPartitioning = None  # type: ignore[assignment]
+     is_non_dominated = None  # type: ignore[assignment]
+     ExactMarginalLogLikelihood = None  # type: ignore[assignment]
+diff --git a/policy-engine/src/polisyos/scientist/methods/search/strategies/base.py b/policy-engine/src/polisyos/scientist/methods/search/strategies/base.py
+index c1b7c1582..5b82deef7 100644
+--- a/policy-engine/src/polisyos/scientist/methods/search/strategies/base.py
++++ b/policy-engine/src/polisyos/scientist/methods/search/strategies/base.py
+@@ -2,6 +2,7 @@
+ 
+ from __future__ import annotations
+ 
++import math
+ import random
+ from abc import ABC, abstractmethod
+ from collections.abc import Mapping
+@@ -14,7 +15,6 @@ from polisyos.scientist.methods.search.strategies.types import (
+     StrategyState,
+ )
+ 
+-
+ _PYTHON_RANDOM_CODEC = "python_random"
+ _PYTHON_RANDOM_CODEC_VERSION = 1
+ _PYTHON_RANDOM_STATE_VERSION = random.Random().getstate()[0]
+@@ -117,10 +117,8 @@ class BaseSearchStrategy(ABC):
+ 
+     def set_state(self, state: StrategyState) -> None:
+         if state.strategy_name != self.__class__.__name__:
+-            raise ValueError(
+-                "Strategy checkpoint is incompatible: strategy identity changed"
+-            )
+-        if isinstance(state.iteration, bool) or not isinstance(state.iteration, int):
++            raise ValueError("Strategy checkpoint is incompatible: strategy identity changed")
++        if type(state.iteration) is not int or state.iteration < 0:
+             raise ValueError("Strategy iteration must be an integer")
+         if not isinstance(state.rng_state, Mapping):
+             raise ValueError("Strategy RNG state must be an object")
+@@ -204,19 +202,13 @@ class BaseSearchStrategy(ABC):
+ 
+     def _random_candidate(self, source: str = "random") -> PolicyCandidate:
+         vector = tuple(self._rng.random() for _ in range(self._space.dim))
+-        return PolicyCandidate(
+-            params=self._space.denormalize(vector),
+-            params_normalized=vector,
+-            source_strategy=source,
+-        )
++        return self._space.candidate_from_vector(vector, source_strategy=source)
+ 
+     def _sobol_candidate(self, index: int, source: str = "sobol_init") -> PolicyCandidate:
+         if index < 0:
+             raise ValueError(f"Sobol index must be non-negative, got {index}")
+         if not self._sobol_checkpoint_compatible:
+-            raise ValueError(
+-                "Sobol checkpoint is incompatible: versioned sampler state is missing"
+-            )
++            raise ValueError("Sobol checkpoint is incompatible: versioned sampler state is missing")
+         if index >= len(self._sobol_cache):
+             generated = self._space.sample_sobol(
+                 n_samples=index + 1,
+@@ -231,17 +223,13 @@ class BaseSearchStrategy(ABC):
+             sampler_identity = self._space.last_sobol_sampler_identity
+             sampler_version = self._space.last_sobol_sampler_version
+             if sampler_identity not in _SOBOL_SAMPLER_IDENTITIES:
+-                raise ValueError(
+-                    "Sobol sampler did not report an effective identity"
+-                )
++                raise ValueError("Sobol sampler did not report an effective identity")
+             if (
+                 not isinstance(sampler_version, str)
+                 or not sampler_version
+                 or sampler_version.lower() == "unknown"
+             ):
+-                raise ValueError(
+-                    "Sobol sampler did not report a verified implementation version"
+-                )
++                raise ValueError("Sobol sampler did not report a verified implementation version")
+             if self._sobol_sampler_identity is not None and (
+                 sampler_identity != self._sobol_sampler_identity
+                 or sampler_version != self._sobol_sampler_version
+@@ -256,11 +244,7 @@ class BaseSearchStrategy(ABC):
+             self._sobol_sampler_version = sampler_version
+         self._sobol_cursor = max(self._sobol_cursor, index + 1)
+         vector = self._sobol_cache[index]
+-        return PolicyCandidate(
+-            params=self._space.denormalize(vector),
+-            params_normalized=vector,
+-            source_strategy=source,
+-        )
++        return self._space.candidate_from_vector(vector, source_strategy=source)
+ 
+     def _sobol_state(self) -> dict[str, Any]:
+         identity = self._sobol_sampler_identity
+@@ -274,17 +258,9 @@ class BaseSearchStrategy(ABC):
+                 )
+         else:
+             if identity not in _SOBOL_SAMPLER_IDENTITIES:
+-                raise ValueError(
+-                    "Sobol sampler did not report an effective identity"
+-                )
+-            if (
+-                not isinstance(version, str)
+-                or not version
+-                or version.lower() == "unknown"
+-            ):
+-                raise ValueError(
+-                    "Sobol sampler did not report a verified implementation version"
+-                )
++                raise ValueError("Sobol sampler did not report an effective identity")
++            if not isinstance(version, str) or not version or version.lower() == "unknown":
++                raise ValueError("Sobol sampler did not report a verified implementation version")
+         fallback = identity == _SOBOL_FALLBACK_IDENTITY
+         return {
+             "algorithm": _SOBOL_ALGORITHM,
+@@ -297,11 +273,7 @@ class BaseSearchStrategy(ABC):
+             "sampler_identity": identity,
+             "sampler_version": version,
+             "fallback": fallback,
+-            "scramble": (
+-                None
+-                if identity is None
+-                else not fallback
+-            ),
++            "scramble": (None if identity is None else not fallback),
+             "cursor": self._sobol_cursor,
+             "cache": [list(vector) for vector in self._sobol_cache],
+         }
+@@ -331,19 +303,23 @@ class BaseSearchStrategy(ABC):
+             raise ValueError("Sobol checkpoint is incompatible: state fields changed")
+         if value.get("codec") != _SOBOL_CODEC:
+             raise ValueError("Sobol checkpoint is incompatible: unknown codec")
+-        if value.get("codec_version") != _SOBOL_CODEC_VERSION:
++        if (
++            type(value.get("codec_version")) is not int
++            or value.get("codec_version") != _SOBOL_CODEC_VERSION
++        ):
+             raise ValueError("Sobol checkpoint is incompatible: unsupported codec version")
+         if value.get("algorithm") != _SOBOL_ALGORITHM:
+             raise ValueError("Sobol checkpoint is incompatible: unknown algorithm")
+-        if value.get("algorithm_version") != _SOBOL_ALGORITHM_VERSION:
+-            raise ValueError(
+-                "Sobol checkpoint is incompatible: unsupported algorithm version"
+-            )
++        if (
++            type(value.get("algorithm_version")) is not int
++            or value.get("algorithm_version") != _SOBOL_ALGORITHM_VERSION
++        ):
++            raise ValueError("Sobol checkpoint is incompatible: unsupported algorithm version")
+ 
+         seed = value.get("seed")
+         if isinstance(seed, bool) or not isinstance(seed, int):
+             raise ValueError("Sobol checkpoint is incompatible: seed must be an integer")
+-        if value.get("dimension") != self._space.dim:
++        if type(value.get("dimension")) is not int or value.get("dimension") != self._space.dim:
+             raise ValueError("Sobol checkpoint is incompatible: search-space dimension changed")
+         if value.get("space") != self._space.sobol_space_fingerprint():
+             raise ValueError("Sobol checkpoint is incompatible: search space changed")
+@@ -356,9 +332,7 @@ class BaseSearchStrategy(ABC):
+                     "Sobol checkpoint is incompatible: sampler version without identity"
+                 )
+             if value.get("fallback") is not False or value.get("scramble") is not None:
+-                raise ValueError(
+-                    "Sobol checkpoint is incompatible: uninitialized sampler metadata"
+-                )
++                raise ValueError("Sobol checkpoint is incompatible: uninitialized sampler metadata")
+         else:
+             if (
+                 not isinstance(sampler_identity, str)
+@@ -377,9 +351,7 @@ class BaseSearchStrategy(ABC):
+                 )
+             expected_fallback = sampler_identity == _SOBOL_FALLBACK_IDENTITY
+             if value.get("fallback") is not expected_fallback:
+-                raise ValueError(
+-                    "Sobol checkpoint is incompatible: fallback mode changed"
+-                )
++                raise ValueError("Sobol checkpoint is incompatible: fallback mode changed")
+             expected_scramble = not expected_fallback
+             if value.get("scramble") is not expected_scramble:
+                 raise ValueError("Sobol checkpoint is incompatible: scramble mode changed")
+@@ -414,9 +386,7 @@ class BaseSearchStrategy(ABC):
+             raise ValueError("Sobol checkpoint is incompatible: cursor/cache mismatch")
+ 
+         if bool(cache) != (sampler_identity is not None):
+-            raise ValueError(
+-                "Sobol checkpoint is incompatible: sampler identity/cache mismatch"
+-            )
++            raise ValueError("Sobol checkpoint is incompatible: sampler identity/cache mismatch")
+ 
+         return seed, cursor, cache, sampler_identity, sampler_version
+ 
+@@ -436,15 +406,16 @@ def _decode_python_random_state(value: Any) -> tuple[int, tuple[int, ...], float
+     if isinstance(value, tuple):
+         return _validate_python_random_state(value)
+     if not isinstance(value, Mapping):
+-        raise ValueError(
+-            "Python random state codec is missing; expected a versioned state object"
+-        )
++        raise ValueError("Python random state codec is missing; expected a versioned state object")
+     expected_keys = {"codec", "codec_version", "gauss_next", "state", "version"}
+     if set(value) != expected_keys:
+         raise ValueError("Python random state codec fields are incompatible")
+     if value.get("codec") != _PYTHON_RANDOM_CODEC:
+         raise ValueError("Python random state codec is incompatible")
+-    if value.get("codec_version") != _PYTHON_RANDOM_CODEC_VERSION:
++    if (
++        type(value.get("codec_version")) is not int
++        or value.get("codec_version") != _PYTHON_RANDOM_CODEC_VERSION
++    ):
+         raise ValueError("Python random state codec version is unsupported")
+     version = value.get("version")
+     internal_state = value.get("state")
+@@ -488,4 +459,11 @@ def _validate_python_random_state(state: Any) -> tuple[int, tuple[int, ...], flo
+         isinstance(gauss_next, bool) or not isinstance(gauss_next, (int, float))
+     ):
+         raise ValueError("Python random gaussian state must be numeric or null")
++    if gauss_next is not None and not math.isfinite(gauss_next):
++        raise ValueError("Python random gaussian state must be finite")
++    probe = random.Random()
++    try:
++        probe.setstate((version, internal_state, gauss_next))
++    except (TypeError, ValueError) as exc:
++        raise ValueError("Python random state is invalid") from exc
+     return version, internal_state, gauss_next
+diff --git a/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py b/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py
+index 1d2caa299..849184313 100644
+--- a/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py
++++ b/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py
+@@ -2,13 +2,19 @@
+ 
+ from __future__ import annotations
+ 
++import copy
++import hashlib
+ import io
++import json
+ import math
+-from collections.abc import Mapping
++from collections.abc import Callable, Mapping
+ from dataclasses import asdict, dataclass
++from datetime import datetime
++from importlib.metadata import version
+ from typing import Any
+ 
+ from polisyos.common.logger import get_logger
++from polisyos.scientist.methods.search.objective import ObjectiveValue, OptimizationDirection
+ 
+ # Imported lazily through _deps to keep module importable without optional stack.
+ from polisyos.scientist.methods.search.strategies._deps import (
+@@ -17,6 +23,7 @@ from polisyos.scientist.methods.search.strategies._deps import (
+     Normalize,
+     ProbabilityOfImprovement,
+     SingleTaskGP,
++    SobolQMCNormalSampler,
+     Standardize,
+     UpperConfidenceBound,
+     fit_gpytorch_mll,
+@@ -32,11 +39,14 @@ from polisyos.scientist.methods.search.strategies.runtime import apply_torch_run
+ from polisyos.scientist.methods.search.strategies.types import (
+     AcquisitionType,
+     Evaluation,
++    EvaluationStatus,
+     PolicyCandidate,
+     StrategyState,
+ )
+ 
+ logger = get_logger(__name__)
++_ACQUISITION_POLICY = "sobol_ranked_restarts.v1"
++_GP_STATE_VERSION = 3
+ 
+ _WARM_COMPATIBILITY_METADATA = "warm_start_compatibility"
+ _WARM_COMPATIBILITY_FIELDS = (
+@@ -74,6 +84,13 @@ class BayesianConfig:
+     refit_interval: int = 5
+     warm_start_noise_factor: float = 0.1
+ 
++    def __post_init__(self):
++        for key in ("n_initial", "num_restarts", "raw_samples", "max_train_size", "refit_interval"):
++            if type(getattr(self, key)) is not int or getattr(self, key) < 1:
++                raise ValueError(f"{key} requires a positive integer")
++        if type(self.seed) is not int or not 0 <= self.seed < 2**32:
++            raise ValueError("seed requires an unsigned 32-bit integer")
++
+ 
+ class BayesianOptimizer(BaseSearchStrategy):
+     """Gaussian Process Bayesian optimizer with robust fallback behavior."""
+@@ -83,10 +100,22 @@ class BayesianOptimizer(BaseSearchStrategy):
+         space,
+         config: BayesianConfig | None = None,
+         resource_arbiter: ResourceArbiter | None = None,
++        *,
++        numerical_basis: Any = None,
++        warm_start_admission: Callable[[list[Evaluation], Any], list[Evaluation]] | None = None,
+     ):
+         cfg = config or BayesianConfig()
+         super().__init__(space=space, seed=cfg.seed)
+         self._config = cfg
++        self._numerical_basis = numerical_basis
++        self._warm_start_admission = warm_start_admission
++        self._basis_payload = self._validated_basis(numerical_basis)
++        self._training_record_ids: list[str] = []
++        self._fitted_record_ids: list[str] = []
++        self._refit_record_ids: list[str] = []
++        self._refit_train_X = None
++        self._refit_train_y_bo = None
++        self.last_warm_start_report: list[dict[str, str]] = []
+         self._arbiter = resource_arbiter or ResourceArbiter.from_env()
+         self._model: Any = None
+         self._train_X: Any = None
+@@ -97,7 +126,9 @@ class BayesianOptimizer(BaseSearchStrategy):
+         self._device = "cpu"
+         self._warm_evals: list[Evaluation] = []
+         self._warm_evaluation_ids: set[int] = set()
+-        self._warm_context_fingerprint: str | None = None
++        self._warm_context_fingerprint: str | None = (
++            self._basis_payload.get("context_fingerprint") if self._basis_payload else None
++        )
+         self._fitted_train_X: Any = None
+         self._fitted_train_y_bo: Any = None
+         self._last_refit_iteration: int = -1
+@@ -114,42 +145,83 @@ class BayesianOptimizer(BaseSearchStrategy):
+             logger.warning("BayesianOptimizer dependencies unavailable: {}", exc)
+             self._botorch_ready = False
+ 
++    @property
++    def backend_available(self) -> bool:
++        return self._botorch_ready
++
++    def _validated_basis(self, basis: Any) -> dict[str, Any] | None:
++        if basis is None:
++            if self._warm_start_admission is not None:
++                raise ValueError("Warm admission requires a configured numerical basis")
++            return None
++        if isinstance(basis, Mapping):
++            payload = dict(basis)
++            fields = {
++                "profile",
++                "search_space_fingerprint",
++                "context_fingerprint",
++                "metric",
++                "unit",
++                "direction",
++            }
++            if set(payload) != fields or payload.get("profile") != "synthetic_scalar_gp.v1":
++                raise ValueError("Unsupported local GP numerical basis")
++            if any(not isinstance(payload[key], str) or not payload[key] for key in fields):
++                raise ValueError("Complete synthetic GP basis required")
++            if payload["direction"] not in {"minimize", "maximize"}:
++                raise ValueError("Unsupported objective direction")
++        else:
++            # The transfer owner supplies both its strict target type and its
++            # canonical CAS reader. A metadata declaration is never that reader.
++            from polisyos.scientist.methods.search.strategies.transfer import NumericTransferBasis
++
++            if not isinstance(basis, NumericTransferBasis) or not callable(
++                self._warm_start_admission
++            ):
++                raise ValueError("Transferred GP rows require the canonical admission reader")
++            payload = basis.model_dump(mode="json")
++        if payload["search_space_fingerprint"] != self._space.sobol_space_fingerprint():
++            raise ValueError("Numerical basis search space differs from the receiver")
++        return payload
++
+     def warm_start(self, evaluations: list[Evaluation]) -> None:
+-        """Pre-seed GP with historical evaluations from similar runs."""
+-        accepted: list[Evaluation] = []
+-        rejected: list[str] = []
++        """Admit warm rows against a configured target, never the first row."""
++        self.last_warm_start_report = []
++        if self._basis_payload is None:
++            self.last_warm_start_report = [
++                {"candidate_id": e.candidate_id, "reason": "target_basis_missing"}
++                for e in evaluations
++            ]
++            return
++        if self._warm_start_admission is not None:
++            evaluations = self._warm_start_admission(evaluations, self._numerical_basis)
++        accepted = []
+         for evaluation in evaluations:
+-            if not evaluation.is_valid:
+-                rejected.append("invalid outcome")
+-                continue
+-            if self._origin_ref(evaluation) is None:
+-                rejected.append("missing provenance_ref")
+-                continue
+-            if not self._has_compatible_params(evaluation):
+-                rejected.append("incompatible normalized parameters")
+-                continue
+-            compatibility = self._warm_compatibility(evaluation)
+-            if compatibility is None:
+-                rejected.append("missing or incompatible warm-start fingerprint")
+-                continue
+-            context_fingerprint = compatibility[-1]
+-            if (
+-                self._warm_context_fingerprint is not None
+-                and context_fingerprint != self._warm_context_fingerprint
++            reason = None
++            if not evaluation.is_valid or not math.isfinite(evaluation.scalar_score):
++                reason = "invalid_outcome"
++            elif self._origin_ref(evaluation) is None:
++                reason = "missing_origin"
++            elif not self._has_compatible_params(evaluation):
++                reason = "physical_coordinate_mismatch"
++            elif self._warm_start_admission is None and (
++                self._warm_compatibility(evaluation) is None
++                or self._warm_compatibility(evaluation)[-1] != self._warm_context_fingerprint
+             ):
+-                rejected.append("incompatible context fingerprint")
+-                continue
+-            if self._warm_context_fingerprint is None:
+-                self._warm_context_fingerprint = context_fingerprint
+-            accepted.append(evaluation)
+-            self._warm_evaluation_ids.add(id(evaluation))
+-
++                reason = "numerical_basis_mismatch"
++            elif (
++                self._warm_start_admission is not None
++                and evaluation.metadata.get("numeric_transfer_basis") != self._basis_payload
++            ):
++                reason = "transfer_basis_mismatch"
++            if reason:
++                self.last_warm_start_report.append(
++                    {"candidate_id": evaluation.candidate_id, "reason": reason}
++                )
++            else:
++                accepted.append(copy.deepcopy(evaluation))
+         self._warm_evals.extend(accepted)
+-        logger.info(
+-            "Bayesian warm-start: added {} historical evaluations; rejected {}",
+-            len(accepted),
+-            len(rejected),
+-        )
++        self._warm_evaluation_ids.update(id(e) for e in accepted)
+ 
+     def suggest(
+         self,
+@@ -157,11 +229,17 @@ class BayesianOptimizer(BaseSearchStrategy):
+         pending: list[PolicyCandidate] | None = None,
+     ) -> PolicyCandidate:
+         self._iteration = len(evaluations)
+-        pending = pending or []
++        pending = [*(pending or []), *self._completed_candidates(evaluations)]
+         training_corpus = self._effective_training_corpus(evaluations)
+ 
+         if len(training_corpus) < self._config.n_initial:
+-            return self._sobol_candidate(len(evaluations), source="sobol_init")
++            for _ in range(20):
++                candidate = self._sobol_candidate(
++                    max(len(evaluations), self._sobol_cursor), source="sobol_init"
++                )
++                if not self._is_duplicate(candidate, pending):
++                    return candidate
++            return self._non_duplicate_random(pending, source="random_initial_duplicate")
+ 
+         if not self._botorch_ready:
+             return self._non_duplicate_random(pending, source="random_no_botorch")
+@@ -204,118 +282,369 @@ class BayesianOptimizer(BaseSearchStrategy):
+         if batch_size < 1:
+             return []
+ 
++        self._iteration = len(evaluations)
+         training_corpus = self._effective_training_corpus(evaluations)
+         if len(training_corpus) < self._config.n_initial:
+-            return [
+-                self._sobol_candidate(len(evaluations) + idx, source="sobol_init")
+-                for idx in range(batch_size)
+-            ]
++            output = []
++            for _ in range(batch_size):
++                output.append(self.suggest(evaluations, pending=output))
++            return output
+ 
+         if not self._botorch_ready:
+-            return [
+-                self._non_duplicate_random([], source="random_no_botorch")
+-                for _ in range(batch_size)
+-            ]
++            return self._random_batch(evaluations, batch_size, "random_no_botorch")
+ 
+         with self._arbiter.acquire("torch"):
+             soft, hard = self._arbiter.enforce_limits()
+             if hard:
+-                return [
+-                    self._non_duplicate_random([], source="random_hard_limit")
+-                    for _ in range(batch_size)
+-                ]
++                return self._random_batch(evaluations, batch_size, "random_hard_limit")
+ 
+             train_set = self._select_training_subset(evaluations)
+             if len(train_set) < 3:
+-                return [
+-                    self._non_duplicate_random([], source="random_insufficient_data")
+-                    for _ in range(batch_size)
+-                ]
++                return self._random_batch(evaluations, batch_size, "random_insufficient_data")
+ 
+             try:
+                 X, y_bo = self._prepare_training_data(train_set)
+                 self._fit_gp(X, y_bo)
+                 restarts, raw_samples = self._effective_optim_params(soft_limit=soft)
+                 best_f = y_bo.max()
+-                acq = qExpectedImprovement(model=self._model, best_f=best_f)
++                acq = qExpectedImprovement(
++                    model=self._model,
++                    best_f=best_f,
++                    sampler=SobolQMCNormalSampler(
++                        self._torch.Size([128]), seed=self._next_acquisition_seed()
++                    ),
++                )
++                bounds = self._space.to_botorch_bounds().to(self._device)
++                initial = self._acquisition_initial_conditions(
++                    acq, bounds, batch_size, restarts, raw_samples
++                )
+                 candidates, _ = optimize_acqf(
+                     acq_function=acq,
+-                    bounds=self._space.to_botorch_bounds().to(self._device),
++                    bounds=bounds,
+                     q=batch_size,
+                     num_restarts=restarts,
+-                    raw_samples=raw_samples,
++                    batch_initial_conditions=initial,
+                 )
+                 output: list[PolicyCandidate] = []
+                 for idx in range(batch_size):
+-                    output.append(
+-                        self._tensor_to_candidate(
+-                            candidates[idx],
+-                            source="batch_qei",
++                    candidate = self._tensor_to_candidate(candidates[idx], source="batch_qei")
++                    if self._is_duplicate(
++                        candidate, [*self._completed_candidates(evaluations), *output]
++                    ):
++                        candidate = self._non_duplicate_random(
++                            [*self._completed_candidates(evaluations), *output],
++                            source="random_batch_duplicate",
+                         )
+-                    )
++                    output.append(candidate)
+                 return output
+             except Exception as exc:
+                 logger.warning("Bayesian batch optimization failed; random fallback: {}", exc)
+-                return [
+-                    self._non_duplicate_random([], source="random_batch_fallback")
+-                    for _ in range(batch_size)
+-                ]
++                if not self._config.fallback_on_failure:
++                    raise
++                output = []
++                for _ in range(batch_size):
++                    output.append(
++                        self._non_duplicate_random(
++                            [*self._completed_candidates(evaluations), *output],
++                            source="random_batch_fallback",
++                        )
++                    )
++                return output
+ 
+     def get_state(self) -> StrategyState:
+-        model_state: bytes | None = None
+-        if self._model is not None and self._botorch_ready:
++        base = super().get_state()
++        metadata = {
++            **base.metadata,
++            "gp_state_version": _GP_STATE_VERSION,
++            "acquisition_policy": _ACQUISITION_POLICY,
++            "config": asdict(self._config),
++            "numerical_basis": self._basis_payload,
++            "warm_evaluations": [self._encode_evaluation(e) for e in self._warm_evals],
++            "last_refit_iteration": self._last_refit_iteration,
++            "last_train_size": self._last_train_size,
++        }
++        model_state = None
++        if self._model is not None:
++            if not self._model_train_x_matches_fitted(self._model_train_x()):
++                raise ValueError("GP model inputs differ from the persisted fitted corpus")
++            with self._torch.no_grad():
++                transformed_y = self._model.outcome_transform(self._fitted_train_y_bo)[0].squeeze(
++                    -1
++                )
++            if not self._torch.allclose(
++                self._model.train_targets, transformed_y, rtol=1e-12, atol=1e-12
++            ):
++                raise ValueError("GP model targets differ from the persisted fitted corpus")
+             buffer = io.BytesIO()
+             self._torch.save(self._model.state_dict(), buffer)
+             model_state = buffer.getvalue()
+-
+-        metadata: dict[str, Any] = {"config": asdict(self._config)}
+-        if self._train_X is not None and self._train_y_bo is not None:
+-            metadata["train_X"] = self._train_X.tolist()
+-            metadata["train_y_bo"] = self._train_y_bo.tolist()
+-
+-        rng_state = super().get_state().rng_state
++            metadata["model_state_sha256"] = hashlib.sha256(model_state).hexdigest()
++            metadata.update(
++                {
++                    "backend": self._backend_identity(),
++                    "train_X": self._fitted_train_X.tolist(),
++                    "train_y_bo": self._fitted_train_y_bo.tolist(),
++                    "refit_train_X": self._refit_train_X.tolist(),
++                    "refit_train_y_bo": self._refit_train_y_bo.tolist(),
++                    "fitted_record_ids": list(self._fitted_record_ids),
++                    "refit_record_ids": list(self._refit_record_ids),
++                }
++            )
++            metadata["corpus_sha256"] = self._corpus_digest(metadata)
++        rng = dict(base.rng_state)
+         if self._torch_rng is not None:
+-            rng_state = {
+-                **rng_state,
+-                "torch": self._torch_rng.get_state().tolist(),
+-            }
+-        return StrategyState(
+-            strategy_name="BayesianOptimizer",
+-            iteration=self._iteration,
+-            rng_state=rng_state,
+-            model_state=model_state,
+-            metadata=metadata,
+-        )
++            rng["torch"] = self._torch_rng.get_state().tolist()
++        return StrategyState("BayesianOptimizer", self._iteration, rng, model_state, metadata)
+ 
+     def set_state(self, state: StrategyState) -> None:
++        """Decode and reconcile a complete continuation before any live mutation."""
++        meta = state.metadata
++        if state.model_state is not None and not isinstance(state.model_state, bytes):
++            raise ValueError("GP model state requires bytes or null")
++        if (
++            not isinstance(meta, Mapping)
++            or type(meta.get("gp_state_version")) is not int
++            or meta["gp_state_version"] != _GP_STATE_VERSION
++        ):
++            raise ValueError("GP checkpoint lacks a supported complete state basis")
++        if (
++            meta.get("acquisition_policy") != _ACQUISITION_POLICY
++            or meta.get("numerical_basis") != self._basis_payload
++        ):
++            raise ValueError("GP checkpoint numerical basis or acquisition policy changed")
++        cfg = meta.get("config")
++        expected = asdict(self._config)
++        if not isinstance(cfg, Mapping) or set(cfg) != set(expected):
++            raise ValueError("GP checkpoint configuration is invalid")
++        for key, value in expected.items():
++            actual = cfg[key]
++            if isinstance(value, int) and not isinstance(value, bool) and type(actual) is not int:
++                raise ValueError("GP integer configuration requires an integer")
++            if isinstance(value, bool) and type(actual) is not bool:
++                raise ValueError("GP boolean configuration requires a boolean")
++            if isinstance(value, float) and (
++                type(actual) not in (int, float) or not math.isfinite(actual)
++            ):
++                raise ValueError("GP numeric configuration requires a finite number")
++            if key != "seed" and actual != value:
++                raise ValueError("GP checkpoint configuration changed")
++        if cfg["seed"] != meta.get("seed"):
++            raise ValueError("GP seed basis changed")
++        last_fit, last_size = meta.get("last_refit_iteration"), meta.get("last_train_size")
++        if (
++            type(state.iteration) is not int
++            or state.iteration < 0
++            or type(last_fit) is not int
++            or type(last_size) is not int
++            or not -1 <= last_fit <= state.iteration
++            or last_size < 0
++        ):
++            raise ValueError("GP checkpoint refit counters are invalid")
++        payloads = meta.get("warm_evaluations")
++        if not isinstance(payloads, list):
++            raise ValueError("GP checkpoint warm corpus is invalid")
++        warm = [self._decode_evaluation(e) for e in payloads]
++        if warm:
++            # Reuse the same configured admission reader during restore. Its
++            # failure/omission cannot silently remove rows from a fitted basis.
++            probe = copy.copy(self)
++            probe._warm_evals = []
++            probe._warm_evaluation_ids = set()
++            probe.warm_start(warm)
++            if [self._encode_evaluation(e) for e in probe._warm_evals] != payloads:
++                raise ValueError("GP checkpoint warm corpus is no longer admitted")
++            warm = probe._warm_evals
++        torch_rng = None
++        if self._torch_rng is not None:
++            raw_rng = state.rng_state.get("torch") if isinstance(state.rng_state, Mapping) else None
++            if not isinstance(raw_rng, list) or any(
++                type(v) is not int or not 0 <= v <= 255 for v in raw_rng
++            ):
++                raise ValueError("GP Torch RNG bytes are invalid")
++            try:
++                torch_rng = self._torch.Generator()
++                torch_rng.set_state(self._torch.tensor(raw_rng, dtype=self._torch.uint8))
++            except (RuntimeError, TypeError) as exc:
++                raise ValueError("GP Torch RNG state is invalid") from exc
++        model = X = Y = refit_X = refit_Y = None
++        fitted_ids = refit_ids = []
++        if state.model_state is not None:
++            if meta.get("corpus_sha256") != self._corpus_digest(meta):
++                raise ValueError("GP checkpoint corpus content differs from its saved binding")
++            if meta.get("model_state_sha256") != hashlib.sha256(state.model_state).hexdigest():
++                raise ValueError("GP checkpoint model content differs from its saved binding")
++            if not self._botorch_ready or meta.get("backend") != self._backend_identity():
++                raise ValueError("GP checkpoint numerical backend changed")
++            X, Y = self._checkpoint_tensors(meta, "train_X", "train_y_bo")
++            refit_X, refit_Y = self._checkpoint_tensors(meta, "refit_train_X", "refit_train_y_bo")
++            fitted_ids, refit_ids = meta.get("fitted_record_ids"), meta.get("refit_record_ids")
++            if (
++                last_fit < 0
++                or last_size != refit_X.shape[0]
++                or X.shape[0] > last_size * 1.2
++                or not self._torch.equal(refit_X, X[:last_size])
++                or not self._torch.equal(refit_Y, Y[:last_size])
++            ):
++                raise ValueError("GP checkpoint full-refit corpus/counters disagree")
++            if (
++                not isinstance(fitted_ids, list)
++                or not isinstance(refit_ids, list)
++                or len(fitted_ids) != len(X)
++                or len(refit_ids) != last_size
++                or fitted_ids[:last_size] != refit_ids
++                or any(not isinstance(v, str) or not v for v in fitted_ids)
++            ):
++                raise ValueError("GP checkpoint observation identities disagree")
++            try:
++                weights = self._torch.load(
++                    io.BytesIO(state.model_state), weights_only=True, map_location=self._device
++                )
++                if not isinstance(weights, Mapping) or any(
++                    not self._torch.is_tensor(v) for v in weights.values()
++                ):
++                    raise ValueError("Malformed model state")
++                input_transform = Normalize(d=X.shape[-1])
++                outcome_transform = Standardize(m=1)
++                for prefix, transform in (
++                    ("input_transform.", input_transform),
++                    ("outcome_transform.", outcome_transform),
++                ):
++                    transform.load_state_dict(
++                        {
++                            key[len(prefix) :]: value
++                            for key, value in weights.items()
++                            if key.startswith(prefix)
++                        },
++                        strict=True,
++                    )
++                    transform.eval()
++                model = SingleTaskGP(
++                    train_X=X,
++                    train_Y=Y,
++                    input_transform=input_transform,
++                    outcome_transform=outcome_transform,
++                )
++                defaults = model.state_dict()
++                for key, value in weights.items():
++                    if not self._torch.isfinite(value).all() and (
++                        key not in defaults or not self._torch.equal(value, defaults[key])
++                    ):
++                        raise ValueError("Non-finite learned state or changed backend constraint")
++                model.load_state_dict(weights, strict=True)
++                if any(not self._torch.isfinite(p).all() for p in model.parameters()):
++                    raise ValueError("Non-finite learned GP parameter")
++                model.eval()
++                with self._torch.no_grad():
++                    expected_Y = model.outcome_transform(Y)[0].squeeze(-1)
++                if not self._torch.allclose(
++                    model.train_targets, expected_Y, rtol=1e-12, atol=1e-12
++                ):
++                    raise ValueError("Restored model targets differ from saved transform/corpus")
++            except Exception as exc:
++                raise ValueError("GP checkpoint numerical model is invalid") from exc
++        elif (
++            last_fit != -1
++            or last_size != 0
++            or any(
++                key in meta
++                for key in ("train_X", "train_y_bo", "refit_train_X", "refit_train_y_bo")
++            )
++        ):
++            raise ValueError("GP checkpoint missing its fitted model")
+         super().set_state(state)
+-        if not self._botorch_ready:
+-            return
+-        torch_rng_state = state.rng_state.get("torch")
+-        if self._torch_rng is not None and torch_rng_state is not None:
+-            self._torch_rng.set_state(self._torch.tensor(torch_rng_state, dtype=self._torch.uint8))
++        self._model, self._train_X, self._train_y_bo = model, X, Y
++        self._fitted_train_X, self._fitted_train_y_bo = X, Y
++        self._refit_train_X, self._refit_train_y_bo = refit_X, refit_Y
++        self._fitted_record_ids, self._refit_record_ids = fitted_ids, refit_ids
++        self._last_refit_iteration, self._last_train_size = last_fit, last_size
++        self._warm_evals = warm
++        self._warm_evaluation_ids = {id(e) for e in warm}
++        self._config.seed = cfg["seed"]
++        if torch_rng is not None:
++            self._torch_rng = torch_rng
+ 
+-        train_X_list = state.metadata.get("train_X")
+-        train_y_list = state.metadata.get("train_y_bo")
+-        if train_X_list is None or train_y_list is None:
+-            return
+-        self._train_X = self._torch.tensor(train_X_list, dtype=self._torch.float64)
+-        self._train_y_bo = self._torch.tensor(train_y_list, dtype=self._torch.float64)
+-        if self._device != "cpu":
+-            self._train_X = self._train_X.to(self._device)
+-            self._train_y_bo = self._train_y_bo.to(self._device)
+-        self._fitted_train_X = self._train_X.clone()
+-        self._fitted_train_y_bo = self._train_y_bo.clone()
+-        if state.model_state is None:
+-            return
+-        self._model = SingleTaskGP(
+-            train_X=self._train_X,
+-            train_Y=self._train_y_bo,
+-            input_transform=Normalize(d=self._train_X.shape[-1]),
+-            outcome_transform=Standardize(m=1),
+-        )
+-        buffer = io.BytesIO(state.model_state)
+-        self._model.load_state_dict(self._torch.load(buffer))
++    @staticmethod
++    def _backend_identity() -> dict[str, str]:
++        return {name: version(name) for name in ("torch", "botorch", "gpytorch")}
++
++    @staticmethod
++    def _corpus_digest(meta):
++        try:
++            return hashlib.sha256(
++                json.dumps(
++                    {
++                        key: meta[key]
++                        for key in (
++                            "train_X",
++                            "train_y_bo",
++                            "refit_train_X",
++                            "refit_train_y_bo",
++                            "fitted_record_ids",
++                            "refit_record_ids",
++                            "numerical_basis",
++                            "warm_evaluations",
++                            "last_refit_iteration",
++                            "last_train_size",
++                        )
++                    },
++                    sort_keys=True,
++                    allow_nan=False,
++                ).encode()
++            ).hexdigest()
++        except (KeyError, TypeError, ValueError) as exc:
++            raise ValueError("GP checkpoint corpus binding is invalid") from exc
++
++    def _checkpoint_tensors(self, meta, x_key, y_key):
++        for key in (x_key, y_key):
++            rows = meta.get(key)
++            if not isinstance(rows, list) or any(
++                not isinstance(row, list)
++                or any(type(value) not in (int, float) or not math.isfinite(value) for value in row)
++                for row in rows
++            ):
++                raise ValueError("GP checkpoint tensors require finite numeric rows")
++        try:
++            X = self._torch.tensor(meta.get(x_key), dtype=self._torch.float64, device=self._device)
++            Y = self._torch.tensor(meta.get(y_key), dtype=self._torch.float64, device=self._device)
++        except (TypeError, ValueError, RuntimeError) as exc:
++            raise ValueError("GP checkpoint tensors are invalid") from exc
++        if (
++            X.ndim != 2
++            or X.shape[1] != self._space.dim
++            or not len(X)
++            or Y.shape != (len(X), 1)
++            or not self._torch.isfinite(X).all()
++            or not self._torch.isfinite(Y).all()
++            or not ((X >= 0) & (X <= 1)).all()
++        ):
++            raise ValueError("GP checkpoint tensor shape/range is invalid")
++        return X, Y
++
++    @staticmethod
++    def _encode_evaluation(evaluation):
++        record = asdict(evaluation)
++        record["timestamp"] = evaluation.timestamp.isoformat()
++        record["status"] = evaluation.status.value
++        for objective in record["objectives"]:
++            objective["direction"] = objective["direction"].value
++        return json.loads(json.dumps(record, allow_nan=False))
++
++    @staticmethod
++    def _decode_evaluation(payload):
++        try:
++            record = dict(payload)
++            record["timestamp"] = datetime.fromisoformat(record["timestamp"])
++            record["status"] = EvaluationStatus(record["status"])
++            record["params_normalized"] = tuple(record["params_normalized"])
++            record["objectives"] = [
++                ObjectiveValue(**{**o, "direction": OptimizationDirection(o["direction"])})
++                for o in record["objectives"]
++            ]
++            if type(record["stage_a_passed"]) is not bool:
++                raise ValueError("Evaluation stage flag must be boolean")
++            return Evaluation(**record)
++        except (TypeError, KeyError, ValueError) as exc:
++            raise ValueError("GP checkpoint evaluation is invalid") from exc
+ 
+     def _select_training_subset(self, evaluations: list[Evaluation]) -> list[Evaluation]:
+         filtered = self._effective_training_corpus(evaluations)
+@@ -329,19 +658,41 @@ class BayesianOptimizer(BaseSearchStrategy):
+         sampled = older[::step][: self._config.max_train_size - recent_n]
+         return sampled + recent
+ 
+-    def _effective_training_corpus(
+-        self, evaluations: list[Evaluation]
+-    ) -> list[Evaluation]:
++    def _effective_training_corpus(self, evaluations: list[Evaluation]) -> list[Evaluation]:
+         """Combine compatible warm/current records without double-counting artifacts."""
++        transferred = [
++            e for e in [*self._warm_evals, *evaluations] if "numeric_transfer_basis" in e.metadata
++        ]
++        if transferred:
++            if self._warm_start_admission is None:
++                raise ValueError(
++                    "Transferred training rows require the configured CAS admission reader"
++                )
++            admitted = self._warm_start_admission(transferred, self._numerical_basis)
++            if [self._encode_evaluation(e) for e in admitted] != [
++                self._encode_evaluation(e) for e in transferred
++            ]:
++                raise ValueError(
++                    "Transferred training rows are no longer content-bound to the target"
++                )
+         corpus: list[Evaluation] = []
+         seen: set[tuple[Any, ...]] = set()
+         for evaluation in [*self._warm_evals, *evaluations]:
++            if not evaluation.is_valid or not math.isfinite(evaluation.scalar_score):
++                continue
+             if not self._has_compatible_params(evaluation):
+                 continue
+             requires_warm_fingerprint = id(evaluation) in self._warm_evaluation_ids
+-            if requires_warm_fingerprint and self._warm_compatibility(evaluation) is None:
++            if (
++                requires_warm_fingerprint
++                and self._warm_start_admission is None
++                and self._warm_compatibility(evaluation) is None
++            ):
+                 continue
+-            if _WARM_COMPATIBILITY_METADATA in evaluation.metadata:
++            if (
++                self._warm_start_admission is None
++                and _WARM_COMPATIBILITY_METADATA in evaluation.metadata
++            ):
+                 compatibility = self._warm_compatibility(evaluation)
+                 if compatibility is None:
+                     continue
+@@ -363,8 +714,18 @@ class BayesianOptimizer(BaseSearchStrategy):
+             normalized = tuple(float(value) for value in evaluation.params_normalized)
+         except (TypeError, ValueError, OverflowError):
+             return False
+-        return len(normalized) == self._space.dim and all(
+-            math.isfinite(value) and 0.0 <= value <= 1.0 for value in normalized
++        try:
++            canonical = self._space.normalize(evaluation.params)
++        except (TypeError, ValueError):
++            return False
++        return len(normalized) == len(canonical) and all(
++            not isinstance(raw, bool)
++            and math.isfinite(value)
++            and 0.0 <= value <= 1.0
++            and math.isclose(value, expected, rel_tol=0, abs_tol=1e-12)
++            for raw, value, expected in zip(
++                evaluation.params_normalized, normalized, canonical, strict=True
++            )
+         )
+ 
+     def _warm_compatibility(self, evaluation: Evaluation) -> tuple[str, ...] | None:
+@@ -410,31 +771,39 @@ class BayesianOptimizer(BaseSearchStrategy):
+         return ("candidate", evaluation.candidate_id, replicate_identity)
+ 
+     def _prepare_training_data(self, evaluations: list[Evaluation]):
+-        valid_scores = [
+-            e.scalar_score for e in evaluations if e.is_valid and math.isfinite(e.scalar_score)
++        admitted = [
++            e
++            for e in evaluations
++            if e.is_valid and math.isfinite(e.scalar_score) and self._has_compatible_params(e)
+         ]
+-        if not valid_scores:
+-            raise RuntimeError("No valid objective values available for GP fitting")
+-
+-        worst_valid = max(valid_scores)
+-        penalty = self._config.invalid_penalty
+-        x_rows: list[list[float]] = []
+-        y_search: list[float] = []
+-        for evaluation in evaluations:
+-            x_rows.append([float(value) for value in evaluation.params_normalized])
+-            if evaluation.is_valid and math.isfinite(evaluation.scalar_score):
+-                y_search.append(float(evaluation.scalar_score))
+-            else:
+-                y_search.append(float(worst_valid + penalty))
+-
+-        X = self._torch.tensor(x_rows, dtype=self._torch.float64)
+-        y_bo = self._torch.tensor([[-score] for score in y_search], dtype=self._torch.float64)
+-        if self._device != "cpu":
+-            X = X.to(self._device)
+-            y_bo = y_bo.to(self._device)
+-        self._train_X = X
+-        self._train_y_bo = y_bo
+-        return X, y_bo
++        if not admitted:
++            raise RuntimeError("No valid measured objective values available for GP fitting")
++        self._training_record_ids = [
++            hashlib.sha256(
++                json.dumps(
++                    {
++                        "identity": self._evaluation_identity(e),
++                        "numeric_basis": e.metadata.get("numeric_transfer_basis"),
++                        "space": self._space.sobol_space_fingerprint(),
++                        "params": e.params,
++                        "scalar": e.scalar_score,
++                    },
++                    sort_keys=True,
++                    allow_nan=False,
++                ).encode()
++            ).hexdigest()
++            for e in admitted
++        ]
++        X = self._torch.tensor(
++            [list(self._space.normalize(e.params)) for e in admitted],
++            dtype=self._torch.float64,
++            device=self._device,
++        )
++        Y = self._torch.tensor(
++            [[-e.scalar_score] for e in admitted], dtype=self._torch.float64, device=self._device
++        )
++        self._train_X, self._train_y_bo = X, Y
++        return X, Y
+ 
+     def _fit_gp(self, X, y_bo) -> None:
+         current_train_size = X.shape[0]
+@@ -456,9 +825,7 @@ class BayesianOptimizer(BaseSearchStrategy):
+             or not self._model_train_x_matches_fitted(previous_X)
+             or not self._is_append_update(X, y_bo)
+         ):
+-            logger.info(
+-                "Bayesian GP corpus changed outside append-only update; refitting model"
+-            )
++            logger.info("Bayesian GP corpus changed outside append-only update; refitting model")
+             self._fit_full_gp(X, y_bo)
+             return
+ 
+@@ -481,11 +848,11 @@ class BayesianOptimizer(BaseSearchStrategy):
+             )
+             self._fitted_train_X = X.detach().clone()
+             self._fitted_train_y_bo = y_bo.detach().clone()
++            self._fitted_record_ids = list(self._training_record_ids)
+         except Exception as exc:
+-            logger.warning(
+-                "Bayesian GP conditioning unavailable; using bounded refit: {}", exc
+-            )
+-            self._fit_full_gp(X, y_bo)
++            raise RuntimeError(
++                "GP append conditioning failed; no silent same-basis MLL refit"
++            ) from exc
+ 
+     def _fit_full_gp(self, X, y_bo) -> None:
+         """Fit a fresh model and record the full-refit boundary."""
+@@ -499,6 +866,10 @@ class BayesianOptimizer(BaseSearchStrategy):
+         fit_gpytorch_mll(mll)
+         self._fitted_train_X = X.detach().clone()
+         self._fitted_train_y_bo = y_bo.detach().clone()
++        self._refit_train_X = X.detach().clone()
++        self._refit_train_y_bo = y_bo.detach().clone()
++        self._fitted_record_ids = list(self._training_record_ids)
++        self._refit_record_ids = list(self._training_record_ids)
+         self._last_refit_iteration = self._iteration
+         self._last_train_size = X.shape[0]
+ 
+@@ -542,7 +913,8 @@ class BayesianOptimizer(BaseSearchStrategy):
+         previous_X = self._fitted_train_X
+         previous_y_bo = self._fitted_train_y_bo
+         if (
+-            previous_X.shape[-1] != X.shape[-1]
++            self._training_record_ids[: len(self._fitted_record_ids)] != self._fitted_record_ids
++            or previous_X.shape[-1] != X.shape[-1]
+             or previous_X.shape[0] > X.shape[0]
+             or previous_y_bo.ndim != y_bo.ndim
+             or previous_y_bo.shape[1:] != y_bo.shape[1:]
+@@ -602,14 +974,39 @@ class BayesianOptimizer(BaseSearchStrategy):
+             acq = ExpectedImprovement(model=self._model, best_f=best_f)
+ 
+         restarts, raw_samples = self._effective_optim_params(soft_limit=soft_limit)
++        bounds = self._space.to_botorch_bounds().to(self._device)
++        initial = self._acquisition_initial_conditions(acq, bounds, 1, restarts, raw_samples)
+         return optimize_acqf(
+             acq_function=acq,
+-            bounds=self._space.to_botorch_bounds().to(self._device),
++            bounds=bounds,
+             q=1,
+             num_restarts=restarts,
+-            raw_samples=raw_samples,
++            batch_initial_conditions=initial,
+         )
+ 
++    def _next_acquisition_seed(self) -> int:
++        return int(self._torch.randint(0, 2**31 - 1, (1,), generator=self._torch_rng).item())
++
++    def _acquisition_initial_conditions(self, acquisition, bounds, q, restarts, raw_samples):
++        """Versioned local Sobol pool with stable finite-score restart ranking."""
++        pool = self._torch.quasirandom.SobolEngine(
++            q * self._space.dim, scramble=True, seed=self._next_acquisition_seed()
++        ).draw(raw_samples, dtype=self._torch.float64)
++        pool = pool.reshape(raw_samples, q, self._space.dim).to(self._device)
++        pool = bounds[0] + pool * (bounds[1] - bounds[0])
++        with self._torch.no_grad():
++            scores = acquisition(pool).reshape(raw_samples)
++        safe = self._torch.where(self._torch.isfinite(scores), scores, -self._torch.inf)
++        order = self._torch.argsort(safe, descending=True, stable=True)
++        return pool[order[: min(restarts, raw_samples)]]
++
++    def _completed_candidates(self, evaluations):
++        return [
++            PolicyCandidate(params=e.params, metadata=e.metadata)
++            for e in [*self._warm_evals, *evaluations]
++            if e.params
++        ]
++
+     def _effective_optim_params(self, soft_limit: bool) -> tuple[int, int]:
+         if not soft_limit:
+             return self._config.num_restarts, self._config.raw_samples
+@@ -627,6 +1024,13 @@ class BayesianOptimizer(BaseSearchStrategy):
+                 return candidate
+         return self._random_candidate(source=source)
+ 
++    def _random_batch(self, evaluations, batch_size, source):
++        output = []
++        occupied = self._completed_candidates(evaluations)
++        for _ in range(batch_size):
++            output.append(self._non_duplicate_random([*occupied, *output], source=source))
++        return output
++
+     def _is_duplicate(self, candidate: PolicyCandidate, pending: list[PolicyCandidate]) -> bool:
+         candidate_execution = self._effective_execution(candidate)
+         if candidate_execution is None:
+@@ -637,19 +1041,23 @@ class BayesianOptimizer(BaseSearchStrategy):
+             other_execution = self._effective_execution(other)
+             if other_execution is None:
+                 continue
+-            if candidate_execution == other_execution:
++            if self._space.same_execution(candidate_execution, other_execution):
+                 return True
+         return False
+ 
+     def _effective_execution(self, candidate: PolicyCandidate) -> dict[str, Any] | None:
+         """Resolve a proposal to the typed parameters that will actually run."""
++        if candidate.params:
++            try:
++                self._space.normalize(candidate.params)
++            except (TypeError, ValueError):
++                return None
++            return dict(candidate.params)
+         if candidate.params_normalized is not None:
+             try:
+                 return self._space.denormalize(candidate.params_normalized)
+             except (TypeError, ValueError):
+                 return None
+-        if candidate.params:
+-            return dict(candidate.params)
+         return None
+ 
+     @staticmethod
+@@ -677,14 +1085,16 @@ class BayesianOptimizer(BaseSearchStrategy):
+         predicted_std: float | None = None
+         if self._model is not None:
+             with self._torch.no_grad():
+-                posterior = self._model.posterior(tensor.unsqueeze(0))
++                executed = self._torch.tensor(
++                    self._space.normalize(params), dtype=tensor.dtype, device=tensor.device
++                )
++                posterior = self._model.posterior(executed.unsqueeze(0))
+                 mean_bo = float(posterior.mean.squeeze().item())
+                 std_bo = float(posterior.variance.sqrt().squeeze().item())
+                 predicted_mean = -mean_bo
+                 predicted_std = abs(std_bo)
+-        return PolicyCandidate(
+-            params=params,
+-            params_normalized=vector,
++        return self._space.candidate_from_vector(
++            vector,
+             acquisition_value=acquisition_value,
+             predicted_mean=predicted_mean,
+             predicted_std=predicted_std,
+diff --git a/policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py b/policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py
+index 75b535310..b38ab66cf 100644
+--- a/policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py
++++ b/policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py
+@@ -3,6 +3,8 @@
+ from __future__ import annotations
+ 
+ import io
++import math
++from copy import deepcopy
+ from dataclasses import dataclass
+ from typing import Any
+ 
+@@ -27,7 +29,11 @@ from polisyos.scientist.methods.search.strategies.base import BaseSearchStrategy
+ from polisyos.scientist.methods.search.strategies.errors import OptionalDependencyUnavailableError
+ from polisyos.scientist.methods.search.strategies.resource_arbiter import ResourceArbiter
+ from polisyos.scientist.methods.search.strategies.runtime import apply_torch_runtime_settings
+-from polisyos.scientist.methods.search.strategies.types import Evaluation, PolicyCandidate, StrategyState
++from polisyos.scientist.methods.search.strategies.types import (
++    Evaluation,
++    PolicyCandidate,
++    StrategyState,
++)
+ 
+ logger = get_logger(__name__)
+ 
+@@ -60,12 +66,18 @@ class MOBayesianOptimizer(BaseSearchStrategy):
+             raise ValueError("objective_names and directions lengths must match")
+         if not objective_names:
+             raise ValueError("At least one objective required")
++        if any(not isinstance(name, str) or not name for name in objective_names) or len(
++            set(objective_names)
++        ) != len(objective_names):
++            raise ValueError("Declared objective names must be unique nonempty strings")
++        if any(not isinstance(direction, OptimizationDirection) for direction in directions):
++            raise ValueError("Declared objective directions must be supported")
+ 
+         cfg = config or MOConfig()
+         super().__init__(space=space, seed=cfg.seed)
+         self._config = cfg
+-        self._objective_names = objective_names
+-        self._directions = directions
++        self._objective_names = list(objective_names)
++        self._directions = list(directions)
+         self._negate_mask = [
+             -1.0 if direction == OptimizationDirection.MINIMIZE else 1.0 for direction in directions
+         ]
+@@ -78,6 +90,13 @@ class MOBayesianOptimizer(BaseSearchStrategy):
+         self._torch_rng = None
+         self._botorch_ready = False
+         self._device = "cpu"
++        self._last_objective_admission: dict[str, Any] = {
++            "version": "mo_objective_admission.v1",
++            "status": "unavailable",
++            "input_count": 0,
++            "assessed_count": 0,
++            "rejected_rows": [],
++        }
+ 
+         try:
+             require_botorch()
+@@ -95,10 +114,22 @@ class MOBayesianOptimizer(BaseSearchStrategy):
+         evaluations: list[Evaluation],
+         pending: list[PolicyCandidate] | None = None,
+     ) -> PolicyCandidate:
+-        del pending
+         self._iteration = len(evaluations)
++        admitted = self._admit_objective_rows(evaluations, for_training=True)
++        report = self.last_objective_admission
++        try:
++            candidate = self._suggest_admitted(admitted, pending)
++        finally:
++            self._last_objective_admission = report
++        candidate.metadata["objective_admission"] = deepcopy(report)
++        return candidate
++
++    def _suggest_admitted(
++        self, evaluations: list[Evaluation], pending: list[PolicyCandidate] | None
++    ) -> PolicyCandidate:
++        del pending
+         if len(evaluations) < self._config.n_initial:
+-            return self._sobol_candidate(len(evaluations), source="sobol_init")
++            return self._sobol_candidate(self._iteration, source="sobol_init")
+         if not self._botorch_ready:
+             return self._random_candidate(source="random_no_botorch")
+ 
+@@ -125,12 +156,25 @@ class MOBayesianOptimizer(BaseSearchStrategy):
+ 
+     def suggest_batch(
+         self, evaluations: list[Evaluation], batch_size: int
++    ) -> list[PolicyCandidate]:
++        admitted = self._admit_objective_rows(evaluations, for_training=True)
++        report = self.last_objective_admission
++        try:
++            candidates = self._suggest_batch_admitted(admitted, batch_size, len(evaluations))
++        finally:
++            self._last_objective_admission = report
++        for candidate in candidates:
++            candidate.metadata["objective_admission"] = deepcopy(report)
++        return candidates
++
++    def _suggest_batch_admitted(
++        self, evaluations: list[Evaluation], batch_size: int, initial_index: int
+     ) -> list[PolicyCandidate]:
+         if batch_size < 1:
+             return []
+         if len(evaluations) < self._config.n_initial:
+             return [
+-                self._sobol_candidate(len(evaluations) + idx, source="sobol_init")
++                self._sobol_candidate(initial_index + idx, source="sobol_init")
+                 for idx in range(batch_size)
+             ]
+         if not self._botorch_ready:
+@@ -165,7 +209,7 @@ class MOBayesianOptimizer(BaseSearchStrategy):
+                 ]
+ 
+     def get_pareto_front(self, evaluations: list[Evaluation]) -> list[Evaluation]:
+-        valid = [evaluation for evaluation in evaluations if evaluation.is_valid]
++        valid = self._admit_objective_rows(evaluations)
+         if len(valid) < 2:
+             return valid
+         points = [self._objective_vector(evaluation) for evaluation in valid]
+@@ -192,9 +236,9 @@ class MOBayesianOptimizer(BaseSearchStrategy):
+         return output
+ 
+     def compute_hypervolume(self, evaluations: list[Evaluation]) -> float:
++        valid = self._admit_objective_rows(evaluations)
+         if not self._botorch_ready:
+             return 0.0
+-        valid = [evaluation for evaluation in evaluations if evaluation.is_valid]
+         if not valid:
+             return 0.0
+         with self._arbiter.acquire("torch"):
+@@ -253,7 +297,7 @@ class MOBayesianOptimizer(BaseSearchStrategy):
+                 self._ref_point = self._ref_point.to(self._device)
+ 
+     def _select_training_subset(self, evaluations: list[Evaluation]) -> list[Evaluation]:
+-        filtered = [e for e in evaluations if len(e.params_normalized) == self._space.dim]
++        filtered = self._admit_objective_rows(evaluations, for_training=True)
+         if len(filtered) <= self._config.max_train_size:
+             return filtered
+         recent_n = self._config.max_train_size // 2
+@@ -264,12 +308,15 @@ class MOBayesianOptimizer(BaseSearchStrategy):
+         return sampled + recent
+ 
+     def _prepare_training_data(self, evaluations: list[Evaluation]):
++        admitted = self._admit_objective_rows(evaluations, for_training=True)
++        if not admitted:
++            raise ValueError("No complete finite declared objective vectors for training")
+         X = self._torch.tensor(
+-            [list(e.params_normalized) for e in evaluations],
++            [list(self._space.normalize(e.params)) for e in admitted],
+             dtype=self._torch.float64,
+         )
+         Y = self._torch.tensor(
+-            [self._objective_vector(evaluation) for evaluation in evaluations],
++            [self._objective_vector(evaluation) for evaluation in admitted],
+             dtype=self._torch.float64,
+         )
+         if self._device != "cpu":
+@@ -280,15 +327,78 @@ class MOBayesianOptimizer(BaseSearchStrategy):
+         return X, Y
+ 
+     def _objective_vector(self, evaluation: Evaluation) -> list[float]:
+-        objective_values = {
+-            objective.name: objective.raw_value for objective in evaluation.objectives
+-        }
++        objective_values = {}
++        for objective in evaluation.objectives:
++            if objective.name not in self._objective_names:
++                continue
++            if objective.name in objective_values:
++                raise ValueError(f"duplicate_declared_objective:{objective.name}")
++            objective_values[objective.name] = objective
+         output: list[float] = []
+         for idx, objective_name in enumerate(self._objective_names):
+-            raw = float(objective_values.get(objective_name, 0.0))
+-            output.append(raw * self._negate_mask[idx])
++            if objective_name not in objective_values:
++                raise ValueError(f"missing_declared_objective:{objective_name}")
++            objective = objective_values[objective_name]
++            if objective.direction != self._directions[idx]:
++                raise ValueError(f"objective_direction_mismatch:{objective_name}")
++            raw = objective.raw_value
++            if isinstance(raw, bool) or not isinstance(raw, (int, float)) or not math.isfinite(raw):
++                raise ValueError(f"non_finite_or_untyped_objective:{objective_name}")
++            output.append(float(raw) * self._negate_mask[idx])
+         return output
+ 
++    @property
++    def last_objective_admission(self) -> dict[str, Any]:
++        """Original input coverage; excluded rows never become invented zero coordinates."""
++        return deepcopy(self._last_objective_admission)
++
++    def _admit_objective_rows(
++        self, evaluations: list[Evaluation], *, for_training: bool = False
++    ) -> list[Evaluation]:
++        admitted = []
++        rejected = []
++        for index, evaluation in enumerate(evaluations):
++            try:
++                if not evaluation.is_valid:
++                    raise ValueError("invalid_evaluation_outcome")
++                self._objective_vector(evaluation)
++                if for_training:
++                    executed = self._space.normalize(evaluation.params)
++                    supplied = evaluation.params_normalized
++                    if (
++                        supplied is None
++                        or len(supplied) != len(executed)
++                        or any(
++                            isinstance(value, bool)
++                            or not isinstance(value, (int, float))
++                            or not math.isfinite(value)
++                            or not math.isclose(value, effective, rel_tol=0.0, abs_tol=1e-10)
++                            for value, effective in zip(supplied, executed, strict=True)
++                        )
++                    ):
++                        raise ValueError("executed_coordinates_mismatch")
++                admitted.append(evaluation)
++            except (TypeError, ValueError) as exc:
++                rejected.append(
++                    {
++                        "input_index": index,
++                        "candidate_id": evaluation.candidate_id,
++                        "reason": str(exc),
++                    }
++                )
++        self._last_objective_admission = {
++            "version": "mo_objective_admission.v1",
++            "status": "complete"
++            if admitted and not rejected
++            else "partial"
++            if admitted
++            else "unavailable",
++            "input_count": len(evaluations),
++            "assessed_count": len(admitted),
++            "rejected_rows": rejected,
++        }
++        return admitted
++
+     def _fit_model_list(self, X, Y) -> None:
+         models = [
+             SingleTaskGP(
+@@ -353,11 +463,16 @@ class MOBayesianOptimizer(BaseSearchStrategy):
+         acquisition_value: float | None = None,
+     ) -> PolicyCandidate:
+         vector = tuple(float(value) for value in tensor.detach().cpu().tolist())
+-        return PolicyCandidate(
+-            params=self._space.denormalize(vector),
+-            params_normalized=vector,
++        return self._space.candidate_from_vector(
++            vector,
+             acquisition_value=acquisition_value,
+             source_strategy=source,
++            metadata={
++                "prediction_basis": "not_established_no_scalar_predictor",
++                "acquisition_value_basis": "relaxed_proposal"
++                if acquisition_value is not None
++                else "not_established",
++            },
+         )
+ 
+ 
+diff --git a/policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py b/policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py
+index 05e240d27..899d6d17a 100644
+--- a/policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py
++++ b/policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py
+@@ -172,13 +172,25 @@ class NeuralSearchStrategy(BaseSearchStrategy):
+ 
+         vector = tuple(candidate.squeeze(0).tolist())
+         params = self._space.denormalize(vector)
+-
+-        return PolicyCandidate(
+-            params=params,
+-            params_normalized=vector,
+-            acquisition_value=acq_value.item(),
++        executed = torch.tensor(
++            self._space.normalize(params), dtype=candidate.dtype, device=candidate.device
++        ).reshape(1, -1)
++        with torch.no_grad():
++            posterior = model.posterior(executed)
++            executed_acquisition = acqf(executed.unsqueeze(0)).item()
++            predicted_mean = posterior.mean.squeeze().item()
++            predicted_std = posterior.variance.sqrt().squeeze().item()
++        return self._space.candidate_from_vector(
++            vector,
++            acquisition_value=executed_acquisition,
++            predicted_mean=predicted_mean,
++            predicted_std=predicted_std,
+             source_strategy="neural_gp",
+-            metadata={"warm_start_count": len(self._warm_data)},
++            metadata={
++                "warm_start_count": len(self._warm_data),
++                "prediction_basis": "executed_action",
++                "acquisition_value_basis": "executed_action",
++            },
+         )
+ 
+     def update(self, evaluation: Evaluation) -> None:
+diff --git a/policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py b/policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py
+index 207230ff3..0b1363c74 100644
+--- a/policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py
++++ b/policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py
+@@ -2,11 +2,17 @@
+ 
+ from __future__ import annotations
+ 
++import math
+ import random
+-from dataclasses import dataclass
++from collections.abc import Mapping
++from dataclasses import asdict, dataclass
+ from typing import Protocol
+ 
+-from polisyos.scientist.methods.search.strategies.base import SearchStrategy
++from polisyos.scientist.methods.search.strategies.base import (
++    SearchStrategy,
++    _decode_python_random_state,
++    _encode_python_random_state,
++)
+ from polisyos.scientist.methods.search.strategies.space import SearchSpace
+ from polisyos.scientist.methods.search.strategies.types import (
+     Evaluation,
+@@ -30,6 +36,17 @@ class LinearDecay:
+     end: float = 0.1
+     n_steps: int = 100
+ 
++    def __post_init__(self):
++        if (
++            type(self.n_steps) is not int
++            or self.n_steps < 1
++            or any(
++                type(value) not in (int, float) or not math.isfinite(value) or not 0 <= value <= 1
++                for value in (self.start, self.end)
++            )
++        ):
++            raise ValueError("Linear exploration schedule is invalid")
++
+     def __call__(self, iteration: int) -> float:
+         if iteration >= self.n_steps:
+             return self.end
+@@ -71,13 +88,23 @@ class RLStrategyWrapper:
+         self._iteration = len(evaluations)
+         epsilon = self._config.exploration_schedule(self._iteration)
+         if self._rng.random() < epsilon:
++            occupied = [*(pending or []), *(PolicyCandidate(params=e.params) for e in evaluations)]
++            for _ in range(20):
++                candidate = self._explore_random()
++                if not any(
++                    self._space.same_execution(candidate.params, other.params) for other in occupied
++                ):
++                    return candidate
+             return self._explore_random()
+         return self._base.suggest(evaluations, pending=pending)
+ 
+     def suggest_batch(
+         self, evaluations: list[Evaluation], batch_size: int
+     ) -> list[PolicyCandidate]:
+-        return [self.suggest(evaluations) for _ in range(batch_size)]
++        output = []
++        for _ in range(batch_size):
++            output.append(self.suggest(evaluations, pending=output))
++        return output
+ 
+     def update(self, evaluation: Evaluation) -> None:
+         self._base.update(evaluation)
+@@ -87,24 +114,54 @@ class RLStrategyWrapper:
+         return StrategyState(
+             strategy_name="RLStrategyWrapper",
+             iteration=self._iteration,
+-            rng_state={"python": self._rng.getstate()},
++            rng_state={"python": _encode_python_random_state(self._rng.getstate())},
+             model_state=base_state.model_state,
+             metadata={
++                "rl_state_version": 1,
++                "seed": self._config.seed,
++                "space": self._space.sobol_space_fingerprint(),
++                "schedule": self._schedule_basis(),
+                 "base_strategy": base_state.strategy_name,
+                 "base_state": base_state.to_artifact().decode("utf-8"),
+             },
+         )
+ 
+     def set_state(self, state: StrategyState) -> None:
++        meta = state.metadata
++        if (
++            not isinstance(meta, Mapping)
++            or not isinstance(state.rng_state, Mapping)
++            or state.strategy_name != "RLStrategyWrapper"
++            or type(state.iteration) is not int
++            or state.iteration < 0
++            or type(meta.get("rl_state_version")) is not int
++            or meta["rl_state_version"] != 1
++            or type(meta.get("seed")) is not int
++            or meta.get("space") != self._space.sobol_space_fingerprint()
++            or meta.get("schedule") != self._schedule_basis()
++            or not isinstance(meta.get("base_state"), str)
++        ):
++            raise ValueError("RL checkpoint basis is invalid or incompatible")
++        rng = _decode_python_random_state(state.rng_state.get("python"))
++        nested = StrategyState.from_artifact(meta["base_state"].encode())
++        if (
++            nested.strategy_name != meta.get("base_strategy")
++            or nested.strategy_name != self._base.get_state().strategy_name
++            or nested.model_state != state.model_state
++        ):
++            raise ValueError("RL nested strategy identity/model changed")
++        # Canonical supported base decoders validate completely before mutation.
++        # All wrapper-owned fields are validated before invoking that decoder.
++        self._base.set_state(nested)
++        self._rng.setstate(rng)
+         self._iteration = state.iteration
+-        rng_state = state.rng_state.get("python")
+-        if rng_state is not None:
+-            self._rng.setstate(rng_state)
++        self._config.seed = meta["seed"]
++
++    def _schedule_basis(self):
++        if type(self._config.exploration_schedule) is not LinearDecay:
++            raise ValueError("RL checkpoint requires a supported versioned schedule")
++        return {"profile": "linear_decay.v1", **asdict(self._config.exploration_schedule)}
+ 
+     def _explore_random(self) -> PolicyCandidate:
+         vector = tuple(self._rng.random() for _ in range(self._space.dim))
+-        return PolicyCandidate(
+-            params=self._space.denormalize(vector),
+-            params_normalized=vector,
+-            source_strategy="rl_exploration",
+-        )
++        return self._space.candidate_from_vector(vector, source_strategy="rl_exploration")
+diff --git a/policy-engine/src/polisyos/scientist/methods/search/strategies/space.py b/policy-engine/src/polisyos/scientist/methods/search/strategies/space.py
+index 1d3c79f03..ad4eccc6a 100644
+--- a/policy-engine/src/polisyos/scientist/methods/search/strategies/space.py
++++ b/policy-engine/src/polisyos/scientist/methods/search/strategies/space.py
+@@ -14,6 +14,7 @@ from polisyos.scientist.methods.search.strategies.types import (
+     NormalizedVector,
+     ParameterBounds,
+     ParameterType,
++    PolicyCandidate,
+ )
+ 
+ 
+@@ -46,6 +47,8 @@ class SearchSpace:
+         if not self.bounds:
+             raise ValueError("SearchSpace must contain at least one parameter")
+         self._expanded.clear()
++        if len({bound.name for bound in self.bounds}) != len(self.bounds):
++            raise ValueError("SearchSpace parameter names must be unique")
+         for bound in self.bounds:
+             if bound.dtype == ParameterType.CATEGORICAL:
+                 assert bound.categories is not None
+@@ -74,14 +77,29 @@ class SearchSpace:
+             if bound.dtype == ParameterType.CATEGORICAL:
+                 assert bound.categories is not None
+                 raw = params.get(bound.name)
+-                if raw not in bound.categories:
++                matches = [
++                    type(raw) is type(candidate) and raw == candidate
++                    for candidate in bound.categories
++                ]
++                if sum(matches) != 1:
+                     raise ValueError(
+                         f"Unknown category '{raw}' for parameter '{bound.name}'. "
+                         f"Allowed: {bound.categories}"
+                     )
+-                values.extend(1.0 if raw == candidate else 0.0 for candidate in bound.categories)
++                values.extend(1.0 if match else 0.0 for match in matches)
+                 continue
+-            raw = float(params.get(bound.name, bound.lower))
++            value = params.get(bound.name)
++            if (
++                isinstance(value, bool)
++                or not isinstance(value, (int, float))
++                or not math.isfinite(value)
++            ):
++                raise ValueError(f"Finite physical parameter required for '{bound.name}'")
++            raw = float(value)
++            if not bound.lower <= raw <= bound.upper:
++                raise ValueError(f"Physical parameter '{bound.name}' is outside bounds")
++            if bound.dtype == ParameterType.INTEGER and raw != int(raw):
++                raise ValueError(f"Integer parameter required for '{bound.name}'")
+             if bound.log_scale or bound.dtype == ParameterType.LOG_CONTINUOUS:
+                 log_lower = math.log(bound.lower)
+                 log_upper = math.log(bound.upper)
+@@ -96,6 +114,13 @@ class SearchSpace:
+     def denormalize(self, vector: NormalizedVector) -> dict[str, Any]:
+         if len(vector) != self.dim:
+             raise ValueError(f"Expected vector length {self.dim}, got {len(vector)}")
++        if any(
++            isinstance(value, bool)
++            or not isinstance(value, (int, float))
++            or not math.isfinite(value)
++            for value in vector
++        ):
++            raise ValueError("Normalized coordinates must be finite numbers")
+ 
+         params: dict[str, Any] = {}
+         cursor = 0
+@@ -114,16 +139,38 @@ class SearchSpace:
+             if bound.log_scale or bound.dtype == ParameterType.LOG_CONTINUOUS:
+                 log_lower = math.log(bound.lower)
+                 log_upper = math.log(bound.upper)
+-                value = math.exp(log_lower + normalized * (log_upper - log_lower))
++                value = (
++                    bound.lower
++                    if normalized == 0.0
++                    else bound.upper
++                    if normalized == 1.0
++                    else min(
++                        bound.upper,
++                        max(
++                            bound.lower, math.exp(log_lower + normalized * (log_upper - log_lower))
++                        ),
++                    )
++                )
+             else:
+                 value = bound.lower + normalized * (bound.upper - bound.lower)
+             if bound.dtype == ParameterType.INTEGER:
+-                params[bound.name] = int(round(value))
++                params[bound.name] = min(
++                    math.floor(bound.upper), max(math.ceil(bound.lower), int(round(value)))
++                )
+             else:
+                 params[bound.name] = float(value)
+             cursor += 1
+         return params
+ 
++    def candidate_from_vector(self, vector: NormalizedVector, **fields: Any) -> PolicyCandidate:
++        """Bind the surrogate point to the action actually executed."""
++        params = self.denormalize(vector)
++        metadata = dict(fields.pop("metadata", {}))
++        metadata["relaxed_proposal"] = list(vector)
++        return PolicyCandidate(
++            params=params, params_normalized=self.normalize(params), metadata=metadata, **fields
++        )
++
+     def sobol_backend(self) -> str:
+         """Return the import-time backend preference for diagnostics only.
+ 
+@@ -134,7 +181,7 @@ class SearchSpace:
+         if torch is not None:  # pragma: no cover - environment dependent
+             return "torch"
+         try:
+-            from scipy.stats.qmc import Sobol  # type: ignore[import-not-found]  # noqa: F401
++            from scipy.stats.qmc import Sobol  # type: ignore[import-not-found]
+         except Exception:
+             return "python"
+         return "scipy"
+@@ -153,7 +200,16 @@ class SearchSpace:
+             )
+             for bound in self.bounds
+         )
+-        return hashlib.sha256(repr(signature).encode("utf-8")).hexdigest()
++        return hashlib.sha256(
++            repr(("attainable_projection.v1", signature)).encode("utf-8")
++        ).hexdigest()
++
++    def same_execution(self, left: dict[str, Any], right: dict[str, Any]) -> bool:
++        """Compare executed actions in their canonical typed coordinate domain."""
++        try:
++            return self.normalize(left) == self.normalize(right)
++        except (TypeError, ValueError):
++            return False
+ 
+     @property
+     def last_sobol_sampler_identity(self) -> str | None:
+@@ -183,17 +239,14 @@ class SearchSpace:
+         every cached point reflect the implementation that actually executed.
+         """
+ 
+-        generated = self.sample_sobol(n_samples=len(expected_prefix), seed=seed)
+-        actual_identity = self.last_sobol_sampler_identity
+-        actual_version = self.last_sobol_sampler_version
++        probe = SearchSpace(list(self.bounds))
++        generated = probe.sample_sobol(n_samples=len(expected_prefix), seed=seed)
++        actual_identity = probe.last_sobol_sampler_identity
++        actual_version = probe.last_sobol_sampler_version
+         if actual_identity != expected_identity or actual_version != expected_version:
+-            raise ValueError(
+-                "Sobol checkpoint is incompatible: effective sampler identity changed"
+-            )
++            raise ValueError("Sobol checkpoint is incompatible: effective sampler identity changed")
+         if generated != expected_prefix:
+-            raise ValueError(
+-                "Sobol checkpoint is incompatible: cached prefix diverges"
+-            )
++            raise ValueError("Sobol checkpoint is incompatible: cached prefix diverges")
+ 
+     def sample_sobol(self, n_samples: int, seed: int = 42) -> list[NormalizedVector]:
+         if n_samples <= 0:
+diff --git a/policy-engine/src/polisyos/scientist/methods/search/strategies/types.py b/policy-engine/src/polisyos/scientist/methods/search/strategies/types.py
+index 8f82b4759..fe0e7c8fc 100644
+--- a/policy-engine/src/polisyos/scientist/methods/search/strategies/types.py
++++ b/policy-engine/src/polisyos/scientist/methods/search/strategies/types.py
+@@ -89,10 +89,19 @@ class ParameterBounds:
+                     f"Categorical parameter '{self.name}' requires at least two categories"
+                 )
+             return
++        if any(
++            isinstance(value, bool) or not math.isfinite(value)
++            for value in (self.lower, self.upper)
++        ):
++            raise ValueError(f"Finite numeric bounds required for '{self.name}'")
+         if self.lower >= self.upper:
+             raise ValueError(f"Invalid bounds for '{self.name}': lower >= upper")
+-        if self.log_scale and self.lower <= 0:
++        if not math.isfinite(self.upper - self.lower):
++            raise ValueError(f"Unsupported representable span for '{self.name}'")
++        if (self.log_scale or self.dtype == ParameterType.LOG_CONTINUOUS) and self.lower <= 0:
+             raise ValueError(f"Log-scale parameter '{self.name}' requires lower > 0")
++        if self.dtype == ParameterType.INTEGER and math.ceil(self.lower) > math.floor(self.upper):
++            raise ValueError(f"Integer parameter '{self.name}' has no attainable values")
+ 
+ 
+ @dataclass(slots=True)
+@@ -115,7 +124,13 @@ class Evaluation:
+     @property
+     def is_valid(self) -> bool:
+         """True when evaluation is usable for surrogate training."""
+-        return self.status == EvaluationStatus.SUCCESS and self.stage_a_passed
++        return (
++            self.status == EvaluationStatus.SUCCESS
++            and self.stage_a_passed is True
++            and isinstance(self.scalar_score, (int, float))
++            and not isinstance(self.scalar_score, bool)
++            and math.isfinite(self.scalar_score)
++        )
+ 
+ 
+ @dataclass(slots=True)
+@@ -162,11 +177,45 @@ class StrategyState:
+         payload = asdict(self)
+         if payload["model_state"] is not None:
+             payload["model_state"] = payload["model_state"].hex()
+-        return json.dumps(payload, sort_keys=True, default=str).encode("utf-8")
++        payload["schema_version"] = "strategy_state.v2"
++        try:
++            return json.dumps(payload, sort_keys=True, allow_nan=False).encode("utf-8")
++        except (TypeError, ValueError) as exc:
++            raise ValueError("Strategy artifact contains unsupported or non-finite data") from exc
+ 
+     @classmethod
+     def from_artifact(cls, data: bytes) -> StrategyState:
+-        payload = json.loads(data.decode("utf-8"))
+-        model_state = payload.get("model_state")
+-        payload["model_state"] = bytes.fromhex(model_state) if model_state else None
+-        return cls(**payload)
++        try:
++            payload = json.loads(data.decode("utf-8"), parse_constant=_refuse_json_constant)
++            if not isinstance(payload, dict):
++                raise ValueError("Strategy artifact must be an object")
++            if "schema_version" in payload and payload["schema_version"] != "strategy_state.v2":
++                raise ValueError("Unsupported strategy artifact schema")
++            payload.pop("schema_version", None)
++            if set(payload) != {
++                "strategy_name",
++                "iteration",
++                "rng_state",
++                "model_state",
++                "metadata",
++            }:
++                raise ValueError("Strategy artifact fields are incomplete or unknown")
++            if not isinstance(payload["strategy_name"], str) or not payload["strategy_name"]:
++                raise ValueError("Strategy identity is invalid")
++            if type(payload["iteration"]) is not int or payload["iteration"] < 0:
++                raise ValueError("Strategy iteration must be a non-negative integer")
++            if not isinstance(payload["rng_state"], dict) or not isinstance(
++                payload["metadata"], dict
++            ):
++                raise ValueError("Strategy RNG and metadata must be objects")
++            model_state = payload["model_state"]
++            if model_state is not None and not isinstance(model_state, str):
++                raise ValueError("Strategy model must be hex bytes or null")
++            payload["model_state"] = bytes.fromhex(model_state) if model_state is not None else None
++            return cls(**payload)
++        except (UnicodeError, KeyError, TypeError, ValueError) as exc:
++            raise ValueError(f"Invalid strategy artifact: {exc}") from exc
++
++
++def _refuse_json_constant(value: str) -> None:
++    raise ValueError(f"Non-finite JSON value: {value}")

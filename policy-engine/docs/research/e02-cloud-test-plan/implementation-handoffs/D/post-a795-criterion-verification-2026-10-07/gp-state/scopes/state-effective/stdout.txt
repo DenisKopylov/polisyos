@@ -1,0 +1,32 @@
+ACTUAL_BASELINE_CAS_NEXT_SEQUENCE random [{'rate': 0.01641677612360165, 'count': 2, 'kind': 'B'}, {'rate': 0.02530823557639709, 'count': 1, 'kind': 'B'}, {'rate': 0.059858196561155846, 'count': 4, 'kind': 'A'}, {'rate': 0.01580217357610955, 'count': 4, 'kind': 'A'}, {'rate': 0.20729011700054248, 'count': 2, 'kind': 'A'}, {'rate': 0.38364191171674616, 'count': 5, 'kind': 'B'}, {'rate': 0.29023813498498996, 'count': 4, 'kind': 'A'}, {'rate': 0.17891000261362247, 'count': 1, 'kind': 'A'}]
+.ACTUAL_BASELINE_CAS_NEXT_SEQUENCE grid [{'rate': 0.01, 'count': 3, 'kind': 'B'}, {'rate': 0.01, 'count': 5, 'kind': 'A'}, {'rate': 0.01, 'count': 5, 'kind': 'B'}, {'rate': 0.505, 'count': 1, 'kind': 'A'}, {'rate': 0.505, 'count': 1, 'kind': 'B'}, {'rate': 0.505, 'count': 3, 'kind': 'A'}, {'rate': 0.505, 'count': 3, 'kind': 'B'}, {'rate': 0.505, 'count': 5, 'kind': 'A'}]
+.ACTUAL_BASELINE_CAS_NEXT_SEQUENCE rl_random [{'rate': 0.01641677612360165, 'count': 2, 'kind': 'B'}, {'rate': 0.18683220492334293, 'count': 5, 'kind': 'A'}, {'rate': 0.0665343815038863, 'count': 5, 'kind': 'B'}, {'rate': 0.02530823557639709, 'count': 1, 'kind': 'B'}, {'rate': 0.059858196561155846, 'count': 4, 'kind': 'A'}, {'rate': 0.04303362851172855, 'count': 5, 'kind': 'B'}, {'rate': 0.01580217357610955, 'count': 4, 'kind': 'A'}, {'rate': 0.20729011700054248, 'count': 2, 'kind': 'A'}]
+.ACTUAL_BASELINE_CAS_NEXT_SEQUENCE rl_grid [{'rate': 0.01, 'count': 3, 'kind': 'B'}, {'rate': 0.18683220492334293, 'count': 5, 'kind': 'A'}, {'rate': 0.0665343815038863, 'count': 5, 'kind': 'B'}, {'rate': 0.01, 'count': 5, 'kind': 'A'}, {'rate': 0.01, 'count': 5, 'kind': 'B'}, {'rate': 0.04303362851172855, 'count': 5, 'kind': 'B'}, {'rate': 0.505, 'count': 1, 'kind': 'A'}, {'rate': 0.505, 'count': 1, 'kind': 'B'}]
+................................ACTUAL_PUBLIC_GRID_PARTIAL_CAS [0.0, 0.3333333333333333, 0.6666666666666666] [1.0] 4
+............................ACTUAL_NEURAL_CAS_RESUME 3 3 {'x': 0.8494990468025208}
+.......................ACTUAL_NATIVE_NEURAL_FITS 3 CORPUS 8 RESUMED {'x': 0.36757839277159027}
+..............
+=============================== warnings summary ===============================
+../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+tests/unit/scientist/search/strategies/test_neural_checkpoint.py::test_native_single_task_gp_next_proposal_matches_fresh_cas_resume
+tests/unit/scientist/search/strategies/test_neural_checkpoint.py::test_native_single_task_gp_next_proposal_matches_fresh_cas_resume
+tests/unit/scientist/search/strategies/test_neural_checkpoint.py::test_native_single_task_gp_next_proposal_matches_fresh_cas_resume
+tests/unit/scientist/methods/search/strategies/test_effective_actions.py::test_neural_actual_fit_and_acquisition_emits_attainable_action
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/analytic.py:340: NumericsWarning: ExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 ExpectedImprovement 	 --> 	 LogExpectedImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+100 passed, 6 warnings in 9.69s
+GP_WRAPPER_SCOPE_RESULT {"mode": "state-effective", "exitcode": 0, "fit_starts": 4, "output": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/state-effective"}

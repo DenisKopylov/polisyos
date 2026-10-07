@@ -1,0 +1,122 @@
+{
+  "schema": "D.E02.append-only-published-topic-boundary-and-readback.v1",
+  "writer": "/root",
+  "implementation": {
+    "commit": "8e864f4ed0eeedf509d836381b20976c413f2443",
+    "tree": "1b2e5d31424a4de0c7150ef79b9e04c93486f0b9"
+  },
+  "published_complete_receipt": {
+    "head": "20677e0535e0103db129c8620412458d233f991d",
+    "tree": "15c82269cf89a4ca11b6b030091023867f3ee722",
+    "own_topic": "codex/e02-D-oct07-continuation",
+    "complete_regular_members": 760,
+    "all_actual_Git_bytes_match": true,
+    "Git_push_exit_code": 0,
+    "Git_fetch_readback_exit_code": 0
+  },
+  "fetched_refs": [
+    {
+      "ref": "HEAD",
+      "sha": "20677e0535e0103db129c8620412458d233f991d",
+      "tree": "15c82269cf89a4ca11b6b030091023867f3ee722"
+    },
+    {
+      "ref": "origin/main",
+      "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+    },
+    {
+      "ref": "origin/codex/e02-integration",
+      "sha": "2abc17f46a033a7879663486ff9946a95786601f",
+      "tree": "375301dd0c86a6168f4f747d8c56d9e0acb9567c"
+    },
+    {
+      "ref": "origin/codex/e02-D-oct07-continuation",
+      "sha": "20677e0535e0103db129c8620412458d233f991d",
+      "tree": "15c82269cf89a4ca11b6b030091023867f3ee722"
+    }
+  ],
+  "complete_new_G_document_delta": {
+    "command": "git diff --name-only 9806442ddb47d624a2940bac75d9d6248e934c48 2abc17f46a033a7879663486ff9946a95786601f",
+    "full_paths_in_deciding_output": "final-successful-fetch-and-readback.json /full_new_G_delta_from_980_paths",
+    "path_count": 76,
+    "source_test_config_delta": [],
+    "no_D_G_integration_acceptance": true
+  },
+  "overrides_only_historical_publication_limitations": [
+    "post-a795-criterion-verification-2026-10-07/root-delivery.json /publication/status",
+    "post-a795-criterion-verification-2026-10-07/HANDOFF.json /publication_ref",
+    "post-a795-criterion-verification-2026-10-07/summary.json /publication",
+    "post-a795-criterion-verification-2026-10-07/census/FUN-moderate-output-availability-update.json local-only/remote-not-established labels",
+    "post-a795-criterion-verification-2026-10-07/root-context/fresh-G-2abc-and-API-comparator-clarification.json /G/local_object_available"
+  ],
+  "new_authoritative_transport_state": "Source8e and complete760-member receipt pack20677 published on existing ownD topic by ordinary fast-forward; fetched remote SHA/tree exactly match. Earlier credential failures/pending fields remain historical literal records. FreshG2abc now fetched but not merged into D; its76file delta docs/evidence only.",
+  "source_test_config_delta_from_implementation_to_receipt": [],
+  "source_test_property_execution_at_publication": false,
+  "original_denominator": {
+    "bundles": 17,
+    "unique_findings": 45,
+    "occurrences": 46,
+    "owner_packets": 16
+  },
+  "finding_dispositions_unchanged": {
+    "closed_proposals_pending_G": 39,
+    "held": [
+      "B131",
+      "B137",
+      "B157",
+      "B161",
+      "B164"
+    ],
+    "limited": [
+      "B108"
+    ],
+    "formal_closed": 0,
+    "G_accepted": 0,
+    "P41_not_established": 46
+  },
+  "original_ledger": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/criterion-overlay.json@20677e0535e0103db129c8620412458d233f991d",
+  "complete_deciding_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-publication-receipt-2026-10-07/final-local-Git-receipt-readback.json.gz",
+      "bytes": 90844,
+      "sha256": "40f9f26c1b8c4eefb8a645a097fc28cf9ed804711cce1fe5d95088d0c000eafa",
+      "encoding": "gzip",
+      "uncompressed_bytes": 404896,
+      "uncompressed_sha256": "6947f476ee576f6064300c8f34df21038668034fc7fd18def112200cc51bd413"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-publication-receipt-2026-10-07/final-receipt-commit-commands.json.gz",
+      "bytes": 57989,
+      "sha256": "c80b9d7f22ebccee657ff9ed431823d9cd3fa707e3b10f8328cad392b9aa3ea2",
+      "encoding": "gzip",
+      "uncompressed_bytes": 384564,
+      "uncompressed_sha256": "fd41948ac1c67891143ea9f7d93db484b69eb64bade589d994367570876cba26"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-publication-receipt-2026-10-07/final-own-topic-push-attempt.json",
+      "bytes": 631,
+      "sha256": "46d286f9d12e46a940a5ad60db9b83c472cb464788367828ad8336711cccff6b",
+      "encoding": "identity"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-publication-receipt-2026-10-07/final-successful-fetch-and-readback.json",
+      "bytes": 11220,
+      "sha256": "46d1f163ef47f52b4c09bb8635f27c5558735d619db42fefa5a8b17aa71f0fa8",
+      "encoding": "identity"
+    }
+  ],
+  "this_metadata_commit": "Parent20677; ordinary append-only docs-only commit and normal own-topic push/readback to follow. Exact containing final SHA/tree separately recorded in PR68 and final readback to avoid self-reference.",
+  "full_planned_changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-publication-receipt-2026-10-07/publication-readback.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-publication-receipt-2026-10-07/independent-publication-delta-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-publication-receipt-2026-10-07/final-local-Git-receipt-readback.json.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-publication-receipt-2026-10-07/final-receipt-commit-commands.json.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-publication-receipt-2026-10-07/final-own-topic-push-attempt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-publication-receipt-2026-10-07/final-successful-fetch-and-readback.json"
+  ],
+  "source_and_code_review": "Independent source/consumer reviews and final-root metadata GO990ec412 are unchanged. This transport addendum requires only focused independent metadata delta review; no new numerical replay.",
+  "global_boundaries": "Five required owner positives UNRUN and B108issuerlaw remain; optional native-only3SKIP/numericalUNRUN; quantity17 generic admissionERROR unchanged; global historicalsignal9unknowncauseUNRUN, no wholeD/global/import/scientific authority PASS.",
+  "cleanup": "None; no Trash available. Code/docs/Git/unique inputs/deciding outputs preserved.",
+  "main_or_G_writes": false
+}

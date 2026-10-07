@@ -1,0 +1,33 @@
+.........ACTUAL_WRAPPER_V3_WARM_ZERO_CURRENT sha256:187ed9de7c6fd6cd3b88f77a6a9797115f99367e750823119da273a739a407b0 [[0.3333333333333333], [0.4444444444444444], [0.2222222222222222], [0.5555555555555556], [0.1111111111111111], [0.6666666666666666], [0.7777777777777778], [0.8888888888888888]] [[-0.011344444444444445], [-0.015541975308641973], [-0.031838271604938274], [-0.044430864197530874], [-0.07702345679012346], [-0.09801111111111109], [-0.17628271604938273], [-0.27924567901234565]]
+.ACTUAL_MIXED_HISTORY_PUBLIC_CAS minimize sha256:c4535345052b349113b57c53ec59baa04b62fff555954b08b8b020b70441603c [[0.2], [0.4], [0.6], [0.8]] [[-20.0], [-8.0], [-4.0], [-8.0]] 5.507372638557091
+.ACTUAL_MIXED_HISTORY_PUBLIC_CAS maximize sha256:2fe20a66c679823e353c4531ff0edfd240ac8a7685ec5d214ec3ac9a177cc2cd [[0.2], [0.4], [0.6], [0.8]] [[20.0], [8.0], [4.0], [8.0]] 0.6564334140737048
+.
+=============================== warnings summary ===============================
+../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_public_wrapper_warm_eight_cas_rows_and_zero_current_history_restore_without_refit
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_public_wrapper_warm_eight_cas_rows_and_zero_current_history_restore_without_refit
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_public_wrapper_warm_eight_cas_rows_and_zero_current_history_restore_without_refit
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_mixed_history_formats_reach_public_generate_and_fresh_cas_next_proposal[minimize]
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_mixed_history_formats_reach_public_generate_and_fresh_cas_next_proposal[minimize]
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_mixed_history_formats_reach_public_generate_and_fresh_cas_next_proposal[minimize]
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_mixed_history_formats_reach_public_generate_and_fresh_cas_next_proposal[maximize]
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_mixed_history_formats_reach_public_generate_and_fresh_cas_next_proposal[maximize]
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_mixed_history_formats_reach_public_generate_and_fresh_cas_next_proposal[maximize]
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/analytic.py:340: NumericsWarning: ExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 ExpectedImprovement 	 --> 	 LogExpectedImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+12 passed, 11 warnings in 5.29s
+GP_WRAPPER_SCOPE_RESULT {"mode": "positive12", "exitcode": 0, "fit_starts": 3, "output": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-positive12"}

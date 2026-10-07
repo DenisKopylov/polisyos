@@ -1,0 +1,31 @@
+{"argv": ["tests/unit/scientist/methods/search/test_service_persistence.py::test_failed_tell_publication_restores_local_state_and_prior_durable_pending_view[fail_write]", "--basetemp=/workspace/e02-D-continuation-receipts/champion-tell-negative-e30b930a655e4ae28c368297b330e88c2", "--junitxml=/workspace/e02-D-continuation-receipts/champion-tell-removal-junit.xml"], "origins": {"polisyos.scientist.methods.search.run_state": {"path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/run_state.py", "sha256": "d33a648c3c1ae05f94d8ed679b73eb617df232e089c0a2fec34c6188feb574a1"}, "polisyos.scientist.methods.search.service": {"path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/service.py", "sha256": "0cc646ebf8c0edd6a913a996a3bf97f58ab28bf3977a9d874f724c4a75057310"}}, "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]", "removal": "remove only deep snapshot isolation: rollback receives the live run ledger; actual CAS write failure, checkpoint/ref, candidate IDs and controller tell remain unchanged", "source": "6b5195b5400ce10f5ed72e952a368648f0cc7ac9", "tree": "4a64e5b6f3a313ec821ff0a03bca41427234db34"}
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_failed_tell_publication_restores_local_state_and_prior_durable_pending_view[fail_write] _
+
+tmp_path = PosixPath('/workspace/e02-D-continuation-receipts/champion-tell-negative-e30b930a655e4ae28c368297b330e88c2/test_failed_tell_publication_r0')
+failure = 'fail_write'
+
+    @pytest.mark.parametrize("failure", ["fail_write", "fail_readback"])
+    def test_failed_tell_publication_restores_local_state_and_prior_durable_pending_view(
+        tmp_path, failure
+    ):
+        store = _FailingCAS(tmp_path / "cas")
+        service = _direct(store)
+        proposal = service.ask(None, None, {})[0]
+        pending_ref = service.checkpoint_ref
+        evaluation = service.controller._evaluate_for_tell(proposal.payload, iteration=0, context={})
+        setattr(store, failure, True)
+        with pytest.raises(OSError, match="actual checkpoint"):
+            service.tell(proposal.candidate_id, evaluation)
+        assert service.checkpoint_ref == pending_ref
+>       assert service.controller._history == []
+E       AssertionError: assert [SearchIterat...n_error=None)] == []
+E         
+E         Left contains one more item: SearchIteration(iteration=0, candidate={'cost': 2}, objective_value=2.0, objective_details=[ObjectiveValue(name='budge... 6, 16, 0, 34, 962049, tzinfo=datetime.timezone.utc), policy_evaluation_status='missing', policy_evaluation_error=None)
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/search/test_service_persistence.py:444: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/search/test_service_persistence.py::test_failed_tell_publication_restores_local_state_and_prior_durable_pending_view[fail_write]
+1 failed in 6.21s

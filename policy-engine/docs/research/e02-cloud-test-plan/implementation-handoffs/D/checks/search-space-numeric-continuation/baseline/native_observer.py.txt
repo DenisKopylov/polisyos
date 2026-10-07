@@ -1,0 +1,22 @@
+import sys, json, hashlib, importlib.metadata, platform
+from collections import Counter
+from pathlib import Path
+counts=Counter()
+def observe(frame,event,arg):
+    if event != 'call': return
+    filename=frame.f_code.co_filename; name=frame.f_code.co_name
+    if ('box_decompositions/dominated.py' in filename or '/scientist/methods/autotune/pareto.py' in filename or '/autotune/bayesian_generator.py' in filename or '/search/pareto_registry.py' in filename or '/strategies/bayesian.py' in filename or '/strategies/space.py' in filename or '/strategies/types.py' in filename or filename.endswith('/botorch/fit.py') or '/strategies/multi_objective.py' in filename) and name in {'normalize','denormalize','__post_init__','_has_compatible_params','_effective_training_corpus','_reconcile_fitted_evaluations','_prepare_training_data','_fit_full_gp','_fit_gp','fit_gpytorch_mll','is_valid','compute_hypervolume','compute_hypervolume_assessed','_compute_hypervolume','_compute_hypervolume_assessed','_objective_vector','_frontier_hashes','get_snapshot','get_state','set_state','configure_transfer','generate','_find_non_dominated','_get_partitioning','_compute_hypervolume_if_y_has_data'}:
+        counts[filename+':'+name]+=1
+
+def pytest_sessionstart(session):
+    sys.setprofile(observe)
+
+def pytest_sessionfinish(session,exitstatus):
+    sys.setprofile(None)
+    modules={}
+    for name in ['polisyos.scientist.methods.autotune.pareto','polisyos.scientist.methods.search.strategies.multi_objective','polisyos.scientist.methods.search.pareto_registry','botorch.utils.multi_objective.box_decompositions.dominated','torch','polisyos.scientist.methods.autotune.bayesian_generator','polisyos.scientist.methods.search.strategies.bayesian','polisyos.scientist.methods.search.strategies.types','polisyos.common.serialization','polisyos.scientist.methods.search.strategies.space','botorch.fit']:
+        module=sys.modules.get(name); filename=getattr(module,'__file__',None)
+        if filename:
+            modules[name]={'path':filename,'sha256':hashlib.sha256(Path(filename).read_bytes()).hexdigest()}
+    versions={key:importlib.metadata.version(key) for key in ['torch','botorch','gpytorch','pytest','pydantic','numpy']}
+    Path(session.config.option.xmlpath).with_suffix('.native.json').write_text(json.dumps({'python':platform.python_version(),'versions':versions,'modules':modules,'native_calls':dict(counts),'exitstatus':exitstatus},indent=2))

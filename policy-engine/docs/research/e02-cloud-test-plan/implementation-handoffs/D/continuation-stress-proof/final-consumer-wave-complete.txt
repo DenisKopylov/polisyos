@@ -1,0 +1,381 @@
+........................................................................ [ 50%]
+..................................................................FFF.   [100%]
+=================================== FAILURES ===================================
+_ test_declared_resource_observations_survive_blueprint_json_and_fresh_cas_reader[None] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-final-consumer-wave-06f91411131a4fca93484ae727c3d4cb/test_declared_resource_observa0')
+spend = None
+
+    @pytest.mark.parametrize("spend", [None, Decimal("0"), Decimal("0.10000000000000000001")])
+    def test_declared_resource_observations_survive_blueprint_json_and_fresh_cas_reader(
+        tmp_path: Path, spend: Decimal | None
+    ) -> None:
+        # This is a DTO projection contract, not an executed provider/billing claim.
+        source = "estimated" if spend is None else "provider_reported_only"
+        events = () if spend is None else ("actual-event-reference",)
+        feedback = {
+            "resource_pending_event_id": "pending-reference",
+            "resource_response_digest": "response-digest",
+            "resource_local_recorded_spend": "0.10000000000000000001",
+        }
+        stage = FunnelStageResult(
+            policy_candidate={"candidate": "typed-fixture"},
+            objective_value=0.5,
+            is_promising=False,
+            stage_name="native-fixture",
+            fidelity_level=3,
+            compute_actual_usd=0.125,
+            compute_cost_source=source,
+            provider_spend_usd=spend,
+            resource_event_ids=events,
+            feedback=feedback,
+            terminal_action="reject",
+        )
+        trace = FunnelTraceStep(
+            fidelity_level=3,
+            stage_name=stage.stage_name,
+            objective_value=stage.objective_value,
+            is_promising=False,
+            duration_seconds=0.25,
+            compute_actual_usd=stage.compute_actual_usd,
+            compute_cost_source=source,
+            provider_spend_usd=spend,
+            resource_event_ids=events,
+        )
+        outcome = FunnelOutcome(
+            ticket_id="typed-ticket",
+            candidate_hash="typed-candidate",
+            trace=[trace],
+            stage_results={3: stage},
+            final_result=stage,
+            failure_cards=[],
+            uncertainty_envelope=UncertaintyEnvelope.unknown(),
+            compute_actual_usd=0.125,
+            degradation_mode="normal",
+            final_action="reject",
+            completed=True,
+            evaluation_status="partial",
+            compute_cost_source=source,
+            provider_spend_usd=spend,
+            resource_event_ids=events,
+        )
+        projection = _serialize_funnel_outcome(outcome)
+        assert projection["evaluation_status"] == "partial"
+        for observed in (projection, projection["trace"][0], projection["stage_results"]["3"]):
+            assert observed["compute_actual_usd"] == 0.125
+            assert observed["compute_cost_source"] == source
+            assert observed["provider_spend_usd"] == (None if spend is None else str(spend))
+            assert observed["resource_event_ids"] == list(events)
+        assert projection["stage_results"]["3"]["feedback"] == feedback
+>       state = ExperimentState(run_id="projection", reports_index={"funnel": projection})
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       pydantic_core._pydantic_core.ValidationError: 17 validation errors for ExperimentState
+E       reports_index.funnel.artifact_id
+E         Field required [type=missing, input_value={'ticket_id': 'typed-tick...e_information_refs': []}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/missing
+E       reports_index.funnel.kind
+E         Field required [type=missing, input_value={'ticket_id': 'typed-tick...e_information_refs': []}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/missing
+E       reports_index.funnel.media_type
+E         Field required [type=missing, input_value={'ticket_id': 'typed-tick...e_information_refs': []}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/missing
+E       reports_index.funnel.ticket_id
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='typed-ticket', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.candidate_hash
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='typed-candidate', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.trace
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=[{'fidelity_level': 3, 's... 0, 'blocker_count': 0}], input_type=list]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.stage_results
+E         Extra inputs are not permitted [type=extra_forbidden, input_value={'3': {'stage_name': 'nat...esource_event_ids': []}}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.final_action
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='reject', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.completed
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=True, input_type=bool]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.evaluation_status
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='partial', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.compute_actual_usd
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=0.125, input_type=float]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.compute_cost_source
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='estimated', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.provider_spend_usd
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=None, input_type=NoneType]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.resource_event_ids
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=[], input_type=list]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.degradation_mode
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='normal', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.audit_refs
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=[], input_type=list]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.actionable_side_information_refs
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=[], input_type=list]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+
+tests/unit/scientist/search/test_blueprint_resource_projection.py:90: ValidationError
+_ test_declared_resource_observations_survive_blueprint_json_and_fresh_cas_reader[spend1] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-final-consumer-wave-06f91411131a4fca93484ae727c3d4cb/test_declared_resource_observa1')
+spend = Decimal('0')
+
+    @pytest.mark.parametrize("spend", [None, Decimal("0"), Decimal("0.10000000000000000001")])
+    def test_declared_resource_observations_survive_blueprint_json_and_fresh_cas_reader(
+        tmp_path: Path, spend: Decimal | None
+    ) -> None:
+        # This is a DTO projection contract, not an executed provider/billing claim.
+        source = "estimated" if spend is None else "provider_reported_only"
+        events = () if spend is None else ("actual-event-reference",)
+        feedback = {
+            "resource_pending_event_id": "pending-reference",
+            "resource_response_digest": "response-digest",
+            "resource_local_recorded_spend": "0.10000000000000000001",
+        }
+        stage = FunnelStageResult(
+            policy_candidate={"candidate": "typed-fixture"},
+            objective_value=0.5,
+            is_promising=False,
+            stage_name="native-fixture",
+            fidelity_level=3,
+            compute_actual_usd=0.125,
+            compute_cost_source=source,
+            provider_spend_usd=spend,
+            resource_event_ids=events,
+            feedback=feedback,
+            terminal_action="reject",
+        )
+        trace = FunnelTraceStep(
+            fidelity_level=3,
+            stage_name=stage.stage_name,
+            objective_value=stage.objective_value,
+            is_promising=False,
+            duration_seconds=0.25,
+            compute_actual_usd=stage.compute_actual_usd,
+            compute_cost_source=source,
+            provider_spend_usd=spend,
+            resource_event_ids=events,
+        )
+        outcome = FunnelOutcome(
+            ticket_id="typed-ticket",
+            candidate_hash="typed-candidate",
+            trace=[trace],
+            stage_results={3: stage},
+            final_result=stage,
+            failure_cards=[],
+            uncertainty_envelope=UncertaintyEnvelope.unknown(),
+            compute_actual_usd=0.125,
+            degradation_mode="normal",
+            final_action="reject",
+            completed=True,
+            evaluation_status="partial",
+            compute_cost_source=source,
+            provider_spend_usd=spend,
+            resource_event_ids=events,
+        )
+        projection = _serialize_funnel_outcome(outcome)
+        assert projection["evaluation_status"] == "partial"
+        for observed in (projection, projection["trace"][0], projection["stage_results"]["3"]):
+            assert observed["compute_actual_usd"] == 0.125
+            assert observed["compute_cost_source"] == source
+            assert observed["provider_spend_usd"] == (None if spend is None else str(spend))
+            assert observed["resource_event_ids"] == list(events)
+        assert projection["stage_results"]["3"]["feedback"] == feedback
+>       state = ExperimentState(run_id="projection", reports_index={"funnel": projection})
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       pydantic_core._pydantic_core.ValidationError: 17 validation errors for ExperimentState
+E       reports_index.funnel.artifact_id
+E         Field required [type=missing, input_value={'ticket_id': 'typed-tick...e_information_refs': []}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/missing
+E       reports_index.funnel.kind
+E         Field required [type=missing, input_value={'ticket_id': 'typed-tick...e_information_refs': []}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/missing
+E       reports_index.funnel.media_type
+E         Field required [type=missing, input_value={'ticket_id': 'typed-tick...e_information_refs': []}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/missing
+E       reports_index.funnel.ticket_id
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='typed-ticket', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.candidate_hash
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='typed-candidate', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.trace
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=[{'fidelity_level': 3, 's... 0, 'blocker_count': 0}], input_type=list]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.stage_results
+E         Extra inputs are not permitted [type=extra_forbidden, input_value={'3': {'stage_name': 'nat...tual-event-reference']}}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.final_action
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='reject', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.completed
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=True, input_type=bool]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.evaluation_status
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='partial', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.compute_actual_usd
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=0.125, input_type=float]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.compute_cost_source
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='provider_reported_only', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.provider_spend_usd
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='0', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.resource_event_ids
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=['actual-event-reference'], input_type=list]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.degradation_mode
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='normal', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.audit_refs
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=[], input_type=list]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.actionable_side_information_refs
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=[], input_type=list]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+
+tests/unit/scientist/search/test_blueprint_resource_projection.py:90: ValidationError
+_ test_declared_resource_observations_survive_blueprint_json_and_fresh_cas_reader[spend2] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-final-consumer-wave-06f91411131a4fca93484ae727c3d4cb/test_declared_resource_observa2')
+spend = Decimal('0.10000000000000000001')
+
+    @pytest.mark.parametrize("spend", [None, Decimal("0"), Decimal("0.10000000000000000001")])
+    def test_declared_resource_observations_survive_blueprint_json_and_fresh_cas_reader(
+        tmp_path: Path, spend: Decimal | None
+    ) -> None:
+        # This is a DTO projection contract, not an executed provider/billing claim.
+        source = "estimated" if spend is None else "provider_reported_only"
+        events = () if spend is None else ("actual-event-reference",)
+        feedback = {
+            "resource_pending_event_id": "pending-reference",
+            "resource_response_digest": "response-digest",
+            "resource_local_recorded_spend": "0.10000000000000000001",
+        }
+        stage = FunnelStageResult(
+            policy_candidate={"candidate": "typed-fixture"},
+            objective_value=0.5,
+            is_promising=False,
+            stage_name="native-fixture",
+            fidelity_level=3,
+            compute_actual_usd=0.125,
+            compute_cost_source=source,
+            provider_spend_usd=spend,
+            resource_event_ids=events,
+            feedback=feedback,
+            terminal_action="reject",
+        )
+        trace = FunnelTraceStep(
+            fidelity_level=3,
+            stage_name=stage.stage_name,
+            objective_value=stage.objective_value,
+            is_promising=False,
+            duration_seconds=0.25,
+            compute_actual_usd=stage.compute_actual_usd,
+            compute_cost_source=source,
+            provider_spend_usd=spend,
+            resource_event_ids=events,
+        )
+        outcome = FunnelOutcome(
+            ticket_id="typed-ticket",
+            candidate_hash="typed-candidate",
+            trace=[trace],
+            stage_results={3: stage},
+            final_result=stage,
+            failure_cards=[],
+            uncertainty_envelope=UncertaintyEnvelope.unknown(),
+            compute_actual_usd=0.125,
+            degradation_mode="normal",
+            final_action="reject",
+            completed=True,
+            evaluation_status="partial",
+            compute_cost_source=source,
+            provider_spend_usd=spend,
+            resource_event_ids=events,
+        )
+        projection = _serialize_funnel_outcome(outcome)
+        assert projection["evaluation_status"] == "partial"
+        for observed in (projection, projection["trace"][0], projection["stage_results"]["3"]):
+            assert observed["compute_actual_usd"] == 0.125
+            assert observed["compute_cost_source"] == source
+            assert observed["provider_spend_usd"] == (None if spend is None else str(spend))
+            assert observed["resource_event_ids"] == list(events)
+        assert projection["stage_results"]["3"]["feedback"] == feedback
+>       state = ExperimentState(run_id="projection", reports_index={"funnel": projection})
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       pydantic_core._pydantic_core.ValidationError: 17 validation errors for ExperimentState
+E       reports_index.funnel.artifact_id
+E         Field required [type=missing, input_value={'ticket_id': 'typed-tick...e_information_refs': []}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/missing
+E       reports_index.funnel.kind
+E         Field required [type=missing, input_value={'ticket_id': 'typed-tick...e_information_refs': []}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/missing
+E       reports_index.funnel.media_type
+E         Field required [type=missing, input_value={'ticket_id': 'typed-tick...e_information_refs': []}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/missing
+E       reports_index.funnel.ticket_id
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='typed-ticket', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.candidate_hash
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='typed-candidate', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.trace
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=[{'fidelity_level': 3, 's... 0, 'blocker_count': 0}], input_type=list]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.stage_results
+E         Extra inputs are not permitted [type=extra_forbidden, input_value={'3': {'stage_name': 'nat...tual-event-reference']}}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.final_action
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='reject', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.completed
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=True, input_type=bool]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.evaluation_status
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='partial', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.compute_actual_usd
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=0.125, input_type=float]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.compute_cost_source
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='provider_reported_only', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.provider_spend_usd
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='0.10000000000000000001', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.resource_event_ids
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=['actual-event-reference'], input_type=list]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.degradation_mode
+E         Extra inputs are not permitted [type=extra_forbidden, input_value='normal', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.audit_refs
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=[], input_type=list]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+E       reports_index.funnel.actionable_side_information_refs
+E         Extra inputs are not permitted [type=extra_forbidden, input_value=[], input_type=list]
+E           For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden
+
+tests/unit/scientist/search/test_blueprint_resource_projection.py:90: ValidationError
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/search/test_blueprint_resource_projection.py::test_declared_resource_observations_survive_blueprint_json_and_fresh_cas_reader[None]
+FAILED tests/unit/scientist/search/test_blueprint_resource_projection.py::test_declared_resource_observations_survive_blueprint_json_and_fresh_cas_reader[spend1]
+FAILED tests/unit/scientist/search/test_blueprint_resource_projection.py::test_declared_resource_observations_survive_blueprint_json_and_fresh_cas_reader[spend2]
+RUNTIME_ENVIRONMENT={"executable": "/workspace/e02-D-locked-env/bin/python", "exit_code": 1, "modules": [{"module": "polisyos.scientist.methods.backtesting.adversarial", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/backtesting/adversarial.py", "sha256": "f27357119530f2b126903926a362de595a081fe337133d2c71b573c00a08035d"}, {"module": "polisyos.scientist.methods.doe.designs", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/designs.py", "sha256": "2cdff56bdd7641bea47efe0bfb57677039389a72975e749c51089d4d5513586e"}, {"module": "polisyos.scientist.methods.doe.stress_report", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/stress_report.py", "sha256": "cdf7ffe7bd6e3921749e7aa61624d43fa9e8f831495533bf22441744478cc4ee"}, {"module": "polisyos.scientist.methods.doe.sampling", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/sampling.py", "sha256": "a8d629515b316b48055b763da9eede1a620769f0423890a61d15b09d8bfc3d8e"}, {"module": "polisyos.scientist.methods.search.adversarial", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/search/adversarial.py", "sha256": "a00f99197074360a8ec969d671180e01a57ffde37126f78addbba938b74698b1"}, {"module": "polisyos.scientist.policy_design.adversary", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/policy_design/adversary.py", "sha256": "edcf3b78c47eaf458fcad98023fc7247bd2bbe5500a5a00389b60033bfae1529"}, {"module": "polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py", "sha256": "6a580b15706cb26ef3cbcdc0f06b3b2995b3f1c505ab82aebd9a580c8d4f0745"}, {"module": "polisyos.scientist.methods.search.funnel.level5_refutation_governance", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py", "sha256": "66ca3aa761cc81068febf95944b1ce38ada07da4d5d3f157341fc6d0e2ecb3cb"}, {"module": "polisyos.scientist.methods.search.funnel.orchestrator", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py", "sha256": "896d8747b980d3e5977f46e8a352bc437b2c50a3f700b841c3b782a80c1c240c"}], "pydantic": "2.12.5", "pytest": "9.0.2", "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]"}

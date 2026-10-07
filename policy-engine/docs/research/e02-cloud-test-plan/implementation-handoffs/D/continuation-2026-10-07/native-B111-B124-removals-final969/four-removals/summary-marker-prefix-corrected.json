@@ -1,0 +1,107 @@
+{
+  "schema": "e02.D.four_removal_deciding_summary.v1",
+  "source_sha": "96905636726483fdea3a98d9313871d825b54a9e",
+  "source_tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "all_negatives_admitted": true,
+  "controls": [
+    {
+      "plugin": "remove_run_scope",
+      "observation_count": 2,
+      "negative_receipt_admitted": true,
+      "corrected_receipt": "remove_run_scope.receipt-marker-prefix-corrected.json",
+      "sha256": "35164a80b9c92e4b85f6c7083c21b3275e64a77267f5bc524b096d6eda886b5c",
+      "case_phases": {
+        "PASS": 0,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "returncode": 1,
+      "elapsed_seconds": 9.235337594000157,
+      "source_unchanged": true,
+      "actual_calls": [
+        1,
+        1,
+        1
+      ],
+      "actual_history_count": 2
+    },
+    {
+      "plugin": "remove_trial_lookup",
+      "observation_count": 1,
+      "negative_receipt_admitted": true,
+      "corrected_receipt": "remove_trial_lookup.receipt-marker-prefix-corrected.json",
+      "sha256": "aff6a4c74d448d46124d77920e9a3a98df6e1465886c51cf9fd3cbcbe1e11dfd",
+      "case_phases": {
+        "PASS": 0,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "returncode": 1,
+      "elapsed_seconds": 22.34570018298109,
+      "source_unchanged": true,
+      "actual_calls": [
+        1,
+        1,
+        1,
+        2,
+        1,
+        2,
+        2
+      ],
+      "actual_history_count": 4
+    },
+    {
+      "plugin": "replace_nullable_primary_zero",
+      "observation_count": 1,
+      "negative_receipt_admitted": true,
+      "corrected_receipt": "replace_nullable_primary_zero.receipt-marker-prefix-corrected.json",
+      "sha256": "92fd3e156935d6a556a5e179d944b2556422e51bf394ce768b85b9d46ba2b428",
+      "case_phases": {
+        "PASS": 0,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "returncode": 1,
+      "elapsed_seconds": 10.144842881010845,
+      "source_unchanged": true,
+      "actual_primary": 0.0,
+      "actual_assessment": {
+        "direction": "maximize",
+        "metric": "score",
+        "reason": "primary_metric_missing",
+        "split": "holdout",
+        "status": "unavailable",
+        "unit": "points"
+      },
+      "actual_best": 0.0,
+      "actual_front_count": 1
+    },
+    {
+      "plugin": "restore_marker_override",
+      "observation_count": 1,
+      "negative_receipt_admitted": true,
+      "corrected_receipt": "restore_marker_override.receipt-marker-prefix-corrected.json",
+      "sha256": "54f6a5c3244bcdf55220d9fd0dc53d22f051c25f03b408bc99cae59ce8a1fe31",
+      "case_phases": {
+        "PASS": 0,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "returncode": 1,
+      "elapsed_seconds": 15.992573621013435,
+      "source_unchanged": true,
+      "actual_fresh_subjects": 1,
+      "actual_history_count": 3
+    }
+  ],
+  "capture_limitation": "Original parser column0 bug corrected from unchanged complete stdout transcripts; no product/test rerun or outcome change. All original command/receipt/summary files retained.",
+  "limitations": [
+    "Four bounded expected counterfactual assertionFAIL, not productFAIL on frozen source.",
+    "Independent runtime review pending; no formalclosure/Gacceptance.",
+    "Actual selected native source/runtime profile only; scientific appointment/authority/defaultproductioncaller remain separate."
+  ]
+}

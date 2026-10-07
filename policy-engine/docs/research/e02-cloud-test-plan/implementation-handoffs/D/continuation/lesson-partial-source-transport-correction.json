@@ -1,0 +1,194 @@
+{
+  "schema_version": "1.0",
+  "kind": "append-only evidence transport packaging correction",
+  "finding_ids": [
+    "B136"
+  ],
+  "closure_ids": [],
+  "g_accepted_closure": false,
+  "runtime_or_source_change": false,
+  "historical_source_sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+  "historical_source_tree": "cf0fe4946f41e904880ac1c6ec1b0ef7a57663a7",
+  "original_handoff": {
+    "git_sha": "d61e97d1dbab91f0174ba5af8b01a488dc04ee61",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/lesson-partial-consumer.json",
+    "rawfile_sha256": "40ec0aa1ee186a6fd8d8b2c5e09b209bde7a5f6de7eeaaba24d5241ba5dd55d7",
+    "unchanged": true,
+    "resolution": "Historical handoff hashes resolve against its explicitly pinned d61 Git tree, not the superseding current-tree transport."
+  },
+  "original_manifest": {
+    "git_sha": "d61e97d1dbab91f0174ba5af8b01a488dc04ee61",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/lesson-partial-proof/manifest.json",
+    "rawfile_sha256": "33ed777b430b646b84629c1b594efc272941caf28f55a743a30670d3d4e0a86f",
+    "unchanged": true
+  },
+  "old_payload": {
+    "git_sha": "d61e97d1dbab91f0174ba5af8b01a488dc04ee61",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/lesson-partial-proof/source-inputs.json.gz",
+    "git_blob": "5247c24b7721044b621e7a6b22400d5ef94df45d",
+    "encoding": "gzip of UTF-8 JSON with15 lossless base64 bodies;14 were already tracked Git content",
+    "encoded_bytes": 61312,
+    "encoded_sha256": "f77a8c60f70b28ed9e059b877dfb26ff75b067a3b14c9a49aae722612f6f57a0",
+    "decoded_bytes": 251720,
+    "decoded_sha256": "50a7dfc6e019a62760a634568b37a48b30e484801f6a27016ff85c124245a191",
+    "preservation": "Immutable original Git commit/tree remains retained. No reset, prune, history rewrite or permanent cleanup."
+  },
+  "corrected_current_payload": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/lesson-partial-proof/source-inputs.json.gz",
+    "schema": "e02.lesson_source_input_transport.v2",
+    "encoding": "gzip of UTF-8 JSON:14 identity-only exact Git content references plus1 unchanged unique untracked source input body",
+    "encoded_bytes": 5165,
+    "encoded_sha256": "56bcb795d3a7862ed9521c199fa96b2258f375ee8ef712855dad50762db95170",
+    "decoded_bytes": 16535,
+    "decoded_sha256": "661defc36e508cdd35bfa1224744fb9adf8cdcf648247fb4cdeb4f4abf948ec6",
+    "tracked_git_reference_count": 14,
+    "embedded_unique_untracked_count": 1
+  },
+  "validated_tracked_content_refs": [
+    {
+      "path": "409dce868a8a4f0c80fc02881b089ba93a26914d:policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+      "source_sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+      "git_path": "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+      "git_blob": "0520a440f0b5285d3976f152dad5a0dbfe9c35cb",
+      "sha256": "3a83006f055220edfa56d352e232069bc62e0d887ccd61a9bb1cb8b5e9685f18",
+      "bytes": 44643,
+      "transport": "Git content reference; no embedded source body"
+    },
+    {
+      "path": "409dce868a8a4f0c80fc02881b089ba93a26914d:policy-engine/src/polisyos/scientist/methods/search/transfer_context.py",
+      "source_sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+      "git_path": "policy-engine/src/polisyos/scientist/methods/search/transfer_context.py",
+      "git_blob": "0963066824070b40fbe3d999d61d553b02728ec9",
+      "sha256": "64a316309fcef6cd2074b39ca01f4d1cf76d5c676bd9475118caa9280170098f",
+      "bytes": 10087,
+      "transport": "Git content reference; no embedded source body"
+    },
+    {
+      "path": "409dce868a8a4f0c80fc02881b089ba93a26914d:policy-engine/tests/unit/scientist/search/test_lesson_partial_consumer.py",
+      "source_sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+      "git_path": "policy-engine/tests/unit/scientist/search/test_lesson_partial_consumer.py",
+      "git_blob": "63274a25fb0a3a5315fe9fb05b29e3d931d69c2d",
+      "sha256": "d706b028fe5d1f938751ea66d93e79cc818e75a04be17e3f688cea18338b6645",
+      "bytes": 8435,
+      "transport": "Git content reference; no embedded source body"
+    },
+    {
+      "path": "409dce868a8a4f0c80fc02881b089ba93a26914d:policy-engine/tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+      "source_sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+      "git_path": "policy-engine/tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+      "git_blob": "32827cc8e4f267b9d9e6d4bf86eb0ffb0c3ed216",
+      "sha256": "4f7d2e34ab338fe21831e7d1f89b61bbe36a6e336191eb4d33c14dc8c62ba323",
+      "bytes": 7537,
+      "transport": "Git content reference; no embedded source body"
+    },
+    {
+      "path": "409dce868a8a4f0c80fc02881b089ba93a26914d:policy-engine/tests/unit/scientist/search/test_lesson_transfer.py",
+      "source_sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+      "git_path": "policy-engine/tests/unit/scientist/search/test_lesson_transfer.py",
+      "git_blob": "181989c9d088407ed09df30014e5f5a23ccd48c4",
+      "sha256": "0ace8b221674d26615dbdc5067614b57226ed39443fe765f3237c5920690a887",
+      "bytes": 9399,
+      "transport": "Git content reference; no embedded source body"
+    },
+    {
+      "path": "409dce868a8a4f0c80fc02881b089ba93a26914d:policy-engine/tests/unit/scientist/search/test_lesson_as_of.py",
+      "source_sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+      "git_path": "policy-engine/tests/unit/scientist/search/test_lesson_as_of.py",
+      "git_blob": "5543f3ac347ee94724874da5ba6a01385da54786",
+      "sha256": "c4f5d1d24341e958ddcffc3c799b6c77323ed3810660c130012b418c9eac341b",
+      "bytes": 7682,
+      "transport": "Git content reference; no embedded source body"
+    },
+    {
+      "path": "409dce868a8a4f0c80fc02881b089ba93a26914d:policy-engine/tests/unit/scientist/search/test_lessons.py",
+      "source_sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+      "git_path": "policy-engine/tests/unit/scientist/search/test_lessons.py",
+      "git_blob": "7eec3d41f63e9a1f2be1d5e9a04760c83b3b9818",
+      "sha256": "dbc96fb574339da46c578215a33b1027523ade804e494afec49bbab9194f2bcc",
+      "bytes": 4342,
+      "transport": "Git content reference; no embedded source body"
+    },
+    {
+      "path": "409dce868a8a4f0c80fc02881b089ba93a26914d:policy-engine/release-fragments/unreleased/2026-10-06-e02-lesson-partial-answer.toml",
+      "source_sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+      "git_path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-lesson-partial-answer.toml",
+      "git_blob": "93ea99148d3e8b04907611dc18288f43509053e7",
+      "sha256": "cdd7ec8f4af98732e3ae804082256850a2fe8b4f27fcf4dfe0bd815c116f40bd",
+      "bytes": 1187,
+      "transport": "Git content reference; no embedded source body"
+    },
+    {
+      "path": "409dce868a8a4f0c80fc02881b089ba93a26914d:policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-03.md",
+      "source_sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+      "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-03.md",
+      "git_blob": "cce61650d0e6d743b102171edf6e412dd2b350c0",
+      "sha256": "c7cce0fdded201121b425a14faefe58e7d1e13475d931a33eed5d82621c8aa2a",
+      "bytes": 16604,
+      "transport": "Git content reference; no embedded source body"
+    },
+    {
+      "path": "409dce868a8a4f0c80fc02881b089ba93a26914d:policy-engine/pytest.ini",
+      "source_sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+      "git_path": "policy-engine/pytest.ini",
+      "git_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+      "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+      "bytes": 1021,
+      "transport": "Git content reference; no embedded source body"
+    },
+    {
+      "path": "409dce868a8a4f0c80fc02881b089ba93a26914d:policy-engine/tests/conftest.py",
+      "source_sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+      "git_path": "policy-engine/tests/conftest.py",
+      "git_blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+      "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+      "bytes": 9664,
+      "transport": "Git content reference; no embedded source body"
+    },
+    {
+      "path": "3ed63c748e1e080d0628d8cdf557841fe9a4364a:policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+      "source_sha": "3ed63c748e1e080d0628d8cdf557841fe9a4364a",
+      "git_path": "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+      "git_blob": "6897d15921f9b5ea09db7e57aa5330c31ab6468f",
+      "sha256": "3c2448a1329530e5dadbde957c124d83baa366b01dad75292942e3c81f0e2e65",
+      "bytes": 43584,
+      "transport": "Git content reference; no embedded source body"
+    },
+    {
+      "path": "3ed63c748e1e080d0628d8cdf557841fe9a4364a:policy-engine/tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+      "source_sha": "3ed63c748e1e080d0628d8cdf557841fe9a4364a",
+      "git_path": "policy-engine/tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+      "git_blob": "4b19773797aca3b0694d862539fdc837a90a53e5",
+      "sha256": "bcc7c3a732c7cc99f8cad6745eb9755b24db035fd355337c1d062cc08fd1385a",
+      "bytes": 7419,
+      "transport": "Git content reference; no embedded source body"
+    },
+    {
+      "path": "6ca3b5f167c140370a44653f25a3483bad4a9659:policy-engine/tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+      "source_sha": "6ca3b5f167c140370a44653f25a3483bad4a9659",
+      "git_path": "policy-engine/tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+      "git_blob": "4b19773797aca3b0694d862539fdc837a90a53e5",
+      "sha256": "bcc7c3a732c7cc99f8cad6745eb9755b24db035fd355337c1d062cc08fd1385a",
+      "bytes": 7419,
+      "transport": "Git content reference; no embedded source body"
+    }
+  ],
+  "unique_red_input": {
+    "path": "actual red untracked unique test",
+    "bytes": 7221,
+    "sha256": "15a1f91222a2808bfd1107316f0b060a4b0e09dc4e9c8abae1599df294397d12",
+    "entire_original_member_unchanged": true,
+    "content_base64_retained": true
+  },
+  "validation": {
+    "full_original15members_read": true,
+    "all14_removed_bodies_equal_exact_original_git_content": true,
+    "all14_commit_path_blob_rawfile_sha256_bytes_refs_checked": true,
+    "tracked_body_fields_in_current_payload": 0,
+    "unique_red_member_preserved_exactly": true,
+    "original_handoff_and_manifest_bytes_unchanged": true,
+    "deciding_native_runtime_replayed": false
+  },
+  "runtime_claims_preserved": "Original pre-fix4PASS1FAIL, wider37PASS3FAIL, immutable whole-five-file40PASS, sole duplicate-guard removal1FAIL1healthyPASS and original timestamp3expectedFAIL remain exactly the original source-bound claims. No fresh backend/math/GP run or same-run reclassification.",
+  "scope": "Packaging only. No product source, tests, config, runtime inputs or deciding outputs changed. Lesson route remains actual namespace/exact-CAS registry discovery/materialization, not numerical ANN/GP transfer.",
+  "cleanup": "No manual cleanup or deletion. Current tracked transport supersedes its earlier packaging through an ordinary Git commit, with original bytes retained atd61."
+}

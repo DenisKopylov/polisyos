@@ -1,0 +1,34 @@
+{
+  "schema": "e02.D.independent-essential-transport-seal.v1",
+  "reviewer": "math_oct07",
+  "decision": "GO byte-exact194member essential transport; prior runtime and original11 scope reviews unchanged",
+  "publication_root": "/dev/shm/e02-D-post-a795-88ghpj7t/service/publication",
+  "manifest": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/publication/manifest.json",
+    "bytes": 111898,
+    "sha256": "365ac7e37dba319748aff34cd8ae0af7736d2c482da3154552f6619b7484c8e1"
+  },
+  "archive": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/publication/deciding-essential.tar.gz",
+    "bytes": 95802,
+    "sha256": "5b6cf92deec2f10d5591ef9d5960df4a26753ce6e544ab9f3022a08826c045d7"
+  },
+  "receipt": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/publication/receipt.json",
+    "bytes": 1734,
+    "sha256": "1c7a30e586853b5f207810cb17592acd9dc10378c0769a7155a0e55f719e99e7"
+  },
+  "all194_unique_safe_regular_members_match_manifest_and_actual_original_bytes": true,
+  "full_deciding_streams_JUnit_75_63phases_match_originals": true,
+  "complete_literal_argv_environment_runtime_resource_fields_match_original_command": true,
+  "explicit_compact_derived_command_boundary": true,
+  "all_original11matrix_and_two_independent_reviews_byte_exact": true,
+  "actual_final_pointer_absence_reread": 10,
+  "raw_origin_catalog_boundary": "Full17619 catalog/origin maps external exacthash references and independently checked in a51bc7cda, not copied toGit as dumps",
+  "negative_or_tampered_minref_rule": "Raw selected artifacts preserve actual negative/positive bytes; they are not all generically certified valid when a negative deliberately forged a binding. Original test assertions and typed owner guards determine availability.",
+  "no_new_runtime_execution": true,
+  "actual_execution_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "qualified_candidate": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+  "formal_closed": false,
+  "accepted_in_G": false
+}

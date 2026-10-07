@@ -1,0 +1,500 @@
+{
+  "schema": "D.E02.independent.final-root-delivery-metadata-and-transport-review.v1",
+  "reviewer": "/root/final_delivery_review",
+  "created_utc": "2026-10-07T19:44:02.882527+00:00",
+  "verdict": "GO",
+  "decision_scope": "Frozen local root-delivery metadata, literal publication bytes, bounded transport and semantic delta. Parent must add this excluded review by ordinary append-only receipt commit and perform final Git byte readback. This GO is not remote publication, formal finding closure, G acceptance or whole-D execution.",
+  "reviewed_root": "/dev/shm/e02-D-oct07-continuation/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07",
+  "exact_reviewed_artifacts": {
+    "root-delivery.json": {
+      "bytes": 22431,
+      "sha256": "65cf0eb83d4e6cd027385f6bcd1149b8ae92c3c1c2c004ef6769fbebfeef2864"
+    },
+    "publication-manifest.json": {
+      "bytes": 326813,
+      "sha256": "6bc52ce587d6bb853a5e04939a7eb648d1b632c6038b7e5bb93fefdd0b41cb91"
+    },
+    "root-context/fresh-G-2abc-and-API-comparator-clarification.json": {
+      "bytes": 33956,
+      "sha256": "ecc2f266b4bc02046ed6f528271b7dca84225ab21edf1601e4a252ef3aaede66"
+    },
+    "census/reviews/final-original46-sealed19-independent-metadata-review.json": {
+      "bytes": 3800,
+      "sha256": "246511bb25782d0febfe32f0a1c0142461fb00689ad4a822014ae9b9c11b5db3"
+    },
+    "census/reviews/FUN-final497-moderate-lossless-transport-and-core-independent-review.json": {
+      "bytes": 4228,
+      "sha256": "7dff998b23f0b77851ae84cdac1c2ca186f1820c84a5a36f4de3c2fc75170ed5"
+    },
+    "census/FUN-moderate-output-availability-update.json": {
+      "bytes": 3130,
+      "sha256": "e78b4753d3304f3c2b0b5c86ab59b2c11271312d89de6dd7d3e16cad399a2f6e"
+    }
+  },
+  "check_count": 20,
+  "check_outcomes": {
+    "PASS": 20
+  },
+  "checks": [
+    {
+      "check": "root-delivery exact final hash",
+      "outcome": "PASS",
+      "observed": {
+        "bytes": 22431,
+        "sha256": "65cf0eb83d4e6cd027385f6bcd1149b8ae92c3c1c2c004ef6769fbebfeef2864"
+      },
+      "expected": {
+        "bytes": 22431,
+        "sha256": "65cf0eb83d4e6cd027385f6bcd1149b8ae92c3c1c2c004ef6769fbebfeef2864"
+      }
+    },
+    {
+      "check": "publication-manifest exact final hash",
+      "outcome": "PASS",
+      "observed": {
+        "bytes": 326813,
+        "sha256": "6bc52ce587d6bb853a5e04939a7eb648d1b632c6038b7e5bb93fefdd0b41cb91"
+      },
+      "expected": {
+        "bytes": 326813,
+        "sha256": "6bc52ce587d6bb853a5e04939a7eb648d1b632c6038b7e5bb93fefdd0b41cb91"
+      }
+    },
+    {
+      "check": "fresh G clarification exact final hash",
+      "outcome": "PASS",
+      "observed": {
+        "bytes": 33956,
+        "sha256": "ecc2f266b4bc02046ed6f528271b7dca84225ab21edf1601e4a252ef3aaede66"
+      },
+      "expected": {
+        "bytes": 33956,
+        "sha256": "ecc2f266b4bc02046ed6f528271b7dca84225ab21edf1601e4a252ef3aaede66"
+      }
+    },
+    {
+      "check": "complete recursive regular-file manifest census",
+      "outcome": "PASS",
+      "observed": {
+        "members": 758,
+        "bytes": 5548507,
+        "unique_paths": 758,
+        "actual_regular_files_minus_exclusions": 758,
+        "path_set_equal": true,
+        "member_errors": []
+      },
+      "expected": {
+        "members": 758,
+        "bytes": 5548507,
+        "unique_paths": 758,
+        "actual_regular_files_minus_exclusions": 758,
+        "path_set_equal": true,
+        "member_errors": []
+      }
+    },
+    {
+      "check": "exact self-hash exclusions",
+      "outcome": "PASS",
+      "observed": [
+        "publication-manifest.json",
+        "census/reviews/final-root-delivery-independent-review.json"
+      ],
+      "expected": [
+        "publication-manifest.json",
+        "census/reviews/final-root-delivery-independent-review.json"
+      ]
+    },
+    {
+      "check": "all root-delivery content-bound pointers",
+      "outcome": "PASS",
+      "observed": {
+        "bound_count": 30,
+        "errors": [],
+        "unhashed_path_objects": [
+          "/publication_manifest"
+        ]
+      },
+      "expected": {
+        "bound_count": 30,
+        "errors": [],
+        "unhashed_path_objects": [
+          "/publication_manifest"
+        ]
+      }
+    },
+    {
+      "check": "sealed19 canonical members remain literal byte-identical",
+      "outcome": "PASS",
+      "observed": {
+        "members": 19,
+        "stored_bytes": 539694,
+        "errors": []
+      },
+      "expected": {
+        "members": 19,
+        "stored_bytes": 539694,
+        "errors": []
+      }
+    },
+    {
+      "check": "all497 FUN transported literals and decoded identities",
+      "outcome": "PASS",
+      "observed": {
+        "members": 497,
+        "stored_bytes": 943945,
+        "decoded_bytes": 3085546,
+        "encoding_counts": {
+          "identity": 82,
+          "gzip": 415
+        },
+        "errors": []
+      },
+      "expected": {
+        "members": 497,
+        "stored_bytes": 943945,
+        "decoded_bytes": 3085546,
+        "encoding_counts": {
+          "identity": 82,
+          "gzip": 415
+        },
+        "errors": []
+      }
+    },
+    {
+      "check": "complete current original-criterion metadata denominator",
+      "outcome": "PASS",
+      "observed": {
+        "bundles": 17,
+        "unique_ids": 45,
+        "occurrences": 46,
+        "owner_packets": 16,
+        "unique_owner_packet_keys": 16,
+        "IDs_equal_complete_D_owner_TSV": true,
+        "all_closure_owners_match": true
+      },
+      "expected": {
+        "bundles": 17,
+        "unique_ids": 45,
+        "occurrences": 46,
+        "owner_packets": 16,
+        "unique_owner_packet_keys": 16,
+        "IDs_equal_complete_D_owner_TSV": true,
+        "all_closure_owners_match": true
+      }
+    },
+    {
+      "check": "proposal dispositions and held/limited set",
+      "outcome": "PASS",
+      "observed": {
+        "unique": {
+          "closed": 39,
+          "limited": 1,
+          "held": 5
+        },
+        "occurrences": {
+          "closed": 40,
+          "limited": 1,
+          "held": 5
+        },
+        "held": [
+          "B131",
+          "B137",
+          "B157",
+          "B161",
+          "B164"
+        ],
+        "limited": [
+          "B108"
+        ]
+      },
+      "expected": {
+        "unique": {
+          "closed": 39,
+          "limited": 1,
+          "held": 5
+        },
+        "occurrences": {
+          "closed": 40,
+          "limited": 1,
+          "held": 5
+        },
+        "held": [
+          "B131",
+          "B137",
+          "B157",
+          "B161",
+          "B164"
+        ],
+        "limited": [
+          "B108"
+        ]
+      }
+    },
+    {
+      "check": "formal decisions and P41 remain separate",
+      "outcome": "PASS",
+      "observed": {
+        "formal_closed": 0,
+        "G_accepted": 0,
+        "P41_not_established": 46,
+        "owned_fixable_defects_established": 0
+      },
+      "expected": {
+        "formal_closed": 0,
+        "G_accepted": 0,
+        "P41_not_established": 46,
+        "owned_fixable_defects_established": 0
+      }
+    },
+    {
+      "check": "root families retain exact46 occurrence set",
+      "outcome": "PASS",
+      "observed": {
+        "rows": 46,
+        "same_set": true
+      },
+      "expected": {
+        "rows": 46,
+        "same_set": true
+      }
+    },
+    {
+      "check": "LA015 supplier and canonical owner",
+      "outcome": "PASS",
+      "observed": [
+        [
+          "LA-015@CTL-01",
+          "SRV-03",
+          "supplier_companion_only"
+        ],
+        [
+          "LA-015@SRV-03",
+          "SRV-03",
+          "canonical_owner"
+        ]
+      ],
+      "expected": [
+        [
+          "LA-015@CTL-01",
+          "SRV-03",
+          "supplier_companion_only"
+        ],
+        [
+          "LA-015@SRV-03",
+          "SRV-03",
+          "canonical_owner"
+        ]
+      ]
+    },
+    {
+      "check": "attached local source/receipt identities",
+      "outcome": "PASS",
+      "observed": {
+        "branch": "refs/heads/codex/e02-D-oct07-continuation",
+        "HEAD": "a30c140eedc5c0514a93409d4b4040a715231d28",
+        "source_tree": "1b2e5d31424a4de0c7150ef79b9e04c93486f0b9"
+      },
+      "expected": {
+        "branch": "refs/heads/codex/e02-D-oct07-continuation",
+        "HEAD": "a30c140eedc5c0514a93409d4b4040a715231d28",
+        "source_tree": "1b2e5d31424a4de0c7150ef79b9e04c93486f0b9"
+      }
+    },
+    {
+      "check": "complete CBC to8e continuation footprint",
+      "outcome": "PASS",
+      "observed": {
+        "paths": [
+          "policy-engine/release-fragments/unreleased/2026-10-07-funnel-cost-input-origins.toml",
+          "policy-engine/src/polisyos/scientist/methods/search/funnel/README.md",
+          "policy-engine/tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py",
+          "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer_legacy_refusal.py",
+          "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+        ],
+        "new_production_Python_paths": []
+      },
+      "expected": {
+        "paths": [
+          "policy-engine/release-fragments/unreleased/2026-10-07-funnel-cost-input-origins.toml",
+          "policy-engine/src/polisyos/scientist/methods/search/funnel/README.md",
+          "policy-engine/tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py",
+          "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer_legacy_refusal.py",
+          "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+        ],
+        "new_production_Python_paths": []
+      }
+    },
+    {
+      "check": "a30c docs-only receipt descendant",
+      "outcome": "PASS",
+      "observed": {
+        "path_count": 230,
+        "non_docs_paths": []
+      },
+      "expected": {
+        "path_count": 230,
+        "non_docs_paths": []
+      }
+    },
+    {
+      "check": "complete76-row fresh G observation metadata",
+      "outcome": "PASS",
+      "observed": {
+        "files": 76,
+        "unique_paths": 76,
+        "all_E02_docs_evidence": true,
+        "ahead_by": 2,
+        "behind_by": 0,
+        "total_commits": 2
+      },
+      "expected": {
+        "files": 76,
+        "unique_paths": 76,
+        "all_E02_docs_evidence": true,
+        "ahead_by": 2,
+        "behind_by": 0,
+        "total_commits": 2
+      }
+    },
+    {
+      "check": "public export comparator AST readback",
+      "outcome": "PASS",
+      "observed": [
+        {
+          "source": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "count": 39,
+          "blob_bytes_hash_names_match": true
+        },
+        {
+          "source": "9806442ddb47d624a2940bac75d9d6248e934c48",
+          "count": 39,
+          "blob_bytes_hash_names_match": true
+        },
+        {
+          "source": "8e864f4ed0eeedf509d836381b20976c413f2443",
+          "count": 42,
+          "blob_bytes_hash_names_match": true
+        }
+      ],
+      "expected": [
+        {
+          "source": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "count": 39,
+          "blob_bytes_hash_names_match": true
+        },
+        {
+          "source": "9806442ddb47d624a2940bac75d9d6248e934c48",
+          "count": 39,
+          "blob_bytes_hash_names_match": true
+        },
+        {
+          "source": "8e864f4ed0eeedf509d836381b20976c413f2443",
+          "count": 42,
+          "blob_bytes_hash_names_match": true
+        }
+      ]
+    },
+    {
+      "check": "two complete five-path surface comparisons",
+      "outcome": "PASS",
+      "observed": [
+        [],
+        []
+      ],
+      "expected": [
+        [],
+        []
+      ]
+    },
+    {
+      "check": "fresh2abc remains absent local object",
+      "outcome": "PASS",
+      "observed": 128,
+      "expected": 128
+    }
+  ],
+  "root_bound_pointer_JSON_pointers": [
+    "/full_source_test_companion_footprint",
+    "/fresh_G_and_API_scope_clarification",
+    "/accounting/criterion-overlay.json",
+    "/accounting/summary.json",
+    "/accounting/taskboard.json",
+    "/accounting/binding-verification.json",
+    "/accounting/owner-inputs-update.json",
+    "/accounting/source-bindings.json",
+    "/accounting/P37-P38.json",
+    "/families/0/independent_review",
+    "/families/1/independent_review",
+    "/families/2/independent_review",
+    "/families/3/independent_review",
+    "/families/4/independent_review",
+    "/families/4/moderate_transport_review",
+    "/portable_manifests/0",
+    "/portable_manifests/1",
+    "/portable_manifests/2",
+    "/portable_manifests/3",
+    "/portable_manifests/4",
+    "/portable_manifests/5",
+    "/portable_manifests/6",
+    "/portable_manifests/7",
+    "/portable_manifests/8",
+    "/aggregate_independent_review",
+    "/FUN_transport_pending_override",
+    "/P37_P38",
+    "/pattern_pass",
+    "/publication/auth_observation",
+    "/cleanup"
+  ],
+  "portable_member_check_results": [
+    {
+      "path": "census/portable-manifest.json",
+      "bytes": 10752,
+      "sha256": "b4c08b4973fad4d8a0814f60684a940abdd50e17b8133af326bbde5ec992f742",
+      "members": 19,
+      "stored_bytes": 539694,
+      "decoded_bytes": 0,
+      "encoding_counts": {},
+      "errors": []
+    },
+    {
+      "path": "funnel/manifest.json",
+      "bytes": 258230,
+      "sha256": "0c8342b33ceb780f5648493a5bf99d6d8f5444dc8706778eb09b28d24503eaf8",
+      "members": 497,
+      "stored_bytes": 943945,
+      "decoded_bytes": 3085546,
+      "encoding_counts": {
+        "identity": 82,
+        "gzip": 415
+      },
+      "errors": []
+    }
+  ],
+  "prior_review_reliance": {
+    "reviewer": "/root/transfer_oct07",
+    "sha256": "246511bb25782d0febfe32f0a1c0142461fb00689ad4a822014ae9b9c11b5db3",
+    "sealed19_manifest_sha256": "b4c08b4973fad4d8a0814f60684a940abdd50e17b8133af326bbde5ec992f742",
+    "prior_reviewed_raw198_acceptance_joins": 46,
+    "prior_reviewed_JSON_pointers": 817,
+    "prior_reviewed_catalog_files": 63,
+    "this_review_did_not_repeat_full_original45_semantic_review": true
+  },
+  "semantic_findings": [
+    "39 closed values are proposals pending G; formal_closed0/G_accepted0 and all46 P41 not_established are preserved.",
+    "B131/B137/B157/B161/B164 remain held; B108 actual fiscal issuer law remains limited. B164 primary not_established with no appointed/supplied actual chain; bridge_missing is conditional after real issuer/verifier/write-owner refs.",
+    "Actual CBC/legacy5b/Node d23/B156 a30c execution identities remain distinct from selected-source qualification8e. No overlapping or historical cohorts are summed into whole-D PASS.",
+    "Native-only3 SKIP leave numerical property UNRUN. Quantity17 assertions PASS remain separate from generic capture/admission ERROR. Historicalsignal9 has unknown cause, incomplete output and zero testcase phases; whole global gate remains UNRUN without productFAIL/OOM/P41 waiver.",
+    "Append-only FUN availability update supersedes only the3 listed pending transport fields. Sealed19 core bytes, original dispositions and source/outcome scopes remain unchanged; complete497 moderate packet is locally transportable.",
+    "New public comparator corrects relative scope: G/main39 versus candidate42 additive ancestor exports, with own3b→a795→8e five-path surface delta empty. Required-history restore through stable public NativeSearchService is documented breaking behavior; internal strategy_adapter.v2/bayesian_candidate_generator.v3 formats refuse unsupported histories without automatic migration.",
+    "Fresh G2abc is connector-observed docs/evidence metadata only. Local2abc object is absent; no fetch, merge, composed execution or fresh-D remote availability claim follows."
+  ],
+  "limitations": [
+    "This reviewer ran no runtime suites, changed no source/tests/index/Git, and created no child agents. Only this external independent review artifact was written.",
+    "Complete758 regular files and all30 direct root bound pointers were recomputed locally. New2abc remote content and live credentials were not independently re-fetched by this reviewer; recorded76-row connector observation is scoped and local object absence is independently confirmed.",
+    "Original45 acceptance semantics,817 catalog pointer joins and63 catalog identities rely on the pinned prior independent review; this review validates seal/core preservation and final deltas rather than claiming a second full review.",
+    "Current normal Git credential failure and observed DremoteCBC remain explicit. Final ordinary receipt commit, final Git byte-readback and remote readback are parent work still pending at this seal; local GO does not mean remote available.",
+    "No full production data, large ignored raw inventory, universal scientific/resource authority, whole dynamic import closure, whole-D PASS or new formal closure is established."
+  ],
+  "file_type_denominator": "All regular files recursively under canonical root, all extensions, excluding exactly publication-manifest.json and census/reviews/final-root-delivery-independent-review.json;758 members/5548507 bytes.",
+  "self_hash_rule": "This artifact is deliberately excluded by publication-manifest to avoid a hash cycle; its exact bytes must be bound by parent final Git readback."
+}

@@ -1,0 +1,3 @@
+Current transfer original10 criteria retain exact198 text/bindings. CBC scopes are native28, quota39 and lessons39 PASS; intake removal3FAIL/1PASS and native finite removal1FAIL are actual assertions. New canonical legacy6 runs only at5b and gives6PASS. These scopes are distinct; no aggregate product PASS or G acceptance.
+
+Eight engineering closure proposals are supported by Census independent review. B131/B137 retain real owner-input positives as held/not_established. Main source/origin, complete commands/streams/JUnit/phases and compact minimum CAS inputs are included; full large raw inventories/native bundles remain explicit local path/hash omissions. No production data transfer.

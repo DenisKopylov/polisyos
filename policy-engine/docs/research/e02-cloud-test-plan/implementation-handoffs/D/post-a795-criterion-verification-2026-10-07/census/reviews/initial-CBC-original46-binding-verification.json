@@ -1,0 +1,388 @@
+{
+  "schema": "D.ALL45.post-a795.original46.binding-verification.v1",
+  "pins": {
+    "receipt_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+    "receipt_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+    "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+    "candidate_tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+    "production_source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+    "latest_G": "9806442ddb47d624a2940bac75d9d6248e934c48",
+    "latest_G_tree": "4a1caafc331990e0ebf0130a9051c08ae1ffcbd4",
+    "merged_G": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+    "G_product_delta_from_merged": [],
+    "D_candidate_ancestor_of_latest_G": false
+  },
+  "counts": {
+    "bundles": 17,
+    "unique_findings": 45,
+    "occurrences": 46,
+    "unique_proposals": {
+      "closed": 39,
+      "held": 5,
+      "limited": 1,
+      "open": 0
+    },
+    "occurrence_proposals": {
+      "closed": 40,
+      "limited": 1,
+      "held": 5
+    },
+    "G_work_classes": {
+      "targeted_current_candidate_verification": 37,
+      "limited_external_semantic_input_and_current_delta_check": 1,
+      "bounded_current_execution_carry": 3,
+      "owner_input_required_original_positive": 5
+    },
+    "current_whole_property_missing_occurrences": 38,
+    "P41_not_established": 46,
+    "formal_closed": 0,
+    "accepted_in_G": 0,
+    "new_runtime_checks_by_accounting_leaf": 0
+  },
+  "checks": {
+    "original_acceptance_byte_slices": 46,
+    "original_fragment_byte_slices": 46,
+    "canonical_cards": 17,
+    "full_owner_TSV_rows": [
+      127,
+      282
+    ],
+    "D_bundle_rows": 17,
+    "D_finding_rows": 45,
+    "D_occurrence_rows": 46,
+    "all_16_original_and_prior_owner_packet_refs_resolved": true,
+    "current_selected_owning_blobs_match_a795_receipt": true,
+    "P37_load_bearing_gates": 230,
+    "P37_labels": [
+      "consumer_asserted",
+      "independently_reconciled",
+      "not_established"
+    ],
+    "errors": []
+  },
+  "rows": [
+    {
+      "id": "B106@STR-01",
+      "acceptance_sha256": "1d212bb12a7346fc8c2480723fddd43da874e2e1daa2d2070a6233ab75795d43",
+      "original_card_key": "card_STR-01",
+      "closure_owner": "STR-01",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B107@STR-01",
+      "acceptance_sha256": "83e4adcea92922a6991dbd16937e9dc47cca02d83f0beccf2eb7e2f43623e0a3",
+      "original_card_key": "card_STR-01",
+      "closure_owner": "STR-01",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B108@OPT-01",
+      "acceptance_sha256": "8d4cbd469a454de4a7f4a26aa91c3fdf8aabf3b2b59bb77651b99146bcaa888c",
+      "original_card_key": "card_OPT-01",
+      "closure_owner": "OPT-01",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B109@OPT-01",
+      "acceptance_sha256": "784670e535c99a1baee35da6689f515779b3b616a5829ab125c608fcc4f712b3",
+      "original_card_key": "card_OPT-01",
+      "closure_owner": "OPT-01",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B110@OPT-01",
+      "acceptance_sha256": "199ef2ac1ae718655b08fbb78829e6ed0768b46df5d1b99fad56aa69181c1184",
+      "original_card_key": "card_OPT-01",
+      "closure_owner": "OPT-01",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B111@OPT-01",
+      "acceptance_sha256": "4d1c7ff7de3b274c2aa4e16230b323102adacd871d551f30616d9d8f3b2eec65",
+      "original_card_key": "card_OPT-01",
+      "closure_owner": "OPT-01",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B112@OPT-02",
+      "acceptance_sha256": "346a175ccdf5884dc409464a2363ff08bee370b2e406d2aa45a103abcedf7234",
+      "original_card_key": "card_OPT-02",
+      "closure_owner": "OPT-02",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B113@OPT-02",
+      "acceptance_sha256": "a58659486c95650eb9a6228a8df62809daede33c44d147794b7f4e78d7ed7624",
+      "original_card_key": "card_OPT-02",
+      "closure_owner": "OPT-02",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B114@OPT-03",
+      "acceptance_sha256": "b2eab2dd0f76dd6fe89611272edc500c3b3d5e0ef5fa5857251aa73944c096b3",
+      "original_card_key": "card_OPT-03",
+      "closure_owner": "OPT-03",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B115@OPT-03",
+      "acceptance_sha256": "60c5a8366edbd7193eafd15fb6c048061373a4dac4502e54b328c78b75225156",
+      "original_card_key": "card_OPT-03",
+      "closure_owner": "OPT-03",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B116@OPT-04",
+      "acceptance_sha256": "838816f2bb639f8c98b0972d2433933f1d8c3f39d8d14f6ee03d52f59c4004ab",
+      "original_card_key": "card_OPT-04",
+      "closure_owner": "OPT-04",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B117@OPT-04",
+      "acceptance_sha256": "9bc6c9b17b4234d10455cb41f4a8e6380c31163687291bb38242529bb954d319",
+      "original_card_key": "card_OPT-04",
+      "closure_owner": "OPT-04",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B118@CTL-01",
+      "acceptance_sha256": "0b2c57a0df378303470a151c0d9ffa22e3e8eaa952e3f607113478a80e9581f0",
+      "original_card_key": "card_CTL-01",
+      "closure_owner": "CTL-01",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B119@CTL-01",
+      "acceptance_sha256": "2df8d82c78083a0795327b04b6d0175330efa9f45f87e41b60ae40f89c635f97",
+      "original_card_key": "card_CTL-01",
+      "closure_owner": "CTL-01",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B120@CTL-03",
+      "acceptance_sha256": "fc2bdc0f5a2f9ab501ed9195ce1b0116184989c4a1c66c6fd3ab34716b4fb8d6",
+      "original_card_key": "card_CTL-03",
+      "closure_owner": "CTL-03",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B121@CTL-03",
+      "acceptance_sha256": "926f2f672300e9dd03830f1677ba7354bf461218ef9c41841e1f9f6a72f30548",
+      "original_card_key": "card_CTL-03",
+      "closure_owner": "CTL-03",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B122@STP-01",
+      "acceptance_sha256": "9fb880ce2c75c7770deca54b1861fb86071f57aa1e4db5e51793fcfac56b115e",
+      "original_card_key": "card_STP-01",
+      "closure_owner": "STP-01",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B123@CTL-03",
+      "acceptance_sha256": "e38f999cb45a59fb619e7f89e35f20f752b4f0be6d279b6136de1f674b45befd",
+      "original_card_key": "card_CTL-03",
+      "closure_owner": "CTL-03",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B124@CTL-02",
+      "acceptance_sha256": "dcfbad092c0072a6fb2c7094e9b53f0fa51977ab80a742ace74838785f9a1133",
+      "original_card_key": "card_CTL-02",
+      "closure_owner": "CTL-02",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B125@CTL-02",
+      "acceptance_sha256": "0a36083564c7d95755126ca040b59efa5abd004855ffbaa995399a6915d6217d",
+      "original_card_key": "card_CTL-02",
+      "closure_owner": "CTL-02",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B126@CTL-02",
+      "acceptance_sha256": "0054a0cfb74b77d2cfa02a6671ed1ee829854b1a9cf1cbadb05537ffa85ef532",
+      "original_card_key": "card_CTL-02",
+      "closure_owner": "CTL-02",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B127@OPT-02",
+      "acceptance_sha256": "0cb92c67b7ad455eb8cbb3bba8a88d7297d3ba6dd2e8ec6284edc152f670ac06",
+      "original_card_key": "card_OPT-02",
+      "closure_owner": "OPT-02",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B128@TRN-01",
+      "acceptance_sha256": "549b289852eaabc2275c031208657ce535c20cdd971105ff0e452e5f6662e5d7",
+      "original_card_key": "card_TRN-01",
+      "closure_owner": "TRN-01",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B129@TRN-02",
+      "acceptance_sha256": "88b1c5aec30b187f76018f9b7e7c7b8f7aabd54e4479465a0b39a549af27c49a",
+      "original_card_key": "card_TRN-02",
+      "closure_owner": "TRN-02",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B130@TRN-01",
+      "acceptance_sha256": "b70b31214ee588708f1536a62ef11dd85932c5bedf2e99e7b2d6320815ecabf3",
+      "original_card_key": "card_TRN-01",
+      "closure_owner": "TRN-01",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B131@TRN-01",
+      "acceptance_sha256": "e6742f51f48e338f3410307c69a2e42b12c6205c34d9c8c4947e784ba842b8dd",
+      "original_card_key": "card_TRN-01",
+      "closure_owner": "TRN-01",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B132@TRN-01",
+      "acceptance_sha256": "5833cd83c20ce8f2a897ab4c13b475daaabcfa4adec33cb2a1376fcba78c4fcb",
+      "original_card_key": "card_TRN-01",
+      "closure_owner": "TRN-01",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B133@TRN-02",
+      "acceptance_sha256": "48f75c8fbb72fbc3c446e8677e4976ccc20d3f3624b34260ce20e01a26b39a3d",
+      "original_card_key": "card_TRN-02",
+      "closure_owner": "TRN-02",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B134@TRN-02",
+      "acceptance_sha256": "36d571033f9b9e3b58f6f9f7bc93a01ed4c6e799a7791d815fa39932fd68de9d",
+      "original_card_key": "card_TRN-02",
+      "closure_owner": "TRN-02",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B135@TRN-03",
+      "acceptance_sha256": "01ce84941fd8680e13557f709b04c7978d7003b2c358dcc81363e2d973aaa136",
+      "original_card_key": "card_TRN-03",
+      "closure_owner": "TRN-03",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B136@TRN-03",
+      "acceptance_sha256": "dbc583087ea526396c4d1b2b4230d2058a76565496b4bdac824060a759dee116",
+      "original_card_key": "card_TRN-03",
+      "closure_owner": "TRN-03",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B137@TRN-03",
+      "acceptance_sha256": "a712c0b6eddcecf9e4b23c77fc2f4732fea66953462e3cb3bfcd4a6ed376be2f",
+      "original_card_key": "card_TRN-03",
+      "closure_owner": "TRN-03",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B156@FUN-01",
+      "acceptance_sha256": "846c22dd69b5b1495efbaff0f982894e6e08b49e0c42e21e0f38b477aa243fa1",
+      "original_card_key": "card_FUN-01",
+      "closure_owner": "FUN-01",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B157@FUN-02",
+      "acceptance_sha256": "260d939d59a70f8f9acca08bc5386d4ac4e4070c4725b6287fd2c1a4d534444b",
+      "original_card_key": "card_FUN-02",
+      "closure_owner": "FUN-02",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B158@FUN-01",
+      "acceptance_sha256": "17cc0ecc4baa734906042063c70ef2cbd4394c206b868333448594ad8897fb9f",
+      "original_card_key": "card_FUN-01",
+      "closure_owner": "FUN-01",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B159@FUN-01",
+      "acceptance_sha256": "7c3b6b49bb03dfb2af6f56e6db82cd302fc5d9c2ae1f6e666b1ab16f11598f36",
+      "original_card_key": "card_FUN-01",
+      "closure_owner": "FUN-01",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B160@FUN-02",
+      "acceptance_sha256": "7f3880ae72b62b26a91f8386be0ac3391e9188fb146b3ed1c757df1a7d2eafba",
+      "original_card_key": "card_FUN-02",
+      "closure_owner": "FUN-02",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B161@FUN-03",
+      "acceptance_sha256": "64bf6d3e30756d1ee3a22a8b81bc2164a41f51931333e269114da303a8fa3b78",
+      "original_card_key": "card_FUN-03",
+      "closure_owner": "FUN-03",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B162@FUN-02",
+      "acceptance_sha256": "806665be954b1b87fb1bcc5e05e2ef2779226c0558e4fa6a30cd18a680681075",
+      "original_card_key": "card_FUN-02",
+      "closure_owner": "FUN-02",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B163@FUN-03",
+      "acceptance_sha256": "000272e0d8331087a33d20ff52c4d2a8696681b0c82513a8562f372789a48e92",
+      "original_card_key": "card_FUN-03",
+      "closure_owner": "FUN-03",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B164@FUN-03",
+      "acceptance_sha256": "a367b70e08a3ff6f3515593c46fe2686a9c2f02532daf2c243f57613777b993e",
+      "original_card_key": "card_FUN-03",
+      "closure_owner": "FUN-03",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B165@FUN-02",
+      "acceptance_sha256": "42c25e1cf8e4e9d84ab45a3cb8577b7c2d5d6791112006c30aa15b6d3ce7127e",
+      "original_card_key": "card_FUN-02",
+      "closure_owner": "FUN-02",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "B41@STP-01",
+      "acceptance_sha256": "4a76b7b1923f16245bdc19a10b05570aa47c2ca063e8e1a2faf3eb0112576937",
+      "original_card_key": "card_STP-01",
+      "closure_owner": "STP-01",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "LA-014@SRV-01",
+      "acceptance_sha256": "a94d827f2038968fc442e5801bf48f5a675dcacfb375b927e2de05cc541665fd",
+      "original_card_key": "card_SRV-01",
+      "closure_owner": "SRV-01",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "LA-015@CTL-01",
+      "acceptance_sha256": "219f17404aedddcd4196a85dc9b05d5d28403c12812d551c241e26b850d285e8",
+      "original_card_key": "card_CTL-01",
+      "closure_owner": "SRV-03",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    },
+    {
+      "id": "LA-015@SRV-03",
+      "acceptance_sha256": "219f17404aedddcd4196a85dc9b05d5d28403c12812d551c241e26b850d285e8",
+      "original_card_key": "card_SRV-03",
+      "closure_owner": "SRV-03",
+      "binding_equal_across_original198_prior617_Dcbc_G980": true
+    }
+  ],
+  "source_qualification": "All comparisons read immutable Git bytes. This is independently_reconciled metadata and original owner binding, not a product PASS or complete dependency closure."
+}

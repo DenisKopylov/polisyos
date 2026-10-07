@@ -1,0 +1,385 @@
+{
+  "schema": "D.e02.selected-essential-independent-reviews.publication-manifest.final680.v3",
+  "prepared_by": "/root/census_oct07",
+  "created_utc": "2026-10-07T10:57:46.629210+00:00",
+  "source_root": "/dev/shm/e02-D-census-review-oct07",
+  "destination_git_prefix": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/",
+  "immutable_current_implementation": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "not_final_current_implementation_notice": "Superseded pendingfiscalprecision note from immutablev1/v2 remains historical. Actual68073/18/13 with protectedremoval27F46P/2F now complete and independentlyreviewed5ae; this manifest asserts only exactJSONpublicationmembers, not Gacceptance/formalclosure.",
+  "file_count": 51,
+  "total_bytes": 514790,
+  "files": [
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/standalone-admission-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/standalone-admission-independent-review.json",
+      "bytes": 15756,
+      "sha256": "21a9d6206a1fc7e0c2c77404ddb99ed2965c9eef43cc19f510fc03fa5594a5c2",
+      "role": "lawful exact branch/path recovery+admission/history"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/original46-criterion-specific-P37-P38-gate-basis.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/original46-criterion-specific-P37-P38-gate-basis.json",
+      "bytes": 57419,
+      "sha256": "6cc68100bdc10cd25ad706d6fb5f1123ac9750d21d05de709a354b7ab71fbbad",
+      "role": "full46 original criterion-specific predicate/proxy/falsifier basis; final ledger overlays current outcomes"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/initial-portable438-staged-seal-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/initial-portable438-staged-seal-independent-review.json",
+      "bytes": 3648,
+      "sha256": "d470367241997b907219ba5c036404657200ed2f3961bb63aeae17ffd94dfdb1",
+      "role": "initial237 complete deciding-file Gitindex membership and readback"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/B124-B111-final40-eight-staged-independent-reconciliation.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B124-B111-final40-eight-staged-independent-reconciliation.json",
+      "bytes": 7433,
+      "sha256": "88a9960a58d2351b1bba715715a0e2dde05638eeece0b62b7d8638c1d449692f",
+      "role": "final969 source/test/operator AST+byte seal"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/B124-B111-final40-969-immutable-source-independent-bind.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B124-B111-final40-969-immutable-source-independent-bind.json",
+      "bytes": 893,
+      "sha256": "856386b9dbf5cfdcf4c7a012e21e8ab4c5f04e9200078693c156cf96f845d7b6",
+      "role": "final969 source/tree immutable commit binding"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+      "bytes": 29365,
+      "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+      "role": "actual native48 and consumer41/44/paid2/DOE13/Legacy2 plus four real persisted divergent controls"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/Service118-Transfer50-final969-portable-seal-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/Service118-Transfer50-final969-portable-seal-independent-review.json",
+      "bytes": 1969,
+      "sha256": "8ef0fd8e9b06b6b2be75c677e20e7c738df9b6245c05213469ee521b99a2a86d",
+      "role": "final969 complete Service118/Transfer50 exact members+14 CAS minrefs"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/Adapter-final969-126-and-portable-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/Adapter-final969-126-and-portable-independent-review.json",
+      "bytes": 4095,
+      "sha256": "3179c1e5269cf678dd1fdd485b039edc9c535869a44da3be93a43513291339ac",
+      "role": "actual126 plus history2/innerJSON2 removal and lossless731bindings; five original contributions"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/FUN-final969-actual10-and-financial-carry-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/FUN-final969-actual10-and-financial-carry-independent-review.json",
+      "bytes": 6838,
+      "sha256": "faab6d1d09847dca1c001d5fe1ba07d8cc05467b53e6058bf87a2725d4c7bc5f",
+      "role": "actual canonical publicfinancialfactory10 plus six qualified financial carry scopes"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/FUN499-b652-original11-owner16-and-GitService122-seal-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/FUN499-b652-original11-owner16-and-GitService122-seal-independent-review.json",
+      "bytes": 4172,
+      "sha256": "accee7145c0e4c74ecbb16e8c5c75b32bf7f292beb97a16567422a4a936f22c2",
+      "role": "canonicalFUN11 original rows/owner16scopes and complete publishedGitService122"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/FUN-canonical-B12-final-a7-runtime-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/FUN-canonical-B12-final-a7-runtime-independent-review.json",
+      "bytes": 6777,
+      "sha256": "ee9ea336e21c8b9b66fad1a273628718c507f873e977b33c614e4ca526ab9a89",
+      "role": "actual canonical decoder32/cache18/HTTP30/owner292/affected138/state113 original functional and financial profiles"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/FUN-publicfactory10-b652-runtime-and-sixcarry-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/FUN-publicfactory10-b652-runtime-and-sixcarry-independent-review.json",
+      "bytes": 4970,
+      "sha256": "51a46d7f277343078554793e861bdedb0acf674ddb3643e9e22c47ea2eb0844d",
+      "role": "first actual normal-module canonicalfinancialfactory10 and six exact a7 scope carries"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/Legacy2-and-budget-owner-removal1-b652-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/Legacy2-and-budget-owner-removal1-b652-independent-review.json",
+      "bytes": 8212,
+      "sha256": "4003f214d3dac2a1aa3b9ebc45fd65b70ff023915b27a0b501442e9f86d8b526",
+      "role": "literal actualLegacyrun_search and real midflightunknown owner-refresh removal"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/B333-Champion-final-a7-runtime-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B333-Champion-final-a7-runtime-independent-review.json",
+      "bytes": 6204,
+      "sha256": "1c37099e94880d6cbebc51cb16378434473cd591f0dd0845297d591add8b7c28",
+      "role": "actual canonicalB333 seven-origin currentChampion5 and real external held-lock removal1"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/B333-Champion-bounded-executable-profile-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B333-Champion-bounded-executable-profile-independent-review.json",
+      "bytes": 9865,
+      "sha256": "391d72767eb15a8fbd029ffede6e973a6c59bd875396458fc736b9ec435a3707",
+      "role": "bounded seven-module Git source loader/currentChampion executable admission"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/B333-seven-module-combined-profile-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B333-seven-module-combined-profile-independent-review.json",
+      "bytes": 4580,
+      "sha256": "282b43c0883069fa594a36f0b6061063eb64d49e6ab61b2bcdb9485b46f51a6d",
+      "role": "canonicalB333 exactseven transitive-source input admission"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/transfer79-B128-and-B333-runtime-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/transfer79-B128-and-B333-runtime-independent-review.json",
+      "bytes": 77507,
+      "sha256": "98f70cdcd078c95efac80401f595db4a50dba6af428cf120abd47d96129b73cd",
+      "role": "actual persistedempty/invalid/unavailable/nonempty4+removal3F1P and nativeB333pair2/removal1F"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/transfer79-portable-packet-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/transfer79-portable-packet-independent-review.json",
+      "bytes": 1351,
+      "sha256": "ba0c7c6bcb608aa24ba6a593c48753bb961e0bbc798f5643bccbc06353f03b10",
+      "role": "full10original TRN row binding and portable112 output readback"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/transfer-b5-original65-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/transfer-b5-original65-independent-review.json",
+      "bytes": 37402,
+      "sha256": "e3e0e4da8727524e3266fae41234db81943785bbd4b0e973577b1824750fb724",
+      "role": "actual fullavailable originalTRN65 clause/realnativeexception/context/filter/replay verification"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/transfer-d610-native17-and-carry-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/transfer-d610-native17-and-carry-independent-review.json",
+      "bytes": 25022,
+      "sha256": "322528605b6dcf81868d7655718f67b79394a9bd4f3504d62d9e0a32e91bf607",
+      "role": "realHNSW numeric17/current1002+freshchild and exactold59 scope carry"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/transfer-original-clauses-combined-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/transfer-original-clauses-combined-independent-review.json",
+      "bytes": 2660,
+      "sha256": "764894d606a72ca85e2744627022a7d94bfdb2b5a6e183ba0bdfa56dcaa573df",
+      "role": "full originalTRN clauses correction and exactcount/authority limits"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/GP-State-MO-currentc0-original-criterion-and-portable-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/GP-State-MO-currentc0-original-criterion-and-portable-independent-review.json",
+      "bytes": 35794,
+      "sha256": "591a91b6fcb8b25e5d9bd6ba44e3ff228c2622a73bea89ee16496fc731df4c5f",
+      "role": "actualGP43/state142/MO88/minimal55+15UNRUN/full10original clauses and real independentoracle bindings"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/native-state-and-B41-a7-scoped-carry-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/native-state-and-B41-a7-scoped-carry-independent-review.json",
+      "bytes": 4342,
+      "sha256": "66e7c798641e2ee15497e0a90fb69e5fb39a69d73a2194ea5a0e59023d2089fa",
+      "role": "qualified oldstrong numerical currentcaller3 and B41exact74 detectorcarry"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/B41-b5-runtime-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B41-b5-runtime-independent-review.json",
+      "bytes": 56746,
+      "sha256": "107d386627435b068eaa7a1bb57fb89dd41efeab2e35cf778053640e1f7e4904",
+      "role": "actualmissingbasis/currentnumeric/freshrecovery104 and metadata/numeric removal outputs"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/STP-STR469-threefile-seal-and-original-criterion-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/STP-STR469-threefile-seal-and-original-criterion-independent-review.json",
+      "bytes": 3475,
+      "sha256": "d950b06c22f68472f8dd51ef40d09e72663d9f218d8deb9d4ecaf3ecb758bb3f",
+      "role": "fulloriginalB106107122 actual153+DOE finite38/violated15 and truthfuldenominator controls"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/B04-b652-actual-canonical18-and-removal5-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B04-b652-actual-canonical18-and-removal5-independent-review.json",
+      "bytes": 3303,
+      "sha256": "05da63540a1f5ec4f5d84a0b90ad0bc39d39614cf02d000addf0a6944e492396",
+      "role": "actual canonical63 tool readset +18 real caller tests +5 guard removal"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/B04-B19-B23-owner-companion-independent-document-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B04-B19-B23-owner-companion-independent-document-review.json",
+      "bytes": 1811,
+      "sha256": "4ec4869200104ecad061a607640faffd57b58e4586c5a3e18dfb374bf247f3c9",
+      "role": "canonical companion owner minimum refs/incomplete diagnostics scoped separate A/B04"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/B04-final-v3-tests-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B04-final-v3-tests-independent-review.json",
+      "bytes": 2835,
+      "sha256": "01ac525d5ab97e336dbc20731cf75376942967ed906242d97a2bfa0ce5f68fe9",
+      "role": "ordinary subclass/unsupported/unread constructors actualpredicate test source review"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/B04-final-v3-companions-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B04-final-v3-companions-independent-review.json",
+      "bytes": 1275,
+      "sha256": "22fe32e7831fec2266933d6c6b691f7d1cb7e524b8f1a0174ed6b6b935a3fede",
+      "role": "toolcompatibility exit2UNRUN/measurementreceipt canonicalowner docs"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/B-raw-decoder-e7-independent-static-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B-raw-decoder-e7-independent-static-review.json",
+      "bytes": 2737,
+      "sha256": "b5f7ce13265fa1b6fd8e6be3c272c47b7a0523aa68ea777af0db6b9858137c03",
+      "role": "actual canonicalB Decoder Decimal rawtext intake source owner"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/B12-full-eight-source-and-ownerHTTP30-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B12-full-eight-source-and-ownerHTTP30-independent-review.json",
+      "bytes": 14284,
+      "sha256": "b48066f0c98a86e299aee34acec7c1f81ffa03ab969b3a5ea9aee9c2bda772dc",
+      "role": "full canonicalB1.2 eight source dependency API+HTTP30 review"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/B12-nine-tests-and-companions-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B12-nine-tests-and-companions-independent-review.json",
+      "bytes": 13009,
+      "sha256": "4650f1ff7245023a0da7e705cb44dff0dc9ef1ec4e45e6f184fcd3c798710642",
+      "role": "exactcanonicalB defining tests/generatedcompatibility boundary"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/durable-cache-boundary-c0-independent-source-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/durable-cache-boundary-c0-independent-source-review.json",
+      "bytes": 3311,
+      "sha256": "fa9b03e49a3e822a828b0a3ec93aa2af557590d970f8a67df0b287bb85981893",
+      "role": "genericfunctionalreuse versus canonicaldurable financialguard relocation"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/financial-boundary-clone-safe-v4-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/financial-boundary-clone-safe-v4-independent-review.json",
+      "bytes": 2240,
+      "sha256": "474f8420bac747c7cf9c8f33eeac4ca4dba70ee71db1556240d029ba8f9a91ec",
+      "role": "originalfourBcache profile retention/actual clonedboundview/removal inputs"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/controller-f360-nullable-source-additional-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/controller-f360-nullable-source-additional-review.json",
+      "bytes": 1527,
+      "sha256": "3c292dde4718362f87cc2f3b3582f4e22a546e30b13ca810f7ddd35ac4da9183",
+      "role": "canonicalunknown owner snapshot checkpoint nullable/currentfence"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/controller-owner11-persisted-independent-test-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/controller-owner11-persisted-independent-test-review.json",
+      "bytes": 2753,
+      "sha256": "bd3b84a8303ae4bc3adc2dd34b09a8b27e80ec9b26bbc0002ed4e20223102e87",
+      "role": "actualB1.2 producer/controller unknown/paid/zero+freshcheckpoint atomic input"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/final-runner-returnref-paid-original-tests-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/final-runner-returnref-paid-original-tests-independent-review.json",
+      "bytes": 2419,
+      "sha256": "9edc3de6ba9bf6325c2f9086d82cd8fc8d618f7800610cdad6e9122e4e0453df",
+      "role": "configuredanalysisref proofport +paid two-run original criterion tests"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/runner-public-budget-companion-c0-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/runner-public-budget-companion-c0-independent-review.json",
+      "bytes": 1471,
+      "sha256": "a3860bb814b0e767815a30c55e8f52dccca1ce9d0aa69f21b10251d65c3ffc3c",
+      "role": "actual additivepublicRunner owner port and structured API/operator compatibility"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/public-service-owner-budget-factory10-independent-test-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/public-service-owner-budget-factory10-independent-test-review.json",
+      "bytes": 2243,
+      "sha256": "68e4050ba44795bf036c6ea8311096d9e6bd9e56a5d6905808f095a0b01c7733",
+      "role": "actual canonicalpublicRunner factory owner/key/race input source review"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/final-release-classification-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/final-release-classification-independent-review.json",
+      "bytes": 2222,
+      "sha256": "3612d0a91541e2da05fe51e5500d8bd88015077c23256182e5b544fc24a93b50",
+      "role": "supportedcanonical three releaseclass corrections"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/base-b5-runtime-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/base-b5-runtime-independent-review.json",
+      "bytes": 7520,
+      "sha256": "66480c75ee70c9cabdb238db52e4990bc2bd36118a60706e94032f6dfc003e6c",
+      "role": "strictBase Sobol/Python numeric admission2positive2removal"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/Grid-public-batch8-independent-test-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/Grid-public-batch8-independent-test-review.json",
+      "bytes": 1367,
+      "sha256": "bf27b8e1a4e66b807fa47b65c66113d220c937f161f6d85ff12e132c190b480c",
+      "role": "realconfiguredStrategyAdapter finitepartialGrid CAS/restoredcursor/exhaustion tests"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/Grid-native-factory4-independent-test-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/Grid-native-factory4-independent-test-review.json",
+      "bytes": 1696,
+      "sha256": "2c8204fc124fa53a8b863dd377a35d0e146665c0b71d92a243ef6352363f6b47",
+      "role": "actual publicfiniteGrid shortlastbatch/cursor/freshresume consumer"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/MO-final27-failure-coherence-independent-test-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/MO-final27-failure-coherence-independent-test-review.json",
+      "bytes": 2411,
+      "sha256": "2729937af4166192b32f705dbe5265a82510043e15d62cf3151cbef90f88db2d",
+      "role": "actual ModelListGP fullcov/state/fail-refit coherent CAS and real EHVI input tests"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/MO-operator-release-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/MO-operator-release-independent-review.json",
+      "bytes": 1890,
+      "sha256": "15409f4c6c816bb367dcdc781147f35355746342ced5fd636b9b7c37f3c305c8",
+      "role": "supportedexactCPU ModelListGP checkpoint/refit law compatibility"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/GP-State-MO-final969-corrected-carry-and-native3-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/GP-State-MO-final969-corrected-carry-and-native3-independent-review.json",
+      "bytes": 6487,
+      "sha256": "8f2028b321e30da70b4b95732c5efff38bd8c8c710ee204807f10a9555f08206",
+      "role": "current corrected969 strongsourcecarry+actual publicnative3/two8/7fits; original315e plus mandatory6c8+11ff boundary"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/fiscal-alias-final63-stopping-tests-and-companions-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/fiscal-alias-final63-stopping-tests-and-companions-independent-review.json",
+      "bytes": 4245,
+      "sha256": "a617b37213525dbdbe889fa6857297129f4246cf8b39981b821d02f221d16bb8",
+      "role": "canonicalGateway/alias/composite/stopping63test/full73target+operatorclass"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/fiscal-dependent-service18-harness-observer-independent-static-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/fiscal-dependent-service18-harness-observer-independent-static-review.json",
+      "bytes": 1777,
+      "sha256": "5cc727751463028c43d458b02104d6bdfe744112498de1292a725161987bfe8d",
+      "role": "actual18 unchangedconsumer executablecapture/observer"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/fiscal680-harness-handoff-docs-admission-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/fiscal680-harness-handoff-docs-admission-independent-review.json",
+      "bytes": 5570,
+      "sha256": "60972006de36f97b077a0cdd41e0ec61f02469c8e9a0b968976c88e3cb0b8687",
+      "role": "trackedclean source plus declareduntrackedDdecidingdocs sourceadmission"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/fiscal-final680-four-path-immutable-source-independent-bind.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/fiscal-final680-four-path-immutable-source-independent-bind.json",
+      "bytes": 2836,
+      "sha256": "052c87b711d97f042e49a19a353bfcccf641f022825fafa36e91d4f441399d48",
+      "role": "exactfour-pathfinal680 AST/test/Gitblob sourcebind"
+    },
+    {
+      "source_absolute_path": "/dev/shm/e02-D-census-review-oct07/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+      "destination_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+      "bytes": 5056,
+      "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+      "role": "actualfinal73/18/13 and27F46P/2F plus currentqualifiedService/modelcarry"
+    }
+  ],
+  "selection_rule": "Exact essential review JSON only. Excludes intermediate/superseded accounting ledgers and duplicate formatter/reconciliation histories. Existing authorpacks retain their complete outputs/source reviews; final ledger joins original46 criteria. JSON review references to historical scratch provenance do not imply scratch cloudavailability; deciding bytes must be canonicalGit or lossless content pool.",
+  "excluded_patterns": [
+    "final-accounting-*",
+    "*-scaffold*",
+    "initial-portable-missing-index-paths.json",
+    "*.py"
+  ],
+  "permission_and_preservation": "Root may copy exactly declared immutable read-only JSON members to its own D topic Git destinations. Preserve originals, no delete or source writes.",
+  "formal_closed": false,
+  "accepted_G": false,
+  "prior_immutable_manifest": {
+    "name": "essential-review-copy-manifest-v2.json",
+    "sha256": "6e40129c562450261c72397ccfa32080e51f235aa9153ef850adecd7cebe9b4a",
+    "all46declaredmemberbytes_retained": true
+  }
+}

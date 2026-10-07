@@ -1,0 +1,82 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.0.2, pluggy-1.6.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /dev/shm/e02-D-oct07-continuation/policy-engine
+configfile: pytest.ini
+plugins: xdist-3.8.0, benchmark-5.2.3, asyncio-1.3.0, langsmith-0.6.0, jaxtyping-0.3.4, hypothesis-6.151.2, anyio-4.12.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 2 items
+
+tests/unit/scientist/methods/search/test_fiscal_numeric_admission.py REMOVAL_FISCAL_OBSERVATION {"source": "68070854bddba2593efaef59a107a3cbe3b08d4d", "source_file_sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8", "removed_guard_count": 1, "actual_inputs": {"gov_balance": {"type": "Decimal", "repr": "1E-1000"}, "_gateway_request_id": {"type": "str", "repr": "fiscal-float64-intake"}, "_gateway_response_headers": {"type": "dict", "repr": "{'x-request-id': 'fiscal-float64-intake'}"}}, "raw_value": -0.0, "normalized_value": -0.0, "is_satisfied": true, "actual_plateau": {"should_stop": true, "reason": "Improvement plateau: gain 0 <= 0.01 declared_fixture_float64_units for 1 iterations", "details": {"best_recent": -0.0, "best_historical": 0.0, "gain": 0.0, "improvement": 0.0, "tolerance": 0.01, "absolute_tolerance": 0.01, "relative_tolerance": 0.01, "objective_unit": "declared_fixture_float64_units", "direction": "minimize", "profile_version": "1.0", "patience": 1, "adequacy_status": "observed_finite_history"}}, "actual_target_should_stop": true, "retained": ["actual Gateway response-text decoder", "raw Decimal nonzero", "bool/finite/overflow and alias rules", "source/context/metric markers", "actual stopping implementations"]}
+REMOVAL_FISCAL_OBSERVATION {"source": "68070854bddba2593efaef59a107a3cbe3b08d4d", "source_file_sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8", "removed_guard_count": 1, "actual_inputs": {"gov_balance": {"type": "Decimal", "repr": "1E-1000"}, "_gateway_request_id": {"type": "str", "repr": "fiscal-float64-intake"}, "_gateway_response_headers": {"type": "dict", "repr": "{'x-request-id': 'fiscal-float64-intake'}"}}, "raw_value": -0.0, "normalized_value": -0.0, "is_satisfied": true, "actual_plateau": {"should_stop": true, "reason": "Improvement plateau: gain 0 <= 0.01 declared_fixture_float64_units for 1 iterations", "details": {"best_recent": -0.0, "best_historical": 0.0, "gain": 0.0, "improvement": 0.0, "tolerance": 0.01, "absolute_tolerance": 0.01, "relative_tolerance": 0.01, "objective_unit": "declared_fixture_float64_units", "direction": "minimize", "profile_version": "1.0", "patience": 1, "adequacy_status": "observed_finite_history"}}, "actual_target_should_stop": true, "retained": ["actual Gateway response-text decoder", "raw Decimal nonzero", "bool/finite/overflow and alias rules", "source/context/metric markers", "actual stopping implementations"]}
+FREMOVAL_FISCAL_OBSERVATION {"source": "68070854bddba2593efaef59a107a3cbe3b08d4d", "source_file_sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8", "removed_guard_count": 1, "actual_inputs": {"gov_balance": {"type": "Decimal", "repr": "-1E-1000"}, "_gateway_request_id": {"type": "str", "repr": "fiscal-float64-intake"}, "_gateway_response_headers": {"type": "dict", "repr": "{'x-request-id': 'fiscal-float64-intake'}"}}, "raw_value": 0.0, "normalized_value": 0.0, "is_satisfied": true, "actual_plateau": {"should_stop": true, "reason": "Improvement plateau: gain 0 <= 0.01 declared_fixture_float64_units for 1 iterations", "details": {"best_recent": 0.0, "best_historical": 0.0, "gain": 0.0, "improvement": 0.0, "tolerance": 0.01, "absolute_tolerance": 0.01, "relative_tolerance": 0.01, "objective_unit": "declared_fixture_float64_units", "direction": "minimize", "profile_version": "1.0", "patience": 1, "adequacy_status": "observed_finite_history"}}, "actual_target_should_stop": true, "retained": ["actual Gateway response-text decoder", "raw Decimal nonzero", "bool/finite/overflow and alias rules", "source/context/metric markers", "actual stopping implementations"]}
+REMOVAL_FISCAL_OBSERVATION {"source": "68070854bddba2593efaef59a107a3cbe3b08d4d", "source_file_sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8", "removed_guard_count": 1, "actual_inputs": {"gov_balance": {"type": "Decimal", "repr": "-1E-1000"}, "_gateway_request_id": {"type": "str", "repr": "fiscal-float64-intake"}, "_gateway_response_headers": {"type": "dict", "repr": "{'x-request-id': 'fiscal-float64-intake'}"}}, "raw_value": 0.0, "normalized_value": 0.0, "is_satisfied": true, "actual_plateau": {"should_stop": true, "reason": "Improvement plateau: gain 0 <= 0.01 declared_fixture_float64_units for 1 iterations", "details": {"best_recent": 0.0, "best_historical": 0.0, "gain": 0.0, "improvement": 0.0, "tolerance": 0.01, "absolute_tolerance": 0.01, "relative_tolerance": 0.01, "objective_unit": "declared_fixture_float64_units", "direction": "minimize", "profile_version": "1.0", "patience": 1, "adequacy_status": "observed_finite_history"}}, "actual_target_should_stop": true, "retained": ["actual Gateway response-text decoder", "raw Decimal nonzero", "bool/finite/overflow and alias rules", "source/context/metric markers", "actual stopping implementations"]}
+F
+
+=================================== FAILURES ===================================
+_ test_actual_response_text_nonzero_decimal_is_unavailable_to_fiscal_consumer[1e-1000-gov_balance] _
+
+alias = 'gov_balance', token = '1e-1000'
+
+    @pytest.mark.parametrize("alias", ALIASES)
+    @pytest.mark.parametrize("token", ["1e-1000", "-1e-1000"])
+    @pytest.mark.asyncio
+    async def test_actual_response_text_nonzero_decimal_is_unavailable_to_fiscal_consumer(
+        alias, token
+    ):
+        gateway = _TextGateway('{"' + alias + '":' + token + "}")
+        payload = await gateway._post_json(endpoint="/fixture", payload={}, timeout_s=1.0)
+        assert gateway.transport.calls == 1
+        assert isinstance(payload[alias], Decimal)
+        assert payload[alias] == Decimal(token) and payload[alias] != 0
+        objective = BudgetDeficitObjective(threshold=0.0)
+        evaluated = objective.evaluate(payload)
+        combined = CompositeObjective([objective]).evaluate(payload)
+        history = [{"objective_value": 0.0}, {"objective_value": combined.normalized_value}]
+        plateau = ImprovementPlateau(
+            patience=1, objective_unit="declared_fixture_float64_units"
+        ).check(history, {})
+>       assert plateau.should_stop is False
+E       AssertionError: assert True is False
+E        +  where True = StoppingCondition(should_stop=True, reason='Improvement plateau: gain 0 <= 0.01 declared_fixture_float64_units for 1 i...nits', 'direction': 'minimize', 'profile_version': '1.0', 'patience': 1, 'adequacy_status': 'observed_finite_history'}).should_stop
+
+tests/unit/scientist/methods/search/test_fiscal_numeric_admission.py:177: AssertionError
+_ test_actual_response_text_nonzero_decimal_is_unavailable_to_fiscal_consumer[-1e-1000-gov_balance] _
+
+alias = 'gov_balance', token = '-1e-1000'
+
+    @pytest.mark.parametrize("alias", ALIASES)
+    @pytest.mark.parametrize("token", ["1e-1000", "-1e-1000"])
+    @pytest.mark.asyncio
+    async def test_actual_response_text_nonzero_decimal_is_unavailable_to_fiscal_consumer(
+        alias, token
+    ):
+        gateway = _TextGateway('{"' + alias + '":' + token + "}")
+        payload = await gateway._post_json(endpoint="/fixture", payload={}, timeout_s=1.0)
+        assert gateway.transport.calls == 1
+        assert isinstance(payload[alias], Decimal)
+        assert payload[alias] == Decimal(token) and payload[alias] != 0
+        objective = BudgetDeficitObjective(threshold=0.0)
+        evaluated = objective.evaluate(payload)
+        combined = CompositeObjective([objective]).evaluate(payload)
+        history = [{"objective_value": 0.0}, {"objective_value": combined.normalized_value}]
+        plateau = ImprovementPlateau(
+            patience=1, objective_unit="declared_fixture_float64_units"
+        ).check(history, {})
+>       assert plateau.should_stop is False
+E       AssertionError: assert True is False
+E        +  where True = StoppingCondition(should_stop=True, reason='Improvement plateau: gain 0 <= 0.01 declared_fixture_float64_units for 1 i...nits', 'direction': 'minimize', 'profile_version': '1.0', 'patience': 1, 'adequacy_status': 'observed_finite_history'}).should_stop
+
+tests/unit/scientist/methods/search/test_fiscal_numeric_admission.py:177: AssertionError
+=============================== warnings summary ===============================
+../../../../tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+- generated xml file: /dev/shm/fiscal-current680-67egtqt6/guard-removal2.junit.xml -
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/search/test_fiscal_numeric_admission.py::test_actual_response_text_nonzero_decimal_is_unavailable_to_fiscal_consumer[1e-1000-gov_balance]
+FAILED tests/unit/scientist/methods/search/test_fiscal_numeric_admission.py::test_actual_response_text_nonzero_decimal_is_unavailable_to_fiscal_consumer[-1e-1000-gov_balance]
+========================= 2 failed, 1 warning in 0.29s =========================

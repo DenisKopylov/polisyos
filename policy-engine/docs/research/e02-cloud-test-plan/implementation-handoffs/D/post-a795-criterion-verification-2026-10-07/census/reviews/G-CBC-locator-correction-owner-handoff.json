@@ -1,0 +1,209 @@
+{
+  "schema": "D.to.G.CBC-receipt-locator-correction.minimum-input.v1",
+  "authority": "Documentation locator correction request only; D does not edit G or appoint authority.",
+  "canonical_owner": "G reviewer/publisher of integration/reviews/2026-10-07-CD-C4-a795",
+  "scan_denominator": {
+    "json_files": 13,
+    "directory": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/",
+    "exact_ref": "9806442ddb47d624a2940bac75d9d6248e934c48"
+  },
+  "scanned_file_bindings": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/C-CAN-review.json",
+      "sha256": "167c35e5104027612a7f1244e8d78603191ead542c371be289294ea76d6c6999",
+      "bytes": 5537
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/C-NET-decoder-review.json",
+      "sha256": "b10f720073c2fc46c7934c8ecd82e819141700ac74a7e892b4be5d5dd8f913dc",
+      "bytes": 3683
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/C54-decisions.json",
+      "sha256": "4f4e0d91670455e474df18e9368b6ee797af62f9c4297e1c912d92b5ee7553f9",
+      "bytes": 56092
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D-cost-AST-consumers.json",
+      "sha256": "29e9d28f830cd372d1571cd205731459e4cb76056ef8c4984df3e7a1afae1f7b",
+      "bytes": 11993
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D-resume-review.json",
+      "sha256": "3dc6129be71a3e8f51de2e0e9db2a99e32592f2f0747fd7c9fa82a34948d6226",
+      "bytes": 5582
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D45-decisions.json",
+      "sha256": "b1187770c7279a4fa72abd92d018ff8e562e795be7596a733e911136c9325256",
+      "bytes": 151449
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/cache-candidates.json",
+      "sha256": "4b39c3779f9e31b92d1666f1bc711956af1a3bb2d21e707ccd70cdc1e42b94c7",
+      "bytes": 5115
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/final-links.json",
+      "sha256": "1fc719f60ea718c6f68c009f29cfaefb8a15d098a350d26ee825c0096fed0e42",
+      "bytes": 2281
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/final-semantics.json",
+      "sha256": "f128b2496bb3ee7f46b713b2dada838692f966bde79b67179a386d06aebdad81",
+      "bytes": 3028
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/identity.json",
+      "sha256": "8d460dc49af9a4a1862328439e4a567727c6dcec4a3022a502cb167f3a22f0f9",
+      "bytes": 14462
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/local-build-availability.json",
+      "sha256": "4b515344d1a5aa463c5ba916979186fb2ce258ba63692f1fd9f31189d6eb890b",
+      "bytes": 1257
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/pins.json",
+      "sha256": "d1db5d3e63f05420592119e2fb14cb33e00ffc38ff01a8d37cc9b86eb1dc5e76",
+      "bytes": 498
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/storage.json",
+      "sha256": "df0f702c7726f20693754151defdfa5aea3f7a2e8ffb52a70686383f4de4fea9",
+      "bytes": 8501
+    }
+  ],
+  "correction_occurrences": [
+    {
+      "git_ref": "9806442ddb47d624a2940bac75d9d6248e934c48",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D-cost-AST-consumers.json",
+      "source_sha256": "29e9d28f830cd372d1571cd205731459e4cb76056ef8c4984df3e7a1afae1f7b",
+      "json_pointer": "/complete_footprint/receipt",
+      "malformed_receipt_token": "cbc46a0bc87761bc2267a0daa84da4899",
+      "git_commit_ref_resolves": false,
+      "observed_value": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/full-source-footprints.json.gz@cbc46a0bc87761bc2267a0daa84da4899",
+      "requested_corrected_value": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/full-source-footprints.json.gz@cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "actual_receipt_ref": "cbc46a0bc87761bc2267a0daa84da489d6702e89"
+    },
+    {
+      "git_ref": "9806442ddb47d624a2940bac75d9d6248e934c48",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D-cost-AST-consumers.json",
+      "source_sha256": "29e9d28f830cd372d1571cd205731459e4cb76056ef8c4984df3e7a1afae1f7b",
+      "json_pointer": "/cost_origin/evidence/receipt",
+      "malformed_receipt_token": "cbc46a0bc87761bc2267a0daa84da4899",
+      "git_commit_ref_resolves": false,
+      "observed_value": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/funnel-estimated-input-origin-final3b/output-manifest.json@cbc46a0bc87761bc2267a0daa84da4899",
+      "requested_corrected_value": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/funnel-estimated-input-origin-final3b/output-manifest.json@cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "actual_receipt_ref": "cbc46a0bc87761bc2267a0daa84da489d6702e89"
+    },
+    {
+      "git_ref": "9806442ddb47d624a2940bac75d9d6248e934c48",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D-cost-AST-consumers.json",
+      "source_sha256": "29e9d28f830cd372d1571cd205731459e4cb76056ef8c4984df3e7a1afae1f7b",
+      "json_pointer": "/cost_origin/evidence/independent_review",
+      "malformed_receipt_token": "cbc46a0bc87761bc2267a0daa84da4899",
+      "git_commit_ref_resolves": false,
+      "observed_value": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/FUN-origin17-removal11-final3b31-independent-runtime-review.json@cbc46a0bc87761bc2267a0daa84da4899",
+      "requested_corrected_value": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/FUN-origin17-removal11-final3b31-independent-runtime-review.json@cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "actual_receipt_ref": "cbc46a0bc87761bc2267a0daa84da489d6702e89"
+    },
+    {
+      "git_ref": "9806442ddb47d624a2940bac75d9d6248e934c48",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D-cost-AST-consumers.json",
+      "source_sha256": "29e9d28f830cd372d1571cd205731459e4cb76056ef8c4984df3e7a1afae1f7b",
+      "json_pointer": "/ast_spec/evidence/receipt",
+      "malformed_receipt_token": "cbc46a0bc87761bc2267a0daa84da4899",
+      "git_commit_ref_resolves": false,
+      "observed_value": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/gp-ast-final3b/output-manifest.json@cbc46a0bc87761bc2267a0daa84da4899",
+      "requested_corrected_value": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/gp-ast-final3b/output-manifest.json@cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "actual_receipt_ref": "cbc46a0bc87761bc2267a0daa84da489d6702e89"
+    },
+    {
+      "git_ref": "9806442ddb47d624a2940bac75d9d6248e934c48",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D-cost-AST-consumers.json",
+      "source_sha256": "29e9d28f830cd372d1571cd205731459e4cb76056ef8c4984df3e7a1afae1f7b",
+      "json_pointer": "/ast_spec/evidence/independent_review",
+      "malformed_receipt_token": "cbc46a0bc87761bc2267a0daa84da4899",
+      "git_commit_ref_resolves": false,
+      "observed_value": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/GP-AST-final3b-actual-and-a795-carry-independent-review.json@cbc46a0bc87761bc2267a0daa84da4899",
+      "requested_corrected_value": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/reviews/GP-AST-final3b-actual-and-a795-carry-independent-review.json@cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "actual_receipt_ref": "cbc46a0bc87761bc2267a0daa84da489d6702e89"
+    },
+    {
+      "git_ref": "9806442ddb47d624a2940bac75d9d6248e934c48",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D-cost-AST-consumers.json",
+      "source_sha256": "29e9d28f830cd372d1571cd205731459e4cb76056ef8c4984df3e7a1afae1f7b",
+      "json_pointer": "/consumer_and_compatibility/service_evidence/receipt",
+      "malformed_receipt_token": "cbc46a0bc87761bc2267a0daa84da4899",
+      "git_commit_ref_resolves": false,
+      "observed_value": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/service-history-final-a795/receipt.json@cbc46a0bc87761bc2267a0daa84da4899",
+      "requested_corrected_value": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/service-history-final-a795/receipt.json@cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "actual_receipt_ref": "cbc46a0bc87761bc2267a0daa84da489d6702e89"
+    },
+    {
+      "git_ref": "9806442ddb47d624a2940bac75d9d6248e934c48",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D-cost-AST-consumers.json",
+      "source_sha256": "29e9d28f830cd372d1571cd205731459e4cb76056ef8c4984df3e7a1afae1f7b",
+      "json_pointer": "/exact_source_receipts/final_closeout",
+      "malformed_receipt_token": "cbc46a0bc87761bc2267a0daa84da4899",
+      "git_commit_ref_resolves": false,
+      "observed_value": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-closeout.json@cbc46a0bc87761bc2267a0daa84da4899",
+      "requested_corrected_value": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-closeout.json@cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "actual_receipt_ref": "cbc46a0bc87761bc2267a0daa84da489d6702e89"
+    },
+    {
+      "git_ref": "9806442ddb47d624a2940bac75d9d6248e934c48",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D-cost-AST-consumers.json",
+      "source_sha256": "29e9d28f830cd372d1571cd205731459e4cb76056ef8c4984df3e7a1afae1f7b",
+      "json_pointer": "/exact_source_receipts/final_source_review",
+      "malformed_receipt_token": "cbc46a0bc87761bc2267a0daa84da4899",
+      "git_commit_ref_resolves": false,
+      "observed_value": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-source-review.json@cbc46a0bc87761bc2267a0daa84da4899",
+      "requested_corrected_value": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-source-review.json@cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "actual_receipt_ref": "cbc46a0bc87761bc2267a0daa84da489d6702e89"
+    },
+    {
+      "git_ref": "9806442ddb47d624a2940bac75d9d6248e934c48",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D-cost-AST-consumers.json",
+      "source_sha256": "29e9d28f830cd372d1571cd205731459e4cb76056ef8c4984df3e7a1afae1f7b",
+      "json_pointer": "/exact_source_receipts/ledger",
+      "malformed_receipt_token": "cbc46a0bc87761bc2267a0daa84da4899",
+      "git_commit_ref_resolves": false,
+      "observed_value": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/ledger-overlay.json@cbc46a0bc87761bc2267a0daa84da4899",
+      "requested_corrected_value": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/ledger-overlay.json@cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "actual_receipt_ref": "cbc46a0bc87761bc2267a0daa84da489d6702e89"
+    },
+    {
+      "git_ref": "9806442ddb47d624a2940bac75d9d6248e934c48",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D-cost-AST-consumers.json",
+      "source_sha256": "29e9d28f830cd372d1571cd205731459e4cb76056ef8c4984df3e7a1afae1f7b",
+      "json_pointer": "/exact_source_receipts/source_bindings",
+      "malformed_receipt_token": "cbc46a0bc87761bc2267a0daa84da4899",
+      "git_commit_ref_resolves": false,
+      "observed_value": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/source-bindings.json@cbc46a0bc87761bc2267a0daa84da4899",
+      "requested_corrected_value": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/final-accounting-a795/source-bindings.json@cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "actual_receipt_ref": "cbc46a0bc87761bc2267a0daa84da489d6702e89"
+    },
+    {
+      "git_ref": "9806442ddb47d624a2940bac75d9d6248e934c48",
+      "git_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/D-cost-AST-consumers.json",
+      "source_sha256": "29e9d28f830cd372d1571cd205731459e4cb76056ef8c4984df3e7a1afae1f7b",
+      "json_pointer": "/exact_source_receipts/production_unrun",
+      "malformed_receipt_token": "cbc46a0bc87761bc2267a0daa84da4899",
+      "git_commit_ref_resolves": false,
+      "observed_value": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/production-invocation-UNRUN/receipt.json@cbc46a0bc87761bc2267a0daa84da4899",
+      "requested_corrected_value": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/production-invocation-UNRUN/receipt.json@cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "actual_receipt_ref": "cbc46a0bc87761bc2267a0daa84da489d6702e89"
+    }
+  ],
+  "correction_count": 11,
+  "verified_current_D_receipt": {
+    "head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+    "tree": "3e05fcf727bf660a5570225b9600ca410a7082be"
+  },
+  "source_test_output_finding_counts_or_acceptance_change": false,
+  "public42_inventory_review_remains_supported": "D independently matched actual42 __all__/lazy/inventory entries; malformed receipt locator is not an ABI claim or new product defect.",
+  "supersedes_only": "technical-companion-review.json narrower one-service-locator correction request; sealed planning files remain unchanged.",
+  "minimal_owner_action": "Correct these locator strings append-only in G documentation or publish a read-rule sidecar; preserve exact source/execution scopes and decisions."
+}

@@ -1,0 +1,33 @@
+2026-10-07 10:41:38.967 | INFO     | polisyos.common.logger:_call:120 - Starting search 94d6ee3c
+2026-10-07 10:41:39.174 | INFO     | polisyos.common.logger:_call:120 - Starting search f1c72aa5
+2026-10-07 10:41:39.201 | INFO     | polisyos.common.logger:_call:120 - Starting search 64d9be02
+2026-10-07 10:41:39.228 | INFO     | polisyos.common.logger:_call:120 - Starting search 8765df8b
+2026-10-07 10:41:39.256 | INFO     | polisyos.common.logger:_call:120 - Stopping: [max_iterations] Maximum iterations (2) reached
+2026-10-07 10:41:39.273 | INFO     | polisyos.common.logger:_call:120 - Starting search 8ab09290
+2026-10-07 10:41:39.295 | INFO     | polisyos.common.logger:_call:120 - Stopping: generation_exhausted
+2026-10-07 10:41:39.369 | INFO     | polisyos.common.logger:_call:120 - Starting search aa912ab6
+2026-10-07 10:41:39.428 | INFO     | polisyos.common.logger:_call:120 - Starting search eeed5736
+2026-10-07 10:41:39.486 | INFO     | polisyos.common.logger:_call:120 - Starting search 4300e9a8
+2026-10-07 10:41:39.544 | INFO     | polisyos.common.logger:_call:120 - Starting search 008489b3
+2026-10-07 10:41:39.613 | INFO     | polisyos.common.logger:_call:120 - Starting search 764957dc
+2026-10-07 10:41:39.630 | WARNING  | polisyos.common.logger:_call:120 - Search failure checkpoint unavailable; reopen last acknowledged ref
+2026-10-07 10:41:39.648 | INFO     | polisyos.common.logger:_call:120 - Starting search 8dc55fa2
+2026-10-07 10:41:39.681 | WARNING  | polisyos.common.logger:_call:120 - Search failure checkpoint unavailable; reopen last acknowledged ref
+2026-10-07 10:41:39.701 | INFO     | polisyos.common.logger:_call:120 - Starting search ff3efcdc
+2026-10-07 10:41:39.735 | WARNING  | polisyos.common.logger:_call:120 - Search failure checkpoint unavailable; reopen last acknowledged ref
+2026-10-07 10:41:39.755 | INFO     | polisyos.common.logger:_call:120 - Starting search 7bed4608
+2026-10-07 10:41:39.797 | WARNING  | polisyos.common.logger:_call:120 - Search failure checkpoint unavailable; reopen last acknowledged ref
+2026-10-07 10:41:39.859 | INFO     | polisyos.common.logger:_call:120 - Starting search ca30a69e
+2026-10-07 10:41:39.859 | DEBUG    | polisyos.common.logger:_call:120 - Iteration 0: Stage A rejected (score=0.0000)
+2026-10-07 10:41:39.860 | INFO     | polisyos.common.logger:_call:120 - Stopping: Maximum iterations (2) reached
+2026-10-07 10:41:39.861 | INFO     | polisyos.common.logger:_call:120 - Starting search 2b84269a
+2026-10-07 10:41:39.863 | INFO     | polisyos.common.logger:_call:120 - Starting search c75d0b8a
+2026-10-07 10:41:39.863 | INFO     | polisyos.common.logger:_call:120 - Stopping: Maximum iterations (1) reached
+2026-10-07 10:41:39.864 | INFO     | polisyos.common.logger:_call:120 - Starting search cc026c3c
+2026-10-07 10:41:39.865 | INFO     | polisyos.common.logger:_call:120 - Starting search 6b6234b9
+2026-10-07 10:41:39.872 | INFO     | polisyos.common.logger:_call:120 - Starting search 48c7202d
+2026-10-07 10:41:39.904 | INFO     | polisyos.common.logger:_call:120 - Stopping: Maximum iterations (1) reached
+2026-10-07 10:41:39.910 | INFO     | polisyos.common.logger:_call:120 - Starting search d17fd9a0
+2026-10-07 10:41:39.963 | INFO     | polisyos.common.logger:_call:120 - Stopping: Maximum iterations (1) reached
+2026-10-07 10:41:39.978 | INFO     | polisyos.common.logger:_call:120 - Starting search 2cf7815f
+2026-10-07 10:41:39.978 | INFO     | polisyos.common.logger:_call:120 - Stopping: generation_exhausted

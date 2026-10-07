@@ -1,0 +1,40 @@
+{
+  "P41": "not_established; no slice-base inherited-red claim",
+  "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "assessed_product_tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+  "backend": {
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "hnswlib": "0.8.0",
+    "numpy": "2.3.5",
+    "pytest": "9.0.2",
+    "scipy": "1.16.3",
+    "torch": "2.10.0"
+  },
+  "complete_declared_executable_inputs": 6861,
+  "deciding_sha256": {
+    "after.json": "4fb71240c1d7b7384ada0bad3c5a4e422d78b850adfbf71b128265cf80f83aee",
+    "assessed-source-equivalence.json": "cfb8b0b7e836a46621ec7ab719b19ca8bbc3264f0a6bb92a7c2fe5bfc490c28a",
+    "before.json": "4fb71240c1d7b7384ada0bad3c5a4e422d78b850adfbf71b128265cf80f83aee",
+    "command.json": "1da15bbfa572e5c01367ff4a0288fa9418358e3b12a48f587e4218c7b07f5d46",
+    "events.jsonl": "2a359f04668e083cfea252ce89f78c562cf4b26e221edbca720773a85f1c19b9",
+    "junit.xml": "1d3ea8c483d9a9cc73d0863154ce72246cfc0b96e0b15712b43868e8c8eda29d",
+    "origins.json": "94ddf73fe9ab85573953ef2500f505c9edf8e28927c66521074610d707dc76ff"
+  },
+  "elapsed_seconds": 2.699967029999243,
+  "exitcode": 1,
+  "mode": "intake-removal",
+  "outer_complete_stdout_stderr": "Captured by caller; hash only after process ends",
+  "property": "Remove only decoded intake distinctions after exact CAS resolve; real native/schema/ref markers remain: incompatible/unavailable/nonempty must disagree (expected3FAIL) while genuinelyempty remainsPASS.",
+  "resource_posix": {
+    "children_maxrss_kib": 877952,
+    "children_system_seconds": 0.059357,
+    "children_user_seconds": 0.051182,
+    "self_maxrss_kib": 877952,
+    "self_system_seconds": 0.37906800000000007,
+    "self_user_seconds": 2.003614
+  },
+  "source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "source_and_executable_inputs_unchanged": true,
+  "tree": "3e05fcf727bf660a5570225b9600ca410a7082be"
+}

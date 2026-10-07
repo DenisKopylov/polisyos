@@ -1,0 +1,232 @@
+{
+  "schema": "e02.D.final969.scoped-carry-metadata-correction.v1",
+  "author": "/root/gp_oct07",
+  "candidate_source": "96905636726483fdea3a98d9313871d825b54a9e",
+  "candidate_tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "immutable_original": {
+    "path": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/native-state-c0-to-final969-scoped-carry.json",
+    "sha256": "315e983834ccc09de1aa23130f45b0651824e4e5340728fded3c37df3313defd",
+    "retained_unchanged": true
+  },
+  "correction_reason": "Two secondary changed_loaded_modules rows were copied from c0→a7 without renaming candidate under the969 header. Main1608 actual_observed_repository_bindings and complete currentdelta were correct. This is a metadata defect, not changed source or invalid native3 runtime. Empty historicalsecondarytables also omitted currentfrontier overlap; allsix currentlists now explicit.",
+  "reading_rule": "Use this addendum current_changed_loaded_modules for current969. Treat original secondary changed_loaded_modules as historical_c0_to_a7 only; original main currentbindings remain current969 and verified. Originalstate/numerical outputs stillc0-qualified, not rerun.",
+  "all_main_current_bindings_checked": 1608,
+  "historical_secondary_rows": [
+    {
+      "original_json_pointer": "/source_overlaps_by_actual_observed_modules/0/changed_loaded_modules/0",
+      "historical_original_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "historical_candidate_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "original_secondary_row_unchanged": {
+        "candidate_blob": "2451c5520334a2765298314d53e46502c2b04c90",
+        "candidate_sha256": "b64d2e6a49e173e58316bf843dab889a775d6b26c9ad6a81d10c2281bce94185",
+        "changed_definitions": [
+          "SearchLoopRunner.__init__",
+          "SearchLoopRunner._configured_generator",
+          "SearchLoopRunner._evaluate_candidate",
+          "SearchLoopRunner.create_service"
+        ],
+        "exact_byte_identity": false,
+        "module": "polisyos.scientist.methods.autotune.runtime",
+        "original_blob": "0b76e9cf3261cbf86ce86e5b6a8c3b17ca46716a",
+        "original_sha256": "caa6b0463acdfd2d895942626f5e909c16e29492c705b589535836d18ffb7b3b",
+        "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      },
+      "interpretation": "This old candidate field is a7-only historical metadata, not current969; currentreplacement row below is normative for969."
+    },
+    {
+      "original_json_pointer": "/source_overlaps_by_actual_observed_modules/0/changed_loaded_modules/1",
+      "historical_original_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "historical_candidate_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "original_secondary_row_unchanged": {
+        "candidate_blob": "71694945c18fb573fa30b31f9b16942a4a30b508",
+        "candidate_sha256": "3df2c3a05c0571065f8ac45c260a03a80c1493ebfab1b0f532d9e90a5a83a6b1",
+        "changed_definitions": [
+          "NativeSearchService.ask"
+        ],
+        "exact_byte_identity": false,
+        "module": "polisyos.scientist.methods.search.service",
+        "original_blob": "6714ab37d0f6014b7f237ae8d956d06bdf1262ec",
+        "original_sha256": "d8909558cc43e4bb581025424f682cc2b0927d72bd36c62d5cd17db1fa19e115",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/service.py"
+      },
+      "interpretation": "This old candidate field is a7-only historical metadata, not current969; currentreplacement row below is normative for969."
+    }
+  ],
+  "actual_current_scopes": [
+    {
+      "original_scope": "GP43",
+      "original_scope_index": 0,
+      "complete_observed_binding_count": 309,
+      "actual_current_changed_loaded_paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+        "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+        "policy-engine/src/polisyos/scientist/methods/search/service.py"
+      ],
+      "current_changed_loaded_modules": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+          "original_blob": "0b76e9cf3261cbf86ce86e5b6a8c3b17ca46716a",
+          "original_sha256": "caa6b0463acdfd2d895942626f5e909c16e29492c705b589535836d18ffb7b3b",
+          "current_candidate_blob": "c38f771300030cd9c84dff5de676c3b023fced68",
+          "current_candidate_sha256": "4bcddcf8b7ef4696fe26a3daa3394053672eb8a43007e0bf0b993c5bf87e17eb",
+          "changed_definitions_by_full_AST": [
+            "SearchLoopRunner",
+            "SearchLoopRunner.__init__",
+            "SearchLoopRunner._configured_generator",
+            "SearchLoopRunner._evaluate_candidate",
+            "SearchLoopRunner.create_service",
+            "SearchLoopRunner.resume",
+            "SearchLoopRunner.run",
+            "_AutotuneObjective",
+            "_AutotuneObjective._extract_value"
+          ],
+          "definition_comparison": "Complete FunctionDef/AsyncFunctionDef/ClassDef including defaults/decorators/typeannotations/body; classes summarized plus individual methods. Top-level import/global nodes separately covered by originalcarry branch analysis; no claim changedfields exhaustive byte identity."
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+          "original_blob": "3e8a49f58dbec650304023e19e372ab92af9ca72",
+          "original_sha256": "e06f9901b021f0e85df3d60d6b778552c017fed6d69953fb4bf767d7515cd082",
+          "current_candidate_blob": "2604b8369d6b5e98747ba27f2df4e52cf540ca3e",
+          "current_candidate_sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b",
+          "changed_definitions_by_full_AST": [
+            "policy_candidate_hash"
+          ],
+          "definition_comparison": "Complete FunctionDef/AsyncFunctionDef/ClassDef including defaults/decorators/typeannotations/body; classes summarized plus individual methods. Top-level import/global nodes separately covered by originalcarry branch analysis; no claim changedfields exhaustive byte identity."
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+          "original_blob": "6714ab37d0f6014b7f237ae8d956d06bdf1262ec",
+          "original_sha256": "d8909558cc43e4bb581025424f682cc2b0927d72bd36c62d5cd17db1fa19e115",
+          "current_candidate_blob": "0e5d75cb492bf97dd61ceec2d6a94b9b6d8f13e5",
+          "current_candidate_sha256": "b73158016ef2a6e9324159b7de3d34206ef5a866bcdc1a675adb9281c815e127",
+          "changed_definitions_by_full_AST": [
+            "NativeSearchService",
+            "NativeSearchService.__init__",
+            "NativeSearchService._admit_deduplication_configuration",
+            "NativeSearchService._ask_proposals",
+            "NativeSearchService._configuration",
+            "NativeSearchService._deduplication_members",
+            "NativeSearchService._deduplication_profile",
+            "NativeSearchService._evaluate_batch",
+            "NativeSearchService.ask",
+            "NativeSearchService.checkpoint",
+            "NativeSearchService.restore",
+            "NativeSearchService.resume_search",
+            "NativeSearchService.run_search",
+            "NativeSearchService.tell"
+          ],
+          "definition_comparison": "Complete FunctionDef/AsyncFunctionDef/ClassDef including defaults/decorators/typeannotations/body; classes summarized plus individual methods. Top-level import/global nodes separately covered by originalcarry branch analysis; no claim changedfields exhaustive byte identity."
+        }
+      ]
+    },
+    {
+      "original_scope": "State142",
+      "original_scope_index": 1,
+      "complete_observed_binding_count": 280,
+      "actual_current_changed_loaded_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/frontier.py"
+      ],
+      "current_changed_loaded_modules": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+          "original_blob": "3e8a49f58dbec650304023e19e372ab92af9ca72",
+          "original_sha256": "e06f9901b021f0e85df3d60d6b778552c017fed6d69953fb4bf767d7515cd082",
+          "current_candidate_blob": "2604b8369d6b5e98747ba27f2df4e52cf540ca3e",
+          "current_candidate_sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b",
+          "changed_definitions_by_full_AST": [
+            "policy_candidate_hash"
+          ],
+          "definition_comparison": "Complete FunctionDef/AsyncFunctionDef/ClassDef including defaults/decorators/typeannotations/body; classes summarized plus individual methods. Top-level import/global nodes separately covered by originalcarry branch analysis; no claim changedfields exhaustive byte identity."
+        }
+      ]
+    },
+    {
+      "original_scope": "MO88",
+      "original_scope_index": 2,
+      "complete_observed_binding_count": 265,
+      "actual_current_changed_loaded_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/frontier.py"
+      ],
+      "current_changed_loaded_modules": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+          "original_blob": "3e8a49f58dbec650304023e19e372ab92af9ca72",
+          "original_sha256": "e06f9901b021f0e85df3d60d6b778552c017fed6d69953fb4bf767d7515cd082",
+          "current_candidate_blob": "2604b8369d6b5e98747ba27f2df4e52cf540ca3e",
+          "current_candidate_sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b",
+          "changed_definitions_by_full_AST": [
+            "policy_candidate_hash"
+          ],
+          "definition_comparison": "Complete FunctionDef/AsyncFunctionDef/ClassDef including defaults/decorators/typeannotations/body; classes summarized plus individual methods. Top-level import/global nodes separately covered by originalcarry branch analysis; no claim changedfields exhaustive byte identity."
+        }
+      ]
+    },
+    {
+      "original_scope": "minimal55_15_UNRUN",
+      "original_scope_index": 3,
+      "complete_observed_binding_count": 252,
+      "actual_current_changed_loaded_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/frontier.py"
+      ],
+      "current_changed_loaded_modules": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+          "original_blob": "3e8a49f58dbec650304023e19e372ab92af9ca72",
+          "original_sha256": "e06f9901b021f0e85df3d60d6b778552c017fed6d69953fb4bf767d7515cd082",
+          "current_candidate_blob": "2604b8369d6b5e98747ba27f2df4e52cf540ca3e",
+          "current_candidate_sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b",
+          "changed_definitions_by_full_AST": [
+            "policy_candidate_hash"
+          ],
+          "definition_comparison": "Complete FunctionDef/AsyncFunctionDef/ClassDef including defaults/decorators/typeannotations/body; classes summarized plus individual methods. Top-level import/global nodes separately covered by originalcarry branch analysis; no claim changedfields exhaustive byte identity."
+        }
+      ]
+    },
+    {
+      "original_scope": "warm_rejection_reports3",
+      "original_scope_index": 4,
+      "complete_observed_binding_count": 251,
+      "actual_current_changed_loaded_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/frontier.py"
+      ],
+      "current_changed_loaded_modules": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+          "original_blob": "3e8a49f58dbec650304023e19e372ab92af9ca72",
+          "original_sha256": "e06f9901b021f0e85df3d60d6b778552c017fed6d69953fb4bf767d7515cd082",
+          "current_candidate_blob": "2604b8369d6b5e98747ba27f2df4e52cf540ca3e",
+          "current_candidate_sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b",
+          "changed_definitions_by_full_AST": [
+            "policy_candidate_hash"
+          ],
+          "definition_comparison": "Complete FunctionDef/AsyncFunctionDef/ClassDef including defaults/decorators/typeannotations/body; classes summarized plus individual methods. Top-level import/global nodes separately covered by originalcarry branch analysis; no claim changedfields exhaustive byte identity."
+        }
+      ]
+    },
+    {
+      "original_scope": "warm_report_removal3_expectedFAIL",
+      "original_scope_index": 5,
+      "complete_observed_binding_count": 251,
+      "actual_current_changed_loaded_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/frontier.py"
+      ],
+      "current_changed_loaded_modules": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+          "original_blob": "3e8a49f58dbec650304023e19e372ab92af9ca72",
+          "original_sha256": "e06f9901b021f0e85df3d60d6b778552c017fed6d69953fb4bf767d7515cd082",
+          "current_candidate_blob": "2604b8369d6b5e98747ba27f2df4e52cf540ca3e",
+          "current_candidate_sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b",
+          "changed_definitions_by_full_AST": [
+            "policy_candidate_hash"
+          ],
+          "definition_comparison": "Complete FunctionDef/AsyncFunctionDef/ClassDef including defaults/decorators/typeannotations/body; classes summarized plus individual methods. Top-level import/global nodes separately covered by originalcarry branch analysis; no claim changedfields exhaustive byte identity."
+        }
+      ]
+    }
+  ],
+  "actual_affected_runtime": "Correctedfinal969 publictransfer3PASS/two actualSingleTaskGPMLL8/7; source/HEAD/tree/all6315 beforeafter equal. Currentdedup/missingprimary effects have separate currentService48/Adapter126 receipts. No new numerical replay.",
+  "P41": "not_established",
+  "accepted_G": false,
+  "formal_closed": false
+}

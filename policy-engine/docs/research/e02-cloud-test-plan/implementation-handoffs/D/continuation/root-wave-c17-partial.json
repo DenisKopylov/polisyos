@@ -1,0 +1,1033 @@
+{
+  "schema": "e02.D.broad_wave_partial_receipt.v1",
+  "original_slice_base": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+  "runtime_source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+  "runtime_source_tree": "b09d9f3cfee71c429f9e9b655076a563fa3cfa0d",
+  "payload_implementation_sha": "f5642cca00f084ddbc195c98541a30df058612db",
+  "payload_tree": "8ebb02c8f1718af198c2ade3abfd8d787e8e86d6",
+  "payload_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-wave-c17-partial/complete-output.json.xz",
+  "payload_bytes": 976704,
+  "payload_sha256": "2be4574286b788bfcb280d123054550407568891843e4c6267e877e6a8cea87a",
+  "complete_original_members": 682,
+  "actual_result": {
+    "source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+    "source_tree": "b09d9f3cfee71c429f9e9b655076a563fa3cfa0d",
+    "status": "ERROR_SIGNAL_TERMINATION_PARTIAL_UNRUN",
+    "child_pid": 441463,
+    "actual_exit": -9,
+    "actual_signal": 9,
+    "wall_seconds": 62.77516844100319,
+    "child_usage": {
+      "user_seconds": 23.27624,
+      "system_seconds": 19.492353,
+      "maxrss_KiB_linux": 595748
+    },
+    "git_and_entire_input_identity_unchanged": true,
+    "external_input_hashes_unchanged": true,
+    "actual_collected_to_finished_denominator_reconciled": false,
+    "actual_collected_case_count": null,
+    "finished_case_count": 0,
+    "main_process_product_origin_verification_complete": false,
+    "junit": {
+      "status": "MISSING_INCOMPLETE_UNRUN"
+    },
+    "actually_loaded_backends": null,
+    "requested_backends": [
+      {
+        "selector": "tests/integration/core/llm/test_cache_response_binding.py",
+        "path": "policy-engine/tests/integration/core/llm/test_cache_response_binding.py",
+        "rawfile_sha256": "8224e00b240fd86728dce2d00f34c266d25761c9ecda46f1b3ef9e75f4b033c5",
+        "backend_requests": [
+          "ordinary_pytest_property_no_optional_numerical_backend_identified"
+        ],
+        "source_test_functions": 5
+      },
+      {
+        "selector": "tests/integration/core/llm/test_gateway_response_text_cost.py",
+        "path": "policy-engine/tests/integration/core/llm/test_gateway_response_text_cost.py",
+        "rawfile_sha256": "ebc3b9dcc195f865d1c7c76735ce4b4b3dc1aff3c537afcc214b872e8cbcdcc3",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 3
+      },
+      {
+        "selector": "tests/integration/core/llm/test_native_gateway_cost_intake.py",
+        "path": "policy-engine/tests/integration/core/llm/test_native_gateway_cost_intake.py",
+        "rawfile_sha256": "03945c2811bf35ee327f2d9bce564ba729d2b58e80c77dd538aa03bd63f8c287",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 6
+      },
+      {
+        "selector": "tests/integration/core/llm/test_native_gateway_cost_range.py",
+        "path": "policy-engine/tests/integration/core/llm/test_native_gateway_cost_range.py",
+        "rawfile_sha256": "01b4e4fb4f8099d2f1226c9c630e97667a175677b594d77062e91537314f3f4b",
+        "backend_requests": [
+          "ordinary_pytest_property_no_optional_numerical_backend_identified"
+        ],
+        "source_test_functions": 1
+      },
+      {
+        "selector": "tests/integration/core/llm/test_provider_cost_consistency.py",
+        "path": "policy-engine/tests/integration/core/llm/test_provider_cost_consistency.py",
+        "rawfile_sha256": "5af888595aa042cf99d1b9dbb932748535819982cecac8bed6d5a3ad56a8b925",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 6
+      },
+      {
+        "selector": "tests/integration/scientist/methods/search/funnel/test_default_worker_resource_scopes.py",
+        "path": "policy-engine/tests/integration/scientist/methods/search/funnel/test_default_worker_resource_scopes.py",
+        "rawfile_sha256": "e455408c2423cf70779c54f9edc1bcd51a40b285a25018c79a5c2f31a22af931",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 1
+      },
+      {
+        "selector": "tests/integration/scientist/methods/search/funnel/test_native_resource_cost_stopping.py",
+        "path": "policy-engine/tests/integration/scientist/methods/search/funnel/test_native_resource_cost_stopping.py",
+        "rawfile_sha256": "9e08f15c804357cb6e85c1229fc17ca68593206cd55437a6505c7b2b1dad77f2",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 2
+      },
+      {
+        "selector": "tests/integration/scientist/methods/search/funnel/test_orchestrator.py",
+        "path": "policy-engine/tests/integration/scientist/methods/search/funnel/test_orchestrator.py",
+        "rawfile_sha256": "f9e107f3b496abcfcf841f1b61942f2af7a79385bbeb72c3de9212656b9081dd",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 10
+      },
+      {
+        "selector": "tests/integration/scientist/methods/search/funnel/test_paid_outcome_blueprint_projection.py",
+        "path": "policy-engine/tests/integration/scientist/methods/search/funnel/test_paid_outcome_blueprint_projection.py",
+        "rawfile_sha256": "dbfb492d97a9b1a0940da959d092a4b60ca05a85a1d5b0a74f07a6baa490629a",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 1
+      },
+      {
+        "selector": "tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py",
+        "path": "policy-engine/tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py",
+        "rawfile_sha256": "bdf6643638b2829dc6ccea20879d726f7200f0a97fef4db504773119c540ec48",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 1
+      },
+      {
+        "selector": "tests/integration/scientist/methods/search/funnel/test_resource_receipt_replay.py",
+        "path": "policy-engine/tests/integration/scientist/methods/search/funnel/test_resource_receipt_replay.py",
+        "rawfile_sha256": "6b9c34c51e41cc600cb8ca06fbff7843b4ab37103ce4ebc3ca8331831111f03a",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 1
+      },
+      {
+        "selector": "tests/integration/scientist/methods/search/funnel/test_resource_receipt_replay_modes.py",
+        "path": "policy-engine/tests/integration/scientist/methods/search/funnel/test_resource_receipt_replay_modes.py",
+        "rawfile_sha256": "8b7a1cf02cb9d61def82bbff4f2186d1d329d1573fd48c14ddb17034cc3b99cb",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 1
+      },
+      {
+        "selector": "tests/integration/scientist/methods/search/test_configured_transfer_controller.py",
+        "path": "policy-engine/tests/integration/scientist/methods/search/test_configured_transfer_controller.py",
+        "rawfile_sha256": "2dcac359161fd10bccbb14091890268ba9c511f188909680cefbeaeb099f2030",
+        "backend_requests": [
+          "native_torch_botorch_gpytorch_model_or_fit_or_resume_property",
+          "native_hnsw_or_CAS_transfer_fixture"
+        ],
+        "source_test_functions": 2
+      },
+      {
+        "selector": "tests/unit/core/artifacts/test_verification_snapshot_report.py",
+        "path": "policy-engine/tests/unit/core/artifacts/test_verification_snapshot_report.py",
+        "rawfile_sha256": "d6ff2c719331efdb453b9051ff6c75c6cf3e3c67276cd7eb488f8476a0569dcc",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 5
+      },
+      {
+        "selector": "tests/unit/remediation/test_fun_02.py",
+        "path": "policy-engine/tests/unit/remediation/test_fun_02.py",
+        "rawfile_sha256": "c90d5b94053d38ae5ca17c4520f4db98b7af214bbc43a7bdded3c4bdf4c3d311",
+        "backend_requests": [
+          "ordinary_pytest_property_no_optional_numerical_backend_identified"
+        ],
+        "source_test_functions": 7
+      },
+      {
+        "selector": "tests/unit/remediation/test_fun_03.py",
+        "path": "policy-engine/tests/unit/remediation/test_fun_03.py",
+        "rawfile_sha256": "3121bfade5befa9b6175ae8adf66690c18258a37610255a62156752efb0f81eb",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 12
+      },
+      {
+        "selector": "tests/unit/remediation/test_llm_01.py",
+        "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+        "rawfile_sha256": "b247897d69ec0c990aeb94700db0d471a46890e77ea6f181190e3eaa40d7b5de",
+        "backend_requests": [
+          "ordinary_pytest_property_no_optional_numerical_backend_identified"
+        ],
+        "source_test_functions": 8
+      },
+      {
+        "selector": "tests/unit/remediation/test_trn_02.py",
+        "path": "policy-engine/tests/unit/remediation/test_trn_02.py",
+        "rawfile_sha256": "108ccd62281295cb4e03455f9f1c491d22140ab9f00e5970b8ae506f039808dc",
+        "backend_requests": [
+          "native_hnsw_or_CAS_transfer_fixture",
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 5
+      },
+      {
+        "selector": "tests/unit/scientist/agent/test_vector_memory.py",
+        "path": "policy-engine/tests/unit/scientist/agent/test_vector_memory.py",
+        "rawfile_sha256": "5e1592f5644b33957fa26ac71462ebe5f64b9502ddcbed158f5dc646c16d6cb0",
+        "backend_requests": [
+          "native_hnsw_or_CAS_transfer_fixture",
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 6
+      },
+      {
+        "selector": "tests/unit/scientist/agent/test_vector_transfer_process.py",
+        "path": "policy-engine/tests/unit/scientist/agent/test_vector_transfer_process.py",
+        "rawfile_sha256": "1e6af3e18c385276fec0d907593abc7cb9fd70929580f667458f459a0ee6a096",
+        "backend_requests": [
+          "native_hnsw_or_CAS_transfer_fixture"
+        ],
+        "source_test_functions": 2
+      },
+      {
+        "selector": "tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+        "rawfile_sha256": "a802505e0b79fa1e156b130b26ebda1a920ff4d0679c37fd9052bd9aa7d39d64",
+        "backend_requests": [
+          "torch_optional_import_or_backend_reachability_source_requested_not_a_fit_verdict"
+        ],
+        "source_test_functions": 15
+      },
+      {
+        "selector": "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+        "rawfile_sha256": "b5b59874df84ef46866805d8b06e81959b00662ab11937c78408f7f197adce9f",
+        "backend_requests": [
+          "torch_optional_import_or_backend_reachability_source_requested_not_a_fit_verdict"
+        ],
+        "source_test_functions": 6
+      },
+      {
+        "selector": "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py",
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py",
+        "rawfile_sha256": "f9a5a1453c99d51d1e09dd2f53f48f1d9547a0c1ca428560568dc1d304e1d0bf",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 5
+      },
+      {
+        "selector": "tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py",
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py",
+        "rawfile_sha256": "87ba94f15c6a9acdf66dd12bcb134787a561cee317ce7113f062ba1c3eb4bc28",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 9
+      },
+      {
+        "selector": "tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py",
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py",
+        "rawfile_sha256": "6f9af1ce83fa2c46bf9580497b2e1faae3777c768782f1ed90facaacae3fbff0",
+        "backend_requests": [
+          "native_torch_botorch_gpytorch_model_or_fit_or_resume_property",
+          "native_hnsw_or_CAS_transfer_fixture"
+        ],
+        "source_test_functions": 7
+      },
+      {
+        "selector": "tests/unit/scientist/methods/autotune/test_hypervolume_profile.py",
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_hypervolume_profile.py",
+        "rawfile_sha256": "1a2f7b4e752b8011df82731c708a0afd46eb75068f9caf11ef8c18d99530cf04",
+        "backend_requests": [
+          "ordinary_pytest_property_no_optional_numerical_backend_identified"
+        ],
+        "source_test_functions": 5
+      },
+      {
+        "selector": "tests/unit/scientist/methods/autotune/test_hypervolume_representability.py",
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_hypervolume_representability.py",
+        "rawfile_sha256": "ce40a93f7ab58d5cae4bbe1cd342f990b9c3549077c3f32cde3271f3d44ec4f4",
+        "backend_requests": [
+          "torch_optional_import_or_backend_reachability_source_requested_not_a_fit_verdict",
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 6
+      },
+      {
+        "selector": "tests/unit/scientist/methods/autotune/test_lazy_import_boundary_independent_oracle.py",
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_lazy_import_boundary_independent_oracle.py",
+        "rawfile_sha256": "b8d5466af1634304683c980ec0aba1985733fcdbe9f5e3035a6430f395bb3e7b",
+        "backend_requests": [
+          "native_hnsw_or_CAS_transfer_fixture"
+        ],
+        "source_test_functions": 2
+      },
+      {
+        "selector": "tests/unit/scientist/methods/autotune/test_native_doe_factory.py",
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_native_doe_factory.py",
+        "rawfile_sha256": "2e1657c5813db4e73aace701525506bd35e373ac3011d166f713b422801db05a",
+        "backend_requests": [
+          "torch_optional_import_or_backend_reachability_source_requested_not_a_fit_verdict",
+          "actual_SALib_DOE_sampling_analysis_or_receipt",
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 5
+      },
+      {
+        "selector": "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+        "rawfile_sha256": "f9d51f6132961fa3580ce86b64b058f7a068f94d616766721ba793c60a716e3f",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 7
+      },
+      {
+        "selector": "tests/unit/scientist/methods/autotune/test_pareto.py",
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
+        "rawfile_sha256": "f9096dad70b07b8eae9a976e7a65010c592bc2352ad1ded425f47f5b534d1f25",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 31
+      },
+      {
+        "selector": "tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py",
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py",
+        "rawfile_sha256": "0598f51997d46664ea1342c6bc3cdf96fd1ed005019d368d5a5199c45d1c8947",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 8
+      },
+      {
+        "selector": "tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+        "rawfile_sha256": "3e61bd27dbf7a3e769e5effa843d5e98306475bc95fe16d94c35694a26ca7df4",
+        "backend_requests": [
+          "ordinary_pytest_property_no_optional_numerical_backend_identified"
+        ],
+        "source_test_functions": 1
+      },
+      {
+        "selector": "tests/unit/scientist/methods/autotune/test_pareto_subnormal_reindex_independent_oracle.py",
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_subnormal_reindex_independent_oracle.py",
+        "rawfile_sha256": "2f167180dd0cf233fe98236dc062161752db9eed3a70b91b0a54129474ef0561",
+        "backend_requests": [
+          "torch_optional_import_or_backend_reachability_source_requested_not_a_fit_verdict",
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 8
+      },
+      {
+        "selector": "tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py",
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py",
+        "rawfile_sha256": "09ab55c3ad0803e76d08b52bee04215d4d7252b78ce28ab100fadb06b509fcb0",
+        "backend_requests": [
+          "torch_optional_import_or_backend_reachability_source_requested_not_a_fit_verdict",
+          "native_hnsw_or_CAS_transfer_fixture",
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 2
+      },
+      {
+        "selector": "tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+        "rawfile_sha256": "adad9a5ea8c326703b0424c1820a77b7449dd962e399a1a7f31948efdf360cb2",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 16
+      },
+      {
+        "selector": "tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py",
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py",
+        "rawfile_sha256": "15c36e5b510be10cbfb9b08cacedb38b2daecddd3550b1f80965ae8ccc0a18cb",
+        "backend_requests": [
+          "actual_SALib_DOE_sampling_analysis_or_receipt"
+        ],
+        "source_test_functions": 4
+      },
+      {
+        "selector": "tests/unit/scientist/methods/autotune/test_sensitivity_order_consumer.py",
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_sensitivity_order_consumer.py",
+        "rawfile_sha256": "1c71cd158bee77610026fb2f9eda36200064d81dc885d4b12f47451b9b7d50e2",
+        "backend_requests": [
+          "torch_optional_import_or_backend_reachability_source_requested_not_a_fit_verdict",
+          "actual_SALib_DOE_sampling_analysis_or_receipt",
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 8
+      },
+      {
+        "selector": "tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+        "rawfile_sha256": "dd9e784ae1b5c1b497cb5c6cd279f826ba3dd3972b5746bd1b51c0487c632cd2",
+        "backend_requests": [
+          "native_torch_botorch_gpytorch_model_or_fit_or_resume_property",
+          "native_hnsw_or_CAS_transfer_fixture",
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 2
+      },
+      {
+        "selector": "tests/unit/scientist/methods/autotune/test_warm_start.py",
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_warm_start.py",
+        "rawfile_sha256": "5f760489d73b675d014ed01a8f82a5e609b02d9a94f5c974b9387c79877ec9bd",
+        "backend_requests": [
+          "ordinary_pytest_property_no_optional_numerical_backend_identified"
+        ],
+        "source_test_functions": 5
+      },
+      {
+        "selector": "tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py",
+        "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py",
+        "rawfile_sha256": "1b53543b89c294ade7e8ab921f3cab9f24defb0a7a05f3b7679878c488635690",
+        "backend_requests": [
+          "ordinary_pytest_property_no_optional_numerical_backend_identified"
+        ],
+        "source_test_functions": 7
+      },
+      {
+        "selector": "tests/unit/scientist/methods/doe/test_analysis_enhanced.py",
+        "path": "policy-engine/tests/unit/scientist/methods/doe/test_analysis_enhanced.py",
+        "rawfile_sha256": "eb2ab3f3a1b72402685bb5d386be57b4f42de5e64a3eeb679d320fc9cc277a28",
+        "backend_requests": [
+          "actual_SALib_DOE_sampling_analysis_or_receipt"
+        ],
+        "source_test_functions": 7
+      },
+      {
+        "selector": "tests/unit/scientist/methods/doe/test_analysis_receipt.py",
+        "path": "policy-engine/tests/unit/scientist/methods/doe/test_analysis_receipt.py",
+        "rawfile_sha256": "66a3482c1f54f768287a907f0809e5e061d204de2db80cd4467be840908fdf98",
+        "backend_requests": [
+          "actual_SALib_DOE_sampling_analysis_or_receipt",
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 11
+      },
+      {
+        "selector": "tests/unit/scientist/methods/search/funnel/test_level5_component_assessment.py",
+        "path": "policy-engine/tests/unit/scientist/methods/search/funnel/test_level5_component_assessment.py",
+        "rawfile_sha256": "cec8ddc203ea6ad8693eda502074c6065c353c611af314b80cc62187070e60c1",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 1
+      },
+      {
+        "selector": "tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py",
+        "path": "policy-engine/tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py",
+        "rawfile_sha256": "c430123968bc3a3acc180a470377ae7afbde9dc5e893bc8a61700fc588a33820",
+        "backend_requests": [
+          "ordinary_pytest_property_no_optional_numerical_backend_identified"
+        ],
+        "source_test_functions": 4
+      },
+      {
+        "selector": "tests/unit/scientist/methods/search/funnel/test_resource_factory_contract.py",
+        "path": "policy-engine/tests/unit/scientist/methods/search/funnel/test_resource_factory_contract.py",
+        "rawfile_sha256": "6cde1afbfb5e84dc01cc46523a0fd9cfab57b2ba2aa3bfe1995bcf1e51935a09",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 3
+      },
+      {
+        "selector": "tests/unit/scientist/methods/search/strategies/test_effective_actions.py",
+        "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_effective_actions.py",
+        "rawfile_sha256": "c98484f2d9bf920d8ed8e185bccfb96f97bf9fc658267c63a4b473be2c2c0ded",
+        "backend_requests": [
+          "torch_optional_import_or_backend_reachability_source_requested_not_a_fit_verdict"
+        ],
+        "source_test_functions": 8
+      },
+      {
+        "selector": "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+        "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+        "rawfile_sha256": "e1a56b30214ddaa96c5b8a64d0ca6b2a44f42e7ee3453994f4e44705ceee1f04",
+        "backend_requests": [
+          "native_torch_botorch_gpytorch_model_or_fit_or_resume_property"
+        ],
+        "source_test_functions": 16
+      },
+      {
+        "selector": "tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py",
+        "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py",
+        "rawfile_sha256": "004369b6fdcddf5d5adda03f0ba5f453ed036e10b1a1f0e4b22f7a6d678b37ef",
+        "backend_requests": [
+          "native_torch_botorch_gpytorch_model_or_fit_or_resume_property"
+        ],
+        "source_test_functions": 1
+      },
+      {
+        "selector": "tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+        "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+        "rawfile_sha256": "437776962e7cc56d14340f6b277edb8ca7195e854a5400fbe3261f94ddb9ee5d",
+        "backend_requests": [
+          "native_torch_botorch_gpytorch_model_or_fit_or_resume_property"
+        ],
+        "source_test_functions": 4
+      },
+      {
+        "selector": "tests/unit/scientist/methods/search/strategies/test_gp_scalar_admission.py",
+        "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_scalar_admission.py",
+        "rawfile_sha256": "9f916ed3257622082812daa12afd592ba6b5da64995490e0258c19b164c2cb73",
+        "backend_requests": [
+          "torch_optional_import_or_backend_reachability_source_requested_not_a_fit_verdict"
+        ],
+        "source_test_functions": 1
+      },
+      {
+        "selector": "tests/unit/scientist/methods/search/strategies/test_mo_reference_representability.py",
+        "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_mo_reference_representability.py",
+        "rawfile_sha256": "097eaa6a446a8956de5f80ab54ef8dc4ac7fdf180e6651ad6131d57d852b797d",
+        "backend_requests": [
+          "torch_optional_import_or_backend_reachability_source_requested_not_a_fit_verdict"
+        ],
+        "source_test_functions": 1
+      },
+      {
+        "selector": "tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py",
+        "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py",
+        "rawfile_sha256": "125812f64a5fc6c6a679969f8117819792c17a98e1c7030a815e15e346cea4b8",
+        "backend_requests": [
+          "torch_optional_import_or_backend_reachability_source_requested_not_a_fit_verdict"
+        ],
+        "source_test_functions": 5
+      },
+      {
+        "selector": "tests/unit/scientist/methods/search/strategies/test_multiobjective_reference_independent_oracle.py",
+        "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_multiobjective_reference_independent_oracle.py",
+        "rawfile_sha256": "1d9849a2669fc1bec1161ed44171347042fd4765223f64362780825aeb216824",
+        "backend_requests": [
+          "torch_optional_import_or_backend_reachability_source_requested_not_a_fit_verdict"
+        ],
+        "source_test_functions": 5
+      },
+      {
+        "selector": "tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py",
+        "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py",
+        "rawfile_sha256": "45b26bb168cc01dafcda969e928fe303c0d70e280c1d3114fb2af245c57c4f20",
+        "backend_requests": [
+          "torch_optional_import_or_backend_reachability_source_requested_not_a_fit_verdict"
+        ],
+        "source_test_functions": 2
+      },
+      {
+        "selector": "tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py",
+        "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py",
+        "rawfile_sha256": "f6dbbacce844d0a7945fcf82fe2785491296d894aae45a041e5f86d8be8ff0ac",
+        "backend_requests": [
+          "torch_optional_import_or_backend_reachability_source_requested_not_a_fit_verdict"
+        ],
+        "source_test_functions": 4
+      },
+      {
+        "selector": "tests/unit/scientist/methods/search/strategies/test_strategy_state.py",
+        "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_strategy_state.py",
+        "rawfile_sha256": "fcdf153d70253388a62083839eb7bf16450748a9227e352569d49f8b96ce9e39",
+        "backend_requests": [
+          "ordinary_pytest_property_no_optional_numerical_backend_identified"
+        ],
+        "source_test_functions": 5
+      },
+      {
+        "selector": "tests/unit/scientist/methods/search/strategies/test_transfer.py",
+        "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py",
+        "rawfile_sha256": "28240feb1d45a369396fc503acd9b8ec5e723225c0527d253563fbc407c62884",
+        "backend_requests": [
+          "native_hnsw_or_CAS_transfer_fixture",
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 12
+      },
+      {
+        "selector": "tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py",
+        "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py",
+        "rawfile_sha256": "52b224c045395b34f750f19c86e696dbb7433d41882b918faab0c4a6b9d2fe31",
+        "backend_requests": [
+          "native_hnsw_or_CAS_transfer_fixture"
+        ],
+        "source_test_functions": 5
+      },
+      {
+        "selector": "tests/unit/scientist/methods/search/test_controller.py",
+        "path": "policy-engine/tests/unit/scientist/methods/search/test_controller.py",
+        "rawfile_sha256": "4a81433a4e5edc3ebe4084e7abe3f34b5ea87181f8757c207011e094e66db619",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 5
+      },
+      {
+        "selector": "tests/unit/scientist/methods/search/test_frontier_quantity_readback.py",
+        "path": "policy-engine/tests/unit/scientist/methods/search/test_frontier_quantity_readback.py",
+        "rawfile_sha256": "fba874ac95a52e961f5d51c62de468e94e05d77700137491fc2143b4202d9071",
+        "backend_requests": [
+          "ordinary_pytest_property_no_optional_numerical_backend_identified"
+        ],
+        "source_test_functions": 2
+      },
+      {
+        "selector": "tests/unit/scientist/methods/search/test_hypervolume_limitations.py",
+        "path": "policy-engine/tests/unit/scientist/methods/search/test_hypervolume_limitations.py",
+        "rawfile_sha256": "584e2bc08032040c9535302d0d2e093dde4fad76e2850098c2f5fe18842b3c62",
+        "backend_requests": [
+          "ordinary_pytest_property_no_optional_numerical_backend_identified"
+        ],
+        "source_test_functions": 5
+      },
+      {
+        "selector": "tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+        "path": "policy-engine/tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+        "rawfile_sha256": "4f7d2e34ab338fe21831e7d1f89b61bbe36a6e336191eb4d33c14dc8c62ba323",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 6
+      },
+      {
+        "selector": "tests/unit/scientist/methods/search/test_registry_quantity_projection.py",
+        "path": "policy-engine/tests/unit/scientist/methods/search/test_registry_quantity_projection.py",
+        "rawfile_sha256": "500342e870818200404d2322cf266877631fd4303798fe364104833ae94550e6",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 1
+      },
+      {
+        "selector": "tests/unit/scientist/methods/search/test_service_ask_publication_review.py",
+        "path": "policy-engine/tests/unit/scientist/methods/search/test_service_ask_publication_review.py",
+        "rawfile_sha256": "0becdae0dd7f8008b1f2b39e40dc44c25f114006c5bae1ec53877d5438d041bc",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 1
+      },
+      {
+        "selector": "tests/unit/scientist/methods/search/test_service_batch_control_reasons.py",
+        "path": "policy-engine/tests/unit/scientist/methods/search/test_service_batch_control_reasons.py",
+        "rawfile_sha256": "805df1d5a0ec45c4067b597b535c74696b3b4823da1405b89ea687107a0af035",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 6
+      },
+      {
+        "selector": "tests/unit/scientist/methods/search/test_service_control_cleanup_independent.py",
+        "path": "policy-engine/tests/unit/scientist/methods/search/test_service_control_cleanup_independent.py",
+        "rawfile_sha256": "90c6cc8f0d58fa143666c064a86bceb80a12276d4bce77856816e17dce696672",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 2
+      },
+      {
+        "selector": "tests/unit/scientist/methods/search/test_service_persistence.py",
+        "path": "policy-engine/tests/unit/scientist/methods/search/test_service_persistence.py",
+        "rawfile_sha256": "27ca58db276560aa8dec8f19684aebcb0cf638f6111bd258340fefbbd757d7e3",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 28
+      },
+      {
+        "selector": "tests/unit/scientist/methods/search/test_stopping_limitations.py",
+        "path": "policy-engine/tests/unit/scientist/methods/search/test_stopping_limitations.py",
+        "rawfile_sha256": "50be760cd99772cab25a0613494e264d468182b3507cdda7ea3f7ebda2b5664d",
+        "backend_requests": [
+          "ordinary_pytest_property_no_optional_numerical_backend_identified"
+        ],
+        "source_test_functions": 4
+      },
+      {
+        "selector": "tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+        "path": "policy-engine/tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+        "rawfile_sha256": "09d679aa22cc434e60ea054c1f84ad2c2b607e296a90885054d59ad2de31aaff",
+        "backend_requests": [
+          "ordinary_pytest_property_no_optional_numerical_backend_identified"
+        ],
+        "source_test_functions": 6
+      },
+      {
+        "selector": "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py",
+        "path": "policy-engine/tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py",
+        "rawfile_sha256": "819b407f50f4c080cd6e79026f355ff277884d5a5cf6fac283c3ff4b7d080491",
+        "backend_requests": [
+          "ordinary_pytest_property_no_optional_numerical_backend_identified"
+        ],
+        "source_test_functions": 20
+      },
+      {
+        "selector": "tests/unit/scientist/orchestration/engine/test_budget.py",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget.py",
+        "rawfile_sha256": "fed7ad30c7621dab538ae552b5bcb557c56be2eff0b5e4cf325022dcb19690d4",
+        "backend_requests": [
+          "ordinary_pytest_property_no_optional_numerical_backend_identified"
+        ],
+        "source_test_functions": 18
+      },
+      {
+        "selector": "tests/unit/scientist/orchestration/engine/test_budget_ledger.py",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger.py",
+        "rawfile_sha256": "ee64851e54b4013110cc9c5b782c96864f25369587d31b6d82a0d1c58582fdb6",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 5
+      },
+      {
+        "selector": "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py",
+        "rawfile_sha256": "3a21ea963a4bc3e2fcdb3f62daf1456ae69153ef2f3d990cb7d56a7e9b48b8cc",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 8
+      },
+      {
+        "selector": "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+        "rawfile_sha256": "aca02227a7c9d3a5ac6740cb9a7428785e324d97fc09d36fa036e6c8a6c965f4",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 11
+      },
+      {
+        "selector": "tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+        "rawfile_sha256": "f9a037cc70ab8c8b8eb61a5c26c2e16809d6fc20a8b438d819d69512a77b1bbc",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 32
+      },
+      {
+        "selector": "tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+        "rawfile_sha256": "a7b7c7bfd7d0e83f6e2306484c42b78eeb0f8fe16afffc90c749b4b0621a8dce",
+        "backend_requests": [
+          "ordinary_pytest_property_no_optional_numerical_backend_identified"
+        ],
+        "source_test_functions": 2
+      },
+      {
+        "selector": "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+        "rawfile_sha256": "f87e63381cd7a198c83854e92cbe17f391f542f586149c3d5b9cf137d2b5d8f5",
+        "backend_requests": [
+          "ordinary_pytest_property_no_optional_numerical_backend_identified"
+        ],
+        "source_test_functions": 16
+      },
+      {
+        "selector": "tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+        "rawfile_sha256": "b85a152ba32ac72aa4586f40f562c008a1e01479307032f5a466faac0f90a02b",
+        "backend_requests": [
+          "ordinary_pytest_property_no_optional_numerical_backend_identified"
+        ],
+        "source_test_functions": 24
+      },
+      {
+        "selector": "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+        "path": "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+        "rawfile_sha256": "acf11eee561f833de25be229e4de1086aef6a7e6f625148f765a8e687adf3682",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 26
+      },
+      {
+        "selector": "tests/unit/scientist/policy_design/test_phase_b_output.py",
+        "path": "policy-engine/tests/unit/scientist/policy_design/test_phase_b_output.py",
+        "rawfile_sha256": "4d1af6aacf51da0fde4811144103d8f50d2ca64344ca4472e67841817894b05e",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 11
+      },
+      {
+        "selector": "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+        "path": "policy-engine/tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+        "rawfile_sha256": "80986710cf9f54e8c37c3d2cb12f7edfeb303e35a41cbbd5708c695db5d075c5",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 7
+      },
+      {
+        "selector": "tests/unit/scientist/search/funnel/test_level6_promotion.py",
+        "path": "policy-engine/tests/unit/scientist/search/funnel/test_level6_promotion.py",
+        "rawfile_sha256": "3c8eae482bae140471b79f6c021601f379718e904c00f1feb47bb125e0fc773f",
+        "backend_requests": [
+          "ordinary_pytest_property_no_optional_numerical_backend_identified"
+        ],
+        "source_test_functions": 3
+      },
+      {
+        "selector": "tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "path": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+        "rawfile_sha256": "6c1dd5799fc792851ca614d5f49a821dc291f2ab52b9e185329109639a2b29f2",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 25
+      },
+      {
+        "selector": "tests/unit/scientist/search/strategies/test_neural_checkpoint.py",
+        "path": "policy-engine/tests/unit/scientist/search/strategies/test_neural_checkpoint.py",
+        "rawfile_sha256": "7b1f6526b29b89b62226ffbbf7e9f50b202637572bebce0980c6fe8779c831a5",
+        "backend_requests": [
+          "native_torch_botorch_gpytorch_model_or_fit_or_resume_property",
+          "native_hnsw_or_CAS_transfer_fixture"
+        ],
+        "source_test_functions": 12
+      },
+      {
+        "selector": "tests/unit/scientist/search/test_adversarial.py",
+        "path": "policy-engine/tests/unit/scientist/search/test_adversarial.py",
+        "rawfile_sha256": "331de9a07ab9b6e50ab0f53bf5811c89d81ad3da9de41d5ca028a7e4706962c1",
+        "backend_requests": [
+          "ordinary_pytest_property_no_optional_numerical_backend_identified"
+        ],
+        "source_test_functions": 13
+      },
+      {
+        "selector": "tests/unit/scientist/search/test_adversarial_streaming.py",
+        "path": "policy-engine/tests/unit/scientist/search/test_adversarial_streaming.py",
+        "rawfile_sha256": "0227f239fd504924a2591bdbe391ddc1bb2f62d516d1d0e3221e6bd614ccadb5",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 7
+      },
+      {
+        "selector": "tests/unit/scientist/search/test_blueprint_resource_projection.py",
+        "path": "policy-engine/tests/unit/scientist/search/test_blueprint_resource_projection.py",
+        "rawfile_sha256": "4686046be866f2846ce33c7f4de839f367cab0b0c459b661333dbb61c94eb021",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 2
+      },
+      {
+        "selector": "tests/unit/scientist/search/test_challenge_scenario_projection.py",
+        "path": "policy-engine/tests/unit/scientist/search/test_challenge_scenario_projection.py",
+        "rawfile_sha256": "60a3885b611dce9c7202ac418a9a2a2f189bb0db20832639f64c476df9d60c41",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 8
+      },
+      {
+        "selector": "tests/unit/scientist/search/test_contracts.py",
+        "path": "policy-engine/tests/unit/scientist/search/test_contracts.py",
+        "rawfile_sha256": "25657a74d27506f49e337c92ee1b66f74a9563ab486ee4cf8b1110d98b7183ab",
+        "backend_requests": [
+          "ordinary_pytest_property_no_optional_numerical_backend_identified"
+        ],
+        "source_test_functions": 2
+      },
+      {
+        "selector": "tests/unit/scientist/search/test_controller_api.py",
+        "path": "policy-engine/tests/unit/scientist/search/test_controller_api.py",
+        "rawfile_sha256": "c09a00d0692c525ec2e592f3fd853743484d9569ba05364ca7a9db33ba2b8447",
+        "backend_requests": [
+          "ordinary_pytest_property_no_optional_numerical_backend_identified"
+        ],
+        "source_test_functions": 1
+      },
+      {
+        "selector": "tests/unit/scientist/search/test_cost_stopping.py",
+        "path": "policy-engine/tests/unit/scientist/search/test_cost_stopping.py",
+        "rawfile_sha256": "5be71426a16abb77d196a1a9bd82371266368fb3baa559a1a8cdc166ab519a5f",
+        "backend_requests": [
+          "ordinary_pytest_property_no_optional_numerical_backend_identified"
+        ],
+        "source_test_functions": 17
+      },
+      {
+        "selector": "tests/unit/scientist/search/test_frontier.py",
+        "path": "policy-engine/tests/unit/scientist/search/test_frontier.py",
+        "rawfile_sha256": "db452e942e98827005997942d1bf7a5fa4002a87e4dbf8e8f5bf35888b3d7b51",
+        "backend_requests": [
+          "ordinary_pytest_property_no_optional_numerical_backend_identified"
+        ],
+        "source_test_functions": 3
+      },
+      {
+        "selector": "tests/unit/scientist/search/test_lesson_as_of.py",
+        "path": "policy-engine/tests/unit/scientist/search/test_lesson_as_of.py",
+        "rawfile_sha256": "c4f5d1d24341e958ddcffc3c799b6c77323ed3810660c130012b418c9eac341b",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 9
+      },
+      {
+        "selector": "tests/unit/scientist/search/test_lesson_partial_consumer.py",
+        "path": "policy-engine/tests/unit/scientist/search/test_lesson_partial_consumer.py",
+        "rawfile_sha256": "d706b028fe5d1f938751ea66d93e79cc818e75a04be17e3f688cea18338b6645",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 5
+      },
+      {
+        "selector": "tests/unit/scientist/search/test_lesson_transfer.py",
+        "path": "policy-engine/tests/unit/scientist/search/test_lesson_transfer.py",
+        "rawfile_sha256": "0ace8b221674d26615dbdc5067614b57226ed39443fe765f3237c5920690a887",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 7
+      },
+      {
+        "selector": "tests/unit/scientist/search/test_lessons.py",
+        "path": "policy-engine/tests/unit/scientist/search/test_lessons.py",
+        "rawfile_sha256": "dbc96fb574339da46c578215a33b1027523ade804e494afec49bbab9194f2bcc",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 4
+      },
+      {
+        "selector": "tests/unit/scientist/search/test_search_loop.py",
+        "path": "policy-engine/tests/unit/scientist/search/test_search_loop.py",
+        "rawfile_sha256": "7b838056a933764b2eed3bf0962602cd32c2443e196ef0ca601ac82ada980818",
+        "backend_requests": [
+          "ordinary_pytest_property_no_optional_numerical_backend_identified"
+        ],
+        "source_test_functions": 26
+      },
+      {
+        "selector": "tests/unit/scientist/search/test_stress_scenario_evidence.py",
+        "path": "policy-engine/tests/unit/scientist/search/test_stress_scenario_evidence.py",
+        "rawfile_sha256": "2305ffaecac2613846308cd03fcd618be22519d1289ef5fe42e155595dd13ca0",
+        "backend_requests": [
+          "actual_CAS_OS_reader_or_HTTP_ledger_consumer"
+        ],
+        "source_test_functions": 15
+      },
+      {
+        "selector": "tests/unit/scientist/search/test_transfer_context_criteria.py",
+        "path": "policy-engine/tests/unit/scientist/search/test_transfer_context_criteria.py",
+        "rawfile_sha256": "d22edd4e3a5fe5032f9d92ac0b1e184285358bdd0c2479c587e9a25ed30161d1",
+        "backend_requests": [
+          "ordinary_pytest_property_no_optional_numerical_backend_identified"
+        ],
+        "source_test_functions": 3
+      }
+    ],
+    "raw_outputs": {
+      "complete.stdout.txt": {
+        "bytes": 303,
+        "sha256": "40d9cf7cf261afd40fd641d54668234c20ac6552915488ce757ebb4787a55289",
+        "git_blob": null,
+        "matches_frozen_git_blob": null
+      },
+      "complete.stderr.txt": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "git_blob": null,
+        "matches_frozen_git_blob": null
+      },
+      "events.jsonl": {
+        "bytes": 3036271,
+        "sha256": "20b1377b538a1a1f32ef41156a4f3e18c7f6f5f4593903f1361050a745fee34d",
+        "git_blob": null,
+        "matches_frozen_git_blob": null
+      }
+    },
+    "source_and_resource_before": "before.json",
+    "source_and_resource_after": "after.json",
+    "retained_regular_fixture_count": 668,
+    "no_cause_inference": "SIGKILL is recorded as signal9, not assumed OOM; before/after cgroup counters may support a separate cause review. Reported ENOSPC/test exceptions remain complete in reports; no resource failure is converted to PASS.",
+    "no_cleanup_or_repeat": true
+  },
+  "independently_reconciled_partial": {
+    "collected_unique": 1244,
+    "deselected": 0,
+    "started": 280,
+    "complete_cases": 279,
+    "complete_call_PASS": 229,
+    "complete_call_FAIL": 45,
+    "complete_call_SKIP_UNRUN": 5,
+    "unfinished_cases": 1,
+    "never_started": 964,
+    "collected_case_UNRUN_total": 965,
+    "module_collection_SKIP_UNRUN_separate": 15,
+    "junit": "MISSING",
+    "sessionfinish": "MISSING",
+    "final_observer": "MISSING",
+    "declared_frozen_inputs": 5568,
+    "snapshot_mismatches": 0,
+    "observed_main_product_paths": 1368,
+    "source_binding_errors": 0,
+    "scope": "Observed partial event sequence/source bindings only; no complete native suite verdict, no final import census or invented subprocess origins."
+  },
+  "failure_groups": {
+    "B120_actual_response_text": 21,
+    "CAS_child_test_owned_startup_timeout_5s": 4,
+    "ordinary_cache_consumer_missing_paid_receipt_fixture": 2,
+    "unguarded_HNSW_native_test_profile": 17,
+    "unguarded_native_Sobol_test_profile": 1
+  },
+  "available_owned_followup": {
+    "test_profile_source": "66270f22b3cdab68196f97d78cc6c9e4715ce97c",
+    "actual_profile_root": "b9fc7d005d39ded686f276fae8eae617b683bac6",
+    "profile_outcomes": {
+      "PASS": 17,
+      "SKIP_native_UNRUN": 21,
+      "FAIL": 0,
+      "ERROR": 0
+    },
+    "cache_fixture_source": "0c039c0a58981e6c33271e121d6bcb0e8621fa97",
+    "actual_cache_root": "06c538cb5e18ffc9a67b754d74a67d9a4ea7cd04",
+    "actual_cache_outcomes": {
+      "PASS": 13,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0
+    },
+    "scope": "Later separate actual runs fix owned ordinary defects; historical18+2 failures remain unchanged."
+  },
+  "cause": "SIGKILL9 observed; cause not_established. Existing CAS tests own5s timeout fired before CAS directory creation; CAS nonregular read property UNRUN, no proof timeout cause. No harness/process/thread/worker compute limit introduced.",
+  "predicate_basis": "independently_reconciled for retained partial reports and exact bytes; complete_wave_predicate not_established",
+  "P41": "not_established: no complete exact slice-base command plus zero-overlap denominator",
+  "formal_closed": 0,
+  "accepted_in_G": false,
+  "independent_review_pending_commit": "numerical_oracle raw audit prepared; reference will be appended separately, no self-review claim"
+}

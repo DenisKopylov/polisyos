@@ -1,0 +1,52 @@
+{
+  "schema": "D.e02.B04-postcompletion-output-manifest.v1",
+  "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+  "original_result_preserved": true,
+  "correction": "Original run result complete_output_sha256.wrapper.stdout.txt is an empty pre-final-print snapshot. Final wrapper summary is142bytes and this manifest binds its actual postcompletion bytes. Canonical checker deciding stdout and stderr unchanged; no product/AST failure inferred.",
+  "actual_final_output_files": {
+    "result.json": {
+      "sha256": "65edb354d915dc55d9ebf70cf48142e3fba7515099add82241c1c867ae7ed1bf",
+      "bytes": 1445
+    },
+    "after.json": {
+      "sha256": "f33407c407e9aff80d55b206aa5dd9fbd3e5a7339d04ef71f9994ecd9f77c307",
+      "bytes": 991046
+    },
+    "stderr.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "stdout.txt": {
+      "sha256": "ec4fbd715944b016ae150aea0a3239a8f8321f12a75518b2ce69a0299421352f",
+      "bytes": 24414
+    },
+    "command.json": {
+      "sha256": "059b692fb6d4dcd90e51052a2a78c1351eec7beb4a47e98222cc617af105859e",
+      "bytes": 867
+    },
+    "actual_AST_input_denominator.json": {
+      "sha256": "6390e8f8a38c7d20216c8d09693c842e8c7986057ed26cc8eb0e881773c64844",
+      "bytes": 18956
+    },
+    "before.json": {
+      "sha256": "f33407c407e9aff80d55b206aa5dd9fbd3e5a7339d04ef71f9994ecd9f77c307",
+      "bytes": 991046
+    },
+    "wrapper.stderr.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "wrapper.stdout.txt": {
+      "sha256": "ddfef4dbf23a4c49d845b06b4a89e0d9cf0556e94824f57281d56ae1f1a4e63b",
+      "bytes": 142
+    },
+    "launch-env.json": {
+      "sha256": "60ed5315d6b7f01dc8596162a4de0d3a9a218bf7bde690f3be7a346a9207f835",
+      "bytes": 407
+    },
+    "run.py": {
+      "sha256": "82162eee24559171f286ee192010fad73b720d3e79c5503965af124db3e769d6",
+      "bytes": 3822
+    }
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "schema": "e02.D.B111_B124.native_delta_handoff.v1",
+  "created_utc": "2026-10-07T10:48:39.934137+00:00",
+  "source_sha": "96905636726483fdea3a98d9313871d825b54a9e",
+  "source_tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "implementation_slice_base": "237c3427266e0849ebfa36b41f89c51572b44814",
+  "producer": "source-custodied native _Evaluator actual BenchmarkEvaluation + exact native semantic date fixture",
+  "bridge": "SearchLoopRunner optional canonical TrialDeduplicator / native primary admission / NativeSearchService actual qualified CAS checkpoint admission",
+  "consumers": [
+    "actual ordinary native run/create_service/resume",
+    "actual Controller/ParetoRegistry persisted date subject readback",
+    "actual objective/history/best/front/promising",
+    "fresh actual FileSystemCAS reader",
+    "public ask/tell/checkpoint/pending resume",
+    "shared-helper actual run barrier"
+  ],
+  "original_criteria": {
+    "B124@CTL-02": {
+      "canonical_text_sha256": "dcfbad092c0072a6fb2c7094e9b53f0fa51977ab80a742ace74838785f9a1133",
+      "text": "Разные даты реального действия дают разные предметные ключи; только дата загрузки/trace не вызывает лишнее вычисление. Тестируется нормальная дедупликация одного и того же канонического входа и сохранение нескольких оценок/реплик. Перестановка полей JSON не меняет смысл, а временные данные не удаляются только по суффиксу имени.",
+      "proposal": "closed bounded original engineering criterion; formalGclosure not claimed"
+    },
+    "B111@OPT-01": {
+      "scope": "ordinary native primary missing/status-not-ok preserves unavailable rather than numerical0; genuinezero andordinaryone distinct; this is an affected native consumer seam alongside Math-owned fulloriginalquantity criteria",
+      "finding_verdict": "root joins full original occurrence; no independent fullB111closureclaim"
+    }
+  },
+  "check_results": {
+    "positive_native_service_receipt": "48PASS including40 new actual native +8 existing standalone, source969 exact; Service-owned fulloriginal outputs not copied again, source-bound hash refs below",
+    "baseline_b652": "actual missingprimary1FAIL, genuinezero/one2PASS controlled native producer/CAS/reader; historical pin separate",
+    "four_removal_counterfactuals": "four separately executed1assertionFAIL, zeroERROR/SKIP on exact969; each actual persisted observation retained"
+  },
+  "positive_receipt_bindings": {
+    "dedup.receipt.json": {
+      "bytes": 13586,
+      "sha256": "316cb3555f039ffb2fe12b04c9e610832040c86b735677a11985589e445bd88c"
+    },
+    "dedup.stdout.txt": {
+      "bytes": 46633,
+      "sha256": "f5eab7157e2ebd84432467e8508579c5ccd1651f38b744087dd1b5e658bdeaed"
+    },
+    "dedup.stderr.txt": {
+      "bytes": 2203,
+      "sha256": "8feac52bea1b233336316f7666315792805a4fe40e2028a228ffa1b461f10286"
+    },
+    "dedup.junit.xml": {
+      "bytes": 9317,
+      "sha256": "4cb203de5f7adce4f0dc1f609286f6ef37c9bedab04eea6795cb7ceeaf2b304a"
+    }
+  },
+  "independent_review": "independent-reviews/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json SHA20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+  "predicate_basis": {
+    "P37": "actual physical evaluations, complete history, qualified checkpoint/registry, scalar/promising/best/front; original B124 content/date law retained",
+    "P38": "valid preserved upstreamhash marker/history3 butregistry1; unavailable/promotable marker butforcedprimary0best0front1; identicalconfigrunreset extra physicalJan calls; actual physical trace divergence",
+    "P40": "same-class identity/state escape widened to shared qualified CAS configuration admission at effect/publication and firstACK rollback + actualrun scope",
+    "P41": "no inherited-red claim/no historical executions aggregated as current"
+  },
+  "capture_corrections": [
+    "Pytest path prefix before observation marker corrected by parsing unchanged complete stdout; original commands/receipts/summary preserved, no runtime replay/outcomechange.",
+    "Read-only minref diagnostic initially searched evaluationid across allpositive fixtures; many content-identical artifacts are valid. Final readback uses checkpoint-bound exact fixtureCAS and exact ArtifactRef. Initial helper retained; no product failure claim.",
+    "Nonfinite actual history observations explicitly encoded in final review; initial PythonNaN spelling diagnostic retained; exact raw canonical artifact bytes included."
+  ],
+  "actual_ref_minima": "production-runtime-review/native969-readback-review.json contains14 independently fresh-read exact qualified controlled artifact snapshots, rawdata base64+manifest+bindings; repeatable wholefixture dirs excluded",
+  "formal_closed": 0,
+  "G_accepted": false,
+  "limitations": [
+    "Native declared controlled fixture profile only; no scientific evaluator appointment/defaultproductioncaller/distributedatomicity/globalrunID guarantee.",
+    "Source393 separate counterfactual baseline not located or invented; current actual969 runscope removal is explicit.",
+    "This leaf authored newtestinputs; independent testcode/Census reviews retained, production/runtime review is independent of Service author.",
+    "Production data absent; original criteria root ledger/owner packets remain authoritative.",
+    "No source copies of tracked currentimplementation/tests, no broadreplay/617execution sum, no fixture/env permanentcleanup."
+  ],
+  "cleanup_candidates": [
+    "repeatable fixture subdirectories under /dev/shm/e02-D-B124-removal-four-exxj42mi after publication/readback/inactive-user check; no cloudTrash means no deletion",
+    "repeatable final-native-969/dedup-fixtures controlled CAS dirs after root publication/readback and all users inactive; preserve captured deciding outputs/minrefs/source inputs"
+  ],
+  "publication_relative_root": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/B111-B124-native-removal"
+}

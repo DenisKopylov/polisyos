@@ -1,0 +1,123 @@
+{
+  "schema": "e02.D.independent_source_review.v1",
+  "created_utc": "2026-10-07T10:32:00.884324+00:00",
+  "reviewer": "/root/transfer_oct07",
+  "author": "/root/service_oct07",
+  "subject": "B124 native trial content/context identity and B111 ordinary primary availability",
+  "review_result": "SOURCE_READY_PENDING_IMMUTABLE_RUNTIME",
+  "base_head": "237c3427266e0849ebfa36b41f89c51572b44814",
+  "base_tree": "5f55100211942afdc9bae31ae10514894bafdb29",
+  "current_checkout_status": "deliberate staged root-author source candidate; not a clean runtime pin",
+  "artifacts": {
+    "final_service": {
+      "path": "/dev/shm/e02-D-oct07-service-start/native-trial-deduplication-service.v5.final-90c726.py",
+      "bytes": 58412,
+      "sha256": "90c726a5e76e55591ce0176b6bbd68ee9764a16e31254504341792db3741ee4e"
+    },
+    "v4_to_v5_delta": {
+      "path": "/dev/shm/e02-D-oct07-service-start/native-trial-deduplication-v4-to-v5.final-de8c6.patch",
+      "bytes": 9608,
+      "sha256": "de8c6a11fdff47230ba746e5a0b79764cca69afc3c3c85334dd16e44ce08a78f"
+    },
+    "compatibility_v2": {
+      "path": "/dev/shm/e02-D-oct07-service-start/native-trial-deduplication-compat-b652.v2-final.patch",
+      "bytes": 10354,
+      "sha256": "49c21acd1c4838f8ca4f381337c099abfe7ebab7c138a6e84f2f786cf17ed79b"
+    },
+    "acknowledged_profile_companion": {
+      "path": "/dev/shm/e02-D-oct07-service-start/native-trial-deduplication-v5-ack-compat.patch",
+      "bytes": 4539,
+      "sha256": "9d5508057eb234ab9a8dd6d7bd4742665ce5cbe58ae9307fd6ae9fe307ab7347"
+    },
+    "final_tests_39": {
+      "path": "/dev/shm/e02-D-B124-independent-tests/v8/test_service_trial_deduplication.py",
+      "bytes": 38895,
+      "sha256": "8eb96cf9a0825f4170f62da392e40111816fc9dd77d21c0a97355c436abdec0d"
+    }
+  },
+  "production_footprint": [
+    "policy-engine/src/polisyos/scientist/methods/autotune/dedup.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+    "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+    "policy-engine/src/polisyos/scientist/methods/search/service.py"
+  ],
+  "full_delta_read": {
+    "v4_to_v5_lines": 200,
+    "prior_full_v3_and_v4_delta_review": "prior full four-path v3 review7798334 and v4 availability-promising gate delta separately reviewed; historical snapshots retained"
+  },
+  "original_criterion": {
+    "id": "B124@CTL-02",
+    "canonical_text_sha256": "dcfbad092c0072a6fb2c7094e9b53f0fa51977ab80a742ace74838785f9a1133",
+    "text": "Разные даты реального действия дают разные предметные ключи; только дата загрузки/trace не вызывает лишнее вычисление. Тестируется нормальная дедупликация одного и того же канонического входа и сохранение нескольких оценок/реплик. Перестановка полей JSON не меняет смысл, а временные данные не удаляются только по суффиксу имени."
+  },
+  "findings_disposition": "no formal closure or G acceptance; runtime on frozen candidate still UNRUN",
+  "decisions": [
+    {
+      "predicate": "actual candidate identity ignores supplied upstream hash markers; canonical semantic dates distinct; root technical/audit dates and notes do not create unnecessary optional dedup calls",
+      "review": "GO",
+      "consumer": "actual native controller ParetoRegistry + qualified CAS readback; ordinary SearchLoopRunner optional configured TrialDeduplicator"
+    },
+    {
+      "predicate": "completed membership requires exact profiled candidate/evaluation/suite artifacts, typed payload equality, same actual comparison basis, status ok, present finite declared primary; explicit supported replicas distinct",
+      "review": "GO",
+      "scope": "declared native replay profile; no cached EvaluationBundle or physical evaluation count fabricated; no generic scientific independence law"
+    },
+    {
+      "predicate": "actual missing/status-not-ok primary retains nullable value plus explicit unavailable assessment, objective NaN/unsatisfied; original promotable marker cannot yield promising APPROVE; genuine zero stays available",
+      "review": "GO",
+      "scope": "ordinary native response→persisted BenchmarkEvaluation→native quantity/objective/history/front/checkpoint/fresh reader"
+    },
+    {
+      "predicate": "active effect/publication admission resolves sole actual last qualified CAS checkpoint configuration instead of recomputing both sides from live mutated evaluator/context",
+      "review": "GO",
+      "boundaries": [
+        "ask membership before generator",
+        "tell before recording",
+        "checkpoint before new artifact",
+        "public pending resume before mutation/evaluation",
+        "each pending batch before actual evaluator"
+      ]
+    },
+    {
+      "predicate": "first actual prepared-run empty checkpoint fixes initial profile before proposal effects; later proposal failure preserves qualified acknowledgment and fences in-memory publication until fresh reader restores",
+      "review": "GO",
+      "scope": "existing restorable generator rollback retained; no new second pointer/cache/store"
+    },
+    {
+      "predicate": "only explicit publication-ready run_search may retire previous acknowledgment for new lifecycle; historical checkpoint artifacts remain immutable/readable under exact matching source profile",
+      "review": "GO",
+      "limitation": "local source-bound admission, no guarantee against arbitrary concurrent out-of-band evaluator/context mutation"
+    },
+    {
+      "predicate": "public create_service/resume optional keywords additive, existing run dedup behavioral narrowing explicit breaking, internal64 transient fingerprint migration/reset and old source reader preservation documented",
+      "review": "GO",
+      "classification": "public SearchLoopRunner facade present; TrialDeduplicator and TrialFingerprint absent from public stable inventory"
+    }
+  ],
+  "negative_discriminators": [
+    "valid preserved upstream hash marker plus Jan/Feb semantics at actual persisted registry consumer",
+    "lookup removal with actual fingerprints/candidate records/replicas/CAS/evaluator calls retained",
+    "nullable primary→zero while actual producer metrics{}, unavailable assessment, promotableTrue, exactrefs retained",
+    "evaluator.scale drift and aliased effective nested context drift across ask/tell/checkpoint/pending public resume",
+    "actual initialACK followed by injected proposal failure, changed context retry refuses and fresh reader original scope resumes",
+    "actual same qualified evaluation ref with changed parseable bytes refuses before duplicate skip"
+  ],
+  "pattern_predicates": {
+    "P37": "actual accepted runtime quantity/identity/checkpoint/effect state, not declaration markers; exact original B124 law remains acceptance basis",
+    "P38": "actual physical call traces, persisted candidate subject cardinality and missing-vs-zero best/front differ from preserved hash/promotable/status markers",
+    "P40": "same-class live identity escape widened to shared CAS configuration admission at publication/effect boundaries and firstACK rollback",
+    "P41": "no inherited-red claim, no broad baseline or unchanged evidence sum used"
+  },
+  "pending_runtime": {
+    "tests": 39,
+    "test_result": "UNRUN",
+    "removal_plugins": "independent Census review requested, UNRUN",
+    "affected_consumers": "root to freeze full source then run meaningful native dedup/service fault/history/Pareto quantity consumers"
+  },
+  "limitations": [
+    "Synthetic declared source-custodied evaluator proves bounded engineering mechanism; scientific evaluator appointment/source rights remain separate inputs.",
+    "Default production caller, authority, fiscal law and distributed durability not established.",
+    "This reviewer authored the test draft; independent test review belongs Census and separate immutable runtime output review.",
+    "Historical source reviews and receipts remain immutable; this final delta GO is source readiness only."
+  ]
+}

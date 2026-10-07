@@ -1,0 +1,85 @@
+{
+  "schema": "e02.D.pr68.pattern-pass.v1",
+  "candidate": {
+    "sha": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+    "tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668"
+  },
+  "failure_repair_register_reread": true,
+  "patterns": {
+    "P01": {
+      "basis": "independently_reconciled",
+      "result": "bounded",
+      "scope": "Actual Service→qualified CAS→fresh Service; provider/enforcer→B ledger→funnel projection→Node serializer→ExperimentStateJSON→CAS; static diagnostic explicitly outside runtime state-read proof."
+    },
+    "P02": {
+      "basis": "independently_reconciled",
+      "result": "bounded",
+      "scope": "Original producer/artifact/bridge/consumer and all original acceptance bindings retained. The 16 packets request minimum exact owner inputs rather than a whole dataset."
+    },
+    "P05": {
+      "basis": "consumer_asserted",
+      "result": "bounded",
+      "scope": "Estimated cost origin remains estimate; reported zero is admitted only for an actual reported component. Neither trace amount nor a boolean supplies budget/permit authority."
+    },
+    "P09": {
+      "basis": "independently_reconciled",
+      "result": "bounded",
+      "scope": "Complete outputs distinguish harness missing TOML or time binary, product assertion FAIL, optional SKIP/UNRUN, and signal9 with unknown cause. No setup error becomes product PASS."
+    },
+    "P10": {
+      "basis": "consumer_asserted",
+      "result": "bounded",
+      "scope": "Complete consumed-history comparison, next-proposal equality, estimated-only/zero/mixed-origin and overwrite/dead/nested _SPEC counterexamples test the semantic property."
+    },
+    "P14": {
+      "basis": "independently_reconciled",
+      "result": "bounded",
+      "scope": "Different author and reviewer for each source mechanism; runtime and transport independent reconciliation recorded. New GP12 train/normalization/count checks do not replace the older independent NumPy full-covariance oracle."
+    },
+    "P27": {
+      "basis": "independently_reconciled",
+      "result": "bounded",
+      "scope": "Canonical B1.2 exact bytes preserved; existing SingleTaskGP, service/CAS checkpoint and current owner APIs reused. No second ledger, registry, GP or permission authority."
+    },
+    "P29": {
+      "basis": "consumer_asserted",
+      "result": "bounded",
+      "scope": "Deleted/truncated history and marker-preserving removal require refusal or actual next-proposal divergence; complete state relationship, not a marker."
+    },
+    "P32": {
+      "basis": "consumer_asserted",
+      "result": "bounded",
+      "scope": "Real fresh-reader CAS/ledger and actual fitted GP starts/returns are inspected. Unsupported checkpoint profiles refuse resume; optional numerical absence remains SKIP/UNRUN."
+    },
+    "P33": {
+      "basis": "consumer_asserted",
+      "result": "bounded",
+      "scope": "Shared nonvirtual canonical implementation-owner rule refuses borrowed proof and helper overrides before restore mutation. This is a checkpoint contract, not a Python arbitrary-code security boundary."
+    },
+    "P35": {
+      "basis": "independently_reconciled",
+      "result": "complete_denominator",
+      "scope": "17 bundles,45 IDs,46 exact original criterion occurrences,5 queues,16 packets. LA-015@CTL-01 is supplier companion; SRV-03 remains closure owner."
+    },
+    "P37": {
+      "basis": "independently_reconciled",
+      "result": "explicit_gate_basis",
+      "scope": "230 registered gate bases and per-occurrence provenance are preserved. Check outcomes, proposals, formal closures and G acceptance are separate; authority positives stay not_established."
+    },
+    "P38": {
+      "basis": "consumer_asserted",
+      "result": "explicit_divergence",
+      "scope": "Short digest prefix vs full consumption; zero projection vs estimated0.5; union of _SPEC declarations vs actual single binding; marker/count vs native state; global static call census vs actual runtime integration."
+    },
+    "P40": {
+      "basis": "independently_reconciled",
+      "result": "widened_common_rule",
+      "scope": "Second borrowed-checkpoint escape widened to one implementation-owner gate across Sequence/Bayesian/Sensitivity/RL/Adapter. Unsupported NN/history/custom profiles refuse instead of another special-case ladder. Static diagnostic refuses ambiguity generically."
+    },
+    "P41": {
+      "basis": "not_established",
+      "result": "not_established",
+      "scope": "All46 occurrences. No inherited-red claim: original slice-base exact command plus complete-denominator zero-overlap has not been established. Selected blob/output carry is not P41."
+    }
+  }
+}

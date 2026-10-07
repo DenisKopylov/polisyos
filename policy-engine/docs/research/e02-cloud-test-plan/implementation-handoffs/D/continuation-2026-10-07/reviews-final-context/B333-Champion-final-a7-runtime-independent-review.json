@@ -1,0 +1,130 @@
+{
+  "reviewer": "/root/census_oct07",
+  "author": "/root/transfer_oct07",
+  "verdict": "GO_BOUNDED_CURRENT_OWNER_SOURCE_CONSUMER_RUNTIME",
+  "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "tree": "e809693afe3b84e02d473b5744142d026afbe509",
+  "B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+  "pack_manifest_sha256": "4c23d6d9f7be28465caf552a3fef9d4a8ff58b8c166fda432b30fe157269b191",
+  "pack_file_count": 74,
+  "runtime": [
+    {
+      "profile": "positive5",
+      "actual_cases": 5,
+      "PASS": 5,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "admitted_processes": 9,
+      "all_seven_module_sources_exact": true,
+      "junit_sha256": "db72609c344dd5905d230e8f5942660922c283cdd1b0b9469da754f8208f3ac1"
+    },
+    {
+      "profile": "lock-removal1",
+      "actual_cases": 1,
+      "PASS": 0,
+      "FAIL": 1,
+      "ERROR": 0,
+      "SKIP": 0,
+      "admitted_processes": 2,
+      "all_seven_module_sources_exact": true,
+      "junit_sha256": "0e725a8c70efd6711fbfcebbe8fd23e860cebaf7d901dfe72c6f126ebca6d581"
+    }
+  ],
+  "actual_verified_ref_denominator": 34,
+  "independent_oracle": {
+    "kind": "stdlib SHA/data-manifest-kind/media/size plus independent controlled holdout arithmetic",
+    "fresh_readers": [
+      {
+        "file": "test_actual_owner_lock_blocks_child_publication_then_current_basis_commits.fresh.json",
+        "score": 2.0,
+        "actual_refs": 8
+      },
+      {
+        "file": "test_actual_reused_content_keeps_old_qualified_view_and_refuses_wrong_candidate_profile.fresh.json",
+        "score": 1.0,
+        "actual_refs": 5
+      },
+      {
+        "file": "test_competing_native_writer_refuses_actual_stale_pair_after_lock_held_reread.fresh.json",
+        "score": 2.0,
+        "actual_refs": 8
+      },
+      {
+        "file": "test_native_evaluator_registry_and_fresh_process_read_exact_profiles_and_immutable_inputs.fresh.json",
+        "score": 2.0,
+        "actual_refs": 8
+      },
+      {
+        "file": "test_same_exact_evaluation_ref_changed_bytes_refuses_without_pointer_effect.fresh.json",
+        "score": 1.0,
+        "actual_refs": 5
+      }
+    ],
+    "basis_recomputation_is_contract_validation_not_oracle": true
+  },
+  "module_bindings": [
+    {
+      "module": "polisyos.core.artifacts._integrity_ops",
+      "source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+      "blob": "557fbb829dec5e9f349e5de7a7d5013ca1c2a2ef",
+      "sha256": "768aa83084c85e8b501cacad1a94ece535e08b78e7070cee619c249df11cbfe4"
+    },
+    {
+      "module": "polisyos.core.artifacts._signature_ops",
+      "source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "path": "policy-engine/src/polisyos/core/artifacts/_signature_ops.py",
+      "blob": "5c483b787d7afbef8b489383e5a01fc9734af6e7",
+      "sha256": "0627738427829a9f7489082297635c1b604d987182aca1e5559b2bafc510cb85"
+    },
+    {
+      "module": "polisyos.core.artifacts._transfer_ops",
+      "source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "path": "policy-engine/src/polisyos/core/artifacts/_transfer_ops.py",
+      "blob": "70f7a735755f56dbf2cfd7ad5e4859cd17bf91a9",
+      "sha256": "27709becae4680c5a16445a4bfea2270dc1de8a2cea93b06c30205104c9e00b7"
+    },
+    {
+      "module": "polisyos.core.artifacts.async_store",
+      "source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "path": "policy-engine/src/polisyos/core/artifacts/async_store.py",
+      "blob": "1111ad75ed6632d87280e5699845811ec355bfbb",
+      "sha256": "875c3ddc24dd7248000c24f3384ec04907c145c3ca01a183a53eff24f90d5078"
+    },
+    {
+      "module": "polisyos.core.artifacts.signing",
+      "source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "path": "policy-engine/src/polisyos/core/artifacts/signing.py",
+      "blob": "8aa4cdd46dc9de873df15b977ed6576eb11bb30f",
+      "sha256": "2b58237eddbafa61bb6bd7a41b5e7f2cf96553c92406f1edf4cbbf236934261d"
+    },
+    {
+      "module": "polisyos.core.artifacts.store",
+      "source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "blob": "02e3253de23db5d64c21b69ce4cc85daa4f0778c",
+      "sha256": "627676dcb74c442b7e3f30a64bf7b4023e4ef5f1a8f2dac1d37fdf3e69654a4f"
+    },
+    {
+      "module": "polisyos.common.async_tools",
+      "source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "path": "policy-engine/src/polisyos/common/async_tools.py",
+      "blob": "d6255d4fcfa1d63693c700d752458ccffb081530",
+      "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564"
+    }
+  ],
+  "P37": "Protected effect is existing ChampionRegistry single-pointer promotion under actual owner flock/canonical reread and exact paired evaluator/suite/split/profile refs; actual fresh readers independently retain data+manifest bytes.",
+  "P38": "Retaining numerical improvement with wrong profile/stale predecessor or same exact evaluation ref altered bytes refuses; removing actual child lock lets real pointer1->2 effect escape held owner lock. Negative assertion follows caught communicate timeout and compares changed pointer bytes; not timeout-only evidence.",
+  "negative": "Actual lock-removal1 FAIL with valid promotion printed and physical pointer changed; no setup/error/skip.",
+  "source_delta": "Prepared c0e to actual a7 changes only selected Runner optional budget/proof/type branch and Service conditional owner admission; registry/models/selected owner tests/seven B mapped modules identical. Actual current selected consumer executes a7.",
+  "scope": "Bounded synchronous currentD + seven exact B333 modules local POSIX profile. Current root default CAS not adopted; no async/fullB/distributed/powerloss/scientific-authority guarantee. Existing full44 OPT04 receipt remains separate denominator.",
+  "limitations": [
+    "Auxiliary tamper-child exporter port98 warning caught/disabled and preserved; no telemetry property claim",
+    "No P41 inherited/disjoint exemption",
+    "Five selected cases do not replace whole original OPT04 criteria; this verifies canonical B->D edge",
+    "No formal G acceptance/closure"
+  ],
+  "formal_closed": false,
+  "accepted_G": false
+}

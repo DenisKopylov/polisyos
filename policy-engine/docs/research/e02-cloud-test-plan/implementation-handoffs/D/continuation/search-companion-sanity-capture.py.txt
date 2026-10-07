@@ -1,0 +1,95 @@
+from __future__ import annotations
+import ast, base64, collections, gzip, hashlib, json, platform, re, subprocess, sys, tomllib
+from pathlib import Path
+
+root = Path(sys.argv[1]).resolve()
+product = root / "policy-engine"
+output = Path(sys.argv[2])
+
+def git(*args):
+    return subprocess.check_output(["git", *args], cwd=root, text=True).strip()
+
+def binding(relative):
+    data = (product / relative).read_bytes()
+    return {"path": "policy-engine/" + relative, "git_blob": git("rev-parse", "HEAD:policy-engine/" + relative), "bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}
+
+def exports(relative):
+    tree = ast.parse((product / relative).read_text())
+    names = []
+    for node in tree.body:
+        if isinstance(node, (ast.Assign, ast.AnnAssign)):
+            targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+            if any(isinstance(t, ast.Name) and t.id == "__all__" for t in targets):
+                names = ast.literal_eval(node.value)
+        if isinstance(node, ast.Expr) and isinstance(node.value, ast.Call):
+            call = node.value
+            if isinstance(call.func, ast.Attribute) and isinstance(call.func.value, ast.Name) and call.func.value.id == "__all__" and call.func.attr == "extend":
+                names.extend(ast.literal_eval(call.args[0]))
+    return {**binding(relative), "names": names, "export_count": len(names), "unique_count": len(set(names))}
+
+before = {"sha": git("rev-parse", "HEAD"), "tree": git("rev-parse", "HEAD^{tree}"), "status": git("status", "--porcelain=v1")}
+contract = tomllib.loads((product / "architecture/public_surface/contract.toml").read_text())
+inventory = json.loads((product / "architecture/public_surface/inventory.json").read_text())
+scientist = next(r for r in inventory["packages"] if r["module"] == "polisyos.scientist")
+root_exports = exports("src/polisyos/scientist/__init__.py")
+search_exports = exports("src/polisyos/scientist/methods/search/__init__.py")
+autotune_exports = exports("src/polisyos/scientist/methods/autotune/__init__.py")
+markdown = (product / "docs/reference/public-surface.md").read_text()
+start = markdown.index("## `polisyos.scientist`")
+end = markdown.find("\n## ", start + 1)
+section = markdown[start:end if end != -1 else None]
+blocks = {}
+for label in ["Entrypoint exports", "Supported exports"]:
+    block = re.search(r"<details><summary>" + label + r" \((\d+)\)</summary>\s*```text\s*(.*?)```", section, re.S)
+    names = block.group(2).split() if block else []
+    blocks[label] = {"found": bool(block), "declared_count": int(block.group(1)) if block else None, "names": names, "same_names_and_order_as_source": names == root_exports["names"]}
+aliases = {}
+for node in ast.parse((product / "src/polisyos/scientist/__init__.py").read_text()).body:
+    if isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name) and node.target.id == "_LAZY_IMPORTS":
+        mapping = ast.literal_eval(node.value)
+        for name in ["NativeSearchService", "SearchServiceCheckpoint", "SearchLoopRunner"]:
+            module, symbol = mapping[name]
+            relative = "src/" + module.replace(".", "/") + ".py"
+            definitions = ast.parse((product / relative).read_text())
+            aliases[name] = {"module": module, "symbol": symbol, "canonical_top_level_definition_exists": any(isinstance(x, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)) and x.name == symbol for x in definitions.body), "source": binding(relative)}
+fragments = []
+for name in ["2026-10-06-search-profile-compatibility-records.toml", "2026-10-06-search-gp-profile4-compatibility.toml", "2026-10-06-D-generator-resume.toml", "2026-10-06-D-exact-pareto-quantity.toml", "2026-10-06-D-pareto-representability.toml", "2026-10-06-native-search-resume.toml"]:
+    relative = "release-fragments/unreleased/" + name
+    doc = tomllib.loads((product / relative).read_text())
+    records = []
+    for row in doc.get("compatibility_change", []):
+        linked = {}
+        for key in ["migration_docs", "runbook_docs"]:
+            paths = row.get(key, []) or doc.get(key, [])
+            linked[key] = [{"path": path, "exists": (product / path.split("#")[0]).is_file(), "source": binding(path.split("#")[0]) if (product / path.split("#")[0]).is_file() else None} for path in paths]
+        records.append({"id": row["id"], "change_class": row["change_class"], "impact": row["impact"], "surface": row["surface"], "owner": row["owner"], "version_owner": row["version_owner"], "linked_docs": linked})
+    fragments.append({"source": binding(relative), "surface_classification": doc.get("surface_classification"), "public_surface_inventory_reviewed": doc.get("public_surface_inventory_reviewed"), "records": records})
+raw_base = "docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-backend-parity/actual-complete-logs/"
+bundle_path = "docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-backend-parity-243-complete.json.gz"
+bundle = json.loads(gzip.decompress((product / bundle_path).read_bytes()))
+member_name = "results-v2/B19/artifacts/_build/.tmp/last-mile/module-size.json"
+member = next(r for r in bundle["complete_raw_files"] if r["path"] == member_name)
+raw = base64.b64decode(member["content_base64"])
+module_report = json.loads(raw)
+report_only = tomllib.loads((product / "architecture/gates/report_only.toml").read_text())
+owners = {r["id"]: r["owner"] for r in report_only["gate"]}
+generated = tomllib.loads((product / "architecture/generated_artifacts.toml").read_text())
+generated_selected = []
+for row in generated["family"]:
+    if row["id"] in ["public-surface-inventory", "architecture-package-contract-aggregates", "abi-schema-snapshots", "runtime-openapi-snapshot", "runtime-api-client", "runtime-dashboard-api-types", "runtime-dashboard-contract-fixtures", "frontend-local-generated-outputs"]:
+        generated_selected.append({key: row.get(key) for key in ["id", "owner", "approval_owner", "lifecycle", "commit_policy", "drift_gate", "regenerate_commands", "check_command", "outputs"]})
+unchanged = {}
+for relative in ["src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py", "tools/quality/diagnostics/check_state_reads.py", "architecture/module_size_budget.toml", "tools/quality/validation/architecture_report_only_contracts.py", "architecture/gates/report_only.toml", "docs/adr/by-topic.md", "docs/adr/index.md", "docs/reference/policy-design-case-failure-patterns.md", "docs/runbooks/migration-release-promotion.md", "mkdocs.yml", "tools/quality/validation/check_docs_accuracy.py"]:
+    old = subprocess.check_output(["git", "show", "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3:policy-engine/" + relative], cwd=root)
+    unchanged[relative] = {"source": binding(relative), "same_bytes_as_historical243": old == (product / relative).read_bytes()}
+result = {
+ "schema_version": "search-companion-source-census.v1", "predicate_basis": "recomputed", "predicate_scope": "Static source/committed evidence only; not a new product, gate, backend, schema, frontend or hosted-site execution", "source_before": before,
+ "measurement_environment": {"python": sys.version, "executable": sys.executable, "platform": platform.platform(), "optional_numerical_modules_loaded": [name for name in ["torch", "botorch", "gpytorch", "hnswlib", "SALib"] if name in sys.modules]},
+ "public_surface": {"contract": binding("architecture/public_surface/contract.toml"), "inventory": binding("architecture/public_surface/inventory.json"), "reference": binding("docs/reference/public-surface.md"), "package_denominator": {"contract_rows": len(contract["package"]), "inventory_rows": len(inventory["packages"])}, "internal_rule": contract["public_surface"]["internal_rule"], "scientist_classification": scientist["classification"], "scientist_owner": scientist["owner"], "supported_entrypoints": scientist["supported_entrypoints"], "root_exports": root_exports, "source_equals_inventory_names_and_order": root_exports["names"] == scientist["exports"], "rendered_blocks": blocks, "specific_public_search_aliases": aliases, "search_child": search_exports, "autotune_child": autotune_exports, "child_contract_rows": [r for r in contract["package"] if r["module"] in ["polisyos.scientist.methods.search", "polisyos.scientist.methods.autotune"]], "child_classification": "internal by default; child __all__ is not promotion"},
+ "structured_compatibility_source_review": {"registered_policy": binding("architecture/gates/compatibility_release.toml"), "validator_source": binding("tools/ops_runners/release/check_compatibility_release_gates.py"), "records": fragments, "fresh_validator_execution": "UNRUN; read existing policy and records only"},
+ "generated_companions": {"registry": binding("architecture/generated_artifacts.toml"), "complete_family_row_denominator": len(generated["family"]), "public_inventory_generated_family_count": len(inventory["generated_artifact_families"]), "selected_registered_families": generated_selected, "status_scope": "Current scientist export/rendered-block source equality only; no regenerated schema, generated-client, frontend, full architecture or publication gate verdict"},
+ "existing_quality_evidence": {"historical_executed_source": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3", "historical_payload_commit": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9", "B04": {"output": binding(raw_base + "B04.txt"), "verdict": "historical FAIL;9undeclaredreads"}, "B19": {"carrier": binding(bundle_path), "member": {"path": member_name, "bytes": len(raw), "sha256": hashlib.sha256(raw).hexdigest(), "manifest_hash_matches": hashlib.sha256(raw).hexdigest() == member["rawfile_sha256"], "manifest_size_matches": len(raw) == member["bytes"]}, "contract_error_count": len(module_report["contract_errors"]), "error_category_counts": dict(collections.Counter(r["message"] for r in module_report["contract_errors"])), "complete_error_subjects": [{"subject": r["subject"], "message": r["message"], "canonical_gate_owner": owners.get(r["subject"])} for r in module_report["contract_errors"]], "report_only_finding_count": len(module_report["findings"]), "complete_report_only_findings": module_report["findings"]}, "B23": {"output": binding(raw_base + "B23.txt"), "verdict": "historical FAIL;10publicationlinkviolations"}, "historical_source_byte_comparisons": unchanged, "canonical_owner_packet": binding("docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/owner-inputs.json"), "independent_prior_review": binding("docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/canonical-companions-independent-read-review.json"), "current_fullgate_verdict": "UNRUN; historical FAIL preserved, no inherited waiver"},
+ "closure_ids": []}
+result["source_after"] = {"sha": git("rev-parse", "HEAD"), "tree": git("rev-parse", "HEAD^{tree}"), "status": git("status", "--porcelain=v1")}
+output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
+print(json.dumps({"source_before": before, "source_after": result["source_after"], "root_inventory_equal": result["public_surface"]["source_equals_inventory_names_and_order"], "rendered_blocks_equal": {k:v["same_names_and_order_as_source"] for k,v in blocks.items()}, "export_counts": [root_exports["export_count"], search_exports["export_count"], autotune_exports["export_count"]], "B19_counts": [len(module_report["contract_errors"]),len(module_report["findings"])], "output": str(output), "bytes": output.stat().st_size, "sha256": hashlib.sha256(output.read_bytes()).hexdigest()}, sort_keys=True))

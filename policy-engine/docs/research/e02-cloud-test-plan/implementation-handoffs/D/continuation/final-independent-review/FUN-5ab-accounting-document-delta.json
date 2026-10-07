@@ -1,0 +1,405 @@
+{
+  "schema": "policyos.e02.independent_supplier_document_delta.v1",
+  "review_source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+  "supplier_sha": "5ab28d7621a6e290d4d0482a5091a62d201de850",
+  "composed_document_head": "f055e68f87bf9ce465528e1d7e6225f8dfd16d94",
+  "root_new_source_test_paths": [],
+  "f258_packaging": {
+    "member_count": 60,
+    "changed_source_members": 2,
+    "other58_unchanged": true,
+    "recovered_original_complete_parsed_payload": true,
+    "checks": [
+      {
+        "member_index": 54,
+        "member_name": "owner_fb9/champion-profile-final-verify.py.txt",
+        "old_body_equals_Git": true,
+        "reference_bytes": true,
+        "reference_SHA256": true,
+        "reference_blob": true,
+        "all_other_member_fields_unchanged": true
+      },
+      {
+        "member_index": 57,
+        "member_name": "owner_fb9/champion-profile-final-removal.py.txt",
+        "old_body_equals_Git": true,
+        "reference_bytes": true,
+        "reference_SHA256": true,
+        "reference_blob": true,
+        "all_other_member_fields_unchanged": true
+      }
+    ],
+    "runtime_ref_preservation": true
+  },
+  "wave_packaging": {
+    "source_sha": "6333d6205a4abd14e6ef246a668cbff51e72b482",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-root-wave-8c-interruption-proof/output.json.gz",
+    "encoded_SHA256_matches": true,
+    "decoded_SHA256_matches": true,
+    "member_count": 14,
+    "original_wave_member_byte_checks": [
+      {
+        "member": "original-wave/before.json",
+        "existing_original_bytes_MATCH": true
+      },
+      {
+        "member": "original-wave/complete.stderr.txt",
+        "existing_original_bytes_MATCH": true
+      },
+      {
+        "member": "original-wave/complete.stdout.txt",
+        "existing_original_bytes_MATCH": true
+      },
+      {
+        "member": "original-wave/events.jsonl",
+        "existing_original_bytes_MATCH": true
+      },
+      {
+        "member": "original-wave/execution-manifest.json",
+        "existing_original_bytes_MATCH": true
+      },
+      {
+        "member": "original-wave/plan.stderr.txt",
+        "existing_original_bytes_MATCH": true
+      },
+      {
+        "member": "original-wave/plan.stdout.txt",
+        "existing_original_bytes_MATCH": true
+      },
+      {
+        "member": "original-wave/selector-plan.argv.json",
+        "existing_original_bytes_MATCH": true
+      },
+      {
+        "member": "original-wave/selector-plan.json",
+        "existing_original_bytes_MATCH": true
+      }
+    ],
+    "read_only_process_observation": [
+      {
+        "pid": 385226,
+        "state": "Z",
+        "raw_wait_status": 9,
+        "returncode": -9,
+        "raw_stat_matches_decoded_fields": true,
+        "cause": "not_established"
+      },
+      {
+        "pid": 384932,
+        "state": "Z",
+        "raw_wait_status": 15,
+        "returncode": -15,
+        "raw_stat_matches_decoded_fields": true,
+        "cause": "not_established"
+      }
+    ],
+    "signals_basis": "independently_reconciled against committed actual read-only observation; no resource-cause inference",
+    "actual_test_or_fit_verdict": "UNRUN_NOT_ESTABLISHED",
+    "cause": "not_established",
+    "current_no_fresh_runtime_here": true
+  },
+  "accounting": {
+    "finding_rows": 45,
+    "occurrence_rows": 46,
+    "findings_by_disposition": {
+      "OPEN_VERIFICATION_PENDING": 39,
+      "LIMITED_UPSTREAM_CURRENT_FAIL": 1,
+      "HELD_ORIGINAL_POSITIVE_INPUT": 5
+    },
+    "formal_closed": 0,
+    "accepted_in_G": false,
+    "all46_original_bindings": [
+      {
+        "id": "B106@STR-01",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B107@STR-01",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B108@OPT-01",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B109@OPT-01",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B110@OPT-01",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B111@OPT-01",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B112@OPT-02",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B113@OPT-02",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B114@OPT-03",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B115@OPT-03",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B116@OPT-04",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B117@OPT-04",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B118@CTL-01",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B119@CTL-01",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B120@CTL-03",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B121@CTL-03",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B122@STP-01",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B123@CTL-03",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B124@CTL-02",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B125@CTL-02",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B126@CTL-02",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B127@OPT-02",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B128@TRN-01",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B129@TRN-02",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B130@TRN-01",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B131@TRN-01",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B132@TRN-01",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B133@TRN-02",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B134@TRN-02",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B135@TRN-03",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B136@TRN-03",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B137@TRN-03",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B156@FUN-01",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B157@FUN-02",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B158@FUN-01",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B159@FUN-01",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B160@FUN-02",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B161@FUN-03",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B162@FUN-02",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B163@FUN-03",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B164@FUN-03",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B165@FUN-02",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "B41@STP-01",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "LA-014@SRV-01",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "LA-015@CTL-01",
+        "original_fields_MATCH": true
+      },
+      {
+        "id": "LA-015@SRV-03",
+        "original_fields_MATCH": true
+      }
+    ],
+    "packet_count": 16,
+    "owner_roles": [
+      {
+        "key": "tenant_split_transfer",
+        "appointment_status": "not_established",
+        "requested_canonical_owner_present": true,
+        "provided_D_evidence": false
+      },
+      {
+        "key": "authorized_revalidation",
+        "appointment_status": "not_established",
+        "requested_canonical_owner_present": true,
+        "provided_D_evidence": false
+      },
+      {
+        "key": "native_draw_producer",
+        "appointment_status": "not_established",
+        "requested_canonical_owner_present": true,
+        "provided_D_evidence": false
+      },
+      {
+        "key": "same_scope_refinement",
+        "appointment_status": "not_established",
+        "requested_canonical_owner_present": true,
+        "provided_D_evidence": false
+      },
+      {
+        "key": "typed_write_permit",
+        "appointment_status": "not_established",
+        "requested_canonical_owner_present": true,
+        "provided_D_evidence": false
+      },
+      {
+        "key": "lossless_gateway_cost",
+        "appointment_status": "not_established",
+        "requested_canonical_owner_present": true,
+        "provided_D_evidence": false
+      },
+      {
+        "key": "owned_multikey_durability",
+        "appointment_status": "not_established",
+        "requested_canonical_owner_present": true,
+        "provided_D_evidence": false
+      },
+      {
+        "key": "public_typed_budget_snapshot",
+        "appointment_status": "not_established",
+        "requested_canonical_owner_present": true,
+        "provided_D_evidence": false
+      },
+      {
+        "key": "A_frontier_default_workflow",
+        "appointment_status": "not_established",
+        "requested_canonical_owner_present": true,
+        "provided_D_evidence": false
+      },
+      {
+        "key": "served_hierarchical_context",
+        "appointment_status": "not_established",
+        "requested_canonical_owner_present": true,
+        "provided_D_evidence": false
+      },
+      {
+        "key": "ordinary_blueprint_configured_owner",
+        "appointment_status": "not_established",
+        "requested_canonical_owner_present": true,
+        "provided_D_evidence": false
+      },
+      {
+        "key": "B_canonical_history_compatibility",
+        "appointment_status": "not_established",
+        "requested_canonical_owner_present": true,
+        "provided_D_evidence": false
+      },
+      {
+        "key": "B_public_API_surface",
+        "appointment_status": "not_established",
+        "requested_canonical_owner_present": true,
+        "provided_D_evidence": false
+      },
+      {
+        "key": "E_mutable_cardinality_cap",
+        "appointment_status": "not_established",
+        "requested_canonical_owner_present": true,
+        "provided_D_evidence": false
+      },
+      {
+        "key": "owner_declared_fiscal_profile",
+        "appointment_status": "not_established",
+        "requested_canonical_owner_present": true,
+        "provided_D_evidence": false
+      },
+      {
+        "key": "D_coordinate_volume_corrective",
+        "appointment_status": "not_established",
+        "requested_canonical_owner_present": true,
+        "provided_D_evidence": true
+      }
+    ],
+    "final_wave_scope": "ERROR_UNRUN, completed runtime absent; interrupted broad receipt is distinct from currently parent-reported targeted GP constructor/fit substeps and pending four-negative carrier",
+    "slice_base_name_clarification": "8c is this accounting-document lane base. D continuation source/test delta base iscae; original D base198 must remain explicit. No inherited-red replay from8c is authorized by metadata naming.",
+    "localhooks": "UNRUN for metadataAPI lane, accuratelydeclared"
+  },
+  "predicate_basis": "independently_reconciled; packaging and source/criterion identity only",
+  "formal_closed": 0,
+  "accepted_in_G": false,
+  "current_parent_new_node_code_delta_still_requires_review": true,
+  "cleanup_or_deletions": []
+}

@@ -1,0 +1,306 @@
+{
+  "name": "champion",
+  "source_sha": "96905636726483fdea3a98d9313871d825b54a9e",
+  "source_tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "source_status_before": "",
+  "argv": [
+    "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "--noconftest",
+    "-p",
+    "no:cacheprovider",
+    "-s",
+    "-ra",
+    "--basetemp",
+    "/dev/shm/e02-D-oct07-service-start/final-native-969/champion-fixtures",
+    "--junitxml",
+    "/dev/shm/e02-D-oct07-service-start/final-native-969/champion.junit.xml",
+    "tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+    "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py",
+    "tests/unit/scientist/methods/autotune/test_benchmark_primitive_admission.py"
+  ],
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "environment_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine:/dev/shm/e02-D-oct07-service-start"
+  },
+  "harness": {
+    "path": "/dev/shm/e02-D-oct07-service-start/run_final_dedup_native_wave.py",
+    "sha256": "eaeeca33fc97d55ba5937f3781b3a05e29990d6f17bbe8a82ace03506bacb4c6"
+  },
+  "backend": "Actual native SearchLoopRunner/NativeSearchService/qualified FileSystemCAS/ChampionRegistry; actual supported typed mutation/evaluator/data-context profiles and physical invocation counts. No scientific law, appointed production caller, external identity migration or distributed atomicity inferred. Actual Torch/SALib only in native DOE cohort; provider fixtures are not invoice truth.",
+  "no_artificial_quotas": true,
+  "started_at": "2026-10-07T10:41:05.351063+00:00",
+  "complete_frozen_input_manifest": {
+    "path": "frozen-inputs.json.gz",
+    "bytes": 918281,
+    "sha256": "9547da0175ec32a6502c98e95c298cc99f99536f43bc228fdc843448670e764d",
+    "entries": 15927
+  },
+  "runtime": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "packages": {
+      "pytest": "9.0.2",
+      "pydantic": "2.12.5",
+      "numpy": "2.3.5",
+      "scipy": "1.16.3"
+    }
+  },
+  "returncode": 0,
+  "elapsed_seconds": 22.9915505219833,
+  "completed_at": "2026-10-07T10:41:28.555040+00:00",
+  "source_sha_after": "96905636726483fdea3a98d9313871d825b54a9e",
+  "source_status_after": "",
+  "same_inputs": true,
+  "changed_inputs": [],
+  "case_phases": {
+    "PASS": 44,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "cases": [
+    {
+      "name": "test_default_store_uses_storage_factory",
+      "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+      "status": "PASS"
+    },
+    {
+      "name": "test_autotune_persistence_helpers_accept_protocol_backed_store",
+      "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+      "status": "PASS"
+    },
+    {
+      "name": "test_search_loop_runner_promotes_and_runtime_loader_reads_champion",
+      "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+      "status": "PASS"
+    },
+    {
+      "name": "test_champion_registry_is_idempotent_for_same_candidate_and_evaluation",
+      "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+      "status": "PASS"
+    },
+    {
+      "name": "test_champion_registry_rejects_omitted_suite_binding",
+      "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+      "status": "PASS"
+    },
+    {
+      "name": "test_champion_registry_rejects_evaluation_for_different_candidate",
+      "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+      "status": "PASS"
+    },
+    {
+      "name": "test_champion_registry_rejects_evaluation_for_different_loop",
+      "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+      "status": "PASS"
+    },
+    {
+      "name": "test_champion_registry_rejects_policy_for_different_loop",
+      "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+      "status": "PASS"
+    },
+    {
+      "name": "test_champion_registry_rejects_incompatible_suite[foreign_suite-1.0-suite_mismatch]",
+      "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+      "status": "PASS"
+    },
+    {
+      "name": "test_champion_registry_rejects_incompatible_suite[dummy_suite-2.0-suite_version_mismatch]",
+      "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+      "status": "PASS"
+    },
+    {
+      "name": "test_champion_registry_rejects_evaluation_from_different_suite_basis",
+      "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+      "status": "PASS"
+    },
+    {
+      "name": "test_champion_registry_rejects_bound_promotion_over_unknown_seed_basis",
+      "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+      "status": "PASS"
+    },
+    {
+      "name": "test_champion_registry_rejects_wrong_comparison_split",
+      "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+      "status": "PASS"
+    },
+    {
+      "name": "test_champion_registry_rejects_missing_runtime_split_when_resolution_disagrees",
+      "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+      "status": "PASS"
+    },
+    {
+      "name": "test_champion_registry_keeps_newer_champion_when_stale_score_arrives",
+      "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+      "status": "PASS"
+    },
+    {
+      "name": "test_champion_registry_serializes_compare_and_publish_against_new_predecessor",
+      "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+      "status": "PASS"
+    },
+    {
+      "name": "test_search_loop_runner_rejects_evaluator_from_foreign_suite",
+      "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+      "status": "PASS"
+    },
+    {
+      "name": "test_native_evaluator_registry_and_fresh_process_read_exact_profiles_and_immutable_inputs",
+      "classname": "tests.unit.scientist.methods.autotune.test_champion_verified_snapshot",
+      "status": "PASS"
+    },
+    {
+      "name": "test_actual_reused_content_keeps_old_qualified_view_and_refuses_wrong_candidate_profile",
+      "classname": "tests.unit.scientist.methods.autotune.test_champion_verified_snapshot",
+      "status": "PASS"
+    },
+    {
+      "name": "test_native_seed_incumbent_is_actually_re_evaluated_on_active_immutable_suite",
+      "classname": "tests.unit.scientist.methods.autotune.test_champion_verified_snapshot",
+      "status": "PASS"
+    },
+    {
+      "name": "test_competing_native_writer_refuses_actual_stale_pair_after_lock_held_reread",
+      "classname": "tests.unit.scientist.methods.autotune.test_champion_verified_snapshot",
+      "status": "PASS"
+    },
+    {
+      "name": "test_actual_process_exit_around_atomic_pointer_replace_has_complete_fresh_view[before-1]",
+      "classname": "tests.unit.scientist.methods.autotune.test_champion_verified_snapshot",
+      "status": "PASS"
+    },
+    {
+      "name": "test_actual_process_exit_around_atomic_pointer_replace_has_complete_fresh_view[after-2]",
+      "classname": "tests.unit.scientist.methods.autotune.test_champion_verified_snapshot",
+      "status": "PASS"
+    },
+    {
+      "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[selection_metrics-score-True]",
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "status": "PASS"
+    },
+    {
+      "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[selection_metrics-score-1]",
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "status": "PASS"
+    },
+    {
+      "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[holdout_metrics-score-False]",
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "status": "PASS"
+    },
+    {
+      "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[holdout_metrics-score-1]",
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "status": "PASS"
+    },
+    {
+      "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[sample_counts-selection-True]",
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "status": "PASS"
+    },
+    {
+      "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[sample_counts-holdout-1]",
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "status": "PASS"
+    },
+    {
+      "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[sample_counts-holdout-1.0]",
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "status": "PASS"
+    },
+    {
+      "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[guardrails-finite-1]",
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "status": "PASS"
+    },
+    {
+      "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[guardrails-finite-true]",
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "status": "PASS"
+    },
+    {
+      "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[None-promotable-1]",
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "status": "PASS"
+    },
+    {
+      "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[None-promotable-true]",
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "status": "PASS"
+    },
+    {
+      "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[None-suite_version-True]",
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "status": "PASS"
+    },
+    {
+      "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[comparison_basis-schema_version-benchmark-comparison.v2]",
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "status": "PASS"
+    },
+    {
+      "name": "test_nonfinite_evidence_refused_before_producer_persistence[selection_metrics-nan]",
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "status": "PASS"
+    },
+    {
+      "name": "test_nonfinite_evidence_refused_before_producer_persistence[selection_metrics-inf]",
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "status": "PASS"
+    },
+    {
+      "name": "test_nonfinite_evidence_refused_before_producer_persistence[selection_metrics--inf]",
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "status": "PASS"
+    },
+    {
+      "name": "test_nonfinite_evidence_refused_before_producer_persistence[holdout_metrics-nan]",
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "status": "PASS"
+    },
+    {
+      "name": "test_nonfinite_evidence_refused_before_producer_persistence[holdout_metrics-inf]",
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "status": "PASS"
+    },
+    {
+      "name": "test_nonfinite_evidence_refused_before_producer_persistence[holdout_metrics--inf]",
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "status": "PASS"
+    },
+    {
+      "name": "test_declared_builtin_mutation_numeric_fields_refuse_coercion_in_real_cas",
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "status": "PASS"
+    },
+    {
+      "name": "test_fresh_pointer_reader_refuses_boolean_cached_metric_without_rewrite",
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "status": "PASS"
+    }
+  ],
+  "outputs": {
+    "stdout.txt": {
+      "available": true,
+      "bytes": 4659,
+      "sha256": "0731d6c4644e527dadb5d8693e3eaec9554ea882238b730c862b9aba7dbdaa31"
+    },
+    "stderr.txt": {
+      "available": true,
+      "bytes": 1470,
+      "sha256": "f321a5632186029ef46e4200b9647319d8cad46b0fe8c5671bd3413929bd916f"
+    },
+    "junit.xml": {
+      "available": true,
+      "bytes": 8752,
+      "sha256": "6d399a81dbe973ffdb728a817a8f78957f6cf8fedaca602991ee50b91f16a6a3"
+    }
+  }
+}

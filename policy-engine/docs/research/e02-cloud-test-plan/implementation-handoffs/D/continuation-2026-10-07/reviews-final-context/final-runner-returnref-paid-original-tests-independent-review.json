@@ -1,0 +1,43 @@
+{
+  "schema": "e02.D.independent-test-companion-review.v1",
+  "reviewer": "census_oct07",
+  "author": "service_oct07",
+  "verdict": "GO_BOUNDED_ACTUAL_FACTORY_AND_PAID_RUN_CONSUMER_PROBES",
+  "inputs": [
+    {
+      "path": "/dev/shm/e02-D-oct07-service-start/analysis-return-ref-factory-two-current.patch",
+      "sha256": "c32c25916156912e4cb13a6b287cf0c791d5f9662daf83476d31ea6a39d51640",
+      "bytes": 2546,
+      "full_read": true
+    },
+    {
+      "path": "/dev/shm/e02-D-oct07-service-start/controller-two-paid-run-original-criterion-current.patch",
+      "sha256": "d227cd086b4419c11ecf3a5e649d0230216959e48ca0b70e514bd5f047eff52e",
+      "bytes": 7586,
+      "full_read": true
+    },
+    {
+      "path": "/dev/shm/e02-D-oct07-service-start/runner-native-return-and-analysis-proof-compat-current.patch",
+      "sha256": "19ebbfd318c4b2e049ad123b8666cc93eae1eef172eb8fbb8500231ca5ef3910",
+      "bytes": 4255,
+      "full_read": true
+    }
+  ],
+  "criteria": [
+    "B118",
+    "B121",
+    "LA-014",
+    "LA-015"
+  ],
+  "runtime": "UNRUN on next immutablecandidate",
+  "positive_predicate": "Actual ScenarioAdversaryWorker -> existing LLMBudgetEnforcer -> canonical B1.2 durable receipts -> fresh owner -> controller counters/stopping/detachedhistory. Compare same mutableowner2runs against freshcontrollers; sentinel100 deliberately better thanordinary/warm but excludedtraining/best/frontier. Actual paid2/4 and immutableprefix; noresetmoney. Existing paid test retained.",
+  "negative_predicate": "Actual sensitivity SALib24/artifact/existing from_artifact resolves andconfigures nativebasis first; mutation onlyreturnedwrapper exactrefNone/otherqualifiedsuite, factory refuses before publication/nativeactivity; legitimatepostconfigurationstate and CAS byte hashes retained. E samplerlaw unchanged.",
+  "companion": "Actual publicstableRunner facade unchangedexports; optionalconstructor port and Any->existingNativeService annotation narrowing recorded with exactproofport/analysisrefadmission. No wire/client generation promise.",
+  "limitations": [
+    "Declared provider fixture does not appoint invoiceauthority.",
+    "Sameowner concurrentrun explicitforbiddenLock profile requires separate actualexisting selector.",
+    "No current output/PASS inferred from testsource; originalB118/B121 closure pending actualruntime and criterionmapping."
+  ],
+  "formal_closed": false,
+  "accepted_in_G": false
+}

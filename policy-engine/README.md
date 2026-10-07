@@ -45,6 +45,107 @@ translation steps.
 - **Runtime**: FastAPI runtime surface, control-plane services, and a React dashboard for
   operators.
 
+Autotune benchmark suites snapshot their dataset and split into CAS. Generic champion
+comparisons require exact candidate/evaluation/suite manifest views, the consumed data,
+and one metric policy and evaluator build. With an existing champion, every native comparison re-evaluates the incumbent
+under the active callback context and binds the exact predecessor used by guardrails
+before the registry rereads the canonical pointer under its existing POSIX lock. These comparison records establish input identity; evaluator appointment and
+promotion authority remain separate contracts. Legacy unbound generic suites are refused.
+Autotune models also refuse coercion of numeric and boolean evidence: metrics and
+numeric policy or mutation fields must contain finite numbers, sample counts must
+contain integers, and guardrails and promotion flags must contain booleans. Integer
+JSON metrics remain valid. Regenerate malformed artifacts from correctly typed
+producer inputs and use their new CAS references; numeric strings and boolean
+numbers cannot be repaired by the registry. Comparison records support only
+`benchmark-comparison.v1`.
+
+`SearchLoopRunner` uses `NativeSearchService` public `ask`/`tell` around the
+controller-owned evaluator and persists immutable `search-service.v2` checkpoints
+in its configured artifact store. `create_service()` exposes that same native
+factory. A fresh runner can `resume(..., checkpoint_ref=ref)` with the same suite,
+metric policy, generator corpus/configuration and stopping rules. The final
+result contains the exact reference in `telemetry["checkpoint_ref"]`; an exposed
+service also retains its latest reference after an evaluator failure. Resume
+restores pending/completed candidate IDs, typed history/frontier and the original
+wall clock, and keeps stopped runs terminal. The exact reference binds the B
+verified byte/manifest snapshot and selected manifest profile. A failed ask or tell
+publication or readback restores local pending ownership and the prior run ledger;
+supported ask generators also restore their cursor/state. If that custody is
+unavailable, the live service refuses further publication and requires a fresh
+reader of the last acknowledged reference.
+A successful retry acknowledges the transition only after checkpoint readback. Reopened callbacks and external
+owner handles remain caller inputs; callback source authority, a transaction
+across external promotion and checkpoint publication, and distributed
+coordination are not established. Generators without an atomic `get_state()` /
+`set_state()` replay contract and enabled diversity tracking explicitly refuse
+resume. Generic checkpoint resume supports the four built-in objectives with
+stateless function evaluation ports whose source, defaults and JSON globals bind
+the profile; arbitrary objective objects and closures refuse resume. The actual
+native autotune factory binds the actual suite/data snapshots, mutation model
+implementation/schema, evaluator configuration and supported evaluation context.
+The five built-in evaluator constructor profiles are recognized directly; a
+stateful custom evaluator must expose JSON `checkpoint_configuration()` with its
+actual settings and exact data references. Opaque configurations or callbacks
+refuse resume. Pass the same supported context to `resume` or `restore`.
+Original
+`search-service.v1` checkpoints are preserved and refused; use their original
+reader or start a new configured run rather than rewriting their version.
+Unknown schema/configuration is refused rather than migrated. These APIs
+are exported lazily from `polisyos.scientist`; they do not appoint or cut over the
+separate served hierarchical caller.
+
+For a canonical `BayesianCandidateGenerator`, `SearchLoopSpec.metadata` can
+select an existing verified DOE analysis with `analysis_ref`,
+`analysis_order_profile="exploratory_coordinate_order.v1"`, and
+`analysis_purpose="exploratory"`. Supply all three fields together. The factory
+recomputes the persisted analysis and binds its exact parameter bounds, units,
+distribution and ranking before generation. The default typed mutation codec
+projects the supported native technical envelope while retaining meaningful
+mutation fields; candidate and evaluation manifests retain the selected
+`sensitivity_analysis` input. The order affects the assignment of native Sobol
+coordinates and establishes an exploratory experiment only.
+
+The native service assigns its canonical generator's history subject from the
+persisted run ID and public candidate ID before proposal publication. Fresh
+resume preserves the full next proposal and validates pending, history and
+derived best/frontier subjects before live admission. The checkpoint configuration
+binds `native_service_run_candidate.v1`; earlier checkpoints without this binding
+refuse configuration compatibility. Preserve them for their original reader or
+start a new run with the current factory.
+
+For operational recovery, retain the exact acknowledged `ArtifactRef`, its
+artifact bytes, the selected analysis and suite references, and the original
+factory configuration. Reopen the same store with a fresh compatible runner and
+call `resume` with that reference and the same original iteration limit and
+supported context. Verify the returned history, frontier and pending/completed
+subjects before continuing the caller. A terminal checkpoint stays terminal.
+After a publication fault, use the supported live rollback or reopen the last
+acknowledged reference; inspect any external champion pointer separately.
+For `search_resume_configuration_mismatch`, use the original compatible reader
+for the preserved checkpoint or start a fresh current-profile experiment.
+Changing the format label, analysis profile or stored history is not a migration
+or rollback procedure.
+
+`CostBudgetStopping` accepts finite nonnegative recorded cost and refuses invalid
+budget limits. Configured budget owners supply their public recorded state;
+provider aggregates remain `recorded_by_provider`, with provider-reported origin,
+receipt identity and ledger revision explicitly unavailable through this port.
+Missing or invalid observations stop with unavailable evidence. Recorded zero is
+distinct from a claim of measured zero.
+`ImprovementPlateau` rejects unrepresentable coefficients and treats invalid or
+nonzero-underflow observations as unavailable. Its declared-unit, direction and
+0.01 absolute/relative default formula remain the same.
+
+Autotune CAS producers return full manifest-profile references for candidates,
+suites, splits and evaluations. Their readers use the configured store's public
+`get_verified_snapshot` port to consume one verified byte/manifest view. Store
+proxies must delegate this optional proof port; unsupported backends refuse.
+Keep the complete reference when persisting or reopening a comparison. Legacy
+bare IDs select the current store view and do not establish historical view
+identity. Native results retain the full references beside their existing ID
+strings. Local champion publication keeps its lock-held predecessor reread and
+atomic pointer replacement; CAS identity does not appoint promotion authority.
+
 ## Architecture Diagram
 
 ```mermaid
@@ -119,7 +220,7 @@ print({"compiled": compiled.ok, "executed": executed.ok})
 | Python package facades | `polisyos.ir`, `polisyos.core`, `polisyos.fabric`, `polisyos.foundry`, `polisyos.scientist`, `polisyos.runtime`, `polisyos.lex` | Listed in [Public Surface](https://deniskopylov.github.io/polisyos/reference/public-surface/) |
 | Runtime API            | `polisyos.runtime.http.app:create_runtime_api_app`, `schemas/runtime_api_v1.openapi.json`                                       | Governed by the Runtime API contract check                                                    |
 | CLI                    | `polisyos-tools`, `polisyos`, `polisyos-foundry`, `polisyos-causal-capabilities`                                                | Generated in [Tools Reference](https://deniskopylov.github.io/polisyos/reference/tools/)      |
-| Frontend consumers     | `packages/runtime-api-client`, `apps/runtime-dashboard`, `apps/runtime-reference-shell`                                 | Governed by runtime contract and frontend contract fixtures                                   |
+| Frontend consumers     | `packages/runtime-api-client`, `apps/runtime-dashboard`, `apps/runtime-reference-shell`                                         | Governed by runtime contract and frontend contract fixtures                                   |
 
 ## Dependency Boundaries
 
@@ -157,7 +258,7 @@ uv run --extra ml polisyos-tools diagnostics gen-schema --check
 
 | Change                                    | Start here                                                                                                                                                    |
 | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Public package facade / supported imports | `architecture/public_surface/contract.toml`, `src/polisyos/*/__init__.py`, `docs/reference/public-surface.md`                                                          |
+| Public package facade / supported imports | `architecture/public_surface/contract.toml`, `src/polisyos/*/__init__.py`, `docs/reference/public-surface.md`                                                 |
 | Generated contract artifact               | `architecture/generated_artifacts.toml`, `docs/reference/generated-artifacts.md`, then the source generator                                                   |
 | New connector                             | `uv run polisyos-tools architecture scaffold connector --name MySource --type REST --dry-run`, `docs/connectors/CONTRIBUTING.md`                              |
 | New governance pass                       | `uv run polisyos-tools architecture scaffold governance-pass --name my_pass --output ... --test-output ... --dry-run`, `docs/how-to/write-governance-pass.md` |

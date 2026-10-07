@@ -1,0 +1,51 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "mypy",
+    "--config-file=mypy.ini",
+    "--cache-dir=/dev/shm/e02-D-runner-mypy-after-969-dy94hlnx/cache",
+    "--show-error-codes",
+    "src/polisyos/scientist/methods/autotune/runtime.py"
+  ],
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "env": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine"
+  },
+  "before": {
+    "HEAD": "96905636726483fdea3a98d9313871d825b54a9e",
+    "status": "",
+    "inputs": {
+      "src/polisyos/scientist/methods/autotune/runtime.py": "4bcddcf8b7ef4696fe26a3daa3394053672eb8a43007e0bf0b993c5bf87e17eb",
+      "src/polisyos/scientist/methods/search/service.py": "b73158016ef2a6e9324159b7de3d34206ef5a866bcdc1a675adb9281c815e127",
+      "src/polisyos/scientist/methods/search/stopping.py": "84aaa5c7a3737000985d39c6b3b8803bb03a052e64b702944ca322a2ae1234ee",
+      "src/polisyos/scientist/methods/search/controller.py": "9bbbd5b23c9ef43d18370f3bd0e25243eb56cdcd844a2d5f83744c30d4bbcc53",
+      "mypy.ini": "fb1ae483c1d597920e8418e908d95061010ccddcac4fe88d7a9c96144a646538"
+    }
+  },
+  "scope": "Targeted actual current runtime module under repository mypy config; Frozen969 actual newtypednativeTrialDeduplicator/runtime quantity consumer under existingstrictconfig; no inherited/P41 claim",
+  "exit_code": 0,
+  "seconds": 98.08893091298523,
+  "after": {
+    "HEAD": "96905636726483fdea3a98d9313871d825b54a9e",
+    "status": "",
+    "inputs": {
+      "src/polisyos/scientist/methods/autotune/runtime.py": "4bcddcf8b7ef4696fe26a3daa3394053672eb8a43007e0bf0b993c5bf87e17eb",
+      "src/polisyos/scientist/methods/search/service.py": "b73158016ef2a6e9324159b7de3d34206ef5a866bcdc1a675adb9281c815e127",
+      "src/polisyos/scientist/methods/search/stopping.py": "84aaa5c7a3737000985d39c6b3b8803bb03a052e64b702944ca322a2ae1234ee",
+      "src/polisyos/scientist/methods/search/controller.py": "9bbbd5b23c9ef43d18370f3bd0e25243eb56cdcd844a2d5f83744c30d4bbcc53",
+      "mypy.ini": "fb1ae483c1d597920e8418e908d95061010ccddcac4fe88d7a9c96144a646538"
+    }
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 42,
+      "sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

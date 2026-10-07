@@ -1,0 +1,381 @@
+{
+  "schema": "policyos.e02.independent_optional_backend_profile_delta.v1",
+  "reviewer": "criterion_closeout_review independent non-author",
+  "unit": "D",
+  "source_review_verdict": "ACCEPT_TEST_ADMISSION_ONLY; no actionable delta discrepancy found",
+  "product_source_changes": 0,
+  "test_implementation": {
+    "sha": "66270f22b3cdab68196f97d78cc6c9e4715ce97c",
+    "tree": "1c3141bde537f21061ac8d71f7c6d2dec92465c8",
+    "parent": "6cd806014944600a580d1dec9f7ea31c33d8dad6",
+    "exact_changed_paths": [
+      "policy-engine/tests/unit/remediation/test_trn_02.py",
+      "policy-engine/tests/unit/scientist/agent/test_vector_memory.py",
+      "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_generator.py"
+    ]
+  },
+  "test_full_source_review": [
+    {
+      "before": {
+        "source_sha": "6cd806014944600a580d1dec9f7ea31c33d8dad6",
+        "path": "policy-engine/tests/unit/remediation/test_trn_02.py",
+        "bytes": 4648,
+        "sha256": "108ccd62281295cb4e03455f9f1c491d22140ab9f00e5970b8ae506f039808dc",
+        "git_blob": "08fd09a1712a64f22793968a0253301f12c79ee1"
+      },
+      "after": {
+        "source_sha": "66270f22b3cdab68196f97d78cc6c9e4715ce97c",
+        "path": "policy-engine/tests/unit/remediation/test_trn_02.py",
+        "bytes": 4718,
+        "sha256": "187850e3147bd294bf20eadf151a834fa6ccc65fa938f7ab403074acba0698b6",
+        "git_blob": "fdd17afd4ea92030d599b4947d35c03caaf36d48"
+      },
+      "parent_test_bytes_equal_old_rootc17": true,
+      "assertions_before_after": 11,
+      "all_assertion_ASTs_identical": true,
+      "full_module_AST_after_removing_only_declared_added_admission_equals_parent": true,
+      "removed_for_comparison_only": [
+        {
+          "kind": "specific_native_case_admission",
+          "name": "test_discovery_preserves_history_ref_and_reads_cas_without_second_ann",
+          "backend_modules": [
+            "hnswlib"
+          ],
+          "line": 17
+        },
+        {
+          "kind": "specific_native_case_admission",
+          "name": "test_history_cache_is_bound_to_snapshot_and_consumer_sort_is_non_mutating",
+          "backend_modules": [
+            "hnswlib"
+          ],
+          "line": 34
+        }
+      ],
+      "old_importorskip_calls": [
+        {
+          "call": "pytest.importorskip('hnswlib')",
+          "line": 54
+        },
+        {
+          "call": "pytest.importorskip('hnswlib')",
+          "line": 70
+        },
+        {
+          "call": "pytest.importorskip('hnswlib')",
+          "line": 104
+        }
+      ],
+      "new_importorskip_calls": [
+        {
+          "call": "pytest.importorskip('hnswlib')",
+          "line": 21
+        },
+        {
+          "call": "pytest.importorskip('hnswlib')",
+          "line": 36
+        },
+        {
+          "call": "pytest.importorskip('hnswlib')",
+          "line": 56
+        },
+        {
+          "call": "pytest.importorskip('hnswlib')",
+          "line": 72
+        },
+        {
+          "call": "pytest.importorskip('hnswlib')",
+          "line": 106
+        }
+      ],
+      "native_test_oracle_rewrite": false,
+      "runtime_by_this_reviewer": "UNRUN; read-only metadata/source review, no test or backend execution"
+    },
+    {
+      "before": {
+        "source_sha": "6cd806014944600a580d1dec9f7ea31c33d8dad6",
+        "path": "policy-engine/tests/unit/scientist/agent/test_vector_memory.py",
+        "bytes": 7515,
+        "sha256": "5e1592f5644b33957fa26ac71462ebe5f64b9502ddcbed158f5dc646c16d6cb0",
+        "git_blob": "6f20060b0c539ae17c1400ca922ea0123480c150"
+      },
+      "after": {
+        "source_sha": "66270f22b3cdab68196f97d78cc6c9e4715ce97c",
+        "path": "policy-engine/tests/unit/scientist/agent/test_vector_memory.py",
+        "bytes": 7692,
+        "sha256": "25532fa88855916951a4bb2782a723616c4c23157da3a09a059d823ac22a4bae",
+        "git_blob": "88753b5536a0cc4dc8121e4b016d29102745861b"
+      },
+      "parent_test_bytes_equal_old_rootc17": true,
+      "assertions_before_after": 9,
+      "all_assertion_ASTs_identical": true,
+      "full_module_AST_after_removing_only_declared_added_admission_equals_parent": true,
+      "removed_for_comparison_only": [
+        {
+          "kind": "module_autouse_fixture",
+          "name": "_native_hnsw_backend",
+          "backend": "hnswlib",
+          "line": 16,
+          "scope": "All15 cells in this exact native generation file; every original test constructs actual native HNSW old/new generation before negative admission."
+        }
+      ],
+      "old_importorskip_calls": [],
+      "new_importorskip_calls": [
+        {
+          "call": "pytest.importorskip('hnswlib')",
+          "line": 18
+        }
+      ],
+      "native_test_oracle_rewrite": false,
+      "runtime_by_this_reviewer": "UNRUN; read-only metadata/source review, no test or backend execution"
+    },
+    {
+      "before": {
+        "source_sha": "6cd806014944600a580d1dec9f7ea31c33d8dad6",
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+        "bytes": 14993,
+        "sha256": "a802505e0b79fa1e156b130b26ebda1a920ff4d0679c37fd9052bd9aa7d39d64",
+        "git_blob": "69cb0a6db63a4598a646259269d5c13512c7f58f"
+      },
+      "after": {
+        "source_sha": "66270f22b3cdab68196f97d78cc6c9e4715ce97c",
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+        "bytes": 15063,
+        "sha256": "eb1fa3c1389eb3a9286195bb187e02af5da9fc31a88187821a8407ee8c27c752",
+        "git_blob": "7355d1f768b15b6a087639272b4eec9ae73c1aac"
+      },
+      "parent_test_bytes_equal_old_rootc17": true,
+      "assertions_before_after": 37,
+      "all_assertion_ASTs_identical": true,
+      "full_module_AST_after_removing_only_declared_added_admission_equals_parent": true,
+      "removed_for_comparison_only": [
+        {
+          "kind": "specific_native_case_admission",
+          "name": "test_first_sobol_candidate_uses_native_search_space_protocol",
+          "backend_modules": [
+            "torch",
+            "botorch",
+            "gpytorch"
+          ],
+          "line": 81
+        }
+      ],
+      "old_importorskip_calls": [],
+      "new_importorskip_calls": [
+        {
+          "call": "pytest.importorskip('torch')",
+          "line": 83
+        },
+        {
+          "call": "pytest.importorskip('botorch')",
+          "line": 84
+        },
+        {
+          "call": "pytest.importorskip('gpytorch')",
+          "line": 85
+        }
+      ],
+      "native_test_oracle_rewrite": false,
+      "runtime_by_this_reviewer": "UNRUN; read-only metadata/source review, no test or backend execution"
+    }
+  ],
+  "fallback_scope": {
+    "class": "TestBayesianCandidateGeneratorFallback",
+    "whole_AST_unchanged": true,
+    "new_skip_guards": 0,
+    "history_and_benchmark_siblings_unchanged": true
+  },
+  "class_breadth": "One guard covers the entire actual-native vector generation file. Two newly guarded TRN consumers use the real measured native-HNSW helper; the three already guarded later native TRN tests are unchanged. Only the first native Sobol cell adds Torch/BoTorch/GPyTorch admission; remaining fallback/history/benchmark siblings execute without those guards.",
+  "exact_guard_line_scope": {
+    "vector_autouse_fixture": 6,
+    "TRN_case_lines": 2,
+    "Sobol_case_lines": 3,
+    "sum": 11,
+    "Ruff_format_only": "One existing multiline assertion format changed; normalized assertion and full module AST remain identical after removing only the intended admission calls."
+  },
+  "runtime_profile_semantics": {
+    "minimal_runtime": "Missing optional backend produces SKIP; native property is UNRUN, not PASS. Pure fallback/identity/history checks remain runnable.",
+    "optional_extras": "If real imports succeed, importorskip returns and every original assertion/body executes unchanged. Importability is admission, not proof of a successful native property or correct backend version.",
+    "backend_missing": "UNRUN for mathematical/native properties; no mocks, alternate optimizer or ANN implementation substituted.",
+    "installed_but_broken": "Only pytest standard missing-import semantics are used; this review does not certify broken/binary backend compatibility or turn all backend errors into SKIP.",
+    "backend_profile_command_required": "Actual extras profile still needs complete source-qualified execution and version/origin evidence; read-only AST equality cannot replace it."
+  },
+  "documentation_review": {
+    "sha": "93de5462b5fbb239592b6c9edfc7ccfe8ccebd39",
+    "tree": "d828a1a1ce6c89d3f6625417ec90d6037dee928a",
+    "parent": "4da8c866c654225de81dd68878874ba7cf4cc7d1",
+    "full_changed_paths": [
+      {
+        "source_sha": "93de5462b5fbb239592b6c9edfc7ccfe8ccebd39",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/README.md",
+        "bytes": 8019,
+        "sha256": "536ced0d24956c2e629678350160b94cc631987391173b88387b78653f42ab69",
+        "git_blob": "9ee509cebf94696d6c5b71992539bfc0d160da76"
+      },
+      {
+        "source_sha": "93de5462b5fbb239592b6c9edfc7ccfe8ccebd39",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/README.md",
+        "bytes": 3017,
+        "sha256": "3d7e2e9961b79be93587808b6c4185509daf50f2896f46a5204cc38ca6f09fd9",
+        "git_blob": "32988c7f2f4bde569de87cb7ffb271d613e4a1f8"
+      }
+    ],
+    "source_or_test_changes": 0,
+    "verdict": "ACCEPT_SCOPE_CORRECTION",
+    "source_context_sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+    "internal_by_default_contract": {
+      "source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+      "path": "policy-engine/architecture/public_surface/contract.toml",
+      "bytes": 19715,
+      "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6",
+      "git_blob": "d568a925f1cf055e517f5a5e0d691d4c6390a0a5"
+    },
+    "actual_root_facade": {
+      "source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+      "path": "policy-engine/src/polisyos/scientist/__init__.py",
+      "bytes": 8231,
+      "sha256": "e0bd86c731ef53a6d4bb9713589aadecf39742282471bc725bac4947f7594fe3",
+      "git_blob": "14ec83d7813924b29683a5c8dba41ed30f4f3020"
+    },
+    "standalone_author_topic_tree": "93de retains older Scientist39 facade without3 aliases; these docs are reviewed for intended actual rootc17 integration, not whole-author-tree export equivalence.",
+    "canonical_root_search_aliases": [
+      "NativeSearchService",
+      "SearchServiceCheckpoint",
+      "SearchLoopRunner"
+    ],
+    "child_classification": "search/autotune/strategies remain internal under existing canonical contract; __all__ alone does not appoint public_stable.",
+    "manifest_links": [
+      {
+        "from": "policy-engine/src/polisyos/scientist/methods/search/README.md",
+        "target": "../../../../../architecture/public_surface/contract.toml",
+        "resolved_repo_path": "policy-engine/architecture/public_surface/contract.toml",
+        "MATCH": true
+      },
+      {
+        "from": "policy-engine/src/polisyos/scientist/methods/search/strategies/README.md",
+        "target": "../../../../../../architecture/public_surface/contract.toml",
+        "resolved_repo_path": "policy-engine/architecture/public_surface/contract.toml",
+        "MATCH": true
+      }
+    ],
+    "new_public_export_or_companion_claim": false
+  },
+  "original_criterion_accounting": "Unchanged45 IDs/46 occurrences/17 bundles; no criterion narrowed or numerical/backend closure inferred. Prior complete original binding review remains4b18754.",
+  "historical_c17_wave": "Parent reports actual18 native-test profile admission FAILs on oldc17 with missing backends; all old outputs remain FAIL/ERROR/UNRUN as actually observed. This static review does not relabel old wave PASS or certify new wave completion.",
+  "predicate_basis": {
+    "full_source_and_AST": "recomputed",
+    "documentation_contract_and_links": "recomputed",
+    "actual_minimal_or_extras_runtime": "not_established_by_this_reviewer",
+    "P41_inherited": "not_established",
+    "formal_closure": "not_applied"
+  },
+  "pattern_delta": {
+    "P01": {
+      "scope": "Test/docs-only profile admission delta; prior full original-criterion/pattern conclusions remain.",
+      "formal_global_pass": false,
+      "disposition": "UNCHANGED_PRIOR_SCOPE",
+      "falsifier": "An absent HNSW/BoTorch native body cannot be labeled numerical PASS; removing extras/native execution while preserving profile markers leaves property UNRUN. Fallback tests cannot gain a file/class-wide Torch skip.",
+      "P41": null
+    },
+    "P02": {
+      "scope": "Test/docs-only profile admission delta; prior full original-criterion/pattern conclusions remain.",
+      "formal_global_pass": false,
+      "disposition": "UNCHANGED_PRIOR_SCOPE",
+      "falsifier": "An absent HNSW/BoTorch native body cannot be labeled numerical PASS; removing extras/native execution while preserving profile markers leaves property UNRUN. Fallback tests cannot gain a file/class-wide Torch skip.",
+      "P41": null
+    },
+    "P05": {
+      "scope": "Test/docs-only profile admission delta; prior full original-criterion/pattern conclusions remain.",
+      "formal_global_pass": false,
+      "disposition": "UNCHANGED_PRIOR_SCOPE",
+      "falsifier": "An absent HNSW/BoTorch native body cannot be labeled numerical PASS; removing extras/native execution while preserving profile markers leaves property UNRUN. Fallback tests cannot gain a file/class-wide Torch skip.",
+      "P41": null
+    },
+    "P09": {
+      "scope": "Test/docs-only profile admission delta; prior full original-criterion/pattern conclusions remain.",
+      "formal_global_pass": false,
+      "disposition": "BACKEND_ADMISSION_EXPLICIT_ORIGINAL_ORACLE_PRESERVED",
+      "falsifier": "An absent HNSW/BoTorch native body cannot be labeled numerical PASS; removing extras/native execution while preserving profile markers leaves property UNRUN. Fallback tests cannot gain a file/class-wide Torch skip.",
+      "P41": null
+    },
+    "P10": {
+      "scope": "Test/docs-only profile admission delta; prior full original-criterion/pattern conclusions remain.",
+      "formal_global_pass": false,
+      "disposition": "UNCHANGED_PRIOR_SCOPE",
+      "falsifier": "An absent HNSW/BoTorch native body cannot be labeled numerical PASS; removing extras/native execution while preserving profile markers leaves property UNRUN. Fallback tests cannot gain a file/class-wide Torch skip.",
+      "P41": null
+    },
+    "P14": {
+      "scope": "Test/docs-only profile admission delta; prior full original-criterion/pattern conclusions remain.",
+      "formal_global_pass": false,
+      "disposition": "BACKEND_ADMISSION_EXPLICIT_ORIGINAL_ORACLE_PRESERVED",
+      "falsifier": "An absent HNSW/BoTorch native body cannot be labeled numerical PASS; removing extras/native execution while preserving profile markers leaves property UNRUN. Fallback tests cannot gain a file/class-wide Torch skip.",
+      "P41": null
+    },
+    "P27": {
+      "scope": "Test/docs-only profile admission delta; prior full original-criterion/pattern conclusions remain.",
+      "formal_global_pass": false,
+      "disposition": "UNCHANGED_PRIOR_SCOPE",
+      "falsifier": "An absent HNSW/BoTorch native body cannot be labeled numerical PASS; removing extras/native execution while preserving profile markers leaves property UNRUN. Fallback tests cannot gain a file/class-wide Torch skip.",
+      "P41": null
+    },
+    "P29": {
+      "scope": "Test/docs-only profile admission delta; prior full original-criterion/pattern conclusions remain.",
+      "formal_global_pass": false,
+      "disposition": "UNCHANGED_PRIOR_SCOPE",
+      "falsifier": "An absent HNSW/BoTorch native body cannot be labeled numerical PASS; removing extras/native execution while preserving profile markers leaves property UNRUN. Fallback tests cannot gain a file/class-wide Torch skip.",
+      "P41": null
+    },
+    "P32": {
+      "scope": "Test/docs-only profile admission delta; prior full original-criterion/pattern conclusions remain.",
+      "formal_global_pass": false,
+      "disposition": "BACKEND_ADMISSION_EXPLICIT_ORIGINAL_ORACLE_PRESERVED",
+      "falsifier": "An absent HNSW/BoTorch native body cannot be labeled numerical PASS; removing extras/native execution while preserving profile markers leaves property UNRUN. Fallback tests cannot gain a file/class-wide Torch skip.",
+      "P41": null
+    },
+    "P35": {
+      "scope": "Test/docs-only profile admission delta; prior full original-criterion/pattern conclusions remain.",
+      "formal_global_pass": false,
+      "disposition": "BACKEND_ADMISSION_EXPLICIT_ORIGINAL_ORACLE_PRESERVED",
+      "falsifier": "An absent HNSW/BoTorch native body cannot be labeled numerical PASS; removing extras/native execution while preserving profile markers leaves property UNRUN. Fallback tests cannot gain a file/class-wide Torch skip.",
+      "P41": null
+    },
+    "P37": {
+      "scope": "Test/docs-only profile admission delta; prior full original-criterion/pattern conclusions remain.",
+      "formal_global_pass": false,
+      "disposition": "BACKEND_ADMISSION_EXPLICIT_ORIGINAL_ORACLE_PRESERVED",
+      "falsifier": "An absent HNSW/BoTorch native body cannot be labeled numerical PASS; removing extras/native execution while preserving profile markers leaves property UNRUN. Fallback tests cannot gain a file/class-wide Torch skip.",
+      "P41": null
+    },
+    "P38": {
+      "scope": "Test/docs-only profile admission delta; prior full original-criterion/pattern conclusions remain.",
+      "formal_global_pass": false,
+      "disposition": "UNCHANGED_PRIOR_SCOPE",
+      "falsifier": "An absent HNSW/BoTorch native body cannot be labeled numerical PASS; removing extras/native execution while preserving profile markers leaves property UNRUN. Fallback tests cannot gain a file/class-wide Torch skip.",
+      "P41": null
+    },
+    "P40": {
+      "scope": "Test/docs-only profile admission delta; prior full original-criterion/pattern conclusions remain.",
+      "formal_global_pass": false,
+      "disposition": "BACKEND_ADMISSION_EXPLICIT_ORIGINAL_ORACLE_PRESERVED",
+      "falsifier": "An absent HNSW/BoTorch native body cannot be labeled numerical PASS; removing extras/native execution while preserving profile markers leaves property UNRUN. Fallback tests cannot gain a file/class-wide Torch skip.",
+      "P41": null
+    },
+    "P41": {
+      "scope": "Test/docs-only profile admission delta; prior full original-criterion/pattern conclusions remain.",
+      "formal_global_pass": false,
+      "disposition": "UNCHANGED_PRIOR_SCOPE",
+      "falsifier": "An absent HNSW/BoTorch native body cannot be labeled numerical PASS; removing extras/native execution while preserving profile markers leaves property UNRUN. Fallback tests cannot gain a file/class-wide Torch skip.",
+      "P41": "No exact slice-base full-command/zero-overlap receipt is supplied by this static AST check."
+    }
+  },
+  "source_merge_limits": [
+    "Adopt only these exact test/docs changes through normal history-preserving merge; do not replace root with the older whole writer tree.",
+    "Root final source and full100-selector denominator require a new freeze and deciding output. Source product code stays unchanged.",
+    "Previousroot44/FUN7/author35 remain their own source-qualified evidence; do not sum them into new wave counts."
+  ],
+  "preservation": "No deletion, tests/backend execution, children, checkout/worktree creation, product writes, quotas or shared cache mutation by this reviewer. All prior outputs remain in place.",
+  "formal_closed": 0,
+  "accepted_in_G": false,
+  "local_hooks": "UNRUN: reviewer publication uses Git metadata API only."
+}

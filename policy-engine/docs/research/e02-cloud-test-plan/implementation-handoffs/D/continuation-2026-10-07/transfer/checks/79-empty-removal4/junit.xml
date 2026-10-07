@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="4" time="1.450" timestamp="2026-10-07T08:59:09.851680+00:00" hostname="565838a1e059"><testcase classname="tests.unit.scientist.agent.test_vector_generation_consumer" name="test_persisted_empty_transfer_history_is_not_a_rejected_or_unavailable_intake[empty]" file="tests/unit/scientist/agent/test_vector_generation_consumer.py" line="195" time="0.442"><properties><property name="persisted_intake_receipt" value="{&quot;bundle_ref&quot;: {&quot;artifact_id&quot;: &quot;sha256:2a7e50277392f9a6a87d1b35e7413c4cae64573f570074f8e68d4f42c6aecce5&quot;, &quot;kind&quot;: &quot;vector_memory.bundle&quot;, &quot;media_type&quot;: &quot;application/json&quot;}, &quot;history_ref&quot;: {&quot;artifact_id&quot;: &quot;sha256:1df308aac3527369caaaebc3ef2bdf4a3c4cbff449702124bbf5e1d966f4b2e8&quot;, &quot;kind&quot;: &quot;search.transfer.history&quot;, &quot;media_type&quot;: &quot;application/json&quot;}, &quot;intake&quot;: &quot;empty&quot;, &quot;report&quot;: {&quot;accepted&quot;: 0, &quot;loaded&quot;: 0, &quot;rejected&quot;: 0, &quot;rejections&quot;: [], &quot;selected&quot;: 0, &quot;unavailable&quot;: 0}}" /></properties><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.agent.test_vector_generation_consumer" name="test_persisted_empty_transfer_history_is_not_a_rejected_or_unavailable_intake[invalid]" file="tests/unit/scientist/agent/test_vector_generation_consumer.py" line="195" time="0.186"><failure message="AssertionError: assert {'accepted': ...cted': 0, ...} == {'accepted': ...cted': 0, ...}&#10;  &#10;  Omitting 3 identical items, use -vv to show&#10;  Differing items:&#10;  {'rejected': 0} != {'rejected': 2}&#10;  {'loaded': 0} != {'loaded': 2}&#10;  Use -v to get more diff">tmp_path = PosixPath('/dev/shm/e02-D-transfer-empty-removal4-br1sm24z/basetemp/test_persisted_empty_transfer_1')
+record_property = &lt;function record_property.&lt;locals&gt;.append_property at 0x7fea8f9b99b0&gt;
+intake = 'invalid'
+
+    @pytest.mark.parametrize("intake", ["empty", "invalid", "unavailable", "nonempty"])
+    def test_persisted_empty_transfer_history_is_not_a_rejected_or_unavailable_intake(
+        tmp_path, record_property, intake
+    ):
+        pytest.importorskip("hnswlib")
+        from polisyos.scientist.methods.autotune.warm_start import WarmStartBridge
+        from polisyos.scientist.methods.search.strategies.transfer import (
+            TransferLearningManager,
+        )
+        from tests.unit.scientist.methods.search.strategies.test_transfer import (
+            changed_history,
+            measured_history,
+        )
+    
+        store, index, _, source, target, originals, _ = measured_history(tmp_path, count=2)
+    
+        def change(payload):
+            if intake == "empty":
+                payload["evaluations"].clear()
+            elif intake == "invalid":
+                for row in payload["evaluations"]:
+                    row["scalar_score"] = False
+            elif intake == "unavailable":
+                payload["schema_version"] = "unsupported"
+    
+        persisted = changed_history(store, source, change)
+        snapshot = store.get_verified_snapshot(persisted.history_ref)
+        assert snapshot.manifest.kind == "search.transfer.history"
+        assert snapshot.manifest.media_type == "application/json"
+        payload = canon.from_canonical_bytes(snapshot.data)
+        assert len(payload["evaluations"]) == (0 if intake == "empty" else 2)
+        metadata = persisted.model_dump(mode="json", exclude={"history_ref", "embedding"})
+        metadata["history_ref"] = persisted.history_ref.model_dump(mode="json")
+        index.add(persisted.run_id, persisted.embedding, metadata)
+        bundle = index.save_to_artifact(store)
+    
+        # A fresh native generation and fresh CAS owner supply the ordinary bridge.
+        # This is a reader fixture, not a change to the empty register_run policy.
+        reopened_store = FileSystemCAS(store.root)
+        reopened_index = VectorMemoryStore(dim=2, max_elements=10)
+        reopened_index.load_from_artifact(reopened_store, bundle)
+        manager = TransferLearningManager(reopened_store, reopened_index)
+        discovered = manager.find_similar_runs(target)
+        assert len(discovered) == 1 and discovered[0].history_ref == persisted.history_ref
+        bridge = WarmStartBridge(manager, max_evals=2, top_k_runs=1)
+        rows = bridge.load_warm_start(target)
+        report = bridge.last_load_report
+        counts = {
+            name: report[name] for name in ("loaded", "accepted", "rejected", "unavailable", "selected")
+        }
+        expected = {
+            "empty": dict(loaded=0, accepted=0, rejected=0, unavailable=0, selected=0),
+            "invalid": dict(loaded=2, accepted=0, rejected=2, unavailable=0, selected=0),
+            "unavailable": dict(loaded=0, accepted=0, rejected=0, unavailable=1, selected=0),
+            "nonempty": dict(loaded=2, accepted=2, rejected=0, unavailable=0, selected=2),
+        }
+&gt;       assert counts == expected[intake]
+E       AssertionError: assert {'accepted': ...cted': 0, ...} == {'accepted': ...cted': 0, ...}
+E         
+E         Omitting 3 identical items, use -vv to show
+E         Differing items:
+E         {'rejected': 0} != {'rejected': 2}
+E         {'loaded': 0} != {'loaded': 2}
+E         Use -v to get more diff
+
+tests/unit/scientist/agent/test_vector_generation_consumer.py:252: AssertionError</failure><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.agent.test_vector_generation_consumer" name="test_persisted_empty_transfer_history_is_not_a_rejected_or_unavailable_intake[unavailable]" file="tests/unit/scientist/agent/test_vector_generation_consumer.py" line="195" time="0.209"><failure message="AssertionError: assert {'accepted': ...cted': 0, ...} == {'accepted': ...cted': 0, ...}&#10;  &#10;  Omitting 4 identical items, use -vv to show&#10;  Differing items:&#10;  {'unavailable': 0} != {'unavailable': 1}&#10;  Use -v to get more diff">tmp_path = PosixPath('/dev/shm/e02-D-transfer-empty-removal4-br1sm24z/basetemp/test_persisted_empty_transfer_2')
+record_property = &lt;function record_property.&lt;locals&gt;.append_property at 0x7fea8f9bbab0&gt;
+intake = 'unavailable'
+
+    @pytest.mark.parametrize("intake", ["empty", "invalid", "unavailable", "nonempty"])
+    def test_persisted_empty_transfer_history_is_not_a_rejected_or_unavailable_intake(
+        tmp_path, record_property, intake
+    ):
+        pytest.importorskip("hnswlib")
+        from polisyos.scientist.methods.autotune.warm_start import WarmStartBridge
+        from polisyos.scientist.methods.search.strategies.transfer import (
+            TransferLearningManager,
+        )
+        from tests.unit.scientist.methods.search.strategies.test_transfer import (
+            changed_history,
+            measured_history,
+        )
+    
+        store, index, _, source, target, originals, _ = measured_history(tmp_path, count=2)
+    
+        def change(payload):
+            if intake == "empty":
+                payload["evaluations"].clear()
+            elif intake == "invalid":
+                for row in payload["evaluations"]:
+                    row["scalar_score"] = False
+            elif intake == "unavailable":
+                payload["schema_version"] = "unsupported"
+    
+        persisted = changed_history(store, source, change)
+        snapshot = store.get_verified_snapshot(persisted.history_ref)
+        assert snapshot.manifest.kind == "search.transfer.history"
+        assert snapshot.manifest.media_type == "application/json"
+        payload = canon.from_canonical_bytes(snapshot.data)
+        assert len(payload["evaluations"]) == (0 if intake == "empty" else 2)
+        metadata = persisted.model_dump(mode="json", exclude={"history_ref", "embedding"})
+        metadata["history_ref"] = persisted.history_ref.model_dump(mode="json")
+        index.add(persisted.run_id, persisted.embedding, metadata)
+        bundle = index.save_to_artifact(store)
+    
+        # A fresh native generation and fresh CAS owner supply the ordinary bridge.
+        # This is a reader fixture, not a change to the empty register_run policy.
+        reopened_store = FileSystemCAS(store.root)
+        reopened_index = VectorMemoryStore(dim=2, max_elements=10)
+        reopened_index.load_from_artifact(reopened_store, bundle)
+        manager = TransferLearningManager(reopened_store, reopened_index)
+        discovered = manager.find_similar_runs(target)
+        assert len(discovered) == 1 and discovered[0].history_ref == persisted.history_ref
+        bridge = WarmStartBridge(manager, max_evals=2, top_k_runs=1)
+        rows = bridge.load_warm_start(target)
+        report = bridge.last_load_report
+        counts = {
+            name: report[name] for name in ("loaded", "accepted", "rejected", "unavailable", "selected")
+        }
+        expected = {
+            "empty": dict(loaded=0, accepted=0, rejected=0, unavailable=0, selected=0),
+            "invalid": dict(loaded=2, accepted=0, rejected=2, unavailable=0, selected=0),
+            "unavailable": dict(loaded=0, accepted=0, rejected=0, unavailable=1, selected=0),
+            "nonempty": dict(loaded=2, accepted=2, rejected=0, unavailable=0, selected=2),
+        }
+&gt;       assert counts == expected[intake]
+E       AssertionError: assert {'accepted': ...cted': 0, ...} == {'accepted': ...cted': 0, ...}
+E         
+E         Omitting 4 identical items, use -vv to show
+E         Differing items:
+E         {'unavailable': 0} != {'unavailable': 1}
+E         Use -v to get more diff
+
+tests/unit/scientist/agent/test_vector_generation_consumer.py:252: AssertionError</failure><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.agent.test_vector_generation_consumer" name="test_persisted_empty_transfer_history_is_not_a_rejected_or_unavailable_intake[nonempty]" file="tests/unit/scientist/agent/test_vector_generation_consumer.py" line="195" time="0.224"><failure message="AssertionError: assert {'accepted': ...cted': 0, ...} == {'accepted': ...cted': 2, ...}&#10;  &#10;  Omitting 2 identical items, use -vv to show&#10;  Differing items:&#10;  {'accepted': 0} != {'accepted': 2}&#10;  {'loaded': 0} != {'loaded': 2}&#10;  {'selected': 0} != {'selected': 2}&#10;  Use -v to get more diff">tmp_path = PosixPath('/dev/shm/e02-D-transfer-empty-removal4-br1sm24z/basetemp/test_persisted_empty_transfer_3')
+record_property = &lt;function record_property.&lt;locals&gt;.append_property at 0x7fea8f7e03b0&gt;
+intake = 'nonempty'
+
+    @pytest.mark.parametrize("intake", ["empty", "invalid", "unavailable", "nonempty"])
+    def test_persisted_empty_transfer_history_is_not_a_rejected_or_unavailable_intake(
+        tmp_path, record_property, intake
+    ):
+        pytest.importorskip("hnswlib")
+        from polisyos.scientist.methods.autotune.warm_start import WarmStartBridge
+        from polisyos.scientist.methods.search.strategies.transfer import (
+            TransferLearningManager,
+        )
+        from tests.unit.scientist.methods.search.strategies.test_transfer import (
+            changed_history,
+            measured_history,
+        )
+    
+        store, index, _, source, target, originals, _ = measured_history(tmp_path, count=2)
+    
+        def change(payload):
+            if intake == "empty":
+                payload["evaluations"].clear()
+            elif intake == "invalid":
+                for row in payload["evaluations"]:
+                    row["scalar_score"] = False
+            elif intake == "unavailable":
+                payload["schema_version"] = "unsupported"
+    
+        persisted = changed_history(store, source, change)
+        snapshot = store.get_verified_snapshot(persisted.history_ref)
+        assert snapshot.manifest.kind == "search.transfer.history"
+        assert snapshot.manifest.media_type == "application/json"
+        payload = canon.from_canonical_bytes(snapshot.data)
+        assert len(payload["evaluations"]) == (0 if intake == "empty" else 2)
+        metadata = persisted.model_dump(mode="json", exclude={"history_ref", "embedding"})
+        metadata["history_ref"] = persisted.history_ref.model_dump(mode="json")
+        index.add(persisted.run_id, persisted.embedding, metadata)
+        bundle = index.save_to_artifact(store)
+    
+        # A fresh native generation and fresh CAS owner supply the ordinary bridge.
+        # This is a reader fixture, not a change to the empty register_run policy.
+        reopened_store = FileSystemCAS(store.root)
+        reopened_index = VectorMemoryStore(dim=2, max_elements=10)
+        reopened_index.load_from_artifact(reopened_store, bundle)
+        manager = TransferLearningManager(reopened_store, reopened_index)
+        discovered = manager.find_similar_runs(target)
+        assert len(discovered) == 1 and discovered[0].history_ref == persisted.history_ref
+        bridge = WarmStartBridge(manager, max_evals=2, top_k_runs=1)
+        rows = bridge.load_warm_start(target)
+        report = bridge.last_load_report
+        counts = {
+            name: report[name] for name in ("loaded", "accepted", "rejected", "unavailable", "selected")
+        }
+        expected = {
+            "empty": dict(loaded=0, accepted=0, rejected=0, unavailable=0, selected=0),
+            "invalid": dict(loaded=2, accepted=0, rejected=2, unavailable=0, selected=0),
+            "unavailable": dict(loaded=0, accepted=0, rejected=0, unavailable=1, selected=0),
+            "nonempty": dict(loaded=2, accepted=2, rejected=0, unavailable=0, selected=2),
+        }
+&gt;       assert counts == expected[intake]
+E       AssertionError: assert {'accepted': ...cted': 0, ...} == {'accepted': ...cted': 2, ...}
+E         
+E         Omitting 2 identical items, use -vv to show
+E         Differing items:
+E         {'accepted': 0} != {'accepted': 2}
+E         {'loaded': 0} != {'loaded': 2}
+E         {'selected': 0} != {'selected': 2}
+E         Use -v to get more diff
+
+tests/unit/scientist/agent/test_vector_generation_consumer.py:252: AssertionError</failure><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase></testsuite></testsuites>

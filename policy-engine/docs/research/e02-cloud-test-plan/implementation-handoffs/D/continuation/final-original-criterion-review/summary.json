@@ -1,0 +1,25 @@
+{
+  "path": "/tmp/e02-D-original-criterion-audit-o08lza3h/review.json",
+  "bytes": 158968,
+  "sha256": "b4b1fe7a68e74204d6da8be0760151d7635669b01bf4ba2c5018d720a6712c3f",
+  "denominator": {
+    "full_finding_owner_rows": 282,
+    "full_bundle_owner_rows": 127,
+    "D_findings": 45,
+    "D_bundles": 17,
+    "occurrences": 46,
+    "canonical_owner_occurrences": 45,
+    "supplier_occurrences": 1,
+    "canonical_input_git_reads": 51
+  },
+  "binding_MATCH": true,
+  "new_runtime_executions": 0,
+  "formal_closures": 0,
+  "G_accepted_D": false,
+  "urgent_ids": [
+    "B119",
+    "B136",
+    "B117"
+  ],
+  "source_sha": "e73bde06d5b796b99ad84898810b34985787be47"
+}

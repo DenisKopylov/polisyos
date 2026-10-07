@@ -1,0 +1,105 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "search-executed-consumers",
+  "finding_ids": [
+    "B127"
+  ],
+  "closure_ids": [],
+  "bundle_ids": [
+    "OPT-02"
+  ],
+  "slice_base_sha": "77e3cb7f16613593e87ef3ab80bf346bf38c0717",
+  "published_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [
+    "cb47af447e3d9dd73bdf95bb7a211f2110995248"
+  ],
+  "candidate_tree_sha": "1597ea3091679bdc57fc997861e51252103064e8",
+  "branch": "codex/e02-D-published-search",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-coordinate-consumers/search-consumers-87-negative.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-coordinate-consumers/search-consumers-final-2.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-coordinate-consumers/search-consumers-final.txt",
+    "policy-engine/release-fragments/unreleased/2026-10-06-published-executed-coordinates.toml",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+    "policy-engine/tests/unit/remediation/test_opt_02_strategy_consumers.py",
+    "policy-engine/tests/unit/scientist/search/strategies/test_multi_objective.py"
+  ],
+  "predicate_basis": "recomputed",
+  "predicate_scope": "Canonical attainable actions and two native proposal consumers; no optimization quality or complete MO/neural checkpoint-continuation claim",
+  "environment": {
+    "interpreter": "/workspace/e02-D-locked-env/bin/python",
+    "python": "3.14.7",
+    "torch": "2.10.0+cu128",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "ruff": "0.14.10",
+    "PYTHONPATH": "src:."
+  },
+  "checks": [
+    {
+      "target_sha": "cb47af447e3d9dd73bdf95bb7a211f2110995248",
+      "command": "PYTHONPATH=src:. /workspace/e02-D-locked-env/bin/python -m pytest -o addopts= -q tests/unit/remediation/test_opt_02_strategy_consumers.py tests/unit/remediation/test_opt_02.py tests/unit/scientist/search/strategies/test_space_codec.py tests/unit/scientist/search/strategies/test_multi_objective.py tests/unit/scientist/search/strategies/test_neural.py",
+      "source_execution": "immutable git archive; module origin included in full output",
+      "outcome": "PASS",
+      "deciding_output": "34 passed, 5 warnings in 2.43s",
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-coordinate-consumers/search-consumers-cb47.txt",
+      "sha256": "8566e81e845d9105a991f6c2602f1a976698af7d8af43d7aecc6b3fa3e31ef70",
+      "bytes": 2769
+    },
+    {
+      "target_sha": "87f22cab5d270c3b3c6c4d37e33328d09ed06494",
+      "scope": "new five defining coordinate-consumer controls only",
+      "outcome": "FAIL",
+      "deciding_output": "5 failed",
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-coordinate-consumers/search-consumers-87-negative.txt",
+      "sha256": "2f131b16b237015e12a62fb7e8bb6a14b49ad9472ac166fb4755a1b39aaa1bc3",
+      "bytes": 10754
+    }
+  ],
+  "inputs_and_seed_policy": {
+    "unsupported_affine_bounds": [
+      -1e+308,
+      1e+308
+    ],
+    "random_seed": 31,
+    "public_adapter": "same physical bounds refused at constructor",
+    "log_bounds": [
+      1e-308,
+      1e+308
+    ],
+    "log_proposals": [
+      0,
+      0.5,
+      1
+    ],
+    "MO": "real Torch proposal .24 into integer n[0,1]; native existing batch fixture stays inside [-5,5]",
+    "neural": "actual real fit/acquisition; seed41; n[.2,1.8] has one attainable integer1; four explicit replica IDs"
+  },
+  "property": "All emitted params_normalized encode executed typed params; non-representable affine domain refuses at admission, log endpoints remain in bounds. Neural prediction/acquisition are evaluated at executed point. MO helper emits no scalar predictor and labels its existing acquisition as relaxed-proposal basis.",
+  "limitations_and_next_owner": [
+    "Finite extreme affine spans are explicitly unsupported, rather than promised stable arbitrary-range interpolation.",
+    "No complete fitted MO or neural state replay was added or established; this slice is the final execution-coordinate consumer correction.",
+    "Bounded duplicate attempts elsewhere are not a never-duplicate guarantee.",
+    "Historical uncommitted 52-pass logs are retained diagnostics with exact source not_established; only immutable cb47 34-pass output decides this receipt."
+  ],
+  "diagnostic_outputs": [
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-coordinate-consumers/search-consumers-final.txt",
+      "sha256": "4b531d732074f810b6ff2cbd915a9c5c13dc406155ea7603f5d2a9739136d130",
+      "bytes": 4507,
+      "predicate_basis": "not_established",
+      "scope": "intermediate source identity not captured"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-coordinate-consumers/search-consumers-final-2.txt",
+      "sha256": "c485dc3f03220ac99fb05c6759bfb9c18b72cc2d414948a36a9a3542c541aecf",
+      "bytes": 2029,
+      "predicate_basis": "not_established",
+      "scope": "intermediate source identity not captured"
+    }
+  ]
+}

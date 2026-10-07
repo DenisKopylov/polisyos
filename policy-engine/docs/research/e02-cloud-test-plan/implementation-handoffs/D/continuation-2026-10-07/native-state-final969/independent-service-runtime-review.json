@@ -1,0 +1,241 @@
+{
+  "schema": "e02.D.independent.Service969.runtime.v1",
+  "reviewer": "/root/gp_oct07",
+  "result": "GO bounded native caller/runtime scope",
+  "source": "96905636726483fdea3a98d9313871d825b54a9e",
+  "tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "portable_manifest_sha256": "a2d7bb13205de36448e0937f29f97748e173c3ed66ae0f623a86b0f9d23eeec4",
+  "complete_manifest_files_verified": 118,
+  "tracked_inputs_enumerated": 15927,
+  "available": 8858,
+  "explicit_unavailable": 7069,
+  "complete_executable_selected_inputs_verified": 6317,
+  "code_test_companion_footprint": [
+    "policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md",
+    "policy-engine/release-fragments/unreleased/2026-10-07-native-trial-deduplication-and-primary-availability.toml",
+    "policy-engine/src/polisyos/scientist/methods/autotune/dedup.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+    "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+    "policy-engine/src/polisyos/scientist/methods/search/service.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_dedup.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_service_trial_deduplication.py"
+  ],
+  "formatted_committed_service_ast_matches_independently_reviewed_full_source": true,
+  "cohorts": {
+    "dedup": {
+      "checks": {
+        "PASS": 48
+      },
+      "junit_sha256": "4cb203de5f7adce4f0dc1f609286f6ef37c9bedab04eea6795cb7ceeaf2b304a",
+      "receipt_sha256": "316cb3555f039ffb2fe12b04c9e610832040c86b735677a11985589e445bd88c",
+      "argv": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--noconftest",
+        "-p",
+        "no:cacheprovider",
+        "-s",
+        "-ra",
+        "--basetemp",
+        "/dev/shm/e02-D-oct07-service-start/final-native-969/dedup-fixtures",
+        "--junitxml",
+        "/dev/shm/e02-D-oct07-service-start/final-native-969/dedup.junit.xml",
+        "tests/unit/scientist/methods/search/test_service_trial_deduplication.py",
+        "tests/unit/scientist/methods/autotune/test_dedup.py"
+      ],
+      "interpreter": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+      "same_inputs": true
+    },
+    "service": {
+      "checks": {
+        "PASS": 41
+      },
+      "junit_sha256": "dc21afc250d1bf601ff8a38ebe85d8674b835d1f1be5775b12d83b4b70eb6184",
+      "receipt_sha256": "685737ba7a8c01b9b7c326765d86bf5bc8de879440604fb74b7d8f5fc87c430d",
+      "argv": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--noconftest",
+        "-p",
+        "no:cacheprovider",
+        "-s",
+        "-ra",
+        "--basetemp",
+        "/dev/shm/e02-D-oct07-service-start/final-native-969/service-fixtures",
+        "--junitxml",
+        "/dev/shm/e02-D-oct07-service-start/final-native-969/service.junit.xml",
+        "tests/unit/scientist/methods/search/test_service_factory_fault_resume.py",
+        "tests/unit/scientist/methods/search/test_service_batch_control_reasons.py",
+        "tests/unit/scientist/methods/search/test_service_control_cleanup_independent.py",
+        "tests/unit/scientist/methods/search/test_service_ask_publication_review.py",
+        "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+        "tests/unit/scientist/methods/autotune/test_execution_plan_autotune.py"
+      ],
+      "interpreter": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+      "same_inputs": true
+    },
+    "champion": {
+      "checks": {
+        "PASS": 44
+      },
+      "junit_sha256": "6d399a81dbe973ffdb728a817a8f78957f6cf8fedaca602991ee50b91f16a6a3",
+      "receipt_sha256": "29c50960915278dd5ba9aaba3eca53c4028808d78b1c189bbbe50d8d90bfb1dc",
+      "argv": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--noconftest",
+        "-p",
+        "no:cacheprovider",
+        "-s",
+        "-ra",
+        "--basetemp",
+        "/dev/shm/e02-D-oct07-service-start/final-native-969/champion-fixtures",
+        "--junitxml",
+        "/dev/shm/e02-D-oct07-service-start/final-native-969/champion.junit.xml",
+        "tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+        "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py",
+        "tests/unit/scientist/methods/autotune/test_benchmark_primitive_admission.py"
+      ],
+      "interpreter": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+      "same_inputs": true
+    },
+    "paid-original": {
+      "checks": {
+        "PASS": 2
+      },
+      "junit_sha256": "e0af50f026ab00686a3df4e8421ff7c796da784328070bce2632e764c3af54b9",
+      "receipt_sha256": "b61a1d1c114d674a462678fb137bc54ee266a1523a7634acec88a19229ce4b18",
+      "argv": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--noconftest",
+        "-p",
+        "no:cacheprovider",
+        "-s",
+        "-ra",
+        "--basetemp",
+        "/dev/shm/e02-D-oct07-service-start/final-native-969/paid-original-fixtures",
+        "--junitxml",
+        "/dev/shm/e02-D-oct07-service-start/final-native-969/paid-original.junit.xml",
+        "tests/integration/scientist/methods/search/test_controller.py"
+      ],
+      "interpreter": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+      "same_inputs": true
+    },
+    "native-doe": {
+      "checks": {
+        "PASS": 13
+      },
+      "junit_sha256": "cc26cc53ec3a66474c3db6f74d1e30a4e2e32715bd2931385dd2b7511413fb64",
+      "receipt_sha256": "7867db037d0c4f4cb3d4d6b36841865f196fc50f8a1b2630adaf18232377cc9c",
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--noconftest",
+        "-p",
+        "no:cacheprovider",
+        "-s",
+        "-ra",
+        "--basetemp",
+        "/dev/shm/e02-D-oct07-service-start/final-native-969/native-doe-fixtures",
+        "--junitxml",
+        "/dev/shm/e02-D-oct07-service-start/final-native-969/native-doe.junit.xml",
+        "tests/unit/scientist/methods/autotune/test_native_doe_factory.py"
+      ],
+      "interpreter": "/workspace/e02-D-locked-env/bin/python",
+      "same_inputs": true
+    },
+    "contracts": {
+      "checks": {
+        "PASS": 2
+      },
+      "junit_sha256": "faf53407ab4abfb6491082c2de9bcbb77bfe0f65222d57cb9cdb39e9377c5926",
+      "receipt_sha256": "3ba3c2aa88b4bfc1b61b3c3cdb1e2734f9d7e2460e36475325bb23883749847f",
+      "argv": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--noconftest",
+        "-p",
+        "no:cacheprovider",
+        "-s",
+        "-ra",
+        "--basetemp",
+        "/dev/shm/e02-D-oct07-service-start/final-native-969/contracts-fixtures",
+        "--junitxml",
+        "/dev/shm/e02-D-oct07-service-start/final-native-969/contracts.junit.xml",
+        "tests/unit/scientist/search/test_contracts.py"
+      ],
+      "interpreter": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+      "same_inputs": true
+    }
+  },
+  "expected_removal_failures": {
+    "remove_run_scope.junit": {
+      "checks": {
+        "FAIL": 1
+      },
+      "junit_sha256": "c0ec7ee422a4d3e40358300c5ff0db9b43906e8558cb08d0dfdf2e113ebbd884",
+      "selector": "test_shared_helper_membership_is_isolated_by_actual_run_with_barrier",
+      "failure": "assert [1, 1, 1] == [1]\n  \n  Left contains 2 more items, first extra item: 1\n  Use -v to get more diff"
+    },
+    "remove_trial_lookup.junit": {
+      "checks": {
+        "FAIL": 1
+      },
+      "junit_sha256": "3e7a72ae4daf8321471c3d4d9bf09f50dc51f134dfcaeb1051507ca4364862be",
+      "selector": "test_native_dedup_uses_actual_semantic_content_and_retains_explicit_replicas[run]",
+      "failure": "assert [1, 1, 1, 2, 1, 2, ...] == [1, 2, 1, 2, 2, 2, ...]\n  \n  At index 1 diff: 1 != 2\n  Use -v to get more diff"
+    },
+    "replace_nullable_primary_zero.junit": {
+      "checks": {
+        "FAIL": 1
+      },
+      "junit_sha256": "6521822dac5f850c51c17ec54740a7eee28b147398463044e39cb7536c87c9a8",
+      "selector": "test_actual_native_primary_quantity_preserves_unavailable_zero_and_fresh_cas_basis[missing-False-ok-1]",
+      "failure": "assert 0.0 is None"
+    },
+    "restore_marker_override.junit": {
+      "checks": {
+        "FAIL": 1
+      },
+      "junit_sha256": "f0d2d3178343fa7330a9c5e5c23464265c59bd9abfe6e39bd1070a956aa40ccf",
+      "selector": "test_returned_hash_marker_cannot_collapse_actual_native_dates_cas_and_fresh_registry",
+      "failure": "AssertionError: assert 1 == 2\n +  where 1 = len({'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa': ParetoRegistryEntry(candidate_hash='sha256...lue': -2.5, 'seed_only': False}, promotion_metadata={'iteration': 2, 'feedback': {'verdict': 'APPROVE'}}, metadata={})})\n +    where {'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa': ParetoRegistryEntry(candidate_hash='sha256...lue': -2.5, 'seed_only': False}, promotion_metadata={'iteration': 2, 'feedback': {'verdict': 'APPROVE'}}, metadata={})} = ParetoRegistrySnapshot(schema_version='2.0', loop_id='3ad871d6', task_family='policy', domain='isolated::unknown', upd...finite_coordinate_ids_by_candidate_hash={}, unresolved_axis_contract_candidate_hashes=[])}, objective_basis_by_view={}).entries"
+    }
+  },
+  "original_occurrences_exact": 14,
+  "criterion_basis": {
+    "B124": "Actual SearchLoopRunner run/create_service, physical CAS evaluation refs, semantic dates vs technical trace/order, independent explicit replicas, pending/completed/fresh child resume, same-ref altered bytes refusal, live evaluator/context/tell/checkpoint/resume rebind refusal, initial ACK failure fence and fresh same-profile recovery, shared helper real two-run lookup barrier. Direct expected physical-call streams independent of dedup helper. Four removal effects discriminate the predicates.",
+    "B111": "Owned primary absence/error retains typed unavailable and reason through native producer, promised flags, history NaN carrier, no best/front/champion and fresh CAS; genuine0/1 controls preserve true assessed values. This composes with separately source-qualified numerical/registry quantity receipts, not whole numerical replay.",
+    "LA-014/015": "Actual41 service/fault/fresh restoration plus literalLegacy2 are distinct scoped consumers; defaultGridAdapter126 and nativeconfiguredGP3 receipts separately required.",
+    "P37": "Observed producer/artifact/bridge/consumer property, not a marker",
+    "P38": "Lookup/date marker/nullablezero/run-scope removal controls retain input/source markers and fail protected effect assertion",
+    "P41": "not_established"
+  },
+  "limitations": [
+    "Controlled source-backed benchmark profile is not scientific evaluator/invoice/tenant/promotion authority",
+    "Local POSIX CAS/reader/writer checks imply no distributed or power-loss guarantee",
+    "No GP/MO numeric property inferred from minimal runtime48",
+    "Global modulebudget is report_only warning metadata, not implicit global gatePASS"
+  ],
+  "formal_closed": false,
+  "accepted_G": false
+}

@@ -1,0 +1,19 @@
+{
+  "reviewer": "/root/census_oct07",
+  "decision": "GO_INTERNAL_TOOLING_OPERATOR_AND_STRUCTURED_COMPATIBILITY",
+  "patches": [
+    {
+      "path": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/B04-operator-README-a7.v3.patch",
+      "sha256": "6dd505db2221d629c351fa84af55316f1bf43aacaa3ca88c45cee4d28525f295"
+    },
+    {
+      "path": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/B04-tool-release-a7.v3.patch",
+      "sha256": "5f146619e720259ee62e2a79c9b76e3f3097312e4a64d4b3262a718410a080de"
+    }
+  ],
+  "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "classification": "internal_tooling/tooling existing team-architecture ownership",
+  "scope": "Exact source grammar supported direct NodeSpec/OutputAwareNodeSpec Assign/AnnAssign and sync/async direct reads; literal list/tuple and existing static f-string semantics only. Tracked denominator/failed reads, excludes external/import/subprocess reads.",
+  "compatibility": "Existing human outputs preserved plus JSON measurement; exit2 UNRUN distinct0/1; explicit required migration/rerun recipe and structured breaking tooling entry.",
+  "authority": "No node runtime edits/scientific authority/permission/formal A B04 closure claim. Source and test review separate; actual immutable runtime pending."
+}

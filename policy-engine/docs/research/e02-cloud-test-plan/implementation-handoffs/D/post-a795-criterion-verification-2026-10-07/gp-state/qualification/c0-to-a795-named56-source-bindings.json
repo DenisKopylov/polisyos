@@ -1,0 +1,351 @@
+{
+  "source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+  "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "all_named_bindings": [
+    {
+      "path": "policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md",
+      "old_c0_sha256": "6025929298dda452d7edb0171f7bcb07ac1a8e76977ba7957aeed5814417c066",
+      "current_sha256": "60decfc338c807352c7dd307bfaf0378b1daa737b53ae653fc2a20105e62eaac",
+      "whole_blob_equal": false
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-e02-mo-fitted-checkpoint.toml",
+      "old_c0_sha256": "81a774f6f9c2946590779ed6a9b528d9b70c5224e700af4566abf3199e187e03",
+      "current_sha256": "81a774f6f9c2946590779ed6a9b528d9b70c5224e700af4566abf3199e187e03",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/common/serialization.py",
+      "old_c0_sha256": "485303bf79f150fa9df259d7354d3104a4bdb94d9114cddb6e17dcc424316f0d",
+      "current_sha256": "485303bf79f150fa9df259d7354d3104a4bdb94d9114cddb6e17dcc424316f0d",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "old_c0_sha256": "6bce4613f561b26128b8ba5af2d8697edfbfdcb8b8cfbdeaffa58d8cc8e66f5a",
+      "current_sha256": "8a945d516a27e55f740ab8eed3f9654e7668139c856c22fa1920f3e56acb5d4f",
+      "whole_blob_equal": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+      "old_c0_sha256": "f2148ad25320a828605a9345e0d5e1ff91c55aa31ff6fa3cbc458ac2119758ef",
+      "current_sha256": "f2148ad25320a828605a9345e0d5e1ff91c55aa31ff6fa3cbc458ac2119758ef",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "old_c0_sha256": "9bbbd5b23c9ef43d18370f3bd0e25243eb56cdcd844a2d5f83744c30d4bbcc53",
+      "current_sha256": "9bbbd5b23c9ef43d18370f3bd0e25243eb56cdcd844a2d5f83744c30d4bbcc53",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/README.md",
+      "old_c0_sha256": "3d7e2e9961b79be93587808b6c4185509daf50f2896f46a5204cc38ca6f09fd9",
+      "current_sha256": "3d7e2e9961b79be93587808b6c4185509daf50f2896f46a5204cc38ca6f09fd9",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/__init__.py",
+      "old_c0_sha256": "04e3208b1b59661d4b7afde8b16e3e2bc6a31f9c9e39af830cc38c80045f5d66",
+      "current_sha256": "04e3208b1b59661d4b7afde8b16e3e2bc6a31f9c9e39af830cc38c80045f5d66",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/_deps.py",
+      "old_c0_sha256": "47c4f5453f5615e631e8c1349dc1b78783567e63d53da5d58143853f7d50bce7",
+      "current_sha256": "47c4f5453f5615e631e8c1349dc1b78783567e63d53da5d58143853f7d50bce7",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/acquisition.py",
+      "old_c0_sha256": "747b55f09346c15d2b5f51109b71f7832fe32c0fc937ad9f0b6baeffcd7aa524",
+      "current_sha256": "747b55f09346c15d2b5f51109b71f7832fe32c0fc937ad9f0b6baeffcd7aa524",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+      "old_c0_sha256": "ef1aa2cb95b2bed2438efe8da91ee9a78940e7a6e8b6e6aec7ae58f2359f4c3b",
+      "current_sha256": "2df06c83bfb9bff038345ab96e8a4c02557a7ef485053e168e634ea1ed90a3b6",
+      "whole_blob_equal": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/advanced_policy.py",
+      "old_c0_sha256": "c8fd815369b02642bbfed3f3c919ab183df53dbc422d8284f011ff57489465d1",
+      "current_sha256": "c8fd815369b02642bbfed3f3c919ab183df53dbc422d8284f011ff57489465d1",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+      "old_c0_sha256": "b14b9d504d8227f26c488a59227e33cdc8b0cbc192c37d780728e441e74d1f65",
+      "current_sha256": "b14b9d504d8227f26c488a59227e33cdc8b0cbc192c37d780728e441e74d1f65",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "old_c0_sha256": "26753a5ed92c04c5187c0e122ab106f91a2f57c5f05c0987cffce96b27e40066",
+      "current_sha256": "26753a5ed92c04c5187c0e122ab106f91a2f57c5f05c0987cffce96b27e40066",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/codec.py",
+      "old_c0_sha256": "e77e76875414ce7ce621b9d33c1b54e1f45488a5adb37252b1cdd8984a698df7",
+      "current_sha256": "e77e76875414ce7ce621b9d33c1b54e1f45488a5adb37252b1cdd8984a698df7",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/ensemble_surrogate.py",
+      "old_c0_sha256": "ff304385ae50b0f1b9df66e68ec95147e5d71e52e0dd2d1a208493f9227c1ba2",
+      "current_sha256": "ff304385ae50b0f1b9df66e68ec95147e5d71e52e0dd2d1a208493f9227c1ba2",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/errors.py",
+      "old_c0_sha256": "24a418c05a7e3fcee73dcee3623c966fd6c196ee9fe73694512b44ab7b857f10",
+      "current_sha256": "24a418c05a7e3fcee73dcee3623c966fd6c196ee9fe73694512b44ab7b857f10",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/grid.py",
+      "old_c0_sha256": "6c8e7a5507e0f6f2bb166fc739465d073c3ace660ac0f0c8e08bbf445cd7d56a",
+      "current_sha256": "6c8e7a5507e0f6f2bb166fc739465d073c3ace660ac0f0c8e08bbf445cd7d56a",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_fidelity.py",
+      "old_c0_sha256": "fc5fec7ee84b825a44fcffe1d5bf7cfddbfad4108582d5068dfe963d11d2b382",
+      "current_sha256": "fc5fec7ee84b825a44fcffe1d5bf7cfddbfad4108582d5068dfe963d11d2b382",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+      "old_c0_sha256": "e4699f9b1f892a3850406d0ef582bcf8072e19192d040783468d8c33b9c21f8a",
+      "current_sha256": "e4699f9b1f892a3850406d0ef582bcf8072e19192d040783468d8c33b9c21f8a",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py",
+      "old_c0_sha256": "a8f684712a1221227a98ea504bcf93adb12c3e68e5b6d7561ba6f3a1114ac954",
+      "current_sha256": "a8f684712a1221227a98ea504bcf93adb12c3e68e5b6d7561ba6f3a1114ac954",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/normalization.py",
+      "old_c0_sha256": "56d7a632ffa07f9d9ec56ec873f1d9b971c09e031ff60b15869201aa13911216",
+      "current_sha256": "56d7a632ffa07f9d9ec56ec873f1d9b971c09e031ff60b15869201aa13911216",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/objective_adapter.py",
+      "old_c0_sha256": "48d4010aac8bdea1b8e9b599cc7fee6f724c4cb843bdb93a3a5d9aa3418a0706",
+      "current_sha256": "48d4010aac8bdea1b8e9b599cc7fee6f724c4cb843bdb93a3a5d9aa3418a0706",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/random.py",
+      "old_c0_sha256": "b55c2504169baa23b82c635b480946e34cb3cd60bc046a970efd99df77bd6942",
+      "current_sha256": "b55c2504169baa23b82c635b480946e34cb3cd60bc046a970efd99df77bd6942",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/resource_arbiter.py",
+      "old_c0_sha256": "684e870d554072f15aef7fae25a39ea166bbab6d10cd1d874b5d268d4e62d91f",
+      "current_sha256": "684e870d554072f15aef7fae25a39ea166bbab6d10cd1d874b5d268d4e62d91f",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+      "old_c0_sha256": "cc3fab8bc297c583e53fb006042b3376ee2777e2261d28d1ba5c917a86e269d7",
+      "current_sha256": "7d8fb0852af0e96037c97daff1fe77082ffbf1721e09086b04ff7c4201c5386e",
+      "whole_blob_equal": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/run_similarity.py",
+      "old_c0_sha256": "aa243c1063109e76dc7673f62e7ef1553b98d62e363fd3db8d1722be7ad4750f",
+      "current_sha256": "aa243c1063109e76dc7673f62e7ef1553b98d62e363fd3db8d1722be7ad4750f",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/runtime.py",
+      "old_c0_sha256": "b48723be537cc65c2a2bb83aac8af0981fa0f6d8b782042f9bc9d2291c7ba799",
+      "current_sha256": "b48723be537cc65c2a2bb83aac8af0981fa0f6d8b782042f9bc9d2291c7ba799",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+      "old_c0_sha256": "d34f10e53935ef10265bb798b00b73173ebbb797e97e762f4d912c91bffad6ca",
+      "current_sha256": "d34f10e53935ef10265bb798b00b73173ebbb797e97e762f4d912c91bffad6ca",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/surrogate.py",
+      "old_c0_sha256": "f27fa1abddf7d5952304e82ffdb18c6dbf8d4b4fc98c5c159f808163941b8d6d",
+      "current_sha256": "f27fa1abddf7d5952304e82ffdb18c6dbf8d4b4fc98c5c159f808163941b8d6d",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "old_c0_sha256": "c47c106ff48a3636d9ceb1ad6f067ae5a63836640bc60439405fbdf421350c6a",
+      "current_sha256": "c47c106ff48a3636d9ceb1ad6f067ae5a63836640bc60439405fbdf421350c6a",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+      "old_c0_sha256": "d80a22c6282d2a172a0f51e6590e8b3ec786fc8e1ecb47db3bbe8583ab32197c",
+      "current_sha256": "d80a22c6282d2a172a0f51e6590e8b3ec786fc8e1ecb47db3bbe8583ab32197c",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/methods/search/test_configured_transfer_controller.py",
+      "old_c0_sha256": "2dcac359161fd10bccbb14091890268ba9c511f188909680cefbeaeb099f2030",
+      "current_sha256": "2dcac359161fd10bccbb14091890268ba9c511f188909680cefbeaeb099f2030",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+      "old_c0_sha256": "e10411d3f7f51f6e37b0af7a68b695d8255c22e0a50771649c9b9dfa77c0dd57",
+      "current_sha256": "da7b6ac631867a0eba8ddc66e1c27837e37a98997f2adec38d26c74b1572c931",
+      "whole_blob_equal": false
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_subnormal_reindex_independent_oracle.py",
+      "old_c0_sha256": "2f167180dd0cf233fe98236dc062161752db9eed3a70b91b0a54129474ef0561",
+      "current_sha256": "2f167180dd0cf233fe98236dc062161752db9eed3a70b91b0a54129474ef0561",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+      "old_c0_sha256": "dd9e784ae1b5c1b497cb5c6cd279f826ba3dd3972b5746bd1b51c0487c632cd2",
+      "current_sha256": "dd9e784ae1b5c1b497cb5c6cd279f826ba3dd3972b5746bd1b51c0487c632cd2",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/_continuation_fixture.py",
+      "old_c0_sha256": "a9b963971118aef0d65974c6c83370c10e7fac682ac3c6611dcdb6e7289a55e6",
+      "current_sha256": "a9b963971118aef0d65974c6c83370c10e7fac682ac3c6611dcdb6e7289a55e6",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+      "old_c0_sha256": "d59ba92a2067d3ee36e22ef35d43cb41b5ce7586f51236fa230ae99d31a5be34",
+      "current_sha256": "d59ba92a2067d3ee36e22ef35d43cb41b5ce7586f51236fa230ae99d31a5be34",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py",
+      "old_c0_sha256": "0e898bae6c41af2c79af671f35dea23df1db5048b0d32995189a81991897b4c8",
+      "current_sha256": "0e898bae6c41af2c79af671f35dea23df1db5048b0d32995189a81991897b4c8",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py",
+      "old_c0_sha256": "004369b6fdcddf5d5adda03f0ba5f453ed036e10b1a1f0e4b22f7a6d678b37ef",
+      "current_sha256": "004369b6fdcddf5d5adda03f0ba5f453ed036e10b1a1f0e4b22f7a6d678b37ef",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+      "old_c0_sha256": "437776962e7cc56d14340f6b277edb8ca7195e854a5400fbe3261f94ddb9ee5d",
+      "current_sha256": "437776962e7cc56d14340f6b277edb8ca7195e854a5400fbe3261f94ddb9ee5d",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_warm_admission_reports.py",
+      "old_c0_sha256": "b3a349a1b9edab1cd55608c57587d1ef0a98654ea017286753ec62c19bed0b77",
+      "current_sha256": "b3a349a1b9edab1cd55608c57587d1ef0a98654ea017286753ec62c19bed0b77",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_mo_checkpoint.py",
+      "old_c0_sha256": "09da631e0ae044d02eea10335abb1f3aed64348d95a5e3d5977185a5b921a7bf",
+      "current_sha256": "09da631e0ae044d02eea10335abb1f3aed64348d95a5e3d5977185a5b921a7bf",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_mo_objective_admission.py",
+      "old_c0_sha256": "7fb941f3f8e0540a8ad9df06432a47e82ebef17e7a10e949c32bb825144cbb3d",
+      "current_sha256": "7fb941f3f8e0540a8ad9df06432a47e82ebef17e7a10e949c32bb825144cbb3d",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_mo_reference_representability.py",
+      "old_c0_sha256": "097eaa6a446a8956de5f80ab54ef8dc4ac7fdf180e6651ad6131d57d852b797d",
+      "current_sha256": "097eaa6a446a8956de5f80ab54ef8dc4ac7fdf180e6651ad6131d57d852b797d",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py",
+      "old_c0_sha256": "125812f64a5fc6c6a679969f8117819792c17a98e1c7030a815e15e346cea4b8",
+      "current_sha256": "125812f64a5fc6c6a679969f8117819792c17a98e1c7030a815e15e346cea4b8",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_multiobjective_reference_independent_oracle.py",
+      "old_c0_sha256": "1d9849a2669fc1bec1161ed44171347042fd4765223f64362780825aeb216824",
+      "current_sha256": "1d9849a2669fc1bec1161ed44171347042fd4765223f64362780825aeb216824",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py",
+      "old_c0_sha256": "45b26bb168cc01dafcda969e928fe303c0d70e280c1d3114fb2af245c57c4f20",
+      "current_sha256": "45b26bb168cc01dafcda969e928fe303c0d70e280c1d3114fb2af245c57c4f20",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py",
+      "old_c0_sha256": "f6dbbacce844d0a7945fcf82fe2785491296d894aae45a041e5f86d8be8ff0ac",
+      "current_sha256": "f6dbbacce844d0a7945fcf82fe2785491296d894aae45a041e5f86d8be8ff0ac",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_state_inventory.py",
+      "old_c0_sha256": "dd56117e838ac0e713f89e490788e5868613272da7611e7fd70701fad76b4d38",
+      "current_sha256": "dd56117e838ac0e713f89e490788e5868613272da7611e7fd70701fad76b4d38",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_strategy_state.py",
+      "old_c0_sha256": "2611d834690c90d43243f2e8eab061383ea2da0d2a95924371b015a6f795cabe",
+      "current_sha256": "2611d834690c90d43243f2e8eab061383ea2da0d2a95924371b015a6f795cabe",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/strategies/test_bayesian.py",
+      "old_c0_sha256": "ac13fcd67d7f2c38f3da06f803f413a06d849ddf6d41138d3ad18d449b154976",
+      "current_sha256": "ac13fcd67d7f2c38f3da06f803f413a06d849ddf6d41138d3ad18d449b154976",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/strategies/test_multi_objective.py",
+      "old_c0_sha256": "81e27c1141ad873375f9d7a1d39c404f29f5977e099a8821475c5700b0d5fdef",
+      "current_sha256": "81e27c1141ad873375f9d7a1d39c404f29f5977e099a8821475c5700b0d5fdef",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/strategies/test_neural.py",
+      "old_c0_sha256": "fb3c1778173fe5d1d452424635f4cd727f179cc90ce62f5991fe64db7ae78fee",
+      "current_sha256": "fb3c1778173fe5d1d452424635f4cd727f179cc90ce62f5991fe64db7ae78fee",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/strategies/test_neural_checkpoint.py",
+      "old_c0_sha256": "7b1f6526b29b89b62226ffbbf7e9f50b202637572bebce0980c6fe8779c831a5",
+      "current_sha256": "7b1f6526b29b89b62226ffbbf7e9f50b202637572bebce0980c6fe8779c831a5",
+      "whole_blob_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/strategies/test_space_codec.py",
+      "old_c0_sha256": "b09216e4e46354a227ab3ef0dd09a734468213c9666e695425e02b59333a6f6d",
+      "current_sha256": "b09216e4e46354a227ab3ef0dd09a734468213c9666e695425e02b59333a6f6d",
+      "whole_blob_equal": true
+    }
+  ],
+  "same": 51,
+  "changed": [
+    "policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md",
+    "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py"
+  ],
+  "not_a_whole_import_closure": true
+}

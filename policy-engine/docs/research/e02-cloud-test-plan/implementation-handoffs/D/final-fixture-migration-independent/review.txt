@@ -1,0 +1,34 @@
+Independent final test-fixture migration review
+Reviewer: /root/gp_witness (implementation reviewers are not counted as independent runtime executors here).
+Scope: immutable FUN03 a9356a5a9240384d890bc42e7c529b687be2e6c3 and OPT01 c3fe956011df8185c226155b86488294fe16143e; docs-only review in admitted champion lane.
+Baseline runtime/source: 243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3 / f3763c0911f1f80d8c5ee049667045a594fb55c2.
+No runtime jobs, production/test edits, new checkout/worktree, cleanup, numerical-thread caps, or shared overlay consumers/writers by this reviewer.
+
+Verdict: no blocking issue in these test-only migrations. This accepts the bounded fixture deltas, not full FUN03/OPT01 capability closure. Independent final runtime replay remains root-owned.
+
+FUN03:
+- Full implementation diff is one test file; every one of 2910 tracked source blobs under policy-engine/src equals baseline243.
+- Eighteen top-level functions before/after: fifteen AST-identical, existing native fixture helper changes, two obsolete bool-positive tests renamed and intentionally changed to refusal tests. These two are not claimed assertion-equivalent.
+- Real PredictiveVOIScheduler replaces the partial scheduler double lacking prioritize. The native path performs actual L4 work through a controlled backend, then real Level6 refuses bool authority before runner/writer calls.
+- Both normal legacy-boolean tests assert no runner effect and bridge_missing. A prepared result is read-only interpretation, not promotion authority. Existing raw bool preflight helper characterization is unchanged and grants no write authority.
+- Original243 evidence remains 50 PASS / 2 FAIL. One failed obsolete runner expectation; one failed fixture missing prioritize. This is not an inherited-red waiver or retrospective rewrite.
+- Author canonical result exit0 and independently parsed XML: 52 tests, zero failures/errors/skips. Seven complete author output bindings and five original-red bindings reconciled by rawhash/size/Git blob.
+- Guard-removal child keeps refusal markers/terminal result while calling the actual runner. Both migrated tests fail on callback effects: 2 FAIL. Native legacy writer remains zero; no valid typed promotion or serialized-revocation positive is established.
+- Owner-issued typed permit/serialized commit bridge, actual billing/provider policy and deployed factory authority remain unestablished. Test migration does not close B164.
+
+OPT01:
+- Full implementation diff is one test file; every one of 2910 tracked source blobs under policy-engine/src equals baseline243.
+- All 98 original assertion ASTs are identical. Exactly five existing setup/signature bodies change, thirty-two existing functions are AST-identical, one _cas_eval helper is added, and no existing functions are removed.
+- Helper uses native FileSystemCAS and actual persisted suite/candidate/evaluation refs, round-trips healthy finite inputs, then puts exact malformed raw metrics retaining all nonmetric content and manifest inputs/schema/producer. Native typed load refuses NaN/Inf.
+- Healthy finite0 carrier only establishes admission. Its mutable metric dict is cleared and updated with exact decoded malformed values before Pareto consumption. This explicitly declared post-validation mutation stress supplies no successfully admitted malformed typed DTO.
+- Complete canonical27252B and removal21100B logs read. Every one of thirteen evidence-manifest files reconciled by rawhash/size/Git blob. Independently parsed XML: original24370 PASS/5 FAIL at strict constructor admission; candidate75 PASS/0 FAIL; removal1 PASS/4 FAIL; zero errors/skips throughout.
+- Four actual native module origins per deciding child match exact candidate Git bytes. Six raw CAS controls per run have payload JSON bytes/hash equal actual malformed ref and manifest integrity/byte_size; candidate/suite consumed refs and comparison context retained.
+- Child property removal only replaces unusable assessed vectors with all-zero values and drops omission metadata; strict native reader remains unchanged. Four original consumer assertions fail at unassessed refusal, incomplete schema, partial assessment, duplicate omission positions.
+- Retained predicate boundary: test_non_finite_and_missing_metrics_are_excluded_from_numeric_front passes this mutation because all-zero repaired points remain dominated. It does not alone distinguish omission from dominated zero-imputation. This is disclosed, unchanged, and is not five negative passes or global predicate closure.
+- Toy candidate_only suite and first-policy fixture comparison context establish technical custody only. Live eligible input denominator, A provider/export boundary, metric scientific source/units, production-history truth and authority-grade promotion remain unestablished. Test migration does not close B111 or the broader OPT01 dependency.
+
+Publication/evidence:
+FUN author receipt128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d and OPT receiptddfee523bda85ac599e22cc6a3aa4ea490e43413 read in full.
+OPT payload977c447e84f84e01ec1ebfefc0fee2e2f6c6a477 manifest13files fully recomputed, not inferred from @sha string references.
+Source-specific baseline identities remain explicit in reconciliation JSON. Root-reported composed52/75 passes are not substituted for this reviewer's independent runtime execution.
+This review used stdlib AST/XML/JSON/hashlib and Git object reads with locked Python3.14.7 / PYTHONDONTWRITEBYTECODE=1. No backend module was imported by the reviewer.

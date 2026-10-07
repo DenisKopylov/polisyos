@@ -1,0 +1,1773 @@
+{
+  "schema": "D.original46.selected-owning-source-scope.v1",
+  "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+  "comparison_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "binding_kind": "independently_reconciled",
+  "rows": [
+    {
+      "id": "B106@STR-01",
+      "bundle": "STR-01",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+        "policy-engine/src/polisyos/scientist/evals/challenge_factory.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/sensitivity_benchmark.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+        "policy-engine/src/polisyos/scientist/evals/challenge_factory.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/sensitivity_benchmark.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py"
+      ],
+      "changed_selected_blobs": [],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B107@STR-01",
+      "bundle": "STR-01",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+        "policy-engine/src/polisyos/scientist/evals/challenge_factory.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/sensitivity_benchmark.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+        "policy-engine/src/polisyos/scientist/evals/challenge_factory.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/sensitivity_benchmark.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py"
+      ],
+      "changed_selected_blobs": [],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B108@OPT-01",
+      "bundle": "OPT-01",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+        "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+        "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+        "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+        "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+        "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+        "policy-engine/src/polisyos/scientist/methods/search/objective.py"
+      ],
+      "changed_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B109@OPT-01",
+      "bundle": "OPT-01",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+        "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+        "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+        "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+        "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+        "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+        "policy-engine/src/polisyos/scientist/methods/search/objective.py"
+      ],
+      "changed_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B110@OPT-01",
+      "bundle": "OPT-01",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+        "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+        "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+        "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+        "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+        "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+        "policy-engine/src/polisyos/scientist/methods/search/objective.py"
+      ],
+      "changed_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B111@OPT-01",
+      "bundle": "OPT-01",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+        "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+        "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+        "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+        "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+        "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+        "policy-engine/src/polisyos/scientist/methods/search/objective.py"
+      ],
+      "changed_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B112@OPT-02",
+      "bundle": "OPT-02",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/codec.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/codec.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py"
+      ],
+      "changed_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py"
+      ],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B113@OPT-02",
+      "bundle": "OPT-02",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/codec.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/codec.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py"
+      ],
+      "changed_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py"
+      ],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B114@OPT-03",
+      "bundle": "OPT-03",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/_deps.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/normalization.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/_deps.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/normalization.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py"
+      ],
+      "changed_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py"
+      ],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B115@OPT-03",
+      "bundle": "OPT-03",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/_deps.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/normalization.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/_deps.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/normalization.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py"
+      ],
+      "changed_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py"
+      ],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B116@OPT-04",
+      "bundle": "OPT-04",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/models.py"
+      ],
+      "changed_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B117@OPT-04",
+      "bundle": "OPT-04",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/models.py"
+      ],
+      "changed_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B118@CTL-01",
+      "bundle": "CTL-01",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+        "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py"
+      ],
+      "changed_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B119@CTL-01",
+      "bundle": "CTL-01",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+        "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py"
+      ],
+      "changed_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B120@CTL-03",
+      "bundle": "CTL-03",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+        "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+        "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py"
+      ],
+      "changed_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B121@CTL-03",
+      "bundle": "CTL-03",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+        "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+        "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py"
+      ],
+      "changed_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B122@STP-01",
+      "bundle": "STP-01",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py",
+        "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py",
+        "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py"
+      ],
+      "changed_selected_blobs": [],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B123@CTL-03",
+      "bundle": "CTL-03",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+        "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+        "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+        "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py"
+      ],
+      "changed_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B124@CTL-02",
+      "bundle": "CTL-02",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/dedup.py",
+        "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/grid.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+        "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/dedup.py",
+        "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/grid.py"
+      ],
+      "changed_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+        "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B125@CTL-02",
+      "bundle": "CTL-02",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/dedup.py",
+        "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/grid.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+        "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/dedup.py",
+        "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/grid.py"
+      ],
+      "changed_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+        "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B126@CTL-02",
+      "bundle": "CTL-02",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/dedup.py",
+        "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/grid.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+        "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/dedup.py",
+        "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/grid.py"
+      ],
+      "changed_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+        "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B127@OPT-02",
+      "bundle": "OPT-02",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/codec.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/codec.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py"
+      ],
+      "changed_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py"
+      ],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B128@TRN-01",
+      "bundle": "TRN-01",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py"
+      ],
+      "changed_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py"
+      ],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B129@TRN-02",
+      "bundle": "TRN-02",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+        "policy-engine/src/polisyos/core/artifacts/store.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+        "policy-engine/src/polisyos/core/artifacts/store.py"
+      ],
+      "changed_selected_blobs": [],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B130@TRN-01",
+      "bundle": "TRN-01",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py"
+      ],
+      "changed_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py"
+      ],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B131@TRN-01",
+      "bundle": "TRN-01",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py"
+      ],
+      "changed_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py"
+      ],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B132@TRN-01",
+      "bundle": "TRN-01",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py"
+      ],
+      "changed_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py"
+      ],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B133@TRN-02",
+      "bundle": "TRN-02",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+        "policy-engine/src/polisyos/core/artifacts/store.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+        "policy-engine/src/polisyos/core/artifacts/store.py"
+      ],
+      "changed_selected_blobs": [],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B134@TRN-02",
+      "bundle": "TRN-02",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+        "policy-engine/src/polisyos/core/artifacts/store.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+        "policy-engine/src/polisyos/core/artifacts/store.py"
+      ],
+      "changed_selected_blobs": [],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B135@TRN-03",
+      "bundle": "TRN-03",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+        "policy-engine/src/polisyos/scientist/methods/search/transfer_context.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+        "policy-engine/src/polisyos/scientist/methods/search/transfer_context.py"
+      ],
+      "changed_selected_blobs": [],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B136@TRN-03",
+      "bundle": "TRN-03",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+        "policy-engine/src/polisyos/scientist/methods/search/transfer_context.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+        "policy-engine/src/polisyos/scientist/methods/search/transfer_context.py"
+      ],
+      "changed_selected_blobs": [],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B137@TRN-03",
+      "bundle": "TRN-03",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+        "policy-engine/src/polisyos/scientist/methods/search/transfer_context.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+        "policy-engine/src/polisyos/scientist/methods/search/transfer_context.py"
+      ],
+      "changed_selected_blobs": [],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B156@FUN-01",
+      "bundle": "FUN-01",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py"
+      ],
+      "changed_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B157@FUN-02",
+      "bundle": "FUN-02",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/level3_medium.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/level4_full.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/level3_medium.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/level4_full.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py"
+      ],
+      "changed_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B158@FUN-01",
+      "bundle": "FUN-01",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py"
+      ],
+      "changed_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B159@FUN-01",
+      "bundle": "FUN-01",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py"
+      ],
+      "changed_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B160@FUN-02",
+      "bundle": "FUN-02",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/level3_medium.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/level4_full.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/level3_medium.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/level4_full.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py"
+      ],
+      "changed_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B161@FUN-03",
+      "bundle": "FUN-03",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/calibration_report.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/correlation.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/calibration_report.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/correlation.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py"
+      ],
+      "changed_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B162@FUN-02",
+      "bundle": "FUN-02",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/level3_medium.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/level4_full.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/level3_medium.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/level4_full.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py"
+      ],
+      "changed_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B163@FUN-03",
+      "bundle": "FUN-03",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/calibration_report.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/correlation.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/calibration_report.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/correlation.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py"
+      ],
+      "changed_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B164@FUN-03",
+      "bundle": "FUN-03",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/calibration_report.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/correlation.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/calibration_report.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/correlation.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py"
+      ],
+      "changed_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B165@FUN-02",
+      "bundle": "FUN-02",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/level3_medium.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/level4_full.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/level3_medium.py",
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/level4_full.py",
+        "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py"
+      ],
+      "changed_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py"
+      ],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "B41@STP-01",
+      "bundle": "STP-01",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py",
+        "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+        "policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py",
+        "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py"
+      ],
+      "changed_selected_blobs": [],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "LA-014@SRV-01",
+      "bundle": "SRV-01",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py"
+      ],
+      "changed_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "LA-015@CTL-01",
+      "bundle": "CTL-01",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+        "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "unchanged_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/controller.py"
+      ],
+      "changed_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    },
+    {
+      "id": "LA-015@SRV-03",
+      "bundle": "SRV-03",
+      "selected_owning_mechanism_paths": [
+        "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "unchanged_selected_blobs": [],
+      "changed_selected_blobs": [
+        "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+      ],
+      "complete_dependency_closure_established": false,
+      "qualification": "Selected owning producer/consumer identities only. Changed common.async_tools and transitive imports prevent a blanket current PASS or full-closure carry claim. Original old-source deciding outputs remain exact; current contributions require measured defining receipts."
+    }
+  ],
+  "source_bindings": {
+    "policy-engine/src/polisyos/core/artifacts/store.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "git_blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+        "sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165",
+        "bytes": 185595
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "git_blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+        "sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165",
+        "bytes": 185595
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/agent/vector_memory.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+        "git_blob": "3e68ab919b915427300869d6b378d12f585d1f00",
+        "sha256": "9021a922919d78d10669847426ae9e6ea590d92ca298db9d8dea084f5af38d5f",
+        "bytes": 15850
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+        "git_blob": "3e68ab919b915427300869d6b378d12f585d1f00",
+        "sha256": "9021a922919d78d10669847426ae9e6ea590d92ca298db9d8dea084f5af38d5f",
+        "bytes": 15850
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/evals/challenge_factory.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/evals/challenge_factory.py",
+        "git_blob": "a87316f0b1d290ecd6959aa7019bfb7a2950f4de",
+        "sha256": "a8d982e653e94ad9736dd0d58cf0edb9f8486dcd352d92586df99fc557545524",
+        "bytes": 46811
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/evals/challenge_factory.py",
+        "git_blob": "a87316f0b1d290ecd6959aa7019bfb7a2950f4de",
+        "sha256": "a8d982e653e94ad9736dd0d58cf0edb9f8486dcd352d92586df99fc557545524",
+        "bytes": 46811
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+        "git_blob": "97a775859e8c91bd7713dc4604b194452a6dd83d",
+        "sha256": "8a945d516a27e55f740ab8eed3f9654e7668139c856c22fa1920f3e56acb5d4f",
+        "bytes": 42200
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+        "git_blob": "d587877989f627888a8ede1aebd5be22ca69dd5b",
+        "sha256": "6bce4613f561b26128b8ba5af2d8697edfbfdcb8b8cfbdeaffa58d8cc8e66f5a",
+        "bytes": 39125
+      },
+      "whole_blob_identity_680_to_current": false
+    },
+    "policy-engine/src/polisyos/scientist/methods/autotune/dedup.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/autotune/dedup.py",
+        "git_blob": "38eb98f6cc5999e7c889c3f79433cdfd2eb7730e",
+        "sha256": "7c05548d3539ed98b20da6c11fe033af789e0b75672164654b97c68a28f0f5dc",
+        "bytes": 3073
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/autotune/dedup.py",
+        "git_blob": "38eb98f6cc5999e7c889c3f79433cdfd2eb7730e",
+        "sha256": "7c05548d3539ed98b20da6c11fe033af789e0b75672164654b97c68a28f0f5dc",
+        "bytes": 3073
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/methods/autotune/models.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+        "git_blob": "5335d35ba3967c9774dbd9d50dcbd02ae91a6786",
+        "sha256": "75205f0519b23a9df94affa45de27d137ae4deee969663c388190873269db8c5",
+        "bytes": 29441
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+        "git_blob": "5335d35ba3967c9774dbd9d50dcbd02ae91a6786",
+        "sha256": "75205f0519b23a9df94affa45de27d137ae4deee969663c388190873269db8c5",
+        "bytes": 29441
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+        "git_blob": "63c3dd0bebe17eb599444070caebbb7acb926417",
+        "sha256": "f6787e89fb3ae343e4ed822e00db9c91c44d017effc2aff22dda93f639c54b83",
+        "bytes": 39563
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+        "git_blob": "63c3dd0bebe17eb599444070caebbb7acb926417",
+        "sha256": "f6787e89fb3ae343e4ed822e00db9c91c44d017effc2aff22dda93f639c54b83",
+        "bytes": 39563
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/methods/autotune/registry.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+        "git_blob": "68affc2d2354e1a3cdd1e339916d74b811d88bea",
+        "sha256": "1339af524b604462021425b9d88f5cbe278f1a8c927827cb3e26fa4f8f0cc6ba",
+        "bytes": 27732
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/autotune/registry.py",
+        "git_blob": "68affc2d2354e1a3cdd1e339916d74b811d88bea",
+        "sha256": "1339af524b604462021425b9d88f5cbe278f1a8c927827cb3e26fa4f8f0cc6ba",
+        "bytes": 27732
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+        "git_blob": "759bb74100da7ba5be5e217eb6fbba923679962c",
+        "sha256": "6b6920b6ca0331d2fc7180bb9a7f6e348cc06ccb50bbfa3bee31d9289b379825",
+        "bytes": 24622
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+        "git_blob": "c38f771300030cd9c84dff5de676c3b023fced68",
+        "sha256": "4bcddcf8b7ef4696fe26a3daa3394053672eb8a43007e0bf0b993c5bf87e17eb",
+        "bytes": 23729
+      },
+      "whole_blob_identity_680_to_current": false
+    },
+    "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+        "git_blob": "40532c3c0d20eb8e64ea3b1589c7a1cbae5dedd6",
+        "sha256": "f2148ad25320a828605a9345e0d5e1ff91c55aa31ff6fa3cbc458ac2119758ef",
+        "bytes": 4897
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+        "git_blob": "40532c3c0d20eb8e64ea3b1589c7a1cbae5dedd6",
+        "sha256": "f2148ad25320a828605a9345e0d5e1ff91c55aa31ff6fa3cbc458ac2119758ef",
+        "bytes": 4897
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/methods/doe/sensitivity_benchmark.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/doe/sensitivity_benchmark.py",
+        "git_blob": "ca67b8db7e1a965d2c5efd08411e0d141b99960a",
+        "sha256": "c4ffd36f8a23a0b6ab8c08832a0f97c018952d6eb65eb5ef21d8bc01ce9c17d6",
+        "bytes": 45013
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/doe/sensitivity_benchmark.py",
+        "git_blob": "ca67b8db7e1a965d2c5efd08411e0d141b99960a",
+        "sha256": "c4ffd36f8a23a0b6ab8c08832a0f97c018952d6eb65eb5ef21d8bc01ce9c17d6",
+        "bytes": 45013
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+        "git_blob": "428c5cbfa2edf118f2a4957ebd851e3dc1b14a93",
+        "sha256": "cdf7ffe7bd6e3921749e7aa61624d43fa9e8f831495533bf22441744478cc4ee",
+        "bytes": 10530
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+        "git_blob": "428c5cbfa2edf118f2a4957ebd851e3dc1b14a93",
+        "sha256": "cdf7ffe7bd6e3921749e7aa61624d43fa9e8f831495533bf22441744478cc4ee",
+        "bytes": 10530
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/calibration_report.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/calibration_report.py",
+        "git_blob": "5a48a6c22e09e79e993d456539795ed3a3fc9e94",
+        "sha256": "40963bec0e551c9ce6aad6798bf62b0f268a347d603e9a463490c18b4ff37cd7",
+        "bytes": 12849
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/calibration_report.py",
+        "git_blob": "5a48a6c22e09e79e993d456539795ed3a3fc9e94",
+        "sha256": "40963bec0e551c9ce6aad6798bf62b0f268a347d603e9a463490c18b4ff37cd7",
+        "bytes": 12849
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/contracts.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+        "git_blob": "7cb82b22969d78fdc21f055130d17e58faa51cc7",
+        "sha256": "e7a5b21bafddab30277ebe0e8eb54a31c3f7b3bfc207b8d97e14cbdbc31d78d5",
+        "bytes": 14342
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+        "git_blob": "7cb82b22969d78fdc21f055130d17e58faa51cc7",
+        "sha256": "e7a5b21bafddab30277ebe0e8eb54a31c3f7b3bfc207b8d97e14cbdbc31d78d5",
+        "bytes": 14342
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/controller.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+        "git_blob": "7377be536dc63cb1f64f31878f6045c7a9f347e7",
+        "sha256": "9bbbd5b23c9ef43d18370f3bd0e25243eb56cdcd844a2d5f83744c30d4bbcc53",
+        "bytes": 57668
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+        "git_blob": "7377be536dc63cb1f64f31878f6045c7a9f347e7",
+        "sha256": "9bbbd5b23c9ef43d18370f3bd0e25243eb56cdcd844a2d5f83744c30d4bbcc53",
+        "bytes": 57668
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/frontier.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+        "git_blob": "2604b8369d6b5e98747ba27f2df4e52cf540ca3e",
+        "sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b",
+        "bytes": 8212
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+        "git_blob": "2604b8369d6b5e98747ba27f2df4e52cf540ca3e",
+        "sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b",
+        "bytes": 8212
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/correlation.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/funnel/correlation.py",
+        "git_blob": "8883c1535bd2fb40799cdc2e035da66459266b4c",
+        "sha256": "01a7827267fabf0674cd7ee3bb2f990174dfe5841299257d8febdb6337b71de0",
+        "bytes": 5294
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/funnel/correlation.py",
+        "git_blob": "8883c1535bd2fb40799cdc2e035da66459266b4c",
+        "sha256": "01a7827267fabf0674cd7ee3bb2f990174dfe5841299257d8febdb6337b71de0",
+        "bytes": 5294
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/level3_medium.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level3_medium.py",
+        "git_blob": "c692a9aa352fe145d26fc9cc34975c97e8d28aef",
+        "sha256": "5d59459e50babcfb74b5b6349cd2244a511231ebaef325be70a2d88aa4c9e923",
+        "bytes": 11095
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level3_medium.py",
+        "git_blob": "c692a9aa352fe145d26fc9cc34975c97e8d28aef",
+        "sha256": "5d59459e50babcfb74b5b6349cd2244a511231ebaef325be70a2d88aa4c9e923",
+        "bytes": 11095
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/level4_full.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level4_full.py",
+        "git_blob": "af004d8dd6d2a46acc4b1a47bcd5dfc9695267f4",
+        "sha256": "f31c387906a0ce24ab8581349a22deb033b5c77201ec9a5bafb58b07e445807e",
+        "bytes": 6857
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level4_full.py",
+        "git_blob": "af004d8dd6d2a46acc4b1a47bcd5dfc9695267f4",
+        "sha256": "f31c387906a0ce24ab8581349a22deb033b5c77201ec9a5bafb58b07e445807e",
+        "bytes": 6857
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+        "git_blob": "5154ebfe71891ca5a3046a05e0b03cb79a755a4a",
+        "sha256": "31d00ab5bd721d4f3d63e7581df74a49bc87e91f548ed7bb61d4c9770d730c19",
+        "bytes": 13409
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level6_promotion.py",
+        "git_blob": "5154ebfe71891ca5a3046a05e0b03cb79a755a4a",
+        "sha256": "31d00ab5bd721d4f3d63e7581df74a49bc87e91f548ed7bb61d4c9770d730c19",
+        "bytes": 13409
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+        "git_blob": "191ef201a2c952f1696eebb62a497d8778e777bb",
+        "sha256": "ab17c66058929ca33a6f1c917cd32d0c3f18175b87af1180036b5c854516cbef",
+        "bytes": 67876
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+        "git_blob": "da85bdcd726d3d8f1b00ba049c46b19b5cbcae61",
+        "sha256": "b38028b16da9637679d740545698418f74ac02ee78d7282caec7a8aa5d1002c0",
+        "bytes": 66942
+      },
+      "whole_blob_identity_680_to_current": false
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+        "git_blob": "fe536ef0107539689c28a5d73d387eec1936edc9",
+        "sha256": "227505c132e9a1e49bf7177fc42de3e80c0b0bd33bc1b76d2a9180d579fa75d1",
+        "bytes": 11872
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+        "git_blob": "fe536ef0107539689c28a5d73d387eec1936edc9",
+        "sha256": "227505c132e9a1e49bf7177fc42de3e80c0b0bd33bc1b76d2a9180d579fa75d1",
+        "bytes": 11872
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/lessons.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+        "git_blob": "0520a440f0b5285d3976f152dad5a0dbfe9c35cb",
+        "sha256": "3a83006f055220edfa56d352e232069bc62e0d887ccd61a9bb1cb8b5e9685f18",
+        "bytes": 44643
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+        "git_blob": "0520a440f0b5285d3976f152dad5a0dbfe9c35cb",
+        "sha256": "3a83006f055220edfa56d352e232069bc62e0d887ccd61a9bb1cb8b5e9685f18",
+        "bytes": 44643
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/objective.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+        "git_blob": "76f15a5d276754db6c719515f79414f41af9c52c",
+        "sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8",
+        "bytes": 10337
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+        "git_blob": "76f15a5d276754db6c719515f79414f41af9c52c",
+        "sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8",
+        "bytes": 10337
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+        "git_blob": "d12d0bb37b33ffb59513697eb95cc1653912553c",
+        "sha256": "aee369ab873131ac950104d3cf8b832c2ecf1d8109033f1631dc20877478bacd",
+        "bytes": 37218
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+        "git_blob": "d12d0bb37b33ffb59513697eb95cc1653912553c",
+        "sha256": "aee369ab873131ac950104d3cf8b832c2ecf1d8109033f1631dc20877478bacd",
+        "bytes": 37218
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/run_state.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "git_blob": "48a9ecd17de3e9b1d1443cfa7c083df66579375d",
+        "sha256": "1d13658009e1b86566239b9c8fa4cfc331dbdfb6928de4a2f1296fc6d251c5d2",
+        "bytes": 20830
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "git_blob": "c3a90ffe3db0cf7158bc847fb824b18b0502866d",
+        "sha256": "411e2b5a922bf57af4f51735b44f7e491f98e75e3a83940b8fb3eb76e7fa3cb8",
+        "bytes": 19613
+      },
+      "whole_blob_identity_680_to_current": false
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/service.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "git_blob": "2ddf3636cc56058febebf7599fe87b5fc2d8184c",
+        "sha256": "bafb8450178b977e8843d2a3d08a2b9a9ff1bd133c06cd585afc1b89954549ed",
+        "bytes": 58432
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "git_blob": "0e5d75cb492bf97dd61ceec2d6a94b9b6d8f13e5",
+        "sha256": "b73158016ef2a6e9324159b7de3d34206ef5a866bcdc1a675adb9281c815e127",
+        "bytes": 58588
+      },
+      "whole_blob_identity_680_to_current": false
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/stopping.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+        "git_blob": "533befa968e43ea734b729d0932c39b5128c26bf",
+        "sha256": "84aaa5c7a3737000985d39c6b3b8803bb03a052e64b702944ca322a2ae1234ee",
+        "bytes": 19715
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+        "git_blob": "533befa968e43ea734b729d0932c39b5128c26bf",
+        "sha256": "84aaa5c7a3737000985d39c6b3b8803bb03a052e64b702944ca322a2ae1234ee",
+        "bytes": 19715
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/_deps.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/_deps.py",
+        "git_blob": "b9c703fcbf237fb50399f0d64d2930fa2c599a04",
+        "sha256": "47c4f5453f5615e631e8c1349dc1b78783567e63d53da5d58143853f7d50bce7",
+        "bytes": 3349
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/_deps.py",
+        "git_blob": "b9c703fcbf237fb50399f0d64d2930fa2c599a04",
+        "sha256": "47c4f5453f5615e631e8c1349dc1b78783567e63d53da5d58143853f7d50bce7",
+        "bytes": 3349
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+        "git_blob": "5530df66c7faa662f7c54878c74b52c46adf0ae0",
+        "sha256": "2df06c83bfb9bff038345ab96e8a4c02557a7ef485053e168e634ea1ed90a3b6",
+        "bytes": 14838
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+        "git_blob": "058de1cd9d6a28c6ff55e118823dab87d1059564",
+        "sha256": "ef1aa2cb95b2bed2438efe8da91ee9a78940e7a6e8b6e6aec7ae58f2359f4c3b",
+        "bytes": 11457
+      },
+      "whole_blob_identity_680_to_current": false
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+        "git_blob": "5014def2bf0e9d43a629d335bf1b806a112082a3",
+        "sha256": "b14b9d504d8227f26c488a59227e33cdc8b0cbc192c37d780728e441e74d1f65",
+        "bytes": 20744
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+        "git_blob": "5014def2bf0e9d43a629d335bf1b806a112082a3",
+        "sha256": "b14b9d504d8227f26c488a59227e33cdc8b0cbc192c37d780728e441e74d1f65",
+        "bytes": 20744
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+        "git_blob": "73808387c874c11ef4b23e2e49f90911de97ad4e",
+        "sha256": "26753a5ed92c04c5187c0e122ab106f91a2f57c5f05c0987cffce96b27e40066",
+        "bytes": 51763
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+        "git_blob": "73808387c874c11ef4b23e2e49f90911de97ad4e",
+        "sha256": "26753a5ed92c04c5187c0e122ab106f91a2f57c5f05c0987cffce96b27e40066",
+        "bytes": 51763
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/codec.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/codec.py",
+        "git_blob": "5e31120e88b50f4a6900cf52d83689c81d403d27",
+        "sha256": "e77e76875414ce7ce621b9d33c1b54e1f45488a5adb37252b1cdd8984a698df7",
+        "bytes": 4930
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/codec.py",
+        "git_blob": "5e31120e88b50f4a6900cf52d83689c81d403d27",
+        "sha256": "e77e76875414ce7ce621b9d33c1b54e1f45488a5adb37252b1cdd8984a698df7",
+        "bytes": 4930
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/grid.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/grid.py",
+        "git_blob": "af2e277ffc2e47d1efb514ebdbdcf8a3c234f7aa",
+        "sha256": "6c8e7a5507e0f6f2bb166fc739465d073c3ace660ac0f0c8e08bbf445cd7d56a",
+        "bytes": 5726
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/grid.py",
+        "git_blob": "af2e277ffc2e47d1efb514ebdbdcf8a3c234f7aa",
+        "sha256": "6c8e7a5507e0f6f2bb166fc739465d073c3ace660ac0f0c8e08bbf445cd7d56a",
+        "bytes": 5726
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py",
+        "git_blob": "55c4a6ebb24c771e4c6f35c251228e886c3ec6c4",
+        "sha256": "a8f684712a1221227a98ea504bcf93adb12c3e68e5b6d7561ba6f3a1114ac954",
+        "bytes": 16561
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py",
+        "git_blob": "55c4a6ebb24c771e4c6f35c251228e886c3ec6c4",
+        "sha256": "a8f684712a1221227a98ea504bcf93adb12c3e68e5b6d7561ba6f3a1114ac954",
+        "bytes": 16561
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/normalization.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/normalization.py",
+        "git_blob": "1d962108917da646ccd205866e958842762c42d8",
+        "sha256": "56d7a632ffa07f9d9ec56ec873f1d9b971c09e031ff60b15869201aa13911216",
+        "bytes": 1269
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/normalization.py",
+        "git_blob": "1d962108917da646ccd205866e958842762c42d8",
+        "sha256": "56d7a632ffa07f9d9ec56ec873f1d9b971c09e031ff60b15869201aa13911216",
+        "bytes": 1269
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+        "git_blob": "88d0ab6fb0373baec711d0026fb829556c2e9aa5",
+        "sha256": "7d8fb0852af0e96037c97daff1fe77082ffbf1721e09086b04ff7c4201c5386e",
+        "bytes": 7534
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+        "git_blob": "0b1363c7401c9daf40bcbcb84fff61af446d585f",
+        "sha256": "cc3fab8bc297c583e53fb006042b3376ee2777e2261d28d1ba5c917a86e269d7",
+        "bytes": 6110
+      },
+      "whole_blob_identity_680_to_current": false
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+        "git_blob": "0819532200aa6cf4e78819554200fc29e6f4eb14",
+        "sha256": "d34f10e53935ef10265bb798b00b73173ebbb797e97e762f4d912c91bffad6ca",
+        "bytes": 12118
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+        "git_blob": "0819532200aa6cf4e78819554200fc29e6f4eb14",
+        "sha256": "d34f10e53935ef10265bb798b00b73173ebbb797e97e762f4d912c91bffad6ca",
+        "bytes": 12118
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+        "git_blob": "078d61b349147d0542e6012c49fcf205d09c0c0f",
+        "sha256": "c47c106ff48a3636d9ceb1ad6f067ae5a63836640bc60439405fbdf421350c6a",
+        "bytes": 33891
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+        "git_blob": "078d61b349147d0542e6012c49fcf205d09c0c0f",
+        "sha256": "c47c106ff48a3636d9ceb1ad6f067ae5a63836640bc60439405fbdf421350c6a",
+        "bytes": 33891
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/transfer_context.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/transfer_context.py",
+        "git_blob": "0963066824070b40fbe3d999d61d553b02728ec9",
+        "sha256": "64a316309fcef6cd2074b39ca01f4d1cf76d5c676bd9475118caa9280170098f",
+        "bytes": 10087
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/methods/search/transfer_context.py",
+        "git_blob": "0963066824070b40fbe3d999d61d553b02728ec9",
+        "sha256": "64a316309fcef6cd2074b39ca01f4d1cf76d5c676bd9475118caa9280170098f",
+        "bytes": 10087
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+        "git_blob": "24838eb49af51bad590282dbc4f7110164db2c72",
+        "sha256": "19cf96ccdd90146d597c27e776b4bec34bb2999c588ac048d1ba895bcbdd261e",
+        "bytes": 102623
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+        "git_blob": "24838eb49af51bad590282dbc4f7110164db2c72",
+        "sha256": "19cf96ccdd90146d597c27e776b4bec34bb2999c588ac048d1ba895bcbdd261e",
+        "bytes": 102623
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "git_blob": "edc20aeef614fa3486868b04fc4be03ace992893",
+        "sha256": "312f31fd3fd6062124b3124a526e4997f6d05e3d79b9c5ce0ec968dec5a41efe",
+        "bytes": 59381
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "git_blob": "edc20aeef614fa3486868b04fc4be03ace992893",
+        "sha256": "312f31fd3fd6062124b3124a526e4997f6d05e3d79b9c5ce0ec968dec5a41efe",
+        "bytes": 59381
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "git_blob": "596731c164fc1ad264b4f157f74b58cf73f7c513",
+        "sha256": "6ad7d0eddbfa7aef9f6f32de5c35505047016367a8b6aa54edbdba99eba3c0f8",
+        "bytes": 10751
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "git_blob": "596731c164fc1ad264b4f157f74b58cf73f7c513",
+        "sha256": "6ad7d0eddbfa7aef9f6f32de5c35505047016367a8b6aa54edbdba99eba3c0f8",
+        "bytes": 10751
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py",
+        "git_blob": "7d771365b7df742ddf80e73eb46aebbf7dba4769",
+        "sha256": "5298242cd9b3fc4a80adb07c9b78c16063c1bd00b9918088c7130848cc2dd907",
+        "bytes": 20334
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py",
+        "git_blob": "7d771365b7df742ddf80e73eb46aebbf7dba4769",
+        "sha256": "5298242cd9b3fc4a80adb07c9b78c16063c1bd00b9918088c7130848cc2dd907",
+        "bytes": 20334
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "git_blob": "7105b2b3992f140570a1eee5d17b6bd67b3d3022",
+        "sha256": "215adc1ee70c5ac0426db93126dff2a7e8bed23ca3e90bbcdeddc35da35d18da",
+        "bytes": 59275
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "git_blob": "7105b2b3992f140570a1eee5d17b6bd67b3d3022",
+        "sha256": "215adc1ee70c5ac0426db93126dff2a7e8bed23ca3e90bbcdeddc35da35d18da",
+        "bytes": 59275
+      },
+      "whole_blob_identity_680_to_current": true
+    },
+    "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py": {
+      "current": {
+        "git_ref": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+        "git_path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+        "git_blob": "0dc65ee8cbe6477c50deb965d4d7cc12b3f6c5a2",
+        "sha256": "4161bc6dfa38838c107228672fab9e1468087c19ae7ddb4f510247577fac29c3",
+        "bytes": 28025
+      },
+      "historical680": {
+        "git_ref": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+        "git_path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+        "git_blob": "0dc65ee8cbe6477c50deb965d4d7cc12b3f6c5a2",
+        "sha256": "4161bc6dfa38838c107228672fab9e1468087c19ae7ddb4f510247577fac29c3",
+        "bytes": 28025
+      },
+      "whole_blob_identity_680_to_current": true
+    }
+  },
+  "complete_dependency_closure_established": false,
+  "runtime_property_current_not_inferred": true,
+  "no_test_execution": true,
+  "counts": {
+    "occurrences": 46,
+    "unique_findings": 45,
+    "bundles": 17,
+    "selected_unique_owning_paths": 46
+  }
+}

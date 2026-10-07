@@ -1,0 +1,30 @@
+{
+  "schema": "policyos.e02.D.fresh-owner-checkpoint.v1",
+  "root_source": "79d0c1ef1921d0df1fd1ef191b747ba445abe8c5",
+  "own_slice_base": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+  "fetched_refs": {
+    "origin/main": {
+      "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+    },
+    "origin/codex/e02-integration": {
+      "sha": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+      "tree": "9e44e9e534cbf77bc59126e08a16d50b1eb0f12e"
+    },
+    "origin/codex/e02-B-current-adapters": {
+      "sha": "29dbecef14f077cfc4cefffdf3bc6f29379e6ab0",
+      "tree": "01c65637362066b9525dc3bc9a6a397499ade7ac"
+    },
+    "origin/codex/e02-B-current-runtime": {
+      "sha": "dae863be52dc612e7ccef8b52a542159ca69e330",
+      "tree": "6bfdd861109ad189ce4ed583f52e062d0ad53c6f"
+    },
+    "origin/codex/e02-B-current-durability": {
+      "sha": "1015b9f3e24d8759f82c73d2cbd9d5b1f6a0e786",
+      "tree": "b51c70f05c042380f48df30e93cefcaa88aa081e"
+    }
+  },
+  "B_delta": "New adapters/runtime commits contain WIRE fixture/docs/review only; no durable budget snapshot or ExecutionContext BudgetMiddleware port supplied. D keeps exact consumed production B checkpoints.",
+  "accepted_in_G": false,
+  "main_publication_authorized": false
+}

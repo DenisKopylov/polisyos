@@ -1,0 +1,50 @@
+{
+  "schema": "polisyos.e02.independent-packaging-binding.v1",
+  "verdict": "PASS packaging-only",
+  "runtime_executed": false,
+  "source_sha": "4c41287faf36f4880c4b7412d88cf44bd6d1cc1a",
+  "source_tree": "44bbe3255697c0dc351ae7db48c3707cce5000e9",
+  "correction_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-d796-packaging-correction.json",
+  "correction_bytes": 5572,
+  "correction_sha256": "b655a23e6d473d0e73a6af3928f97881b573f07a4ee8c301d1e207e55ff3c5ea",
+  "original_transport": {
+    "source_sha": "3475b78d9a22e512277f0f348d0acf7432a16f54",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-d796-proof/output.json.gz",
+    "git_blob": "133577cc9238cfda3ea00cbe32635179648ce526",
+    "gzip_bytes": 27937,
+    "gzip_sha256": "05e93fa822624864130f1de4796f05392ea4824334b0210d566853f820a40a67",
+    "uncompressed_bytes": 342549,
+    "uncompressed_sha256": "d4068294a710341f93f0fc3cc067014af34d9935ef1ffc3d285216b73058a5c9",
+    "member_count": 36,
+    "retention": "Immutable original Git commit/blob remains authoritative for legacy complete-text transport and original hashes."
+  },
+  "current_transport": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-d796-proof/output.json.gz",
+    "git_blob": "64bba701fdcbbdeea4827e12ab60ef40e5795eec",
+    "gzip_bytes": 28115,
+    "gzip_sha256": "7db778f1176db58878da0a2c3109ba8e8c1af82e7b27f1070477428ad1928d16",
+    "uncompressed_bytes": 341414,
+    "uncompressed_sha256": "476d9f6c3ccdfe94079d864b4242b43cfa53e19e2c18621e1809df7c1d906522",
+    "member_count": 36,
+    "format": "Original complete_output_bundle.v1 root envelope retained;35 complete UTF8 text member values plus one explicit tracked_git_input_ref object. Decoder resolves only that reference via exact source_sha/path, verifies git_blob/sha256/bytes, then restores original text-map semantics."
+  },
+  "reference": {
+    "kind": "tracked_git_input_ref",
+    "source_sha": "9d6169fe182590bbfebcde7f4f75dedc65aa41a3",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-371-proof/runner.py",
+    "git_blob": "0ec178b3612c989cdb3aeda6cee5b8f45a0bf093",
+    "sha256": "24d15b46939627ffcc6245d038d69b38f2bebadd29baa0aeb378045dcea188fa",
+    "bytes": 1657,
+    "encoding": "utf-8",
+    "locator": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-371-proof/runner.py@9d6169fe182590bbfebcde7f4f75dedc65aa41a3"
+  },
+  "verification": {
+    "source_blob_bytes_sha256_match": true,
+    "runner_body_semantics_restored": true,
+    "unchanged_member_bodies": 35,
+    "member_order_equal": true,
+    "resolved_full_root_deep_equal": true,
+    "single_JSON_token_substitution_recovers_original_uncompressed_bytes": true,
+    "closure_ids": []
+  }
+}

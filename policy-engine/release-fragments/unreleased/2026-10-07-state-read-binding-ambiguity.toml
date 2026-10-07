@@ -1,0 +1,31 @@
+id = "2026-10-07-state-read-binding-ambiguity"
+title = "Refuse ambiguous state-read diagnostic declarations"
+type = "fixed"
+component = "quality-diagnostics"
+owner = "team-architecture"
+summary = "The existing AST diagnostic admits one direct module _SPEC binding and does not union overwritten, nested or unreachable declarations."
+change_class = "tooling"
+surface_classification = "internal_tooling"
+api = "Existing check_state_reads.py main and canonical command; original measured missing-read predicate remains unchanged."
+compatibility = "Ambiguous multiple writes or unsupported binding scopes return existing exit 2 UNRUN, rather than an apparent success assembled from unrelated declarations. Single direct/annotated supported constructors and genuine missing-read exit 1 remain supported."
+migration = "Read the disclosed unresolved reason and make one unambiguous direct declaration through the existing node/tooling owner, or retain the unsupported profile as UNRUN. Rerun the same canonical command; do not promote it to runtime declared-read authority."
+limitations = "Conservative bounded AST syntax only: harmless local shadows or dead rebindings may be unresolved. Dynamic writes, object/list mutation, aliases, reaching definitions and runtime dispatch remain undecided. This does not close the original A-owned B04 finding."
+evidence = ["tests/repo_quality/tools/test_state_reads_constructor_admission.py"]
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["tools/quality/diagnostics/README.md"]
+runbook_docs = ["tools/quality/diagnostics/README.md"]
+
+[[compatibility_change]]
+id = "state-read-static-binding-ambiguity-refusal"
+change_class = "tooling"
+impact = "breaking"
+surface = "internal_tooling: tools/quality/diagnostics/check_state_reads.py"
+owner = "team-architecture"
+version_owner = "team-architecture"
+deprecation_window = "not_applicable"
+release_note = "Consumers must preserve the existing exit 2 incomplete result for multiple or unsupported _SPEC bindings instead of treating unioned paths as admission."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["tools/quality/diagnostics/README.md"]
+runbook_docs = ["tools/quality/diagnostics/README.md"]

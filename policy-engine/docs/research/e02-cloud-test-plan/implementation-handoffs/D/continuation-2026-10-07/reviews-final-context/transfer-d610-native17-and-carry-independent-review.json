@@ -1,0 +1,596 @@
+{
+  "schema": "polisyos.e02.D.independent_immutable_transfer_review.v1",
+  "reviewer": "/root/census_oct07",
+  "author": "/root/transfer_oct07",
+  "author_is_reviewer": false,
+  "source": "d610095905262a9b5b05b60c894018a681119367",
+  "tree": "f5a8262d01929bcc96399ad9492e8aaf7489a8a1",
+  "handoff_reviewed": {
+    "path": "/dev/shm/e02-D-transfer-receipt-oct07-23ooure8/handoff.json",
+    "sha256": "11e5932df374f9ebcc28557ace1ae9b10efe003f04f3843774610c660b479602"
+  },
+  "result": "CURRENT_NATIVE17_PASS_SOURCE_AND_CARRY_RECONCILED_EXTRA_ORIGINAL_SELECTORS_PENDING",
+  "final_delta": {
+    "complete_469_to_d610_paths": [
+      "policy-engine/tests/unit/scientist/agent/test_vector_generation_consumer.py",
+      "policy-engine/tests/unit/scientist/methods/search/test_service_factory_fault_resume.py"
+    ],
+    "production_unchanged": true,
+    "reviewed_transfer_fixture_correction_sha256": "2e517188ecca3295af93c3b49a9798c9f38a59562da5b5be82b8a9908e4b0c6a",
+    "reviewed_service_fixture_correction_sha256": "2bcb11221a500562641cccb8f71b596ce0f7ffa240eba58b8813565c8f4279dc",
+    "observed_delta": "Full actual two-file diff matches reviewed corpus premise correction and real frontier envelope/assertion diagnostics; repo formatting removes no production behavior or test assertion."
+  },
+  "current_native17": {
+    "PASS": 17,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0,
+    "UNRUN": 0,
+    "JUnit_sha256": "f772da22471d3c52fe7084c63101cb07ebe29edf50af21c20061fee901dac6d8",
+    "source_argv_status_read": true,
+    "properties_independently_decoded": {
+      "fresh_native_receipt": {
+        "status": "admitted",
+        "generation_count": 1002,
+        "history_count": 2,
+        "reads": 26,
+        "all_refs_match_actual_digest_kind_media": true,
+        "unchanged": null,
+        "reason": null,
+        "backend": {
+          "hnswlib": "0.8.0",
+          "numpy": "2.3.5",
+          "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]"
+        }
+      },
+      "fresh_native_tamper_receipt": {
+        "status": "refused",
+        "generation_count": null,
+        "history_count": null,
+        "reads": 0,
+        "all_refs_match_actual_digest_kind_media": true,
+        "unchanged": true,
+        "reason": "Blob sha256 mismatch for sha256:28aa7beffd826511216aa74633230571c73787c3fd38212d742774aee198a3f0: 5b35869119694500e7267918fa72bc330e87e44b6922b178f7657b43d5466256",
+        "backend": null
+      },
+      "fresh_legacy_native_refusal": {
+        "status": "refused",
+        "generation_count": null,
+        "history_count": null,
+        "reads": 2,
+        "all_refs_match_actual_digest_kind_media": true,
+        "unchanged": true,
+        "reason": "Native embedding row 0 coordinate 0 must be finite",
+        "backend": null
+      }
+    },
+    "honest_denominator": "1002 ordinary registered discovery histories;1001 distinct fingerprint/history refs carry the same original2 controlled donor observations without rewriting source IDs/value/basis/ref/time. Not1002 independent measured runs and no training of1001 duplicates. Original source at index1001 alone is exact selected numerical consumer."
+  },
+  "portable_outputs": {
+    "entries": 46,
+    "all_match": true,
+    "rows": [
+      {
+        "path": "checks/d610-native17/launch.json",
+        "bytes": 2198,
+        "sha256": "dcb43e9fd2f0ea0ae4c7b1484e2a1e4f061acb0685de0d8534dd5eccb9d4a303",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/d610-native17/stdout.txt",
+        "bytes": 1074,
+        "sha256": "d03b8012a73cf024aa14ae492eed058d381c6740277b22513fc44161df85cb4c",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/d610-native17/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/d610-native17/exit.json",
+        "bytes": 112,
+        "sha256": "b1346be351391f9909ae005f9afbf1754a9a78dcbffe73ec80e1462f64befe12",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/d610-native17/junit.xml",
+        "bytes": 22823,
+        "sha256": "f772da22471d3c52fe7084c63101cb07ebe29edf50af21c20061fee901dac6d8",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/d610-controller-lessons2/launch.json",
+        "bytes": 1710,
+        "sha256": "64c69c17f13200d8d6e2877c5036e5963145dd88dec08bec9696d68340e90804",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/d610-controller-lessons2/stdout.txt",
+        "bytes": 551,
+        "sha256": "67c6f17b4aeae4045bc2f952c332568aa080ba3eac3654dcbd3367ae79bc48fb",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/d610-controller-lessons2/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/d610-controller-lessons2/exit.json",
+        "bytes": 61,
+        "sha256": "f2de0d407c26c0b7190b93b55eda24a02504d7288359b1981013167797545b28",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/d610-controller-lessons2/junit.xml",
+        "bytes": 787,
+        "sha256": "3b4cd1581ef0f19104fc2283a534b3db603642020832c9996ff123ae84cbce21",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/469-affected76/launch.json",
+        "bytes": 2157,
+        "sha256": "ab69302d118f8c1db74b50d21d2dd86e4d89895c89c007c2d89bcd8a38fd4f6f",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/469-affected76/stdout.txt",
+        "bytes": 3128,
+        "sha256": "acf7cb6515d2511507dba1c4bc931ea12cbb552982e6a95961b1f1cf60911147",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/469-affected76/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/469-affected76/exit.json",
+        "bytes": 16,
+        "sha256": "2618b95f1f6be6bfde8537756f85b83845d039001563135b9d59d817446733eb",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/469-affected76/junit.xml",
+        "bytes": 22344,
+        "sha256": "b98619bdfc45a7148611f20049b43185f51549df11bc52db2dd475c5ed3739ba",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/828-native-lessons34/launch.json",
+        "bytes": 877,
+        "sha256": "c85fc23c3e126fb1dd85342192e53767169cf0922838783e60a247823987d4b7",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/828-native-lessons34/stdout.txt",
+        "bytes": 998,
+        "sha256": "e64951c0cdc04239af2ae811630b412dd8fa067bd4a3b28779f3d27942546840",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/828-native-lessons34/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/828-native-lessons34/exit.json",
+        "bytes": 16,
+        "sha256": "124fd50cb6d223cdd18fedc166d00af7254199b6e6dedf9be82f71db87af6d01",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/828-native-lessons34/junit.xml",
+        "bytes": 5706,
+        "sha256": "469ddfc4e9924294a60c4d085ba7761e913815a481d8d73dc6dbaf395a3a8a0a",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/828-lessons22/launch.json",
+        "bytes": 572,
+        "sha256": "b6603004ffb004b01850e0a80b256610355ba8356a022d8f59a51b5aa1351e4d",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/828-lessons22/stdout.txt",
+        "bytes": 535,
+        "sha256": "c2e14bf71bb3b2da0d9863a7c60a3057b0c514d44715e09aed660b6de186cfaa",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/828-lessons22/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/828-lessons22/exit.json",
+        "bytes": 16,
+        "sha256": "124fd50cb6d223cdd18fedc166d00af7254199b6e6dedf9be82f71db87af6d01",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/828-lessons22/junit.xml",
+        "bytes": 3679,
+        "sha256": "ae65ad1b6f3ff4d41f1f40f14e54d8573ef51d377034d0b71e9a1912334ae5e8",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/469-remove_native_payload/remove_native_payload-launch.json",
+        "bytes": 1007,
+        "sha256": "f005183f121a21c4bd438efe0e265e0017e40852b5bcd563470f84b4ff2b86fc",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/469-remove_native_payload/remove_native_payload.exit.json",
+        "bytes": 16,
+        "sha256": "2618b95f1f6be6bfde8537756f85b83845d039001563135b9d59d817446733eb",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/469-remove_native_payload/remove_native_payload.stdout",
+        "bytes": 4444,
+        "sha256": "30707fa2df8cf601a2a12025d518ddf9928fd3fa8fcfb75ad4bcb7cd399852ba",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/469-remove_native_payload/remove_native_payload.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/469-remove_native_payload/remove_native_payload.xml",
+        "bytes": 4281,
+        "sha256": "9b27e6980cb7c4dd3f87e2785cf6148186ad90ede7461d2e0cbd872711091785",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/469-remove_native_payload/remove_native_payload.py",
+        "bytes": 281,
+        "sha256": "dcea353b9a5e8c2c8ed0473df51e774302a73083b1d052b754b026dd4a658a63",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/469-remove_private_finite/remove_private_finite-launch.json",
+        "bytes": 1007,
+        "sha256": "a22b50f0eb24ece27efd7f0e4ecd83967e077ea93010dec29d736ee0a47d2120",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/469-remove_private_finite/remove_private_finite.exit.json",
+        "bytes": 16,
+        "sha256": "2618b95f1f6be6bfde8537756f85b83845d039001563135b9d59d817446733eb",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/469-remove_private_finite/remove_private_finite.stdout",
+        "bytes": 2534,
+        "sha256": "696605a8d1ac5edd2f4aa00a1a4859a3cd376dc2c03fb50fdc3c1ffb49cf0493",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/469-remove_private_finite/remove_private_finite.stderr",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/469-remove_private_finite/remove_private_finite.xml",
+        "bytes": 2213,
+        "sha256": "e0d0fa8ab1adea47cadf1d67c6ab0cd334ce79fbf08d13fea8052dd22d54e2dd",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/469-remove_private_finite/remove_private_finite.py",
+        "bytes": 156,
+        "sha256": "599e17f4da4e8a255c772cbf153bf647c87af6cba44bf96f158812006e4e4bc7",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "original-transfer-criteria.json",
+        "bytes": 20706,
+        "sha256": "bfdaf301410c3805e196bca83de706cbc94e825f4ff651d0f172791702f0fa00",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "unchanged-59-source-bindings.json",
+        "bytes": 26359,
+        "sha256": "83e3ae2d3ecc0d1129e24ef3c7dc22ad68c3e91f549352df6c1e36a19e20c1cc",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "baseline/source-identities.json",
+        "bytes": 1121,
+        "sha256": "65fdccde8b4024644a326435f10780b2e7ee9c9e5c4987dcabfdf2645a06dfcc",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "baseline/transfer-baseline-environment-index.json",
+        "bytes": 34741,
+        "sha256": "326a92093087f5db1c0af4b589c977e2c4e0e0162a1ee06184a4e147d7140ca5",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "owner-inputs/E-mutable-cap.json",
+        "bytes": 2707,
+        "sha256": "b30270e57a0a48ec420f61a7c159c21da407885946898d209d16124260b42b9a",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/828-E-mutable-cap/E_mutable_cap_probe.py",
+        "bytes": 1624,
+        "sha256": "3e31215321d0d9c9e71f78cd4d67b09c99c61c08e5a106da6730c0930c1ecdcf",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/828-E-mutable-cap/stdout.txt",
+        "bytes": 3339,
+        "sha256": "8d7e75541fc92ba31c8fbb893867cd07bfc53244099cf8f94f52b1a223f4685a",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/828-E-mutable-cap/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "declared_matches": true,
+        "original_matches": true
+      },
+      {
+        "path": "checks/828-E-mutable-cap/probe.json",
+        "bytes": 287,
+        "sha256": "573f79dbd264811ae610d29438d5c89a69eb1a403c93e7fd58097dc5c2c08a17",
+        "declared_matches": true,
+        "original_matches": true
+      }
+    ]
+  },
+  "unchanged59": {
+    "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+    "target_source": "d610095905262a9b5b05b60c894018a681119367",
+    "testcases": 59,
+    "exact_complete_unaffected_testcase_subset": true,
+    "all_exact_old_cases_PASS": true,
+    "input_blobs": [
+      {
+        "path": "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+        "old_blob": "3e68ab919b915427300869d6b378d12f585d1f00",
+        "candidate_blob": "3e68ab919b915427300869d6b378d12f585d1f00",
+        "byte_identical": true,
+        "reviewer_actual_old_blob": "3e68ab919b915427300869d6b378d12f585d1f00",
+        "reviewer_actual_current_blob": "3e68ab919b915427300869d6b378d12f585d1f00",
+        "declared_match": true
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/agent/test_vector_generation_consumer.py",
+        "old_blob": "5961b7e7b14fe28c2aa81608925f7a0a4f094001",
+        "candidate_blob": "3c9199aa4e7eaf5baa0b21ecd56bd33aa7fb8cfc",
+        "byte_identical": false,
+        "reviewer_actual_old_blob": "5961b7e7b14fe28c2aa81608925f7a0a4f094001",
+        "reviewer_actual_current_blob": "3c9199aa4e7eaf5baa0b21ecd56bd33aa7fb8cfc",
+        "declared_match": true
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/agent/vector_generation_reader.py",
+        "old_blob": "02a9e2074bdbfea3f57bcd950c6953a387cb6408",
+        "candidate_blob": "02a9e2074bdbfea3f57bcd950c6953a387cb6408",
+        "byte_identical": true,
+        "reviewer_actual_old_blob": "02a9e2074bdbfea3f57bcd950c6953a387cb6408",
+        "reviewer_actual_current_blob": "02a9e2074bdbfea3f57bcd950c6953a387cb6408",
+        "declared_match": true
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/agent/test_vector_memory.py",
+        "old_blob": "88753b5536a0cc4dc8121e4b016d29102745861b",
+        "candidate_blob": "88753b5536a0cc4dc8121e4b016d29102745861b",
+        "byte_identical": true,
+        "reviewer_actual_old_blob": "88753b5536a0cc4dc8121e4b016d29102745861b",
+        "reviewer_actual_current_blob": "88753b5536a0cc4dc8121e4b016d29102745861b",
+        "declared_match": true
+      },
+      {
+        "path": "policy-engine/tests/unit/remediation/test_trn_02.py",
+        "old_blob": "fdd17afd4ea92030d599b4947d35c03caaf36d48",
+        "candidate_blob": "fdd17afd4ea92030d599b4947d35c03caaf36d48",
+        "byte_identical": true,
+        "reviewer_actual_old_blob": "fdd17afd4ea92030d599b4947d35c03caaf36d48",
+        "reviewer_actual_current_blob": "fdd17afd4ea92030d599b4947d35c03caaf36d48",
+        "declared_match": true
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py",
+        "old_blob": "1a7e97f9b558f1a27c6977661b6797fcbbb38278",
+        "candidate_blob": "1a7e97f9b558f1a27c6977661b6797fcbbb38278",
+        "byte_identical": true,
+        "reviewer_actual_old_blob": "1a7e97f9b558f1a27c6977661b6797fcbbb38278",
+        "reviewer_actual_current_blob": "1a7e97f9b558f1a27c6977661b6797fcbbb38278",
+        "declared_match": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+        "old_blob": "078d61b349147d0542e6012c49fcf205d09c0c0f",
+        "candidate_blob": "078d61b349147d0542e6012c49fcf205d09c0c0f",
+        "byte_identical": true,
+        "reviewer_actual_old_blob": "078d61b349147d0542e6012c49fcf205d09c0c0f",
+        "reviewer_actual_current_blob": "078d61b349147d0542e6012c49fcf205d09c0c0f",
+        "declared_match": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "old_blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+        "candidate_blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+        "byte_identical": true,
+        "reviewer_actual_old_blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+        "reviewer_actual_current_blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+        "declared_match": true
+      }
+    ],
+    "status": "independently_reconciled_bounded_carry; not newly executed59",
+    "full_old76_receipt": "75PASS1fixtureFAIL retained;17current executes corrected fixture separately."
+  },
+  "lesson_carry": {
+    "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+    "bounded_34_subset": "Only14lesson cases of historical34 apply to B135/B136/B137;20native-vector cases changed dependency and are not carried from828. Two controller cases rerun currentd610 because controller changed; remaining12 exact unchanged module/test assertions.",
+    "temporal22": "22 exact lesson as_of/partial original receipts unchanged inputs; no combined new total.",
+    "current_controller2": "2PASS on d610 actual changed controller typed/serialized hint consumer.",
+    "source_blobs": [
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+        "old_blob": "0520a440f0b5285d3976f152dad5a0dbfe9c35cb",
+        "candidate_blob": "0520a440f0b5285d3976f152dad5a0dbfe9c35cb",
+        "identical": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/transfer_context.py",
+        "old_blob": "0963066824070b40fbe3d999d61d553b02728ec9",
+        "candidate_blob": "0963066824070b40fbe3d999d61d553b02728ec9",
+        "identical": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "old_blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+        "candidate_blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+        "identical": true
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+        "old_blob": "32827cc8e4f267b9d9e6d4bf86eb0ffb0c3ed216",
+        "candidate_blob": "32827cc8e4f267b9d9e6d4bf86eb0ffb0c3ed216",
+        "identical": true
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/search/test_lesson_transfer.py",
+        "old_blob": "181989c9d088407ed09df30014e5f5a23ccd48c4",
+        "candidate_blob": "181989c9d088407ed09df30014e5f5a23ccd48c4",
+        "identical": true
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/search/test_lesson_as_of.py",
+        "old_blob": "5543f3ac347ee94724874da5ba6a01385da54786",
+        "candidate_blob": "5543f3ac347ee94724874da5ba6a01385da54786",
+        "identical": true
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/search/test_lesson_partial_consumer.py",
+        "old_blob": "63274a25fb0a3a5315fe9fb05b29e3d931d69c2d",
+        "candidate_blob": "63274a25fb0a3a5315fe9fb05b29e3d931d69c2d",
+        "identical": true
+      }
+    ]
+  },
+  "original_criterion_bindings": [
+    {
+      "id": "B128@TRN-01",
+      "full_original_text_and_hash_match": true
+    },
+    {
+      "id": "B129@TRN-02",
+      "full_original_text_and_hash_match": true
+    },
+    {
+      "id": "B130@TRN-01",
+      "full_original_text_and_hash_match": true
+    },
+    {
+      "id": "B131@TRN-01",
+      "full_original_text_and_hash_match": true
+    },
+    {
+      "id": "B132@TRN-01",
+      "full_original_text_and_hash_match": true
+    },
+    {
+      "id": "B133@TRN-02",
+      "full_original_text_and_hash_match": true
+    },
+    {
+      "id": "B134@TRN-02",
+      "full_original_text_and_hash_match": true
+    },
+    {
+      "id": "B135@TRN-03",
+      "full_original_text_and_hash_match": true
+    },
+    {
+      "id": "B136@TRN-03",
+      "full_original_text_and_hash_match": true
+    },
+    {
+      "id": "B137@TRN-03",
+      "full_original_text_and_hash_match": true
+    }
+  ],
+  "proposed_findings": {
+    "B129": "Current1002 exact CAS/fresh reader supported; add explicit same-stream top_k1/2 variation requested before complete closed proposal.",
+    "B133": "Bounded original closed proposal supported by exact snapshot replay/cold-warm/copy/LRU budget and current fresh source consumer; formal Gfalse.",
+    "B134": "Do not close yet from current17+59: actual native C++exception clause needed; reviewed test-only full-header/body-truncation witness pending next immutable selector.",
+    "B135": "Need existing3 transfer_context_criteria actual receipt for invalid-base/addressed/unknown isolated clauses; requested author, no production defect identified.",
+    "B136": "Bounded original closed proposal supported by exact local/transferred threshold/trust/source-run/partial/time admission and fresh CAS materialization consumers; formal Gfalse.",
+    "B131": "held actual tenant/split/adapter owner positive absent; no fixture authority",
+    "B137": "held actual authorized new evidence grounds/version/revalidation positive absent; read/time/retention controls do not appoint authority"
+  },
+  "P37": "Actual native add/query/load generation and exact content-bound selected history consumer; source-qualified original denominator, no package total/G authority inference.",
+  "P38": "Finite64 markers/full native header/CAS ref cannot admit native nonfinite narrowing; removal gate tests3FAIL+1FAIL preserved separately; same-ref actual altered bytes refusal and old coherent pointer.",
+  "P41": "not_established; no inherited-red waiver.",
+  "limitations": [
+    "Formaloriginalclosure andG integration acceptance are decisions outside this leaf receipt",
+    "CurrentB e8bd1cfa6c1382231c430b3a4ba6d078e10fd8a9 deeperCAS differs; existing publicport signature/body identical does not establish newercombinedexecution",
+    "B131 genuine tenant/split/adapter ownerdecision andB137 actualauthorizedrevalidation newgrounds/newversion inputs missing",
+    "Legacy native nonzero→finitezero lost amplitude/direction cannot be distinguished from supported genuinezero without originalcontentboundrawembedding",
+    "PinnedHNSW0.8.0 localinprocess generation; no distributedatomicity/powerloss/publicdeployment guarantee",
+    "Old4691FAIL is testinput failure; developmental signal9 had noJUnit/phases,causeunknown, noOOM/productverdict",
+    "E mutablepublicplan cap actualFAIL supplied toE withouteditingE/B100source; no productionlaw claim"
+  ],
+  "G_accepted": false,
+  "formal_closed": false,
+  "read_only": true
+}

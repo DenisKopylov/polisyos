@@ -1,0 +1,15 @@
+{
+  "before_after_identical": true,
+  "output_sha256": {
+    "after.json": "adfbf99eca3a11fa51ee1e33aaf1310be4d62d4a57d003f1a4afe795265bf0b4",
+    "before.json": "adfbf99eca3a11fa51ee1e33aaf1310be4d62d4a57d003f1a4afe795265bf0b4",
+    "command.json": "f17f322a612535ba47a6148f76697ba33d7bcfdd911bd2ad9a005c7d015929fc",
+    "junit.xml": "96d826eb08ff50e11da43d36c63bef6183310b252e63bd1ffae7b138e1ca673f",
+    "path.json": "a9c29ac5e8a9b471aef0a1db1039a2b6fa49cbe274f63523db6192392fbfdb3f",
+    "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout.txt": "01d93a4a618bb88dcb54317d6b56b1c3d4d2fa5977d14c7ec18a4c7fbf954ded",
+    "test_live_profile_before.py": "64c42c5c1708d064e045a4c9a5e9ed61ebd8bf0b60f4e55686a276a1294f0e46"
+  },
+  "returncode": 1,
+  "wall_seconds": 9.5074696210213
+}

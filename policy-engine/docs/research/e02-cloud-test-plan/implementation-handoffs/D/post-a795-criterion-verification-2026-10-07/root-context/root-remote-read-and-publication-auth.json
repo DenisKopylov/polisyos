@@ -1,0 +1,98 @@
+{
+  "schema": "e02.D.current-remote-read-and-publication-auth.v1",
+  "observed_utc": "2026-10-07 18:41:53 UTC",
+  "ordinary_git_fetch": {
+    "command": "git fetch origin refs/heads/main:refs/remotes/origin/main refs/heads/codex/e02-integration:refs/remotes/origin/codex/e02-integration refs/heads/codex/e02-D-oct07-continuation:refs/remotes/origin/codex/e02-D-oct07-continuation",
+    "exit_code": 128,
+    "stderr": "remote: Invalid username or token. Password authentication is not supported for Git operations.\nfatal: Authentication failed for 'https://github.com/DenisKopylov/polisyos.git/'\n"
+  },
+  "gh_auth": {
+    "GH_TOKEN": "present_invalid; credential value not read or output",
+    "configured_runtime_credentials": "none",
+    "observations_current": true,
+    "network_policy": "unrestricted/enforced"
+  },
+  "connector_reads": [
+    {
+      "ref": "main",
+      "status": "fulfilled",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Action completed."
+          }
+        ],
+        "structuredContent": {
+          "content": "{\"ref\":\"refs/heads/main\",\"node_id\":\"REF_kwDOQzItzq9yZWZzL2hlYWRzL21haW4\",\"url\":\"https://api.github.com/repos/DenisKopylov/polisyos/git/refs/heads/main\",\"object\":{\"sha\":\"198076863e143dea9f89f02734b13d50dae3eed5\",\"type\":\"commit\",\"url\":\"https://api.github.com/repos/DenisKopylov/polisyos/git/commits/198076863e143dea9f89f02734b13d50dae3eed5\"}}",
+          "title": "main",
+          "modified_date": null,
+          "url": "https://api.github.com/repos/DenisKopylov/polisyos/git/ref/heads/main",
+          "display_url": "https://api.github.com/repos/DenisKopylov/polisyos/git/ref/heads/main",
+          "display_title": "main",
+          "structuredContent": {
+            "title": "main",
+            "content": "{\"ref\":\"refs/heads/main\",\"node_id\":\"REF_kwDOQzItzq9yZWZzL2hlYWRzL21haW4\",\"url\":\"https://api.github.com/repos/DenisKopylov/polisyos/git/refs/heads/main\",\"object\":{\"sha\":\"198076863e143dea9f89f02734b13d50dae3eed5\",\"type\":\"commit\",\"url\":\"https://api.github.com/repos/DenisKopylov/polisyos/git/commits/198076863e143dea9f89f02734b13d50dae3eed5\"}}",
+            "display_url": "https://api.github.com/repos/DenisKopylov/polisyos/git/ref/heads/main"
+          }
+        },
+        "isError": false
+      }
+    },
+    {
+      "ref": "codex/e02-integration",
+      "status": "fulfilled",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Action completed."
+          }
+        ],
+        "structuredContent": {
+          "content": "{\"ref\":\"refs/heads/codex/e02-integration\",\"node_id\":\"REF_kwDOQzItztoAIHJlZnMvaGVhZHMvY29kZXgvZTAyLWludGVncmF0aW9u\",\"url\":\"https://api.github.com/repos/DenisKopylov/polisyos/git/refs/heads/codex/e02-integration\",\"object\":{\"sha\":\"9806442ddb47d624a2940bac75d9d6248e934c48\",\"type\":\"commit\",\"url\":\"https://api.github.com/repos/DenisKopylov/polisyos/git/commits/9806442ddb47d624a2940bac75d9d6248e934c48\"}}",
+          "title": "e02-integration",
+          "modified_date": null,
+          "url": "https://api.github.com/repos/DenisKopylov/polisyos/git/ref/heads/codex/e02-integration",
+          "display_url": "https://api.github.com/repos/DenisKopylov/polisyos/git/ref/heads/codex/e02-integration",
+          "display_title": "e02-integration",
+          "structuredContent": {
+            "title": "e02-integration",
+            "content": "{\"ref\":\"refs/heads/codex/e02-integration\",\"node_id\":\"REF_kwDOQzItztoAIHJlZnMvaGVhZHMvY29kZXgvZTAyLWludGVncmF0aW9u\",\"url\":\"https://api.github.com/repos/DenisKopylov/polisyos/git/refs/heads/codex/e02-integration\",\"object\":{\"sha\":\"9806442ddb47d624a2940bac75d9d6248e934c48\",\"type\":\"commit\",\"url\":\"https://api.github.com/repos/DenisKopylov/polisyos/git/commits/9806442ddb47d624a2940bac75d9d6248e934c48\"}}",
+            "display_url": "https://api.github.com/repos/DenisKopylov/polisyos/git/ref/heads/codex/e02-integration"
+          }
+        },
+        "isError": false
+      }
+    },
+    {
+      "ref": "codex/e02-D-oct07-continuation",
+      "status": "fulfilled",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "Action completed."
+          }
+        ],
+        "structuredContent": {
+          "content": "{\"ref\":\"refs/heads/codex/e02-D-oct07-continuation\",\"node_id\":\"REF_kwDOQzItztoAKXJlZnMvaGVhZHMvY29kZXgvZTAyLUQtb2N0MDctY29udGludWF0aW9u\",\"url\":\"https://api.github.com/repos/DenisKopylov/polisyos/git/refs/heads/codex/e02-D-oct07-continuation\",\"object\":{\"sha\":\"cbc46a0bc87761bc2267a0daa84da489d6702e89\",\"type\":\"commit\",\"url\":\"https://api.github.com/repos/DenisKopylov/polisyos/git/commits/cbc46a0bc87761bc2267a0daa84da489d6702e89\"}}",
+          "title": "e02-D-oct07-continuation",
+          "modified_date": null,
+          "url": "https://api.github.com/repos/DenisKopylov/polisyos/git/ref/heads/codex/e02-D-oct07-continuation",
+          "display_url": "https://api.github.com/repos/DenisKopylov/polisyos/git/ref/heads/codex/e02-D-oct07-continuation",
+          "display_title": "e02-D-oct07-continuation",
+          "structuredContent": {
+            "title": "e02-D-oct07-continuation",
+            "content": "{\"ref\":\"refs/heads/codex/e02-D-oct07-continuation\",\"node_id\":\"REF_kwDOQzItztoAKXJlZnMvaGVhZHMvY29kZXgvZTAyLUQtb2N0MDctY29udGludWF0aW9u\",\"url\":\"https://api.github.com/repos/DenisKopylov/polisyos/git/refs/heads/codex/e02-D-oct07-continuation\",\"object\":{\"sha\":\"cbc46a0bc87761bc2267a0daa84da489d6702e89\",\"type\":\"commit\",\"url\":\"https://api.github.com/repos/DenisKopylov/polisyos/git/commits/cbc46a0bc87761bc2267a0daa84da489d6702e89\"}}",
+            "display_url": "https://api.github.com/repos/DenisKopylov/polisyos/git/ref/heads/codex/e02-D-oct07-continuation"
+          }
+        },
+        "isError": false
+      }
+    }
+  ],
+  "publication": "pending_credentials_no_fresh_Git_fetch_or_push_success_claim",
+  "normal_git_lineage_required": true,
+  "remote_object_recreation": "not_attempted; preserve exact ordinary local commits"
+}

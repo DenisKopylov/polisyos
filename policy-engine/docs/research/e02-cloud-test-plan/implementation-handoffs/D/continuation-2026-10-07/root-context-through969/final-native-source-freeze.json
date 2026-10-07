@@ -1,0 +1,23 @@
+{
+  "schema": "D.e02.final-source-freeze.v1",
+  "utc": "2026-10-07T10:40:07Z",
+  "source": "96905636726483fdea3a98d9313871d825b54a9e",
+  "tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "slice_base": "237c3427266e0849ebfa36b41f89c51572b44814",
+  "source_history_base": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+  "fresh_main_slice_anchor": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "independent_staged_review_sha256": "88a9960a58d2351b1bba715715a0e2dde05638eeece0b62b7d8638c1d449692f",
+  "source_changed_paths": [
+    "policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md",
+    "policy-engine/release-fragments/unreleased/2026-10-07-native-trial-deduplication-and-primary-availability.toml",
+    "policy-engine/src/polisyos/scientist/methods/autotune/dedup.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+    "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+    "policy-engine/src/polisyos/scientist/methods/search/service.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_dedup.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_service_trial_deduplication.py"
+  ],
+  "status": "",
+  "reviewed_tree_matches": true,
+  "runtime_verdict": "UNRUN until actual final affected checks"
+}

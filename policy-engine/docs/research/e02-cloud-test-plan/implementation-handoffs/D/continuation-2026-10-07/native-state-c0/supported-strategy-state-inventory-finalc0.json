@@ -1,0 +1,1132 @@
+{
+  "schema": "polisyos.e02.D.supported_strategy_state_inventory.final.v1",
+  "finding": "B125",
+  "source_sha": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+  "source_tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2",
+  "original_criterion": {
+    "id": "B125@CTL-02",
+    "canonical_content": {
+      "text": "**\u041f\u0440\u0438\u0451\u043c\u043a\u0430.** \u041f\u043e\u043b\u043d\u044b\u0439 persisted round-trip \u043a\u0430\u0436\u0434\u043e\u0433\u043e \u043f\u043e\u0434\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u0435\u043c\u043e\u0433\u043e strategy-state, \u0430 \u043d\u0435 \u0442\u043e\u043b\u044c\u043a\u043e `get_state/set_state` \u0432 \u043e\u0434\u043d\u043e\u0439 \u043f\u0430\u043c\u044f\u0442\u0438. \u0412\u043e\u0441\u0441\u0442\u0430\u043d\u043e\u0432\u043b\u0435\u043d\u043d\u0430\u044f \u0441\u043b\u0435\u0434\u0443\u044e\u0449\u0430\u044f \u043f\u043e\u0441\u043b\u0435\u0434\u043e\u0432\u0430\u0442\u0435\u043b\u044c\u043d\u043e\u0441\u0442\u044c \u0441\u043e\u0432\u043f\u0430\u0434\u0430\u0435\u0442; \u043f\u043e\u0432\u0440\u0435\u0436\u0434\u0451\u043d\u043d\u043e\u0435/\u0447\u0443\u0436\u043e\u0435 \u0441\u043e\u0441\u0442\u043e\u044f\u043d\u0438\u0435 \u043d\u0435 \u043f\u0440\u0438\u043d\u0438\u043c\u0430\u0435\u0442\u0441\u044f; \u0441\u043b\u0443\u0447\u0430\u0439\u043d\u044b\u0439 \u043f\u043e\u0442\u043e\u043a \u043d\u0435\u0437\u0430\u0432\u0438\u0441\u0438\u043c\u043e\u0439 \u0440\u0435\u043f\u043b\u0438\u043a\u0438 \u043e\u0441\u0442\u0430\u0451\u0442\u0441\u044f \u043d\u0435\u0437\u0430\u0432\u0438\u0441\u0438\u043c\u044b\u043c.",
+      "byte_offset": 740880,
+      "bytes": 486,
+      "sha256": "0a36083564c7d95755126ca040b59efa5abd004855ffbaa995399a6915d6217d"
+    },
+    "original_fragment": {
+      "document_key": "B_r19",
+      "lines": [
+        3264,
+        3277
+      ],
+      "byte_offset": 738182,
+      "bytes": 3186,
+      "sha256": "da6f01affaab6b25e26af7613845243eeafc15f0041b3374d39ce18adbe7721b"
+    },
+    "original_acceptance_binding": {
+      "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+      "criterion_occurrence_id": "B125@CTL-02",
+      "canonical_card": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-02.md",
+        "bytes": 16456,
+        "sha256": "e84619189496527f0f6cc2d75d395ef17279dea27112c8b6669f99a8579a1197"
+      }
+    }
+  },
+  "original_inventory_denominator": {
+    "concrete_SearchStrategy_classes": 6,
+    "declared_protocol_methods": [
+      "get_state",
+      "set_state",
+      "suggest",
+      "suggest_batch",
+      "update"
+    ],
+    "rows": [
+      {
+        "class": "BayesianOptimizer",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+        "bases": [
+          "BaseSearchStrategy"
+        ],
+        "declared_methods": [
+          "__init__",
+          "backend_available",
+          "_validated_basis",
+          "warm_start",
+          "suggest",
+          "suggest_batch",
+          "get_state",
+          "set_state",
+          "_backend_identity",
+          "_corpus_digest",
+          "_checkpoint_tensors",
+          "_reconcile_fitted_evaluations",
+          "_encode_evaluation",
+          "_decode_evaluation",
+          "_select_training_subset",
+          "_effective_training_corpus",
+          "_has_compatible_params",
+          "_warm_compatibility",
+          "_origin_ref",
+          "_evaluation_identity",
+          "_prepare_training_data",
+          "_record_id",
+          "_fit_gp",
+          "_fit_full_gp",
+          "_model_train_x",
+          "_model_train_x_matches_fitted",
+          "_is_append_update",
+          "_select_acquisition",
+          "_optimize_acquisition",
+          "_next_acquisition_seed",
+          "_acquisition_initial_conditions",
+          "_completed_candidates",
+          "_effective_optim_params",
+          "_non_duplicate_random",
+          "_random_batch",
+          "_is_duplicate",
+          "_effective_execution",
+          "_same_replicate_scope",
+          "_tensor_to_candidate"
+        ],
+        "profile": "existing gp_state_version4/locked SingleTaskGP state and same-basis conditioning",
+        "physical_path": "actual file artifact persisted native oracle10/11rows; actual configured CAS\u2192warm consumer; next actual acquisition/ambient and private RNG",
+        "current_check": "PASS_supported_declared_profile",
+        "current_receipt": "GP43 exactcurrentrealSingleTaskGP"
+      },
+      {
+        "class": "GridSearchStrategy",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/grid.py",
+        "bases": [
+          "BaseSearchStrategy"
+        ],
+        "declared_methods": [
+          "__init__",
+          "suggest",
+          "suggest_batch",
+          "get_state",
+          "set_state",
+          "_build_grid_params"
+        ],
+        "profile": "new grid_state_version1 + points_per_dim/max_candidates/grid_size/cursor + Base codecs",
+        "physical_path": "new test_state_inventory Grid and RLGrid CAS fresh store/8 next and exhausted + corruption/config/missing",
+        "current_check": "PASS_supported_declared_profile",
+        "current_receipt": "State142 inventory43 inclactualpublicpartial1/CASexhausted4"
+      },
+      {
+        "class": "MOBayesianOptimizer",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+        "bases": [
+          "BaseSearchStrategy"
+        ],
+        "declared_methods": [
+          "__init__",
+          "suggest",
+          "_suggest_admitted",
+          "suggest_batch",
+          "_suggest_batch_admitted",
+          "get_pareto_front",
+          "compute_hypervolume_assessed",
+          "compute_hypervolume",
+          "last_hypervolume_assessment",
+          "get_state",
+          "set_state",
+          "_state_profile",
+          "_backend_identity",
+          "_corpus_digest",
+          "_checkpoint_tensors",
+          "_assert_model_corpus",
+          "_owned_torch_random",
+          "_select_training_subset",
+          "_prepare_training_data",
+          "_objective_vector",
+          "last_objective_admission",
+          "_admit_objective_rows",
+          "_fit_model_list",
+          "_reference_configuration",
+          "_reference_point_values",
+          "_update_ref_point",
+          "_optimize_ehvi",
+          "_tensor_to_candidate"
+        ],
+        "profile": "new mo_state_version1 / exact current CPU refit_each_ask or actual missing-backend random_or_sobol",
+        "physical_path": "actual source serialization+coherentmodel/corpus/reference/fittedweights/RNG; new native27 CAS/fresh2componentNumPy/fullcov and failureCASrecovery; existing88 affectedMO consumers",
+        "current_check": "PASS_supported_declared_profile",
+        "current_receipt": "MO88 inclactual27 two-componentNumPy/CAS/failure/recovery"
+      },
+      {
+        "class": "NeuralSearchStrategy",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py",
+        "bases": [
+          "BaseSearchStrategy"
+        ],
+        "declared_methods": [
+          "__init__",
+          "warm_start",
+          "suggest",
+          "_suggest_from_surrogate",
+          "_fit_surrogate_candidate",
+          "update",
+          "get_state",
+          "set_state",
+          "_basis_payload",
+          "_encode_evaluation",
+          "_same_value",
+          "_backend_identity",
+          "_corpus_digest",
+          "_compatible",
+          "_read_warm",
+          "_training_corpus"
+        ],
+        "profile": "existing neural_warm_corpus.v1 / single_task_gp.cpu.refit_each_ask.v1",
+        "physical_path": "actual CAS original warm refs and fresh instance; native8warm rows/nextEI; admittedwarm basis/source/RNG/config refusal",
+        "current_check": "PASS_supported_declared_profile",
+        "current_receipt": "State142 NN24+neural5 actualMLL3"
+      },
+      {
+        "class": "RandomSearchStrategy",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/random.py",
+        "bases": [
+          "BaseSearchStrategy"
+        ],
+        "declared_methods": [
+          "suggest"
+        ],
+        "profile": "Base versioned PythonRandom and Sobol codec",
+        "physical_path": "new test_state_inventory Random CAS fresh store/8 next sequence + independent replica",
+        "current_check": "PASS_supported_declared_profile",
+        "current_receipt": "State142 Random/Sobol/CAS/nextsequence/independentreplica"
+      },
+      {
+        "class": "RLStrategyWrapper",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+        "bases": [],
+        "declared_methods": [
+          "__init__",
+          "suggest",
+          "suggest_batch",
+          "update",
+          "get_state",
+          "set_state",
+          "_schedule_basis",
+          "_explore_random"
+        ],
+        "profile": "existing rl_state_version1/linear_decay.v1 and nested original StrategyState",
+        "physical_path": "canonical existing RL8 random/Sobol artifact consumer + new CAS Random/Grid wrapper8 next and independent replicas",
+        "current_check": "PASS_supported_declared_profile",
+        "current_receipt": "State142 canonicalRL8 +actualRandom/GridnestedCAS"
+      }
+    ]
+  },
+  "complete_class_declarations": [
+    {
+      "class": "StrategyAdapter",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+      "bases": [],
+      "declared_methods": [
+        "__init__",
+        "generate",
+        "generate_batch",
+        "_checkpoint_configuration",
+        "_evaluation_digest",
+        "get_state",
+        "_admit_checkpoint",
+        "validate_checkpoint_history",
+        "set_state",
+        "_sync_history",
+        "_to_evaluation",
+        "_candidate_to_payload"
+      ]
+    },
+    {
+      "class": "AdvancedSearchPolicyConfig",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/advanced_policy.py",
+      "bases": [
+        "BaseModel"
+      ],
+      "declared_methods": [
+        "requested_policies",
+        "offline_gate_passed"
+      ]
+    },
+    {
+      "class": "AdvancedSearchPolicyReport",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/advanced_policy.py",
+      "bases": [
+        "BaseModel"
+      ],
+      "declared_methods": []
+    },
+    {
+      "class": "AdvancedSearchPolicyRolloutStatus",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/advanced_policy.py",
+      "bases": [
+        "StrEnum"
+      ],
+      "declared_methods": []
+    },
+    {
+      "class": "ConstraintSpec",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/advanced_policy.py",
+      "bases": [
+        "BaseModel"
+      ],
+      "declared_methods": [
+        "passed"
+      ]
+    },
+    {
+      "class": "ConstraintPropagationResult",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/advanced_policy.py",
+      "bases": [
+        "BaseModel"
+      ],
+      "declared_methods": []
+    },
+    {
+      "class": "ExplicitConstraintPropagator",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/advanced_policy.py",
+      "bases": [],
+      "declared_methods": [
+        "__init__",
+        "evaluate"
+      ]
+    },
+    {
+      "class": "ASHADecision",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/advanced_policy.py",
+      "bases": [
+        "BaseModel"
+      ],
+      "declared_methods": []
+    },
+    {
+      "class": "ASHAScheduler",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/advanced_policy.py",
+      "bases": [],
+      "declared_methods": [
+        "__init__",
+        "decide"
+      ]
+    },
+    {
+      "class": "BOHBSampler",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/advanced_policy.py",
+      "bases": [],
+      "declared_methods": [
+        "__init__",
+        "suggest_batch",
+        "_random_candidate"
+      ]
+    },
+    {
+      "class": "CMAESExplorer",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/advanced_policy.py",
+      "bases": [],
+      "declared_methods": [
+        "__init__",
+        "suggest_batch",
+        "update"
+      ]
+    },
+    {
+      "class": "GaussianProcessCheapStageSurrogate",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/advanced_policy.py",
+      "bases": [],
+      "declared_methods": [
+        "__init__",
+        "fitted",
+        "fit",
+        "predict",
+        "_rbf"
+      ]
+    },
+    {
+      "class": "VOITrainingExample",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/advanced_policy.py",
+      "bases": [
+        "BaseModel"
+      ],
+      "declared_methods": []
+    },
+    {
+      "class": "LearnedVOIPolicy",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/advanced_policy.py",
+      "bases": [],
+      "declared_methods": [
+        "__init__",
+        "fit",
+        "score"
+      ]
+    },
+    {
+      "class": "RoutingTrainingExample",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/advanced_policy.py",
+      "bases": [
+        "BaseModel"
+      ],
+      "declared_methods": []
+    },
+    {
+      "class": "LearnedRoutingPolicy",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/advanced_policy.py",
+      "bases": [],
+      "declared_methods": [
+        "__init__",
+        "fit",
+        "route"
+      ]
+    },
+    {
+      "class": "PopulationMember",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/advanced_policy.py",
+      "bases": [
+        "BaseModel"
+      ],
+      "declared_methods": []
+    },
+    {
+      "class": "PopulationBasedTrainingScheduler",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/advanced_policy.py",
+      "bases": [],
+      "declared_methods": [
+        "__init__",
+        "step"
+      ]
+    },
+    {
+      "class": "SearchStrategy",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+      "bases": [
+        "Protocol"
+      ],
+      "declared_methods": [
+        "suggest",
+        "suggest_batch",
+        "update",
+        "get_state",
+        "set_state"
+      ]
+    },
+    {
+      "class": "BaseSearchStrategy",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+      "bases": [
+        "ABC"
+      ],
+      "declared_methods": [
+        "__init__",
+        "suggest",
+        "suggest_batch",
+        "warm_start",
+        "update",
+        "get_state",
+        "set_state",
+        "_random_candidate",
+        "_sobol_candidate",
+        "_sobol_state",
+        "_validated_sobol_state"
+      ]
+    },
+    {
+      "class": "BayesianConfig",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "bases": [],
+      "declared_methods": [
+        "__post_init__"
+      ]
+    },
+    {
+      "class": "BayesianOptimizer",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "bases": [
+        "BaseSearchStrategy"
+      ],
+      "declared_methods": [
+        "__init__",
+        "backend_available",
+        "_validated_basis",
+        "warm_start",
+        "suggest",
+        "suggest_batch",
+        "get_state",
+        "set_state",
+        "_backend_identity",
+        "_corpus_digest",
+        "_checkpoint_tensors",
+        "_reconcile_fitted_evaluations",
+        "_encode_evaluation",
+        "_decode_evaluation",
+        "_select_training_subset",
+        "_effective_training_corpus",
+        "_has_compatible_params",
+        "_warm_compatibility",
+        "_origin_ref",
+        "_evaluation_identity",
+        "_prepare_training_data",
+        "_record_id",
+        "_fit_gp",
+        "_fit_full_gp",
+        "_model_train_x",
+        "_model_train_x_matches_fitted",
+        "_is_append_update",
+        "_select_acquisition",
+        "_optimize_acquisition",
+        "_next_acquisition_seed",
+        "_acquisition_initial_conditions",
+        "_completed_candidates",
+        "_effective_optim_params",
+        "_non_duplicate_random",
+        "_random_batch",
+        "_is_duplicate",
+        "_effective_execution",
+        "_same_replicate_scope",
+        "_tensor_to_candidate"
+      ]
+    },
+    {
+      "class": "ParameterCodec",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/codec.py",
+      "bases": [
+        "Protocol"
+      ],
+      "declared_methods": [
+        "encode",
+        "decode"
+      ]
+    },
+    {
+      "class": "ScalarParameterCodec",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/codec.py",
+      "bases": [],
+      "declared_methods": [
+        "encode",
+        "decode"
+      ]
+    },
+    {
+      "class": "EnsembleSurrogate",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/ensemble_surrogate.py",
+      "bases": [],
+      "declared_methods": [
+        "__init__",
+        "is_ready",
+        "fit",
+        "predict",
+        "_fit_gp",
+        "_gp_predict",
+        "_fit_rf",
+        "_rf_predict"
+      ]
+    },
+    {
+      "class": "StrategyError",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/errors.py",
+      "bases": [
+        "RuntimeError"
+      ],
+      "declared_methods": []
+    },
+    {
+      "class": "StrategyExhaustedError",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/errors.py",
+      "bases": [
+        "StrategyError"
+      ],
+      "declared_methods": []
+    },
+    {
+      "class": "OptionalDependencyUnavailableError",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/errors.py",
+      "bases": [
+        "StrategyError"
+      ],
+      "declared_methods": []
+    },
+    {
+      "class": "GridSearchStrategy",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/grid.py",
+      "bases": [
+        "BaseSearchStrategy"
+      ],
+      "declared_methods": [
+        "__init__",
+        "suggest",
+        "suggest_batch",
+        "get_state",
+        "set_state",
+        "_build_grid_params"
+      ]
+    },
+    {
+      "class": "FidelityLevel",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_fidelity.py",
+      "bases": [],
+      "declared_methods": []
+    },
+    {
+      "class": "FidelityScheduler",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_fidelity.py",
+      "bases": [
+        "Protocol"
+      ],
+      "declared_methods": [
+        "get_fidelity",
+        "register_evaluation"
+      ]
+    },
+    {
+      "class": "SuccessiveHalvingScheduler",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_fidelity.py",
+      "bases": [],
+      "declared_methods": [
+        "get_fidelity",
+        "register_evaluation"
+      ]
+    },
+    {
+      "class": "_InvalidReferencePointError",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+      "bases": [
+        "ValueError"
+      ],
+      "declared_methods": []
+    },
+    {
+      "class": "MOConfig",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+      "bases": [],
+      "declared_methods": []
+    },
+    {
+      "class": "MOBayesianOptimizer",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+      "bases": [
+        "BaseSearchStrategy"
+      ],
+      "declared_methods": [
+        "__init__",
+        "suggest",
+        "_suggest_admitted",
+        "suggest_batch",
+        "_suggest_batch_admitted",
+        "get_pareto_front",
+        "compute_hypervolume_assessed",
+        "compute_hypervolume",
+        "last_hypervolume_assessment",
+        "get_state",
+        "set_state",
+        "_state_profile",
+        "_backend_identity",
+        "_corpus_digest",
+        "_checkpoint_tensors",
+        "_assert_model_corpus",
+        "_owned_torch_random",
+        "_select_training_subset",
+        "_prepare_training_data",
+        "_objective_vector",
+        "last_objective_admission",
+        "_admit_objective_rows",
+        "_fit_model_list",
+        "_reference_configuration",
+        "_reference_point_values",
+        "_update_ref_point",
+        "_optimize_ehvi",
+        "_tensor_to_candidate"
+      ]
+    },
+    {
+      "class": "NeuralSearchConfig",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py",
+      "bases": [
+        "BaseModel"
+      ],
+      "declared_methods": []
+    },
+    {
+      "class": "NeuralSearchStrategy",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py",
+      "bases": [
+        "BaseSearchStrategy"
+      ],
+      "declared_methods": [
+        "__init__",
+        "warm_start",
+        "suggest",
+        "_suggest_from_surrogate",
+        "_fit_surrogate_candidate",
+        "update",
+        "get_state",
+        "set_state",
+        "_basis_payload",
+        "_encode_evaluation",
+        "_same_value",
+        "_backend_identity",
+        "_corpus_digest",
+        "_compatible",
+        "_read_warm",
+        "_training_corpus"
+      ]
+    },
+    {
+      "class": "Normalizer",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/normalization.py",
+      "bases": [],
+      "declared_methods": [
+        "fit_output_stats",
+        "normalize_outputs",
+        "denormalize_output",
+        "denormalize_std"
+      ]
+    },
+    {
+      "class": "RandomSearchStrategy",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/random.py",
+      "bases": [
+        "BaseSearchStrategy"
+      ],
+      "declared_methods": [
+        "suggest"
+      ]
+    },
+    {
+      "class": "ResourceMode",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/resource_arbiter.py",
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "declared_methods": []
+    },
+    {
+      "class": "ResourcePolicy",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/resource_arbiter.py",
+      "bases": [],
+      "declared_methods": []
+    },
+    {
+      "class": "ResourceArbiter",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/resource_arbiter.py",
+      "bases": [],
+      "declared_methods": [
+        "__init__",
+        "policy",
+        "acquire",
+        "current_owner",
+        "memory_status",
+        "enforce_limits",
+        "from_env"
+      ]
+    },
+    {
+      "class": "ExplorationSchedule",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+      "bases": [
+        "Protocol"
+      ],
+      "declared_methods": [
+        "__call__"
+      ]
+    },
+    {
+      "class": "LinearDecay",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+      "bases": [],
+      "declared_methods": [
+        "__post_init__",
+        "__call__"
+      ]
+    },
+    {
+      "class": "RLConfig",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+      "bases": [],
+      "declared_methods": [
+        "__post_init__"
+      ]
+    },
+    {
+      "class": "RLStrategyWrapper",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+      "bases": [],
+      "declared_methods": [
+        "__init__",
+        "suggest",
+        "suggest_batch",
+        "update",
+        "get_state",
+        "set_state",
+        "_schedule_basis",
+        "_explore_random"
+      ]
+    },
+    {
+      "class": "SearchSpace",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+      "bases": [],
+      "declared_methods": [
+        "__post_init__",
+        "dim",
+        "names",
+        "normalize",
+        "denormalize",
+        "candidate_from_vector",
+        "sobol_backend",
+        "sobol_space_fingerprint",
+        "same_execution",
+        "last_sobol_sampler_identity",
+        "last_sobol_sampler_version",
+        "validate_sobol_sampler",
+        "sample_sobol",
+        "_record_sobol_sampler",
+        "to_botorch_bounds"
+      ]
+    },
+    {
+      "class": "SurrogateModel",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/surrogate.py",
+      "bases": [
+        "Protocol"
+      ],
+      "declared_methods": [
+        "fit",
+        "predict",
+        "get_state",
+        "set_state"
+      ]
+    },
+    {
+      "class": "MeanVarianceSurrogate",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/surrogate.py",
+      "bases": [],
+      "declared_methods": [
+        "fit",
+        "predict",
+        "get_state",
+        "set_state"
+      ]
+    },
+    {
+      "class": "NumericTransferBasis",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "bases": [
+        "BaseModel"
+      ],
+      "declared_methods": [
+        "identity_digest"
+      ]
+    },
+    {
+      "class": "RunFingerprint",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "bases": [
+        "BaseModel"
+      ],
+      "declared_methods": []
+    },
+    {
+      "class": "TransferLearningManager",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "bases": [],
+      "declared_methods": [
+        "__init__",
+        "cache_info",
+        "register_run",
+        "_history_ref_from_metadata",
+        "find_similar_runs",
+        "_resolved",
+        "_resolved_artifact",
+        "_history",
+        "_load_run_evaluations",
+        "_number",
+        "_boolean",
+        "_serialize_evaluation",
+        "_deserialize_evaluation",
+        "_space",
+        "_physical",
+        "_original_benchmark",
+        "_physical_input_matches",
+        "target_basis",
+        "_check_fingerprint",
+        "_report",
+        "_admit",
+        "get_warm_start_evaluations",
+        "admit_warm_start"
+      ]
+    },
+    {
+      "class": "ParameterType",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "declared_methods": []
+    },
+    {
+      "class": "AcquisitionType",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "declared_methods": []
+    },
+    {
+      "class": "EvaluationStatus",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+      "bases": [
+        "str",
+        "Enum"
+      ],
+      "declared_methods": []
+    },
+    {
+      "class": "ParameterBounds",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+      "bases": [],
+      "declared_methods": [
+        "explicit",
+        "__post_init__"
+      ]
+    },
+    {
+      "class": "Evaluation",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+      "bases": [],
+      "declared_methods": [
+        "is_valid"
+      ]
+    },
+    {
+      "class": "PolicyCandidate",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+      "bases": [],
+      "declared_methods": [
+        "to_dict"
+      ]
+    },
+    {
+      "class": "StrategyState",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+      "bases": [],
+      "declared_methods": [
+        "to_artifact",
+        "from_artifact"
+      ]
+    }
+  ],
+  "complete_package_input_denominator": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/README.md",
+      "sha256": "3d7e2e9961b79be93587808b6c4185509daf50f2896f46a5204cc38ca6f09fd9",
+      "blob": "32988c7f2f4bde569de87cb7ffb271d613e4a1f8"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/__init__.py",
+      "sha256": "04e3208b1b59661d4b7afde8b16e3e2bc6a31f9c9e39af830cc38c80045f5d66",
+      "blob": "472fb3f05dad897b864ca688a94e7690f62a74d8"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/_deps.py",
+      "sha256": "47c4f5453f5615e631e8c1349dc1b78783567e63d53da5d58143853f7d50bce7",
+      "blob": "b9c703fcbf237fb50399f0d64d2930fa2c599a04"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/acquisition.py",
+      "sha256": "747b55f09346c15d2b5f51109b71f7832fe32c0fc937ad9f0b6baeffcd7aa524",
+      "blob": "1c7259bff642f9544c72d1a930a172b6145f1bbf"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+      "sha256": "ef1aa2cb95b2bed2438efe8da91ee9a78940e7a6e8b6e6aec7ae58f2359f4c3b",
+      "blob": "058de1cd9d6a28c6ff55e118823dab87d1059564"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/advanced_policy.py",
+      "sha256": "c8fd815369b02642bbfed3f3c919ab183df53dbc422d8284f011ff57489465d1",
+      "blob": "6c87a0c8aca64b5972c9ed13ad920e43af5332a6"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+      "sha256": "b14b9d504d8227f26c488a59227e33cdc8b0cbc192c37d780728e441e74d1f65",
+      "blob": "5014def2bf0e9d43a629d335bf1b806a112082a3"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "sha256": "26753a5ed92c04c5187c0e122ab106f91a2f57c5f05c0987cffce96b27e40066",
+      "blob": "73808387c874c11ef4b23e2e49f90911de97ad4e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/codec.py",
+      "sha256": "e77e76875414ce7ce621b9d33c1b54e1f45488a5adb37252b1cdd8984a698df7",
+      "blob": "5e31120e88b50f4a6900cf52d83689c81d403d27"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/ensemble_surrogate.py",
+      "sha256": "ff304385ae50b0f1b9df66e68ec95147e5d71e52e0dd2d1a208493f9227c1ba2",
+      "blob": "b89cf5277c322c02ce29cc45ef36cb7fffbcbc6d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/errors.py",
+      "sha256": "24a418c05a7e3fcee73dcee3623c966fd6c196ee9fe73694512b44ab7b857f10",
+      "blob": "fa018d0536ffa17f9685d47e120612efab34aee4"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/grid.py",
+      "sha256": "6c8e7a5507e0f6f2bb166fc739465d073c3ace660ac0f0c8e08bbf445cd7d56a",
+      "blob": "af2e277ffc2e47d1efb514ebdbdcf8a3c234f7aa"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_fidelity.py",
+      "sha256": "fc5fec7ee84b825a44fcffe1d5bf7cfddbfad4108582d5068dfe963d11d2b382",
+      "blob": "42af00a1634cf0d582b08e45586f1abe7ce1b3f0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+      "sha256": "e4699f9b1f892a3850406d0ef582bcf8072e19192d040783468d8c33b9c21f8a",
+      "blob": "385cef31cf0765561651c2015d180db252136370"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py",
+      "sha256": "a8f684712a1221227a98ea504bcf93adb12c3e68e5b6d7561ba6f3a1114ac954",
+      "blob": "55c4a6ebb24c771e4c6f35c251228e886c3ec6c4"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/normalization.py",
+      "sha256": "56d7a632ffa07f9d9ec56ec873f1d9b971c09e031ff60b15869201aa13911216",
+      "blob": "1d962108917da646ccd205866e958842762c42d8"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/objective_adapter.py",
+      "sha256": "48d4010aac8bdea1b8e9b599cc7fee6f724c4cb843bdb93a3a5d9aa3418a0706",
+      "blob": "b3558f6749d39e510fed42407e48242b435d3e14"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/random.py",
+      "sha256": "b55c2504169baa23b82c635b480946e34cb3cd60bc046a970efd99df77bd6942",
+      "blob": "2a4592ba268fac0a06757a3fd896bc67637247c9"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/resource_arbiter.py",
+      "sha256": "684e870d554072f15aef7fae25a39ea166bbab6d10cd1d874b5d268d4e62d91f",
+      "blob": "746683625e218c5b1cd644a56001c2d61f013ba8"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+      "sha256": "cc3fab8bc297c583e53fb006042b3376ee2777e2261d28d1ba5c917a86e269d7",
+      "blob": "0b1363c7401c9daf40bcbcb84fff61af446d585f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/run_similarity.py",
+      "sha256": "aa243c1063109e76dc7673f62e7ef1553b98d62e363fd3db8d1722be7ad4750f",
+      "blob": "917c301ed22f46954673853f292748e470ba6f59"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/runtime.py",
+      "sha256": "b48723be537cc65c2a2bb83aac8af0981fa0f6d8b782042f9bc9d2291c7ba799",
+      "blob": "ac05f1c9f593fe2362e02f6250dcc345dfea72d7"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+      "sha256": "d34f10e53935ef10265bb798b00b73173ebbb797e97e762f4d912c91bffad6ca",
+      "blob": "0819532200aa6cf4e78819554200fc29e6f4eb14"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/surrogate.py",
+      "sha256": "f27fa1abddf7d5952304e82ffdb18c6dbf8d4b4fc98c5c159f808163941b8d6d",
+      "blob": "6397943dcbcd167cbf614537b16d60e9252fbafe"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "sha256": "c47c106ff48a3636d9ceb1ad6f067ae5a63836640bc60439405fbdf421350c6a",
+      "blob": "078d61b349147d0542e6012c49fcf205d09c0c0f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+      "sha256": "d80a22c6282d2a172a0f51e6590e8b3ec786fc8e1ecb47db3bbe8583ab32197c",
+      "blob": "bd6817caac28d979beb0d2e343531adec775fae9"
+    }
+  ],
+  "classification_basis": {
+    "existing_package_readme": "policy-engine/src/polisyos/scientist/methods/search/strategies/README.md",
+    "existing_public_surface_contract": "policy-engine/architecture/public_surface/contract.toml",
+    "rule": "Unlisted child modules are internal; __all__ does not appoint public_stable. Protocol requires suggest/suggest_batch/update/get_state/set_state; five Base subclasses and RL wrapper satisfy that API.",
+    "helper_scope": "BOHB/CMA/ASHA/PBT/GPcheap/ensemble/surrogate/codec/scheduler classes do not expose the complete SearchStrategy checkpoint API. They remain declared offline toolkit/model/scheduler helpers, not newly reclassified unsupported strategies. MeanVarianceSurrogate owns a separate SurrogateModel dict state and has no actual BO caller."
+  },
+  "ordinary_bridge_residual": {
+    "status": "code_ready_current_scoped_runtime_verified",
+    "strategy_contract": "All6 existing completeSearchStrategy families have persisted supported-profile mechanisms and actual fresh-reader/next-sequence/corruption/replica controls. Grid/MO own ordinary serialization/corpus/profile/progress failures repaired and verified; not relabelled limited.",
+    "actual_consumer": "Existing StrategyAdapter delegates StrategyState for actual canonicalSearchSpace+ScalarParameterCodec/defaultobjectiveextractor. Math-owned finalconfiguredAdapter50/rawdecoder34 currentreceipts remain separately bound, not inferred from state142.",
+    "remaining_own_work": [
+      "Formal G integration acceptance and later integrationfreeze replay are G decisions."
+    ],
+    "shared_contract_refs": [
+      "Basefiniteadmission",
+      "StrategyStatecommonlosslesscheckpointJSONintake",
+      "Gridpartialbatch",
+      "MOcurrentCPUfittedstate"
+    ]
+  },
+  "planned_selectors": {
+    "final-gp-selectors": [
+      "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+      "tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+      "tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py",
+      "tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+      "tests/integration/scientist/methods/search/test_configured_transfer_controller.py",
+      "tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_warm_start_reaches_gp_training_before_initial_threshold",
+      "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_full_history_identity_reaches_actual_directional_training_and_json",
+      "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_mixed_history_formats_reach_public_generate_and_fresh_cas_next_proposal"
+    ],
+    "final-state-selectors": [
+      "tests/unit/scientist/search/strategies/test_neural_checkpoint.py",
+      "tests/unit/scientist/search/strategies/test_neural.py",
+      "tests/unit/scientist/search/strategies/test_space_codec.py",
+      "tests/unit/scientist/methods/search/strategies/test_strategy_state.py",
+      "tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py",
+      "tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py",
+      "tests/unit/scientist/methods/search/strategies/test_state_inventory.py"
+    ],
+    "final-mo-selectors": [
+      "tests/unit/scientist/methods/search/strategies/test_mo_checkpoint.py",
+      "tests/unit/scientist/methods/search/strategies/test_mo_objective_admission.py",
+      "tests/unit/scientist/methods/search/strategies/test_mo_reference_representability.py",
+      "tests/unit/scientist/search/strategies/test_multi_objective.py",
+      "tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py",
+      "tests/unit/scientist/methods/search/strategies/test_multiobjective_reference_independent_oracle.py",
+      "tests/unit/scientist/methods/autotune/test_pareto_subnormal_reindex_independent_oracle.py::test_mo_actual_derived_reference_rejects_finite_input_span_overflow_before_assignment",
+      "tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py::test_actual_multiobjective_fit_and_acquisition_then_typed_converter"
+    ],
+    "minimal-strategy-selectors": [
+      "tests/unit/scientist/methods/search/strategies/test_state_inventory.py",
+      "tests/unit/scientist/methods/search/strategies/test_mo_checkpoint.py"
+    ]
+  },
+  "formal_closed": false,
+  "accepted_in_G": false,
+  "check": {
+    "native": {
+      "GP43": "PASS",
+      "State142": "PASS",
+      "MO88": "PASS"
+    },
+    "minimal": {
+      "ordinary55": "PASS",
+      "numeric15": "SKIP / UNRUN"
+    },
+    "independent_review": {
+      "path": "/tmp/e02-D-math-oct07-drafts/GP-MO-State-currentc0-independent-runtime-review.json",
+      "sha256": "07ed014e3b0404cf0112df7f535fd89da9cc216785401e2b3b4bf27ed545441a"
+    }
+  },
+  "limitations": [
+    "Exact CPU/sequential runtime profiles only; no concurrent-threadTorch RNG, GPU, cross-version/custom-transform equality.",
+    "Missing optional numericalbackend is UNRUN, minimalordinarycompatibility checks do not establish nativeGP.",
+    "Internal/offline toolkit/helper classification follows existing declaredinterfaces andpublicinventory, no unsupportedrelabeling togreen.",
+    "No production evaluator/history/tenant/source authority claim.",
+    "Global module-budget82diagnostics retained separately; ownaddedMO824/test510/inventory249 belowdefaultwarning/noownrelatedfindings, no P41 inherited-red claim."
+  ],
+  "closure_proposal": "closed original B125 on supported declared profile; G decides formalclosure/integration"
+}

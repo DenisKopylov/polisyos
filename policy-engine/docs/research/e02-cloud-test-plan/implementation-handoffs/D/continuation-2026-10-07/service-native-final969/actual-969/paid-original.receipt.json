@@ -1,0 +1,95 @@
+{
+  "name": "paid-original",
+  "source_sha": "96905636726483fdea3a98d9313871d825b54a9e",
+  "source_tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "source_status_before": "",
+  "argv": [
+    "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "--noconftest",
+    "-p",
+    "no:cacheprovider",
+    "-s",
+    "-ra",
+    "--basetemp",
+    "/dev/shm/e02-D-oct07-service-start/final-native-969/paid-original-fixtures",
+    "--junitxml",
+    "/dev/shm/e02-D-oct07-service-start/final-native-969/paid-original.junit.xml",
+    "tests/integration/scientist/methods/search/test_controller.py"
+  ],
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "environment_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine:/dev/shm/e02-D-oct07-service-start",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+  },
+  "harness": {
+    "path": "/dev/shm/e02-D-oct07-service-start/run_final_dedup_native_wave.py",
+    "sha256": "eaeeca33fc97d55ba5937f3781b3a05e29990d6f17bbe8a82ace03506bacb4c6"
+  },
+  "backend": "Actual native SearchLoopRunner/NativeSearchService/qualified FileSystemCAS/ChampionRegistry; actual supported typed mutation/evaluator/data-context profiles and physical invocation counts. No scientific law, appointed production caller, external identity migration or distributed atomicity inferred. Actual Torch/SALib only in native DOE cohort; provider fixtures are not invoice truth.",
+  "no_artificial_quotas": true,
+  "started_at": "2026-10-07T10:40:36.848760+00:00",
+  "complete_frozen_input_manifest": {
+    "path": "frozen-inputs.json.gz",
+    "bytes": 918281,
+    "sha256": "9547da0175ec32a6502c98e95c298cc99f99536f43bc228fdc843448670e764d",
+    "entries": 15927
+  },
+  "runtime": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "packages": {
+      "pytest": "9.0.2",
+      "pydantic": "2.12.5",
+      "numpy": "2.3.5",
+      "scipy": "1.16.3"
+    }
+  },
+  "returncode": 0,
+  "elapsed_seconds": 6.664492327981861,
+  "completed_at": "2026-10-07T10:40:43.601114+00:00",
+  "source_sha_after": "96905636726483fdea3a98d9313871d825b54a9e",
+  "source_status_after": "",
+  "same_inputs": true,
+  "changed_inputs": [],
+  "case_phases": {
+    "PASS": 2,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "cases": [
+    {
+      "name": "test_native_paid_sentinel_stops_on_cost_without_training_or_new_evaluation_count",
+      "classname": "tests.integration.scientist.methods.search.test_controller",
+      "status": "PASS"
+    },
+    {
+      "name": "test_two_paid_runs_on_same_controller_match_fresh_controllers_with_scoped_sentinels",
+      "classname": "tests.integration.scientist.methods.search.test_controller",
+      "status": "PASS"
+    }
+  ],
+  "outputs": {
+    "stdout.txt": {
+      "available": true,
+      "bytes": 5449,
+      "sha256": "8915700fe3adc1264652f38024f642d42a0322ebd6d06fd93efbc1187844e217"
+    },
+    "stderr.txt": {
+      "available": true,
+      "bytes": 1114,
+      "sha256": "393d8a55a544c3813f4714e4eae572c4d0ead7df4ee24883fe7398c57017f984"
+    },
+    "junit.xml": {
+      "available": true,
+      "bytes": 619,
+      "sha256": "e0af50f026ab00686a3df4e8421ff7c796da784328070bce2632e764c3af54b9"
+    }
+  }
+}

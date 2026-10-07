@@ -1,0 +1,33 @@
+{
+  "schema_version": "e02-D.independent-source-review.v1",
+  "reviewer": "census_oct07",
+  "author": "funnel_oct07",
+  "source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+  "tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2",
+  "patch": "/dev/shm/e02-D-funnel-oct07/durable-cache-boundary-v1/three-path-durable-cache-boundary-v1.patch",
+  "patch_sha256": "65dd4ec1da68dece76a620e828735d1e5b33b8063d6658180dd7606324c97f79",
+  "verdict": "GO_TARGETED_RUNTIME",
+  "production_author_review": false,
+  "finding_formal_closure": false,
+  "G_accepted": false,
+  "review_basis": [
+    "Fully read all three production deltas and actual canonical cache issuer/receiver HMAC admission, functional normalizer, memory and durable settlement paths, exception/reservation handling, and funnel receipt readback.",
+    "Original canonical B unmanaged/memory and manual operational receiver-context profiles remain unchanged. Generic cache_hit means actual receiver-owned operational reuse; it does not assert a durable ledger debit.",
+    "The exact original strict paid-origin predicate moves unchanged into one existing internal function: producer typed event, request/content/model/provider binding, committed ledger ACK, exact every receipt fresh owner resolution, reported/estimated origin consistency.",
+    "Durable enforcer invokes this predicate before recording settlement/issuing zero ACK/completing intent/releasing reservation. On refusal outer existing failure handling retains pending evidence; actual refusal path must be checked rather than inferred.",
+    "Funnel first delivery invokes the same predicate inside actual receiver context; repeated exact event still independently resolves all paid-origin receipts and enforces event/payload identity.",
+    "Provider physical accounting remains independent of functional cache markers via _extract_physical_provider_response_data; authentic capability borrowing cannot evade new physical-provider debit.",
+    "No canonical B event/ACK schema, new ledger, issuer authority, memory receipt fiction, policy profile substitution or default-factory claim introduced."
+  ],
+  "required_deciding_runtime": [
+    "Replay unchanged four canonical B functional/capability test assertions on their original unmanaged/durable profiles; retain old failures.",
+    "Replay current durable configured paid-cache positive, missing/tampered paid receipt/content/context negatives, exact fresh ledger debit and zero new reuse charge, physical borrowed-capability controls.",
+    "Removal retains actual operational HMAC capability and trace cache/zero labels but removes financial paid-origin predicate at durable ACK boundary; protected consumer must fail before zero ACK/release/effect.",
+    "Observe actual pending/reservation/fresh reader when guard refuses; no synthetic invoice/financial authority claim."
+  ],
+  "limitations": [
+    "Generic functional normalizer alone supplies no durable accounting evidence; memory profile retains existing memory semantics and no durable claim.",
+    "Positive/current runtime still UNRUN for this delta until root commits immutable candidate; old c0 owner287PASS5FAIL remains retained.",
+    "Scientific invoice truth, policy/permission authority, cross-process capability serialization and G acceptance not established."
+  ]
+}

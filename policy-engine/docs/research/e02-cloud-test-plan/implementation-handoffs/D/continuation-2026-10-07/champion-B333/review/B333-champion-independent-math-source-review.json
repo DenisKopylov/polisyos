@@ -1,0 +1,45 @@
+{
+  "schema_version": "D.e02.independent-bounded-profile-source-review.v1",
+  "reviewer": "/root/math_oct07",
+  "author": "/root/transfer_oct07",
+  "profile": "B333-seven-module-sync-to-existing-D-ChampionRegistry",
+  "source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+  "tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2",
+  "B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+  "fixture_bindings": [
+    {
+      "path": "/dev/shm/e02-D-champion-B333-profile-asng67hd/champion_receipts.py",
+      "sha256": "da08685f5563774a3307db3b76926822285ddfdc24284102156ee0885459e28f",
+      "bytes": 4516
+    },
+    {
+      "path": "/dev/shm/e02-D-champion-B333-profile-asng67hd/run_profile.py",
+      "sha256": "8a50ae7051cf18890abc7686e0ed7766a1450931be15d3f5e4e1fea46b6b9e3f",
+      "bytes": 6897
+    },
+    {
+      "path": "/dev/shm/e02-D-champion-B333-profile-asng67hd/test_combined_champion.py",
+      "sha256": "b450fcae43548ad09129ac4aace1fcfca88e0fd9c8e22240dd7790a6e44f8997",
+      "bytes": 7156
+    }
+  ],
+  "review_result": "GO bounded static controlled arithmetic/content/ref and local owner-lock/removal profile; runtime UNRUN",
+  "verified": [
+    "Fresh second process reads actual incumbent candidate/evaluation/suite/dataset/split/predecessor refs through selected qualified B CAS and independently hashes real data/manifest bytes.",
+    "Controlled arithmetic oracle computes candidate value times selected holdout row weights directly from actual dataset/split bytes; production benchmark_comparison_basis recomputation is only contract consistency, not independent score law.",
+    "Same exact evaluation ref with appended newline changes actual content hash and must refuse before pointer effect; valid same-basis score1 then score2 control and fresh reader retained.",
+    "Positive uses actual existing ChampionRegistry promotion lock; child removal changes only owned guard, retains real CAS/basis/pointer. Parent held-lock pointer remains byte-identical; after release actual successor/fresh pointer observed.",
+    "No second registry/latest pointer or expected_predecessor API introduced; existing stale predecessor owner test remains separate selected consumer.",
+    "Bounded seven-module canonical B source combination exact-loader review is separately pinned; no claim default whole-B adoption."
+  ],
+  "conditions": [
+    "Actual positive and lock-removal must both execute with intended pointer/lock assertions; negative scheduling/timeout alone is not a PASS evidence substitute.",
+    "Child readiness precedes consider_promotion, not an instrumented flock syscall. Runtime evidence must retain actual intended removal failure; shared 0.5s is a bounded lock scheduling guard, not proof of distributed/power-loss behavior.",
+    "Capture actual B origins in every relevant process and source/head/status before/after; full default integration replay remains G."
+  ],
+  "limitations": [
+    "Controlled evaluator arithmetic does not appoint benchmark quality/evaluator/data/split rights.",
+    "This profile is a separate combined dependency witness, not original OPT04 formal closure or accepted G/default integration candidate.",
+    "No executions or source writes performed for this review."
+  ]
+}

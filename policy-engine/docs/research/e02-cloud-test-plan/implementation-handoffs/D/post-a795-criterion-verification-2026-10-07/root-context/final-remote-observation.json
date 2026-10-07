@@ -1,0 +1,30 @@
+{
+  "utc": "2026-10-07T18:32:44.369961+00:00",
+  "pins": {
+    "origin/main": {
+      "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+    },
+    "origin/codex/e02-integration": {
+      "sha": "9806442ddb47d624a2940bac75d9d6248e934c48",
+      "tree": "4a1caafc331990e0ebf0130a9051c08ae1ffcbd4"
+    },
+    "origin/codex/e02-D-oct07-continuation": {
+      "sha": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "tree": "3e05fcf727bf660a5570225b9600ca410a7082be"
+    },
+    "HEAD": {
+      "sha": "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+      "tree": "788863c0431841308aef451fcd94df2ba74d1dc6"
+    }
+  },
+  "matching_branch": "codex/e02-D-oct07-continuation",
+  "checkout": "/dev/shm/e02-D-oct07-continuation",
+  "merged_G_source": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+  "earlier_fresh_G_source": "9806442ddb47d624a2940bac75d9d6248e934c48",
+  "fresh_G_product_delta_from_earlier": [],
+  "fresh_G_full_delta_from_earlier": [],
+  "D_candidate_ancestor_of_fresh_G": false,
+  "merged_G_dependency_ancestor_of_fresh_G": true,
+  "status": "## codex/e02-D-oct07-continuation\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/"
+}

@@ -1,0 +1,1900 @@
+{
+  "control": {
+    "plugin": "remove_run_scope",
+    "selector": "tests/unit/scientist/methods/search/test_service_trial_deduplication.py::test_shared_helper_membership_is_isolated_by_actual_run_with_barrier",
+    "removed_property": "run ID only from the actual scope after original canonical admission and real qualified member reads",
+    "preserved": "actual matching configuration/source/helper/ACK/custody/semantic hashes/status/finite/history/pending; two actual services/shared helper/real barrier/evaluator calls/freshCAS",
+    "expected_result": "one physical assertion FAIL after actual repeated Jan evaluation/persistence caused by cross-run reset, no setup or barrier timeout acceptance"
+  },
+  "source_sha": "96905636726483fdea3a98d9313871d825b54a9e",
+  "source_tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "command": [
+    "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-o",
+    "junit_family=xunit1",
+    "--noconftest",
+    "-p",
+    "no:cacheprovider",
+    "-p",
+    "remove_run_scope",
+    "-s",
+    "-ra",
+    "--basetemp",
+    "/dev/shm/e02-D-B124-removal-four-exxj42mi/remove_run_scope-fixtures",
+    "--junitxml",
+    "/dev/shm/e02-D-B124-removal-four-exxj42mi/remove_run_scope.junit.xml",
+    "tests/unit/scientist/methods/search/test_service_trial_deduplication.py::test_shared_helper_membership_is_isolated_by_actual_run_with_barrier"
+  ],
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "runtime": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "polisyos_origin": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/__init__.py",
+    "packages": {
+      "pytest": "9.0.2",
+      "pydantic": "2.12.5",
+      "numpy": "2.3.5",
+      "cryptography": "46.0.4"
+    }
+  },
+  "environment_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine:/dev/shm/e02-D-B124-removal-plugins",
+    "UV_CACHE_DIR": "/dev/shm/e02-D-B124-removal-four-exxj42mi/uv-cache",
+    "POLISYOS_TOOLS_TIMING_LOG": "/dev/shm/e02-D-B124-removal-four-exxj42mi/timing.jsonl"
+  },
+  "no_artificial_resource_limits": true,
+  "numerical_backend_requirement": "not_applicable; actual native evaluator/CAS/service",
+  "inputs_before": {
+    "src/polisyos/scientist/methods/autotune/dedup.py": {
+      "bytes": 3073,
+      "sha256": "7c05548d3539ed98b20da6c11fe033af789e0b75672164654b97c68a28f0f5dc"
+    },
+    "src/polisyos/scientist/methods/autotune/runtime.py": {
+      "bytes": 23729,
+      "sha256": "4bcddcf8b7ef4696fe26a3daa3394053672eb8a43007e0bf0b993c5bf87e17eb"
+    },
+    "src/polisyos/scientist/methods/autotune/models.py": {
+      "bytes": 29441,
+      "sha256": "75205f0519b23a9df94affa45de27d137ae4deee969663c388190873269db8c5"
+    },
+    "src/polisyos/scientist/methods/autotune/registry.py": {
+      "bytes": 27732,
+      "sha256": "1339af524b604462021425b9d88f5cbe278f1a8c927827cb3e26fa4f8f0cc6ba"
+    },
+    "src/polisyos/scientist/methods/search/frontier.py": {
+      "bytes": 8212,
+      "sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b"
+    },
+    "src/polisyos/scientist/methods/search/controller.py": {
+      "bytes": 57668,
+      "sha256": "9bbbd5b23c9ef43d18370f3bd0e25243eb56cdcd844a2d5f83744c30d4bbcc53"
+    },
+    "src/polisyos/scientist/methods/search/service.py": {
+      "bytes": 58588,
+      "sha256": "b73158016ef2a6e9324159b7de3d34206ef5a866bcdc1a675adb9281c815e127"
+    },
+    "src/polisyos/scientist/methods/search/contracts.py": {
+      "bytes": 14342,
+      "sha256": "e7a5b21bafddab30277ebe0e8eb54a31c3f7b3bfc207b8d97e14cbdbc31d78d5"
+    },
+    "src/polisyos/scientist/methods/search/run_state.py": {
+      "bytes": 19613,
+      "sha256": "411e2b5a922bf57af4f51735b44f7e491f98e75e3a83940b8fb3eb76e7fa3cb8"
+    },
+    "src/polisyos/scientist/methods/search/pareto_registry.py": {
+      "bytes": 37218,
+      "sha256": "aee369ab873131ac950104d3cf8b832c2ecf1d8109033f1631dc20877478bacd"
+    },
+    "src/polisyos/scientist/methods/search/objective.py": {
+      "bytes": 10078,
+      "sha256": "940c84a3425e8ed1e93de2eae881100fd88a49dd978a108e5d78e5f2fa5fe17c"
+    },
+    "src/polisyos/core/artifacts/store.py": {
+      "bytes": 185595,
+      "sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165"
+    },
+    "src/polisyos/core/artifacts/manifest.py": {
+      "bytes": 12758,
+      "sha256": "fb1fb68e18b80ba83ee2aa6b94a011386ede96bc75c492123bb4de3bec45639d"
+    },
+    "src/polisyos/core/artifacts/manifest_profile.py": {
+      "bytes": 756,
+      "sha256": "aa7ee9af617c1adc338a21a5b0186d41a690e6b86f2a0810ae9b5a7ee4ff7ce5"
+    },
+    "src/polisyos/core/artifacts/_integrity_ops.py": {
+      "bytes": 10425,
+      "sha256": "15ac3abb420f16c24cb222822dbecc324d41d5251f1acce36a04c34dc0ddeb4b"
+    },
+    "src/polisyos/core/artifacts/_atomic_write.py": {
+      "bytes": 4074,
+      "sha256": "afa41fe64aa388d65ec89db504d2f651447c5a92b5a8cea0384a6793c924ebcf"
+    },
+    "src/polisyos/core/canon/canon_json.py": {
+      "bytes": 1882,
+      "sha256": "c5e60f4d47bc4fc5347809545609716c0ce030dfc6c3e3deee61d8ad5a086c95"
+    },
+    "src/polisyos/common/serialization.py": {
+      "bytes": 14186,
+      "sha256": "485303bf79f150fa9df259d7354d3104a4bdb94d9114cddb6e17dcc424316f0d"
+    },
+    "tests/unit/scientist/methods/search/test_service_trial_deduplication.py": {
+      "bytes": 43697,
+      "sha256": "608942a8f9195491c846225050d030b47a6733d1d8602f31960afd852421a6b5"
+    },
+    "tests/unit/scientist/methods/search/test_semantic_dates_persisted_consumers.py": {
+      "bytes": 6236,
+      "sha256": "435a9bf8ab41bf2c31b22b69929f3e8864bced9e84f85397f3e96311a047a1aa"
+    }
+  },
+  "plugins": {
+    "remove_run_scope.py": {
+      "bytes": 1772,
+      "sha256": "3714f3d51f3c6314a5dfc7e16c0a92df203a043fd290134943eef3e01e09e13a"
+    },
+    "removal_observation.py": {
+      "bytes": 2818,
+      "sha256": "8c34b5ab2ca4e24371962e3629771f0af125ee2390f8c46ea969946483c02c59"
+    }
+  },
+  "started_utc": "2026-10-07T10:41:33.634965+00:00",
+  "returncode": 1,
+  "elapsed_seconds": 9.235337594000157,
+  "completed_utc": "2026-10-07T10:41:42.870427+00:00",
+  "case_phases": {
+    "PASS": 0,
+    "FAIL": 1,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "persisted_observations": [
+    {
+      "checkpoint_ref": {
+        "artifact_id": "sha256:a6818f344cc089e5611171e4c3b633783f0b6ebe5d30a646f0ef61f905765818",
+        "kind": "scientist.search.service_checkpoint",
+        "manifest_profile_sha256": "sha256:d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a",
+        "media_type": "application/json"
+      },
+      "checkpoint_sha256": "a6818f344cc089e5611171e4c3b633783f0b6ebe5d30a646f0ef61f905765818",
+      "fresh_canonical_checkpoint": {
+        "ask_iteration": 1,
+        "completed_candidate_ids": [
+          "candidate_0_0"
+        ],
+        "configuration": {
+          "basis": {
+            "analysis_configuration": null,
+            "evaluator_profile": {
+              "name": "test_service_trial_deduplication._Evaluator",
+              "version": "608942a8f9195491c846225050d030b47a6733d1d8602f31960afd852421a6b5"
+            },
+            "loop_id": "dedup",
+            "promotion_policy": {
+              "compare_split": "holdout",
+              "direction": "maximize",
+              "loop_id": "dedup",
+              "min_improvement": {
+                "_type": "float",
+                "repr": "0"
+              },
+              "min_sample_count": 0,
+              "primary_metric": "score",
+              "required_guardrails": [],
+              "unit": "points"
+            },
+            "suite_ref": {
+              "artifact_id": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7",
+              "kind": "scientist.autotune.generic.suite",
+              "manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47",
+              "media_type": "application/json"
+            }
+          },
+          "batch_size": 1,
+          "budget_cost_key": "cumulative_cost_usd",
+          "budget_key": "run",
+          "budget_owner_identity": null,
+          "diversity_enabled": false,
+          "generator": "polisyos.scientist.methods.autotune.runtime.SequenceCandidateGenerator",
+          "hard_limit": 100,
+          "initial_evaluations": [],
+          "max_empty_generation_attempts": 3,
+          "objectives": [
+            {
+              "direction": "minimize",
+              "name": "score",
+              "parameters": {
+                "_policy": {
+                  "compare_split": "holdout",
+                  "direction": "maximize",
+                  "loop_id": "dedup",
+                  "min_improvement": {
+                    "_type": "float",
+                    "repr": "0"
+                  },
+                  "min_sample_count": 0,
+                  "primary_metric": "score",
+                  "required_guardrails": [],
+                  "unit": "points"
+                },
+                "_threshold": null,
+                "_weight": {
+                  "_type": "float",
+                  "repr": "1"
+                }
+              },
+              "type": "polisyos.scientist.methods.autotune.runtime._AutotuneObjective"
+            }
+          ],
+          "pareto_registry_supported": true,
+          "policy_objective_stack": null,
+          "replay_profile": {
+            "data_inputs": [],
+            "evaluation_context": {},
+            "evaluator_configuration": {
+              "configuration": {
+                "include_metric": true,
+                "profile": "b124-controlled-physical-call.v1",
+                "promotable": true,
+                "scale": 1,
+                "status": "ok"
+              },
+              "implementation_sha256": "608942a8f9195491c846225050d030b47a6733d1d8602f31960afd852421a6b5",
+              "type": "test_service_trial_deduplication._Evaluator"
+            },
+            "factory_build": "4bcddcf8b7ef4696fe26a3daa3394053672eb8a43007e0bf0b993c5bf87e17eb",
+            "mutation_model_build": "608942a8f9195491c846225050d030b47a6733d1d8602f31960afd852421a6b5",
+            "mutation_model_type": "test_service_trial_deduplication._DatedMutation",
+            "mutation_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "artifact_version": {
+                  "default": "1.0",
+                  "pattern": "^\\d+\\.\\d+$",
+                  "title": "Artifact Version",
+                  "type": "string"
+                },
+                "created_at": {
+                  "default": "2026-04-01",
+                  "title": "Created At",
+                  "type": "string"
+                },
+                "loop_id": {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "title": "Loop Id",
+                  "type": "string"
+                },
+                "metadata": {
+                  "additionalProperties": true,
+                  "title": "Metadata",
+                  "type": "object"
+                },
+                "notes": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "title": "Notes",
+                  "type": "array"
+                },
+                "replicate_id": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Replicate Id"
+                },
+                "search_space_version": {
+                  "default": "1.0",
+                  "pattern": "^\\d+\\.\\d+$",
+                  "title": "Search Space Version",
+                  "type": "string"
+                },
+                "seed": {
+                  "anyOf": [
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Seed"
+                },
+                "semantic": {
+                  "additionalProperties": true,
+                  "title": "Semantic",
+                  "type": "object"
+                },
+                "value": {
+                  "title": "Value",
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "loop_id",
+                "value",
+                "semantic"
+              ],
+              "title": "_DatedMutation",
+              "type": "object"
+            },
+            "policy": {
+              "compare_split": "holdout",
+              "direction": "maximize",
+              "loop_id": "dedup",
+              "min_improvement": {
+                "_type": "float",
+                "repr": "0"
+              },
+              "min_sample_count": 0,
+              "primary_metric": "score",
+              "required_guardrails": [],
+              "unit": "points"
+            },
+            "suite_configuration": {
+              "data_basis": "candidate_only",
+              "dataset_path": null,
+              "dataset_ref": null,
+              "kind": "generic",
+              "metadata": {},
+              "split_manifest_path": null,
+              "split_manifest_ref": null,
+              "suite_id": "dedup",
+              "suite_version": "1.0"
+            },
+            "suite_content_sha256": "648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7",
+            "suite_manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47",
+            "suite_ref": {
+              "artifact_id": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7",
+              "kind": "scientist.autotune.generic.suite",
+              "manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47",
+              "media_type": "application/json"
+            },
+            "version": "native-autotune-replay.v2"
+          },
+          "resource_arbiter_supported": true,
+          "stage_a_enabled": false,
+          "stopping": {
+            "children": [],
+            "configuration": {
+              "_max_iter": 4
+            },
+            "criterion": "MaxIterations",
+            "started_at": null,
+            "version": "search-stopping.v1"
+          },
+          "transfer_fingerprint": null,
+          "trial_deduplication": {
+            "admission_sha256": "b73158016ef2a6e9324159b7de3d34206ef5a866bcdc1a675adb9281c815e127",
+            "candidate_identity_sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b",
+            "deduplication_sha256": "7c05548d3539ed98b20da6c11fe033af789e0b75672164654b97c68a28f0f5dc",
+            "version": "native_completed_pending.v1"
+          }
+        },
+        "failure": null,
+        "generator_state": {
+          "candidates": [
+            {
+              "artifact_version": "1.0",
+              "created_at": "2026-04-01",
+              "loop_id": "dedup",
+              "metadata": {
+                "loaded_at": "2026-04-01",
+                "trace_id": "trace-first"
+              },
+              "notes": [
+                "first observation"
+              ],
+              "replicate_id": null,
+              "search_space_version": "1.0",
+              "seed": null,
+              "semantic": {
+                "metadata": {
+                  "effective_date": "2026-01-15",
+                  "starts_at": "2026-01-01"
+                }
+              },
+              "value": 1
+            },
+            {
+              "artifact_version": "1.0",
+              "created_at": "2026-05-01",
+              "loop_id": "dedup",
+              "metadata": {
+                "loaded_at": "2026-05-01",
+                "trace_id": "trace-second"
+              },
+              "notes": [
+                "different display note"
+              ],
+              "replicate_id": null,
+              "search_space_version": "1.0",
+              "seed": null,
+              "semantic": {
+                "metadata": {
+                  "effective_date": "2026-01-15",
+                  "starts_at": "2026-01-01"
+                }
+              },
+              "value": 1
+            },
+            {
+              "artifact_version": "1.0",
+              "created_at": "2026-04-01",
+              "loop_id": "dedup",
+              "metadata": {
+                "loaded_at": "2026-04-01",
+                "trace_id": "trace-first"
+              },
+              "notes": [
+                "first observation"
+              ],
+              "replicate_id": null,
+              "search_space_version": "1.0",
+              "seed": null,
+              "semantic": {
+                "metadata": {
+                  "effective_date": "2026-01-15",
+                  "starts_at": "2026-02-01"
+                }
+              },
+              "value": 2
+            },
+            {
+              "artifact_version": "1.0",
+              "created_at": "2026-04-01",
+              "loop_id": "dedup",
+              "metadata": {
+                "loaded_at": "2026-04-01",
+                "trace_id": "trace-first"
+              },
+              "notes": [
+                "first observation"
+              ],
+              "replicate_id": "owner-declared-replica-one",
+              "search_space_version": "1.0",
+              "seed": null,
+              "semantic": {
+                "metadata": {
+                  "effective_date": "2026-01-15",
+                  "starts_at": "2026-02-01"
+                }
+              },
+              "value": 2
+            },
+            {
+              "artifact_version": "1.0",
+              "created_at": "2026-04-01",
+              "loop_id": "dedup",
+              "metadata": {
+                "loaded_at": "2026-04-01",
+                "trace_id": "trace-first"
+              },
+              "notes": [
+                "first observation"
+              ],
+              "replicate_id": "owner-declared-replica-two",
+              "search_space_version": "1.0",
+              "seed": null,
+              "semantic": {
+                "metadata": {
+                  "effective_date": "2026-01-15",
+                  "starts_at": "2026-02-01"
+                }
+              },
+              "value": 2
+            }
+          ],
+          "index": 1,
+          "version": "sequence-generator.v1"
+        },
+        "initial_candidate": null,
+        "initial_candidate_ids": [],
+        "pending_candidate_ids": [],
+        "pending_candidates": {},
+        "run_state": {
+          "best_candidate": {
+            "artifact_version": "1.0",
+            "created_at": "2026-04-01",
+            "loop_id": "dedup",
+            "metadata": {
+              "loaded_at": "2026-04-01",
+              "trace_id": "trace-first"
+            },
+            "notes": [
+              "first observation"
+            ],
+            "replicate_id": null,
+            "search_space_version": "1.0",
+            "seed": null,
+            "semantic": {
+              "metadata": {
+                "effective_date": "2026-01-15",
+                "starts_at": "2026-01-01"
+              }
+            },
+            "value": 1
+          },
+          "best_objective": {
+            "_type": "float",
+            "repr": "-1"
+          },
+          "budget_available": false,
+          "budget_evidence": {
+            "provider_cost_origin_available": false,
+            "receipt_revision_available": false,
+            "recorded_by_provider": null,
+            "source": "unavailable",
+            "unavailable_reason": "budget_not_requested"
+          },
+          "budget_ledger_id": null,
+          "budget_ledger_revision": null,
+          "budget_snapshot": {},
+          "budget_snapshot_source": "unavailable",
+          "budget_spent": null,
+          "empty_generation_attempts": 0,
+          "evaluation_iterations": 1,
+          "generation_attempts": 0,
+          "generation_transition": null,
+          "history": [
+            {
+              "candidate": {
+                "artifact_version": "1.0",
+                "created_at": "2026-04-01",
+                "loop_id": "dedup",
+                "metadata": {
+                  "loaded_at": "2026-04-01",
+                  "trace_id": "trace-first"
+                },
+                "notes": [
+                  "first observation"
+                ],
+                "replicate_id": null,
+                "search_space_version": "1.0",
+                "seed": null,
+                "semantic": {
+                  "metadata": {
+                    "effective_date": "2026-01-15",
+                    "starts_at": "2026-01-01"
+                  }
+                },
+                "value": 1
+              },
+              "duration_seconds": {
+                "_type": "float",
+                "repr": "0.018918999999999998"
+              },
+              "is_promising": true,
+              "iteration": 0,
+              "objective_details": [
+                {
+                  "direction": "minimize",
+                  "is_satisfied": true,
+                  "name": "score",
+                  "raw_value": {
+                    "_type": "float",
+                    "repr": "-1"
+                  },
+                  "threshold": null,
+                  "weight": {
+                    "_type": "float",
+                    "repr": "1"
+                  }
+                }
+              ],
+              "objective_value": {
+                "_type": "float",
+                "repr": "-1"
+              },
+              "policy_evaluation": null,
+              "policy_evaluation_error": null,
+              "policy_evaluation_status": "missing",
+              "stage_a_passed": true,
+              "stage_b_result": {
+                "feedback": {
+                  "guardrails": {},
+                  "promotion_decision": {
+                    "champion": {
+                      "candidate_ref": {
+                        "artifact_id": "sha256:00596c0d572d20bcfac51bdc1a96439e9f32dc4e7c7512767093a8e899b53b1e",
+                        "kind": "scientist.autotune.dedup.candidate",
+                        "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e",
+                        "media_type": "application/json"
+                      },
+                      "evaluation_ref": {
+                        "artifact_id": "sha256:33be39dd3da9a849f879cd2bf532c36de145d17d8a84c50a4d2092ed8d4e2086",
+                        "kind": "scientist.autotune.dedup.evaluation",
+                        "manifest_profile_sha256": "sha256:9751b526eb9778ccf3c644fb7224027c584c89d4a4d8307ef8c259ab16ede49e",
+                        "media_type": "application/json"
+                      },
+                      "loop_id": "dedup",
+                      "metadata": {
+                        "compare_split": "holdout",
+                        "promoted_by_policy": {
+                          "compare_split": "holdout",
+                          "direction": "maximize",
+                          "loop_id": "dedup",
+                          "min_improvement": {
+                            "_type": "float",
+                            "repr": "0"
+                          },
+                          "min_sample_count": 0,
+                          "primary_metric": "score",
+                          "required_guardrails": [],
+                          "unit": "points"
+                        },
+                        "suite_id": "dedup",
+                        "suite_ref": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7"
+                      },
+                      "metrics": {
+                        "score": {
+                          "_type": "float",
+                          "repr": "1"
+                        }
+                      },
+                      "promoted_at": "2026-10-07T10:41:40.005933Z",
+                      "search_space_version": "1.0",
+                      "suite_version": "1.0"
+                    },
+                    "loop_id": "dedup",
+                    "previous_champion": null,
+                    "promoted": true,
+                    "reason": "promoted"
+                  },
+                  "status": "ok",
+                  "verdict": "APPROVE"
+                },
+                "simulation_results": {
+                  "candidate_artifact_ref": {
+                    "artifact_id": "sha256:00596c0d572d20bcfac51bdc1a96439e9f32dc4e7c7512767093a8e899b53b1e",
+                    "kind": "scientist.autotune.dedup.candidate",
+                    "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e",
+                    "media_type": "application/json"
+                  },
+                  "candidate_ref": "sha256:00596c0d572d20bcfac51bdc1a96439e9f32dc4e7c7512767093a8e899b53b1e",
+                  "evaluation_artifact_ref": {
+                    "artifact_id": "sha256:33be39dd3da9a849f879cd2bf532c36de145d17d8a84c50a4d2092ed8d4e2086",
+                    "kind": "scientist.autotune.dedup.evaluation",
+                    "manifest_profile_sha256": "sha256:9751b526eb9778ccf3c644fb7224027c584c89d4a4d8307ef8c259ab16ede49e",
+                    "media_type": "application/json"
+                  },
+                  "evaluation_ref": "sha256:33be39dd3da9a849f879cd2bf532c36de145d17d8a84c50a4d2092ed8d4e2086",
+                  "primary_metric_assessment": {
+                    "direction": "maximize",
+                    "metric": "score",
+                    "reason": null,
+                    "split": "holdout",
+                    "status": "available",
+                    "unit": "points"
+                  },
+                  "score": {
+                    "_type": "float",
+                    "repr": "1"
+                  },
+                  "suite_artifact_ref": {
+                    "artifact_id": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7",
+                    "kind": "scientist.autotune.generic.suite",
+                    "manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47",
+                    "media_type": "application/json"
+                  }
+                }
+              },
+              "timestamp": "2026-10-07T10:41:40.009943+00:00"
+            }
+          ],
+          "pareto_front": [
+            {
+              "candidate": {
+                "artifact_version": "1.0",
+                "created_at": "2026-04-01",
+                "loop_id": "dedup",
+                "metadata": {
+                  "loaded_at": "2026-04-01",
+                  "trace_id": "trace-first"
+                },
+                "notes": [
+                  "first observation"
+                ],
+                "replicate_id": null,
+                "search_space_version": "1.0",
+                "seed": null,
+                "semantic": {
+                  "metadata": {
+                    "effective_date": "2026-01-15",
+                    "starts_at": "2026-01-01"
+                  }
+                },
+                "value": 1
+              },
+              "candidate_hash": "sha256:03b79a508c29713293d8b17b0cbe8106e0a167090a96e1e40523ef464581a8ee",
+              "objectives": [
+                {
+                  "direction": "minimize",
+                  "name": "score",
+                  "raw_value": {
+                    "_type": "float",
+                    "repr": "-1"
+                  }
+                }
+              ]
+            }
+          ],
+          "pareto_points": [
+            {
+              "candidate": {
+                "artifact_version": "1.0",
+                "created_at": "2026-04-01",
+                "loop_id": "dedup",
+                "metadata": {
+                  "loaded_at": "2026-04-01",
+                  "trace_id": "trace-first"
+                },
+                "notes": [
+                  "first observation"
+                ],
+                "replicate_id": null,
+                "search_space_version": "1.0",
+                "seed": null,
+                "semantic": {
+                  "metadata": {
+                    "effective_date": "2026-01-15",
+                    "starts_at": "2026-01-01"
+                  }
+                },
+                "value": 1
+              },
+              "candidate_hash": "sha256:03b79a508c29713293d8b17b0cbe8106e0a167090a96e1e40523ef464581a8ee",
+              "normalized_values": [
+                {
+                  "_type": "float",
+                  "repr": "-1"
+                }
+              ],
+              "objectives": [
+                {
+                  "direction": "minimize",
+                  "name": "score",
+                  "raw_value": {
+                    "_type": "float",
+                    "repr": "-1"
+                  }
+                }
+              ]
+            }
+          ],
+          "pareto_projection": null,
+          "policy_evaluation_errors": 0,
+          "search_id": "0e874cb3",
+          "sentinel_evaluations": 0,
+          "stage_a_evaluations": 0,
+          "stage_b_evaluations": 1,
+          "status": "running",
+          "training_evaluations": 0
+        },
+        "schema_version": "search-service.v2",
+        "started_at": null,
+        "stopping_reason": null,
+        "stopping_state": {
+          "children": [],
+          "configuration": {
+            "_max_iter": 4
+          },
+          "criterion": "MaxIterations",
+          "started_at": null,
+          "version": "search-stopping.v1"
+        }
+      },
+      "physical_calls": [
+        {
+          "candidate_ref": {
+            "artifact_id": "sha256:00596c0d572d20bcfac51bdc1a96439e9f32dc4e7c7512767093a8e899b53b1e",
+            "kind": "scientist.autotune.dedup.candidate",
+            "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e",
+            "media_type": "application/json"
+          },
+          "replicate_id": null,
+          "seed": null,
+          "starts_at": "2026-01-01",
+          "suite_ref": {
+            "artifact_id": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7",
+            "kind": "scientist.autotune.generic.suite",
+            "manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47",
+            "media_type": "application/json"
+          },
+          "value": 1
+        }
+      ],
+      "probe": "remove_run_scope"
+    },
+    {
+      "checkpoint_ref": {
+        "artifact_id": "sha256:342d91d92a61dcab95a1e7529adee4a5192654b0f456112b7e582b90d768b80a",
+        "kind": "scientist.search.service_checkpoint",
+        "manifest_profile_sha256": "sha256:d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a",
+        "media_type": "application/json"
+      },
+      "checkpoint_sha256": "342d91d92a61dcab95a1e7529adee4a5192654b0f456112b7e582b90d768b80a",
+      "fresh_canonical_checkpoint": {
+        "ask_iteration": 2,
+        "completed_candidate_ids": [
+          "candidate_0_0",
+          "candidate_1_0"
+        ],
+        "configuration": {
+          "basis": {
+            "analysis_configuration": null,
+            "evaluator_profile": {
+              "name": "test_service_trial_deduplication._Evaluator",
+              "version": "608942a8f9195491c846225050d030b47a6733d1d8602f31960afd852421a6b5"
+            },
+            "loop_id": "dedup",
+            "promotion_policy": {
+              "compare_split": "holdout",
+              "direction": "maximize",
+              "loop_id": "dedup",
+              "min_improvement": {
+                "_type": "float",
+                "repr": "0"
+              },
+              "min_sample_count": 0,
+              "primary_metric": "score",
+              "required_guardrails": [],
+              "unit": "points"
+            },
+            "suite_ref": {
+              "artifact_id": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7",
+              "kind": "scientist.autotune.generic.suite",
+              "manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47",
+              "media_type": "application/json"
+            }
+          },
+          "batch_size": 1,
+          "budget_cost_key": "cumulative_cost_usd",
+          "budget_key": "run",
+          "budget_owner_identity": null,
+          "diversity_enabled": false,
+          "generator": "polisyos.scientist.methods.autotune.runtime.SequenceCandidateGenerator",
+          "hard_limit": 100,
+          "initial_evaluations": [],
+          "max_empty_generation_attempts": 3,
+          "objectives": [
+            {
+              "direction": "minimize",
+              "name": "score",
+              "parameters": {
+                "_policy": {
+                  "compare_split": "holdout",
+                  "direction": "maximize",
+                  "loop_id": "dedup",
+                  "min_improvement": {
+                    "_type": "float",
+                    "repr": "0"
+                  },
+                  "min_sample_count": 0,
+                  "primary_metric": "score",
+                  "required_guardrails": [],
+                  "unit": "points"
+                },
+                "_threshold": null,
+                "_weight": {
+                  "_type": "float",
+                  "repr": "1"
+                }
+              },
+              "type": "polisyos.scientist.methods.autotune.runtime._AutotuneObjective"
+            }
+          ],
+          "pareto_registry_supported": true,
+          "policy_objective_stack": null,
+          "replay_profile": {
+            "data_inputs": [],
+            "evaluation_context": {},
+            "evaluator_configuration": {
+              "configuration": {
+                "include_metric": true,
+                "profile": "b124-controlled-physical-call.v1",
+                "promotable": true,
+                "scale": 1,
+                "status": "ok"
+              },
+              "implementation_sha256": "608942a8f9195491c846225050d030b47a6733d1d8602f31960afd852421a6b5",
+              "type": "test_service_trial_deduplication._Evaluator"
+            },
+            "factory_build": "4bcddcf8b7ef4696fe26a3daa3394053672eb8a43007e0bf0b993c5bf87e17eb",
+            "mutation_model_build": "608942a8f9195491c846225050d030b47a6733d1d8602f31960afd852421a6b5",
+            "mutation_model_type": "test_service_trial_deduplication._DatedMutation",
+            "mutation_schema": {
+              "additionalProperties": false,
+              "properties": {
+                "artifact_version": {
+                  "default": "1.0",
+                  "pattern": "^\\d+\\.\\d+$",
+                  "title": "Artifact Version",
+                  "type": "string"
+                },
+                "created_at": {
+                  "default": "2026-04-01",
+                  "title": "Created At",
+                  "type": "string"
+                },
+                "loop_id": {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "title": "Loop Id",
+                  "type": "string"
+                },
+                "metadata": {
+                  "additionalProperties": true,
+                  "title": "Metadata",
+                  "type": "object"
+                },
+                "notes": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "title": "Notes",
+                  "type": "array"
+                },
+                "replicate_id": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Replicate Id"
+                },
+                "search_space_version": {
+                  "default": "1.0",
+                  "pattern": "^\\d+\\.\\d+$",
+                  "title": "Search Space Version",
+                  "type": "string"
+                },
+                "seed": {
+                  "anyOf": [
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Seed"
+                },
+                "semantic": {
+                  "additionalProperties": true,
+                  "title": "Semantic",
+                  "type": "object"
+                },
+                "value": {
+                  "title": "Value",
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "loop_id",
+                "value",
+                "semantic"
+              ],
+              "title": "_DatedMutation",
+              "type": "object"
+            },
+            "policy": {
+              "compare_split": "holdout",
+              "direction": "maximize",
+              "loop_id": "dedup",
+              "min_improvement": {
+                "_type": "float",
+                "repr": "0"
+              },
+              "min_sample_count": 0,
+              "primary_metric": "score",
+              "required_guardrails": [],
+              "unit": "points"
+            },
+            "suite_configuration": {
+              "data_basis": "candidate_only",
+              "dataset_path": null,
+              "dataset_ref": null,
+              "kind": "generic",
+              "metadata": {},
+              "split_manifest_path": null,
+              "split_manifest_ref": null,
+              "suite_id": "dedup",
+              "suite_version": "1.0"
+            },
+            "suite_content_sha256": "648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7",
+            "suite_manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47",
+            "suite_ref": {
+              "artifact_id": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7",
+              "kind": "scientist.autotune.generic.suite",
+              "manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47",
+              "media_type": "application/json"
+            },
+            "version": "native-autotune-replay.v2"
+          },
+          "resource_arbiter_supported": true,
+          "stage_a_enabled": false,
+          "stopping": {
+            "children": [],
+            "configuration": {
+              "_max_iter": 4
+            },
+            "criterion": "MaxIterations",
+            "started_at": null,
+            "version": "search-stopping.v1"
+          },
+          "transfer_fingerprint": null,
+          "trial_deduplication": {
+            "admission_sha256": "b73158016ef2a6e9324159b7de3d34206ef5a866bcdc1a675adb9281c815e127",
+            "candidate_identity_sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b",
+            "deduplication_sha256": "7c05548d3539ed98b20da6c11fe033af789e0b75672164654b97c68a28f0f5dc",
+            "version": "native_completed_pending.v1"
+          }
+        },
+        "failure": null,
+        "generator_state": {
+          "candidates": [
+            {
+              "artifact_version": "1.0",
+              "created_at": "2026-04-01",
+              "loop_id": "dedup",
+              "metadata": {
+                "loaded_at": "2026-04-01",
+                "trace_id": "trace-first"
+              },
+              "notes": [
+                "first observation"
+              ],
+              "replicate_id": null,
+              "search_space_version": "1.0",
+              "seed": null,
+              "semantic": {
+                "metadata": {
+                  "effective_date": "2026-01-15",
+                  "starts_at": "2026-01-01"
+                }
+              },
+              "value": 1
+            },
+            {
+              "artifact_version": "1.0",
+              "created_at": "2026-05-01",
+              "loop_id": "dedup",
+              "metadata": {
+                "loaded_at": "2026-05-01",
+                "trace_id": "trace-second"
+              },
+              "notes": [
+                "different display note"
+              ],
+              "replicate_id": null,
+              "search_space_version": "1.0",
+              "seed": null,
+              "semantic": {
+                "metadata": {
+                  "effective_date": "2026-01-15",
+                  "starts_at": "2026-01-01"
+                }
+              },
+              "value": 1
+            },
+            {
+              "artifact_version": "1.0",
+              "created_at": "2026-04-01",
+              "loop_id": "dedup",
+              "metadata": {
+                "loaded_at": "2026-04-01",
+                "trace_id": "trace-first"
+              },
+              "notes": [
+                "first observation"
+              ],
+              "replicate_id": null,
+              "search_space_version": "1.0",
+              "seed": null,
+              "semantic": {
+                "metadata": {
+                  "effective_date": "2026-01-15",
+                  "starts_at": "2026-02-01"
+                }
+              },
+              "value": 2
+            },
+            {
+              "artifact_version": "1.0",
+              "created_at": "2026-04-01",
+              "loop_id": "dedup",
+              "metadata": {
+                "loaded_at": "2026-04-01",
+                "trace_id": "trace-first"
+              },
+              "notes": [
+                "first observation"
+              ],
+              "replicate_id": "owner-declared-replica-one",
+              "search_space_version": "1.0",
+              "seed": null,
+              "semantic": {
+                "metadata": {
+                  "effective_date": "2026-01-15",
+                  "starts_at": "2026-02-01"
+                }
+              },
+              "value": 2
+            },
+            {
+              "artifact_version": "1.0",
+              "created_at": "2026-04-01",
+              "loop_id": "dedup",
+              "metadata": {
+                "loaded_at": "2026-04-01",
+                "trace_id": "trace-first"
+              },
+              "notes": [
+                "first observation"
+              ],
+              "replicate_id": "owner-declared-replica-two",
+              "search_space_version": "1.0",
+              "seed": null,
+              "semantic": {
+                "metadata": {
+                  "effective_date": "2026-01-15",
+                  "starts_at": "2026-02-01"
+                }
+              },
+              "value": 2
+            }
+          ],
+          "index": 2,
+          "version": "sequence-generator.v1"
+        },
+        "initial_candidate": null,
+        "initial_candidate_ids": [],
+        "pending_candidate_ids": [],
+        "pending_candidates": {},
+        "run_state": {
+          "best_candidate": {
+            "artifact_version": "1.0",
+            "created_at": "2026-04-01",
+            "loop_id": "dedup",
+            "metadata": {
+              "loaded_at": "2026-04-01",
+              "trace_id": "trace-first"
+            },
+            "notes": [
+              "first observation"
+            ],
+            "replicate_id": null,
+            "search_space_version": "1.0",
+            "seed": null,
+            "semantic": {
+              "metadata": {
+                "effective_date": "2026-01-15",
+                "starts_at": "2026-01-01"
+              }
+            },
+            "value": 1
+          },
+          "best_objective": {
+            "_type": "float",
+            "repr": "-1"
+          },
+          "budget_available": false,
+          "budget_evidence": {
+            "provider_cost_origin_available": false,
+            "receipt_revision_available": false,
+            "recorded_by_provider": null,
+            "source": "unavailable",
+            "unavailable_reason": "budget_not_requested"
+          },
+          "budget_ledger_id": null,
+          "budget_ledger_revision": null,
+          "budget_snapshot": {},
+          "budget_snapshot_source": "unavailable",
+          "budget_spent": null,
+          "empty_generation_attempts": 0,
+          "evaluation_iterations": 2,
+          "generation_attempts": 0,
+          "generation_transition": null,
+          "history": [
+            {
+              "candidate": {
+                "artifact_version": "1.0",
+                "created_at": "2026-04-01",
+                "loop_id": "dedup",
+                "metadata": {
+                  "loaded_at": "2026-04-01",
+                  "trace_id": "trace-first"
+                },
+                "notes": [
+                  "first observation"
+                ],
+                "replicate_id": null,
+                "search_space_version": "1.0",
+                "seed": null,
+                "semantic": {
+                  "metadata": {
+                    "effective_date": "2026-01-15",
+                    "starts_at": "2026-01-01"
+                  }
+                },
+                "value": 1
+              },
+              "duration_seconds": {
+                "_type": "float",
+                "repr": "0.018918999999999998"
+              },
+              "is_promising": true,
+              "iteration": 0,
+              "objective_details": [
+                {
+                  "direction": "minimize",
+                  "is_satisfied": true,
+                  "name": "score",
+                  "raw_value": {
+                    "_type": "float",
+                    "repr": "-1"
+                  },
+                  "threshold": null,
+                  "weight": {
+                    "_type": "float",
+                    "repr": "1"
+                  }
+                }
+              ],
+              "objective_value": {
+                "_type": "float",
+                "repr": "-1"
+              },
+              "policy_evaluation": null,
+              "policy_evaluation_error": null,
+              "policy_evaluation_status": "missing",
+              "stage_a_passed": true,
+              "stage_b_result": {
+                "feedback": {
+                  "guardrails": {},
+                  "promotion_decision": {
+                    "champion": {
+                      "candidate_ref": {
+                        "artifact_id": "sha256:00596c0d572d20bcfac51bdc1a96439e9f32dc4e7c7512767093a8e899b53b1e",
+                        "kind": "scientist.autotune.dedup.candidate",
+                        "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e",
+                        "media_type": "application/json"
+                      },
+                      "evaluation_ref": {
+                        "artifact_id": "sha256:33be39dd3da9a849f879cd2bf532c36de145d17d8a84c50a4d2092ed8d4e2086",
+                        "kind": "scientist.autotune.dedup.evaluation",
+                        "manifest_profile_sha256": "sha256:9751b526eb9778ccf3c644fb7224027c584c89d4a4d8307ef8c259ab16ede49e",
+                        "media_type": "application/json"
+                      },
+                      "loop_id": "dedup",
+                      "metadata": {
+                        "compare_split": "holdout",
+                        "promoted_by_policy": {
+                          "compare_split": "holdout",
+                          "direction": "maximize",
+                          "loop_id": "dedup",
+                          "min_improvement": {
+                            "_type": "float",
+                            "repr": "0"
+                          },
+                          "min_sample_count": 0,
+                          "primary_metric": "score",
+                          "required_guardrails": [],
+                          "unit": "points"
+                        },
+                        "suite_id": "dedup",
+                        "suite_ref": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7"
+                      },
+                      "metrics": {
+                        "score": {
+                          "_type": "float",
+                          "repr": "1"
+                        }
+                      },
+                      "promoted_at": "2026-10-07T10:41:40.005933Z",
+                      "search_space_version": "1.0",
+                      "suite_version": "1.0"
+                    },
+                    "loop_id": "dedup",
+                    "previous_champion": null,
+                    "promoted": true,
+                    "reason": "promoted"
+                  },
+                  "status": "ok",
+                  "verdict": "APPROVE"
+                },
+                "simulation_results": {
+                  "candidate_artifact_ref": {
+                    "artifact_id": "sha256:00596c0d572d20bcfac51bdc1a96439e9f32dc4e7c7512767093a8e899b53b1e",
+                    "kind": "scientist.autotune.dedup.candidate",
+                    "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e",
+                    "media_type": "application/json"
+                  },
+                  "candidate_ref": "sha256:00596c0d572d20bcfac51bdc1a96439e9f32dc4e7c7512767093a8e899b53b1e",
+                  "evaluation_artifact_ref": {
+                    "artifact_id": "sha256:33be39dd3da9a849f879cd2bf532c36de145d17d8a84c50a4d2092ed8d4e2086",
+                    "kind": "scientist.autotune.dedup.evaluation",
+                    "manifest_profile_sha256": "sha256:9751b526eb9778ccf3c644fb7224027c584c89d4a4d8307ef8c259ab16ede49e",
+                    "media_type": "application/json"
+                  },
+                  "evaluation_ref": "sha256:33be39dd3da9a849f879cd2bf532c36de145d17d8a84c50a4d2092ed8d4e2086",
+                  "primary_metric_assessment": {
+                    "direction": "maximize",
+                    "metric": "score",
+                    "reason": null,
+                    "split": "holdout",
+                    "status": "available",
+                    "unit": "points"
+                  },
+                  "score": {
+                    "_type": "float",
+                    "repr": "1"
+                  },
+                  "suite_artifact_ref": {
+                    "artifact_id": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7",
+                    "kind": "scientist.autotune.generic.suite",
+                    "manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47",
+                    "media_type": "application/json"
+                  }
+                }
+              },
+              "timestamp": "2026-10-07T10:41:40.009943+00:00"
+            },
+            {
+              "candidate": {
+                "artifact_version": "1.0",
+                "created_at": "2026-05-01",
+                "loop_id": "dedup",
+                "metadata": {
+                  "loaded_at": "2026-05-01",
+                  "trace_id": "trace-second"
+                },
+                "notes": [
+                  "different display note"
+                ],
+                "replicate_id": null,
+                "search_space_version": "1.0",
+                "seed": null,
+                "semantic": {
+                  "metadata": {
+                    "effective_date": "2026-01-15",
+                    "starts_at": "2026-01-01"
+                  }
+                },
+                "value": 1
+              },
+              "duration_seconds": {
+                "_type": "float",
+                "repr": "0.038627000000000002"
+              },
+              "is_promising": true,
+              "iteration": 1,
+              "objective_details": [
+                {
+                  "direction": "minimize",
+                  "is_satisfied": true,
+                  "name": "score",
+                  "raw_value": {
+                    "_type": "float",
+                    "repr": "-1"
+                  },
+                  "threshold": null,
+                  "weight": {
+                    "_type": "float",
+                    "repr": "1"
+                  }
+                }
+              ],
+              "objective_value": {
+                "_type": "float",
+                "repr": "-1"
+              },
+              "policy_evaluation": null,
+              "policy_evaluation_error": null,
+              "policy_evaluation_status": "missing",
+              "stage_a_passed": true,
+              "stage_b_result": {
+                "feedback": {
+                  "guardrails": {},
+                  "promotion_decision": {
+                    "champion": {
+                      "candidate_ref": {
+                        "artifact_id": "sha256:00596c0d572d20bcfac51bdc1a96439e9f32dc4e7c7512767093a8e899b53b1e",
+                        "kind": "scientist.autotune.dedup.candidate",
+                        "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e",
+                        "media_type": "application/json"
+                      },
+                      "evaluation_ref": {
+                        "artifact_id": "sha256:33be39dd3da9a849f879cd2bf532c36de145d17d8a84c50a4d2092ed8d4e2086",
+                        "kind": "scientist.autotune.dedup.evaluation",
+                        "manifest_profile_sha256": "sha256:9751b526eb9778ccf3c644fb7224027c584c89d4a4d8307ef8c259ab16ede49e",
+                        "media_type": "application/json"
+                      },
+                      "loop_id": "dedup",
+                      "metadata": {
+                        "compare_split": "holdout",
+                        "promoted_by_policy": {
+                          "compare_split": "holdout",
+                          "direction": "maximize",
+                          "loop_id": "dedup",
+                          "min_improvement": {
+                            "_type": "float",
+                            "repr": "0"
+                          },
+                          "min_sample_count": 0,
+                          "primary_metric": "score",
+                          "required_guardrails": [],
+                          "unit": "points"
+                        },
+                        "suite_id": "dedup",
+                        "suite_ref": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7"
+                      },
+                      "metrics": {
+                        "score": {
+                          "_type": "float",
+                          "repr": "1"
+                        }
+                      },
+                      "promoted_at": "2026-10-07T10:41:40.005933Z",
+                      "search_space_version": "1.0",
+                      "suite_version": "1.0"
+                    },
+                    "loop_id": "dedup",
+                    "previous_champion": {
+                      "candidate_ref": {
+                        "artifact_id": "sha256:00596c0d572d20bcfac51bdc1a96439e9f32dc4e7c7512767093a8e899b53b1e",
+                        "kind": "scientist.autotune.dedup.candidate",
+                        "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e",
+                        "media_type": "application/json"
+                      },
+                      "evaluation_ref": {
+                        "artifact_id": "sha256:33be39dd3da9a849f879cd2bf532c36de145d17d8a84c50a4d2092ed8d4e2086",
+                        "kind": "scientist.autotune.dedup.evaluation",
+                        "manifest_profile_sha256": "sha256:9751b526eb9778ccf3c644fb7224027c584c89d4a4d8307ef8c259ab16ede49e",
+                        "media_type": "application/json"
+                      },
+                      "loop_id": "dedup",
+                      "metadata": {
+                        "compare_split": "holdout",
+                        "promoted_by_policy": {
+                          "compare_split": "holdout",
+                          "direction": "maximize",
+                          "loop_id": "dedup",
+                          "min_improvement": {
+                            "_type": "float",
+                            "repr": "0"
+                          },
+                          "min_sample_count": 0,
+                          "primary_metric": "score",
+                          "required_guardrails": [],
+                          "unit": "points"
+                        },
+                        "suite_id": "dedup",
+                        "suite_ref": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7"
+                      },
+                      "metrics": {
+                        "score": {
+                          "_type": "float",
+                          "repr": "1"
+                        }
+                      },
+                      "promoted_at": "2026-10-07T10:41:40.005933Z",
+                      "search_space_version": "1.0",
+                      "suite_version": "1.0"
+                    },
+                    "promoted": false,
+                    "reason": "not_better_than_champion"
+                  },
+                  "status": "ok",
+                  "verdict": "APPROVE"
+                },
+                "simulation_results": {
+                  "candidate_artifact_ref": {
+                    "artifact_id": "sha256:0669a630e42cb7c0eb0357ea2e1cad7c9cdea63ad3519d327c9f144dffd9a3f5",
+                    "kind": "scientist.autotune.dedup.candidate",
+                    "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e",
+                    "media_type": "application/json"
+                  },
+                  "candidate_ref": "sha256:0669a630e42cb7c0eb0357ea2e1cad7c9cdea63ad3519d327c9f144dffd9a3f5",
+                  "evaluation_artifact_ref": {
+                    "artifact_id": "sha256:fb0bab5f3f9cc9f8b264ab83bde5f61108cf92e5a4ac48a49fb40ea8d4efc21e",
+                    "kind": "scientist.autotune.dedup.evaluation",
+                    "manifest_profile_sha256": "sha256:26f69381615d573dc22151851534699c7866277cd3c5c49b62c33cff84c47862",
+                    "media_type": "application/json"
+                  },
+                  "evaluation_ref": "sha256:fb0bab5f3f9cc9f8b264ab83bde5f61108cf92e5a4ac48a49fb40ea8d4efc21e",
+                  "primary_metric_assessment": {
+                    "direction": "maximize",
+                    "metric": "score",
+                    "reason": null,
+                    "split": "holdout",
+                    "status": "available",
+                    "unit": "points"
+                  },
+                  "score": {
+                    "_type": "float",
+                    "repr": "1"
+                  },
+                  "suite_artifact_ref": {
+                    "artifact_id": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7",
+                    "kind": "scientist.autotune.generic.suite",
+                    "manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47",
+                    "media_type": "application/json"
+                  }
+                }
+              },
+              "timestamp": "2026-10-07T10:41:40.108915+00:00"
+            }
+          ],
+          "pareto_front": [
+            {
+              "candidate": {
+                "artifact_version": "1.0",
+                "created_at": "2026-04-01",
+                "loop_id": "dedup",
+                "metadata": {
+                  "loaded_at": "2026-04-01",
+                  "trace_id": "trace-first"
+                },
+                "notes": [
+                  "first observation"
+                ],
+                "replicate_id": null,
+                "search_space_version": "1.0",
+                "seed": null,
+                "semantic": {
+                  "metadata": {
+                    "effective_date": "2026-01-15",
+                    "starts_at": "2026-01-01"
+                  }
+                },
+                "value": 1
+              },
+              "candidate_hash": "sha256:03b79a508c29713293d8b17b0cbe8106e0a167090a96e1e40523ef464581a8ee",
+              "objectives": [
+                {
+                  "direction": "minimize",
+                  "name": "score",
+                  "raw_value": {
+                    "_type": "float",
+                    "repr": "-1"
+                  }
+                }
+              ]
+            },
+            {
+              "candidate": {
+                "artifact_version": "1.0",
+                "created_at": "2026-05-01",
+                "loop_id": "dedup",
+                "metadata": {
+                  "loaded_at": "2026-05-01",
+                  "trace_id": "trace-second"
+                },
+                "notes": [
+                  "different display note"
+                ],
+                "replicate_id": null,
+                "search_space_version": "1.0",
+                "seed": null,
+                "semantic": {
+                  "metadata": {
+                    "effective_date": "2026-01-15",
+                    "starts_at": "2026-01-01"
+                  }
+                },
+                "value": 1
+              },
+              "candidate_hash": "sha256:85030d99591b0e0df7a4f783b4f2057546d582ad659d99eea91b0deb4fe045ff",
+              "objectives": [
+                {
+                  "direction": "minimize",
+                  "name": "score",
+                  "raw_value": {
+                    "_type": "float",
+                    "repr": "-1"
+                  }
+                }
+              ]
+            }
+          ],
+          "pareto_points": [
+            {
+              "candidate": {
+                "artifact_version": "1.0",
+                "created_at": "2026-04-01",
+                "loop_id": "dedup",
+                "metadata": {
+                  "loaded_at": "2026-04-01",
+                  "trace_id": "trace-first"
+                },
+                "notes": [
+                  "first observation"
+                ],
+                "replicate_id": null,
+                "search_space_version": "1.0",
+                "seed": null,
+                "semantic": {
+                  "metadata": {
+                    "effective_date": "2026-01-15",
+                    "starts_at": "2026-01-01"
+                  }
+                },
+                "value": 1
+              },
+              "candidate_hash": "sha256:03b79a508c29713293d8b17b0cbe8106e0a167090a96e1e40523ef464581a8ee",
+              "normalized_values": [
+                {
+                  "_type": "float",
+                  "repr": "-1"
+                }
+              ],
+              "objectives": [
+                {
+                  "direction": "minimize",
+                  "name": "score",
+                  "raw_value": {
+                    "_type": "float",
+                    "repr": "-1"
+                  }
+                }
+              ]
+            },
+            {
+              "candidate": {
+                "artifact_version": "1.0",
+                "created_at": "2026-05-01",
+                "loop_id": "dedup",
+                "metadata": {
+                  "loaded_at": "2026-05-01",
+                  "trace_id": "trace-second"
+                },
+                "notes": [
+                  "different display note"
+                ],
+                "replicate_id": null,
+                "search_space_version": "1.0",
+                "seed": null,
+                "semantic": {
+                  "metadata": {
+                    "effective_date": "2026-01-15",
+                    "starts_at": "2026-01-01"
+                  }
+                },
+                "value": 1
+              },
+              "candidate_hash": "sha256:85030d99591b0e0df7a4f783b4f2057546d582ad659d99eea91b0deb4fe045ff",
+              "normalized_values": [
+                {
+                  "_type": "float",
+                  "repr": "-1"
+                }
+              ],
+              "objectives": [
+                {
+                  "direction": "minimize",
+                  "name": "score",
+                  "raw_value": {
+                    "_type": "float",
+                    "repr": "-1"
+                  }
+                }
+              ]
+            }
+          ],
+          "pareto_projection": null,
+          "policy_evaluation_errors": 0,
+          "search_id": "0e874cb3",
+          "sentinel_evaluations": 0,
+          "stage_a_evaluations": 0,
+          "stage_b_evaluations": 2,
+          "status": "running",
+          "training_evaluations": 0
+        },
+        "schema_version": "search-service.v2",
+        "started_at": null,
+        "stopping_reason": null,
+        "stopping_state": {
+          "children": [],
+          "configuration": {
+            "_max_iter": 4
+          },
+          "criterion": "MaxIterations",
+          "started_at": null,
+          "version": "search-stopping.v1"
+        }
+      },
+      "physical_calls": [
+        {
+          "candidate_ref": {
+            "artifact_id": "sha256:00596c0d572d20bcfac51bdc1a96439e9f32dc4e7c7512767093a8e899b53b1e",
+            "kind": "scientist.autotune.dedup.candidate",
+            "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e",
+            "media_type": "application/json"
+          },
+          "replicate_id": null,
+          "seed": null,
+          "starts_at": "2026-01-01",
+          "suite_ref": {
+            "artifact_id": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7",
+            "kind": "scientist.autotune.generic.suite",
+            "manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47",
+            "media_type": "application/json"
+          },
+          "value": 1
+        },
+        {
+          "candidate_ref": {
+            "artifact_id": "sha256:0669a630e42cb7c0eb0357ea2e1cad7c9cdea63ad3519d327c9f144dffd9a3f5",
+            "kind": "scientist.autotune.dedup.candidate",
+            "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e",
+            "media_type": "application/json"
+          },
+          "replicate_id": null,
+          "seed": null,
+          "starts_at": "2026-01-01",
+          "suite_ref": {
+            "artifact_id": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7",
+            "kind": "scientist.autotune.generic.suite",
+            "manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47",
+            "media_type": "application/json"
+          },
+          "value": 1
+        },
+        {
+          "candidate_ref": {
+            "artifact_id": "sha256:00596c0d572d20bcfac51bdc1a96439e9f32dc4e7c7512767093a8e899b53b1e",
+            "kind": "scientist.autotune.dedup.candidate",
+            "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e",
+            "media_type": "application/json"
+          },
+          "replicate_id": null,
+          "seed": null,
+          "starts_at": "2026-01-01",
+          "suite_ref": {
+            "artifact_id": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7",
+            "kind": "scientist.autotune.generic.suite",
+            "manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47",
+            "media_type": "application/json"
+          },
+          "value": 1
+        }
+      ],
+      "probe": "remove_run_scope"
+    }
+  ],
+  "outputs": {
+    "remove_run_scope.stdout.txt": {
+      "bytes": 44840,
+      "sha256": "ca34c39f1a2a8185e86efe965014a572aa4a6038e87228d06d9424133b6e9e42"
+    },
+    "remove_run_scope.stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "remove_run_scope.junit.xml": {
+      "bytes": 5069,
+      "sha256": "c0ec7ee422a4d3e40358300c5ff0db9b43906e8558cb08d0dfdf2e113ebbd884"
+    }
+  },
+  "source_sha_after": "96905636726483fdea3a98d9313871d825b54a9e",
+  "status_after": "",
+  "inputs_after": {
+    "src/polisyos/scientist/methods/autotune/dedup.py": {
+      "bytes": 3073,
+      "sha256": "7c05548d3539ed98b20da6c11fe033af789e0b75672164654b97c68a28f0f5dc"
+    },
+    "src/polisyos/scientist/methods/autotune/runtime.py": {
+      "bytes": 23729,
+      "sha256": "4bcddcf8b7ef4696fe26a3daa3394053672eb8a43007e0bf0b993c5bf87e17eb"
+    },
+    "src/polisyos/scientist/methods/autotune/models.py": {
+      "bytes": 29441,
+      "sha256": "75205f0519b23a9df94affa45de27d137ae4deee969663c388190873269db8c5"
+    },
+    "src/polisyos/scientist/methods/autotune/registry.py": {
+      "bytes": 27732,
+      "sha256": "1339af524b604462021425b9d88f5cbe278f1a8c927827cb3e26fa4f8f0cc6ba"
+    },
+    "src/polisyos/scientist/methods/search/frontier.py": {
+      "bytes": 8212,
+      "sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b"
+    },
+    "src/polisyos/scientist/methods/search/controller.py": {
+      "bytes": 57668,
+      "sha256": "9bbbd5b23c9ef43d18370f3bd0e25243eb56cdcd844a2d5f83744c30d4bbcc53"
+    },
+    "src/polisyos/scientist/methods/search/service.py": {
+      "bytes": 58588,
+      "sha256": "b73158016ef2a6e9324159b7de3d34206ef5a866bcdc1a675adb9281c815e127"
+    },
+    "src/polisyos/scientist/methods/search/contracts.py": {
+      "bytes": 14342,
+      "sha256": "e7a5b21bafddab30277ebe0e8eb54a31c3f7b3bfc207b8d97e14cbdbc31d78d5"
+    },
+    "src/polisyos/scientist/methods/search/run_state.py": {
+      "bytes": 19613,
+      "sha256": "411e2b5a922bf57af4f51735b44f7e491f98e75e3a83940b8fb3eb76e7fa3cb8"
+    },
+    "src/polisyos/scientist/methods/search/pareto_registry.py": {
+      "bytes": 37218,
+      "sha256": "aee369ab873131ac950104d3cf8b832c2ecf1d8109033f1631dc20877478bacd"
+    },
+    "src/polisyos/scientist/methods/search/objective.py": {
+      "bytes": 10078,
+      "sha256": "940c84a3425e8ed1e93de2eae881100fd88a49dd978a108e5d78e5f2fa5fe17c"
+    },
+    "src/polisyos/core/artifacts/store.py": {
+      "bytes": 185595,
+      "sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165"
+    },
+    "src/polisyos/core/artifacts/manifest.py": {
+      "bytes": 12758,
+      "sha256": "fb1fb68e18b80ba83ee2aa6b94a011386ede96bc75c492123bb4de3bec45639d"
+    },
+    "src/polisyos/core/artifacts/manifest_profile.py": {
+      "bytes": 756,
+      "sha256": "aa7ee9af617c1adc338a21a5b0186d41a690e6b86f2a0810ae9b5a7ee4ff7ce5"
+    },
+    "src/polisyos/core/artifacts/_integrity_ops.py": {
+      "bytes": 10425,
+      "sha256": "15ac3abb420f16c24cb222822dbecc324d41d5251f1acce36a04c34dc0ddeb4b"
+    },
+    "src/polisyos/core/artifacts/_atomic_write.py": {
+      "bytes": 4074,
+      "sha256": "afa41fe64aa388d65ec89db504d2f651447c5a92b5a8cea0384a6793c924ebcf"
+    },
+    "src/polisyos/core/canon/canon_json.py": {
+      "bytes": 1882,
+      "sha256": "c5e60f4d47bc4fc5347809545609716c0ce030dfc6c3e3deee61d8ad5a086c95"
+    },
+    "src/polisyos/common/serialization.py": {
+      "bytes": 14186,
+      "sha256": "485303bf79f150fa9df259d7354d3104a4bdb94d9114cddb6e17dcc424316f0d"
+    },
+    "tests/unit/scientist/methods/search/test_service_trial_deduplication.py": {
+      "bytes": 43697,
+      "sha256": "608942a8f9195491c846225050d030b47a6733d1d8602f31960afd852421a6b5"
+    },
+    "tests/unit/scientist/methods/search/test_semantic_dates_persisted_consumers.py": {
+      "bytes": 6236,
+      "sha256": "435a9bf8ab41bf2c31b22b69929f3e8864bced9e84f85397f3e96311a047a1aa"
+    }
+  },
+  "source_unchanged": true,
+  "negative_receipt_admitted": true,
+  "receipt_correction": {
+    "reason": "pytest may print its test path prefix on same stdout line before the explicit observation marker; original capture parser required marker at column0",
+    "original_receipt": {
+      "path": "remove_run_scope.receipt.json",
+      "sha256": "75484c97b0f01aad9ea681eb644d51b479cbb3b6981c43362de18c617d2acddb",
+      "bytes": 47774
+    },
+    "source_of_corrected_parse": {
+      "path": "remove_run_scope.stdout.txt",
+      "sha256": "ca34c39f1a2a8185e86efe965014a572aa4a6038e87228d06d9424133b6e9e42",
+      "bytes": 44840
+    },
+    "correction_utc": "2026-10-07T10:42:13.551925+00:00",
+    "runtime_replayed": false,
+    "test_or_product_result_changed": false,
+    "original_files_preserved": true
+  }
+}

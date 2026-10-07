@@ -1,0 +1,295 @@
+"""Passive pytest evidence: collection, complete reports, transient native origins."""
+import hashlib
+import importlib.metadata
+import json
+import marshal
+import os
+from pathlib import Path
+import resource
+import sys
+import threading
+import time
+import types
+
+OUT = Path(os.environ['E02_BROAD_OUTPUT'])
+REPO = Path(os.environ['E02_BROAD_REPO']).resolve()
+SOURCE = os.environ['E02_BROAD_SOURCE']
+EXPECTED = json.loads((OUT / 'before.json').read_text())['files']
+_LOCK = threading.RLock()
+_LOCAL = threading.local()
+_EVENTS = (OUT / 'events.jsonl').open('a', buffering=1)
+_ORIGINS = {}
+_MODULE_OBJECTS = {}
+_CODE = {}
+_CASES = {}
+_COLLECTED = []
+_DESELECTED = []
+_COLLECTION_REPORTS = []
+_OBSERVER_ERRORS = []
+_STARTED = time.monotonic()
+
+
+def emit(kind, **data):
+    try:
+        with _LOCK:
+            _EVENTS.write(json.dumps({'kind': kind, 'wall_time_ns': time.time_ns(),
+                                     'elapsed_seconds': time.monotonic() - _STARTED,
+                                     **data}, default=str) + '\n')
+            _EVENTS.flush()
+    except BaseException as exc:
+        _OBSERVER_ERRORS.append({'operation': kind, 'exception': repr(exc)})
+
+
+def origin(path):
+    if not path:
+        return {'path': None, 'status': 'NAMESPACE_OR_NO_FILE_NOT_A_FILE_HASH'}
+    try:
+        p = Path(path).resolve()
+        if p.suffix == '.pyc':
+            import importlib.util
+            p = Path(importlib.util.source_from_cache(str(p))).resolve()
+        b = p.read_bytes()
+        sha = hashlib.sha256(b).hexdigest()
+        try:
+            rel = str(p.relative_to(REPO))
+        except ValueError:
+            rel = None
+        expected = EXPECTED.get(rel)
+        match = bool(expected and sha == expected['sha256'])
+        return {'path': str(p), 'repository_path': rel, 'bytes': len(b),
+                'sha256': sha, 'frozen_blob': expected.get('git_blob') if expected else None,
+                'source_sha': SOURCE,
+                'git_match': match,
+                'status': 'MATCH_FROZEN_GIT' if match else 'OUTSIDE_OR_DIFFERENT_FROZEN_SOURCE'}
+    except BaseException as exc:
+        return {'path': str(path), 'status': 'ORIGIN_READ_ERROR', 'exception': repr(exc),
+                'git_match': False}
+
+
+def audit(event, arguments):
+    # exec catches transient Python modules even when a test removes sys.modules.
+    # This hook observes code; it never replaces a loader or executes product code.
+    if event != 'exec' or getattr(_LOCAL, 'busy', False):
+        return
+    code = arguments[0] if arguments else None
+    if not isinstance(code, types.CodeType) or code.co_name != '<module>':
+        return
+    filename = code.co_filename
+    if '/polisyos/' not in filename.replace('\\', '/'):
+        return
+    _LOCAL.busy = True
+    try:
+        key = (filename, hashlib.sha256(marshal.dumps(code)).hexdigest())
+        if key in _CODE:
+            return
+        record = origin(filename)
+        record['executed_module_code_sha256'] = key[1]
+        record['load_stage'] = 'module_exec_audit'
+        _CODE[key] = record
+        emit('polisyos_module_exec', **record)
+    except BaseException as exc:
+        _OBSERVER_ERRORS.append({'operation': 'exec_audit', 'exception': repr(exc)})
+    finally:
+        _LOCAL.busy = False
+
+
+sys.addaudithook(audit)
+
+
+def census(stage):
+    records = []
+    for name, module in list(sys.modules.items()):
+        if module is None or not (name == 'polisyos' or name.startswith('polisyos.')):
+            continue
+        file = vars(module).get('__file__')
+        observed_object = (id(module), file)
+        if _MODULE_OBJECTS.get(name) == observed_object:
+            continue
+        _MODULE_OBJECTS[name] = observed_object
+        record = origin(file)
+        key = (name, record.get('path'), record.get('sha256'))
+        if key not in _ORIGINS:
+            record.update(module=name, first_observed_stage=stage)
+            _ORIGINS[key] = record
+            records.append(record)
+    if records:
+        emit('polisyos_module_census', stage=stage, modules=records)
+
+
+def rng_state():
+    result = {'seed_assignment': 'observer never seeds or draws random values'}
+    for name, getter_name, encoding in [('random', 'getstate', 'repr'),
+                                         ('numpy.random', 'get_state', 'numpy_binary_state'),
+                                         ('torch.random', 'get_rng_state', 'bytes')]:
+        module = sys.modules.get(name)
+        getter = vars(module).get(getter_name) if module is not None else None
+        if callable(getter):
+            try:
+                state = getter()
+                if encoding == 'bytes':
+                    raw = bytes(state.tolist())
+                elif encoding == 'numpy_binary_state':
+                    raw = state[0].encode() + b'\0' + state[1].tobytes() + repr(state[2:]).encode()
+                else:
+                    raw = repr(state).encode()
+                result[name] = {'state_sha256': hashlib.sha256(raw).hexdigest(),
+                                'state_encoding': encoding, 'consumes_draws': False}
+            except BaseException as exc:
+                result[name] = {'status': 'GETTER_ERROR', 'exception': repr(exc)}
+    return result
+
+
+def resource_state():
+    usage = resource.getrusage(resource.RUSAGE_SELF)
+    state = {'cumulative_self_maxrss_KiB_linux': usage.ru_maxrss,
+             'self_user_seconds': usage.ru_utime, 'self_system_seconds': usage.ru_stime}
+    try:
+        for line in Path('/proc/self/status').read_text().splitlines():
+            if line.startswith(('VmRSS:', 'VmHWM:')):
+                key, value = line.split(':', 1)
+                state[key] = value.strip()
+    except OSError as exc:
+        state['proc_status_error'] = repr(exc)
+    return state
+
+
+def backend_state():
+    names = {'torch': 'torch', 'botorch': 'botorch', 'gpytorch': 'gpytorch',
+             'hnswlib': 'hnswlib', 'SALib': 'SALib', 'numpy': 'numpy',
+             'scipy': 'scipy', 'pytest': 'pytest'}
+    result = {}
+    for package, module_name in names.items():
+        module = sys.modules.get(module_name)
+        try:
+            installed = importlib.metadata.version(package)
+        except importlib.metadata.PackageNotFoundError:
+            installed = None
+        value = {'installed_version': installed, 'actually_loaded_in_main_process': module is not None}
+        if module is not None:
+            file = getattr(module, '__file__', None)
+            value['module_path'] = file
+            value['module_version'] = vars(module).get('__version__')
+            if file:
+                try:
+                    raw = Path(file).read_bytes()
+                    value.update(module_file_sha256=hashlib.sha256(raw).hexdigest(),
+                                 module_file_bytes=len(raw))
+                except OSError as exc:
+                    value['module_file_error'] = repr(exc)
+        result[package] = value
+    torch = sys.modules.get('torch')
+    if torch is not None:
+        for name in ('get_num_threads', 'get_num_interop_threads'):
+            getter = vars(torch).get(name)
+            if callable(getter):
+                try:
+                    result['torch'][name] = getter()
+                except BaseException as exc:
+                    result['torch'][name + '_error'] = repr(exc)
+    # Loaded binary extension identity, distinct from a fitted-model claim.
+    for name in ('torch._C', 'hnswlib', 'numpy._core._multiarray_umath'):
+        module = sys.modules.get(name)
+        file = getattr(module, '__file__', None) if module is not None else None
+        if file:
+            try:
+                raw = Path(file).read_bytes()
+                result[name + ':binary'] = {'path': file, 'bytes': len(raw),
+                                            'sha256': hashlib.sha256(raw).hexdigest()}
+            except OSError as exc:
+                result[name + ':binary'] = {'path': file, 'error': repr(exc)}
+    return result
+
+
+def pytest_configure(config):
+    census('observer_configure')
+    emit('configure', executable=sys.executable, python=sys.version,
+         effective_pytest_args=config.invocation_params.args,
+         ini_addopts=config.getini('addopts'),
+         selected_options={name: getattr(config.option, name, None) for name in
+                           ('maxfail', 'markexpr', 'keyword', 'numprocesses', 'timeout',
+                            'run_quarantine', 'collectonly', 'ignore')},
+         environment={name: os.environ.get(name) for name in
+                      ('PYTHONDONTWRITEBYTECODE', 'PYTHONPATH', 'TIKTOKEN_CACHE_DIR',
+                       'PYTHONHASHSEED', 'PYTEST_ADDOPTS', 'OMP_NUM_THREADS',
+                       'MKL_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'NUMEXPR_NUM_THREADS')},
+         backend_state=backend_state(), rng_state=rng_state())
+
+
+def pytest_collectreport(report):
+    if report.failed or report.skipped:
+        _COLLECTION_REPORTS.append({'nodeid': report.nodeid, 'outcome': report.outcome})
+        emit('collection_report', nodeid=report.nodeid, outcome=report.outcome,
+             longrepr=str(report.longrepr), sections=list(report.sections))
+
+
+def pytest_deselected(items):
+    nodeids = [item.nodeid for item in items]
+    _DESELECTED.extend(nodeids)
+    emit('deselected', nodeids=nodeids)
+
+
+def pytest_collection_finish(session):
+    _COLLECTED.extend(item.nodeid for item in session.items)
+    payload = {'nodeids': _COLLECTED, 'count': len(_COLLECTED),
+               'unique_count': len(set(_COLLECTED)), 'deselected': _DESELECTED,
+               'source_sha': SOURCE}
+    (OUT / 'collected-nodeids.json').write_text(json.dumps(payload, indent=2) + '\n')
+    census('collection_finish')
+    emit('collection_complete', **payload, backend_state=backend_state(), rng_state=rng_state())
+
+
+def pytest_runtest_setup(item):
+    params = getattr(getattr(item, 'callspec', None), 'params', {})
+    seeds = {name: value for name, value in params.items() if 'seed' in name.lower()}
+    if seeds:
+        emit('case_declared_seed_parameters', nodeid=item.nodeid, parameters=seeds,
+             scope='actual pytest call parameters only; hardcoded constructor seeds remain pinned source inputs')
+
+
+def pytest_runtest_logstart(nodeid, location):
+    _CASES.setdefault(nodeid, {'phases': [], 'started_wall_ns': time.time_ns()})
+    emit('case_start', nodeid=nodeid, location=location, rng_state=rng_state(),
+         resources=resource_state())
+
+
+def pytest_runtest_logreport(report):
+    entry = {'when': report.when, 'outcome': report.outcome,
+             'duration_seconds': report.duration,
+             'longrepr': getattr(report, 'longreprtext', str(report.longrepr or '')),
+             'sections': list(report.sections),
+             'user_properties': list(report.user_properties),
+             'wasxfail': getattr(report, 'wasxfail', None)}
+    _CASES.setdefault(report.nodeid, {'phases': []})['phases'].append(
+        {'when': report.when, 'outcome': report.outcome, 'duration_seconds': report.duration})
+    census('report:' + report.nodeid + ':' + report.when)
+    emit('case_report', nodeid=report.nodeid, **entry, resources=resource_state())
+
+
+def pytest_runtest_logfinish(nodeid, location):
+    _CASES[nodeid]['finished_wall_ns'] = time.time_ns()
+    emit('case_finish', nodeid=nodeid, location=location, rng_state=rng_state(),
+         resources=resource_state())
+
+
+def pytest_sessionfinish(session, exitstatus):
+    census('session_finish')
+    modules = list(_ORIGINS.values())
+    execs = list(_CODE.values())
+    mismatches = [entry for entry in modules + execs
+                  if entry.get('path') and not entry.get('git_match')]
+    payload = {'source_sha': SOURCE, 'pytest_exit': int(exitstatus),
+               'collected_count': len(_COLLECTED), 'collected_nodeids': _COLLECTED,
+               'collection_reports': _COLLECTION_REPORTS, 'deselected': _DESELECTED,
+               'cases': _CASES, 'actually_observed_product_modules': modules,
+               'transient_module_exec_origins': execs,
+               'source_mismatches': mismatches, 'observer_errors': _OBSERVER_ERRORS,
+               'backend_state': backend_state(), 'rng_state': rng_state(),
+               'resources': resource_state(),
+               'scope': 'all observed imports/execs in this pytest process; child workers are separate processes, their input bytes are pinned and complete parent-captured outputs retained; no invented child import census'}
+    emit('session_finish', **payload)
+    (OUT / 'observer-summary.json').write_text(json.dumps(payload, indent=2, default=str) + '\n')
+    _EVENTS.flush()
+
+
+census('observer_import')
+emit('observer_loaded', path=__file__, scope='passive main-process observer; no product imports/loader replacement')

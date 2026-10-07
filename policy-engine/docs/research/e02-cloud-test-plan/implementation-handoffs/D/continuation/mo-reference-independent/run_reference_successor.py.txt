@@ -1,0 +1,72 @@
+"""Run the frozen reference oracle against a fresh immutable successor view."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import time
+import uuid
+
+
+def main() -> None:
+    lane = Path("/workspace/e02-D-published-oracle")
+    prior = Path("/tmp/pareto-box-union-e2-113f4d507bb647d1a90639749330f2dc")
+    source = "163a3b51630bca46b99ce660b40749fb79ed6b40"
+    previous = "e2b1c6f7e7157e72d4a56008da5edb85f01a9312"
+    test_commit = "5d351d0f1f8a34acad951537ba47f36a4849f401"
+    test_path = "policy-engine/tests/unit/scientist/methods/search/strategies/test_multiobjective_reference_independent_oracle.py"
+    out = lane / "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/mo-reference-independent"
+    scratch = Path("/tmp") / ("mo-reference-163-" + uuid.uuid4().hex)
+    scratch.mkdir()
+    changed = set(subprocess.check_output(["git", "diff", "--name-only", previous, source], cwd=lane, text=True).splitlines())
+    scopes = ["policy-engine/src", "policy-engine/tools", "policy-engine/architecture", "policy-engine/pyproject.toml", "policy-engine/pytest.ini", "policy-engine/tests/conftest.py", "policy-engine/tests/_helpers", "policy-engine/tests/quarantine.toml", "policy-engine/tests/unit/scientist/conftest.py", test_path]
+    linked = 0
+    for scope in scopes:
+        root = prior / scope
+        paths = root.rglob("*") if root.is_dir() else [root]
+        for old in paths:
+            if not old.is_file() or any(part in {"_cache", "__pycache__", ".pytest_cache"} for part in old.parts):
+                continue
+            relative = old.relative_to(prior).as_posix()
+            if relative in changed:
+                continue
+            new = scratch / relative
+            new.parent.mkdir(parents=True, exist_ok=True)
+            os.link(old, new)
+            linked += 1
+    replaced = []
+    for relative in sorted(changed):
+        if not any(relative == scope or relative.startswith(scope + "/") for scope in scopes):
+            continue
+        content = subprocess.check_output(["git", "show", source + ":" + relative], cwd=lane)
+        new = scratch / relative
+        new.parent.mkdir(parents=True, exist_ok=True)
+        new.write_bytes(content)
+        replaced.append(relative)
+    test = subprocess.check_output(["git", "show", test_commit + ":" + test_path], cwd=lane)
+    if (scratch / test_path).read_bytes() != test:
+        raise RuntimeError("frozen oracle input differs")
+    product = scratch / "policy-engine"
+    plugin = (prior / "policy-engine/reference_source_binding_probe.py").read_text()
+    plugin = plugin.replace(repr(previous), repr(source)).replace("baseline-origins.json", "candidate-origins.json")
+    (product / "reference_source_binding_probe.py").write_text(plugin)
+    temporary = "/dev/shm/mo-reference-163-" + uuid.uuid4().hex
+    if Path(temporary).exists():
+        raise RuntimeError("basetemp must not already exist")
+    command = ["/workspace/e02-D-locked-env/bin/python", "-m", "pytest", "-q", test_path.removeprefix("policy-engine/"), "-p", "reference_source_binding_probe", "-ra", "--basetemp=" + temporary, "--junitxml=" + str(out / "candidate-junit.xml")]
+    environment = os.environ.copy()
+    environment.update({"PYTHONPATH": "src:.", "PYTHONDONTWRITEBYTECODE": "1"})
+    started = time.monotonic()
+    with (out / "candidate-complete.txt").open("w") as log:
+        child = subprocess.run(command, cwd=product, env=environment, stdout=log, stderr=subprocess.STDOUT, check=False)
+    result = {"source": source, "tree": subprocess.check_output(["git", "rev-parse", source + "^{tree}"], cwd=lane, text=True).strip(), "test_commit": test_commit, "test_sha256": hashlib.sha256(test).hexdigest(), "argv": command, "cwd": str(product), "returncode": child.returncode, "wall_seconds": time.monotonic() - started, "scratch": str(scratch), "fresh_basetemp": temporary, "basetemp_observed_after": Path(temporary).exists(), "agent_added_caps": False, "existing_application_runtime_policy": "MOBayesianOptimizer calls existing apply_torch_runtime_settings; prior exact-source witness observed Torch threads4/interop1. No extra test/orchestrator thread setting.", "input_scope": scopes, "preparation": {"prior_immutable_source_view": str(prior), "prior_source": previous, "hardlinked_unchanged_files": linked, "fresh_successor_blob_paths": replaced, "prior_view_mutated": False}, "omitted_inputs": "Other tests/docs/fixtures/data omitted, not claimed tested; actual missing inputs remain ERROR/UNRUN."}
+    (out / "candidate-command.json").write_text(json.dumps(result, indent=2) + "\n")
+    print(json.dumps(result))
+    print((out / "candidate-complete.txt").read_text()[-4000:])
+
+
+if __name__ == "__main__":
+    main()

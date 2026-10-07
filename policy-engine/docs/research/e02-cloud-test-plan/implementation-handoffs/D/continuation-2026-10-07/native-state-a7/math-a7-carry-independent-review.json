@@ -1,0 +1,192 @@
+{
+  "schema": "D.e02.independent-numerical-a7-carry-review.v1",
+  "reviewer": "/root/gp_oct07",
+  "author": "/root/math_oct07",
+  "review": "GO_BOUNDED_UNCHANGED_ASSERTION_CARRY",
+  "candidate": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "tree": "e809693afe3b84e02d473b5744142d026afbe509",
+  "original_runtime_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+  "reviewed_carry": {
+    "path": "/tmp/e02-D-adapter-final-next-6zl5k0p2/numerical-current-final-unchanged-carry.json",
+    "sha256": "b43f5306e90103b5a177a3384c3165f61ffe5c1cb897179d50a11308cfd4357c"
+  },
+  "full_changed_path_set": [
+    "policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-durable-completion-obligations.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-07-durable-cache-financial-boundary.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-07-e02-b-gateway-exact-numeric-decode.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-07-e02-d-native-cosine-admission.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-07-funnel-canonical-B12-consumer.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-07-native-search-budget-owner-port.toml",
+    "policy-engine/src/polisyos/core/llm/README.md",
+    "policy-engine/src/polisyos/core/llm/response.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/README.md",
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+    "policy-engine/src/polisyos/scientist/methods/search/service.py",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/README.md",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+    "policy-engine/tests/integration/scientist/methods/search/funnel/test_cache_settlement_binding.py",
+    "policy-engine/tests/integration/scientist/methods/search/funnel/test_native_resource_cost_stopping.py",
+    "policy-engine/tests/integration/scientist/methods/search/funnel/test_orchestrator.py",
+    "policy-engine/tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py",
+    "policy-engine/tests/integration/scientist/methods/search/test_controller.py",
+    "policy-engine/tests/unit/remediation/test_llm_01.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_native_doe_factory.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_service_owner_budget_factory.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_service_persistence.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_typed_objective_persisted_projection.py"
+  ],
+  "exact_unchanged_selected_bindings": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+      "old_blob": "63c3dd0bebe17eb599444070caebbb7acb926417",
+      "new_blob": "63c3dd0bebe17eb599444070caebbb7acb926417",
+      "sha256": "f6787e89fb3ae343e4ed822e00db9c91c44d017effc2aff22dda93f639c54b83"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+      "old_blob": "3e8a49f58dbec650304023e19e372ab92af9ca72",
+      "new_blob": "3e8a49f58dbec650304023e19e372ab92af9ca72",
+      "sha256": "e06f9901b021f0e85df3d60d6b778552c017fed6d69953fb4bf767d7515cd082"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+      "old_blob": "d12d0bb37b33ffb59513697eb95cc1653912553c",
+      "new_blob": "d12d0bb37b33ffb59513697eb95cc1653912553c",
+      "sha256": "aee369ab873131ac950104d3cf8b832c2ecf1d8109033f1631dc20877478bacd"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+      "old_blob": "385cef31cf0765561651c2015d180db252136370",
+      "new_blob": "385cef31cf0765561651c2015d180db252136370",
+      "sha256": "e4699f9b1f892a3850406d0ef582bcf8072e19192d040783468d8c33b9c21f8a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/policy_design/output.py",
+      "old_blob": "03cbee8ca84352e246a3ad75faf646343b0244b0",
+      "new_blob": "03cbee8ca84352e246a3ad75faf646343b0244b0",
+      "sha256": "6e7222137b4b44b7a71dd2de7d0300f0fee22d05f41df556b2f84dc84ea73598"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_hypervolume_profile.py",
+      "old_blob": "c0edd75373323ea3473021c13d06d47cb8bc9fde",
+      "new_blob": "c0edd75373323ea3473021c13d06d47cb8bc9fde",
+      "sha256": "1a2f7b4e752b8011df82731c708a0afd46eb75068f9caf11ef8c18d99530cf04"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_hypervolume_representability.py",
+      "old_blob": "751f3cbf0afafa58f31d832aba41de31c94018b6",
+      "new_blob": "751f3cbf0afafa58f31d832aba41de31c94018b6",
+      "sha256": "ce40a93f7ab58d5cae4bbe1cd342f990b9c3549077c3f32cde3271f3d44ec4f4"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
+      "old_blob": "caa3fb0dd90d29fa5de4e22eed2b8b3b675f1167",
+      "new_blob": "caa3fb0dd90d29fa5de4e22eed2b8b3b675f1167",
+      "sha256": "f9096dad70b07b8eae9a976e7a65010c592bc2352ad1ded425f47f5b534d1f25"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_axis_permutation_consumers.py",
+      "old_blob": "ad805169cb9bd681968b050cd0977f0f7947b5d1",
+      "new_blob": "ad805169cb9bd681968b050cd0977f0f7947b5d1",
+      "sha256": "c4f7790d3ecd6dddc2d23197250fb06acd0cd21a8c5887e0ca34d62590b5e990"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py",
+      "old_blob": "6de4050e3c59d10c0289af98e261985cf7ce8f73",
+      "new_blob": "6de4050e3c59d10c0289af98e261985cf7ce8f73",
+      "sha256": "0598f51997d46664ea1342c6bc3cdf96fd1ed005019d368d5a5199c45d1c8947"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+      "old_blob": "c0ec395deab6507d7ef1809d1b2e64963ad47969",
+      "new_blob": "c0ec395deab6507d7ef1809d1b2e64963ad47969",
+      "sha256": "3e61bd27dbf7a3e769e5effa843d5e98306475bc95fe16d94c35694a26ca7df4"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_subnormal_reindex_independent_oracle.py",
+      "old_blob": "b63219e8da7869d5955303d2955fe78c00670c68",
+      "new_blob": "b63219e8da7869d5955303d2955fe78c00670c68",
+      "sha256": "2f167180dd0cf233fe98236dc062161752db9eed3a70b91b0a54129474ef0561"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_mo_reference_representability.py",
+      "old_blob": "e7fa5ef64ee764edbc7a22dad1aff2362905128d",
+      "new_blob": "e7fa5ef64ee764edbc7a22dad1aff2362905128d",
+      "sha256": "097eaa6a446a8956de5f80ab54ef8dc4ac7fdf180e6651ad6131d57d852b797d"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py",
+      "old_blob": "1ef216bbfcb1c9eb532cdf068c2bb424110f62b5",
+      "new_blob": "1ef216bbfcb1c9eb532cdf068c2bb424110f62b5",
+      "sha256": "125812f64a5fc6c6a679969f8117819792c17a98e1c7030a815e15e346cea4b8"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_current_quantity_consumers.py",
+      "old_blob": "27b8bd73c1717e7245c6496f32bbe2e999b10397",
+      "new_blob": "27b8bd73c1717e7245c6496f32bbe2e999b10397",
+      "sha256": "c331f05519c4590c96080d6d1491388ca261b1096dedf0100712da1b0c097939"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_frontier_quantity_readback.py",
+      "old_blob": "7325a9a98c2be4fba5494113a8d7b59b29950ef8",
+      "new_blob": "7325a9a98c2be4fba5494113a8d7b59b29950ef8",
+      "sha256": "fba874ac95a52e961f5d51c62de468e94e05d77700137491fc2143b4202d9071"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_registry_quantity_projection.py",
+      "old_blob": "a30d763934453ca9f130dbae2fdbc79c1d8d9a49",
+      "new_blob": "a30d763934453ca9f130dbae2fdbc79c1d8d9a49",
+      "sha256": "500342e870818200404d2322cf266877631fd4303798fe364104833ae94550e6"
+    }
+  ],
+  "actual_c0_observed_changed_modules": [
+    {
+      "module": "polisyos.core.llm.response",
+      "path": "policy-engine/src/polisyos/core/llm/response.py",
+      "old_sha256": "e5baac7b9e2d3c1d77c22308378d4811c6544d8dbdbc9bdec3afd7b3ec63fdea",
+      "new_sha256": "8e9d9cb25cc73257a55f76acbc1cdd66871a2e207b1efd7e19e7b12024a385ea",
+      "changed_definitions": [
+        "_extract_cache_provenance",
+        "_require_durable_cache_reuse"
+      ]
+    },
+    {
+      "module": "polisyos.scientist.methods.search.funnel.orchestrator",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "old_sha256": "c3c77c21545c54e112db5b72a4585dd436d2aeee6a477982a9d6cd3fea3cd12f",
+      "new_sha256": "b38028b16da9637679d740545698418f74ac02ee78d7282caec7a8aa5d1002c0",
+      "changed_definitions": [
+        "FunnelOrchestrator"
+      ]
+    }
+  ],
+  "checked_response_definitions_AST_identical": [
+    "LLMLocalSpendReceipt",
+    "llm_local_receipt_resolver",
+    "_InvalidLLMCostError",
+    "LLMResponseData",
+    "extract_llm_response_data",
+    "_extract_physical_provider_response_data",
+    "_as_float",
+    "_field",
+    "_usage_token",
+    "_extract_cost_data",
+    "_extract_cost_usd",
+    "_as_str"
+  ],
+  "independent_inspection": "Full immutable Git delta inspected. Response changes only cache provenance discovery/current durable paid-origin admission; FUN change only financial cache-reuse branch. Selected all-pairs/rational/coordinate/registry/CAS and complementary typed MO quantity/reference assertions invoke neither branch. Common quantities and MO production/test blobs exact-identical; recorded old runtime outputs stay c0-qualified.",
+  "original_handoff": {
+    "path": "/tmp/e02-D-math-current-final-4is8hd26/current-numerical-handoff.json",
+    "sha256": "0b1d9f194413e1b22dfa89cee88d81c315a7df582455cc690d8fc5835a7c1464"
+  },
+  "limitations": [
+    "No numerical replay performed or current whole-source PASS claimed.",
+    "Adapter/Runner/service and financial owner affected consumers require separate actual final receipts.",
+    "Old Champion carry is separately bounded by its immutable original source/output and owner contract.",
+    "P41 not_established; no inherited-red waiver."
+  ],
+  "formal_closed": false,
+  "G_acceptance": "not_established"
+}

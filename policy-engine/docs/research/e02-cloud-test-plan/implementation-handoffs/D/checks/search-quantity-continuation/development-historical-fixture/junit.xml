@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="42" time="10.731" timestamp="2026-10-06T15:11:00.198121+00:00" hostname="565838a1e059"><testcase classname="tests.unit.scientist.methods.search.strategies.test_multiobjective_hypervolume_admission" name="test_actual_strategy_quantity_and_backend_absence_are_distinct" time="0.680" /><testcase classname="tests.unit.scientist.methods.search.strategies.test_multiobjective_hypervolume_admission" name="test_strategy_excludes_invalid_scalar_without_fabricating_zero[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]" time="0.005" /><testcase classname="tests.unit.scientist.methods.search.strategies.test_multiobjective_hypervolume_admission" name="test_strategy_excludes_invalid_scalar_without_fabricating_zero[True]" time="0.002" /><testcase classname="tests.unit.scientist.methods.search.strategies.test_multiobjective_hypervolume_admission" name="test_strategy_excludes_invalid_scalar_without_fabricating_zero[broken]" time="0.001" /><testcase classname="tests.unit.scientist.methods.search.strategies.test_multiobjective_hypervolume_admission" name="test_strategy_excludes_invalid_scalar_without_fabricating_zero[nan]" time="0.001" /><testcase classname="tests.unit.scientist.methods.search.strategies.test_multiobjective_hypervolume_admission" name="test_strategy_excludes_invalid_scalar_without_fabricating_zero[inf]" time="0.001" /><testcase classname="tests.unit.scientist.methods.search.strategies.test_multiobjective_hypervolume_admission" name="test_actual_zero_and_no_usable_inputs_have_different_assessments" time="0.681" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_two_objective_front" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_dominated_candidate" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_unassessed_candidate_cannot_be_reported_as_not_dominated" time="0.051" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_two_dimensional_fast_front_removes_equal_secondary_value_from_later_group" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_three_dimensional_fast_front_removes_equal_secondary_value_from_later_group" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_three_dimensional_same_first_group_uses_local_strict_dominance[points0-expected_indices0]" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_three_dimensional_same_first_group_uses_local_strict_dominance[points1-expected_indices1]" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_three_dimensional_same_first_group_retains_duplicate_and_incomparable_ties" time="0.000" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_three_dimensional_minimize_direction_keeps_lower_raw_cost" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_empty_evaluations" time="0.000" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_single_objective" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_non_dominated_on_empty_front" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_requires_at_least_one_policy" time="0.000" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_two_objective_front_preserves_duplicate_ties" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_coordinate_identity_keeps_split_unit_and_direction" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_single_axis_identity_preserves_split_and_direction_without_unit" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_single_axis_identity_distinguishes_absent_and_present_unit" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_coordinate_schema_round_trips_and_labels_reference_point" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_missing_coordinate_schema_is_explicit_legacy_or_fails_closed" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_tampered_coordinate_id_is_rejected" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_complete_v1_payload_has_exact_coordinate_and_reference_keys" time="0.001"><failure message="pydantic_core._pydantic_core.ValidationError: 1 validation error for ParetoFront&#10;  Value error, v1 Pareto front cannot carry the typed indicator assessment [type=value_error, input_value={'members': [{'candidate_...b026f459dc86ae99': 1.0}}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/value_error">self = &lt;tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront object at 0x7f516b3ef770&gt;
+
+    def test_complete_v1_payload_has_exact_coordinate_and_reference_keys(self):
+        """Complete v1 payloads expose one exact, mutually bound key set."""
+        # Catches the production mutation that adds a schema marker but leaves
+        # member/reference dictionaries on an untyped or divergent key set.
+        promoter = ParetoPromoter(_policies("score"))
+        payload = promoter.compute_front([_eval(score=1.0)]).model_dump(mode="json")
+    
+        assert set(payload) == {
+            "schema_version",
+            "members",
+            "hypervolume",
+            "hypervolume_assessment",
+            "reference_point",
+            "coordinate_schema",
+            "coordinate_reference_point",
+            "input_assessment",
+        }
+        assert payload["schema_version"] == "2.0"
+        assert set(payload["coordinate_schema"]) == {"version", "status", "coordinates"}
+        assert set(payload["input_assessment"]) == {
+            "status",
+            "input_count",
+            "assessed_count",
+            "unassessed_evaluations",
+        }
+        assert set(payload["members"][0]) == {
+            "candidate_ref_id",
+            "objectives",
+            "coordinate_values",
+            "evaluation",
+        }
+    
+        coordinates = payload["coordinate_schema"]["coordinates"]
+        assert coordinates
+        assert set(coordinates[0]) == {
+            "coordinate_id",
+            "metric",
+            "split",
+            "unit_state",
+            "unit",
+            "direction",
+        }
+        coordinate_ids = {item["coordinate_id"] for item in coordinates}
+        assert set(payload["members"][0]["coordinate_values"]) == coordinate_ids
+        assert set(payload["coordinate_reference_point"]) == coordinate_ids
+        assert set(payload["reference_point"]) == set(payload["members"][0]["objectives"])
+    
+        # Historical v1 omitted the new coverage contract; its owner serializer
+        # must keep that projection available without pretending v2 was v1.
+        old_payload = {
+            key: payload[key]
+            for key in (
+                "members",
+                "hypervolume",
+            "hypervolume_assessment",
+                "reference_point",
+                "coordinate_schema",
+                "coordinate_reference_point",
+            )
+        }
+&gt;       historical = ParetoFront.model_validate(old_payload)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for ParetoFront
+E         Value error, v1 Pareto front cannot carry the typed indicator assessment [type=value_error, input_value={'members': [{'candidate_...b026f459dc86ae99': 1.0}}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.12/v/value_error
+
+tests/unit/scientist/methods/autotune/test_pareto.py:601: ValidationError</failure></testcase><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_empty_and_invalid_front_preserves_schema_as_incomplete" time="0.034" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_empty_coordinate_values_cannot_yield_permissive_is_dominated_false" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_duplicate_full_coordinate_is_rejected" time="0.000" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_non_finite_and_missing_metrics_are_excluded_from_numeric_front" time="0.064" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_mixed_objective_coverage_is_typed_and_keeps_finite_front" time="0.059" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_reconstructed_input_assessment_rejects_duplicate_or_out_of_range_positions[omission_indices0]" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_reconstructed_input_assessment_rejects_duplicate_or_out_of_range_positions[omission_indices1]" time="0.000" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_validated_input_assessment_cannot_gain_an_omission_after_validation" time="0.000" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_duplicate_invalid_candidate_refs_keep_distinct_input_positions" time="0.033" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_invalid_reference_point_does_not_emit_non_finite_hypervolume" time="0.000" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_fast_front_matches_independent_slow_oracle[metric_names0-points0]" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_fast_front_matches_independent_slow_oracle[metric_names1-points1]" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_fast_front_matches_independent_slow_oracle[metric_names2-points2]" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_three_objective_front_matches_slow_reference" time="0.006" /></testsuite></testsuites>

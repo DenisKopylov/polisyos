@@ -1,0 +1,69 @@
+id = "2026-10-07-native-trial-deduplication-and-primary-availability"
+title = "Bind native trial deduplication to actual content and preserve unavailable primary metrics"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-runtime"
+surface_classification = "public_stable: polisyos.scientist; internal: methods.autotune.dedup and methods.search.frontier"
+change_class = "python-public-api"
+summary = "The existing run dedup port filters admitted duplicate proposals before evaluator calls and is available through create_service/resume; actual primary absence is unavailable rather than zero."
+api = "SearchLoopRunner.run keeps dedup as an optional keyword and narrows it to canonical TrialDeduplicator. create_service/resume add that optional keyword. The concrete factory/result classes and default None evaluation behavior are unchanged."
+compatibility = "Only the native content-bound typed-mutation/data-context profile supports dedup. Membership derives from actual qualified completed CAS records and pending proposals, never a cached EvaluationBundle. Explicit replicas and semantic dates remain distinct. Supplied frontier hash markers no longer replace actual payload identity. Internal TrialFingerprint.digest changes from a transient 16-hex prefix to full 64-hex SHA256. Native primary results may contain None and a retained primary_metric_assessment instead of false numeric zero; unavailable results are not promising."
+migration = "Preserve original snapshots and source readers; do not rewrite old producer-marker groups. Reset transient helper membership and rebuild it from admitted history. Use matching new source/helper/context profiles for new runs or supported continuation. The last qualified CAS checkpoint fixes the active profile for ask, tell, checkpoint and pending evaluation. Only explicit run_search retires the old acknowledgement for a new lifecycle; changed active configurations refuse before effects or publication. No generic external registry or scientific identity migration is supplied."
+limitations = "No scientific evaluator appointment, replica independence law, population probability, default production caller, cached-result authority or distributed atomicity is established by these local source-bound controls. Production inputs remain local."
+evidence = ["tests/unit/scientist/methods/search/test_service_trial_deduplication.py", "tests/unit/scientist/methods/autotune/test_dedup.py", "tests/unit/scientist/methods/search/test_semantic_dates_persisted_consumers.py", "tests/unit/scientist/methods/search/test_service_factory_fault_resume.py"]
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]
+runbook_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]
+
+[[compatibility_change]]
+id = "native-trial-dedup-new-keyword-ports"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.scientist.SearchLoopRunner"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "not_applicable"
+release_note = "create_service and public resume add optional canonical dedup keywords. The default None profile is unchanged."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]
+runbook_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]
+
+[[compatibility_change]]
+id = "canonical-candidate-and-transient-trial-digest"
+change_class = "serialization"
+impact = "breaking"
+surface = "internal: methods.search.frontier.policy_candidate_hash; methods.autotune.dedup.TrialFingerprint"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "immediate fail-closed for incompatible source-bound identity profiles"
+release_note = "Actual content determines frontier equality and the transient trial digest is full SHA256. Prior marker-grouped snapshots remain immutable/readable with recorded readers; no silent rewrite or migration is implied."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]
+runbook_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]
+
+[[compatibility_change]]
+id = "existing-run-dedup-behavior-and-profile-admission"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_stable: polisyos.scientist.SearchLoopRunner.run(dedup=...)"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "immediate fail-closed for an unadmitted dedup owner or context profile"
+release_note = "The previously ignored run dedup argument now performs pre-evaluator filtering and accepts only the actual canonical TrialDeduplicator. Previously ignored arbitrary objects refuse explicitly; set None for unchanged evaluation behavior or configure the supported native profile."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]
+runbook_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]
+
+[[compatibility_change]]
+id = "native-primary-result-nullable-availability"
+change_class = "serialization"
+impact = "breaking"
+surface = "internal: native simulation_results primary metric and primary_metric_assessment"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "immediate refusal of unavailable-as-zero interpretations"
+release_note = "Missing or noncomparable primary measurements are None with an explicit unavailable assessment and cannot be promising/best/frontier. Consumers check availability and the retained reason; genuine measured zero remains numeric. BenchmarkEvaluation source metrics and original artifacts remain unchanged."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]
+runbook_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]

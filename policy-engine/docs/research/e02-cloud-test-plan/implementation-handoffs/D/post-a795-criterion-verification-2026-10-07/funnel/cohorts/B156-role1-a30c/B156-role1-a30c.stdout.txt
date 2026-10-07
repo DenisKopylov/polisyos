@@ -1,0 +1,25 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.0.2, pluggy-1.6.0 -- /tmp/e02-D-runtime-minimal-20261006/bin/python
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/dev/shm/e02-D-oct07-continuation/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /dev/shm/e02-D-oct07-continuation/policy-engine
+configfile: pytest.ini
+plugins: xdist-3.8.0, benchmark-5.2.3, asyncio-1.3.0, langsmith-0.6.0, jaxtyping-0.3.4, hypothesis-6.151.2, anyio-4.12.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 1 item
+
+tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_submit_cache_is_scoped_to_effective_context PASSED [100%]
+
+=============================== warnings summary ===============================
+../../../../tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+- generated xml file: /dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role1-a30c.junit.xml -
+=========================== short test summary info ============================
+PASSED tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_submit_cache_is_scoped_to_effective_context
+========================= 1 passed, 1 warning in 2.04s =========================

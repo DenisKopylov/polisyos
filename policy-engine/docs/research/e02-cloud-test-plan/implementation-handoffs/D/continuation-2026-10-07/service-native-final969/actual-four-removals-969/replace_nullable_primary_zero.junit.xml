@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="5.085" timestamp="2026-10-07T10:41:25.832466+00:00" hostname="565838a1e059"><testcase classname="tests.unit.scientist.methods.search.test_service_trial_deduplication" name="test_actual_native_primary_quantity_preserves_unavailable_zero_and_fresh_cas_basis[missing-False-ok-1]" file="tests/unit/scientist/methods/search/test_service_trial_deduplication.py" line="637" time="0.063"><failure message="assert 0.0 is None">tmp_path = PosixPath('/dev/shm/e02-D-B124-removal-four-exxj42mi/replace_nullable_primary_zero-fixtures/test_actual_native_primary_qua0')
+profile = 'missing', present = False, status = 'ok', value = 1
+
+    @pytest.mark.parametrize(
+        ("profile", "present", "status", "value"),
+        [
+            ("missing", False, "ok", 1),
+            ("status_not_ok", True, "error", 1),
+            ("genuine_zero", True, "ok", 0),
+            ("ordinary_one", True, "ok", 1),
+        ],
+    )
+    def test_actual_native_primary_quantity_preserves_unavailable_zero_and_fresh_cas_basis(
+        tmp_path, profile, present, status, value
+    ):
+        corpus = _corpus()[:1]
+        corpus[0]["value"] = value
+        runner, store, _, suite, evaluator, spec = _runner(
+            tmp_path, corpus, status=status, include_metric=present, promotable=True
+        )
+        result = runner.run(spec, suite_ref=suite, max_iterations=1)
+        assert _values(evaluator) == [value]
+        assert len(result.history) == result.stage_b_evaluations == 1
+        row = result.history[0]
+        simulation = row.stage_b_result["simulation_results"]
+        assessment = simulation["primary_metric_assessment"]
+        assert assessment["metric"] == "score"
+        assert assessment["split"] == "holdout"
+        assert assessment["direction"] == "maximize"
+        assert assessment["unit"] == "points"
+        evaluation_ref = ArtifactRef.model_validate(simulation["evaluation_artifact_ref"])
+        candidate_ref = ArtifactRef.model_validate(simulation["candidate_artifact_ref"])
+        fresh_store = FileSystemCAS(tmp_path / "cas")
+        actual = load_model_artifact(fresh_store, evaluation_ref, BenchmarkEvaluation)
+        candidate = load_model_artifact(fresh_store, candidate_ref, _DatedMutation)
+        assert actual.candidate_ref == candidate_ref
+        assert actual.status == status
+        assert (
+            actual.promotable is True
+        )  # Retain the positive producer marker on unavailable outcomes.
+        assert actual.holdout_metrics == ({"score": float(value)} if present else {})
+        assert candidate.value == value
+        checkpoint_ref = ArtifactRef.model_validate(result.telemetry["checkpoint_ref"])
+        saved_snapshot = fresh_store.get_verified_snapshot(checkpoint_ref)
+        saved = SearchRunState.from_checkpoint(
+            _decode_checkpoint(saved_snapshot.data)["run_state"]
+        )
+        fresh_pointer = ChampionRegistry(
+            root=tmp_path / "champions", store=fresh_store
+        ).get("dedup")
+        # This is an observed quantity/state relation, not a declaration flag probe:
+        # genuine zero has finite history, best and frontier; absence/error has none.
+        if profile in {"missing", "status_not_ok"}:
+            assert assessment["status"] == "unavailable"
+            assert assessment["reason"] == (
+                "primary_metric_missing"
+                if profile == "missing"
+                else "evaluation_status_not_comparable"
+            )
+&gt;           assert simulation["score"] is None
+E           assert 0.0 is None
+
+tests/unit/scientist/methods/search/test_service_trial_deduplication.py:694: AssertionError</failure></testcase></testsuite></testsuites>

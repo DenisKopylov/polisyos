@@ -1,0 +1,194 @@
+[
+  {
+    "scope": "native",
+    "kind": "before.json",
+    "raw_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/before.json",
+    "sha256": "4fb71240c1d7b7384ada0bad3c5a4e422d78b850adfbf71b128265cf80f83aee",
+    "bytes": 992125,
+    "availability": "ignored local full capture; omitted from Git delivery, no Gitavailability claim"
+  },
+  {
+    "scope": "native",
+    "kind": "after.json",
+    "raw_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/after.json",
+    "sha256": "4fb71240c1d7b7384ada0bad3c5a4e422d78b850adfbf71b128265cf80f83aee",
+    "bytes": 992125,
+    "availability": "ignored local full capture; omitted from Git delivery, no Gitavailability claim"
+  },
+  {
+    "scope": "native",
+    "kind": "origins.json",
+    "raw_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/origins.json",
+    "sha256": "7238d8135c2b385e5caa6259c573e642bd76dff7b9e4a36fb3dbfb616906537a",
+    "bytes": 788558,
+    "availability": "ignored local full capture; omitted from Git delivery, no Gitavailability claim"
+  },
+  {
+    "scope": "native",
+    "kind": "assessed-source-equivalence.json",
+    "raw_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/assessed-source-equivalence.json",
+    "sha256": "cfb8b0b7e836a46621ec7ab719b19ca8bbc3264f0a6bb92a7c2fe5bfc490c28a",
+    "bytes": 48455,
+    "availability": "ignored local full capture; omitted from Git delivery, no Gitavailability claim"
+  },
+  {
+    "scope": "quota-replay",
+    "kind": "before.json",
+    "raw_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/quota-replay/before.json",
+    "sha256": "4fb71240c1d7b7384ada0bad3c5a4e422d78b850adfbf71b128265cf80f83aee",
+    "bytes": 992125,
+    "availability": "ignored local full capture; omitted from Git delivery, no Gitavailability claim"
+  },
+  {
+    "scope": "quota-replay",
+    "kind": "after.json",
+    "raw_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/quota-replay/after.json",
+    "sha256": "4fb71240c1d7b7384ada0bad3c5a4e422d78b850adfbf71b128265cf80f83aee",
+    "bytes": 992125,
+    "availability": "ignored local full capture; omitted from Git delivery, no Gitavailability claim"
+  },
+  {
+    "scope": "quota-replay",
+    "kind": "origins.json",
+    "raw_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/quota-replay/origins.json",
+    "sha256": "3ac996a89b2a8920a8d78739611a40da5b870db61818127e5da20586fafe1347",
+    "bytes": 800215,
+    "availability": "ignored local full capture; omitted from Git delivery, no Gitavailability claim"
+  },
+  {
+    "scope": "quota-replay",
+    "kind": "assessed-source-equivalence.json",
+    "raw_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/quota-replay/assessed-source-equivalence.json",
+    "sha256": "cfb8b0b7e836a46621ec7ab719b19ca8bbc3264f0a6bb92a7c2fe5bfc490c28a",
+    "bytes": 48455,
+    "availability": "ignored local full capture; omitted from Git delivery, no Gitavailability claim"
+  },
+  {
+    "scope": "lessons",
+    "kind": "before.json",
+    "raw_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/lessons/before.json",
+    "sha256": "4fb71240c1d7b7384ada0bad3c5a4e422d78b850adfbf71b128265cf80f83aee",
+    "bytes": 992125,
+    "availability": "ignored local full capture; omitted from Git delivery, no Gitavailability claim"
+  },
+  {
+    "scope": "lessons",
+    "kind": "after.json",
+    "raw_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/lessons/after.json",
+    "sha256": "4fb71240c1d7b7384ada0bad3c5a4e422d78b850adfbf71b128265cf80f83aee",
+    "bytes": 992125,
+    "availability": "ignored local full capture; omitted from Git delivery, no Gitavailability claim"
+  },
+  {
+    "scope": "lessons",
+    "kind": "origins.json",
+    "raw_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/lessons/origins.json",
+    "sha256": "fc527049755ac734fe91a6fafb85b15c1d017724c4fe32fa6dcdeed7da33090f",
+    "bytes": 352105,
+    "availability": "ignored local full capture; omitted from Git delivery, no Gitavailability claim"
+  },
+  {
+    "scope": "lessons",
+    "kind": "assessed-source-equivalence.json",
+    "raw_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/lessons/assessed-source-equivalence.json",
+    "sha256": "cfb8b0b7e836a46621ec7ab719b19ca8bbc3264f0a6bb92a7c2fe5bfc490c28a",
+    "bytes": 48455,
+    "availability": "ignored local full capture; omitted from Git delivery, no Gitavailability claim"
+  },
+  {
+    "scope": "intake-removal",
+    "kind": "before.json",
+    "raw_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/intake-removal/before.json",
+    "sha256": "4fb71240c1d7b7384ada0bad3c5a4e422d78b850adfbf71b128265cf80f83aee",
+    "bytes": 992125,
+    "availability": "ignored local full capture; omitted from Git delivery, no Gitavailability claim"
+  },
+  {
+    "scope": "intake-removal",
+    "kind": "after.json",
+    "raw_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/intake-removal/after.json",
+    "sha256": "4fb71240c1d7b7384ada0bad3c5a4e422d78b850adfbf71b128265cf80f83aee",
+    "bytes": 992125,
+    "availability": "ignored local full capture; omitted from Git delivery, no Gitavailability claim"
+  },
+  {
+    "scope": "intake-removal",
+    "kind": "origins.json",
+    "raw_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/intake-removal/origins.json",
+    "sha256": "94ddf73fe9ab85573953ef2500f505c9edf8e28927c66521074610d707dc76ff",
+    "bytes": 781283,
+    "availability": "ignored local full capture; omitted from Git delivery, no Gitavailability claim"
+  },
+  {
+    "scope": "intake-removal",
+    "kind": "assessed-source-equivalence.json",
+    "raw_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/intake-removal/assessed-source-equivalence.json",
+    "sha256": "cfb8b0b7e836a46621ec7ab719b19ca8bbc3264f0a6bb92a7c2fe5bfc490c28a",
+    "bytes": 48455,
+    "availability": "ignored local full capture; omitted from Git delivery, no Gitavailability claim"
+  },
+  {
+    "scope": "native-finite-removal",
+    "kind": "before.json",
+    "raw_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native-finite-removal/before.json",
+    "sha256": "4fb71240c1d7b7384ada0bad3c5a4e422d78b850adfbf71b128265cf80f83aee",
+    "bytes": 992125,
+    "availability": "ignored local full capture; omitted from Git delivery, no Gitavailability claim"
+  },
+  {
+    "scope": "native-finite-removal",
+    "kind": "after.json",
+    "raw_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native-finite-removal/after.json",
+    "sha256": "4fb71240c1d7b7384ada0bad3c5a4e422d78b850adfbf71b128265cf80f83aee",
+    "bytes": 992125,
+    "availability": "ignored local full capture; omitted from Git delivery, no Gitavailability claim"
+  },
+  {
+    "scope": "native-finite-removal",
+    "kind": "origins.json",
+    "raw_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native-finite-removal/origins.json",
+    "sha256": "b5cc9d200a22b073c00f306f96634241726f7281c18d3829dc22582b848bd2cc",
+    "bytes": 231666,
+    "availability": "ignored local full capture; omitted from Git delivery, no Gitavailability claim"
+  },
+  {
+    "scope": "native-finite-removal",
+    "kind": "assessed-source-equivalence.json",
+    "raw_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native-finite-removal/assessed-source-equivalence.json",
+    "sha256": "cfb8b0b7e836a46621ec7ab719b19ca8bbc3264f0a6bb92a7c2fe5bfc490c28a",
+    "bytes": 48455,
+    "availability": "ignored local full capture; omitted from Git delivery, no Gitavailability claim"
+  },
+  {
+    "scope": "legacy6",
+    "kind": "before.json",
+    "raw_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/legacy-run5b/actual-legacy6/before.json",
+    "sha256": "c18f918a6cceb3ddd63463678032f8779effa9a77317de69cc3c33ded869e079",
+    "bytes": 992470,
+    "availability": "ignored local full capture; omitted from Git delivery, no Gitavailability claim"
+  },
+  {
+    "scope": "legacy6",
+    "kind": "after.json",
+    "raw_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/legacy-run5b/actual-legacy6/after.json",
+    "sha256": "c18f918a6cceb3ddd63463678032f8779effa9a77317de69cc3c33ded869e079",
+    "bytes": 992470,
+    "availability": "ignored local full capture; omitted from Git delivery, no Gitavailability claim"
+  },
+  {
+    "scope": "legacy6",
+    "kind": "origins.json",
+    "raw_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/legacy-run5b/actual-legacy6/origins.json",
+    "sha256": "9be1d47062a96365b51d627508fa21eed8b3ede566312e1a3ca85dd1797d29d7",
+    "bytes": 780875,
+    "availability": "ignored local full capture; omitted from Git delivery, no Gitavailability claim"
+  },
+  {
+    "scope": "legacy6",
+    "kind": "assessed-source-equivalence.json",
+    "raw_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/legacy-run5b/actual-legacy6/assessed-source-equivalence.json",
+    "sha256": "0e6e8b6a73d649e5d3323de82b6c3ea927430693118aef10dbd999ede8913c7b",
+    "bytes": 49443,
+    "availability": "ignored local full capture; omitted from Git delivery, no Gitavailability claim"
+  }
+]

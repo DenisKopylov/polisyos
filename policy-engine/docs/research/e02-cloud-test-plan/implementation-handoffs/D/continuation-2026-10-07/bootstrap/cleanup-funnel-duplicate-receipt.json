@@ -1,0 +1,95 @@
+{
+  "schema": "e02.D.authorized-unused-duplicate-cleanup.v1",
+  "authorization": "User 2026-10-07: В облаке можешь удалять не нужное самостоятельно, разрешаю",
+  "precheck_sha256": "c473600f4702140c55b9469735d46a94f25fead8d4d886694cd78e43183089a4",
+  "precheck_path": "/dev/shm/e02-D-oct07-root-admission/cleanup-funnel-duplicate-precheck.json.gz",
+  "memory_before": "17179803648",
+  "rows": [
+    {
+      "root": "/tmp/e02-D-funnel-evidence/aggregate_verdict",
+      "source_pin": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+      "deleted_git_equal_files": 6914,
+      "deleted_bytes": 146514832,
+      "preserved_unique_or_modified_count": 874
+    },
+    {
+      "root": "/tmp/e02-D-funnel-evidence/candidate_binding",
+      "source_pin": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+      "deleted_git_equal_files": 6914,
+      "deleted_bytes": 146472929,
+      "preserved_unique_or_modified_count": 1202
+    },
+    {
+      "root": "/tmp/e02-D-funnel-evidence/ci_invalid_zero",
+      "source_pin": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+      "deleted_git_equal_files": 6914,
+      "deleted_bytes": 146559833,
+      "preserved_unique_or_modified_count": 874
+    },
+    {
+      "root": "/tmp/e02-D-funnel-evidence/config_alias",
+      "source_pin": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+      "deleted_git_equal_files": 6914,
+      "deleted_bytes": 146556508,
+      "preserved_unique_or_modified_count": 874
+    },
+    {
+      "root": "/tmp/e02-D-funnel-evidence/empty_approval",
+      "source_pin": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+      "deleted_git_equal_files": 6914,
+      "deleted_bytes": 146514832,
+      "preserved_unique_or_modified_count": 874
+    },
+    {
+      "root": "/tmp/e02-D-funnel-evidence/empty_tracker_normal",
+      "source_pin": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+      "deleted_git_equal_files": 6914,
+      "deleted_bytes": 146541654,
+      "preserved_unique_or_modified_count": 1201
+    },
+    {
+      "root": "/tmp/e02-D-funnel-evidence/owner_boolean",
+      "source_pin": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+      "deleted_git_equal_files": 6914,
+      "deleted_bytes": 146553810,
+      "preserved_unique_or_modified_count": 1202
+    },
+    {
+      "root": "/tmp/e02-D-funnel-evidence/owner_commit",
+      "source_pin": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+      "deleted_git_equal_files": 6914,
+      "deleted_bytes": 146472929,
+      "preserved_unique_or_modified_count": 1198
+    },
+    {
+      "root": "/tmp/e02-D-funnel-evidence/owner_presence",
+      "source_pin": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+      "deleted_git_equal_files": 6914,
+      "deleted_bytes": 146553810,
+      "preserved_unique_or_modified_count": 1202
+    },
+    {
+      "root": "/tmp/e02-D-funnel-evidence/semantic_time",
+      "source_pin": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+      "deleted_git_equal_files": 6914,
+      "deleted_bytes": 146514832,
+      "preserved_unique_or_modified_count": 874
+    },
+    {
+      "root": "/tmp/e02-D-funnel-evidence/spend_hash",
+      "source_pin": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+      "deleted_git_equal_files": 6914,
+      "deleted_bytes": 146514832,
+      "preserved_unique_or_modified_count": 870
+    },
+    {
+      "root": "/tmp/e02-D-funnel-evidence/typed_time",
+      "source_pin": "63b0eb20a3ed99c72d8b88eea09d80f87ac98495",
+      "deleted_git_equal_files": 6914,
+      "deleted_bytes": 146514832,
+      "preserved_unique_or_modified_count": 874
+    }
+  ],
+  "registered_worktrees_unchanged": true,
+  "memory_after": "14093320192"
+}

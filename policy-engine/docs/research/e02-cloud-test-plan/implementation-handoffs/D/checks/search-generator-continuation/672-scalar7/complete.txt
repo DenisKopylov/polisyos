@@ -1,0 +1,18 @@
+.......                                                                  [100%]
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tests/unit/scientist/methods/search/strategies/test_gp_scalar_admission.py::test_native_batch_refuses_invalid_scalar_and_keeps_measured_rows[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]
+PASSED tests/unit/scientist/methods/search/strategies/test_gp_scalar_admission.py::test_native_batch_refuses_invalid_scalar_and_keeps_measured_rows[True]
+PASSED tests/unit/scientist/methods/search/strategies/test_gp_scalar_admission.py::test_native_batch_refuses_invalid_scalar_and_keeps_measured_rows[False]
+PASSED tests/unit/scientist/methods/search/strategies/test_gp_scalar_admission.py::test_native_batch_refuses_invalid_scalar_and_keeps_measured_rows[broken]
+PASSED tests/unit/scientist/methods/search/strategies/test_gp_scalar_admission.py::test_native_batch_refuses_invalid_scalar_and_keeps_measured_rows[inf]
+PASSED tests/unit/scientist/methods/search/strategies/test_gp_scalar_admission.py::test_native_batch_refuses_invalid_scalar_and_keeps_measured_rows[nan]
+PASSED tests/unit/scientist/methods/search/strategies/test_gp_scalar_admission.py::test_native_batch_refuses_invalid_scalar_and_keeps_measured_rows[scalar6]
+7 passed, 2 warnings in 17.28s

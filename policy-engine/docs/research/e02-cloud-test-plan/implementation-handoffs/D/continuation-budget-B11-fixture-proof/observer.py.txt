@@ -1,0 +1,21 @@
+import hashlib,json,os,sys,time
+from pathlib import Path
+ROOT=Path(os.environ['E02_PROJECT'])
+OUT=Path(os.environ['E02_OUTPUT'])
+def emit(value):
+    with (OUT/'events.jsonl').open('a') as stream: stream.write(json.dumps(value)+"\n")
+def pytest_collection_finish(session):
+    (OUT/'collected-nodeids.json').write_text(json.dumps([i.nodeid for i in session.items],indent=2)+"\n")
+def pytest_runtest_logreport(report):
+    emit({'event':'test_report','nodeid':report.nodeid,'when':report.when,'outcome':report.outcome,'duration':report.duration,'longrepr':str(report.longrepr) if report.longrepr else None})
+def pytest_sessionfinish(session,exitstatus):
+    source=[]
+    for name,mod in sorted(sys.modules.items()):
+        file=getattr(mod,'__file__',None)
+        if file:
+            path=Path(file).resolve()
+            if path.is_relative_to(ROOT/'src') and path.is_file():
+                data=path.read_bytes()
+                source.append({'module':name,'path':str(path),'repo_path':str(path.relative_to(ROOT.parent)),'sha256':hashlib.sha256(data).hexdigest(),'git_blob':hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()})
+    (OUT/'actual-origins.json').write_text(json.dumps(source,indent=2)+"\n")
+    (OUT/'runtime.json').write_text(json.dumps({'exitstatus':int(exitstatus),'python':sys.version,'executable':sys.executable,'loaded_optional':{n:n in sys.modules for n in ('torch','botorch','gpytorch','hnswlib','SALib')}},indent=2)+"\n")

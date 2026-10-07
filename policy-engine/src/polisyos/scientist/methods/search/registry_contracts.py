@@ -24,6 +24,7 @@ class ChampionRegistryContract(Protocol):
         evaluation_ref: ArtifactRef,
         policy: PromotionPolicy,
         *,
+        suite_ref: ArtifactRef | None = None,
         pareto_promoter: Any | None = None,
     ) -> PromotionDecision: ...
 

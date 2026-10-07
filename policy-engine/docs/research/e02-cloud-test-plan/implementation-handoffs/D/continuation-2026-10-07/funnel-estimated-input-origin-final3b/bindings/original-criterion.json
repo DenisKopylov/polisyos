@@ -1,0 +1,43 @@
+{
+  "original_source": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "original_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+  "original_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+  "original_full_blob_sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+  "line_start": 3192,
+  "line_end": 3205,
+  "original_acceptance_text": "## B120. Критерий стоимости существует, но контроллер не передаёт ему стоимость\n\n**Основание и область:** `CostBudgetStopping.check`, обе точки `stopping.check` в `SearchController.run`; BU1–BU3. [C11.R01, C11.R02]\n\n**Проблема.** Критерий читает `state[cost_key]` с нулём по умолчанию. Контроллер каждый раз создаёт новый словарь только с `iteration` и `best_objective`. Стоимость из `initial_context` или обновлённого evaluator-контекста в этот словарь не попадает. Поэтому конкретная композиция может полностью игнорировать ограничение стоимости, хотя класс критерия исправно проверяет число, когда его действительно получает.\n\n**Проверка.** При max-cost=1, уже записанной в тестовом контексте стоимости 10 и расходе 2 на вызов выполнены три Stage B. Контекст дошёл до 16, а все состояния, полученные критерием, не содержали стоимости. Прямой вызов того же критерия с cost=2 остановился. Контрольная привязка к текущему учёту завершила работу после первого расхода 2.\n\n**Рекомендуемое исправление.** Передавать остановке снимок фактического учёта от существующего владельца бюджета с областью, валютой/единицей, уже подтверждёнными расходами и, где нужно, резервами. Проверять возможность нового расхода до запуска, а не использовать post-factum stopping как замену admission. Для budget-required режима отсутствие состояния — неизвестный учёт, не автоматически нулевой расход.\n\n**Не новая бюджетная подсистема.** Контроль в опыте читает простой словарь только для различения механизма; production не должен доверять произвольной цифре от агента. Имеющиеся ledger, token/cost-учёт и reservation-переходы нужно связать с этим потребителем. Кэшированные ответы, неудавшиеся попытки и генерация должны учитываться согласно фактической цене, не по сумме старых цен в отчётах.\n\n**Приёмка.** Одна измеряемая трата видна владельцу, остановке и результату; нет двойного списания кэша и обнуления при retry. Внешняя независимая бюджетная защита может уже остановить соответствующий маршрут: опыт не доказывает обход всех ограничений PolicyOS.\n\n",
+  "finding": "B120",
+  "bundle": "CTL-03",
+  "slice_base": "6c1729a7bc86cf90d443d73515d98dd4ebfa2894",
+  "implementation": "4645738aee05809552e95aecb14d365793fc6bb2",
+  "implementation_tree": "770352baededf4119fef4d79d3a93da6689a375e",
+  "status": "source_ready_scoped_actual17_and_removal_divergence_established; G decides acceptance",
+  "binding": "Owned ordinary funnel failed-settlement input projection preserves reported versus estimated knowledge; canonical owner budget admission/stopping path uses existing independent G exact680 receipt; this slice does not replace it or add universal invoice truth",
+  "engineering_residual": "Known estimated-only input currently corrected to null/not_reported, with independent estimated component; fresh runtime and removal negative pending",
+  "authority_residual": "No new input or missing authority is required for this owned projection correction; external deployment/vendor assertions remain separate not_established claims",
+  "canonical_ownership": {
+    "source": "4645738aee05809552e95aecb14d365793fc6bb2",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+    "full_blob_sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722",
+    "row": {
+      "finding_id": "B120",
+      "unit": "D",
+      "docx_analytical_package": "P23",
+      "source_closure_owner": "CTL-03",
+      "source_bundle_ids": "CTL-03",
+      "source_status": "partial"
+    }
+  },
+  "supersedes_draft_metadata": {
+    "path": "/dev/shm/e02-D-funnel-oct07/estimated-origin-original-criterion-binding.json",
+    "sha256": "9b86243d6c7b524c2ffc011b9377faf81f9e281b589c91b429d6245758a5a69e",
+    "reason": "Original criterion draft incorrectly named CTL-01; full canonical finding TSV assigns CTL-03. No source/test/verdict effect."
+  },
+  "verification_candidate": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "verification_tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+  "supersedes_draft_runtime_state": {
+    "path": "/dev/shm/e02-D-funnel-oct07/estimated-origin-original-criterion-binding-v2.json",
+    "sha256": "f1b555634804206a8c63680b6bd1f539635b43dccd8457385560a47b444f4371",
+    "scope": "Original criterion/owner text unchanged; pending-runtime draft superseded by actual final3b receipts"
+  }
+}

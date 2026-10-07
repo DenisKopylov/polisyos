@@ -1,0 +1,714 @@
+{
+  "schema": "D.e02.final-publication-independent-integrity-review.v1",
+  "reviewer": "/root/gp_oct07; independent Census ledger/root receipt review, not self-code acceptance",
+  "created_utc": "2026-10-07T11:21:47.082809+00:00",
+  "before": {
+    "HEAD": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+    "tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+    "index_tree": "5bee19bdda221937bdb6613979a81931f5df49b7"
+  },
+  "after": {
+    "HEAD": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+    "tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+    "index_tree": "5bee19bdda221937bdb6613979a81931f5df49b7"
+  },
+  "result": "GO_BOUNDED_PUBLICATION_INTEGRITY",
+  "errors": [],
+  "stats": {
+    "index_files": 907,
+    "index_bytes": 24631461,
+    "original_cards": 17,
+    "full_owner_criteria_inputs": 4,
+    "original_occurrences": 46,
+    "active_evidence_refs": 183,
+    "source_bindings": 306,
+    "manifest_member_bindings": 2812,
+    "pool_unique_contents": 1477,
+    "pool_path_records": 3098,
+    "individual_lossless_members": 520
+  },
+  "counts": {
+    "closed": 39,
+    "limited": 1,
+    "held": 5
+  },
+  "details": {
+    "dispositions": {
+      "B41": "closed",
+      "B106": "closed",
+      "B107": "closed",
+      "B108": "limited",
+      "B109": "closed",
+      "B110": "closed",
+      "B111": "closed",
+      "B112": "closed",
+      "B113": "closed",
+      "B114": "closed",
+      "B115": "closed",
+      "B116": "closed",
+      "B117": "closed",
+      "B118": "closed",
+      "B119": "closed",
+      "B120": "closed",
+      "B121": "closed",
+      "B122": "closed",
+      "B123": "closed",
+      "B124": "closed",
+      "B125": "closed",
+      "B126": "closed",
+      "B127": "closed",
+      "B128": "closed",
+      "B129": "closed",
+      "B130": "closed",
+      "B131": "held",
+      "B132": "closed",
+      "B133": "closed",
+      "B134": "closed",
+      "B135": "closed",
+      "B136": "closed",
+      "B137": "held",
+      "B156": "closed",
+      "B157": "held",
+      "B158": "closed",
+      "B159": "closed",
+      "B160": "closed",
+      "B161": "held",
+      "B162": "closed",
+      "B163": "closed",
+      "B164": "held",
+      "B165": "closed",
+      "LA-014": "closed",
+      "LA-015": "closed"
+    },
+    "source198_has46_acceptance_bindings_not198_count": true,
+    "complete_changed_paths_from_common_count": 2350,
+    "complete_changed_paths_from_own_receipt_count": 572,
+    "final_fiscal_four_path_delta_count": 4,
+    "closeout_denominator": {
+      "canonical_bundles": 17,
+      "unique_finding_ids": 45,
+      "criterion_occurrences": 46,
+      "original_acceptance_bindings": 46,
+      "queues": 5,
+      "minimum_owner_packets": 16,
+      "original_acceptance_source": "198076863e143dea9f89f02734b13d50dae3eed5"
+    },
+    "original-acceptance-denominator-correction.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/original-acceptance-denominator-correction.json",
+      "bytes": 1072,
+      "sha256": "2b6c641c26e4b146fe2362f6109d35479679e3a4307ec872bc6e829ae19e7ea8"
+    },
+    "cleanup-authority-current.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/cleanup-authority-current.json",
+      "bytes": 2234,
+      "sha256": "c64fd82d73b5daf8a58cc12753b8c9eca7d997d65d2c426199631c77f1f4abc5"
+    },
+    "pattern-pass.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/pattern-pass.json",
+      "bytes": 4007,
+      "sha256": "c79835c1602bddd660e196ba5103c43ac40a762f0252c9f27f1cc2b58145bb05"
+    },
+    "published_python_witnesses": {
+      "count": 32,
+      "zero_identical_tracked_source_copies": true
+    },
+    "direct_staged_JUnit_streams": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/fiscal-independent-final680/current680/guard-removal2.junit.xml",
+        "tests": 2,
+        "FAIL": 2,
+        "ERROR": 0,
+        "SKIP": 0,
+        "sha256": "5fba754e159d19d6bdb6984dc1550a3537c0463af776a6e4e62cc77b0379c9ea",
+        "scope": "Original stream-specific output; never aggregate as whole-D test count"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-B111-B124-removals-final969/four-removals/remove_run_scope.junit.xml",
+        "tests": 1,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0,
+        "sha256": "c0ec7ee422a4d3e40358300c5ff0db9b43906e8558cb08d0dfdf2e113ebbd884",
+        "scope": "Original stream-specific output; never aggregate as whole-D test count"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-B111-B124-removals-final969/four-removals/remove_trial_lookup.junit.xml",
+        "tests": 1,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0,
+        "sha256": "3e7a72ae4daf8321471c3d4d9bf09f50dc51f134dfcaeb1051507ca4364862be",
+        "scope": "Original stream-specific output; never aggregate as whole-D test count"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-B111-B124-removals-final969/four-removals/replace_nullable_primary_zero.junit.xml",
+        "tests": 1,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0,
+        "sha256": "6521822dac5f850c51c17ec54740a7eee28b147398463044e39cb7536c87c9a8",
+        "scope": "Original stream-specific output; never aggregate as whole-D test count"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-B111-B124-removals-final969/four-removals/restore_marker_override.junit.xml",
+        "tests": 1,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0,
+        "sha256": "f0d2d3178343fa7330a9c5e5c23464265c59bd9abfe6e39bd1070a956aa40ccf",
+        "scope": "Original stream-specific output; never aggregate as whole-D test count"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-final969/native-transfer3/junit.xml",
+        "tests": 3,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0,
+        "sha256": "80588293ba25a3daaee02e556e95a97c2220d1a9b42ff218b9cbf8c1fa850c11",
+        "scope": "Original stream-specific output; never aggregate as whole-D test count"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-final969/pre-fix-staged-drift/junit.xml",
+        "tests": 2,
+        "FAIL": 2,
+        "ERROR": 0,
+        "SKIP": 0,
+        "sha256": "96d826eb08ff50e11da43d36c63bef6183310b252e63bd1ffae7b138e1ca673f",
+        "scope": "Original stream-specific output; never aggregate as whole-D test count"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-final969/setup-error/junit.xml",
+        "tests": 1,
+        "FAIL": 0,
+        "ERROR": 1,
+        "SKIP": 0,
+        "sha256": "d30398f5ec7047d9b8c556b7e8a26bdb0c54db91c96d60baa25485bab121e73d",
+        "scope": "Original stream-specific output; never aggregate as whole-D test count"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-fiscal-dependent-final680/actual680/fiscal-dependent.junit.xml",
+        "tests": 18,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0,
+        "sha256": "08a5295b88b0f0f84cea01d9497475392540ae23f9848b2f1af090554a17ae6d",
+        "scope": "Original stream-specific output; never aggregate as whole-D test count"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/actual-969/champion.junit.xml",
+        "tests": 44,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0,
+        "sha256": "6d399a81dbe973ffdb728a817a8f78957f6cf8fedaca602991ee50b91f16a6a3",
+        "scope": "Original stream-specific output; never aggregate as whole-D test count"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/actual-969/contracts.junit.xml",
+        "tests": 2,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0,
+        "sha256": "faf53407ab4abfb6491082c2de9bcbb77bfe0f65222d57cb9cdb39e9377c5926",
+        "scope": "Original stream-specific output; never aggregate as whole-D test count"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/actual-969/dedup.junit.xml",
+        "tests": 48,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0,
+        "sha256": "4cb203de5f7adce4f0dc1f609286f6ef37c9bedab04eea6795cb7ceeaf2b304a",
+        "scope": "Original stream-specific output; never aggregate as whole-D test count"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/actual-969/native-doe.junit.xml",
+        "tests": 13,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0,
+        "sha256": "cc26cc53ec3a66474c3db6f74d1e30a4e2e32715bd2931385dd2b7511413fb64",
+        "scope": "Original stream-specific output; never aggregate as whole-D test count"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/actual-969/paid-original.junit.xml",
+        "tests": 2,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0,
+        "sha256": "e0af50f026ab00686a3df4e8421ff7c796da784328070bce2632e764c3af54b9",
+        "scope": "Original stream-specific output; never aggregate as whole-D test count"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/actual-969/service.junit.xml",
+        "tests": 41,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0,
+        "sha256": "dc21afc250d1bf601ff8a38ebe85d8674b835d1f1be5775b12d83b4b70eb6184",
+        "scope": "Original stream-specific output; never aggregate as whole-D test count"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/actual-four-removals-969/remove_run_scope.junit.xml",
+        "tests": 1,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0,
+        "sha256": "c0ec7ee422a4d3e40358300c5ff0db9b43906e8558cb08d0dfdf2e113ebbd884",
+        "scope": "Original stream-specific output; never aggregate as whole-D test count"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/actual-four-removals-969/remove_trial_lookup.junit.xml",
+        "tests": 1,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0,
+        "sha256": "3e7a72ae4daf8321471c3d4d9bf09f50dc51f134dfcaeb1051507ca4364862be",
+        "scope": "Original stream-specific output; never aggregate as whole-D test count"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/actual-four-removals-969/replace_nullable_primary_zero.junit.xml",
+        "tests": 1,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0,
+        "sha256": "6521822dac5f850c51c17ec54740a7eee28b147398463044e39cb7536c87c9a8",
+        "scope": "Original stream-specific output; never aggregate as whole-D test count"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/actual-four-removals-969/restore_marker_override.junit.xml",
+        "tests": 1,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0,
+        "sha256": "f0d2d3178343fa7330a9c5e5c23464265c59bd9abfe6e39bd1070a956aa40ccf",
+        "scope": "Original stream-specific output; never aggregate as whole-D test count"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/before-live-profile-staged-v4/junit.xml",
+        "tests": 2,
+        "FAIL": 2,
+        "ERROR": 0,
+        "SKIP": 0,
+        "sha256": "96d826eb08ff50e11da43d36c63bef6183310b252e63bd1ffae7b138e1ca673f",
+        "scope": "Original stream-specific output; never aggregate as whole-D test count"
+      }
+    ],
+    "all11_pool_source_tree_pins_verified": true,
+    "cleanup_reading_rule": "Latest explicit human cloud cleanup permission supersedes older readonly immutable packet cleanup snapshot. Completed exact receipts remain in ownGit history. No cleanup/source writes/tests duringreview.",
+    "denominator_correction": "46 occurrence acceptance paragraphs/full fragments on source198076, not198 enumeratedclauses. Correctedrootfields and explicitcurrent addendum verified. Originalsealed8Censusfiles unchanged."
+  },
+  "manifest_bindings": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/champion-B333/files-manifest.json",
+      "verified_rows": 78
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/champion-B333/review/reviewed-input-files-manifest.json",
+      "verified_rows": 74
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/companion-inputs-b652/output-manifest.json",
+      "verified_rows": 1
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/files-manifest.json",
+      "verified_rows": 8
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-portable-publication-index.json",
+      "verified_rows": 907
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/fiscal-independent-final680/files-manifest.json",
+      "verified_rows": 27
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/fiscal-numeric-final680/publication-manifest.json",
+      "verified_rows": 15
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/initial-portable-publication-index.json",
+      "verified_rows": 438
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/math-adapter-current/files-manifest.json",
+      "verified_rows": 17
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/math-adapter-final969/publication-manifest.json",
+      "verified_rows": 10
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-B111-B124-removals-final969/files-manifest.json",
+      "verified_rows": 50
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-B111-B124-removals-final969/negative-controls/control-manifest-v2.json",
+      "verified_rows": 5
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-B111-B124-removals-final969/negative-controls/control-manifest.json",
+      "verified_rows": 4
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-a7/output-manifest.json",
+      "verified_rows": 20
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-c0/output-manifest.json",
+      "verified_rows": 55
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-final969/output-manifest.json",
+      "verified_rows": 36
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/essential-review-copy-manifest-final680-v3.json",
+      "verified_rows": 51
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/essential-review-copy-manifest-v1.json",
+      "verified_rows": 45
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/essential-review-copy-manifest-v2.json",
+      "verified_rows": 46
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-fiscal-dependent-final680/manifest.json",
+      "verified_rows": 19
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-a7-b652/manifest.json",
+      "verified_rows": 122
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/manifest.json",
+      "verified_rows": 118
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-read-tool-b652/output-manifest.json",
+      "verified_rows": 25
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/stress-stopping-469/files-manifest.json",
+      "verified_rows": 3
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/output-manifest.json",
+      "verified_rows": 112
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final/a7-deciding/lossless-manifest.json",
+      "verified_rows": 432
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final/b652-publicfactory-deciding/lossless-manifest.json",
+      "verified_rows": 26
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final/c0-historical-deciding/manifest.json",
+      "verified_rows": 40
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final/output-manifest.json",
+      "verified_rows": 499
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/lossless-manifest.json",
+      "verified_rows": 22
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/output-manifest.json",
+      "verified_rows": 27
+    }
+  ],
+  "lossless_pools": {
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/fiscal-numeric-final680/complete-deciding-output.json.gz": {
+      "contents": 200,
+      "records": 273,
+      "source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+      "tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/math-adapter-current/adapter/current-adapter-complete-deciding-output.json.gz": {
+      "contents": 266,
+      "records": 731,
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "tree": "e809693afe3b84e02d473b5744142d026afbe509"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/math-adapter-current/numerical/current-complete-deciding-output.json.gz": {
+      "contents": 52,
+      "records": 60,
+      "source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/math-adapter-current/optional/optional-minimal-currenta7-complete-deciding-output.json.gz": {
+      "contents": 23,
+      "records": 28,
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "tree": "e809693afe3b84e02d473b5744142d026afbe509"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/math-adapter-final969/adapter/current-adapter-complete-deciding-output.json.gz": {
+      "contents": 251,
+      "records": 731,
+      "source": "96905636726483fdea3a98d9313871d825b54a9e",
+      "tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/math-adapter-final969/numerical/current-complete-deciding-output.json.gz": {
+      "contents": 52,
+      "records": 60,
+      "source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-a7/complete-deciding-output.json.gz": {
+      "contents": 147,
+      "records": 281,
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "tree": "e809693afe3b84e02d473b5744142d026afbe509"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-c0/GP-State-MO-currentc0-complete-deciding-output.json.gz": {
+      "contents": 170,
+      "records": 242,
+      "source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-final969/complete-deciding-output.json.gz": {
+      "contents": 177,
+      "records": 332,
+      "source": "96905636726483fdea3a98d9313871d825b54a9e",
+      "tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-read-tool-b652/complete-deciding-output.json.gz": {
+      "contents": 43,
+      "records": 53,
+      "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+      "tree": "e677b5e24493a7083287c3bea31bca1892c3be29"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/stress-stopping-469/STP-STR-complete-deciding-output.json.gz": {
+      "contents": 96,
+      "records": 307,
+      "source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "tree": "91cd2360ef82a45b2cb069bfb2a15f74c6812c1d"
+    }
+  },
+  "owner_packets": [
+    {
+      "key": "tenant_split_transfer",
+      "findings": [
+        "B131"
+      ],
+      "current": {
+        "key": "tenant_split_transfer",
+        "finding_ids": [
+          "B131"
+        ],
+        "criterion_relation": "required_original_positive",
+        "current_input_state": "held",
+        "requested_canonical_owner": "Actual tenant/split/source reuse decision owner to be confirmed by A/G; D TRN-01 consumes it",
+        "appointment_basis": "not_established",
+        "original_committed_pointer": "/packets/0",
+        "minimum_ref_recipe_pointer": "same original packet; avoid blanket production dataset request"
+      }
+    },
+    {
+      "key": "authorized_revalidation",
+      "findings": [
+        "B137"
+      ],
+      "current": {
+        "key": "authorized_revalidation",
+        "finding_ids": [
+          "B137"
+        ],
+        "criterion_relation": "required_original_positive",
+        "current_input_state": "held",
+        "requested_canonical_owner": "Actual lesson/evidence revalidation issuer to be confirmed by G; D TRN-03 reader",
+        "appointment_basis": "not_established",
+        "original_committed_pointer": "/packets/1",
+        "minimum_ref_recipe_pointer": "same original packet; avoid blanket production dataset request"
+      }
+    },
+    {
+      "key": "native_draw_producer",
+      "findings": [
+        "B157"
+      ],
+      "current": {
+        "key": "native_draw_producer",
+        "finding_ids": [
+          "B157"
+        ],
+        "criterion_relation": "required_original_positive",
+        "current_input_state": "held/not_established",
+        "requested_canonical_owner": "A/B actual numerical sample/draw stage owner; D FUN-02 consumes effective config",
+        "appointment_basis": "not_established",
+        "original_committed_pointer": "/packets/2",
+        "minimum_ref_recipe_pointer": "same original packet; avoid blanket production dataset request",
+        "current_scope": null,
+        "actual_receipts": null,
+        "supplier_sources": null
+      }
+    },
+    {
+      "key": "same_scope_refinement",
+      "findings": [
+        "B161"
+      ],
+      "current": {
+        "key": "same_scope_refinement",
+        "finding_ids": [
+          "B161"
+        ],
+        "criterion_relation": "required_original_positive",
+        "current_input_state": "held/not_established",
+        "requested_canonical_owner": "Requested same-scope uncertainty/refinement law owner; A evidence producer/E calibration/D FUN-03",
+        "appointment_basis": "not_established",
+        "original_committed_pointer": "/packets/3",
+        "minimum_ref_recipe_pointer": "same original packet; avoid blanket production dataset request",
+        "current_scope": null,
+        "actual_receipts": null,
+        "supplier_sources": null
+      }
+    },
+    {
+      "key": "typed_write_permit",
+      "findings": [
+        "B164"
+      ],
+      "current": {
+        "key": "typed_write_permit",
+        "finding_ids": [
+          "B164"
+        ],
+        "criterion_relation": "required_original_positive",
+        "current_input_state": "held/not_established",
+        "requested_canonical_owner": "Actual purpose-bound permit issuer/current verifier and serialized commit owner to be confirmed by A/B/G; D FUN-03 consumer",
+        "appointment_basis": "not_established",
+        "original_committed_pointer": "/packets/4",
+        "minimum_ref_recipe_pointer": "same original packet; avoid blanket production dataset request",
+        "current_scope": null,
+        "actual_receipts": null,
+        "supplier_sources": null
+      }
+    },
+    {
+      "key": "lossless_gateway_cost",
+      "findings": [
+        "B120"
+      ],
+      "current": "actual canonical Bdecoderadopted and realraw32PASS/freshledger; no longerupstreammissing"
+    },
+    {
+      "key": "owned_multikey_durability",
+      "findings": [
+        "B120",
+        "B158",
+        "B159"
+      ],
+      "current": "actualB1.2 selectedcanonicalAPI/durableunknownAck/eventidentity/retry/idempotent multi-keyprofile+nativefinancialconsumers; boundedlocaldurabilitynotdistributed"
+    },
+    {
+      "key": "public_typed_budget_snapshot",
+      "findings": [
+        "B118",
+        "B120",
+        "B121"
+      ],
+      "current": "existingpublicBownerport actualsnapshot/revision/receipt/freshreadback/currentunknownNone fence provided"
+    },
+    {
+      "key": "A_frontier_default_workflow",
+      "findings": [
+        "B109"
+      ],
+      "current": {
+        "key": "A_frontier_default_workflow",
+        "finding_ids": [
+          "B109"
+        ],
+        "criterion_relation": "separate_A_serving_edge_not_original_B109",
+        "current_input_state": "not_established; must not block comparator acceptance",
+        "requested_canonical_owner": "A-W04 admitted frontier/evaluator/export producer; A-W01 actual caller; D-W01 registry adapter",
+        "appointment_basis": "not_established",
+        "original_committed_pointer": "/packets/8",
+        "minimum_ref_recipe_pointer": "same original packet; avoid blanket production dataset request"
+      }
+    },
+    {
+      "key": "served_hierarchical_context",
+      "findings": [
+        "LA-014",
+        "LA-015",
+        "B109"
+      ],
+      "current": "boundedexistingpublicRunnerfactory/nativeService/Legacyalias request→evaluation→persistedfreshresume available; deployedhierarchicaltenantmapping remains optionalownerinput notoriginalconsumerblock"
+    },
+    {
+      "key": "ordinary_blueprint_configured_owner",
+      "findings": [
+        "B120",
+        "B158",
+        "B160",
+        "B165"
+      ],
+      "current": "actualordinarynativeworker/enforcer/owner receipt→stagedFUNprojection/calibration/currentconfiguredpublicfactory financial port provided"
+    },
+    {
+      "key": "B_canonical_history_compatibility",
+      "findings": [
+        "LA-014",
+        "LA-015",
+        "B120"
+      ],
+      "current": "canonicalB1.2 declaredhistorycompatibility/migration/refusal+actualcurrentreader adopted; productionhistoryminref onlyifcriterion specificallydata-dependent"
+    },
+    {
+      "key": "B_public_API_surface",
+      "findings": [
+        "B118",
+        "B120",
+        "B121",
+        "LA-014",
+        "LA-015"
+      ],
+      "current": "exactowner API/signatures/publicRunneradditiveport/typedNative return/operatorcompatibility adopted; generatedfrontend/architecture/schemaquality incomplete untilcanonicalcompleteoutputs, not inferred fromruntime"
+    },
+    {
+      "key": "E_mutable_cardinality_cap",
+      "findings": [
+        "B106",
+        "B107",
+        "B112",
+        "B113",
+        "B127"
+      ],
+      "current": "E mutablepublicplan cap realfailure separateownerpacket; D originalscenariofraction/direction available; no E B100law claim"
+    },
+    {
+      "key": "owner_declared_fiscal_profile",
+      "findings": [
+        "B108"
+      ],
+      "current": "numericprecision ownmechanism fixedactual680; realunit/sign/alias producerlaw incompatibleunit clause not_established/limited"
+    },
+    {
+      "key": "D_coordinate_volume_corrective",
+      "findings": [
+        "B110",
+        "B111"
+      ],
+      "current": "originalB109/B110/B111 boundedengineering fulfilled; exactcoordinate/geometry/typedunavailable/sourceprimaryfreshreadback current; rationalpositiveunderflow separateboundedclass"
+    }
+  ],
+  "notes": [],
+  "boundaries": [
+    "No tests or production/source writes performed",
+    "46 occurrence acceptance paragraphs/full original fragments source198076 verified; count198 not established",
+    "39 proposals /5 held /1 limited;0 formal /0 G accepted;LA015 supplier only",
+    "Only exact current/source-qualified scopes preserved; no aggregate cross-source PASS",
+    "All staged files handoff only; individual existing sparse or historical paths not claimed whole tree present",
+    "Code scientific authority/formal G finding closure not granted by receipt integrity review",
+    "This receipt reviews Census accounting/root publication membership, not self-acceptance of GP/MO implementation; prior independent author-separated code/runtime review SHA membership verified."
+  ]
+}

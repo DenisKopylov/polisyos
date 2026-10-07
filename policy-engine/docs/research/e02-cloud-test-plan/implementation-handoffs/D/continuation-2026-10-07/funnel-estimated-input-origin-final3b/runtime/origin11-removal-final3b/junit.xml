@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="11" time="8.524" timestamp="2026-10-07T14:44:17.593375+00:00" hostname="565838a1e059"><testcase classname="tests.integration.scientist.methods.search.funnel.test_resource_input_origins" name="test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-estimated-None-estimated0-not_reported-estimated]" time="0.187"><failure message="AssertionError: assert '0' is None">tmp_path = PosixPath('/dev/shm/e02-D-funnel-oct07/origin11-removal-final3b-fixtures/test_native_failed_input_origi0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f4e2cc59ba0&gt;
+profile = 'estimated', reported = None, estimated = Decimal('0.5')
+reported_status = 'not_reported', estimated_status = 'estimated'
+write_before_ack = False
+
+    @pytest.mark.parametrize(
+        ("profile", "reported", "estimated", "reported_status", "estimated_status"),
+        [
+            ("estimated", None, Decimal("0.5"), "not_reported", "estimated"),
+            ("reported_zero", Decimal(0), None, "reported", "not_estimated"),
+            ("reported_quarter", Decimal("0.25"), None, "reported", "not_estimated"),
+        ],
+    )
+    @pytest.mark.parametrize("write_before_ack", [False, True])
+    def test_native_failed_input_origin_survives_funnel_and_fresh_cas(
+        tmp_path, monkeypatch, profile, reported, estimated, reported_status, estimated_status,
+        write_before_ack,
+    ):
+        path, outcome, ledger, events = _native_inputs(
+            tmp_path, monkeypatch, (profile,), write_before_ack=write_before_ack
+        )
+        expected = reported if reported is not None else estimated
+        # Independent fixed decimal pricing oracle: 50000 observed prompt tokens at
+        # the declared default input price 1e-5 USD; do not call producer's estimator.
+        if profile == "estimated":
+            assert Decimal(50000) * Decimal("0.00001") == expected
+        assert Decimal(events[0]["amount"]) == expected
+        assert events[0]["cost_origin"] == ("estimated" if estimated is not None else "reported")
+        feedback = _fresh_projection(tmp_path, outcome)
+        if reported is None:
+&gt;           assert feedback["resource_reported_input_usd"] is None
+E           AssertionError: assert '0' is None
+
+tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py:144: AssertionError</failure></testcase><testcase classname="tests.integration.scientist.methods.search.funnel.test_resource_input_origins" name="test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-reported_zero-reported1-None-reported-not_estimated]" time="0.031" /><testcase classname="tests.integration.scientist.methods.search.funnel.test_resource_input_origins" name="test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-reported_quarter-reported2-None-reported-not_estimated]" time="0.017" /><testcase classname="tests.integration.scientist.methods.search.funnel.test_resource_input_origins" name="test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-estimated-None-estimated0-not_reported-estimated]" time="0.018"><failure message="AssertionError: assert '0' is None">tmp_path = PosixPath('/dev/shm/e02-D-funnel-oct07/origin11-removal-final3b-fixtures/test_native_failed_input_origi3')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f4e2cb4d590&gt;
+profile = 'estimated', reported = None, estimated = Decimal('0.5')
+reported_status = 'not_reported', estimated_status = 'estimated'
+write_before_ack = True
+
+    @pytest.mark.parametrize(
+        ("profile", "reported", "estimated", "reported_status", "estimated_status"),
+        [
+            ("estimated", None, Decimal("0.5"), "not_reported", "estimated"),
+            ("reported_zero", Decimal(0), None, "reported", "not_estimated"),
+            ("reported_quarter", Decimal("0.25"), None, "reported", "not_estimated"),
+        ],
+    )
+    @pytest.mark.parametrize("write_before_ack", [False, True])
+    def test_native_failed_input_origin_survives_funnel_and_fresh_cas(
+        tmp_path, monkeypatch, profile, reported, estimated, reported_status, estimated_status,
+        write_before_ack,
+    ):
+        path, outcome, ledger, events = _native_inputs(
+            tmp_path, monkeypatch, (profile,), write_before_ack=write_before_ack
+        )
+        expected = reported if reported is not None else estimated
+        # Independent fixed decimal pricing oracle: 50000 observed prompt tokens at
+        # the declared default input price 1e-5 USD; do not call producer's estimator.
+        if profile == "estimated":
+            assert Decimal(50000) * Decimal("0.00001") == expected
+        assert Decimal(events[0]["amount"]) == expected
+        assert events[0]["cost_origin"] == ("estimated" if estimated is not None else "reported")
+        feedback = _fresh_projection(tmp_path, outcome)
+        if reported is None:
+&gt;           assert feedback["resource_reported_input_usd"] is None
+E           AssertionError: assert '0' is None
+
+tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py:144: AssertionError</failure></testcase><testcase classname="tests.integration.scientist.methods.search.funnel.test_resource_input_origins" name="test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-reported_zero-reported1-None-reported-not_estimated]" time="0.018" /><testcase classname="tests.integration.scientist.methods.search.funnel.test_resource_input_origins" name="test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-reported_quarter-reported2-None-reported-not_estimated]" time="0.018" /><testcase classname="tests.integration.scientist.methods.search.funnel.test_resource_input_origins" name="test_native_zero_estimate_is_not_a_provider_reported_zero" time="0.021"><failure message="AssertionError: assert '0' is None">tmp_path = PosixPath('/dev/shm/e02-D-funnel-oct07/origin11-removal-final3b-fixtures/test_native_zero_estimate_is_n0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7f4e2b6cb950&gt;
+
+    def test_native_zero_estimate_is_not_a_provider_reported_zero(tmp_path, monkeypatch):
+        _, outcome, ledger, events = _native_inputs(tmp_path, monkeypatch, ("estimated_zero",))
+        assert events[0]["cost_origin"] == "estimated" and Decimal(events[0]["amount"]) == 0
+        feedback = _fresh_projection(tmp_path, outcome)
+&gt;       assert feedback["resource_reported_input_usd"] is None
+E       AssertionError: assert '0' is None
+
+tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py:166: AssertionError</failure></testcase><testcase classname="tests.integration.scientist.methods.search.funnel.test_resource_input_origins" name="test_two_native_input_origins_keep_independent_subset_amounts" time="0.031" /><testcase classname="tests.integration.scientist.methods.search.funnel.test_resource_input_origins" name="test_native_unknown_amount_preserves_component_absence_and_partial_input[None]" time="0.015" /><testcase classname="tests.integration.scientist.methods.search.funnel.test_resource_input_origins" name="test_native_unknown_amount_preserves_component_absence_and_partial_input[reported_quarter]" time="0.031" /><testcase classname="tests.integration.scientist.methods.search.funnel.test_resource_input_origins" name="test_native_unknown_amount_preserves_component_absence_and_partial_input[estimated]" time="0.044" /></testsuite></testsuites>

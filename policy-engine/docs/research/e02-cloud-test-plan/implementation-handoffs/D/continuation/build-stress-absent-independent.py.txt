@@ -1,0 +1,139 @@
+"""Bind absent-report positive/removal evidence to the actual Git function."""
+import ast
+import hashlib
+import json
+import subprocess
+from pathlib import Path
+
+ROOT = Path('/workspace/e02-D-published-oracle')
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/'
+DEST = ROOT / (PREFIX + 'continuation')
+TRANSPORT = '29a7d8fe1971ae4cb9e18968179f9473d1661f0b'
+HANDOFF = 'f8ebe5f714d42398d07d9797f853c03553ec1603'
+SOURCE = '2af38d95e83cf3f1ab121c47ff8898f5a0920bec'
+PROD = 'policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py'
+
+
+def git(*args: str) -> bytes:
+    return subprocess.check_output(['git', *args], cwd=ROOT)
+
+
+def blob(source: str, path: str) -> bytes:
+    return git('show', source + ':' + path)
+
+
+def digest(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def read(name: str) -> dict:
+    return json.loads(blob(TRANSPORT, PREFIX + 'continuation-absent-report-proof/' + name))
+
+
+manifest = read('payload-manifest.json')
+payload_checks = []
+for row in manifest['payloads']:
+    data = blob(TRANSPORT, row['path'])
+    assert digest(data) == row['sha256'] and len(data) == row['bytes']
+    payload_checks.append({**row, 'result': 'MATCH'})
+handoff = json.loads(blob(HANDOFF, PREFIX + 'continuation-stress-ordinary-DOE-and-absent-basis.json'))
+references = []
+
+
+def check_references(value: object) -> None:
+    if isinstance(value, dict):
+        if {'path', 'source_sha', 'sha256'} <= value.keys():
+            data = blob(value['source_sha'], value['path'])
+            assert digest(data) == value['sha256']
+            if 'bytes' in value:
+                assert len(data) == value['bytes']
+            references.append({'source': value['source_sha'], 'path': value['path'],
+                               'sha256': digest(data), 'bytes': len(data), 'result': 'MATCH'})
+        for child in value.values():
+            check_references(child)
+    elif isinstance(value, list):
+        for child in value:
+            check_references(child)
+
+
+check_references(handoff)
+positive = read('absent-direct-positive-complete.txt')
+removal = read('absent-direct-removal-complete.txt')
+module = ast.parse(blob(SOURCE, PROD))
+function = next(node for node in module.body if isinstance(node, ast.FunctionDef)
+                and node.name == '_ensure_stress_test_report')
+source_function = ''.join(blob(SOURCE, PROD).decode().splitlines(keepends=True)[
+    function.lineno - 1:function.end_lineno
+])
+assert source_function == positive['effective_function_source']
+assert digest(source_function.encode()) == positive['original_function_sha256']
+assert positive['original_function_sha256'] == positive['effective_function_sha256'] == removal['original_function_sha256']
+expected_removal = ast.parse(source_function)
+changed = 0
+for node in ast.walk(expected_removal):
+    if isinstance(node, ast.keyword) and node.arg == 'total_scenarios_evaluated':
+        assert isinstance(node.value, ast.Constant) and node.value.value == 0
+        node.value = ast.Constant(value=1)
+        changed += 1
+    if isinstance(node, ast.Dict):
+        for index, key in enumerate(node.keys):
+            if isinstance(key, ast.Constant) and key.value == 'base_total_scenarios_evaluated':
+                assert isinstance(node.values[index], ast.Constant) and node.values[index].value == 0
+                node.values[index] = ast.Constant(value=1)
+                changed += 1
+assert changed == 2
+assert ast.dump(expected_removal, include_attributes=False) == ast.dump(
+    ast.parse(removal['effective_function_source']), include_attributes=False
+)
+assert digest(removal['effective_function_source'].encode()) == removal['effective_function_sha256']
+assert git('diff', '--name-only', 'eb826b57fd9ea98550b93f840aca6d54e6454a27', SOURCE, '--', 'policy-engine/src') == b''
+
+runs = []
+for label, result, exit_code in [('positive', positive, 0), ('removal', removal, 1)]:
+    resource = read('absent-direct-' + label + '-resource.json')
+    assert resource['source_sha'] == resource['source_sha_after'] == result['source_sha'] == SOURCE
+    assert resource['exit_code'] == exit_code
+    assert result['production_bytes_preserved'] is True
+    assert result['outcome'] == ('PASS' if label == 'positive' else 'FAIL')
+    assert len(result['modules']) == 8
+    for row in result['modules'].values():
+        path = str(Path(row['path']).relative_to('/workspace/e02-D-published-stress'))
+        assert digest(blob(SOURCE, path)) == row['sha256']
+    cases = result['cases']
+    assert len(cases) == 2 and [row['with_cases'] for row in cases] == [False, True]
+    for row in cases:
+        report = row['report']
+        base = 0 if label == 'positive' else 1
+        assert report['total_scenarios_evaluated'] == base + (32 if row['with_cases'] else 0)
+        assert report['metadata']['base_total_scenarios_evaluated'] == base
+        assert report['robustness_score'] is None and report['set_adequacy_status'] == 'partial'
+        assert report['schema_version'] == '1.1'
+        assert report['metadata']['score_status'] == report['metadata']['base_scenario_basis'] == 'unavailable'
+        assert report['metadata']['population_probability'] == 'not_established'
+        if row['with_cases']:
+            component = report['scenario_evidence_components']['suite:strategic_gaming_v1']
+            assert component['finite_evaluated'] == component['attempted'] == 32
+            assert component['violated_scenarios'] == 1 and component['assessment_rule'] == 'challenge_case_pass'
+            assert any(value is None for value in report['scenario_evidence_components'].values())
+        if label == 'positive':
+            assert all(row['checks'].values())
+        else:
+            assert {key for key, value in row['checks'].items() if not value} == {'actual_count', 'no_invented_base_attempt'}
+    runs.append({'scope': label, 'source': SOURCE, 'exit_code': exit_code,
+                 'cases': 2, 'checks': [case['checks'] for case in cases],
+                 'loaded_origins_verified': 8, 'wall_seconds': resource['wall_seconds'],
+                 'resource': resource})
+
+result = {'schema': 'policyos.e02.D.independent-binding-review.v1',
+          'reviewer': 'numerical_oracle', 'source': SOURCE,
+          'tree': git('rev-parse', SOURCE + '^{tree}').decode().strip(),
+          'handoff': HANDOFF, 'handoff_references': references,
+          'unique_handoff_reference_count': len({(row['source'], row['path']) for row in references}),
+          'payload_transport': TRANSPORT, 'payloads': payload_checks,
+          'actual_function_matches_Git': True, 'controlled_AST_delta_fields': 2,
+          'production_eb826_to_2af_equal': True, 'runs': runs,
+          'execution': 'stdlib Git/hash/JSON/AST verification; no backend or pytest run'}
+(DEST / 'stress-absent-independent-binding-output.json').write_text(json.dumps(result, indent=2) + '\n')
+print(json.dumps({'payloads': len(payload_checks), 'handoff_refs': len(references),
+                  'origins_per_run': 8, 'positive_cases': 2, 'expected_fail_cases': 2,
+                  'changed_AST_fields': 2, 'result': 'MATCH'}))

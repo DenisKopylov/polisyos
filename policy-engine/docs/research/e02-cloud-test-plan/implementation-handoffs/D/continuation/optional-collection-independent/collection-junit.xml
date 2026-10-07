@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="2" failures="0" skipped="1" tests="3" time="3.673" timestamp="2026-10-06T16:05:07.165566+00:00" hostname="565838a1e059"><testcase classname="" name="tests.unit.scientist.methods.autotune.test_bayesian_numerical_oracle" time="0.000"><skipped message="collection skipped">('/tmp/optional-collection-fad3f85617a3410faedd30cb50129c5b/policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py', 15, 'Skipped: UNRUN: native numerical adapter requires Torch')</skipped></testcase><testcase classname="" name="tests.unit.scientist.methods.autotune.test_transfer_workflow" time="0.000"><error message="collection failure">ImportError while importing test module '/tmp/optional-collection-fad3f85617a3410faedd30cb50129c5b/policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+tests/unit/scientist/methods/autotune/test_transfer_workflow.py:32: in &lt;module&gt;
+    from tests.unit.scientist.methods.search.strategies.test_transfer import (
+E   ModuleNotFoundError: No module named 'tests.unit.scientist.methods.search'</error></testcase><testcase classname="" name="tests.unit.scientist.methods.autotune.test_receiver_preserved_basis_review" time="0.000"><error message="collection failure">ImportError while importing test module '/tmp/optional-collection-fad3f85617a3410faedd30cb50129c5b/policy-engine/tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py:39: in &lt;module&gt;
+    from tests.unit.scientist.methods.search.strategies.test_transfer import measured_history
+E   ModuleNotFoundError: No module named 'tests.unit.scientist.methods.search'</error></testcase></testsuite></testsuites>

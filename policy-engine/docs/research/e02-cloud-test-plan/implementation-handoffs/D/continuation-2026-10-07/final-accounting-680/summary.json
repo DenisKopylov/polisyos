@@ -1,0 +1,43 @@
+{
+  "schema": "D.e02.final680.summary.v1",
+  "candidate": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+  "original_common_slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "denominator": {
+    "bundles": 17,
+    "unique_findings": 45,
+    "criterion_occurrences": 46,
+    "queues": 5,
+    "owner_packets": 16
+  },
+  "finding_proposals": {
+    "closed": 39,
+    "held": 5,
+    "limited": 1,
+    "open_owned": 0
+  },
+  "formal_closed": 0,
+  "accepted_G": 0,
+  "held_findings": [
+    "B131",
+    "B137",
+    "B157",
+    "B161",
+    "B164"
+  ],
+  "limited_findings": [
+    "B108"
+  ],
+  "check_scope_rule": "AllactualPASS/expectedcounterfactualFAIL scopes source-qualified separately; overlaps notsummed. BackendSKIP/UNRUN remain nonmeasurement. Oldsignal9/fixture/403collectionerrors preserved.",
+  "current_G": {
+    "record": "76746fececd1a183a516c48f07ce2835baa8a2d1",
+    "tree": "51929dd44a3650c7842bf77aedcdeba6ecd1a755",
+    "COMMON_sha256": "f408d34394bab5f708df7afb6f59195588b5fc394b8304434c9e2fbe2238be79",
+    "COMMON_bytes": 8565,
+    "delta": "21docs-only ninthwave feedback sinceebae; Dfeedbackinput b5 not969/680; no acceptance/closure/sourceintegration",
+    "D_current_is_G_ancestor": false,
+    "main_unchanged": "198076863e143dea9f89f02734b13d50dae3eed5"
+  },
+  "final_ordinary_work": "B111missingprimary/B124fullcontentdedup+singleACK/runID andfiscaltiny receivingboundary fixed withactualcurrentconsumer/negative proofs",
+  "remaining_verification": "G integratesreviews/source on a sharedfreeze and decidesformalcriteria; exactlocalread-onlyminrefs requiredonly5held+unitlaw/inputcriteria. No main authorization."
+}

@@ -1,0 +1,494 @@
+{
+  "schema": "e02.D.scoped-assertion-dependency-carry.v1",
+  "author": "math_oct07",
+  "actual_executed_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "actual_executed_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+  "qualified_candidate": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+  "qualified_tree": "5738498b09aadca51e0bb73fa6d104e3354dc603",
+  "full_committed_delta": [
+    {
+      "status": "M",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-funnel-cost-input-origins.toml",
+      "loaded_or_selected_overlap": false,
+      "before_sha256": "5d0ff9c1049f700d66ff8badea385892c998ee8f74e378a0e643da9a7dfb3ead",
+      "before_blob": "9226ed1527da6d66e02c62be3c5d13b9b97ac9d4",
+      "after_sha256": "e4dba676f1a8f01066cab78c712a12ca6cdf69190c6215a9f7d55be8d704d77d",
+      "after_blob": "0d0b07f2f92b6e6dea5cd00c5bcd18bac355be41"
+    },
+    {
+      "status": "M",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/README.md",
+      "loaded_or_selected_overlap": false,
+      "before_sha256": "505df09dc7539a8514cf2bc9945c0d43e602102e11733e6559991cb877d50136",
+      "before_blob": "abf96b1374caf7c4c603ffe0c902ec4cf069c1fa",
+      "after_sha256": "bf767d1e72cd7beea9d2273c5d8f9084bf85ab4b7f652d119e44487a34278649",
+      "after_blob": "364839f63b3e38b8838961d116493c9ba7599d9d"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py",
+      "loaded_or_selected_overlap": false,
+      "after_sha256": "4fab42e2dbf6ada128f738aef4f1eb59ea39f83606dd2b3c06d9397bd4f6c844",
+      "after_blob": "558ff5559590343e55fa5814732625cfb4ffaf36"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer_legacy_refusal.py",
+      "loaded_or_selected_overlap": false,
+      "after_sha256": "35bd9c7c4361ef55ae36c8e3c0f270c081b55061e78e14e79ddf5c2e658108ab",
+      "after_blob": "a32b78b591ef68bf52ed0f6a9435f9a002247387"
+    }
+  ],
+  "scopes": [
+    {
+      "scope": "quantity-consumers",
+      "actual_executed_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "actual_receipt": {
+        "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/quantity-consumers/receipt.json",
+        "sha256": "7b4095d41505df526541be2792fc908aedaa54e5031f2433a56382261bd06ef2",
+        "bytes": 319613
+      },
+      "actual_check_counts": {
+        "PASS": 17,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "original_capture_admission": "ERROR",
+      "no_new_execution": true,
+      "selected_files": [
+        "tests/unit/scientist/methods/autotune/test_pareto.py",
+        "tests/unit/scientist/methods/autotune/test_pareto_axis_permutation_consumers.py",
+        "tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py",
+        "tests/unit/scientist/methods/search/test_current_quantity_consumers.py",
+        "tests/unit/scientist/methods/search/test_frontier_quantity_readback.py",
+        "tests/unit/scientist/methods/search/test_registry_quantity_projection.py"
+      ],
+      "origin_packets": [
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/quantity-consumers/origins/process-671069.json",
+          "sha256": "737e9c5d81d1cb11770d166f0db020d9bbfde622f9a1a5c3bc87316535602b7d",
+          "bytes": 36172
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/quantity-consumers/origins/process-671140.json",
+          "sha256": "6c554cb4bee27b2e9fef7acbb63610309356ee6d868eb5619d0461cbed50e08d",
+          "bytes": 1828216
+        }
+      ],
+      "observed_candidate_unique_paths": 1149,
+      "all_recorded_source_backed_rows": 1149,
+      "actual_repo_origin_rows_digest": "deb3817e33d08f487c095fad0dddc5976677ed047ef03c1bd3ff588b2fc4f618",
+      "selected_config_and_observed_source_binding_count": 1155,
+      "all_bindings_digest": "ab841963cc4e2a1230427b4a7fdc15ac7d230aefa45169c2c775b50902396a38",
+      "bindings_exact_git_byte_match": true,
+      "changed_path_overlap": [],
+      "compact_selected_config_bindings": [
+        {
+          "path": ".editorconfig",
+          "sha256": "fe87872c339a2874d1949be82837b2f890178758d98d765a803d0cc98ac38fa8",
+          "old_blob": "e2fa632ac5f3b6077b07a7e193e1b04d06f6fd36",
+          "new_blob": "e2fa632ac5f3b6077b07a7e193e1b04d06f6fd36"
+        },
+        {
+          "path": "AGENTS.md",
+          "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50",
+          "old_blob": "94173d77ab34173f12883ee6575db4a461f6df98",
+          "new_blob": "94173d77ab34173f12883ee6575db4a461f6df98"
+        },
+        {
+          "path": "policy-engine/CONTRIBUTING.md",
+          "sha256": "1c9ea84e5fa0d8f05517287523d47d71128742ad02a5d20ce326163d21754783",
+          "old_blob": "ac70f96fa6a0c0bd6b810e10f33b409dea2a78bf",
+          "new_blob": "ac70f96fa6a0c0bd6b810e10f33b409dea2a78bf"
+        },
+        {
+          "path": "policy-engine/pyproject.toml",
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "old_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "new_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c"
+        },
+        {
+          "path": "policy-engine/pytest.ini",
+          "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "old_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+          "new_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a"
+        },
+        {
+          "path": "policy-engine/uv.lock",
+          "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "old_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+          "new_blob": "85f1fb2150a4da454fee02108565381d44f56730"
+        }
+      ]
+    },
+    {
+      "scope": "fiscal-consumers",
+      "actual_executed_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "actual_receipt": {
+        "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/fiscal-consumers/receipt.json",
+        "sha256": "7b34a678e823c91c118cde3eebc3c06ca200648b4a6326ba0d27f16c10141699",
+        "bytes": 81142
+      },
+      "actual_check_counts": {
+        "PASS": 24,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "original_capture_admission": "ADMITTED",
+      "no_new_execution": true,
+      "selected_files": [
+        "tests/unit/scientist/methods/search/test_fiscal_numeric_admission.py"
+      ],
+      "origin_packets": [
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/fiscal-consumers/origins/process-671120.json",
+          "sha256": "e6d8b432c979a04e6d6cc4ec5eae2cc768fb20d636180c8c5aebfcdf04acaeb5",
+          "bytes": 34991
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/fiscal-consumers/origins/process-671142.json",
+          "sha256": "3ac3aa868928403803862247b44f791da738cfc66cabb5db41a5a6ecdc7af225",
+          "bytes": 195761
+        }
+      ],
+      "observed_candidate_unique_paths": 44,
+      "all_recorded_source_backed_rows": 44,
+      "actual_repo_origin_rows_digest": "5d454bec5792a27dbc6bf0c19c1aa44b6249efe60a3ab154c5374f9ca7e84458",
+      "selected_config_and_observed_source_binding_count": 50,
+      "all_bindings_digest": "a41dd5ba1c6ac3412fbda8ab3ce6aaf5f2c9708f6ac7c070fab205033ca2931a",
+      "bindings_exact_git_byte_match": true,
+      "changed_path_overlap": [],
+      "compact_selected_config_bindings": [
+        {
+          "path": ".editorconfig",
+          "sha256": "fe87872c339a2874d1949be82837b2f890178758d98d765a803d0cc98ac38fa8",
+          "old_blob": "e2fa632ac5f3b6077b07a7e193e1b04d06f6fd36",
+          "new_blob": "e2fa632ac5f3b6077b07a7e193e1b04d06f6fd36"
+        },
+        {
+          "path": "AGENTS.md",
+          "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50",
+          "old_blob": "94173d77ab34173f12883ee6575db4a461f6df98",
+          "new_blob": "94173d77ab34173f12883ee6575db4a461f6df98"
+        },
+        {
+          "path": "policy-engine/CONTRIBUTING.md",
+          "sha256": "1c9ea84e5fa0d8f05517287523d47d71128742ad02a5d20ce326163d21754783",
+          "old_blob": "ac70f96fa6a0c0bd6b810e10f33b409dea2a78bf",
+          "new_blob": "ac70f96fa6a0c0bd6b810e10f33b409dea2a78bf"
+        },
+        {
+          "path": "policy-engine/pyproject.toml",
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "old_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "new_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c"
+        },
+        {
+          "path": "policy-engine/pytest.ini",
+          "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "old_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+          "new_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a"
+        },
+        {
+          "path": "policy-engine/uv.lock",
+          "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "old_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+          "new_blob": "85f1fb2150a4da454fee02108565381d44f56730"
+        }
+      ]
+    },
+    {
+      "scope": "stress-consumers",
+      "actual_executed_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "actual_receipt": {
+        "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/stress-consumers/receipt.json",
+        "sha256": "a9982d2fb6f0af966fda49d68ff9f8aead115978101d0402568878f22796fef0",
+        "bytes": 151850
+      },
+      "actual_check_counts": {
+        "PASS": 22,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "original_capture_admission": "ADMITTED",
+      "no_new_execution": true,
+      "selected_files": [
+        "tests/unit/scientist/search/test_adversarial_streaming.py",
+        "tests/unit/scientist/search/test_stress_scenario_evidence.py"
+      ],
+      "origin_packets": [
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/stress-consumers/origins/process-671136.json",
+          "sha256": "61dd7366373cdaebd6b21663df2867d9bea93ca328b7a5f489abc883bb6d0a41",
+          "bytes": 36172
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/stress-consumers/origins/process-671146.json",
+          "sha256": "3983191b3c411f8a21f7f1c4874072ffb06e6a6281c1a2bfb4bc2af0b2283370",
+          "bytes": 1432039
+        }
+      ],
+      "observed_candidate_unique_paths": 1176,
+      "all_recorded_source_backed_rows": 1176,
+      "actual_repo_origin_rows_digest": "bea5cf59e726c5311013c459eceed7dc21c9e9438fedd8ebf2a60aa36c2ad565",
+      "selected_config_and_observed_source_binding_count": 1182,
+      "all_bindings_digest": "4cfe7d51d410670b850cb87c1a51830c44f0f0337111088b0a0a5eae4972943e",
+      "bindings_exact_git_byte_match": true,
+      "changed_path_overlap": [],
+      "compact_selected_config_bindings": [
+        {
+          "path": ".editorconfig",
+          "sha256": "fe87872c339a2874d1949be82837b2f890178758d98d765a803d0cc98ac38fa8",
+          "old_blob": "e2fa632ac5f3b6077b07a7e193e1b04d06f6fd36",
+          "new_blob": "e2fa632ac5f3b6077b07a7e193e1b04d06f6fd36"
+        },
+        {
+          "path": "AGENTS.md",
+          "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50",
+          "old_blob": "94173d77ab34173f12883ee6575db4a461f6df98",
+          "new_blob": "94173d77ab34173f12883ee6575db4a461f6df98"
+        },
+        {
+          "path": "policy-engine/CONTRIBUTING.md",
+          "sha256": "1c9ea84e5fa0d8f05517287523d47d71128742ad02a5d20ce326163d21754783",
+          "old_blob": "ac70f96fa6a0c0bd6b810e10f33b409dea2a78bf",
+          "new_blob": "ac70f96fa6a0c0bd6b810e10f33b409dea2a78bf"
+        },
+        {
+          "path": "policy-engine/pyproject.toml",
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "old_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "new_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c"
+        },
+        {
+          "path": "policy-engine/pytest.ini",
+          "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "old_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+          "new_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a"
+        },
+        {
+          "path": "policy-engine/uv.lock",
+          "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "old_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+          "new_blob": "85f1fb2150a4da454fee02108565381d44f56730"
+        }
+      ]
+    },
+    {
+      "scope": "stopping-convergence",
+      "actual_executed_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "actual_receipt": {
+        "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/stopping-convergence/receipt.json",
+        "sha256": "747f77f119aa341d9cafa9dcb79d22e2fafb521de4d1c2b0c56b21ae61d823e9",
+        "bytes": 89466
+      },
+      "actual_check_counts": {
+        "PASS": 50,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "original_capture_admission": "ADMITTED",
+      "no_new_execution": true,
+      "selected_files": [
+        "tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+        "tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py"
+      ],
+      "origin_packets": [
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/stopping-convergence/origins/process-671139.json",
+          "sha256": "15a241a29397d75b0ec4e73e1610031a3d0cd7ddfa386896fddc31b95d95fd7d",
+          "bytes": 34991
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/stopping-convergence/origins/process-671144.json",
+          "sha256": "205be4e29fbded2b834b53ef1d36cd1d2bea51fd7c9ada8e6aa12a32d9ea9b85",
+          "bytes": 451788
+        }
+      ],
+      "observed_candidate_unique_paths": 269,
+      "all_recorded_source_backed_rows": 269,
+      "actual_repo_origin_rows_digest": "4667e810c43a92d798b3039ca68d0cad49f02d3fff05561d1fa418ff872fdcbc",
+      "selected_config_and_observed_source_binding_count": 275,
+      "all_bindings_digest": "6d71f59adba75f9bc304160e5a25419b7055bc5fd7e05a029168055dbf05802a",
+      "bindings_exact_git_byte_match": true,
+      "changed_path_overlap": [],
+      "compact_selected_config_bindings": [
+        {
+          "path": ".editorconfig",
+          "sha256": "fe87872c339a2874d1949be82837b2f890178758d98d765a803d0cc98ac38fa8",
+          "old_blob": "e2fa632ac5f3b6077b07a7e193e1b04d06f6fd36",
+          "new_blob": "e2fa632ac5f3b6077b07a7e193e1b04d06f6fd36"
+        },
+        {
+          "path": "AGENTS.md",
+          "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50",
+          "old_blob": "94173d77ab34173f12883ee6575db4a461f6df98",
+          "new_blob": "94173d77ab34173f12883ee6575db4a461f6df98"
+        },
+        {
+          "path": "policy-engine/CONTRIBUTING.md",
+          "sha256": "1c9ea84e5fa0d8f05517287523d47d71128742ad02a5d20ce326163d21754783",
+          "old_blob": "ac70f96fa6a0c0bd6b810e10f33b409dea2a78bf",
+          "new_blob": "ac70f96fa6a0c0bd6b810e10f33b409dea2a78bf"
+        },
+        {
+          "path": "policy-engine/pyproject.toml",
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "old_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "new_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c"
+        },
+        {
+          "path": "policy-engine/pytest.ini",
+          "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+          "old_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+          "new_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a"
+        },
+        {
+          "path": "policy-engine/uv.lock",
+          "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "old_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+          "new_blob": "85f1fb2150a4da454fee02108565381d44f56730"
+        }
+      ]
+    }
+  ],
+  "old_core_receipts": {
+    "c0_mathematical154_plus_disjoint_MO27": "Exact original c0 assertions and pinned dimensional float64 representability profile only; source qualification from prior receipt stays separate, not181 newPASS",
+    "source_qualification": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/prior-receipt-source-qualification.json",
+      "sha256": "d7807b540064216d5f7c989345c110e840a50375a8f845b8584937c0c60c33bf",
+      "bytes": 378584
+    },
+    "CBC_to5b_same_named_core_count": 22,
+    "CBC_to5b_same_named_core_bindings": [
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+        "sha256": "f6787e89fb3ae343e4ed822e00db9c91c44d017effc2aff22dda93f639c54b83"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+        "sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+        "sha256": "aee369ab873131ac950104d3cf8b832c2ecf1d8109033f1631dc20877478bacd"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+        "sha256": "e4699f9b1f892a3850406d0ef582bcf8072e19192d040783468d8c33b9c21f8a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/policy_design/output.py",
+        "sha256": "6e7222137b4b44b7a71dd2de7d0300f0fee22d05f41df556b2f84dc84ea73598"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_axis_permutation_consumers.py",
+        "sha256": "c4f7790d3ecd6dddc2d23197250fb06acd0cd21a8c5887e0ca34d62590b5e990"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/search/test_current_quantity_consumers.py",
+        "sha256": "c331f05519c4590c96080d6d1491388ca261b1096dedf0100712da1b0c097939"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
+        "sha256": "f9096dad70b07b8eae9a976e7a65010c592bc2352ad1ded425f47f5b534d1f25"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/search/test_registry_quantity_projection.py",
+        "sha256": "500342e870818200404d2322cf266877631fd4303798fe364104833ae94550e6"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/search/test_frontier_quantity_readback.py",
+        "sha256": "fba874ac95a52e961f5d51c62de468e94e05d77700137491fc2143b4202d9071"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py",
+        "sha256": "125812f64a5fc6c6a679969f8117819792c17a98e1c7030a815e15e346cea4b8"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+        "sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/search/test_fiscal_numeric_admission.py",
+        "sha256": "89b7fe53ee40da9fec92528278772267944edb250d923d45018dfb33846bf206"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+        "sha256": "84aaa5c7a3737000985d39c6b3b8803bb03a052e64b702944ca322a2ae1234ee"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py",
+        "sha256": "5298242cd9b3fc4a80adb07c9b78c16063c1bd00b9918088c7130848cc2dd907"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+        "sha256": "bfe8ee7a6e0be2f2eaa60f976c611dc4f32ccb8d64561bb1307737b8afa04a61"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+        "sha256": "09d679aa22cc434e60ea054c1f84ad2c2b607e296a90885054d59ad2de31aaff"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/search/test_stress_scenario_evidence.py",
+        "sha256": "2305ffaecac2613846308cd03fcd618be22519d1289ef5fe42e155595dd13ca0"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/search/test_adversarial_streaming.py",
+        "sha256": "0227f239fd504924a2591bdbe391ddc1bb2f62d516d1d0e3221e6bd614ccadb5"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+        "sha256": "a00f99197074360a8ec969d671180e01a57ffde37126f78addbba938b74698b1"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+        "sha256": "cdf7ffe7bd6e3921749e7aa61624d43fa9e8f831495533bf22441744478cc4ee"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+        "sha256": "19cf96ccdd90146d597c27e776b4bec34bb2999c588ac048d1ba895bcbdd261e"
+      }
+    ],
+    "old_mathematical154_plus_MO27_reexecuted_at_CBC": false
+  },
+  "native_primary4_carry": {
+    "prior_ref": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/original50-primary4-qualified-carry-CBC46.json",
+      "sha256": "db2681660c1781ad561ae854fe9e9d39c5d9fcb5ff9fdba9fdfe0da9663c1673",
+      "bytes": 258027
+    },
+    "original_executed_source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+    "exact_CBC_to5b_rechecked_binding_count": 881,
+    "no_new_4_or_50_execution": true
+  },
+  "all8_original_occurrences": [
+    "B106@STR-01",
+    "B107@STR-01",
+    "B108@OPT-01",
+    "B109@OPT-01",
+    "B110@OPT-01",
+    "B111@OPT-01",
+    "B41@STP-01",
+    "B122@STP-01"
+  ],
+  "mandatory_input_delta": "Changed release TOML is part of the complete tracked input denominator. Its evidence-array/inventory declaration changes and the added tests/README are preserved in this delta; wholecatalog before/after identity is expressly not claimed. No selected module/reached candidate origin/pytest config imports or reads this fragment. Its documentary change requires this explicit scoped qualification, not a new product run.",
+  "new_tests": "Two added independent neighbouring FUN/TRN fixtures were not selected or imported by the recorded scopes; their properties are not established by this carry.",
+  "quantity_capture_rule": "Generic quantity17 ERROR remains ERROR. Two specific Torch ModuleType namespace sidecar may qualify bounded numerical computation only; no generic receipt rule was changed.",
+  "P37": "Candidate byte relation independently reviewer-recomputable; actual checks retain CBC pins, current dependency qualification onlysame selected assertions",
+  "P38": "No weaker assertions/changed mathematical quantities/observed-onlypopulation claim; missing vszero/identity/fullcounts/freshvector/stopping contrasts remain exact recorded source",
+  "P41": "not_established; no inherited-red or complete-input zero-overlap waiver",
+  "formal_closed": false,
+  "accepted_in_G": false,
+  "full_common_G_gate": "UNRUN",
+  "current_reached_scope_execution_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "supersedes_draft": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/all8-current-CBC46-to5b-scoped-qualification.json",
+    "sha256": "971db89024e02f103fec134a7b4f5f79baebd9b965e73162a37bc72acaae2311",
+    "bytes": 23091
+  }
+}

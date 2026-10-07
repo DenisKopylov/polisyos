@@ -1,0 +1,1 @@
+{"returncode": 0, "selector": "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py::test_competing_native_writer_refuses_actual_stale_pair_after_lock_held_reread"}

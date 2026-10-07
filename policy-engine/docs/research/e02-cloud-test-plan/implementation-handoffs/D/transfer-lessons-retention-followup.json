@@ -1,0 +1,60 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "transfer-lessons-fresh-producer-retention",
+  "closure_ids": [],
+  "finding_ids": [
+    "B137"
+  ],
+  "bundle_ids": [
+    "TRN-03"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [
+    "5239df01fb7e6a1c66c9b7453556fd3009f022f0"
+  ],
+  "candidate_tree_sha": "4672f9d3fb257cacaf1fe2fb6db2ab530038efda",
+  "class": "Same producer-version/freshness class at retention boundary. New actual producer ref could be archived because the old non-null access hint overrode newer producer activity.",
+  "mechanism": "Only retention/activity anchor changes to max(last_seen,last_accessed_at). Evidence freshness remains producer-only max(entry.last_seen,card.created_at); read activity still cannot refresh confidence.",
+  "input": "Real CAS older100day card carrying older access hint, then fresh producer card with same signature and new ref; GC30day TTL.",
+  "checks": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src:. /workspace/e02-D-locked-env/bin/python -m pytest -c /dev/null -p no:cacheprovider --confcutdir=tests/unit -q tests/unit/scientist/methods/search/test_lesson_query_persistence.py tests/unit/scientist/search/test_lessons.py tests/unit/scientist/search/test_lesson_transfer.py -ra",
+      "source": "immutable tracked input archive in /dev/shm",
+      "target_sha": "5239df01fb7e6a1c66c9b7453556fd3009f022f0",
+      "outcome": "PASS",
+      "result": "18 passed, 2 warnings in 10.12s",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/lesson-retention-immutable.txt",
+        "sha256": "6eab069089af1e90e2096a77d7de42a0c446977134ce5909b8de4b9f41448994"
+      }
+    },
+    {
+      "command": "unchanged new fresh_producer test before one-line production repair",
+      "target_sha": "5465dce82bc0d3daf1b4774edec2967af31719b4",
+      "production_lessons_blob_same_as": "5e05721f2e1ec3fab25f8c0c881b7d7d3315ae6d",
+      "test_blob_from": "5239df01fb7e6a1c66c9b7453556fd3009f022f0",
+      "outcome": "EXPECTED_FAIL",
+      "result": "1 failed, 6 deselected, 2 warnings in 7.22s",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/lesson-retention-base.txt",
+        "sha256": "e67c7777e5249dec8ad59ef8a97b6796b1cad649bbe9d37fb4445978524d1c08"
+      }
+    }
+  ],
+  "environment": {
+    "python": "/workspace/e02-D-locked-env/bin/python",
+    "origins": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/lesson-retention-origins.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "Fresh actual producer retention preserved without changing evidence freshness; no finding closure adjudication",
+  "proxy_divergence": "Old100day access metadata cannot override new actual producer activity and cause GC to remove the newly selected CAS ref.",
+  "limitations_and_next_owner": [
+    "Retention is local metadata, not evidence validation or source authorization.",
+    "No further cleanup/deletion. New execution archive resides in /dev/shm; prior native Trash deviation is separately tracked.",
+    "G independent acceptance and frozen combined actual GP consumer execution remain pending."
+  ]
+}

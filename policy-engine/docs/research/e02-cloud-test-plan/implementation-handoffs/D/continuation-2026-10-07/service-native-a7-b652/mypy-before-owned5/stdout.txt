@@ -1,0 +1,6 @@
+src/polisyos/scientist/methods/autotune/runtime.py:272: error: Returning Any from function declared to return "SearchResult"  [no-any-return]
+src/polisyos/scientist/methods/autotune/runtime.py:294: error: Incompatible types in assignment (expression has type "CompositeStoppingCriterion", variable has type "MaxIterations")  [assignment]
+src/polisyos/scientist/methods/autotune/runtime.py:360: error: Item "None" of "ArtifactRef | None" has no attribute "model_dump"  [union-attr]
+src/polisyos/scientist/methods/autotune/runtime.py:423: error: Returning Any from function declared to return "SearchResult"  [no-any-return]
+src/polisyos/scientist/methods/autotune/runtime.py:445: error: "ArtifactStore" has no attribute "get_verified_snapshot"  [attr-defined]
+Found 5 errors in 1 file (checked 1 source file)

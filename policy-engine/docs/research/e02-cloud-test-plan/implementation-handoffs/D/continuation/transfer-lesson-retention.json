@@ -1,0 +1,180 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "closure_ids": [],
+  "base_sha": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+  "source_sha": "cba802e22e1f1198aa971f529228ab2c1fd35cf7",
+  "source_tree": "bd080793d0a544b251112a41572c4673015a3172",
+  "branch": "codex/e02-D-published-transfer",
+  "role": "Transfer/NN production author; source-bound technical evidence, not independent acceptance or institutional authorization",
+  "canonical_accounting": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json@96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+  "fresh_G_audit": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/D-pr47-continuation-audit-2026-10-06.md@363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+  "output_payload": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/transfer-native-continuation-output.json.gz",
+    "encoding": "gzip UTF-8 JSON with per-file lossless UTF-8/base64 contents",
+    "raw_file_sha256": "8049ec22e3634cc7d565124c78e2649a9a4aef85438a04046451b1161f59bf8b",
+    "uncompressed_sha256": "5d8babf52a3aec8475e6a843ead91328ccead3524307a68c4dfb133259b3220a",
+    "compressed_bytes": 59559,
+    "uncompressed_bytes": 516461,
+    "member_count": 84,
+    "retained_scratch": "/workspace/e02-D2-receipts/transfer-continuation"
+  },
+  "preservation": {
+    "manual_cleanup": "No manual deletion or cleanup; native Trash unavailable per root environment report. All original logs, basetemps, packets and single-file mutations retained.",
+    "scope_correction": "Earlier transfer-lesson-as-of receipt wording No deletion/no environment deletions describes no manual cleanup. It is not a whole filesystem immutability claim: existing CAS atomic replace and native save/load TemporaryDirectory cleanup still execute normally.",
+    "cleanup_candidates": [
+      "/workspace/e02-D2-receipts/transfer-continuation/pytest-neural-warm-base-84952b1f26f94cf99b23dae2d8fabc73",
+      "/workspace/e02-D2-receipts/transfer-continuation/pytest-neural-warm-base-corrected-3fa33a7ceb614618afd8dd2c78a1d02a",
+      "/workspace/e02-D2-receipts/transfer-continuation/pytest-neural-lessons-frozen-a839741128ec4c8ea22c57a91bd9193f",
+      "/workspace/e02-D2-receipts/transfer-continuation/pytest-vector-transfer-process-frozen-21aee95549f24a6986ac5bc248259700",
+      "/workspace/e02-D2-receipts/transfer-continuation/pytest-cas-transfer-native-frozen-31635e43e4864f20bcce53c26c71bb9d",
+      "/workspace/e02-D2-receipts/transfer-continuation/pytest-neural-additional-negative-base-2a1b92c39a4f41d18d3c3f9f88d36e51",
+      "/workspace/e02-D2-receipts/transfer-continuation/pytest-neural-transfer-corrected-f228d2ef8ab14ced9b7ea4d0d45e61ba",
+      "/workspace/e02-D2-receipts/transfer-continuation/pytest-neural-restore-removal-0428870b8fb44614a3e9fb314da00eae"
+    ],
+    "no_caps": "Every deciding child records absent numeric thread caps, actual source-default model/acquisition settings, natural execution. No environment installs/shared venv writes.",
+    "notification_deviation": "Original NN baseline characterization was launched before parent heavy-import notification; immediately reported. Subsequent native deciding/negative/removal child launches notified first."
+  },
+  "quality": {
+    "ruff_version": "0.14.10",
+    "check": "PASS",
+    "format_check": "PASS",
+    "python_paths": 11
+  },
+  "count_semantics": "Checks are execution occurrences with repeated controls, not additive unique-test totals; skipped/UNRUN backend cases are not native PASS.",
+  "slice": "continuation-historical-read-retention",
+  "finding_ids": [
+    "B136",
+    "B137"
+  ],
+  "original_criteria": [
+    {
+      "id": "B136@TRN-03",
+      "original_criterion": {
+        "text": "**Приёмка:** переданный threshold и trust-filter соблюдаются независимо от маршрута; локальный промах не меняет требования; действительно допустимая transferred-карточка возвращается; несоответствующая не материализуется зря. Проверить source_run_id и политику частичного ответа, не только два численных примера.",
+        "byte_offset": 807152,
+        "bytes": 535,
+        "sha256": "dbc583087ea526396c4d1b2b4230d2058a76565496b4bdac824060a759dee116"
+      },
+      "card": "TRN-03",
+      "accounting_source": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+      "role": "canonical_owner"
+    },
+    {
+      "id": "B137@TRN-03",
+      "original_criterion": {
+        "text": "**Приёмка:** любое число обычных чтений не повышает доверие; настоящая разрешённая ревалидация создаёт новую версию с новыми основаниями; повторный холодный и тёплый запрос дают одинаковую содержательную степень актуальности. Retention может учитывать популярность, evidence sufficiency — нет. Проверить восстановление после restart и перенос, а не только пару запросов в одной памяти.",
+        "byte_offset": 811080,
+        "bytes": 676,
+        "sha256": "a712c0b6eddcecf9e4b23c77fc2f4732fea66953462e3cb3bfcd4a6ed376be2f"
+      },
+      "card": "TRN-03",
+      "accounting_source": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+      "role": "canonical_owner"
+    }
+  ],
+  "prior_exact_receipt": "transfer-lesson-as-of.json@cc87e523f0e8cf2ded2283ce8680d018e8a10bd0",
+  "implementation_commit": "f5d13800df15a5f472c52f7c5e05c1ef32bcce59",
+  "source_inputs": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+      "blob": "6897d15921f9b5ea09db7e57aa5330c31ab6468f",
+      "raw_file_sha256": "3c2448a1329530e5dadbde957c124d83baa366b01dad75292942e3c81f0e2e65",
+      "bytes": 43584
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_lesson_as_of.py",
+      "blob": "5543f3ac347ee94724874da5ba6a01385da54786",
+      "raw_file_sha256": "c4f5d1d24341e958ddcffc3c799b6c77323ed3810660c130012b418c9eac341b",
+      "bytes": 7682
+    }
+  ],
+  "intentional_delta": "Shared evidence admission still uses explicit as-of/context timestamp. Historical read now records actual wall read time in retention sidecar/returned last_accessed; query as-of never backdates retention. Created/evidence_anchor cannot be future relative to as-of; access never refreshes evidence.",
+  "runtime_trace": "actual stored LessonCard/index -> restart -> local/aggregated query or transfer/materialize -> one _aged_card time admission -> retained actual read time in separate access sidecar; evidence version/anchor unchanged",
+  "checks": [
+    {
+      "outcome": "PASS",
+      "source_sha": "d9e973f954e3c1fbfa300b5595e75f96e67e5197",
+      "source_tree": "83b8737b87a68fdd4850230a7850e9f0fc56a617",
+      "source_before_status": "",
+      "source_after_status": "",
+      "junit": {
+        "tests": 47,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exact_execution": {
+        "argv": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "-m",
+          "pytest",
+          "-c",
+          "/workspace/e02-D-published-transfer/policy-engine/pytest.ini",
+          "-p",
+          "e02_transfer_observer",
+          "-s",
+          "tests/unit/scientist/search/strategies/test_neural_checkpoint.py",
+          "tests/unit/scientist/search/strategies/test_neural.py",
+          "tests/unit/scientist/search/test_lesson_as_of.py",
+          "tests/unit/scientist/search/test_lessons.py",
+          "tests/unit/scientist/search/test_lesson_transfer.py",
+          "--basetemp=/workspace/e02-D2-receipts/transfer-continuation/pytest-neural-lessons-frozen-a839741128ec4c8ea22c57a91bd9193f",
+          "--junitxml=/workspace/e02-D2-receipts/transfer-continuation/neural-lessons-frozen.xml"
+        ],
+        "cwd": "/workspace/e02-D-published-transfer/policy-engine",
+        "exit_code": 0,
+        "wall_seconds": 17.0801899433136,
+        "before": {
+          "sha": "d9e973f954e3c1fbfa300b5595e75f96e67e5197",
+          "tree": "83b8737b87a68fdd4850230a7850e9f0fc56a617",
+          "status": ""
+        },
+        "after": {
+          "sha": "d9e973f954e3c1fbfa300b5595e75f96e67e5197",
+          "status": ""
+        },
+        "environment": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/workspace/e02-D-published-transfer/policy-engine/src:/workspace/e02-D-published-transfer/policy-engine:/workspace/e02-D2-receipts/transfer-continuation",
+          "OMP_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "TORCH_NUM_THREADS": null
+        },
+        "output_sha256": "b5b8b1f95b2669c649df8fe294a6eabe73bc22833f3e1f7eb004997cdb59cbad"
+      },
+      "complete_output_member": "neural-lessons-frozen.txt"
+    }
+  ],
+  "exact_test_scope": "16 new as-of cases +whole test_lessons4 +whole test_lesson_transfer7 =27 of the47-case combined run. Includes local and aggregate historical-read access >=actual before_read and unchanged old evidence anchor. Original14 future/time property controls retained.",
+  "negative_property_predecessor": "Prior immutable c6 future-branch removal caused7 expected negative failures/7 valid controls PASS; preserved prior receipt, not rerun or reclassified.",
+  "compatibility": "LessonQuery adds optional serialized as_of defaultNone. TransferContext.timestamp remains transfer caller clock. Conflicts/naive times refuse. No persisted card/index schema or authority-clock subsystem.",
+  "limits": [
+    "Refuses current persisted evidence version later than as-of rather than reconstructing an old version.",
+    "Institutional threshold/trust/source and genuine authorized revalidation issuer not appointed by these local fixtures; B137 full criterion held."
+  ],
+  "owner_request_ref": "transfer-production-input-request.json",
+  "run_configuration_inputs": [
+    {
+      "path": "policy-engine/pytest.ini",
+      "raw_file_sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+      "bytes": 1021,
+      "source_sha": "cba802e22e1f1198aa971f529228ab2c1fd35cf7"
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "raw_file_sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "bytes": 11007,
+      "source_sha": "cba802e22e1f1198aa971f529228ab2c1fd35cf7"
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "raw_file_sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "bytes": 779204,
+      "source_sha": "cba802e22e1f1198aa971f529228ab2c1fd35cf7"
+    }
+  ]
+}

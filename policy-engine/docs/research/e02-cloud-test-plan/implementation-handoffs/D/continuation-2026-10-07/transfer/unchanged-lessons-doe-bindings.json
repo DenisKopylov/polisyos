@@ -1,0 +1,67 @@
+{
+  "base": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+  "candidate": "d610095905262a9b5b05b60c894018a681119367",
+  "scope": "Exact unchanged defining module/test bindings; actual historical inputs/output remain source-qualified. Currentcontroller2 independently rerun because controllerblobchanged. Not a new broad execution.",
+  "bindings": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+      "base_blob": "0520a440f0b5285d3976f152dad5a0dbfe9c35cb",
+      "candidate_blob": "0520a440f0b5285d3976f152dad5a0dbfe9c35cb",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/transfer_context.py",
+      "base_blob": "0963066824070b40fbe3d999d61d553b02728ec9",
+      "candidate_blob": "0963066824070b40fbe3d999d61d553b02728ec9",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "base_blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+      "candidate_blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+      "base_blob": "0e5cab25d5ddeb168c520afcdd88c7b8c215f257",
+      "candidate_blob": "0e5cab25d5ddeb168c520afcdd88c7b8c215f257",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_lesson_as_of.py",
+      "base_blob": "5543f3ac347ee94724874da5ba6a01385da54786",
+      "candidate_blob": "5543f3ac347ee94724874da5ba6a01385da54786",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_lesson_partial_consumer.py",
+      "base_blob": "63274a25fb0a3a5315fe9fb05b29e3d931d69c2d",
+      "candidate_blob": "63274a25fb0a3a5315fe9fb05b29e3d931d69c2d",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_lesson_transfer.py",
+      "base_blob": "181989c9d088407ed09df30014e5f5a23ccd48c4",
+      "candidate_blob": "181989c9d088407ed09df30014e5f5a23ccd48c4",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+      "base_blob": "32827cc8e4f267b9d9e6d4bf86eb0ffb0c3ed216",
+      "candidate_blob": "32827cc8e4f267b9d9e6d4bf86eb0ffb0c3ed216",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "base_blob": "8e900abc324f80901b8b2c7a22f84563a1fac9c6",
+      "candidate_blob": "8e900abc324f80901b8b2c7a22f84563a1fac9c6",
+      "identical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "base_blob": "1cdf2241318f08092d18936bca3fa130fd998b87",
+      "candidate_blob": "1cdf2241318f08092d18936bca3fa130fd998b87",
+      "identical": true
+    }
+  ]
+}

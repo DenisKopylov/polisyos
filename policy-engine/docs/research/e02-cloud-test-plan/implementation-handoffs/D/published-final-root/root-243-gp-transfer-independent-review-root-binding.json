@@ -1,0 +1,74 @@
+{
+  "receipt_commit": "a474ff675264e2264d24e49814f29d873320b1ee",
+  "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/root-243-gp-transfer-independent-review.json",
+  "receipt_sha256": "e7cab3ad98416ee911148564f3e98fe58a534ce32857730b7e241ba631e60ceb",
+  "checked_git_bindings": [
+    {
+      "pointer": "/unchanged_tests/0",
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+      "sha256": "95bb5e2137d807bd3d005c27b240c8b1d86d7ccffc65a3da045721fc55d79265",
+      "matching_git_sources": [
+        "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+        "a474ff675264e2264d24e49814f29d873320b1ee"
+      ]
+    },
+    {
+      "pointer": "/unchanged_tests/1",
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+      "sha256": "9e81703687536e65ea452ea84a1bbc2a554fd14592a1e7c6af621d197d8ef885",
+      "matching_git_sources": [
+        "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3"
+      ]
+    },
+    {
+      "pointer": "/input_command",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/root-243-gp-transfer-runtime-command.json",
+      "sha256": "fd974d6887fdf72a5c1a985c96891930634805955cd97235be4804872bbf5e38",
+      "matching_git_sources": [
+        "a474ff675264e2264d24e49814f29d873320b1ee"
+      ]
+    },
+    {
+      "pointer": "/complete_output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/root-243-gp-transfer-independent26.txt",
+      "sha256": "39a2db70b4de14a85d487d2ef6f8b28060917c735fccf8c035802a7d4ae7d80a",
+      "matching_git_sources": [
+        "a474ff675264e2264d24e49814f29d873320b1ee"
+      ]
+    },
+    {
+      "pointer": "/actual_JUnit",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/root-243-gp-transfer-independent26.xml",
+      "sha256": "851412969fd8a53f7bfe0e6bcaaceec7062313b4e37ade88d8deb5e33e867b9a",
+      "matching_git_sources": [
+        "a474ff675264e2264d24e49814f29d873320b1ee"
+      ]
+    },
+    {
+      "pointer": "/actual_runtime_origins",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/root-243-gp-transfer-actual-origin-cells.json",
+      "sha256": "3e12f0b4d8934b1f81fcb3d5afefe78dacee3b99d8ec0e17e718858d059ca36d",
+      "matching_git_sources": [
+        "a474ff675264e2264d24e49814f29d873320b1ee"
+      ]
+    },
+    {
+      "pointer": "/exact_child_observation_source",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/root-243-gp-transfer-child.py.txt",
+      "sha256": "35bb6f197d1333ce27bfcc39f5af80bb8f088d1f13ee24cc3624df1b9d58dd6f",
+      "matching_git_sources": [
+        "a474ff675264e2264d24e49814f29d873320b1ee"
+      ]
+    },
+    {
+      "pointer": "/wide_gate_boundary/previous_review",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/root-final-runner-receiver-independent-review.json",
+      "sha256": "df0bf6f731ea09d67af6896e94066a154fc4814e2e35ffb630c9c5194aef34b7",
+      "matching_git_sources": [
+        "a474ff675264e2264d24e49814f29d873320b1ee"
+      ]
+    }
+  ],
+  "external_path_scope": [],
+  "result": "PASS metadata hashes/bytes only; no runtime or finding verdict"
+}

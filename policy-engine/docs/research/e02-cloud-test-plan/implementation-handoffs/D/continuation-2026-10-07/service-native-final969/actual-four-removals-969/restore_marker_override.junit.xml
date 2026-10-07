@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="7.005" timestamp="2026-10-07T10:41:10.914319+00:00" hostname="565838a1e059"><testcase classname="tests.unit.scientist.methods.search.test_service_trial_deduplication" name="test_returned_hash_marker_cannot_collapse_actual_native_dates_cas_and_fresh_registry" file="tests/unit/scientist/methods/search/test_service_trial_deduplication.py" line="476" time="0.137"><failure message="AssertionError: assert 1 == 2&#10; +  where 1 = len({'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa': ParetoRegistryEntry(candidate_hash='sha256...lue': -2.5, 'seed_only': False}, promotion_metadata={'iteration': 2, 'feedback': {'verdict': 'APPROVE'}}, metadata={})})&#10; +    where {'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa': ParetoRegistryEntry(candidate_hash='sha256...lue': -2.5, 'seed_only': False}, promotion_metadata={'iteration': 2, 'feedback': {'verdict': 'APPROVE'}}, metadata={})} = ParetoRegistrySnapshot(schema_version='2.0', loop_id='3ad871d6', task_family='policy', domain='isolated::unknown', upd...finite_coordinate_ids_by_candidate_hash={}, unresolved_axis_contract_candidate_hashes=[])}, objective_basis_by_view={}).entries">tmp_path = PosixPath('/dev/shm/e02-D-B124-removal-four-exxj42mi/restore_marker_override-fixtures/test_returned_hash_marker_cann0')
+
+    def test_returned_hash_marker_cannot_collapse_actual_native_dates_cas_and_fresh_registry(
+        tmp_path,
+    ):
+        import polisyos
+    
+        product = Path(polisyos.__file__).resolve().parents[2]
+        path = (
+            product
+            / "tests/unit/scientist/methods/search/test_semantic_dates_persisted_consumers.py"
+        )
+        name = "_existing_b124_date_owner_fixture"
+        module_spec = importlib.util.spec_from_file_location(name, path)
+        owner = importlib.util.module_from_spec(module_spec)
+        sys.modules[name] = owner
+        module_spec.loader.exec_module(owner)
+        registry = ParetoRegistry(tmp_path / "registry")
+        source = owner._date_service(tmp_path / "cas", registry)
+        actual = owner._date_stage_b
+        marker = "sha256:" + "a" * 64
+    
+        def preserve_marker(candidate, context):
+            result = actual(candidate, context)
+            evaluation = result["policy_evaluation"]
+            result["policy_evaluation"] = evaluation.model_copy(
+                update={"metadata": {**evaluation.metadata, "candidate_hash": marker}}
+            )
+            return result
+    
+        source.controller._stage_b = preserve_marker
+        result = source.run_search(initial_context={})
+        fresh_snapshot = FileSystemCAS(tmp_path / "cas").get_verified_snapshot(
+            source.checkpoint_ref
+        )
+        state = SearchRunState.from_checkpoint(
+            _decode_checkpoint(fresh_snapshot.data)["run_state"]
+        )
+        fresh_registry = ParetoRegistry(tmp_path / "registry").get_snapshot(
+            result.search_id
+        )
+        assert len(state.history) == 3
+        assert [row.policy_evaluation.candidate_id for row in state.history] == [
+            "full-fixture-evaluation-1",
+            "full-fixture-evaluation-2",
+            "full-fixture-evaluation-3",
+        ]
+        assert all(
+            row.policy_evaluation.metadata["candidate_hash"] == marker
+            for row in state.history
+        )
+&gt;       assert len(fresh_registry.entries) == 2
+E       AssertionError: assert 1 == 2
+E        +  where 1 = len({'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa': ParetoRegistryEntry(candidate_hash='sha256...lue': -2.5, 'seed_only': False}, promotion_metadata={'iteration': 2, 'feedback': {'verdict': 'APPROVE'}}, metadata={})})
+E        +    where {'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa': ParetoRegistryEntry(candidate_hash='sha256...lue': -2.5, 'seed_only': False}, promotion_metadata={'iteration': 2, 'feedback': {'verdict': 'APPROVE'}}, metadata={})} = ParetoRegistrySnapshot(schema_version='2.0', loop_id='3ad871d6', task_family='policy', domain='isolated::unknown', upd...finite_coordinate_ids_by_candidate_hash={}, unresolved_axis_contract_candidate_hashes=[])}, objective_basis_by_view={}).entries
+
+tests/unit/scientist/methods/search/test_service_trial_deduplication.py:526: AssertionError</failure></testcase></testsuite></testsuites>

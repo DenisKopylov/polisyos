@@ -4,20 +4,34 @@ from __future__ import annotations
 
 import asyncio
 from decimal import Decimal
+from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from polisyos.scientist.orchestration.engine.budget import BudgetExhaustedError, BudgetLimit, BudgetState
+
+from polisyos.core.llm.traced_client import LLMAccountingError
+from polisyos.scientist.orchestration.engine.budget import (
+    BudgetExhaustedError,
+    BudgetLimit,
+    BudgetState,
+)
+from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
+from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 from polisyos.scientist.orchestration.llm.budget_enforcer import LLMBudgetEnforcer
 
 
 def _make_response_mock(prompt_tokens: int = 100, completion_tokens: int = 50):
-    """Create a mock LLM response with usage data."""
-    response = MagicMock()
-    response.usage = MagicMock()
+    """Create an SDK-shaped response with only explicitly declared fields."""
+    response = SimpleNamespace()
+    response.usage = SimpleNamespace()
     response.usage.prompt_tokens = prompt_tokens
     response.usage.completion_tokens = completion_tokens
     response.usage.total_tokens = prompt_tokens + completion_tokens
+    for field in ("total_cost_usd", "cost_usd", "cost", "usage_status", "cost_status"):
+        setattr(response.usage, field, None)
+    for field in ("total_cost_usd", "cost_usd", "cost"):
+        setattr(response, field, None)
     response.content = "test response"
     response.model = "test-model"
     # Make raw dict for extract_llm_response_data
@@ -378,7 +392,7 @@ class TestLLMBudgetEnforcer:
         assert budget_state.reserved.get("run", Decimal(0)) == Decimal(0)
 
     @pytest.mark.asyncio
-    async def test_releases_reservation_when_generate_raises(self):
+    async def test_entered_provider_failure_retains_owned_unknown_reservation(self, tmp_path: Path):
         client = AsyncMock()
         client.generate.side_effect = RuntimeError("boom")
         audit = MagicMock()
@@ -386,12 +400,16 @@ class TestLLMBudgetEnforcer:
         budget_state = BudgetState(
             limits={"run": BudgetLimit(key="run", max_usd=Decimal("1.0"))},
         )
+        ledger_path = tmp_path / "failed-provider-ledger.json"
+        middleware = BudgetMiddleware(budget_state, ledger=FileBudgetLedger(ledger_path))
         enforcer = LLMBudgetEnforcer(
             client=client,
             budget_state=budget_state,
             budget_keys=["run"],
             model_name="test-model",
             audit_log=audit,
+            budget_middleware=middleware,
+            run_id="entered-provider-failure",
         )
 
         with (
@@ -399,24 +417,35 @@ class TestLLMBudgetEnforcer:
                 "polisyos.scientist.orchestration.llm.budget_enforcer.estimate_llm_cost_usd",
                 return_value=0.4,
             ),
-            pytest.raises(RuntimeError, match="boom"),
+            pytest.raises(LLMAccountingError) as failed,
         ):
             await enforcer.generate(system="sys", user="hello")
 
         assert budget_state.spent.get("run", Decimal(0)) == Decimal(0)
-        assert budget_state.reserved.get("run", Decimal(0)) == Decimal(0)
+        assert str(failed.value.cause) == "boom"
+        snapshot = FileBudgetLedger(ledger_path).snapshot()
+        assert snapshot.state.reserved["run"] == Decimal("0.4")
+        assert not snapshot.spend_receipts
+        pending = list(snapshot.completion_obligations.values())
+        assert len(pending) == 1 and pending[0].phase == "cost_unknown"
+        assert pending[0].event_payload["amount"] is None
+        with pytest.raises(LLMAccountingError):
+            await enforcer.generate(system="sys", user="new request")
+        assert client.generate.await_count == 1
         release_calls = [
             c for c in audit.append.call_args_list if c[1].get("action") == "BUDGET_RELEASED"
         ]
-        assert len(release_calls) >= 1
+        assert not release_calls
 
     @pytest.mark.asyncio
-    async def test_releases_reservation_when_task_is_cancelled(self):
+    async def test_caller_cancellation_retains_live_producer_reservation(self):
         started = asyncio.Event()
+        release = asyncio.Event()
 
         async def _generate(**kwargs):
             started.set()
-            await asyncio.Future()
+            await release.wait()
+            return _make_response_with_provider_cost(cost_usd=0.6)
 
         client = AsyncMock()
         client.generate.side_effect = _generate
@@ -442,6 +471,10 @@ class TestLLMBudgetEnforcer:
                 await task
 
         assert budget_state.spent.get("run", Decimal(0)) == Decimal(0)
+        assert budget_state.reserved["run"] == Decimal("0.4")
+        release.set()
+        await asyncio.gather(*list(enforcer._owned_calls))
+        assert budget_state.spent["run"] == Decimal("0.6")
         assert budget_state.reserved.get("run", Decimal(0)) == Decimal(0)
 
     @pytest.mark.asyncio

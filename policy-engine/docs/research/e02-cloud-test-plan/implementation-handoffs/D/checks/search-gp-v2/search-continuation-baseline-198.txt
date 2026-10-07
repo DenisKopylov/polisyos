@@ -1,0 +1,285 @@
+SOURCE 198076863e143dea9f89f02734b13d50dae3eed5; synthetic tests authored before candidate; backend locked torch2.10/botorch0.16.1/gpytorch1.15.1; Python3.14.7; seeds37/38/39
+ACTUAL_SOURCE /tmp/e02-D2-search-base-198-1jbrd1t0/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py
+FFFFFFFFFFF                                                              [100%]
+=================================== FAILURES ===================================
+______________ test_real_same_corpus_and_append_resume_do_not_fit ______________
+
+    @pytest.mark.skipif(module.fit_gpytorch_mll is None, reason="optional GP stack unavailable")
+    def test_real_same_corpus_and_append_resume_do_not_fit():
+        space = SearchSpace([ParameterBounds("x")])
+        original = optimizer(space)
+        history = rows(space, 6)
+        real_fit = module.fit_gpytorch_mll
+        with patch.object(module, "fit_gpytorch_mll", wraps=real_fit) as fit:
+            assert original.suggest(history).source_strategy == "bayesian_acquisition"
+            assert fit.call_count == 1
+            state = StrategyState.from_artifact(original.get_state().to_artifact())
+            restored = optimizer(space)
+            restored.set_state(state)
+            before = original._torch.get_rng_state().clone()
+>           assert restored.suggest(copy.deepcopy(history)).params == original.suggest(history).params
+E           AssertionError: assert {'x': 0.531291436135369} == {'x': 0.5312911098110801}
+E             
+E             Differing items:
+E             {'x': 0.531291436135369} != {'x': 0.5312911098110801}
+E             Use -v to get more diff
+
+tests/unit/remediation/test_opt_03_continuation.py:65: AssertionError
+_______ test_actual_hard_resource_fallback_checkpoint_preserves_due_fit ________
+
+    @pytest.mark.skipif(module.fit_gpytorch_mll is None, reason="optional GP stack unavailable")
+    def test_actual_hard_resource_fallback_checkpoint_preserves_due_fit():
+        space = SearchSpace([ParameterBounds("x")])
+        arbiter = ResourceArbiter(ResourcePolicy(enable_cleanup=False))
+        original = optimizer(space, interval=1, arbiter=arbiter)
+        real_fit = module.fit_gpytorch_mll
+        with patch.object(module, "fit_gpytorch_mll", wraps=real_fit) as fit:
+            original.suggest(rows(space, 3))
+            assert fit.call_count == 1
+            arbiter.policy.hard_rss_mb = 0
+            assert original.suggest(rows(space, 4)).source_strategy == "random_hard_limit"
+            state = StrategyState.from_artifact(original.get_state().to_artifact())
+>           assert state.iteration == 4 and state.metadata["last_refit_iteration"] == 3
+                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           KeyError: 'last_refit_iteration'
+
+tests/unit/remediation/test_opt_03_continuation.py:91: KeyError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 09:58:38.315 | ERROR    | polisyos.common.logger:_call:120 - ResourceArbiter hard RSS limit exceeded: 1119.7MB (hard=0MB)
+
+__ test_saved_corpus_changed_with_model_markers_preserved_refuses_atomically ___
+
+    @pytest.mark.skipif(module.fit_gpytorch_mll is None, reason="optional GP stack unavailable")
+    def test_saved_corpus_changed_with_model_markers_preserved_refuses_atomically():
+        space = SearchSpace([ParameterBounds("x")])
+        producer = optimizer(space)
+        producer.suggest(rows(space, 6))
+        saved = StrategyState.from_artifact(producer.get_state().to_artifact())
+        for field in ("train_X", "train_y_bo", "refit_train_X", "refit_train_y_bo"):
+            changed = copy.deepcopy(saved)
+            changed.metadata[field][0][0] += 0.01
+            before = producer.get_state().to_artifact()
+>           with pytest.raises(ValueError):
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+E           Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/remediation/test_opt_03_continuation.py:116: Failed
+_________ test_wrapper_and_nested_rng_actual_consumers_resume[random] __________
+
+kind = 'random'
+
+    @pytest.mark.parametrize("kind", ["random", "sobol"])
+    def test_wrapper_and_nested_rng_actual_consumers_resume(kind):
+        space = SearchSpace([ParameterBounds("x")])
+    
+        def make():
+            base = (
+                RandomSearchStrategy(space, seed=38)
+                if kind == "random"
+                else BayesianOptimizer(space, BayesianConfig(seed=38))
+            )
+            return RLStrategyWrapper(base, space, RLConfig(LinearDecay(0.35, 0.35), seed=39))
+    
+        original = make()
+        original.suggest([])
+        saved = StrategyState.from_artifact(original.get_state().to_artifact())
+        restored = make()
+>       restored.set_state(saved)
+
+tests/unit/remediation/test_ctl_03_nested.py:34: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/search/strategies/rl_wrapper.py:102: in set_state
+    self._rng.setstate(rng_state)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <random.Random object at 0x31904270>
+state = [3, [1223793907, 1871754511, 3336414085, 3902071946, 2390421174, 420896959, ...], None]
+
+    def setstate(self, state):
+        """Restore internal state from object returned by getstate()."""
+        version = state[0]
+        if version == 3:
+            version, internalstate, self.gauss_next = state
+>           super().setstate(internalstate)
+E           TypeError: state vector must be a tuple
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/random.py:185: TypeError
+__________ test_wrapper_and_nested_rng_actual_consumers_resume[sobol] __________
+
+kind = 'sobol'
+
+    @pytest.mark.parametrize("kind", ["random", "sobol"])
+    def test_wrapper_and_nested_rng_actual_consumers_resume(kind):
+        space = SearchSpace([ParameterBounds("x")])
+    
+        def make():
+            base = (
+                RandomSearchStrategy(space, seed=38)
+                if kind == "random"
+                else BayesianOptimizer(space, BayesianConfig(seed=38))
+            )
+            return RLStrategyWrapper(base, space, RLConfig(LinearDecay(0.35, 0.35), seed=39))
+    
+        original = make()
+        original.suggest([])
+        saved = StrategyState.from_artifact(original.get_state().to_artifact())
+        restored = make()
+>       restored.set_state(saved)
+
+tests/unit/remediation/test_ctl_03_nested.py:34: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/search/strategies/rl_wrapper.py:102: in set_state
+    self._rng.setstate(rng_state)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <random.Random object at 0x318f12b0>
+state = [3, [1223793907, 1871754511, 3336414085, 3902071946, 2390421174, 420896959, ...], None]
+
+    def setstate(self, state):
+        """Restore internal state from object returned by getstate()."""
+        version = state[0]
+        if version == 3:
+            version, internalstate, self.gauss_next = state
+>           super().setstate(internalstate)
+E           TypeError: state vector must be a tuple
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/random.py:185: TypeError
+__ test_nested_malformed_json_refuses_without_wrapper_or_base_mutation[None] ___
+
+payload = None
+
+    @pytest.mark.parametrize(
+        "payload", [None, [], True, 1, {}, {"strategy_name": "RandomSearchStrategy"}]
+    )
+    def test_nested_malformed_json_refuses_without_wrapper_or_base_mutation(payload):
+        space = SearchSpace([ParameterBounds("x")])
+        wrapper = RLStrategyWrapper(RandomSearchStrategy(space), space)
+        saved = wrapper.get_state()
+        before = saved.to_artifact()
+        saved.metadata["base_state"] = json.dumps(payload)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/remediation/test_ctl_03_nested.py:49: Failed
+_ test_nested_malformed_json_refuses_without_wrapper_or_base_mutation[payload1] _
+
+payload = []
+
+    @pytest.mark.parametrize(
+        "payload", [None, [], True, 1, {}, {"strategy_name": "RandomSearchStrategy"}]
+    )
+    def test_nested_malformed_json_refuses_without_wrapper_or_base_mutation(payload):
+        space = SearchSpace([ParameterBounds("x")])
+        wrapper = RLStrategyWrapper(RandomSearchStrategy(space), space)
+        saved = wrapper.get_state()
+        before = saved.to_artifact()
+        saved.metadata["base_state"] = json.dumps(payload)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/remediation/test_ctl_03_nested.py:49: Failed
+__ test_nested_malformed_json_refuses_without_wrapper_or_base_mutation[True] ___
+
+payload = True
+
+    @pytest.mark.parametrize(
+        "payload", [None, [], True, 1, {}, {"strategy_name": "RandomSearchStrategy"}]
+    )
+    def test_nested_malformed_json_refuses_without_wrapper_or_base_mutation(payload):
+        space = SearchSpace([ParameterBounds("x")])
+        wrapper = RLStrategyWrapper(RandomSearchStrategy(space), space)
+        saved = wrapper.get_state()
+        before = saved.to_artifact()
+        saved.metadata["base_state"] = json.dumps(payload)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/remediation/test_ctl_03_nested.py:49: Failed
+____ test_nested_malformed_json_refuses_without_wrapper_or_base_mutation[1] ____
+
+payload = 1
+
+    @pytest.mark.parametrize(
+        "payload", [None, [], True, 1, {}, {"strategy_name": "RandomSearchStrategy"}]
+    )
+    def test_nested_malformed_json_refuses_without_wrapper_or_base_mutation(payload):
+        space = SearchSpace([ParameterBounds("x")])
+        wrapper = RLStrategyWrapper(RandomSearchStrategy(space), space)
+        saved = wrapper.get_state()
+        before = saved.to_artifact()
+        saved.metadata["base_state"] = json.dumps(payload)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/remediation/test_ctl_03_nested.py:49: Failed
+_ test_nested_malformed_json_refuses_without_wrapper_or_base_mutation[payload4] _
+
+payload = {}
+
+    @pytest.mark.parametrize(
+        "payload", [None, [], True, 1, {}, {"strategy_name": "RandomSearchStrategy"}]
+    )
+    def test_nested_malformed_json_refuses_without_wrapper_or_base_mutation(payload):
+        space = SearchSpace([ParameterBounds("x")])
+        wrapper = RLStrategyWrapper(RandomSearchStrategy(space), space)
+        saved = wrapper.get_state()
+        before = saved.to_artifact()
+        saved.metadata["base_state"] = json.dumps(payload)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/remediation/test_ctl_03_nested.py:49: Failed
+_ test_nested_malformed_json_refuses_without_wrapper_or_base_mutation[payload5] _
+
+payload = {'strategy_name': 'RandomSearchStrategy'}
+
+    @pytest.mark.parametrize(
+        "payload", [None, [], True, 1, {}, {"strategy_name": "RandomSearchStrategy"}]
+    )
+    def test_nested_malformed_json_refuses_without_wrapper_or_base_mutation(payload):
+        space = SearchSpace([ParameterBounds("x")])
+        wrapper = RLStrategyWrapper(RandomSearchStrategy(space), space)
+        saved = wrapper.get_state()
+        before = saved.to_artifact()
+        saved.metadata["base_state"] = json.dumps(payload)
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/remediation/test_ctl_03_nested.py:49: Failed
+=============================== warnings summary ===============================
+../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+tests/unit/remediation/test_opt_03_continuation.py::test_real_same_corpus_and_append_resume_do_not_fit
+tests/unit/remediation/test_opt_03_continuation.py::test_real_same_corpus_and_append_resume_do_not_fit
+tests/unit/remediation/test_opt_03_continuation.py::test_real_same_corpus_and_append_resume_do_not_fit
+tests/unit/remediation/test_opt_03_continuation.py::test_actual_hard_resource_fallback_checkpoint_preserves_due_fit
+tests/unit/remediation/test_opt_03_continuation.py::test_saved_corpus_changed_with_model_markers_preserved_refuses_atomically
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/analytic.py:340: NumericsWarning: ExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 ExpectedImprovement 	 --> 	 LogExpectedImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_opt_03_continuation.py::test_real_same_corpus_and_append_resume_do_not_fit
+FAILED tests/unit/remediation/test_opt_03_continuation.py::test_actual_hard_resource_fallback_checkpoint_preserves_due_fit
+FAILED tests/unit/remediation/test_opt_03_continuation.py::test_saved_corpus_changed_with_model_markers_preserved_refuses_atomically
+FAILED tests/unit/remediation/test_ctl_03_nested.py::test_wrapper_and_nested_rng_actual_consumers_resume[random]
+FAILED tests/unit/remediation/test_ctl_03_nested.py::test_wrapper_and_nested_rng_actual_consumers_resume[sobol]
+FAILED tests/unit/remediation/test_ctl_03_nested.py::test_nested_malformed_json_refuses_without_wrapper_or_base_mutation[None]
+FAILED tests/unit/remediation/test_ctl_03_nested.py::test_nested_malformed_json_refuses_without_wrapper_or_base_mutation[payload1]
+FAILED tests/unit/remediation/test_ctl_03_nested.py::test_nested_malformed_json_refuses_without_wrapper_or_base_mutation[True]
+FAILED tests/unit/remediation/test_ctl_03_nested.py::test_nested_malformed_json_refuses_without_wrapper_or_base_mutation[1]
+FAILED tests/unit/remediation/test_ctl_03_nested.py::test_nested_malformed_json_refuses_without_wrapper_or_base_mutation[payload4]
+FAILED tests/unit/remediation/test_ctl_03_nested.py::test_nested_malformed_json_refuses_without_wrapper_or_base_mutation[payload5]
+11 failed, 6 warnings in 4.00s

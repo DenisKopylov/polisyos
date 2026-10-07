@@ -1,0 +1,119 @@
+{
+  "breaking_classes_explicit": [
+    "tooling",
+    "persisted-artifact-format",
+    "runtime-state-format"
+  ],
+  "canonical_findings": [],
+  "canonical_functions": [
+    "_validate_fragments",
+    "validate_required_curated_sections",
+    "render_release_notes"
+  ],
+  "curated_sections": {
+    "api": 3,
+    "change_class": 3,
+    "compatibility": 3,
+    "limitations": 3,
+    "migration": 3,
+    "surface_classification": 3
+  },
+  "errors": [],
+  "fragment_count": 3,
+  "global_release_gate": "UNRUN; fullCLI unconditionally validates unrelated public/extension/generated/runtime/migration/schema/template contracts; this selected-input result is not a whole gate or release publication",
+  "linked_inputs_sha256": {
+    "policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md": "60decfc338c807352c7dd307bfaf0378b1daa737b53ae653fc2a20105e62eaac",
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/README.md": "505df09dc7539a8514cf2bc9945c0d43e602102e11733e6559991cb877d50136",
+    "policy-engine/tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py": "4833da241c05d5121eb9bb25341545edfe6fa359845d0e91e6c8f9ad138457f7",
+    "policy-engine/tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py": "82c5a5d0fe5e596f5415f1fa81b50d45b5ac0c6acbed83750373c282d21f885b",
+    "policy-engine/tests/repo_quality/tools/test_state_reads_constructor_admission.py": "ad556c6bb8976771e7b811ab06e35a83a698bf6151bc4ad309a1b69b515844e2",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py": "da7b6ac631867a0eba8ddc66e1c27837e37a98997f2adec38d26c74b1572c931",
+    "policy-engine/tests/unit/scientist/methods/search/test_service_history_binding.py": "f2b56517e31ae372222402c77f0c543ecfe7747995d76812c9d106af1ec896c1",
+    "policy-engine/tests/unit/scientist/methods/search/test_strategy_adapter_factory_resume.py": "109da54043a4e2c7d9c4c440158efe5782d4c6cec238e2bffdd6eed6cd17a29e",
+    "policy-engine/tools/quality/diagnostics/README.md": "805e484189cea0c25931da2c41ed0cff5203d5e1f507523d59e5938c6685796e"
+  },
+  "metadata_result": "PASS",
+  "schema_policy": "exact Git 3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2:policy-engine/ops/release/release-fragment-policy.toml",
+  "selected_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-07-state-read-binding-ambiguity.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-07-search-complete-history-resume.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-07-funnel-cost-input-origins.toml"
+  ],
+  "source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "structured_compatibility_changes": [
+    {
+      "change_class": "tooling",
+      "deprecation_window": "not_applicable",
+      "fragment": "/dev/shm/e02-D-oct07-continuation/policy-engine/release-fragments/unreleased/2026-10-07-state-read-binding-ambiguity.toml",
+      "generated_client_compatibility": "not_applicable",
+      "id": "state-read-static-binding-ambiguity-refusal",
+      "impact": "breaking",
+      "migration_docs": [
+        "tools/quality/diagnostics/README.md"
+      ],
+      "owner": "team-architecture",
+      "public_surface_inventory_reviewed": true,
+      "release_note": "Consumers must preserve the existing exit 2 incomplete result for multiple or unsupported _SPEC bindings instead of treating unioned paths as admission.",
+      "runbook_docs": [
+        "tools/quality/diagnostics/README.md"
+      ],
+      "surface": "internal_tooling: tools/quality/diagnostics/check_state_reads.py",
+      "version_owner": "team-architecture"
+    },
+    {
+      "change_class": "persisted-artifact-format",
+      "deprecation_window": "Old artifacts remain immutable; current readers refuse unsupported profiles immediately.",
+      "fragment": "/dev/shm/e02-D-oct07-continuation/policy-engine/release-fragments/unreleased/2026-10-07-search-complete-history-resume.toml",
+      "generated_client_compatibility": "not_applicable",
+      "id": "complete-adapter-consumption-v2",
+      "impact": "breaking",
+      "migration_docs": [
+        "docs/how-to/search-checkpoint-profile-compatibility.md"
+      ],
+      "owner": "team-policyos-runtime",
+      "release_note": "strategy_adapter.v2 records complete converted consumed rows and a strict cursor; empty/truncated rows or digests cannot repeat update effects under retained native state. Stateful overrides require an actual pure state/corpus validator, with supported RL delegation and live-only unknown/NN profiles.",
+      "runbook_docs": [
+        "docs/how-to/search-checkpoint-profile-compatibility.md"
+      ],
+      "surface": "internal: internal-only",
+      "version_owner": "team-policyos-runtime"
+    },
+    {
+      "change_class": "persisted-artifact-format",
+      "deprecation_window": "Retain v1/v2 original source/backend or start an explicit new run; no guessed migration.",
+      "fragment": "/dev/shm/e02-D-oct07-continuation/policy-engine/release-fragments/unreleased/2026-10-07-search-complete-history-resume.toml",
+      "generated_client_compatibility": "not_applicable",
+      "id": "native-wrapper-consumption-v3",
+      "impact": "breaking",
+      "migration_docs": [
+        "docs/how-to/search-checkpoint-profile-compatibility.md"
+      ],
+      "owner": "team-policyos-runtime",
+      "release_note": "bayesian_candidate_generator.v3 binds converted receiving row/digest cardinality to the actual native StrategyState.iteration, preserving separate warm-only count zero and refusing paired-array truncation before state mutation.",
+      "runbook_docs": [
+        "docs/how-to/search-checkpoint-profile-compatibility.md"
+      ],
+      "surface": "internal: internal-only",
+      "version_owner": "team-policyos-runtime"
+    },
+    {
+      "change_class": "runtime-state-format",
+      "deprecation_window": "Validator-less persisted profiles refuse; keep live operation or the original supported reader.",
+      "fragment": "/dev/shm/e02-D-oct07-continuation/policy-engine/release-fragments/unreleased/2026-10-07-search-complete-history-resume.toml",
+      "generated_client_compatibility": "not_applicable",
+      "id": "service-required-history-admission",
+      "impact": "breaking",
+      "migration_docs": [
+        "docs/how-to/search-checkpoint-profile-compatibility.md"
+      ],
+      "owner": "team-policyos-runtime",
+      "release_note": "Generic persisted restore no longer treats missing history validation as success. A single nonvirtual canonical-owner check admits built-in wrapper callable implementations, including private/static/class helpers. Even pure borrowed subclasses refuse persisted resume while discovery None preserves live operation; custom owners require their own complete implementation. Canonical Sequence validates its real history-independent corpus/cursor; supported stateful producers admit the whole consumed relationship before live effects. This is a bounded implementation profile, not a Python security boundary.",
+      "runbook_docs": [
+        "docs/how-to/search-checkpoint-profile-compatibility.md"
+      ],
+      "surface": "stable public NativeSearchService alias; internal checkpoint profiles",
+      "version_owner": "team-policyos-runtime"
+    }
+  ],
+  "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4"
+}

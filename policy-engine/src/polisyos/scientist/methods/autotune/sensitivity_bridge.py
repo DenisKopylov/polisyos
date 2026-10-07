@@ -3,7 +3,12 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, Literal, cast
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts import ArtifactRef, ArtifactStore
+    from polisyos.scientist.methods.doe.designs import SensitivityPlan, SensitivityResult
 
 logger = logging.getLogger(__name__)
 
@@ -19,8 +24,16 @@ def _try_import_doe():
             SensitivityMethod,
             SensitivityPlan,
         )
+        from polisyos.scientist.methods.doe.sampling import generate_sensitivity_samples
 
-        return analyze_sensitivity, ParameterSpec, SensitivityMethod, SensitivityPlan, np
+        return (
+            analyze_sensitivity,
+            ParameterSpec,
+            SensitivityMethod,
+            SensitivityPlan,
+            generate_sensitivity_samples,
+            np,
+        )
     except ImportError:
         return None
 
@@ -35,11 +48,15 @@ class SensitivityBridge:
     def analyze_search_space(
         self,
         bounds: list[dict[str, Any]],
-        evaluator: Any,
+        evaluator: Callable[[dict[str, float]], float],
         *,
         method: str = "morris",
         n_trajectories: int = 10,
         n_levels: int = 4,
+        seed: int | None = None,
+        input_law: Literal["unknown", "independent", "dependent"] = "unknown",
+        store: ArtifactStore | None = None,
+        max_estimated_runs: int = 1000,
     ) -> dict[str, Any]:
         """Run sensitivity analysis over a search space.
 
@@ -64,7 +81,16 @@ class SensitivityBridge:
         if deps is None:
             raise ImportError("DOE analysis module not available")
 
-        analyze_sensitivity, ParameterSpec, SensitivityMethod, SensitivityPlan, np = deps
+        (
+            analyze_sensitivity,
+            ParameterSpec,
+            SensitivityMethod,
+            SensitivityPlan,
+            generate_sensitivity_samples,
+            np,
+        ) = deps
+
+        sa_method = SensitivityMethod(method)
 
         if not bounds:
             return {"ranking": [], "result": None, "method": method}
@@ -75,31 +101,24 @@ class SensitivityBridge:
                 lower_bound=b.get("lower", 0.0),
                 upper_bound=b.get("upper", 1.0),
                 num_levels=n_levels,
+                distribution=b.get("distribution", "uniform"),
+                distribution_spec=b.get("distribution_spec"),
+                unit=b.get("unit", "unspecified"),
             )
             for b in bounds
         ]
 
-        sa_method = SensitivityMethod.MORRIS if method == "morris" else SensitivityMethod.SOBOL
         plan = SensitivityPlan(
             method=sa_method,
             parameter_specs=param_specs,
             n_trajectories=n_trajectories,
+            seed=seed,
+            input_law=input_law,
+            max_estimated_runs=max_estimated_runs,
         )
-
-        # Generate samples using SALib
-        from SALib.sample import morris as morris_sampler  # type: ignore[import-not-found]
-        from SALib.sample import saltelli  # type: ignore[import-not-found]
-
-        problem = {
-            "num_vars": len(param_specs),
-            "names": [p.name for p in param_specs],
-            "bounds": [[p.lower_bound, p.upper_bound] for p in param_specs],
-        }
-
-        if sa_method == SensitivityMethod.MORRIS:
-            samples = morris_sampler.sample(problem, N=n_trajectories, num_levels=n_levels)
-        else:
-            samples = saltelli.sample(problem, N=n_trajectories)
+        if store is not None and seed is None:
+            raise ValueError("Persisted DOE analysis requires an explicit replay seed")
+        samples = generate_sensitivity_samples(plan)
 
         # Evaluate
         outputs = np.array(
@@ -122,4 +141,66 @@ class SensitivityBridge:
                 reverse=True,
             )
 
-        return {"ranking": ranking, "result": result, "method": method}
+        answer = {"ranking": ranking, "result": result, "method": method}
+        if store is not None:
+            from polisyos.core.artifacts.manifest_profile import artifact_manifest_profile_sha256
+            from polisyos.scientist.methods.doe._receipt import _persist_analysis
+
+            ref = _persist_analysis(store, plan, samples, outputs, result)
+            snapshot = store.get_verified_snapshot(ref)
+            answer["analysis_ref"] = ref.model_copy(
+                update={
+                    "manifest_profile_sha256": artifact_manifest_profile_sha256(snapshot.manifest)
+                }
+            )
+        return answer
+
+
+class _AnalysisSnapshotReader:
+    """Supply the existing E reader one canonical immutable CAS byte/manifest pair."""
+
+    def __init__(self, ref: ArtifactRef, snapshot: Any):
+        self._ref = ref
+        self._snapshot = snapshot
+
+    def _check(self, ref: ArtifactRef) -> None:
+        if ref != self._ref:
+            raise ValueError("Sensitivity reader cannot substitute an artifact reference")
+
+    def get_manifest(self, ref: ArtifactRef) -> Any:
+        self._check(ref)
+        return self._snapshot.manifest
+
+    def get_bytes(self, ref: ArtifactRef) -> bytes:
+        self._check(ref)
+        return self._snapshot.data
+
+    def verify(self, ref: ArtifactRef) -> Any:
+        self._check(ref)
+        return self._snapshot.verification_report(ref.artifact_id)
+
+
+def read_search_analysis(
+    store: ArtifactStore, ref: ArtifactRef, *, require_selected_profile: bool = True
+) -> tuple[SensitivityResult, SensitivityPlan]:
+    """Recompute the E analysis from one full-reference B verified snapshot.
+
+    The returned units and distribution are the actual persisted experimental
+    declarations. Neither the reader nor this exploratory port authorizes their
+    institutional truth or a population-independence claim.
+    """
+    from polisyos.core.artifacts import ArtifactRef
+    from polisyos.core.canon import from_canonical_bytes
+    from polisyos.scientist.methods.doe._receipt import _AnalysisReceipt, _load_analysis
+
+    ref = ArtifactRef.model_validate(ref)
+    if require_selected_profile and ref.manifest_profile_sha256 is None:
+        raise ValueError("Sensitivity consumption requires the full selected manifest reference")
+    try:
+        snapshot = store.get_verified_snapshot(ref)
+    except FileNotFoundError as exc:
+        raise ValueError("Sensitivity source reference cannot be resolved") from exc
+    reader = _AnalysisSnapshotReader(ref, snapshot)
+    result = _load_analysis(cast("ArtifactStore", reader), ref)
+    receipt = _AnalysisReceipt.model_validate(from_canonical_bytes(snapshot.data))
+    return result, receipt.plan

@@ -1,0 +1,24 @@
+{
+  "classification": "orchestration_clean_source_preflight_ERROR",
+  "testcase_phases": 0,
+  "pytest_invoked": false,
+  "product_verdict": "UNRUN",
+  "expected_execution_source": "8e864f4ed0eeedf509d836381b20976c413f2443",
+  "observed_HEAD": "8e864f4ed0eeedf509d836381b20976c413f2443",
+  "observed_tree": "1b2e5d31424a4de0c7150ef79b9e04c93486f0b9",
+  "command": [
+    "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/run_current_funnel_identity_cohort.py",
+    "8e864f4ed0eeedf509d836381b20976c413f2443",
+    "B156-role1-8e864",
+    "tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_submit_cache_is_scoped_to_effective_context"
+  ],
+  "environment_explicit": {
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "exit": 1,
+  "observed_untracked_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/",
+  "failure_boundary": "immutable clean-status assertion before pytest import/call, census and fixture creation",
+  "stderr_from_actual_tool_output": "Traceback (most recent call last):\n  File \"/dev/shm/e02-D-post-a795-88ghpj7t/funnel/run_current_funnel_identity_cohort.py\", line 44, in <module>\n    assert not git('status', '--porcelain').strip(), 'source must be frozen clean'\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: source must be frozen clean\n",
+  "provenance": "Manual transcription of actual tool return preserved after harness early preflight; no harness receipt or JUnit was created. Timestamp unavailable. Root subsequently committed copied receipt docs and separately authorized clean a30c."
+}

@@ -1,0 +1,441 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "closure_ids": [],
+  "base_sha": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+  "source_sha": "cba802e22e1f1198aa971f529228ab2c1fd35cf7",
+  "source_tree": "bd080793d0a544b251112a41572c4673015a3172",
+  "branch": "codex/e02-D-published-transfer",
+  "role": "Transfer/NN production author; source-bound technical evidence, not independent acceptance or institutional authorization",
+  "canonical_accounting": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json@96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+  "fresh_G_audit": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/D-pr47-continuation-audit-2026-10-06.md@363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+  "output_payload": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/transfer-native-continuation-output.json.gz",
+    "encoding": "gzip UTF-8 JSON with per-file lossless UTF-8/base64 contents",
+    "raw_file_sha256": "8049ec22e3634cc7d565124c78e2649a9a4aef85438a04046451b1161f59bf8b",
+    "uncompressed_sha256": "5d8babf52a3aec8475e6a843ead91328ccead3524307a68c4dfb133259b3220a",
+    "compressed_bytes": 59559,
+    "uncompressed_bytes": 516461,
+    "member_count": 84,
+    "retained_scratch": "/workspace/e02-D2-receipts/transfer-continuation"
+  },
+  "preservation": {
+    "manual_cleanup": "No manual deletion or cleanup; native Trash unavailable per root environment report. All original logs, basetemps, packets and single-file mutations retained.",
+    "scope_correction": "Earlier transfer-lesson-as-of receipt wording No deletion/no environment deletions describes no manual cleanup. It is not a whole filesystem immutability claim: existing CAS atomic replace and native save/load TemporaryDirectory cleanup still execute normally.",
+    "cleanup_candidates": [
+      "/workspace/e02-D2-receipts/transfer-continuation/pytest-neural-warm-base-84952b1f26f94cf99b23dae2d8fabc73",
+      "/workspace/e02-D2-receipts/transfer-continuation/pytest-neural-warm-base-corrected-3fa33a7ceb614618afd8dd2c78a1d02a",
+      "/workspace/e02-D2-receipts/transfer-continuation/pytest-neural-lessons-frozen-a839741128ec4c8ea22c57a91bd9193f",
+      "/workspace/e02-D2-receipts/transfer-continuation/pytest-vector-transfer-process-frozen-21aee95549f24a6986ac5bc248259700",
+      "/workspace/e02-D2-receipts/transfer-continuation/pytest-cas-transfer-native-frozen-31635e43e4864f20bcce53c26c71bb9d",
+      "/workspace/e02-D2-receipts/transfer-continuation/pytest-neural-additional-negative-base-2a1b92c39a4f41d18d3c3f9f88d36e51",
+      "/workspace/e02-D2-receipts/transfer-continuation/pytest-neural-transfer-corrected-f228d2ef8ab14ced9b7ea4d0d45e61ba",
+      "/workspace/e02-D2-receipts/transfer-continuation/pytest-neural-restore-removal-0428870b8fb44614a3e9fb314da00eae"
+    ],
+    "no_caps": "Every deciding child records absent numeric thread caps, actual source-default model/acquisition settings, natural execution. No environment installs/shared venv writes.",
+    "notification_deviation": "Original NN baseline characterization was launched before parent heavy-import notification; immediately reported. Subsequent native deciding/negative/removal child launches notified first."
+  },
+  "quality": {
+    "ruff_version": "0.14.10",
+    "check": "PASS",
+    "format_check": "PASS",
+    "python_paths": 11
+  },
+  "count_semantics": "Checks are execution occurrences with repeated controls, not additive unique-test totals; skipped/UNRUN backend cases are not native PASS.",
+  "slice": "continuation-neural-warm-state",
+  "finding_ids": [],
+  "supporting_finding_ids": [
+    "B128",
+    "B131",
+    "B114",
+    "B115"
+  ],
+  "generic_gap": "G Search/transfer/service: NN _warm_data without checkpoint restore; original canonical findings remain separately adjudicated by their owners.",
+  "original_criteria": [
+    {
+      "id": "B114@OPT-03",
+      "original_criterion": {
+        "text": "**Приёмка.** Один и тот же пригодный корпус, переданный целиком или через warm-start + новую часть, даёт согласованную обучающую выборку и план; отклонённые записи не исчезают без причины; идентичные артефакты не удваивают sample-count; намеренные независимые повторы остаются отдельными.",
+        "byte_offset": 673433,
+        "bytes": 506,
+        "sha256": "b2eab2dd0f76dd6fe89611272edc500c3b3d5e0ef5fa5857251aa73944c096b3"
+      },
+      "card": "OPT-03",
+      "accounting_source": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+      "role": "canonical_owner"
+    },
+    {
+      "id": "B115@OPT-03",
+      "original_criterion": {
+        "text": "**Приёмка.** Проверить на настоящем SingleTaskGP сохранение learned parameters между разрешёнными refit, использование новых наблюдений, правильные transforms и version/shape; смена basis не маскируется повторным использованием. Замерить затраты отдельно от качества. Fixture theta не является найденным конкретным параметром настоящей модели.",
+        "byte_offset": 676923,
+        "bytes": 564,
+        "sha256": "60c5a8366edbd7193eafd15fb6c048061373a4dac4502e54b328c78b75225156"
+      },
+      "card": "OPT-03",
+      "accounting_source": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+      "role": "canonical_owner"
+    },
+    {
+      "id": "B128@TRN-01",
+      "original_criterion": {
+        "text": "**Приёмка:** реальный сохранённый Evaluation проходит существующий мост без ручного monkeypatch; несовместимая запись различается с действительно пустой историей; количество принятых, отклонённых и недоступных записей согласовано. Конструктор нельзя исправлять отдельно от B130–B132: сейчас эта ошибка маскирует последующие дефекты отбора и смысла.",
+        "byte_offset": 776394,
+        "bytes": 619,
+        "sha256": "549b289852eaabc2275c031208657ce535c20cdd971105ff0e452e5f6662e5d7"
+      },
+      "card": "TRN-01",
+      "accounting_source": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+      "role": "canonical_owner"
+    },
+    {
+      "id": "B131@TRN-01",
+      "original_criterion": {
+        "text": "**Приёмка:** различающиеся пространства не считаются численно тождественными; разрешённый адаптер преобразует действительные параметры; несовместимая оценка остаётся доступной как идея с ограничением. Новая версия данных может требовать переоценки, но не полного запрета межзадачного обучения. Проверить tenant/split у действительного владельца, а не доверять тексту метаданных.",
+        "byte_offset": 788048,
+        "bytes": 691,
+        "sha256": "e6742f51f48e338f3410307c69a2e42b12c6205c34d9c8c4947e784ba842b8dd"
+      },
+      "card": "TRN-01",
+      "accounting_source": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+      "role": "canonical_owner"
+    }
+  ],
+  "implementation_commits": [
+    "6a3de3c643f1dac4d3121f74d4169ecde00c8e24",
+    "d9e973f954e3c1fbfa300b5595e75f96e67e5197",
+    "cba802e22e1f1198aa971f529228ab2c1fd35cf7"
+  ],
+  "source_inputs": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py",
+      "blob": "55c4a6ebb24c771e4c6f35c251228e886c3ec6c4",
+      "raw_file_sha256": "a8f684712a1221227a98ea504bcf93adb12c3e68e5b6d7561ba6f3a1114ac954",
+      "bytes": 16561
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "blob": "7f7d64794c00432b75748d294f4f9607349e3396",
+      "raw_file_sha256": "c61d73d7582f04a3c91333d2dcf43d1a14d9d2224c0f3270d97e2b2f69e2ac2d",
+      "bytes": 33255
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/strategies/test_neural_checkpoint.py",
+      "blob": "9f38af5474e681c1087b8050563d29cabb3a21e0",
+      "raw_file_sha256": "7b1f6526b29b89b62226ffbbf7e9f50b202637572bebce0980c6fe8779c831a5",
+      "bytes": 12045
+    }
+  ],
+  "runtime_trace": "actual BenchmarkSuite/candidate/evaluation CAS producer -> real HNSW discovery -> TransferLearningManager strict complete NumericTransferBasis/content admission -> WarmStartBridge -> NeuralSearchStrategy warm rows -> persisted StrategyState actual CAS -> fresh strategy same target/reader -> original CAS read before restore and each corpus fit -> actual CPU SingleTaskGP/MLL/EI",
+  "supported_profile": {
+    "state": "neural_warm_corpus.v1",
+    "policy": "single_task_gp.cpu.refit_each_ask.v1",
+    "backend": "Python3.14.7 / Torch2.10.0 / BoTorch0.16.1 / GPyTorch1.15.1 CPU torch.float64",
+    "configuration": "n_initial8, seed19, existing12 acquisition restarts/256 raw samples; current configuration/backend/space/basis must match",
+    "state_quantity": "Full warm Evaluation codec+refs+declared basis/config/backend/digest+Base RNG/Sobol state. No trained model binary; each ask naturally refits."
+  },
+  "checks": [
+    {
+      "outcome": "PASS",
+      "source_sha": "cba802e22e1f1198aa971f529228ab2c1fd35cf7",
+      "source_tree": "bd080793d0a544b251112a41572c4673015a3172",
+      "source_before_status": "",
+      "source_after_status": "",
+      "junit": {
+        "tests": 68,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exact_execution": {
+        "argv": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "-m",
+          "pytest",
+          "-c",
+          "/workspace/e02-D-published-transfer/policy-engine/pytest.ini",
+          "-p",
+          "e02_transfer_observer",
+          "-s",
+          "tests/unit/scientist/search/strategies/test_neural_checkpoint.py",
+          "tests/unit/scientist/search/strategies/test_neural.py",
+          "tests/unit/scientist/methods/search/strategies/test_transfer.py",
+          "--basetemp=/workspace/e02-D2-receipts/transfer-continuation/pytest-neural-transfer-corrected-f228d2ef8ab14ced9b7ea4d0d45e61ba",
+          "--junitxml=/workspace/e02-D2-receipts/transfer-continuation/neural-transfer-corrected.xml"
+        ],
+        "cwd": "/workspace/e02-D-published-transfer/policy-engine",
+        "exit_code": 0,
+        "wall_seconds": 28.782769203186035,
+        "before": {
+          "sha": "cba802e22e1f1198aa971f529228ab2c1fd35cf7",
+          "tree": "bd080793d0a544b251112a41572c4673015a3172",
+          "status": ""
+        },
+        "after": {
+          "sha": "cba802e22e1f1198aa971f529228ab2c1fd35cf7",
+          "status": ""
+        },
+        "environment": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/workspace/e02-D-published-transfer/policy-engine/src:/workspace/e02-D-published-transfer/policy-engine:/workspace/e02-D2-receipts/transfer-continuation",
+          "OMP_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "TORCH_NUM_THREADS": null
+        },
+        "output_sha256": "453148eea1fdcd6a2dd758cc99eea82e3b0a2b54d88f083f212c07748e90556c"
+      },
+      "complete_output_member": "neural-transfer-corrected.txt"
+    },
+    {
+      "outcome": "PASS",
+      "source_sha": "d9e973f954e3c1fbfa300b5595e75f96e67e5197",
+      "source_tree": "83b8737b87a68fdd4850230a7850e9f0fc56a617",
+      "source_before_status": "",
+      "source_after_status": "",
+      "junit": {
+        "tests": 47,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exact_execution": {
+        "argv": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "-m",
+          "pytest",
+          "-c",
+          "/workspace/e02-D-published-transfer/policy-engine/pytest.ini",
+          "-p",
+          "e02_transfer_observer",
+          "-s",
+          "tests/unit/scientist/search/strategies/test_neural_checkpoint.py",
+          "tests/unit/scientist/search/strategies/test_neural.py",
+          "tests/unit/scientist/search/test_lesson_as_of.py",
+          "tests/unit/scientist/search/test_lessons.py",
+          "tests/unit/scientist/search/test_lesson_transfer.py",
+          "--basetemp=/workspace/e02-D2-receipts/transfer-continuation/pytest-neural-lessons-frozen-a839741128ec4c8ea22c57a91bd9193f",
+          "--junitxml=/workspace/e02-D2-receipts/transfer-continuation/neural-lessons-frozen.xml"
+        ],
+        "cwd": "/workspace/e02-D-published-transfer/policy-engine",
+        "exit_code": 0,
+        "wall_seconds": 17.0801899433136,
+        "before": {
+          "sha": "d9e973f954e3c1fbfa300b5595e75f96e67e5197",
+          "tree": "83b8737b87a68fdd4850230a7850e9f0fc56a617",
+          "status": ""
+        },
+        "after": {
+          "sha": "d9e973f954e3c1fbfa300b5595e75f96e67e5197",
+          "status": ""
+        },
+        "environment": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/workspace/e02-D-published-transfer/policy-engine/src:/workspace/e02-D-published-transfer/policy-engine:/workspace/e02-D2-receipts/transfer-continuation",
+          "OMP_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "TORCH_NUM_THREADS": null
+        },
+        "output_sha256": "b5b8b1f95b2669c649df8fe294a6eabe73bc22833f3e1f7eb004997cdb59cbad"
+      },
+      "complete_output_member": "neural-lessons-frozen.txt"
+    },
+    {
+      "outcome": "EXPECTED_PROPERTY_FAILURE",
+      "source_sha": "cba802e22e1f1198aa971f529228ab2c1fd35cf7",
+      "source_tree": "bd080793d0a544b251112a41572c4673015a3172",
+      "source_before_status": "",
+      "source_after_status": "",
+      "junit": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exact_execution": {
+        "argv": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "-m",
+          "pytest",
+          "-c",
+          "/workspace/e02-D-published-transfer/policy-engine/pytest.ini",
+          "-p",
+          "e02_remove_neural_restore",
+          "-p",
+          "e02_transfer_observer",
+          "-s",
+          "tests/unit/scientist/search/strategies/test_neural_checkpoint.py::test_actual_cas_checkpoint_restores_corpus_and_next_sobol_proposal",
+          "--basetemp=/workspace/e02-D2-receipts/transfer-continuation/pytest-neural-restore-removal-0428870b8fb44614a3e9fb314da00eae",
+          "--junitxml=/workspace/e02-D2-receipts/transfer-continuation/neural-restore-removal.xml"
+        ],
+        "cwd": "/workspace/e02-D-published-transfer/policy-engine",
+        "exit_code": 1,
+        "wall_seconds": 10.657206296920776,
+        "before": {
+          "sha": "cba802e22e1f1198aa971f529228ab2c1fd35cf7",
+          "tree": "bd080793d0a544b251112a41572c4673015a3172",
+          "status": ""
+        },
+        "after": {
+          "sha": "cba802e22e1f1198aa971f529228ab2c1fd35cf7",
+          "status": ""
+        },
+        "environment": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/workspace/e02-D-published-transfer/policy-engine/src:/workspace/e02-D-published-transfer/policy-engine:/workspace/e02-D2-receipts/transfer-continuation",
+          "OMP_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "TORCH_NUM_THREADS": null
+        },
+        "output_sha256": "74081d9e5cbc4ca0ca2ba51c1cf533d8c80a589dcfe14defb9588ee702c77c15"
+      },
+      "complete_output_member": "neural-restore-removal.txt"
+    },
+    {
+      "outcome": "EXPECTED_CHARACTERIZATION_FAILURE",
+      "source_sha": "d9e973f954e3c1fbfa300b5595e75f96e67e5197",
+      "source_tree": "83b8737b87a68fdd4850230a7850e9f0fc56a617",
+      "source_before_status": "M tests/unit/scientist/search/strategies/test_neural_checkpoint.py",
+      "source_after_status": "M tests/unit/scientist/search/strategies/test_neural_checkpoint.py",
+      "junit": {
+        "tests": 9,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exact_execution": {
+        "argv": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "-m",
+          "pytest",
+          "-c",
+          "/workspace/e02-D-published-transfer/policy-engine/pytest.ini",
+          "-p",
+          "e02_transfer_observer",
+          "-s",
+          "tests/unit/scientist/search/strategies/test_neural_checkpoint.py",
+          "-k",
+          "duplicate_warm_artifact or malformed_base_rng or unrepresentable",
+          "--basetemp=/workspace/e02-D2-receipts/transfer-continuation/pytest-neural-additional-negative-base-2a1b92c39a4f41d18d3c3f9f88d36e51",
+          "--junitxml=/workspace/e02-D2-receipts/transfer-continuation/neural-additional-negative-base.xml"
+        ],
+        "cwd": "/workspace/e02-D-published-transfer/policy-engine",
+        "exit_code": 1,
+        "wall_seconds": 13.124614715576172,
+        "before": {
+          "sha": "d9e973f954e3c1fbfa300b5595e75f96e67e5197",
+          "tree": "83b8737b87a68fdd4850230a7850e9f0fc56a617",
+          "status": "M tests/unit/scientist/search/strategies/test_neural_checkpoint.py"
+        },
+        "after": {
+          "sha": "d9e973f954e3c1fbfa300b5595e75f96e67e5197",
+          "status": "M tests/unit/scientist/search/strategies/test_neural_checkpoint.py"
+        },
+        "environment": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/workspace/e02-D-published-transfer/policy-engine/src:/workspace/e02-D-published-transfer/policy-engine:/workspace/e02-D2-receipts/transfer-continuation",
+          "OMP_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "TORCH_NUM_THREADS": null
+        },
+        "output_sha256": "ea4225cf75f75058cc9dbf2d45dcc03bf11e4e7229b328f29a9fcabb8916b578"
+      },
+      "complete_output_member": "neural-additional-negative-base.txt"
+    },
+    {
+      "outcome": "EXPECTED_CHARACTERIZATION_FAILURE",
+      "source_sha": "cc87e523f0e8cf2ded2283ce8680d018e8a10bd0",
+      "source_tree": "6a9764e0422b75474b69e0e351b383c4a7391a1d",
+      "source_before_status": "",
+      "source_after_status": "",
+      "junit": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "exact_execution": {
+        "argv": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "-m",
+          "pytest",
+          "-c",
+          "/workspace/e02-D-published-transfer/policy-engine/pytest.ini",
+          "-p",
+          "e02_transfer_observer",
+          "-s",
+          "/workspace/e02-D2-receipts/transfer-continuation/test_neural_base_probe.py",
+          "--basetemp=/workspace/e02-D2-receipts/transfer-continuation/pytest-neural-warm-base-corrected-3fa33a7ceb614618afd8dd2c78a1d02a",
+          "--junitxml=/workspace/e02-D2-receipts/transfer-continuation/neural-warm-base-corrected.xml"
+        ],
+        "cwd": "/workspace/e02-D-published-transfer/policy-engine",
+        "exit_code": 1,
+        "wall_seconds": 13.223515033721924,
+        "before": {
+          "sha": "cc87e523f0e8cf2ded2283ce8680d018e8a10bd0",
+          "tree": "6a9764e0422b75474b69e0e351b383c4a7391a1d",
+          "status": ""
+        },
+        "after": {
+          "sha": "cc87e523f0e8cf2ded2283ce8680d018e8a10bd0",
+          "status": ""
+        },
+        "environment": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/workspace/e02-D-published-transfer/policy-engine/src:/workspace/e02-D-published-transfer/policy-engine:/workspace/e02-D2-receipts/transfer-continuation",
+          "OMP_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "TORCH_NUM_THREADS": null
+        },
+        "output_sha256": "de0e8e2cc4c50a9e1b982d07585dd5b62108037ead6764e6a34e067bdad4e65e"
+      },
+      "complete_output_member": "neural-warm-base-corrected.txt"
+    }
+  ],
+  "actual_numeric_oracle": "3 genuine SingleTaskGP fits: firstfit1, fresh CAS state restorefit0, uninterrupted/resumed next asks two morefits. Each real model raw training targets equals negative minimized scalar and trainX exact admitted coordinates. Next physical proposal/posterior/acquisition agree abs1e-10; ambient Torch RNG preserved. Passive observer calls original native fit; model/acquisition not substituted.",
+  "negative_controls": "same-ref changed original CAS bytes refuse restore/ask/checkpoint; recomputed local digest cannot replace score/flag/candidate; bool basis/config/count/backend drift and legacy count-only refuse; duplicate warm refs remain effective3 despite serialized6; malformed Base RNG codec/word/Gaussian/Sobol cursor causes no live mutation; huge current scalar/rawparams excluded with batch surviving and huge persisted scalar/norm typed malformed ValueError.",
+  "code_property_control": "Isolated own module removes only final warm restoration assignment while all schema/basis/refs/digest/admission remain; unchanged real CAS fresh-Sobol assertion fails0-vs3. Complete mutated module origin/hash and input recorded, no publisher source mutation.",
+  "input_inventory": "transfer-native-continuation-output.json.gz#nn-native-input-inventory.json contains all24 deciding native corpus/state artifact refs, exact original bytes/manifests; producer is conditional analytic candidate-only fixture, not appointed scientific owner.",
+  "non_deciding_attempt": "Initial baseline setup error PutOptions missing and wrong external pytest root config fixed; full failed setup output retained separately, not behavior proof. Additional9 red test file uncommitted at d9 runtime, exact tests later committed unchanged in cba; source-before/after dirty status retained.",
+  "limits": [
+    "No empirical optimization quality/history truth or tenant/split authorization claim. Technical target basis requires explicit owner config and real original refs; declarations do not appoint institutional authority.",
+    "Canonical B114/B115 Bayesian model state and ordinary SearchConfig factory activation are separate owner work. Strong unchanged GP26 is not repeated.",
+    "Unsupported old count-only warm state/version/backend/config/space/basis refuses; no cross-version NN or GPU resume equivalence.",
+    "Fresh admissible lesson/scientific issuer input remains absent and held; below requests name concrete required input."
+  ],
+  "owner_request_ref": "transfer-production-input-request.json",
+  "run_configuration_inputs": [
+    {
+      "path": "policy-engine/pytest.ini",
+      "raw_file_sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+      "bytes": 1021,
+      "source_sha": "cba802e22e1f1198aa971f529228ab2c1fd35cf7"
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "raw_file_sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "bytes": 11007,
+      "source_sha": "cba802e22e1f1198aa971f529228ab2c1fd35cf7"
+    },
+    {
+      "path": "policy-engine/uv.lock",
+      "raw_file_sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "bytes": 779204,
+      "source_sha": "cba802e22e1f1198aa971f529228ab2c1fd35cf7"
+    }
+  ]
+}

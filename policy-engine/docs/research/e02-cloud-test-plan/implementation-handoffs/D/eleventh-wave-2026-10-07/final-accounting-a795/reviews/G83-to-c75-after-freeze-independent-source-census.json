@@ -1,0 +1,197 @@
+{
+  "schema": "D.G-after-freeze-independent-source-census.v1",
+  "merged_G": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+  "latest_observed_G": "c75eb7125ae0b4b296fc469b13bba9653f1dd42d",
+  "latest_tree": "1aa2e587332108de1b60d9d9eb5a1d1fcae46ff6",
+  "changed_paths": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-twelfth-wave/B-model/README.md",
+      "sha256": "65411b9be1c4242b4486fd05573a2043ef9e986f3dbe65edfcb63b1854da5202",
+      "bytes": 1952
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-twelfth-wave/B-model/candidate_runtime.py",
+      "sha256": "a320bfc0cf7b9fbf5b82ee6e004772a4888a774cfef1c491a6e2622eebe4d022",
+      "bytes": 17493
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-twelfth-wave/B-model/execution-context.json",
+      "sha256": "28bcf32d9a5879fe57d9764b0feb52ae82113744075c1f208c17bb01ff3097d5",
+      "bytes": 11216
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-twelfth-wave/B-model/probe.stderr",
+      "sha256": "700c9a52ddf1d18e50a8001fa4f3dce4aed2fe56a2d6a432b5917acd7314283e",
+      "bytes": 11958
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-twelfth-wave/B-model/probe.stdout",
+      "sha256": "7e0e0c87b0a417bf38df9a06dfeb59d84bde21959e29b63ca8743b62befe21be",
+      "bytes": 13091
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-twelfth-wave/B-model/pytest-repaired.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-twelfth-wave/B-model/pytest-repaired.stdout",
+      "sha256": "120a33e8cea3b4a19e86978cc3de1f36e1d76fba2909b847367d0eb893d7a694",
+      "bytes": 110794
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-twelfth-wave/B-model/pytest.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-twelfth-wave/B-model/pytest.stdout",
+      "sha256": "1fbfcb5fd67da6c24b6b96cdd3b6b0737c4ec904c5e8076dbceb727a333f28de",
+      "bytes": 5752
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-twelfth-wave/B-model/receipt.json",
+      "sha256": "13d8a962463665e5dece4822ca2260788ad68a723435b098ea0e999c00e2725a",
+      "bytes": 22673
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-twelfth-wave/B-model/repair-context.json",
+      "sha256": "fcd709284541f4caf0dd0dfc9a288a56c4c6c5b979e04e6f456f291f52558927",
+      "bytes": 3203
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-twelfth-wave/B-model/report.md",
+      "sha256": "44e85dd06802091c408a3081c02fbc04241fab31d03a8e2c63e9c87b167a7feb",
+      "bytes": 4355
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-twelfth-wave/B-model/run_checks.py",
+      "sha256": "765c73023c85e8156320911462c59ad1ac455645da60e85185e26a6004d69057",
+      "bytes": 5995
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-twelfth-wave/B-model/run_repair.py",
+      "sha256": "034eda561c074d6aa948ba3c53996eb9a66ae5f3ce9c654e648eef2c5a49e430",
+      "bytes": 5459
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-twelfth-wave/B-model/selected-tests-pytest-repaired.junit.xml",
+      "sha256": "27b1b6c7db2918c30e9e1f698bfec3fb4166e92615244a8d667e1cdf4f549d51",
+      "bytes": 110366
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-twelfth-wave/B-model/selected-tests.junit.xml",
+      "sha256": "316a5ad01038095acf1d62f6afbbce0ae4d73a226e78fcb902ded27c38101ac9",
+      "bytes": 4232
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/B-custody.md",
+      "sha256": "4e946a565d86aa536dfad7af48f87150946112b57cebf564e92b7661daeb4daa",
+      "bytes": 7167
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/B-imported-consumers.md",
+      "sha256": "8ab5d8c6b05b4de5b13952778fd8b05d4923b6a370af6b57c8c6a894427ddb1e",
+      "bytes": 8244
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/B-model-oracle.md",
+      "sha256": "37b81125d280997781df152aac843c20eb228c2a402a35e5138df4a488862e5c",
+      "bytes": 7920
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/B-model-runtime.md",
+      "sha256": "8d63ee44e6b9ee274a81da772a71b59bde6576ffd75f59b41ec112075250f1b0",
+      "bytes": 7160
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/E-companion-plan.md",
+      "sha256": "3296cea2f59d4317d26fbab83ddb8c06af05e1136ea036aa354ac8d4b1766695",
+      "bytes": 12060
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/E-ratio-consumers.md",
+      "sha256": "bb1c4b2548173cf5efc675d1d6365ae312b89dfe42727e59b0a9c2e90a079da7",
+      "bytes": 7343
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/E-ratio-evidence.md",
+      "sha256": "b30a24f20f3d1dbb89558264166bbe14acfe50bef59e8b21ce795b5c64ad841a",
+      "bytes": 7610
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/E-ratio-oracle.md",
+      "sha256": "fe6214ce1c9aae1b79b88f27356584ad7fc574c9cf1e81f72629f5bf7828d1d8",
+      "bytes": 8226
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/E-ratio-runtime.md",
+      "sha256": "0f63d5e73bfc4309a666d075a077561f430daaeb3e81046372c4d66bf8f58815",
+      "bytes": 8495
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/F-catalog.md",
+      "sha256": "d46c406e7f3171e4cf91d41085e18cf21b6694becc03627f6a964a4b3fed2924",
+      "bytes": 7412
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/F-graph.md",
+      "sha256": "8cde15514f2a6b49045c98899c5d306082a73be96cb5618b4ec59baefa61283d",
+      "bytes": 9553
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/F-recovery-evidence.md",
+      "sha256": "0ec55300462a8ac1c9ec2f4d45c45d67077ade8e77a0606d0e61f3d8b619775e",
+      "bytes": 8287
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/README.md",
+      "sha256": "b52c58a5109f14ad2aee75cdeb488a56a3440550abc2df57d0ca258f376cdcc6",
+      "bytes": 2180
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/final-publication-review.md",
+      "sha256": "aeb8f5b096449739bc429475fd0f21c69c388bfd174f1c1d89950ea84279d58d",
+      "bytes": 4322
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/identity.md",
+      "sha256": "853341130d1a1c01781495ed21e888397d04195fbd2727079b5c0b954f8dca8e",
+      "bytes": 4642
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/owner-actions.md",
+      "sha256": "7e1f3292b2d861c460bab4407329966d3b4686488773e9915e26d51a86d1ef38",
+      "bytes": 4784
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/pins.json",
+      "sha256": "2c64c5e1fee6f95b50883213cf0e95ee9025f4367bc65d47d84b789ef4b753e1",
+      "bytes": 4114
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/storage/README.md",
+      "sha256": "b51926a795267a56fd0cc6d783060ba4067eca890c81d42e55724a53c992539b",
+      "bytes": 934
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/storage/audit.md",
+      "sha256": "7171bf334846687724f20b71ee841fb02e440e322126932faf0fa1bb162e2b8c",
+      "bytes": 3013
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/storage/native-Trash.json",
+      "sha256": "d29232d018ead1803ecd7e2a4a1b1419057152f9e715005430cec7f0d4c74d72",
+      "bytes": 2001
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-twelfth-wave/storage/preflight.json",
+      "sha256": "535635e8955b7f4d6bdbeaa2f3365a23ab8fce678e87f065fc9092b518a9c665",
+      "bytes": 663
+    }
+  ],
+  "source_tests_tools_config_delta": [],
+  "accepted_D": false,
+  "formal_closure": false,
+  "scope": "37 documentation/check/review evidence paths only; full source bytes read, no product dependency delta or newD integration acceptance. Existing mergedG83 remains exact dependency source."
+}

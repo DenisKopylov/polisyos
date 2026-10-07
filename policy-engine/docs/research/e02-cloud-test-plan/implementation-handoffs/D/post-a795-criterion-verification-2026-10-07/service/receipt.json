@@ -1,0 +1,51 @@
+{
+  "schema": "e02.D.current-owned-verification-receipt.v1",
+  "actual_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "actual_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+  "assessed_product_candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "qualified_candidate": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+  "source_admitted_by_G": false,
+  "formal_closed": 0,
+  "own11_closed_proposals": 11,
+  "current_checks": {
+    "controller25": {
+      "PASS": 25,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "phases": 75
+    },
+    "champion21": {
+      "PASS": 21,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "phases": 63
+    }
+  },
+  "old_scope": "a79531/22/removal1 and3b50/15 andA7cache18/raw32 remain original scoped executions/carries, no new replays or aggregatewholePASS",
+  "independent_runtime_review": {
+    "path": "reviews/current25-21-own11v2-independent-review.json",
+    "sha256": "a51bc8c23d7597870b2b4d7e3aa089b4691051073f412cb7a8b4065376cf9484"
+  },
+  "independent_final_row_qualification": {
+    "path": "reviews/own11-v3-final5b-independent-review.json",
+    "sha256": "7cda275a6e4562b45275e51effc659274002f19f54fc97d6b7a08353651e399c"
+  },
+  "archive": {
+    "path": "deciding-essential.tar.gz",
+    "bytes": 95802,
+    "sha256": "5b6cf92deec2f10d5591ef9d5960df4a26753ce6e544ab9f3022a08826c045d7"
+  },
+  "manifest": {
+    "path": "manifest.json",
+    "bytes": 111898,
+    "sha256": "365ac7e37dba319748aff34cd8ae0af7736d2c482da3154552f6619b7484c8e1"
+  },
+  "publish_only": [
+    "deciding-essential.tar.gz",
+    "manifest.json",
+    "receipt.json"
+  ],
+  "delivery_transport_review": "Independent seal requested; runtime/row decisions already independently reviewed."
+}

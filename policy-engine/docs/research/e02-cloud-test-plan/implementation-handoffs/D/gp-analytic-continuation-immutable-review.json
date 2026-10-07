@@ -1,0 +1,250 @@
+{
+  "schema_version": "e02.D.independent-gp-immutable-review.v1",
+  "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "slice_base_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "proof_commit": "1dc3c7436da326de4a8b247b206013b093effa07",
+  "proof_tree": "e36e42514e0986ddc88045171b8f1e35602c551b",
+  "production_writes": false,
+  "oracle_test": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+  "analytic_baseline_commit": "538f354484d0c71d5de2c7d3be60f4cdc9a6da26",
+  "consumed_rng_refinement_commit": "8be28ae5ab7176a2d82f322520c3d050b85dae7c",
+  "immediate_warm_row_refinement_commit": "ed84bcda1aecaa9a73f5f95fbaa95bbcd9de03a8",
+  "environment": {
+    "source_commit": "87f22cab5d270c3b3c6c4d37e33328d09ed06494",
+    "source_tree": "6eb8bbfeb9bae115cec5b8aff00a9b62bd363f8b",
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "torch": "2.10.0+cu128",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "numpy": "2.3.5",
+    "modules": [
+      {
+        "name": "polisyos.scientist.methods.search.strategies.bayesian",
+        "origin": "/workspace/e02-D2-receipts/oracle-gp-87f22/archive/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+        "sha256": "f74514ab878f6dfe29b825dba0745bfb9a9ca99a65dcb8d864894033ade67933"
+      },
+      {
+        "name": "polisyos.scientist.methods.search.strategies.base",
+        "origin": "/workspace/e02-D2-receipts/oracle-gp-87f22/archive/policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+        "sha256": "43d01b637130e11f1efbdb6a73f3270872ed97c58c4726e73709e441816d834b"
+      },
+      {
+        "name": "polisyos.scientist.methods.search.strategies.types",
+        "origin": "/workspace/e02-D2-receipts/oracle-gp-87f22/archive/policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+        "sha256": "6e564fff723950b196ca67f4bcd1e32bc0b157b1d9bbd3c0655671a676b6b92e"
+      },
+      {
+        "name": "polisyos.scientist.methods.search.strategies.space",
+        "origin": "/workspace/e02-D2-receipts/oracle-gp-87f22/archive/policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+        "sha256": "19cad776b64e9c2b49e2a407e9c7bb6adeeba0206de237594786454358c14e02"
+      },
+      {
+        "name": "polisyos.scientist.methods.search.strategies.rl_wrapper",
+        "origin": "/workspace/e02-D2-receipts/oracle-gp-87f22/archive/policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+        "sha256": "cc3fab8bc297c583e53fb006042b3376ee2777e2261d28d1ba5c917a86e269d7"
+      },
+      {
+        "name": "polisyos.scientist.methods.autotune.bayesian_generator",
+        "origin": "/workspace/e02-D2-receipts/oracle-gp-87f22/archive/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+        "sha256": "be329fb5862cdee4d5ed416bebabfabcc3c956592fe8261d4d71454efa650db9"
+      }
+    ]
+  },
+  "independent_expected": {
+    "profile": "ConstantMean, unit-amplitude RBF, homoskedastic GaussianLikelihood, Normalize, Standardize, CPU float64",
+    "points": [0.08, 0.16, 0.23, 0.35, 0.42, 0.5, 0.61, 0.7, 0.82, 0.93],
+    "append": 0.975,
+    "queries": [0.015, 0.12, 0.29, 0.465, 0.655, 0.885, 0.99],
+    "cost": "50 + 9*sin(5*x) + 6*x",
+    "direction": "minimize; native GP target=-cost",
+    "calculation": "Explicit NumPy normalized x and standardized target from persisted scalar buffers; Kij=exp(-.5*((xi-xj)/lengthscale)^2); C=K+noise_variance*I; Cholesky mean and full covariance; inverse saved outcome transform and target sign return original cost units. No expected model.posterior/kernel/transform/conditioning calls.",
+    "rtol": 2e-7,
+    "atol": 2e-8,
+    "scope": "Local declared synthetic numerical basis, not production history or source authority"
+  },
+  "initial_source": {
+    "commit": "4c337ca58a87d6b7d4458113af4ff5c07fb3b6b5",
+    "tree": "ae6f687cb1edb76e61aa380c263a2a91d3966eab",
+    "archive": "/workspace/e02-D2-receipts/oracle-gp-4c337/archive",
+    "full_tracked_git_archive": true,
+    "source_cells": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-analytic-continuation-4c337-source-cells.txt",
+      "sha256": "3e210e7eba4b81d7dab469bae746f957d8103b3d2511b7c3e6e0bf26121cff10",
+      "bytes": 2166
+    },
+    "changed_paths_from_published_base": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-continuation-baseline-198.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-continuation-candidate-2.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-continuation-candidate.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-gp-final.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-native-candidate.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-state-v2/search-contract-baseline.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-state-v2/search-published-baseline.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-state-v2/search-state-35d2654.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-state-v2/search-state-schema-null.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-state-v2.json",
+      "policy-engine/release-fragments/unreleased/2026-10-06-published-gp-continuation.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-06-published-search-state.toml",
+      "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/_deps.py",
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+      "policy-engine/tests/unit/remediation/test_ctl_02.py",
+      "policy-engine/tests/unit/remediation/test_ctl_03_nested.py",
+      "policy-engine/tests/unit/remediation/test_opt_02.py",
+      "policy-engine/tests/unit/remediation/test_opt_03_continuation.py",
+      "policy-engine/tests/unit/scientist/search/strategies/test_bayesian.py"
+    ]
+  },
+  "initial_source_cells": [
+    {
+      "test_commit": "8be28ae5ab7176a2d82f322520c3d050b85dae7c",
+      "command": "PYTHONPATH=src:. PYTHONDONTWRITEBYTECODE=1 /workspace/e02-D-locked-env/bin/python -m pytest tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py -o addopts='' -q -s -rA",
+      "cwd": "/workspace/e02-D2-receipts/oracle-gp-4c337/archive/policy-engine",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-analytic-continuation-4c337-review.txt",
+        "sha256": "320574996320e30be6b256ae77c0d8bf91eea29d9d851cfc8bac21438ec0ca01",
+        "bytes": 8248
+      },
+      "result": "PASS bounded earlier oracle",
+      "exit_code": 0,
+      "summary": "22 passed, 4 warnings in 21.28s"
+    },
+    {
+      "test_commit": "ed84bcda1aecaa9a73f5f95fbaa95bbcd9de03a8",
+      "command": "PYTHONPATH=src:. PYTHONDONTWRITEBYTECODE=1 /workspace/e02-D-locked-env/bin/python -m pytest tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py -o addopts='' -q -s -rA -k same_marker_warm",
+      "cwd": "/workspace/e02-D2-receipts/oracle-gp-4c337/archive/policy-engine",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-analytic-continuation-4c337-warm-binding.txt",
+        "sha256": "891784bd01295b8e0799b5308e6811620cde8bdb74a99d52f8f23aad1b3bf446",
+        "bytes": 6931
+      },
+      "result": "FAIL",
+      "exit_code": 1,
+      "summary": "2 failed, 21 deselected, 2 warnings in 88.83s",
+      "trigger": "Keep model/corpus markers; change saved actual warm scalar by+3 or both physical/normalized first x=.08 to .11",
+      "observed": "Restore accepted; immediate original-unit posterior mean/full covariance unchanged",
+      "required": "Changed actual warm corpus must change immediate model basis or atomically refuse at restore; eventual extra MLL fit is insufficient"
+    }
+  ],
+  "corrective_source": {
+    "commit": "87f22cab5d270c3b3c6c4d37e33328d09ed06494",
+    "tree": "6eb8bbfeb9bae115cec5b8aff00a9b62bd363f8b",
+    "archive": "/workspace/e02-D2-receipts/oracle-gp-87f22/archive",
+    "full_tracked_git_archive": true,
+    "source_cells": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-analytic-continuation-87f22-source-cells.txt",
+      "sha256": "390cb52933ef7d11cf8a6277a4199a341bd799ce0b6059326168d0dfa4091d08",
+      "bytes": 2166
+    },
+    "changed_paths_from_published_base": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-continuation-baseline-198.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-continuation-candidate-2.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-continuation-candidate.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-gp-final.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-gp-v3-final.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-native-candidate.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-warm-binding-4c-negative.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-gp-v2/search-warm-binding-final.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-state-v2/search-contract-baseline.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-state-v2/search-published-baseline.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-state-v2/search-state-35d2654.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-state-v2/search-state-schema-null.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-gp-continuation-v2.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-state-v2.json",
+      "policy-engine/release-fragments/unreleased/2026-10-06-published-gp-continuation.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-06-published-search-state.toml",
+      "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/_deps.py",
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/rl_wrapper.py",
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+      "policy-engine/tests/unit/remediation/test_ctl_02.py",
+      "policy-engine/tests/unit/remediation/test_ctl_03_nested.py",
+      "policy-engine/tests/unit/remediation/test_opt_02.py",
+      "policy-engine/tests/unit/remediation/test_opt_03_continuation.py",
+      "policy-engine/tests/unit/scientist/search/strategies/test_bayesian.py"
+    ]
+  },
+  "corrective_cell": {
+    "test_commit": "ed84bcda1aecaa9a73f5f95fbaa95bbcd9de03a8",
+    "command": "PYTHONPATH=src:. PYTHONDONTWRITEBYTECODE=1 /workspace/e02-D-locked-env/bin/python -m pytest tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py -o addopts='' -q -s -rA",
+    "cwd": "/workspace/e02-D2-receipts/oracle-gp-87f22/archive/policy-engine",
+    "output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-analytic-continuation-87f22-review.txt",
+      "sha256": "9022d3c6aa654cf734314bbaefdcfd1093926411d0c52112d42dbb6747e9bfb3",
+      "bytes": 8420
+    },
+    "result": "PASS bounded GP continuation",
+    "exit_code": 0,
+    "summary": "23 passed, 4 warnings in 11.10s"
+  },
+  "source_review": {
+    "initial": "Full production/test diff from198; model+counters+backend/basis/state rebuild; persisted raw fitted/refit corpora; explicit warm target admission; exclusions; local seeded Sobol-ranked actual restart tensors; qEI explicit sampler; native and adapter domains; typed RL codec/nested state. Separate metadata logs are not oracle inputs.",
+    "correction": "Full source/test/release delta from4c: version3; complete warm_evaluations and both refit counters added to corpus digest, incomplete v2 refused, native typed same_execution comparison replaces Python dict equality. Restore validates digest before public mutation.",
+    "prior_supported_transform_behavior": "No numerical bug claim for predecessor supported load_state_dict transform restore; its analytic transform cell already passed."
+  },
+  "passing_scope": [
+    "Independent full means/covariances10+11 and observed noise diagonal in original units",
+    "Initial actual MLL=1; restore/no-op/append actual MLL=0; due cadence and changed existing outcome actual MLL>0",
+    "Actual condition_on_observations append with saved fitted transforms",
+    "Persisted fitted parameter/input transform/outcome transform mutations changed prediction or atomically refused",
+    "Changed scalar and physical/normalized warm row immediately atomically refused",
+    "Saved Python RNG reaches native proposals; saved local Torch RNG reaches actual consumed restart tensors or refuses; uninterrupted/resumed initializer and proposal equality; ambient Torch RNG preserved",
+    "Strict bool/type/codec mutations refused without partial state mutation",
+    "Omitted fitted state load removal detected by independent NumPy oracle",
+    "Invalid/missing outcomes excluded without fabricated worst-plus-penalty training targets"
+  ],
+  "adjacent_domain_finding": {
+    "source_commit": "4c337ca58a87d6b7d4458113af4ff5c07fb3b6b5",
+    "input_bounds": [-1e308, 1e308],
+    "expected": "Denormalized0/.5/1 = -1e308/0/1e308; physical zero normalizes .5 by interval symmetry",
+    "observed": "NaN/Inf/Inf; physical zero normalizes0; native RandomSearchStrategy seed31 refuses a nonfinite candidate",
+    "probe": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp_4c337_finite_domain_probe.py",
+      "sha256": "dd2f9d60cdfbd55829571d2791c67730212b891628f720c539d62716d9da64da",
+      "bytes": 1397
+    },
+    "command": "PYTHONPATH=src:. PYTHONDONTWRITEBYTECODE=1 /workspace/e02-D-locked-env/bin/python /workspace/e02-D-published-oracle/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp_4c337_finite_domain_probe.py",
+    "cwd": "/workspace/e02-D2-receipts/oracle-gp-4c337/archive/policy-engine",
+    "output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-4c337-finite-domain-deciding.txt",
+      "sha256": "8b1cef5a461cbd945468595efec29e7d3cefe840afafed6667f4577edb89c1cd",
+      "bytes": 937
+    },
+    "exit_code": 1,
+    "result": "FAIL canonical finite domain arithmetic, separate pending source correction",
+    "classification": "P40 same canonical coordinate/domain invariant; no inherited/base-denominator classification",
+    "owner": "search_owner",
+    "not_retested_on_gp_only_correction": true
+  },
+  "nondeciding_initial_collection": {
+    "output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-analytic-continuation-87f22-initial-collection.txt",
+      "sha256": "3f58efa8718dc47284f89a3e54ae40d8e81bda756443becbb94ba9836fd0b8f7",
+      "bytes": 140
+    },
+    "status": "ERROR exit4",
+    "reason": "Unique overlay parent directory absent from tracked source archive; create test-only directories, verify all2910 tracked src files against exact Git bytes, then rerun. No production source verdict."
+  },
+  "warnings": "Torch JIT Python3.14 deprecation; appended x.975 lies beyond original saved Normalize training-range, as deliberately tested. No hidden skip.",
+  "closure_ids": [],
+  "verdict": "Bounded Q1 GP continuation PASS at87f22; full OPT coordinate/Pareto and transfer composition remain separate pending immutable review; canonical extreme-domain FAIL retained.",
+  "limitations": [
+    "No optimization-quality/statistical advantage, production corpus/history equivalence, authenticated transfer authority, deployment or closure claim.",
+    "Transfer NumericTransferBasis/CAS bridge composition UNRUN until its immutable implementation is available.",
+    "This GP review does not make the five-queue aggregate green; resource and other queues retain their exact pending/FAIL states."
+  ],
+  "cleanup_candidates": [
+    "/workspace/e02-D2-receipts/oracle-gp-4c337/archive",
+    "/workspace/e02-D2-receipts/oracle-gp-87f22/archive",
+    "Fresh GP pytest temporary files; cloud Trash unavailable; no permanent deletion."
+  ]
+}

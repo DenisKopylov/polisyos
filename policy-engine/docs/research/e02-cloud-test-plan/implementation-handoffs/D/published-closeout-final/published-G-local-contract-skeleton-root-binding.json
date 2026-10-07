@@ -1,0 +1,60 @@
+{
+  "receipt_commit": "f5b8251b9a02817fdfd42e42a5307f5d4c6fb2ba",
+  "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-G-local-contract-skeleton.json",
+  "receipt_sha256": "b69b9e5e95b0ed950ec845d8870d2ecf27074f1429fd9a5508b1fa1ffed60214",
+  "checked_git_bindings": [
+    {
+      "pointer": "/source_contracts",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/cross-unit-contracts.md",
+      "sha256": "4d09c54010b46a6e9b59a37e82dce9b9d75b853bea3e799078382afb16ee8db0",
+      "matching_git_sources": [
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "f5b8251b9a02817fdfd42e42a5307f5d4c6fb2ba"
+      ]
+    },
+    {
+      "pointer": "/G_instructions",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/G.md",
+      "sha256": "1aa3edd908087b8b6581a4309a9f03636d4459b38b264ce9ef4d25d3095ca661",
+      "matching_git_sources": [
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "f5b8251b9a02817fdfd42e42a5307f5d4c6fb2ba"
+      ]
+    },
+    {
+      "pointer": "/local_D_received_checks/final_two",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root-replay.json",
+      "sha256": "81ae16dcff4d9bb7203aff9e06f0ce8e4fca8a2fd1d6e4e72ddb177f5da79d27",
+      "matching_git_sources": [
+        "7602e3e259f6efdaa65104a90b77b6704c4326dc"
+      ]
+    },
+    {
+      "pointer": "/local_D_received_checks/current142",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent-review.json",
+      "sha256": "6eef8f6aeedc2ecf99d177f570822b19ee7c4b5873163fc6b086b824b372aba9",
+      "matching_git_sources": [
+        "668df4bc66eede8ca285bb8bce231d5e94f8626a"
+      ]
+    },
+    {
+      "pointer": "/downstream_contracts/0/actual_local_D_canonical_command_ref",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-canonical-243.json",
+      "sha256": "8e88ae1705ab5326c540ca82bced28f1020b71bd3b02bac5c43150f3d2335a88",
+      "matching_git_sources": [
+        "262749db1965726ee02c1e7618db99493eceb1fe"
+      ]
+    },
+    {
+      "pointer": "/criterion_accounting_receipt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+      "sha256": "fb6f8d6fd8e7ebaea6df25c469429cfe9d1f314a4e62caa6dbce514f164e76ad",
+      "matching_git_sources": [
+        "300119d268bea0bcff0fb55dd5f447250589e2a1",
+        "f5b8251b9a02817fdfd42e42a5307f5d4c6fb2ba"
+      ]
+    }
+  ],
+  "external_path_scope": [],
+  "result": "PASS metadata hashes/bytes only; no runtime or finding verdict"
+}

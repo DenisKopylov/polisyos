@@ -1,0 +1,81 @@
+{
+  "schema": "e02.D.E.explicit-composed-inputs.v1",
+  "D_source_sha": "c2cbd72c0d11dab73b277c97f389840dfd187b17",
+  "E_source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+  "export_dir": "/dev/shm/e02-D-E-composed-full-036mrf56",
+  "D_git_profile": [
+    {
+      "path": "policy-engine/src",
+      "git_object": "914aa640456e9674b381039f562385a69c4fdae6",
+      "type": "tree",
+      "source_sha": "c2cbd72c0d11dab73b277c97f389840dfd187b17"
+    },
+    {
+      "path": "policy-engine/architecture",
+      "git_object": "4ee55a12145835f59e93c0100dccd0c27672f8e6",
+      "type": "tree",
+      "source_sha": "c2cbd72c0d11dab73b277c97f389840dfd187b17"
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "git_object": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "type": "blob",
+      "source_sha": "c2cbd72c0d11dab73b277c97f389840dfd187b17"
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/methods/search/stress_doe_bridge_probe.py",
+      "git_object": "e7c0d47110b9ffd6d347e0add14e097fece90c67",
+      "type": "blob",
+      "source_sha": "c2cbd72c0d11dab73b277c97f389840dfd187b17"
+    }
+  ],
+  "E_overlays": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "sha256": "dd692e325fa59e218d06ec3dd41f2c5fd933f956b91432e2b8d243cacebed8a8",
+      "bytes": 14391
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "sha256": "c27f8163d614b86bfd694560cdd7650a2736362763dfb404fb51d7d508601993",
+      "bytes": 3949
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+      "source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "sha256": "db87129797adc4c8c882655a95edd789b44381c47af85cff658e91e1f658e81c",
+      "bytes": 19279
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/stability.py",
+      "source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "sha256": "5ceaaa52de62ed0723a522a3b500100c8571409a55d961bad3f3eb0756fba24e",
+      "bytes": 6384
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "sha256": "d067cd402809c5a7dcf8d33ddda2b5414b4d67f27021751becfd99556b4e565b",
+      "bytes": 3768
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+      "source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "sha256": "c1a3b0550a853e6442c2e325d39436eabf6c266e1da6694341715295f6e1b631",
+      "bytes": 4628
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+      "source_sha": "041db8182e043037ff676ac968b9f74b86a867ad",
+      "sha256": "d57967bd6f677d3613e3e1b2900d4cd1156855c774d1bd2a536778729622bafc",
+      "bytes": 3769
+    }
+  ],
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "tests/integration/scientist/methods/search/stress_doe_bridge_probe.py"
+  ],
+  "scope": "Explicit native E/D composition; E designs has not adopted D raw-threshold intake validator; ordinary finite bridge only. No deployed/default wiring or population-law claim."
+}

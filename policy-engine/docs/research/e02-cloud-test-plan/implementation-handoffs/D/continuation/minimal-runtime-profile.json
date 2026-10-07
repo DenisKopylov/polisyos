@@ -1,0 +1,251 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "minimal-runtime-profile",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "slice_base_sha": "ff47f6acb0ae24d491a24801d67470f4d4488010",
+  "implementation_commits": [
+    "8391c8db699564a6af39cf66477e141cc6d30030"
+  ],
+  "candidate_tree_sha": "79ead41f6cc66343100e0510694f330bd8530a1a",
+  "branch": "codex/e02-D-published-champion",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-runtime-profile-proof/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-runtime-profile-proof/complete-profile-metadata.json.xz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-runtime-profile-proof/profile-confirmation.py.txt"
+  ],
+  "environment": {
+    "interpreter": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "actual_python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "system_site_packages": false,
+    "user_site_enabled": false,
+    "actual_distribution_count": 148,
+    "selected_record_paths": 13980,
+    "symlinks": 13095,
+    "metadata_versions_exact": true,
+    "optional_find_spec": {
+      "torch": false,
+      "botorch": false,
+      "gpytorch": false,
+      "hnswlib": false,
+      "SALib": false
+    },
+    "whole_parent_site_path_or_pth": false,
+    "outside_site_console_entries_excluded": 59,
+    "shared_namespaces": {
+      "opentelemetry": {
+        "selected_owners": [
+          "opentelemetry-api",
+          "opentelemetry-exporter-otlp-proto-common",
+          "opentelemetry-exporter-otlp-proto-grpc",
+          "opentelemetry-exporter-prometheus",
+          "opentelemetry-proto",
+          "opentelemetry-sdk",
+          "opentelemetry-semantic-conventions"
+        ],
+        "unplanned_owners": [],
+        "unowned_exposed_files": [],
+        "unexposed_paths_count": 61
+      },
+      "langgraph": {
+        "selected_owners": [
+          "langgraph",
+          "langgraph-checkpoint",
+          "langgraph-prebuilt"
+        ],
+        "unplanned_owners": [],
+        "unowned_exposed_files": [],
+        "unexposed_paths_count": 0
+      },
+      "google": {
+        "selected_owners": [
+          "googleapis-common-protos",
+          "protobuf"
+        ],
+        "unplanned_owners": [],
+        "unowned_exposed_files": [],
+        "unexposed_paths_count": 0
+      }
+    },
+    "method": {
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "venv",
+        "--without-pip",
+        "--symlinks",
+        "/tmp/e02-D-runtime-minimal-20261006"
+      ],
+      "exit": 0,
+      "system_site_packages": false,
+      "project_source_copies": 0,
+      "package_downloads_or_new_libraries": 0,
+      "linked_packages_not_copied": true
+    }
+  },
+  "source_profile_reconciliation": {
+    "schema": "e02.minimal_profile_source_reconciliation.v1",
+    "creation_commit": "c2e0d259f7e794c989468319975cc13026e49a4d",
+    "root_commit": "613343c3ef00379038b5ac07127605528f166531",
+    "root_tree": "f66e7144053be71db9840f9b7d468237fd1c809e",
+    "commit_identity_differs": true,
+    "profile_defining_input_bytes_identical": true,
+    "inputs": [
+      {
+        "path": "policy-engine/pyproject.toml",
+        "creation_source_sha": "c2e0d259f7e794c989468319975cc13026e49a4d",
+        "creation_git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+        "creation_sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+        "creation_bytes": 11007,
+        "root_source_sha": "613343c3ef00379038b5ac07127605528f166531",
+        "root_git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+        "root_sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+        "root_bytes": 11007,
+        "same_Git_blob": true,
+        "same_sha256_and_size": true
+      },
+      {
+        "path": "policy-engine/uv.lock",
+        "creation_source_sha": "c2e0d259f7e794c989468319975cc13026e49a4d",
+        "creation_git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+        "creation_sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+        "creation_bytes": 779204,
+        "root_source_sha": "613343c3ef00379038b5ac07127605528f166531",
+        "root_git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+        "root_sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+        "root_bytes": 779204,
+        "same_Git_blob": true,
+        "same_sha256_and_size": true
+      }
+    ],
+    "scope": "Read-only source-input comparison; no new solver/backend/product test run and no candidate runtime PASS inferred."
+  },
+  "checks": [
+    {
+      "command": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "/tmp/e02-D-runtime-minimal-confirmation/confirm.py"
+      ],
+      "outcome": "PASS",
+      "scope": "Actual minimal-profile metadata/discovery and small native checks only; no product suite or GP fit.",
+      "actual_exit": 0,
+      "wall_seconds": 1.137717674006126,
+      "maxrss_KiB_linux": 82720,
+      "actual_native_checks": {
+        "numpy_float64_sum": 45.0,
+        "pydantic_strict_value": 1.25,
+        "pydantic_bool_rejected": true,
+        "orjson_roundtrip": true
+      },
+      "complete_stdout_member": "complete.stdout.json",
+      "complete_stderr_member": "complete.stderr.txt",
+      "requested_gp_or_vector_numerical_requirements": "UNRUN: native optional backends actually absent"
+    }
+  ],
+  "property": {
+    "statement": "A real standard venv exposes only selected installed frozen core/runtime/test distribution files without inheriting broad optional backend site-packages.",
+    "runtime_path": [
+      "CPython3.14.7 standardvenv",
+      "148 actual installed METADATA/RECORD inventories",
+      "individual selected file links and selected dist-info metadata links",
+      "real minimal interpreter metadata/discovery/native module confirmation"
+    ],
+    "proxy_divergence": "A declared package profile does not establish actual discovery/import/native execution; the fresh interpreter measured all148 versions, absent optional specs and native checks separately.",
+    "negative_controls": [
+      "Actual torch/botorch/gpytorch/hnswlib/SALib find_spec allfalse",
+      "Pydantic strict native bool input refused",
+      "Sharednamespace selected-record file audit excludes61 generated opentelemetry pycache files"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "environment_profile_confirmed_only_no_product_or_finding_closure",
+  "transport": {
+    "source_sha": "8391c8db699564a6af39cf66477e141cc6d30030",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-runtime-profile-proof/complete-profile-metadata.json.xz",
+    "encoding": "xz(JSON UTF-8 with original raw members base64)",
+    "encoded_bytes": 898372,
+    "encoded_sha256": "f32a1f520b799bf749431da753f12e67e1b22031b9da11350fdab90770d615a4",
+    "decoded_bytes": 5658543,
+    "decoded_sha256": "dfb76ebaec59739a4f5bd9eefd8b53e0f1595ad0e935822471ce99380529f475",
+    "members": [
+      {
+        "name": "e02-D-runtime-minimal-profile-receipt.json",
+        "original_path": "/tmp/e02-D-runtime-minimal-profile-receipt.json",
+        "bytes": 217952,
+        "sha256": "8ac6a0f04c56b3d1ff0976c81aedb0b805e9a9efee486939467af01b93fd36d7"
+      },
+      {
+        "name": "e02-D-runtime-minimal-linked-record-paths.json",
+        "original_path": "/tmp/e02-D-runtime-minimal-linked-record-paths.json",
+        "bytes": 3949423,
+        "sha256": "2941686dd320dbff977e8ce440ff765148192f80b08f76e3db3129410b3b4fc3"
+      },
+      {
+        "name": "e02-D-native-minimal-profile-inventory.json",
+        "original_path": "/tmp/e02-D-native-minimal-profile-inventory.json",
+        "bytes": 27038,
+        "sha256": "3e6e6580111559a0b8115babf8754d1d29bf89c095bd9f4ea7de36a6d9c120a6"
+      },
+      {
+        "name": "e02-D-runtime-minimal-root-613-source-reconciliation.json",
+        "original_path": "/tmp/e02-D-runtime-minimal-root-613-source-reconciliation.json",
+        "bytes": 1760,
+        "sha256": "4b9cadf4c89ad078712d20bceff9506bca80230497056cbb2d143ad5e37c7965"
+      },
+      {
+        "name": "complete.stdout.json",
+        "original_path": "/tmp/e02-D-runtime-minimal-confirmation/complete.stdout.json",
+        "bytes": 45705,
+        "sha256": "2a0114a58769ccdb9a095840c0f8953ae486cb5420fea0467ba627755afb9c27"
+      },
+      {
+        "name": "complete.stderr.txt",
+        "original_path": "/tmp/e02-D-runtime-minimal-confirmation/complete.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "result.json",
+        "original_path": "/tmp/e02-D-runtime-minimal-confirmation/result.json",
+        "bytes": 288,
+        "sha256": "34ad7ed3b48469168bb16f3efb6984d6cb154b53945f16a8d0471c1b156ed4d4"
+      }
+    ],
+    "all7_raw_members_match_retained_originals": true,
+    "measurement_instrument": {
+      "original_path": "/tmp/e02-D-runtime-minimal-confirmation/confirm.py",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-runtime-profile-proof/profile-confirmation.py.txt",
+      "sha256": "da54efd1e1d9214c86868c9ee56fb7854191a33d312a33ab386590a251947825",
+      "bytes": 2988
+    },
+    "linked_dependency_or_tracked_product_source_body_copies": 0
+  },
+  "all148_metadata_record_and_actual_import_origin_hashes": "Complete original minimal profile receipt, inventory, linked RECORD audit and native stdout members in the transport; unchanged original byte hashes are retained.",
+  "preservation": {
+    "environment_path": "/tmp/e02-D-runtime-minimal-20261006",
+    "active_linked_targets_parent": "/workspace/e02-D-locked-env/lib/python3.14/site-packages",
+    "cleanup_excluded_paths": [
+      "/tmp/e02-D-runtime-minimal-20261006",
+      "/workspace/e02-D-locked-env/lib/python3.14/site-packages",
+      "/tmp/e02-D-runtime-minimal-confirmation",
+      "/tmp/e02-D-runtime-minimal-linked-record-paths.json",
+      "/tmp/e02-D-runtime-minimal-profile-receipt.json"
+    ],
+    "all_original_unique_outputs_preserved": true,
+    "existing_environment_metadata_record_hashes_unchanged": true,
+    "no_downloads_quotas_caps_cleanup_source_copies": true,
+    "active_environment_writer": "RELEASED"
+  },
+  "limitations_and_next_owner": [
+    "RECORD declared file hashes are retained as installed distribution inventory, not a whole-package integrity certification; METADATA and RECORD bytes plus actual imported native module hashes are measured.",
+    "Only selected RECORD-owned package files and selected dist-info metadata directories are exposed. No whole-parent site-packages symlink or pth; parent native files remain external shared dependency targets.",
+    "This environment is for non-GP supported runtime tests. Missing optional numerical backends remain UNRUN for numerical requirements.",
+    "Console scripts outside site-packages are deliberately not linked because their shebang selects the old broader interpreter; use this environment python -m entrypoints.",
+    "Source commit identity c2e0 differs root613; pyproject and lock blobs/hash/size are exactly equal. No new solver or backend run was inferred.",
+    "This profile cannot establish GP/vector numerical properties; those requirements remain UNRUN. Actual non-GP product outcomes require source-bound caller tests on their own immutable candidate.",
+    "Creation used default Python bytecode policy; no complete pre-creation stdlib cache census exists. Native confirmation used PYTHONDONTWRITEBYTECODE=1."
+  ],
+  "review": "Parent accepted scoped native confirmation. This Git packaging readback is author reconciliation, not independent product acceptance."
+}

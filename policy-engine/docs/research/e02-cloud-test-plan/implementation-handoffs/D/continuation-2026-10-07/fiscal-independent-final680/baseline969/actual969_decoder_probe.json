@@ -1,0 +1,276 @@
+{
+  "schema": "e02.D.objective_alias_decimal_actual_diagnostic.v1",
+  "source_sha": "96905636726483fdea3a98d9313871d825b54a9e",
+  "source_tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "runtime": {
+    "executable": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]"
+  },
+  "inputs_before": {
+    "src/polisyos/scientist/methods/search/objective.py": "940c84a3425e8ed1e93de2eae881100fd88a49dd978a108e5d78e5f2fa5fe17c",
+    "src/polisyos/core/canon/canon_json.py": "c5e60f4d47bc4fc5347809545609716c0ce030dfc6c3e3deee61d8ad5a086c95",
+    "src/polisyos/common/canonical.py": "89394b9a3b39c07e56cf672329176c2dda4feff8c6c375190f4065a5da123f41"
+  },
+  "inputs_after": {
+    "src/polisyos/scientist/methods/search/objective.py": "940c84a3425e8ed1e93de2eae881100fd88a49dd978a108e5d78e5f2fa5fe17c",
+    "src/polisyos/core/canon/canon_json.py": "c5e60f4d47bc4fc5347809545609716c0ce030dfc6c3e3deee61d8ad5a086c95",
+    "src/polisyos/common/canonical.py": "89394b9a3b39c07e56cf672329176c2dda4feff8c6c375190f4065a5da123f41"
+  },
+  "source_unchanged": true,
+  "cases": [
+    {
+      "case": "positive_tiny_balance",
+      "raw_canonical_bytes_utf8": "{\"gov_balance\":{\"_type\":\"decimal\",\"value\":\"1E-1000\"}}",
+      "raw_sha256": "1a3dbd12c185f9a20c8236872c5180df29f7ef4ecdb7b5544a7d0ca6232f2428",
+      "actual_decoded_values": {
+        "gov_balance": {
+          "type": "Decimal",
+          "repr": "1E-1000"
+        }
+      },
+      "expected_state": "unavailable",
+      "expected_value": null,
+      "actual_state": "available",
+      "actual_value": -0.0,
+      "actual_satisfied": true,
+      "check": "FAIL"
+    },
+    {
+      "case": "negative_tiny_balance",
+      "raw_canonical_bytes_utf8": "{\"gov_balance\":{\"_type\":\"decimal\",\"value\":\"-1E-1000\"}}",
+      "raw_sha256": "07da382d3f87d9a27c7286b5882c0a33d52de6234fd1a538558d4cf84aed7b78",
+      "actual_decoded_values": {
+        "gov_balance": {
+          "type": "Decimal",
+          "repr": "-1E-1000"
+        }
+      },
+      "expected_state": "unavailable",
+      "expected_value": null,
+      "actual_state": "available",
+      "actual_value": 0.0,
+      "actual_satisfied": true,
+      "check": "FAIL"
+    },
+    {
+      "case": "positive_tiny_deficit",
+      "raw_canonical_bytes_utf8": "{\"budget_deficit\":{\"_type\":\"decimal\",\"value\":\"1E-1000\"}}",
+      "raw_sha256": "a43eac871a4c272667b339b2fb022b0a2e22687aba19d68a58d0935f6fa9e9df",
+      "actual_decoded_values": {
+        "budget_deficit": {
+          "type": "Decimal",
+          "repr": "1E-1000"
+        }
+      },
+      "expected_state": "unavailable",
+      "expected_value": null,
+      "actual_state": "available",
+      "actual_value": 0.0,
+      "actual_satisfied": true,
+      "check": "FAIL"
+    },
+    {
+      "case": "negative_tiny_deficit",
+      "raw_canonical_bytes_utf8": "{\"budget_deficit\":{\"_type\":\"decimal\",\"value\":\"-1E-1000\"}}",
+      "raw_sha256": "296287e1f9f16241dd14e0b5f5ea6c2a4bc2a2bf701a53960a9be8730092f98a",
+      "actual_decoded_values": {
+        "budget_deficit": {
+          "type": "Decimal",
+          "repr": "-1E-1000"
+        }
+      },
+      "expected_state": "unavailable",
+      "expected_value": null,
+      "actual_state": "available",
+      "actual_value": 0.0,
+      "actual_satisfied": true,
+      "check": "FAIL"
+    },
+    {
+      "case": "tiny_balance_alias_conflict",
+      "raw_canonical_bytes_utf8": "{\"budget_deficit\":12,\"gov_balance\":{\"_type\":\"decimal\",\"value\":\"1E-1000\"},\"government_balance\":{\"_type\":\"decimal\",\"value\":\"0\"}}",
+      "raw_sha256": "f4f1af54d6ed2a6f57523c13dea38a9c742238a11c47a631cab1322ff31d08a2",
+      "actual_decoded_values": {
+        "budget_deficit": {
+          "type": "int",
+          "repr": "12"
+        },
+        "gov_balance": {
+          "type": "Decimal",
+          "repr": "1E-1000"
+        },
+        "government_balance": {
+          "type": "Decimal",
+          "repr": "0"
+        }
+      },
+      "expected_state": "unavailable",
+      "expected_value": null,
+      "actual_state": "available",
+      "actual_value": -0.0,
+      "actual_satisfied": true,
+      "check": "FAIL"
+    },
+    {
+      "case": "legacy_numeric_string_tiny",
+      "raw_canonical_bytes_utf8": "{\"budget_deficit\":\"-1e-1000\"}",
+      "raw_sha256": "433b8adc3653b1fef2021d70cf207cdea05e93c2c25f123c2f0d5c519235877f",
+      "actual_decoded_values": {
+        "budget_deficit": {
+          "type": "str",
+          "repr": "-1e-1000"
+        }
+      },
+      "expected_state": "unavailable",
+      "expected_value": null,
+      "actual_state": "available",
+      "actual_value": 0.0,
+      "actual_satisfied": true,
+      "check": "FAIL"
+    },
+    {
+      "case": "genuine_decimal_zero",
+      "raw_canonical_bytes_utf8": "{\"budget_deficit\":{\"_type\":\"decimal\",\"value\":\"0E-1000\"}}",
+      "raw_sha256": "0f58d247e2eed884e761123dfed2c3e705dd49c321c46ebce69bd18f16b3f214",
+      "actual_decoded_values": {
+        "budget_deficit": {
+          "type": "Decimal",
+          "repr": "0E-1000"
+        }
+      },
+      "expected_state": "available",
+      "expected_value": 0.0,
+      "actual_state": "available",
+      "actual_value": 0.0,
+      "actual_satisfied": true,
+      "check": "PASS"
+    },
+    {
+      "case": "genuine_integer_zero",
+      "raw_canonical_bytes_utf8": "{\"budget_deficit\":12,\"gov_balance\":0}",
+      "raw_sha256": "d5f29a9a9f0e951d27046fbdafecfac60006b9428b7b439e12f13edb6b9d7e5b",
+      "actual_decoded_values": {
+        "budget_deficit": {
+          "type": "int",
+          "repr": "12"
+        },
+        "gov_balance": {
+          "type": "int",
+          "repr": "0"
+        }
+      },
+      "expected_state": "available",
+      "expected_value": 0.0,
+      "actual_state": "available",
+      "actual_value": -0.0,
+      "actual_satisfied": true,
+      "check": "PASS"
+    },
+    {
+      "case": "ordinary_decimal_balance",
+      "raw_canonical_bytes_utf8": "{\"gov_balance\":{\"_type\":\"decimal\",\"value\":\"-5\"}}",
+      "raw_sha256": "66bfd86bc43c9cd9df020fd1e9a9239c5f035d5d09143b2b48ca2de64a3319c4",
+      "actual_decoded_values": {
+        "gov_balance": {
+          "type": "Decimal",
+          "repr": "-5"
+        }
+      },
+      "expected_state": "available",
+      "expected_value": 5.0,
+      "actual_state": "available",
+      "actual_value": 5.0,
+      "actual_satisfied": false,
+      "check": "PASS"
+    },
+    {
+      "case": "representable_small_deficit",
+      "raw_canonical_bytes_utf8": "{\"budget_deficit\":{\"_type\":\"decimal\",\"value\":\"1E-300\"}}",
+      "raw_sha256": "df73043bfabaaea7652d248e5e8b0d6b3e450da7ae638dfaba41d87d1d750d92",
+      "actual_decoded_values": {
+        "budget_deficit": {
+          "type": "Decimal",
+          "repr": "1E-300"
+        }
+      },
+      "expected_state": "available",
+      "expected_value": 1e-300,
+      "actual_state": "available",
+      "actual_value": 1e-300,
+      "actual_satisfied": false,
+      "check": "PASS"
+    },
+    {
+      "case": "malformed_present_no_fallback",
+      "raw_canonical_bytes_utf8": "{\"budget_deficit\":0,\"gov_balance\":\"bad\"}",
+      "raw_sha256": "d1fa4bc3f5458370916985aec49b7ad6a743e36692dc6c38a3e4c390ff371cb9",
+      "actual_decoded_values": {
+        "budget_deficit": {
+          "type": "int",
+          "repr": "0"
+        },
+        "gov_balance": {
+          "type": "str",
+          "repr": "bad"
+        }
+      },
+      "expected_state": "unavailable",
+      "expected_value": null,
+      "actual_state": "unavailable",
+      "actual_value": {
+        "nonfinite": "nan"
+      },
+      "actual_satisfied": false,
+      "check": "PASS"
+    },
+    {
+      "case": "boolean_false_not_zero",
+      "raw_canonical_bytes_utf8": "{\"gov_balance\":false}",
+      "raw_sha256": "e8c386ef559f7d375f2ba526944da16746c7be4953db0f5d87dcf2310e5aae8f",
+      "actual_decoded_values": {
+        "gov_balance": {
+          "type": "bool",
+          "repr": "False"
+        }
+      },
+      "expected_state": "unavailable",
+      "expected_value": null,
+      "actual_state": "unavailable",
+      "actual_value": {
+        "nonfinite": "nan"
+      },
+      "actual_satisfied": false,
+      "check": "PASS"
+    },
+    {
+      "case": "null_balance_legacy_fallback",
+      "raw_canonical_bytes_utf8": "{\"budget_deficit\":12,\"gov_balance\":null}",
+      "raw_sha256": "15b3e4208eb43520249f3582f2c9ac0336138cc4b660f373e100b485ae98b43a",
+      "actual_decoded_values": {
+        "budget_deficit": {
+          "type": "int",
+          "repr": "12"
+        },
+        "gov_balance": {
+          "type": "NoneType",
+          "repr": "None"
+        }
+      },
+      "expected_state": "available",
+      "expected_value": 12.0,
+      "actual_state": "available",
+      "actual_value": 12.0,
+      "actual_satisfied": false,
+      "check": "PASS"
+    }
+  ],
+  "check_counts": {
+    "PASS": 7,
+    "FAIL": 6
+  },
+  "limits": [
+    "Actual canonical typed-tag decode and existing BudgetDeficitObjective; no synthetic numeric conversion helper or mocked result.",
+    "Float64 intake representability only; no actual fiscal issuer/unit/sign/alias law appointed by this controlled diagnostic.",
+    "Raw predecode original nonzero retained exactly; ordinary/genuinezero controls distinguish conversion loss."
+  ]
+}

@@ -1,0 +1,445 @@
+{
+  "schema": "policyos.e02.D.oct07.independent_standalone_admission_review.v1",
+  "reviewed_at": "2026-10-07T07:38:53.905147+00:00",
+  "reviewer_role": "independent read-only D census reviewer; no code author writes",
+  "skill": "codex-engineering-guardrails:code-verification",
+  "target_branch": "codex/e02-D-oct07-continuation",
+  "target_path": "/dev/shm/e02-D-oct07-continuation",
+  "receipt_ref": {
+    "path": "/dev/shm/e02-D-oct07-root-admission/standalone-checkout.json",
+    "bytes": 130853,
+    "sha256": "e29d8b083c189bd6e129c957a7ac1a68337b3901bef063550d993a2cdb510e02"
+  },
+  "implementation_base": {
+    "sha": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+    "tree": "bb6213c0cde3246e63c04f749547f40f35644a15"
+  },
+  "admission": {
+    "create": {
+      "status": "admitted",
+      "exit": 0,
+      "requested": {
+        "branch": "codex/e02-D-oct07-continuation",
+        "mode": "create",
+        "path": "/dev/shm/e02-D-oct07-continuation"
+      },
+      "common": "/workspace/polisyos/.git"
+    },
+    "resume": {
+      "status": "admitted",
+      "exit": 0,
+      "requested": {
+        "branch": "codex/e02-D-oct07-continuation",
+        "mode": "resume",
+        "path": "/dev/shm/e02-D-oct07-continuation"
+      },
+      "common": "/dev/shm/e02-D-oct07-continuation/.git"
+    },
+    "same_branch_path": true,
+    "standalone_common_directory_intentionally_distinct": true,
+    "unresolved_by_construction": [
+      {
+        "boundary": "moved_directories_outside_registered_paths",
+        "detail": "No wider filesystem/mount search; missing registered directories do not prove abandonment or prune safety."
+      },
+      {
+        "boundary": "non_atomic_observation",
+        "detail": "Git and filesystem reads are sequential, not an atomic snapshot; changes after or between reads can escape observation."
+      },
+      {
+        "boundary": "name_reservation",
+        "detail": "This read-only command reserves nothing. Root serializes commissioning, reruns immediately before creation and reads back exact attachment afterward."
+      },
+      {
+        "boundary": "external_prompt_writers",
+        "detail": "Receipt does not intercept or enforce arbitrary commissioning prompts."
+      }
+    ]
+  },
+  "observations": [
+    {
+      "cwd": "/dev/shm/e02-D-oct07-continuation",
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "status",
+        "-sb"
+      ],
+      "exit_code": 0,
+      "stdout": "## codex/e02-D-oct07-continuation\n",
+      "stderr": ""
+    },
+    {
+      "cwd": "/dev/shm/e02-D-oct07-continuation",
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "rev-parse",
+        "HEAD",
+        "HEAD^{tree}"
+      ],
+      "exit_code": 0,
+      "stdout": "828283eefe9c3ae14e0f99899a0a502a8b1a253c\nbb6213c0cde3246e63c04f749547f40f35644a15\n",
+      "stderr": ""
+    },
+    {
+      "cwd": "/dev/shm/e02-D-oct07-continuation",
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "stdout": "/dev/shm/e02-D-oct07-continuation/.git\n",
+      "stderr": ""
+    },
+    {
+      "cwd": "/dev/shm/e02-D-oct07-continuation",
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "worktree",
+        "list",
+        "--porcelain"
+      ],
+      "exit_code": 0,
+      "stdout": "worktree /dev/shm/e02-D-oct07-continuation\nHEAD 828283eefe9c3ae14e0f99899a0a502a8b1a253c\nbranch refs/heads/codex/e02-D-oct07-continuation\n\n",
+      "stderr": ""
+    },
+    {
+      "cwd": "/workspace/e02-D-published-root",
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "status",
+        "-sb"
+      ],
+      "exit_code": 0,
+      "stdout": "## codex/e02-D-published-root\n",
+      "stderr": ""
+    },
+    {
+      "cwd": "/workspace/e02-D-published-root",
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "rev-parse",
+        "HEAD",
+        "HEAD^{tree}"
+      ],
+      "exit_code": 0,
+      "stdout": "828283eefe9c3ae14e0f99899a0a502a8b1a253c\nbb6213c0cde3246e63c04f749547f40f35644a15\n",
+      "stderr": ""
+    },
+    {
+      "cwd": "/workspace/e02-D-published-root",
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "rev-parse",
+        "--path-format=absolute",
+        "--git-common-dir"
+      ],
+      "exit_code": 0,
+      "stdout": "/workspace/polisyos/.git\n",
+      "stderr": ""
+    },
+    {
+      "cwd": "/workspace/e02-D-published-root",
+      "argv": [
+        "git",
+        "--no-optional-locks",
+        "worktree",
+        "list",
+        "--porcelain"
+      ],
+      "exit_code": 0,
+      "stdout": "worktree /workspace/polisyos\nHEAD 0a4b9cd48068454bb8ce95b5ae69bf5c323ee924\nbranch refs/heads/work\n\nworktree /workspace/e02-D-baseline\nHEAD d7705039d1b509fee606d204b60585fcf137dbd8\nbranch refs/heads/codex/e02-D-baseline\n\nworktree /workspace/e02-D-ci-triage\nHEAD 6e9bb8a202c9c6338bd01452e1816ab5f1e15a6d\nbranch refs/heads/codex/e02-D-ci-triage\n\nworktree /workspace/e02-D-funnel\nHEAD 1b1454f6e32dbf2f23df5f1e58e68fe43a27f7d5\nbranch refs/heads/codex/e02-D-funnel\n\nworktree /workspace/e02-D-gp-witness\nHEAD 5a2b6d4435d1a3ef9da94a1ec3372dc9372aa328\nbranch refs/heads/codex/e02-D-gp-witness\n\nworktree /workspace/e02-D-lessons\nHEAD 3e762fbabde70013e50a42e84945066351e71718\nbranch refs/heads/codex/e02-D-lessons\n\nworktree /workspace/e02-D-oracle\nHEAD bc532b30967c84070a2848ceaad341ffc06964fd\nbranch refs/heads/codex/e02-D-oracle\n\nworktree /workspace/e02-D-orchestration\nHEAD ffbb62165a85a8c8bedd8c11af8246273619ede1\nbranch refs/heads/codex/e02-D-orchestration\n\nworktree /workspace/e02-D-published-champion\nHEAD 415621e89b059d432f1b24a00262b73b3fe99e22\nbranch refs/heads/codex/e02-D-published-champion\n\nworktree /workspace/e02-D-published-funnel\nHEAD 115b8efa503b82a15fa4e2c97bf796846dd97632\nbranch refs/heads/codex/e02-D-published-funnel\n\nworktree /workspace/e02-D-published-oracle\nHEAD f102a63abc63e35aef2b4ed9e480ccc248c650a3\nbranch refs/heads/codex/e02-D-published-oracle\n\nworktree /workspace/e02-D-published-root\nHEAD 828283eefe9c3ae14e0f99899a0a502a8b1a253c\nbranch refs/heads/codex/e02-D-published-root\n\nworktree /workspace/e02-D-published-search\nHEAD 89f0520e7176bc15e86fdad4ca087e5b8335e2af\nbranch refs/heads/codex/e02-D-published-search\n\nworktree /workspace/e02-D-published-stress\nHEAD 0905131301921f9256bf0e9b4e62f41292f8e2dd\nbranch refs/heads/codex/e02-D-published-stress\n\nworktree /workspace/e02-D-published-transfer\nHEAD 273616d37737b86665d1d12f0d90e22212afb2e1\nbranch refs/heads/codex/e02-D-published-transfer\n\nworktree /workspace/e02-D-search\nHEAD 9ef8783b55f9d8727cf5a83955f0c0ca65060ab3\nbranch refs/heads/codex/e02-D-search\n\nworktree /workspace/e02-D-stress\nHEAD 695727ff34565ea497aee13ef3042bab4a22e0a2\nbranch refs/heads/codex/e02-D-stress\n\nworktree /workspace/e02-D-transfer\nHEAD 83b5b16529e207636ce835f5e96ac706cc196906\nbranch refs/heads/codex/e02-D-transfer\n\n",
+      "stderr": ""
+    },
+    {
+      "cwd": "/dev/shm/e02-D-oct07-continuation",
+      "argv": [
+        "df",
+        "-h",
+        "/workspace",
+        "/dev/shm"
+      ],
+      "exit_code": 0,
+      "stdout": "Filesystem      Size  Used Avail Use% Mounted on\noverlay          32G   30G     0 100% /\nshm             8.8G  5.9G  3.0G  67% /dev/shm\n",
+      "stderr": ""
+    },
+    {
+      "cwd": "/dev/shm/e02-D-oct07-continuation",
+      "argv": [
+        "df",
+        "-i",
+        "/workspace",
+        "/dev/shm"
+      ],
+      "exit_code": 0,
+      "stdout": "Filesystem      Inodes  IUsed   IFree IUse% Mounted on\noverlay        2097152 906186 1190966   44% /\nshm            2305017 285280 2019737   13% /dev/shm\n",
+      "stderr": ""
+    },
+    {
+      "cwd": "/dev/shm/e02-D-oct07-continuation",
+      "argv": [
+        "free",
+        "-h"
+      ],
+      "exit_code": 0,
+      "stdout": "               total        used        free      shared  buff/cache   available\nMem:            17Gi        15Gi       652Mi        14Gi        15Gi       1.6Gi\nSwap:             0B          0B          0B\n",
+      "stderr": ""
+    }
+  ],
+  "old_registration_checks": [
+    {
+      "path": "/workspace/polisyos",
+      "identity_matches_create_receipt": true
+    },
+    {
+      "path": "/workspace/e02-D-baseline",
+      "identity_matches_create_receipt": true
+    },
+    {
+      "path": "/workspace/e02-D-ci-triage",
+      "identity_matches_create_receipt": true
+    },
+    {
+      "path": "/workspace/e02-D-funnel",
+      "identity_matches_create_receipt": true
+    },
+    {
+      "path": "/workspace/e02-D-gp-witness",
+      "identity_matches_create_receipt": true
+    },
+    {
+      "path": "/workspace/e02-D-lessons",
+      "identity_matches_create_receipt": true
+    },
+    {
+      "path": "/workspace/e02-D-oracle",
+      "identity_matches_create_receipt": true
+    },
+    {
+      "path": "/workspace/e02-D-orchestration",
+      "identity_matches_create_receipt": true
+    },
+    {
+      "path": "/workspace/e02-D-published-champion",
+      "identity_matches_create_receipt": true
+    },
+    {
+      "path": "/workspace/e02-D-published-funnel",
+      "identity_matches_create_receipt": true
+    },
+    {
+      "path": "/workspace/e02-D-published-oracle",
+      "identity_matches_create_receipt": true
+    },
+    {
+      "path": "/workspace/e02-D-published-root",
+      "identity_matches_create_receipt": true
+    },
+    {
+      "path": "/workspace/e02-D-published-search",
+      "identity_matches_create_receipt": true
+    },
+    {
+      "path": "/workspace/e02-D-published-stress",
+      "identity_matches_create_receipt": true
+    },
+    {
+      "path": "/workspace/e02-D-published-transfer",
+      "identity_matches_create_receipt": true
+    },
+    {
+      "path": "/workspace/e02-D-search",
+      "identity_matches_create_receipt": true
+    },
+    {
+      "path": "/workspace/e02-D-stress",
+      "identity_matches_create_receipt": true
+    },
+    {
+      "path": "/workspace/e02-D-transfer",
+      "identity_matches_create_receipt": true
+    }
+  ],
+  "old_admin_record_checks": [
+    {
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-D-baseline",
+      "receipt_fields_match": {
+        "HEAD": true,
+        "gitdir": true,
+        "commondir": true
+      }
+    },
+    {
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-D-ci-triage",
+      "receipt_fields_match": {
+        "HEAD": true,
+        "gitdir": true,
+        "commondir": true
+      }
+    },
+    {
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-D-funnel",
+      "receipt_fields_match": {
+        "HEAD": true,
+        "gitdir": true,
+        "commondir": true
+      }
+    },
+    {
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-D-gp-witness",
+      "receipt_fields_match": {
+        "HEAD": true,
+        "gitdir": true,
+        "commondir": true
+      }
+    },
+    {
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-D-lessons",
+      "receipt_fields_match": {
+        "HEAD": true,
+        "gitdir": true,
+        "commondir": true
+      }
+    },
+    {
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-D-oracle",
+      "receipt_fields_match": {
+        "HEAD": true,
+        "gitdir": true,
+        "commondir": true
+      }
+    },
+    {
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-D-orchestration",
+      "receipt_fields_match": {
+        "HEAD": true,
+        "gitdir": true,
+        "commondir": true
+      }
+    },
+    {
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-D-published-champion",
+      "receipt_fields_match": {
+        "HEAD": true,
+        "gitdir": true,
+        "commondir": true
+      }
+    },
+    {
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-D-published-funnel",
+      "receipt_fields_match": {
+        "HEAD": true,
+        "gitdir": true,
+        "commondir": true
+      }
+    },
+    {
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-D-published-oracle",
+      "receipt_fields_match": {
+        "HEAD": true,
+        "gitdir": true,
+        "commondir": true
+      }
+    },
+    {
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-D-published-root",
+      "receipt_fields_match": {
+        "HEAD": true,
+        "gitdir": true,
+        "commondir": true
+      }
+    },
+    {
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-D-published-search",
+      "receipt_fields_match": {
+        "HEAD": true,
+        "gitdir": true,
+        "commondir": true
+      }
+    },
+    {
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-D-published-stress",
+      "receipt_fields_match": {
+        "HEAD": true,
+        "gitdir": true,
+        "commondir": true
+      }
+    },
+    {
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-D-published-transfer",
+      "receipt_fields_match": {
+        "HEAD": true,
+        "gitdir": true,
+        "commondir": true
+      }
+    },
+    {
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-D-search",
+      "receipt_fields_match": {
+        "HEAD": true,
+        "gitdir": true,
+        "commondir": true
+      }
+    },
+    {
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-D-stress",
+      "receipt_fields_match": {
+        "HEAD": true,
+        "gitdir": true,
+        "commondir": true
+      }
+    },
+    {
+      "admin_dir": "/workspace/polisyos/.git/worktrees/e02-D-transfer",
+      "receipt_fields_match": {
+        "HEAD": true,
+        "gitdir": true,
+        "commondir": true
+      }
+    }
+  ],
+  "logical_full_tree": {
+    "path_count": 15414,
+    "sha256": "1cd81f6ab06c8f90b6b662e3a4987b1b0ae34ca1577a46e59f43a3bb8bc89484",
+    "equals_original_828": true
+  },
+  "alternates": "/workspace/polisyos/.git/objects",
+  "sparse_paths": [
+    "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles",
+    "policy-engine/docs/reference",
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions",
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-organization",
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts",
+    "policy-engine/docs/research/e02-cloud-test-plan/results",
+    "policy-engine/schemas",
+    "policy-engine/src",
+    "policy-engine/tests",
+    "policy-engine/tools"
+  ],
+  "capacity_context": {
+    "/sys/fs/cgroup/memory.max": "17179869184\n",
+    "/sys/fs/cgroup/memory.events": "low 0\nhigh 0\nmax 38064333\noom 300\noom_kill 57\noom_group_kill 0\n",
+    "/proc/sys/vm/overcommit_memory": "0\n"
+  },
+  "protected_limits": [
+    "Shared clone uses Git-supported alternates and preserves the selected D predecessor; it is not a self-contained durable backup. Preserve /workspace/polisyos/.git/objects, no gc/prune/delete of its retained history.",
+    "New standalone Git repository has its own registrations and refs; CREATE checked availability in old common, RESUME checked exact actual pair in new common. No claim that new checkout was added to old linked-worktree registry.",
+    "Physical available memory, shm and overlay capacities are point-in-time observations, not orchestrator quotas.",
+    "Cgroup OOM counters are cumulative; no process/timestamp attribution establishes cause of latest signal9/zero-phase native tests.",
+    "Admission observation is sequential and read-only, not a reservation or concurrency guarantee."
+  ],
+  "verdict": "BOUNDED_GO_FOR_GIT_SUPPORTED_STANDALONE_RECOVERY_AND_RETAINED_HISTORY",
+  "predicate_basis": "independently_reconciled",
+  "product_runtime_or_finding_acceptance": false,
+  "cleanup_candidates": [
+    "/dev/shm/e02-D-census-review-oct07 reproducible review artifacts after deciding-output publication/readback; no permanent deletion performed"
+  ]
+}

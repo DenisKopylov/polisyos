@@ -1,0 +1,10 @@
+id = "2026-10-06-e02-D-funnel-cost-projection"
+title = "Preserve measured cost through funnel result projections"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-runtime"
+surface_classification = "internal"
+summary = "Preserve settled provider amount, event identity and cost source when routing rejects a stage or the native compatibility adapter projects an aggregate decision."
+evidence = ["tests/integration/scientist/methods/search/funnel/test_orchestrator.py"]
+compatibility = "Routing and compatibility verdicts retain their current meaning. Paid and measured-zero stages retain their resource receipts instead of reverting to an estimated or absent cost projection."
+limitations = "Provider reports remain supplied accounting inputs; independent billing attestation and numerical resource measurement remain separate integration boundaries."

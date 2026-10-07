@@ -1,0 +1,9 @@
+2026-10-07 13:44:30.195 | ERROR    | polisyos.common.logger:_call:120 - L3 workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual settlement acknowledgement unavailable
+2026-10-07 13:44:30.207 | ERROR    | polisyos.common.logger:_call:120 - ExpensiveStage workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual settlement acknowledgement unavailable
+2026-10-07 13:44:30.209 | DEBUG    | polisyos.common.logger:_call:120 - Funnel stopped at funnel_L3_medium: not promising (obj=inf)
+2026-10-07 13:44:30.226 | ERROR    | polisyos.common.logger:_call:120 - L3 workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual provider amount is unknown; retain the obtained operation
+2026-10-07 13:44:30.246 | ERROR    | polisyos.common.logger:_call:120 - ExpensiveStage workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual settlement acknowledgement unavailable
+2026-10-07 13:44:30.248 | DEBUG    | polisyos.common.logger:_call:120 - Funnel stopped at funnel_L3_medium: not promising (obj=inf)
+2026-10-07 13:44:30.263 | ERROR    | polisyos.common.logger:_call:120 - L3 workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual provider amount is unknown; retain the obtained operation
+2026-10-07 13:44:30.274 | ERROR    | polisyos.common.logger:_call:120 - ExpensiveStage workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual settlement acknowledgement unavailable
+2026-10-07 13:44:30.275 | DEBUG    | polisyos.common.logger:_call:120 - Funnel stopped at funnel_L3_medium: not promising (obj=inf)

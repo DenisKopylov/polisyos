@@ -1,0 +1,8 @@
+{
+  "baseline_source_sha": "769a8dac89450dc54c1caeef69b217685bf983f8",
+  "successor_source_sha": "d885707935d8432fcf942db5b432edc4ace99f73",
+  "path": "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+  "all_original_assert_AST_equal": true,
+  "assert_count": 60,
+  "change": "only actual profile-qualified InputRefs and proxy delegation of existing public verified snapshot"
+}

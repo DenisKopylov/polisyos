@@ -1,0 +1,472 @@
+{
+  "schema": "policyos.e02.D.quantity_omission_handoff.v1",
+  "unit": "D",
+  "finding_ids": [
+    "B110",
+    "B111"
+  ],
+  "related_finding_ids": [
+    "B109"
+  ],
+  "closure_ids": [],
+  "predicate_basis": "recomputed",
+  "scope_annotation": "Exact declared-coordinate semantics and supported float64 1–4D quantities; original G acceptance and independently supplied source-universe/semantic truth are not inferred.",
+  "base": {
+    "sha": "2451bb94188a262b4525595310e120be9e7aa520",
+    "tree": "0b8141ef397e2e9f51eaa1f2f9d52d4cb5b41932"
+  },
+  "implementation": {
+    "sha": "4393fd4bc16135329d7afef644a9387e4ca26c53",
+    "tree": "27ce16e448d5dbca54b4b1dc7ee5dc40caf5deaa",
+    "earlier_quantity_sha": "4ac159f7475cff68d7d6bed41c62620c63c5302b"
+  },
+  "test_only_checkpoints": {
+    "tiny_MIN_fixture": "5e6b743c39073e1f04526199e528fea4cd9cb043",
+    "ordinary_original": "07ecd5f0714c72c1aa224d27dea2c1f0e0b91632",
+    "ordinary_typed_view_corrective": "96694022d1e1ee5461ff25cf1d125bdae194c103"
+  },
+  "documentation_companion": {
+    "sha": "4a2a09c567c60449e1f38d8202ee168a4bdf9938",
+    "tree": "0ffb94058f8f26f44b140e73d3e44bd721680902"
+  },
+  "evidence": {
+    "sha": "b14ec1191fc80c15d9bd226f779654abdc2ca567",
+    "tree": "a80b9c54e18ab643c31a3554c0a2ed9c03cfa8ef",
+    "manifest": {
+      "source_sha": "b14ec1191fc80c15d9bd226f779654abdc2ca567",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-range-omission/manifest.json",
+      "git_blob": "21598567a4d3999ae5fbb5ca78360bed7a5152c3",
+      "bytes": 280053,
+      "sha256": "5c81e1a62464165af523b08d4bccb8513bcbbb035285af754203998c089f9993"
+    },
+    "payload": {
+      "source_sha": "b14ec1191fc80c15d9bd226f779654abdc2ca567",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-range-omission/deciding-outputs.json.gz",
+      "git_blob": "d117af0173389102321847c5eeada5a45af84f15",
+      "bytes": 895190,
+      "sha256": "bfd544219ddb8fce570d7d7b3fed3f4c8d7cb38b66601742f50ad978edc0e4c1"
+    },
+    "all_member_hashes_independently_recomputed": 467,
+    "decoded_payload_sha256": "829f83671825a16e37c9329d2a6b7a969e38ed0607299bc81fe01dbf86a3ec3f",
+    "raw_member_bytes": 2611349,
+    "encoding": "gzip JSON base64 member payload; index includes complete retained paths/hashes/roles",
+    "preservation": "All original measurement/fixture bytes retained; no deletion or source/test mirroring."
+  },
+  "full_changed_paths_from_base": [
+    {
+      "source_sha": "4a2a09c567c60449e1f38d8202ee168a4bdf9938",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/generator-quantity-migration.md",
+      "git_blob": "544f7afba76ff3a3160ac020366ad382dbe4807b",
+      "bytes": 6638,
+      "sha256": "909bd2acffa1215fc2284fc4e6b8342f0d0f089dc2187a1999847b43cb25cf56"
+    },
+    {
+      "source_sha": "4a2a09c567c60449e1f38d8202ee168a4bdf9938",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-D-pareto-representability.toml",
+      "git_blob": "96959a5e3a13726b78811f42acaa95a1df5d515b",
+      "bytes": 3000,
+      "sha256": "5943ceb2a2930bbb25c3d9f27318e409472f5e4463995c8607475718af1be6f4"
+    },
+    {
+      "source_sha": "4a2a09c567c60449e1f38d8202ee168a4bdf9938",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+      "git_blob": "63c3dd0bebe17eb599444070caebbb7acb926417",
+      "bytes": 39563,
+      "sha256": "f6787e89fb3ae343e4ed822e00db9c91c44d017effc2aff22dda93f639c54b83"
+    },
+    {
+      "source_sha": "4a2a09c567c60449e1f38d8202ee168a4bdf9938",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+      "git_blob": "2e640de994c3028d46f1e8987e141714189be382",
+      "bytes": 23665,
+      "sha256": "6c4e32bf1981be3015964b4657c891b3c9ca46c3504453bc1447e8456e00fb53"
+    },
+    {
+      "source_sha": "4a2a09c567c60449e1f38d8202ee168a4bdf9938",
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_hypervolume_representability.py",
+      "git_blob": "751f3cbf0afafa58f31d832aba41de31c94018b6",
+      "bytes": 11337,
+      "sha256": "ce40a93f7ab58d5cae4bbe1cd342f990b9c3549077c3f32cde3271f3d44ec4f4"
+    },
+    {
+      "source_sha": "4a2a09c567c60449e1f38d8202ee168a4bdf9938",
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_mo_reference_representability.py",
+      "git_blob": "e7fa5ef64ee764edbc7a22dad1aff2362905128d",
+      "bytes": 3051,
+      "sha256": "097eaa6a446a8956de5f80ab54ef8dc4ac7fdf180e6651ad6131d57d852b797d"
+    },
+    {
+      "source_sha": "4a2a09c567c60449e1f38d8202ee168a4bdf9938",
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_registry_quantity_projection.py",
+      "git_blob": "a30d763934453ca9f130dbae2fdbc79c1d8d9a49",
+      "bytes": 6510,
+      "sha256": "500342e870818200404d2322cf266877631fd4303798fe364104833ae94550e6"
+    }
+  ],
+  "production_paths": [
+    {
+      "source_sha": "4393fd4bc16135329d7afef644a9387e4ca26c53",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+      "git_blob": "63c3dd0bebe17eb599444070caebbb7acb926417",
+      "bytes": 39563,
+      "sha256": "f6787e89fb3ae343e4ed822e00db9c91c44d017effc2aff22dda93f639c54b83"
+    },
+    {
+      "source_sha": "4393fd4bc16135329d7afef644a9387e4ca26c53",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+      "git_blob": "2e640de994c3028d46f1e8987e141714189be382",
+      "bytes": 23665,
+      "sha256": "6c4e32bf1981be3015964b4657c891b3c9ca46c3504453bc1447e8456e00fb53"
+    }
+  ],
+  "criteria": [
+    {
+      "finding_id": "B110",
+      "original_criterion": {
+        "bundle": "OPT-01",
+        "path": "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-01.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob": "37f4bbbced6935c4e051c4bb1b1a9e76eb505301",
+        "source_marker": "B:B110",
+        "section_sha256": "7498df4ffe001d950fd03e1b88cf9f28aff59394a008da17844c196d63f5d461",
+        "start_line": 92,
+        "end_line": 106,
+        "acceptance_or_recommended_boundary_verbatim": "Фронт, его сериализация/round-trip и `is_dominated` дают одно отношение. Смена display-label не меняет решение; смена split не исчезает. Это локальная потеря семантики, а не доказательство, что все производственные policies сейчас имеют такие повторения.",
+        "previous_section_sha256": "a6be752b83d6e94ed4d0bcccef41670106a65bac64827f8cf4645a0401239d6d",
+        "section_digest_encoding": "UTF-8 exact source lines including stored newlines",
+        "repository_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-01.md"
+      },
+      "status": "bounded mechanism/consumer predicates verified; G finding acceptance separate",
+      "criterion_text_unchanged": true
+    },
+    {
+      "finding_id": "B111",
+      "original_criterion": {
+        "bundle": "OPT-01",
+        "path": "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-01.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob": "37f4bbbced6935c4e051c4bb1b1a9e76eb505301",
+        "source_marker": "B:B111",
+        "section_sha256": "9d54d0f478e973cc89ed50adb4a03fc18fc1db35d1befcc3aed09128fc4bf41c",
+        "start_line": 113,
+        "end_line": 129,
+        "acceptance_or_recommended_boundary_verbatim": "Перестановки не меняют конечный фронт; invalid сохраняет причину; reference point и hypervolume конечны или явно недоступны; генезис и смена чемпиона не публикуют неопределённое число. Проверить реальный CAS и существующие upstream guards, не дублируя их несовместимыми кодами.",
+        "previous_section_sha256": "534be6222dccd944bb884e893436c32d82eef90be857ad763412d9df270c6245",
+        "section_digest_encoding": "UTF-8 exact source lines including stored newlines",
+        "repository_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-01.md"
+      },
+      "status": "bounded mechanism/consumer predicates verified; G finding acceptance separate",
+      "criterion_text_unchanged": true
+    }
+  ],
+  "mechanisms": {
+    "B110": "Every semantic carrier includes the full current coordinate identity: member/reference/value schema and partial/no-usable missing/nonfinite omission IDs. Stale or duplicate omission IDs and unbound legacy omissions refuse at actual typed CAS readback; paired axis/name/policy/value/reference reindex remains valid. Display-label changes remain cosmetic.",
+    "B111": "A nonempty contributing positive box union rounded to0 becomes null/unavailable/not_established with nonzero_derived_hypervolume_underflow; genuine zero remains available0. MO derived-reference span/result preflight uses canonical finite scalar before model/MLL in indicator, single and batch paths; unsupported arithmetic refuses instead of random fallback."
+  },
+  "actual_deciding_runs": {
+    "baseline-new17": {
+      "source_sha": "2451bb94188a262b4525595310e120be9e7aa520",
+      "source_tree": "0b8141ef397e2e9f51eaa1f2f9d52d4cb5b41932",
+      "source_before_after_equal": true,
+      "exit_code": 1,
+      "wall_seconds": 17.48118617599539,
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "13",
+        "skipped": "0",
+        "tests": "17",
+        "time": "11.845",
+        "timestamp": "2026-10-06T18:05:20.529342+00:00",
+        "hostname": "565838a1e059"
+      },
+      "actual_loaded_product_source_count": 338,
+      "origin_errors": [],
+      "actual_loaded_backend_versions": {
+        "torch": "2.10.0+cu128",
+        "botorch": "0.16.1",
+        "gpytorch": "1.15.1",
+        "pytest": "9.0.2"
+      },
+      "complete_output_sha256": "f1ba4caedbb9108114432fddb7efb229e5a39a2d6e9aaab7b77ee523ebcdf3b0",
+      "exact_argv_environment_inputs_outputs_locator": {
+        "git_sha": "b14ec1191fc80c15d9bd226f779654abdc2ca567",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-range-omission/manifest.json",
+        "json_pointer": "/runs/baseline-new17"
+      },
+      "full_output_member": "baseline-new17/complete.txt",
+      "scope": "13FAIL/4PASS includes one author CAS fixture missing-media-type setup failure; twelve remaining reds exercise quantity/reference. Tests were new untracked files with exact captured hashes, not claimed present in old base."
+    },
+    "candidate-4ac66": {
+      "source_sha": "4ac159f7475cff68d7d6bed41c62620c63c5302b",
+      "source_tree": "bc4931b686b4af902344e46db309664fc626562e",
+      "source_before_after_equal": true,
+      "exit_code": 1,
+      "wall_seconds": 24.23319455300225,
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "1",
+        "skipped": "0",
+        "tests": "66",
+        "time": "16.166",
+        "timestamp": "2026-10-06T18:11:10.106785+00:00",
+        "hostname": "565838a1e059"
+      },
+      "actual_loaded_product_source_count": 750,
+      "origin_errors": [],
+      "actual_loaded_backend_versions": {
+        "torch": "2.10.0+cu128",
+        "botorch": "0.16.1",
+        "gpytorch": "1.15.1",
+        "pytest": "9.0.2"
+      },
+      "complete_output_sha256": "3080386a25ba0f61e1d22af481eefea97299e2b851333816ede92c7558870cb5",
+      "exact_argv_environment_inputs_outputs_locator": {
+        "git_sha": "b14ec1191fc80c15d9bd226f779654abdc2ca567",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-range-omission/manifest.json",
+        "json_pointer": "/runs/candidate-4ac66"
+      },
+      "full_output_member": "candidate-4ac66/complete.txt",
+      "scope": "65PASS/1FAIL; sole FAIL is author tiny-cost fixture default MAX with MIN dominance assertion, corrected test-only5e; positive includes actual ModelListGP fit/EHVI, not merely backend imports."
+    },
+    "candidate-4393-own13": {
+      "source_sha": "4393fd4bc16135329d7afef644a9387e4ca26c53",
+      "source_tree": "27ce16e448d5dbca54b4b1dc7ee5dc40caf5deaa",
+      "source_before_after_equal": true,
+      "exit_code": 0,
+      "wall_seconds": 18.730409397001495,
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "13",
+        "time": "10.154",
+        "timestamp": "2026-10-06T18:24:21.453403+00:00",
+        "hostname": "565838a1e059"
+      },
+      "actual_loaded_product_source_count": 747,
+      "origin_errors": [],
+      "actual_loaded_backend_versions": {
+        "torch": "2.10.0+cu128",
+        "botorch": "0.16.1",
+        "gpytorch": "1.15.1",
+        "pytest": "9.0.2"
+      },
+      "complete_output_sha256": "f2e3a895d246ea19c09d263c87818265255a093a9832fc363249ef2780533e68",
+      "exact_argv_environment_inputs_outputs_locator": {
+        "git_sha": "b14ec1191fc80c15d9bd226f779654abdc2ca567",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-range-omission/manifest.json",
+        "json_pointer": "/runs/candidate-4393-own13"
+      },
+      "full_output_member": "candidate-4393-own13/complete.txt",
+      "scope": "13PASS current bound omission IDs and corrected tiny-cost CAS/registry assertions."
+    },
+    "remove-underflow": {
+      "source_sha": "4393fd4bc16135329d7afef644a9387e4ca26c53",
+      "source_tree": "27ce16e448d5dbca54b4b1dc7ee5dc40caf5deaa",
+      "source_before_after_equal": true,
+      "exit_code": 1,
+      "wall_seconds": 17.906987002003007,
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "1",
+        "skipped": "0",
+        "tests": "1",
+        "time": "8.636",
+        "timestamp": "2026-10-06T18:31:16.398098+00:00",
+        "hostname": "565838a1e059"
+      },
+      "actual_loaded_product_source_count": 747,
+      "origin_errors": [],
+      "actual_loaded_backend_versions": {
+        "torch": "2.10.0+cu128",
+        "botorch": "0.16.1",
+        "gpytorch": "1.15.1",
+        "pytest": "9.0.2"
+      },
+      "complete_output_sha256": "511a709d7867120d906e3c8f99de48d4c970577ef45cd84d600a6fdbba2e60d5",
+      "exact_argv_environment_inputs_outputs_locator": {
+        "git_sha": "b14ec1191fc80c15d9bd226f779654abdc2ca567",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-range-omission/manifest.json",
+        "json_pointer": "/runs/remove-underflow"
+      },
+      "full_output_member": "remove-underflow/complete.txt",
+      "scope": "1FAIL_AS_REQUIRED after deleting only positive-geometry-to-zero guard; schema/assessment/source inputs retained."
+    },
+    "remove-reference": {
+      "source_sha": "4393fd4bc16135329d7afef644a9387e4ca26c53",
+      "source_tree": "27ce16e448d5dbca54b4b1dc7ee5dc40caf5deaa",
+      "source_before_after_equal": true,
+      "exit_code": 1,
+      "wall_seconds": 10.93168871299713,
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "1",
+        "skipped": "0",
+        "tests": "1",
+        "time": "0.508",
+        "timestamp": "2026-10-06T18:32:17.425144+00:00",
+        "hostname": "565838a1e059"
+      },
+      "actual_loaded_product_source_count": 338,
+      "origin_errors": [],
+      "actual_loaded_backend_versions": {
+        "torch": "2.10.0+cu128",
+        "botorch": "0.16.1",
+        "gpytorch": "1.15.1",
+        "pytest": "9.0.2"
+      },
+      "complete_output_sha256": "8b80bdfc4a1e768dc72f68cbb441731701e6a1fb6cf8edadce29391e7537903c",
+      "exact_argv_environment_inputs_outputs_locator": {
+        "git_sha": "b14ec1191fc80c15d9bd226f779654abdc2ca567",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-range-omission/manifest.json",
+        "json_pointer": "/runs/remove-reference"
+      },
+      "full_output_member": "remove-reference/complete.txt",
+      "scope": "1FAIL_AS_REQUIRED after deleting only derived-reference finite guard; actual invalid reference assignment discriminates mechanism with no model/fit."
+    },
+    "remove-omission": {
+      "source_sha": "4393fd4bc16135329d7afef644a9387e4ca26c53",
+      "source_tree": "27ce16e448d5dbca54b4b1dc7ee5dc40caf5deaa",
+      "source_before_after_equal": true,
+      "exit_code": 1,
+      "wall_seconds": 18.914856025992776,
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "4",
+        "skipped": "0",
+        "tests": "4",
+        "time": "8.822",
+        "timestamp": "2026-10-06T18:33:45.337615+00:00",
+        "hostname": "565838a1e059"
+      },
+      "actual_loaded_product_source_count": 747,
+      "origin_errors": [],
+      "actual_loaded_backend_versions": {
+        "torch": "2.10.0+cu128",
+        "botorch": "0.16.1",
+        "gpytorch": "1.15.1",
+        "pytest": "9.0.2"
+      },
+      "complete_output_sha256": "cb579cea67783edeb7a86a145a42dbe02e2067636d163144c0367ded7a670766",
+      "exact_argv_environment_inputs_outputs_locator": {
+        "git_sha": "b14ec1191fc80c15d9bd226f779654abdc2ca567",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-range-omission/manifest.json",
+        "json_pointer": "/runs/remove-omission"
+      },
+      "full_output_member": "remove-omission/complete.txt",
+      "scope": "4FAIL_AS_REQUIRED/4deselected after deleting only omission-current-schema binding; actual CAS readers accept stale IDs under removal."
+    },
+    "ordinary-root-e73-fixture-red": {
+      "source_sha": "e73bde06d5b796b99ad84898810b34985787be47",
+      "source_tree": "af25d6fef7ed0398ff2c1d221166984f3e458766",
+      "source_before_after_equal": true,
+      "exit_code": 1,
+      "wall_seconds": 17.293622534998576,
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "2",
+        "skipped": "0",
+        "tests": "2",
+        "time": "9.204",
+        "timestamp": "2026-10-06T18:37:07.411261+00:00",
+        "hostname": "565838a1e059"
+      },
+      "actual_loaded_product_source_count": 1127,
+      "origin_errors": [],
+      "actual_loaded_backend_versions": {
+        "torch": null,
+        "botorch": null,
+        "gpytorch": null,
+        "pytest": "9.0.2"
+      },
+      "complete_output_sha256": "0e42015d1d35e08a2a49b967488a4bdfcb177766a192679957b045b9b7495fd8",
+      "exact_argv_environment_inputs_outputs_locator": {
+        "git_sha": "b14ec1191fc80c15d9bd226f779654abdc2ca567",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-range-omission/manifest.json",
+        "json_pointer": "/runs/ordinary-root-e73-fixture-red"
+      },
+      "full_output_member": "ordinary-root-e73-fixture-red/complete.txt",
+      "scope": "2FAIL author fixture passed string view where existing API requires ParetoView enum; actual updates occurred but consumer assertions were UNRUN."
+    },
+    "ordinary-root-e73-corrected2": {
+      "source_sha": "e73bde06d5b796b99ad84898810b34985787be47",
+      "source_tree": "af25d6fef7ed0398ff2c1d221166984f3e458766",
+      "source_before_after_equal": true,
+      "exit_code": 0,
+      "wall_seconds": 17.039539673001855,
+      "junit": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "2",
+        "time": "8.990",
+        "timestamp": "2026-10-06T18:38:29.422298+00:00",
+        "hostname": "565838a1e059"
+      },
+      "actual_loaded_product_source_count": 1127,
+      "origin_errors": [],
+      "actual_loaded_backend_versions": {
+        "torch": null,
+        "botorch": null,
+        "gpytorch": null,
+        "pytest": "9.0.2"
+      },
+      "complete_output_sha256": "e6f2ce27640dda81e3a01ae2e01f1a54498f9a7672d89575876e838816d4144c",
+      "exact_argv_environment_inputs_outputs_locator": {
+        "git_sha": "b14ec1191fc80c15d9bd226f779654abdc2ca567",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-range-omission/manifest.json",
+        "json_pointer": "/runs/ordinary-root-e73-corrected2"
+      },
+      "full_output_member": "ordinary-root-e73-corrected2/complete.txt",
+      "scope": "2PASS actual registry.update/freshsnapshot/PolicyArtifactBuilder/persist/freshreport: underflow null+reason and true zero available0. No Torch/BoTorch/GPytorch loaded."
+    }
+  },
+  "independent_reviews": [
+    {
+      "sha": "0a20b5012f9c9d46b6a45a1d7723d142ccebe556",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/subnormal-reindex-independent-candidate-review.json",
+      "scope": "4393 exact13PASS explicit null-preserving direct-artifact profile; original7FAIL/6PASS and default-direct-writer4FAIL/9PASS retained."
+    },
+    {
+      "sha": "e54d00205f19493a7495b8daf8aa3df6a276bb61",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/ordinary-quantity-independent-review.json",
+      "scope": "Read-only actual root ordinary2 and all1127 origin bytes reviewed; no extra runtime replay."
+    }
+  ],
+  "ordinary_consumer_dependency": {
+    "runtime_sha": "e73bde06d5b796b99ad84898810b34985787be47",
+    "runtime_tree": "af25d6fef7ed0398ff2c1d221166984f3e458766",
+    "root_A_assessment_export": {
+      "source_sha": "e73bde06d5b796b99ad84898810b34985787be47",
+      "path": "policy-engine/src/polisyos/scientist/policy_design/output.py",
+      "git_blob": "03cbee8ca84352e246a3ad75faf646343b0244b0",
+      "bytes": 83199,
+      "sha256": "6e7222137b4b44b7a71dd2de7d0300f0fee22d05f41df556b2f84dc84ea73598"
+    },
+    "chain": "actual ParetoRegistry.update ->fresh get_snapshot/project_view ->actual PolicyArtifactBuilder._build_frontier_report ->canonical persistence ->fresh load_policy_frontier_report",
+    "declared_basis": "Two supplied MIN policy_value/employment axes and actual typed candidate refs. No external denominator/source-universe claim.",
+    "own_leaf_older_A_absence": "Stale leaf A source lacks reason export; root current export is present and actual2PASS, not a current-root defect."
+  },
+  "quality": {
+    "source_sha": "4a2a09c567c60449e1f38d8202ee168a4bdf9938",
+    "member": "quality/e02-D-quantity-quality.json",
+    "scope": "Ruff0.14.10 check+format five changed Python files, git diff check and canonical validator one own fragment PASS; no full architecture/release claim."
+  },
+  "limits": [
+    "Supported exact indicator profile is dimensions1–4; unsupported/missing backend and nonfinite/underflow arithmetic are typed unavailable, not fake0. No arbitrary-dimensional or arbitrary-precision claim.",
+    "For extrema±1e308/offset.1 the rational final reference is representable but existing float64 intermediate span is not; refusal is an explicitly supported arithmetic limitation, not a claim of mathematically impossible final reference.",
+    "Direct typed ParetoFront/HypervolumeResult CAS writers must choose CanonSpec(forbid_floats=False, exclude_none=False). Default direct model writer4FAIL remains retained; native registry/report nested mappings independently preserve null.",
+    "No real HV-to-stopping caller exists in scoped inventory; no unused adapter or scientific stopping law was invented.",
+    "This slice does not establish optimizer quality, institutional source/owner authority, independently complete eligible universe or whole-unit PASS.",
+    "Original baseline/harness/fixture/default-profile failures remain failures within exact scopes; no inherited waiver."
+  ],
+  "next_owner": "G original criterion/evidence acceptance; A/source supplier for independently complete eligible/unknown universe if that actual consumer contract requires it."
+}

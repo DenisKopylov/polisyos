@@ -1,0 +1,106 @@
+"""Controlled unavailable-backend collection of seven immutable numerical files."""
+
+import hashlib
+import json
+import os
+import subprocess
+import time
+import uuid
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[8]
+OUT = Path(__file__).resolve().parent
+BASE = "d38f94c8a8095abb00052b8e78f7b8a470453ed4"
+EXISTING = Path("/tmp/optional-complete-inputs-6593e83194204e8b91bbd3066c68214c/policy-engine")
+OVERLAY = Path("/dev/shm/optional-seven-" + uuid.uuid4().hex)
+OVERLAY.mkdir()
+BASETEMP = "/dev/shm/optional-seven-pytest-" + uuid.uuid4().hex
+FILES = {
+    "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py": "18699ce536fca6ce174ff1caf1435a79912f0920",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py": "784584d13f94ac7565d5ab159592281597b253ce",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py": "784584d13f94ac7565d5ab159592281597b253ce",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py": "df778090a",
+    "policy-engine/tests/unit/scientist/search/strategies/test_neural_checkpoint.py": "cba802e22e1f1198aa971f529228ab2c1fd35cf7",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py": "83b87b845210bdb579f47b4cc2418a3d9804e2fe",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_scalar_admission.py": "83b87b845210bdb579f47b4cc2418a3d9804e2fe",
+}
+MODULES = {
+    "polisyos.scientist.methods.search.strategies.neural": ("cba802e22e1f1198aa971f529228ab2c1fd35cf7", "policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py"),
+    "polisyos.scientist.methods.search.strategies.transfer": ("cba802e22e1f1198aa971f529228ab2c1fd35cf7", "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py"),
+    "tests.unit.scientist.methods.search.strategies.test_transfer": ("cba802e22e1f1198aa971f529228ab2c1fd35cf7", "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py"),
+}
+MANIFEST = []
+
+
+def read(commit, path):
+    return subprocess.check_output(["git", "-C", str(ROOT), "show", commit + ":" + path])
+
+
+def add(commit, path, target):
+    commit = subprocess.check_output(["git", "-C", str(ROOT), "rev-parse", commit]).decode().strip()
+    raw = read(commit, path)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes(raw)
+    MANIFEST.append({"path": path, "source": commit, "overlay": str(target), "bytes": len(raw), "sha256": hashlib.sha256(raw).hexdigest()})
+
+
+for path, commit in FILES.items():
+    add(commit, path, OVERLAY / path)
+for path in ["policy-engine/tests/conftest.py", "policy-engine/tests/unit/scientist/conftest.py"]:
+    add(BASE, path, OVERLAY / path)
+overrides = {}
+for name, (commit, path) in MODULES.items():
+    target = OVERLAY / "source-overrides" / (name + ".py")
+    add(commit, path, target)
+    overrides[name] = str(target)
+plugin = '''import importlib.abc, importlib.util, hashlib, json, subprocess, sys
+from pathlib import Path
+OVERRIDES = __OVERRIDES__
+META = __META__
+ATTEMPTS = []
+ROOT = __ROOT__
+EXISTING = Path(__EXISTING__)
+OUT = Path(__OUT__)
+class DenyAndProject(importlib.abc.MetaPathFinder):
+    def find_spec(self, fullname, path=None, target=None):
+        if fullname.split('.')[0] in {'torch','botorch','gpytorch','hnswlib'}:
+            ATTEMPTS.append(fullname)
+            raise ModuleNotFoundError('UNRUN controlled optional backend denial: ' + fullname, name=fullname)
+        if fullname in OVERRIDES:
+            return importlib.util.spec_from_file_location(fullname, OVERRIDES[fullname])
+        return None
+sys.meta_path.insert(0, DenyAndProject())
+def pytest_sessionfinish(session, exitstatus):
+    rows = []; errors = []
+    for name, module in sorted(sys.modules.items()):
+        if not name.startswith('polisyos') or not getattr(module,'__file__',None): continue
+        origin = Path(module.__file__).resolve()
+        if name in META:
+            source, relative = META[name]
+        else:
+            try: relative = 'policy-engine/' + str(origin.relative_to(EXISTING))
+            except ValueError:
+                errors.append({'module':name,'origin':str(origin),'error':'outside declared source projection'}); continue
+            source = 'd38f94c8a8095abb00052b8e78f7b8a470453ed4'
+            if relative == 'policy-engine/src/polisyos/scientist/methods/autotune/__init__.py':
+                source = '18699ce536fca6ce174ff1caf1435a79912f0920'
+        raw = origin.read_bytes(); expected = subprocess.check_output(['git','-C',ROOT,'show',source+':'+relative])
+        matches = raw == expected
+        rows.append({'module':name,'origin':str(origin),'source':source,'path':relative,'sha256':hashlib.sha256(raw).hexdigest(),'matches':matches})
+        if not matches: errors.append({'module':name,'error':'source byte mismatch'})
+    (OUT/'expanded-origins.json').write_text(json.dumps({'loaded_origins':rows,'errors':errors},indent=2)+'\\n')
+    loaded = [name for name in sys.modules if name.split('.')[0] in {'torch','botorch','gpytorch','hnswlib'}]
+    (OUT/'expanded-denial.json').write_text(json.dumps({'attempts':ATTEMPTS,'loaded_optional_modules':loaded,'exitstatus':int(exitstatus),'scope':'controlled installed-runtime denial, not numerical execution or actual uninstalled environment'},indent=2)+'\\n')
+'''
+plugin = plugin.replace("__OVERRIDES__", repr(overrides)).replace("__META__", repr({n:v for n,v in MODULES.items()})).replace("__ROOT__", repr(str(ROOT))).replace("__EXISTING__", repr(str(EXISTING))).replace("__OUT__", repr(str(OUT)))
+(OVERLAY / "expanded_optional_profile.py").write_text(plugin)
+(OUT / "expanded-plugin.py.txt").write_text(plugin)
+argv = ["/workspace/e02-D-locked-env/bin/python", "-m", "pytest", "-c", str(EXISTING / "pytest.ini"), "--collect-only", "-q", "--import-mode=importlib", "-p", "expanded_optional_profile", *[str(OVERLAY / p) for p in FILES], "-ra", "--basetemp=" + BASETEMP, "--junitxml=" + str(OUT / "expanded-junit.xml")]
+env = os.environ.copy()
+env.update(PYTHONPATH=str(EXISTING / "src") + ":" + str(EXISTING) + ":" + str(OVERLAY), PYTHONDONTWRITEBYTECODE="1")
+started = time.monotonic()
+with (OUT / "expanded-complete.txt").open("wb") as stream:
+    result = subprocess.run(argv, cwd=EXISTING, env=env, stdout=stream, stderr=subprocess.STDOUT, check=False)
+record = {"source_projection_base": BASE, "source_tree": subprocess.check_output(["git","-C",str(ROOT),"rev-parse",BASE+"^{tree}"]).decode().strip(), "existing_immutable_source":str(EXISTING), "overlay":str(OVERLAY), "fresh_basetemp":BASETEMP, "basetemp_observed_after":Path(BASETEMP).exists(), "argv":argv, "cwd":str(EXISTING), "env": {k:env[k] for k in ['PYTHONPATH','PYTHONDONTWRITEBYTECODE']}, "exit_code":result.returncode, "wall_seconds":time.monotonic()-started, "agent_added_caps":False, "manual_deletion":False, "inputs":MANIFEST, "scope":"Seven numerical collection files with exact owned immutable guards plus current NN/transfer source overrides; no native numerical test execution. Other product modules bind to recorded exact base/overrides; not a composed product runtime claim."}
+(OUT / "expanded-command.json").write_text(json.dumps(record,indent=2)+"\n")
+print(json.dumps({"exit_code":result.returncode,"wall_seconds":record['wall_seconds'],"overlay":str(OVERLAY),"fresh_basetemp":BASETEMP}))

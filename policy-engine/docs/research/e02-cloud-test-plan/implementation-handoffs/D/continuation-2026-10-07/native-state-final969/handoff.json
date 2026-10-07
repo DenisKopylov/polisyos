@@ -1,0 +1,143 @@
+{
+  "accepted_in_G": false,
+  "actual_changed_dependency_check": {
+    "MLL_start_return": [
+      2,
+      2
+    ],
+    "actual_torch_version": "2.10.0+cu128",
+    "backend": {
+      "botorch": "0.16.1",
+      "gpytorch": "1.15.1",
+      "hnswlib": "0.8.0",
+      "numpy": "2.3.5",
+      "pytest": "9.0.2",
+      "scipy": "1.16.3",
+      "torch": "2.10.0"
+    },
+    "before_after_all_inputs_equal": true,
+    "full_input_denominator": 6315,
+    "full_testcase_phases": "events.jsonl in complete-deciding-output,3actualcallPASS",
+    "independent_fixed_parameter_oracle": "Existing exactc0 GP43+MO88 independent NumPy original-unit mean/fullcov; numerical model/fit-state functions unchanged, sourcequalified carry separately bound",
+    "independent_review": {
+      "path": "independent-native-transfer3-review.json",
+      "sha256": "3a3a203a8549fe60165f6a14d5a7c3b811e218c29d350be32cc342f6b2b07891",
+      "scope": "Independent actual6315Gitinput/backend/artifact8/7rawcorpus/transforms/twoMLLfitreturns review; not posterior oracle"
+    },
+    "original_defining_test": "tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+    "producer_to_consumer": "Actual public SearchLoopRunner.run/create_service→NativeService.run_search→configured existing transfer bridge→qualified actual CAS→SingleTaskGP actualfit8/7→real corpus/state + fresh restore",
+    "real_fit_rows": [
+      8,
+      7
+    ],
+    "result": "3PASS",
+    "same_model_posterior": "consistency only, not independent oracle"
+  },
+  "actual_original_defect_counterexample": {
+    "property": "Changing real declared evaluator scale or aliased nested context aftercompleted evaluation incorrectly skips equivalent nextproposal; realcursor1→2",
+    "result": "2intendedFAIL/0ERROR-SKIP",
+    "runtime_after_repair": "Distinct actualService final40/48 and removal controls, supplied by independentauthors; not inferred from native3",
+    "source_fix": "Single existing qualified checkpointconfiguration gate + initialACKfailure publication fence + actualrunID disposable scope; independently reviewed finalsource4dfd/aa75 and normalizedcommittedGit",
+    "source_kind": "stable staged237 + exactindexa2d8; development notimmutableHEADproductPASS"
+  },
+  "author": "gp_oct07",
+  "complete_output": {
+    "every_record_full_deciding_bytes_preserved": true,
+    "path": "complete-deciding-output.json.gz",
+    "records": 332,
+    "sha256": "32134c67b7794546fd9eb2ec6bf7edf6be87dc7d02494e4d6174724e0336f633",
+    "unique_UTF8_contents": 177
+  },
+  "criterion_boundary": "Originalsix B112113114115125126 proposals remain source-qualified c0 contribution; B127/transfer scopes consume independentService/TRN receipts; finalcurrent3 verifies actual changed GPfactory edge, not allscientific/authority/history criteria. Original full10occurrences/cae→198text bindings retained by pinnedstrongreceipt. B124/B111 newguard actualcurrentruntime supplied separately.",
+  "formal_closed": false,
+  "limitations": [
+    "Production evaluator/history/data/rights remain local appointedowner inputs, not transferred here",
+    "No full43/88/142 native rerun on969 or summing historical receipts",
+    "No numericalPASS from optionalSKIP/UNRUN profiles",
+    "Sourcecarry only exact observed/blob/AST-default branch identity; alteredmarker/newmissingprimary/dedup properties require actualcurrent independentService cohort",
+    "No new cache/ledger/GP/permission subsystem/distributedatomicity guarantee"
+  ],
+  "module_budget": {
+    "P41": "not_established",
+    "actual_canonical_line_function": "tools.quality.validation.architecture_report_only_contracts._count_lines",
+    "actual_fail_closed_scope": "tools/quality/validation/**/*.py, noselectedpaths match",
+    "default_target": 2500,
+    "default_warning": 1000,
+    "exact_source": "96905636726483fdea3a98d9313871d825b54a9e",
+    "global_report": "Exactc0 historical82contract_errors/6findings notPASS; this metadata is notbroadglobal replay",
+    "new_report_only_warning": {
+      "search/service.py": {
+        "canonical": 1283,
+        "physical": 1381,
+        "slice_base_canonical": 956
+      },
+      "test_service_trial_deduplication.py": {
+        "canonical": 1028,
+        "physical": 1110,
+        "slice_base": "new"
+      }
+    },
+    "owner_disposition": "not_established; team-architecture contract/team-policyos-runtime source owner minpacket; no silentwaiver",
+    "selected_paths": 10
+  },
+  "schema": "e02.D.final-native-affected-handoff.v1",
+  "setup_attempt": {
+    "check": "ERROR collection missing productroot in PYTHONPATH",
+    "corrected": "Use exact prior successful src+product importpaths; no source change",
+    "preserved": true,
+    "property": "UNRUN0testcall/0MLL",
+    "source": "same969 exact"
+  },
+  "slice_base": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+  "source": "96905636726483fdea3a98d9313871d825b54a9e",
+  "strong_numerical_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+  "strong_numerical_tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2",
+  "strong_portable_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-c0/GP-State-MO-currentc0-handoff.json",
+  "tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "append_only_metadata_correction": {
+    "original_carry_path": "scoped-carry.json",
+    "original_carry_sha256": "315e983834ccc09de1aa23130f45b0651824e4e5340728fded3c37df3313defd",
+    "correction_path": "carry-metadata-correction.json",
+    "correction_sha256": "6c8c8bd904e3d4485814f1811388751d72c40f37674c887d2c4aa661369cc88a",
+    "corrected_semantics": "Two originalsecondary candidate rows are historicalc0→a7, not969; use addendum completeactual969changedloadedlists/Gitblobs/fullASTdefinitions. All1608main969rows checkedandunchanged. Emptysecondary old tables frontieromission alsoexplicitly corrected. No source/runtime/outputalteration.",
+    "initial_handoff_preserved": "handoff.initial-8f007e8.json",
+    "independent_pair_review": [
+      {
+        "path": "independent-census-current-carry-review.json",
+        "sha256": "8f2028b321e30da70b4b95732c5efff38bd8c8c710ee204807f10a9555f08206"
+      },
+      {
+        "path": "independent-math-current-carry-review.json",
+        "sha256": "99fe868537fdb3412dfa7f1b73457c98c3b7eca9d2e8e149c1502296429582fd"
+      }
+    ],
+    "definition_census_boundary": {
+      "path": "carry-ast-census-boundary.json",
+      "sha256": "11ff8463d637b5c53254e7fd07e8c5bd197fb3afdc2cac4dc6482548afba7fce",
+      "required": true,
+      "meaning": "Top-level/class/direct-method named inventory with complete nested AST bodies; separate exact recursiveService inventory addsdata_context+encode names. Original6c8retained."
+    }
+  },
+  "independent_other_current_consumers": [
+    {
+      "path": "independent-service-runtime-review.json",
+      "sha256": "54f8e02ff2f0ef92a9b90fd5b52170b3867c4278297afa869d7d7e861ccca697",
+      "scope": "CurrentService48dedup/quantity+41fault/freshrestore/44champion/Legacy2/paid2/DOE13 and4removal1FAIL; actualServiceauthor publishes its originaloutputs separately, no totalDgateclaim.",
+      "denominator_rule": "IndependentService review6317 exact source/tests/config reads = recordednative6315 source/tests/pyproject/uv.lock/pytest.ini plus Ruffconfig/.python-version2; recordedactualfull15927tracked runtime denominator keeps8858available/7069explicitmissing. These are inputs, not extra testcases."
+    },
+    {
+      "path": "independent-adapter-runtime-review.json",
+      "sha256": "614b1d384b35bb552debe1a9eb5d624b5011939561ceb7cd0e77510abb388f76",
+      "scope": "ActualdefaultGridAdapter126/freshCAS publicresume and history2+innernumeric2 removalFAIL; controlled supportedprofile, no GPnumericalPASS"
+    }
+  ],
+  "full_changed_path_set": {
+    "path": "source-footprint-from828.json",
+    "sha256": "3aba96cd1f848bd45c455bd03b196c8d48c6dbbcdf9a67b35e9ceeede23ed2b6",
+    "full_path_count": 569,
+    "complete_code_test_tool_release_operator_bindings": 93,
+    "base": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+    "candidate": "96905636726483fdea3a98d9313871d825b54a9e"
+  },
+  "publication_state": "SEALED exact969 externalpack, later objective-only candidate carry is separate addendum"
+}

@@ -1,0 +1,30 @@
+{
+  "schema_version": "1",
+  "kind": "append_only_author_evidence_locator_binding",
+  "independent_review": {
+    "source_sha": "a4281c05533eb82940a5f9ca71eb6341ba210618",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/independent-registry-f471-review.json",
+    "sha256": "0b2b42e2eea60941d30951119e488c1b27548f76c578fa843e4e27327cf8fb64"
+  },
+  "product_source_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+  "author_handoff": {
+    "source_sha": "4da8c866c654225de81dd68878874ba7cf4cc7d1",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-consumer.json",
+    "git_blob": "a259955f24c12f7046f10b6cf4cad0eedf71604d",
+    "sha256": "6a630796c9dbd5076fd1c37d20782c01466bc000f02b729f02a1f082a949ccb1",
+    "bytes": 182845
+  },
+  "author_lossless_carrier": {
+    "source_sha": "4a33f56e93bfbb6fc5da8c5470e796e1141efa6b",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/hierarchical-registry-evidence.json.xz",
+    "git_blob": "9b514a0ee5b2c8cf4d52f7678125ee1e4d02aab6",
+    "sha256": "1c58127a077d02b84f5164dcbd1879c1b7aad7dd16fb86d0d3f990cf3275d5d0",
+    "bytes": 443384
+  },
+  "author_supplier_metadata_sha": "dbae7fd942db37afd75ed37ed35e509dc8a1e3b6",
+  "interpretation": "Pins the now-published authored source/output transport previously referenced by retained local directories. Independently read source-only receipt and carrier byte identities; full author evidence and eight removal controls remain author executions, separate from independent seven cases. Supplier patch stays unapplied; owner appointment remains not established. No new runtime or source/criterion acceptance is inferred.",
+  "independent_execution_unchanged": "Final7PASS plus initial5PASS2oracleFAIL and intermediate6PASS1oracleFAIL retained in original independent transport.",
+  "closure_ids": [],
+  "formal_findings_closed": 0,
+  "G_integration_accepted": false
+}

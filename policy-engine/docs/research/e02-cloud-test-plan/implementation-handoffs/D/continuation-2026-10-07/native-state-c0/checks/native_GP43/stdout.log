@@ -1,0 +1,39 @@
+{"cell": "initial-ten-point-independent-oracle", "x": [0.08, 0.16, 0.23, 0.35, 0.42, 0.5, 0.61, 0.7, 0.82, 0.93], "queries": [0.015, 0.12, 0.29, 0.465, 0.655, 0.885, 0.99], "expected_cost_mean": [51.220611204076114, 55.76687061700047, 60.684535524147506, 59.35440333401588, 52.70605962786771, 46.73648272853531, 46.85234144659217], "expected_full_covariance": [[0.17317904502470396, 0.009105499745477471, -0.006389090989147274, 0.00424819165590797, -0.0036783241255462034, 0.0011271662030837937, -0.003541913008444169], [0.009105499745477471, 0.014612615065934345, 0.0007010457558238904, -0.0006968686692412852, 0.0007143735744187361, -0.00014445914765266477, 0.00046077109647747343], [-0.006389090989147274, 0.0007010457558238904, 0.014849819050029382, 0.0014627078441481216, -0.001499386221432719, 0.00019539416884123997, -0.0006479002117888702], [0.00424819165590797, -0.0006968686692412852, 0.0014627078441481216, 0.012440705487005481, 0.0016039546817556063, 0.0001806904753823028, -0.0004319246867534123], [-0.0036783241255462034, 0.0007143735744187361, -0.001499386221432719, 0.0016039546817556063, 0.01484039901650943, -0.0019136639521406943, 0.004779946184748788], [0.0011271662030837937, -0.00014445914765266477, 0.00019539416884123997, 0.0001806904753823028, -0.0019136639521406943, 0.019035635949027505, 0.002184141592151432], [-0.003541913008444169, 0.00046077109647747343, -0.0006479002117888702, -0.0004319246867534123, 0.004779946184748788, 0.002184141592151432, 0.1563373102853658]], "real_mll_calls": 1, "saved_scalar_parameters": {"covar_module.raw_lengthscale": 0.3439730513421689, "likelihood.noise_covar.raw_noise": 0.0011063910869784329, "mean_module.raw_constant": 0.7286213885776447, "input_transform._offset": 0.08, "input_transform._coefficient": 0.8500000000000001, "outcome_transform.means": -55.030600126233495, "outcome_transform.stdvs": 5.215695775979866}}
+.{"cell": "whole-vs-warm-new-ten-row-native-plan", "whole_fit_calls": 1, "warm_fit_calls": 1, "next_plan_fit_calls": 0, "whole_params": {"x": 0.9706602092044041}, "warm_params": {"x": 0.9706602092044041}, "full_covariance_oracle": "saved-parameter-independent-NumPy", "same_acquisition_rng": true}
+..{"cell": "actual-eleven-point-conditioning", "append": 0.975, "expected_cost_mean": [51.214820133112056, 55.767763134831476, 60.68303083184559, 59.35473516983018, 52.71064166369189, 46.74824585717241, 47.07477954384701], "expected_full_covariance": [[0.17309859759260965, 0.00911789827556917, -0.006409993622275315, 0.004252801397230837, -0.0036146721658102928, 0.001290575268207315, -0.00045188461197643117], [0.00911789827556917, 0.014610704208813515, 0.000704267262327516, -0.0006975791209614152, 0.0007045635566523642, -0.00016964369560263214, -1.5462998964768005e-05], [-0.006409993622275315, 0.000704267262327516, 0.014844387924871374, 0.001463905591911645, -0.0014828475510543098, 0.00023785269920071516, 0.00015498097714615732], [0.004252801397230837, -0.0006975791209614152, 0.001463905591911645, 0.012440441342896805, 0.0016003073425937052, 0.00017132692578387775, -0.0006089872880521373], [-0.0036146721658102928, 0.0007045635566523642, -0.0014828475510543098, 0.0016003073425937052, 0.014790036041921705, -0.002042957168371802, 0.002335040760817827], [0.001290575268207315, -0.00016964369560263214, 0.00023785269920071516, 0.00017132692578387775, -0.002042957168371802, 0.0187037108413199, -0.004092486987550572], [-0.00045188461197643117, -1.5462998964768005e-05, 0.00015498097714615732, -0.0006089872880521373, 0.002335040760817827, -0.004092486987550572, 0.037647685992742756]], "extra_real_mll_calls": 0}
+..........................2026-10-07 09:14:31.952 | ERROR    | polisyos.common.logger:_call:120 - ResourceArbiter hard RSS limit exceeded: 834.4MB (hard=0MB)
+
+............ACTUAL_MIXED_HISTORY_PUBLIC_CAS minimize sha256:bac9f6fd1f4bb67e30f8cf81b28190ab2af6c67c3333e923b438079a588fedfe [[0.2], [0.4], [0.6], [0.8]] [[-20.0], [-8.0], [-4.0], [-8.0]] 5.507372638557091
+.ACTUAL_MIXED_HISTORY_PUBLIC_CAS maximize sha256:eca1b8a4579c0bec284a1eda8cfc46e91f7af559680e77ae4d2d27aa8a2c8932 [[0.2], [0.4], [0.6], [0.8]] [[20.0], [8.0], [4.0], [8.0]] 0.6564334140737048
+.
+=============================== warnings summary ===============================
+../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_conditioned_checkpoint_restores_saved_transform_basis_before_targets
+tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py::test_uninterrupted_and_resumed_acquisition_consume_equal_restart_tensors
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/models/utils/assorted.py:271: InputDataWarning: Data (input features) is not contained to the unit cube. Please consider min-max scaling the input data.
+    check_min_max_scaling(
+
+tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py: 9 warnings
+tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py: 3 warnings
+tests/unit/scientist/methods/autotune/test_transfer_workflow.py: 2 warnings
+tests/integration/scientist/methods/search/test_configured_transfer_controller.py: 1 warning
+tests/unit/scientist/search/strategies/test_bayesian.py: 1 warning
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py: 6 warnings
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/analytic.py:340: NumericsWarning: ExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 ExpectedImprovement 	 --> 	 LogExpectedImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+43 passed, 26 warnings in 90.05s (0:01:30)
+RUN_RESULT {"exitcode": 0, "wall_s": 94.7849513060064, "rss_kib": 883436, "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]", "executable": "/workspace/e02-D-locked-env/bin/python", "backend": {"torch": "2.10.0", "botorch": "0.16.1", "gpytorch": "1.15.1", "numpy": "2.3.5", "scipy": "1.16.3", "pytest": "9.0.2", "hnswlib": "0.8.0"}, "source_head": "c0e03e084460b97475d13ec393069ff59ca4d5ee", "source_tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2", "tracked_input_denominator": 6312, "missing_inputs": [], "changed_inputs": [], "head_after": "c0e03e084460b97475d13ec393069ff59ca4d5ee", "junit_present": true, "mode": "native", "torch_threads": 4}

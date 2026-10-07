@@ -1,0 +1,128 @@
+{
+  "schema": "D.current-source.accounting-package-files.v1",
+  "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+  "sealed": true,
+  "formal_closed": 0,
+  "accepted_in_G": false,
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "14c1c6a32fbe49b2a6d0997aac6c74d54c313671013375672e05ae433f9f53e7",
+      "bytes": 1436
+    },
+    {
+      "path": "builder-files-manifest.json",
+      "sha256": "c4c22b0e93b2e5eba009b9b3968b09d319da1f54a272e3c8666a0c8b72af7805",
+      "bytes": 514
+    },
+    {
+      "path": "evidence-map.json",
+      "sha256": "c17664396299cf806ebd6aed6ce41bfb4eac7baa74efa0c18feebce3ee6f8d6f",
+      "bytes": 174031
+    },
+    {
+      "path": "full-source-footprints.json.gz",
+      "sha256": "dd59bae55468fc0b7eeb301e33ae73480bf81d8d39d6012938b26b533eab0030",
+      "bytes": 242813
+    },
+    {
+      "path": "ledger-overlay.json",
+      "sha256": "463c973799cf3e86065ec7554e9c95f535eee416976c60b745767529e7609f48",
+      "bytes": 586502
+    },
+    {
+      "path": "original46-owning-source-scope.json",
+      "sha256": "4a16de60ea34581fedbe7bef5cf68521254ce6e958966a57454e12109d688a0d",
+      "bytes": 100415
+    },
+    {
+      "path": "owner-inputs.json",
+      "sha256": "b75a27f8f699beb5a82a7a3ca9e519c9633e6b0cfdf604b2ec6ba85a0809e9c2",
+      "bytes": 80018
+    },
+    {
+      "path": "reviews/FUN-origin17-removal11-final3b31-independent-runtime-review.json",
+      "sha256": "ead1f52e431b9eccb9cd50c0755bac4417978ce511861b679330d475636cb442",
+      "bytes": 8205
+    },
+    {
+      "path": "reviews/FUN-origin3b-to-a795-qualified-assertion-carry-independent-review.json",
+      "sha256": "9e205dbc92a9cd860bf0a0186900a748600c1338654826c108629c1d93b3134f",
+      "bytes": 4165
+    },
+    {
+      "path": "reviews/FUN143-final3b-v2-compact-portable-independent-seal.json",
+      "sha256": "52574fe18658b8b03233b7f4b009535eef3bdf5f77e7a607c027bb6a12a81483",
+      "bytes": 1473
+    },
+    {
+      "path": "reviews/G83-stopped-PR68-accounting-and-budget-receipt-independent-review.json",
+      "sha256": "3820d8b0639a573919e657984dd65fcfb137cfd68a392d707e7902e8a2e5fe93",
+      "bytes": 37561
+    },
+    {
+      "path": "reviews/G83-to-c75-after-freeze-independent-source-census.json",
+      "sha256": "d39e33c2331d70d5bc3bdddb0dea6ac22ebead7f784df4d0cd7581f80732704e",
+      "bytes": 9714
+    },
+    {
+      "path": "reviews/GP-AST-final3b-actual-and-a795-carry-independent-review.json",
+      "sha256": "ccee10fd77f71371fb1626fd750a96e042d93b5757fa74fbeba5c47291059162",
+      "bytes": 8442
+    },
+    {
+      "path": "reviews/GP12-AST44-canonical63-final3b-runtime-and-compact-seal-independent-review.json",
+      "sha256": "2b9d6b8312429f6d21d9cb9ab45cb83dfc518c0edf317f9f427954145a03d4d2",
+      "bytes": 4662
+    },
+    {
+      "path": "reviews/Service31-affected22-removal1-finala795-independent-runtime-review.json",
+      "sha256": "476edf3788b6c23892046b16efe99f86d5252f20fc020a62293b3a48d7ccaa0a",
+      "bytes": 3439
+    },
+    {
+      "path": "reviews/production-invocation-final3b31-UNRUN-independent-summary.json",
+      "sha256": "668b22dffdebd8359270f420dab81abe268dc08f5049ed229ffb4e2d84d88a13",
+      "bytes": 3610
+    },
+    {
+      "path": "reviews/requested50-compact-output-and-a795-carry-independent-seal.json",
+      "sha256": "8da74263b606de25c187c1d93a78d5cb006e9f56d03207ebaf2fa2aa0083ea60",
+      "bytes": 2063
+    },
+    {
+      "path": "reviews/requested50-final3b31-independent-runtime-review.json",
+      "sha256": "495af01ebe61927cb69bf17ce706af9a82fe5ee11a091ce22d7724edf7152a92",
+      "bytes": 3840
+    },
+    {
+      "path": "root-G-verification-packet.json",
+      "sha256": "95bc8fda6bd6be76ec1e2b113f25b54c69783bc3cf9220e2ea10dabf04a36b13",
+      "bytes": 15826
+    },
+    {
+      "path": "source-bindings.json",
+      "sha256": "4e6c70712df6c6ba4094e44f2baaa0f51eee7bf07120607984df4872ecdcb7b1",
+      "bytes": 1646
+    },
+    {
+      "path": "summary.json",
+      "sha256": "6ca8921d67702811b72e253f4d96bf39f64cd89b21e33c326b22052bb7af035f",
+      "bytes": 1673
+    },
+    {
+      "path": "taskboard.json",
+      "sha256": "aa8662826375157feceffeb7861a52381d2f0d47b270966d8d4d211736808079",
+      "bytes": 32637
+    }
+  ],
+  "finalizer": {
+    "external_source": "/dev/shm/e02-D-census-review-oct07/finalize_pr68_accounting_package.final-a795.v4.py",
+    "sha256": "9ccafedbe63da281abd56b557f4bdaecac75f6ecccc0c6117d1e059f5b255807"
+  },
+  "builder": {
+    "external_source": "/dev/shm/e02-D-census-review-oct07/build_pr68_accounting_overlay.final-a795.v3.py",
+    "sha256": "d64f986d4dc311938b3d1e75521f999d00a13f2e2f74859905075b348532c48f"
+  }
+}

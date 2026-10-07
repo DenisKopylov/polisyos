@@ -1,0 +1,66 @@
+{
+  "utc": "2026-10-07T10:48:45.580123+00:00",
+  "argv": [
+    "git",
+    "fetch",
+    "origin",
+    "refs/heads/main:refs/remotes/origin/main",
+    "refs/heads/codex/e02-integration:refs/remotes/origin/codex/e02-integration",
+    "refs/heads/codex/e02-D-published-root:refs/remotes/origin/codex/e02-D-published-root",
+    "refs/heads/codex/e02-D-oct07-continuation:refs/remotes/origin/codex/e02-D-oct07-continuation",
+    "refs/heads/codex/e02-B-current-adapters:refs/remotes/origin/codex/e02-B-current-adapters"
+  ],
+  "returncode": 0,
+  "stdout": "",
+  "stderr": "From https://github.com/DenisKopylov/polisyos\n   ebae80eaa..76746fece  codex/e02-integration -> origin/codex/e02-integration\n * [new branch]          codex/e02-D-oct07-continuation -> origin/codex/e02-D-oct07-continuation\n",
+  "refs": {
+    "main": {
+      "exit": 0,
+      "stdout": "198076863e143dea9f89f02734b13d50dae3eed5\n2b754a92c27959e2e747738d47ed0b419f3b6dd8\n",
+      "stderr": ""
+    },
+    "codex/e02-integration": {
+      "exit": 0,
+      "stdout": "76746fececd1a183a516c48f07ce2835baa8a2d1\n51929dd44a3650c7842bf77aedcdeba6ecd1a755\n",
+      "stderr": ""
+    },
+    "codex/e02-D-published-root": {
+      "exit": 0,
+      "stdout": "828283eefe9c3ae14e0f99899a0a502a8b1a253c\nbb6213c0cde3246e63c04f749547f40f35644a15\n",
+      "stderr": ""
+    },
+    "codex/e02-D-oct07-continuation": {
+      "exit": 0,
+      "stdout": "96905636726483fdea3a98d9313871d825b54a9e\n8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60\n",
+      "stderr": ""
+    },
+    "codex/e02-B-current-adapters": {
+      "exit": 0,
+      "stdout": "4d523e51ccdc9d1a16d5ff81316f44898827ee78\nf9a7aaec8179c786ca3b6310ece37007f197ce49\n",
+      "stderr": ""
+    }
+  },
+  "status": "## codex/e02-D-oct07-continuation\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/stress-stopping-469/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final/\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/\n",
+  "ancestry": [
+    {
+      "ancestor": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+      "descendant": "origin/main",
+      "exit": 0
+    },
+    {
+      "ancestor": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+      "descendant": "origin/codex/e02-integration",
+      "exit": 1
+    },
+    {
+      "ancestor": "96905636726483fdea3a98d9313871d825b54a9e",
+      "descendant": "origin/codex/e02-integration",
+      "exit": 1
+    }
+  ],
+  "common": {
+    "exit": 0,
+    "sha256": "f408d34394bab5f708df7afb6f59195588b5fc394b8304434c9e2fbe2238be79",
+    "bytes": 8565
+  }
+}

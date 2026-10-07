@@ -1,0 +1,11 @@
+id = "2026-10-06-e02-transfer-owned-snapshots"
+title = "Consume the existing CAS owner's immutable snapshot port"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-runtime"
+summary = "TransferLearningManager and VectorMemoryStore consume FileSystemCAS.get_verified_snapshot when supplied, using the same owned data/manifest pair for content and type checks. Failed native load or same-ref content mutation leaves the previous immutable vector generation coherent."
+surface_classification = "internal: internal-only"
+evidence = ["tests/unit/scientist/agent/test_vector_transfer_process.py", "tests/unit/scientist/agent/test_vector_memory.py"]
+compatibility = "Existing ArtifactStore providers retain exact-ref byte/manifest checks through their legacy methods; that fallback does not claim the new owned single-snapshot port. Native generation schema and the one-pointer publication protocol remain unchanged."
+migration = "Supply the existing CAS backend's get_verified_snapshot capability for the supported single-snapshot profile. Persist complete vector bundle/index refs and pass discovered history refs directly."
+limitations = "The separate-process controls use an explicit analytic local producer and a native ANN catalog; they establish exact addressing, content admission and local generation coherence, not a distributed latest pointer, a live scientific history issuer or institutional tenant/split authorization."

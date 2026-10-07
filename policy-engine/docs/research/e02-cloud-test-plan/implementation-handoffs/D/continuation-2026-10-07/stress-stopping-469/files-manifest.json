@@ -1,0 +1,19 @@
+{
+  "schema": "e02.portable.file-manifest.v1",
+  "root": "/tmp/e02-D-STP-STR469-publication-8p7wfd5q",
+  "files": {
+    "STP-STR-complete-deciding-output.json.gz": {
+      "bytes": 342302,
+      "sha256": "a02e36a9ffea0041031066cf164efc10caa4a65ebb8d464cd90cb75de0a843ac"
+    },
+    "STP-STR-handoff.json": {
+      "bytes": 63754,
+      "sha256": "613fae425f001514b5e8d3a3020d7ed8712099565ae7396ce25fe2738327fd71"
+    },
+    "STP-STR-independent469-review.json": {
+      "bytes": 30750,
+      "sha256": "db3c5558323028c321d1d02d29adaee6e1a671a30bec3562722576216a8f6840"
+    }
+  },
+  "self_excluded": "files-manifest.json"
+}

@@ -1,0 +1,127 @@
+{
+  "schema": "e02.D.native_dedup_quantity.final969.v1",
+  "unit": "D",
+  "slice_base": "237c3427266e0849ebfa36b41f89c51572b44814",
+  "candidate_sha": "96905636726483fdea3a98d9313871d825b54a9e",
+  "candidate_tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "actual_cohorts": [
+    {
+      "name": "champion",
+      "source_sha": "96905636726483fdea3a98d9313871d825b54a9e",
+      "checks": {
+        "PASS": 44,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "inputs_equal": true,
+      "portable_receipt": "actual-969/champion.receipt.json",
+      "backend": "Actual native SearchLoopRunner/NativeSearchService/qualified FileSystemCAS/ChampionRegistry; actual supported typed mutation/evaluator/data-context profiles and physical invocation counts. No scientific law, appointed production caller, external identity migration or distributed atomicity inferred. Actual Torch/SALib only in native DOE cohort; provider fixtures are not invoice truth."
+    },
+    {
+      "name": "contracts",
+      "source_sha": "96905636726483fdea3a98d9313871d825b54a9e",
+      "checks": {
+        "PASS": 2,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "inputs_equal": true,
+      "portable_receipt": "actual-969/contracts.receipt.json",
+      "backend": "Actual native SearchLoopRunner/NativeSearchService/qualified FileSystemCAS/ChampionRegistry; actual supported typed mutation/evaluator/data-context profiles and physical invocation counts. No scientific law, appointed production caller, external identity migration or distributed atomicity inferred. Actual Torch/SALib only in native DOE cohort; provider fixtures are not invoice truth."
+    },
+    {
+      "name": "dedup",
+      "source_sha": "96905636726483fdea3a98d9313871d825b54a9e",
+      "checks": {
+        "PASS": 48,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "inputs_equal": true,
+      "portable_receipt": "actual-969/dedup.receipt.json",
+      "backend": "Actual native SearchLoopRunner/NativeSearchService/qualified FileSystemCAS/ChampionRegistry; actual supported typed mutation/evaluator/data-context profiles and physical invocation counts. No scientific law, appointed production caller, external identity migration or distributed atomicity inferred. Actual Torch/SALib only in native DOE cohort; provider fixtures are not invoice truth."
+    },
+    {
+      "name": "native-doe",
+      "source_sha": "96905636726483fdea3a98d9313871d825b54a9e",
+      "checks": {
+        "PASS": 13,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "inputs_equal": true,
+      "portable_receipt": "actual-969/native-doe.receipt.json",
+      "backend": "Actual native SearchLoopRunner/NativeSearchService/qualified FileSystemCAS/ChampionRegistry; actual supported typed mutation/evaluator/data-context profiles and physical invocation counts. No scientific law, appointed production caller, external identity migration or distributed atomicity inferred. Actual Torch/SALib only in native DOE cohort; provider fixtures are not invoice truth."
+    },
+    {
+      "name": "paid-original",
+      "source_sha": "96905636726483fdea3a98d9313871d825b54a9e",
+      "checks": {
+        "PASS": 2,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "inputs_equal": true,
+      "portable_receipt": "actual-969/paid-original.receipt.json",
+      "backend": "Actual native SearchLoopRunner/NativeSearchService/qualified FileSystemCAS/ChampionRegistry; actual supported typed mutation/evaluator/data-context profiles and physical invocation counts. No scientific law, appointed production caller, external identity migration or distributed atomicity inferred. Actual Torch/SALib only in native DOE cohort; provider fixtures are not invoice truth."
+    },
+    {
+      "name": "service",
+      "source_sha": "96905636726483fdea3a98d9313871d825b54a9e",
+      "checks": {
+        "PASS": 41,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "inputs_equal": true,
+      "portable_receipt": "actual-969/service.receipt.json",
+      "backend": "Actual native SearchLoopRunner/NativeSearchService/qualified FileSystemCAS/ChampionRegistry; actual supported typed mutation/evaluator/data-context profiles and physical invocation counts. No scientific law, appointed production caller, external identity migration or distributed atomicity inferred. Actual Torch/SALib only in native DOE cohort; provider fixtures are not invoice truth."
+    }
+  ],
+  "expected_negative_controls": {
+    "lookup_removal": {
+      "FAIL": 1
+    },
+    "producer_marker_override": {
+      "FAIL": 1
+    },
+    "nullable_primary_zero": {
+      "FAIL": 1
+    },
+    "run_scope_omitted": {
+      "FAIL": 1
+    }
+  },
+  "mypy": {
+    "profile": "existing repository strict runtime.py scope",
+    "exit_code": 0,
+    "portable_receipt": "mypy-969/command.json"
+  },
+  "original_criteria": {
+    "B124": "Native configured dedup before physical evaluation; trace/audit/order duplicates skipped, semantic dates and explicit replicas preserved; qualified completed/pending history, live/fresh context/evaluator drift, first-ACK-failure custody, actual independent shared-run barrier and fresh CAS/public resume.",
+    "B111": "Owned native primary absence/noncomparable status is unavailable with retained reason; genuine zero/ordinary controls, truthful promising/best/frontier and fresh actual Champion/CAS state. This joins existing original numerical/registry proofs; it is not an all-property numerical replay.",
+    "LA-014/LA-015": "Current actual41 service/fault/fresh resume plus literal Legacy2; separately published current Adapter126 and configured transfer3 packets remain required for their own scope."
+  },
+  "finding_decision": "Bounded completed engineering proposals, formal finding disposition and G integration acceptance remain root/G decisions; this is not a universal D PASS or production evaluator approval.",
+  "historical_baselines": "Valid marker a7 FAIL, missing-primary b652 FAIL with genuine0/1 PASS, staged-v4 evaluator/context drift2 FAIL retained. Invalid-format marker ERROR is separate; initial guessed DOE import diagnostic ERROR is a harness diagnostic and actual corrected imported profile/DOE13 PASS is distinct. Old source observations are not new candidate executions.",
+  "P37": "Original criterion binding plus actual producer/artifact/bridge/consumer/persisted readback; no marker is a predicate.",
+  "P38": "Four actual removal probes retain original inputs/profile and demonstrate physical lookup, collapsed subjects, unavailable-as-zero and cross-run membership proxy divergence.",
+  "P40": "One shared exact acknowledged CAS configuration admission covers ask/tell/checkpoint/public resume/per-measurement. Failed first proposal retains its initial qualified acknowledgement and fences publication; explicit newrun alone retires the old active basis.",
+  "P41": "No inherited-red assertion. Before-code own counterexamples are explicitly source-bound, not a slice-base zero-overlap inherited proof.",
+  "unavailable_inputs": "External fiscal/scientific evaluator/tenant/revalidation/native-draw/refinement/permit authority inputs remain root owner packets. This pack invents no scientific law, cache-result authority or distributed/power-loss guarantee.",
+  "cleanup_candidates": [
+    "/dev/shm/e02-D-oct07-service-start/final-native-969/champion-fixtures",
+    "/dev/shm/e02-D-oct07-service-start/final-native-969/service-fixtures",
+    "/dev/shm/e02-D-oct07-service-start/final-native-969/dedup-fixtures",
+    "/dev/shm/e02-D-oct07-service-start/final-native-969/native-doe-fixtures",
+    "/dev/shm/e02-D-oct07-service-start/final-native-969/paid-original-fixtures",
+    "/dev/shm/e02-D-runner-mypy-after-969-dy94hlnx/cache"
+  ],
+  "cleanup_action": "No deletion or Trash operation performed. Cloud has no native Trash; candidates remain available after deciding outputs preserved."
+}

@@ -1,0 +1,331 @@
+{
+  "schema": "e02.D.FUN.original10_and_unchanged17.v1",
+  "execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "execution_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+  "assessed_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "old_execution": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "code_test_delta3b_to_cbc": [
+    "policy-engine/tests/unit/scientist/methods/search/test_service_persistence.py"
+  ],
+  "same17_scope": "old17 excludes changed service_persistence test; executed remains3b, no new17",
+  "full_TSV_denominators": {
+    "finding_rows": 282,
+    "bundle_rows": 127
+  },
+  "original10": [
+    {
+      "id": "B156@FUN-01",
+      "acceptance": {
+        "byte_offset": 948475,
+        "bytes": 611,
+        "sha256": "846c22dd69b5b1495efbaff0f982894e6e08b49e0c42e21e0f38b477aa243fa1"
+      },
+      "text": "**Приёмка:** одинаковый эффективный запрос переиспользует результат; новая версия входа не получает старый score; новый независимый контроль действительно исполняется; история обычной попытки не изменяется. Приоритет высокий на stateful-маршруте, сложность средняя. Связь: B60–B61, B118, B127; здесь другой владелец и непосредственная связь Stage A/B.",
+      "card": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-01.md",
+        "sha256": "f154277d83c6779a7b591d87c5874fc9e283e9d34c531361dc30660ed9ef4482",
+        "bytes": 15946,
+        "git_blob": "375aa627d4a7010166d8a5f759536e2c0a7d77da"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4105,
+          4116
+        ],
+        "byte_offset": 945137,
+        "bytes": 3951,
+        "sha256": "88bc80dd038085f5bdb4e2715279d0cc6a06fa677d318e847dc00614e6a56ca0"
+      },
+      "proposal": "closed",
+      "required_owner_positive": null,
+      "P41": "not_established"
+    },
+    {
+      "id": "B157@FUN-02",
+      "acceptance": {
+        "byte_offset": 951621,
+        "bytes": 734,
+        "sha256": "260d939d59a70f8f9acca08bc5386d4ac4e4070c4725b6287fd2c1a4d534444b"
+      },
+      "text": "**Приёмка:** сравнить прямую L4 с L3→L4 на одном исходном запросе; effective full-конфигурация и допустимые выходы должны совпасть, caller-context неизменен, L3 действительно остаётся более дешёвым. Не выключать L3 и не запускать всё в максимальной точности. Приоритет высокий на соответствующем пути; локальная правка с небольшим объёмом. Связь B59/B96 — общая причина aliasing, но здесь затронута достоверность названия fidelity.",
+      "card": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-02.md",
+        "sha256": "5482d56f8a77858b77844bdbbf3867481c2701a6dd671bd138efaccf83c47ef1",
+        "bytes": 18569,
+        "git_blob": "8111de32d5167f1fd1c91b1cac1f64267398d8db"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4117,
+          4128
+        ],
+        "byte_offset": 949088,
+        "bytes": 3269,
+        "sha256": "c27f7a7ba4108a5f8f2027bed47b3d3bfa56955f30034c1ede266fc07d7c8284"
+      },
+      "proposal": "held",
+      "required_owner_positive": {
+        "required_runtime_falsifier": "stage labels/sample_count unchanged while actual L3 reduction/L4 restoration removed; native physical draw/work oracle must detect",
+        "required_input_keys": [
+          "native_draw_producer"
+        ],
+        "prior_exact_criterion_pointer": "/findings/34",
+        "minimum_positive": "Original owner16 packet binding retained; actual owner input/decision needed, no wholeproductiondata request."
+      },
+      "P41": "not_established"
+    },
+    {
+      "id": "B158@FUN-01",
+      "acceptance": {
+        "byte_offset": 954860,
+        "bytes": 696,
+        "sha256": "17cc0ecc4baa734906042063c70ef2cbd4394c206b868333448594ad8897fb9f"
+      },
+      "text": "**Приёмка:** единый и раздельный вызовы на неизменных входах дают одинаковый набор разрешённых вычислений, расходы и причины остановки. На изменённых входах фиксируется необходимое различие. Опыт использует scheduler-фикстуру, не доказывает обход внешнего бюджета или полномочий. Приоритет высокий, сложность небольшая/средняя; связь B120: допуск расхода не зависит от формы обращения.",
+      "card": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-01.md",
+        "sha256": "f154277d83c6779a7b591d87c5874fc9e283e9d34c531361dc30660ed9ef4482",
+        "bytes": 15946,
+        "git_blob": "375aa627d4a7010166d8a5f759536e2c0a7d77da"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4129,
+          4140
+        ],
+        "byte_offset": 952357,
+        "bytes": 3201,
+        "sha256": "bd4643a221c0c9934fdf37c2d8b90d97aa93ad09ac95fa3324e23bd04ea4a2c3"
+      },
+      "proposal": "closed",
+      "required_owner_positive": null,
+      "P41": "not_established"
+    },
+    {
+      "id": "B159@FUN-01",
+      "acceptance": {
+        "byte_offset": 958121,
+        "bytes": 765,
+        "sha256": "7c3b6b49bb03dfb2af6f56e6db82cd302fc5d9c2ae1f6e666b1ab16f11598f36"
+      },
+      "text": "**Приёмка:** повтор без новых оснований не расходует ресурс; разрешённое изменение создаёт проверяемое продолжение; постоянный blocker не исчезает; lineage и расходы сохраняются. Приоритет высокий для итеративного исследования; сложность средняя. Это расширение способности продолжать работу, не ослабление критерия её допустимости. Связь B09/B12/B118: содержательное продолжение, получение нового основания и отдельный запуск.",
+      "card": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-01.md",
+        "sha256": "f154277d83c6779a7b591d87c5874fc9e283e9d34c531361dc30660ed9ef4482",
+        "bytes": 15946,
+        "git_blob": "375aa627d4a7010166d8a5f759536e2c0a7d77da"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4141,
+          4152
+        ],
+        "byte_offset": 955558,
+        "bytes": 3330,
+        "sha256": "d079d053de81c0e87ac40adcb2b25c4d1b5ed34f95636412a1abec5c629e0696"
+      },
+      "proposal": "closed",
+      "required_owner_positive": null,
+      "P41": "not_established"
+    },
+    {
+      "id": "B160@FUN-02",
+      "acceptance": {
+        "byte_offset": 961198,
+        "bytes": 790,
+        "sha256": "7f3880ae72b62b26a91f8386be0ac3391e9188fb146b3ed1c757df1a7d2eafba"
+      },
+      "text": "**Приёмка:** обе пустые конфигурации возвращают неоценённость без положительного score; настоящий ноль от выполненного корректного метода сохраняется; маршруты с разрешённым малым числом стадий работают. Прямой исход в лабораторных адаптерах не доказывает признания публикации настоящим владельцем. Приоритет высокий для первого сквозного теста, локальный ремонт. Связь B108/B123 — другой источник ложного положительного результата.",
+      "card": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-02.md",
+        "sha256": "5482d56f8a77858b77844bdbbf3867481c2701a6dd671bd138efaccf83c47ef1",
+        "bytes": 18569,
+        "git_blob": "8111de32d5167f1fd1c91b1cac1f64267398d8db"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4153,
+          4164
+        ],
+        "byte_offset": 958888,
+        "bytes": 3102,
+        "sha256": "de9f5f2da46e9d846cdf6d085d670e14a8f42dea464b332e8764900444c026e8"
+      },
+      "proposal": "closed",
+      "required_owner_positive": null,
+      "P41": "not_established"
+    },
+    {
+      "id": "B161@FUN-03",
+      "acceptance": {
+        "byte_offset": 964619,
+        "bytes": 752,
+        "sha256": "64bf6d3e30756d1ee3a22a8b81bc2164a41f51931333e269114da303a8fa3b78"
+      },
+      "text": "**Приёмка:** разрешённое уточнение действительно меняет текущий результат; независимый высокий риск не затирается; другая популяция не замещает прежнюю неизвестность. Здесь доказано расхождение агрегата и последней стадии; конкретный downstream-отказ из-за него не воспроизведён. Приоритет по фактическому потребителю, сложность средняя. Связь S03/S08 и B137 — различие изменения знания и простого обращения к истории.",
+      "card": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-03.md",
+        "sha256": "a17dfceb6cc580c9a60ffdcf202b8d9ccff5e672b425a98ecb14de17faa6c34b",
+        "bytes": 16050,
+        "git_blob": "da3dcdf3d98b94b0c390a3fb3a21640ca1004aa6"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4165,
+          4176
+        ],
+        "byte_offset": 961990,
+        "bytes": 3383,
+        "sha256": "f08fecf0caf482a9f2d93c1f808ea16daa2232de161e5eeb98a7995fa2d41e0a"
+      },
+      "proposal": "held",
+      "required_owner_positive": {
+        "required_runtime_falsifier": "lower foreign-population/time/input/rule estimate cannot supersede; owner-authorized same-scope refinement changes only intended component",
+        "required_input_keys": [
+          "same_scope_refinement"
+        ],
+        "prior_exact_criterion_pointer": "/findings/38",
+        "minimum_positive": "Original owner16 packet binding retained; actual owner input/decision needed, no wholeproductiondata request."
+      },
+      "P41": "not_established"
+    },
+    {
+      "id": "B162@FUN-02",
+      "acceptance": {
+        "byte_offset": 967958,
+        "bytes": 612,
+        "sha256": "806665be954b1b87fb1bcc5e05e2ef2779226c0558e4fa6a30cd18a680681075"
+      },
+      "text": "**Приёмка:** ошибочный, отсутствующий и действительный нулевой вход различимы; правильный конечный интервал сохраняет расчёт; остальные доступные результаты не теряются. Переход в настоящую публикацию не проверялся. Приоритет высокий на этом адаптере, локальный ремонт. Связь B105: здесь другой конкретный переход потери смысла uncertainty.",
+      "card": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-02.md",
+        "sha256": "5482d56f8a77858b77844bdbbf3867481c2701a6dd671bd138efaccf83c47ef1",
+        "bytes": 18569,
+        "git_blob": "8111de32d5167f1fd1c91b1cac1f64267398d8db"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4177,
+          4188
+        ],
+        "byte_offset": 965373,
+        "bytes": 3199,
+        "sha256": "898e61d52e838908faca4e23e38fdd86046fd7678a9c44a1c38b0ebda40bd837"
+      },
+      "proposal": "closed",
+      "required_owner_positive": null,
+      "P41": "not_established"
+    },
+    {
+      "id": "B163@FUN-03",
+      "acceptance": {
+        "byte_offset": 971083,
+        "bytes": 797,
+        "sha256": "000272e0d8331087a33d20ff52c4d2a8696681b0c82513a8562f372789a48e92"
+      },
+      "text": "**Приёмка:** оба публичных интерфейса согласованы; пустой и статистически плохой корпуса различимы; ограничения публикации не снимаются ради зелёного статуса; совместимая калибровка переиспользуется. Подключение node статически прочитано, полный runtime не запущен. Приоритет высокий на новом/восстановленном tracker; сложность небольшая/средняя. Связь B114/B137 — нужное прошлое не теряется и не становится новым доказательством без оснований.",
+      "card": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-03.md",
+        "sha256": "a17dfceb6cc580c9a60ffdcf202b8d9ccff5e672b425a98ecb14de17faa6c34b",
+        "bytes": 16050,
+        "git_blob": "da3dcdf3d98b94b0c390a3fb3a21640ca1004aa6"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4189,
+          4200
+        ],
+        "byte_offset": 968572,
+        "bytes": 3310,
+        "sha256": "0c5055c18e4bbfb9bc2ed8cbc6904766eb95627e736de08f4084a90fb2be8ba5"
+      },
+      "proposal": "closed",
+      "required_owner_positive": null,
+      "P41": "not_established"
+    },
+    {
+      "id": "B164@FUN-03",
+      "acceptance": {
+        "byte_offset": 974595,
+        "bytes": 813,
+        "sha256": "a367b70e08a3ff6f3515593c46fe2686a9c2f02532daf2c243f57613777b993e"
+      },
+      "text": "**Приёмка:** ограниченный режим не вызывает запрещённый producer; нормальный режим сохраняет работу; готовый результат доступен по своей политике; потеря разрешения перед commit обнаруживается владельцем. Реальная авторизация, запись в реестр и публикация не исполнялись, поэтому обход системных полномочий не заявлен. Приоритет высокий для callback-пути, локальный preflight плюс согласование владельца. Связь B78/B117 — иной участок границы решения и эффекта.",
+      "card": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-03.md",
+        "sha256": "a17dfceb6cc580c9a60ffdcf202b8d9ccff5e672b425a98ecb14de17faa6c34b",
+        "bytes": 16050,
+        "git_blob": "da3dcdf3d98b94b0c390a3fb3a21640ca1004aa6"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4201,
+          4212
+        ],
+        "byte_offset": 971882,
+        "bytes": 3528,
+        "sha256": "ed8189c34e88eec186ca2c6c3d764e796f0cc4f967c601f6a5ec223c43b6c137"
+      },
+      "proposal": "held",
+      "required_owner_positive": {
+        "required_runtime_falsifier": "bool=true retained preflight followed by real revoke-before-commit gives zero effects; actual current owner-issued permit gives one persisted effect",
+        "required_input_keys": [
+          "typed_write_permit"
+        ],
+        "prior_exact_criterion_pointer": "/findings/41",
+        "minimum_positive": "Original owner16 packet binding retained; actual owner input/decision needed, no wholeproductiondata request."
+      },
+      "P41": "not_established"
+    },
+    {
+      "id": "B165@FUN-02",
+      "acceptance": {
+        "byte_offset": 977869,
+        "bytes": 783,
+        "sha256": "42c25e1cf8e4e9d84ab45a3cb8577b7c2d5d6791112006c30aa15b6d3ce7127e"
+      },
+      "text": "**Приёмка:** наличие или отсутствие промежуточного необязательного verdict не меняет сводное состояние при одном исходе. Реальный score сохранён, полномочия не повышены, consumers не выбирают случайно удобное поле. Интеграция всех потребителей Stage B не запускалась. Приоритет высокий перед внешним представлением результата; сложность небольшая/средняя. Связь B123/B160: здесь потеря именно агрегированного решения после выполненной стадии.",
+      "card": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-02.md",
+        "sha256": "5482d56f8a77858b77844bdbbf3867481c2701a6dd671bd138efaccf83c47ef1",
+        "bytes": 18569,
+        "git_blob": "8111de32d5167f1fd1c91b1cac1f64267398d8db"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4213,
+          4224
+        ],
+        "byte_offset": 975410,
+        "bytes": 3244,
+        "sha256": "93f3c511f14729529cf4353e326c6bd33ad6686ab19385bc56f88210cdd5e258"
+      },
+      "proposal": "closed",
+      "required_owner_positive": null,
+      "P41": "not_established"
+    }
+  ],
+  "G": "9806442ddb47d624a2940bac75d9d6248e934c48",
+  "P37": "original binding recomputed; prior runtime predicate independently reviewed, no current test result yet",
+  "P41": "not_established"
+}

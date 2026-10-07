@@ -1,0 +1,81 @@
+2026-10-07 10:40:43.311 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:43.312 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:43.312 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:43.411 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:43.411 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:43.412 | INFO     | polisyos.common.logger:_call:120 - Starting search 36dd9d4a
+2026-10-07 10:40:44.136 | INFO     | polisyos.common.logger:_call:120 - Stopping: Maximum iterations (1) reached
+2026-10-07 10:40:44.162 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:44.162 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:44.190 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:44.190 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:50.155 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:50.155 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:50.241 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:50.241 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:50.249 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:50.249 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:50.436 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:50.436 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:50.444 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:50.444 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:50.457 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:50.457 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:50.640 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:50.640 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:50.647 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:50.647 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:50.662 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:50.662 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:50.723 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:50.723 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:50.741 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:50.741 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:50.758 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:50.758 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:50.796 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:50.796 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:50.811 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:50.812 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:50.820 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:50.820 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:50.915 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:50.915 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:50.924 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:50.924 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:51.309 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:51.310 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:51.318 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:51.318 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:51.356 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:51.356 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:51.364 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:51.364 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:51.626 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:51.626 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:51.652 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:51.652 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:51.751 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:51.751 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:51.793 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:51.793 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:52.223 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:52.223 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:52.255 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:52.257 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:52.422 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:52.422 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:52.453 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:52.453 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:53.095 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:53.095 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:53.127 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:53.127 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:53.294 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:53.294 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:53.330 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:53.330 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:53.446 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:53.446 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1
+2026-10-07 10:40:53.501 | DEBUG    | polisyos.common.logger:_call:120 - Ignored exception: Error: cannot set number of interop threads after parallel work has started or set_num_interop_threads called
+2026-10-07 10:40:53.501 | INFO     | polisyos.common.logger:_call:120 - Torch runtime configured: device=cpu threads=4 interop_threads=1

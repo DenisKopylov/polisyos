@@ -1,0 +1,43 @@
+{
+  "slice_base": "6c1729a7bc86cf90d443d73515d98dd4ebfa2894",
+  "implementation": "4645738aee05809552e95aecb14d365793fc6bb2",
+  "tree": "770352baededf4119fef4d79d3a93da6689a375e",
+  "complete_changed_paths": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-funnel-cost-input-origins.toml",
+      "bytes": 1593,
+      "sha256": "5d0ff9c1049f700d66ff8badea385892c998ee8f74e378a0e643da9a7dfb3ead",
+      "git_blob": "9226ed1527da6d66e02c62be3c5d13b9b97ac9d4"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/README.md",
+      "bytes": 5385,
+      "sha256": "505df09dc7539a8514cf2bc9945c0d43e602102e11733e6559991cb877d50136",
+      "git_blob": "abf96b1374caf7c4c603ffe0c902ec4cf069c1fa"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "bytes": 67876,
+      "sha256": "ab17c66058929ca33a6f1c917cd32d0c3f18175b87af1180036b5c854516cbef",
+      "git_blob": "191ef201a2c952f1696eebb62a497d8778e777bb"
+    },
+    {
+      "path": "policy-engine/tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py",
+      "bytes": 9757,
+      "sha256": "82c5a5d0fe5e596f5415f1fa81b50d45b5ac0c6acbed83750373c282d21f885b",
+      "git_blob": "db207b8d39f4f31d69ea2359befa9aee79c5096d"
+    }
+  ],
+  "source_review": {
+    "path": "/dev/shm/e02-D-census-review-oct07/estimated-origin-projection-v2-independent-source-test-companion-review.json",
+    "sha256": "e5f9630c5d89bb429acf5e20cf0339b048df099f9a434b2205b0e49d62aec975"
+  },
+  "removal_capture_review": {
+    "path": "/dev/shm/e02-D-census-review-oct07/estimated-origin-removal-and-native-capture-independent-review.json",
+    "sha256": "fc7ca3d71acc4b438ae0678299c4b40a17f00cd8b039fe04a032cb383d3fbab1"
+  },
+  "runtime": "actual17PASS/removal3expectedFAIL8PASS on final3b",
+  "verification_candidate": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "verification_tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+  "own_four_blobs_unchanged": true
+}

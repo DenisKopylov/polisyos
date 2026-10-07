@@ -1,0 +1,27 @@
+{
+  "source_sha": "420d3ab6bc63ef3088e5fa32c04ed5e618edc208",
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "/workspace/e02-D3-receipts/stress/funnel_affected_runner.py",
+    "420d3ab6bc63ef3088e5fa32c04ed5e618edc208",
+    "-q",
+    "tests/unit/scientist/methods/search/funnel/test_level5_component_assessment.py",
+    "tests/integration/scientist/methods/search/funnel/test_paid_outcome_blueprint_projection.py",
+    "tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py",
+    "--basetemp",
+    "/dev/shm/e02-D-stress-funnel-affected-99bfd65021044e92a7d3c7bd8d8d00db",
+    "--junitxml",
+    "/workspace/e02-D3-receipts/stress/funnel-affected-junit.xml"
+  ],
+  "exit_code": 0,
+  "wall_seconds": 23.572345652995864,
+  "peak_rss_kib": 835616,
+  "source_sha_after": "420d3ab6bc63ef3088e5fa32c04ed5e618edc208",
+  "environment": {
+    "PYTHONPATH": "src:.",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+  },
+  "runner_sha256": "29761f38463a74c2e3eea1f845bc3ac31a71f5ba1470fa9296eacd3053b515b6",
+  "scope": "After ordinary frozen FUN64/82 dependency merge: actual L5 component assessment, configured native paid outcome and unknownACK projections, CASfresh readers. No default-node paidprovider or institutional acceptance claim."
+}

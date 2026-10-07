@@ -1,0 +1,147 @@
+{
+  "schema": "e02.root.final_deciding_payload.v1",
+  "runtime_candidate": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+  "runtime_tree": "e674e22edb8d94d47579326135a786c832402a15",
+  "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/wide-inputs.json",
+      "bytes": 103591,
+      "sha256": "3ec3b31019e350e024495018b7863d3a9904f35d72a8594907bd261211a4bde2",
+      "original_measurement_path": "/dev/shm/e02-D-root-closeout/wide-inputs.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/wide-receipt.json",
+      "bytes": 103863,
+      "sha256": "a652de21b664f7da4dd3e3a86d8f7f337a9d6a2563dc94890d5f8799d680dc2a",
+      "original_measurement_path": "/dev/shm/e02-D-root-closeout/wide-receipt.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/wide.txt",
+      "bytes": 610,
+      "sha256": "c1b63212098315f0247616f2f03a5f738daf1f555006b205bb52fd3cdda357f9",
+      "original_measurement_path": "/dev/shm/e02-D-root-closeout/wide.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/final-root-replay-runtime.json",
+      "bytes": 130717,
+      "sha256": "9c597150e2fe157f77ff74faf5cfa5cd1b2d9e8b1191451097340bf054f9f6e0",
+      "original_measurement_path": "/dev/shm/e02-D-root-closeout/final-root-replay-runtime.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/FUN-03-final.txt",
+      "bytes": 634,
+      "sha256": "ce30af50c864f42e8aecb5fe574f6cdf58e7af9d0171b8457d4b87cc76db9678",
+      "original_measurement_path": "/dev/shm/e02-D-root-closeout/FUN-03-final.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/FUN-03-final.xml",
+      "bytes": 8648,
+      "sha256": "c7a75cd9a2658f871e6796b164ac1b7ba6669c1f2499f47b03bf65d94ac1d97b",
+      "original_measurement_path": "/dev/shm/e02-D-root-closeout/FUN-03-final.xml"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/OPT-01-final.txt",
+      "bytes": 714,
+      "sha256": "799174c28e65ed9816ca8ee604889008e32b6e6cedb2414808b4d2876562c209",
+      "original_measurement_path": "/dev/shm/e02-D-root-closeout/OPT-01-final.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/OPT-01-final.xml",
+      "bytes": 14009,
+      "sha256": "3cfcbd59c2d3d2ad033246b485e8f1a595f8b902ab8b909ffd79e45b1ce06949",
+      "original_measurement_path": "/dev/shm/e02-D-root-closeout/OPT-01-final.xml"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/canonical15-input-lineage.json",
+      "bytes": 37518,
+      "sha256": "144414d578a7da8d1b41bdec55526befa36def8a4bb80afbb63411636a70306c",
+      "original_measurement_path": "/dev/shm/e02-D-root-closeout/canonical15-input-lineage.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/canonical17-junit-independent-census.json",
+      "bytes": 7520,
+      "sha256": "ea4d98307d57b42c4e1e2165175f8f603d31854d9a0755ae8cbfe4d6915688ca",
+      "original_measurement_path": "/dev/shm/e02-D-root-closeout/canonical17-junit-independent-census.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/quality-lossless-root-binding.json",
+      "bytes": 1347,
+      "sha256": "e801a98a6b675fbf9d5cc88c68df606584659408e95b8abde5919aa6965c9fad",
+      "original_measurement_path": "/dev/shm/e02-D-root-closeout/quality-lossless-root-binding.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/receiver-input-binding.json",
+      "bytes": 743,
+      "sha256": "944fc50615c20d78cc2fd49f6326a3f0ccfebc683fee66bb4692fa9f14a2dc56",
+      "original_measurement_path": "/dev/shm/e02-D-root-closeout/receiver-input-binding.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/product-identity-after-evidence-merge.json",
+      "bytes": 429,
+      "sha256": "63a8746417dd2d94a27b3320ae50ba5a90162ebb860459e38d85fc32424dfec9",
+      "original_measurement_path": "/dev/shm/e02-D-root-closeout/product-identity-after-evidence-merge.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/final-freeze-changed-paths.json",
+      "bytes": 124499,
+      "sha256": "d996c9decd56c6bdbb06e45b65770794171c73242d0275dc3a95143719034480",
+      "original_measurement_path": "/dev/shm/e02-D-root-closeout/final-freeze-changed-paths.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/ruff-final-check.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "original_measurement_path": "/dev/shm/e02-D-root-closeout/ruff-final-check.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/ruff-final-format.txt",
+      "bytes": 28,
+      "sha256": "1a9301f4cf03fa0d5c4d8f77f50252de3a09f3dbe30fd813f1131981eceb1770",
+      "original_measurement_path": "/dev/shm/e02-D-root-closeout/ruff-final-format.txt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/ruff-final.json",
+      "bytes": 29568,
+      "sha256": "690cfecceeafdc5b1e8a44343be389e02ec56b36334c75529039957fdfb7318b",
+      "original_measurement_path": "/dev/shm/e02-D-root-closeout/ruff-final.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/run_final_replay.py.txt",
+      "bytes": 5335,
+      "sha256": "00abda2f9af920d180f6c9db66a3e65869df07a40cddffba559248829b8fa84b",
+      "original_measurement_path": "/dev/shm/e02-D-root-closeout/run_final_replay.py"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/root-243-gp-transfer-independent-review-root-binding.json",
+      "bytes": 3329,
+      "sha256": "f7d5b6c3bbc89bb66bcdb51209830e7acff47addc82eb0401bfae824f9ad2fe7",
+      "original_measurement_path": "/dev/shm/e02-D-root-closeout/root-243-gp-transfer-independent-review-root-binding.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/published-fun03-fixture-migration-root-binding.json",
+      "bytes": 7784,
+      "sha256": "49e4d9602155dd18e6ceb7d3ad047a3f35faa54a10c53b998cd71fa21f997702",
+      "original_measurement_path": "/dev/shm/e02-D-root-closeout/published-fun03-fixture-migration-root-binding.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/champion-frontend-ci-243-root-binding.json",
+      "bytes": 1396,
+      "sha256": "4a32a39806a68f8332817ce34a1b3e38df6d3d5f3316f5910b989c1653cd8b04",
+      "original_measurement_path": "/dev/shm/e02-D-root-closeout/champion-frontend-ci-243-root-binding.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/published-criterion-accounting-delta-root-binding.json",
+      "bytes": 9818,
+      "sha256": "445af04b9ef495cf4859a27c2ae9728bf2b0d55acb3ef5e5962993e4fed6d9d0",
+      "original_measurement_path": "/dev/shm/e02-D-root-closeout/published-criterion-accounting-delta-root-binding.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-root/search-canonical-243-root-binding.json",
+      "bytes": 32781,
+      "sha256": "b0ea141344b007fcf2426f1387f39f0bd90b6ee934b5f76f8ab0e96bfac04f8f",
+      "original_measurement_path": "/dev/shm/e02-D-root-closeout/search-canonical-243-root-binding.json"
+    }
+  ],
+  "scope": "Exact complete streams through natural completion or signal, JUnit, inputs and integrity observations. Byte transfer only; no wholesale acceptance/closure inference. Helpers are unchanged measurement artifacts, not product Python lint targets. Old ignored domain outputs are not cloud inputs."
+}

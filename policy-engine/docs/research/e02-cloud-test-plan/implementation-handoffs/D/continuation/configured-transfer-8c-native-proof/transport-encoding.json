@@ -1,0 +1,13 @@
+{
+  "purpose": "Lossless encoding of fresh untracked actual deciding capture carrier only; no source, fixture or original deciding-output mutation/deletion.",
+  "original_gzip_backup": "/tmp/e02-D-configured-transfer-original-carrier-1791319341561963583.json.gz",
+  "original_gzip_bytes": 1790233,
+  "original_gzip_sha256": "8d3a608bd8a2ec86e968b31d39bb937d103ab7362ac999e620ca0cbce389a3eb",
+  "decoded_raw_bytes": 8016158,
+  "decoded_raw_sha256": "cace28f63a8c02c8c9ac71b1888d1518aae64ed26204de871f01c3e762fbd896",
+  "xz_bytes": 479592,
+  "xz_sha256": "94fcc74d8d36e111e8d0f6190af9f6350f97f1af2ca79af6ac6d3e3fa73bb8b8",
+  "same_inode_before_after": true,
+  "roundtrip_exact": true,
+  "all_original_fixtures_and_raw_captures_preserved": true
+}

@@ -1,0 +1,105 @@
+{
+  "inputs": [
+    {
+      "case": "lock-positive",
+      "prepared_packet": "controlled-negative-inputs/lock-positive/prepared-successor.json",
+      "evaluation_ref": {
+        "artifact_id": "sha256:dbaae0f5718cf8f2050670d4dabeee3c3b2ffcd5d6b0da1f2b2d9974a97ef32b",
+        "kind": "scientist.autotune.verified.evaluation",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:39a5bd110529c8248d4eabba2da2422b0e5cba621426815b52222123cf4513f8"
+      },
+      "raw_files": {
+        "evaluation_blob": {
+          "path": "controlled-negative-inputs/lock-positive/evaluation_blob.bin",
+          "bytes": 2682,
+          "sha256": "dbaae0f5718cf8f2050670d4dabeee3c3b2ffcd5d6b0da1f2b2d9974a97ef32b",
+          "source_path": "/dev/shm/e02-D-champion-B333-combined5-bu0ikwsg/basetemp/test_actual_owner_lock_blocks_0/cas/artifacts/sha256/db/aa/dbaae0f5718cf8f2050670d4dabeee3c3b2ffcd5d6b0da1f2b2d9974a97ef32b.blob"
+        },
+        "qualified_manifest": {
+          "path": "controlled-negative-inputs/lock-positive/qualified_manifest.json",
+          "bytes": 2309,
+          "sha256": "5264134b0fc23eb72c171292132cf1160c24fe7998ca2e572bf0796f6bbbdec3",
+          "source_path": "/dev/shm/e02-D-champion-B333-combined5-bu0ikwsg/basetemp/test_actual_owner_lock_blocks_0/cas/artifacts/sha256/db/aa/dbaae0f5718cf8f2050670d4dabeee3c3b2ffcd5d6b0da1f2b2d9974a97ef32b.view.39a5bd110529c8248d4eabba2da2422b0e5cba621426815b52222123cf4513f8.manifest.json"
+        },
+        "canonical_pointer_after": {
+          "path": "controlled-negative-inputs/lock-positive/canonical_pointer_after.json",
+          "bytes": 1291,
+          "sha256": "de27d7b92c74a5f93997ed2ef9bbf1c4e2f7302e41c5a3bf8e1db0dd110e7336",
+          "source_path": "/dev/shm/e02-D-champion-B333-combined5-bu0ikwsg/basetemp/test_actual_owner_lock_blocks_0/champions/verified/champion.json"
+        }
+      },
+      "qualification": "Raw retained actual fixture inputs/files; tamper evaluationblob is intentionally NOT a verified snapshot"
+    },
+    {
+      "case": "raw-tamper",
+      "prepared_packet": "controlled-negative-inputs/raw-tamper/prepared-successor.json",
+      "evaluation_ref": {
+        "artifact_id": "sha256:8c4d90e89a0791d6d4f86aa65a78b3537fd3303c1fb32ad083055c57db3a323e",
+        "kind": "scientist.autotune.verified.evaluation",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:536e766c48507bd2e17e857c115e817b8e6cfbd42fb13722cfc304af4338f198"
+      },
+      "raw_files": {
+        "evaluation_blob": {
+          "path": "controlled-negative-inputs/raw-tamper/evaluation_blob.bin",
+          "bytes": 2683,
+          "sha256": "5bcf6596a901b835ab34c5e64282354c0562e23313bf05583fc4502b1a8dc9ea",
+          "source_path": "/dev/shm/e02-D-champion-B333-combined5-bu0ikwsg/basetemp/test_same_exact_evaluation_ref0/cas/artifacts/sha256/8c/4d/8c4d90e89a0791d6d4f86aa65a78b3537fd3303c1fb32ad083055c57db3a323e.blob"
+        },
+        "qualified_manifest": {
+          "path": "controlled-negative-inputs/raw-tamper/qualified_manifest.json",
+          "bytes": 2309,
+          "sha256": "9eb874e00668edee15a7cb8b332845df6b7db6a956a551bbc3626b04397cd4a4",
+          "source_path": "/dev/shm/e02-D-champion-B333-combined5-bu0ikwsg/basetemp/test_same_exact_evaluation_ref0/cas/artifacts/sha256/8c/4d/8c4d90e89a0791d6d4f86aa65a78b3537fd3303c1fb32ad083055c57db3a323e.view.536e766c48507bd2e17e857c115e817b8e6cfbd42fb13722cfc304af4338f198.manifest.json"
+        },
+        "canonical_pointer_after": {
+          "path": "controlled-negative-inputs/raw-tamper/canonical_pointer_after.json",
+          "bytes": 1291,
+          "sha256": "6cda8e35675fbd5c1e4fc6fc4fab25149c057b8f686902ce296798f85c1e1730",
+          "source_path": "/dev/shm/e02-D-champion-B333-combined5-bu0ikwsg/basetemp/test_same_exact_evaluation_ref0/champions/verified/champion.json"
+        }
+      },
+      "qualification": "Raw retained actual fixture inputs/files; tamper evaluationblob is intentionally NOT a verified snapshot",
+      "declared_mutation": {
+        "operation": "append exactly one newline after original canonical evaluationbytes",
+        "expected_original_sha256": "8c4d90e89a0791d6d4f86aa65a78b3537fd3303c1fb32ad083055c57db3a323e",
+        "altered_sha256": "5bcf6596a901b835ab34c5e64282354c0562e23313bf05583fc4502b1a8dc9ea",
+        "derived_original_recipe": "remove that one declared appended final byte; this is reconstruction, not newly observed verified bytes"
+      }
+    },
+    {
+      "case": "lock-removal",
+      "prepared_packet": "controlled-negative-inputs/lock-removal/prepared-successor.json",
+      "evaluation_ref": {
+        "artifact_id": "sha256:33fc11eb281d6b6684d604d6c0f4cfed2fecc4cc28f7d5a35747ba3a1740c851",
+        "kind": "scientist.autotune.verified.evaluation",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:742f32c25918a81b830544212066e3a06d46299f97c9d759a1d0c92eb8b7beb0"
+      },
+      "raw_files": {
+        "evaluation_blob": {
+          "path": "controlled-negative-inputs/lock-removal/evaluation_blob.bin",
+          "bytes": 2682,
+          "sha256": "33fc11eb281d6b6684d604d6c0f4cfed2fecc4cc28f7d5a35747ba3a1740c851",
+          "source_path": "/dev/shm/e02-D-champion-B333-lock-removal1-xin6t2_5/basetemp/test_actual_owner_lock_blocks_0/cas/artifacts/sha256/33/fc/33fc11eb281d6b6684d604d6c0f4cfed2fecc4cc28f7d5a35747ba3a1740c851.blob"
+        },
+        "qualified_manifest": {
+          "path": "controlled-negative-inputs/lock-removal/qualified_manifest.json",
+          "bytes": 2309,
+          "sha256": "d760f312d2f2061b9fe754713286f9f416be1685dbc0713fa2085d388ae3dece",
+          "source_path": "/dev/shm/e02-D-champion-B333-lock-removal1-xin6t2_5/basetemp/test_actual_owner_lock_blocks_0/cas/artifacts/sha256/33/fc/33fc11eb281d6b6684d604d6c0f4cfed2fecc4cc28f7d5a35747ba3a1740c851.view.742f32c25918a81b830544212066e3a06d46299f97c9d759a1d0c92eb8b7beb0.manifest.json"
+        },
+        "canonical_pointer_after": {
+          "path": "controlled-negative-inputs/lock-removal/canonical_pointer_after.json",
+          "bytes": 1291,
+          "sha256": "7baedf174a2ff331486358ac44b756430a27c22da817fbef0ff249857bbf53f4",
+          "source_path": "/dev/shm/e02-D-champion-B333-lock-removal1-xin6t2_5/basetemp/test_actual_owner_lock_blocks_0/champions/verified/champion.json"
+        }
+      },
+      "qualification": "Raw retained actual fixture inputs/files; tamper evaluationblob is intentionally NOT a verified snapshot"
+    }
+  ],
+  "production_data": false,
+  "new_CAS_or_registry": false
+}

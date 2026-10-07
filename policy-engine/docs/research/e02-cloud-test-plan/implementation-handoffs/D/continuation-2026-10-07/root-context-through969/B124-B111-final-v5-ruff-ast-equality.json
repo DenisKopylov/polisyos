@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/ruff",
+    "format",
+    "--config",
+    "policy-engine/pyproject.toml",
+    "policy-engine/src/polisyos/scientist/methods/search/service.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_service_trial_deduplication.py"
+  ],
+  "returncode": 0,
+  "stdout": "2 files reformatted\n",
+  "stderr": "",
+  "files": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "before_sha256": "90c726a5e76e55591ce0176b6bbd68ee9764a16e31254504341792db3741ee4e",
+      "after_sha256": "c3c5684d1be054e914aad4ad1539652d8980b78865703ac83188fbbef6b134d5",
+      "ast_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_service_trial_deduplication.py",
+      "before_sha256": "8eb96cf9a0825f4170f62da392e40111816fc9dd77d21c0a97355c436abdec0d",
+      "after_sha256": "8e2b8657392f8aa00b199e35107d1caecf269a94417dc1ceb487f6b0e89287b9",
+      "ast_equal": true
+    }
+  ]
+}

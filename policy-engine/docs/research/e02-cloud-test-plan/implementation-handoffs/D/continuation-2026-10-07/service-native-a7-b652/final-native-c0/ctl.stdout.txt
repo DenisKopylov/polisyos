@@ -1,0 +1,325 @@
+..........FFFF.........FF...
+=================================== FAILURES ===================================
+_ test_actual_tiny_response_pending_owner_stops_run_and_direct_ask_before_proposal[False-1e-1000] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-oct07-service-start/final-native-c0/ctl-fixtures/test_actual_tiny_response_pend0')
+lexeme = '1e-1000', cost_stopping = False
+
+    @pytest.mark.parametrize("lexeme", ["1e-1000", "-1e-1000"])
+    @pytest.mark.parametrize("cost_stopping", [False, True])
+    def test_actual_tiny_response_pending_owner_stops_run_and_direct_ask_before_proposal(
+        tmp_path, lexeme, cost_stopping
+    ):
+        gateway, path, enforcer = _actual_operation(tmp_path, lexeme)
+        with pytest.raises(LLMAccountingError) as failure:
+            asyncio.run(_text["invoke"](enforcer))
+        event = failure.value.event["producer_event"]
+        before = FileBudgetLedger(path).snapshot()
+        assert gateway.transport.calls == 1 and event.amount is None
+        assert before.state.spent == {} and before.spend_receipts == {}
+        assert before.state.reserved["run"] > 0
+        pending = next(iter(before.completion_obligations.values()))
+        assert pending.event_payload["event_id"] == event.event_id
+        assert pending.event_payload["amount"] is None
+        stopping = CostBudgetStopping(1) if cost_stopping else MaxIterations(1)
+        search, generator, evaluations = _controller(_fresh_owner(path), stopping=stopping)
+        result = search.run({"cumulative_cost_usd": 0})
+        assert generator.calls == 0 and evaluations == [] and result.iterations_completed == 0
+        assert result.best_candidate is None
+        assert result.telemetry["budget_snapshot"] == {}
+        assert result.telemetry["budget_spent"] is None
+        assert result.telemetry["budget_available"] is False
+        assert search._run_state.budget_spent is None
+        assert search._stopping_state()["budget_spent"] is None
+        assert "cumulative_cost_usd" not in search._stopping_state()
+        _, restored = _fresh_checkpoint_state(search)
+        assert restored.budget_spent is None and restored.budget_available is False
+        assert result.telemetry["budget_evidence"]["admission"] == "unavailable"
+        if cost_stopping:
+            assert "Cost budget unavailable" in result.stopping_reason
+        else:
+            assert (
+                result.stopping_reason
+                == "budget_owner_admission_refused:BudgetLedgerCompletionRequiredError"
+            )
+        direct, direct_generator, direct_evaluations = _controller(
+            _fresh_owner(path), stopping=MaxIterations(1)
+        )
+        with pytest.raises(BudgetLedgerCompletionRequiredError):
+            _NativeSearchServiceDriver(direct).ask(None, None, {})
+        assert direct_generator.calls == 0 and direct_evaluations == []
+>       assert direct._run_state.budget_spent is None
+E       AssertionError: assert 0.0 is None
+E        +  where 0.0 = SearchRunState(search_id='', status=<SearchStatus.NOT_STARTED: 'not_started'>, history=[], best_candidate=None, best_o...r_id=None, budget_ledger_revision=None, policy_evaluation_errors=0, generation_transition=None, pareto_projection=None).budget_spent
+E        +    where SearchRunState(search_id='', status=<SearchStatus.NOT_STARTED: 'not_started'>, history=[], best_candidate=None, best_o...r_id=None, budget_ledger_revision=None, policy_evaluation_errors=0, generation_transition=None, pareto_projection=None) = <polisyos.scientist.methods.search.controller.SearchController object at 0x7fec37511d60>._run_state
+
+tests/unit/scientist/methods/search/test_controller_owner_admission.py:117: AssertionError
+_ test_actual_tiny_response_pending_owner_stops_run_and_direct_ask_before_proposal[False--1e-1000] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-oct07-service-start/final-native-c0/ctl-fixtures/test_actual_tiny_response_pend1')
+lexeme = '-1e-1000', cost_stopping = False
+
+    @pytest.mark.parametrize("lexeme", ["1e-1000", "-1e-1000"])
+    @pytest.mark.parametrize("cost_stopping", [False, True])
+    def test_actual_tiny_response_pending_owner_stops_run_and_direct_ask_before_proposal(
+        tmp_path, lexeme, cost_stopping
+    ):
+        gateway, path, enforcer = _actual_operation(tmp_path, lexeme)
+        with pytest.raises(LLMAccountingError) as failure:
+            asyncio.run(_text["invoke"](enforcer))
+        event = failure.value.event["producer_event"]
+        before = FileBudgetLedger(path).snapshot()
+        assert gateway.transport.calls == 1 and event.amount is None
+        assert before.state.spent == {} and before.spend_receipts == {}
+        assert before.state.reserved["run"] > 0
+        pending = next(iter(before.completion_obligations.values()))
+        assert pending.event_payload["event_id"] == event.event_id
+        assert pending.event_payload["amount"] is None
+        stopping = CostBudgetStopping(1) if cost_stopping else MaxIterations(1)
+        search, generator, evaluations = _controller(_fresh_owner(path), stopping=stopping)
+        result = search.run({"cumulative_cost_usd": 0})
+        assert generator.calls == 0 and evaluations == [] and result.iterations_completed == 0
+        assert result.best_candidate is None
+        assert result.telemetry["budget_snapshot"] == {}
+        assert result.telemetry["budget_spent"] is None
+        assert result.telemetry["budget_available"] is False
+        assert search._run_state.budget_spent is None
+        assert search._stopping_state()["budget_spent"] is None
+        assert "cumulative_cost_usd" not in search._stopping_state()
+        _, restored = _fresh_checkpoint_state(search)
+        assert restored.budget_spent is None and restored.budget_available is False
+        assert result.telemetry["budget_evidence"]["admission"] == "unavailable"
+        if cost_stopping:
+            assert "Cost budget unavailable" in result.stopping_reason
+        else:
+            assert (
+                result.stopping_reason
+                == "budget_owner_admission_refused:BudgetLedgerCompletionRequiredError"
+            )
+        direct, direct_generator, direct_evaluations = _controller(
+            _fresh_owner(path), stopping=MaxIterations(1)
+        )
+        with pytest.raises(BudgetLedgerCompletionRequiredError):
+            _NativeSearchServiceDriver(direct).ask(None, None, {})
+        assert direct_generator.calls == 0 and direct_evaluations == []
+>       assert direct._run_state.budget_spent is None
+E       AssertionError: assert 0.0 is None
+E        +  where 0.0 = SearchRunState(search_id='', status=<SearchStatus.NOT_STARTED: 'not_started'>, history=[], best_candidate=None, best_o...r_id=None, budget_ledger_revision=None, policy_evaluation_errors=0, generation_transition=None, pareto_projection=None).budget_spent
+E        +    where SearchRunState(search_id='', status=<SearchStatus.NOT_STARTED: 'not_started'>, history=[], best_candidate=None, best_o...r_id=None, budget_ledger_revision=None, policy_evaluation_errors=0, generation_transition=None, pareto_projection=None) = <polisyos.scientist.methods.search.controller.SearchController object at 0x7fec37130050>._run_state
+
+tests/unit/scientist/methods/search/test_controller_owner_admission.py:117: AssertionError
+_ test_actual_tiny_response_pending_owner_stops_run_and_direct_ask_before_proposal[True-1e-1000] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-oct07-service-start/final-native-c0/ctl-fixtures/test_actual_tiny_response_pend2')
+lexeme = '1e-1000', cost_stopping = True
+
+    @pytest.mark.parametrize("lexeme", ["1e-1000", "-1e-1000"])
+    @pytest.mark.parametrize("cost_stopping", [False, True])
+    def test_actual_tiny_response_pending_owner_stops_run_and_direct_ask_before_proposal(
+        tmp_path, lexeme, cost_stopping
+    ):
+        gateway, path, enforcer = _actual_operation(tmp_path, lexeme)
+        with pytest.raises(LLMAccountingError) as failure:
+            asyncio.run(_text["invoke"](enforcer))
+        event = failure.value.event["producer_event"]
+        before = FileBudgetLedger(path).snapshot()
+        assert gateway.transport.calls == 1 and event.amount is None
+        assert before.state.spent == {} and before.spend_receipts == {}
+        assert before.state.reserved["run"] > 0
+        pending = next(iter(before.completion_obligations.values()))
+        assert pending.event_payload["event_id"] == event.event_id
+        assert pending.event_payload["amount"] is None
+        stopping = CostBudgetStopping(1) if cost_stopping else MaxIterations(1)
+        search, generator, evaluations = _controller(_fresh_owner(path), stopping=stopping)
+        result = search.run({"cumulative_cost_usd": 0})
+        assert generator.calls == 0 and evaluations == [] and result.iterations_completed == 0
+        assert result.best_candidate is None
+        assert result.telemetry["budget_snapshot"] == {}
+        assert result.telemetry["budget_spent"] is None
+        assert result.telemetry["budget_available"] is False
+        assert search._run_state.budget_spent is None
+        assert search._stopping_state()["budget_spent"] is None
+        assert "cumulative_cost_usd" not in search._stopping_state()
+        _, restored = _fresh_checkpoint_state(search)
+        assert restored.budget_spent is None and restored.budget_available is False
+        assert result.telemetry["budget_evidence"]["admission"] == "unavailable"
+        if cost_stopping:
+            assert "Cost budget unavailable" in result.stopping_reason
+        else:
+            assert (
+                result.stopping_reason
+                == "budget_owner_admission_refused:BudgetLedgerCompletionRequiredError"
+            )
+        direct, direct_generator, direct_evaluations = _controller(
+            _fresh_owner(path), stopping=MaxIterations(1)
+        )
+        with pytest.raises(BudgetLedgerCompletionRequiredError):
+            _NativeSearchServiceDriver(direct).ask(None, None, {})
+        assert direct_generator.calls == 0 and direct_evaluations == []
+>       assert direct._run_state.budget_spent is None
+E       AssertionError: assert 0.0 is None
+E        +  where 0.0 = SearchRunState(search_id='', status=<SearchStatus.NOT_STARTED: 'not_started'>, history=[], best_candidate=None, best_o...r_id=None, budget_ledger_revision=None, policy_evaluation_errors=0, generation_transition=None, pareto_projection=None).budget_spent
+E        +    where SearchRunState(search_id='', status=<SearchStatus.NOT_STARTED: 'not_started'>, history=[], best_candidate=None, best_o...r_id=None, budget_ledger_revision=None, policy_evaluation_errors=0, generation_transition=None, pareto_projection=None) = <polisyos.scientist.methods.search.controller.SearchController object at 0x7fec36ed8890>._run_state
+
+tests/unit/scientist/methods/search/test_controller_owner_admission.py:117: AssertionError
+_ test_actual_tiny_response_pending_owner_stops_run_and_direct_ask_before_proposal[True--1e-1000] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-oct07-service-start/final-native-c0/ctl-fixtures/test_actual_tiny_response_pend3')
+lexeme = '-1e-1000', cost_stopping = True
+
+    @pytest.mark.parametrize("lexeme", ["1e-1000", "-1e-1000"])
+    @pytest.mark.parametrize("cost_stopping", [False, True])
+    def test_actual_tiny_response_pending_owner_stops_run_and_direct_ask_before_proposal(
+        tmp_path, lexeme, cost_stopping
+    ):
+        gateway, path, enforcer = _actual_operation(tmp_path, lexeme)
+        with pytest.raises(LLMAccountingError) as failure:
+            asyncio.run(_text["invoke"](enforcer))
+        event = failure.value.event["producer_event"]
+        before = FileBudgetLedger(path).snapshot()
+        assert gateway.transport.calls == 1 and event.amount is None
+        assert before.state.spent == {} and before.spend_receipts == {}
+        assert before.state.reserved["run"] > 0
+        pending = next(iter(before.completion_obligations.values()))
+        assert pending.event_payload["event_id"] == event.event_id
+        assert pending.event_payload["amount"] is None
+        stopping = CostBudgetStopping(1) if cost_stopping else MaxIterations(1)
+        search, generator, evaluations = _controller(_fresh_owner(path), stopping=stopping)
+        result = search.run({"cumulative_cost_usd": 0})
+        assert generator.calls == 0 and evaluations == [] and result.iterations_completed == 0
+        assert result.best_candidate is None
+        assert result.telemetry["budget_snapshot"] == {}
+        assert result.telemetry["budget_spent"] is None
+        assert result.telemetry["budget_available"] is False
+        assert search._run_state.budget_spent is None
+        assert search._stopping_state()["budget_spent"] is None
+        assert "cumulative_cost_usd" not in search._stopping_state()
+        _, restored = _fresh_checkpoint_state(search)
+        assert restored.budget_spent is None and restored.budget_available is False
+        assert result.telemetry["budget_evidence"]["admission"] == "unavailable"
+        if cost_stopping:
+            assert "Cost budget unavailable" in result.stopping_reason
+        else:
+            assert (
+                result.stopping_reason
+                == "budget_owner_admission_refused:BudgetLedgerCompletionRequiredError"
+            )
+        direct, direct_generator, direct_evaluations = _controller(
+            _fresh_owner(path), stopping=MaxIterations(1)
+        )
+        with pytest.raises(BudgetLedgerCompletionRequiredError):
+            _NativeSearchServiceDriver(direct).ask(None, None, {})
+        assert direct_generator.calls == 0 and direct_evaluations == []
+>       assert direct._run_state.budget_spent is None
+E       AssertionError: assert 0.0 is None
+E        +  where 0.0 = SearchRunState(search_id='', status=<SearchStatus.NOT_STARTED: 'not_started'>, history=[], best_candidate=None, best_o...r_id=None, budget_ledger_revision=None, policy_evaluation_errors=0, generation_transition=None, pareto_projection=None).budget_spent
+E        +    where SearchRunState(search_id='', status=<SearchStatus.NOT_STARTED: 'not_started'>, history=[], best_candidate=None, best_o...r_id=None, budget_ledger_revision=None, policy_evaluation_errors=0, generation_transition=None, pareto_projection=None) = <polisyos.scientist.methods.search.controller.SearchController object at 0x7fec36ed8f50>._run_state
+
+tests/unit/scientist/methods/search/test_controller_owner_admission.py:117: AssertionError
+_ test_real_objective_stack_native_cas_preserves_invalid_present_and_legacy_projection[legacy] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-oct07-service-start/final-native-c0/ctl-fixtures/test_real_objective_stack_nati2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fec374e7020>
+mode = 'legacy'
+
+    @pytest.mark.parametrize("mode", ["invalid_vector", "invalid_bundle", "legacy", "typed_bundle"])
+    def test_real_objective_stack_native_cas_preserves_invalid_present_and_legacy_projection(
+        tmp_path, monkeypatch, mode
+    ):
+        calls = []
+        original = ObjectiveStack.evaluate
+    
+        def observe(self, bundle):
+            calls.append(deepcopy(bundle))
+            return original(self, bundle)
+    
+        monkeypatch.setattr(ObjectiveStack, "evaluate", observe)
+        context = {"typed_mode": mode}
+        source = _service(tmp_path / "cas")
+        result = source.run_search(initial_context=context)
+        assert result.iterations_completed == result.stage_b_evaluations == len(result.history) == 1
+        ref = source.checkpoint_ref
+        retained = source._store.get_bytes(ref)
+        fresh = _service(tmp_path / "cas")
+        fresh.restore(ref, context=context)
+        restored = fresh.resume_search(context=context)
+        assert restored.history == result.history
+        assert restored.best_candidate == result.best_candidate
+        assert restored.best_objective == result.best_objective
+        assert restored.pareto_front == result.pareto_front
+        assert fresh._store.get_bytes(ref) == retained
+        row = restored.history[0]
+        if mode.startswith("invalid"):
+            assert calls == []  # Invalid schema is refused before the real stack.
+            assert row.policy_evaluation is None and row.policy_evaluation_status == "invalid"
+            assert row.policy_evaluation_error == (
+                "policy_evaluation_parse_failed"
+                if mode == "invalid_vector"
+                else "policy_evaluation_bundle_parse_failed"
+            )
+            assert row.objective_value == float("inf") and row.objective_details == []
+            assert row.is_promising is False
+            assert restored.best_candidate is None
+            assert restored.best_objective == float("inf")
+            assert restored.pareto_front == [] and fresh.controller._run_state.pareto_points == []
+            assert restored.telemetry["policy_evaluation_errors"] == 1
+        elif mode == "legacy":
+            assert calls == []
+            assert row.policy_evaluation_status == "missing" and row.policy_evaluation is None
+            assert row.policy_evaluation_error is None
+            assert restored.best_candidate == {"cost": -100}
+>           assert restored.best_objective == -100
+E           AssertionError: assert 100.0 == -100
+E            +  where 100.0 = SearchResult(search_id='a456b694', status=<SearchStatus.STOPPED: 'stopped'>, best_candidate={'cost': -100}, best_objec...t_profile_sha256': 'sha256:d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a'}}, pareto_projection=None).best_objective
+
+tests/unit/scientist/methods/search/test_typed_objective_persisted_projection.py:101: AssertionError
+_ test_real_objective_stack_native_cas_preserves_invalid_present_and_legacy_projection[typed_bundle] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-oct07-service-start/final-native-c0/ctl-fixtures/test_real_objective_stack_nati3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fec374e7f00>
+mode = 'typed_bundle'
+
+    @pytest.mark.parametrize("mode", ["invalid_vector", "invalid_bundle", "legacy", "typed_bundle"])
+    def test_real_objective_stack_native_cas_preserves_invalid_present_and_legacy_projection(
+        tmp_path, monkeypatch, mode
+    ):
+        calls = []
+        original = ObjectiveStack.evaluate
+    
+        def observe(self, bundle):
+            calls.append(deepcopy(bundle))
+            return original(self, bundle)
+    
+        monkeypatch.setattr(ObjectiveStack, "evaluate", observe)
+        context = {"typed_mode": mode}
+        source = _service(tmp_path / "cas")
+        result = source.run_search(initial_context=context)
+        assert result.iterations_completed == result.stage_b_evaluations == len(result.history) == 1
+        ref = source.checkpoint_ref
+        retained = source._store.get_bytes(ref)
+        fresh = _service(tmp_path / "cas")
+        fresh.restore(ref, context=context)
+        restored = fresh.resume_search(context=context)
+>       assert restored.history == result.history
+E       AssertionError: assert [SearchIterat...n_error=None)] == [SearchIterat...n_error=None)]
+E         
+E         At index 0 diff: SearchIteration(iteration=0, candidate={'cost': -100}, objective_value=1001997.915, objective_details=[ObjectiveValue(name='policy_value', raw_value=2.0, direction=<OptimizationDirection.MAXIMIZE: 'maximize'>, weight=1.0, is_satisfied=True, threshold=None), ObjectiveValue(name='employment', raw_value=0.5, direction=<OptimizationDirection.MAXIMIZE: 'maximize'>, weight=1.0, is_satisfied=True, threshold=None), ObjectiveValue(name='welfare', raw_value=0.0, direction=<OptimizationDirection.MAXIMIZE: 'maximize'>, weight=1.0, is_satisfied=True, threshold=None)...
+E         
+E         ...Full output truncated (2 lines hidden), use '-vv' to show
+
+tests/unit/scientist/methods/search/test_typed_objective_persisted_projection.py:76: AssertionError
+=============================== warnings summary ===============================
+../../../../tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/search/test_controller_owner_admission.py::test_actual_tiny_response_pending_owner_stops_run_and_direct_ask_before_proposal[False-1e-1000]
+FAILED tests/unit/scientist/methods/search/test_controller_owner_admission.py::test_actual_tiny_response_pending_owner_stops_run_and_direct_ask_before_proposal[False--1e-1000]
+FAILED tests/unit/scientist/methods/search/test_controller_owner_admission.py::test_actual_tiny_response_pending_owner_stops_run_and_direct_ask_before_proposal[True-1e-1000]
+FAILED tests/unit/scientist/methods/search/test_controller_owner_admission.py::test_actual_tiny_response_pending_owner_stops_run_and_direct_ask_before_proposal[True--1e-1000]
+FAILED tests/unit/scientist/methods/search/test_typed_objective_persisted_projection.py::test_real_objective_stack_native_cas_preserves_invalid_present_and_legacy_projection[legacy]
+FAILED tests/unit/scientist/methods/search/test_typed_objective_persisted_projection.py::test_real_objective_stack_native_cas_preserves_invalid_present_and_legacy_projection[typed_bundle]
+6 failed, 22 passed, 1 warning in 27.23s

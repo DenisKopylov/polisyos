@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="6" skipped="0" tests="6" time="14.922" timestamp="2026-10-06T16:12:22.131980+00:00" hostname="565838a1e059"><testcase classname="tests.unit.scientist.search.test_challenge_scenario_projection" name="test_actual_case_intake_refuses_before_boolean_coercion[1]" time="0.005"><failure message="Failed: DID NOT RAISE &lt;class 'TypeError'&gt;">malformed = 1
+
+    @pytest.mark.parametrize("malformed", [1, "false", float("nan"), float("inf")])
+    def test_actual_case_intake_refuses_before_boolean_coercion(malformed: object) -&gt; None:
+&gt;       with pytest.raises(TypeError, match="passed.*bool"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'TypeError'&gt;
+
+tests/unit/scientist/search/test_challenge_scenario_projection.py:176: Failed</failure></testcase><testcase classname="tests.unit.scientist.search.test_challenge_scenario_projection" name="test_actual_case_intake_refuses_before_boolean_coercion[false]" time="0.000"><failure message="Failed: DID NOT RAISE &lt;class 'TypeError'&gt;">malformed = 'false'
+
+    @pytest.mark.parametrize("malformed", [1, "false", float("nan"), float("inf")])
+    def test_actual_case_intake_refuses_before_boolean_coercion(malformed: object) -&gt; None:
+&gt;       with pytest.raises(TypeError, match="passed.*bool"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'TypeError'&gt;
+
+tests/unit/scientist/search/test_challenge_scenario_projection.py:176: Failed</failure></testcase><testcase classname="tests.unit.scientist.search.test_challenge_scenario_projection" name="test_actual_case_intake_refuses_before_boolean_coercion[nan]" time="0.000"><failure message="Failed: DID NOT RAISE &lt;class 'TypeError'&gt;">malformed = nan
+
+    @pytest.mark.parametrize("malformed", [1, "false", float("nan"), float("inf")])
+    def test_actual_case_intake_refuses_before_boolean_coercion(malformed: object) -&gt; None:
+&gt;       with pytest.raises(TypeError, match="passed.*bool"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'TypeError'&gt;
+
+tests/unit/scientist/search/test_challenge_scenario_projection.py:176: Failed</failure></testcase><testcase classname="tests.unit.scientist.search.test_challenge_scenario_projection" name="test_actual_case_intake_refuses_before_boolean_coercion[inf]" time="0.000"><failure message="Failed: DID NOT RAISE &lt;class 'TypeError'&gt;">malformed = inf
+
+    @pytest.mark.parametrize("malformed", [1, "false", float("nan"), float("inf")])
+    def test_actual_case_intake_refuses_before_boolean_coercion(malformed: object) -&gt; None:
+&gt;       with pytest.raises(TypeError, match="passed.*bool"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE &lt;class 'TypeError'&gt;
+
+tests/unit/scientist/search/test_challenge_scenario_projection.py:176: Failed</failure></testcase><testcase classname="tests.unit.scientist.search.test_challenge_scenario_projection" name="test_ten_same_issue_case_occurrences_remain_ten_after_presentation[1]" time="0.008"><failure message="AssertionError: assert (StressTestReport(schema_version='1.0', report_id='stress_strategic_gaming_v1_loop', total_scenarios_evaluated=32, adve...gaming_v1', 'challenge_family_counts': {'strategic': 32}, 'blocking_failure_count': 10, 'derived_from_phase_d4': True}) is not None and None is not None)&#10; +  where None = StressTestReport(schema_version='1.0', report_id='stress_strategic_gaming_v1_loop', total_scenarios_evaluated=32, adve...gaming_v1', 'challenge_family_counts': {'strategic': 32}, 'blocking_failure_count': 10, 'derived_from_phase_d4': True}).scenario_evidence">cap = 1
+tmp_path = PosixPath('/dev/shm/e02-D-challenge-intake-red-444f90539ddb472c9e64585bcfc81e43/test_ten_same_issue_case_occur0')
+
+    @pytest.mark.parametrize("cap", [1, 10])
+    def test_ten_same_issue_case_occurrences_remain_ten_after_presentation(
+        cap: int, tmp_path: Path
+    ) -&gt; None:
+        from polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime import (
+            _recompute_stress_test_report,
+        )
+    
+        report = _suite(
+            FileSystemCAS(tmp_path / "cas"), [_case(i, i &lt; 22) for i in range(32)]
+        ).stress_test_report
+&gt;       assert report is not None and report.scenario_evidence is not None
+E       AssertionError: assert (StressTestReport(schema_version='1.0', report_id='stress_strategic_gaming_v1_loop', total_scenarios_evaluated=32, adve...gaming_v1', 'challenge_family_counts': {'strategic': 32}, 'blocking_failure_count': 10, 'derived_from_phase_d4': True}) is not None and None is not None)
+E        +  where None = StressTestReport(schema_version='1.0', report_id='stress_strategic_gaming_v1_loop', total_scenarios_evaluated=32, adve...gaming_v1', 'challenge_family_counts': {'strategic': 32}, 'blocking_failure_count': 10, 'derived_from_phase_d4': True}).scenario_evidence
+
+tests/unit/scientist/search/test_challenge_scenario_projection.py:197: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.search.test_challenge_scenario_projection" name="test_ten_same_issue_case_occurrences_remain_ten_after_presentation[10]" time="0.006"><failure message="AssertionError: assert (StressTestReport(schema_version='1.0', report_id='stress_strategic_gaming_v1_loop', total_scenarios_evaluated=32, adve...gaming_v1', 'challenge_family_counts': {'strategic': 32}, 'blocking_failure_count': 10, 'derived_from_phase_d4': True}) is not None and None is not None)&#10; +  where None = StressTestReport(schema_version='1.0', report_id='stress_strategic_gaming_v1_loop', total_scenarios_evaluated=32, adve...gaming_v1', 'challenge_family_counts': {'strategic': 32}, 'blocking_failure_count': 10, 'derived_from_phase_d4': True}).scenario_evidence">cap = 10
+tmp_path = PosixPath('/dev/shm/e02-D-challenge-intake-red-444f90539ddb472c9e64585bcfc81e43/test_ten_same_issue_case_occur1')
+
+    @pytest.mark.parametrize("cap", [1, 10])
+    def test_ten_same_issue_case_occurrences_remain_ten_after_presentation(
+        cap: int, tmp_path: Path
+    ) -&gt; None:
+        from polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime import (
+            _recompute_stress_test_report,
+        )
+    
+        report = _suite(
+            FileSystemCAS(tmp_path / "cas"), [_case(i, i &lt; 22) for i in range(32)]
+        ).stress_test_report
+&gt;       assert report is not None and report.scenario_evidence is not None
+E       AssertionError: assert (StressTestReport(schema_version='1.0', report_id='stress_strategic_gaming_v1_loop', total_scenarios_evaluated=32, adve...gaming_v1', 'challenge_family_counts': {'strategic': 32}, 'blocking_failure_count': 10, 'derived_from_phase_d4': True}) is not None and None is not None)
+E        +  where None = StressTestReport(schema_version='1.0', report_id='stress_strategic_gaming_v1_loop', total_scenarios_evaluated=32, adve...gaming_v1', 'challenge_family_counts': {'strategic': 32}, 'blocking_failure_count': 10, 'derived_from_phase_d4': True}).scenario_evidence
+
+tests/unit/scientist/search/test_challenge_scenario_projection.py:197: AssertionError</failure></testcase></testsuite></testsuites>

@@ -1,0 +1,19 @@
+{
+  "policy-engine/tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py": {
+    "function_class_count": 8,
+    "all_bodies_equal": true,
+    "before_sha": "350519adde62860982fba8e14e72ce83ef421d65",
+    "after_sha": "83b87b845210bdb579f47b4cc2418a3d9804e2fe"
+  },
+  "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_scalar_admission.py": {
+    "function_class_count": 1,
+    "all_bodies_equal": true,
+    "before_sha": "350519adde62860982fba8e14e72ce83ef421d65",
+    "after_sha": "83b87b845210bdb579f47b4cc2418a3d9804e2fe"
+  },
+  "policy-engine/src/polisyos/common/serialization.py": {
+    "existing_function_class_count": 22,
+    "existing_ast_unchanged": true,
+    "new_helper_only": true
+  }
+}

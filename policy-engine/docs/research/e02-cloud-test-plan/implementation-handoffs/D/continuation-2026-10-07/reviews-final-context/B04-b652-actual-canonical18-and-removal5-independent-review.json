@@ -1,0 +1,58 @@
+{
+  "reviewer": "/root/census_oct07",
+  "author": "/root/gp_oct07",
+  "verdict": "GO_BOUNDED_REAL_CHECKER_RUNTIME_WITH_DISCLOSED_WRAPPER_HASH_ADDENDUM_REQUIRED",
+  "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+  "tree": "e677b5e24493a7083287c3bea31bca1892c3be29",
+  "canonical": {
+    "exit": 0,
+    "check": "PASS_BOUNDED_CANONICAL_AST",
+    "actual_selected_tracked_paths": 63,
+    "actual_read_records": 63,
+    "full_materialized_tools_src_tests_config_lock_manifest": 6854,
+    "readsha_verified": 63,
+    "before_after_bytes_exact": true,
+    "stdout_sha256": "ec4fbd715944b016ae150aea0a3239a8f8321f12a75518b2ce69a0299421352f",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "command_sha256": "059b692fb6d4dcd90e51052a2a78c1351eec7beb4a47e98222cc617af105859e"
+  },
+  "tests": [
+    {
+      "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+      "root": "/dev/shm/e02-D-B04tests18-b652-5zd06och",
+      "PASS": 18,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "JUnit_sha256": "69a6227d436c517d938e83364582842c0375cd8844e418b917d16de498becd80",
+      "stdout_sha256": "b08083c3e70f8a1327e668ad665430b25b4a61086bd71f325819bcdb805927a2",
+      "actual_complete_materialized_input_denominator": 6314
+    },
+    {
+      "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+      "root": "/dev/shm/e02-D-B04remove5-b652-i4p1rqge",
+      "PASS": 0,
+      "FAIL": 5,
+      "ERROR": 0,
+      "SKIP": 0,
+      "JUnit_sha256": "03a30bc3e35302a52ba9628ebe0d90ebc836e5fd19c6fb7ebcc79fb37fc836f1",
+      "stdout_sha256": "784ffc365edec0acf47df8dfc2bfd81c33d8a3db9733717f0dbc87f37203768e",
+      "actual_complete_materialized_input_denominator": 6314
+    }
+  ],
+  "predicate_basis": "recomputed actual parsed direct state reads and existing NodeSpec/OutputAwareNodeSpec declared literal/staticprefix relation across exact selectedtracked63; independentlyreconciled actualsource/readreceipt/hash/denominator. Unknown/nonliteral/unread/invalidsyntax actual18 tests UNRUN ratherthanpositive.",
+  "P38": "Original-required missingread predicate fails missingreads; remove only _covers_exact/_covers_prefix comparisons while actualfile/read/constructor/measurementmarkers retained makes allfive original code1 expectations FAIL as actualcode0.",
+  "metadata_addendum_required": [
+    {
+      "path": "wrapper.stdout.txt",
+      "reported_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "actual_sha256": "ddfef4dbf23a4c49d845b06b4a89e0d9cf0556e94824f57281d56ae1f1a4e63b",
+      "bytes": 142
+    }
+  ],
+  "metadata_reason": "Canonical launcher snapshots its wrapper stdout before its own final print. Actual deciding checkerstdout/selected63 and allother recorded outputs exact; cannot claim completed wrapperstdout matches originalempty digest. Preserve original result and append exact finalwrapperhash/disclosure.",
+  "scope": "Direct/annotatedunqualifiedexistingconstructors andsync/asyncexecuteAST only; aliases/indirectruntime/outsideselector unresolved. Actual lockedinterpreter invokes canonical script; uv wrapper not claimed. No runtime/scientific/permission or original A/B04 formalclosure.",
+  "P41": "not_established; no inherited/disjoint waiver",
+  "accepted_G": false,
+  "formal_closed": false
+}

@@ -1,0 +1,11 @@
+id = "2026-10-07-funnel-cache-settlement-binding"
+title = "Bind funnel cache reuse to actual issuer and paid lineage"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-runtime"
+surface_classification = "internal: internal-only"
+summary = "Funnel accounting consumes existing receiver-bound cache proof before that context closes, then reconciles the actual returned response. Typed reuse markers cannot fabricate measured paid expense or a free provider response without actual original receipts."
+evidence = ["tests/integration/scientist/methods/search/funnel/test_cache_settlement_binding.py", "tests/integration/scientist/methods/search/funnel/test_orchestrator.py", "tests/unit/remediation/test_llm_01.py"]
+compatibility = "Native provider receipt/readback and stage event deduplication remain supported. New cache reuse without the existing live cache receiver proof refuses, including synthetic committed ACKs. This adds no ledger schema or permission authority."
+migration = "Keep the known cache emitter bound to the traced receiver and the existing D enforcer and returned-response observation in configured funnel callers. A bare typed settlement cannot issue cache reuse."
+limitations = "Bounded local B1.1 accounting. Raw JSON tiny-cost decoding, B1.2 adoption, ordinary blueprint resource context, production billing, native draws and owner-issued promotion permits require their canonical owners."

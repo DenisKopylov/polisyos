@@ -1,0 +1,136 @@
+{
+  "schema": "e02.D.fiscal_independent_final680_handoff.v1",
+  "created_utc": "2026-10-07T11:09:33.001185+00:00",
+  "publication_target": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/fiscal-independent-final680/",
+  "implementation_sha": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "implementation_tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+  "slice_base": "96905636726483fdea3a98d9313871d825b54a9e",
+  "slice_base_tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "continued_D_lineage": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+  "full_implementation_changed_paths": [
+    "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_fiscal_numeric_admission.py",
+    "policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md",
+    "policy-engine/release-fragments/unreleased/2026-10-07-fiscal-float64-admission.toml"
+  ],
+  "roles": {
+    "implementation_test_companion_author": "math_oct07",
+    "independent_production_consumer_review": "transfer_oct07/GP",
+    "independent_test_runtime_review": "census_oct07",
+    "independent_wire_probe_counterfactual_author": "transfer_oct07",
+    "probe_counterfactual_independent_review": "math_oct07/census_oct07"
+  },
+  "decision": "CODE_READY exact-current bounded fiscal float64 intake repair with actual consumer/oracle/removal evidence",
+  "accepted_G": false,
+  "formally_closed_finding": false,
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "pytest": "9.0.2",
+    "pydantic": "2.12.5",
+    "pytest_asyncio": "1.3.0"
+  },
+  "backend": "native stdlib Decimal/canonical typed tags plus actual GatewayLLMClient JSON decoder, existing fiscal/compound/stopping consumers; no optional numerical backend property claimed",
+  "inputs": {
+    "seed": "not_stochastic; declared fixed exact13typedcanonical wires and HTTP±tiny tokens",
+    "complete_git_input_denominator": 15929,
+    "physically_available_sparse_inputs": 8860,
+    "unavailable_sparse_tracked_inputs_explicit": true,
+    "current_full_census": "current680/inputs-before.json.gz",
+    "raw_input_minrefs": "exact wire_utf8+sha256 in each canonical13 row; content IDs, not owner-issued CAS ArtifactRefs",
+    "same_raw_input_identity": "paired-exact-inputs.json matches all13 base/current rawbytes and hashes",
+    "source_unchanged": true
+  },
+  "runtime_properties": [
+    {
+      "scope": "same13 exactcanonicalraw inputs on base969",
+      "check_counts": {
+        "FAIL": 6,
+        "PASS": 7
+      },
+      "output": "baseline969/actual969_decoder_probe.json",
+      "meaning": "Six Decimal/text nonzero/conflict inputs become false finitezero; baseline for owned defect, not source393 or inherited waiver"
+    },
+    {
+      "scope": "same13 current680 actualtypedcanonical decoder→Budget/Composite→Plateau/Target",
+      "check_counts": {
+        "PASS": 13,
+        "FAIL": 0
+      },
+      "output": "current680/canonical13.observations.json",
+      "meaning": "Malformed/nonzero-underflow remains unavailable/unsatisfied/no stop; truezero/ordinary/representable/null fallback remain actual supported values"
+    },
+    {
+      "scope": "separate realGateway gov_balance±tiny same-source guard removal",
+      "check_counts": {
+        "FAIL": 2,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "output": "current680/guard-removal2.receipt.json",
+      "meaning": "Expected protected-property assertion failures after actual nonzero Decimal mapszero/satisfied/realPlateau+Targetstop; not setup ERROR"
+    },
+    {
+      "scope": "author73 and same-denominator owner removal73",
+      "check_counts_separate": {
+        "positive": {
+          "PASS": 73
+        },
+        "removed_guard": {
+          "FAIL": 27,
+          "PASS": 46
+        }
+      },
+      "independent_output_review": "reviews/fiscal-author73-independent-runtime-review.json",
+      "meaning": "Full owneroutputs preserved in separate canonical Mathfiscalpacket; independently admitted88 native source origins pergroup, no aggregate sum with own13/2/base13"
+    }
+  ],
+  "consumer": "Producer exact response-text or canonical typed wire→existing actual decoder→one shared fiscal alias float boundary→BudgetDeficitObjective/CompositeObjective→actual ImprovementPlateau/TargetAchieved under declared fixture objective units",
+  "independent_oracle": "Decimal exact original nonzero and canonical wire content versus float64 representability, separate truezero/±subnormal/ordinary controls; no production model.posterior/synthetic economic authority",
+  "P37": "Nonzero original Decimal/text cannot become available measuredzero or satisfy/stop; truthful unavailable reason/basis flows through actual consumer. Original B108/B111 acceptance text kept in original-criterion-binding.json; packet covers numeric intake only.",
+  "P38": "Guard removal preserves actual native decoder/nonzero/context/source/alias/stopping markers while effect diverges to finitezero/satisfied/earlystop; marker correctness alone fails discriminator.",
+  "P40": "Same falsezero class widened once at existing shared fouralias seam; no helper ladder/newfindingID.",
+  "P41": "not_established; exactbase13 characterization is not inherited-red waiver with complete zero-overlap denominator.",
+  "reviews": {
+    "reviews/independent-canonical13-removal2-output-review.json": {
+      "sha256": "97d63732085aa36cfe4eb2431dfbf36aaae0f31ddac0b845f42ab41688577e32",
+      "bytes": 9470
+    },
+    "reviews/fiscal-final680-73-18-13-removals-and-carry-independent-review.json": {
+      "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+      "bytes": 5056
+    },
+    "reviews/independent-negative-plugin-source-review.json": {
+      "sha256": "e3fc59d280e64884e4d88aaea08827e49d66d8a818970df25b898ec6bfb39e68",
+      "bytes": 1507
+    },
+    "reviews/fiscal-author73-independent-runtime-review.json": {
+      "sha256": "68d2c64ad95ea2bd38215fb264d4840c5b361e6924c277125565155a3f74882b",
+      "bytes": 49504
+    },
+    "reviews/fiscal-final-fourpath-independent-source-review.json": {
+      "sha256": "07ec1fedcfb750a120108f49acf290edf9e48477bfdcded72206a1a595d28377",
+      "bytes": 6307
+    }
+  },
+  "residual": {
+    "B108": "Actual producer-issued unit/sign/alias fiscal law and incompatible-unit policy remain minimal owner input; not established by controlled fixture. Own underflow consumer defect repaired and tested, not relabeled limited.",
+    "B111": "This fiscal seam is bounded supporting evidence; complete original Pareto/registry/champion criterion remains in root45-ID46-occurrence accounting.",
+    "source393": "not claimed; no available exact393baseline fabricated",
+    "G": "integration acceptance/default served caller/broad frozen replay remain canonical G decision"
+  },
+  "limits": [
+    "Only Decimal/numeric-text supported original-nonzero float64 admission; already-rounded floats cannot recover lostlexeme; arbitraryprecisionaliasequality/Fraction/custom__float__/other objective families not claimed.",
+    "No fiscal issuer/scientific economics law/public API appointment; canonical inventory internal-default retained while existing child exports and breaking observable refusal documented.",
+    "No debit/cache/ledger or whole-funnel claim from Gateway HTTP fixture.",
+    "No optional GP/vector backend PASS; fiscal profile needs no Torch.",
+    "PRELIMINARY_PACKET.json is historical package-construction snapshot superseded by this final sealed HANDOFF; initial census diagnostic occurred before tests and remains explicit, not productERROR."
+  ],
+  "cleanup": {
+    "action": "none",
+    "candidates_only": [
+      "/dev/shm/fiscal-current680-67egtqt6/guard-fixture"
+    ],
+    "preserve": "all code/uniqueinputs/decidingoutputs/currentGit/activeenvs; no permanentdelete or Trash emptying"
+  }
+}

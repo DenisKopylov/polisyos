@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="5.073" timestamp="2026-10-07T10:41:35.175644+00:00" hostname="565838a1e059"><testcase classname="tests.unit.scientist.methods.search.test_service_trial_deduplication" name="test_shared_helper_membership_is_isolated_by_actual_run_with_barrier" file="tests/unit/scientist/methods/search/test_service_trial_deduplication.py" line="1015" time="0.175"><failure message="assert [1, 1, 1] == [1]&#10;  &#10;  Left contains 2 more items, first extra item: 1&#10;  Use -v to get more diff">tmp_path = PosixPath('/dev/shm/e02-D-B124-removal-four-exxj42mi/remove_run_scope-fixtures/test_shared_helper_membership_0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fcf8d5a55b0&gt;
+
+    def test_shared_helper_membership_is_isolated_by_actual_run_with_barrier(
+        tmp_path, monkeypatch
+    ):
+        runner, store, _, suite, evaluator_a, spec_a = _runner(tmp_path)
+        evaluator_b = _Evaluator()
+        spec_b = replace(
+            spec_a,
+            candidate_generator=SequenceCandidateGenerator([_corpus()[2]]),
+            benchmark_evaluator=evaluator_b,
+        )
+        shared = TrialDeduplicator()
+        source_a = runner.create_service(
+            spec_a, suite_ref=suite, max_iterations=4, dedup=shared
+        )
+        source_b = runner.create_service(
+            spec_b, suite_ref=suite, max_iterations=4, dedup=shared
+        )
+        initial = source_a.ask(None, None, {})[0]
+        measured = source_a.controller._evaluate_for_tell(
+            initial.payload, iteration=0, context={}
+        )
+        source_a.tell(initial.candidate_id, measured)
+        paused = threading.Event()
+        release = threading.Event()
+        actual_lookup = shared.is_duplicate
+        results = []
+        failures = []
+    
+        def lookup_with_barrier(candidate, loop_id=""):
+            if threading.current_thread().name == "native-run-A":
+                paused.set()
+                if not release.wait(10):
+                    raise RuntimeError("shared_helper_barrier_not_released")
+            return actual_lookup(candidate, loop_id)
+    
+        def next_a():
+            try:
+                results.extend(source_a.ask(None, None, {}))
+            except BaseException as exc:
+                failures.append(exc)
+    
+        monkeypatch.setattr(shared, "is_duplicate", lookup_with_barrier)
+        worker = threading.Thread(target=next_a, name="native-run-A")
+        worker.start()
+        try:
+            assert paused.wait(10), "actual A lookup never reached the barrier"
+            b_pending = source_b.ask(None, None, {})
+            assert len(b_pending) == 1 and b_pending[0].payload["value"] == 2
+            assert (
+                source_a.controller._run_state.search_id
+                != source_b.controller._run_state.search_id
+            )
+        finally:
+            release.set()
+            worker.join(10)
+        assert not worker.is_alive() and failures == []
+        # On the unisolated source A yields its measured January subject again.
+        # Exercise the actual producer in that case before the deciding assertion,
+        # so the discriminator includes the extra physical evaluation, not a flag.
+        for proposal in results:
+            retry = source_a.controller._evaluate_for_tell(
+                proposal.payload, iteration=1, context={}
+            )
+            source_a.tell(proposal.candidate_id, retry)
+        fresh_snapshot = FileSystemCAS(tmp_path / "cas").get_verified_snapshot(
+            source_a.checkpoint_ref
+        )
+        saved = SearchRunState.from_checkpoint(
+            _decode_checkpoint(fresh_snapshot.data)["run_state"]
+        )
+        b_snapshot = FileSystemCAS(tmp_path / "cas").get_verified_snapshot(
+            source_b.checkpoint_ref
+        )
+        assert (
+            _decode_checkpoint(fresh_snapshot.data)["configuration"]
+            == _decode_checkpoint(b_snapshot.data)["configuration"]
+        )
+        print(
+            json.dumps(
+                {
+                    "actual_A_calls": evaluator_a.calls,
+                    "actual_B_calls": evaluator_b.calls,
+                    "actual_A_proposals": [p.payload for p in results],
+                    "A_run": source_a.controller._run_state.search_id,
+                    "B_run": source_b.controller._run_state.search_id,
+                    "A_checkpoint_ref": source_a.checkpoint_ref.model_dump(mode="json"),
+                    "B_checkpoint_ref": source_b.checkpoint_ref.model_dump(mode="json"),
+                    "fresh_A_history_count": len(saved.history),
+                }
+            )
+        )
+&gt;       assert _values(evaluator_a) == [1]
+E       assert [1, 1, 1] == [1]
+E         
+E         Left contains 2 more items, first extra item: 1
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/search/test_service_trial_deduplication.py:1107: AssertionError</failure></testcase></testsuite></testsuites>

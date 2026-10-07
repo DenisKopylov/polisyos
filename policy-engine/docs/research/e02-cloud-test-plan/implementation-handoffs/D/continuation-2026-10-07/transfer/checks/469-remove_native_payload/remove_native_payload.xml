@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="4" time="0.144" timestamp="2026-10-07T07:55:31.766062+00:00" hostname="565838a1e059"><testcase classname="tests.unit.scientist.agent.test_vector_generation_consumer" name="test_cosine_direction_survives_native_float32_narrowing[1e+300]" file="tests/unit/scientist/agent/test_vector_generation_consumer.py" line="39" time="0.010"><failure message="AssertionError: assert ['direction',...onal', 'axis'] == ['direction',... 'orthogonal']&#10;  &#10;  At index 1 diff: 'orthogonal' != 'axis'&#10;  Use -v to get more diff">scale = 1e+300
+
+    @pytest.mark.parametrize("scale", [1e300, 1e30, 1.0, 1e-300])
+    def test_cosine_direction_survives_native_float32_narrowing(scale):
+        pytest.importorskip("hnswlib")
+        memory = VectorMemoryStore(dim=2, max_elements=3)
+        memory.add("direction", [scale, scale], {})
+        memory.add("orthogonal", [scale, -scale], {})
+        memory.add("axis", [scale, 0.0], {})
+        rows = memory.query([scale, scale], top_k=3)
+&gt;       assert [row[0] for row in rows] == ["direction", "axis", "orthogonal"]
+E       AssertionError: assert ['direction',...onal', 'axis'] == ['direction',... 'orthogonal']
+E         
+E         At index 1 diff: 'orthogonal' != 'axis'
+E         Use -v to get more diff
+
+tests/unit/scientist/agent/test_vector_generation_consumer.py:48: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.agent.test_vector_generation_consumer" name="test_cosine_direction_survives_native_float32_narrowing[1e+30]" file="tests/unit/scientist/agent/test_vector_generation_consumer.py" line="39" time="0.003"><failure message="AssertionError: assert ['direction',...onal', 'axis'] == ['direction',... 'orthogonal']&#10;  &#10;  At index 1 diff: 'orthogonal' != 'axis'&#10;  Use -v to get more diff">scale = 1e+30
+
+    @pytest.mark.parametrize("scale", [1e300, 1e30, 1.0, 1e-300])
+    def test_cosine_direction_survives_native_float32_narrowing(scale):
+        pytest.importorskip("hnswlib")
+        memory = VectorMemoryStore(dim=2, max_elements=3)
+        memory.add("direction", [scale, scale], {})
+        memory.add("orthogonal", [scale, -scale], {})
+        memory.add("axis", [scale, 0.0], {})
+        rows = memory.query([scale, scale], top_k=3)
+&gt;       assert [row[0] for row in rows] == ["direction", "axis", "orthogonal"]
+E       AssertionError: assert ['direction',...onal', 'axis'] == ['direction',... 'orthogonal']
+E         
+E         At index 1 diff: 'orthogonal' != 'axis'
+E         Use -v to get more diff
+
+tests/unit/scientist/agent/test_vector_generation_consumer.py:48: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.agent.test_vector_generation_consumer" name="test_cosine_direction_survives_native_float32_narrowing[1.0]" file="tests/unit/scientist/agent/test_vector_generation_consumer.py" line="39" time="0.003" /><testcase classname="tests.unit.scientist.agent.test_vector_generation_consumer" name="test_cosine_direction_survives_native_float32_narrowing[1e-300]" file="tests/unit/scientist/agent/test_vector_generation_consumer.py" line="39" time="0.002"><failure message="AssertionError: assert ['direction',...onal', 'axis'] == ['direction',... 'orthogonal']&#10;  &#10;  At index 1 diff: 'orthogonal' != 'axis'&#10;  Use -v to get more diff">scale = 1e-300
+
+    @pytest.mark.parametrize("scale", [1e300, 1e30, 1.0, 1e-300])
+    def test_cosine_direction_survives_native_float32_narrowing(scale):
+        pytest.importorskip("hnswlib")
+        memory = VectorMemoryStore(dim=2, max_elements=3)
+        memory.add("direction", [scale, scale], {})
+        memory.add("orthogonal", [scale, -scale], {})
+        memory.add("axis", [scale, 0.0], {})
+        rows = memory.query([scale, scale], top_k=3)
+&gt;       assert [row[0] for row in rows] == ["direction", "axis", "orthogonal"]
+E       AssertionError: assert ['direction',...onal', 'axis'] == ['direction',... 'orthogonal']
+E         
+E         At index 1 diff: 'orthogonal' != 'axis'
+E         Use -v to get more diff
+
+tests/unit/scientist/agent/test_vector_generation_consumer.py:48: AssertionError</failure></testcase></testsuite></testsuites>

@@ -1,0 +1,40 @@
+{
+  "schema": "e02.D.independent-companion-delta.v1",
+  "reviewer": "census_oct07",
+  "actual_base": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+  "verdict": "GO_CLASSIFICATION_AND_SOURCE_ALIGNED_STRUCTURED_COMPANIONS",
+  "canonical_enum_source": "policy-engine/release-fragments/README.md",
+  "rows": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-durable-completion-obligations.toml",
+      "before_sha256": "0c9bc99ad01b430e792cce99c5edb845367f40b6152d4263b904ebed5979e4af",
+      "before_class": "runtime-state-format",
+      "approved_class": "runtime-state-format",
+      "reason": "Canonical B ledger wire1.2 explicitly migrates valid1.0/1.1 and refuses ambiguous/sparse state; same existing migration and authority limits."
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-e02-b-gateway-exact-numeric-decode.toml",
+      "before_sha256": "782b044cbd7d4396082d3871742da407015d69e20e4f3d11e017c2cb689b8899",
+      "before_class": "internal",
+      "approved_class": "internal",
+      "reason": "Existing internal execution/numeric admission, no facade/public signature or persisted CAS schema expansion."
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-e02-d-native-cosine-admission.toml",
+      "before_sha256": "0a9aa7c3f7ea31465ab9f74c4ae83658db9983068cfe396f67c8786be122d34a",
+      "before_class": "internal",
+      "approved_class": "internal",
+      "reason": "Existing internal execution/numeric admission, no facade/public signature or persisted CAS schema expansion."
+    }
+  ],
+  "structured_financial_patch": {
+    "path": "/dev/shm/e02-D-funnel-oct07/financial-boundary-structured-release-v1.patch",
+    "sha256": "7f7af14b85877f12c670bbd3ff98e1f6502da3fd67664e91c4e3762a866aa50e",
+    "full_read": true,
+    "classification": "internal",
+    "basis": "Operational B HMAC cache semantics retained; existing strict paid-origin and actual current ledger proof moved to financial boundary before durable zeroACK/effect. Source reviewed separately; no invented cache-only debt or physical unknown release."
+  },
+  "runtime": "UNRUN_ON_NEW_CANDIDATE",
+  "formal_closed": false,
+  "accepted_in_G": false
+}

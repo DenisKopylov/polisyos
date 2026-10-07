@@ -1,0 +1,19 @@
+{
+  "schema": "policyos.e02.lossless_evidence_transport.v1",
+  "source_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+  "source_tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+  "payload_filename": "hierarchical-registry-evidence.json.xz",
+  "payload_sha256": "1c58127a077d02b84f5164dcbd1879c1b7aad7dd16fb86d0d3f990cf3275d5d0",
+  "payload_bytes": 443384,
+  "compression": "XZ/LZMA2 stdlib preset3",
+  "member_count": 1683,
+  "raw_member_bytes": 8650933,
+  "index_sha256": "0c295aa0195f7b141a2fbed45fd442622f208c8873f6ded1b68883e25c8c69eb",
+  "full_member_hash_size_index": "embedded losslessly in payload members; base64 recovers exact deciding bytes",
+  "originals_retained": true,
+  "scope": "new moderate measurement outputs/helpers/fixture CAS inputs only, no product source archive/test tree/env copy; historical ERROR/FAIL included",
+  "verification": {
+    "members_verified": 1683,
+    "lossless_hash_size_errors": []
+  }
+}

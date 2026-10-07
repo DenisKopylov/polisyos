@@ -1,0 +1,8 @@
+{
+  "gp-warm-dedup1": {
+    "selectors": [
+      "tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_warm_start_reaches_gp_training_before_initial_threshold"
+    ],
+    "property": "Original B114 same origin+replicate artifact row occurs once in actual native training; intentional same origin distinct replicate/seed remains a separate sample; malformed foreign/unbound inputs excluded, actual eight-row fit and native acquisition before initial threshold."
+  }
+}

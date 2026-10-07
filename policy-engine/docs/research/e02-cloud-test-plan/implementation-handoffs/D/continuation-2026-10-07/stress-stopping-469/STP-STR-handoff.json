@@ -1,0 +1,1130 @@
+{
+  "schema": "e02.D.portable.existing-receipt.v1",
+  "package_kind": "Historical immutable STP/STR receipt seal; no implementation or runtime change",
+  "author": "root orchestration; production unchanged by measurement",
+  "portable_packet_author": "math_oct07",
+  "independent_review": {
+    "path": "STP-STR-independent469-review.json",
+    "sha256": "db3c5558323028c321d1d02d29adaee6e1a671a30bec3562722576216a8f6840",
+    "reviewer": "math_oct07"
+  },
+  "slice_base": {
+    "sha": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+    "tree": "bb6213c0cde3246e63c04f749547f40f35644a15",
+    "lineage": "Existing append-only D published receipt history"
+  },
+  "candidate": {
+    "implementation_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+    "tree": "91cd2360ef82a45b2cb069bfb2a15f74c6812c1d",
+    "status": "Historical complete targeted source, not current replay"
+  },
+  "complete_changed_paths_from_slice_base": [
+    "policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/bootstrap.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/cleanup-archive-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/cleanup-extra-archive-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/cleanup-extracted-duplicate-precheck.json.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/cleanup-extracted-duplicate-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/cleanup-mypy-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/create.receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/resume.receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/standalone-admission-independent-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/standalone-checkout.json",
+    "policy-engine/release-fragments/unreleased/2026-10-07-e02-d-native-cosine-admission.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-07-funnel-cache-settlement-binding.toml",
+    "policy-engine/src/polisyos/scientist/agent/README.md",
+    "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/execution_plan.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+    "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/README.md",
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+    "policy-engine/tests/integration/scientist/methods/search/funnel/test_cache_settlement_binding.py",
+    "policy-engine/tests/unit/scientist/agent/test_vector_generation_consumer.py",
+    "policy-engine/tests/unit/scientist/agent/vector_generation_reader.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_axis_permutation_consumers.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_warm_admission_reports.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_current_quantity_consumers.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_sequence_generator_admission.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_service_factory_fault_resume.py"
+  ],
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "pytest": "9.0.2",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "SALib": "1.5.2",
+    "torch": "2.10.0",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "hnswlib": "0.8.0"
+  },
+  "environment_executable": "/workspace/e02-D-doe-env/bin/python",
+  "thread_settings": {
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null,
+    "PYTEST_ADDOPTS": null
+  },
+  "criterion_occurrences": [
+    {
+      "id": "B106@STR-01",
+      "finding_id": "B106",
+      "criterion_card": "STR-01",
+      "canonical_closure_owner": "STR-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-str-01",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          2738,
+          2749
+        ],
+        "byte_offset": 614780,
+        "bytes": 2992,
+        "sha256": "250b3bd2f5bc433b540605f3c9e37eddab7a5c693326c6193bb94cc9d4c67e33"
+      },
+      "canonical_content": {
+        "text": "**Приёмка.** Изменение `collect_top_k` не изменяет итог той же серии. Десять проявлений одной проблемы и одно проявление не смешиваются. При нулевом количестве оценённых сценариев или непроверенных условиях score не должен выглядеть установленной устойчивостью. При адаптивном/раннем прекращении доля в обследованном наборе не является автоматически вероятностью отказа во всём пространстве.",
+        "byte_offset": 617064,
+        "bytes": 706,
+        "sha256": "1d212bb12a7346fc8c2480723fddd43da874e2e1daa2d2070a6233ab75795d43"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B106@STR-01",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STR-01.md",
+          "bytes": 11099,
+          "sha256": "e0532566d84e5e3d62d5e8b03a41eaf96d9a11aa155cc5475a0fb2a5d910d966"
+        }
+      },
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "proposal": "closed",
+      "formal_G_acceptance": "not_established",
+      "original_acceptance_preserved": true,
+      "current_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "complete_deciding_outputs": [
+        "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/targeted-stp-str.xml",
+        "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/actual-doe-consumer.stdout"
+      ],
+      "runtime_property": "Per-physical-scenario attempted/finite/violated/unknown counts precede grouping and top-k; assessed fraction23/38 identical for examples1/10; missing threshold, unknown/incomplete/zero denominator explicit unavailable/partial.",
+      "consumer": "Actual E Morris artifact→SensitivityAwareCandidateGenerator→run_stress_test→blueprint recompute→FileSystemCAS→freshStressTestReport reader.",
+      "residual": "Population probability/default deployment not established. Mutable postconstruction E SensitivityPlan cap is separate owner failure, not inferred fixed from initial plan admission.",
+      "historical_prior_accounting": {
+        "receipt": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "fields": {
+          "disposition": "OPEN_VERIFICATION_PENDING",
+          "conditional_engineering_proposal": "closed_bounded_engineering_if_final_exact_composed_checks_pass",
+          "current_attempt_source": {
+            "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+            "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+          },
+          "final_candidate_source": {
+            "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+            "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd",
+            "state": "FROZEN_CANDIDATE_RUNTIME_ERROR_UNRUN",
+            "predicate_basis": "not_established"
+          },
+          "finding_row_pointer": "/findings/1",
+          "previous_c17_attempt_source": {
+            "sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+            "tree": "b09d9f3cfee71c429f9e9b655076a563fa3cfa0d"
+          },
+          "final_environment_and_output_pointer": "/final_acceptance_wave"
+        }
+      },
+      "current_attempt_source": {
+        "sha": "46933aa2d97e236a949c490650a483c9a2838d98",
+        "tree": "91cd2360ef82a45b2cb069bfb2a15f74c6812c1d",
+        "qualification": "Historical exact tested source; not rerun at current D topic head."
+      },
+      "final_candidate_source": {
+        "sha": "46933aa2d97e236a949c490650a483c9a2838d98",
+        "tree": "91cd2360ef82a45b2cb069bfb2a15f74c6812c1d",
+        "state": "COMPLETE_TARGETED_RUNTIME_WITH_B41_OWN_DEFECT",
+        "predicate_basis": "B106/B107/B122_established_bounded;B41_newmetadata_intake_FAIL"
+      },
+      "disposition": "CLOSED_PROPOSAL_SOURCE_QUALIFIED_G_DECISION_PENDING",
+      "conditional_engineering_proposal": "closed_bounded_original_criterion",
+      "final_environment_and_output_pointer": "/check_results",
+      "complete_deciding_outputs_portable": {
+        "path": "STP-STR-complete-deciding-output.json.gz",
+        "sha256": "a02e36a9ffea0041031066cf164efc10caa4a65ebb8d464cd90cb75de0a843ac",
+        "path_bindings": [
+          "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/targeted-stp-str.xml",
+          "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/actual-doe-consumer.stdout"
+        ]
+      }
+    },
+    {
+      "id": "B107@STR-01",
+      "finding_id": "B107",
+      "criterion_card": "STR-01",
+      "canonical_closure_owner": "STR-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-str-01",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          2750,
+          2761
+        ],
+        "byte_offset": 617772,
+        "bytes": 3238,
+        "sha256": "35367e5237da490c93fb99395113d7251a972437ec52e1a54a8003e74d63eb7e"
+      },
+      "canonical_content": {
+        "text": "**Приёмка.** Табличные контрпримеры для maximize-utility и minimize-cost, порога в обе стороны, отрицательных значений, отсутствующих/нечисленных результатов. Запись worst-case совпадает с определённым нарушением. Эта правка должна идти вместе с B106: правильный экстремум ещё не означает правильно посчитанную полноту/устойчивость.",
+        "byte_offset": 620436,
+        "bytes": 572,
+        "sha256": "83e4adcea92922a6991dbd16937e9dc47cca02d83f0beccf2eb7e2f43623e0a3"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B107@STR-01",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STR-01.md",
+          "bytes": 11099,
+          "sha256": "e0532566d84e5e3d62d5e8b03a41eaf96d9a11aa155cc5475a0fb2a5d910d966"
+        }
+      },
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "proposal": "closed",
+      "formal_G_acceptance": "not_established",
+      "original_acceptance_preserved": true,
+      "current_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "complete_deciding_outputs": [
+        "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/targeted-stp-str.xml",
+        "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/actual-doe-consumer.stdout"
+      ],
+      "runtime_property": "Independent direction and physical threshold tables maximize utility/minimize cost, negative values/missing/nonfinite, raw worst-case equals defined violated extreme.",
+      "consumer": "Actual adversarial public report and same38-scenario native cost threshold workflow; raw objective/history/worst-case consumers.",
+      "residual": "Scientific threshold producer/unit law remains declared fixture input, not population authority.",
+      "historical_prior_accounting": {
+        "receipt": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "fields": {
+          "disposition": "OPEN_VERIFICATION_PENDING",
+          "conditional_engineering_proposal": "closed_bounded_engineering_if_final_exact_composed_checks_pass",
+          "current_attempt_source": {
+            "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+            "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+          },
+          "final_candidate_source": {
+            "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+            "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd",
+            "state": "FROZEN_CANDIDATE_RUNTIME_ERROR_UNRUN",
+            "predicate_basis": "not_established"
+          },
+          "finding_row_pointer": "/findings/2",
+          "previous_c17_attempt_source": {
+            "sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+            "tree": "b09d9f3cfee71c429f9e9b655076a563fa3cfa0d"
+          },
+          "final_environment_and_output_pointer": "/final_acceptance_wave"
+        }
+      },
+      "current_attempt_source": {
+        "sha": "46933aa2d97e236a949c490650a483c9a2838d98",
+        "tree": "91cd2360ef82a45b2cb069bfb2a15f74c6812c1d",
+        "qualification": "Historical exact tested source; not rerun at current D topic head."
+      },
+      "final_candidate_source": {
+        "sha": "46933aa2d97e236a949c490650a483c9a2838d98",
+        "tree": "91cd2360ef82a45b2cb069bfb2a15f74c6812c1d",
+        "state": "COMPLETE_TARGETED_RUNTIME_WITH_B41_OWN_DEFECT",
+        "predicate_basis": "B106/B107/B122_established_bounded;B41_newmetadata_intake_FAIL"
+      },
+      "disposition": "CLOSED_PROPOSAL_SOURCE_QUALIFIED_G_DECISION_PENDING",
+      "conditional_engineering_proposal": "closed_bounded_original_criterion",
+      "final_environment_and_output_pointer": "/check_results",
+      "complete_deciding_outputs_portable": {
+        "path": "STP-STR-complete-deciding-output.json.gz",
+        "sha256": "a02e36a9ffea0041031066cf164efc10caa4a65ebb8d464cd90cb75de0a843ac",
+        "path_bindings": [
+          "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/targeted-stp-str.xml",
+          "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/actual-doe-consumer.stdout"
+        ]
+      }
+    },
+    {
+      "id": "B122@STP-01",
+      "finding_id": "B122",
+      "criterion_card": "STP-01",
+      "canonical_closure_owner": "STP-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-stp-01",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3222,
+          3235
+        ],
+        "byte_offset": 727307,
+        "bytes": 3112,
+        "sha256": "d9413dc95965e6f0b64b056c37dd5a1452b59dd7605a5b9f033db4776ac50f9c"
+      },
+      "canonical_content": {
+        "text": "**Приёмка.** Ноль, малые значения обоих знаков, регресс и реальный прогресс; критерий после нормализации согласован с направлением цели. Ранее полученный полезный результат сохраняется независимо от того, что следующий шаг остановлен как плато. Повышение терпения и увеличение числа прогонов не устраняют ошибку знака.",
+        "byte_offset": 729833,
+        "bytes": 584,
+        "sha256": "9fb880ce2c75c7770deca54b1861fb86071f57aa1e4db5e51793fcfac56b115e"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B122@STP-01",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STP-01.md",
+          "bytes": 11176,
+          "sha256": "a9fb522de58a5c9e0524fa9cc209080d4f3f72e20f1b111f8872097b280a4d7c"
+        }
+      },
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "proposal": "closed",
+      "formal_G_acceptance": "not_established",
+      "original_acceptance_preserved": true,
+      "current_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "complete_deciding_outputs": [
+        "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/targeted-stp-str.xml",
+        "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/actual-doe-consumer.stdout"
+      ],
+      "runtime_property": "Independent Decimal signed gain and 0.01 absolute +0.01 relative default tolerance on declared unit/profile;0/small bothsign/regression/progress; native SearchController stops plateau and preserves previous best.",
+      "consumer": "Actual SearchController+GDP evaluator+Declared units/profile→plateau stopping→best result.",
+      "residual": "No convergence claim for absent unit/profile or arbitrary custom profile; default physical tolerance independently verified.",
+      "historical_prior_accounting": {
+        "receipt": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "fields": {
+          "disposition": "OPEN_VERIFICATION_PENDING",
+          "conditional_engineering_proposal": "closed_bounded_engineering_if_final_exact_composed_checks_pass",
+          "current_attempt_source": {
+            "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+            "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+          },
+          "final_candidate_source": {
+            "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+            "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd",
+            "state": "FROZEN_CANDIDATE_RUNTIME_ERROR_UNRUN",
+            "predicate_basis": "not_established"
+          },
+          "finding_row_pointer": "/findings/17",
+          "previous_c17_attempt_source": {
+            "sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+            "tree": "b09d9f3cfee71c429f9e9b655076a563fa3cfa0d"
+          },
+          "final_environment_and_output_pointer": "/final_acceptance_wave"
+        }
+      },
+      "current_attempt_source": {
+        "sha": "46933aa2d97e236a949c490650a483c9a2838d98",
+        "tree": "91cd2360ef82a45b2cb069bfb2a15f74c6812c1d",
+        "qualification": "Historical exact tested source; not rerun at current D topic head."
+      },
+      "final_candidate_source": {
+        "sha": "46933aa2d97e236a949c490650a483c9a2838d98",
+        "tree": "91cd2360ef82a45b2cb069bfb2a15f74c6812c1d",
+        "state": "COMPLETE_TARGETED_RUNTIME_WITH_B41_OWN_DEFECT",
+        "predicate_basis": "B106/B107/B122_established_bounded;B41_newmetadata_intake_FAIL"
+      },
+      "disposition": "CLOSED_PROPOSAL_SOURCE_QUALIFIED_G_DECISION_PENDING",
+      "conditional_engineering_proposal": "closed_bounded_original_criterion",
+      "final_environment_and_output_pointer": "/check_results",
+      "complete_deciding_outputs_portable": {
+        "path": "STP-STR-complete-deciding-output.json.gz",
+        "sha256": "a02e36a9ffea0041031066cf164efc10caa4a65ebb8d464cd90cb75de0a843ac",
+        "path_bindings": [
+          "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/targeted-stp-str.xml",
+          "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/actual-doe-consumer.stdout"
+        ]
+      }
+    }
+  ],
+  "checks": {
+    "targeted153": {
+      "cases": 153,
+      "failed": 0,
+      "errored": 0,
+      "skipped": 0
+    },
+    "actual_doe_workflow": "PASS exit0; actual native SALib1.5.2; no backend skip",
+    "root_missingargs_removal": "ERROR harness argv omitted; no property verdict",
+    "root_producer_only_removal": {
+      "cases": 2,
+      "failed": 0,
+      "errored": 0,
+      "skipped": 0,
+      "interpretation": "inadequate discriminator; actual mutated blueprint not invoked"
+    },
+    "root_full_scenario_removal": {
+      "cases": 32,
+      "failed": 3,
+      "errored": 0,
+      "skipped": 0,
+      "interpretation": "3 expected FAIL; guarded wrong score and zero denominator; remaining29 unaffected PASS"
+    },
+    "independent_actual_doe_removal": {
+      "cases": 1,
+      "failed": 1,
+      "errored": 0,
+      "skipped": 0,
+      "interpretation": "1 expected FAIL on actual blueprint38 finite/15 physical violation stream with wrong top-k proxy37/38; report validator blocks; no setup/collection error"
+    }
+  },
+  "execution_binding": {
+    "targeted153": {
+      "source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "tree": "91cd2360ef82a45b2cb069bfb2a15f74c6812c1d",
+      "actual_pytest_cases": 153,
+      "check_result": "PASS",
+      "no_fail_error_skip": true,
+      "full_argv_receipt_path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/receipt.json"
+    },
+    "native_DOE": {
+      "source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "tree": "91cd2360ef82a45b2cb069bfb2a15f74c6812c1d",
+      "check_result": "PASS",
+      "exit": 0,
+      "consumer": "Actual E Morris→SensitivityAwareCandidateGenerator→public stress report→blueprint score→FileSystemCAS→fresh report",
+      "observed_counts": {
+        "attempted": 38,
+        "finite": 38,
+        "violated": 15
+      },
+      "observed_fraction": "23/38",
+      "grouping_example_cap_controls": [
+        1,
+        10
+      ]
+    },
+    "full_scenario_removal": {
+      "source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "tree": "91cd2360ef82a45b2cb069bfb2a15f74c6812c1d",
+      "check_result": "FAIL",
+      "expected_assertion_failures": 3,
+      "unaffected_pass": 29,
+      "errors": 0,
+      "skips": 0,
+      "scope": "Wrong grouped example fraction and zero-denominator discrimination"
+    },
+    "independent_native_DOE_removal": {
+      "source": "d610095905262a9b5b05b60c894018a681119367",
+      "tree": "f5a8262d01929bcc96399ad9492e8aaf7489a8a1",
+      "check_result": "FAIL",
+      "expected_assertion_failures": 1,
+      "same_property_carry": "Only two unrelated fixture/test blobs differ from469; actual STP/STR production/probe modules identical, verified in independent review.",
+      "scope": "Actual38finite15violation stream; wrong top-k proxy37/38 refused by report validator"
+    },
+    "historical_inadequate_removals": {
+      "missing_arguments": "ERROR harness invocation, no property verdict",
+      "producer_only_2PASS": "Inadequate discriminator: never entered mutated blueprint; not counted as guard proof"
+    }
+  },
+  "source_input_denominator": 6299,
+  "source_inputs_before_after_equal": true,
+  "source_binding": {
+    "full_input_denominator": 6299,
+    "before_after_exact_equal": true,
+    "actual10producer_consumer_module_hashes_verified": {
+      "polisyos.scientist.methods.autotune.sensitivity_bridge": {
+        "path": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+        "sha256": "93d9e4a24dd8ac9c53411d1220b75612c56d2eb2c5e3580bb898f770e0239e98"
+      },
+      "polisyos.scientist.methods.doe._receipt": {
+        "path": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+        "sha256": "d067cd402809c5a7dcf8d33ddda2b5414b4d67f27021751becfd99556b4e565b"
+      },
+      "polisyos.scientist.methods.doe.adaptive": {
+        "path": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/doe/adaptive.py",
+        "sha256": "935d9741b7d5aa221aff65a065134eb101369baa305e4ca985158454e61d7632"
+      },
+      "polisyos.scientist.methods.doe.analysis": {
+        "path": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+        "sha256": "db87129797adc4c8c882655a95edd789b44381c47af85cff658e91e1f658e81c"
+      },
+      "polisyos.scientist.methods.doe.designs": {
+        "path": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+        "sha256": "dbd911c4f805b1b1ee7f90c71c8f1bd4008620be403c907340f322e3296891d6"
+      },
+      "polisyos.scientist.methods.doe.sampling": {
+        "path": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+        "sha256": "c27f8163d614b86bfd694560cdd7650a2736362763dfb404fb51d7d508601993"
+      },
+      "polisyos.scientist.methods.doe.stress_report": {
+        "path": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+        "sha256": "cdf7ffe7bd6e3921749e7aa61624d43fa9e8f831495533bf22441744478cc4ee"
+      },
+      "polisyos.scientist.methods.search.adversarial": {
+        "path": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+        "sha256": "a00f99197074360a8ec969d671180e01a57ffde37126f78addbba938b74698b1"
+      },
+      "polisyos.scientist.methods.search.sensitivity_adapter": {
+        "path": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+        "sha256": "af3d6c12ae461e550897eb5a32b3a6f5c2ba930e41533e99f7bd8b9ac42b0a46"
+      },
+      "polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime": {
+        "path": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+        "sha256": "19cf96ccdd90146d597c27e776b4bec34bb2999c588ac048d1ba895bcbdd261e"
+      }
+    },
+    "later_d610_delta": [
+      "policy-engine/tests/unit/scientist/agent/test_vector_generation_consumer.py",
+      "policy-engine/tests/unit/scientist/methods/search/test_service_factory_fault_resume.py"
+    ],
+    "carry": "Numerical STP/STR production/test/probe blobs unchanged; stronger removal separately executes ond610. 153 not represented as rerun ond610.",
+    "P41": "not_established: no inherited-red attribution/waiver or full sourcebase replay claimed."
+  },
+  "P37_predicate_basis": {
+    "B106": "Physical occurrence counter plus declared direction/threshold +status/completeness determine bounded observed fraction; markers alone insufficient.",
+    "B107": "Signed raw objective and threshold map worst-case/violations; field labels alone insufficient.",
+    "B122": "Declared unit/profile plus historical signed best and numeric tolerance determine plateau; best-score markers alone insufficient."
+  },
+  "P38_proxy_divergence": {
+    "B106": "Actual38finite/15violated =23/38 versus retainedexample1 proxy37/38 or unique10 proxy28/38; changingtop-k cannot change physicalfraction.",
+    "B107": "Minimize costs threshold> differs from maximize utility threshold<; raw extrema preserved.",
+    "B122": "Smallnegative/zero objective exposes signed-denominator/regression proxy; independent Decimal oracle and controller distinguish."
+  },
+  "historical_B41_boundary": {
+    "source": "46933aa2d97e236a949c490650a483c9a2838d98",
+    "state": "Original review found own metadata/vector defect after prior bounded153; not a current B41 verdict.",
+    "current_receipt": "Separately committed state-basis-b5/B41-handoff.json and B41-complete-deciding-output.json.gz; no republish in this packet."
+  },
+  "deciding_output": {
+    "path": "STP-STR-complete-deciding-output.json.gz",
+    "sha256": "a02e36a9ffea0041031066cf164efc10caa4a65ebb8d464cd90cb75de0a843ac",
+    "bytes": 342302,
+    "path_count": 307,
+    "deduplicated_content_count": 96,
+    "format": "Lossless per-path byte hash and UTF-8 or base64 content; includes full streams, JUnit, exact command/environment/full input manifests and bounded actual fixture CAS bytes."
+  },
+  "excluded_repeatable_material": [
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_actual_blueprint_existing0/cas/artifacts/ownership/transactions/locks/stripe-03.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_actual_blueprint_existing0/cas/artifacts/ownership/transactions/locks/stripe-07.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_actual_blueprint_existing0/cas/artifacts/ownership/transactions/locks/stripe-28.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_actual_blueprint_existing0/cas/artifacts/ownership/transactions/locks/stripe-32.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_actual_blueprint_existing0/cas/artifacts/ownership/transactions/locks/stripe-34.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_actual_blueprint_existing0/cas/artifacts/ownership/transactions/locks/stripe-41.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_actual_blueprint_existing0/cas/artifacts/ownership/transactions/locks/stripe-44.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_actual_blueprint_existing0/cas/artifacts/ownership/transactions/locks/stripe-49.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_actual_blueprint_existing0/cas/artifacts/ownership/transactions/locks/stripe-61.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_actual_blueprint_existing0/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_actual_blueprint_existing1/cas/artifacts/ownership/transactions/locks/stripe-03.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_actual_blueprint_existing1/cas/artifacts/ownership/transactions/locks/stripe-05.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_actual_blueprint_existing1/cas/artifacts/ownership/transactions/locks/stripe-07.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_actual_blueprint_existing1/cas/artifacts/ownership/transactions/locks/stripe-32.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_actual_blueprint_existing1/cas/artifacts/ownership/transactions/locks/stripe-34.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_actual_blueprint_existing1/cas/artifacts/ownership/transactions/locks/stripe-41.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_actual_blueprint_existing1/cas/artifacts/ownership/transactions/locks/stripe-44.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_actual_blueprint_existing1/cas/artifacts/ownership/transactions/locks/stripe-49.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_actual_blueprint_existing1/cas/artifacts/ownership/transactions/locks/stripe-50.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_actual_blueprint_existing1/cas/artifacts/ownership/transactions/locks/stripe-61.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_actual_blueprint_existing1/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_anonymous_report_retry_is0/cas/artifacts/ownership/transactions/locks/stripe-03.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_anonymous_report_retry_is0/cas/artifacts/ownership/transactions/locks/stripe-07.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_anonymous_report_retry_is0/cas/artifacts/ownership/transactions/locks/stripe-09.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_anonymous_report_retry_is0/cas/artifacts/ownership/transactions/locks/stripe-32.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_anonymous_report_retry_is0/cas/artifacts/ownership/transactions/locks/stripe-34.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_anonymous_report_retry_is0/cas/artifacts/ownership/transactions/locks/stripe-41.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_anonymous_report_retry_is0/cas/artifacts/ownership/transactions/locks/stripe-44.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_anonymous_report_retry_is0/cas/artifacts/ownership/transactions/locks/stripe-49.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_anonymous_report_retry_is0/cas/artifacts/ownership/transactions/locks/stripe-61.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_anonymous_report_retry_is0/cas/artifacts/ownership/transactions/locks/stripe-62.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_anonymous_report_retry_is0/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_blueprint_fraction_uses_30/cas/artifacts/ownership/transactions/locks/stripe-18.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_blueprint_fraction_uses_30/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_blueprint_fraction_uses_31/cas/artifacts/ownership/transactions/locks/stripe-13.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_blueprint_fraction_uses_31/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_budget_port_uses_ordinary0/cas/artifacts/ownership/transactions/locks/stripe-03.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_budget_port_uses_ordinary0/cas/artifacts/ownership/transactions/locks/stripe-07.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_budget_port_uses_ordinary0/cas/artifacts/ownership/transactions/locks/stripe-32.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_budget_port_uses_ordinary0/cas/artifacts/ownership/transactions/locks/stripe-34.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_budget_port_uses_ordinary0/cas/artifacts/ownership/transactions/locks/stripe-41.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_budget_port_uses_ordinary0/cas/artifacts/ownership/transactions/locks/stripe-44.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_budget_port_uses_ordinary0/cas/artifacts/ownership/transactions/locks/stripe-49.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_budget_port_uses_ordinary0/cas/artifacts/ownership/transactions/locks/stripe-61.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_budget_port_uses_ordinary0/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_physical_direction_fracti0/cas/artifacts/ownership/transactions/locks/stripe-48.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_physical_direction_fracti0/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_physical_direction_fracti1/cas/artifacts/ownership/transactions/locks/stripe-43.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_physical_direction_fracti1/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_physical_direction_fracti2/cas/artifacts/ownership/transactions/locks/stripe-02.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_physical_direction_fracti2/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_physical_direction_fracti3/cas/artifacts/ownership/transactions/locks/stripe-53.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_physical_direction_fracti3/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_physical_direction_fracti4/cas/artifacts/ownership/transactions/locks/stripe-22.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_physical_direction_fracti4/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_physical_direction_fracti5/cas/artifacts/ownership/transactions/locks/stripe-10.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_physical_direction_fracti5/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_scenario_adversary_fallba0/cas/artifacts/ownership/transactions/locks/stripe-07.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_scenario_adversary_fallba0/cas/artifacts/ownership/transactions/locks/stripe-39.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_scenario_adversary_fallba0/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_typed_adaptive_extremum_a0/cas/artifacts/ownership/transactions/locks/stripe-54.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_typed_adaptive_extremum_a0/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_typed_adaptive_extremum_a1/cas/artifacts/ownership/transactions/locks/stripe-56.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/fixtures/test_typed_adaptive_extremum_a1/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/pytest-cache/.gitignore",
+      "bytes": 37,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/pytest-cache/CACHEDIR.TAG",
+      "bytes": 191,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/pytest-cache/README.md",
+      "bytes": 302,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/pytest-cache/v/cache/nodeids",
+      "bytes": 20757,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/removal-cache/.gitignore",
+      "bytes": 37,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/removal-cache/CACHEDIR.TAG",
+      "bytes": 191,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/removal-cache/README.md",
+      "bytes": 302,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/removal-cache/v/cache/nodeids",
+      "bytes": 251,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-cache/.gitignore",
+      "bytes": 37,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-cache/CACHEDIR.TAG",
+      "bytes": 191,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-cache/README.md",
+      "bytes": 302,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-cache/v/cache/lastfailed",
+      "bytes": 399,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-cache/v/cache/nodeids",
+      "bytes": 5046,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_actual_blueprint_existing0/cas/artifacts/ownership/transactions/locks/stripe-03.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_actual_blueprint_existing0/cas/artifacts/ownership/transactions/locks/stripe-07.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_actual_blueprint_existing0/cas/artifacts/ownership/transactions/locks/stripe-28.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_actual_blueprint_existing0/cas/artifacts/ownership/transactions/locks/stripe-32.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_actual_blueprint_existing0/cas/artifacts/ownership/transactions/locks/stripe-34.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_actual_blueprint_existing0/cas/artifacts/ownership/transactions/locks/stripe-41.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_actual_blueprint_existing0/cas/artifacts/ownership/transactions/locks/stripe-44.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_actual_blueprint_existing0/cas/artifacts/ownership/transactions/locks/stripe-49.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_actual_blueprint_existing0/cas/artifacts/ownership/transactions/locks/stripe-61.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_actual_blueprint_existing0/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_actual_blueprint_existing1/cas/artifacts/ownership/transactions/locks/stripe-03.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_actual_blueprint_existing1/cas/artifacts/ownership/transactions/locks/stripe-05.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_actual_blueprint_existing1/cas/artifacts/ownership/transactions/locks/stripe-07.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_actual_blueprint_existing1/cas/artifacts/ownership/transactions/locks/stripe-32.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_actual_blueprint_existing1/cas/artifacts/ownership/transactions/locks/stripe-34.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_actual_blueprint_existing1/cas/artifacts/ownership/transactions/locks/stripe-41.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_actual_blueprint_existing1/cas/artifacts/ownership/transactions/locks/stripe-44.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_actual_blueprint_existing1/cas/artifacts/ownership/transactions/locks/stripe-49.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_actual_blueprint_existing1/cas/artifacts/ownership/transactions/locks/stripe-50.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_actual_blueprint_existing1/cas/artifacts/ownership/transactions/locks/stripe-61.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_actual_blueprint_existing1/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_anonymous_report_retry_is0/cas/artifacts/ownership/transactions/locks/stripe-03.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_anonymous_report_retry_is0/cas/artifacts/ownership/transactions/locks/stripe-07.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_anonymous_report_retry_is0/cas/artifacts/ownership/transactions/locks/stripe-09.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_anonymous_report_retry_is0/cas/artifacts/ownership/transactions/locks/stripe-32.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_anonymous_report_retry_is0/cas/artifacts/ownership/transactions/locks/stripe-34.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_anonymous_report_retry_is0/cas/artifacts/ownership/transactions/locks/stripe-41.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_anonymous_report_retry_is0/cas/artifacts/ownership/transactions/locks/stripe-44.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_anonymous_report_retry_is0/cas/artifacts/ownership/transactions/locks/stripe-49.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_anonymous_report_retry_is0/cas/artifacts/ownership/transactions/locks/stripe-61.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_anonymous_report_retry_is0/cas/artifacts/ownership/transactions/locks/stripe-62.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_anonymous_report_retry_is0/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_blueprint_fraction_uses_30/cas/artifacts/ownership/transactions/locks/stripe-18.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_blueprint_fraction_uses_30/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_blueprint_fraction_uses_31/cas/artifacts/ownership/transactions/locks/stripe-13.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_blueprint_fraction_uses_31/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_budget_port_uses_ordinary0/cas/artifacts/ownership/transactions/locks/stripe-03.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_budget_port_uses_ordinary0/cas/artifacts/ownership/transactions/locks/stripe-07.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_budget_port_uses_ordinary0/cas/artifacts/ownership/transactions/locks/stripe-32.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_budget_port_uses_ordinary0/cas/artifacts/ownership/transactions/locks/stripe-34.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_budget_port_uses_ordinary0/cas/artifacts/ownership/transactions/locks/stripe-41.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_budget_port_uses_ordinary0/cas/artifacts/ownership/transactions/locks/stripe-44.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_budget_port_uses_ordinary0/cas/artifacts/ownership/transactions/locks/stripe-49.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_budget_port_uses_ordinary0/cas/artifacts/ownership/transactions/locks/stripe-61.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/scenario-removal-fixtures/test_budget_port_uses_ordinary0/cas/artifacts/ownership/transactions/root.lock",
+      "bytes": 0,
+      "reason": "Repeatable pytest/cache/lock material; not deciding output or CAS payload."
+    }
+  ],
+  "limitations": [
+    "No formal finding closure or G acceptance; bounded original criterion proposals require G disposition.",
+    "153 is exact469 only; additional actual DOE removal executed exactd610, qualified identical property blobs. No aggregated current-head PASS.",
+    "Observed fraction only; no population probability, scientific threshold authority, production data, default deployment or E mutated-plan cap acceptance.",
+    "B41 resolved in separate newer source-bound packet. Later B111/B124 production repairs do not modify this historical immutable evidence.",
+    "P41 inherited red not established; no waiver or slice-base replay claimed."
+  ]
+}

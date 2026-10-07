@@ -1,0 +1,592 @@
+{
+  "complete_verdict": true,
+  "enumeration": "Git tracked paths; complete filesystem set only for non-Git fixtures",
+  "exclusions": [
+    "__init__.py",
+    "errors.py",
+    "state_keys.py"
+  ],
+  "finding_coverage": "explicit file-reader operations only",
+  "inputs": [
+    {
+      "characters": 35323,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/c6c_runtime_support.py",
+      "status": "read",
+      "text_sha256": "9faba5a0b787b770ecd876424fe34ba7755395068454eb6948655c32ee93ccee"
+    },
+    {
+      "characters": 13289,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/causal/build_literature_prior.py",
+      "status": "read",
+      "text_sha256": "d4bba45a4f3445d7e98f732418c6562d4288331db73ca62b9eb40274c4966ea5"
+    },
+    {
+      "characters": 9675,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/causal/counterfactual_identification_gate.py",
+      "status": "read",
+      "text_sha256": "f2897a44bd710e9bb34ce063410e1fdae104d43f5cc585c04e65485e088f9107"
+    },
+    {
+      "characters": 37912,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+      "status": "read",
+      "text_sha256": "2112d657c88350686bd5e8a472925030ccc2d86e4e2ebf71710ecee9260fd6b2"
+    },
+    {
+      "characters": 15771,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py",
+      "status": "read",
+      "text_sha256": "eb550486eebae50a0a0262c1909bc495354ba560c017ad2f1dc4448c028963d7"
+    },
+    {
+      "characters": 69352,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py",
+      "status": "read",
+      "text_sha256": "6997519aa5aa17c8273786955c67d53dc3941eec9e1e999203f866736a72a647"
+    },
+    {
+      "characters": 32749,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/causal/run_abm_consistency.py",
+      "status": "read",
+      "text_sha256": "a4cb0e6742cd4de8c85fe48771dae3270d9dc2b239d5581ccf0d85c16b2a93b1"
+    },
+    {
+      "characters": 23208,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/causal/run_causal_contract_execution.py",
+      "status": "read",
+      "text_sha256": "dc33e067aab71c2a5aa660c9e47114ea83e0fbf20de6873850219dc61f1ed281"
+    },
+    {
+      "characters": 31498,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/causal/run_causal_ensemble.py",
+      "status": "read",
+      "text_sha256": "6e986595121d3699d1e6995b7d08c1f60e1cf5e59e27b7b5087abc2bcb69470e"
+    },
+    {
+      "characters": 12687,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+      "status": "read",
+      "text_sha256": "669d25306e455397930f1a4c74e3e76c15368f31d77c06f195d100847610e098"
+    },
+    {
+      "characters": 13708,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/causal/run_causal_readiness.py",
+      "status": "read",
+      "text_sha256": "bc0389a3c825b46d0315e12f26c968fbd997fd829741bc0b1611cb5070eb6045"
+    },
+    {
+      "characters": 1097,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/checkpoint_marker.py",
+      "status": "read",
+      "text_sha256": "e703fba1d575fd5e50063b21778391ce5cffe975b413444844f806bc7a0f9d82"
+    },
+    {
+      "characters": 7046,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/compile/compile_foundry.py",
+      "status": "read",
+      "text_sha256": "ecbdd313006df6a75de5b5fb400a12be3ed5001d0a9f14c004be6167c4a04ac4"
+    },
+    {
+      "characters": 2225,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/compile/formalize_verified_policy.py",
+      "status": "read",
+      "text_sha256": "7c3ccc733eb31915039c89bacfa7b832129ab2d61b6b742d84cade714dc2306e"
+    },
+    {
+      "characters": 5248,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/compile/link_trinity.py",
+      "status": "read",
+      "text_sha256": "dbb8ea9ce92b3ce5fc0508b19999a813828e498c2f5394088fbd775fca3860fc"
+    },
+    {
+      "characters": 16485,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/data/bind_foundry_inputs.py",
+      "status": "read",
+      "text_sha256": "d8821a51d417d90edc265eabbc9c544ca04e5602fe613094425a3fb8c95812dc"
+    },
+    {
+      "characters": 5088,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/data/build_data_snapshot.py",
+      "status": "read",
+      "text_sha256": "383b3cbc50d8206a77091ec0fc3af970e59bb14b153ebc24fe015f3a1ef2ec53"
+    },
+    {
+      "characters": 16853,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/data/enrich_knowledge.py",
+      "status": "read",
+      "text_sha256": "bbcb4af26644aebe2c267a9faa3e69f5fc15bdc7eba7c0dc88c6f459d6a3bd3b"
+    },
+    {
+      "characters": 3032,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/decide/_decision_packet_contracts.py",
+      "status": "read",
+      "text_sha256": "a46bd90be461245ac46b62e106d06e38b2b691fb17aa8704280878b3da15ce21"
+    },
+    {
+      "characters": 700,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py",
+      "status": "read",
+      "text_sha256": "809686aa7329f3f67d07829aaec7f31266ebe38356a8c8cc91058dc93d2fc924"
+    },
+    {
+      "characters": 29136,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/decide/build_policy_output_bundle.py",
+      "status": "read",
+      "text_sha256": "8dc029683583c70fc9747b47324430b9b63946da233907592287a3e9b2d50e78"
+    },
+    {
+      "characters": 8007,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/decide/build_verified_policy_report.py",
+      "status": "read",
+      "text_sha256": "b85dd6e73c163dc9bd97330ef43e1489eb46278bc9f6f23163563e93fcc12969"
+    },
+    {
+      "characters": 1001,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/decide/decision_packet/api.py",
+      "status": "read",
+      "text_sha256": "9be64df784b7545d17dbc57934459bec8b78b11da069c0134ba4725754a5cf1a"
+    },
+    {
+      "characters": 41402,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/decide/decision_packet/builder.py",
+      "status": "read",
+      "text_sha256": "66e5f3f1a3ccb1c235200e9d80c0b3b303431ec2b5a70bfc1b7cc3d97d189e5e"
+    },
+    {
+      "characters": 131875,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py",
+      "status": "read",
+      "text_sha256": "397cb40abc81437bd38b634dc27a081298bff1855f80a9f69ffcfbc6709263c0"
+    },
+    {
+      "characters": 19114,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/decide/decision_packet/serialization.py",
+      "status": "read",
+      "text_sha256": "222d55ba2c306dc71a0e78368c04724e9241aaa6f8bbf2efeca67884be24e88e"
+    },
+    {
+      "characters": 21354,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/decide/decision_packet/validation.py",
+      "status": "read",
+      "text_sha256": "f9d3cc36dfbdbb5f33665c8aa411caab3cdd77fdc3fadabda0bcf8f6a6af6026"
+    },
+    {
+      "characters": 7117,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/decide/decision_packet_support.py",
+      "status": "read",
+      "text_sha256": "43134d38165a7e7f6646a2a000bf8294541b4db9f786a5cddc406f7fdb9a6c74"
+    },
+    {
+      "characters": 4134,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/decide/policy_runtime_request.py",
+      "status": "read",
+      "text_sha256": "d1ffa5549b5b1b3c6f59181c45450c283dee1655d173920ae8c46c9aa96d103c"
+    },
+    {
+      "characters": 3776,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/decide/policy_runtime_state.py",
+      "status": "read",
+      "text_sha256": "ffd1e477fd8396134af2ea9c5196307a0cd09efb6405585967740ba094b85e35"
+    },
+    {
+      "characters": 63306,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py",
+      "status": "read",
+      "text_sha256": "13a119c2e0b325daccaa15a6064884a9303a31ba7af08edbe25d955e7ab8cfcc"
+    },
+    {
+      "characters": 102623,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+      "status": "read",
+      "text_sha256": "19cf96ccdd90146d597c27e776b4bec34bb2999c588ac048d1ba895bcbdd261e"
+    },
+    {
+      "characters": 5862,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/decide/run_policy_funnel_level5.py",
+      "status": "read",
+      "text_sha256": "94b4862b8da6da08872023c2ec2d8ac9014b8c9dc8051da37202b0b181d15b2c"
+    },
+    {
+      "characters": 17376,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py",
+      "status": "read",
+      "text_sha256": "f1b009eae25282f0cd7dc79210dfc6bdf4923c91675858f7579939b225030d85"
+    },
+    {
+      "characters": 12216,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/decide/run_policy_translation.py",
+      "status": "read",
+      "text_sha256": "c2b79cfc2b61a279502f92abf7b406996b555f3acac019ac58b91f8b8012da8f"
+    },
+    {
+      "characters": 5747,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/decide/run_translator_compliance.py",
+      "status": "read",
+      "text_sha256": "6412be59439742f0ca8bf8479a7efc9b5e822fe8ae8ec45c9c51bfed9f31de59"
+    },
+    {
+      "characters": 14468,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/governance/data_plane_gate.py",
+      "status": "read",
+      "text_sha256": "51558e37c29280db2fb52b008372bfacc19b3d54bd6f71e2e1e27e78f2e3c49d"
+    },
+    {
+      "characters": 11354,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/governance/legal_check.py",
+      "status": "read",
+      "text_sha256": "55168851eda76effa7a45de8f45dca0afffacac718b0c3b3deae666076ad8cd9"
+    },
+    {
+      "characters": 46788,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/governance/run_governance.py",
+      "status": "read",
+      "text_sha256": "c2151e7e51570b8ce134178db198675c1117090146f033fe5509b6d43218230a"
+    },
+    {
+      "characters": 41217,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/governance/run_normative_arbitration.py",
+      "status": "read",
+      "text_sha256": "851dafd077300c9e0230385ccf29933c31031c64c3110030ea1a2e8089868e54"
+    },
+    {
+      "characters": 5656,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/guards.py",
+      "status": "read",
+      "text_sha256": "bce5ae3e0aae9a52014b94d142b8f277873d8e523a340b724619d7e9792dba6b"
+    },
+    {
+      "characters": 4613,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/planning/assemble_legal_candidate_pack.py",
+      "status": "read",
+      "text_sha256": "289415f477696c13884b6f1816ce8286a3c93f2bf660f296c68ccbfd3c9cdab7"
+    },
+    {
+      "characters": 6854,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/planning/build_execution_plan.py",
+      "status": "read",
+      "text_sha256": "c53545cf8cb93a1af4a4fa634a11a47adcfb81fe6ff01140042cc7bb8a855c4e"
+    },
+    {
+      "characters": 4101,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/planning/build_method_catalog_snapshot.py",
+      "status": "read",
+      "text_sha256": "03baeb7df77cd5d69e291909f027c29e5b0b34fc408bc74559e2fa6cbad1db4b"
+    },
+    {
+      "characters": 30689,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/planning/compile_cross_graph_evidence.py",
+      "status": "read",
+      "text_sha256": "1c5f70d0dc68f00b1ac7327589bff10b9ac446d041771dfd4550eb9ead2ffc71"
+    },
+    {
+      "characters": 4481,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/planning/draft_policy_options.py",
+      "status": "read",
+      "text_sha256": "d3992af33ec95443157f561ca12f6663075f90738e39c5afadfdaa86b472a1f1"
+    },
+    {
+      "characters": 4106,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/planning/expand_legal_source_pack.py",
+      "status": "read",
+      "text_sha256": "9a9718120cf1bd3f97bb98905e31e09ca7d74749d72e57b323dd4c2a28665d23"
+    },
+    {
+      "characters": 3951,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/planning/plan_policy_request.py",
+      "status": "read",
+      "text_sha256": "6b62b2bdee3b50602bdf2ce491872441e201c057514116b26dde10a49f4a86ff"
+    },
+    {
+      "characters": 2387,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/planning/ready_to_run.py",
+      "status": "read",
+      "text_sha256": "db7c0b65249f006653a716f50398c70795212cec5e8af35e041e176854edab30"
+    },
+    {
+      "characters": 19486,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/planning/run_discovery_blueprint_runtime.py",
+      "status": "read",
+      "text_sha256": "fbac3868981a017bfd8f8ed3e2a99a08d05b0c302f7ef2573b5ed22a244db549"
+    },
+    {
+      "characters": 8323,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/planning/run_evaluator.py",
+      "status": "read",
+      "text_sha256": "8d6bd43928cd099f4edef4ca5aba31ddef237ac4d45321372847b4459957a492"
+    },
+    {
+      "characters": 63816,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
+      "status": "read",
+      "text_sha256": "9d128909611cfa8e78f2d2d8d0e46098d95387c167d62cd360552a25ad6af3fc"
+    },
+    {
+      "characters": 6082,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/planning/run_preflight.py",
+      "status": "read",
+      "text_sha256": "e1703b15f4ef72221890870aea08ce33142a2987191e3637c10e78abb128687d"
+    },
+    {
+      "characters": 7197,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/planning/run_source_gap_review.py",
+      "status": "read",
+      "text_sha256": "026770e2f01ad0689240b93bb3ee2bf2c8e94bc6ea4d75d25fc59b1cae89e586"
+    },
+    {
+      "characters": 5523,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/planning/run_source_verification.py",
+      "status": "read",
+      "text_sha256": "6c2434cbf634f9bcb2bea3b985c6bdd571d6d77eac8ca5f3ebf59e95dd277ccf"
+    },
+    {
+      "characters": 18879,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "status": "read",
+      "text_sha256": "1347520ae606bb69007481a843ab6afe7ee85c7a7895d3ad75381fd487163b7c"
+    },
+    {
+      "characters": 161162,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "status": "read",
+      "text_sha256": "0ab19952c558e54024a0ce58bbe4680b97548869c96f93895fcd533ca986ea7b"
+    },
+    {
+      "characters": 57879,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+      "status": "read",
+      "text_sha256": "12bdb46a7dc26bd4f18075ad88d054f2cd1666d3cd0e3b370314f6ee8b6f3934"
+    },
+    {
+      "characters": 93326,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/simulate/run_distributional_analysis.py",
+      "status": "read",
+      "text_sha256": "d6d84662b9b7bdee0e9d6b5a4e19ef337fa281da35eb7abc5b75c790b57fdc30"
+    },
+    {
+      "characters": 16379,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/simulate/run_metric_validation.py",
+      "status": "read",
+      "text_sha256": "207216dd051e290469305c9fd3ef8a1ead4556b4c1d28d28e84259225140747d"
+    },
+    {
+      "characters": 27547,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py",
+      "status": "read",
+      "text_sha256": "d7cada3d0448e6aca77b6458a3b6fea072637202f7964231986f632eb59a8509"
+    },
+    {
+      "characters": 1940,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/tracing.py",
+      "status": "read",
+      "text_sha256": "3a955336cb4abde0a318270efca243d85f484396fef39c25dc86010abbdd36ad"
+    },
+    {
+      "characters": 5038,
+      "encoding": "utf-8",
+      "operation": "read_text",
+      "path": "src/polisyos/scientist/nodes/builtins/validation.py",
+      "status": "read",
+      "text_sha256": "7ce8ec4486fa4c9ec48f35de9d7dc85d052dc2c657632df47ab6da19dac13599"
+    }
+  ],
+  "selected_input_denominator": 63,
+  "selected_paths": [
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/c6c_runtime_support.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/causal/build_literature_prior.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/causal/counterfactual_identification_gate.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_parameters.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_abm_consistency.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_contract_execution.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_ensemble.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_queries.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/causal/run_causal_readiness.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/checkpoint_marker.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/compile/compile_foundry.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/compile/formalize_verified_policy.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/compile/link_trinity.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/data/bind_foundry_inputs.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/data/build_data_snapshot.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/data/enrich_knowledge.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/decide/_decision_packet_contracts.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/decide/build_policy_output_bundle.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/decide/build_verified_policy_report.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/api.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/builder.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/enrichment.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/serialization.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/validation.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet_support.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_request.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_state.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_funnel_level5.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_promotion.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_translation.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_translator_compliance.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/governance/data_plane_gate.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/governance/legal_check.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/governance/run_governance.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/governance/run_normative_arbitration.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/guards.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/planning/assemble_legal_candidate_pack.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/planning/build_execution_plan.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/planning/build_method_catalog_snapshot.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/planning/compile_cross_graph_evidence.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/planning/draft_policy_options.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/planning/expand_legal_source_pack.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/planning/plan_policy_request.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/planning/ready_to_run.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_discovery_blueprint_runtime.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_evaluator.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_preflight.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_source_gap_review.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_source_verification.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_distributional_analysis.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_metric_validation.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/tracing.py",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/nodes/builtins/validation.py"
+  ],
+  "selector": [
+    "src/polisyos/scientist/nodes/builtins/**/*.py",
+    "src/polisyos/scientist/engine/builtins/**/*.py"
+  ],
+  "unresolved_by_construction": [
+    "Python imports, Git object/ref access, subprocess reads and external services are not observed by this explicit file-reader receipt.",
+    "Only direct state-name reads in sync/async execute and one unambiguous direct module Assign/AnnAssign unqualified _SPEC call to NodeSpec/OutputAwareNodeSpec are interpreted; aliases, indirect reads, runtime dispatch, dynamic writes/object mutation and files outside the declared selector are undecided. Nested/dead or multiple syntactic _SPEC bindings are unresolved rather than unioned; reachability and runtime reaching definitions are not established."
+  ],
+  "unresolved_inputs": [],
+  "verdict": "PASS"
+}

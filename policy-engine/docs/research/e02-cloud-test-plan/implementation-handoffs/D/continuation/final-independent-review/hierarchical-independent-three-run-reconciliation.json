@@ -1,0 +1,616 @@
+{
+  "schema": "policyos.e02.independent_runtime_output_reconciliation.v1",
+  "reviewer": "criterion_closeout_review; independent of product and author/FUN tests; no test/backend execution here",
+  "source_sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+  "results": [
+    {
+      "raw_directory": "/tmp/e02-D-registry-independent-f471-Hb8Xx4Ma",
+      "execution_manifest": {
+        "source": {
+          "sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+          "tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+          "status": ""
+        },
+        "cwd": "/workspace/e02-D-published-search/policy-engine",
+        "argv": [
+          "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+          "-B",
+          "-m",
+          "pytest",
+          "-c",
+          "/workspace/e02-D-published-search/policy-engine/pytest.ini",
+          "/tmp/e02-D-registry-independent-prep-dvmN2exP/test_registry_consumer_independent.py",
+          "--run-quarantine",
+          "--basetemp=/tmp/e02-D-registry-independent-f471-Hb8Xx4Ma/fresh-fixtures",
+          "--junitxml=/tmp/e02-D-registry-independent-f471-Hb8Xx4Ma/junit.xml",
+          "-o",
+          "cache_dir=/tmp/e02-D-registry-independent-f471-Hb8Xx4Ma/pytest-cache",
+          "-p",
+          "tests.conftest",
+          "-p",
+          "e02_registry_capture",
+          "-rA"
+        ],
+        "env_overrides": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/workspace/e02-D-published-search/policy-engine/src:/workspace/e02-D-published-search/policy-engine:/tmp/e02-D-registry-independent-f471-Hb8Xx4Ma",
+          "E02_PROJECT": "/workspace/e02-D-published-search/policy-engine",
+          "E02_OUTPUT": "/tmp/e02-D-registry-independent-f471-Hb8Xx4Ma",
+          "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+        },
+        "start_time_ns": 1791322925925748731,
+        "basetemp_before": "nonexisting",
+        "quotas_added": false,
+        "test_input": {
+          "source_sha": "58ead558b922397a82d31ca9c876e1449f1a2121",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-registry-independent-proof/test-registry-consumer.py.txt",
+          "sha256": "993705320aaf0d0da010e0715101f94eb8e29258cda77293dcb8cb920d33bacb"
+        },
+        "observer_input": {
+          "source_sha": "566574237b0e7a6c8bcb196425226d76c952efff",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-budget-B11-fixture-proof/observer.py.txt"
+        },
+        "profile_sha256": "8ac6a0f04c56b3d1ff0976c81aedb0b805e9a9efee486939467af01b93fd36d7"
+      },
+      "actual_result": {
+        "source": {
+          "sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+          "tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+          "status": ""
+        },
+        "after": {
+          "sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+          "tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+          "status": ""
+        },
+        "source_unchanged": true,
+        "exitcode": 1,
+        "wall_seconds": 21.71569012499822,
+        "maxrss_kib": 522512,
+        "actual_product_modules": 1344,
+        "actual_product_unique_paths": 1344,
+        "origin_errors": [],
+        "end_time_ns": 1791322947641714920,
+        "result_dir": "/tmp/e02-D-registry-independent-f471-Hb8Xx4Ma"
+      },
+      "complete_output_members": {
+        "actual-origins.json": {
+          "bytes": 549417,
+          "sha256": "879b5ea73fb760f54c87497bb11cfd681974a698e476e50c1a85322deec37b44"
+        },
+        "after.json": {
+          "bytes": 126,
+          "sha256": "5f2ca139826e1a883df97ef5c2dfbce2594d81bbecd1b582936a84ccef618954"
+        },
+        "before.json": {
+          "bytes": 126,
+          "sha256": "5f2ca139826e1a883df97ef5c2dfbce2594d81bbecd1b582936a84ccef618954"
+        },
+        "collected-nodeids.json": {
+          "bytes": 582,
+          "sha256": "9472e1e7ffa40942062eaaae0445f4051d4fbe5953c38805af6b67166017fa5b"
+        },
+        "complete.stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "complete.stdout.txt": {
+          "bytes": 4332,
+          "sha256": "d196aa32ff4449265238b266748efdfe44d16a632c48f25ef670ae862b615483"
+        },
+        "events.jsonl": {
+          "bytes": 7630,
+          "sha256": "cf4d80b59a9ff5b2cfac4ab04c7565b1aba64a40ff3e0bd59b121056acb45ebc"
+        },
+        "execution-manifest.json": {
+          "bytes": 2001,
+          "sha256": "65ef5b0824e7ebd2a07eddd1e76a8f605ea39237f3e3718650bae972284ec310"
+        },
+        "junit.xml": {
+          "bytes": 5025,
+          "sha256": "b53ecd554a76ba2bb3269750c9e3ff350fdf9f8411e82533e0b033747045ffac"
+        },
+        "resources-after.json": {
+          "bytes": 1428,
+          "sha256": "8a198c34e5da0fd655cf3c881087a6b39d22148d6630a7b841a6ff3945c0e7b5"
+        },
+        "resources-before.json": {
+          "bytes": 1431,
+          "sha256": "53a38b66d7751ec4f892f6e8cc9dfeb9733dcaab35db4f0bd23f7fa49a3a911f"
+        },
+        "result.json": {
+          "bytes": 601,
+          "sha256": "b388aeec1dddabf88b73f3fbf08775a285726c11e0584595a1df3d45a89a33fd"
+        },
+        "runner.py": {
+          "bytes": 3891,
+          "sha256": "b3525c145d930918eeb11e91a2e459c2c0162d60c64df53b1d73d6248cca7052"
+        },
+        "runtime.json": {
+          "bytes": 290,
+          "sha256": "75b514728a03250c024ab501340266a23959558e011a9bfce38c712462186338"
+        }
+      },
+      "input_source_bytes_MATCH": true,
+      "origin_count": 1344,
+      "origin_errors": [],
+      "runtime": {
+        "exitstatus": 1,
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "loaded_optional": {
+          "torch": false,
+          "botorch": false,
+          "gpytorch": false,
+          "hnswlib": false,
+          "SALib": false
+        }
+      },
+      "actual_calls": [
+        {
+          "nodeid": "::test_actual_parameterless_callback_has_fresh_disk_custody_and_scoped_seed_reads",
+          "outcome": "failed"
+        },
+        {
+          "nodeid": "::test_malformed_present_vector_never_falls_back_to_scalar_or_publishes[None]",
+          "outcome": "passed"
+        },
+        {
+          "nodeid": "::test_malformed_present_vector_never_falls_back_to_scalar_or_publishes[True]",
+          "outcome": "passed"
+        },
+        {
+          "nodeid": "::test_malformed_present_vector_never_falls_back_to_scalar_or_publishes[broken]",
+          "outcome": "passed"
+        },
+        {
+          "nodeid": "::test_malformed_present_vector_never_falls_back_to_scalar_or_publishes[present3]",
+          "outcome": "passed"
+        },
+        {
+          "nodeid": "::test_removing_configured_registry_fails_actual_custody_oracle",
+          "outcome": "passed"
+        },
+        {
+          "nodeid": "::test_removing_tenant_scope_fails_real_seed_routing_with_text_markers_retained",
+          "outcome": "failed"
+        }
+      ],
+      "actual_call_counts": {
+        "passed": 5,
+        "failed": 2,
+        "skipped": 0
+      },
+      "collected_nodeids": [
+        "::test_actual_parameterless_callback_has_fresh_disk_custody_and_scoped_seed_reads",
+        "::test_malformed_present_vector_never_falls_back_to_scalar_or_publishes[None]",
+        "::test_malformed_present_vector_never_falls_back_to_scalar_or_publishes[True]",
+        "::test_malformed_present_vector_never_falls_back_to_scalar_or_publishes[broken]",
+        "::test_malformed_present_vector_never_falls_back_to_scalar_or_publishes[present3]",
+        "::test_removing_configured_registry_fails_actual_custody_oracle",
+        "::test_removing_tenant_scope_fails_real_seed_routing_with_text_markers_retained"
+      ],
+      "complete_collected_call_denominator_MATCH": true,
+      "junit_names_MATCH": true,
+      "junit_outcomes": {
+        "failure": 2,
+        "error": 0,
+        "skipped": 0
+      },
+      "exact_f471_source_unchanged": true,
+      "quotas_or_filters_added": false,
+      "backend_numerical_properties": "UNRUN: no Torch/BoTorch/GPyTorch/HNSW import/execution in this ordinary profile"
+    },
+    {
+      "raw_directory": "/tmp/e02-D-registry-independent-f471-corrected-OIKar8Cy",
+      "execution_manifest": {
+        "source": {
+          "sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+          "tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+          "status": ""
+        },
+        "cwd": "/workspace/e02-D-published-search/policy-engine",
+        "argv": [
+          "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+          "-B",
+          "-m",
+          "pytest",
+          "-c",
+          "/workspace/e02-D-published-search/policy-engine/pytest.ini",
+          "/tmp/e02-D-registry-independent-corrected-oOcPt5wP/test_registry_consumer_independent.py",
+          "--run-quarantine",
+          "--basetemp=/tmp/e02-D-registry-independent-f471-corrected-OIKar8Cy/fresh-fixtures",
+          "--junitxml=/tmp/e02-D-registry-independent-f471-corrected-OIKar8Cy/junit.xml",
+          "-o",
+          "cache_dir=/tmp/e02-D-registry-independent-f471-corrected-OIKar8Cy/pytest-cache",
+          "-p",
+          "tests.conftest",
+          "-p",
+          "tests.unit.scientist.nodes.conftest",
+          "-p",
+          "e02_registry_capture",
+          "-rA"
+        ],
+        "env_overrides": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/workspace/e02-D-published-search/policy-engine/src:/workspace/e02-D-published-search/policy-engine:/tmp/e02-D-registry-independent-f471-corrected-OIKar8Cy",
+          "E02_PROJECT": "/workspace/e02-D-published-search/policy-engine",
+          "E02_OUTPUT": "/tmp/e02-D-registry-independent-f471-corrected-OIKar8Cy",
+          "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+        },
+        "start_time_ns": 1791323363116406129,
+        "basetemp_before": "nonexisting",
+        "quotas_added": false,
+        "test_input": {
+          "source_sha": "4afccae46ce91b03d2b916afc50aa8da10251c71",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-registry-independent-proof/test-registry-consumer.py.txt",
+          "sha256": "9868176f275c0108c6b217ec735202b5c93ee6b079650c7ee8066963b5abc5b0"
+        },
+        "observer_input": {
+          "source_sha": "566574237b0e7a6c8bcb196425226d76c952efff",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-budget-B11-fixture-proof/observer.py.txt"
+        },
+        "profile_sha256": "8ac6a0f04c56b3d1ff0976c81aedb0b805e9a9efee486939467af01b93fd36d7"
+      },
+      "actual_result": {
+        "source": {
+          "sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+          "tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+          "status": ""
+        },
+        "after": {
+          "sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+          "tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+          "status": ""
+        },
+        "source_unchanged": true,
+        "exitcode": 1,
+        "wall_seconds": 21.010213440007647,
+        "maxrss_kib": 539908,
+        "actual_product_modules": 1345,
+        "actual_product_unique_paths": 1345,
+        "origin_errors": [],
+        "end_time_ns": 1791323384126882569,
+        "result_dir": "/tmp/e02-D-registry-independent-f471-corrected-OIKar8Cy"
+      },
+      "complete_output_members": {
+        "actual-origins.json": {
+          "bytes": 549788,
+          "sha256": "69ddeaf32cf589d6432b0a1e1c5b71e641578a38549f914c93499626ba65aff4"
+        },
+        "after.json": {
+          "bytes": 126,
+          "sha256": "5f2ca139826e1a883df97ef5c2dfbce2594d81bbecd1b582936a84ccef618954"
+        },
+        "before.json": {
+          "bytes": 126,
+          "sha256": "5f2ca139826e1a883df97ef5c2dfbce2594d81bbecd1b582936a84ccef618954"
+        },
+        "collected-nodeids.json": {
+          "bytes": 582,
+          "sha256": "9472e1e7ffa40942062eaaae0445f4051d4fbe5953c38805af6b67166017fa5b"
+        },
+        "complete.stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "complete.stdout.txt": {
+          "bytes": 3482,
+          "sha256": "f9cd264c11ae19f60db81c850922f300750cde120bd4c9c9059897f022f3b225"
+        },
+        "events.jsonl": {
+          "bytes": 6848,
+          "sha256": "f1b6ef3ce4a72eddcdd9589b7ab25d1658b70cf680970de602f55d5544941718"
+        },
+        "execution-manifest.json": {
+          "bytes": 2109,
+          "sha256": "745cd4ad87f457d86f226e8c7ed240ef0dcabc12c205771762890345b0f412e1"
+        },
+        "junit.xml": {
+          "bytes": 3656,
+          "sha256": "4ba4d8b27c80684f311d373ec32ee1fce9efc58dadc8263e191947e288f00a34"
+        },
+        "resources-after.json": {
+          "bytes": 1427,
+          "sha256": "e454d336307c631b5f8de944b58d3f87aa98513b35647954a782c4c2c2d69245"
+        },
+        "resources-before.json": {
+          "bytes": 1429,
+          "sha256": "e6119750785b1a0fb06f9ee58850592daecc43400b6888db1a3f301496135dc3"
+        },
+        "result.json": {
+          "bytes": 612,
+          "sha256": "f09320dc153d7e6f66f271cb79481341d334fcb56d83908d9b612f09fad41912"
+        },
+        "runner.py": {
+          "bytes": 3939,
+          "sha256": "bdedb410800affebddc31e97315e9152aad62890327ccf30402a0d6d4db06376"
+        },
+        "runtime.json": {
+          "bytes": 290,
+          "sha256": "75b514728a03250c024ab501340266a23959558e011a9bfce38c712462186338"
+        }
+      },
+      "input_source_bytes_MATCH": true,
+      "origin_count": 1345,
+      "origin_errors": [],
+      "runtime": {
+        "exitstatus": 1,
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "loaded_optional": {
+          "torch": false,
+          "botorch": false,
+          "gpytorch": false,
+          "hnswlib": false,
+          "SALib": false
+        }
+      },
+      "actual_calls": [
+        {
+          "nodeid": "::test_actual_parameterless_callback_has_fresh_disk_custody_and_scoped_seed_reads",
+          "outcome": "passed"
+        },
+        {
+          "nodeid": "::test_malformed_present_vector_never_falls_back_to_scalar_or_publishes[None]",
+          "outcome": "passed"
+        },
+        {
+          "nodeid": "::test_malformed_present_vector_never_falls_back_to_scalar_or_publishes[True]",
+          "outcome": "passed"
+        },
+        {
+          "nodeid": "::test_malformed_present_vector_never_falls_back_to_scalar_or_publishes[broken]",
+          "outcome": "passed"
+        },
+        {
+          "nodeid": "::test_malformed_present_vector_never_falls_back_to_scalar_or_publishes[present3]",
+          "outcome": "passed"
+        },
+        {
+          "nodeid": "::test_removing_configured_registry_fails_actual_custody_oracle",
+          "outcome": "failed"
+        },
+        {
+          "nodeid": "::test_removing_tenant_scope_fails_real_seed_routing_with_text_markers_retained",
+          "outcome": "passed"
+        }
+      ],
+      "actual_call_counts": {
+        "passed": 6,
+        "failed": 1,
+        "skipped": 0
+      },
+      "collected_nodeids": [
+        "::test_actual_parameterless_callback_has_fresh_disk_custody_and_scoped_seed_reads",
+        "::test_malformed_present_vector_never_falls_back_to_scalar_or_publishes[None]",
+        "::test_malformed_present_vector_never_falls_back_to_scalar_or_publishes[True]",
+        "::test_malformed_present_vector_never_falls_back_to_scalar_or_publishes[broken]",
+        "::test_malformed_present_vector_never_falls_back_to_scalar_or_publishes[present3]",
+        "::test_removing_configured_registry_fails_actual_custody_oracle",
+        "::test_removing_tenant_scope_fails_real_seed_routing_with_text_markers_retained"
+      ],
+      "complete_collected_call_denominator_MATCH": true,
+      "junit_names_MATCH": true,
+      "junit_outcomes": {
+        "failure": 1,
+        "error": 0,
+        "skipped": 0
+      },
+      "exact_f471_source_unchanged": true,
+      "quotas_or_filters_added": false,
+      "backend_numerical_properties": "UNRUN: no Torch/BoTorch/GPyTorch/HNSW import/execution in this ordinary profile"
+    },
+    {
+      "raw_directory": "/tmp/e02-D-registry-independent-f471-final-o4jjzy1b",
+      "execution_manifest": {
+        "source": {
+          "sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+          "tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+          "status": ""
+        },
+        "cwd": "/workspace/e02-D-published-search/policy-engine",
+        "argv": [
+          "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+          "-B",
+          "-m",
+          "pytest",
+          "-c",
+          "/workspace/e02-D-published-search/policy-engine/pytest.ini",
+          "/tmp/e02-D-registry-independent-final-input-9sf38yx1/test_registry_consumer_independent.py",
+          "--run-quarantine",
+          "--basetemp=/tmp/e02-D-registry-independent-f471-final-o4jjzy1b/fresh-fixtures",
+          "--junitxml=/tmp/e02-D-registry-independent-f471-final-o4jjzy1b/junit.xml",
+          "-o",
+          "cache_dir=/tmp/e02-D-registry-independent-f471-final-o4jjzy1b/pytest-cache",
+          "-p",
+          "tests.conftest",
+          "-p",
+          "tests.unit.scientist.nodes.conftest",
+          "-p",
+          "e02_registry_capture",
+          "-rA"
+        ],
+        "env_overrides": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONPATH": "/workspace/e02-D-published-search/policy-engine/src:/workspace/e02-D-published-search/policy-engine:/tmp/e02-D-registry-independent-f471-final-o4jjzy1b",
+          "E02_PROJECT": "/workspace/e02-D-published-search/policy-engine",
+          "E02_OUTPUT": "/tmp/e02-D-registry-independent-f471-final-o4jjzy1b",
+          "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+        },
+        "start_time_ns": 1791323564730767575,
+        "basetemp_before": "nonexisting",
+        "quotas_added": false,
+        "test_input": {
+          "source_sha": "4dbd0c6dbc071241a36123319785eca04f21f2ec",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-registry-independent-proof/test-registry-consumer.py.txt",
+          "sha256": "68eea64a1cf88c61dff2ddd6459449e81b2f22334b191900336f2eee6504d56e"
+        },
+        "observer_input": {
+          "source_sha": "566574237b0e7a6c8bcb196425226d76c952efff",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-budget-B11-fixture-proof/observer.py.txt"
+        },
+        "profile_sha256": "8ac6a0f04c56b3d1ff0976c81aedb0b805e9a9efee486939467af01b93fd36d7"
+      },
+      "actual_result": {
+        "source": {
+          "sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+          "tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+          "status": ""
+        },
+        "after": {
+          "sha": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+          "tree": "04044cce0e44a0a2da99e65e347a431e48c28369",
+          "status": ""
+        },
+        "source_unchanged": true,
+        "exitcode": 0,
+        "wall_seconds": 21.43847011899925,
+        "maxrss_kib": 519484,
+        "actual_product_modules": 1345,
+        "actual_product_unique_paths": 1345,
+        "origin_errors": [],
+        "end_time_ns": 1791323586169516643,
+        "result_dir": "/tmp/e02-D-registry-independent-f471-final-o4jjzy1b"
+      },
+      "complete_output_members": {
+        "actual-origins.json": {
+          "bytes": 549788,
+          "sha256": "69ddeaf32cf589d6432b0a1e1c5b71e641578a38549f914c93499626ba65aff4"
+        },
+        "after.json": {
+          "bytes": 126,
+          "sha256": "5f2ca139826e1a883df97ef5c2dfbce2594d81bbecd1b582936a84ccef618954"
+        },
+        "before.json": {
+          "bytes": 126,
+          "sha256": "5f2ca139826e1a883df97ef5c2dfbce2594d81bbecd1b582936a84ccef618954"
+        },
+        "collected-nodeids.json": {
+          "bytes": 582,
+          "sha256": "9472e1e7ffa40942062eaaae0445f4051d4fbe5953c38805af6b67166017fa5b"
+        },
+        "complete.stderr.txt": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "complete.stdout.txt": {
+          "bytes": 854,
+          "sha256": "5cb658eb211d63877303a31b0692def3b1e2b06d990fc3bc79221b29cca066d5"
+        },
+        "events.jsonl": {
+          "bytes": 4351,
+          "sha256": "c2730bdb57684dfdfa2c47b85fa2757b8d4bf22b603e5dadc24ab376aa5c0482"
+        },
+        "execution-manifest.json": {
+          "bytes": 2091,
+          "sha256": "c1fa0f957157c562e54df4176856aef3ec2aa19056f89045a2e40c83164d7d58"
+        },
+        "junit.xml": {
+          "bytes": 1094,
+          "sha256": "574b0eb2a14afac17595fb7fb82ecd2f957afd003214db709768ff50089cd88e"
+        },
+        "resources-after.json": {
+          "bytes": 1431,
+          "sha256": "8fb1e7d7a853811c7e001dff42c06cf02ac8c1fc8e98b7ab847995776d61fbb8"
+        },
+        "resources-before.json": {
+          "bytes": 1431,
+          "sha256": "9cf68b7286dfef0a9137c6024ecfd7f7acdbfab8a32b31e40754f743d06da367"
+        },
+        "result.json": {
+          "bytes": 607,
+          "sha256": "bd7e7cddb8bb23cfb098f750f3fa2c2305efb34a0e30b162f83f241b0f9dc992"
+        },
+        "runner.py": {
+          "bytes": 3941,
+          "sha256": "b099e9e398b68eede2baab9dcafd52b6be8c05d03a8ba9984811db2c81443f6f"
+        },
+        "runtime.json": {
+          "bytes": 290,
+          "sha256": "cb3b332ae94a989ee94d532462e6dc0bf3adc6293bfdcbd4b6cc77e6c790951c"
+        }
+      },
+      "input_source_bytes_MATCH": true,
+      "origin_count": 1345,
+      "origin_errors": [],
+      "runtime": {
+        "exitstatus": 0,
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "loaded_optional": {
+          "torch": false,
+          "botorch": false,
+          "gpytorch": false,
+          "hnswlib": false,
+          "SALib": false
+        }
+      },
+      "actual_calls": [
+        {
+          "nodeid": "::test_actual_parameterless_callback_has_fresh_disk_custody_and_scoped_seed_reads",
+          "outcome": "passed"
+        },
+        {
+          "nodeid": "::test_malformed_present_vector_never_falls_back_to_scalar_or_publishes[None]",
+          "outcome": "passed"
+        },
+        {
+          "nodeid": "::test_malformed_present_vector_never_falls_back_to_scalar_or_publishes[True]",
+          "outcome": "passed"
+        },
+        {
+          "nodeid": "::test_malformed_present_vector_never_falls_back_to_scalar_or_publishes[broken]",
+          "outcome": "passed"
+        },
+        {
+          "nodeid": "::test_malformed_present_vector_never_falls_back_to_scalar_or_publishes[present3]",
+          "outcome": "passed"
+        },
+        {
+          "nodeid": "::test_removing_configured_registry_fails_actual_custody_oracle",
+          "outcome": "passed"
+        },
+        {
+          "nodeid": "::test_removing_tenant_scope_fails_real_seed_routing_with_text_markers_retained",
+          "outcome": "passed"
+        }
+      ],
+      "actual_call_counts": {
+        "passed": 7,
+        "failed": 0,
+        "skipped": 0
+      },
+      "collected_nodeids": [
+        "::test_actual_parameterless_callback_has_fresh_disk_custody_and_scoped_seed_reads",
+        "::test_malformed_present_vector_never_falls_back_to_scalar_or_publishes[None]",
+        "::test_malformed_present_vector_never_falls_back_to_scalar_or_publishes[True]",
+        "::test_malformed_present_vector_never_falls_back_to_scalar_or_publishes[broken]",
+        "::test_malformed_present_vector_never_falls_back_to_scalar_or_publishes[present3]",
+        "::test_removing_configured_registry_fails_actual_custody_oracle",
+        "::test_removing_tenant_scope_fails_real_seed_routing_with_text_markers_retained"
+      ],
+      "complete_collected_call_denominator_MATCH": true,
+      "junit_names_MATCH": true,
+      "junit_outcomes": {
+        "failure": 0,
+        "error": 0,
+        "skipped": 0
+      },
+      "exact_f471_source_unchanged": true,
+      "quotas_or_filters_added": false,
+      "backend_numerical_properties": "UNRUN: no Torch/BoTorch/GPyTorch/HNSW import/execution in this ordinary profile"
+    }
+  ],
+  "oracle_history": [
+    "Initial5PASS2FAIL compares original seed hash rather than actual structure-enriched candidate; actual produced hash/complete history/fresh registry custody now compared.",
+    "Corrective6PASS1FAIL incorrectly reads admitted serialized dict as live DTO in port removal; final parses it through the existing PolicyEvaluationVector owner DTO before preserving the same subject/custody assertions.",
+    "Final full7 actual7PASS0FAIL/ERROR/SKIP; conformance removals expect meaningful actual oracle refusal and are distinct from author8 actualFAIL checks."
+  ],
+  "limitations": [
+    "This reconciles complete deciding outputs, exact source/module hashes and selected consumer behavior; not runtime proof for all 45 original IDs.",
+    "The observer hashes loaded modules; no claim of an all-process executed-loader census.",
+    "Cell context value reaches callback, while full cell ContextVar reset is source-reviewed, not independently executed here.",
+    "Owner source laws/default factory appointment, production evaluator/history and numerical backend positives are not supplied by these finite fixtures."
+  ]
+}

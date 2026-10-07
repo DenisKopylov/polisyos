@@ -1,0 +1,1570 @@
+{
+  "schema": "e02.D.funnel.original-criterion-accounting.2026-10-07.b652.sealed.v4",
+  "denominator": {
+    "finding_ids": 11,
+    "occurrences": 11,
+    "D_root_full_denominator": {
+      "bundles": 17,
+      "findings": 45,
+      "occurrences": 46
+    }
+  },
+  "original_ledger_ref": {
+    "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json"
+  },
+  "actual_source": {
+    "sha": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+    "tree": "e677b5e24493a7083287c3bea31bca1892c3be29"
+  },
+  "original_criteria_replaced": false,
+  "formal_closed": 0,
+  "accepted_in_G": false,
+  "rows": [
+    {
+      "id": "B120@CTL-03",
+      "finding_id": "B120",
+      "criterion_card": "CTL-03",
+      "canonical_closure_owner": "CTL-03",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-ctl-03",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3192,
+          3205
+        ],
+        "byte_offset": 720126,
+        "bytes": 3460,
+        "sha256": "5217798c76f0d4b4fdb0bcac33fb4b6eaf726f690f2c8babfbac7a37744c3b29"
+      },
+      "canonical_content": {
+        "text": "**Приёмка.** Одна измеряемая трата видна владельцу, остановке и результату; нет двойного списания кэша и обнуления при retry. Внешняя независимая бюджетная защита может уже остановить соответствующий маршрут: опыт не доказывает обход всех ограничений PolicyOS.",
+        "byte_offset": 723119,
+        "bytes": 465,
+        "sha256": "fc2bdc0f5a2f9ab501ed9195ce1b0116184989c4a1c66c6fd3ab34716b4fb8d6"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B120@CTL-03",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-03.md",
+          "bytes": 16904,
+          "sha256": "96e6ce518edd40fa702efe89415427396b8e086ad4f7f3533c9227cb2919065e"
+        }
+      },
+      "disposition": "open",
+      "proposal": "closed_bounded_engineering_proposed_for_original_criterion",
+      "reason": "Original acceptance preserved. Actual available B1.2 decoder/settlement/resolve, raw32/cache18/HTTP30/canonical292/native138/state113, current configured publicfactory10 PASS; actual independent rollback-refresh removal1 FAIL reproduces stalezero while original markers/cursor/history/CAS preserved. Current ownertruth and actual guard dominate proxytrace or oldsnapshot.",
+      "selectors": [
+        "test_response_text_nonzero_cost_lexeme_never_becomes_free",
+        "test_response_text_underflow_cannot_settle_zero_in_fresh_ledger",
+        "test_configured_native_cache_reuse_binds_paid_origin_and_fresh_readback",
+        "test_native_paid_funnel_receipts_drive_scoped_controller_cost_cutoff"
+      ],
+      "packets": [
+        "lossless_gateway_cost",
+        "canonical_B_successor_adoption"
+      ],
+      "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+      "source_tree": "e677b5e24493a7083287c3bea31bca1892c3be29",
+      "consumer_output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-funnel-cache-binding/raw-response24.frozen.junit.xml",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-funnel-cache-binding/new-cache13.frozen.junit.xml",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-funnel-cache-binding/affected-consumers-b5.junit.xml"
+      ],
+      "check_status_and_finding_disposition_separate": true,
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "independent_review": "FUN-canonical-B12-final-a7-runtime-independent-review.json",
+      "predicate_basis": "P37: current actual testcase phases/source/input identity for bounded declared consumer; missing native scientific authority stays not_established",
+      "residual": "No remaining D-owned correctable financial intake/factory/rollback consumer defect identified in supported bounded original profile. Canonical B owner source available/adopted; current complete producer/receipt/stopping/fresh consumer evidence independently verified. G integration/closure decision separate; no invoice/production/native scientific authority claim.",
+      "historical_receipt_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "source_and_consumer_state": "SIX_UNCHANGED_A7_RECEIPTS_EXACT_SOURCE_MODULE_TEST_OUTPUT_CARRY_TO_B652_PLUS_NEW_FACTORY10",
+      "current_complete_deciding_pack": "canonical-B12-a7-deciding",
+      "current_selector_receipts": [
+        {
+          "selector": "test_response_text_nonzero_cost_lexeme_never_becomes_free",
+          "actual_tests": [
+            {
+              "cohort": "raw32",
+              "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-total_cost_usd-usage]",
+              "result": "passed",
+              "full_phases": "raw32-a7e.phases.json",
+              "command": "raw32-a7e.command.json"
+            },
+            {
+              "cohort": "raw32",
+              "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-total_cost_usd-payload]",
+              "result": "passed",
+              "full_phases": "raw32-a7e.phases.json",
+              "command": "raw32-a7e.command.json"
+            },
+            {
+              "cohort": "raw32",
+              "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-cost_usd-usage]",
+              "result": "passed",
+              "full_phases": "raw32-a7e.phases.json",
+              "command": "raw32-a7e.command.json"
+            },
+            {
+              "cohort": "raw32",
+              "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-cost_usd-payload]",
+              "result": "passed",
+              "full_phases": "raw32-a7e.phases.json",
+              "command": "raw32-a7e.command.json"
+            },
+            {
+              "cohort": "raw32",
+              "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-cost-usage]",
+              "result": "passed",
+              "full_phases": "raw32-a7e.phases.json",
+              "command": "raw32-a7e.command.json"
+            },
+            {
+              "cohort": "raw32",
+              "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-cost-payload]",
+              "result": "passed",
+              "full_phases": "raw32-a7e.phases.json",
+              "command": "raw32-a7e.command.json"
+            },
+            {
+              "cohort": "raw32",
+              "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-base_cost_usd-usage]",
+              "result": "passed",
+              "full_phases": "raw32-a7e.phases.json",
+              "command": "raw32-a7e.command.json"
+            },
+            {
+              "cohort": "raw32",
+              "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-base_cost_usd-payload]",
+              "result": "passed",
+              "full_phases": "raw32-a7e.phases.json",
+              "command": "raw32-a7e.command.json"
+            },
+            {
+              "cohort": "raw32",
+              "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-platform_fee_usd-usage]",
+              "result": "passed",
+              "full_phases": "raw32-a7e.phases.json",
+              "command": "raw32-a7e.command.json"
+            },
+            {
+              "cohort": "raw32",
+              "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[1e-1000-platform_fee_usd-payload]",
+              "result": "passed",
+              "full_phases": "raw32-a7e.phases.json",
+              "command": "raw32-a7e.command.json"
+            },
+            {
+              "cohort": "raw32",
+              "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-total_cost_usd-usage]",
+              "result": "passed",
+              "full_phases": "raw32-a7e.phases.json",
+              "command": "raw32-a7e.command.json"
+            },
+            {
+              "cohort": "raw32",
+              "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-total_cost_usd-payload]",
+              "result": "passed",
+              "full_phases": "raw32-a7e.phases.json",
+              "command": "raw32-a7e.command.json"
+            },
+            {
+              "cohort": "raw32",
+              "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-cost_usd-usage]",
+              "result": "passed",
+              "full_phases": "raw32-a7e.phases.json",
+              "command": "raw32-a7e.command.json"
+            },
+            {
+              "cohort": "raw32",
+              "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-cost_usd-payload]",
+              "result": "passed",
+              "full_phases": "raw32-a7e.phases.json",
+              "command": "raw32-a7e.command.json"
+            },
+            {
+              "cohort": "raw32",
+              "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-cost-usage]",
+              "result": "passed",
+              "full_phases": "raw32-a7e.phases.json",
+              "command": "raw32-a7e.command.json"
+            },
+            {
+              "cohort": "raw32",
+              "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-cost-payload]",
+              "result": "passed",
+              "full_phases": "raw32-a7e.phases.json",
+              "command": "raw32-a7e.command.json"
+            },
+            {
+              "cohort": "raw32",
+              "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-base_cost_usd-usage]",
+              "result": "passed",
+              "full_phases": "raw32-a7e.phases.json",
+              "command": "raw32-a7e.command.json"
+            },
+            {
+              "cohort": "raw32",
+              "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-base_cost_usd-payload]",
+              "result": "passed",
+              "full_phases": "raw32-a7e.phases.json",
+              "command": "raw32-a7e.command.json"
+            },
+            {
+              "cohort": "raw32",
+              "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-platform_fee_usd-usage]",
+              "result": "passed",
+              "full_phases": "raw32-a7e.phases.json",
+              "command": "raw32-a7e.command.json"
+            },
+            {
+              "cohort": "raw32",
+              "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_nonzero_cost_lexeme_never_becomes_free[-1e-1000-platform_fee_usd-payload]",
+              "result": "passed",
+              "full_phases": "raw32-a7e.phases.json",
+              "command": "raw32-a7e.command.json"
+            }
+          ]
+        },
+        {
+          "selector": "test_response_text_underflow_cannot_settle_zero_in_fresh_ledger",
+          "actual_tests": [
+            {
+              "cohort": "raw32",
+              "nodeid": "tests/integration/core/llm/test_gateway_response_text_cost.py::test_response_text_underflow_cannot_settle_zero_in_fresh_ledger",
+              "result": "passed",
+              "full_phases": "raw32-a7e.phases.json",
+              "command": "raw32-a7e.command.json"
+            }
+          ]
+        },
+        {
+          "selector": "test_configured_native_cache_reuse_binds_paid_origin_and_fresh_readback",
+          "actual_tests": [
+            {
+              "cohort": "cache18",
+              "nodeid": "tests/integration/scientist/methods/search/funnel/test_cache_settlement_binding.py::test_configured_native_cache_reuse_binds_paid_origin_and_fresh_readback",
+              "result": "passed",
+              "full_phases": "cache18-a7e.phases.json",
+              "command": "cache18-a7e.command.json"
+            }
+          ]
+        },
+        {
+          "selector": "test_native_paid_funnel_receipts_drive_scoped_controller_cost_cutoff",
+          "actual_tests": [
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_resource_cost_stopping.py::test_native_paid_funnel_receipts_drive_scoped_controller_cost_cutoff[False-False]",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            },
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_resource_cost_stopping.py::test_native_paid_funnel_receipts_drive_scoped_controller_cost_cutoff[False-True]",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            },
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_resource_cost_stopping.py::test_native_paid_funnel_receipts_drive_scoped_controller_cost_cutoff[True-False]",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            },
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_resource_cost_stopping.py::test_native_paid_funnel_receipts_drive_scoped_controller_cost_cutoff[True-True]",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            }
+          ]
+        }
+      ],
+      "divergent_proxy": "P38: relevant malformed/retained-marker/removal controls executed. PASS scopes do not use trace, estimate, marker or functional cache telemetry as persisted financial debit.",
+      "measurement_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "new_factory_receipt": {
+        "actual_execution": "publicfactory10-b652.command.json",
+        "result": "10PASS",
+        "phases": {
+          "setup": 10,
+          "call": 10,
+          "teardown": 10
+        },
+        "full_complete_pack": "canonical-B12-b652-publicfactory-deciding",
+        "independent_runtime_review": "pending",
+        "independent_rollback_refresh_removal": "Service pending"
+      },
+      "finding_disposition_proposal": "closed",
+      "disposition_is_formal_G_acceptance": false,
+      "current_independent_reviews": [
+        {
+          "path": "FUN-publicfactory10-b652-runtime-and-sixcarry-independent-review.json",
+          "sha256": "51a46d7f277343078554793e861bdedb0acf674ddb3643e9e22c47ea2eb0844d"
+        },
+        {
+          "path": "Legacy2-and-budget-owner-removal1-b652-independent-review.json",
+          "sha256": "4003f214d3dac2a1aa3b9ebc45fd65b70ff023915b27a0b501442e9f86d8b526",
+          "actual_check": "FAIL expected removal divergence: current live budget_spent0.0 versus requiredNone",
+          "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+          "complete_deciding_output_archive_sha256": "5675b7b4831752a5ad8a533f8ff24b83b35e57aefc8fbfe0f317feac2448cff9",
+          "historical_first_negative": "collectionERROR, no testcase phases; retained separately"
+        }
+      ],
+      "native_removal_check_result": "FAIL expected removal divergence, not a final product FAIL"
+    },
+    {
+      "id": "B156@FUN-01",
+      "finding_id": "B156",
+      "criterion_card": "FUN-01",
+      "canonical_closure_owner": "FUN-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-fun-01",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4105,
+          4116
+        ],
+        "byte_offset": 945137,
+        "bytes": 3951,
+        "sha256": "88bc80dd038085f5bdb4e2715279d0cc6a06fa677d318e847dc00614e6a56ca0"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** одинаковый эффективный запрос переиспользует результат; новая версия входа не получает старый score; новый независимый контроль действительно исполняется; история обычной попытки не изменяется. Приоритет высокий на stateful-маршруте, сложность средняя. Связь: B60–B61, B118, B127; здесь другой владелец и непосредственная связь Stage A/B.",
+        "byte_offset": 948475,
+        "bytes": 611,
+        "sha256": "846c22dd69b5b1495efbaff0f982894e6e08b49e0c42e21e0f38b477aa243fa1"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B156@FUN-01",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-01.md",
+          "bytes": 15946,
+          "sha256": "f154277d83c6779a7b591d87c5874fc9e283e9d34c531361dc30660ed9ef4482"
+        }
+      },
+      "disposition": "open",
+      "proposal": "closed_bounded_engineering_proposed_for_original_criterion",
+      "reason": "Original criterion preserved; exact a7 producer→artifact/receipt→bridge→consumer/readback selectors all PASS and independent current runtime reviewer confirms complete source/output custody.",
+      "selectors": [
+        "test_stage_b_reuses_cached_stage_a_progress",
+        "test_submit_cache_is_scoped_to_effective_context",
+        "test_interleaved_context_continuation_uses_exact_context_predecessor",
+        "test_typed_reuse_marker_without_real_cache_issuer_is_rejected"
+      ],
+      "packets": [],
+      "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+      "source_tree": "e677b5e24493a7083287c3bea31bca1892c3be29",
+      "consumer_output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-funnel-cache-binding/affected-consumers-b5.junit.xml"
+      ],
+      "check_status_and_finding_disposition_separate": true,
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "independent_review": "FUN-canonical-B12-final-a7-runtime-independent-review.json",
+      "predicate_basis": "P37: current actual testcase phases/source/input identity for bounded declared consumer; missing native scientific authority stays not_established",
+      "residual": "G integration/closure decision pending; current bounded mechanism, real consumer and negative/removal evidence independently reviewed. No remaining D-owned repair defect identified for this original bounded criterion. Separate native scientific/permit requirements stay on held IDs.",
+      "historical_receipt_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "source_and_consumer_state": "SIX_UNCHANGED_A7_RECEIPTS_EXACT_SOURCE_MODULE_TEST_OUTPUT_CARRY_TO_B652_PLUS_NEW_FACTORY10",
+      "current_complete_deciding_pack": "canonical-B12-a7-deciding",
+      "current_selector_receipts": [
+        {
+          "selector": "test_stage_b_reuses_cached_stage_a_progress",
+          "actual_tests": [
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_stage_b_reuses_cached_stage_a_progress",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            }
+          ]
+        },
+        {
+          "selector": "test_submit_cache_is_scoped_to_effective_context",
+          "actual_tests": [
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_submit_cache_is_scoped_to_effective_context",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            }
+          ]
+        },
+        {
+          "selector": "test_interleaved_context_continuation_uses_exact_context_predecessor",
+          "actual_tests": [
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_interleaved_context_continuation_uses_exact_context_predecessor",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            }
+          ]
+        },
+        {
+          "selector": "test_typed_reuse_marker_without_real_cache_issuer_is_rejected",
+          "actual_tests": [
+            {
+              "cohort": "cache18",
+              "nodeid": "tests/integration/scientist/methods/search/funnel/test_cache_settlement_binding.py::test_typed_reuse_marker_without_real_cache_issuer_is_rejected[0-reuse-None]",
+              "result": "passed",
+              "full_phases": "cache18-a7e.phases.json",
+              "command": "cache18-a7e.command.json"
+            },
+            {
+              "cohort": "cache18",
+              "nodeid": "tests/integration/scientist/methods/search/funnel/test_cache_settlement_binding.py::test_typed_reuse_marker_without_real_cache_issuer_is_rejected[0-reuse-unresolved-paid-origin]",
+              "result": "passed",
+              "full_phases": "cache18-a7e.phases.json",
+              "command": "cache18-a7e.command.json"
+            },
+            {
+              "cohort": "cache18",
+              "nodeid": "tests/integration/scientist/methods/search/funnel/test_cache_settlement_binding.py::test_typed_reuse_marker_without_real_cache_issuer_is_rejected[1-reported-None]",
+              "result": "passed",
+              "full_phases": "cache18-a7e.phases.json",
+              "command": "cache18-a7e.command.json"
+            },
+            {
+              "cohort": "cache18",
+              "nodeid": "tests/integration/scientist/methods/search/funnel/test_cache_settlement_binding.py::test_typed_reuse_marker_without_real_cache_issuer_is_rejected[1-reported-unresolved-paid-origin]",
+              "result": "passed",
+              "full_phases": "cache18-a7e.phases.json",
+              "command": "cache18-a7e.command.json"
+            },
+            {
+              "cohort": "cache18",
+              "nodeid": "tests/integration/scientist/methods/search/funnel/test_cache_settlement_binding.py::test_typed_reuse_marker_without_real_cache_issuer_is_rejected[1-reuse-unresolved-paid-origin]",
+              "result": "passed",
+              "full_phases": "cache18-a7e.phases.json",
+              "command": "cache18-a7e.command.json"
+            }
+          ]
+        }
+      ],
+      "divergent_proxy": "P38: relevant malformed/retained-marker/removal controls executed. PASS scopes do not use trace, estimate, marker or functional cache telemetry as persisted financial debit.",
+      "measurement_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "new_factory_receipt": null,
+      "finding_disposition_proposal": "closed",
+      "disposition_is_formal_G_acceptance": false
+    },
+    {
+      "id": "B157@FUN-02",
+      "finding_id": "B157",
+      "criterion_card": "FUN-02",
+      "canonical_closure_owner": "FUN-02",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-fun-02",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4117,
+          4128
+        ],
+        "byte_offset": 949088,
+        "bytes": 3269,
+        "sha256": "c27f7a7ba4108a5f8f2027bed47b3d3bfa56955f30034c1ede266fc07d7c8284"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** сравнить прямую L4 с L3→L4 на одном исходном запросе; effective full-конфигурация и допустимые выходы должны совпасть, caller-context неизменен, L3 действительно остаётся более дешёвым. Не выключать L3 и не запускать всё в максимальной точности. Приоритет высокий на соответствующем пути; локальная правка с небольшим объёмом. Связь B59/B96 — общая причина aliasing, но здесь затронута достоверность названия fidelity.",
+        "byte_offset": 951621,
+        "bytes": 734,
+        "sha256": "260d939d59a70f8f9acca08bc5386d4ac4e4070c4725b6287fd2c1a4d534444b"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B157@FUN-02",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-02.md",
+          "bytes": 18569,
+          "sha256": "5482d56f8a77858b77844bdbbf3867481c2701a6dd671bd138efaccf83c47ef1"
+        }
+      },
+      "disposition": "held",
+      "proposal": null,
+      "reason": "Bounded state/contract mechanism PASS on exact a7; original native scientific/authority input not established.",
+      "selectors": [
+        "test_l3_overlays_only_owned_config_and_preserves_caller_references",
+        "test_actual_foundry_consumer_uses_reduced_draws_with_independent_numeric_oracle",
+        "test_removing_reduced_config_fails_actual_draw_oracle_with_marker_retained"
+      ],
+      "packets": [
+        "native_draw_producer"
+      ],
+      "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+      "source_tree": "e677b5e24493a7083287c3bea31bca1892c3be29",
+      "consumer_output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-funnel-cache-binding/affected-consumers-b5.junit.xml"
+      ],
+      "check_status_and_finding_disposition_separate": true,
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "independent_review": "FUN-canonical-B12-final-a7-runtime-independent-review.json",
+      "predicate_basis": "P37: current actual testcase phases/source/input identity for bounded declared consumer; missing native scientific authority stays not_established",
+      "residual": "Canonical native sampling producer has not supplied actual draw/work artifact, seed/config, same untouched native run, reduced/full effective profile. Bounded Foundry20/80 controls do not establish native500/64/32 samples.",
+      "historical_receipt_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "source_and_consumer_state": "SIX_UNCHANGED_A7_RECEIPTS_EXACT_SOURCE_MODULE_TEST_OUTPUT_CARRY_TO_B652_PLUS_NEW_FACTORY10",
+      "current_complete_deciding_pack": "canonical-B12-a7-deciding",
+      "current_selector_receipts": [
+        {
+          "selector": "test_l3_overlays_only_owned_config_and_preserves_caller_references",
+          "actual_tests": [
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/unit/remediation/test_fun_02.py::test_l3_overlays_only_owned_config_and_preserves_caller_references",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            }
+          ]
+        },
+        {
+          "selector": "test_actual_foundry_consumer_uses_reduced_draws_with_independent_numeric_oracle",
+          "actual_tests": [
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_actual_foundry_consumer_uses_reduced_draws_with_independent_numeric_oracle",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            }
+          ]
+        },
+        {
+          "selector": "test_removing_reduced_config_fails_actual_draw_oracle_with_marker_retained",
+          "actual_tests": [
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_removing_reduced_config_fails_actual_draw_oracle_with_marker_retained",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            }
+          ]
+        }
+      ],
+      "divergent_proxy": "P38: relevant malformed/retained-marker/removal controls executed. PASS scopes do not use trace, estimate, marker or functional cache telemetry as persisted financial debit.",
+      "required_original_criterion_positive": "UNRUN/not_established",
+      "measurement_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "new_factory_receipt": null,
+      "finding_disposition_proposal": "held",
+      "disposition_is_formal_G_acceptance": false
+    },
+    {
+      "id": "B158@FUN-01",
+      "finding_id": "B158",
+      "criterion_card": "FUN-01",
+      "canonical_closure_owner": "FUN-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-fun-01",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4129,
+          4140
+        ],
+        "byte_offset": 952357,
+        "bytes": 3201,
+        "sha256": "bd4643a221c0c9934fdf37c2d8b90d97aa93ad09ac95fa3324e23bd04ea4a2c3"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** единый и раздельный вызовы на неизменных входах дают одинаковый набор разрешённых вычислений, расходы и причины остановки. На изменённых входах фиксируется необходимое различие. Опыт использует scheduler-фикстуру, не доказывает обход внешнего бюджета или полномочий. Приоритет высокий, сложность небольшая/средняя; связь B120: допуск расхода не зависит от формы обращения.",
+        "byte_offset": 954860,
+        "bytes": 696,
+        "sha256": "17cc0ecc4baa734906042063c70ef2cbd4394c206b868333448594ad8897fb9f"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B158@FUN-01",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-01.md",
+          "bytes": 15946,
+          "sha256": "f154277d83c6779a7b591d87c5874fc9e283e9d34c531361dc30660ed9ef4482"
+        }
+      },
+      "disposition": "open",
+      "proposal": "closed_bounded_engineering_proposed_for_original_criterion",
+      "reason": "Original criterion preserved; exact a7 producer→artifact/receipt→bridge→consumer/readback selectors all PASS and independent current runtime reviewer confirms complete source/output custody.",
+      "selectors": [
+        "test_native_policy_callers_full_split_actual_events_and_fresh_reopen",
+        "test_actual_default_worker_budget_scopes_preserve_one_physical_event_each",
+        "test_actual_same_provider_event_is_not_charged_again_at_next_stage"
+      ],
+      "packets": [
+        "canonical_B_successor_adoption"
+      ],
+      "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+      "source_tree": "e677b5e24493a7083287c3bea31bca1892c3be29",
+      "consumer_output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-funnel-cache-binding/affected-consumers-b5.junit.xml"
+      ],
+      "check_status_and_finding_disposition_separate": true,
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "independent_review": "FUN-canonical-B12-final-a7-runtime-independent-review.json",
+      "predicate_basis": "P37: current actual testcase phases/source/input identity for bounded declared consumer; missing native scientific authority stays not_established",
+      "residual": "G integration/closure decision pending; current bounded mechanism, real consumer and negative/removal evidence independently reviewed. No remaining D-owned repair defect identified for this original bounded criterion. Separate native scientific/permit requirements stay on held IDs.",
+      "historical_receipt_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "source_and_consumer_state": "SIX_UNCHANGED_A7_RECEIPTS_EXACT_SOURCE_MODULE_TEST_OUTPUT_CARRY_TO_B652_PLUS_NEW_FACTORY10",
+      "current_complete_deciding_pack": "canonical-B12-a7-deciding",
+      "current_selector_receipts": [
+        {
+          "selector": "test_native_policy_callers_full_split_actual_events_and_fresh_reopen",
+          "actual_tests": [
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_native_policy_callers_full_split_actual_events_and_fresh_reopen",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            }
+          ]
+        },
+        {
+          "selector": "test_actual_default_worker_budget_scopes_preserve_one_physical_event_each",
+          "actual_tests": [
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/integration/scientist/methods/search/funnel/test_default_worker_resource_scopes.py::test_actual_default_worker_budget_scopes_preserve_one_physical_event_each[False]",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            },
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/integration/scientist/methods/search/funnel/test_default_worker_resource_scopes.py::test_actual_default_worker_budget_scopes_preserve_one_physical_event_each[True]",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            }
+          ]
+        },
+        {
+          "selector": "test_actual_same_provider_event_is_not_charged_again_at_next_stage",
+          "actual_tests": [
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_receipt_replay.py::test_actual_same_provider_event_is_not_charged_again_at_next_stage[False]",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            },
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_receipt_replay.py::test_actual_same_provider_event_is_not_charged_again_at_next_stage[True]",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            }
+          ]
+        }
+      ],
+      "divergent_proxy": "P38: relevant malformed/retained-marker/removal controls executed. PASS scopes do not use trace, estimate, marker or functional cache telemetry as persisted financial debit.",
+      "measurement_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "new_factory_receipt": null,
+      "finding_disposition_proposal": "closed",
+      "disposition_is_formal_G_acceptance": false
+    },
+    {
+      "id": "B159@FUN-01",
+      "finding_id": "B159",
+      "criterion_card": "FUN-01",
+      "canonical_closure_owner": "FUN-01",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-fun-01",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4141,
+          4152
+        ],
+        "byte_offset": 955558,
+        "bytes": 3330,
+        "sha256": "d079d053de81c0e87ac40adcb2b25c4d1b5ed34f95636412a1abec5c629e0696"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** повтор без новых оснований не расходует ресурс; разрешённое изменение создаёт проверяемое продолжение; постоянный blocker не исчезает; lineage и расходы сохраняются. Приоритет высокий для итеративного исследования; сложность средняя. Это расширение способности продолжать работу, не ослабление критерия её допустимости. Связь B09/B12/B118: содержательное продолжение, получение нового основания и отдельный запуск.",
+        "byte_offset": 958121,
+        "bytes": 765,
+        "sha256": "7c3b6b49bb03dfb2af6f56e6db82cd302fc5d9c2ae1f6e666b1ab16f11598f36"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B159@FUN-01",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-01.md",
+          "bytes": 15946,
+          "sha256": "f154277d83c6779a7b591d87c5874fc9e283e9d34c531361dc30660ed9ef4482"
+        }
+      },
+      "disposition": "open",
+      "proposal": "closed_bounded_engineering_proposed_for_original_criterion",
+      "reason": "Original criterion preserved; exact a7 producer→artifact/receipt→bridge→consumer/readback selectors all PASS and independent current runtime reviewer confirms complete source/output custody.",
+      "selectors": [
+        "test_actual_spend_does_not_resume_but_released_owned_capacity_rechecks_remaining_work",
+        "test_retry_cheaper_spend_only_does_not_resume",
+        "test_stage_defer_without_discriminator_does_not_resume"
+      ],
+      "packets": [
+        "canonical_B_successor_adoption"
+      ],
+      "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+      "source_tree": "e677b5e24493a7083287c3bea31bca1892c3be29",
+      "consumer_output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-funnel-cache-binding/affected-consumers-b5.junit.xml"
+      ],
+      "check_status_and_finding_disposition_separate": true,
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "independent_review": "FUN-canonical-B12-final-a7-runtime-independent-review.json",
+      "predicate_basis": "P37: current actual testcase phases/source/input identity for bounded declared consumer; missing native scientific authority stays not_established",
+      "residual": "G integration/closure decision pending; current bounded mechanism, real consumer and negative/removal evidence independently reviewed. No remaining D-owned repair defect identified for this original bounded criterion. Separate native scientific/permit requirements stay on held IDs.",
+      "historical_receipt_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "source_and_consumer_state": "SIX_UNCHANGED_A7_RECEIPTS_EXACT_SOURCE_MODULE_TEST_OUTPUT_CARRY_TO_B652_PLUS_NEW_FACTORY10",
+      "current_complete_deciding_pack": "canonical-B12-a7-deciding",
+      "current_selector_receipts": [
+        {
+          "selector": "test_actual_spend_does_not_resume_but_released_owned_capacity_rechecks_remaining_work",
+          "actual_tests": [
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_actual_spend_does_not_resume_but_released_owned_capacity_rechecks_remaining_work",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            }
+          ]
+        },
+        {
+          "selector": "test_retry_cheaper_spend_only_does_not_resume",
+          "actual_tests": [
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_retry_cheaper_spend_only_does_not_resume",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            }
+          ]
+        },
+        {
+          "selector": "test_stage_defer_without_discriminator_does_not_resume",
+          "actual_tests": [
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_stage_defer_without_discriminator_does_not_resume",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            }
+          ]
+        }
+      ],
+      "divergent_proxy": "P38: relevant malformed/retained-marker/removal controls executed. PASS scopes do not use trace, estimate, marker or functional cache telemetry as persisted financial debit.",
+      "measurement_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "new_factory_receipt": null,
+      "finding_disposition_proposal": "closed",
+      "disposition_is_formal_G_acceptance": false
+    },
+    {
+      "id": "B160@FUN-02",
+      "finding_id": "B160",
+      "criterion_card": "FUN-02",
+      "canonical_closure_owner": "FUN-02",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-fun-02",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4153,
+          4164
+        ],
+        "byte_offset": 958888,
+        "bytes": 3102,
+        "sha256": "de9f5f2da46e9d846cdf6d085d670e14a8f42dea464b332e8764900444c026e8"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** обе пустые конфигурации возвращают неоценённость без положительного score; настоящий ноль от выполненного корректного метода сохраняется; маршруты с разрешённым малым числом стадий работают. Прямой исход в лабораторных адаптерах не доказывает признания публикации настоящим владельцем. Приоритет высокий для первого сквозного теста, локальный ремонт. Связь B108/B123 — другой источник ложного положительного результата.",
+        "byte_offset": 961198,
+        "bytes": 790,
+        "sha256": "7f3880ae72b62b26a91f8386be0ac3391e9188fb146b3ed1c757df1a7d2eafba"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B160@FUN-02",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-02.md",
+          "bytes": 18569,
+          "sha256": "5482d56f8a77858b77844bdbbf3867481c2701a6dd671bd138efaccf83c47ef1"
+        }
+      },
+      "disposition": "open",
+      "proposal": "closed_bounded_engineering_proposed_for_original_criterion",
+      "reason": "Original criterion preserved; exact a7 producer→artifact/receipt→bridge→consumer/readback selectors all PASS and independent current runtime reviewer confirms complete source/output custody.",
+      "selectors": [
+        "test_empty_funnel_is_not_evaluated_and_never_looks_like_zero_approval",
+        "test_cap_before_first_stage_is_not_evaluated",
+        "test_executed_zero_objective_remains_a_valid_result",
+        "test_actual_paid_outcome_survives_blueprint_json_and_fresh_cas_reopen"
+      ],
+      "packets": [],
+      "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+      "source_tree": "e677b5e24493a7083287c3bea31bca1892c3be29",
+      "consumer_output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-funnel-cache-binding/affected-consumers-b5.junit.xml"
+      ],
+      "check_status_and_finding_disposition_separate": true,
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "independent_review": "FUN-canonical-B12-final-a7-runtime-independent-review.json",
+      "predicate_basis": "P37: current actual testcase phases/source/input identity for bounded declared consumer; missing native scientific authority stays not_established",
+      "residual": "G integration/closure decision pending; current bounded mechanism, real consumer and negative/removal evidence independently reviewed. No remaining D-owned repair defect identified for this original bounded criterion. Separate native scientific/permit requirements stay on held IDs.",
+      "historical_receipt_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "source_and_consumer_state": "SIX_UNCHANGED_A7_RECEIPTS_EXACT_SOURCE_MODULE_TEST_OUTPUT_CARRY_TO_B652_PLUS_NEW_FACTORY10",
+      "current_complete_deciding_pack": "canonical-B12-a7-deciding",
+      "current_selector_receipts": [
+        {
+          "selector": "test_empty_funnel_is_not_evaluated_and_never_looks_like_zero_approval",
+          "actual_tests": [
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/unit/remediation/test_fun_02.py::test_empty_funnel_is_not_evaluated_and_never_looks_like_zero_approval",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            }
+          ]
+        },
+        {
+          "selector": "test_cap_before_first_stage_is_not_evaluated",
+          "actual_tests": [
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/unit/remediation/test_fun_02.py::test_cap_before_first_stage_is_not_evaluated",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            }
+          ]
+        },
+        {
+          "selector": "test_executed_zero_objective_remains_a_valid_result",
+          "actual_tests": [
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/unit/remediation/test_fun_02.py::test_executed_zero_objective_remains_a_valid_result",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            }
+          ]
+        },
+        {
+          "selector": "test_actual_paid_outcome_survives_blueprint_json_and_fresh_cas_reopen",
+          "actual_tests": [
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/integration/scientist/methods/search/funnel/test_paid_outcome_blueprint_projection.py::test_actual_paid_outcome_survives_blueprint_json_and_fresh_cas_reopen[False]",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            },
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/integration/scientist/methods/search/funnel/test_paid_outcome_blueprint_projection.py::test_actual_paid_outcome_survives_blueprint_json_and_fresh_cas_reopen[True]",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            }
+          ]
+        }
+      ],
+      "divergent_proxy": "P38: relevant malformed/retained-marker/removal controls executed. PASS scopes do not use trace, estimate, marker or functional cache telemetry as persisted financial debit.",
+      "measurement_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "new_factory_receipt": null,
+      "finding_disposition_proposal": "closed",
+      "disposition_is_formal_G_acceptance": false
+    },
+    {
+      "id": "B161@FUN-03",
+      "finding_id": "B161",
+      "criterion_card": "FUN-03",
+      "canonical_closure_owner": "FUN-03",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-fun-03",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4165,
+          4176
+        ],
+        "byte_offset": 961990,
+        "bytes": 3383,
+        "sha256": "f08fecf0caf482a9f2d93c1f808ea16daa2232de161e5eeb98a7995fa2d41e0a"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** разрешённое уточнение действительно меняет текущий результат; независимый высокий риск не затирается; другая популяция не замещает прежнюю неизвестность. Здесь доказано расхождение агрегата и последней стадии; конкретный downstream-отказ из-за него не воспроизведён. Приоритет по фактическому потребителю, сложность средняя. Связь S03/S08 и B137 — различие изменения знания и простого обращения к истории.",
+        "byte_offset": 964619,
+        "bytes": 752,
+        "sha256": "64bf6d3e30756d1ee3a22a8b81bc2164a41f51931333e269114da303a8fa3b78"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B161@FUN-03",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-03.md",
+          "bytes": 16050,
+          "sha256": "a17dfceb6cc580c9a60ffdcf202b8d9ccff5e672b425a98ecb14de17faa6c34b"
+        }
+      },
+      "disposition": "held",
+      "proposal": null,
+      "reason": "Bounded state/contract mechanism PASS on exact a7; original native scientific/authority input not established.",
+      "selectors": [
+        "test_same_scope_refinement_is_current_while_history_keeps_unknown_risk",
+        "test_scope_identity_prevents_cross_scope_continuation"
+      ],
+      "packets": [
+        "same_scope_refinement"
+      ],
+      "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+      "source_tree": "e677b5e24493a7083287c3bea31bca1892c3be29",
+      "consumer_output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-funnel-cache-binding/affected-consumers-b5.junit.xml"
+      ],
+      "check_status_and_finding_disposition_separate": true,
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "independent_review": "FUN-canonical-B12-final-a7-runtime-independent-review.json",
+      "predicate_basis": "P37: current actual testcase phases/source/input identity for bounded declared consumer; missing native scientific authority stays not_established",
+      "residual": "No appointed native same-subject/value/input/rule/time authorized refinement relation or independent risk-component inputs. Synthetic same-scope projection is not a scientific supersession law.",
+      "historical_receipt_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "source_and_consumer_state": "SIX_UNCHANGED_A7_RECEIPTS_EXACT_SOURCE_MODULE_TEST_OUTPUT_CARRY_TO_B652_PLUS_NEW_FACTORY10",
+      "current_complete_deciding_pack": "canonical-B12-a7-deciding",
+      "current_selector_receipts": [
+        {
+          "selector": "test_same_scope_refinement_is_current_while_history_keeps_unknown_risk",
+          "actual_tests": [
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/unit/remediation/test_fun_03.py::test_same_scope_refinement_is_current_while_history_keeps_unknown_risk",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            }
+          ]
+        },
+        {
+          "selector": "test_scope_identity_prevents_cross_scope_continuation",
+          "actual_tests": [
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/unit/remediation/test_fun_03.py::test_scope_identity_prevents_cross_scope_continuation[subject_id]",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            },
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/unit/remediation/test_fun_03.py::test_scope_identity_prevents_cross_scope_continuation[value_slot]",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            },
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/unit/remediation/test_fun_03.py::test_scope_identity_prevents_cross_scope_continuation[input_signature]",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            },
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/unit/remediation/test_fun_03.py::test_scope_identity_prevents_cross_scope_continuation[procedure_id]",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            },
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/unit/remediation/test_fun_03.py::test_scope_identity_prevents_cross_scope_continuation[population_scope]",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            }
+          ]
+        }
+      ],
+      "divergent_proxy": "P38: relevant malformed/retained-marker/removal controls executed. PASS scopes do not use trace, estimate, marker or functional cache telemetry as persisted financial debit.",
+      "required_original_criterion_positive": "UNRUN/not_established",
+      "measurement_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "new_factory_receipt": null,
+      "finding_disposition_proposal": "held",
+      "disposition_is_formal_G_acceptance": false
+    },
+    {
+      "id": "B162@FUN-02",
+      "finding_id": "B162",
+      "criterion_card": "FUN-02",
+      "canonical_closure_owner": "FUN-02",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-fun-02",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4177,
+          4188
+        ],
+        "byte_offset": 965373,
+        "bytes": 3199,
+        "sha256": "898e61d52e838908faca4e23e38fdd86046fd7678a9c44a1c38b0ebda40bd837"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** ошибочный, отсутствующий и действительный нулевой вход различимы; правильный конечный интервал сохраняет расчёт; остальные доступные результаты не теряются. Переход в настоящую публикацию не проверялся. Приоритет высокий на этом адаптере, локальный ремонт. Связь B105: здесь другой конкретный переход потери смысла uncertainty.",
+        "byte_offset": 967958,
+        "bytes": 612,
+        "sha256": "806665be954b1b87fb1bcc5e05e2ef2779226c0558e4fa6a30cd18a680681075"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B162@FUN-02",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-02.md",
+          "bytes": 18569,
+          "sha256": "5482d56f8a77858b77844bdbbf3867481c2701a6dd671bd138efaccf83c47ef1"
+        }
+      },
+      "disposition": "open",
+      "proposal": "closed_bounded_engineering_proposed_for_original_criterion",
+      "reason": "Original criterion preserved; exact a7 producer→artifact/receipt→bridge→consumer/readback selectors all PASS and independent current runtime reviewer confirms complete source/output custody.",
+      "selectors": [
+        "test_l4_ci_width_preserves_missing_invalid_and_true_zero_semantics",
+        "test_level4_full_emits_full_fidelity_stage_result"
+      ],
+      "packets": [],
+      "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+      "source_tree": "e677b5e24493a7083287c3bea31bca1892c3be29",
+      "consumer_output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-funnel-cache-binding/affected-consumers-b5.junit.xml"
+      ],
+      "check_status_and_finding_disposition_separate": true,
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "independent_review": "FUN-canonical-B12-final-a7-runtime-independent-review.json",
+      "predicate_basis": "P37: current actual testcase phases/source/input identity for bounded declared consumer; missing native scientific authority stays not_established",
+      "residual": "G integration/closure decision pending; current bounded mechanism, real consumer and negative/removal evidence independently reviewed. No remaining D-owned repair defect identified for this original bounded criterion. Separate native scientific/permit requirements stay on held IDs.",
+      "historical_receipt_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "source_and_consumer_state": "SIX_UNCHANGED_A7_RECEIPTS_EXACT_SOURCE_MODULE_TEST_OUTPUT_CARRY_TO_B652_PLUS_NEW_FACTORY10",
+      "current_complete_deciding_pack": "canonical-B12-a7-deciding",
+      "current_selector_receipts": [
+        {
+          "selector": "test_l4_ci_width_preserves_missing_invalid_and_true_zero_semantics",
+          "actual_tests": [
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/unit/remediation/test_fun_02.py::test_l4_ci_width_preserves_missing_invalid_and_true_zero_semantics[None-1.0-ci_width_missing]",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            },
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/unit/remediation/test_fun_02.py::test_l4_ci_width_preserves_missing_invalid_and_true_zero_semantics[broken-1.0-ci_width_invalid]",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            },
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/unit/remediation/test_fun_02.py::test_l4_ci_width_preserves_missing_invalid_and_true_zero_semantics[nan-1.0-ci_width_invalid]",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            },
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/unit/remediation/test_fun_02.py::test_l4_ci_width_preserves_missing_invalid_and_true_zero_semantics[0.0-0.0-full_fidelity_bootstrap]",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            },
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/unit/remediation/test_fun_02.py::test_l4_ci_width_preserves_missing_invalid_and_true_zero_semantics[0.4-0.1-full_fidelity_bootstrap]",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            }
+          ]
+        },
+        {
+          "selector": "test_level4_full_emits_full_fidelity_stage_result",
+          "actual_tests": [
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/unit/scientist/search/funnel/test_level4_full.py::test_level4_full_emits_full_fidelity_stage_result",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            }
+          ]
+        }
+      ],
+      "divergent_proxy": "P38: relevant malformed/retained-marker/removal controls executed. PASS scopes do not use trace, estimate, marker or functional cache telemetry as persisted financial debit.",
+      "measurement_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "new_factory_receipt": null,
+      "finding_disposition_proposal": "closed",
+      "disposition_is_formal_G_acceptance": false
+    },
+    {
+      "id": "B163@FUN-03",
+      "finding_id": "B163",
+      "criterion_card": "FUN-03",
+      "canonical_closure_owner": "FUN-03",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-fun-03",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4189,
+          4200
+        ],
+        "byte_offset": 968572,
+        "bytes": 3310,
+        "sha256": "0c5055c18e4bbfb9bc2ed8cbc6904766eb95627e736de08f4084a90fb2be8ba5"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** оба публичных интерфейса согласованы; пустой и статистически плохой корпуса различимы; ограничения публикации не снимаются ради зелёного статуса; совместимая калибровка переиспользуется. Подключение node статически прочитано, полный runtime не запущен. Приоритет высокий на новом/восстановленном tracker; сложность небольшая/средняя. Связь B114/B137 — нужное прошлое не теряется и не становится новым доказательством без оснований.",
+        "byte_offset": 971083,
+        "bytes": 797,
+        "sha256": "000272e0d8331087a33d20ff52c4d2a8696681b0c82513a8562f372789a48e92"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B163@FUN-03",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-03.md",
+          "bytes": 16050,
+          "sha256": "a17dfceb6cc580c9a60ffdcf202b8d9ccff5e672b425a98ecb14de17faa6c34b"
+        }
+      },
+      "disposition": "open",
+      "proposal": "closed_bounded_engineering_proposed_for_original_criterion",
+      "reason": "Original criterion preserved; exact a7 producer→artifact/receipt→bridge→consumer/readback selectors all PASS and independent current runtime reviewer confirms complete source/output custody.",
+      "selectors": [
+        "test_report_snapshot_reaches_native_consumer_with_same_corpus_and_routing",
+        "test_empty_report_preserves_unassessed_null_through_render_cas_and_native_metrics",
+        "test_observed_zero_correlation_is_measured_and_distinct_from_empty",
+        "test_native_execute_restores_report_corpus_into_actual_funnel_then_preserves_guards",
+        "test_native_execute_snapshot_removal_keeps_labels_but_does_not_invent_tracker"
+      ],
+      "packets": [],
+      "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+      "source_tree": "e677b5e24493a7083287c3bea31bca1892c3be29",
+      "consumer_output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-funnel-cache-binding/new-calibration13-b5.junit.xml",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-funnel-cache-binding/affected-consumers-b5.junit.xml"
+      ],
+      "check_status_and_finding_disposition_separate": true,
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "independent_review": "FUN-canonical-B12-final-a7-runtime-independent-review.json",
+      "predicate_basis": "P37: current actual testcase phases/source/input identity for bounded declared consumer; missing native scientific authority stays not_established",
+      "residual": "G integration/closure decision pending; current bounded mechanism, real consumer and negative/removal evidence independently reviewed. No remaining D-owned repair defect identified for this original bounded criterion. Separate native scientific/permit requirements stay on held IDs.",
+      "historical_receipt_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "source_and_consumer_state": "SIX_UNCHANGED_A7_RECEIPTS_EXACT_SOURCE_MODULE_TEST_OUTPUT_CARRY_TO_B652_PLUS_NEW_FACTORY10",
+      "current_complete_deciding_pack": "canonical-B12-a7-deciding",
+      "current_selector_receipts": [
+        {
+          "selector": "test_report_snapshot_reaches_native_consumer_with_same_corpus_and_routing",
+          "actual_tests": [
+            {
+              "cohort": "defining-state7",
+              "nodeid": "tests/unit/scientist/search/test_calibration_report.py::test_report_snapshot_reaches_native_consumer_with_same_corpus_and_routing[False]",
+              "result": "passed",
+              "full_phases": "defining-state7-a7e.phases.json",
+              "command": "defining-state7-a7e.command.json"
+            },
+            {
+              "cohort": "defining-state7",
+              "nodeid": "tests/unit/scientist/search/test_calibration_report.py::test_report_snapshot_reaches_native_consumer_with_same_corpus_and_routing[True]",
+              "result": "passed",
+              "full_phases": "defining-state7-a7e.phases.json",
+              "command": "defining-state7-a7e.command.json"
+            }
+          ]
+        },
+        {
+          "selector": "test_empty_report_preserves_unassessed_null_through_render_cas_and_native_metrics",
+          "actual_tests": [
+            {
+              "cohort": "defining-state7",
+              "nodeid": "tests/unit/scientist/search/test_calibration_report.py::test_empty_report_preserves_unassessed_null_through_render_cas_and_native_metrics[False]",
+              "result": "passed",
+              "full_phases": "defining-state7-a7e.phases.json",
+              "command": "defining-state7-a7e.command.json"
+            },
+            {
+              "cohort": "defining-state7",
+              "nodeid": "tests/unit/scientist/search/test_calibration_report.py::test_empty_report_preserves_unassessed_null_through_render_cas_and_native_metrics[True]",
+              "result": "passed",
+              "full_phases": "defining-state7-a7e.phases.json",
+              "command": "defining-state7-a7e.command.json"
+            }
+          ]
+        },
+        {
+          "selector": "test_observed_zero_correlation_is_measured_and_distinct_from_empty",
+          "actual_tests": [
+            {
+              "cohort": "defining-state7",
+              "nodeid": "tests/unit/scientist/search/test_calibration_report.py::test_observed_zero_correlation_is_measured_and_distinct_from_empty",
+              "result": "passed",
+              "full_phases": "defining-state7-a7e.phases.json",
+              "command": "defining-state7-a7e.command.json"
+            }
+          ]
+        },
+        {
+          "selector": "test_native_execute_restores_report_corpus_into_actual_funnel_then_preserves_guards",
+          "actual_tests": [
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/unit/remediation/test_fun_03.py::test_native_execute_restores_report_corpus_into_actual_funnel_then_preserves_guards[False]",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            },
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/unit/remediation/test_fun_03.py::test_native_execute_restores_report_corpus_into_actual_funnel_then_preserves_guards[True]",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            }
+          ]
+        },
+        {
+          "selector": "test_native_execute_snapshot_removal_keeps_labels_but_does_not_invent_tracker",
+          "actual_tests": [
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/unit/remediation/test_fun_03.py::test_native_execute_snapshot_removal_keeps_labels_but_does_not_invent_tracker",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            }
+          ]
+        }
+      ],
+      "divergent_proxy": "P38: relevant malformed/retained-marker/removal controls executed. PASS scopes do not use trace, estimate, marker or functional cache telemetry as persisted financial debit.",
+      "measurement_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "new_factory_receipt": null,
+      "finding_disposition_proposal": "closed",
+      "disposition_is_formal_G_acceptance": false
+    },
+    {
+      "id": "B164@FUN-03",
+      "finding_id": "B164",
+      "criterion_card": "FUN-03",
+      "canonical_closure_owner": "FUN-03",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-fun-03",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4201,
+          4212
+        ],
+        "byte_offset": 971882,
+        "bytes": 3528,
+        "sha256": "ed8189c34e88eec186ca2c6c3d764e796f0cc4f967c601f6a5ec223c43b6c137"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** ограниченный режим не вызывает запрещённый producer; нормальный режим сохраняет работу; готовый результат доступен по своей политике; потеря разрешения перед commit обнаруживается владельцем. Реальная авторизация, запись в реестр и публикация не исполнялись, поэтому обход системных полномочий не заявлен. Приоритет высокий для callback-пути, локальный preflight плюс согласование владельца. Связь B78/B117 — иной участок границы решения и эффекта.",
+        "byte_offset": 974595,
+        "bytes": 813,
+        "sha256": "a367b70e08a3ff6f3515593c46fe2686a9c2f02532daf2c243f57613777b993e"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B164@FUN-03",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-03.md",
+          "bytes": 16050,
+          "sha256": "a17dfceb6cc580c9a60ffdcf202b8d9ccff5e672b425a98ecb14de17faa6c34b"
+        }
+      },
+      "disposition": "held",
+      "proposal": null,
+      "reason": "Bounded state/contract mechanism PASS on exact a7; original native scientific/authority input not established.",
+      "selectors": [
+        "test_level6_normal_path_bool_preflight_cannot_admit_runner_effects",
+        "test_run_policy_blueprint_execute_refuses_bool_admission_after_real_l4_work"
+      ],
+      "packets": [
+        "typed_write_permit"
+      ],
+      "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+      "source_tree": "e677b5e24493a7083287c3bea31bca1892c3be29",
+      "consumer_output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-funnel-cache-binding/affected-consumers-b5.junit.xml"
+      ],
+      "check_status_and_finding_disposition_separate": true,
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "independent_review": "FUN-canonical-B12-final-a7-runtime-independent-review.json",
+      "predicate_basis": "P37: current actual testcase phases/source/input identity for bounded declared consumer; missing native scientific authority stays not_established",
+      "residual": "No appointed promotion permit issuer/current verifier/write owner and real payload. Real canonical cache/completion owner is not promotion authority. Valid owner-issued positive and serialized revoke/effect remain UNRUN/bridge_missing.",
+      "historical_receipt_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "source_and_consumer_state": "SIX_UNCHANGED_A7_RECEIPTS_EXACT_SOURCE_MODULE_TEST_OUTPUT_CARRY_TO_B652_PLUS_NEW_FACTORY10",
+      "current_complete_deciding_pack": "canonical-B12-a7-deciding",
+      "current_selector_receipts": [
+        {
+          "selector": "test_level6_normal_path_bool_preflight_cannot_admit_runner_effects",
+          "actual_tests": [
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/unit/remediation/test_fun_03.py::test_level6_normal_path_bool_preflight_cannot_admit_runner_effects",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            }
+          ]
+        },
+        {
+          "selector": "test_run_policy_blueprint_execute_refuses_bool_admission_after_real_l4_work",
+          "actual_tests": [
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/unit/remediation/test_fun_03.py::test_run_policy_blueprint_execute_refuses_bool_admission_after_real_l4_work",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            }
+          ]
+        }
+      ],
+      "divergent_proxy": "P38: relevant malformed/retained-marker/removal controls executed. PASS scopes do not use trace, estimate, marker or functional cache telemetry as persisted financial debit.",
+      "required_original_criterion_positive": "UNRUN/not_established",
+      "measurement_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "new_factory_receipt": null,
+      "finding_disposition_proposal": "held",
+      "disposition_is_formal_G_acceptance": false
+    },
+    {
+      "id": "B165@FUN-02",
+      "finding_id": "B165",
+      "criterion_card": "FUN-02",
+      "canonical_closure_owner": "FUN-02",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-fun-02",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          4213,
+          4224
+        ],
+        "byte_offset": 975410,
+        "bytes": 3244,
+        "sha256": "93f3c511f14729529cf4353e326c6bd33ad6686ab19385bc56f88210cdd5e258"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** наличие или отсутствие промежуточного необязательного verdict не меняет сводное состояние при одном исходе. Реальный score сохранён, полномочия не повышены, consumers не выбирают случайно удобное поле. Интеграция всех потребителей Stage B не запускалась. Приоритет высокий перед внешним представлением результата; сложность небольшая/средняя. Связь B123/B160: здесь потеря именно агрегированного решения после выполненной стадии.",
+        "byte_offset": 977869,
+        "bytes": 783,
+        "sha256": "42c25e1cf8e4e9d84ab45a3cb8577b7c2d5d6791112006c30aa15b6d3ce7127e"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B165@FUN-02",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-02.md",
+          "bytes": 18569,
+          "sha256": "5482d56f8a77858b77844bdbbf3867481c2701a6dd671bd138efaccf83c47ef1"
+        }
+      },
+      "disposition": "open",
+      "proposal": "closed_bounded_engineering_proposed_for_original_criterion",
+      "reason": "Original criterion preserved; exact a7 producer→artifact/receipt→bridge→consumer/readback selectors all PASS and independent current runtime reviewer confirms complete source/output custody.",
+      "selectors": [
+        "test_final_defer_overrides_intermediate_approve_without_erasing_stage_result",
+        "test_final_reject_overrides_intermediate_approve",
+        "test_actual_paid_outcome_survives_blueprint_json_and_fresh_cas_reopen",
+        "test_actual_native_pending_receipt_survives_blueprint_json_and_fresh_cas"
+      ],
+      "packets": [],
+      "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+      "source_tree": "e677b5e24493a7083287c3bea31bca1892c3be29",
+      "consumer_output_refs": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-funnel-cache-binding/affected-consumers-b5.junit.xml"
+      ],
+      "check_status_and_finding_disposition_separate": true,
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "independent_review": "FUN-canonical-B12-final-a7-runtime-independent-review.json",
+      "predicate_basis": "P37: current actual testcase phases/source/input identity for bounded declared consumer; missing native scientific authority stays not_established",
+      "residual": "G integration/closure decision pending; current bounded mechanism, real consumer and negative/removal evidence independently reviewed. No remaining D-owned repair defect identified for this original bounded criterion. Separate native scientific/permit requirements stay on held IDs.",
+      "historical_receipt_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "source_and_consumer_state": "SIX_UNCHANGED_A7_RECEIPTS_EXACT_SOURCE_MODULE_TEST_OUTPUT_CARRY_TO_B652_PLUS_NEW_FACTORY10",
+      "current_complete_deciding_pack": "canonical-B12-a7-deciding",
+      "current_selector_receipts": [
+        {
+          "selector": "test_final_defer_overrides_intermediate_approve_without_erasing_stage_result",
+          "actual_tests": [
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/unit/remediation/test_fun_02.py::test_final_defer_overrides_intermediate_approve_without_erasing_stage_result",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            }
+          ]
+        },
+        {
+          "selector": "test_final_reject_overrides_intermediate_approve",
+          "actual_tests": [
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/unit/remediation/test_fun_02.py::test_final_reject_overrides_intermediate_approve",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            }
+          ]
+        },
+        {
+          "selector": "test_actual_paid_outcome_survives_blueprint_json_and_fresh_cas_reopen",
+          "actual_tests": [
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/integration/scientist/methods/search/funnel/test_paid_outcome_blueprint_projection.py::test_actual_paid_outcome_survives_blueprint_json_and_fresh_cas_reopen[False]",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            },
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/integration/scientist/methods/search/funnel/test_paid_outcome_blueprint_projection.py::test_actual_paid_outcome_survives_blueprint_json_and_fresh_cas_reopen[True]",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            }
+          ]
+        },
+        {
+          "selector": "test_actual_native_pending_receipt_survives_blueprint_json_and_fresh_cas",
+          "actual_tests": [
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py::test_actual_native_pending_receipt_survives_blueprint_json_and_fresh_cas[False]",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            },
+            {
+              "cohort": "affected138",
+              "nodeid": "tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py::test_actual_native_pending_receipt_survives_blueprint_json_and_fresh_cas[True]",
+              "result": "passed",
+              "full_phases": "affected138-a7e.phases.json",
+              "command": "affected138-a7e.command.json"
+            }
+          ]
+        }
+      ],
+      "divergent_proxy": "P38: relevant malformed/retained-marker/removal controls executed. PASS scopes do not use trace, estimate, marker or functional cache telemetry as persisted financial debit.",
+      "measurement_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "new_factory_receipt": null,
+      "finding_disposition_proposal": "closed",
+      "disposition_is_formal_G_acceptance": false
+    }
+  ],
+  "proposals_are_formal_closure": false,
+  "root_G_checkpoint": "ebae80eaa25482d84bc6ad2e78721bc318bc0228",
+  "independent_current_runtime_review": {
+    "file": "FUN-canonical-B12-final-a7-runtime-independent-review.json",
+    "sha256": "ee9ea336e21c8b9b66fad1a273628718c507f873e977b33c614e4ca526ab9a89",
+    "reviewer": "census_oct07",
+    "author": "funnel_oct07",
+    "scope": "Six completed a7 native cohorts; publicfactory10 intended consumer UNRUN until reviewed sibling-module repair/replay"
+  },
+  "source_carry_receipt": {
+    "path": "a7-to-b652-exact-six-cohort-carry.json",
+    "sha256": "d0b04e8c4e10f7b307e21a33c19703951b62007e381ca7ff277a9542c055ab01",
+    "scope": "Six successful cohorts unchanged producer/test/dependency/output identity from exact a7, not new execution"
+  },
+  "current_public_factory": {
+    "actual_execution": "publicfactory10-b652.command.json",
+    "result": "10PASS",
+    "phases": {
+      "setup": 10,
+      "call": 10,
+      "teardown": 10
+    },
+    "full_complete_pack": "canonical-B12-b652-publicfactory-deciding",
+    "independent_runtime_review": {
+      "path": "FUN-publicfactory10-b652-runtime-and-sixcarry-independent-review.json",
+      "sha256": "51a46d7f277343078554793e861bdedb0acf674ddb3643e9e22c47ea2eb0844d"
+    },
+    "independent_rollback_refresh_removal": {
+      "path": "Legacy2-and-budget-owner-removal1-b652-independent-review.json",
+      "sha256": "4003f214d3dac2a1aa3b9ebc45fd65b70ff023915b27a0b501442e9f86d8b526",
+      "actual_check": "FAIL expected removal divergence: current live budget_spent0.0 versus requiredNone",
+      "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+      "complete_deciding_output_archive_sha256": "5675b7b4831752a5ad8a533f8ff24b83b35e57aefc8fbfe0f317feac2448cff9",
+      "historical_first_negative": "collectionERROR, no testcase phases; retained separately"
+    },
+    "positive_status": "PASS actual10 all30phases"
+  },
+  "historical_public_factory_unmeasured_harness_state": {
+    "check": "10FAIL",
+    "reason": "runpy evaluator module/source custody fixture error; no product property measured",
+    "repair_patch_sha256": "c312b738e6e2815023d721e449d63c6dbfcd433c8ea8d450cf5d54a8842a73be",
+    "repair_current_runtime": "UNRUN",
+    "repair_profile": "ordinary existing sibling test module import, verified read-only same-profile collect/source-profile diagnostic; no runner/production change"
+  },
+  "current_decision_summary": {
+    "bounded_closed_engineering_proposals": 8,
+    "held_scientific_authority_inputs": 3,
+    "formal_closed": 0,
+    "accepted_in_G": false,
+    "original_acceptance_binding_unchanged": true,
+    "ordinary_correctable_residuals_remaining_in_FUN_scope": 0,
+    "separate_queue_residuals_not_reclassified_by_FUN": [
+      "B124 serviced/controller seed mechanism owned by root/Service",
+      "Other root queues and additional owner quality/API/data-dependent gates"
+    ]
+  }
+}

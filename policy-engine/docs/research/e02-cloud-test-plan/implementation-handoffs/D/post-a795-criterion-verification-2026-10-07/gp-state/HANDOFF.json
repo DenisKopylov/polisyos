@@ -1,0 +1,144 @@
+{
+  "schema": "D.E02.current-owner-native-verification-handoff.v1",
+  "author": "/root/gp_oct07",
+  "type": "read_only_actual_verification; no new implementation by leaf",
+  "slice_base": "73c679235fee50fd920e9d7bb41c403cdff7779f",
+  "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "actual_execution_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+  "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "assessed_product_tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+  "original_acceptance_source": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "source_equivalence": "ActualCBC46 differs from assessed a795 only269 receipt/docs paths; complete6861 executabledenominator0difference and actual318 loaded repositorypaths Gitbyte identities checked in compact record. Whole catalog/tree identity false.",
+  "original_occurrence_matrix": {
+    "path": "original-seven-criterion-matrix.json",
+    "sha256": "3d1e1504c7b80fbef1b4b5723636d9d4624c5832140eff2c83bcc65ed6bd2a74",
+    "ids": 7,
+    "occurrences": 7
+  },
+  "supported_family_matrix": {
+    "path": "supported-six-family-matrix.json",
+    "sha256": "dae86812582a2545fd3c1b4a6d751629dbd18e50d10cbb55ca94be987beccaf9",
+    "families": 6
+  },
+  "named_scopes": [
+    {
+      "scope": "gp-defining",
+      "result_counts": {
+        "PASS": 33
+      },
+      "actual_fit_starts": 9,
+      "actual_fit_returns": 9,
+      "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "assessed_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477"
+    },
+    {
+      "scope": "state-effective",
+      "result_counts": {
+        "PASS": 100
+      },
+      "actual_fit_starts": 4,
+      "actual_fit_returns": 4,
+      "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "assessed_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477"
+    },
+    {
+      "scope": "mo-supported",
+      "result_counts": {
+        "PASS": 7
+      },
+      "actual_fit_starts": 3,
+      "actual_fit_returns": 3,
+      "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "assessed_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477"
+    },
+    {
+      "scope": "effective-public4",
+      "result_counts": {
+        "PASS": 4
+      },
+      "actual_fit_starts": 0,
+      "actual_fit_returns": 0,
+      "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "assessed_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477"
+    },
+    {
+      "scope": "transfer-public3",
+      "result_counts": {
+        "PASS": 3
+      },
+      "actual_fit_starts": 2,
+      "actual_fit_returns": 2,
+      "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "assessed_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477"
+    },
+    {
+      "scope": "public-history2",
+      "result_counts": {
+        "PASS": 2
+      },
+      "actual_fit_starts": 2,
+      "actual_fit_returns": 2,
+      "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "assessed_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477"
+    },
+    {
+      "scope": "mo-refusal19",
+      "result_counts": {
+        "PASS": 19
+      },
+      "actual_fit_starts": 1,
+      "actual_fit_returns": 1,
+      "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "assessed_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477"
+    },
+    {
+      "scope": "optional-minimal",
+      "result_counts": {
+        "SKIP": 3,
+        "PASS": 3
+      },
+      "actual_fit_starts": 0,
+      "actual_fit_returns": 0,
+      "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "assessed_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477"
+    },
+    {
+      "scope": "gp-warm-dedup1",
+      "result_counts": {
+        "PASS": 1
+      },
+      "actual_fit_starts": 1,
+      "actual_fit_returns": 1,
+      "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "assessed_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477"
+    }
+  ],
+  "complete_moderate_deciding_output": "All actualstdout/stderr/JUnit/setup-call-teardownphases/realMLL tensor+weightrecords/completecommand/context+POSIXresourcecapture retained in scopes; current sourceclosure and CAS/oracle native artifacts included.",
+  "large_raw_capture_policy": "Before/after complete6861input catalogs and fullmodule/external origins remain ignoredabsolute path+SHA refs; independent reviewer can inspect them here; no giant/repeated source/catalog copies in Git.",
+  "implementation_footprint": {
+    "path": "qualification/full-assessed-slice-footprint.json",
+    "sha256": "f65e2fec44d91af4a74c6f0f34a80543861f0a23b0119b5ba76c0d043820cea8",
+    "leaf_changed_paths": [],
+    "full_base_to_assessed_name_status_count": 28
+  },
+  "profiles": "Locked SingleTaskGP/ModelListGP currentCPU sequential; supported directwarm NN vs unsupported opaque NN/RL-NN service persisted profile; no crossversion/customtransform/GPU/concurrentthread/scientific law/authority promise.",
+  "independent_oracle": "Current10/11originalunit savedparameter NumPy RBF mean/fullcovariance, plus actualtwo8row MO component oracles. Production model.posterior only measured side. Fixed native parameter fixture not scientific learnedparameter; actual learned6/7refit/resume witness separatelyexecuted.",
+  "negative_and_removal": "Current corpus/config/identity/version/RNG/fitted-transform/parameter mutation tests plus intentional fittedstate-load removal discriminate numerical property. Markers alone not accepted. Actualremoval testcase resultPASS asserts divergence; prior3b countremoval8FAIL remains historical separately, not renewed/currentnegative scope.",
+  "consumer_chain": "Ordinary SearchController configuredtransfer→existingWarmStartBridge→realCAS8→GPfirst acquisition; separate SearchLoopRunner publicCAS8/7→receivingnativeGP→v3checkpoint freshrestore; publicmixeddict/SearchIteration4-row min/max→generate→CAS→same-next0fit. Six direct state profiles persisted readers and finiteGridactualbatch.",
+  "P37": "Named actual protectedproperty/runtime/effective nextproposal/fullnumeric/origin/refusal assertions; independentreconciliation pending. Minimalcollectionexit notnumericPASS.",
+  "P38": "Fittedmarkers/modelpresence/callback/class/schema/serializedRNG not proof; actualtransformed train corpus/means/covariance/nextproposal/freshreader/finiteexhaustion/refusal discriminate.",
+  "P41": "not_established; no inherited-red claim or waiver",
+  "formal_closed": false,
+  "accepted_in_G": false,
+  "proposed_original_decisions": "Sevenclosed proposals pending independentreview and G disposition; checkPASS separate from formal findingclosure.",
+  "old_receipts": "c0GP43/State142/MO88 and3bwrapper12 are immutableoldsourcequalified; this packet has only exactcurrentnamedscopes, no relabel/sum/broadglobalreplay.",
+  "independent_reviews": [],
+  "limitations": [
+    "No full expensive performance/regression/global gate replay.",
+    "ActualNN third-instance fittednumericalreplica experiment notperformed; current sharedBase perinstance ownership/directNN warm restore and ambientTorch preservation explicit.",
+    "Current B127 publicNativeServicepending/completed ordinaryfactory clause uses actuala795affected22 receipt with unchangedexecutableclosure qualification, not new22execution; exactGit pointer in matrix.",
+    "Three native-only modules SKIP/UNRUN in actualminimal absentstackprofile; extrasactual numerical execution separatelyshown.",
+    "Productionscientific tenant/evaluator/issuer/unitlaws and productionhistory remainoutside these original engineeringcriteria, no cloudtransfer."
+  ],
+  "cleanup": "No cleanup by leaf; unique inputs and deciding outputs preserved. Root governs nativeTrash after publication/inactive-user check."
+}

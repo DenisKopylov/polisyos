@@ -1,0 +1,437 @@
+{
+  "schema": "policyos.e02.independent_root_composed_delta_review.v1",
+  "reviewer": "criterion_closeout_review independent read-only; no test/backend execution",
+  "prior_review_commit": "4b18754c3b38dc98448e2f4bdf812bc627d79638",
+  "prior_review_source": "f471b8143e2a841b4d1029ae78de472ac43fc88b",
+  "actual_composed_runtime_source": {
+    "sha": "f2d5401c9cd8a02a74579e4c47b836042a12eb99",
+    "tree": "ff727db3e7dec74b3b82e3a67b3fd013382c74bb"
+  },
+  "current_reviewed_root": {
+    "sha": "1a77ebd123d44646e9099a0ff4101b135590c419",
+    "tree": "725d2640be2215c7dc381ec807c709529aecec6e",
+    "product_and_test_bytes_identical_to_runtime_source": true
+  },
+  "original_slice_base_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+  "complete_changed_denominator": {
+    "paths": 918,
+    "source": 65,
+    "tests": 76
+  },
+  "complete_source_test_delta_since_prior_root8c": [
+    {
+      "status": "M",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py",
+      "bytes": 63816,
+      "sha256": "9d128909611cfa8e78f2d2d8d0e46098d95387c167d62cd360552a25ad6af3fc",
+      "git_blob": "cae57ad7bbe3f667862a185f8bcba909f3283024"
+    },
+    {
+      "status": "A",
+      "path": "policy-engine/tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py",
+      "bytes": 25774,
+      "sha256": "819b407f50f4c080cd6e79026f355ff277884d5a5cf6fac283c3ff4b7d080491",
+      "git_blob": "f892d0e0a53f5531d998125ec7f5d13c2acd418c"
+    },
+    {
+      "status": "M",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger.py",
+      "bytes": 7164,
+      "sha256": "ee64851e54b4013110cc9c5b782c96864f25369587d31b6d82a0d1c58582fdb6",
+      "git_blob": "29d2a4a2fb972af1dac72ce568a67da966c806ea"
+    }
+  ],
+  "static_disposition": "ACCEPT_BOUNDED_AVAILABLE_NODE_BRIDGE_AND_CANONICAL_LEDGER_TEST_ADAPTATION; no actionable new product discrepancy found.",
+  "source_review": [
+    "The only source change after8c is the exact f471 node already independently reviewed. The new bridge test file is exactf471 too. All other root product source, including GP/optimizer/transfer/stress/funnel/B ledger, retains root8c blobs.",
+    "The third changed path adapts old D-shaped resource-event tests to canonical B1.1 APIs. Existing reserve_safe/settle_spend_safe/release_safe/resolve_spend_safe are exercised; no parallel ledger is authored. Single-key immutable event receipt survives reopen/journal eviction, exact retry returns its original receipt, changed amount/key/provider/digest refuses without snapshot mutation.",
+    "Aggregate reservations are explicitly separate from spend receipt settlement. Tests require release as a distinct operation; they do not claim owned attempt or atomic multi-key settlement. Unknown ACK before/after os.replace retains capacity and retries the same event/digest once after fresh resolve. The actual multi-key native profile and owner-atomic settlement contract remain a separate required packet.",
+    "The original full45-ID/46-occurrence accounting is preserved by the prior review. These44 affected tests do not by themselves close all original criteria or establish the broad numerical regression wave."
+  ],
+  "ledger_test_compatibility": {
+    "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger.py",
+    "bytes": 7164,
+    "sha256": "ee64851e54b4013110cc9c5b782c96864f25369587d31b6d82a0d1c58582fdb6",
+    "complete_diff_sha256": "41df72d19aea6bd297f7518b9261f2251c99e930fb0f109a7787458e500b0415",
+    "canonical_B_schema": "1.1 existing owner",
+    "old_test_history_preserved": true,
+    "old_D_schema_not_reintroduced": true,
+    "single_key_only": true,
+    "multi_key_owner_dependency_erased": false
+  },
+  "actual_runtime_reconciliation": {
+    "PASS": 44,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0,
+    "phase_PASS": 132,
+    "full_collected_call_JUnit_denominator_MATCH": true,
+    "deselected": 0,
+    "partition": {
+      "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py": 35,
+      "tests/unit/scientist/orchestration/engine/test_budget_ledger.py": 7,
+      "tests/integration/scientist/methods/search/funnel/test_orchestrator.py": 2
+    },
+    "source_state_before_after_MATCH": true,
+    "declared_input_files_count": 2760,
+    "declared_input_before_after_MATCH": true,
+    "independent_Git_input_errors": [],
+    "observed_product_origins": 1335,
+    "observed_exec_origins": 1335,
+    "independent_Git_product_origin_errors": [],
+    "independent_Git_exec_origin_errors": [],
+    "main_process_only": true,
+    "environment_manifest": {
+      "source": {
+        "head": "f2d5401c9cd8a02a74579e4c47b836042a12eb99",
+        "tree": "ff727db3e7dec74b3b82e3a67b3fd013382c74bb",
+        "branch": "codex/e02-D-published-root",
+        "status_porcelain": ""
+      },
+      "argv": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_broad_observer",
+        "-q",
+        "tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py",
+        "tests/unit/scientist/orchestration/engine/test_budget_ledger.py",
+        "tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_native_policy_callers_full_split_actual_events_and_fresh_reopen",
+        "tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_actual_spend_does_not_resume_but_released_owned_capacity_rechecks_remaining_work",
+        "-ra",
+        "--run-quarantine",
+        "--basetemp=/tmp/e02-D-root-affected44-09a8ad37f06a4165a1ff719f1568a00a/fresh-fixtures",
+        "--junitxml=/tmp/e02-D-root-affected44-09a8ad37f06a4165a1ff719f1568a00a/junit.xml",
+        "-o",
+        "cache_dir=/tmp/e02-D-root-affected44-09a8ad37f06a4165a1ff719f1568a00a/pytest-cache"
+      ],
+      "cwd": "/workspace/e02-D-published-root/policy-engine",
+      "environment_assignments": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONUNBUFFERED": "1",
+        "PYTHONPATH": "/workspace/e02-D-published-root/policy-engine/src:/workspace/e02-D-published-root/policy-engine:/tmp",
+        "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer",
+        "E02_BROAD_OUTPUT": "/tmp/e02-D-root-affected44-09a8ad37f06a4165a1ff719f1568a00a",
+        "E02_BROAD_REPO": "/workspace/e02-D-published-root",
+        "E02_BROAD_SOURCE": "f2d5401c9cd8a02a74579e4c47b836042a12eb99"
+      },
+      "status": "RUNNING",
+      "introduced_compute_or_time_limits": false,
+      "scope": "One targeted root-composition changed-contract consumer session; numerical missing backends remain UNRUN. No test-body transform or backend mocks.",
+      "expected_case_count_not_verdict": 44,
+      "helper_sha256": "f383a1ff3bd2a22776b914e6d038d6f8883772acc78e051c27bb1db15f5a56e7",
+      "observer_sha256": "1beccd4a0caa7af25a68c54a85341949d809f0e75d61cdf61d5d4ffbcfc8cf81",
+      "runner_sha256": "557aa43f955584ae7db584ba0acfa63bbd6b5e4831d2267fa4f5d8606a8e8338"
+    },
+    "backend_state": {
+      "torch": {
+        "installed_version": null,
+        "actually_loaded_in_main_process": false
+      },
+      "botorch": {
+        "installed_version": null,
+        "actually_loaded_in_main_process": false
+      },
+      "gpytorch": {
+        "installed_version": null,
+        "actually_loaded_in_main_process": false
+      },
+      "hnswlib": {
+        "installed_version": null,
+        "actually_loaded_in_main_process": false
+      },
+      "SALib": {
+        "installed_version": null,
+        "actually_loaded_in_main_process": false
+      },
+      "numpy": {
+        "installed_version": "2.3.5",
+        "actually_loaded_in_main_process": true,
+        "module_path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/numpy/__init__.py",
+        "module_version": "2.3.5",
+        "module_file_sha256": "93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38",
+        "module_file_bytes": 25919
+      },
+      "scipy": {
+        "installed_version": "1.16.3",
+        "actually_loaded_in_main_process": true,
+        "module_path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/scipy/__init__.py",
+        "module_version": "1.16.3",
+        "module_file_sha256": "a72412a5c62442876e073a01da1910c84b7214d1382380b71a873b470420dd68",
+        "module_file_bytes": 4063
+      },
+      "pytest": {
+        "installed_version": "9.0.2",
+        "actually_loaded_in_main_process": true,
+        "module_path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/pytest/__init__.py",
+        "module_version": "9.0.2",
+        "module_file_sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766",
+        "module_file_bytes": 5582
+      },
+      "numpy._core._multiarray_umath:binary": {
+        "path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/numpy/_core/_multiarray_umath.cpython-314-x86_64-linux-gnu.so",
+        "bytes": 10800697,
+        "sha256": "61052ef771d926665ca135b1840662516f058d5c98843aa429ef2abdd7f46a04"
+      }
+    },
+    "full_output_sha256": "4724bdee0418b1184b50c59ec0b73cbddf3cfcb2d9255f80c38a1014df88de1c",
+    "complete_output": "............................................                             [100%]\n=============================== warnings summary ===============================\ntests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py::test_configured_registry_reaches_every_coordinator_port[run]\ntests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py::test_actual_typed_rows_reach_disk_and_fresh_projection[False-3]\ntests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py::test_tenant_scope_covers_real_seed_reads_late_input_change_and_resets\ntests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py::test_actual_node_forwards_owner_run_context_and_persists_report\ntests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py::test_real_source_denominator_cannot_be_replaced_by_partial_registry\ntests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py::test_actual_canonical_candidate_cas_readback_reaches_node_and_fresh_report\ntests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py::test_direct_canonical_candidate_readback_reaches_adapter_without_json_conversion\n  /workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/methods/search/strategies/space.py:277: UserWarning: The balance properties of Sobol' points require n to be a power of 2.\n    samples = qmc.random(n=n_samples).tolist()\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n",
+    "raw_directory": "/tmp/e02-D-root-affected44-09a8ad37f06a4165a1ff719f1568a00a"
+  },
+  "provenance_limit": "Actual _bundle helper test_run_hierarchical_policy_search.py was not individually snapshotted historically. Clean global root state and later frozen-Git binding are observed; no assertion that every actual test/helper body was individually observed before execution.",
+  "output_delivery": {
+    "receipt_commit": "aa6c7b589c465bfe3aa5204be774195b627b72ea",
+    "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-composed-affected44.json",
+    "carrier_commit": "04218ee864ffcae2cdec19d6b22379351eceeed7",
+    "carrier_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-composed-affected44/complete-output.json.xz",
+    "carrier_sha256": "32be0055d49cb4d63d504c668e5f8038af65f71194286acd3150ae9ec97172f8",
+    "carrier_bytes": 1060752,
+    "member_count": 447,
+    "lossless_member_errors": [],
+    "historical_startup": "Original startup ERROR_HARNESS_STARTUP retained; zero phases/property UNRUN. Snapshot wrapper fix flattened envelope only."
+  },
+  "supersedes_pending_note": "Previous reviewer record described a future35+9 node/regression check generically. The actual completed denominator is35 hierarchical registry plus7 canonical B1.1 ledger plus2 existing actual funnel callers. Only that44-cell run now has an actual bounded PASS.",
+  "pattern_delta": {
+    "P01": {
+      "source_sha": "1a77ebd123d44646e9099a0ff4101b135590c419",
+      "prior_f471_disposition": "BOUNDED_ACTUAL_CHAIN_OBSERVED",
+      "new_composed_evidence": "Exact f471 node and test blobs adopted; actual root44 complete denominator reconciled with canonical B1.1 ledger/funnel consumers.",
+      "formal_global_pass": false,
+      "falsifier": "Remove port/publication while keeping typed markers: physical custody must fail.",
+      "remaining_verification": "Final full changed backend/regression wave and stated original-owner inputs remain unestablished.",
+      "current_frozen_source_sha": "69e2d477b7e8f2e213bf545fbbad42881a9aefce",
+      "final_frozen_source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7"
+    },
+    "P02": {
+      "source_sha": "1a77ebd123d44646e9099a0ff4101b135590c419",
+      "prior_f471_disposition": "AVAILABLE_ORDINARY_BRIDGE_COMPLETED_BOUNDED",
+      "new_composed_evidence": "Exact f471 node and test blobs adopted; actual root44 complete denominator reconciled with canonical B1.1 ledger/funnel consumers.",
+      "formal_global_pass": false,
+      "falsifier": "Remove the bridge with configuration markers retained; the actual consumer fails.",
+      "remaining_verification": "Final full changed backend/regression wave and stated original-owner inputs remain unestablished.",
+      "current_frozen_source_sha": "69e2d477b7e8f2e213bf545fbbad42881a9aefce",
+      "final_frozen_source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7"
+    },
+    "P05": {
+      "source_sha": "1a77ebd123d44646e9099a0ff4101b135590c419",
+      "prior_f471_disposition": "CURRENT_FIELD_SERIALIZATION_AND_IDENTITY_REVIEWED",
+      "new_composed_evidence": "Exact f471 node and test blobs adopted; actual root44 complete denominator reconciled with canonical B1.1 ledger/funnel consumers.",
+      "formal_global_pass": false,
+      "falsifier": "Change amount/currency/year with the presentation flag unchanged; output changes or refuses.",
+      "remaining_verification": "Final full changed backend/regression wave and stated original-owner inputs remain unestablished.",
+      "current_frozen_source_sha": "69e2d477b7e8f2e213bf545fbbad42881a9aefce",
+      "final_frozen_source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7"
+    },
+    "P09": {
+      "source_sha": "1a77ebd123d44646e9099a0ff4101b135590c419",
+      "prior_f471_disposition": "INVALID_PRESENT_REFUSES_BEFORE_EFFECT",
+      "new_composed_evidence": "Exact f471 node and test blobs adopted; actual root44 complete denominator reconciled with canonical B1.1 ledger/funnel consumers.",
+      "formal_global_pass": false,
+      "falsifier": "Keep a valid scalar alongside malformed typed input; physical registry entries remain zero.",
+      "remaining_verification": "Final full changed backend/regression wave and stated original-owner inputs remain unestablished.",
+      "current_frozen_source_sha": "69e2d477b7e8f2e213bf545fbbad42881a9aefce",
+      "final_frozen_source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7"
+    },
+    "P10": {
+      "source_sha": "1a77ebd123d44646e9099a0ff4101b135590c419",
+      "prior_f471_disposition": "EXACT_CUSTODY_AND_FRESH_READER_OBSERVED",
+      "new_composed_evidence": "Exact f471 node and test blobs adopted; actual root44 complete denominator reconciled with canonical B1.1 ledger/funnel consumers.",
+      "formal_global_pass": false,
+      "falsifier": "Change the actual subject/ref/hash with markers unchanged; strict custody/admission must fail.",
+      "remaining_verification": "Final full changed backend/regression wave and stated original-owner inputs remain unestablished.",
+      "current_frozen_source_sha": "69e2d477b7e8f2e213bf545fbbad42881a9aefce",
+      "final_frozen_source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7"
+    },
+    "P14": {
+      "source_sha": "1a77ebd123d44646e9099a0ff4101b135590c419",
+      "prior_f471_disposition": "FULL_DECLARED_DENOMINATOR_ONLY",
+      "new_composed_evidence": "Exact f471 node and test blobs adopted; actual root44 complete denominator reconciled with canonical B1.1 ledger/funnel consumers.",
+      "formal_global_pass": false,
+      "falsifier": "Omit an expected row or rank an unassessed basis; the completeness/assessment oracle fails.",
+      "remaining_verification": "Final full changed backend/regression wave and stated original-owner inputs remain unestablished.",
+      "current_frozen_source_sha": "69e2d477b7e8f2e213bf545fbbad42881a9aefce",
+      "final_frozen_source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7"
+    },
+    "P27": {
+      "source_sha": "1a77ebd123d44646e9099a0ff4101b135590c419",
+      "prior_f471_disposition": "SOURCE_QUALIFIED_NEGATIVES_RECONCILED",
+      "new_composed_evidence": "Exact f471 node and test blobs adopted; actual root44 complete denominator reconciled with canonical B1.1 ledger/funnel consumers.",
+      "formal_global_pass": false,
+      "falsifier": "Keeping markers while removing effects must fail physical oracles; module hashes alone do not bind mutated bodies.",
+      "remaining_verification": "Final full changed backend/regression wave and stated original-owner inputs remain unestablished.",
+      "current_frozen_source_sha": "69e2d477b7e8f2e213bf545fbbad42881a9aefce",
+      "final_frozen_source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7"
+    },
+    "P29": {
+      "source_sha": "1a77ebd123d44646e9099a0ff4101b135590c419",
+      "prior_f471_disposition": "SCOPE_AND_BASIS_REMAIN_EXPLICIT",
+      "new_composed_evidence": "Exact f471 node and test blobs adopted; actual root44 complete denominator reconciled with canonical B1.1 ledger/funnel consumers.",
+      "formal_global_pass": false,
+      "falsifier": "Change tenant/unit/source basis with labels retained; reject or preserve unavailable/limited assessment.",
+      "remaining_verification": "Final full changed backend/regression wave and stated original-owner inputs remain unestablished.",
+      "current_frozen_source_sha": "69e2d477b7e8f2e213bf545fbbad42881a9aefce",
+      "final_frozen_source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7"
+    },
+    "P32": {
+      "source_sha": "1a77ebd123d44646e9099a0ff4101b135590c419",
+      "prior_f471_disposition": "CHECKPOINT_PROFILE_AND_COMPATIBILITY_BOUND",
+      "new_composed_evidence": "Exact f471 node and test blobs adopted; actual root44 complete denominator reconciled with canonical B1.1 ledger/funnel consumers.",
+      "formal_global_pass": false,
+      "falsifier": "Unsupported carrier/version needs explicit compatibility or refusal; this fixture cannot imply generic support.",
+      "remaining_verification": "Final full changed backend/regression wave and stated original-owner inputs remain unestablished.",
+      "current_frozen_source_sha": "69e2d477b7e8f2e213bf545fbbad42881a9aefce",
+      "final_frozen_source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7"
+    },
+    "P35": {
+      "source_sha": "1a77ebd123d44646e9099a0ff4101b135590c419",
+      "prior_f471_disposition": "COMPLETE_CURRENT_OUTPUT_AND_HISTORY_RETAINED",
+      "new_composed_evidence": "Exact f471 node and test blobs adopted; actual root44 complete denominator reconciled with canonical B1.1 ledger/funnel consumers.",
+      "formal_global_pass": false,
+      "falsifier": "Filtering a historical failure or relabeling pre-output SIGKILL as PASS violates the evidence ledger.",
+      "remaining_verification": "Final full changed backend/regression wave and stated original-owner inputs remain unestablished.",
+      "current_frozen_source_sha": "69e2d477b7e8f2e213bf545fbbad42881a9aefce",
+      "final_frozen_source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7"
+    },
+    "P37": {
+      "source_sha": "1a77ebd123d44646e9099a0ff4101b135590c419",
+      "prior_f471_disposition": "REAL_CONSUMER_VS_DIAGNOSTIC_DISTINGUISHED",
+      "new_composed_evidence": "Exact f471 node and test blobs adopted; actual root44 complete denominator reconciled with canonical B1.1 ledger/funnel consumers.",
+      "formal_global_pass": false,
+      "falsifier": "Replace physical lookup with captured keyword markers; actual custody must fail.",
+      "remaining_verification": "Final full changed backend/regression wave and stated original-owner inputs remain unestablished.",
+      "current_frozen_source_sha": "69e2d477b7e8f2e213bf545fbbad42881a9aefce",
+      "final_frozen_source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7"
+    },
+    "P38": {
+      "source_sha": "1a77ebd123d44646e9099a0ff4101b135590c419",
+      "prior_f471_disposition": "MISSING_AUTHORITY_INPUT_STAYS_REQUESTED",
+      "new_composed_evidence": "Exact f471 node and test blobs adopted; actual root44 complete denominator reconciled with canonical B1.1 ledger/funnel consumers.",
+      "formal_global_pass": false,
+      "falsifier": "Owner names, hashes or D fixture issuance cannot establish the missing authority-positive input.",
+      "remaining_verification": "Final full changed backend/regression wave and stated original-owner inputs remain unestablished.",
+      "current_frozen_source_sha": "69e2d477b7e8f2e213bf545fbbad42881a9aefce",
+      "final_frozen_source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7"
+    },
+    "P40": {
+      "source_sha": "1a77ebd123d44646e9099a0ff4101b135590c419",
+      "prior_f471_disposition": "SECOND_SAME_CLASS_ESCAPE_WIDENED_BOUNDED",
+      "new_composed_evidence": "Exact f471 node and test blobs adopted; actual root44 complete denominator reconciled with canonical B1.1 ledger/funnel consumers.",
+      "formal_global_pass": false,
+      "falsifier": "The same-hash ordinary JSON/CAS path must reach the consumer; current mutation must change or refuse. Generic rich-profile claims need actual owner contracts/tests.",
+      "remaining_verification": "Final full changed backend/regression wave and stated original-owner inputs remain unestablished.",
+      "current_frozen_source_sha": "69e2d477b7e8f2e213bf545fbbad42881a9aefce",
+      "final_frozen_source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7"
+    },
+    "P41": {
+      "source_sha": "1a77ebd123d44646e9099a0ff4101b135590c419",
+      "prior_f471_disposition": "INHERITANCE_NOT_ESTABLISHED",
+      "new_composed_evidence": "Exact f471 node and test blobs adopted; actual root44 complete denominator reconciled with canonical B1.1 ledger/funnel consumers.",
+      "formal_global_pass": false,
+      "falsifier": "Reject any inherited waiver without exact base command, complete input denominator and zero overlap.",
+      "remaining_verification": "Final full changed backend/regression wave and stated original-owner inputs remain unestablished.",
+      "current_frozen_source_sha": "69e2d477b7e8f2e213bf545fbbad42881a9aefce",
+      "final_frozen_source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7"
+    }
+  },
+  "broad_wave_launch_disposition": "No source review blocker for this bounded immutable composition. Final full changed numerical/backend/regression wave remains root-owned and UNRUN until complete deciding output. No artificial caps are proposed.",
+  "formal_closed": 0,
+  "accepted_in_G": false,
+  "limitations": [
+    "Absent Torch/BoTorch/GPyTorch/HNSW/SALib in this actual minimal runtime means their properties UNRUN.",
+    "A task/run context actual red, default producer/basis appointment, five held original positive inputs and B120 canonical raw underflow remain separate.",
+    "Author35,FUN7,root44 are independent source-qualified lineages; do not sum them into a new final regression denominator.",
+    "Main-process import/exec records do not establish all subprocess module bodies or scientific/invoice truth.",
+    "P41 inheritance is not established without exact slice-base command and full input zero-overlap."
+  ],
+  "later_frozen_root": {
+    "sha": "69e2d477b7e8f2e213bf545fbbad42881a9aefce",
+    "tree": "7a519027f587333ef094f08acfcc44f56e804908",
+    "src_tests_identical_to_f2_and_1a77": true,
+    "source_delta_static_acceptance": "ACCEPT_BOUNDED; immutable source bytes same as reviewed composition; no further runtime recompute here.",
+    "complete_changed_denominator": {
+      "paths": 929,
+      "source": 65,
+      "tests": 76
+    }
+  },
+  "supplemental_old6fe_service_reference_reconciliation": {
+    "old_source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+    "old_bytes": 45505,
+    "old_sha256": "44e3d754ff360641c3921f5c99d77592960ead0a3c04e9ffc7b7674ef1bf2f06",
+    "current_source_sha": "69e2d477b7e8f2e213bf545fbbad42881a9aefce",
+    "current_bytes": 45864,
+    "current_sha256": "5d966a542e590936b2e162594c4c1f987422f8333e255b34e432ca17d46bf7b9",
+    "whole_service_byte_identity": false,
+    "complete_diff_sha256": "b5838d32ab47d5ee346950825de2aa189c32ac01a8f382a9bc3c622ac10a2723",
+    "delta_import": "asyncio",
+    "changed_methods": [
+      "_run_locked",
+      "ask"
+    ],
+    "other_method_ASTs_unchanged": true,
+    "method_count": 38,
+    "changes": "Explicit asyncio.CancelledError reaches ask rollback and generator-restore fencing. Run failure cleanup records original cause, catches a secondary persist failure, fences publication and bare-rethrows the original object. Other service method ASTs remain unchanged.",
+    "existing_independent_delta_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/service-control-cleanup-independent-review.json",
+      "source_sha": "69e2d477b7e8f2e213bf545fbbad42881a9aefce",
+      "sha256": "d75d77a34f1e91b5183a763b14f170e14e5936b0595437cec429cbfe7814e6c4",
+      "source_implementation": "dc583fc449234f746983a9855a2738148dd2f20d",
+      "actual_independent_source": "1ff34d2657aee4e8702cb88486448659accf2466",
+      "actual_independent_test_source": "272e558312a368c4d4d260112afd52c40f0722f7",
+      "actual_original_scope_review_commit": "c879ce8de2701513347ab811b60f63aebb61b351",
+      "actual_outcome": "3PASS with exact original cause, acknowledgement/fresh restore and prior paid-custody controls; old3FAIL provenance fixture retained."
+    },
+    "other_critical_native_factory_dependencies": [
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+        "old6fe_to_current_bytes_MATCH": true,
+        "bytes": 29441,
+        "sha256": "75205f0519b23a9df94affa45de27d137ae4deee969663c388190873269db8c5",
+        "git_blob": "5335d35ba3967c9774dbd9d50dcbd02ae91a6786"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+        "old6fe_to_current_bytes_MATCH": true,
+        "bytes": 19483,
+        "sha256": "168431c4d10c9f9fb9c13242676a5a062299a10f45b19965f1f6d8fd1ac3e528",
+        "git_blob": "1d19a338b05604f574cd39dcef59b5622df038eb"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+        "old6fe_to_current_bytes_MATCH": true,
+        "bytes": 8472,
+        "sha256": "af3d6c12ae461e550897eb5a32b3a6f5c2ba930e41533e99f7bd8b9ac42b0a46",
+        "git_blob": "da51fc9a687935293d7989d9a1c1712c870fe5b1"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+        "old6fe_to_current_bytes_MATCH": true,
+        "bytes": 39125,
+        "sha256": "6bce4613f561b26128b8ba5af2d8697edfbfdcb8b8cfbdeaffa58d8cc8e66f5a",
+        "git_blob": "d587877989f627888a8ede1aebd5be22ca69dd5b"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+        "old6fe_to_current_bytes_MATCH": true,
+        "bytes": 14342,
+        "sha256": "e7a5b21bafddab30277ebe0e8eb54a31c3f7b3bfc207b8d97e14cbdbc31d78d5",
+        "git_blob": "7cb82b22969d78fdc21f055130d17e58faa51cc7"
+      }
+    ],
+    "original_B119_scope": "Batch generation[] exhaustion/transient, partial/cost/stop-cause semantics only. Ordinary nonempty numerical fallback is not newly forbidden.",
+    "new_runtime_claim": "None: old6fe15, later9de1 and independent cleanup3 remain their own source-qualified lineages; final root broad wave is separate.",
+    "P41_inheritance": "not_established; normalized unaffected AST alone is not complete slice-base command/zero-overlap evidence.",
+    "final_frozen_source_sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+    "final_frozen_service_sha256": "5d966a542e590936b2e162594c4c1f987422f8333e255b34e432ca17d46bf7b9"
+  },
+  "final_broad_wave_source_freeze": {
+    "sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+    "tree": "b09d9f3cfee71c429f9e9b655076a563fa3cfa0d",
+    "src_tests_identical_to_actual_root44_f2": true,
+    "source_review_status": "ACCEPT_BOUNDED; no new source or test change since independently reconciled composition",
+    "broad_wave": "Root starts the final100-selector union; results UNRUN/pending at this review. This reviewer executes no job."
+  },
+  "full_source_test_delta_review_limit": "Complete source/test path inventory is65/76. Prior full criterion/source reviews cover the root8c mechanisms at their exact receipts; this delta independently reviews only the newly composed node and canonical-ledger test adaptation plus explicit service-cancellation reference reconciliation. No new blanket line-by-line review/runtime PASS for all changed paths is asserted."
+}

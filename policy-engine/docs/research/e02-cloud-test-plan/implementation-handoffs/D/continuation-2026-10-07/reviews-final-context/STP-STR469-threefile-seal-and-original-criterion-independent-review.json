@@ -1,0 +1,53 @@
+{
+  "schema": "D.e02.STP-STR469-sealed-original-deciding-evidence-independent-review.v1",
+  "reviewer": "/root/census_oct07",
+  "created_utc": "2026-10-07T10:25:45.756009+00:00",
+  "review": "GO_THREE_EXACT_SOURCE_QUALIFIED_FILES_COMPLETE_DECIDING_OUTPUT_AND_ORIGINAL_CRITERIA",
+  "root": "/tmp/e02-D-STP-STR469-publication-8p7wfd5q",
+  "manifest_sha256": "21e78fc3178365f194ab3e5bcbd9c872dbdea7d1cc3ae9979b5e0fef0323e53b",
+  "handoff_sha256": "613fae425f001514b5e8d3a3020d7ed8712099565ae7396ce25fe2738327fd71",
+  "gzip_sha256": "a02e36a9ffea0041031066cf164efc10caa4a65ebb8d464cd90cb75de0a843ac",
+  "file_count": 3,
+  "total_bytes": 436806,
+  "all307_original_path_bindings_and96_content_hashes_reconciled": true,
+  "XML_check_results": [
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/targeted-stp-str.xml",
+      "sha256": "cf12f0631f899e2f8052bfb7b65bdaa573bdf20186d00eb035325cee337f5b46",
+      "calls": 153,
+      "PASS": 153,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0
+    },
+    {
+      "path": "/dev/shm/e02-D-stress-stopping-46933-86t5b_b8/stress-scenario-fraction-removal.xml",
+      "sha256": "dda85e14ad3f050ffe80a864172ae7d33c770bf0557667777becaa5a53392e09",
+      "calls": 32,
+      "PASS": 29,
+      "FAIL": 3,
+      "ERROR": 0,
+      "SKIP": 0
+    },
+    {
+      "path": "/tmp/e02-D-independent-STR-proxy-18htcpbt/junit.xml",
+      "sha256": "31820b617367efe13a39bea807fa6d3199241e0133647dfde095066ff4972a1a",
+      "calls": 1,
+      "PASS": 0,
+      "FAIL": 1,
+      "ERROR": 0,
+      "SKIP": 0
+    }
+  ],
+  "original_bindings": "B106/B107/B122 alloriginal acceptance text/fragment/bytehash/card exact198 accounting matched; historical states preserved separately.",
+  "actual_runtime_scope": "Original source469 targeted153PASS includes six then-bounded B41 cells; actual SALib DOE finite38/violated15 observedfraction23/38 producer→report→blueprint→CAS/freshreader. Real scenario-fraction removal3expectedFAIL/29unaffectedPASS; separate actual blueprint-removal1expectedFAIL executed exactd610 and recorded as such. Original no-argv ERROR and producer-only inadequate2PASS retained.",
+  "P37": "Declared direction/threshold/unit/profile plus physical observedattempted/finite/violated/unknown occurrence and actual consumer computations, not positive markers or population probability.",
+  "P38": "Changing grouping/topk keeps physical observeddenominator; wrongproxy examples/topk based37/38 conflicts with actual38/15 report and failsvalidation. Missingthreshold/zerofinite remains unavailable; no population law invented.",
+  "current_source_limit": "Historical immutable output remains469/d610. No new current whole153PASS or universal full-input carry. Current native caller delta/evidence must be qualified independently. B41 newer committed b5 receipt supersedes ownmetadata/numeric defects, not this historical scope.",
+  "B41_already_committed_Git_packet": "implementation-handoffs/D/continuation-2026-10-07/state-basis-b5; do not republish or retest to complete this seal.",
+  "E_supplier_scope": "Public mutable SensitivityPlan postconstruction cap actualfailure remains separate E ownerpacket; E B100 sampler/analyzerlaw not closed by D stressPASS.",
+  "P41": "not_established; no inherited-red waiver",
+  "formal_closed": false,
+  "accepted_in_G": false,
+  "publication": "Preparedthree exactdeclaredfiles; rootpublication/fetch-readback stillrequired. No tracked source or repeatable fixture dump copied."
+}

@@ -1,0 +1,18 @@
+{
+  "schema": "D.e02.native-B111-B124-final40-immutable-source-independent-bind.v1",
+  "reviewer": "/root/census_oct07",
+  "created_utc": "2026-10-07T10:40:45.005400+00:00",
+  "decision": "GO_ACTUAL_TARGETED_RUNTIME_ON_EXACT_FINAL_SOURCE",
+  "candidate": "96905636726483fdea3a98d9313871d825b54a9e",
+  "tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "source_reconciliation": {
+    "path": "/dev/shm/e02-D-census-review-oct07/B124-B111-final40-eight-staged-independent-reconciliation.json",
+    "sha256": "88a9960a58d2351b1bba715715a0e2dde05638eeece0b62b7d8638c1d449692f"
+  },
+  "full_changed_paths": 8,
+  "all_eight_blobs_exact_reviewed_staged": true,
+  "clean_checkout": true,
+  "runtime": "UNRUN until complete current checks independently reconciled; static freeze not closure; B111/B124 retain measuredb652ownopen status meanwhile.",
+  "G_accepted": false,
+  "formal_closed": false
+}

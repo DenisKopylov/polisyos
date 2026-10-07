@@ -1,0 +1,100 @@
+{
+  "schema": "e02.native_git_storage_preservation.followup.v1",
+  "unit": "D",
+  "operations": [
+    {
+      "receipt_path": "/tmp/e02-D-index-split-preservation-5kjuy7rj/applied.json",
+      "receipt_sha256": "262dd64b2c25f0925a3b50054b6dc0122df48737fa03534bcfd3e4d029dfabb4",
+      "complete_receipt": {
+        "operation": "native split index preserves full entries/flags; immutable administrative shared bytes preserved on /tmp",
+        "root": "/workspace/e02-D-published-stress",
+        "original_index_backup": "/tmp/e02-D-index-split-preservation-5kjuy7rj/original.index",
+        "original_index_sha256": "a16bdcd36ddb600c5fcd795058e9df2e79e67d03835ad2f759ca012bf7bc0bad",
+        "old_bytes": 1272560,
+        "new_bytes": 53657,
+        "shared_index": "/workspace/polisyos/.git/worktrees/e02-D-published-stress/sharedindex.716914ea1ea49b17ecd8fe9661969a5d0000cbe3",
+        "shared_index_preserved_bytes": "/tmp/e02-D-index-split-preservation-5kjuy7rj/native.sharedindex",
+        "shared_index_sha256": "c7e3a0a437c8301a5d3d51b58ef1bf675c7322277665a19f3bced84f121042d7",
+        "all_stage_debug_tree_head_branch_status_equal": true,
+        "head": "0905131301921f9256bf0e9b4e62f41292f8e2dd",
+        "tree": "eebcadb6894609813e6d2ea0f106bbf35ff29294",
+        "bindings": {
+          "head": "e70b629d10b046b569f2f8ba22f34b9667e56e5a62270513db5541a4052e263c",
+          "tree": "c46f4f48c12dee781522ce68feb04682a04547767f369fe26e9ded0f02b0afcb",
+          "branch": "8fdb9a33bcb685386f5bc80c9973eacc35e5f759649e04dbb0ba147f0496c589",
+          "status": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "entries": "a91df0369d0570228c80e2b74e8e545c3ba8840c61add908b7381f42429e1605",
+          "index_tree": "c46f4f48c12dee781522ce68feb04682a04547767f369fe26e9ded0f02b0afcb"
+        },
+        "no_code_outputs_or_unique_data_deleted": true,
+        "source_tests_hooks_refs_unchanged": true
+      }
+    },
+    {
+      "receipt_path": "/tmp/e02-D-index-split-preservation-hb45s7ct/applied.json",
+      "receipt_sha256": "ab1739fd2caa603f8ba739943f67883f8d82e8be33961dee6b98f4ee0087ecfe",
+      "complete_receipt": {
+        "operation": "native split index preserves full entries/flags; immutable administrative shared bytes preserved on /tmp",
+        "root": "/workspace/e02-D-published-transfer",
+        "original_index_backup": "/tmp/e02-D-index-split-preservation-hb45s7ct/original.index",
+        "original_index_sha256": "50ac24636725b1ca2c419b07df0f90029ba170d3ccc476cf4bb7639604c84f14",
+        "old_bytes": 1261997,
+        "new_bytes": 53238,
+        "shared_index": "/workspace/polisyos/.git/worktrees/e02-D-published-transfer/sharedindex.d8e1bd215ce148c6cb04c093d7cd50df948e3878",
+        "shared_index_preserved_bytes": "/tmp/e02-D-index-split-preservation-hb45s7ct/native.sharedindex",
+        "shared_index_sha256": "a35e4255d36c6d0206fe5056b53ad4f38226ad4cf50c8386f42b1fe38b9009f8",
+        "all_stage_debug_tree_head_branch_status_equal": true,
+        "head": "3ed63c748e1e080d0628d8cdf557841fe9a4364a",
+        "tree": "9e80184c97d98fba28c3323f32276dcf2b2aa6be",
+        "bindings": {
+          "head": "b30856e301bfb1b693f5fa51ef29f5b94eaa93b0a25910b1c4e5ecfa575c8da4",
+          "tree": "26dffedf6a22f74b23a609b0909f854ea38ad48365edbb32a4a2972998c9836f",
+          "branch": "4efa7a0f4ee1ed14912fc99c9514a2b6d0c240557003dd2a073717646332a4d0",
+          "status": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "entries": "4cca3a7152de21b158abd032ec902dfc40b1800eae60ce694b1b58bdb582739d",
+          "index_tree": "26dffedf6a22f74b23a609b0909f854ea38ad48365edbb32a4a2972998c9836f"
+        },
+        "no_code_outputs_or_unique_data_deleted": true,
+        "source_tests_hooks_refs_unchanged": true
+      }
+    },
+    {
+      "receipt_path": "/tmp/e02-D-git-pack-preservation-ts_yo5wj/applied.json",
+      "receipt_sha256": "6df51c5a89b4ced9f7cec7cb187a434ee3de2391c591703f551bc6734e8a63d0",
+      "complete_receipt": {
+        "schema": "e02.native_git_immutable_pack_preservation.v1",
+        "operation": "Byte-identical administrative object storage retained on existing/tmp; atomic symlink replacement; no history/source/outputs/unique data deletion",
+        "native_pack_path": "/workspace/polisyos/.git/objects/pack/pack-909e010247e91a06d1bfdfa03343f7c12a7920af.pack",
+        "preserved_bytes": "/tmp/e02-D-git-pack-preservation-ts_yo5wj/native.pack",
+        "bytes": 9855666,
+        "sha256": "ec306411d2bf27c7130edebe73eaad2f8fb5c13c58eb2127c39ad5eb06bc5bf3",
+        "idx_path": "/workspace/polisyos/.git/objects/pack/pack-909e010247e91a06d1bfdfa03343f7c12a7920af.idx",
+        "unchanged_idx_sha256": "87f0b7480efd6eb348477ad7e33e032474a40fcb5fe6f0942daf8b9f7bb180f2",
+        "complete_native_verify_pack_before": "/tmp/e02-D-git-pack-preservation-ts_yo5wj/verify-before.txt",
+        "complete_native_verify_pack_after": "/tmp/e02-D-git-pack-preservation-ts_yo5wj/verify-after.txt",
+        "both_native_verify_pack_exit": 0,
+        "complete_native_verify_pack_output_identical": true,
+        "complete_native_verify_pack_sha256": "bf72f46a2f0ea5a5890e0a755b515626924b211fe1a206f9bafb5d044441e14b",
+        "root_before_after_unchanged": {
+          "head": "e73bde06d5b796b99ad84898810b34985787be47",
+          "tree": "af25d6fef7ed0398ff2c1d221166984f3e458766",
+          "branch": "codex/e02-D-published-root",
+          "status": ""
+        },
+        "sample_native_git_blob_before_after": {
+          "AGENTS.md": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50",
+          "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py": "f6787e89fb3ae343e4ed822e00db9c91c44d017effc2aff22dda93f639c54b83",
+          "policy-engine/src/polisyos/scientist/methods/search/service.py": "44e3d754ff360641c3921f5c99d77592960ead0a3c04e9ffc7b7674ef1bf2f06",
+          "policy-engine/src/polisyos/scientist/methods/search/lessons.py": "3c2448a1329530e5dadbde957c124d83baa366b01dad75292942e3c81f0e2e65"
+        },
+        "refs_hooks_index_source_tests_changed": false,
+        "native_git_gc_or_prune": false,
+        "limitations": [
+          "Preserved/tmp native.pack is required by active repository object database; never clean while any lane remains active.",
+          "No fixtures/environments/checkouts moved or cleaned; nativeTrash unavailable."
+        ]
+      }
+    }
+  ],
+  "cleanup": "Preserved native Git shared-index and pack targets are active administrative dependencies, excluded from cleanup while any lane is active. No source/test/environment/output deletion, gc, prune or history rewrite."
+}

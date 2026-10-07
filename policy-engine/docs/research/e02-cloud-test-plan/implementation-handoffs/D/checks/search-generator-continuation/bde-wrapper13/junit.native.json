@@ -1,0 +1,40 @@
+{
+  "python": "3.14.7",
+  "versions": {
+    "torch": "2.10.0",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "pytest": "9.0.2",
+    "pydantic": "2.12.5",
+    "numpy": "2.3.5"
+  },
+  "modules": {
+    "polisyos.scientist.methods.autotune.pareto": {
+      "path": "/workspace/e02-D-published-search/policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+      "sha256": "ad369ca3657d5a797c385ec1b7a70440cea78f9daf3b0b3c85404e08107c99e6"
+    },
+    "polisyos.scientist.methods.search.strategies.multi_objective": {
+      "path": "/workspace/e02-D-published-search/policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+      "sha256": "ecca7c958ca3b050c679a60edcd1483cad1618cd3ad57d51d73af4789c5904d0"
+    },
+    "botorch.utils.multi_objective.box_decompositions.dominated": {
+      "path": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/utils/multi_objective/box_decompositions/dominated.py",
+      "sha256": "167660f54d5b92f6c2f1a9d05c2f13232138d11e5ed5fbed6837d9562c62b26d"
+    },
+    "torch": {
+      "path": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/__init__.py",
+      "sha256": "d6388b1e3b16c1f9a22a87898e5f205fa13a97bd65c163f4829a157e0d9d602f"
+    },
+    "polisyos.scientist.methods.autotune.bayesian_generator": {
+      "path": "/workspace/e02-D-published-search/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "sha256": "9118b78b8462fba27ca7af39e0e0c3a4ceed4b4e5ac86c8dec7f15eaf550b10c"
+    }
+  },
+  "native_calls": {
+    "/workspace/e02-D-published-search/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py:generate": 14,
+    "/workspace/e02-D-published-search/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py:get_state": 16,
+    "/workspace/e02-D-published-search/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py:set_state": 7,
+    "/workspace/e02-D-published-search/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py:configure_transfer": 2
+  },
+  "exitstatus": 0
+}

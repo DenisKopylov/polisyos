@@ -1,0 +1,34 @@
+{
+  "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+  "tree": "e677b5e24493a7083287c3bea31bca1892c3be29",
+  "measurement": "New actual native publicRunnerFactory10 execution on b652, not carry",
+  "phase_counts": {
+    "call:passed": 10,
+    "setup:passed": 10,
+    "teardown:passed": 10
+  },
+  "exit": 0,
+  "source_input_asset_stable": true,
+  "input_denominator": 6314,
+  "ledger_snapshots": 10,
+  "carried_cohorts": "Six a7 exactunchanged producer/test/dependency/output identity cohorts, full matrix compressed losslessly; no repeat/no summed blanket PASS",
+  "held_criteria": [
+    "B157 native raw sample/profile",
+    "B161 scientific authorized refinement",
+    "B164 owner-issued promotion permit/current verifier/revoke commit boundary"
+  ],
+  "optional_backend": "Actual supported minimal runtime; Torch/BoTorch/HNSW not installed/unused. Factory property PASS does not assert numerical GP/vector properties.",
+  "race_negative": "Actual barrier positive PASS; independent Service rollback-removal1 still pending receipt",
+  "Gaccepted": false,
+  "formal_closed": false,
+  "scope": [
+    "Public actual SearchLoopRunner constructor owner/key/costlimit",
+    "Native actual response bytes\u2192Decimal decoder\u2192canonical completion/settlement owner",
+    "Truezero/paid/customkey physical events fresh ledger admission",
+    "Service proposal\u2192realCAS checkpoint\u2192freshpublic restore/resume",
+    "Physical\u00b1tinyunknown preserves canonicalpending/reserved and liveNone, no generator/evaluator effects",
+    "Actualownerchange afterpreflight/rollback refresh currentunknown, no oldzero projection",
+    "Changedresume key/costrule refused"
+  ],
+  "historical": "a7 all10 authored runpy evaluator source-custody FAIL and V1 qualified namespace collection failure retained in separate immutable historical packets. No reroll of historical check verdict."
+}

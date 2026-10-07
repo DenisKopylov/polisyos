@@ -1,0 +1,19 @@
+{
+  "schema_version": "e02.D.independent-gp-transfer-continuation-plan.v1",
+  "status": "UNRUN planned after corrected immutable Q1/Q2/Q3 root composition",
+  "source_design_context": "Read-only root8eb99fc1da48232321eba0e92ecff20d96beff1c workflow/contracts, not an execution verdict",
+  "proposed_owned_unique_test_path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_transfer_continuation_independent_oracle.py",
+  "expected_design": "Separate ten unique original candidate/evaluation CAS records, explicit positive cost50+9*sin(5*x)+6*x atPOINTS(.08,.16,.23,.35,.42,.50,.61,.70,.82,.93), declared score/unit/minimize/selection and complete NumericTransferBasis role refs. Use actual VectorMemoryStore HNSW, canonical transfer reader/WarmStartBridge, native BayesianCandidateGenerator/SearchLoopRunner and actual SingleTaskGP. Independently sort expected observations by declared cost; expected input/negative target tensors derive from fixture function and persisted original candidate input, never bridge output.",
+  "numerical_expected": "Reuse own explicit NumPy scalar-weight Cholesky calculation from original analytic oracle for10-row posterior mean/full covariance in original cost units; actual receiving measurement append may add11th physical point, with declared function supplying expected target. No model.posterior expected.",
+  "deciding_cases": [
+    "Actual initial MLL=1 on exact admitted original CAS corpus",
+    "Persist StrategyState through actual CAS, recreate configured receiver, restore and same-basis no-op/append actual MLL=0",
+    "Check original-unit independent mean/full covariance after restored transforms; corpus/identity exact and no hidden inferred penalty rows",
+    "Keep saved fitted/model/corpus markers, change actual warm row scalar/physical+normalized coordinate =>atomic refusal or immediately changed model basis",
+    "Same-ref original candidate/benchmark bytes mutation =>CAS re-admission refusal onrestore and before newfit/conditioning",
+    "Changed configured numerical target =>discovery remains eligible as hint while numerical training refusal visible"
+  ],
+  "boundary": "Conditional analytic technical evidence only, not production history/performance/source authority. Author workflow3 currently executing; this planned extension answers independent mathematical/corpus/MLL mutation questions rather than duplicating only its three positive/negative cases.",
+  "closure_ids": [],
+  "proof_commit": "eb401c24e6cd65bf6c57ae8ea223a83a7ad23f48"
+}

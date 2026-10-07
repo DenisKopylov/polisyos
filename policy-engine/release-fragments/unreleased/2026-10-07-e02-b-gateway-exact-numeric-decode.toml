@@ -1,0 +1,17 @@
+id = "2026-10-07-e02-b-gateway-exact-numeric-decode"
+title = "Preserve gateway numeric evidence before monetary admission"
+type = "fixed"
+component = "scientist-orchestration"
+owner = "team-scientist"
+summary = "Successful HTTP completion JSON retains fractional/exponent numbers as Decimal before existing usage and monetary admission, so tiny nonzero reports cannot become known zero-cost receipts."
+evidence = ["tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py", "tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py"]
+compatibility = "Normalized usage and float-or-None monetary fields are unchanged. Diagnostic raw completion fractional/exponent numbers are Decimal; existing raw cache snapshots retain exact numeric strings. Embedded tool-argument strings, catalogs and error-code JSON retain their current decoders."
+change_class = "internal"
+surface_classification = "internal: polisyos.scientist.orchestration.llm.gateway_client under the current public surface manifest; no facade exports or callable signatures changed"
+migration = "Raw completion consumers must support Decimal or use the existing JSON-safe string conversion. A nonzero cost outside the finite representable float profile remains invalid/unknown and requires exact owner evidence; no invoice amount is synthesized."
+api = "No constructor, facade, usage DTO or monetary DTO signature change."
+limitations = "The normalized monetary profile remains finite representable nonnegative float values. This slice preserves input evidence and refuses underflow rather than billing arbitrary-precision tiny costs. Optional served-cost aggregation and institutional reuse permission remain separate owner contracts."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/scientist/orchestration/llm/README.md"]
+runbook_docs = []

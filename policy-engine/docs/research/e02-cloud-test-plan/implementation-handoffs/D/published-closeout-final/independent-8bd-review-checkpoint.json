@@ -1,0 +1,105 @@
+{
+  "schema": "e02.independent.final_closeout_metadata_review.v1",
+  "reviewed_payload_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+  "reviewed_payload_tree": "175c46750f54c0ab498fe9d3e5a743c0e3cc9a7e",
+  "runtime_source_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+  "runtime_source_tree": "e674e22edb8d94d47579326135a786c832402a15",
+  "reviewed_documents": [
+    {
+      "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout-final/README.md",
+      "bytes": 4943,
+      "sha256": "7c7c4119ff614600bd1513a93c61121af57f7d1322b6935a5386ed24f2476a08"
+    },
+    {
+      "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout-final/G-local-production-inputs.json",
+      "bytes": 9399,
+      "sha256": "34a02eb060508bbf739c24ab1ff7c0fe0c2da625e8b597bc60cd2c948c4bc6fe"
+    },
+    {
+      "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout-final/final-summary.json",
+      "bytes": 32108,
+      "sha256": "e1f2de4e6b4e56ca790cf11bdfe7298ed727c69b34900f0d6cbb6ad396fffab2"
+    }
+  ],
+  "scope": "Read-only immutable Git metadata/overclaim audit; no tests, backend imports/rerun, checkout, push, production write, child agent or cleanup. Output only this authorized scratch JSON for parent preservation.",
+  "verdict": "CORRECTIONS_REQUIRED in reviewed8bd metadata: two wording fixes. Otherwise no additional blocker in exact bounded read-only metadata scope; corrected successor remains unreviewed.",
+  "required_wording_corrections": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout-final/final-summary.json",
+      "pointer": "/quality/ruff108/scope",
+      "current": "108 changed existing product/test Python files; archived measurement .py.txt excluded",
+      "correction": "108 changed existing Python files in complete frozen target list; archived .py.txt measurement artifacts excluded",
+      "reason": "Complete frozen target list includes tracked .py handoff probes as well as product/tests. No lint rerun requested."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout-final/final-summary.json",
+      "pointer": "/limitations/3",
+      "current": "No artificial cloud compute quota was introduced. Actual reclaim/cgroup events and exact-owned terminations are recorded without per-PID causal claims.",
+      "correction": "Scope no reviewer CPU/process/test-worker quota to these final executions; explicitly disclose earlier independent neural test-level torch.set_num_threads(1) deviation, removed at83889657e13d37fe11e048c5298b2f8c64044c08 with uncapped7 replay retained. Keep no individual-PID causal claim.",
+      "reason": "Blanket historical statement otherwise conflicts with preserved historical66 neural thread-cap evidence; current final executions have no reviewer-added caps."
+    }
+  ],
+  "counts_and_scope": {
+    "top_level_reference_cells_checked": 24,
+    "unique_reference_keys": 12,
+    "bundle_rows_checked_against_prior_independent_XML_JSONL_census": 17,
+    "finding_denominator": 45,
+    "original_criterion_occurrences": 46,
+    "finding_dispositions": {
+      "limited": 35,
+      "held": 7,
+      "open": 3,
+      "closed": 0
+    },
+    "production_paths": 2910,
+    "production_tree": "ecb33f5d109f3c30ab5e9e59f1447d25cc8f5778",
+    "source_test_delta_runtime_to_review_payload_empty": true,
+    "recorded_original_canonical243": {
+      "commands": 17,
+      "command_PASS": 15,
+      "command_FAIL": 2,
+      "execution_occurrences": 744,
+      "PASS": 737,
+      "FAIL": 7,
+      "errors": 0,
+      "skips": 0
+    },
+    "lineage_only15": "617 originalPASS occurrences, explicitly not new current execution",
+    "bounded_actual_execution_refs": {
+      "GP26": "243 source;23 analytic+3 nativeCAS, conditional numerical/fixture evidence",
+      "current142": "3f38 source;10frontier+30fiscal+98nativecost+4underflow, actual11origin guards",
+      "current127": "3f38 source;52FUN03+75OPT01 defining commands, not broad union"
+    },
+    "quality_limits_retained": "Backend25=7PASS/3completedFAIL/15incomplete; frontend8=1PASS/6incomplete/1UNRUN; broad80 and production-invocation ERROR, no deciding full verdict; archived measurement helper65/82FAIL not waived."
+  },
+  "P37_review": "Predicate labels are exact registered recomputed/independently_reconciled/not_established. Positive aggregate scope limited to source/controlled-output reconciliation; source/institutional truth, production history benefit, valid typed permit and combined acceptance remain not_established. No source-byte identity promoted to fresh runtime or authority.",
+  "authority_and_local_boundary": "0closed; B109/LA014/LA015 remainopen, sevenheld remainheld. G minimum production/history refs and local_commands staynull/UNRUN. Local production read-only, no cheaper history surrogate, B164 owner-issued typed positive/revoke boundary bridge_missing. No main authorization inferred.",
+  "cleanup_scope": "Reviewed documents disclose prior cleanup deviations and unknown transient scope. Newly proposed83paths/19receipts census was not yet in reviewed8bd and is outside this audit. No deletion performed.",
+  "parent_acknowledgment": "Parent accepted both wording corrections and plans one revised metadata checkpoint; corrected successor bytes have not been reviewed by this output.",
+  "other_blockers": [],
+  "closure_ids": [],
+  "verified_reference_cells_count": 24,
+  "verified_unique_reference_keys": [
+    "GP26",
+    "G_cross_unit_proposal",
+    "backend",
+    "backend_extension",
+    "canonical17",
+    "criterion_accounting",
+    "current127",
+    "current142",
+    "fixture_review",
+    "frontend",
+    "payload_review",
+    "production_invocation"
+  ],
+  "detailed_first_observation": {
+    "path": "/dev/shm/e02-oracle-final-closeout-8bd3-metadata-review.json",
+    "bytes": 15682,
+    "sha256": "a759fb090a8ded1f9cd09902a8bf119d1f3fa8b24c58716d6d5b10b07f122f15",
+    "supersession": "This short checkpoint makes corrections-required status explicit for the actual reviewed8bd bytes; earlier conditional wording did not adjudicate a corrected successor."
+  }
+}

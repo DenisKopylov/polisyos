@@ -1,0 +1,126 @@
+{
+  "schema_version": "e02-D.selected-combined-criterion-binding.v1",
+  "original_ledger_source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+  "original_ledger_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+  "original_ledger_sha256": "702638d85dacaddcb6a7952a4c0a279897f08b23840e15a7d8af8beacb506bc4",
+  "criterion_occurrences": [
+    {
+      "id": "B116@OPT-04",
+      "finding_id": "B116",
+      "criterion_card": "OPT-04",
+      "canonical_closure_owner": "OPT-04",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-opt-04",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3011,
+          3024
+        ],
+        "byte_offset": 677489,
+        "bytes": 3727,
+        "sha256": "3f04f3ddd1d21f7ffbea51147028ae51287460255c7b5dc52ad9a1b487e49f98"
+      },
+      "canonical_content": {
+        "text": "**Приёмка.** Перепутанная пара A/B, чужой loop, неверный split и несовместимая suite не меняют pointer; одинаковая подтверждённая база допускает честное улучшение; ошибка возвращает конкретную несовместимость, а не общий low score. Проверить cache-replay оценки и штатный evaluator-to-registry путь.",
+        "byte_offset": 680728,
+        "bytes": 486,
+        "sha256": "838816f2bb639f8c98b0972d2433933f1d8c3f39d8d14f6ee03d52f59c4004ab"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B116@OPT-04",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-04.md",
+          "bytes": 13217,
+          "sha256": "5c2f21464b6af46c3291b1722af179c1106e94aa087aeb0b6dd3fcc378d84684"
+        }
+      },
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "conditional_engineering_proposal": "closed_bounded_engineering_if_final_exact_composed_checks_pass",
+      "current_attempt_source": {
+        "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+      },
+      "final_candidate_source": {
+        "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd",
+        "state": "FROZEN_CANDIDATE_RUNTIME_ERROR_UNRUN",
+        "predicate_basis": "not_established"
+      },
+      "finding_row_pointer": "/findings/11",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "previous_c17_attempt_source": {
+        "sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+        "tree": "b09d9f3cfee71c429f9e9b655076a563fa3cfa0d"
+      },
+      "final_environment_and_output_pointer": "/final_acceptance_wave",
+      "combined_profile_state": "UNRUN",
+      "current_profile_coverage": "Separate canonical B333 sync owner source → actual D producers/registry/fresh-reader edge; selected basis rejection/positive and lock-reread path. This does not replace original full OPT04 acceptance; Service owns its exact current full original tests. Publication crash/cache-replay/wrong loop/split full criterion clauses are not inferred from this selected profile."
+    },
+    {
+      "id": "B117@OPT-04",
+      "finding_id": "B117",
+      "criterion_card": "OPT-04",
+      "canonical_closure_owner": "OPT-04",
+      "role": "canonical_owner",
+      "task_anchor": "D.md#bundle-opt-04",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3025,
+          3038
+        ],
+        "byte_offset": 681216,
+        "bytes": 3986,
+        "sha256": "716aa89ce5b68d85b0487a8509806214c17d261958740f7363c2228a033f924d"
+      },
+      "canonical_content": {
+        "text": "**Приёмка и предел.** Управляемая последовательность B/C не ухудшает лучший актуальный результат по одной принятой политике; conflicting predicate возвращается явно. Авария на границе публикации даёт старое или новое согласованное состояние. На production workload конкурентное обращение к этому registry не измерялось; карточка применима при разрешении нескольких писателей. Новый распределённый реестр ради одного локального сценария не нужен.",
+        "byte_offset": 684423,
+        "bytes": 777,
+        "sha256": "9bc6c9b17b4234d10455cb41f4a8e6380c31163687291bb38242529bb954d319"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B117@OPT-04",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-04.md",
+          "bytes": 13217,
+          "sha256": "5c2f21464b6af46c3291b1722af179c1106e94aa087aeb0b6dd3fcc378d84684"
+        }
+      },
+      "disposition": "OPEN_VERIFICATION_PENDING",
+      "conditional_engineering_proposal": "closed_bounded_engineering_if_final_exact_composed_checks_pass",
+      "current_attempt_source": {
+        "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+      },
+      "final_candidate_source": {
+        "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd",
+        "state": "FROZEN_CANDIDATE_RUNTIME_ERROR_UNRUN",
+        "predicate_basis": "not_established"
+      },
+      "finding_row_pointer": "/findings/12",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "previous_c17_attempt_source": {
+        "sha": "c17db434428882c9f21a6071831c9d519d38d4b7",
+        "tree": "b09d9f3cfee71c429f9e9b655076a563fa3cfa0d"
+      },
+      "final_environment_and_output_pointer": "/final_acceptance_wave",
+      "combined_profile_state": "UNRUN",
+      "current_profile_coverage": "Separate canonical B333 sync owner source → actual D producers/registry/fresh-reader edge; selected basis rejection/positive and lock-reread path. This does not replace original full OPT04 acceptance; Service owns its exact current full original tests. Publication crash/cache-replay/wrong loop/split full criterion clauses are not inferred from this selected profile."
+    }
+  ],
+  "original_count": 2,
+  "source_qualified_runtime_not_available_yet": true,
+  "formal_closed": 0,
+  "accepted_in_G": 0
+}

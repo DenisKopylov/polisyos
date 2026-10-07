@@ -1,0 +1,436 @@
+{
+  "schema": "policyos.e02.independent_final_composed_source_delta_review.v1",
+  "unit": "D",
+  "role": "independent_original_criterion_reviewer",
+  "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+  "source_tree": "28b25703040e158ad87211b1399dfd4f86b562c5",
+  "previous_review_source_sha": "e73bde06d5b796b99ad84898810b34985787be47",
+  "parent_review": {
+    "path": "/tmp/e02-D-original-criterion-audit-o08lza3h/review.json",
+    "sha256": "b4b1fe7a68e74204d6da8be0760151d7635669b01bf4ba2c5018d720a6712c3f"
+  },
+  "B119_scope_clarification": {
+    "path": "/tmp/e02-D-original-criterion-audit-o08lza3h/B119-scope-clarification.json",
+    "sha256": "eed290376aa6e6ad997e7e70e106f89070159811d02951219c55ba33542e7267"
+  },
+  "B136_delta": {
+    "path": "/tmp/e02-D-original-criterion-audit-o08lza3h/B136-partial-consumer-delta.json",
+    "sha256": "b6d1c51f26b69a4305bf0d3747b56ab039b7533970e8da8ad53ac030dd33c2d7"
+  },
+  "code_review_verdict": "NO_SOURCE_BLOCKER_FOUND_IN_REVIEWED_DELTA_RUNTIME_PENDING",
+  "delivery_verdict": "PACKAGING_CORRECTION_REQUIRED_BEFORE_FINAL_HANDOFF",
+  "G_accepted_D": false,
+  "formal_closure_ids": [],
+  "changed_path_count": 39,
+  "complete_changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-range-omission/deciding-outputs.json.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-range-omission/manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-gp6fe-independent-source-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-gp6fe-independent-source/binding-output.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/batch-control-reasons.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/batch-service-selected-dependency.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/generator-quantity-migration.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/lesson-partial-consumer.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/lesson-partial-proof/actual-inputs.json.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/lesson-partial-proof/manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/lesson-partial-proof/output.json.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/lesson-partial-proof/source-inputs.json.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-default-search-independent-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/ordinary-quantity-independent-binding.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/ordinary-quantity-independent-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/quantity-omission-representability.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/subnormal-reindex-independent-baseline.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/subnormal-reindex-independent-baseline/binding.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/subnormal-reindex-independent-baseline/deciding-outputs.header.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/subnormal-reindex-independent-baseline/deciding-outputs.json.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/subnormal-reindex-independent-candidate-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/subnormal-reindex-independent-candidate/binding.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/subnormal-reindex-independent-candidate/deciding-outputs.header.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/subnormal-reindex-independent-candidate/deciding-outputs.json.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/subnormal-reindex-independent-default-writer.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/subnormal-reindex-independent-default-writer/binding.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/subnormal-reindex-independent-default-writer/deciding-outputs.header.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/subnormal-reindex-independent-default-writer/deciding-outputs.json.gz",
+    "policy-engine/release-fragments/unreleased/2026-10-06-D-batch-control-reasons.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-D-pareto-representability.toml",
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-lesson-partial-answer.toml",
+    "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+    "policy-engine/src/polisyos/scientist/methods/search/service.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_subnormal_reindex_independent_oracle.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_registry_quantity_projection.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_service_batch_control_reasons.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_service_control_cleanup_independent.py",
+    "policy-engine/tests/unit/scientist/search/test_lesson_partial_consumer.py"
+  ],
+  "product_changed_paths": [
+    "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+    "policy-engine/src/polisyos/scientist/methods/search/service.py"
+  ],
+  "complete_product_delta_read": true,
+  "complete_new_B119_test_files_read": [
+    "policy-engine/tests/unit/scientist/methods/search/test_service_batch_control_reasons.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_service_control_cleanup_independent.py"
+  ],
+  "B119": {
+    "original_binding": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "fragment_lines": [
+        3178,
+        3191
+      ],
+      "original_fragment_sha256": "c10292d6ac97feeb9e4cdb704950050d5f363157c2c7deb125810a2141891ac0",
+      "exact_acceptance_paragraph_sha256": "2df8d82c78083a0795327b04b6d0175330efa9f45f87e41b60ae40f89c635f97",
+      "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-01.md",
+      "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+      "original_accounting_occurrence": "B119@CTL-01"
+    },
+    "original_binding_unchanged": true,
+    "original_scope": "run/_generate_candidates actual batch [] only; ordinary nonempty Bayesian fallback is outside this original finding scope.",
+    "current_mechanism": "Explicit asyncio.CancelledError joins Exception at existing ask rollback, generator rollback and run failure boundaries. No catch-all BaseException. A failed generator restore fences publication and keeps the primary exception. Failure checkpoint put/verification refusal fences publication and a bare raise preserves the primary generator cause, with last acknowledged ref unchanged.",
+    "state_boundary": "Partial scientific history, counters, candidate IDs and paid-owner snapshot remain distinct from failure/status. A failed live generator rollback is not claimed as cursor restoration; a put without verified acknowledgement is not claimed as durable failure publication. Fresh configured reader restores exact last acknowledged bytes.",
+    "actual_consumer_source": "Existing polisyos.scientist.NativeSearchService public facade with batch generator port; standard StopIteration/ValueError/concurrent.futures.CancelledError controls; new asyncio.CancelledError and cleanup masking controls; real LLMBudgetEnforcer/BudgetMiddleware/FileBudgetLedger settlement fixture and reopened ledger.",
+    "author_test_case_count_by_parameterization": 12,
+    "independent_test_case_count_by_parameterization": 3,
+    "current_author_runtime_check": "UNRUN/PENDING at this review; no author runtime results are called reviewer PASS.",
+    "current_independent_runtime_check": "UNRUN/PENDING at this review; the independent test author is a separate reviewer, not this code acceptance reviewer.",
+    "independent_negative_basis": "Original cause object identity, exact already-acknowledged CAS bytes, fresh paid ledger snapshot, known batch cursor and controlled put/readback/restore fault points. Paid transport fixture is local settlement custody, not external invoice truth.",
+    "source_recommendation": "Source mechanism and consumer tests are reviewable; finite original criterion acceptance requires actual current outputs for the narrow controls and retained empty/transient cases."
+  },
+  "retained_GP_and_receiver_basis": {
+    "unchanged_paths": [
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+        "bytes": 39125,
+        "sha256": "6bce4613f561b26128b8ba5af2d8697edfbfdcb8b8cfbdeaffa58d8cc8e66f5a",
+        "byte_identical_to_previous_review": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+        "bytes": 8472,
+        "sha256": "af3d6c12ae461e550897eb5a32b3a6f5c2ba930e41533e99f7bd8b9ac42b0a46",
+        "byte_identical_to_previous_review": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+        "bytes": 51763,
+        "sha256": "26753a5ed92c04c5187c0e122ab106f91a2f57c5f05c0987cffce96b27e40066",
+        "byte_identical_to_previous_review": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py",
+        "bytes": 16561,
+        "sha256": "a8f684712a1221227a98ea504bcf93adb12c3e68e5b6d7561ba6f3a1114ac954",
+        "byte_identical_to_previous_review": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+        "bytes": 55051,
+        "sha256": "7a147ecee0e17528f2e4e16e464d64834e43232f344c51ffe3af94eecfb2a2b2",
+        "byte_identical_to_previous_review": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+        "bytes": 10078,
+        "sha256": "940c84a3425e8ed1e93de2eae881100fd88a49dd978a108e5d78e5f2fa5fe17c",
+        "byte_identical_to_previous_review": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+        "bytes": 17782,
+        "sha256": "e69cf716b8849620f31b79b5cdf2b05aa9e2b4298a6728b0b04a0afc9ef06610",
+        "byte_identical_to_previous_review": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+        "bytes": 33891,
+        "sha256": "c47c106ff48a3636d9ceb1ad6f067ae5a63836640bc60439405fbdf421350c6a",
+        "byte_identical_to_previous_review": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py",
+        "bytes": 4897,
+        "sha256": "f2148ad25320a828605a9345e0d5e1ff91c55aa31ff6fa3cbc458ac2119758ef",
+        "byte_identical_to_previous_review": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+        "bytes": 39563,
+        "sha256": "f6787e89fb3ae343e4ed822e00db9c91c44d017effc2aff22dda93f639c54b83",
+        "byte_identical_to_previous_review": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+        "bytes": 8263,
+        "sha256": "e06f9901b021f0e85df3d60d6b778552c017fed6d69953fb4bf767d7515cd082",
+        "byte_identical_to_previous_review": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+        "bytes": 37218,
+        "sha256": "aee369ab873131ac950104d3cf8b832c2ecf1d8109033f1631dc20877478bacd",
+        "byte_identical_to_previous_review": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/policy_design/output.py",
+        "bytes": 83199,
+        "sha256": "6e7222137b4b44b7a71dd2de7d0300f0fee22d05f41df556b2f84dc84ea73598",
+        "byte_identical_to_previous_review": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/__init__.py",
+        "bytes": 8231,
+        "sha256": "e0bd86c731ef53a6d4bb9713589aadecf39742282471bc725bac4947f7594fe3",
+        "byte_identical_to_previous_review": true
+      }
+    ],
+    "implication": "GP/NN/corpus/transform/MLL/RNG/identity/objective/transfer numerical mechanisms are unchanged after the prior review. Preserve the separately qualified fixed-parameter NumPy/full-covariance and real SingleTaskGP corpus/fit/resume receipts; do not relabel them fresh 5050 execution. The compatible service boundary changed, so current affected public consumer execution remains required.",
+    "existing_numeric_oracle_reference": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/gp-profile4-independent-review.json"
+  },
+  "public_compatibility": {
+    "inventory_path": "policy-engine/architecture/public_surface/inventory.json",
+    "inventory_bytes": 220938,
+    "inventory_sha256": "c2b799aa89eb54ae98a746e8a46fb1d17da184f13fbf7e05b527844a4a792224",
+    "inventory_unchanged": true,
+    "reviewed_package": "polisyos.scientist",
+    "classification": "public_stable",
+    "existing_export_count": 42,
+    "existing_export": "NativeSearchService",
+    "export_admitted_in_existing_inventory": true,
+    "facade_bytes_unchanged": true,
+    "public_fragment_path": "policy-engine/release-fragments/unreleased/2026-10-06-D-batch-control-reasons.toml",
+    "fragment": {
+      "id": "2026-10-06-D-batch-control-reasons",
+      "title": "Retain asynchronous empty-batch cancellation and acknowledged state",
+      "type": "fixed",
+      "component": "scientist-search",
+      "owner": "team-policyos-runtime",
+      "change_class": "python-public-api",
+      "surface_classification": "public_stable",
+      "public_surface_inventory_reviewed": true,
+      "summary": "The existing NativeSearchService ask rollback and failed-run boundaries explicitly handle asyncio.CancelledError while rethrowing the original object. A failed generator rollback or secondary failure-checkpoint publication blocks further publication and requires the last acknowledged reference.",
+      "compatibility": "Existing empty exhaustion/transient transitions, standard refusal/cancellation reasons, Bayesian numerical fallback and checkpoint schema2 are preserved. No new cancellation API or scientific fallback policy.",
+      "migration": "When publication rollback or failure checkpoint writing is unavailable, reconstruct the same configured public service and restore the last acknowledged reference. No relabelled checkpoint migration.",
+      "evidence": [
+        "tests/unit/scientist/methods/search/test_service_batch_control_reasons.py"
+      ],
+      "limitations": "A failed rollback does not establish that the live cursor was restored; an I/O-failed failure checkpoint does not establish durable failure publication. Local producer settlement fixtures do not certify external billing authority.",
+      "compatibility_change": [
+        {
+          "id": "D-native-empty-batch-control-cleanup",
+          "change_class": "python-public-api",
+          "impact": "compatible",
+          "surface": "public_stable: polisyos.scientist.NativeSearchService",
+          "owner": "team-policyos-runtime",
+          "version_owner": "team-policyos-runtime",
+          "deprecation_window": "not_applicable",
+          "release_note": "Original control reasons survive asynchronous rollback and secondary checkpoint failures; unavailable publication requires fresh last-acknowledged-reference recovery.",
+          "migration_docs": [
+            "docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/batch-control-reasons.md"
+          ],
+          "runbook_docs": [
+            "docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/batch-control-reasons.md"
+          ]
+        }
+      ]
+    },
+    "docs_read": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/batch-control-reasons.md",
+    "implication": "One existing public_stable cleanup contract, compatible behavior and exact recovery runbook; no export, checkpoint schema/version or public child-classification expansion. Whole generated companion/architecture/frontend completeness remains separate canonical owner output."
+  },
+  "broad_harness_review": {
+    "check": "READ_ONLY_STATIC_PRELAUNCH_REVIEW_NO_TEST_EXECUTION",
+    "harness_inputs": [
+      {
+        "path": "/tmp/e02-D-broad-wave.py",
+        "bytes": 20492,
+        "sha256": "f383a1ff3bd2a22776b914e6d038d6f8883772acc78e051c27bb1db15f5a56e7"
+      },
+      {
+        "path": "/tmp/e02_broad_observer.py",
+        "bytes": 12753,
+        "sha256": "1beccd4a0caa7af25a68c54a85341949d809f0e75d61cdf61d5d4ffbcfc8cf81"
+      },
+      {
+        "path": "/tmp/e02-D-final-selector-plan.py",
+        "bytes": 12531,
+        "sha256": "e3e2ab9bfc9ee6fe86bfb9612f2c6f8bd383b1899f70ccb271492ba0794b3df8"
+      }
+    ],
+    "plan_path": "/tmp/e02-D-original-criterion-audit-o08lza3h/final-selector-source-review-26c9ffd3aa8f42e5869ee37bf217bdca.json",
+    "plan_sha256": "2e52a8e41b61fa7e453fe4a38b7fa2874172b7518de36493ffb226efd7c91e4f",
+    "source": "5050 exact supplied SHA/tree",
+    "denominator": {
+      "canonical_commands": 17,
+      "canonical_raw_selectors": 53,
+      "canonical_unique_paths": 38,
+      "changed_test_inputs": 73,
+      "changed_pytest_files": 67,
+      "unique_union_selectors": 98,
+      "non_pytest_probes": 4,
+      "worker_helpers": 2
+    },
+    "canonical_selector_omissions": [],
+    "changed_pytest_file_omissions": [],
+    "static_union_selectors": 98,
+    "B117_extra_required": "tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py full file, unless final manifest already includes it as extra.",
+    "checks": "Canonical17 commands plus all67 changed pytest files, whole-file selector supersets, all2 worker helpers bound as input bytes. No -m/-k/ignore/maxfail/time/thread/process/worker cap or whitelist. Inherited cap/addopts refuse rather than silently reset; quarantine included. Entire frozen product src and shared conftest/helpers plus actual imports/module-exec origins are hashed. Observer records full collection/reports, RNG state without draws, skips/deselections/errors and loaded-library identities. SIGKILL is ERROR/partial UNRUN, no assumed OOM cause.",
+    "standalone_probes_UNRUN": [
+      "policy-engine/tests/integration/scientist/methods/search/stress_absent_report_probe.py",
+      "policy-engine/tests/integration/scientist/methods/search/stress_case_intake_probe.py",
+      "policy-engine/tests/integration/scientist/methods/search/stress_doe_bridge_probe.py",
+      "policy-engine/tests/integration/scientist/methods/search/stress_property_removal_probe.py"
+    ],
+    "reporting_limit": "Main-process collection-to-finished denominator reconciliation exists; JUnit is parsed/reported but not independently identity-reconciled to all collected node IDs. Final observer collection, phase reports and JUnit must be cross-reviewed; do not call this a completed backend replay before actual outputs. Child-worker imports are not observed; their pinned inputs and parent output are explicit.",
+    "retention_limit": "Harness does not delete files, creates fresh nonexistent temp roots, preserves complete streams/events/JUnit and still-present fixture file identities. Existing pytest/conftest/test teardown can remove its own transient files, and wrapper explicitly disclaims complete historical retention for them.",
+    "launch_blocker_found": false
+  },
+  "packaging_residual": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/lesson-partial-proof/source-inputs.json.gz",
+    "class": "already_tracked_source_duplicated_in_receipt",
+    "duplicate_tracked_member_count": 14,
+    "duplicate_identities": [
+      {
+        "source_sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+        "git_blob": "0520a440f0b5285d3976f152dad5a0dbfe9c35cb",
+        "bytes": 44643,
+        "sha256": "3a83006f055220edfa56d352e232069bc62e0d887ccd61a9bb1cb8b5e9685f18"
+      },
+      {
+        "source_sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/transfer_context.py",
+        "git_blob": "0963066824070b40fbe3d999d61d553b02728ec9",
+        "bytes": 10087,
+        "sha256": "64a316309fcef6cd2074b39ca01f4d1cf76d5c676bd9475118caa9280170098f"
+      },
+      {
+        "source_sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+        "path": "policy-engine/tests/unit/scientist/search/test_lesson_partial_consumer.py",
+        "git_blob": "63274a25fb0a3a5315fe9fb05b29e3d931d69c2d",
+        "bytes": 8435,
+        "sha256": "d706b028fe5d1f938751ea66d93e79cc818e75a04be17e3f688cea18338b6645"
+      },
+      {
+        "source_sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+        "path": "policy-engine/tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+        "git_blob": "32827cc8e4f267b9d9e6d4bf86eb0ffb0c3ed216",
+        "bytes": 7537,
+        "sha256": "4f7d2e34ab338fe21831e7d1f89b61bbe36a6e336191eb4d33c14dc8c62ba323"
+      },
+      {
+        "source_sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+        "path": "policy-engine/tests/unit/scientist/search/test_lesson_transfer.py",
+        "git_blob": "181989c9d088407ed09df30014e5f5a23ccd48c4",
+        "bytes": 9399,
+        "sha256": "0ace8b221674d26615dbdc5067614b57226ed39443fe765f3237c5920690a887"
+      },
+      {
+        "source_sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+        "path": "policy-engine/tests/unit/scientist/search/test_lesson_as_of.py",
+        "git_blob": "5543f3ac347ee94724874da5ba6a01385da54786",
+        "bytes": 7682,
+        "sha256": "c4f5d1d24341e958ddcffc3c799b6c77323ed3810660c130012b418c9eac341b"
+      },
+      {
+        "source_sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+        "path": "policy-engine/tests/unit/scientist/search/test_lessons.py",
+        "git_blob": "7eec3d41f63e9a1f2be1d5e9a04760c83b3b9818",
+        "bytes": 4342,
+        "sha256": "dbc96fb574339da46c578215a33b1027523ade804e494afec49bbab9194f2bcc"
+      },
+      {
+        "source_sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+        "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-lesson-partial-answer.toml",
+        "git_blob": "93ea99148d3e8b04907611dc18288f43509053e7",
+        "bytes": 1187,
+        "sha256": "cdd7ec8f4af98732e3ae804082256850a2fe8b4f27fcf4dfe0bd815c116f40bd"
+      },
+      {
+        "source_sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-03.md",
+        "git_blob": "cce61650d0e6d743b102171edf6e412dd2b350c0",
+        "bytes": 16604,
+        "sha256": "c7cce0fdded201121b425a14faefe58e7d1e13475d931a33eed5d82621c8aa2a"
+      },
+      {
+        "source_sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+        "path": "policy-engine/pytest.ini",
+        "git_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+        "bytes": 1021,
+        "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+      },
+      {
+        "source_sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+        "path": "policy-engine/tests/conftest.py",
+        "git_blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+        "bytes": 9664,
+        "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a"
+      },
+      {
+        "source_sha": "3ed63c748e1e080d0628d8cdf557841fe9a4364a",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+        "git_blob": "6897d15921f9b5ea09db7e57aa5330c31ab6468f",
+        "bytes": 43584,
+        "sha256": "3c2448a1329530e5dadbde957c124d83baa366b01dad75292942e3c81f0e2e65"
+      },
+      {
+        "source_sha": "3ed63c748e1e080d0628d8cdf557841fe9a4364a",
+        "path": "policy-engine/tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+        "git_blob": "4b19773797aca3b0694d862539fdc837a90a53e5",
+        "bytes": 7419,
+        "sha256": "bcc7c3a732c7cc99f8cad6745eb9755b24db035fd355337c1d062cc08fd1385a"
+      },
+      {
+        "source_sha": "6ca3b5f167c140370a44653f25a3483bad4a9659",
+        "path": "policy-engine/tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+        "git_blob": "4b19773797aca3b0694d862539fdc837a90a53e5",
+        "bytes": 7419,
+        "sha256": "bcc7c3a732c7cc99f8cad6745eb9755b24db035fd355337c1d062cc08fd1385a"
+      }
+    ],
+    "genuine_unique_inputs_to_preserve": [
+      {
+        "label": "actual red untracked unique test",
+        "bytes": 7221,
+        "sha256": "15a1f91222a2808bfd1107316f0b060a4b0e09dc4e9c8abae1599df294397d12"
+      }
+    ],
+    "required_minimum_correction": "Append-only receipt correction: replace 14 already-tracked bodies with exact source SHA/path/Git blob/SHA256/byte references; retain the one unique red untracked test, outputs and useful docs. Preserve original history; no reset, rebase, permanent deletion, prune or source tree copy. Run records remain exact and mechanism evidence is unaffected.",
+    "scope_widening": "Seven newly added compressed deciding archives scanned; nonempty current-tracked body matches were found only in this source-inputs archive. Empty fixture lock files are not source-copy evidence.",
+    "verification_after_fix": "Read back corrected archive/reference packet and verify each exact Git ref/hash/byte identity plus unchanged unique input digest. No new GP replay is justified by this docs-only correction."
+  },
+  "original_criterion_accounting": {
+    "denominator": {
+      "full_finding_owner_rows": 282,
+      "full_bundle_owner_rows": 127,
+      "D_findings": 45,
+      "D_bundles": 17,
+      "occurrences": 46,
+      "canonical_owner_occurrences": 45,
+      "supplier_occurrences": 1,
+      "canonical_input_git_reads": 51
+    },
+    "all_original_bindings_MATCH_from_previous_51_input_audit": true,
+    "criteria_text_not_replaced": true,
+    "B136_pending_clause_resolved_by_independent_delta": true,
+    "five_held_original_inputs": [
+      "B131",
+      "B137",
+      "B157",
+      "B161",
+      "B164"
+    ],
+    "B120": "Current schema1.1 raw decoder product FAIL remains canonical B owner defect; no P41 inherited classification or removal PASS substitution.",
+    "ordinary_external_inputs": "A provider/frontier default workflow, fiscal source authority, external served appointment, raw samples/refinement/permit positives remain distinct typed owner packets; no profile substitution or blanket production data demand."
+  },
+  "runtime_executions_by_this_reviewer": 0,
+  "P41_inherited": "not_established",
+  "remaining_verification": [
+    "Actual final B119 narrow source-qualified author/independent controls and existing affected service consumers.",
+    "One frozen broad union actual complete collection/execution/outputs; exact FAIL/ERROR/SKIP/UNRUN preserved.",
+    "Root final46-row ledger/source/output bindings, formal G acceptance remains false.",
+    "Packaging correction readback as above."
+  ],
+  "cleanup": "No data/source/output deletion or new checkout performed; /tmp review and read-only selector-plan outputs preserved."
+}

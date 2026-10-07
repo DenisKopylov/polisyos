@@ -1,0 +1,698 @@
+{
+  "schema": "e02.D.independent-current-math-review.v1",
+  "reviewer": "/root",
+  "author": "/root/math_oct07",
+  "actual_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "actual_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+  "assessed_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "qualified_candidate": "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+  "qualified_tree": "788863c0431841308aef451fcd94df2ba74d1dc6",
+  "scopes": {
+    "quantity-consumers": {
+      "actual_testcase_result": {
+        "PASS": 17,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "phase_count": 51,
+      "exit": 0,
+      "generic_receipt_admission": {
+        "verdict": "ERROR",
+        "reasons": [
+          "actual_loaded_origin_unreadable_untracked_or_candidate_mismatch"
+        ],
+        "expected_case_denominator": 17,
+        "declared_count_predicate_basis": "consumer_asserted_until_independently_reconciled",
+        "command_without_pytest_no_case_property_claim": false,
+        "actual_collected": 17,
+        "phase_denominator": 51,
+        "missing_python_child_packets": [],
+        "sparse_unread_boundaries": 8894,
+        "property_result_distinct_from_receipt_admission": true
+      },
+      "before_after_input_counts": {
+        "all": 17619,
+        "available": 8725,
+        "sparse": 8894
+      },
+      "input_equal": true,
+      "input_git_index_complete_match": true,
+      "source_bound_loaded_rows": 1149,
+      "external_loaded_rows_rehashed": 4055,
+      "observed_source_unchanged_to_d23": true,
+      "origin_problems": [
+        {
+          "module": "torch.ops",
+          "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/_ops.py",
+          "relative_candidate_path": "policy-engine/_ops.py",
+          "read_error": "Loaded repository origin file unavailable at exit",
+          "binding": "unresolved_untracked_repo_loaded_module"
+        },
+        {
+          "module": "torch.classes",
+          "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/_classes.py",
+          "relative_candidate_path": "policy-engine/_classes.py",
+          "read_error": "Loaded repository origin file unavailable at exit",
+          "binding": "unresolved_untracked_repo_loaded_module"
+        },
+        {
+          "class": "origin_read_error",
+          "row": {
+            "module": "torch.ops",
+            "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/_ops.py",
+            "relative_candidate_path": "policy-engine/_ops.py",
+            "read_error": "Loaded repository origin file unavailable at exit",
+            "binding": "unresolved_untracked_repo_loaded_module"
+          }
+        },
+        {
+          "class": "origin_read_error",
+          "row": {
+            "module": "torch.classes",
+            "file": "/dev/shm/e02-D-oct07-continuation/policy-engine/_classes.py",
+            "relative_candidate_path": "policy-engine/_classes.py",
+            "read_error": "Loaded repository origin file unavailable at exit",
+            "binding": "unresolved_untracked_repo_loaded_module"
+          }
+        }
+      ],
+      "wall_seconds": 32.475893120019464,
+      "peak_RSS_KiB": 1186940,
+      "command_sha256": "d3e0387a040e1264c55865b1aa99c6743af08e9e09762fef2f4233af0caeef1c",
+      "stdout_sha256": "e29f700a31c7ea9eaccc0daead826f240f16daa86e26acddbec7324370bde947",
+      "stderr_sha256": "833ba97f94a7aae019c25599a86202a29aee44d44b39100386b9c7d66fe17c6e",
+      "JUnit_sha256": "32d3f8af30d61a22b9062773c11f66040266b5e944d701d64d85c49d37baa7bf",
+      "phases_sha256": "7fd7302ee289272d90407824c571385bcf8b861592af178d0982919d76d7cf34"
+    },
+    "fiscal-consumers": {
+      "actual_testcase_result": {
+        "PASS": 24,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "phase_count": 72,
+      "exit": 0,
+      "generic_receipt_admission": {
+        "verdict": "ADMITTED",
+        "reasons": [],
+        "expected_case_denominator": 24,
+        "declared_count_predicate_basis": "consumer_asserted_until_independently_reconciled",
+        "command_without_pytest_no_case_property_claim": false,
+        "actual_collected": 24,
+        "phase_denominator": 72,
+        "missing_python_child_packets": [],
+        "sparse_unread_boundaries": 8894,
+        "property_result_distinct_from_receipt_admission": true
+      },
+      "before_after_input_counts": {
+        "all": 17619,
+        "available": 8725,
+        "sparse": 8894
+      },
+      "input_equal": true,
+      "input_git_index_complete_match": true,
+      "source_bound_loaded_rows": 44,
+      "external_loaded_rows_rehashed": 682,
+      "observed_source_unchanged_to_d23": true,
+      "origin_problems": [],
+      "wall_seconds": 2.016089231998194,
+      "peak_RSS_KiB": 74700,
+      "command_sha256": "d5c00d687480540c6437a23486da78812d2772353351b2bc441b92ebd0988a38",
+      "stdout_sha256": "5fc5639eb0763627966bfcd7d96ffc7d4f9dc6b5495ea290500323e497515b24",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "JUnit_sha256": "43c4fda67481b36d5d453f4f54502a498e984fd65bc30c68f937530950986853",
+      "phases_sha256": "f02b10744478a2a8a1551ff105369e0ae126636497728c281340cd0cbd955ada"
+    },
+    "stress-consumers": {
+      "actual_testcase_result": {
+        "PASS": 22,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "phase_count": 66,
+      "exit": 0,
+      "generic_receipt_admission": {
+        "verdict": "ADMITTED",
+        "reasons": [],
+        "expected_case_denominator": 22,
+        "declared_count_predicate_basis": "consumer_asserted_until_independently_reconciled",
+        "command_without_pytest_no_case_property_claim": false,
+        "actual_collected": 22,
+        "phase_denominator": 66,
+        "missing_python_child_packets": [],
+        "sparse_unread_boundaries": 8894,
+        "property_result_distinct_from_receipt_admission": true
+      },
+      "before_after_input_counts": {
+        "all": 17619,
+        "available": 8725,
+        "sparse": 8894
+      },
+      "input_equal": true,
+      "input_git_index_complete_match": true,
+      "source_bound_loaded_rows": 1176,
+      "external_loaded_rows_rehashed": 2750,
+      "observed_source_unchanged_to_d23": true,
+      "origin_problems": [],
+      "wall_seconds": 25.46998409301159,
+      "peak_RSS_KiB": 677820,
+      "command_sha256": "0b54b84080a88cd6e542121342b124d9bcf616427cc6dd759455e6d8a6bb8494",
+      "stdout_sha256": "6eecc43a09933f333a153990ee3db8ee1bee9395b74297d7070e9599b5e7d4ee",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "JUnit_sha256": "6d47245befee4e1cb08867c42271b8a1eb1060f11e6a59668b98caed1cd919df",
+      "phases_sha256": "2fc285de04171acbac6acd9b80123ea15f65ae4fc5a6742cc5b01121d22c6b9f"
+    },
+    "stopping-convergence": {
+      "actual_testcase_result": {
+        "PASS": 50,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "phase_count": 150,
+      "exit": 0,
+      "generic_receipt_admission": {
+        "verdict": "ADMITTED",
+        "reasons": [],
+        "expected_case_denominator": 50,
+        "declared_count_predicate_basis": "consumer_asserted_until_independently_reconciled",
+        "command_without_pytest_no_case_property_claim": false,
+        "actual_collected": 50,
+        "phase_denominator": 150,
+        "missing_python_child_packets": [],
+        "sparse_unread_boundaries": 8894,
+        "property_result_distinct_from_receipt_admission": true
+      },
+      "before_after_input_counts": {
+        "all": 17619,
+        "available": 8725,
+        "sparse": 8894
+      },
+      "input_equal": true,
+      "input_git_index_complete_match": true,
+      "source_bound_loaded_rows": 269,
+      "external_loaded_rows_rehashed": 1136,
+      "observed_source_unchanged_to_d23": true,
+      "origin_problems": [],
+      "wall_seconds": 6.946041146002244,
+      "peak_RSS_KiB": 242052,
+      "command_sha256": "f70b9a9f13fc9904594ca26f4d5bcc704c17e42bd0c7bd99e171824677b3862f",
+      "stdout_sha256": "0881c15b5f9bc4bb8fecd807f6d9732f32085c8007f59c2d07e5ab46e06bb245",
+      "stderr_sha256": "bb4c110db54abd9939f65fa0fb6cffa09749ca0cd7a151f5fc0cebbfb26b553c",
+      "JUnit_sha256": "1c519ebfcb48c8b247aa2abbb8cf83f292d79cf187bff77b0b4e988863004dcb",
+      "phases_sha256": "bd49d44f68b56c44bd6f92f25a53b290a8f6167f756542228cab6d6288b4ab49"
+    }
+  },
+  "limitations": [
+    "No whole-package result from disjoint17/24/22/50 cohorts or historical154/73",
+    "No numerical rerun on d23; selected reached source and tests identical, overall input catalog changed",
+    "No A frontier/default caller or E sampling cap owner closure",
+    "No authority/production invoices/distributed guarantee",
+    "Full raw origin/input tables remain external hashed, not Git; moderate literal deciding output portable"
+  ],
+  "portable_packet": {
+    "manifest_sha256": "aeca3dd12fa15adaf8c226645cabf36a22ffd821d15db7503512c61467699b0d",
+    "file_count_including_manifest": 8,
+    "all_file_hashes_match": true,
+    "lossless_entries_recomputed": {
+      "all": 46,
+      "literal_deciding": 24
+    },
+    "large_input_origin_inventories": "retained externally with exact path/size/hash; independently checked above; no cloud-complete raw inventory portability claim"
+  },
+  "quantity_namespace_reconciliation": {
+    "decision": "GO_BOUNDED_COMPUTATIONAL_ONLY",
+    "generic_receipt_error_preserved": true,
+    "same_backend_defining_source_and_static_ModuleType_literals_independently_read": true,
+    "original_runtime_object_types_not_captured": true,
+    "separate_metadata_diagnostic": "corroboration only; no generic admission upgrade/no arbitrary untracked module exception",
+    "sidecar_sha256": "4a751b751b02795ff3c1a90f32ee3d5d980124a8d93d04681f4a05410d93907c"
+  },
+  "original_occurrences": [
+    {
+      "id": "B106@STR-01",
+      "finding": "B106",
+      "bundle": "STR-01",
+      "original_acceptance_text_sha256": "1d212bb12a7346fc8c2480723fddd43da874e2e1daa2d2070a6233ab75795d43",
+      "original_acceptance_binding": {
+        "byte_offset": 617064,
+        "bytes": 706,
+        "sha256": "1d212bb12a7346fc8c2480723fddd43da874e2e1daa2d2070a6233ab75795d43"
+      },
+      "original_authority": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/0"
+      },
+      "proposal": "closed_bounded_original_engineering_proposal_pending_independent_current_review",
+      "capability": "bounded_supported_mechanism_and_named_consumer_available"
+    },
+    {
+      "id": "B107@STR-01",
+      "finding": "B107",
+      "bundle": "STR-01",
+      "original_acceptance_text_sha256": "83e4adcea92922a6991dbd16937e9dc47cca02d83f0beccf2eb7e2f43623e0a3",
+      "original_acceptance_binding": {
+        "byte_offset": 620436,
+        "bytes": 572,
+        "sha256": "83e4adcea92922a6991dbd16937e9dc47cca02d83f0beccf2eb7e2f43623e0a3"
+      },
+      "original_authority": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/1"
+      },
+      "proposal": "closed_bounded_original_engineering_proposal_pending_independent_current_review",
+      "capability": "bounded_supported_mechanism_and_named_consumer_available"
+    },
+    {
+      "id": "B108@OPT-01",
+      "finding": "B108",
+      "bundle": "OPT-01",
+      "original_acceptance_text_sha256": "8d4cbd469a454de4a7f4a26aa91c3fdf8aabf3b2b59bb77651b99146bcaa888c",
+      "original_acceptance_binding": {
+        "byte_offset": 651124,
+        "bytes": 480,
+        "sha256": "8d4cbd469a454de4a7f4a26aa91c3fdf8aabf3b2b59bb77651b99146bcaa888c"
+      },
+      "original_authority": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/2"
+      },
+      "proposal": "limited",
+      "capability": "owner_unit_sign_alias_law_not_established; numeric intake/consumer available"
+    },
+    {
+      "id": "B109@OPT-01",
+      "finding": "B109",
+      "bundle": "OPT-01",
+      "original_acceptance_text_sha256": "784670e535c99a1baee35da6689f515779b3b616a5829ab125c608fcc4f712b3",
+      "original_acceptance_binding": {
+        "byte_offset": 654995,
+        "bytes": 686,
+        "sha256": "784670e535c99a1baee35da6689f515779b3b616a5829ab125c608fcc4f712b3"
+      },
+      "original_authority": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/3"
+      },
+      "proposal": "closed_bounded_original_engineering_proposal_pending_independent_current_review",
+      "capability": "bounded_supported_mechanism_and_named_consumer_available"
+    },
+    {
+      "id": "B110@OPT-01",
+      "finding": "B110",
+      "bundle": "OPT-01",
+      "original_acceptance_text_sha256": "199ef2ac1ae718655b08fbb78829e6ed0768b46df5d1b99fad56aa69181c1184",
+      "original_acceptance_binding": {
+        "byte_offset": 658592,
+        "bytes": 455,
+        "sha256": "199ef2ac1ae718655b08fbb78829e6ed0768b46df5d1b99fad56aa69181c1184"
+      },
+      "original_authority": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/4"
+      },
+      "proposal": "closed_bounded_original_engineering_proposal_pending_independent_current_review",
+      "capability": "bounded_supported_mechanism_and_named_consumer_available"
+    },
+    {
+      "id": "B111@OPT-01",
+      "finding": "B111",
+      "bundle": "OPT-01",
+      "original_acceptance_text_sha256": "4d1c7ff7de3b274c2aa4e16230b323102adacd871d551f30616d9d8f3b2eec65",
+      "original_acceptance_binding": {
+        "byte_offset": 662708,
+        "bytes": 484,
+        "sha256": "4d1c7ff7de3b274c2aa4e16230b323102adacd871d551f30616d9d8f3b2eec65"
+      },
+      "original_authority": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/5"
+      },
+      "proposal": "closed_bounded_original_engineering_proposal_pending_independent_current_review",
+      "capability": "bounded_supported_mechanism_and_named_consumer_available"
+    },
+    {
+      "id": "B122@STP-01",
+      "finding": "B122",
+      "bundle": "STP-01",
+      "original_acceptance_text_sha256": "9fb880ce2c75c7770deca54b1861fb86071f57aa1e4db5e51793fcfac56b115e",
+      "original_acceptance_binding": {
+        "byte_offset": 729833,
+        "bytes": 584,
+        "sha256": "9fb880ce2c75c7770deca54b1861fb86071f57aa1e4db5e51793fcfac56b115e"
+      },
+      "original_authority": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/16"
+      },
+      "proposal": "closed_bounded_original_engineering_proposal_pending_independent_current_review",
+      "capability": "bounded_supported_mechanism_and_named_consumer_available"
+    },
+    {
+      "id": "B41@STP-01",
+      "finding": "B41",
+      "bundle": "STP-01",
+      "original_acceptance_text_sha256": "4a76b7b1923f16245bdc19a10b05570aa47c2ca063e8e1a2faf3eb0112576937",
+      "original_acceptance_binding": {
+        "byte_offset": 159547,
+        "bytes": 566,
+        "sha256": "4a76b7b1923f16245bdc19a10b05570aa47c2ca063e8e1a2faf3eb0112576937"
+      },
+      "original_authority": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/42"
+      },
+      "proposal": "closed_bounded_original_engineering_proposal_pending_independent_current_review",
+      "capability": "bounded_supported_mechanism_and_named_consumer_available"
+    }
+  ],
+  "P37": {
+    "input_output_identity": "independently_reconciled",
+    "analytic_computational_expected_quantity": "recomputed on supported declared profiles; code/oracle review",
+    "issuer_fiscal_law": "not_established",
+    "whole_import_closure": "not_established; reached origins and bounded namespace reconciliation only"
+  },
+  "P38": [
+    "Preserved actual17 generic ERROR versus passing computational assertions; no exit-only property claim",
+    "Fraction positive volume underflow separate from B111 missing/nonfinite requirement",
+    "Different grouping/issue top-k must retain per-scenario denominator",
+    "Decimal physical gain tolerance and direction, not normalized percentage alone",
+    "Source SHA or numeric engineering does not supply fiscal producer unit/sign/alias law"
+  ],
+  "formal_finding_closures": 0,
+  "G_acceptances": 0,
+  "P41": "not_established",
+  "decision": "GO_BOUNDED_SOURCE_QUALIFIED_COMPUTATIONAL_PROPOSALS_B108_LIMITED",
+  "full_origin_packet_bindings": {
+    "/dev/shm/e02-D-post-a795-88ghpj7t/math/quantity-consumers/origins/process-671140.json": {
+      "bytes": 1828216,
+      "sha256": "6c554cb4bee27b2e9fef7acbb63610309356ee6d868eb5619d0461cbed50e08d"
+    },
+    "/dev/shm/e02-D-post-a795-88ghpj7t/math/quantity-consumers/origins/process-671069.json": {
+      "bytes": 36172,
+      "sha256": "737e9c5d81d1cb11770d166f0db020d9bbfde622f9a1a5c3bc87316535602b7d"
+    },
+    "/dev/shm/e02-D-post-a795-88ghpj7t/math/fiscal-consumers/origins/process-671142.json": {
+      "bytes": 195761,
+      "sha256": "3ac3aa868928403803862247b44f791da738cfc66cabb5db41a5a6ecdc7af225"
+    },
+    "/dev/shm/e02-D-post-a795-88ghpj7t/math/fiscal-consumers/origins/process-671120.json": {
+      "bytes": 34991,
+      "sha256": "e6d8b432c979a04e6d6cc4ec5eae2cc768fb20d636180c8c5aebfcdf04acaeb5"
+    },
+    "/dev/shm/e02-D-post-a795-88ghpj7t/math/stress-consumers/origins/process-671146.json": {
+      "bytes": 1432039,
+      "sha256": "3983191b3c411f8a21f7f1c4874072ffb06e6a6281c1a2bfb4bc2af0b2283370"
+    },
+    "/dev/shm/e02-D-post-a795-88ghpj7t/math/stress-consumers/origins/process-671136.json": {
+      "bytes": 36172,
+      "sha256": "61dd7366373cdaebd6b21663df2867d9bea93ca328b7a5f489abc883bb6d0a41"
+    },
+    "/dev/shm/e02-D-post-a795-88ghpj7t/math/stopping-convergence/origins/process-671144.json": {
+      "bytes": 451788,
+      "sha256": "205be4e29fbded2b834b53ef1d36cd1d2bea51fd7c9ada8e6aa12a32d9ea9b85"
+    },
+    "/dev/shm/e02-D-post-a795-88ghpj7t/math/stopping-convergence/origins/process-671139.json": {
+      "bytes": 34991,
+      "sha256": "15a241a29397d75b0ec4e73e1610031a3d0cd7ddfa386896fddc31b95d95fd7d"
+    }
+  },
+  "independent_historical_core_carry_recomputed": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+      "recorded_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "old_sha256": "f6787e89fb3ae343e4ed822e00db9c91c44d017effc2aff22dda93f639c54b83",
+      "candidate_sha256": "f6787e89fb3ae343e4ed822e00db9c91c44d017effc2aff22dda93f639c54b83",
+      "core_exact": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+      "recorded_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "old_sha256": "e06f9901b021f0e85df3d60d6b778552c017fed6d69953fb4bf767d7515cd082",
+      "candidate_sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b",
+      "core_exact": false
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+      "recorded_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "old_sha256": "aee369ab873131ac950104d3cf8b832c2ecf1d8109033f1631dc20877478bacd",
+      "candidate_sha256": "aee369ab873131ac950104d3cf8b832c2ecf1d8109033f1631dc20877478bacd",
+      "core_exact": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+      "recorded_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "old_sha256": "e4699f9b1f892a3850406d0ef582bcf8072e19192d040783468d8c33b9c21f8a",
+      "candidate_sha256": "e4699f9b1f892a3850406d0ef582bcf8072e19192d040783468d8c33b9c21f8a",
+      "core_exact": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/policy_design/output.py",
+      "recorded_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "old_sha256": "6e7222137b4b44b7a71dd2de7d0300f0fee22d05f41df556b2f84dc84ea73598",
+      "candidate_sha256": "6e7222137b4b44b7a71dd2de7d0300f0fee22d05f41df556b2f84dc84ea73598",
+      "core_exact": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_axis_permutation_consumers.py",
+      "recorded_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "old_sha256": "c4f7790d3ecd6dddc2d23197250fb06acd0cd21a8c5887e0ca34d62590b5e990",
+      "candidate_sha256": "c4f7790d3ecd6dddc2d23197250fb06acd0cd21a8c5887e0ca34d62590b5e990",
+      "core_exact": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_current_quantity_consumers.py",
+      "recorded_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "old_sha256": "c331f05519c4590c96080d6d1491388ca261b1096dedf0100712da1b0c097939",
+      "candidate_sha256": "c331f05519c4590c96080d6d1491388ca261b1096dedf0100712da1b0c097939",
+      "core_exact": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
+      "recorded_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "old_sha256": "f9096dad70b07b8eae9a976e7a65010c592bc2352ad1ded425f47f5b534d1f25",
+      "candidate_sha256": "f9096dad70b07b8eae9a976e7a65010c592bc2352ad1ded425f47f5b534d1f25",
+      "core_exact": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_registry_quantity_projection.py",
+      "recorded_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "old_sha256": "500342e870818200404d2322cf266877631fd4303798fe364104833ae94550e6",
+      "candidate_sha256": "500342e870818200404d2322cf266877631fd4303798fe364104833ae94550e6",
+      "core_exact": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_frontier_quantity_readback.py",
+      "recorded_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "old_sha256": "fba874ac95a52e961f5d51c62de468e94e05d77700137491fc2143b4202d9071",
+      "candidate_sha256": "fba874ac95a52e961f5d51c62de468e94e05d77700137491fc2143b4202d9071",
+      "core_exact": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py",
+      "recorded_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "old_sha256": "125812f64a5fc6c6a679969f8117819792c17a98e1c7030a815e15e346cea4b8",
+      "candidate_sha256": "125812f64a5fc6c6a679969f8117819792c17a98e1c7030a815e15e346cea4b8",
+      "core_exact": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+      "recorded_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+      "old_sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8",
+      "candidate_sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8",
+      "core_exact": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_fiscal_numeric_admission.py",
+      "recorded_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+      "old_sha256": "89b7fe53ee40da9fec92528278772267944edb250d923d45018dfb33846bf206",
+      "candidate_sha256": "89b7fe53ee40da9fec92528278772267944edb250d923d45018dfb33846bf206",
+      "core_exact": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/stopping.py",
+      "recorded_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "old_sha256": "84aaa5c7a3737000985d39c6b3b8803bb03a052e64b702944ca322a2ae1234ee",
+      "candidate_sha256": "84aaa5c7a3737000985d39c6b3b8803bb03a052e64b702944ca322a2ae1234ee",
+      "core_exact": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py",
+      "recorded_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "old_sha256": "5298242cd9b3fc4a80adb07c9b78c16063c1bd00b9918088c7130848cc2dd907",
+      "candidate_sha256": "5298242cd9b3fc4a80adb07c9b78c16063c1bd00b9918088c7130848cc2dd907",
+      "core_exact": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+      "recorded_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "old_sha256": "bfe8ee7a6e0be2f2eaa60f976c611dc4f32ccb8d64561bb1307737b8afa04a61",
+      "candidate_sha256": "bfe8ee7a6e0be2f2eaa60f976c611dc4f32ccb8d64561bb1307737b8afa04a61",
+      "core_exact": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+      "recorded_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "old_sha256": "09d679aa22cc434e60ea054c1f84ad2c2b607e296a90885054d59ad2de31aaff",
+      "candidate_sha256": "09d679aa22cc434e60ea054c1f84ad2c2b607e296a90885054d59ad2de31aaff",
+      "core_exact": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_stress_scenario_evidence.py",
+      "recorded_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "old_sha256": "2305ffaecac2613846308cd03fcd618be22519d1289ef5fe42e155595dd13ca0",
+      "candidate_sha256": "2305ffaecac2613846308cd03fcd618be22519d1289ef5fe42e155595dd13ca0",
+      "core_exact": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/search/test_adversarial_streaming.py",
+      "recorded_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "old_sha256": "0227f239fd504924a2591bdbe391ddc1bb2f62d516d1d0e3221e6bd614ccadb5",
+      "candidate_sha256": "0227f239fd504924a2591bdbe391ddc1bb2f62d516d1d0e3221e6bd614ccadb5",
+      "core_exact": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+      "recorded_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "old_sha256": "a00f99197074360a8ec969d671180e01a57ffde37126f78addbba938b74698b1",
+      "candidate_sha256": "a00f99197074360a8ec969d671180e01a57ffde37126f78addbba938b74698b1",
+      "core_exact": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+      "recorded_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "old_sha256": "cdf7ffe7bd6e3921749e7aa61624d43fa9e8f831495533bf22441744478cc4ee",
+      "candidate_sha256": "cdf7ffe7bd6e3921749e7aa61624d43fa9e8f831495533bf22441744478cc4ee",
+      "core_exact": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+      "recorded_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "old_sha256": "19cf96ccdd90146d597c27e776b4bec34bb2999c588ac048d1ba895bcbdd261e",
+      "candidate_sha256": "19cf96ccdd90146d597c27e776b4bec34bb2999c588ac048d1ba895bcbdd261e",
+      "core_exact": true
+    }
+  ],
+  "independent_oracle_review": {
+    "rational_geometry": [
+      {
+        "points": [
+          [
+            2,
+            0,
+            0
+          ],
+          [
+            0,
+            2,
+            0
+          ],
+          [
+            0,
+            0,
+            2
+          ]
+        ],
+        "reference": [
+          0,
+          0,
+          0
+        ],
+        "rational_volume": "0",
+        "bounded_reference_only_not_product_execution": true
+      },
+      {
+        "points": [
+          [
+            3,
+            1,
+            2
+          ],
+          [
+            1,
+            3,
+            2
+          ],
+          [
+            2,
+            2,
+            3
+          ]
+        ],
+        "reference": [
+          0,
+          0,
+          0
+        ],
+        "rational_volume": "16",
+        "bounded_reference_only_not_product_execution": true
+      },
+      {
+        "points": [
+          [
+            2,
+            2,
+            1
+          ],
+          [
+            1,
+            3,
+            2
+          ],
+          [
+            3,
+            1,
+            1
+          ]
+        ],
+        "reference": [
+          0,
+          0,
+          0
+        ],
+        "rational_volume": "9",
+        "bounded_reference_only_not_product_execution": true
+      }
+    ],
+    "all_pairs": "Reviewed independent ordered-coordinate all-pairs law, equality-retained candidate IDs, 1–4D mixed signs and whole-axis permutation through CAS/readback; c0 original154 remains historical exact-core only",
+    "physical_plateau": "Reviewed Decimal gain versus max(0.01 declared units,0.01×abs(historical)), min/max/zero/negative scales and native Controller3iterations",
+    "stress": "Reviewed literal32 scenarios→31/32 with grouping/top-k1/20, missing threshold/unknown/legacy/refusedcorruptcount and score vs retainedbasis, actual blueprint report artifact fresh reader; not population probability",
+    "fiscal": "Reviewed actual _post_json HTTPtext controlled transport→Decimal→Objective/Composite/Plateau/Target, ±tiny refuses and zero/subnormal controls; issuer unit/sign/alias law stays not_established",
+    "property_versus_marker": "Existing recorded guard-removal/core proofs retain oldpins, current invalid/stale/unknown controls produce actual consumers; no old FAIL called current FAIL"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "/dev/shm/e02-D-transfer-native828-eyh0mr3a/basetemp",
+    "--junitxml",
+    "/dev/shm/e02-D-transfer-native828-eyh0mr3a/junit.xml",
+    "-q",
+    "tests/unit/scientist/agent/test_vector_memory.py",
+    "tests/unit/remediation/test_trn_02.py",
+    "tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+    "tests/unit/scientist/search/test_lesson_transfer.py"
+  ],
+  "cwd": "/workspace/e02-D-published-root/policy-engine",
+  "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+  "tree": "bb6213c0cde3246e63c04f749547f40f35644a15",
+  "env": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "TMPDIR": "/dev/shm/e02-D-transfer-native828-eyh0mr3a/tmp",
+    "PYTHONPATH": "/workspace/e02-D-published-root/policy-engine/src"
+  }
+}

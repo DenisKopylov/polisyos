@@ -1,0 +1,31 @@
+{
+  "source_sha": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+  "target": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+  "source_sha256": "d6d06d3204bba4784ace4a8e625c92bfcf792b8bb75a018b540d3c91c05d6208",
+  "canonical_checker": "policy-engine/tools/quality/diagnostics/check_state_reads.py",
+  "checker_sha256": "d29463920cd5c5850a0e674e669d958077c0c7b01af0d496bea66745bf51ba47",
+  "actual_prefix_reads": [
+    "artifacts_index",
+    "params",
+    "reports_index"
+  ],
+  "actual_exact_reads": [
+    "params.policy_request_domain",
+    "params.transfer_context",
+    "params.voi_calibration_status",
+    "params.workflow_id",
+    "reports_index.governance_report_ref",
+    "run_id"
+  ],
+  "declared_prefixes": [
+    "artifacts_index",
+    "inputs",
+    "last_checkpoint_ref",
+    "params",
+    "reports_index",
+    "run_id"
+  ],
+  "issues": [],
+  "outcome": "PASS",
+  "scope": "Only exact canonical one-file AST read contract; no full-node scan/backend/runtime. Author complete whole-gate9 errors in run_causal_evaluation remain FAIL, not waived."
+}

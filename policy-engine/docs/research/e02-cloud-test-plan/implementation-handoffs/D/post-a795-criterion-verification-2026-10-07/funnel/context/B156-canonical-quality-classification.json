@@ -1,0 +1,5 @@
+{
+  "canonical_root_Ruff": "Root verified unchanged original test_orchestrator.py and changed selector final8e under actual root path: full Ruff check and format check PASS. No unrelated unused-assignment edit.",
+  "historical_external_diagnostic": "External scratch file check with explicit product pyproject config reported F841 on unchanged line in a different per-path policy. This is a noncanonical verification configuration diagnostic, not established baseline code failure/inherited red; no P41 waiver.",
+  "B156_test_changes": "Only deepcopy import and independent-control callback/history assertions; original ordinary candidate/input behavior preserved. No production/API/release behavior introduced."
+}

@@ -1,0 +1,27 @@
+{
+  "schema": "e02.D.complete_final_delivery_publication_outputs.v1",
+  "delivery_implementation_sha": "6755090f55d6a9577299ef45ad1ec1c4c99ebd3c",
+  "delivery_implementation_tree": "3757b16ae1b37a628a080b59e514582b4ef6203d",
+  "runtime_source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+  "runtime_source_tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd",
+  "scope": "Two complete original generatedmetadata command/API outputs, lossless; no tracked source/library bodies. Historical failedGraphQL metadata edit/bodyassert preserved; correctedREST actualbodyMATCH/draftopenunmerged; no backend/property tests.",
+  "members": [
+    {
+      "name": "implementation-publication.json",
+      "bytes": 6803,
+      "sha256": "3279fd998d6e760f12eeb54f673a4447127c52e019019cb8b936543792b0c75a",
+      "encoding": "base64"
+    },
+    {
+      "name": "PR47-readback.json",
+      "bytes": 50365,
+      "sha256": "e93bd4efaf73997a2b20713619fdc2947b7dc5564311728a0815c85a0ee554fd",
+      "encoding": "base64"
+    }
+  ],
+  "original_member_count": 2,
+  "original_raw_bytes": 57168,
+  "carrier_bytes": 14064,
+  "carrier_sha256": "708de2ee6c70d09a69e4c912f7c5e80d30ff6f3b59aff484d737b24010b577ac",
+  "all_original_bytes_reconciled": true
+}

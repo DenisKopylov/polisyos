@@ -1,0 +1,157 @@
+{"source": "fb9b6f8842cf6db4f74dc4d73a4e0e1f7970cb70", "module_path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/service.py", "module_sha256": "91b158602ff6c5b19582e3c5f38d14ca386fd0c44f560a6098f81bf9240f3808", "removed_properties": ["boolean/integer profile distinction", "wire numeric-underflow pre-decoding guard"], "argv": ["/workspace/e02-D-continuation-receipts/champion-profile-final-removal.py"]}
+FF
+=================================== FAILURES ===================================
+_ test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[hard_limit_bool] _
+
+tmp_path = PosixPath('/workspace/e02-D-continuation-receipts/champion-profile-final-negative-e53f1175feca42388078273f2bf6902c/test_actual_cas_checkpoint_cor0')
+mutation = 'hard_limit_bool'
+
+    @pytest.mark.parametrize(
+        "mutation",
+        [
+            "version",
+            "counter_bool",
+            "history_count",
+            "generator_cursor",
+            "pending_order",
+            "cost_huge",
+            "cost_origin_claim",
+            "hard_limit_bool",
+            "stage_a_integer",
+        ],
+    )
+    def test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect(
+        tmp_path, mutation
+    ):
+        from polisyos.core.artifacts.manifest import SchemaInfo
+        from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+        from polisyos.core.canon.canon_json import CanonSpec, from_canonical_bytes
+    
+        store = FileSystemCAS(tmp_path / "cas")
+        source = _direct(store)
+        if mutation == "hard_limit_bool":
+            source.controller._config.max_iterations_hard_limit = 1
+        source.ask(None, None, {})
+        payload = from_canonical_bytes(store.get_bytes(source.checkpoint_ref))
+        if mutation == "version":
+            payload["schema_version"] = "search-service.v99"
+        elif mutation == "counter_bool":
+            payload["run_state"]["evaluation_iterations"] = True
+        elif mutation == "history_count":
+            payload["run_state"]["evaluation_iterations"] = 1
+        elif mutation == "generator_cursor":
+            payload["generator_state"]["index"] = 20
+        elif mutation == "cost_huge":
+            payload["run_state"]["budget_snapshot"] = {"cumulative_cost_usd": 10**400}
+        elif mutation == "cost_origin_claim":
+            payload["run_state"]["budget_evidence"] = {
+                "source": "configured_owner_recorded_state",
+                "receipt_revision_available": False,
+                "provider_cost_origin_available": True,
+                "recorded_by_provider": {},
+                "unavailable_reason": None,
+            }
+        elif mutation == "hard_limit_bool":
+            payload["configuration"]["hard_limit"] = True
+        elif mutation == "stage_a_integer":
+            payload["configuration"]["stage_a_enabled"] = 0
+        else:
+            payload["pending_candidate_ids"] = []
+        bad = store.put_json(
+            payload,
+            ArtifactWriteOptions(
+                kind="scientist.search.service_checkpoint",
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name="polisyos.scientist.search.SearchServiceCheckpoint", version="2.0"
+                ),
+            ),
+            canon_spec=CanonSpec(forbid_floats=False, exclude_none=False),
+        )
+        from polisyos.core.artifacts.manifest_profile import artifact_manifest_profile_sha256
+    
+        bad = bad.model_copy(
+            update={
+                "manifest_profile_sha256": artifact_manifest_profile_sha256(
+                    store.get_verified_snapshot(bad).manifest
+                )
+            }
+        )
+        target = _direct(FileSystemCAS(tmp_path / "cas"))
+        if mutation == "hard_limit_bool":
+            target.controller._config.max_iterations_hard_limit = 1
+        before = target.controller._generator.get_state()
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/scientist/methods/search/test_service_persistence.py:358: Failed
+_ test_decimal_recorded_owner_underflow_is_unavailable_and_wire_underflow_refuses[wire] _
+
+tmp_path = PosixPath('/workspace/e02-D-continuation-receipts/champion-profile-final-negative-e53f1175feca42388078273f2bf6902c/test_decimal_recorded_owner_un0')
+representation = 'wire'
+
+    @pytest.mark.parametrize("representation", ["wire", "canonical_tag"])
+    def test_decimal_recorded_owner_underflow_is_unavailable_and_wire_underflow_refuses(
+        tmp_path, representation
+    ):
+        import json
+    
+        from polisyos.core.artifacts.manifest import SchemaInfo
+        from polisyos.core.artifacts.manifest_profile import artifact_manifest_profile_sha256
+        from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+        from polisyos.core.canon.canon_json import from_canonical_bytes
+        from polisyos.scientist.orchestration.engine.budget import BudgetState
+        from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+    
+        store = FileSystemCAS(tmp_path / "cas")
+        service = _direct(store, stopping=CostBudgetStopping(5))
+        service.controller._config.budget_middleware = BudgetMiddleware(
+            BudgetState(spent={"run": Decimal("1e-1000")})
+        )
+        result = service.run_search(initial_context={})
+        assert result.history == []
+        assert result.telemetry["budget_spent"] is None
+        assert result.telemetry["budget_available"] is False
+        assert result.telemetry["budget_evidence"]["unavailable_reason"] == "recorded_cost_invalid"
+        source = _direct(store)
+        source.ask(None, None, {})
+        payload = from_canonical_bytes(store.get_verified_snapshot(source.checkpoint_ref).data)
+        if representation == "wire":
+            raw = (
+                json.dumps(payload, sort_keys=True)
+                .replace('"budget_spent": 0.0', '"budget_spent": 1e-1000')
+                .encode()
+            )
+            assert b'"budget_spent": 1e-1000' in raw
+        else:
+            payload["run_state"]["budget_spent"] = {"_type": "float", "repr": "1e-1000"}
+            raw = json.dumps(payload, sort_keys=True).encode()
+        bad = store.put_bytes(
+            raw,
+            ArtifactWriteOptions(
+                kind="scientist.search.service_checkpoint",
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name="polisyos.scientist.search.SearchServiceCheckpoint", version="2.0"
+                ),
+            ),
+        )
+        bad = bad.model_copy(
+            update={
+                "manifest_profile_sha256": artifact_manifest_profile_sha256(
+                    store.get_verified_snapshot(bad).manifest
+                )
+            }
+        )
+        target = _direct(FileSystemCAS(tmp_path / "cas"))
+>       with pytest.raises(ValueError, match="numeric_underflow"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/scientist/methods/search/test_service_persistence.py:903: Failed
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/search/test_service_persistence.py::test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[hard_limit_bool]
+FAILED tests/unit/scientist/methods/search/test_service_persistence.py::test_decimal_recorded_owner_underflow_is_unavailable_and_wire_underflow_refuses[wire]
+2 failed in 3.67s
+{"pytest_exit": 1, "torch_loaded": false}

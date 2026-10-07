@@ -1,0 +1,20 @@
+[
+  {
+    "finding": "B108",
+    "canonical_owner": "D",
+    "bundle": "OPT-01",
+    "source_card_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-01.md",
+    "source_card_sha256": "3c7df5d39ca7a6351ebf5fb21adee73462df7e7063adbaec6514c004feb7ce0e",
+    "unchanged_original_acceptance_tail": "**Приёмка и предел.** Эквивалентные кодировки balance/deficit дают одинаковый score; ноль не считается отсутствием; полностью отсутствующее, конфликтующее, non-finite и несовместимые единицы различены. Настоящие симуляционные producer и пользовательский search здесь не запускались.",
+    "scope_this_packet": "Shared fiscal alias float64 representability/refusal only; original complete criterion disposition remains in root45/46ledger."
+  },
+  {
+    "finding": "B111",
+    "canonical_owner": "D",
+    "bundle": "OPT-01",
+    "source_card_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-01.md",
+    "source_card_sha256": "3c7df5d39ca7a6351ebf5fb21adee73462df7e7063adbaec6514c004feb7ce0e",
+    "unchanged_original_acceptance_tail": "**Приёмка.** Перестановки не меняют конечный фронт; invalid сохраняет причину; reference point и hypervolume конечны или явно недоступны; генезис и смена чемпиона не публикуют неопределённое число. Проверить реальный CAS и существующие upstream guards, не дублируя их несовместимыми кодами.",
+    "scope_this_packet": "Shared fiscal alias float64 representability/refusal only; original complete criterion disposition remains in root45/46ledger."
+  }
+]

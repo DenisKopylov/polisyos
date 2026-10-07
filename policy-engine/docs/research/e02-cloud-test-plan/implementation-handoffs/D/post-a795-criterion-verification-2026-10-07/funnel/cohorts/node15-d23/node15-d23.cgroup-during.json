@@ -1,0 +1,132 @@
+[
+  {
+    "unix_time": 1791397515.7819474,
+    "files": {
+      "memory.current": "15482920960\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 58\noom_group_kill 0\n",
+      "memory.events.local": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 0\noom_group_kill 0\n",
+      "memory.peak": "17183465472\n",
+      "pids.current": "1004\n",
+      "pids.max": "max\n"
+    },
+    "scope": "shared cgroup observation; event deltas do not attribute a kill to this process"
+  },
+  {
+    "unix_time": 1791397516.7971084,
+    "files": {
+      "memory.current": "15525412864\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 58\noom_group_kill 0\n",
+      "memory.events.local": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 0\noom_group_kill 0\n",
+      "memory.peak": "17183465472\n",
+      "pids.current": "1004\n",
+      "pids.max": "max\n"
+    },
+    "scope": "shared cgroup observation; event deltas do not attribute a kill to this process"
+  },
+  {
+    "unix_time": 1791397517.967429,
+    "files": {
+      "memory.current": "15612559360\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 58\noom_group_kill 0\n",
+      "memory.events.local": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 0\noom_group_kill 0\n",
+      "memory.peak": "17183465472\n",
+      "pids.current": "1008\n",
+      "pids.max": "max\n"
+    },
+    "scope": "shared cgroup observation; event deltas do not attribute a kill to this process"
+  },
+  {
+    "unix_time": 1791397518.971699,
+    "files": {
+      "memory.current": "15671533568\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 58\noom_group_kill 0\n",
+      "memory.events.local": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 0\noom_group_kill 0\n",
+      "memory.peak": "17183465472\n",
+      "pids.current": "1012\n",
+      "pids.max": "max\n"
+    },
+    "scope": "shared cgroup observation; event deltas do not attribute a kill to this process"
+  },
+  {
+    "unix_time": 1791397520.1792152,
+    "files": {
+      "memory.current": "15721422848\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 58\noom_group_kill 0\n",
+      "memory.events.local": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 0\noom_group_kill 0\n",
+      "memory.peak": "17183465472\n",
+      "pids.current": "1012\n",
+      "pids.max": "max\n"
+    },
+    "scope": "shared cgroup observation; event deltas do not attribute a kill to this process"
+  },
+  {
+    "unix_time": 1791397521.2239404,
+    "files": {
+      "memory.current": "15780229120\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 58\noom_group_kill 0\n",
+      "memory.events.local": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 0\noom_group_kill 0\n",
+      "memory.peak": "17183465472\n",
+      "pids.current": "1012\n",
+      "pids.max": "max\n"
+    },
+    "scope": "shared cgroup observation; event deltas do not attribute a kill to this process"
+  },
+  {
+    "unix_time": 1791397522.3836076,
+    "files": {
+      "memory.current": "15823806464\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 58\noom_group_kill 0\n",
+      "memory.events.local": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 0\noom_group_kill 0\n",
+      "memory.peak": "17183465472\n",
+      "pids.current": "1012\n",
+      "pids.max": "max\n"
+    },
+    "scope": "shared cgroup observation; event deltas do not attribute a kill to this process"
+  },
+  {
+    "unix_time": 1791397523.4466238,
+    "files": {
+      "memory.current": "15878070272\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 58\noom_group_kill 0\n",
+      "memory.events.local": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 0\noom_group_kill 0\n",
+      "memory.peak": "17183465472\n",
+      "pids.current": "1012\n",
+      "pids.max": "max\n"
+    },
+    "scope": "shared cgroup observation; event deltas do not attribute a kill to this process"
+  },
+  {
+    "unix_time": 1791397524.454179,
+    "files": {
+      "memory.current": "15940173824\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 58\noom_group_kill 0\n",
+      "memory.events.local": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 0\noom_group_kill 0\n",
+      "memory.peak": "17183465472\n",
+      "pids.current": "1013\n",
+      "pids.max": "max\n"
+    },
+    "scope": "shared cgroup observation; event deltas do not attribute a kill to this process"
+  },
+  {
+    "unix_time": 1791397526.5978177,
+    "files": {
+      "memory.current": "15941574656\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 58\noom_group_kill 0\n",
+      "memory.events.local": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 0\noom_group_kill 0\n",
+      "memory.peak": "17183465472\n",
+      "pids.current": "1013\n",
+      "pids.max": "max\n"
+    },
+    "scope": "shared cgroup observation; event deltas do not attribute a kill to this process"
+  }
+]

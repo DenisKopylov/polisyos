@@ -1,0 +1,112 @@
+{
+  "schema": "e02.D.minimum-integrate-contract.v1",
+  "finding_id": "B108",
+  "canonical_closure_owner": "OPT-01",
+  "finding_disposition": "open",
+  "criterion_status": "input_required",
+  "formal_closure": false,
+  "owner_appointment": "not_established for the fiscal unit-law/producer binding; repository MetricSpec schema location does not appoint a scientific issuer",
+  "source_sha": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+  "source_tree": "855ae45bd271d207ad3121276a5281454d1d38de",
+  "original_criterion": {
+    "id": "B108@OPT-01",
+    "original_fragment": {
+      "document_key": "B_r19",
+      "lines": [
+        2897,
+        2910
+      ],
+      "byte_offset": 647789,
+      "bytes": 3817,
+      "sha256": "f43cecf8c2c66d6cc7bce5c5174b45fe7692e5018e1364c9798302104f8e4b55"
+    },
+    "canonical_content": {
+      "text": "**Приёмка и предел.** Эквивалентные кодировки balance/deficit дают одинаковый score; ноль не считается отсутствием; полностью отсутствующее, конфликтующее, non-finite и несовместимые единицы различены. Настоящие симуляционные producer и пользовательский search здесь не запускались.",
+      "byte_offset": 651124,
+      "bytes": 480,
+      "sha256": "8d4cbd469a454de4a7f4a26aa91c3fdf8aabf3b2b59bb77651b99146bcaa888c"
+    },
+    "canonical_card_pointer": "/canonical_cards/OPT-01",
+    "canonical_closure_owner": "OPT-01"
+  },
+  "existing_producer": {
+    "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+    "symbol": "_summarize_state",
+    "output": "gov_balance scalar, no paired declared unit or fiscal metric profile",
+    "runtime_caller": "SearchController Stage B simulation_results -> BudgetDeficitObjective.evaluate"
+  },
+  "existing_schema": {
+    "path": "policy-engine/src/polisyos/ir/kernel/metrics.py",
+    "type": "MetricSpec",
+    "field": "unit_id: str | None",
+    "current_registry": "DEFAULT_METRIC_REGISTRY gov_balance/government_balance declare unit_id=None"
+  },
+  "ordinary_consumer": {
+    "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+    "symbol": "BudgetDeficitObjective",
+    "implemented": "balance/deficit sign aliases, literal zero, absent/conflict/nonfinite distinction",
+    "missing": "No canonical unit-bearing value enters this intake. Refusing results[unit] would invent a payload schema and issuer law."
+  },
+  "minimum_owner_inputs": [
+    {
+      "owner": "appointed metric-unit contract owner (appointment required)",
+      "input": "Exact existing MetricSpec/registry artifact or tracked profile declaring admitted units, direction/sign, equivalence and conversions for budget_deficit/gov_balance/government_balance in applicable context; incompatible-unit discriminator",
+      "status": "not_established"
+    },
+    {
+      "owner": "actual fiscal producer/caller owner (appointment required)",
+      "input": "One content-bound compatible producer output and one incompatible-unit control, existing ArtifactRef/minimum local read-only input ref, metric/split/context and declared unit/profile; no entire production dataset",
+      "status": "not_established"
+    }
+  ],
+  "integration_contract": {
+    "producer": "Existing _summarize_state/native Stage B owner supplies the declared paired metric value/unit/profile through its appointed contract",
+    "artifact": "Existing metric/producer ArtifactRef + exact content/context; no alternate D schema or new registry",
+    "bridge": "Existing Stage B simulation_results/typed metric context into BudgetDeficitObjective, selected and owned with schema owner",
+    "consumer": "Reject incompatible-present unit distinctly from absent/missing; preserve existing alias/sign/genuine-zero numeric behavior",
+    "independent_oracle": "Owner-declared compatible equivalent balance/deficit pairs yield same score; incompatible unit remains unavailable before best/frontier publication",
+    "negative": "Keep same scalar/value/label while mutate only bound unit/profile; must refuse before winner. Removal of unit admission restores wrong ranking and is a failing discriminator."
+  },
+  "local_recipe": {
+    "mode": "read-only on exact future candidate and minimum owner ref; production data stays local",
+    "steps": [
+      "Resolve the appointed metric/unit profile and paired compatible/incompatible producer refs via existing owner reader; verify exact content and context before evaluation.",
+      "Run the actual Stage B -> BudgetDeficitObjective -> best/frontier consumer with compatible balance/deficit plus literal-zero controls and owner-declared incompatible-present negative.",
+      "Record exact candidate SHA/tree, owner/input ArtifactRef and hashes, numeric result/typed refusal, persisted/fresh-reader projection and complete deciding output.",
+      "Return only bounded receipt/minimum content references through Git; do not transfer production data or fabricate conversion law."
+    ],
+    "current_diagnostic_command": [
+      "python3",
+      "-c",
+      "from polisyos.ir.kernel.metrics import DEFAULT_METRIC_REGISTRY; print({k: DEFAULT_METRIC_REGISTRY.metrics[k].model_dump(mode=\"json\") for k in (\"gov_balance\", \"government_balance\")})"
+    ]
+  },
+  "bindings": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+      "source_sha": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "git_blob": "8926e63c6d587778d0ba6628bd59865314292fe7",
+      "sha256": "940c84a3425e8ed1e93de2eae881100fd88a49dd978a108e5d78e5f2fa5fe17c"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/compute/runner.py",
+      "source_sha": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "git_blob": "1212dad9803b1ed65376d500c59d87b32935f6bb",
+      "sha256": "75cce3ced29ecec057fb56f2b1d927741821e7ecc777c63aa2cc21e3bdbe27fd"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/kernel/metrics.py",
+      "source_sha": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "git_blob": "738574ef772a7e99e569899fd12690379b02afa6",
+      "sha256": "da4b7f01893f286b3061a1a8a2c51b1d56374a4080f53ce75be8bcf3f63ca994"
+    }
+  ],
+  "limitations": [
+    "Numeric alias/sign controls do not satisfy the original incompatible-unit clause.",
+    "This packet requests an actual appointed unit-law producer contract; it does not install a permission/scientific authority or presume caller appointment.",
+    "G integration acceptance and formal closure remain separate."
+  ],
+  "P37": "Original exact unit acceptance retained; no simpler dimensionless profile substitution.",
+  "P38": "Same scalar / changed unit is the missing real owner discriminator.",
+  "P41": "not_established; no inherited-red claim."
+}

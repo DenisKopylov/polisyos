@@ -1,0 +1,43 @@
+{
+  "schema": "D.E02.final-original46-accounting-handoff.v1",
+  "author": "census_oct07",
+  "source": "8e864f4ed0eeedf509d836381b20976c413f2443",
+  "tree": "1b2e5d31424a4de0c7150ef79b9e04c93486f0b9",
+  "implementation_predecessors": {
+    "a795": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+    "production3b": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+    "CBC": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+    "Node15_d23": "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+    "legacy6_5b": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61"
+  },
+  "original_counts": {
+    "bundles": 17,
+    "findings": 45,
+    "occurrences": 46,
+    "owner_packets": 16
+  },
+  "proposals": {
+    "closed": 39,
+    "limited": 1,
+    "held": 5
+  },
+  "formal_closed": 0,
+  "accepted_in_G": false,
+  "P41_not_established": 46,
+  "files": [
+    "criterion-overlay.json",
+    "owner-inputs-update.json",
+    "source-bindings.json",
+    "P37-P38.json",
+    "binding-verification.json",
+    "summary.json",
+    "taskboard.json"
+  ],
+  "FUN_moderate_transport": "pending append-only manifest/remote availability addendum; current local full outputs reviewed at exact d23/a30c pins",
+  "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07",
+  "publication_ref": "not_established; root commits after independent metadata review",
+  "source_acceptance": "G alone publishes integration; no main push or inferred ancestry acceptance",
+  "author_is_not_aggregate_reviewer": "Transfer independent final metadata seal required",
+  "pending_family_rows": [],
+  "limitations": "Moderate full deciding family outputs canonical byte-addressed paths; large raw input/import inventories stay ignored with exact path/hash/count. No copied tracked source or complete raw inventory cloudavailability claimed."
+}

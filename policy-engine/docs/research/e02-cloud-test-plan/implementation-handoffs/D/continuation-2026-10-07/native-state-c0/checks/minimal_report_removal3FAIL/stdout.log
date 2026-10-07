@@ -1,0 +1,159 @@
+FFF
+=================================== FAILURES ===================================
+______ test_warm_admission_preserves_each_explicit_rejection_reason[nan] _______
+
+invalid = nan
+
+    @pytest.mark.parametrize("invalid", [float("nan"), 10**400, True], ids=["nan", "overflow", "bool"])
+    def test_warm_admission_preserves_each_explicit_rejection_reason(invalid):
+        space = SearchSpace([ParameterBounds("x")])
+        basis = {
+            "profile": "synthetic_scalar_gp.v1",
+            "search_space_fingerprint": space.sobol_space_fingerprint(),
+            "context_fingerprint": "synthetic/warm-admission-reports.v1",
+            "metric": "cost",
+            "unit": "fixture_cost",
+            "direction": "minimize",
+        }
+        strategy = BayesianOptimizer(space, BayesianConfig(seed=31), numerical_basis=basis)
+        admitted = rows(space, 1)[0]
+        admitted.candidate_id = "warm-admitted"
+        admitted.metadata["warm_start_compatibility"] = {
+            "search_space_fingerprint": basis["search_space_fingerprint"],
+            "input_transform_fingerprint": "Normalize[0,1]",
+            "outcome_transform_fingerprint": "Standardize[m=1]",
+            "noise_model_fingerprint": "GaussianLikelihood[inferred]",
+            "objective_fingerprint": "scalar_score[minimize]",
+            "context_fingerprint": basis["context_fingerprint"],
+        }
+        rejected = []
+        for identity in ("invalid", "unbound", "coordinate", "basis"):
+            row = copy.deepcopy(admitted)
+            row.candidate_id = identity
+            rejected.append(row)
+        rejected[0].scalar_score = invalid
+        rejected[1].provenance_ref = None
+        rejected[2].params_normalized = (0.75,)
+        rejected[3].metadata["warm_start_compatibility"]["context_fingerprint"] = "foreign/context"
+        strategy.warm_start([admitted, *rejected])
+>       assert strategy.last_warm_start_report == [
+            {"candidate_id": "invalid", "reason": "invalid_outcome"},
+            {"candidate_id": "unbound", "reason": "missing_origin"},
+            {"candidate_id": "coordinate", "reason": "physical_coordinate_mismatch"},
+            {"candidate_id": "basis", "reason": "numerical_basis_mismatch"},
+        ]
+E       AssertionError: assert [] == [{'candidate_...is_mismatch'}]
+E         
+E         Right contains 4 more items, first extra item: {'candidate_id': 'invalid', 'reason': 'invalid_outcome'}
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/search/strategies/test_gp_warm_admission_reports.py:53: AssertionError
+____ test_warm_admission_preserves_each_explicit_rejection_reason[overflow] ____
+
+invalid = 100000000000000000...0000000000000000000
+
+    @pytest.mark.parametrize("invalid", [float("nan"), 10**400, True], ids=["nan", "overflow", "bool"])
+    def test_warm_admission_preserves_each_explicit_rejection_reason(invalid):
+        space = SearchSpace([ParameterBounds("x")])
+        basis = {
+            "profile": "synthetic_scalar_gp.v1",
+            "search_space_fingerprint": space.sobol_space_fingerprint(),
+            "context_fingerprint": "synthetic/warm-admission-reports.v1",
+            "metric": "cost",
+            "unit": "fixture_cost",
+            "direction": "minimize",
+        }
+        strategy = BayesianOptimizer(space, BayesianConfig(seed=31), numerical_basis=basis)
+        admitted = rows(space, 1)[0]
+        admitted.candidate_id = "warm-admitted"
+        admitted.metadata["warm_start_compatibility"] = {
+            "search_space_fingerprint": basis["search_space_fingerprint"],
+            "input_transform_fingerprint": "Normalize[0,1]",
+            "outcome_transform_fingerprint": "Standardize[m=1]",
+            "noise_model_fingerprint": "GaussianLikelihood[inferred]",
+            "objective_fingerprint": "scalar_score[minimize]",
+            "context_fingerprint": basis["context_fingerprint"],
+        }
+        rejected = []
+        for identity in ("invalid", "unbound", "coordinate", "basis"):
+            row = copy.deepcopy(admitted)
+            row.candidate_id = identity
+            rejected.append(row)
+        rejected[0].scalar_score = invalid
+        rejected[1].provenance_ref = None
+        rejected[2].params_normalized = (0.75,)
+        rejected[3].metadata["warm_start_compatibility"]["context_fingerprint"] = "foreign/context"
+        strategy.warm_start([admitted, *rejected])
+>       assert strategy.last_warm_start_report == [
+            {"candidate_id": "invalid", "reason": "invalid_outcome"},
+            {"candidate_id": "unbound", "reason": "missing_origin"},
+            {"candidate_id": "coordinate", "reason": "physical_coordinate_mismatch"},
+            {"candidate_id": "basis", "reason": "numerical_basis_mismatch"},
+        ]
+E       AssertionError: assert [] == [{'candidate_...is_mismatch'}]
+E         
+E         Right contains 4 more items, first extra item: {'candidate_id': 'invalid', 'reason': 'invalid_outcome'}
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/search/strategies/test_gp_warm_admission_reports.py:53: AssertionError
+______ test_warm_admission_preserves_each_explicit_rejection_reason[bool] ______
+
+invalid = True
+
+    @pytest.mark.parametrize("invalid", [float("nan"), 10**400, True], ids=["nan", "overflow", "bool"])
+    def test_warm_admission_preserves_each_explicit_rejection_reason(invalid):
+        space = SearchSpace([ParameterBounds("x")])
+        basis = {
+            "profile": "synthetic_scalar_gp.v1",
+            "search_space_fingerprint": space.sobol_space_fingerprint(),
+            "context_fingerprint": "synthetic/warm-admission-reports.v1",
+            "metric": "cost",
+            "unit": "fixture_cost",
+            "direction": "minimize",
+        }
+        strategy = BayesianOptimizer(space, BayesianConfig(seed=31), numerical_basis=basis)
+        admitted = rows(space, 1)[0]
+        admitted.candidate_id = "warm-admitted"
+        admitted.metadata["warm_start_compatibility"] = {
+            "search_space_fingerprint": basis["search_space_fingerprint"],
+            "input_transform_fingerprint": "Normalize[0,1]",
+            "outcome_transform_fingerprint": "Standardize[m=1]",
+            "noise_model_fingerprint": "GaussianLikelihood[inferred]",
+            "objective_fingerprint": "scalar_score[minimize]",
+            "context_fingerprint": basis["context_fingerprint"],
+        }
+        rejected = []
+        for identity in ("invalid", "unbound", "coordinate", "basis"):
+            row = copy.deepcopy(admitted)
+            row.candidate_id = identity
+            rejected.append(row)
+        rejected[0].scalar_score = invalid
+        rejected[1].provenance_ref = None
+        rejected[2].params_normalized = (0.75,)
+        rejected[3].metadata["warm_start_compatibility"]["context_fingerprint"] = "foreign/context"
+        strategy.warm_start([admitted, *rejected])
+>       assert strategy.last_warm_start_report == [
+            {"candidate_id": "invalid", "reason": "invalid_outcome"},
+            {"candidate_id": "unbound", "reason": "missing_origin"},
+            {"candidate_id": "coordinate", "reason": "physical_coordinate_mismatch"},
+            {"candidate_id": "basis", "reason": "numerical_basis_mismatch"},
+        ]
+E       AssertionError: assert [] == [{'candidate_...is_mismatch'}]
+E         
+E         Right contains 4 more items, first extra item: {'candidate_id': 'invalid', 'reason': 'invalid_outcome'}
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/search/strategies/test_gp_warm_admission_reports.py:53: AssertionError
+=============================== warnings summary ===============================
+../../../../tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/search/strategies/test_gp_warm_admission_reports.py::test_warm_admission_preserves_each_explicit_rejection_reason[nan]
+FAILED tests/unit/scientist/methods/search/strategies/test_gp_warm_admission_reports.py::test_warm_admission_preserves_each_explicit_rejection_reason[overflow]
+FAILED tests/unit/scientist/methods/search/strategies/test_gp_warm_admission_reports.py::test_warm_admission_preserves_each_explicit_rejection_reason[bool]
+3 failed, 1 warning in 0.10s
+RUN_RESULT {"exitcode": 1, "wall_s": 0.8855938030174002, "rss_kib": 243200, "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]", "executable": "/tmp/e02-D-runtime-minimal-20261006/bin/python", "backend": {"torch": "missing", "botorch": "missing", "gpytorch": "missing", "numpy": "2.3.5", "scipy": "1.16.3", "pytest": "9.0.2", "hnswlib": "missing"}, "source_head": "c0e03e084460b97475d13ec393069ff59ca4d5ee", "source_tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2", "tracked_input_denominator": 6312, "missing_inputs": [], "changed_inputs": [], "head_after": "c0e03e084460b97475d13ec393069ff59ca4d5ee", "junit_present": true, "mode": "remove-report"}

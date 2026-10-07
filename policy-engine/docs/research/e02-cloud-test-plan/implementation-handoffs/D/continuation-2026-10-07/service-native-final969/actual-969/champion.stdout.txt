@@ -1,0 +1,30 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.0.2, pluggy-1.6.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /dev/shm/e02-D-oct07-continuation/policy-engine
+configfile: pytest.ini
+plugins: xdist-3.8.0, benchmark-5.2.3, asyncio-1.3.0, langsmith-0.6.0, jaxtyping-0.3.4, hypothesis-6.151.2, anyio-4.12.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 44 items
+
+tests/unit/scientist/methods/autotune/test_registry_and_runner.py .................
+tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py {"fresh_process_pointer": {"loop_id": "verified", "candidate_ref": {"artifact_id": "sha256:23f3440acecd2af7d21081de477bda075ba4627be242e404a99e3f3e2e3b0d6b", "kind": "scientist.autotune.verified.candidate", "media_type": "application/json", "manifest_profile_sha256": "sha256:75377b6ab85164cf192d52883633309d0b7a3c8d95ab0d3ba7e6b68c52d07112"}, "evaluation_ref": {"artifact_id": "sha256:2a4cf69ae4aeacfa2c93ffd3342902f66d29ef0db6714af189fa3e02f1b8fba6", "kind": "scientist.autotune.verified.evaluation", "media_type": "application/json", "manifest_profile_sha256": "sha256:6ad380e8932884d89c55650e4da5ecee2e6a4a85df79569e334bb5cf97d2c639"}, "metrics": {"score": 2.0}, "suite_version": "1.0", "promoted_at": "2026-10-07T10:41:16.890003Z", "search_space_version": "1.0", "metadata": {"promoted_by_policy": {"loop_id": "verified", "primary_metric": "score", "unit": "fixture_points", "direction": "maximize", "compare_split": "holdout", "min_improvement": 0.0, "min_sample_count": 0, "required_guardrails": ["finite"]}, "compare_split": "holdout", "suite_id": "verified-data", "suite_ref": "sha256:ff2400f14958c186870775f473839ea73deddbc32e19ccc5916d95b96a8e838e"}}, "model_origin": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/autotune/models.py"}
+
+.actual_reused_views {'artifact_id': 'sha256:4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1', 'kind': 'scientist.autotune.verified.candidate', 'media_type': 'application/json', 'manifest_profile_sha256': 'sha256:11fef8af373da54e05d307b2b1d5aff0549b0eba179b654025e96e8aa99bb1ef'} {'artifact_id': 'sha256:4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1', 'kind': 'scientist.autotune.verified.candidate', 'media_type': 'application/json', 'manifest_profile_sha256': 'sha256:9cd11b6d6b4dc443be0021052c7f21f132517ee13837c1a116e145631dbf75b7'}
+...{"actual_pointer_boundary": "before", "pointer": "/dev/shm/e02-D-oct07-service-start/final-native-969/champion-fixtures/test_actual_process_exit_aroun0/champions/verified/champion.json"}
+
+.{"actual_pointer_boundary": "after", "pointer": "/dev/shm/e02-D-oct07-service-start/final-native-969/champion-fixtures/test_actual_process_exit_aroun1/champions/verified/champion.json"}
+
+.
+tests/unit/scientist/methods/autotune/test_benchmark_primitive_admission.py ...................{"actual_builtin_numeric_fields": ["CalibrationMetaSearchConfig.learning_rate", "CalibrationMetaSearchConfig.clip_grad_norm", "CalibrationMetaSearchConfig.early_stop_patience", "CalibrationMetaSearchConfig.early_stop_min_delta", "CalibrationMetaSearchConfig.early_stop_min_steps", "CalibrationMetaSearchConfig.grad_norm_enabled", "CalibrationMetaSearchConfig.grad_norm_alpha", "CalibrationMetaSearchConfig.grad_norm_lr", "CalibrationMetaSearchConfig.grad_norm_update_every", "CalibrationMetaSearchConfig.constraint_loss_weight", "CalibrationMetaSearchConfig.prior_loss_weight", "CheapStageTuningConfig.threshold", "ClaimAdjudicationSearchConfig.passes", "ClaimAdjudicationSearchConfig.majority_vote_floor", "ClaimAdjudicationSearchConfig.high_confidence_validity_threshold", "ClaimAdjudicationSearchConfig.high_confidence_confidence_threshold"]}
+..
+
+=============================== warnings summary ===============================
+../../../../tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+- generated xml file: /dev/shm/e02-D-oct07-service-start/final-native-969/champion.junit.xml -
+======================== 44 passed, 1 warning in 17.83s ========================

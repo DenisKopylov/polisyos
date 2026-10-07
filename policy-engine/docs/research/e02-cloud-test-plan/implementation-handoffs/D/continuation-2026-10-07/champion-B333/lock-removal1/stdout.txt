@@ -1,0 +1,107 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+__ test_actual_owner_lock_blocks_child_publication_then_current_basis_commits __
+
+tmp_path = PosixPath('/dev/shm/e02-D-champion-B333-lock-removal1-xin6t2_5/basetemp/test_actual_owner_lock_blocks_0')
+
+    def test_actual_owner_lock_blocks_child_publication_then_current_basis_commits(
+        tmp_path,
+    ):
+        _, registry, _, packet_path = _prepared_successor(tmp_path)
+        before = registry._pointer_path("verified").read_bytes()
+        mode = (
+            "remove-lock"
+            if os.environ.get("E02_REMOVE_CHAMPION_LOCK") == "1"
+            else "positive"
+        )
+        child = None
+        try:
+            with registry._promotion_lock("verified"):
+                child = subprocess.Popen(
+                    [sys.executable, "-c", _CHILD, str(tmp_path), str(packet_path), mode],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True,
+                    env=dict(os.environ),
+                )
+                ready = child.stdout.readline()
+                print(ready, end="")
+                assert json.loads(ready)["phase"] == "ready_before_actual_consider"
+                try:
+>                   completed, errors = child.communicate(timeout=0.5)
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+../../e02-D-champion-B333-profile-asng67hd/test_combined_champion.py:114: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/subprocess.py:1221: in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/subprocess.py:2154: in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <Popen: returncode: 0 args: ['/workspace/e02-D-locked-env/bin/python', '-c',...>
+endtime = 158994.68121924, orig_timeout = 0.5
+stdout_seq = [b'{"decision": {"loop_id": "verified", "promoted": true, "reason": "promoted", "champion": {"loop_id": "verified", "c...re_origin": "git:b33330a0b443cc07bfff873a08022eddade6f52e:policy-engine/src/polisyos/core/artifacts/store.py"}\n', b'']
+stderr_seq = [b''], skip_check_and_raise = False
+
+    def _check_timeout(self, endtime, orig_timeout, stdout_seq, stderr_seq,
+                       skip_check_and_raise=False):
+        """Convenience for checking if a timeout has expired."""
+        if endtime is None:
+            return
+        if skip_check_and_raise or _time() > endtime:
+>           raise TimeoutExpired(
+                    self.args, orig_timeout,
+                    output=b''.join(stdout_seq) if stdout_seq else None,
+                    stderr=b''.join(stderr_seq) if stderr_seq else None)
+E           subprocess.TimeoutExpired: Command '['/workspace/e02-D-locked-env/bin/python', '-c', "\nimport hashlib,json,os,sys\nfrom contextlib import contextmanager\nfrom pathlib import Path\nfrom polisyos.core.artifacts.manifest import ArtifactRef\nfrom polisyos.core.artifacts.store import FileSystemCAS\nfrom polisyos.scientist.methods.autotune.models import PromotionPolicy\nfrom polisyos.scientist.methods.autotune.registry import ChampionRegistry\nroot=Path(sys.argv[1]); packet=json.loads(Path(sys.argv[2]).read_text()); mode=sys.argv[3]\nregistry=ChampionRegistry(root/'champions',store=FileSystemCAS(root/'cas'))\nbefore=registry._pointer_path('verified').read_bytes()\nif mode == 'remove-lock':\n    @contextmanager\n    def guard_removed(loop_id):\n        # Adversarial removal only: retain real CAS/basis/pointer effect but omit\n        # the actual owner flock guard. This is never the positive profile.\n        yield\n    registry._promotion_lock=guard_removed\nprint(json.dumps({'phase':'ready_before_actual_consider','pid':os.getpid(),'mode':mode}),flush=True)\ntry:\n    decision=registry.consider_promotion('verified',ArtifactRef.model_validate(packet['candidate']),ArtifactRef.model_validate(packet['evaluation']),PromotionPolicy.model_validate(packet['policy']),suite_ref=ArtifactRef.model_validate(packet['suite']))\nexcept ValueError as exc:\n    if mode != 'tamper': raise\n    after=registry._pointer_path('verified').read_bytes()\n    assert before == after\n    print(json.dumps({'tamper_refused':True,'error_type':type(exc).__name__,'error':str(exc),'pointer_before_sha256':hashlib.sha256(before).hexdigest(),'pointer_after_sha256':hashlib.sha256(after).hexdigest(),'store_origin':sys.modules[FileSystemCAS.__module__].__file__}),flush=True)\nelse:\n    assert mode != 'tamper', 'same exact ref with changed bytes must refuse'\n    assert decision.promoted and decision.reason == 'promoted'\n    after=registry._pointer_path('verified').read_bytes()\n    assert before != after\n    print(json.dumps({'decision':decision.model_dump(mode='json'),'pointer_before_sha256':hashlib.sha256(before).hexdigest(),'pointer_after_sha256':hashlib.sha256(after).hexdigest(),'store_origin':sys.modules[FileSystemCAS.__module__].__file__}),flush=True)\n", '/dev/shm/e02-D-champion-B333-lock-removal1-xin6t2_5/basetemp/test_actual_owner_lock_blocks_0', '/dev/shm/e02-D-champion-B333-lock-removal1-xin6t2_5/basetemp/test_actual_owner_lock_blocks_0/prepared-successor.json', 'remove-lock']' timed out after 0.5 seconds
+
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/subprocess.py:1268: TimeoutExpired
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = PosixPath('/dev/shm/e02-D-champion-B333-lock-removal1-xin6t2_5/basetemp/test_actual_owner_lock_blocks_0')
+
+    def test_actual_owner_lock_blocks_child_publication_then_current_basis_commits(
+        tmp_path,
+    ):
+        _, registry, _, packet_path = _prepared_successor(tmp_path)
+        before = registry._pointer_path("verified").read_bytes()
+        mode = (
+            "remove-lock"
+            if os.environ.get("E02_REMOVE_CHAMPION_LOCK") == "1"
+            else "positive"
+        )
+        child = None
+        try:
+            with registry._promotion_lock("verified"):
+                child = subprocess.Popen(
+                    [sys.executable, "-c", _CHILD, str(tmp_path), str(packet_path), mode],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True,
+                    env=dict(os.environ),
+                )
+                ready = child.stdout.readline()
+                print(ready, end="")
+                assert json.loads(ready)["phase"] == "ready_before_actual_consider"
+                try:
+                    completed, errors = child.communicate(timeout=0.5)
+                except subprocess.TimeoutExpired:
+>                   assert registry._pointer_path("verified").read_bytes() == before
+E                   assert b'{\n  "loop_...7690"\n  }\n}' == b'{\n  "loop_...7690"\n  }\n}'
+E                     
+E                     At index 75 diff: b'2' != b'4'
+E                     Use -v to get more diff
+
+../../e02-D-champion-B333-profile-asng67hd/test_combined_champion.py:116: AssertionError
+----------------------------- Captured stdout call -----------------------------
+{"phase": "ready_before_actual_consider", "pid": 500378, "mode": "remove-lock"}
+{"decision": {"loop_id": "verified", "promoted": true, "reason": "promoted", "champion": {"loop_id": "verified", "candidate_ref": {"artifact_id": "sha256:23f3440acecd2af7d21081de477bda075ba4627be242e404a99e3f3e2e3b0d6b", "kind": "scientist.autotune.verified.candidate", "media_type": "application/json", "manifest_profile_sha256": "sha256:156256a249de56b489f4d66ba6add332bb332b6d10aae0ab290ce37606464174"}, "evaluation_ref": {"artifact_id": "sha256:33fc11eb281d6b6684d604d6c0f4cfed2fecc4cc28f7d5a35747ba3a1740c851", "kind": "scientist.autotune.verified.evaluation", "media_type": "application/json", "manifest_profile_sha256": "sha256:742f32c25918a81b830544212066e3a06d46299f97c9d759a1d0c92eb8b7beb0"}, "metrics": {"score": 2.0}, "suite_version": "1.0", "promoted_at": "2026-10-07T09:46:02.738307Z", "search_space_version": "1.0", "metadata": {"promoted_by_policy": {"loop_id": "verified", "primary_metric": "score", "unit": "fixture_points", "direction": "maximize", "compare_split": "holdout", "min_improvement": 0.0, "min_sample_count": 0, "required_guardrails": ["finite"]}, "compare_split": "holdout", "suite_id": "verified-data", "suite_ref": "sha256:15bade3046400062b3a0c9e8141b20f45698e9b3e28b88bc9625e0049feb7690"}}, "previous_champion": {"loop_id": "verified", "candidate_ref": {"artifact_id": "sha256:4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1", "kind": "scientist.autotune.verified.candidate", "media_type": "application/json", "manifest_profile_sha256": "sha256:156256a249de56b489f4d66ba6add332bb332b6d10aae0ab290ce37606464174"}, "evaluation_ref": {"artifact_id": "sha256:4a8a1d5dcb59be45e8e37f27f12849d9dcfd2d9e51f280ff9d355736acea3297", "kind": "scientist.autotune.verified.evaluation", "media_type": "application/json", "manifest_profile_sha256": "sha256:eb70e35a35160e6a36508d7e77bd88da26da5e3482a786c316aee1787c8278ab"}, "metrics": {"score": 1.0}, "suite_version": "1.0", "promoted_at": "2026-10-07T09:45:57.297751Z", "search_space_version": "1.0", "metadata": {"promoted_by_policy": {"loop_id": "verified", "primary_metric": "score", "unit": "fixture_points", "direction": "maximize", "compare_split": "holdout", "min_improvement": 0.0, "min_sample_count": 0, "required_guardrails": ["finite"]}, "compare_split": "holdout", "suite_id": "verified-data", "suite_ref": "sha256:15bade3046400062b3a0c9e8141b20f45698e9b3e28b88bc9625e0049feb7690"}}}, "pointer_before_sha256": "53cf29fbeebbb3953e45ee5bf24e19d59d08054ad9ef89c387ce349a87d78ec9", "pointer_after_sha256": "7baedf174a2ff331486358ac44b756430a27c22da817fbef0ff249857bbf53f4", "store_origin": "git:b33330a0b443cc07bfff873a08022eddade6f52e:policy-engine/src/polisyos/core/artifacts/store.py"}
+----------------------------- Captured stderr call -----------------------------
+2026-10-07 09:45:55.625 | INFO     | polisyos.common.logger:_call:120 - Starting search 3a84e36b
+2026-10-07 09:45:57.332 | INFO     | polisyos.common.logger:_call:120 - Stopping: Maximum iterations (1) reached
+=========================== short test summary info ============================
+FAILED ../../e02-D-champion-B333-profile-asng67hd/test_combined_champion.py::test_actual_owner_lock_blocks_child_publication_then_current_basis_commits
+1 failed in 13.95s

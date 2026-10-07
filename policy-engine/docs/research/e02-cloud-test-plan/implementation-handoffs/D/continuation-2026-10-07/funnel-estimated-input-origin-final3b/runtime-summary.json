@@ -1,0 +1,215 @@
+{
+  "schema": "e02.D.FUN.estimated_input_origin.current_runtime.v1",
+  "rows": [
+    {
+      "source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+      "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+      "exit": 0,
+      "phase_counts": {
+        "call:passed": 17,
+        "setup:passed": 17,
+        "teardown:passed": 17
+      },
+      "wall_seconds": 12.216177940368652,
+      "input_denominator": 6321,
+      "input_available": 6320,
+      "input_digest": "a19ca26a90ab90c524c424562e0640227ff17268dcd7e0dffda98101583bbd33",
+      "same_source_and_inputs": true,
+      "changed_paths": [],
+      "deciding_ledger_count": 18,
+      "deciding_cas_count": 45,
+      "loaded_module_rows": 1174,
+      "actual_test_ids": [
+        "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-estimated-None-estimated0-not_reported-estimated]",
+        "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-reported_zero-reported1-None-reported-not_estimated]",
+        "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-reported_quarter-reported2-None-reported-not_estimated]",
+        "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-estimated-None-estimated0-not_reported-estimated]",
+        "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-reported_zero-reported1-None-reported-not_estimated]",
+        "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-reported_quarter-reported2-None-reported-not_estimated]",
+        "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_zero_estimate_is_not_a_provider_reported_zero",
+        "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_two_native_input_origins_keep_independent_subset_amounts",
+        "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_unknown_amount_preserves_component_absence_and_partial_input[None]",
+        "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_unknown_amount_preserves_component_absence_and_partial_input[reported_quarter]",
+        "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_unknown_amount_preserves_component_absence_and_partial_input[estimated]",
+        "tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_native_policy_callers_full_split_actual_events_and_fresh_reopen",
+        "tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_actual_spend_does_not_resume_but_released_owned_capacity_rechecks_remaining_work",
+        "tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py::test_actual_native_pending_receipt_survives_blueprint_json_and_fresh_cas[False]",
+        "tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py::test_actual_native_pending_receipt_survives_blueprint_json_and_fresh_cas[True]",
+        "tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py::test_native_factory_unknown_amount_remains_null_pending_after_fresh_blueprint_cas[1e-1000]",
+        "tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py::test_native_factory_unknown_amount_remains_null_pending_after_fresh_blueprint_cas[-1e-1000]"
+      ],
+      "actual_assertion_failures": [],
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "platform": "linux",
+        "relevant_installed_distributions": [
+          {
+            "name": "aiohttp",
+            "version": "3.13.3"
+          },
+          {
+            "name": "hypothesis",
+            "version": "6.151.2"
+          },
+          {
+            "name": "numpy",
+            "version": "2.3.5"
+          },
+          {
+            "name": "pydantic",
+            "version": "2.12.5"
+          },
+          {
+            "name": "pytest",
+            "version": "9.0.2"
+          },
+          {
+            "name": "scipy",
+            "version": "1.16.3"
+          },
+          {
+            "name": "tiktoken",
+            "version": "0.12.0"
+          }
+        ],
+        "overrides": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONNOUSERSITE": "1",
+          "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src",
+          "TMPDIR": "/dev/shm/e02-D-funnel-oct07",
+          "HYPOTHESIS_STORAGE_DIRECTORY": "/dev/shm/e02-D-funnel-oct07/hypothesis",
+          "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer",
+          "E02_B66_TARGET_ROOT": "/dev/shm/e02-D-oct07-continuation",
+          "E02_B66_TARGET_SHA": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2"
+        },
+        "numerical_optional_backend_assertions": "UNRUN/not selected; no GP/vector numerical PASS from this financial projection profile"
+      },
+      "unavailable_inventory_paths": [
+        "policy-engine/ops/observability/grafana/dashboards/scientist-llm-cost.json"
+      ],
+      "warnings": [
+        "Pytest unknown cache_dir option with cacheprovider disabled",
+        "Metrics exporter bootstrap disabled on default fixed-port collision during full/split fixture; no metrics/monitoring property is claimed"
+      ],
+      "shared_cgroup_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 147,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      },
+      "resource_scope": "Shared cgroup observations do not attribute a kill; oom and oom_kill deltas are zero. No process/CPU/thread/test worker cap was imposed."
+    },
+    {
+      "source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+      "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+      "exit": 1,
+      "phase_counts": {
+        "call:failed": 3,
+        "call:passed": 8,
+        "setup:passed": 11,
+        "teardown:passed": 11
+      },
+      "wall_seconds": 12.224914073944092,
+      "input_denominator": 6321,
+      "input_available": 6320,
+      "input_digest": "a19ca26a90ab90c524c424562e0640227ff17268dcd7e0dffda98101583bbd33",
+      "same_source_and_inputs": true,
+      "changed_paths": [],
+      "deciding_ledger_count": 11,
+      "deciding_cas_count": 33,
+      "loaded_module_rows": 1174,
+      "actual_test_ids": [
+        "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-estimated-None-estimated0-not_reported-estimated]",
+        "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-reported_zero-reported1-None-reported-not_estimated]",
+        "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-reported_quarter-reported2-None-reported-not_estimated]",
+        "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-estimated-None-estimated0-not_reported-estimated]",
+        "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-reported_zero-reported1-None-reported-not_estimated]",
+        "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-reported_quarter-reported2-None-reported-not_estimated]",
+        "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_zero_estimate_is_not_a_provider_reported_zero",
+        "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_two_native_input_origins_keep_independent_subset_amounts",
+        "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_unknown_amount_preserves_component_absence_and_partial_input[None]",
+        "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_unknown_amount_preserves_component_absence_and_partial_input[reported_quarter]",
+        "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_unknown_amount_preserves_component_absence_and_partial_input[estimated]"
+      ],
+      "actual_assertion_failures": [
+        {
+          "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-estimated-None-estimated0-not_reported-estimated]",
+          "longrepr": "tmp_path = PosixPath('/dev/shm/e02-D-funnel-oct07/origin11-removal-final3b-fixtures/test_native_failed_input_origi0')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f4e2cc59ba0>\nprofile = 'estimated', reported = None, estimated = Decimal('0.5')\nreported_status = 'not_reported', estimated_status = 'estimated'\nwrite_before_ack = False\n\n    @pytest.mark.parametrize(\n        (\"profile\", \"reported\", \"estimated\", \"reported_status\", \"estimated_status\"),\n        [\n            (\"estimated\", None, Decimal(\"0.5\"), \"not_reported\", \"estimated\"),\n            (\"reported_zero\", Decimal(0), None, \"reported\", \"not_estimated\"),\n            (\"reported_quarter\", Decimal(\"0.25\"), None, \"reported\", \"not_estimated\"),\n        ],\n    )\n    @pytest.mark.parametrize(\"write_before_ack\", [False, True])\n    def test_native_failed_input_origin_survives_funnel_and_fresh_cas(\n        tmp_path, monkeypatch, profile, reported, estimated, reported_status, estimated_status,\n        write_before_ack,\n    ):\n        path, outcome, ledger, events = _native_inputs(\n            tmp_path, monkeypatch, (profile,), write_before_ack=write_before_ack\n        )\n        expected = reported if reported is not None else estimated\n        # Independent fixed decimal pricing oracle: 50000 observed prompt tokens at\n        # the declared default input price 1e-5 USD; do not call producer's estimator.\n        if profile == \"estimated\":\n            assert Decimal(50000) * Decimal(\"0.00001\") == expected\n        assert Decimal(events[0][\"amount\"]) == expected\n        assert events[0][\"cost_origin\"] == (\"estimated\" if estimated is not None else \"reported\")\n        feedback = _fresh_projection(tmp_path, outcome)\n        if reported is None:\n>           assert feedback[\"resource_reported_input_usd\"] is None\nE           AssertionError: assert '0' is None\n\ntests/integration/scientist/methods/search/funnel/test_resource_input_origins.py:144: AssertionError"
+        },
+        {
+          "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-estimated-None-estimated0-not_reported-estimated]",
+          "longrepr": "tmp_path = PosixPath('/dev/shm/e02-D-funnel-oct07/origin11-removal-final3b-fixtures/test_native_failed_input_origi3')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f4e2cb4d590>\nprofile = 'estimated', reported = None, estimated = Decimal('0.5')\nreported_status = 'not_reported', estimated_status = 'estimated'\nwrite_before_ack = True\n\n    @pytest.mark.parametrize(\n        (\"profile\", \"reported\", \"estimated\", \"reported_status\", \"estimated_status\"),\n        [\n            (\"estimated\", None, Decimal(\"0.5\"), \"not_reported\", \"estimated\"),\n            (\"reported_zero\", Decimal(0), None, \"reported\", \"not_estimated\"),\n            (\"reported_quarter\", Decimal(\"0.25\"), None, \"reported\", \"not_estimated\"),\n        ],\n    )\n    @pytest.mark.parametrize(\"write_before_ack\", [False, True])\n    def test_native_failed_input_origin_survives_funnel_and_fresh_cas(\n        tmp_path, monkeypatch, profile, reported, estimated, reported_status, estimated_status,\n        write_before_ack,\n    ):\n        path, outcome, ledger, events = _native_inputs(\n            tmp_path, monkeypatch, (profile,), write_before_ack=write_before_ack\n        )\n        expected = reported if reported is not None else estimated\n        # Independent fixed decimal pricing oracle: 50000 observed prompt tokens at\n        # the declared default input price 1e-5 USD; do not call producer's estimator.\n        if profile == \"estimated\":\n            assert Decimal(50000) * Decimal(\"0.00001\") == expected\n        assert Decimal(events[0][\"amount\"]) == expected\n        assert events[0][\"cost_origin\"] == (\"estimated\" if estimated is not None else \"reported\")\n        feedback = _fresh_projection(tmp_path, outcome)\n        if reported is None:\n>           assert feedback[\"resource_reported_input_usd\"] is None\nE           AssertionError: assert '0' is None\n\ntests/integration/scientist/methods/search/funnel/test_resource_input_origins.py:144: AssertionError"
+        },
+        {
+          "nodeid": "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_zero_estimate_is_not_a_provider_reported_zero",
+          "longrepr": "tmp_path = PosixPath('/dev/shm/e02-D-funnel-oct07/origin11-removal-final3b-fixtures/test_native_zero_estimate_is_n0')\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f4e2b6cb950>\n\n    def test_native_zero_estimate_is_not_a_provider_reported_zero(tmp_path, monkeypatch):\n        _, outcome, ledger, events = _native_inputs(tmp_path, monkeypatch, (\"estimated_zero\",))\n        assert events[0][\"cost_origin\"] == \"estimated\" and Decimal(events[0][\"amount\"]) == 0\n        feedback = _fresh_projection(tmp_path, outcome)\n>       assert feedback[\"resource_reported_input_usd\"] is None\nE       AssertionError: assert '0' is None\n\ntests/integration/scientist/methods/search/funnel/test_resource_input_origins.py:166: AssertionError"
+        }
+      ],
+      "environment": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "platform": "linux",
+        "relevant_installed_distributions": [
+          {
+            "name": "aiohttp",
+            "version": "3.13.3"
+          },
+          {
+            "name": "hypothesis",
+            "version": "6.151.2"
+          },
+          {
+            "name": "numpy",
+            "version": "2.3.5"
+          },
+          {
+            "name": "pydantic",
+            "version": "2.12.5"
+          },
+          {
+            "name": "pytest",
+            "version": "9.0.2"
+          },
+          {
+            "name": "scipy",
+            "version": "1.16.3"
+          },
+          {
+            "name": "tiktoken",
+            "version": "0.12.0"
+          }
+        ],
+        "overrides": {
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "PYTHONNOUSERSITE": "1",
+          "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src",
+          "TMPDIR": "/dev/shm/e02-D-funnel-oct07",
+          "HYPOTHESIS_STORAGE_DIRECTORY": "/dev/shm/e02-D-funnel-oct07/hypothesis",
+          "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer",
+          "E02_B66_TARGET_ROOT": "/dev/shm/e02-D-oct07-continuation",
+          "E02_B66_TARGET_SHA": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2"
+        },
+        "numerical_optional_backend_assertions": "UNRUN/not selected; no GP/vector numerical PASS from this financial projection profile"
+      },
+      "unavailable_inventory_paths": [
+        "policy-engine/ops/observability/grafana/dashboards/scientist-llm-cost.json"
+      ],
+      "warnings": [
+        "Pytest unknown cache_dir option with cacheprovider disabled"
+      ],
+      "shared_cgroup_events_delta": {
+        "low": 0,
+        "high": 0,
+        "max": 147,
+        "oom": 0,
+        "oom_kill": 0,
+        "oom_group_kill": 0
+      },
+      "resource_scope": "Shared cgroup observations do not attribute a kill; oom and oom_kill deltas are zero. No process/CPU/thread/test worker cap was imposed."
+    }
+  ],
+  "overlap_note": "The removal11 reuses the same11 defining IDs under deliberate interpreter-only mutation; do not sum overlapping phases into a universal PASS."
+}

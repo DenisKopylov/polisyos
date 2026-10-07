@@ -1,0 +1,182 @@
+{
+  "receipt_commit": "3ebf94e9dfe925890f2b60843ec82c36d90e177e",
+  "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-q1-coverage.json",
+  "receipt_sha256": "061f3e72269ede805551ba64a84b03ef70767bd036c023c36bd54b3cd1eac49a",
+  "checked_git_bindings": [
+    {
+      "pointer": "/evidence_catalog/state",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-state-v2.json",
+      "sha256": "17d677b0c21a7bf9db2a719d1339531899786c5f1f83a3699f33a3daffb2dd56",
+      "matching_git_sources": [
+        "a9a73c77fd07bf61691807b75948b2f563ff70ce",
+        "3ebf94e9dfe925890f2b60843ec82c36d90e177e"
+      ]
+    },
+    {
+      "pointer": "/evidence_catalog/coordinate",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-executed-consumers.json",
+      "sha256": "4ec009717775bbb4392f3b1b1231121ab7269eb086f5c3751c67d958f6b0d67d",
+      "matching_git_sources": [
+        "2c2bf1f0f0ef1a0c699764b59138f6696f353a38",
+        "3ebf94e9dfe925890f2b60843ec82c36d90e177e"
+      ]
+    },
+    {
+      "pointer": "/evidence_catalog/pareto",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-pareto-indicators.json",
+      "sha256": "724af27475654ed1155d96d6e0d21d11b54576c6dd4ac6d43d20b73a5246de55",
+      "matching_git_sources": [
+        "987eab5dc6ad5e175efeb9875043b57916d0481c",
+        "3ebf94e9dfe925890f2b60843ec82c36d90e177e"
+      ]
+    },
+    {
+      "pointer": "/evidence_catalog/GPwarm",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-gp-warm-content-v3.json",
+      "sha256": "606ea57854698be835a32b5536f71a8c38a4bdc5927317214521fa640ad27aec",
+      "matching_git_sources": [
+        "0e14ae7dfdd9eab9bd68146054e58065e53f6cf7",
+        "3ebf94e9dfe925890f2b60843ec82c36d90e177e"
+      ]
+    },
+    {
+      "pointer": "/evidence_catalog/GPreader",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-transfer-use-reader.json",
+      "sha256": "750179f4816220b206acee0a9fd3f1178d7937c43c633eae82853e9994719071",
+      "matching_git_sources": [
+        "77e3cb7f16613593e87ef3ab80bf346bf38c0717",
+        "3ebf94e9dfe925890f2b60843ec82c36d90e177e"
+      ]
+    },
+    {
+      "pointer": "/evidence_catalog/GPanalytic",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-analytic-continuation-immutable-review.json",
+      "sha256": "1197c9004e5571190fc3db660304642e698d57f0bb01b83a9400094d8718fe0c",
+      "matching_git_sources": [
+        "f50f25fc3e4f6c1334661b06f55f74c3c4c425c1"
+      ]
+    },
+    {
+      "pointer": "/evidence_catalog/A_supplier/contract",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/A-frontier-dependency.json",
+      "sha256": "86ee5d150a3cfe9ce7938b4b16029bd6dc6f8327111f4c7c42c9af17896dbaa5",
+      "matching_git_sources": [
+        "987eab5dc6ad5e175efeb9875043b57916d0481c",
+        "3ebf94e9dfe925890f2b60843ec82c36d90e177e"
+      ]
+    },
+    {
+      "pointer": "/evidence_catalog/composed_transfer",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-composed-workflow-8eb.json",
+      "sha256": "c6be6e2303eb57063d24fa4daeb81382db5e179e5e4aabfe212db5f7d0126cb9",
+      "matching_git_sources": [
+        "54f07eb41939c743b50325bd1f39126396f5ff01"
+      ]
+    },
+    {
+      "pointer": "/evidence_catalog/canonical_defining",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-defining-paths.json",
+      "sha256": "0568e011a63080c5835088c3f01a422b5dec2d0f1fd0eed9287da118398a1240",
+      "matching_git_sources": [
+        "9f9612fa73580692894a3b55f6172bd1820dcfec",
+        "3ebf94e9dfe925890f2b60843ec82c36d90e177e"
+      ]
+    },
+    {
+      "pointer": "/evidence_catalog/fiscal",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-fiscal-intake.json",
+      "sha256": "5e7d797852e286d3132c2d7e046153d6f158e4bef02896ff690681655ed0765e",
+      "matching_git_sources": [
+        "9f9612fa73580692894a3b55f6172bd1820dcfec",
+        "3ebf94e9dfe925890f2b60843ec82c36d90e177e"
+      ]
+    },
+    {
+      "pointer": "/evidence_catalog/MOcomplete",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-mo-complete-vectors.json",
+      "sha256": "10ae0cf60fdda0fa658b9a3d7d2cba81ab2cc5a7d108858e4275233f0c7b8218",
+      "matching_git_sources": [
+        "e2fcad46fadfa17cb0901c3234f448062306570a",
+        "3ebf94e9dfe925890f2b60843ec82c36d90e177e"
+      ]
+    },
+    {
+      "pointer": "/evidence_catalog/independent_ebeb",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-ebeb-independent-review.json",
+      "sha256": "2de03a0dacd605418e8898832bcf17f6e4e85e4d4dc854edc4e7507654d919ce",
+      "matching_git_sources": [
+        "31527a86e4618f9e7164ff41b4ed146749b7017f"
+      ]
+    },
+    {
+      "pointer": "/evidence_catalog/fiscal_independent",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-893-independent-review.json",
+      "sha256": "61806ba1463d836915616bfb30721dc362f22b5bfe2edde5d07e2a85ffa50f56",
+      "matching_git_sources": [
+        "38bf35c1a0e954a25cabcccafd99ad4c056e590e"
+      ]
+    },
+    {
+      "pointer": "/evidence_catalog/history_frontier",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-history-frontier-admission.json",
+      "sha256": "9205b57f1ebc2a9a612724cd360a5c223ea3df0b652c5c8667584433d37c585c",
+      "matching_git_sources": [
+        "7cbb82da995d0ab3009a02ae21f487ce93a84f2a",
+        "3ebf94e9dfe925890f2b60843ec82c36d90e177e"
+      ]
+    },
+    {
+      "pointer": "/evidence_catalog/latest_runtime_attempt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/search-q1-425-runtime.txt",
+      "sha256": "7f5dcd205962f379cb0ce0ff5ebc34e1fb9c885fb2780dbf0181a85ff97787bd",
+      "matching_git_sources": [
+        "7cbb82da995d0ab3009a02ae21f487ce93a84f2a",
+        "3ebf94e9dfe925890f2b60843ec82c36d90e177e"
+      ]
+    },
+    {
+      "pointer": "/evidence_catalog/latest_ruff",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/search-q1-425-ruff.txt",
+      "sha256": "55667ed769fbd244faab085b82c58b8e2c52d51e8c71a68911c684d957fd0be6",
+      "matching_git_sources": [
+        "7cbb82da995d0ab3009a02ae21f487ce93a84f2a",
+        "3ebf94e9dfe925890f2b60843ec82c36d90e177e"
+      ]
+    },
+    {
+      "pointer": "/evidence_catalog/latest_release",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/release-425-renderer.txt",
+      "sha256": "412a23643dfb409aa8428599d6eccef5a1c8d6e862e91923ac49df3f6b816db8",
+      "matching_git_sources": [
+        "7cbb82da995d0ab3009a02ae21f487ce93a84f2a",
+        "3ebf94e9dfe925890f2b60843ec82c36d90e177e"
+      ]
+    },
+    {
+      "pointer": "/evidence_catalog/A_current_dependency",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-q1-final/search-A-dependency-ab7577.txt",
+      "sha256": "8fbcc6c59204e20f90ed88fb441d166b0da256142c58f44903cd892ab15f8dc7",
+      "matching_git_sources": [
+        "3ebf94e9dfe925890f2b60843ec82c36d90e177e"
+      ]
+    },
+    {
+      "pointer": "/evidence_catalog/composed_stage_corrective",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-receiver-successor-c812.json",
+      "sha256": "33cfeab4bf1610b827c9b43a7bcd833d7f35661f1aa9800805430a66d7adaabb",
+      "matching_git_sources": [
+        "9b48e6878d7384b6144c7d1430f52e6cffcf4800"
+      ]
+    },
+    {
+      "pointer": "/evidence_catalog/native_425_independent",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-independent-review.json",
+      "sha256": "39a4256226c52bc41422e431587f031393d8aac1c8bb03de4741df6ceb3f4639",
+      "matching_git_sources": [
+        "e2a884e5321799728739c6c9677c85cbd9451251"
+      ]
+    }
+  ],
+  "external_path_scope": [],
+  "result": "PASS metadata hashes/bytes only; no runtime or finding verdict"
+}

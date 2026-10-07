@@ -1,0 +1,115 @@
+"""Passive real-fit call and test-local corpus observer; no fit replacement."""
+import json
+import os
+from pathlib import Path
+import sys
+import time
+
+OUT = Path(os.environ['E02_BROAD_OUTPUT'])
+LOG = (OUT / 'actual-fit-events.jsonl').open('a', buffering=1)
+TARGET = 'test_configured_transfer_controller.py'
+ROWS = []
+COUNTS = {}
+ERRORS = []
+CURRENT = None
+PREVIOUS = None
+BUSY = False
+
+def plain(v):
+    if hasattr(v, 'model_dump'):
+        return v.model_dump(mode='json')
+    if hasattr(v, 'detach'):
+        return v.detach().cpu().tolist()
+    if isinstance(v, dict):
+        return {str(k): plain(x) for k, x in v.items()}
+    if isinstance(v, (tuple, list)):
+        return [plain(x) for x in v]
+    if v is None or isinstance(v, (str, int, float, bool)):
+        return v
+    return str(v)
+
+def emit(kind, **data):
+    LOG.write(json.dumps({'kind': kind, 'case': CURRENT, 'wall_ns': time.time_ns(), **data}, default=str) + '\n')
+    LOG.flush()
+
+def model_snapshot(model):
+    if model is None:
+        return None
+    return {'type': type(model).__module__ + '.' + type(model).__qualname__,
+            'train_inputs': plain(model.train_inputs), 'train_targets': plain(model.train_targets),
+            'parameters': {n: plain(v) for n, v in model.named_parameters()},
+            'state_dict': {n: plain(v) for n, v in model.state_dict().items()}}
+
+def profile(frame, event, arg):
+    global BUSY
+    if BUSY or event not in ('call', 'return'):
+        return
+    name = frame.f_code.co_name
+    module = frame.f_globals.get('__name__', '')
+    fit = module == 'botorch.fit' and name == 'fit_gpytorch_mll'
+    full = module == 'polisyos.scientist.methods.search.strategies.bayesian' and name == '_fit_full_gp'
+    ctor = module == 'botorch.models.gp_regression' and name == '__init__'
+    case_return = event == 'return' and frame.f_code.co_filename.endswith(TARGET) and name.startswith('test_')
+    if not (fit or full or ctor or case_return):
+        return
+    BUSY = True
+    try:
+        loc = frame.f_locals
+        if fit or full or ctor:
+            key = module + '.' + name + ':' + event
+            COUNTS.setdefault(CURRENT, {}).setdefault(key, 0)
+            COUNTS[CURRENT][key] += 1
+            payload = {'function': module + '.' + name, 'event': event,
+                       'source_path': frame.f_code.co_filename, 'line': frame.f_code.co_firstlineno}
+            if full:
+                payload.update(X=plain(loc.get('X')), y_bo=plain(loc.get('y_bo')))
+            if fit:
+                mll = loc.get('mll')
+                payload['model'] = model_snapshot(getattr(mll, 'model', None))
+            emit('actual_native_call', **payload)
+        if case_return:
+            generator = loc.get('generator')
+            optimizer = getattr(generator, '_optimizer', None)
+            row = {'case': CURRENT, 'test_name': name, 'returned_arg': str(arg),
+                   'fit_counts': COUNTS.get(CURRENT, {}), 'source_path': frame.f_code.co_filename,
+                   'numerical_basis': plain(loc.get('basis')),
+                   'original_evaluations': plain(loc.get('originals')),
+                   'target_fingerprint': plain(loc.get('target')),
+                   'ordered_raw_scores': plain(loc.get('raw_scores')),
+                   'expected_train_X': plain(loc.get('expected_x')),
+                   'expected_train_y_bo': plain(loc.get('expected_y')),
+                   'actual_new_stage_b_calls': plain(loc.get('calls')),
+                   'generator_activity_started': getattr(generator, '_activity_started', None),
+                   'generator_warm_evals': plain(getattr(generator, '_warm_evals', None)),
+                   'optimizer_warm_evals': plain(getattr(optimizer, '_warm_evals', None)),
+                   'fitted_train_X': plain(getattr(optimizer, '_fitted_train_X', None)),
+                   'fitted_train_y_bo': plain(getattr(optimizer, '_fitted_train_y_bo', None)),
+                   'actual_model': model_snapshot(getattr(optimizer, '_model', None)),
+                   'controller_result': plain(loc.get('result')),
+                   'fit_note': 'Call profiler observes original functions. It never wraps/replaces fit, changes model/RNG state or injects data.'}
+            ROWS.append(row)
+            emit('actual_test_return_snapshot', **row)
+    except BaseException as exc:
+        ERRORS.append({'case': CURRENT, 'operation': name + ':' + event, 'exception': repr(exc)})
+        emit('probe_error', **ERRORS[-1])
+    finally:
+        BUSY = False
+
+def pytest_configure(config):
+    global PREVIOUS
+    PREVIOUS = sys.getprofile()
+    if PREVIOUS is not None:
+        raise RuntimeError('Refuse replacing an existing profiler')
+    sys.setprofile(profile)
+    emit('passive_profile_enabled', source_profile='configured_transfer_actual_fit.v1')
+
+def pytest_runtest_logstart(nodeid, location):
+    global CURRENT
+    CURRENT = nodeid
+
+def pytest_sessionfinish(session, exitstatus):
+    sys.setprofile(PREVIOUS)
+    (OUT / 'actual-fit-summary.json').write_text(json.dumps(
+        {'pytest_exit': int(exitstatus), 'case_counters': COUNTS, 'case_snapshots': ROWS,
+         'probe_errors': ERRORS, 'counter_scope': 'Original Python function call/return events; native solver internals are not replaced.'},
+        indent=2, default=str) + '\n')

@@ -1,0 +1,102 @@
+"""Actual optional-backend-absent collection only; stdlib parent, no fit workload."""
+import importlib.util
+import json
+import os
+from pathlib import Path
+import subprocess
+import time
+
+REPO = Path('/workspace/e02-D-published-root')
+SOURCE = '613343c3ef00379038b5ac07127605528f166531'
+TREE = 'f66e7144053be71db9840f9b7d468237fd1c809e'
+PYTHON = '/tmp/e02-D-runtime-minimal-20261006/bin/python'
+PLAN = Path('/tmp/e02-oracle-minimal-613343-selector-79f590f827a84bbd91e7b23ba3ea64df.json')
+OUTPUT = Path('/tmp/e02-oracle-minimal-collect-613343-79f590f827a84bbd91e7b23ba3ea64df')
+PROFILE = Path('/tmp/e02-D-runtime-minimal-profile-receipt.json')
+HELPER = Path('/tmp/e02-D-broad-wave.py')
+OBSERVER = Path('/tmp/e02_broad_observer.py')
+spec = importlib.util.spec_from_file_location('e02_minimal_collect_helpers', HELPER)
+base = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(base)
+state = base.state(REPO)
+assert state['head'] == SOURCE and state['tree'] == TREE and not state['status_porcelain']
+assert not OUTPUT.exists()
+controls = {k:os.environ[k] for k in base.CAP_KEYS if os.environ.get(k)}
+if os.environ.get('PYTEST_ADDOPTS'):
+    controls['PYTEST_ADDOPTS'] = os.environ['PYTEST_ADDOPTS']
+assert not controls, controls
+plan = json.loads(PLAN.read_text())
+assert plan['source_sha'] == SOURCE and plan['source_tree'] == TREE
+selectors = plan['pytest_union']['selectors']
+assert len(selectors) == len(set(selectors)) == 99
+OUTPUT.mkdir()
+tree = base.tree_files(REPO, SOURCE)
+names = {p for p in tree if p.startswith('policy-engine/src/polisyos/') and p.endswith('.py')}
+names.update(p for p in tree if p.startswith('policy-engine/tests/') and
+             (p.endswith('/conftest.py') or p.startswith('policy-engine/tests/_helpers/')))
+names.update('policy-engine/' + p.split('::')[0] for p in selectors)
+names.update(['policy-engine/pytest.ini', 'policy-engine/pyproject.toml',
+              'policy-engine/uv.lock', 'policy-engine/tests/quarantine.toml',
+              'policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/D.md'])
+external = [Path(__file__), HELPER, OBSERVER, PLAN, PLAN.with_suffix('.argv.json'), PROFILE]
+before = base.input_snapshot(REPO, names, tree, external)
+before.update(git_state=state, resources=base.resources(REPO, OUTPUT))
+assert not before['frozen_file_mismatches'], before['frozen_file_mismatches']
+base.write_json(OUTPUT/'before.json', before)
+basetemp = OUTPUT/'pytest-basetemp-523fdc03c95b4e51b274a1066a69c6aa'
+assert not basetemp.exists()
+env = os.environ.copy()
+env.update(PYTHONDONTWRITEBYTECODE='1', PYTHONUNBUFFERED='1',
+           PYTHONPATH=str(REPO/'policy-engine/src')+':'+str(REPO/'policy-engine')+':/tmp',
+           E02_BROAD_OUTPUT=str(OUTPUT), E02_BROAD_REPO=str(REPO), E02_BROAD_SOURCE=SOURCE)
+argv = [PYTHON, '-m', 'pytest', '-p', OBSERVER.stem, '--collect-only', '-q',
+        *selectors, '-ra', '--run-quarantine', '--basetemp='+str(basetemp),
+        '--junitxml='+str(OUTPUT/'junit.xml')]
+manifest = {'schema':'policyos.e02.independent_minimal_collection.v1',
+            'status':'RUNNING', 'source_sha':SOURCE, 'source_tree':TREE,
+            'cwd':str(REPO/'policy-engine'), 'argv':argv,
+            'selector_count':99, 'canonical_command_count':17,
+            'mode':'collect-only: no test body or numerical fit expected',
+            'environment_assignments':{k:env[k] for k in ['PYTHONDONTWRITEBYTECODE','PYTHONUNBUFFERED','PYTHONPATH']},
+            'introduced_limits_filters_ignores':[], 'minimal_profile_sha256':base.digest(PROFILE.read_bytes())}
+base.write_json(OUTPUT/'execution-manifest.json', manifest)
+start=time.monotonic()
+with (OUTPUT/'complete.stdout.txt').open('wb') as stdout, (OUTPUT/'complete.stderr.txt').open('wb') as stderr:
+    child=subprocess.Popen(argv, cwd=REPO/'policy-engine', env=env, stdout=stdout, stderr=stderr)
+    manifest['child_pid']=child.pid
+    base.write_json(OUTPUT/'execution-manifest.json', manifest)
+    print(json.dumps({'status':'RUNNING_COLLECT_ONLY', 'child_pid':child.pid, 'output':str(OUTPUT), 'source':SOURCE, 'selectors':len(selectors)}), flush=True)
+    _,wait_status,usage=os.wait4(child.pid,0)
+    child.returncode=os.waitstatus_to_exitcode(wait_status)
+after=base.input_snapshot(REPO,names,tree,external)
+after.update(git_state=base.state(REPO),resources=base.resources(REPO,OUTPUT))
+base.write_json(OUTPUT/'after.json',after)
+observer=json.loads((OUTPUT/'observer-summary.json').read_text()) if (OUTPUT/'observer-summary.json').exists() else None
+unchanged=(before['files']==after['files'] and before['external_input_files']==after['external_input_files'] and before['git_state']==after['git_state'])
+if child.returncode<0:
+    status='ERROR_INTERRUPTED_COLLECTION'
+elif not observer or not unchanged or observer['source_mismatches'] or observer['observer_errors']:
+    status='ERROR_SOURCE_OR_OBSERVER'
+elif child.returncode!=0:
+    status='ERROR_PYTEST_COLLECTION'
+else:
+    status='PASS_COLLECTION_DISCOVERY_ONLY_WITH_OPTIONAL_SKIPS_UNRUN'
+result={'schema':'policyos.e02.independent_minimal_collection_result.v1',
+        'source_sha':SOURCE,'source_tree':TREE,'status':status,
+        'child_pid':child.pid,'actual_exit':child.returncode,
+        'actual_signal':-child.returncode if child.returncode<0 else None,
+        'wall_seconds':time.monotonic()-start,
+        'child_usage':{'user_seconds':usage.ru_utime,'system_seconds':usage.ru_stime,'maxrss_KiB_linux':usage.ru_maxrss},
+        'before_after_sources_and_inputs_unchanged':unchanged,
+        'collected_count':observer['collected_count'] if observer else None,
+        'collection_reports':observer['collection_reports'] if observer else None,
+        'deselected':observer['deselected'] if observer else None,
+        'source_mismatches':observer['source_mismatches'] if observer else None,
+        'observer_errors':observer['observer_errors'] if observer else None,
+        'test_phase_count':sum(len(x['phases']) for x in observer['cases'].values()) if observer else None,
+        'junit':base.junit(OUTPUT/'junit.xml'),
+        'numerical_properties':'UNRUN; no test-body/fit execution requested or expected in collect-only',
+        'optional_backend_skip':'UNRUN, not numeric PASS',
+        'runtime_cache_writer':'RELEASED on natural child completion'}
+base.write_json(OUTPUT/'result.json',result)
+print(json.dumps({'output':str(OUTPUT),'status':status,'actual_exit':child.returncode,'collected':result['collected_count'],'collection_reports':result['collection_reports'],'wall_seconds':result['wall_seconds'],'sources_unchanged':unchanged}),flush=True)

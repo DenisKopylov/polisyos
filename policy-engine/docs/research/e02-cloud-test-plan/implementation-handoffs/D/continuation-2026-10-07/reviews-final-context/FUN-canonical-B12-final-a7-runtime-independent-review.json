@@ -1,0 +1,137 @@
+{
+  "reviewer": "/root/census_oct07",
+  "author": "/root/funnel_oct07",
+  "verdict": "GO_CURRENT_SIX_COMPLETED_COHORTS_FACTORY10_FIXTURE_UNRUN_REPLAY_REQUIRED",
+  "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "tree": "e809693afe3b84e02d473b5744142d026afbe509",
+  "pool_manifest_sha256": "ef183a1dc3f9d771d5f0691423891e7369247e0e3258b692624dbb74c942bf37",
+  "lossless_original_streams_verified": 432,
+  "actual_canonical_ledger_snapshots_verified": 351,
+  "cohorts": [
+    {
+      "name": "affected138",
+      "counts": {
+        "PASS": 138,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "actual_call_phases": 138,
+      "receipt_sha256": "a10db39fdbf8edeb4792586f8d3a2c28f74adf5e108815075424134a110dbec8",
+      "junit_sha256": "91110736f8b768d701397616d6f974b28a9351c8f87718b71514d6118797cdc8",
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "ledger_count": 49
+    },
+    {
+      "name": "cache18",
+      "counts": {
+        "PASS": 18,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "actual_call_phases": 18,
+      "receipt_sha256": "4eadc8c7f5dbc560e05e72232444410187c97a62ea89d31db21d7b43f0115e90",
+      "junit_sha256": "37dc4535488a54ed7f16b24fe54051bdcd2fa42086e29d34d567179f2e37f482",
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "ledger_count": 18
+    },
+    {
+      "name": "defining-state7",
+      "counts": {
+        "PASS": 113,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "actual_call_phases": 113,
+      "receipt_sha256": "6ae73472043cb2e08e6a3038ee67ae8cc4db114ef97449539a653389638ec07c",
+      "junit_sha256": "fcacd8d2706b17e43aa256898e1beaaaeecaaec9f76e48503fa96c83cceef64d",
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "ledger_count": 41
+    },
+    {
+      "name": "owner-HTTP30",
+      "counts": {
+        "PASS": 30,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "actual_call_phases": 30,
+      "receipt_sha256": "a0b664ed0afb8e5a44c2e7923ac59c5eb0ea2b671b2ad0225af5bc086a93b75f",
+      "junit_sha256": "b5fa9d7b9428c8d36058cdc2ccb6ec03673a68a0a9bba3f13de810acda49ce41",
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "ledger_count": 0
+    },
+    {
+      "name": "owner-defining9",
+      "counts": {
+        "PASS": 292,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "actual_call_phases": 292,
+      "receipt_sha256": "123fabc761e8484ef838516dd9bab5ab2b457472840e930a0cc29a2aceff5131",
+      "junit_sha256": "deb8513727328209754639cd8b6ca07338df6baec8fe3adba7ada2d4f65fccc9",
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "ledger_count": 221
+    },
+    {
+      "name": "publicfactory10",
+      "counts": {
+        "PASS": 0,
+        "FAIL": 10,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "actual_call_phases": 10,
+      "receipt_sha256": "d4f7b5b987871965770aeb8ffd1e7d2759726d34cc9277d7db8623f05511a3ee",
+      "junit_sha256": "90babecd20f227c3f0ba1f8b9a734daa98d9afc17b7da5ef459f22adbef2ede6",
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "ledger_count": 10
+    },
+    {
+      "name": "raw32",
+      "counts": {
+        "PASS": 32,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "actual_call_phases": 32,
+      "receipt_sha256": "617c088c2b5e5755d5e29576baa1b5aea4166e3e6d03b59fbf72ea286c028586",
+      "junit_sha256": "c719fa18ab37816f589433907b7f9cafd7d77a973d5813b399b60bbecb7c3e4d",
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "ledger_count": 12
+    }
+  ],
+  "runtime_chain": "Actual response-text bytes/_post_json canonical Decimal intake -> configured Gateway/LLMBudgetEnforcer/B1.2 durable provider intent/settlement -> D native worker/funnel/result/status and fresh owner readback. Only HTTP transport controlled; provider reported amount source retained.",
+  "P37": "Charge established by canonical persisted B1.2 debit/spend receipt/completion obligation and fresh ledger, not trace/estimate/cost scalar. Actual owner-defining9 includes original unmanaged/memory/cache cancellation profiles unchanged.",
+  "P38": "Tiny ±nonzero lexemes invalid-present/null/conflict remain typed unknown, pending reservation and fresh work fence rather than zero; true0/0.0 andordinary1 settle. Real issuer/content/context-bound cache reuses no second physicalcall/debit, exact paid origin readback required. Retain trace/receipt/cachemarkers while remove durable readback/earlybridge/financialadmission exposes/refuses false financialzero at actual consumer.",
+  "original_criterion_support": {
+    "B156": "Actualeffective request reuse/newversion/independent control/history scope native inputs (affected138).",
+    "B158": "Currentfull/split native physicalevents identical outputs/debits/reasons; changed prerequisites explicit remainingwork rechecks, schedulerbounds retained.",
+    "B159": "No newgrounds no resource; actualowned capacityrelease/prerequisitechange resumes onlyremainingwork withlineage, permanentblockers remain.",
+    "B160": "Actualempty/all-unassessed no positive score vsactualcomputedzero; permittedshortstages retained.",
+    "B162": "Invalid/missing/genuinelyzero uncertainty distinct, finitewidth calculation andother availableoutputs retained.",
+    "B163": "Actualreport->snapshot->freshCAS->nativeNode/runtime tracker reuse retainsfive rows andappendsL4 sixth, emptyNone/unavailable vsnonempty aligned/opposite/observedzero, bothpublicinterfaces agree.",
+    "B165": "Finaldecision/scores/permissionstable whetheroptionalintermediateverdictpresent; actualnativeprojection/JSONfreshreadback consumers.",
+    "B120": "Currentraw32/cache18/HTTP30/actualdurability andstopping/funnel edges supported; entireoriginalclosureproposal stillwaits finalpublicfactory10/race actualconsumer replay."
+  },
+  "held_original_inputs": {
+    "B157": "Nativeactualsample/work/estimand producer notestablished; labels500/64/32/Foundry draws notreplacement",
+    "B161": "Authorizedsame-subject/value/input/rule/time refinementlaw notestablished",
+    "B164": "Existingrealissuer/currentverifier/serializedrevoke/effect positive absent; noauthoritysubsysteminvented"
+  },
+  "limitations": [
+    "Seven separate overlapping cohorts are not one aggregatePASS",
+    "Publicfactory10 rawFAILbeforeconsumer dueunregistered run_path evaluator; protectedfactorypropertyUNRUN untilcorrect ordinary sibling import replay",
+    "Noinvoice/scientificlaw/deployedauthority/Gacceptance claim",
+    "Complete6313 materialized executioninputdenominator stable; noP41 inherited/red waiver",
+    "Historicalc0 owner287P5F/cache15P1F andoldraw21F remain sourcequalified, not rewritten"
+  ],
+  "formal_closed": false,
+  "accepted_G": false
+}

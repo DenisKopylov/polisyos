@@ -1,0 +1,39 @@
+{
+  "schema": "e02.independent.source-review.v1",
+  "author": "service_oct07",
+  "reviewer": "math_oct07",
+  "review_result": "GO bounded final production delta; actual final39/B111/B124 consumer checks remain required",
+  "immutable_patch": {
+    "path": "/dev/shm/e02-D-oct07-service-start/native-trial-deduplication-v4-to-v5.final-de8c6.patch",
+    "sha256": "de8c6a11fdff47230ba746e5a0b79764cca69afc3c3c85334dd16e44ce08a78f",
+    "bytes": 9608
+  },
+  "full_source": {
+    "path": "/dev/shm/e02-D-oct07-service-start/native-trial-deduplication-service.v5.final-90c726.py",
+    "sha256": "90c726a5e76e55591ce0176b6bbd68ee9764a16e31254504341792db3741ee4e"
+  },
+  "base": "Exact staged normalized v4 service a618e400332f0fb9e72db02bb0169aaab3f791aa1d6c3d26bd4dc5e81de0d7e1",
+  "checked_mechanisms": [
+    "The single admission gate checks data-only native configuration and the existing verified sole checkpoint ArtifactRef/content/run identity before republishing checkpoint, tell, ask membership, resume, and each pending evaluation. It does not use mutable local current config as its previous acknowledged basis.",
+    "Restore supplies already verified saved configuration to the same gate before generator or live ledger mutations; source digest includes admission service implementation.",
+    "First prepared empty checkpoint is created inside the existing ask transaction before generator proposal effects. Once successful readback assigns its actual ref, ref_before is replaced by that qualified ref and initial_acknowledged becomes true.",
+    "Later proposal failure rolls generator/history/pending/local context back, retains that actual acknowledged ref, and sets existing publicationblocked fence. Neither changed-context retry nor checkpoint republish can launder the prior basis; a fresh service must restore the qualified CAS view.",
+    "Failure before successful initial checkpoint readback leaves initial_acknowledged false and follows prior rollback; no fictitious acknowledgment is created.",
+    "Only explicit admitted run_search retires active prior basis; unsupported or publicationblocked lifecycle fails before reset. Default no-dedup branches are unchanged except harmless equivalent statement placement in initial source."
+  ],
+  "P37_predicate_basis": "Actual qualified CAS view/configuration/run + publicationblocked commit custody; not markers, import, localprofile equality or synthetic currentstate.",
+  "P38_proxy_divergence": "Same-looking mutable context or localsource profile after callback/config change cannot replace the existing content-qualified predecessor; valid restorable proposal failure retains firstACK and refuses implicit rebound.",
+  "historical_review": {
+    "path": "/tmp/e02-D-math-oct07-drafts/B124-v5-initial-ack-review-historical.json",
+    "sha256": "505b70b4619c3c469b57fd0aed42704ec71ded5715b263ee17a1a32da3ac16d4"
+  },
+  "runtime_required": [
+    "Actual initialACK\u2192proposal fault\u2192blocked changedcontext retry\u2192fresh sameprofile resume",
+    "Empty/transferred-only active ACK basis change, forged/missing ref/data, direct tell/checkpoint changes, sourceprofile removal negative",
+    "Complete actual native missing/not-ok primary consumer and genuine zero control, not numerical helper PASS."
+  ],
+  "limitations": [
+    "Source-only independent review, no final runtime PASS/finding closure or G acceptance.",
+    "Local CAS/process contract only; no scientific evaluator/source authority, distributed atomicity, or unknown external publish guarantee."
+  ]
+}

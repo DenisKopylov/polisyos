@@ -1,0 +1,93 @@
+{
+  "accepted_in_G": false,
+  "actual_changed_dependency_check": {
+    "MLL_start_return": [
+      2,
+      2
+    ],
+    "actual_torch_version": "2.10.0+cu128",
+    "backend": {
+      "botorch": "0.16.1",
+      "gpytorch": "1.15.1",
+      "hnswlib": "0.8.0",
+      "numpy": "2.3.5",
+      "pytest": "9.0.2",
+      "scipy": "1.16.3",
+      "torch": "2.10.0"
+    },
+    "before_after_all_inputs_equal": true,
+    "full_input_denominator": 6315,
+    "full_testcase_phases": "events.jsonl in complete-deciding-output,3actualcallPASS",
+    "independent_fixed_parameter_oracle": "Existing exactc0 GP43+MO88 independent NumPy original-unit mean/fullcov; numerical model/fit-state functions unchanged, sourcequalified carry separately bound",
+    "independent_review": "PENDING current Math actualoutput/carry review",
+    "original_defining_test": "tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+    "producer_to_consumer": "Actual public SearchLoopRunner.run/create_service\u2192NativeService.run_search\u2192configured existing transfer bridge\u2192qualified actual CAS\u2192SingleTaskGP actualfit8/7\u2192real corpus/state + fresh restore",
+    "real_fit_rows": [
+      8,
+      7
+    ],
+    "result": "3PASS",
+    "same_model_posterior": "consistency only, not independent oracle"
+  },
+  "actual_original_defect_counterexample": {
+    "property": "Changing real declared evaluator scale or aliased nested context aftercompleted evaluation incorrectly skips equivalent nextproposal; realcursor1\u21922",
+    "result": "2intendedFAIL/0ERROR-SKIP",
+    "runtime_after_repair": "Distinct actualService final40/48 and removal controls, supplied by independentauthors; not inferred from native3",
+    "source_fix": "Single existing qualified checkpointconfiguration gate + initialACKfailure publication fence + actualrunID disposable scope; independently reviewed finalsource4dfd/aa75 and normalizedcommittedGit",
+    "source_kind": "stable staged237 + exactindexa2d8; development notimmutableHEADproductPASS"
+  },
+  "author": "gp_oct07",
+  "complete_output": {
+    "every_record_full_deciding_bytes_preserved": true,
+    "path": "complete-deciding-output.json.gz",
+    "records": 332,
+    "sha256": "32134c67b7794546fd9eb2ec6bf7edf6be87dc7d02494e4d6174724e0336f633",
+    "unique_UTF8_contents": 177
+  },
+  "criterion_boundary": "Originalsix B112113114115125126 proposals remain source-qualified c0 contribution; B127/transfer scopes consume independentService/TRN receipts; finalcurrent3 verifies actual changed GPfactory edge, not allscientific/authority/history criteria. Original full10occurrences/cae\u2192198text bindings retained by pinnedstrongreceipt. B124/B111 newguard actualcurrentruntime supplied separately.",
+  "formal_closed": false,
+  "limitations": [
+    "Production evaluator/history/data/rights remain local appointedowner inputs, not transferred here",
+    "No full43/88/142 native rerun on969 or summing historical receipts",
+    "No numericalPASS from optionalSKIP/UNRUN profiles",
+    "Sourcecarry only exact observed/blob/AST-default branch identity; alteredmarker/newmissingprimary/dedup properties require actualcurrent independentService cohort",
+    "No new cache/ledger/GP/permission subsystem/distributedatomicity guarantee"
+  ],
+  "module_budget": {
+    "P41": "not_established",
+    "actual_canonical_line_function": "tools.quality.validation.architecture_report_only_contracts._count_lines",
+    "actual_fail_closed_scope": "tools/quality/validation/**/*.py, noselectedpaths match",
+    "default_target": 2500,
+    "default_warning": 1000,
+    "exact_source": "96905636726483fdea3a98d9313871d825b54a9e",
+    "global_report": "Exactc0 historical82contract_errors/6findings notPASS; this metadata is notbroadglobal replay",
+    "new_report_only_warning": {
+      "search/service.py": {
+        "canonical": 1283,
+        "physical": 1381,
+        "slice_base_canonical": 956
+      },
+      "test_service_trial_deduplication.py": {
+        "canonical": 1028,
+        "physical": 1110,
+        "slice_base": "new"
+      }
+    },
+    "owner_disposition": "not_established; team-architecture contract/team-policyos-runtime source owner minpacket; no silentwaiver",
+    "selected_paths": 10
+  },
+  "schema": "e02.D.final-native-affected-handoff.v1",
+  "setup_attempt": {
+    "check": "ERROR collection missing productroot in PYTHONPATH",
+    "corrected": "Use exact prior successful src+product importpaths; no source change",
+    "preserved": true,
+    "property": "UNRUN0testcall/0MLL",
+    "source": "same969 exact"
+  },
+  "slice_base": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+  "source": "96905636726483fdea3a98d9313871d825b54a9e",
+  "strong_numerical_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+  "strong_numerical_tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2",
+  "strong_portable_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-c0/GP-State-MO-currentc0-handoff.json",
+  "tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60"
+}

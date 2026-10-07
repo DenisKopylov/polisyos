@@ -1,0 +1,265 @@
+{
+  "schema": "polisyos.e02.independent-doe-coordinate-review.v1",
+  "reviewer": "numerical_oracle",
+  "verdict": "PASS_BOUNDED_MECHANISM_AND_BINDING",
+  "overall_companion": "PARTIAL: default metadata activation and affected legacy E execution pending",
+  "closure_ids": [],
+  "source": {
+    "sha": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+    "tree": "e2d788db3917bbade79ae024fb52481fda0521b0",
+    "base": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+    "reviewed_owned_product_paths": [
+      "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+      "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py"
+    ],
+    "inputs": [
+      {
+        "path": "policy-engine/docs/how-to/search-exploratory-coordinate-order.md",
+        "bytes": 3052,
+        "sha256": "337c090f80f1077d3463343b16a26cbb75d630fae7912dcb6f1038727a942270"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-06-D-exploratory-coordinate-order.toml",
+        "bytes": 1902,
+        "sha256": "f12476d1f9bd955195543b1db5b813d37b866aceb4656d07ee6a40a48f41845a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+        "bytes": 39125,
+        "sha256": "6bce4613f561b26128b8ba5af2d8697edfbfdcb8b8cfbdeaffa58d8cc8e66f5a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+        "bytes": 7148,
+        "sha256": "93d9e4a24dd8ac9c53411d1220b75612c56d2eb2c5e3580bb898f770e0239e98"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+        "bytes": 8472,
+        "sha256": "af3d6c12ae461e550897eb5a32b3a6f5c2ba930e41533e99f7bd8b9ac42b0a46"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py",
+        "bytes": 2180,
+        "sha256": "15c36e5b510be10cbfb9b08cacedb38b2daecddd3550b1f80965ae8ccc0a18cb"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/autotune/test_sensitivity_order_consumer.py",
+        "bytes": 13164,
+        "sha256": "1c71cd158bee77610026fb2f9eda36200064d81dc885d4b12f47451b9b7d50e2"
+      }
+    ]
+  },
+  "transport": {
+    "sha": "2451bb94188a262b4525595310e120be9e7aa520",
+    "tree": "0b8141ef397e2e9f51eaa1f2f9d52d4cb5b41932",
+    "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-doe-coordinate-order-continuation.json",
+    "receipt_sha256": "2bf5001a2d632c6c6df6f2906203f07dd446a41945708f2796a154202bffb880",
+    "header_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-doe-coordinate-order/deciding-outputs.header.json",
+    "header_sha256": "6218e1203c79d396461e35823e0c02233289c2b250424de79049ad26a57da672",
+    "compressed_sha256": "eafd3e366a8a0de23ecc34dde53c18b3e02479bd84b3813281a0b24b5c528b15",
+    "compressed_bytes": 93134,
+    "uncompressed_sha256": "678c57e34e30fbea1bbbf568a414a572f6ec3e6c84f2869eee25c86515c8135a",
+    "uncompressed_bytes": 559154
+  },
+  "binding_output": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/doe-coordinate-independent-binding-output.json",
+    "sha256": "0513343afe014d1e5ce9a458cef99acb15992a41f14a69256694d486e17a42b8"
+  },
+  "review_method": "Read full owned production/test/documentation/structured release delta and all complete deciding outputs; independently decode every lossless member and compare recorded source/test/module hashes against exact Git objects. No author production edits or fresh backend run.",
+  "accepted_property": [
+    "Existing canonical immutable CAS snapshot and E recomputing reader validate a selected full artifact reference; producer selects the actual existing B manifest profile.",
+    "Before activity, complete ranked parameter coverage and exact native bounds/unit/distribution/spec permit an explicit permutation of the actual native SearchSpace. The native optimizer config/seed are preserved. Supported continuous non-log uniform known-unit profile is explicit.",
+    "The configured reader revalidates source policy before generation/checkpoint use. Same active policy revalidation preserves stream; changed policy after activity refuses. Current unresolved-reference boundary is a controlled ValueError without native state mutation.",
+    "Actual cold Sobol physical assignments differ as expected across x/z ranking; checkpoint/fresh CAS next proposal and configured stream replay are supported by historical completed controls. Current default SearchLoopRunner/native service/controller persists the physical candidate with an explicit resolved adapter and custom typed codec.",
+    "Marker-preserving removal calls original admission/reader first and retains source reference, basis, analysis/ranking IDs, metadata, and policy. Restoring original Space/optimizer then causes both physical proposal and persisted-loop assertions to fail. This distinguishes source markers from actual consumption."
+  ],
+  "deciding_cells": [
+    {
+      "check": "183-first40",
+      "source": "18321a109efd539f798ff9c3d7dae2f09bddea57",
+      "tree": "b37f1086f5141f9823d8429cf4875e6c1053fef0",
+      "returncode": 1,
+      "counts": {
+        "tests": 40,
+        "failure": 7,
+        "error": 0,
+        "skip": 0,
+        "pass": 33
+      },
+      "outcome": "FAIL",
+      "complete_output_sha256": "da836ca66460f5a4519094830b825ee3cdf9c65d7f278225b7754190b55562d5"
+    },
+    {
+      "check": "3ced-union43-killed",
+      "source": "3cedc980a3350ed7e091b26ad4fb87e3bf1e68ba",
+      "tree": "1963323ba82bb2623afac450f0f766fced9b6ef2",
+      "returncode": -9,
+      "counts": null,
+      "outcome": "ERROR",
+      "complete_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "check": "3ced-own16-killed",
+      "source": "3cedc980a3350ed7e091b26ad4fb87e3bf1e68ba",
+      "tree": "1963323ba82bb2623afac450f0f766fced9b6ef2",
+      "returncode": -9,
+      "counts": null,
+      "outcome": "ERROR",
+      "complete_output_sha256": "fb3a85cd297aacb976a843a7a21df19eec92701e4e67a41d1a406e0498c7d307"
+    },
+    {
+      "check": "3ced-fixture-red",
+      "source": "3cedc980a3350ed7e091b26ad4fb87e3bf1e68ba",
+      "tree": "1963323ba82bb2623afac450f0f766fced9b6ef2",
+      "returncode": 1,
+      "counts": {
+        "tests": 1,
+        "failure": 1,
+        "error": 0,
+        "skip": 0,
+        "pass": 0
+      },
+      "outcome": "FAIL",
+      "complete_output_sha256": "fcc56f3610775d32e35668bb6aa527fd5613f5d19e13a909b9f6b4382a7c66ce"
+    },
+    {
+      "check": "944-fixture-successor",
+      "source": "94437c7c22ee49c7ad8c89d909df027931e53d9b",
+      "tree": "e445d7d1ff0e065579a337e9aa7b94bb972ca76d",
+      "returncode": 0,
+      "counts": {
+        "tests": 1,
+        "failure": 0,
+        "error": 0,
+        "skip": 0,
+        "pass": 1
+      },
+      "outcome": "PASS",
+      "complete_output_sha256": "dda527b649c0c4564bdeb94ca224ad5e6f2527d5f5d2c59f9d6d3d6e2f1ecad3"
+    },
+    {
+      "check": "944-native-positive",
+      "source": "94437c7c22ee49c7ad8c89d909df027931e53d9b",
+      "tree": "e445d7d1ff0e065579a337e9aa7b94bb972ca76d",
+      "returncode": 0,
+      "counts": {
+        "tests": 3,
+        "failure": 0,
+        "error": 0,
+        "skip": 0,
+        "pass": 3
+      },
+      "outcome": "PASS",
+      "complete_output_sha256": "bcc9bb1345fe3d8c99d73d36dcc38efe82114963beebdadb15bd90007f2bdf0d"
+    },
+    {
+      "check": "944-native-negative",
+      "source": "94437c7c22ee49c7ad8c89d909df027931e53d9b",
+      "tree": "e445d7d1ff0e065579a337e9aa7b94bb972ca76d",
+      "returncode": 1,
+      "counts": {
+        "tests": 12,
+        "failure": 1,
+        "error": 0,
+        "skip": 0,
+        "pass": 11
+      },
+      "outcome": "FAIL",
+      "complete_output_sha256": "730565e4fa4f4bed723b09f49535a5f805e26351f390d1e17388b59315193ad6"
+    },
+    {
+      "check": "944-E-consumers-killed",
+      "source": "94437c7c22ee49c7ad8c89d909df027931e53d9b",
+      "tree": "e445d7d1ff0e065579a337e9aa7b94bb972ca76d",
+      "returncode": -9,
+      "counts": null,
+      "outcome": "ERROR",
+      "complete_output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "check": "9fb-affected-four",
+      "source": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+      "tree": "e2d788db3917bbade79ae024fb52481fda0521b0",
+      "returncode": 0,
+      "counts": {
+        "tests": 4,
+        "failure": 0,
+        "error": 0,
+        "skip": 0,
+        "pass": 4
+      },
+      "outcome": "PASS",
+      "complete_output_sha256": "e8415711e6b478b46966964f587b93a0f43d0a1b9374f68168c846ef7189592c"
+    },
+    {
+      "check": "9fb-removal-two",
+      "source": "9fb6d0efda8c871116a9a345f657e7bd2ecf0d61",
+      "tree": "e2d788db3917bbade79ae024fb52481fda0521b0",
+      "returncode": 1,
+      "counts": {
+        "tests": 2,
+        "failure": 2,
+        "error": 0,
+        "skip": 0,
+        "pass": 0
+      },
+      "outcome": "FAIL",
+      "complete_output_sha256": "5b6e22c0edbb62457def989062480faf5fc9b06f6537cea6f703e3ffdbb47a3b"
+    }
+  ],
+  "historical_red_and_preparation": [
+    "183 first40 remains 33PASS/7FAIL. Fourteen PASS cases reached only the unselected-reference gate (five native basis, four forged receipt, five legacy E fake receipt); they are not named semantic negative proof.",
+    "3ced union43 and own16 SIGKILL remain ERROR/UNRUN; 12 progress dots are not a completed verdict.",
+    "3ced custom-codec fixture 1FAIL is preserved. 944 adds only ExperimentMutation.metadata to its strict fixture; product source is unchanged and the same actual consumer then 1PASS.",
+    "944 native3 positives PASS; native negatives 11PASS/1FAIL preserve uncontrolled forged-reference FileNotFound. 9fb narrowly controls that unresolved-reference boundary and reruns exact current4 PASS.",
+    "944 affected legacy E3 killed before output/JUnit remains ERROR/UNRUN. The outer capture parent exit0 is not used as the inner child verdict.",
+    "A release helper missing PYTHONPATH failed startup; configured canonical scoped validation subsequently passed. Original startup output is retained in the transport."
+  ],
+  "criterion_edges": {
+    "B112@OPT-02": "Ordinary native SearchSpace first-suggestion companion; original category/log/optional and real backend criteria unchanged.",
+    "B113@OPT-02": "Actual physical parameter and executed-caller companion; full-ID/missing-outcome/history and actual fitted numerical criteria unchanged.",
+    "B127@OPT-02": "Executed coordinate identity companion; this profile does not add integer/category/replicate/pending/exhaustion coverage.",
+    "LA-014@SRV-01": "Actual default loop service/controller with explicit adapter/custom codec companion; contract import/unknown duplicate IDs/frontier/resume full criterion unchanged.",
+    "STR-01/E DOE-01": "Uses the actual selected E producer/receipt dependency; does not redefine the E numerical estimators or experimental law.",
+    "B115": "No GP quality or numerical fit claim from ordering. Native GP and serialization core bytes are identical to the independent d38 GP23 source; no duplicate run inferred."
+  },
+  "remaining_owners": [
+    {
+      "owner": "gp_witness/root",
+      "state": "consumer_missing_in_this_candidate",
+      "input": "Default SearchLoopSpec metadata activation, default typed technical codec projection and sensitivity_analysis manifest lineage require separate immutable actual consumer review."
+    },
+    {
+      "owner": "root/E independent reviewer",
+      "state": "ERROR/UNRUN",
+      "input": "Three exact affected legacy E selectors need a completed runtime result; their killed execution remains unresolved."
+    },
+    {
+      "owner": "scientific/domain accountable owners",
+      "state": "separate excluded claim",
+      "input": "Metres/seconds and uniform law here are declared experimental consumer inputs, not proof of institutional provenance, population independence, causal effect or deployment eligibility."
+    },
+    {
+      "owner": "G/root",
+      "state": "closure_pending",
+      "input": "Original finding/criterion accounting remains with canonical owners; closure_ids is empty."
+    }
+  ],
+  "source_and_capture_limits": [
+    "91 product bindings are 13 selected modules across seven completed reports, not an inventory of every imported product module.",
+    "21 backend file hashes are static identity recensus of three selected modules per completed report, not a fresh optional-backend import, provisioning, or whole-environment equivalence proof.",
+    "No reviewer backend execution, numerical fit, new snapshot, thread/process/worker/time cap, cleanup, or production mutation was performed.",
+    "Existing temporary directory observations do not establish full fixture preservation; two killed jobs' basetemp paths are absent and may never have been created.",
+    "Killed scopes remain ERROR/UNRUN with no JUnit verdict; 12 progress dots are not 12 completed passes.",
+    "Current source has exactly four completed affected cases, not a fresh aggregate 16/43 result. Historical 944 11PASS/1FAIL negatives and current correction are separate cells.",
+    "The actual default loop witness uses an explicit resolved adapter and custom typed codec; default SearchLoopSpec metadata activation/default technical codec projection is a separate pending writer dependency.",
+    "Native physical Sobol assignment is proved before any fitted GP exists. Ordering does not prove GP quality, statistical efficacy, calibrated population law, or deployment eligibility.",
+    "Declared metres/seconds and uniform input law are experimental consumer assertions, not institutionally verified scientific provenance.",
+    "Ruff and structured fragment outputs are scoped; B04/B19/B23, mypy, frontend, and other full quality gates are not promoted or waived."
+  ],
+  "quality": "Five scoped Python targets Ruff check/format and one owned structured fragment validation PASS; whole B04/B19/B23/mypy/frontend/full architecture gates remain separate and are not waived.",
+  "preservation": "All81 original capture output/helper files observed present and exact. Basetemp existence is recorded individually; two killed jobs have absent paths which may never have been created. No universal fixture preservation or deletion inference.",
+  "no_new_runtime": true
+}

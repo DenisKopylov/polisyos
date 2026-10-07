@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "tools/quality/diagnostics/check_state_reads.py"
+  ],
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "env_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine"
+  },
+  "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+  "tree": "e677b5e24493a7083287c3bea31bca1892c3be29",
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "started_at": "2026-10-07T10:06:16.435359+00:00",
+  "canonical_recipe": "PYTHONPATH=src:. uv run python tools/quality/diagnostics/check_state_reads.py",
+  "actual_wrapper": "locked interpreter direct invocation of identical canonical script; uv wrapper not claimed",
+  "numerical_backend": "not used: AST diagnostic"
+}

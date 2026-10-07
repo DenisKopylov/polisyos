@@ -1,0 +1,28 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/ruff",
+    "format",
+    "--config",
+    "policy-engine/pyproject.toml",
+    "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_fiscal_numeric_admission.py"
+  ],
+  "returncode": 0,
+  "stdout": "1 file reformatted, 1 file left unchanged\n",
+  "stderr": "",
+  "base": "96905636726483fdea3a98d9313871d825b54a9e",
+  "files": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+      "before_sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8",
+      "after_sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8",
+      "ast_equal": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_fiscal_numeric_admission.py",
+      "before_sha256": "9c281198838d83ecc83bebfef030c6d45ef5392bece5be16675bfbd089f1df49",
+      "after_sha256": "9f2a8c583ac23cf1fff182303c9c8a713d3cf2ec46ea3d266b2be76ede29aa2a",
+      "ast_equal": true
+    }
+  ]
+}

@@ -1,0 +1,268 @@
+{
+  "schema": "D.E02.B156-current-control-role-independent-runtime-review.v1",
+  "reviewer": "census_oct07",
+  "author": "funnel_oct07",
+  "decision": "GO_BOUNDED_ORIGINAL_B156_PROPOSAL_WITH_CURRENT_ROLE_REMOVAL",
+  "actual_execution_source": "a30c140eedc5c0514a93409d4b4040a715231d28",
+  "implementation_source": "8e864f4ed0eeedf509d836381b20976c413f2443",
+  "implementation_to_execution_docs_only_paths": 230,
+  "exact_own_consumer_source_test_config": [
+    {
+      "path": "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py",
+      "git_blob": "6f317fe8f501dc3b08bbb8ec63ffc3f9ee2ba69b",
+      "sha256": "2b7de860a5ddfa1be54e2462d64ebb7c674a664b34d87b6fd73cf2ce43033267",
+      "bytes": 28058
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "git_blob": "191ef201a2c952f1696eebb62a497d8778e777bb",
+      "sha256": "ab17c66058929ca33a6f1c917cd32d0c3f18175b87af1180036b5c854516cbef",
+      "bytes": 67876
+    },
+    {
+      "path": "policy-engine/pytest.ini",
+      "git_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+      "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+      "bytes": 1021
+    },
+    {
+      "path": "policy-engine/pyproject.toml",
+      "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "bytes": 11007
+    },
+    {
+      "path": "policy-engine/tests/conftest.py",
+      "git_blob": "29698b0ad50d7eb2a24f3c55f6e921ea3d17b168",
+      "sha256": "3c2b4cb89955fbbe8bbbf9a89bdea1ce0b429c903417e8ddb7e3424f0301455a",
+      "bytes": 9664
+    }
+  ],
+  "scopes": [
+    {
+      "label": "B156-role1-a30c",
+      "command": {
+        "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role1-a30c.command.json",
+        "sha256": "709b6e791827be11390cd9031f38694b10c250fb18cbbcf115a8e0bd2a4fbdfd"
+      },
+      "execution_source": "a30c140eedc5c0514a93409d4b4040a715231d28",
+      "tree": "7a36d6ab724daac3866c348b39bd79c7fe7fd350",
+      "result": "PASS",
+      "expected_protected_assertion_failure": false,
+      "setup_call_teardown": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "passed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "input_denominator": 6323,
+      "available_exact_Git_hashes": 6322,
+      "missing_explicit": [
+        "policy-engine/ops/observability/grafana/dashboards/scientist-llm-cost.json"
+      ],
+      "captured_main_product_origin_paths": 437,
+      "all_captured_origins_hash_and_git_exact": true,
+      "complete_deciding_outputs": [
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role1-a30c.stdout.txt",
+          "sha256": "17d5cb76a99baa02165f4c92e9cb848b5f620e19283a0f52be95f13f0be5334f",
+          "bytes": 2028
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role1-a30c.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role1-a30c.junit.xml",
+          "sha256": "fe03fe424a90ffc18acc6fa2e4595d3a233957ef0b4863af4aeb804f4f9ae90a",
+          "bytes": 417
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role1-a30c.phases.json",
+          "sha256": "09ccb309084aca37a77225004d0d938cada126f531cf6a62a1d6b04a7862a38c",
+          "bytes": 790
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role1-a30c.inputs.json",
+          "sha256": "1fe30b2d4b57399421ce02e064861e647e2a6b063be28d47e010e7ac99693904",
+          "bytes": 1202106
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role1-a30c.modules.json",
+          "sha256": "680ac38f12996923efb52f24b1ed006cfd3ca9739d0c985ddf8598f60e0040d7",
+          "bytes": 148976
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role1-a30c.environment.json",
+          "sha256": "475fd4d36b648abb3c8dc949add34911f76b32babbb7d30b1cce3dac1fae109c",
+          "bytes": 10567
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role1-a30c.cgroup-before.json",
+          "sha256": "731af658532bcb96e4a5a223ef1522e1b43beb9afe2299e20616d001cb021e37",
+          "bytes": 507
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role1-a30c.cgroup-after.json",
+          "sha256": "df30c9abaf1c723c79d9e0a22a74dbf2aa3e0388e87717e7b37f537fae7455aa",
+          "bytes": 507
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role1-a30c.cgroup-during.json",
+          "sha256": "2219c3e25280acb5eb7f65a582cf8ffebcb095958cff335f3d36e0a3eb3eb79d",
+          "bytes": 1603
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role1-a30c.deciding-ledgers.json",
+          "sha256": "a55cabda156047b0a363fb65395e54a9a19fb9fb6a08d48608d42fdce432e9c8",
+          "bytes": 124
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role1-a30c.deciding-cas.json",
+          "sha256": "2b1da53c3bef25a607e7e52ac14ae9e5b5a9ae3c3f4356ca95a60ab71a093257",
+          "bytes": 220
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role1-a30c.deciding-node-observations.json",
+          "sha256": "6c06be39bf4f6b22179b9cfc39e3a40386a4be4c2819ed81b7888f5d84663e30",
+          "bytes": 190
+        }
+      ],
+      "lossless_debit_CAS_authority_witness": "not_claimed; this selected callback/history test has zero artifacts",
+      "warnings": "pytest cache_dir option warning outside protected callback/history property"
+    },
+    {
+      "label": "B156-role-removal1-a30c",
+      "command": {
+        "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role-removal1-a30c.command.json",
+        "sha256": "9cbda9f48c5bfa706dd410a3a1e781e158e4dc0162e0710e7d03939e84d9149f"
+      },
+      "execution_source": "a30c140eedc5c0514a93409d4b4040a715231d28",
+      "tree": "7a36d6ab724daac3866c348b39bd79c7fe7fd350",
+      "result": "FAIL",
+      "expected_protected_assertion_failure": true,
+      "setup_call_teardown": [
+        [
+          "setup",
+          "passed"
+        ],
+        [
+          "call",
+          "failed"
+        ],
+        [
+          "teardown",
+          "passed"
+        ]
+      ],
+      "input_denominator": 6323,
+      "available_exact_Git_hashes": 6322,
+      "missing_explicit": [
+        "policy-engine/ops/observability/grafana/dashboards/scientist-llm-cost.json"
+      ],
+      "captured_main_product_origin_paths": 437,
+      "all_captured_origins_hash_and_git_exact": true,
+      "complete_deciding_outputs": [
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role-removal1-a30c.stdout.txt",
+          "sha256": "10d1d0c5cc7bcb4e1336cf33ba20062bc842d8eff25ebee084a8c19a80bfddde",
+          "bytes": 5256
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role-removal1-a30c.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role-removal1-a30c.junit.xml",
+          "sha256": "80477640f5b1bf8290f094e10dd8bdd0e65021dfe3a9e6c1d0a889f869ce560d",
+          "bytes": 3643
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role-removal1-a30c.phases.json",
+          "sha256": "e37fa6fe3e2297eb206c1b9a904272db2f04257fe85fa5faf3e13d0c71633d93",
+          "bytes": 3800
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role-removal1-a30c.inputs.json",
+          "sha256": "1fe30b2d4b57399421ce02e064861e647e2a6b063be28d47e010e7ac99693904",
+          "bytes": 1202106
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role-removal1-a30c.modules.json",
+          "sha256": "146fa808f3a7b4088f6bc635f0af3ed4109471c237fee4d1089bbcc31a5089cf",
+          "bytes": 148976
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role-removal1-a30c.environment.json",
+          "sha256": "854ec905713feec9bfeeabe4f9ebe71349faf0dfcb0063bfffae54586c5ee02f",
+          "bytes": 10567
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role-removal1-a30c.cgroup-before.json",
+          "sha256": "7880f04b0a0ffa0e0cab7865011c07449255e1d9fb5485f6edee7695d268df94",
+          "bytes": 507
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role-removal1-a30c.cgroup-after.json",
+          "sha256": "978b86579c8c0e716148278634a5b4ba17186933496bbee1631000383f7bb136",
+          "bytes": 507
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role-removal1-a30c.cgroup-during.json",
+          "sha256": "55158c765d94af63bed1df424440dd0afa1e1e3e5045ac0bf37f1807c8261961",
+          "bytes": 1605
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role-removal1-a30c.deciding-ledgers.json",
+          "sha256": "a55cabda156047b0a363fb65395e54a9a19fb9fb6a08d48608d42fdce432e9c8",
+          "bytes": 124
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role-removal1-a30c.deciding-cas.json",
+          "sha256": "2b1da53c3bef25a607e7e52ac14ae9e5b5a9ae3c3f4356ca95a60ab71a093257",
+          "bytes": 220
+        },
+        {
+          "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-role-removal1-a30c.deciding-node-observations.json",
+          "sha256": "6c06be39bf4f6b22179b9cfc39e3a40386a4be4c2819ed81b7888f5d84663e30",
+          "bytes": 190
+        }
+      ],
+      "lossless_debit_CAS_authority_witness": "not_claimed; this selected callback/history test has zero artifacts",
+      "warnings": "pytest cache_dir option warning outside protected callback/history property"
+    }
+  ],
+  "protected_relation": "Samebasis ordinaryv1 score1 and versionv2 score2 execute twice; ordinary reuse consumes no third callback. Independentrole executes third supplied callback score3, original deepcopied ordinary results/history/trace stay equal, later ordinary submit stays cached. Removal keeps role marker/callback and omits roleonly from actualidentity, actualcallback2 contradicts required3.",
+  "P37": [
+    "consumer_asserted",
+    "recomputed",
+    "independently_reconciled"
+  ],
+  "P38": "Retained evaluation_role marker with cache-key omission reuses ordinary result and suppresses actual control callback. Fails actual callback count, before convenient ticket marker.",
+  "authority": "Deterministic supplied stage callback/local cache law only; no scientific issuer/native sample/physical debit/permission/deployed-universe claim.",
+  "first_8e_preflight": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/B156-first8e-preflight-ERROR-zero-phases.json",
+    "sha256": "f7e4085d6d0518e6b61cc676ee2c6a5f08010a2c282c6b82dabe43bde53ad6af",
+    "result": "UNRUN",
+    "admission": "ERROR",
+    "testcase_phases": 0,
+    "manual_actual_tool_transcription": "Explicit unavailable timestamp/full standard harness packet retained; no productFAIL or inheritedred"
+  },
+  "captured_origin_boundary": "Only exited main product source inventory captured; selected test/config bytes independently Git-verified. Full external/transient/fresh-child/caller closure not established.",
+  "original_B156_acceptance": "Exact same input reuse/version separation/independent control execution/unchangedordinaryhistory; original198 bytebinding preserved in aggregate, conditional deployedpriority not promoted.",
+  "finding_disposition_proposal": "closed",
+  "formal_closed": false,
+  "accepted_in_G": false,
+  "P41": "not_established",
+  "no_test_replay_by_reviewer": true
+}

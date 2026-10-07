@@ -1,0 +1,96 @@
+{
+  "selected_cases": [
+    {
+      "classname": "tests.unit.scientist.methods.search.test_service_batch_control_reasons",
+      "name": "test_empty_batch_then_declared_signal_preserves_cause_partial_cost_and_fresh_view[StopIteration]"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.test_service_batch_control_reasons",
+      "name": "test_empty_batch_then_declared_signal_preserves_cause_partial_cost_and_fresh_view[ValueError]"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.test_service_batch_control_reasons",
+      "name": "test_empty_batch_then_declared_signal_preserves_cause_partial_cost_and_fresh_view[CancelledError]"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.test_service_batch_control_reasons",
+      "name": "test_empty_batch_transient_and_persistent_preserve_actual_partial_cost[steps0-[max_iterations] Maximum iterations (2) reached-2]"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.test_service_batch_control_reasons",
+      "name": "test_empty_batch_transient_and_persistent_preserve_actual_partial_cost[steps1-generation_exhausted-1]"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.test_service_batch_control_reasons",
+      "name": "test_async_cancel_after_empty_public_batch_keeps_acknowledged_generator_and_partial_state"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.test_service_batch_control_reasons",
+      "name": "test_empty_batch_signal_retains_real_provider_settlement_receipt_and_fresh_ledger[StopIteration]"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.test_service_batch_control_reasons",
+      "name": "test_empty_batch_signal_retains_real_provider_settlement_receipt_and_fresh_ledger[ValueError]"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.test_service_batch_control_reasons",
+      "name": "test_empty_batch_signal_retains_real_provider_settlement_receipt_and_fresh_ledger[CancelledError0]"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.test_service_batch_control_reasons",
+      "name": "test_empty_batch_signal_retains_real_provider_settlement_receipt_and_fresh_ledger[CancelledError1]"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.test_service_batch_control_reasons",
+      "name": "test_async_generator_rollback_refusal_blocks_publication_and_preserves_original_cause"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.test_service_batch_control_reasons",
+      "name": "test_failure_checkpoint_io_refusal_retains_original_batch_reason_and_last_ack"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.test_service_control_cleanup_independent",
+      "name": "test_async_rollback_refusal_keeps_original_cause_and_requires_fresh_ack_reader"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.test_service_control_cleanup_independent",
+      "name": "test_failure_checkpoint_publication_phase_keeps_primary_refusal_and_old_ack[put]"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.test_service_control_cleanup_independent",
+      "name": "test_failure_checkpoint_publication_phase_keeps_primary_refusal_and_old_ack[readback]"
+    }
+  ],
+  "selected_case_count": 15,
+  "selected_phases": 45,
+  "owned_fixture_dirs": 15,
+  "actual_checkpoint_configurations": 58,
+  "selected_source_files": {
+    "policy-engine/tests/unit/scientist/methods/search/test_service_batch_control_reasons.py": "2b1bd068f212aafc6311a8adbd83182d53eb6f7919dbfe18fc8ad4688de01e3f",
+    "policy-engine/tests/unit/scientist/methods/search/test_service_control_cleanup_independent.py": "0b68c91bfc6fc6de05249f07cced5469ed046765e2221ae5c16e4c2a9210e020"
+  },
+  "actual_ports_source_hashes": {
+    "test_service_batch_control_reasons._stage_a": "d15bd68d3a26cfc283e1aa3fb99c3c2a945416346548fb377e651453021909a9",
+    "test_service_batch_control_reasons._stage_b": "27f480d9369afcd3e32ba602d139b9329beb1f545ff619d4b11bc0e9b08a9af9",
+    "test_service_control_cleanup_independent._stage_a": "99949fb47ea73914b5ee170b062329011f4ec9c36e9bb7d0f84d877588c506de",
+    "test_service_control_cleanup_independent._stage_b": "34889fa1315e85b97c35199e711054b7784b6b6d4d772c7614fa4c98a12bb7b9"
+  },
+  "changed_persistence_source_in_selected_config": false,
+  "all_selected_checkpoints_profile": "builtin-objective-stateless-ports.v1",
+  "schema_version": 1,
+  "created_utc": "2026-10-07T15:08:56.850776+00:00",
+  "reviewer": "transfer_oct07",
+  "verdict": "GO_HISTORICAL_UNCHANGED_SCOPED_CARRY",
+  "executed_sha": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "candidate_sha": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "candidate_tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+  "changed_path": "policy-engine/tests/unit/scientist/methods/search/test_service_persistence.py",
+  "actual_source_before_sha256": "2bbf7a9cfa1026d26639823f85becc5999d436083532bde55f053bad3ad0f0cc",
+  "actual_source_after_sha256": "da117cc31b86f0c85327435f6b0d25317852701df76723506866b350a23e0b6a",
+  "runtime_root": "/dev/shm/e02-D-generic-history-final3b31-2vo6p0_f",
+  "deciding_stdout_sha256": "10fb1063e6f87536496e14eab9f88e5818fcfad1cd8bbfd5f6e2f0fb9ca1c023",
+  "deciding_junit_sha256": "49429c13cb67d6dcbda3c775a6d095b617ddb6757cc67a12c9bf7e38b1ef7ad5",
+  "property_custody": "own _BatchPort/_BatchSupplier producer methods, own stateless _stage_a/_stage_b and owned real B paid resource; complete producer/test sources and builtin objective/service/controller/canonical ledger source unchanged; all58 selected checkpoint configs bind own stage function source hashes and objective source, no persistence helper/file hash",
+  "session_origin_limitation": "Mixed37 session also collected persistence and captures it in global loaded origins. This receipt does not claim whole-session zero overlap, complete17350 unchanged identity, current newly executed15PASS or P41. Only selected historical15 passed assertions and their actual owned configuration/artifact/source property closure are carried. The dependent22 + new31 + removal1 were rerun currenta795.",
+  "P41": "not_established"
+}

@@ -1,0 +1,32 @@
+"""Observe exact runtime imports without importing Torch in the parent."""
+import hashlib
+import importlib.metadata
+import json
+import os
+from pathlib import Path
+import sys
+import pytest
+
+request = json.loads(Path(sys.argv[1]).read_text())
+class Evidence:
+    def pytest_sessionfinish(self, session, exitstatus):
+        cells = []
+        for name, expected in request["expected_modules"].items():
+            module = sys.modules.get(name)
+            if module is None:
+                cells.append({"module": name, "loaded": False})
+                continue
+            path = Path(module.__file__).resolve()
+            actual = path.read_bytes()
+            matches = path.is_relative_to(Path(request["root"]) / "policy-engine/src") and hashlib.sha256(actual).hexdigest() == expected["sha256"] and len(actual) == expected["bytes"]
+            cells.append({"module": name, "loaded": True, "origin": str(path), "sha256": hashlib.sha256(actual).hexdigest(), "bytes": len(actual), "matches_pinned_source": matches})
+        backend = {}
+        for name in ["torch", "botorch", "gpytorch", "numpy", "scipy", "hnswlib"]:
+            module = sys.modules.get(name)
+            backend[name] = {"origin": getattr(module, "__file__", None), "loaded": module is not None, "version": importlib.metadata.version(name)}
+        payload = {"source_commit": request["source_commit"], "source_tree": request["source_tree"], "python": sys.version, "executable": sys.executable, "cwd": os.getcwd(), "module_cells": cells, "backend": backend, "collected": session.testscollected, "failed": session.testsfailed, "exitstatus": int(exitstatus), "environment": {k: os.environ.get(k) for k in ["PYTHONPATH", "PYTHONDONTWRITEBYTECODE", "TIKTOKEN_CACHE_DIR", "OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS", "NUMEXPR_NUM_THREADS", "POLISYOS_PYTEST_WORKERS", "PYTEST_ADDOPTS"]}}
+        Path(request["origin_output"]).write_text(json.dumps(payload, indent=2) + "\n")
+        if int(exitstatus) == 0 and not all(c.get("loaded") and c.get("matches_pinned_source") for c in cells):
+            raise RuntimeError("Actual runtime source origins do not match the pinned candidate")
+status = pytest.main(request["pytest_argv"], plugins=[Evidence()])
+raise SystemExit(status)

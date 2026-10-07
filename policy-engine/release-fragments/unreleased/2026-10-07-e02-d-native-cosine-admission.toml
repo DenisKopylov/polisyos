@@ -1,0 +1,8 @@
+type = "fixed"
+summary = "Native vector discovery validates indexed strict numeric coordinates and normalizes cosine directions before HNSW float32 narrowing; finite large/small amplitudes no longer publish nonfinite or collapsed native geometry. Private persisted native vectors are checked for finiteness before publication. Exact CAS history addressability remains separate from ANN discovery."
+component = "scientist-search"
+owner = "team-policyos-runtime"
+change_class = "internal"
+compatibility = "Existing cosine directions and zero-vector native behavior are retained; malformed or float-conversion-overflow coordinates raise indexed ValueError before generation publication. Native float32 rounding remains approximate; already collapsed finite-zero legacy vectors require original embeddings to identify or recover."
+migration = "No persisted composite schema change; hnswlib0.8.0 native ABI admission and existing CAS ArtifactRef remain required. Callers must handle ValueError for unsupported numeric inputs."
+limitations = "Bounded in-process native pointer and finite fixture CAS/fresh-reader evidence; no production source-owner authority, cross-version native portability, distributed atomicity or performance claim."

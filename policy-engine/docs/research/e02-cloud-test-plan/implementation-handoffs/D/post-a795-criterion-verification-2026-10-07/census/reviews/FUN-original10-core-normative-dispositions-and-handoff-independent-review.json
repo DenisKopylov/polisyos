@@ -1,0 +1,110 @@
+{
+  "schema": "D.E02.FUN-original10-core-independent-metadata-review.v1",
+  "reviewer": "census_oct07",
+  "author": "funnel_oct07",
+  "decision": "GO_NORMATIVE_ORIGINAL10_AND_CORE_HANDOFF; full moderate output transport seal separately required",
+  "manifest": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/normative-core-manifest.json",
+    "sha256": "f00d63feb7fdf2c6ce1816edeaec112d49c388e8632fc7ba7a75c89855c68fcf"
+  },
+  "members": [
+    {
+      "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/funnel/original10-outcomes.json",
+      "sha256": "c2f734080c1feda26e4d68ff84aa6bc9600288f66b28f236c2e68062bef883f4",
+      "bytes": 48770
+    },
+    {
+      "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/funnel/HANDOFF.json",
+      "sha256": "802f46d87df7f6bc471d9b7c50394f9501e11cc51ee354745e8c94e4479b35f4",
+      "bytes": 8628
+    },
+    {
+      "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/funnel/context/held3-minimum-owner-inputs.json",
+      "sha256": "18f879a6d5664fd8bd70d7628e73b5b4945231c55ec137d59fa39534f1455d53",
+      "bytes": 8971
+    },
+    {
+      "canonical_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/funnel/context/final-a30c-selected-reached-source-qualification.json",
+      "sha256": "7ca7d31d3bedd1149392761bbd2bea93eef0dedb42b3f502a0ba4a70806a1d69",
+      "bytes": 4665
+    }
+  ],
+  "original10": [
+    {
+      "id": "B156@FUN-01",
+      "direct_original_text_binding_exact": true,
+      "proposal": "closed_proposal"
+    },
+    {
+      "id": "B157@FUN-02",
+      "direct_original_text_binding_exact": true,
+      "proposal": "held"
+    },
+    {
+      "id": "B158@FUN-01",
+      "direct_original_text_binding_exact": true,
+      "proposal": "closed_proposal"
+    },
+    {
+      "id": "B159@FUN-01",
+      "direct_original_text_binding_exact": true,
+      "proposal": "closed_proposal"
+    },
+    {
+      "id": "B160@FUN-02",
+      "direct_original_text_binding_exact": true,
+      "proposal": "closed_proposal"
+    },
+    {
+      "id": "B161@FUN-03",
+      "direct_original_text_binding_exact": true,
+      "proposal": "held"
+    },
+    {
+      "id": "B162@FUN-02",
+      "direct_original_text_binding_exact": true,
+      "proposal": "closed_proposal"
+    },
+    {
+      "id": "B163@FUN-03",
+      "direct_original_text_binding_exact": true,
+      "proposal": "closed_proposal"
+    },
+    {
+      "id": "B164@FUN-03",
+      "direct_original_text_binding_exact": true,
+      "proposal": "held"
+    },
+    {
+      "id": "B165@FUN-02",
+      "direct_original_text_binding_exact": true,
+      "proposal": "closed_proposal"
+    }
+  ],
+  "former_open_narrative": "Seven old open disposition fields moved to explicit historical_prior_accounting_disposition; current closed_proposal7/held3,formal0/Gfalse",
+  "actual_pins": "B156 a30c1PASS/removal1FAIL; Node d23 fifteenPASS/removal4FAIL; tracker3 subset5bPASS retainscomplete13P5fixtureF; previous17 at3b andA7cache/raw sourcesqualified only",
+  "independent_runtime_reviews": [
+    {
+      "sha256": "fe23ece8acbef92686732fbb5972f1940890c86645e30e771ccca903f8dc20ac",
+      "scope": "Node15/removal4 actuald23"
+    },
+    {
+      "sha256": "0bf3bfc325f81c7d493037d2a6878894a25ad516810d4c1ef1cc0ce7dc32ad16",
+      "scope": "B156 currenta30c callback/history singleton+removal"
+    },
+    {
+      "sha256": "5adcc3bfa912f137f7d55f230459441bb51c7fb978c853362e6247302d98bfcc",
+      "scope": "1174old17mainorigins/currentexact6helperblobs only selectedscopecarry"
+    },
+    {
+      "sha256": "473971e819d10f7322d555f873419e027825825183116279448b30dec6ca4b00",
+      "scope": "A7 actualfinancial directasync branch17files; not whole currentimport closure"
+    }
+  ],
+  "B159": "Old3b actual reserve/release remaining-work consumer persists as source-qualified assertion only; no durableticket authorization/fullcurrentdependency proof",
+  "scientific_authority": "not_established for real native draws, authorized refinement and typedissued/current/revoked permit positives. Controlled Stage/callback/worker/guard values do not appoint these owners.",
+  "publication": "Local core bytes available; full moderate output manifest pending. No remote Git/complete rawinventories cloudavailability claimed.",
+  "P41": "not_established",
+  "formal_closed": false,
+  "accepted_in_G": false
+}

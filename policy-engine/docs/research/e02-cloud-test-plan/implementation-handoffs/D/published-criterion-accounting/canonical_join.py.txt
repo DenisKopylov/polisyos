@@ -1,0 +1,31 @@
+"""Read complete D owner/criterion join; this does not adjudicate findings."""
+import csv,hashlib,io,json,subprocess,sys
+from collections import Counter
+ref=sys.argv[1]
+def raw(path):return subprocess.check_output(['git','show',ref+':'+path])
+prefix='policy-engine/docs/research/e02-cloud-test-plan/'
+coverage=json.loads(raw(prefix+'closure-decisions/coverage.json'))
+findings=list(csv.DictReader(io.StringIO(raw(prefix+'execution-organization/finding-owners.tsv').decode()),delimiter='\t'))
+bundles=list(csv.DictReader(io.StringIO(raw(prefix+'execution-organization/bundle-owners.tsv').decode()),delimiter='\t'))
+selected=[r for r in coverage['findings'] if r['unit']=='D']
+owner={r['finding_id']:r for r in findings if r['unit']=='D'}
+selected_bundles=[r for r in coverage['bundles'] if r['unit']=='D']
+assert set(owner)=={r['id'] for r in selected}
+assert {r['bundle_id'] for r in bundles if r['unit']=='D'}=={r['id'] for r in selected_bundles}
+occurrences=[]
+for row in selected:
+    assert row['primary_bundle']==owner[row['id']]['source_closure_owner']
+    assert set(row['companion_bundles'])==set(owner[row['id']]['source_bundle_ids'].split(','))
+    assert row['ledger_status_historical']==owner[row['id']]['source_status']
+    for criterion in row['criterion_refs']:
+        document=coverage['criterion_documents'][criterion['document']]
+        assert subprocess.check_output(['git','rev-parse',ref+':'+document['path']],text=True).strip()==document['blob']
+        lines=raw(document['path']).splitlines(keepends=True)
+        start,end=criterion['lines'];block=b''.join(lines[start-1:end])
+        assert hashlib.sha256(block).hexdigest()==criterion['sha256']
+        card=next(r['criterion_card'] for r in selected_bundles if r['id']==criterion['card'])
+        assert block in raw(card)
+        occurrences.append((row['id'],criterion['card']))
+for bundle in selected_bundles:
+    assert set(bundle['finding_ids'])=={finding for finding,card in occurrences if card==bundle['id']}
+print(json.dumps({'source_sha':ref,'denominator':'both complete owner TSVs and complete coverage arrays, all D rows and every card occurrence/original source block; no sample','whole_owner_rows':{'bundles':len(bundles),'findings':len(findings)},'D_distinct_findings':len(selected),'D_bundles':len(selected_bundles),'D_source_block_occurrences':len(occurrences),'all_join_identity_and_full_fragment_hash_checks':True,'source_owner_status_counts':dict(Counter(row['source_status'] for row in owner.values())),'canonical_closure_now_counts':dict(Counter(row['closure_now'] for row in selected)),'LA015':{'closure_owner':owner['LA-015']['source_closure_owner'],'card_occurrences':[row for row in occurrences if row[0]=='LA-015']},'closure_adjudication':'not_performed'}))

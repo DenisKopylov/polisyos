@@ -1,0 +1,120 @@
+{
+  "schema": "policyos.e02.independent_root_affected44_handoff.v1",
+  "reviewer": "D/numerical_oracle",
+  "verdict": "PASS_BOUNDED_ACTUAL44",
+  "scope": "Metadata/source/evidence review only; no new runtime, fits or source/test edits",
+  "proof_commit": "f4adec571a10cb1ab93d0d945e201384a7ff8e50",
+  "proof_tree": "87615dcd574e6f54b8f3d1d0f1f97ac1d76fff8f",
+  "proof_parent": "e09be07ade0e439e1c28094230da53de1962a0cd",
+  "proof_files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-affected44-independent/README.md",
+      "git_blob": "c9a0a72d336cbae2d382c9b348d8af0c5720e5d9",
+      "sha256": "4d2c410386dc93b7bd67b0a810e72e9e6974cd8be35a2a4f1397d02d717e69e4",
+      "bytes": 863,
+      "raw_blob_readback_equal": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-affected44-independent/review.json",
+      "git_blob": "11c53d58ba3e417777601ed7cadf397a8658cdb0",
+      "sha256": "94a3bcca3ae80cc68f0fe1d5297a070536c7840ec95945072ed229065a287fd3",
+      "bytes": 17279,
+      "raw_blob_readback_equal": true
+    }
+  ],
+  "actual_runtime_source": {
+    "sha": "f2d5401c9cd8a02a74579e4c47b836042a12eb99",
+    "tree": "ff727db3e7dec74b3b82e3a67b3fd013382c74bb"
+  },
+  "actual_runtime": {
+    "interpreter": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "python": "3.14.7",
+    "profile": "148 locked core/runtime/test distributions, no Torch/BoTorch/GPyTorch/HNSW/SALib",
+    "selected": {
+      "configured_node": 35,
+      "canonical_native_B11_ledger": 7,
+      "ordinary_funnel_full_split_capacity": 2
+    },
+    "passed": 44,
+    "failed": 0,
+    "errors": 0,
+    "skips": 0,
+    "deselected": 0,
+    "setup_call_teardown_PASS_reports": 132,
+    "wall_seconds": 27.450049844992463,
+    "maxrss_KiB": 578452,
+    "GP_properties": "UNRUN; no numerical backend success inherited"
+  },
+  "immutable_author_output": {
+    "payload_sha": "04218ee864ffcae2cdec19d6b22379351eceeed7",
+    "payload_tree": "571709450a2bb46ac19d85261c8d103a7b33b068",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-composed-affected44/complete-output.json.xz",
+    "sha256": "32be0055d49cb4d63d504c668e5f8038af65f71194286acd3150ae9ec97172f8",
+    "bytes": 1060752,
+    "member_count": 447,
+    "original_raw_bytes": 9161971,
+    "receipt_sha": "aa6c7b589c465bfe3aa5204be774195b627b72ea",
+    "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-composed-affected44.json",
+    "receipt_sha256": "b7fcb87fb8e555c6f7e96a1468d2413cd23972bc8cfd275145359d5ceffc5a13",
+    "receipt_bytes": 17900
+  },
+  "independent_checks": {
+    "all447member_hashes_sizes_and_original_bytes_match": true,
+    "manifest_member_metadata_deep_equal": true,
+    "complete_original_file_walk_coverage": true,
+    "declared_input_rows": 2760,
+    "independent_expected_declared_paths": 2760,
+    "declared_missing_extra": 0,
+    "product_module_rows": 1335,
+    "product_exec_rows": 1335,
+    "unique_product_paths": 1335,
+    "frozen_Git_raw_byte_blob_sha256_binding_errors": 0,
+    "head_tree_branch_status_clean_before_after_equal": true,
+    "declared_inputs_and_external_files_equal_before_after": true,
+    "JUnit_nodeids_observer_and_all132phase_reports_agree": true,
+    "current_loaded_numpy_scipy_pytest_and_numpy_binary_bytes_match_observer": true,
+    "author_receipt_result_and_backend_deep_equal_originals": true,
+    "derived_checks_root": "/tmp/e02-oracle-root-affected44-independent-1e639304999346ed919634740f0fbbf2"
+  },
+  "historical_startup": {
+    "scope": "Original V1 wrapper attempt",
+    "status": "ERROR_HARNESS_STARTUP",
+    "exit": 1,
+    "test_phases": 0,
+    "JUnit": "NONE",
+    "numerical_properties": "UNRUN",
+    "cause": "before.json nested files under inputs; existing observer expects top-level files",
+    "successor_delta": "Only V2 before.json envelope flattened, no product/test/selector changes",
+    "original_captured_failure_retained": true
+  },
+  "capture_caveat": {
+    "direct_consumed_fixture": "policy-engine/tests/unit/scientist/nodes/builtins/planning/test_run_hierarchical_policy_search.py",
+    "captured_individually_at_execution": false,
+    "current_review_bytes_match_frozen_Git": true,
+    "meaning": "Global clean root before/after was captured. Do not claim individual historical helper observation. Static16candidate import closure includes conditional/function-local references, not16actual-loaded claims.",
+    "final_wave_measurement": "Root GP reviewer expands declared hash scope to all tracked test Python; no retrospective extension of old44 capture"
+  },
+  "limitations": [
+    "Targeted44 actual PASS is separate from original minimal99 collection ERROR and prospective final100 broad wave.",
+    "Supported structured Money/subject/tenant/registry/receipt mechanisms and declared fixture measurements do not establish scientific/invoice truth, producer appointment, attempt-owned or atomic multi-key authority.",
+    "No GP26 rerun, optional backend numerical PASS, full quality gate, universal P37 waiver, G acceptance or formal closure.",
+    "Inspected wrappers add no CPU/thread/process/test-worker/time limits; inherited host/cgroup values are measured. No product import/test execution by reviewer."
+  ],
+  "publication": {
+    "method": "Root-authorized Git API existing codex/e02-D-published-oracle topic only",
+    "expected_parent_lease": true,
+    "force": false,
+    "local_HEAD": "f102a63abc63e35aef2b4ed9e480ccc248c650a3",
+    "local_HEAD_advanced": false,
+    "local_status": "clean",
+    "native_hooks": "Not executed for API commits; no native-hook PASS claim",
+    "proof_and_handoff": "Separate append-only commits"
+  },
+  "product_test_writes": 0,
+  "root_tracked_writes": 0,
+  "child_agents": 0,
+  "cleanup_actions": 0,
+  "formal_closed": 0,
+  "G_accepted": false,
+  "closure_ids": []
+}

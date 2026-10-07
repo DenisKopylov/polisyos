@@ -1,0 +1,99 @@
+"""Reconcile committed native E-to-D probe inputs and finite-count outputs."""
+import hashlib
+import json
+import subprocess
+from pathlib import Path
+
+ROOT = Path('/workspace/e02-D-published-oracle')
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/'
+DEST = ROOT / 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation'
+TRANSPORT = 'c0a40bd6745eb3e5a4d5ccdc31171e349255f6b5'
+SOURCE = 'eb826b57fd9ea98550b93f840aca6d54e6454a27'
+
+
+def git(*args: str) -> bytes:
+    return subprocess.check_output(['git', *args], cwd=ROOT)
+
+
+def blob(source: str, path: str) -> bytes:
+    return git('show', source + ':' + path)
+
+
+def digest(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def document(name: str) -> dict:
+    return json.loads(blob(TRANSPORT, PREFIX + name))
+
+
+manifest = document('payload-manifest.json')
+checks = []
+for row in manifest['payloads']:
+    data = blob(TRANSPORT, row['path'])
+    assert len(data) == row['bytes']
+    assert digest(data) == row['sha256']
+    checks.append({**row, 'result': 'MATCH'})
+inputs = document('doe-ordinary-inputs.json')
+run = document('doe-ordinary-resource.json')
+output = document('doe-ordinary-complete.txt')
+assert run['source_sha'] == run['source_sha_after'] == inputs['source_sha'] == SOURCE
+assert git('rev-parse', SOURCE + '^{tree}').decode().strip() == inputs['candidate_tree_sha']
+assert digest(blob(TRANSPORT, PREFIX + 'doe-ordinary-inputs.json')) == run['input_profile_sha256']
+assert run['exit_code'] == 0 and output['outcome'] == 'PASS'
+assert run['output_bytes'] == len(blob(TRANSPORT, PREFIX + 'doe-ordinary-complete.txt'))
+for row in inputs['files']:
+    data = blob(row['source_sha'], row['path'])
+    assert digest(data) == row['sha256'] and len(data) == row['bytes']
+    assert git('rev-parse', row['source_sha'] + ':' + row['path']).decode().strip() == row['git_blob']
+for key, path in [('src_tree', 'policy-engine/src'), ('architecture_tree', 'policy-engine/architecture')]:
+    assert git('rev-parse', SOURCE + ':' + path).decode().strip() == inputs[key]
+for name, row in output['modules'].items():
+    path = str(Path(row['path']).relative_to('/workspace/e02-D-published-stress'))
+    assert digest(blob(SOURCE, path)) == row['sha256']
+origin_check = document('doe-ordinary-origin-check.json')
+assert origin_check['count'] == len(output['modules']) == len(origin_check['rows']) == 10
+for row in origin_check['rows']:
+    assert row['matches_git'] is True and row['source_sha'] == SOURCE
+    assert output['modules'][row['module']]['sha256'] == row['sha256']
+
+reports = output['reports']
+assert [row['top_k'] for row in reports] == [1, 20]
+assert reports[0]['observed'] == reports[1]['observed']
+reconciled = []
+for row in reports:
+    observed = row['observed']
+    assert len(observed) == 38
+    violations = sum(value >= 1.75 for value in observed)
+    assert violations == 15
+    evidence = row['evidence']
+    assert evidence['attempted'] == evidence['finite_evaluated'] == evidence['planned_scenarios'] == 38
+    assert evidence['violated_scenarios'] == 15 and evidence['unknown_or_nonfinite'] == 0
+    assert evidence['objective_direction'] == 'minimize' and evidence['vulnerability_threshold'] == 1.75
+    assert row['observed_fraction'] == (38 - 15) / 38
+    reconciled.append({'top_k': row['top_k'], 'finite_denominator': 38, 'violations': 15,
+                       'fraction': 23 / 38, 'retained_examples': row['retained_examples'],
+                       'worst_observed': max(observed)})
+assert output['adaptive']['rows'] == [6, 12] and output['adaptive']['total_evaluations'] == 18
+assert output['adaptive_oversize']['admitted_sampling_rows'] == [6]
+assert output['adaptive_oversize']['evaluator_rows'] == [6]
+assert output['doe_oversize'] == {'sampling_calls': 0, 'evaluator_calls': 0}
+assert output['grid_prefix']['enumerated'] == 3 and output['grid_prefix']['possible_corners'] == 4096
+unrun = []
+for label in ['no-prior-report-red', 'no-prior-report-green', 'doe-report-consumer']:
+    data = document(label + '-resource.json')
+    assert data['exit_code'] == -9
+    assert blob(TRANSPORT, PREFIX + label + '-complete.txt') == b''
+    unrun.append({'scope': label, 'source': data['source_sha'], 'exit_code': -9,
+                  'wall_seconds': data['wall_seconds'], 'outcome': 'ERROR/uncompleted UNRUN'})
+
+result = {'schema': 'policyos.e02.D.independent-binding-review.v1',
+          'reviewer': 'numerical_oracle', 'transport': TRANSPORT, 'source': SOURCE,
+          'source_tree': inputs['candidate_tree_sha'], 'payload_members': checks,
+          'source_input_files_verified': len(inputs['files']), 'actual_loaded_origins_verified': 10,
+          'run': run, 'reconciled_finite_reports': reconciled, 'unrun': unrun,
+          'execution': 'stdlib Git/hash/JSON count reconciliation only; no backend run'}
+(DEST / 'stress-doe-independent-binding-output.json').write_text(json.dumps(result, indent=2) + '\n')
+print(json.dumps({'members': len(checks), 'inputs': len(inputs['files']), 'origins': 10,
+                  'finite_denominator': 38, 'violations': 15, 'fraction': 23 / 38,
+                  'separate_unrun': len(unrun), 'binding_result': 'MATCH'}))

@@ -1,0 +1,35 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "-o",
+    "junit_family=xunit1",
+    "--basetemp",
+    "/dev/shm/e02-D-lesson-current-08g_91ts/basetemp",
+    "--junitxml",
+    "/dev/shm/e02-D-lesson-current-08g_91ts/junit.xml",
+    "-q",
+    "tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_real_controller_keeps_typed_nested_context_in_lesson_consumer"
+  ],
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "source": "d610095905262a9b5b05b60c894018a681119367",
+  "tree": "f5a8262d01929bcc96399ad9492e8aaf7489a8a1",
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "TMPDIR": "/dev/shm/e02-D-lesson-current-08g_91ts/tmp",
+    "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine"
+  },
+  "inputs": {
+    "policy-engine/src/polisyos/scientist/methods/search/controller.py": "850eeac5abe58df4f7c2ef0d56b836f404477e7d",
+    "policy-engine/src/polisyos/scientist/methods/search/lessons.py": "0520a440f0b5285d3976f152dad5a0dbfe9c35cb",
+    "policy-engine/src/polisyos/scientist/methods/search/transfer_context.py": "0963066824070b40fbe3d999d61d553b02728ec9",
+    "policy-engine/src/polisyos/core/artifacts/store.py": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+    "policy-engine/tests/unit/scientist/methods/search/test_lesson_query_persistence.py": "32827cc8e4f267b9d9e6d4bf86eb0ffb0c3ed216"
+  },
+  "scope": "actual current SearchController typed/serialized context\u2192CAS-backed lesson consumer;2 affected-import cases, not full lessonreplay",
+  "limits_introduced": false,
+  "start_utc": "2026-10-07T08:06:05.826314+00:00"
+}

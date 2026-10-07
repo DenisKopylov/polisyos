@@ -1,0 +1,2710 @@
+{
+  "schema": "D.e02.final680.active-evidence-map.v1",
+  "candidate": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+  "per_original_occurrence": [
+    {
+      "id": "B106@STR-01",
+      "original_acceptance_sha256": "1d212bb12a7346fc8c2480723fddd43da874e2e1daa2d2070a6233ab75795d43",
+      "deciding_outputs": [
+        {
+          "sha256": "d950b06c22f68472f8dd51ef40d09e72663d9f218d8deb9d4ecaf3ecb758bb3f",
+          "bytes": 3475,
+          "role": "FulloriginalB106/B107/B122 actual469153/realDOE38finite15violated23/38 and realdenominator/stopping negatives",
+          "executed_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/STP-STR469-threefile-seal-and-original-criterion-independent-review.json",
+            "bytes": 3475,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+          "bytes": 29365,
+          "role": "Actual native48/Service41/Champion44/paid2/DOE13/Legacy2, originalB111/B124 and four persisted removal witnesses",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+            "bytes": 29365,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B107@STR-01",
+      "original_acceptance_sha256": "83e4adcea92922a6991dbd16937e9dc47cca02d83f0beccf2eb7e2f43623e0a3",
+      "deciding_outputs": [
+        {
+          "sha256": "d950b06c22f68472f8dd51ef40d09e72663d9f218d8deb9d4ecaf3ecb758bb3f",
+          "bytes": 3475,
+          "role": "FulloriginalB106/B107/B122 actual469153/realDOE38finite15violated23/38 and realdenominator/stopping negatives",
+          "executed_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/STP-STR469-threefile-seal-and-original-criterion-independent-review.json",
+            "bytes": 3475,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+          "bytes": 29365,
+          "role": "Actual native48/Service41/Champion44/paid2/DOE13/Legacy2, originalB111/B124 and four persisted removal witnesses",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+            "bytes": 29365,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B108@OPT-01",
+      "original_acceptance_sha256": "8d4cbd469a454de4a7f4a26aa91c3fdf8aabf3b2b59bb77651b99146bcaa888c",
+      "deciding_outputs": [
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "e3e4919b03042099c804f35fbe94012ef7c6f9a73e47337528ecb9a51dd1b76a",
+          "bytes": 6836,
+          "role": "Minimum actual unit/sign/alias producerlaw input packet; no scientificunit invented",
+          "executed_source": null,
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-a7-b652/recipes-and-original-bindings/B108-unit-intake-minimum-owner-input.json",
+            "bytes": 6836,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B109@OPT-01",
+      "original_acceptance_sha256": "784670e535c99a1baee35da6689f515779b3b616a5829ab125c608fcc4f712b3",
+      "deciding_outputs": [
+        {
+          "sha256": "0b1d9f194413e1b22dfa89cee88d81c315a7df582455cc690d8fc5835a7c1464",
+          "bytes": 54214,
+          "role": "Exact originalB109/B110/B111 mathematical154 plus disjoint27 withinMO88, complete outputs/oracles and negatives",
+          "executed_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/math-adapter-final969/numerical/current-numerical-handoff.json",
+            "bytes": 54214,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "9edc5a7486bebe6adcb5a1d09aa88e4953a09e166818d6624f60d913238d34cf",
+          "bytes": 86408,
+          "role": "Exact consumed numerical/test/registry source qualification through969; no new154 execution",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/math-adapter-final969/numerical/numerical-current-final-unchanged-carry.json",
+            "bytes": 86408,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+          "bytes": 29365,
+          "role": "Actual native48/Service41/Champion44/paid2/DOE13/Legacy2, originalB111/B124 and four persisted removal witnesses",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+            "bytes": 29365,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B110@OPT-01",
+      "original_acceptance_sha256": "199ef2ac1ae718655b08fbb78829e6ed0768b46df5d1b99fad56aa69181c1184",
+      "deciding_outputs": [
+        {
+          "sha256": "0b1d9f194413e1b22dfa89cee88d81c315a7df582455cc690d8fc5835a7c1464",
+          "bytes": 54214,
+          "role": "Exact originalB109/B110/B111 mathematical154 plus disjoint27 withinMO88, complete outputs/oracles and negatives",
+          "executed_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/math-adapter-final969/numerical/current-numerical-handoff.json",
+            "bytes": 54214,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "9edc5a7486bebe6adcb5a1d09aa88e4953a09e166818d6624f60d913238d34cf",
+          "bytes": 86408,
+          "role": "Exact consumed numerical/test/registry source qualification through969; no new154 execution",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/math-adapter-final969/numerical/numerical-current-final-unchanged-carry.json",
+            "bytes": 86408,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+          "bytes": 29365,
+          "role": "Actual native48/Service41/Champion44/paid2/DOE13/Legacy2, originalB111/B124 and four persisted removal witnesses",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+            "bytes": 29365,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B111@OPT-01",
+      "original_acceptance_sha256": "4d1c7ff7de3b274c2aa4e16230b323102adacd871d551f30616d9d8f3b2eec65",
+      "deciding_outputs": [
+        {
+          "sha256": "0b1d9f194413e1b22dfa89cee88d81c315a7df582455cc690d8fc5835a7c1464",
+          "bytes": 54214,
+          "role": "Exact originalB109/B110/B111 mathematical154 plus disjoint27 withinMO88, complete outputs/oracles and negatives",
+          "executed_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/math-adapter-final969/numerical/current-numerical-handoff.json",
+            "bytes": 54214,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "9edc5a7486bebe6adcb5a1d09aa88e4953a09e166818d6624f60d913238d34cf",
+          "bytes": 86408,
+          "role": "Exact consumed numerical/test/registry source qualification through969; no new154 execution",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/math-adapter-final969/numerical/numerical-current-final-unchanged-carry.json",
+            "bytes": 86408,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+          "bytes": 29365,
+          "role": "Actual native48/Service41/Champion44/paid2/DOE13/Legacy2, originalB111/B124 and four persisted removal witnesses",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+            "bytes": 29365,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B112@OPT-02",
+      "original_acceptance_sha256": "346a175ccdf5884dc409464a2363ff08bee370b2e406d2aa45a103abcedf7234",
+      "deciding_outputs": [
+        {
+          "sha256": "591a91b6fcb8b25e5d9bd6ba44e3ff228c2622a73bea89ee16496fc731df4c5f",
+          "bytes": 35794,
+          "role": "Native43/142/88 numerical/state profiles and minimal55/15numericUNRUN, six supported checkpointfamilies",
+          "executed_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/GP-State-MO-currentc0-original-criterion-and-portable-independent-review.json",
+            "bytes": 35794,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "8f2028b321e30da70b4b95732c5efff38bd8c8c710ee204807f10a9555f08206",
+          "bytes": 6487,
+          "role": "Strongc0 numerical source-qualified carry+current969 nativeCAS8/7 fit3; mandatory315e/6c8/11ff metadata boundary",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-final969/independent-census-current-carry-review.json",
+            "bytes": 6487,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "3179c1e5269cf678dd1fdd485b039edc9c535869a44da3be93a43513291339ac",
+          "bytes": 4095,
+          "role": "Actualdefaultconfiguredadapter50/fullaffected126+history2/innerJSON2 removal; supported freshCAS proposal/cursor/physical sequence",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/Adapter-final969-126-and-portable-independent-review.json",
+            "bytes": 4095,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+          "bytes": 29365,
+          "role": "Actual native48/Service41/Champion44/paid2/DOE13/Legacy2, originalB111/B124 and four persisted removal witnesses",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+            "bytes": 29365,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B113@OPT-02",
+      "original_acceptance_sha256": "a58659486c95650eb9a6228a8df62809daede33c44d147794b7f4e78d7ed7624",
+      "deciding_outputs": [
+        {
+          "sha256": "591a91b6fcb8b25e5d9bd6ba44e3ff228c2622a73bea89ee16496fc731df4c5f",
+          "bytes": 35794,
+          "role": "Native43/142/88 numerical/state profiles and minimal55/15numericUNRUN, six supported checkpointfamilies",
+          "executed_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/GP-State-MO-currentc0-original-criterion-and-portable-independent-review.json",
+            "bytes": 35794,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "8f2028b321e30da70b4b95732c5efff38bd8c8c710ee204807f10a9555f08206",
+          "bytes": 6487,
+          "role": "Strongc0 numerical source-qualified carry+current969 nativeCAS8/7 fit3; mandatory315e/6c8/11ff metadata boundary",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-final969/independent-census-current-carry-review.json",
+            "bytes": 6487,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "3179c1e5269cf678dd1fdd485b039edc9c535869a44da3be93a43513291339ac",
+          "bytes": 4095,
+          "role": "Actualdefaultconfiguredadapter50/fullaffected126+history2/innerJSON2 removal; supported freshCAS proposal/cursor/physical sequence",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/Adapter-final969-126-and-portable-independent-review.json",
+            "bytes": 4095,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+          "bytes": 29365,
+          "role": "Actual native48/Service41/Champion44/paid2/DOE13/Legacy2, originalB111/B124 and four persisted removal witnesses",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+            "bytes": 29365,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B114@OPT-03",
+      "original_acceptance_sha256": "b2eab2dd0f76dd6fe89611272edc500c3b3d5e0ef5fa5857251aa73944c096b3",
+      "deciding_outputs": [
+        {
+          "sha256": "591a91b6fcb8b25e5d9bd6ba44e3ff228c2622a73bea89ee16496fc731df4c5f",
+          "bytes": 35794,
+          "role": "Native43/142/88 numerical/state profiles and minimal55/15numericUNRUN, six supported checkpointfamilies",
+          "executed_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/GP-State-MO-currentc0-original-criterion-and-portable-independent-review.json",
+            "bytes": 35794,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "8f2028b321e30da70b4b95732c5efff38bd8c8c710ee204807f10a9555f08206",
+          "bytes": 6487,
+          "role": "Strongc0 numerical source-qualified carry+current969 nativeCAS8/7 fit3; mandatory315e/6c8/11ff metadata boundary",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-final969/independent-census-current-carry-review.json",
+            "bytes": 6487,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "3179c1e5269cf678dd1fdd485b039edc9c535869a44da3be93a43513291339ac",
+          "bytes": 4095,
+          "role": "Actualdefaultconfiguredadapter50/fullaffected126+history2/innerJSON2 removal; supported freshCAS proposal/cursor/physical sequence",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/Adapter-final969-126-and-portable-independent-review.json",
+            "bytes": 4095,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+          "bytes": 29365,
+          "role": "Actual native48/Service41/Champion44/paid2/DOE13/Legacy2, originalB111/B124 and four persisted removal witnesses",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+            "bytes": 29365,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B115@OPT-03",
+      "original_acceptance_sha256": "60c5a8366edbd7193eafd15fb6c048061373a4dac4502e54b328c78b75225156",
+      "deciding_outputs": [
+        {
+          "sha256": "591a91b6fcb8b25e5d9bd6ba44e3ff228c2622a73bea89ee16496fc731df4c5f",
+          "bytes": 35794,
+          "role": "Native43/142/88 numerical/state profiles and minimal55/15numericUNRUN, six supported checkpointfamilies",
+          "executed_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/GP-State-MO-currentc0-original-criterion-and-portable-independent-review.json",
+            "bytes": 35794,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "8f2028b321e30da70b4b95732c5efff38bd8c8c710ee204807f10a9555f08206",
+          "bytes": 6487,
+          "role": "Strongc0 numerical source-qualified carry+current969 nativeCAS8/7 fit3; mandatory315e/6c8/11ff metadata boundary",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-final969/independent-census-current-carry-review.json",
+            "bytes": 6487,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "3179c1e5269cf678dd1fdd485b039edc9c535869a44da3be93a43513291339ac",
+          "bytes": 4095,
+          "role": "Actualdefaultconfiguredadapter50/fullaffected126+history2/innerJSON2 removal; supported freshCAS proposal/cursor/physical sequence",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/Adapter-final969-126-and-portable-independent-review.json",
+            "bytes": 4095,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+          "bytes": 29365,
+          "role": "Actual native48/Service41/Champion44/paid2/DOE13/Legacy2, originalB111/B124 and four persisted removal witnesses",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+            "bytes": 29365,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B116@OPT-04",
+      "original_acceptance_sha256": "838816f2bb639f8c98b0972d2433933f1d8c3f39d8d14f6ee03d52f59c4004ab",
+      "deciding_outputs": [
+        {
+          "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+          "bytes": 29365,
+          "role": "Actual native48/Service41/Champion44/paid2/DOE13/Legacy2, originalB111/B124 and four persisted removal witnesses",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+            "bytes": 29365,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "1c37099e94880d6cbebc51cb16378434473cd591f0dd0845297d591add8b7c28",
+          "bytes": 6204,
+          "role": "CanonicalB333 seven source origins actual5/lock-removal1 and qualified refs/freshreader",
+          "executed_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/champion-B333/review/B333-Champion-final-a7-runtime-independent-review.json",
+            "bytes": 6204,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B117@OPT-04",
+      "original_acceptance_sha256": "9bc6c9b17b4234d10455cb41f4a8e6380c31163687291bb38242529bb954d319",
+      "deciding_outputs": [
+        {
+          "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+          "bytes": 29365,
+          "role": "Actual native48/Service41/Champion44/paid2/DOE13/Legacy2, originalB111/B124 and four persisted removal witnesses",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+            "bytes": 29365,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "1c37099e94880d6cbebc51cb16378434473cd591f0dd0845297d591add8b7c28",
+          "bytes": 6204,
+          "role": "CanonicalB333 seven source origins actual5/lock-removal1 and qualified refs/freshreader",
+          "executed_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/champion-B333/review/B333-Champion-final-a7-runtime-independent-review.json",
+            "bytes": 6204,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B118@CTL-01",
+      "original_acceptance_sha256": "0b2c57a0df378303470a151c0d9ffa22e3e8eaa952e3f607113478a80e9581f0",
+      "deciding_outputs": [
+        {
+          "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+          "bytes": 29365,
+          "role": "Actual native48/Service41/Champion44/paid2/DOE13/Legacy2, originalB111/B124 and four persisted removal witnesses",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+            "bytes": 29365,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "3179c1e5269cf678dd1fdd485b039edc9c535869a44da3be93a43513291339ac",
+          "bytes": 4095,
+          "role": "Actualdefaultconfiguredadapter50/fullaffected126+history2/innerJSON2 removal; supported freshCAS proposal/cursor/physical sequence",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/Adapter-final969-126-and-portable-independent-review.json",
+            "bytes": 4095,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "faab6d1d09847dca1c001d5fe1ba07d8cc05467b53e6058bf87a2725d4c7bc5f",
+          "bytes": 6838,
+          "role": "Actualpublicownerfactory10 plus original a7 canonical financial scope outputs qualified by source/AST identity",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/FUN-final969-actual10-and-financial-carry-independent-review.json",
+            "bytes": 6838,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B119@CTL-01",
+      "original_acceptance_sha256": "2df8d82c78083a0795327b04b6d0175330efa9f45f87e41b60ae40f89c635f97",
+      "deciding_outputs": [
+        {
+          "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+          "bytes": 29365,
+          "role": "Actual native48/Service41/Champion44/paid2/DOE13/Legacy2, originalB111/B124 and four persisted removal witnesses",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+            "bytes": 29365,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "3179c1e5269cf678dd1fdd485b039edc9c535869a44da3be93a43513291339ac",
+          "bytes": 4095,
+          "role": "Actualdefaultconfiguredadapter50/fullaffected126+history2/innerJSON2 removal; supported freshCAS proposal/cursor/physical sequence",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/Adapter-final969-126-and-portable-independent-review.json",
+            "bytes": 4095,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "faab6d1d09847dca1c001d5fe1ba07d8cc05467b53e6058bf87a2725d4c7bc5f",
+          "bytes": 6838,
+          "role": "Actualpublicownerfactory10 plus original a7 canonical financial scope outputs qualified by source/AST identity",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/FUN-final969-actual10-and-financial-carry-independent-review.json",
+            "bytes": 6838,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B120@CTL-03",
+      "original_acceptance_sha256": "fc2bdc0f5a2f9ab501ed9195ce1b0116184989c4a1c66c6fd3ab34716b4fb8d6",
+      "deciding_outputs": [
+        {
+          "sha256": "faab6d1d09847dca1c001d5fe1ba07d8cc05467b53e6058bf87a2725d4c7bc5f",
+          "bytes": 6838,
+          "role": "Actualpublicownerfactory10 plus original a7 canonical financial scope outputs qualified by source/AST identity",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/FUN-final969-actual10-and-financial-carry-independent-review.json",
+            "bytes": 6838,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "accee7145c0e4c74ecbb16e8c5c75b32bf7f292beb97a16567422a4a936f22c2",
+          "bytes": 4172,
+          "role": "Fulloriginal11FUN/CTLcost clauses+owner16scope and complete canonical B1.2 financial outputs/GitService122",
+          "executed_source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/FUN499-b652-original11-owner16-and-GitService122-seal-independent-review.json",
+            "bytes": 4172,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+          "bytes": 29365,
+          "role": "Actual native48/Service41/Champion44/paid2/DOE13/Legacy2, originalB111/B124 and four persisted removal witnesses",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+            "bytes": 29365,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B121@CTL-03",
+      "original_acceptance_sha256": "926f2f672300e9dd03830f1677ba7354bf461218ef9c41841e1f9f6a72f30548",
+      "deciding_outputs": [
+        {
+          "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+          "bytes": 29365,
+          "role": "Actual native48/Service41/Champion44/paid2/DOE13/Legacy2, originalB111/B124 and four persisted removal witnesses",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+            "bytes": 29365,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "3179c1e5269cf678dd1fdd485b039edc9c535869a44da3be93a43513291339ac",
+          "bytes": 4095,
+          "role": "Actualdefaultconfiguredadapter50/fullaffected126+history2/innerJSON2 removal; supported freshCAS proposal/cursor/physical sequence",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/Adapter-final969-126-and-portable-independent-review.json",
+            "bytes": 4095,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "faab6d1d09847dca1c001d5fe1ba07d8cc05467b53e6058bf87a2725d4c7bc5f",
+          "bytes": 6838,
+          "role": "Actualpublicownerfactory10 plus original a7 canonical financial scope outputs qualified by source/AST identity",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/FUN-final969-actual10-and-financial-carry-independent-review.json",
+            "bytes": 6838,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B122@STP-01",
+      "original_acceptance_sha256": "9fb880ce2c75c7770deca54b1861fb86071f57aa1e4db5e51793fcfac56b115e",
+      "deciding_outputs": [
+        {
+          "sha256": "d950b06c22f68472f8dd51ef40d09e72663d9f218d8deb9d4ecaf3ecb758bb3f",
+          "bytes": 3475,
+          "role": "FulloriginalB106/B107/B122 actual469153/realDOE38finite15violated23/38 and realdenominator/stopping negatives",
+          "executed_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/STP-STR469-threefile-seal-and-original-criterion-independent-review.json",
+            "bytes": 3475,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+          "bytes": 29365,
+          "role": "Actual native48/Service41/Champion44/paid2/DOE13/Legacy2, originalB111/B124 and four persisted removal witnesses",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+            "bytes": 29365,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B123@CTL-03",
+      "original_acceptance_sha256": "e38f999cb45a59fb619e7f89e35f20f752b4f0be6d279b6136de1f674b45befd",
+      "deciding_outputs": [
+        {
+          "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+          "bytes": 29365,
+          "role": "Actual native48/Service41/Champion44/paid2/DOE13/Legacy2, originalB111/B124 and four persisted removal witnesses",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+            "bytes": 29365,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "3179c1e5269cf678dd1fdd485b039edc9c535869a44da3be93a43513291339ac",
+          "bytes": 4095,
+          "role": "Actualdefaultconfiguredadapter50/fullaffected126+history2/innerJSON2 removal; supported freshCAS proposal/cursor/physical sequence",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/Adapter-final969-126-and-portable-independent-review.json",
+            "bytes": 4095,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "faab6d1d09847dca1c001d5fe1ba07d8cc05467b53e6058bf87a2725d4c7bc5f",
+          "bytes": 6838,
+          "role": "Actualpublicownerfactory10 plus original a7 canonical financial scope outputs qualified by source/AST identity",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/FUN-final969-actual10-and-financial-carry-independent-review.json",
+            "bytes": 6838,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B124@CTL-02",
+      "original_acceptance_sha256": "dcfbad092c0072a6fb2c7094e9b53f0fa51977ab80a742ace74838785f9a1133",
+      "deciding_outputs": [
+        {
+          "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+          "bytes": 29365,
+          "role": "Actual native48/Service41/Champion44/paid2/DOE13/Legacy2, originalB111/B124 and four persisted removal witnesses",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+            "bytes": 29365,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "3179c1e5269cf678dd1fdd485b039edc9c535869a44da3be93a43513291339ac",
+          "bytes": 4095,
+          "role": "Actualdefaultconfiguredadapter50/fullaffected126+history2/innerJSON2 removal; supported freshCAS proposal/cursor/physical sequence",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/Adapter-final969-126-and-portable-independent-review.json",
+            "bytes": 4095,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "faab6d1d09847dca1c001d5fe1ba07d8cc05467b53e6058bf87a2725d4c7bc5f",
+          "bytes": 6838,
+          "role": "Actualpublicownerfactory10 plus original a7 canonical financial scope outputs qualified by source/AST identity",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/FUN-final969-actual10-and-financial-carry-independent-review.json",
+            "bytes": 6838,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B125@CTL-02",
+      "original_acceptance_sha256": "0a36083564c7d95755126ca040b59efa5abd004855ffbaa995399a6915d6217d",
+      "deciding_outputs": [
+        {
+          "sha256": "591a91b6fcb8b25e5d9bd6ba44e3ff228c2622a73bea89ee16496fc731df4c5f",
+          "bytes": 35794,
+          "role": "Native43/142/88 numerical/state profiles and minimal55/15numericUNRUN, six supported checkpointfamilies",
+          "executed_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/GP-State-MO-currentc0-original-criterion-and-portable-independent-review.json",
+            "bytes": 35794,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "8f2028b321e30da70b4b95732c5efff38bd8c8c710ee204807f10a9555f08206",
+          "bytes": 6487,
+          "role": "Strongc0 numerical source-qualified carry+current969 nativeCAS8/7 fit3; mandatory315e/6c8/11ff metadata boundary",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-final969/independent-census-current-carry-review.json",
+            "bytes": 6487,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "3179c1e5269cf678dd1fdd485b039edc9c535869a44da3be93a43513291339ac",
+          "bytes": 4095,
+          "role": "Actualdefaultconfiguredadapter50/fullaffected126+history2/innerJSON2 removal; supported freshCAS proposal/cursor/physical sequence",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/Adapter-final969-126-and-portable-independent-review.json",
+            "bytes": 4095,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+          "bytes": 29365,
+          "role": "Actual native48/Service41/Champion44/paid2/DOE13/Legacy2, originalB111/B124 and four persisted removal witnesses",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+            "bytes": 29365,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B126@CTL-02",
+      "original_acceptance_sha256": "0054a0cfb74b77d2cfa02a6671ed1ee829854b1a9cf1cbadb05537ffa85ef532",
+      "deciding_outputs": [
+        {
+          "sha256": "591a91b6fcb8b25e5d9bd6ba44e3ff228c2622a73bea89ee16496fc731df4c5f",
+          "bytes": 35794,
+          "role": "Native43/142/88 numerical/state profiles and minimal55/15numericUNRUN, six supported checkpointfamilies",
+          "executed_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/GP-State-MO-currentc0-original-criterion-and-portable-independent-review.json",
+            "bytes": 35794,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "8f2028b321e30da70b4b95732c5efff38bd8c8c710ee204807f10a9555f08206",
+          "bytes": 6487,
+          "role": "Strongc0 numerical source-qualified carry+current969 nativeCAS8/7 fit3; mandatory315e/6c8/11ff metadata boundary",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-final969/independent-census-current-carry-review.json",
+            "bytes": 6487,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "3179c1e5269cf678dd1fdd485b039edc9c535869a44da3be93a43513291339ac",
+          "bytes": 4095,
+          "role": "Actualdefaultconfiguredadapter50/fullaffected126+history2/innerJSON2 removal; supported freshCAS proposal/cursor/physical sequence",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/Adapter-final969-126-and-portable-independent-review.json",
+            "bytes": 4095,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+          "bytes": 29365,
+          "role": "Actual native48/Service41/Champion44/paid2/DOE13/Legacy2, originalB111/B124 and four persisted removal witnesses",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+            "bytes": 29365,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B127@OPT-02",
+      "original_acceptance_sha256": "0cb92c67b7ad455eb8cbb3bba8a88d7297d3ba6dd2e8ec6284edc152f670ac06",
+      "deciding_outputs": [
+        {
+          "sha256": "591a91b6fcb8b25e5d9bd6ba44e3ff228c2622a73bea89ee16496fc731df4c5f",
+          "bytes": 35794,
+          "role": "Native43/142/88 numerical/state profiles and minimal55/15numericUNRUN, six supported checkpointfamilies",
+          "executed_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/GP-State-MO-currentc0-original-criterion-and-portable-independent-review.json",
+            "bytes": 35794,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "8f2028b321e30da70b4b95732c5efff38bd8c8c710ee204807f10a9555f08206",
+          "bytes": 6487,
+          "role": "Strongc0 numerical source-qualified carry+current969 nativeCAS8/7 fit3; mandatory315e/6c8/11ff metadata boundary",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-final969/independent-census-current-carry-review.json",
+            "bytes": 6487,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "3179c1e5269cf678dd1fdd485b039edc9c535869a44da3be93a43513291339ac",
+          "bytes": 4095,
+          "role": "Actualdefaultconfiguredadapter50/fullaffected126+history2/innerJSON2 removal; supported freshCAS proposal/cursor/physical sequence",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/Adapter-final969-126-and-portable-independent-review.json",
+            "bytes": 4095,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+          "bytes": 29365,
+          "role": "Actual native48/Service41/Champion44/paid2/DOE13/Legacy2, originalB111/B124 and four persisted removal witnesses",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+            "bytes": 29365,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B128@TRN-01",
+      "original_acceptance_sha256": "549b289852eaabc2275c031208657ce535c20cdd971105ff0e452e5f6662e5d7",
+      "deciding_outputs": [
+        {
+          "sha256": "98f70cdcd078c95efac80401f595db4a50dba6af428cf120abd47d96129b73cd",
+          "bytes": 77507,
+          "role": "Actualpersistedempty4/removal3F1P and canonicalB333nativepair2/finite-removal1F",
+          "executed_source": "79b943d221f46b2cc94eff06cdfdc714efe5a0e0",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/reviews/transfer79-B128-and-B333-runtime-independent-review.json",
+            "bytes": 77507,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "e3e0e4da8727524e3266fae41234db81943785bbd4b0e973577b1824750fb724",
+          "bytes": 37402,
+          "role": "FullavailableoriginalTRN65 actualquota/ties/corpus/context/local+transfer/asof/nativeC++exception",
+          "executed_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/reviews/transfer-b5-original65-independent-review.json",
+            "bytes": 37402,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "8f2028b321e30da70b4b95732c5efff38bd8c8c710ee204807f10a9555f08206",
+          "bytes": 6487,
+          "role": "Strongc0 numerical source-qualified carry+current969 nativeCAS8/7 fit3; mandatory315e/6c8/11ff metadata boundary",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-final969/independent-census-current-carry-review.json",
+            "bytes": 6487,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B129@TRN-02",
+      "original_acceptance_sha256": "88b1c5aec30b187f76018f9b7e7c7b8f7aabd54e4479465a0b39a549af27c49a",
+      "deciding_outputs": [
+        {
+          "sha256": "98f70cdcd078c95efac80401f595db4a50dba6af428cf120abd47d96129b73cd",
+          "bytes": 77507,
+          "role": "Actualpersistedempty4/removal3F1P and canonicalB333nativepair2/finite-removal1F",
+          "executed_source": "79b943d221f46b2cc94eff06cdfdc714efe5a0e0",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/reviews/transfer79-B128-and-B333-runtime-independent-review.json",
+            "bytes": 77507,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "e3e0e4da8727524e3266fae41234db81943785bbd4b0e973577b1824750fb724",
+          "bytes": 37402,
+          "role": "FullavailableoriginalTRN65 actualquota/ties/corpus/context/local+transfer/asof/nativeC++exception",
+          "executed_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/reviews/transfer-b5-original65-independent-review.json",
+            "bytes": 37402,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "8f2028b321e30da70b4b95732c5efff38bd8c8c710ee204807f10a9555f08206",
+          "bytes": 6487,
+          "role": "Strongc0 numerical source-qualified carry+current969 nativeCAS8/7 fit3; mandatory315e/6c8/11ff metadata boundary",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-final969/independent-census-current-carry-review.json",
+            "bytes": 6487,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B130@TRN-01",
+      "original_acceptance_sha256": "b70b31214ee588708f1536a62ef11dd85932c5bedf2e99e7b2d6320815ecabf3",
+      "deciding_outputs": [
+        {
+          "sha256": "98f70cdcd078c95efac80401f595db4a50dba6af428cf120abd47d96129b73cd",
+          "bytes": 77507,
+          "role": "Actualpersistedempty4/removal3F1P and canonicalB333nativepair2/finite-removal1F",
+          "executed_source": "79b943d221f46b2cc94eff06cdfdc714efe5a0e0",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/reviews/transfer79-B128-and-B333-runtime-independent-review.json",
+            "bytes": 77507,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "e3e0e4da8727524e3266fae41234db81943785bbd4b0e973577b1824750fb724",
+          "bytes": 37402,
+          "role": "FullavailableoriginalTRN65 actualquota/ties/corpus/context/local+transfer/asof/nativeC++exception",
+          "executed_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/reviews/transfer-b5-original65-independent-review.json",
+            "bytes": 37402,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "8f2028b321e30da70b4b95732c5efff38bd8c8c710ee204807f10a9555f08206",
+          "bytes": 6487,
+          "role": "Strongc0 numerical source-qualified carry+current969 nativeCAS8/7 fit3; mandatory315e/6c8/11ff metadata boundary",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-final969/independent-census-current-carry-review.json",
+            "bytes": 6487,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B131@TRN-01",
+      "original_acceptance_sha256": "e6742f51f48e338f3410307c69a2e42b12c6205c34d9c8c4947e784ba842b8dd",
+      "deciding_outputs": [
+        {
+          "sha256": "98f70cdcd078c95efac80401f595db4a50dba6af428cf120abd47d96129b73cd",
+          "bytes": 77507,
+          "role": "Actualpersistedempty4/removal3F1P and canonicalB333nativepair2/finite-removal1F",
+          "executed_source": "79b943d221f46b2cc94eff06cdfdc714efe5a0e0",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/reviews/transfer79-B128-and-B333-runtime-independent-review.json",
+            "bytes": 77507,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "e3e0e4da8727524e3266fae41234db81943785bbd4b0e973577b1824750fb724",
+          "bytes": 37402,
+          "role": "FullavailableoriginalTRN65 actualquota/ties/corpus/context/local+transfer/asof/nativeC++exception",
+          "executed_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/reviews/transfer-b5-original65-independent-review.json",
+            "bytes": 37402,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "8f2028b321e30da70b4b95732c5efff38bd8c8c710ee204807f10a9555f08206",
+          "bytes": 6487,
+          "role": "Strongc0 numerical source-qualified carry+current969 nativeCAS8/7 fit3; mandatory315e/6c8/11ff metadata boundary",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-final969/independent-census-current-carry-review.json",
+            "bytes": 6487,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B132@TRN-01",
+      "original_acceptance_sha256": "5833cd83c20ce8f2a897ab4c13b475daaabcfa4adec33cb2a1376fcba78c4fcb",
+      "deciding_outputs": [
+        {
+          "sha256": "98f70cdcd078c95efac80401f595db4a50dba6af428cf120abd47d96129b73cd",
+          "bytes": 77507,
+          "role": "Actualpersistedempty4/removal3F1P and canonicalB333nativepair2/finite-removal1F",
+          "executed_source": "79b943d221f46b2cc94eff06cdfdc714efe5a0e0",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/reviews/transfer79-B128-and-B333-runtime-independent-review.json",
+            "bytes": 77507,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "e3e0e4da8727524e3266fae41234db81943785bbd4b0e973577b1824750fb724",
+          "bytes": 37402,
+          "role": "FullavailableoriginalTRN65 actualquota/ties/corpus/context/local+transfer/asof/nativeC++exception",
+          "executed_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/reviews/transfer-b5-original65-independent-review.json",
+            "bytes": 37402,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "8f2028b321e30da70b4b95732c5efff38bd8c8c710ee204807f10a9555f08206",
+          "bytes": 6487,
+          "role": "Strongc0 numerical source-qualified carry+current969 nativeCAS8/7 fit3; mandatory315e/6c8/11ff metadata boundary",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-final969/independent-census-current-carry-review.json",
+            "bytes": 6487,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B133@TRN-02",
+      "original_acceptance_sha256": "48f75c8fbb72fbc3c446e8677e4976ccc20d3f3624b34260ce20e01a26b39a3d",
+      "deciding_outputs": [
+        {
+          "sha256": "98f70cdcd078c95efac80401f595db4a50dba6af428cf120abd47d96129b73cd",
+          "bytes": 77507,
+          "role": "Actualpersistedempty4/removal3F1P and canonicalB333nativepair2/finite-removal1F",
+          "executed_source": "79b943d221f46b2cc94eff06cdfdc714efe5a0e0",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/reviews/transfer79-B128-and-B333-runtime-independent-review.json",
+            "bytes": 77507,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "e3e0e4da8727524e3266fae41234db81943785bbd4b0e973577b1824750fb724",
+          "bytes": 37402,
+          "role": "FullavailableoriginalTRN65 actualquota/ties/corpus/context/local+transfer/asof/nativeC++exception",
+          "executed_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/reviews/transfer-b5-original65-independent-review.json",
+            "bytes": 37402,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "8f2028b321e30da70b4b95732c5efff38bd8c8c710ee204807f10a9555f08206",
+          "bytes": 6487,
+          "role": "Strongc0 numerical source-qualified carry+current969 nativeCAS8/7 fit3; mandatory315e/6c8/11ff metadata boundary",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-final969/independent-census-current-carry-review.json",
+            "bytes": 6487,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B134@TRN-02",
+      "original_acceptance_sha256": "36d571033f9b9e3b58f6f9f7bc93a01ed4c6e799a7791d815fa39932fd68de9d",
+      "deciding_outputs": [
+        {
+          "sha256": "98f70cdcd078c95efac80401f595db4a50dba6af428cf120abd47d96129b73cd",
+          "bytes": 77507,
+          "role": "Actualpersistedempty4/removal3F1P and canonicalB333nativepair2/finite-removal1F",
+          "executed_source": "79b943d221f46b2cc94eff06cdfdc714efe5a0e0",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/reviews/transfer79-B128-and-B333-runtime-independent-review.json",
+            "bytes": 77507,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "e3e0e4da8727524e3266fae41234db81943785bbd4b0e973577b1824750fb724",
+          "bytes": 37402,
+          "role": "FullavailableoriginalTRN65 actualquota/ties/corpus/context/local+transfer/asof/nativeC++exception",
+          "executed_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/reviews/transfer-b5-original65-independent-review.json",
+            "bytes": 37402,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "8f2028b321e30da70b4b95732c5efff38bd8c8c710ee204807f10a9555f08206",
+          "bytes": 6487,
+          "role": "Strongc0 numerical source-qualified carry+current969 nativeCAS8/7 fit3; mandatory315e/6c8/11ff metadata boundary",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-final969/independent-census-current-carry-review.json",
+            "bytes": 6487,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B135@TRN-03",
+      "original_acceptance_sha256": "01ce84941fd8680e13557f709b04c7978d7003b2c358dcc81363e2d973aaa136",
+      "deciding_outputs": [
+        {
+          "sha256": "98f70cdcd078c95efac80401f595db4a50dba6af428cf120abd47d96129b73cd",
+          "bytes": 77507,
+          "role": "Actualpersistedempty4/removal3F1P and canonicalB333nativepair2/finite-removal1F",
+          "executed_source": "79b943d221f46b2cc94eff06cdfdc714efe5a0e0",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/reviews/transfer79-B128-and-B333-runtime-independent-review.json",
+            "bytes": 77507,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "e3e0e4da8727524e3266fae41234db81943785bbd4b0e973577b1824750fb724",
+          "bytes": 37402,
+          "role": "FullavailableoriginalTRN65 actualquota/ties/corpus/context/local+transfer/asof/nativeC++exception",
+          "executed_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/reviews/transfer-b5-original65-independent-review.json",
+            "bytes": 37402,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "8f2028b321e30da70b4b95732c5efff38bd8c8c710ee204807f10a9555f08206",
+          "bytes": 6487,
+          "role": "Strongc0 numerical source-qualified carry+current969 nativeCAS8/7 fit3; mandatory315e/6c8/11ff metadata boundary",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-final969/independent-census-current-carry-review.json",
+            "bytes": 6487,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B136@TRN-03",
+      "original_acceptance_sha256": "dbc583087ea526396c4d1b2b4230d2058a76565496b4bdac824060a759dee116",
+      "deciding_outputs": [
+        {
+          "sha256": "98f70cdcd078c95efac80401f595db4a50dba6af428cf120abd47d96129b73cd",
+          "bytes": 77507,
+          "role": "Actualpersistedempty4/removal3F1P and canonicalB333nativepair2/finite-removal1F",
+          "executed_source": "79b943d221f46b2cc94eff06cdfdc714efe5a0e0",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/reviews/transfer79-B128-and-B333-runtime-independent-review.json",
+            "bytes": 77507,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "e3e0e4da8727524e3266fae41234db81943785bbd4b0e973577b1824750fb724",
+          "bytes": 37402,
+          "role": "FullavailableoriginalTRN65 actualquota/ties/corpus/context/local+transfer/asof/nativeC++exception",
+          "executed_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/reviews/transfer-b5-original65-independent-review.json",
+            "bytes": 37402,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "8f2028b321e30da70b4b95732c5efff38bd8c8c710ee204807f10a9555f08206",
+          "bytes": 6487,
+          "role": "Strongc0 numerical source-qualified carry+current969 nativeCAS8/7 fit3; mandatory315e/6c8/11ff metadata boundary",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-final969/independent-census-current-carry-review.json",
+            "bytes": 6487,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B137@TRN-03",
+      "original_acceptance_sha256": "a712c0b6eddcecf9e4b23c77fc2f4732fea66953462e3cb3bfcd4a6ed376be2f",
+      "deciding_outputs": [
+        {
+          "sha256": "98f70cdcd078c95efac80401f595db4a50dba6af428cf120abd47d96129b73cd",
+          "bytes": 77507,
+          "role": "Actualpersistedempty4/removal3F1P and canonicalB333nativepair2/finite-removal1F",
+          "executed_source": "79b943d221f46b2cc94eff06cdfdc714efe5a0e0",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/reviews/transfer79-B128-and-B333-runtime-independent-review.json",
+            "bytes": 77507,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "e3e0e4da8727524e3266fae41234db81943785bbd4b0e973577b1824750fb724",
+          "bytes": 37402,
+          "role": "FullavailableoriginalTRN65 actualquota/ties/corpus/context/local+transfer/asof/nativeC++exception",
+          "executed_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/transfer/reviews/transfer-b5-original65-independent-review.json",
+            "bytes": 37402,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "8f2028b321e30da70b4b95732c5efff38bd8c8c710ee204807f10a9555f08206",
+          "bytes": 6487,
+          "role": "Strongc0 numerical source-qualified carry+current969 nativeCAS8/7 fit3; mandatory315e/6c8/11ff metadata boundary",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-final969/independent-census-current-carry-review.json",
+            "bytes": 6487,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B156@FUN-01",
+      "original_acceptance_sha256": "846c22dd69b5b1495efbaff0f982894e6e08b49e0c42e21e0f38b477aa243fa1",
+      "deciding_outputs": [
+        {
+          "sha256": "faab6d1d09847dca1c001d5fe1ba07d8cc05467b53e6058bf87a2725d4c7bc5f",
+          "bytes": 6838,
+          "role": "Actualpublicownerfactory10 plus original a7 canonical financial scope outputs qualified by source/AST identity",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/FUN-final969-actual10-and-financial-carry-independent-review.json",
+            "bytes": 6838,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "accee7145c0e4c74ecbb16e8c5c75b32bf7f292beb97a16567422a4a936f22c2",
+          "bytes": 4172,
+          "role": "Fulloriginal11FUN/CTLcost clauses+owner16scope and complete canonical B1.2 financial outputs/GitService122",
+          "executed_source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/FUN499-b652-original11-owner16-and-GitService122-seal-independent-review.json",
+            "bytes": 4172,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+          "bytes": 29365,
+          "role": "Actual native48/Service41/Champion44/paid2/DOE13/Legacy2, originalB111/B124 and four persisted removal witnesses",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+            "bytes": 29365,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B157@FUN-02",
+      "original_acceptance_sha256": "260d939d59a70f8f9acca08bc5386d4ac4e4070c4725b6287fd2c1a4d534444b",
+      "deciding_outputs": [
+        {
+          "sha256": "faab6d1d09847dca1c001d5fe1ba07d8cc05467b53e6058bf87a2725d4c7bc5f",
+          "bytes": 6838,
+          "role": "Actualpublicownerfactory10 plus original a7 canonical financial scope outputs qualified by source/AST identity",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/FUN-final969-actual10-and-financial-carry-independent-review.json",
+            "bytes": 6838,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "accee7145c0e4c74ecbb16e8c5c75b32bf7f292beb97a16567422a4a936f22c2",
+          "bytes": 4172,
+          "role": "Fulloriginal11FUN/CTLcost clauses+owner16scope and complete canonical B1.2 financial outputs/GitService122",
+          "executed_source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/FUN499-b652-original11-owner16-and-GitService122-seal-independent-review.json",
+            "bytes": 4172,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+          "bytes": 29365,
+          "role": "Actual native48/Service41/Champion44/paid2/DOE13/Legacy2, originalB111/B124 and four persisted removal witnesses",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+            "bytes": 29365,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B158@FUN-01",
+      "original_acceptance_sha256": "17cc0ecc4baa734906042063c70ef2cbd4394c206b868333448594ad8897fb9f",
+      "deciding_outputs": [
+        {
+          "sha256": "faab6d1d09847dca1c001d5fe1ba07d8cc05467b53e6058bf87a2725d4c7bc5f",
+          "bytes": 6838,
+          "role": "Actualpublicownerfactory10 plus original a7 canonical financial scope outputs qualified by source/AST identity",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/FUN-final969-actual10-and-financial-carry-independent-review.json",
+            "bytes": 6838,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "accee7145c0e4c74ecbb16e8c5c75b32bf7f292beb97a16567422a4a936f22c2",
+          "bytes": 4172,
+          "role": "Fulloriginal11FUN/CTLcost clauses+owner16scope and complete canonical B1.2 financial outputs/GitService122",
+          "executed_source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/FUN499-b652-original11-owner16-and-GitService122-seal-independent-review.json",
+            "bytes": 4172,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+          "bytes": 29365,
+          "role": "Actual native48/Service41/Champion44/paid2/DOE13/Legacy2, originalB111/B124 and four persisted removal witnesses",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+            "bytes": 29365,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B159@FUN-01",
+      "original_acceptance_sha256": "7c3b6b49bb03dfb2af6f56e6db82cd302fc5d9c2ae1f6e666b1ab16f11598f36",
+      "deciding_outputs": [
+        {
+          "sha256": "faab6d1d09847dca1c001d5fe1ba07d8cc05467b53e6058bf87a2725d4c7bc5f",
+          "bytes": 6838,
+          "role": "Actualpublicownerfactory10 plus original a7 canonical financial scope outputs qualified by source/AST identity",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/FUN-final969-actual10-and-financial-carry-independent-review.json",
+            "bytes": 6838,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "accee7145c0e4c74ecbb16e8c5c75b32bf7f292beb97a16567422a4a936f22c2",
+          "bytes": 4172,
+          "role": "Fulloriginal11FUN/CTLcost clauses+owner16scope and complete canonical B1.2 financial outputs/GitService122",
+          "executed_source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/FUN499-b652-original11-owner16-and-GitService122-seal-independent-review.json",
+            "bytes": 4172,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+          "bytes": 29365,
+          "role": "Actual native48/Service41/Champion44/paid2/DOE13/Legacy2, originalB111/B124 and four persisted removal witnesses",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+            "bytes": 29365,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B160@FUN-02",
+      "original_acceptance_sha256": "7f3880ae72b62b26a91f8386be0ac3391e9188fb146b3ed1c757df1a7d2eafba",
+      "deciding_outputs": [
+        {
+          "sha256": "faab6d1d09847dca1c001d5fe1ba07d8cc05467b53e6058bf87a2725d4c7bc5f",
+          "bytes": 6838,
+          "role": "Actualpublicownerfactory10 plus original a7 canonical financial scope outputs qualified by source/AST identity",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/FUN-final969-actual10-and-financial-carry-independent-review.json",
+            "bytes": 6838,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "accee7145c0e4c74ecbb16e8c5c75b32bf7f292beb97a16567422a4a936f22c2",
+          "bytes": 4172,
+          "role": "Fulloriginal11FUN/CTLcost clauses+owner16scope and complete canonical B1.2 financial outputs/GitService122",
+          "executed_source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/FUN499-b652-original11-owner16-and-GitService122-seal-independent-review.json",
+            "bytes": 4172,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+          "bytes": 29365,
+          "role": "Actual native48/Service41/Champion44/paid2/DOE13/Legacy2, originalB111/B124 and four persisted removal witnesses",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+            "bytes": 29365,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B161@FUN-03",
+      "original_acceptance_sha256": "64bf6d3e30756d1ee3a22a8b81bc2164a41f51931333e269114da303a8fa3b78",
+      "deciding_outputs": [
+        {
+          "sha256": "faab6d1d09847dca1c001d5fe1ba07d8cc05467b53e6058bf87a2725d4c7bc5f",
+          "bytes": 6838,
+          "role": "Actualpublicownerfactory10 plus original a7 canonical financial scope outputs qualified by source/AST identity",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/FUN-final969-actual10-and-financial-carry-independent-review.json",
+            "bytes": 6838,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "accee7145c0e4c74ecbb16e8c5c75b32bf7f292beb97a16567422a4a936f22c2",
+          "bytes": 4172,
+          "role": "Fulloriginal11FUN/CTLcost clauses+owner16scope and complete canonical B1.2 financial outputs/GitService122",
+          "executed_source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/FUN499-b652-original11-owner16-and-GitService122-seal-independent-review.json",
+            "bytes": 4172,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+          "bytes": 29365,
+          "role": "Actual native48/Service41/Champion44/paid2/DOE13/Legacy2, originalB111/B124 and four persisted removal witnesses",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+            "bytes": 29365,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B162@FUN-02",
+      "original_acceptance_sha256": "806665be954b1b87fb1bcc5e05e2ef2779226c0558e4fa6a30cd18a680681075",
+      "deciding_outputs": [
+        {
+          "sha256": "faab6d1d09847dca1c001d5fe1ba07d8cc05467b53e6058bf87a2725d4c7bc5f",
+          "bytes": 6838,
+          "role": "Actualpublicownerfactory10 plus original a7 canonical financial scope outputs qualified by source/AST identity",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/FUN-final969-actual10-and-financial-carry-independent-review.json",
+            "bytes": 6838,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "accee7145c0e4c74ecbb16e8c5c75b32bf7f292beb97a16567422a4a936f22c2",
+          "bytes": 4172,
+          "role": "Fulloriginal11FUN/CTLcost clauses+owner16scope and complete canonical B1.2 financial outputs/GitService122",
+          "executed_source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/FUN499-b652-original11-owner16-and-GitService122-seal-independent-review.json",
+            "bytes": 4172,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+          "bytes": 29365,
+          "role": "Actual native48/Service41/Champion44/paid2/DOE13/Legacy2, originalB111/B124 and four persisted removal witnesses",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+            "bytes": 29365,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B163@FUN-03",
+      "original_acceptance_sha256": "000272e0d8331087a33d20ff52c4d2a8696681b0c82513a8562f372789a48e92",
+      "deciding_outputs": [
+        {
+          "sha256": "faab6d1d09847dca1c001d5fe1ba07d8cc05467b53e6058bf87a2725d4c7bc5f",
+          "bytes": 6838,
+          "role": "Actualpublicownerfactory10 plus original a7 canonical financial scope outputs qualified by source/AST identity",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/FUN-final969-actual10-and-financial-carry-independent-review.json",
+            "bytes": 6838,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "accee7145c0e4c74ecbb16e8c5c75b32bf7f292beb97a16567422a4a936f22c2",
+          "bytes": 4172,
+          "role": "Fulloriginal11FUN/CTLcost clauses+owner16scope and complete canonical B1.2 financial outputs/GitService122",
+          "executed_source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/FUN499-b652-original11-owner16-and-GitService122-seal-independent-review.json",
+            "bytes": 4172,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+          "bytes": 29365,
+          "role": "Actual native48/Service41/Champion44/paid2/DOE13/Legacy2, originalB111/B124 and four persisted removal witnesses",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+            "bytes": 29365,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B164@FUN-03",
+      "original_acceptance_sha256": "a367b70e08a3ff6f3515593c46fe2686a9c2f02532daf2c243f57613777b993e",
+      "deciding_outputs": [
+        {
+          "sha256": "faab6d1d09847dca1c001d5fe1ba07d8cc05467b53e6058bf87a2725d4c7bc5f",
+          "bytes": 6838,
+          "role": "Actualpublicownerfactory10 plus original a7 canonical financial scope outputs qualified by source/AST identity",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/FUN-final969-actual10-and-financial-carry-independent-review.json",
+            "bytes": 6838,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "accee7145c0e4c74ecbb16e8c5c75b32bf7f292beb97a16567422a4a936f22c2",
+          "bytes": 4172,
+          "role": "Fulloriginal11FUN/CTLcost clauses+owner16scope and complete canonical B1.2 financial outputs/GitService122",
+          "executed_source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/FUN499-b652-original11-owner16-and-GitService122-seal-independent-review.json",
+            "bytes": 4172,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+          "bytes": 29365,
+          "role": "Actual native48/Service41/Champion44/paid2/DOE13/Legacy2, originalB111/B124 and four persisted removal witnesses",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+            "bytes": 29365,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B165@FUN-02",
+      "original_acceptance_sha256": "42c25e1cf8e4e9d84ab45a3cb8577b7c2d5d6791112006c30aa15b6d3ce7127e",
+      "deciding_outputs": [
+        {
+          "sha256": "faab6d1d09847dca1c001d5fe1ba07d8cc05467b53e6058bf87a2725d4c7bc5f",
+          "bytes": 6838,
+          "role": "Actualpublicownerfactory10 plus original a7 canonical financial scope outputs qualified by source/AST identity",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/FUN-final969-actual10-and-financial-carry-independent-review.json",
+            "bytes": 6838,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "accee7145c0e4c74ecbb16e8c5c75b32bf7f292beb97a16567422a4a936f22c2",
+          "bytes": 4172,
+          "role": "Fulloriginal11FUN/CTLcost clauses+owner16scope and complete canonical B1.2 financial outputs/GitService122",
+          "executed_source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/FUN499-b652-original11-owner16-and-GitService122-seal-independent-review.json",
+            "bytes": 4172,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+          "bytes": 29365,
+          "role": "Actual native48/Service41/Champion44/paid2/DOE13/Legacy2, originalB111/B124 and four persisted removal witnesses",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+            "bytes": 29365,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "B41@STP-01",
+      "original_acceptance_sha256": "4a76b7b1923f16245bdc19a10b05570aa47c2ca063e8e1a2faf3eb0112576937",
+      "deciding_outputs": [
+        {
+          "sha256": "107d386627435b068eaa7a1bb57fb89dd41efeab2e35cf778053640e1f7e4904",
+          "bytes": 56746,
+          "role": "Actual104 including74detector declaredbasis/currentfinite/twofreshrecovery+30stopping and realmetadata/numeric removals",
+          "executed_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B41-b5-runtime-independent-review.json",
+            "bytes": 56746,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "66e7c798641e2ee15497e0a90fb69e5fb39a69d73a2194ea5a0e59023d2089fa",
+          "bytes": 4342,
+          "role": "Four exactdetector source/test bindings carry74 only; deployedembeddingcaller conditional input separate",
+          "executed_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-a7/native-state-and-B41-a7-scoped-carry-independent-review.json",
+            "bytes": 4342,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "LA-014@SRV-01",
+      "original_acceptance_sha256": "a94d827f2038968fc442e5801bf48f5a675dcacfb375b927e2de05cc541665fd",
+      "deciding_outputs": [
+        {
+          "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+          "bytes": 29365,
+          "role": "Actual native48/Service41/Champion44/paid2/DOE13/Legacy2, originalB111/B124 and four persisted removal witnesses",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+            "bytes": 29365,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "3179c1e5269cf678dd1fdd485b039edc9c535869a44da3be93a43513291339ac",
+          "bytes": 4095,
+          "role": "Actualdefaultconfiguredadapter50/fullaffected126+history2/innerJSON2 removal; supported freshCAS proposal/cursor/physical sequence",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/Adapter-final969-126-and-portable-independent-review.json",
+            "bytes": 4095,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "faab6d1d09847dca1c001d5fe1ba07d8cc05467b53e6058bf87a2725d4c7bc5f",
+          "bytes": 6838,
+          "role": "Actualpublicownerfactory10 plus original a7 canonical financial scope outputs qualified by source/AST identity",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/FUN-final969-actual10-and-financial-carry-independent-review.json",
+            "bytes": 6838,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "LA-015@CTL-01",
+      "original_acceptance_sha256": "219f17404aedddcd4196a85dc9b05d5d28403c12812d551c241e26b850d285e8",
+      "deciding_outputs": [
+        {
+          "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+          "bytes": 29365,
+          "role": "Actual native48/Service41/Champion44/paid2/DOE13/Legacy2, originalB111/B124 and four persisted removal witnesses",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+            "bytes": 29365,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "3179c1e5269cf678dd1fdd485b039edc9c535869a44da3be93a43513291339ac",
+          "bytes": 4095,
+          "role": "Actualdefaultconfiguredadapter50/fullaffected126+history2/innerJSON2 removal; supported freshCAS proposal/cursor/physical sequence",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/Adapter-final969-126-and-portable-independent-review.json",
+            "bytes": 4095,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "faab6d1d09847dca1c001d5fe1ba07d8cc05467b53e6058bf87a2725d4c7bc5f",
+          "bytes": 6838,
+          "role": "Actualpublicownerfactory10 plus original a7 canonical financial scope outputs qualified by source/AST identity",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/FUN-final969-actual10-and-financial-carry-independent-review.json",
+            "bytes": 6838,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    },
+    {
+      "id": "LA-015@SRV-03",
+      "original_acceptance_sha256": "219f17404aedddcd4196a85dc9b05d5d28403c12812d551c241e26b850d285e8",
+      "deciding_outputs": [
+        {
+          "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+          "bytes": 29365,
+          "role": "Actual native48/Service41/Champion44/paid2/DOE13/Legacy2, originalB111/B124 and four persisted removal witnesses",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+            "bytes": 29365,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "3179c1e5269cf678dd1fdd485b039edc9c535869a44da3be93a43513291339ac",
+          "bytes": 4095,
+          "role": "Actualdefaultconfiguredadapter50/fullaffected126+history2/innerJSON2 removal; supported freshCAS proposal/cursor/physical sequence",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/Adapter-final969-126-and-portable-independent-review.json",
+            "bytes": 4095,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "faab6d1d09847dca1c001d5fe1ba07d8cc05467b53e6058bf87a2725d4c7bc5f",
+          "bytes": 6838,
+          "role": "Actualpublicownerfactory10 plus original a7 canonical financial scope outputs qualified by source/AST identity",
+          "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/FUN-final969-actual10-and-financial-carry-independent-review.json",
+            "bytes": 6838,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        },
+        {
+          "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587",
+          "bytes": 5056,
+          "role": "Independent actual73/18/13 and real27F46P/2F controls plus all qualified successor scopes",
+          "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "canonical_evidence": {
+            "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+            "bytes": 5056,
+            "container": "direct_file"
+          },
+          "availability": "exact_bytes_read_and_bound; D receipt containing canonical path governs publication, no G acceptance",
+          "original_local_path_role": "provenance only"
+        }
+      ]
+    }
+  ],
+  "complete_output_roots": [
+    {
+      "git_prefix": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-c0/",
+      "scope": "strongnumerical43/142/88 completeexactc0"
+    },
+    {
+      "git_prefix": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-final969/",
+      "scope": "actualconfigurednative3+qualifiedstrongcarry315e/6c8/11ff"
+    },
+    {
+      "git_prefix": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/math-adapter-final969/",
+      "scope": "mathematical154+disjoint27 and actualAdapter126/full2+2negative"
+    },
+    {
+      "git_prefix": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969/",
+      "scope": "actual48/41/44/paid2/DOE13/Legacy2 plusallfourcurrentremovals"
+    },
+    {
+      "git_prefix": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-B111-B124-removals-final969/",
+      "scope": "allfourpersistedactualremovals+14CASminrefs/falsifiers"
+    },
+    {
+      "git_prefix": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/stress-stopping-469/",
+      "scope": "fulloriginalscenario/stopping153/realDOEdenominator/removals"
+    },
+    {
+      "git_prefix": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/",
+      "scope": "alreadycommittedB41full104/detector74/sourcequalifiedcarry"
+    },
+    {
+      "git_prefix": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-fiscal-dependent-final680/",
+      "scope": "current18fullorigins/54phases/sourcequalified969carry"
+    },
+    {
+      "git_prefix": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/fiscal-numeric-final680/",
+      "scope": "current73/full27F46P removal and exact969baseline27F40P"
+    },
+    {
+      "git_prefix": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/fiscal-independent-final680/",
+      "scope": "independentcanonical13+actualGatewayguard2F fulloutputs"
+    }
+  ],
+  "canonical_funnel_roots": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final/",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/"
+  ],
+  "older_portable_Git_receipt": "237c3427266e0849ebfa36b41f89c51572b44814",
+  "preservation": "Existinginitialimmutablepackages remain; this map replaces supersededactiveledger components with fullercurrent independentjoins, not rewritinghistoricaloutputs or claiminglocalignoredcloudavailability."
+}

@@ -1,0 +1,26 @@
+import hashlib,importlib.abc,json,pathlib,subprocess,sys,traceback
+ATTEMPTS=[]
+class DenyOptional(importlib.abc.MetaPathFinder):
+    def find_spec(self,fullname,path=None,target=None):
+        if fullname.split(".")[0] in {"torch","botorch","gpytorch","hnswlib"}:
+            ATTEMPTS.append(fullname)
+            raise ModuleNotFoundError("UNRUN: controlled optional backend denial "+fullname,name=fullname)
+sys.meta_path.insert(0,DenyOptional())
+def pytest_sessionfinish(session,exitstatus):
+    origins=[]
+    errors=[]
+    for name,module in sorted(sys.modules.copy().items()):
+        if not name.startswith("polisyos") or getattr(module,"__file__",None) is None:continue
+        path=pathlib.Path(module.__file__)
+        try:
+            relative="policy-engine/"+path.relative_to(pathlib.Path.cwd()).as_posix()
+            pin={'policy-engine/src/polisyos/scientist/methods/autotune/__init__.py': '18699ce536fca6ce174ff1caf1435a79912f0920', 'policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py': '18699ce536fca6ce174ff1caf1435a79912f0920', 'policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py': '784584d13f94ac7565d5ab159592281597b253ce', 'policy-engine/tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py': '784584d13f94ac7565d5ab159592281597b253ce', 'policy-engine/tests/unit/scientist/methods/autotune/test_lazy_import_boundary_independent_oracle.py': 'c1343a44101eab350c886319bcf511e78aafc37b'}.get(relative,'d38f94c8a8095abb00052b8e78f7b8a470453ed4')
+            expected=subprocess.check_output(["git","show",pin+":"+relative],cwd='/workspace/e02-D-published-oracle')
+            actual=path.read_bytes()
+            origins.append({"module":name,"origin":str(path),"source":pin,"path":relative,"sha256":hashlib.sha256(actual).hexdigest(),"matches":actual==expected})
+            if actual!=expected:errors.append(name)
+        except Exception as exc:errors.append(name+":"+str(exc))
+    pathlib.Path('/workspace/e02-D-published-oracle/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-collection-independent/complete-inputs-origins.json').write_text(json.dumps({"loaded_origins":origins,"errors":errors},indent=2)+"\n")
+    loaded=[name for name in sys.modules if name.split(".")[0] in {"torch","botorch","gpytorch","hnswlib"}]
+    pathlib.Path('/workspace/e02-D-published-oracle/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-collection-independent/complete-inputs-denial.json').write_text(json.dumps({"attempts":ATTEMPTS,"loaded_optional_modules":loaded,"exitstatus":int(exitstatus),"scope":"controlled import-denial profile, not an actually uninstalled environment or numeric execution"},indent=2)+"\n")
+    if loaded or errors:session.exitstatus=1

@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "created_utc": "2026-10-07T15:14:36.769663+00:00",
+  "reviewer": "transfer_oct07; source reviewer, not author of FUN projection/tests/runtime",
+  "verdict": "GO_HISTORICAL_UNCHANGED_SCOPED_ASSERTION_CARRY",
+  "executed_source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "executed_tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+  "qualified_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "qualified_tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+  "full_git_delta": [
+    "policy-engine/tests/unit/scientist/methods/search/test_service_persistence.py"
+  ],
+  "observed_loaded_and_candidate_config_overlap": 0,
+  "cohorts": [
+    {
+      "scope": "origin17-final3b",
+      "loaded_repo_rows": 1174,
+      "unique_loaded_repo_paths": 1174,
+      "changed_fixture_loaded": false,
+      "catalog_denominator": 6321,
+      "changed_fixture_in_catalog": true,
+      "original_catalog_changed_fixture": {
+        "sha256": "2bbf7a9cfa1026d26639823f85becc5999d436083532bde55f053bad3ad0f0cc",
+        "bytes": 43717
+      },
+      "original_unavailable_inventory": [
+        "policy-engine/ops/observability/grafana/dashboards/scientist-llm-cost.json"
+      ],
+      "module_census_sha256": "4469ec404fc328e69701b9b494f5d7b28dee720bcda888c7b626cc794c21be87"
+    },
+    {
+      "scope": "origin11-removal-final3b",
+      "loaded_repo_rows": 1174,
+      "unique_loaded_repo_paths": 1174,
+      "changed_fixture_loaded": false,
+      "catalog_denominator": 6321,
+      "changed_fixture_in_catalog": true,
+      "original_catalog_changed_fixture": {
+        "sha256": "2bbf7a9cfa1026d26639823f85becc5999d436083532bde55f053bad3ad0f0cc",
+        "bytes": 43717
+      },
+      "original_unavailable_inventory": [
+        "policy-engine/ops/observability/grafana/dashboards/scientist-llm-cost.json"
+      ],
+      "module_census_sha256": "ca0125e92b80baa10c72237c5af2187a89a5259f78bff2b5b00d44109a650877"
+    }
+  ],
+  "packet_all143_hashes_verified": true,
+  "portable_manifest_sha256": "eac805d3913e75989af44060b41fe5c28710b65570a6800f3f934d77e93c7717",
+  "recorded_actual_results": {
+    "positive17": "17PASS/0FAIL/ERROR/SKIP",
+    "removal11": "3 intended assertionFAIL/8PASS/0ERROR/SKIP"
+  },
+  "initial_runtime_review": {
+    "path": "reviews/FUN-origin17-removal11-final3b31-independent-runtime-review.json",
+    "sha256": "ead1f52e431b9eccb9cd50c0755bac4417978ce511861b679330d475636cb442"
+  },
+  "assertion_custody": "Exact selected producer/test/native consumer/ledger/parser/CAS and serializer source bytes unchanged in observed1174 loaded paths each cohort; portable actual resource input/financial artifact data references no changed persistence fixture or its prior source-hash. Existing fullsplit/prerequisite/pending6 declared native consumers retained independently reviewed exact3b outputs.",
+  "ordinary_consumer_scope": "Gateway actual bytes -> canonical enforcer/debit receipt -> Funnel -> Node serializer helper/ExperimentState JSON -> qualified CAS/fresh readback; full Node.execute UNRUN",
+  "P37": "owned reported/estimated absence/status and observed ledger event input source reflected in actual serializer/CAS values, not invoice authority",
+  "P38": "removal retains estimated0.5/0.0 and event/settlement metadata but introduces reported0/reported for absent component; three actual assertion failures discriminate",
+  "limitations": [
+    "Historical3b execution only; no new a795 17PASS and no whole-candidate/complete original input identity claim.",
+    "Finite loaded-module census is bounded and cannot prove unobserved/removed module absence; selected source-custodied workflows and actual config/artifact profiles are the basis.",
+    "Optional numerical GP/vector, monitoring asset/port, whole Node.execute and production/authority laws are UNRUN/not_established as existing packet declares.",
+    "No formal closure/G acceptance/P41 inherited-red claim; P41 not_established."
+  ],
+  "actual_portable_config_artifact_members_independently_scanned": 121,
+  "actual_portable_artifact_records": 107,
+  "actual_portable_runtime_members": 14,
+  "reviewed_utc_final": "2026-10-07T15:15:13.625959+00:00"
+}

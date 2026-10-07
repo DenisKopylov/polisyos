@@ -1,0 +1,162 @@
+{
+  "schema": "policyos.e02.independent_packaging_interruption_review.v1",
+  "reviewer": "numerical_oracle",
+  "verdict": "PASS_WITHIN_DECLARED_METADATA_SCOPE",
+  "scope": "Independent byte-bound review of two packaging corrections and the preserved interrupted 8c broad-run evidence. This is not a broad runtime, scientific, quality, all-carrier packaging, authority, or formal closure verdict.",
+  "review_lane": {
+    "path": "/workspace/e02-D-published-oracle",
+    "branch": "codex/e02-D-published-oracle",
+    "base_head": "c879ce8de2701513347ab811b60f63aebb61b351"
+  },
+  "environment": {
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "git": "git version 2.52.0",
+    "imports": "stdlib only; no product/backend imports"
+  },
+  "proofs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/packaging-interruption-independent/d796-binding.json",
+      "bytes": 2924,
+      "sha256": "724eb1612e351e321a62f51a85b72686adaec2b70fb18a4de9930c9648316013"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/packaging-interruption-independent/f258-binding.json",
+      "bytes": 4888,
+      "sha256": "e645f721e147aeb2188810832d9a8997e02a4380e7f0f3198d6ff2a2e8de5ee5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/packaging-interruption-independent/wave1052-binding.json",
+      "bytes": 2285,
+      "sha256": "2b962df91a5198097ef7aef30399e25ca69aa26e9401c41095f603da83ca32df"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/packaging-interruption-independent/interruption6333-binding.json",
+      "bytes": 6818,
+      "sha256": "82339f59d34e0a9e6ad584d9ffd8681f20c8549068e8c69a072c17c48832a23a"
+    }
+  ],
+  "reviews": [
+    {
+      "id": "d796-packaging",
+      "source_sha": "4c41287faf36f4880c4b7412d88cf44bd6d1cc1a",
+      "source_tree": "44bbe3255697c0dc351ae7db48c3707cce5000e9",
+      "verdict": "PASS_WITHIN_PACKAGING_SCOPE",
+      "evidence": "d796-binding.json",
+      "carrier": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-d796-proof/output.json.gz",
+      "original_sha": "3475b78d9a22e512277f0f348d0acf7432a16f54",
+      "deciding_output": {
+        "members": 36,
+        "references_changed": 1,
+        "other_text_bodies_unchanged": 35,
+        "reference_source": "9d6169fe182590bbfebcde7f4f75dedc65aa41a3",
+        "reference_bytes": 1657,
+        "source_blob_size_hash_equal_original_body": true,
+        "resolved_full_root_deep_equal": true,
+        "single_JSON_token_substitution_recovers_original_raw_bytes": true
+      },
+      "method": "Read exact Git object bytes, decompress carrier, resolve pinned source reference, verify Git blob/SHA256/byte count, compare all other member bodies and order, then reconstruct old JSON token bytes."
+    },
+    {
+      "id": "f258-packaging",
+      "source_sha": "9a8f72e42b48e59820b6983eda2f94816a1a4aed",
+      "source_tree": "27b6c1a313aed5a88a6c9dc135df36035c168f71",
+      "verdict": "PASS_WITHIN_PACKAGING_SCOPE",
+      "evidence": "f258-binding.json",
+      "carrier": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/independent-service-f258-output.json.gz",
+      "original_sha": "334f3b0e8a1e7313dbe05fec46331f1c52a9c5ad",
+      "deciding_output": {
+        "members": 60,
+        "reference_member_indices": [
+          54,
+          57
+        ],
+        "unchanged_complete_member_records": 58,
+        "reference_source": "104bd75695daf89ed76d146b10042227a600bc68",
+        "reference_bytes": [
+          2218,
+          1467
+        ],
+        "source_blobs_sizes_hashes_equal_original_bodies": true,
+        "all_root_fields_order_and_other_member_fields_unchanged": true,
+        "resolving_two_refs_recovers_old_semantics": true,
+        "restoring_only_two_JSON_tokens_recovers_original_raw_bytes": true,
+        "new_transport_bytes": 208188,
+        "new_transport_sha256": "6b3c990bf15cbae25378ccdd07401527f92657992914c2f06748e7b73ac9872d"
+      },
+      "method": "Read old/new pinned Git objects, verify each retained base64 body hash/size and both actual source references, compare every other full member record/root field/order, restore two source-body JSON tokens and require exact old decoded bytes."
+    },
+    {
+      "id": "8c-interruption",
+      "source_sha": "6333d6205a4abd14e6ef246a668cbff51e72b482",
+      "source_tree": "e88f3f4cce7dbcfa6bfeb24b981c469b5f9f6eae",
+      "verdict": "PASS_EVIDENCE_INTEGRITY_ONLY",
+      "evidence": [
+        "interruption6333-binding.json",
+        "wave1052-binding.json"
+      ],
+      "carrier": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-root-wave-8c-interruption-proof/output.json.gz",
+      "runtime_source_sha": "8c17a44c6f6ce8fe1b3dc334a689fb6cb05a6e47",
+      "runtime_source_tree": "4b0b58cc1fe0d7faab3d7aec49f99519dd080459",
+      "deciding_output": {
+        "lossless_members": 14,
+        "all_members_hash_size_and_current_original_bytes_match": true,
+        "recorded_module_exec_events": 1052,
+        "unique_product_source_paths": 1052,
+        "exact_frozen_Git_binding_errors": 0,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0,
+        "collection_finish_test_phase_session_finish_events": 0,
+        "original_manifest_status": "RUNNING, historical bytes preserved",
+        "observed_child_returncode": -9,
+        "observed_harness_returncode": -15,
+        "signal_evidence": "Original read-only /proc observer records both zombies and raw kernel wait statuses9/15; independently interpreted via os.waitstatus_to_exitcode.",
+        "cause": "Not established; cumulative cgroup counters do not identify this run's interruption cause."
+      },
+      "method": "Decode all carrier members, verify SHA256/size/current original bytes; independently match all1052 recorded source paths/bytes/hashes through frozen Git cat-file --batch; inspect original lifecycle events and kernel-stat observer facts."
+    }
+  ],
+  "interrupted_run_classification": {
+    "execution": "ERROR: interrupted before collection completion",
+    "unexecuted_properties": "UNRUN",
+    "backend_installation_or_import": "Observed imports and installed versions are not numerical execution, fit, or backend property PASS.",
+    "fit_execution": "Not witnessed; no numeric fit count is inferred.",
+    "completed_broad_verdict": false,
+    "formal_closed": 0,
+    "D_accepted_in_G": false
+  },
+  "accounting_scope": {
+    "input_kind": "Original5050 drafts preserved at6333, not a final8c ledger adjudication.",
+    "source_sha": "5050a940d990198f17de2b5dd9a3be691e153c05",
+    "source_tree": "28b25703040e158ad87211b1399dfd4f86b562c5",
+    "findings": 45,
+    "criterion_occurrences": 46,
+    "bundles": 17,
+    "conditional_engineering_recommendations": 39,
+    "held": 5,
+    "upstream_limited": 1,
+    "formal_closed": 0,
+    "D_accepted_in_G": false,
+    "limitation": "These declared original-summary counts were read and checked; this review does not independently re-adjudicate every original criterion or final ledger."
+  },
+  "retained_c879_scope_output": {
+    "source_sha": "c879ce8de2701513347ab811b60f63aebb61b351",
+    "member": "original-scope/clarification.json",
+    "disposition": "Unmodified. Parent explicitly retained this chronological original-review output; this review does not claim it was replaced or grant a universal tracked-body exception."
+  },
+  "limitations": [
+    "Packaging references extend these explicit carrier decoder contracts only; no universal application artifact schema compatibility is inferred.",
+    "Original packaging carriers remain at their historical published Git pins; only current transport representations are superseded.",
+    "1052 source-origin byte matches prove recorded input identity, not collection completion, runtime behavior, or numerical properties.",
+    "Thread getters5 and allowed CPUs0-4 were observed in historical records; setter provenance and interruption cause are unknown. No unlimited-host claim is made.",
+    "This metadata review executes no tests/backends, edits no product/tests/root files, adds no CPU/process/thread/test-worker limits, spawns no child agents, and performs no cleanup.",
+    "No all-tracked-carrier P37 pass, quality gate pass, formal closure, or G acceptance is asserted."
+  ],
+  "runtime_reruns": 0,
+  "product_or_test_edits": 0,
+  "root_writes": 0,
+  "cleanup_actions": 0,
+  "closure_ids": [],
+  "child_agents": 0
+}

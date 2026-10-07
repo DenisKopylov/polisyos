@@ -1,0 +1,38 @@
+import importlib.abc, importlib.util, hashlib, json, subprocess, sys
+from pathlib import Path
+OVERRIDES = {'polisyos.scientist.methods.search.strategies.neural': '/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/source-overrides/polisyos.scientist.methods.search.strategies.neural.py', 'polisyos.scientist.methods.search.strategies.transfer': '/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/source-overrides/polisyos.scientist.methods.search.strategies.transfer.py', 'tests.unit.scientist.methods.search.strategies.test_transfer': '/dev/shm/optional-seven-f9cedcf5125e4482893f8058077b9498/source-overrides/tests.unit.scientist.methods.search.strategies.test_transfer.py'}
+META = {'polisyos.scientist.methods.search.strategies.neural': ('cba802e22e1f1198aa971f529228ab2c1fd35cf7', 'policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py'), 'polisyos.scientist.methods.search.strategies.transfer': ('cba802e22e1f1198aa971f529228ab2c1fd35cf7', 'policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py'), 'tests.unit.scientist.methods.search.strategies.test_transfer': ('cba802e22e1f1198aa971f529228ab2c1fd35cf7', 'policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py')}
+ATTEMPTS = []
+ROOT = '/workspace/e02-D-published-oracle'
+EXISTING = Path('/tmp/optional-complete-inputs-6593e83194204e8b91bbd3066c68214c/policy-engine')
+OUT = Path('/workspace/e02-D-published-oracle/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-collection-independent')
+class DenyAndProject(importlib.abc.MetaPathFinder):
+    def find_spec(self, fullname, path=None, target=None):
+        if fullname.split('.')[0] in {'torch','botorch','gpytorch','hnswlib'}:
+            ATTEMPTS.append(fullname)
+            raise ModuleNotFoundError('UNRUN controlled optional backend denial: ' + fullname, name=fullname)
+        if fullname in OVERRIDES:
+            return importlib.util.spec_from_file_location(fullname, OVERRIDES[fullname])
+        return None
+sys.meta_path.insert(0, DenyAndProject())
+def pytest_sessionfinish(session, exitstatus):
+    rows = []; errors = []
+    for name, module in sorted(sys.modules.items()):
+        if not name.startswith('polisyos') or not getattr(module,'__file__',None): continue
+        origin = Path(module.__file__).resolve()
+        if name in META:
+            source, relative = META[name]
+        else:
+            try: relative = 'policy-engine/' + str(origin.relative_to(EXISTING))
+            except ValueError:
+                errors.append({'module':name,'origin':str(origin),'error':'outside declared source projection'}); continue
+            source = 'd38f94c8a8095abb00052b8e78f7b8a470453ed4'
+            if relative == 'policy-engine/src/polisyos/scientist/methods/autotune/__init__.py':
+                source = '18699ce536fca6ce174ff1caf1435a79912f0920'
+        raw = origin.read_bytes(); expected = subprocess.check_output(['git','-C',ROOT,'show',source+':'+relative])
+        matches = raw == expected
+        rows.append({'module':name,'origin':str(origin),'source':source,'path':relative,'sha256':hashlib.sha256(raw).hexdigest(),'matches':matches})
+        if not matches: errors.append({'module':name,'error':'source byte mismatch'})
+    (OUT/'expanded02-origins.json').write_text(json.dumps({'loaded_origins':rows,'errors':errors},indent=2)+'\n')
+    loaded = [name for name in sys.modules if name.split('.')[0] in {'torch','botorch','gpytorch','hnswlib'}]
+    (OUT/'expanded02-denial.json').write_text(json.dumps({'attempts':ATTEMPTS,'loaded_optional_modules':loaded,'exitstatus':int(exitstatus),'scope':'controlled installed-runtime denial, not numerical execution or actual uninstalled environment'},indent=2)+'\n')

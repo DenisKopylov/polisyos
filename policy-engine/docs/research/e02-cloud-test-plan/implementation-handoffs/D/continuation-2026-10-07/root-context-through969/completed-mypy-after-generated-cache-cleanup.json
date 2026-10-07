@@ -1,0 +1,26 @@
+{
+  "schema": "D.e02.cloud-cleanup.v1",
+  "utc": "2026-10-07T10:12:17Z",
+  "authorization": "user explicitly permitted unnecessary cloud deletion in this conversation",
+  "exact_candidate": "/dev/shm/e02-D-runner-mypy-after-a7-gwnufzpg/cache",
+  "kind": "completed reproducible mypy-generated cache only",
+  "active_fd_cwd_matches": [],
+  "file_count": 11596,
+  "bytes": 310244663,
+  "deciding_outputs_preserved": {
+    "command.json": {
+      "sha256": "6b4c2c96cb2b49bf1774615b47bb6f6b709d54662f76075cc32319f53f05b01b",
+      "bytes": 2416
+    },
+    "stdout.txt": {
+      "sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e",
+      "bytes": 42
+    },
+    "stderr.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  },
+  "source_docs_unique_inputs_git_envs_preserved": true,
+  "removed": true
+}

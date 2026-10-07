@@ -1,0 +1,30 @@
+{
+  "schema": "policyos.e02.independent_source_binding_output.v1",
+  "reviewer": "funnel_owner",
+  "target_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+  "target_tree": "ae90a66a882ee9b434cd21554043d887056d75b2",
+  "evidence_sha": "3c49bfa906c1bbed5b65923fe9637bd1bce4d330",
+  "status": "PASS_WITHIN_SOURCE_AND_EVIDENCE_BINDING_SCOPE",
+  "independent_backend_execution": "UNRUN by instruction; existing actual15 author output reviewed, not relabeled independent runtime",
+  "actual_origin_matches": 18,
+  "existing_author_JUnit": {
+    "tests": "15",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "5.176"
+  },
+  "full_final_stdout_sha256": "d64610b7138d39fbe52df2903ac59b1f2069bfdb3702ab297ae98ba7368c3f42",
+  "full_final_JUnit_sha256": "a3c3c089c59eaa89bcd736d1fbafec80148e9ef42d58d907864ec770ec20077a",
+  "input_archive_members": 1217,
+  "input_archive_bytes": 6806490,
+  "input_archive_sha256": "c6c6870c93fc9034e6ef3a193f68cb2bbed86ba13bc73d03cb113609ea72db78",
+  "all_member_base64_hash_size_index_and_retained_live_bytes_MATCH": true,
+  "own_source_delta": "none",
+  "profile_successor": "9de48387c01e7437f31093829610bb461fa3defe",
+  "three_reviewed_product_files_unchanged_on_successor": true,
+  "public_inventory_ref": "5eca5d0df09f3296aefe20a0797aa14837da01ff",
+  "scientist_literal_exports_MATCH_inventory": 42,
+  "minimal_backend_test_profile_finding": "Original6fe assert-UNRUN would fail when native backend absent. Corrected test-only9de importorskip source reviewed; no missing-backend runtime executed by this reviewer.",
+  "closure_ids": []
+}

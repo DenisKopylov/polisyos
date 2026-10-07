@@ -7,13 +7,13 @@ from abc import ABC, abstractmethod
 from collections.abc import Mapping
 from typing import Any, Protocol, runtime_checkable
 
+from polisyos.common.serialization import finite_real_scalar
 from polisyos.scientist.methods.search.strategies.space import SearchSpace
 from polisyos.scientist.methods.search.strategies.types import (
     Evaluation,
     PolicyCandidate,
     StrategyState,
 )
-
 
 _PYTHON_RANDOM_CODEC = "python_random"
 _PYTHON_RANDOM_CODEC_VERSION = 1
@@ -117,10 +117,8 @@ class BaseSearchStrategy(ABC):
 
     def set_state(self, state: StrategyState) -> None:
         if state.strategy_name != self.__class__.__name__:
-            raise ValueError(
-                "Strategy checkpoint is incompatible: strategy identity changed"
-            )
-        if isinstance(state.iteration, bool) or not isinstance(state.iteration, int):
+            raise ValueError("Strategy checkpoint is incompatible: strategy identity changed")
+        if type(state.iteration) is not int or state.iteration < 0:
             raise ValueError("Strategy iteration must be an integer")
         if not isinstance(state.rng_state, Mapping):
             raise ValueError("Strategy RNG state must be an object")
@@ -204,19 +202,13 @@ class BaseSearchStrategy(ABC):
 
     def _random_candidate(self, source: str = "random") -> PolicyCandidate:
         vector = tuple(self._rng.random() for _ in range(self._space.dim))
-        return PolicyCandidate(
-            params=self._space.denormalize(vector),
-            params_normalized=vector,
-            source_strategy=source,
-        )
+        return self._space.candidate_from_vector(vector, source_strategy=source)
 
     def _sobol_candidate(self, index: int, source: str = "sobol_init") -> PolicyCandidate:
         if index < 0:
             raise ValueError(f"Sobol index must be non-negative, got {index}")
         if not self._sobol_checkpoint_compatible:
-            raise ValueError(
-                "Sobol checkpoint is incompatible: versioned sampler state is missing"
-            )
+            raise ValueError("Sobol checkpoint is incompatible: versioned sampler state is missing")
         if index >= len(self._sobol_cache):
             generated = self._space.sample_sobol(
                 n_samples=index + 1,
@@ -231,17 +223,13 @@ class BaseSearchStrategy(ABC):
             sampler_identity = self._space.last_sobol_sampler_identity
             sampler_version = self._space.last_sobol_sampler_version
             if sampler_identity not in _SOBOL_SAMPLER_IDENTITIES:
-                raise ValueError(
-                    "Sobol sampler did not report an effective identity"
-                )
+                raise ValueError("Sobol sampler did not report an effective identity")
             if (
                 not isinstance(sampler_version, str)
                 or not sampler_version
                 or sampler_version.lower() == "unknown"
             ):
-                raise ValueError(
-                    "Sobol sampler did not report a verified implementation version"
-                )
+                raise ValueError("Sobol sampler did not report a verified implementation version")
             if self._sobol_sampler_identity is not None and (
                 sampler_identity != self._sobol_sampler_identity
                 or sampler_version != self._sobol_sampler_version
@@ -256,11 +244,7 @@ class BaseSearchStrategy(ABC):
             self._sobol_sampler_version = sampler_version
         self._sobol_cursor = max(self._sobol_cursor, index + 1)
         vector = self._sobol_cache[index]
-        return PolicyCandidate(
-            params=self._space.denormalize(vector),
-            params_normalized=vector,
-            source_strategy=source,
-        )
+        return self._space.candidate_from_vector(vector, source_strategy=source)
 
     def _sobol_state(self) -> dict[str, Any]:
         identity = self._sobol_sampler_identity
@@ -274,17 +258,9 @@ class BaseSearchStrategy(ABC):
                 )
         else:
             if identity not in _SOBOL_SAMPLER_IDENTITIES:
-                raise ValueError(
-                    "Sobol sampler did not report an effective identity"
-                )
-            if (
-                not isinstance(version, str)
-                or not version
-                or version.lower() == "unknown"
-            ):
-                raise ValueError(
-                    "Sobol sampler did not report a verified implementation version"
-                )
+                raise ValueError("Sobol sampler did not report an effective identity")
+            if not isinstance(version, str) or not version or version.lower() == "unknown":
+                raise ValueError("Sobol sampler did not report a verified implementation version")
         fallback = identity == _SOBOL_FALLBACK_IDENTITY
         return {
             "algorithm": _SOBOL_ALGORITHM,
@@ -297,11 +273,7 @@ class BaseSearchStrategy(ABC):
             "sampler_identity": identity,
             "sampler_version": version,
             "fallback": fallback,
-            "scramble": (
-                None
-                if identity is None
-                else not fallback
-            ),
+            "scramble": (None if identity is None else not fallback),
             "cursor": self._sobol_cursor,
             "cache": [list(vector) for vector in self._sobol_cache],
         }
@@ -331,19 +303,23 @@ class BaseSearchStrategy(ABC):
             raise ValueError("Sobol checkpoint is incompatible: state fields changed")
         if value.get("codec") != _SOBOL_CODEC:
             raise ValueError("Sobol checkpoint is incompatible: unknown codec")
-        if value.get("codec_version") != _SOBOL_CODEC_VERSION:
+        if (
+            type(value.get("codec_version")) is not int
+            or value.get("codec_version") != _SOBOL_CODEC_VERSION
+        ):
             raise ValueError("Sobol checkpoint is incompatible: unsupported codec version")
         if value.get("algorithm") != _SOBOL_ALGORITHM:
             raise ValueError("Sobol checkpoint is incompatible: unknown algorithm")
-        if value.get("algorithm_version") != _SOBOL_ALGORITHM_VERSION:
-            raise ValueError(
-                "Sobol checkpoint is incompatible: unsupported algorithm version"
-            )
+        if (
+            type(value.get("algorithm_version")) is not int
+            or value.get("algorithm_version") != _SOBOL_ALGORITHM_VERSION
+        ):
+            raise ValueError("Sobol checkpoint is incompatible: unsupported algorithm version")
 
         seed = value.get("seed")
         if isinstance(seed, bool) or not isinstance(seed, int):
             raise ValueError("Sobol checkpoint is incompatible: seed must be an integer")
-        if value.get("dimension") != self._space.dim:
+        if type(value.get("dimension")) is not int or value.get("dimension") != self._space.dim:
             raise ValueError("Sobol checkpoint is incompatible: search-space dimension changed")
         if value.get("space") != self._space.sobol_space_fingerprint():
             raise ValueError("Sobol checkpoint is incompatible: search space changed")
@@ -356,9 +332,7 @@ class BaseSearchStrategy(ABC):
                     "Sobol checkpoint is incompatible: sampler version without identity"
                 )
             if value.get("fallback") is not False or value.get("scramble") is not None:
-                raise ValueError(
-                    "Sobol checkpoint is incompatible: uninitialized sampler metadata"
-                )
+                raise ValueError("Sobol checkpoint is incompatible: uninitialized sampler metadata")
         else:
             if (
                 not isinstance(sampler_identity, str)
@@ -377,9 +351,7 @@ class BaseSearchStrategy(ABC):
                 )
             expected_fallback = sampler_identity == _SOBOL_FALLBACK_IDENTITY
             if value.get("fallback") is not expected_fallback:
-                raise ValueError(
-                    "Sobol checkpoint is incompatible: fallback mode changed"
-                )
+                raise ValueError("Sobol checkpoint is incompatible: fallback mode changed")
             expected_scramble = not expected_fallback
             if value.get("scramble") is not expected_scramble:
                 raise ValueError("Sobol checkpoint is incompatible: scramble mode changed")
@@ -403,8 +375,8 @@ class BaseSearchStrategy(ABC):
                     raise ValueError(
                         "Sobol checkpoint is incompatible: cache coordinate must be numeric"
                     )
-                coordinate_float = float(coordinate)
-                if not 0.0 <= coordinate_float <= 1.0:
+                coordinate_float = finite_real_scalar(coordinate)
+                if coordinate_float is None or not 0.0 <= coordinate_float <= 1.0:
                     raise ValueError(
                         "Sobol checkpoint is incompatible: cache coordinate out of range"
                     )
@@ -414,9 +386,7 @@ class BaseSearchStrategy(ABC):
             raise ValueError("Sobol checkpoint is incompatible: cursor/cache mismatch")
 
         if bool(cache) != (sampler_identity is not None):
-            raise ValueError(
-                "Sobol checkpoint is incompatible: sampler identity/cache mismatch"
-            )
+            raise ValueError("Sobol checkpoint is incompatible: sampler identity/cache mismatch")
 
         return seed, cursor, cache, sampler_identity, sampler_version
 
@@ -436,15 +406,16 @@ def _decode_python_random_state(value: Any) -> tuple[int, tuple[int, ...], float
     if isinstance(value, tuple):
         return _validate_python_random_state(value)
     if not isinstance(value, Mapping):
-        raise ValueError(
-            "Python random state codec is missing; expected a versioned state object"
-        )
+        raise ValueError("Python random state codec is missing; expected a versioned state object")
     expected_keys = {"codec", "codec_version", "gauss_next", "state", "version"}
     if set(value) != expected_keys:
         raise ValueError("Python random state codec fields are incompatible")
     if value.get("codec") != _PYTHON_RANDOM_CODEC:
         raise ValueError("Python random state codec is incompatible")
-    if value.get("codec_version") != _PYTHON_RANDOM_CODEC_VERSION:
+    if (
+        type(value.get("codec_version")) is not int
+        or value.get("codec_version") != _PYTHON_RANDOM_CODEC_VERSION
+    ):
         raise ValueError("Python random state codec version is unsupported")
     version = value.get("version")
     internal_state = value.get("state")
@@ -488,4 +459,11 @@ def _validate_python_random_state(state: Any) -> tuple[int, tuple[int, ...], flo
         isinstance(gauss_next, bool) or not isinstance(gauss_next, (int, float))
     ):
         raise ValueError("Python random gaussian state must be numeric or null")
+    if gauss_next is not None and finite_real_scalar(gauss_next) is None:
+        raise ValueError("Python random gaussian state must be finite")
+    probe = random.Random()
+    try:
+        probe.setstate((version, internal_state, gauss_next))
+    except (TypeError, ValueError) as exc:
+        raise ValueError("Python random state is invalid") from exc
     return version, internal_state, gauss_next

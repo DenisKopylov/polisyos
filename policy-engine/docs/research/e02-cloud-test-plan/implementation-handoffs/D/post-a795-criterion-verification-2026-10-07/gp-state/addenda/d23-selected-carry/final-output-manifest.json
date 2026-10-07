@@ -1,0 +1,53 @@
+{
+  "schema": "D.E02.d23-selected-GP-state-additive-publication-manifest.v1",
+  "packet_root": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/publication-d23-selected-carry",
+  "count": 7,
+  "bytes": 172176,
+  "files": [
+    {
+      "path": "GP-d23-selected-carry-independent-metadata-review.json",
+      "sha256": "7c421bdc15ae33ea1d8c8c7a63a52bfd562d817bdeec0a3b32622e7ed158f0b0",
+      "bytes": 1274
+    },
+    {
+      "path": "MO-current-CBC46-independent-saved-dense-oracle-review.json",
+      "sha256": "ce0dc397b4c15fa9e6c23b539a7747f2b45bd4b19c52374927477e9fd49518b7",
+      "bytes": 13353
+    },
+    {
+      "path": "independent-carry-acceptance-addendum.json",
+      "sha256": "fcd85e15884f651ded517b1ce095130c937792a95bfe85ab9223c40dfc3ec5e1",
+      "bytes": 1441
+    },
+    {
+      "path": "initial-full-clean-precheck.json",
+      "sha256": "395a11c468499a1fe8c601a1bd9f9d4801e34ed50553bdc69d5a4a268b8e644b",
+      "bytes": 689
+    },
+    {
+      "path": "observed-318-current-Git-bindings.json",
+      "sha256": "599a101b252a244a835fe1b5fd32740f952d74120a96a7b5953814736bc6a992",
+      "bytes": 150499
+    },
+    {
+      "path": "optional-MO-review-addendum.json",
+      "sha256": "ee7eed540c89d082b6ee55925e70830e7cb8502f17fcff301448d1cf05fc717f",
+      "bytes": 1094
+    },
+    {
+      "path": "selected-seven-d23-carry.json",
+      "sha256": "af296cdf70df9237c71b5313bfa7c4f26647298b73bd5c1fde5cc9fc9deebf7e",
+      "bytes": 3826
+    }
+  ],
+  "root_target": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/gp-state/addenda/d23-selected-carry/",
+  "actual_execution_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "source_qualified_candidate": "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+  "new_execution_on_candidate": false,
+  "normative_status_addendum": "independent-carry-acceptance-addendum.json",
+  "original128_packet_unchanged": true,
+  "formal_closed": false,
+  "accepted_in_G": false,
+  "P41": "not_established"
+}

@@ -1,0 +1,18 @@
+.....................ACTUAL_PROCESS_COMMAND ['/workspace/e02-D-locked-env/bin/python', '/dev/shm/e02-D-oct07-continuation/policy-engine/tests/unit/scientist/agent/vector_transfer_process_worker.py', 'corrupted_native', '/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/basetemp/test_actual_native_loader_exce0'] EXIT 0
+ACTUAL_NATIVE_LOAD_REFUSAL Index seems to be corrupted or unsupported OLD_GENERATION_COHERENT
+
+.......
+=============================== warnings summary ===============================
+../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+tests/unit/scientist/agent/test_vector_generation_consumer.py::test_exact_transfer_reference_beyond_1000_keys_survives_fresh_native_reader
+tests/unit/scientist/agent/test_vector_generation_consumer.py::test_exact_transfer_reference_beyond_1000_keys_survives_fresh_native_reader
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+28 passed, 3 warnings in 15.73s
+TRANSFER_CURRENT_RESULT {"mode": "native", "exitcode": 0, "output": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native"}

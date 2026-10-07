@@ -1,0 +1,17 @@
+id = "2026-10-06-e02-b-durable-completion-obligations"
+title = "Retain budget completion obligations before provider admission"
+type = "fixed"
+component = "scientist"
+owner = "scientist-orchestration"
+summary = "Atomic all-key intent reservations and durable completion records prevent unresolved provider cost or protected audit work from admitting another intersecting spend."
+evidence = ["tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py"]
+compatibility = "Ledger wire 1.2 requires a complete completion_obligations index. Full valid 1.0 and 1.1 snapshots migrate explicitly; sparse or version-ambiguous records fail before defaults."
+change_class = "runtime-state-format"
+surface_classification = "internal"
+migration = "BudgetMiddleware admission consumers may configure a constructor-bound completion resolver. Legacy receipts retain their original accounting meaning; migration does not establish previously unknown provider cost."
+api = "Typed completion obligations, original live-owner intent admission, completion discovery, transition, verified completion and verified pre-admission abort."
+limitations = "Unknown external completion remains unresolved until its configured owner supplies the required evidence. Local filesystem/process controls do not attest power loss or external billing authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/scientist/orchestration/engine/README.md"]
+runbook_docs = []

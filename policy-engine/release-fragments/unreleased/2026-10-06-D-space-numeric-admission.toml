@@ -1,0 +1,10 @@
+id = "2026-10-06-D-space-numeric-admission"
+title = "Refuse unsupported numeric search coordinates before native consumers"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-runtime"
+change_class = "internal"
+summary = "Canonical SearchSpace normalization and bounds admission use the shared finite-real scalar reader before arithmetic, so huge integers, booleans and malformed values produce controlled ValueError rather than float-overflow or accidental bool coercion."
+compatibility = "Supported int/float physical coordinates, attainable integer projection, log bounds, categorical token types and checkpoint space fingerprints retain their behavior. Existing nonfinite representable-span refusal remains explicit. Invalid rows are rejected by the existing receiving optimizer while remaining valid rows are retained."
+evidence = ["tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py", "tests/unit/scientist/search/strategies/test_space_codec.py"]
+limitations = "This is technical supported float-domain admission. It does not establish source units, institutional authorization or production history truth."

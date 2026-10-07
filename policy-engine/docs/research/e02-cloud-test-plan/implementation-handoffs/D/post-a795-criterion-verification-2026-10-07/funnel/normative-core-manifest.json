@@ -1,0 +1,44 @@
+{
+  "schema": "D.FUN.normative-core-v1",
+  "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/funnel/",
+  "rows": [
+    {
+      "source_absolute": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/original10-outcomes.json",
+      "relative_path": "original10-outcomes.json",
+      "bytes": 48770,
+      "sha256": "c2f734080c1feda26e4d68ff84aa6bc9600288f66b28f236c2e68062bef883f4"
+    },
+    {
+      "source_absolute": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/HANDOFF-final.json",
+      "relative_path": "HANDOFF.json",
+      "bytes": 8628,
+      "sha256": "802f46d87df7f6bc471d9b7c50394f9501e11cc51ee354745e8c94e4479b35f4"
+    },
+    {
+      "source_absolute": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/held3-minimum-owner-inputs.json",
+      "relative_path": "context/held3-minimum-owner-inputs.json",
+      "bytes": 8971,
+      "sha256": "18f879a6d5664fd8bd70d7628e73b5b4945231c55ec137d59fa39534f1455d53"
+    },
+    {
+      "source_absolute": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/final-a30c-selected-reached-source-qualification.json",
+      "relative_path": "context/final-a30c-selected-reached-source-qualification.json",
+      "bytes": 4665,
+      "sha256": "7ca7d31d3bedd1149392761bbd2bea93eef0dedb42b3f502a0ba4a70806a1d69"
+    }
+  ],
+  "runtime_reviews": [
+    {
+      "source_absolute": "/dev/shm/e02-D-post-a795-88ghpj7t/census/FUN-Node15-d23-and-owner-removal4-independent-runtime-review.json",
+      "sha256": "fe23ece8acbef92686732fbb5972f1940890c86645e30e771ccca903f8dc20ac"
+    },
+    {
+      "source_absolute": "/dev/shm/e02-D-post-a795-88ghpj7t/census/B156-current-a30c-callback-history-and-removal-independent-runtime-review.json",
+      "sha256": "0bf3bfc325f81c7d493037d2a6878894a25ad516810d4c1ef1cc0ce7dc32ad16"
+    },
+    {
+      "source_absolute": "/dev/shm/e02-D-post-a795-88ghpj7t/census/FUN-selected-source-helpers-and-a30c-origin-independent-qualification-review.json",
+      "sha256": "5adcc3bfa912f137f7d55f230459441bb51c7fb978c853362e6247302d98bfcc"
+    }
+  ]
+}

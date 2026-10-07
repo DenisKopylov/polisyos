@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="1.658" timestamp="2026-10-07T10:08:24.035645+00:00" hostname="565838a1e059"><testcase classname="tests.unit.scientist.methods.search.test_service_owner_budget_factory" name="test_actual_owner_change_after_ask_preflight_is_not_rolled_back_to_known_zero" time="0.454"><failure message="AssertionError: assert 0.0 is None&#10; +  where 0.0 = SearchRunState(search_id='f6886bcd', status=&lt;SearchStatus.RUNNING: 'running'&gt;, history=[], best_candidate=None, best_o...00561645', budget_ledger_revision=None, policy_evaluation_errors=0, generation_transition=None, pareto_projection=None).budget_spent&#10; +    where SearchRunState(search_id='f6886bcd', status=&lt;SearchStatus.RUNNING: 'running'&gt;, history=[], best_candidate=None, best_o...00561645', budget_ledger_revision=None, policy_evaluation_errors=0, generation_transition=None, pareto_projection=None) = &lt;polisyos.scientist.methods.search.controller.SearchController object at 0x7fb0811c2660&gt;._run_state&#10; +      where &lt;polisyos.scientist.methods.search.controller.SearchController object at 0x7fb0811c2660&gt; = &lt;polisyos.scientist.methods.search.service.NativeSearchService object at 0x7fb0811c2900&gt;.controller">tmp_path = PosixPath('/dev/shm/e02-D-oct07-service-start/final-native-b652/rollback-removal-discovery-fixtures/test_actual_owner_change_after0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7fb0968688a0&gt;
+
+    def test_actual_owner_change_after_ask_preflight_is_not_rolled_back_to_known_zero(
+        tmp_path, monkeypatch
+    ):
+        zero_gateway, path, zero = _actual_operation(tmp_path, "0")
+        _physical_call(zero)
+        runner, store, suite, evaluator, spec = _runner(tmp_path, path)
+        service = runner.create_service(spec, suite_ref=suite, max_iterations=3)
+        proposal = service.ask(None, None, {})[0]
+        before_ref = service.checkpoint_ref
+        before_bytes = store.get_bytes(before_ref)
+        before_pending = deepcopy(service._pending_candidates)
+        before_generator = deepcopy(spec.candidate_generator.get_state())
+        gateway, _, unresolved = _actual_operation(tmp_path, "1e-1000")
+        owner = service.controller._config.budget_middleware
+        original = owner.pre_check
+        visits = []
+    
+        def admit_then_actual_owner_changes(alias, budget_key="run"):
+            result = original(alias, budget_key)
+            visits.append((alias, budget_key))
+            if len(visits) == 1:
+                # Exact barrier seam: the real owner admitted preflight, then an
+                # obtained physical completion retained its actual unknown amount.
+                with pytest.raises(LLMAccountingError):
+                    _physical_call(unresolved)
+            return result
+    
+        monkeypatch.setattr(owner, "pre_check", admit_then_actual_owner_changes)
+        with pytest.raises(BudgetLedgerCompletionRequiredError):
+            service.ask(None, None, {})
+        assert len(visits) == 1 and visits[0][1] == "run"
+        assert spec.candidate_generator.get_state() == before_generator
+        assert (
+            service._pending_candidates == before_pending == {proposal.candidate_id: proposal.payload}
+        )
+        assert evaluator.calls == [] and service.controller._history == []
+        assert service.checkpoint_ref == before_ref and store.get_bytes(before_ref) == before_bytes
+&gt;       assert service.controller._run_state.budget_spent is None
+E       AssertionError: assert 0.0 is None
+E        +  where 0.0 = SearchRunState(search_id='f6886bcd', status=&lt;SearchStatus.RUNNING: 'running'&gt;, history=[], best_candidate=None, best_o...00561645', budget_ledger_revision=None, policy_evaluation_errors=0, generation_transition=None, pareto_projection=None).budget_spent
+E        +    where SearchRunState(search_id='f6886bcd', status=&lt;SearchStatus.RUNNING: 'running'&gt;, history=[], best_candidate=None, best_o...00561645', budget_ledger_revision=None, policy_evaluation_errors=0, generation_transition=None, pareto_projection=None) = &lt;polisyos.scientist.methods.search.controller.SearchController object at 0x7fb0811c2660&gt;._run_state
+E        +      where &lt;polisyos.scientist.methods.search.controller.SearchController object at 0x7fb0811c2660&gt; = &lt;polisyos.scientist.methods.search.service.NativeSearchService object at 0x7fb0811c2900&gt;.controller
+
+tests/unit/scientist/methods/search/test_service_owner_budget_factory.py:203: AssertionError</failure></testcase></testsuite></testsuites>

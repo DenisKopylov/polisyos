@@ -19,6 +19,61 @@ ablation и adversarial планы, генерацию sample sets и пост-�
 - **Coverage benchmarks** — analytic truth suites, empirical coverage metrics, and approval profiles.
 - **StressTestReport** — итоговая форма публикации robustness issues.
 
+## Observed stress scenario evidence
+
+`StressTestReport` 1.1 adds optional `scenario_evidence` and per-component evidence.
+The adversarial producer counts attempts, finite outcomes, violated scenarios,
+unknown outcomes and planned scenarios before issue grouping or top-k. Its score
+is `(finite_evaluated - violated_scenarios) / finite_evaluated`; each scenario
+contributes at most one violation. Severity occurrence counts remain independent
+of retained issue examples. Thresholds use the declared objective's coordinates
+and direction; absent thresholds, zero finite outcomes and unsupported legacy
+component bases yield an unavailable score. Unknown or unfinished runs remain
+partial. Complete means the declared observed stream, not the whole parameter
+space or a population probability. These fractions do not establish model
+uncertainty. The blueprint carries and replaces complete component count bases
+without deriving them from issue lists. The D challenge adapter declares
+`challenge_case_pass@1.0`: one uniquely named case with an explicit expected
+outcome and consistent strict boolean passed/failed result is one finite
+observed case. Skipped cases stay outside attempts, while unknown or
+inconsistent attempted outcomes remain separate; both prevent completeness.
+Empty/zero-finite suites publish unavailable scores and cannot be promoted.
+Passing suites also publish their typed basis for the real blueprint consumer.
+Report-level `scenario_complete` requires every declared component to be
+complete. An empty component remains partial when combined with a nonempty
+component; a finite observed subset fraction is then conditional.
+With no prior stress report, the blueprint publishes an unavailable schema1.1
+base with zero established scenario attempts. Supplied typed challenge-component
+counts and fractions survive CAS readback separately; that unknown base keeps
+the combined score unavailable and partial.
+This adapter consumes existing case outcomes; it does not authenticate or
+recompute their scientific predicate.
+
+New readers accept legacy 1.0 reports without inventing scenario evidence;
+`is_robust` requires complete, available evidence with no observed violation.
+Strict legacy readers must be upgraded before consuming 1.1 output. Optional
+absent evidence is omitted from legacy serialization. `StressScenarioEvidence`
+and threshold admission live in the documented `doe.stress_report` module. Unknown report schema versions and evidence carried as schema 1.0
+are refused. The blueprint records `schema_compatibility` for bounded legacy
+reads and still treats legacy scores without scenario evidence as unassessed.
+Anonymous delivery retries reuse the existing report identity and bind the
+actual canonical payload (excluding its optional CAS handle); changed content
+under that identity is refused. This does not authenticate scenario provenance.
+
+The internal blueprint node accepts an optional keyword-only
+`PolicyBudgetExecutionContext.budget_middleware` port. A configured caller
+constructs this frozen context with the same existing B `BudgetMiddleware`
+instance and its usual store/run/logger, then calls the ordinary node. JSON
+`ExperimentState.params` never carries the owner. Plain `ExecutionContext`
+remains unmanaged; the subtype creates no ledger, permission or authority.
+Serialized deployment-factory adoption requires its appointed owner separately.
+Blueprint funnel JSON preserves outcome evaluation status and the existing
+outcome/stage/trace compute amount, cost source, provider Decimal amount and
+resource-event references. Provider Decimal amounts are JSON strings; unavailable
+amounts remain null. This projection preserves observations and feedback, and
+does not turn a provider report into billing authority or prove the default
+node executes a paid provider.
+
 ## Bounded distribution contract (DOE-02)
 
 `ParameterSpec.lower_bound` and `upper_bound` are always physical support.  The
@@ -50,7 +105,10 @@ or triangular sampling law. Finite values and divisible row counts alone are
 insufficient. Whole valid blocks may be reordered or bootstrapped; individual
 row resampling cannot preserve this design. `RankingStabilityChecker` therefore
 resamples whole Morris trajectories. Its Sobol/FAST resampling is outside this
-bounded repair. It validates the original Morris design before resampling and
+bounded repair; those methods return `unsupported` with the requested bootstrap
+and input-run denominators before attempting a replicate. Morris reports every
+replicate outcome and marks success-only ranking summaries `limited` when any
+replicate fails. It validates the original Morris design before resampling and
 refuses failed original runs; ranking stability under dropped or imputed runs
 has no admitted selection or recovery contract.
 
@@ -59,6 +117,41 @@ The uniform elementary-effect helper requires explicit physical bounds and
 uncertainty remains unavailable until its coordinate contract is admitted.
 Geometry does not authenticate original trajectory provenance or establish
 statistical sufficiency or absence of failure-selection bias.
+
+## Ordered experiment and consumer readback
+
+Sobol plans now require `input_law="independent"` and an explicit seed before
+sampling. This declares a product parameter experiment; it does not establish
+independence of a population source. Analysis reconciles the complete Saltelli
+blocks with the canonical seeded SALib sampler, including block multiplicity and
+the A/AB/BA/B role order inside each block. Whole blocks with their paired outputs
+may be permuted; this preserves the point estimands while changing the actual
+ordered design/analysis content IDs. Missing/duplicated blocks, changed interior
+roles, correlated, or differently transformed rows are rejected before estimating
+indices. A prior receipt cannot bind the new order merely because its numerical
+indices agree.
+
+The native interaction oracle uses independent uniform inputs and
+`y=x+z+2*x*z`: first-order indices are `12/25` each, the interaction is `1/25`,
+and total-order indices are `13/25` each. Its numerical tolerance is declared
+separately from the analytic truth. It exercises sampler, analyzer and interaction
+ranking; list/tuple shape alone does not verify those quantities.
+
+The autotune `SensitivityBridge` uses this same producer for distribution,
+seed, and budget admission. Passing its configured `store` persists a
+`doe_sensitivity_analysis` artifact containing the complete plan, ordered
+samples, all outcomes (nonfinite failures have explicit tags), denominator, and result.
+`_receipt.py` owns this internal writer/loader. The existing search
+`SensitivityAwareCandidateGenerator.from_artifact` checks CAS kind/schema and
+integrity, reproduces the native analysis, and carries exact design/analysis
+IDs and the typed reference through both single and batch candidate paths.
+A content-valid receipt with a fabricated index is rejected on readback.
+
+Effects declare `unit_coordinate_full_range` for Morris and `variance_fraction`
+for Sobol/FAST; parameter units remain explicit, with `unspecified` preserved
+as a limitation. Artifacts are exploratory parameter experiments. Evaluator
+provenance, population source-law validity, causal effects, and production
+history remain `not_established`; numerical replay does not create authority.
 
 ## Public API
 
@@ -82,7 +175,7 @@ statistical sufficiency or absence of failure-selection bias.
 
 ## Текущее состояние
 
-- Последнее обновление: 2026-10-05
-- Python modules: 11
+- Последнее обновление: 2026-10-06
+- Python modules: 12
 - Exports: 82
 - README синхронизирован с тем, что `doe` остается upstream для search/stress flows

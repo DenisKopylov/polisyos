@@ -1,0 +1,993 @@
+{
+  "schema": "policyos.e02.independent_original_criterion_review_delta.v1",
+  "unit": "D",
+  "finding_id": "B136",
+  "occurrence_id": "B136@TRN-03",
+  "parent_review": {
+    "path": "/tmp/e02-D-original-criterion-audit-o08lza3h/review.json",
+    "sha256": "b4b1fe7a68e74204d6da8be0760151d7635669b01bf4ba2c5018d720a6712c3f"
+  },
+  "original_binding": {
+    "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "fragment_lines": [
+      3529,
+      3542
+    ],
+    "original_fragment_sha256": "1182d49f6e0f40a47b62e7bfe488d75ff540516f4ba6f022cbedba1340c60deb",
+    "exact_acceptance_paragraph_sha256": "dbc583087ea526396c4d1b2b4230d2058a76565496b4bdac824060a759dee116",
+    "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-03.md",
+    "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+    "original_accounting_occurrence": "B136@TRN-03"
+  },
+  "original_binding_MATCH": true,
+  "original_acceptance_text": "переданный threshold и trust-filter соблюдаются независимо от маршрута; локальный промах не меняет требования; действительно допустимая transferred-карточка возвращается; несоответствующая не материализуется зря. Проверить source_run_id и политику частичного ответа, не только два численных примера.",
+  "review_recommendation": "bounded_engineering_acceptance_supported_for_original_B136_criterion",
+  "previous_review_state_superseded": "original_clause_verification_pending",
+  "implementation_and_fixture_sources": [
+    {
+      "commit": "6ca3b5f167c140370a44653f25a3483bad4a9659",
+      "tree": "87e299ebd04b557ab951a538257f87298c57fd02",
+      "changed_paths": [
+        "policy-engine/release-fragments/unreleased/2026-10-06-e02-lesson-partial-answer.toml",
+        "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+        "policy-engine/tests/unit/scientist/search/test_lesson_partial_consumer.py"
+      ],
+      "full_delta_reviewed": true,
+      "path_hashes": {
+        "policy-engine/release-fragments/unreleased/2026-10-06-e02-lesson-partial-answer.toml": "cdd7ec8f4af98732e3ae804082256850a2fe8b4f27fcf4dfe0bd815c116f40bd",
+        "policy-engine/src/polisyos/scientist/methods/search/lessons.py": "3a83006f055220edfa56d352e232069bc62e0d887ccd61a9bb1cb8b5e9685f18",
+        "policy-engine/tests/unit/scientist/search/test_lesson_partial_consumer.py": "d706b028fe5d1f938751ea66d93e79cc818e75a04be17e3f688cea18338b6645"
+      }
+    },
+    {
+      "commit": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+      "tree": "cf0fe4946f41e904880ac1c6ec1b0ef7a57663a7",
+      "changed_paths": [
+        "policy-engine/tests/unit/scientist/methods/search/test_lesson_query_persistence.py"
+      ],
+      "full_delta_reviewed": true,
+      "path_hashes": {
+        "policy-engine/tests/unit/scientist/methods/search/test_lesson_query_persistence.py": "4f7d2e34ab338fe21831e7d1f89b61bbe36a6e336191eb4d33c14dc8c62ba323"
+      }
+    }
+  ],
+  "mechanism_review": {
+    "actual_route": "LessonRegistry.query_with_transfer -> namespaced find_transfer_candidates -> existing FileSystemCAS ArtifactRef load -> admission predicate/projected status -> materialize_transfer -> namespaced persisted index -> fresh LessonRegistry reader",
+    "shared_query_predicate": "source_run_id equality, min_confidence, effective trust, stage/fidelity/candidate/task/domain/tag filters remain before eligible discovery quota and before persistence and return",
+    "partial_answer_policy": "Retain admitted local results, fill remaining slots with admitted transfer evidence, suppress copies of original evidence already returned locally and copies from several discovery namespaces before discovery quota/materialization. No weakening on local miss.",
+    "evidence_identity": "Canonical JSON of original semantic/source content. Excludes route-generated lesson_id/domain/trust/provenance/access/transfer_chain and the materialized_transfer metadata marker. Retains created_at, source_run_id, original run/domain/tenant, source refs, candidate, summary, other metadata and substantive fields.",
+    "distinct_newer_evidence": "created_at stays in identity. Actual new-CAS same-pattern newer version is discoverable despite an older materialized result and increments the existing index through ordinary materialize path. This is existing persisted version behavior, not a scientific novelty or authorized revalidation law.",
+    "quota_order": "matches are eligibility-filtered and sorted first; evidence duplicates removed before candidates reach context.limit; query_with_transfer passes exclude_cards=results before any new materialization.",
+    "freshness_and_access": "Future-as-of refusal remains common to all routes; same TTL/confidence/trust applies locally and transferred. Access can update retention sidecar but not artifact_ref/card_refs/occurrence_count/evidence time/transfer chain.",
+    "independent_expected_output_basis": "Tests assert literal expected local+distinct summaries/trust/source IDs and exact CAS-created_at/ref/index evidence snapshots. They do not use the new evidence-identity helper as their expected-value oracle."
+  },
+  "ordinary_consumers": [
+    "test_partial_local_answer_is_filled_by_one_admitted_transfer: real CAS source and target; fresh reader sees materialized card",
+    "test_source_run_filter_excludes_other_sources_before_partial_fill: equality admits allowed-source on both routes, wrong source not materialized",
+    "test_duplicate_evidence_across_routes_does_not_consume_partial_quota_or_refresh: local materialization plus three copied namespaces returns duplicate+distinct and preserves original evidence",
+    "test_distinct_newer_evidence_is_not_suppressed_as_route_metadata: fresh source CAS occurrence remains eligible",
+    "future/stale paired route controls: irrelevant transfer never enters destination index",
+    "Existing actual SearchController._build_lesson_hints typed and JSON contexts and destination projection are exercised in the full 40-case run"
+  ],
+  "fixture_only_successor_review": {
+    "source": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+    "actual_positive_assessment_time_adjustments": 2,
+    "cases_affected": 3,
+    "assertions_ast_unchanged": true,
+    "reason": "The previous positive fixture fixed query time before default-created evidence by construction. Querying immediately after record restores the intended valid positive; the precreation timestamp bodies are preserved as a negative, not relabeled inherited or waived.",
+    "product_paths_changed": []
+  },
+  "retained_deciding_runs": [
+    {
+      "run": "red",
+      "source_before": {
+        "sha": "3ed63c748e1e080d0628d8cdf557841fe9a4364a",
+        "tree": "9e80184c97d98fba28c3323f32276dcf2b2aa6be",
+        "status": "?? tests/unit/scientist/search/test_lesson_partial_consumer.py"
+      },
+      "source_after": {
+        "sha": "3ed63c748e1e080d0628d8cdf557841fe9a4364a",
+        "tree": "9e80184c97d98fba28c3323f32276dcf2b2aa6be",
+        "status": "?? tests/unit/scientist/search/test_lesson_partial_consumer.py"
+      },
+      "exit_code": 1,
+      "wall_seconds": 12.043231010437012,
+      "PASS": 4,
+      "FAIL": 1,
+      "ERROR": 0,
+      "SKIP": 0,
+      "complete_output": {
+        "path": "/tmp/e02-D-lesson-partial-8ddd8ebc912744818eb95e2682538ff7/red.txt",
+        "bytes": 96000,
+        "sha256": "2845cbff2c85fd26008703dd5bae15ab41f335a9137380198d7c6bb7bf913d53",
+        "matches_recorded_sha256": true
+      },
+      "complete_junit": {
+        "path": "/tmp/e02-D-lesson-partial-8ddd8ebc912744818eb95e2682538ff7/red.xml",
+        "bytes": 2804,
+        "sha256": "cb70a950480431061f4310668689890b3b26a8151f0e0ffbdfabe8543a12fae0"
+      },
+      "actual_product_origin_count": 389,
+      "base_binding_exceptions": [],
+      "unmatched_origin_count": 0,
+      "backend": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-D-locked-env/bin/python",
+        "versions": {
+          "botorch": "0.16.1",
+          "gpytorch": "1.15.1",
+          "hnswlib": "0.8.0",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "torch": "2.10.0"
+        },
+        "torch_loaded": true,
+        "botorch_loaded": true,
+        "gpytorch_loaded": true,
+        "native_hnsw": null,
+        "denied_imports": []
+      },
+      "cap_env": {
+        "PYTHONPATH": "/workspace/e02-D-published-transfer/policy-engine/src:/workspace/e02-D-published-transfer/policy-engine:/tmp/e02-D-lesson-partial-8ddd8ebc912744818eb95e2682538ff7",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "OMP_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "TORCH_NUM_THREADS": null
+      },
+      "controls": [],
+      "cases": [
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_partial_consumer",
+          "name": "test_partial_local_answer_is_filled_by_one_admitted_transfer",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_partial_consumer",
+          "name": "test_source_run_filter_excludes_other_sources_before_partial_fill",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_partial_consumer",
+          "name": "test_duplicate_evidence_across_routes_does_not_consume_partial_quota_or_refresh",
+          "check": "FAIL",
+          "failure_reason": "AssertionError: assert ['duplicate', 'duplicate'] == ['duplicate', 'distinct']\n  \n  At index 1 diff: 'duplicate' != 'distinct'\n  Use -v to get more diff"
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_partial_consumer",
+          "name": "test_partial_fill_uses_the_same_as_of_and_freshness_on_both_routes[future]",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_partial_consumer",
+          "name": "test_partial_fill_uses_the_same_as_of_and_freshness_on_both_routes[stale]",
+          "check": "PASS",
+          "failure_reason": null
+        }
+      ]
+    },
+    {
+      "run": "positive",
+      "source_before": {
+        "sha": "3ed63c748e1e080d0628d8cdf557841fe9a4364a",
+        "tree": "9e80184c97d98fba28c3323f32276dcf2b2aa6be",
+        "status": "M src/polisyos/scientist/methods/search/lessons.py\n?? release-fragments/unreleased/2026-10-06-e02-lesson-partial-answer.toml\n?? tests/unit/scientist/search/test_lesson_partial_consumer.py"
+      },
+      "source_after": {
+        "sha": "3ed63c748e1e080d0628d8cdf557841fe9a4364a",
+        "tree": "9e80184c97d98fba28c3323f32276dcf2b2aa6be",
+        "status": "M src/polisyos/scientist/methods/search/lessons.py\n?? release-fragments/unreleased/2026-10-06-e02-lesson-partial-answer.toml\n?? tests/unit/scientist/search/test_lesson_partial_consumer.py"
+      },
+      "exit_code": 1,
+      "wall_seconds": 12.269784688949585,
+      "PASS": 37,
+      "FAIL": 3,
+      "ERROR": 0,
+      "SKIP": 0,
+      "complete_output": {
+        "path": "/tmp/e02-D-lesson-partial-8ddd8ebc912744818eb95e2682538ff7/positive.txt",
+        "bytes": 97837,
+        "sha256": "640904d834098fbfbe37679c74e32645e7804982cb988d9084a36904a3c888cf",
+        "matches_recorded_sha256": true
+      },
+      "complete_junit": {
+        "path": "/tmp/e02-D-lesson-partial-8ddd8ebc912744818eb95e2682538ff7/positive.xml",
+        "bytes": 9649,
+        "sha256": "d48ad51128208048bdc34d42afc601b53583dce9814bfea5ecccf72f6b5c93ec"
+      },
+      "actual_product_origin_count": 389,
+      "base_binding_exceptions": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/lessons.py",
+          "recorded_source_sha256": "3a83006f055220edfa56d352e232069bc62e0d887ccd61a9bb1cb8b5e9685f18",
+          "bound_source_sha": "6ca3b5f167c140370a44653f25a3483bad4a9659",
+          "reason": "declared precommit working-tree implementation bytes match later immutable implementation"
+        }
+      ],
+      "unmatched_origin_count": 0,
+      "backend": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-D-locked-env/bin/python",
+        "versions": {
+          "botorch": "0.16.1",
+          "gpytorch": "1.15.1",
+          "hnswlib": "0.8.0",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "torch": "2.10.0"
+        },
+        "torch_loaded": true,
+        "botorch_loaded": true,
+        "gpytorch_loaded": true,
+        "native_hnsw": null,
+        "denied_imports": []
+      },
+      "cap_env": {
+        "PYTHONPATH": "/workspace/e02-D-published-transfer/policy-engine/src:/workspace/e02-D-published-transfer/policy-engine:/tmp/e02-D-lesson-partial-8ddd8ebc912744818eb95e2682538ff7",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "OMP_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "TORCH_NUM_THREADS": null
+      },
+      "controls": [],
+      "cases": [
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_partial_consumer",
+          "name": "test_partial_local_answer_is_filled_by_one_admitted_transfer",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_partial_consumer",
+          "name": "test_source_run_filter_excludes_other_sources_before_partial_fill",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_partial_consumer",
+          "name": "test_duplicate_evidence_across_routes_does_not_consume_partial_quota_or_refresh",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_partial_consumer",
+          "name": "test_distinct_newer_evidence_is_not_suppressed_as_route_metadata",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_partial_consumer",
+          "name": "test_partial_fill_uses_the_same_as_of_and_freshness_on_both_routes[future]",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_partial_consumer",
+          "name": "test_partial_fill_uses_the_same_as_of_and_freshness_on_both_routes[stale]",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_transfer",
+          "name": "test_resolve_transfer_context_preserves_typed_base_until_explicit_override",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_transfer",
+          "name": "test_query_with_transfer_reapplies_source_trust_and_confidence_filters",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_transfer",
+          "name": "test_query_with_transfer_materializes_cross_domain_same_tenant",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_transfer",
+          "name": "test_same_domain_same_tenant_reuse_stays_local",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_transfer",
+          "name": "test_cross_tenant_transfer_denied_by_default",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_transfer",
+          "name": "test_ttl_demotes_old_lessons_before_archive",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_transfer",
+          "name": "test_invalidation_beats_transfer_materialization",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_as_of",
+          "name": "test_future_cas_evidence_is_not_available_at_past_as_of[local]",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_as_of",
+          "name": "test_future_cas_evidence_is_not_available_at_past_as_of[transfer]",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_as_of",
+          "name": "test_future_cas_evidence_is_not_available_at_past_as_of[materialize]",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_as_of",
+          "name": "test_future_cas_evidence_is_not_available_at_past_as_of[aggregate]",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_as_of",
+          "name": "test_evidence_exactly_at_as_of_remains_available[local]",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_as_of",
+          "name": "test_evidence_exactly_at_as_of_remains_available[transfer]",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_as_of",
+          "name": "test_evidence_exactly_at_as_of_remains_available[materialize]",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_as_of",
+          "name": "test_evidence_exactly_at_as_of_remains_available[aggregate]",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_as_of",
+          "name": "test_retention_reads_and_restart_never_refresh_evidence",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_as_of",
+          "name": "test_conflicting_as_of_is_refused_before_materialization",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_as_of",
+          "name": "test_query_as_of_round_trip_preserves_explicit_time",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_as_of",
+          "name": "test_newer_persisted_version_is_not_reinterpreted_as_older_evidence",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_as_of",
+          "name": "test_aggregate_transfer_lookup_keeps_the_explicit_target_time",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_as_of",
+          "name": "test_naive_query_time_is_refused",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_as_of",
+          "name": "test_historical_read_retains_evidence_at_actual_access_time[False]",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_as_of",
+          "name": "test_historical_read_retains_evidence_at_actual_access_time[True]",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lessons",
+          "name": "test_lesson_registry_dedupes_and_tracks_occurrences",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lessons",
+          "name": "test_lesson_registry_invalidate_and_gc",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lessons",
+          "name": "test_lesson_from_failure_card_preserves_failure_metadata",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lessons",
+          "name": "test_repeated_reads_do_not_restore_confidence_without_new_evidence",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_lesson_query_persistence",
+          "name": "test_real_controller_keeps_typed_nested_context_in_lesson_consumer[False]",
+          "check": "FAIL",
+          "failure_reason": "assert 0 == 1\n +  where 0 = len([])"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_lesson_query_persistence",
+          "name": "test_real_controller_keeps_typed_nested_context_in_lesson_consumer[True]",
+          "check": "FAIL",
+          "failure_reason": "assert 0 == 1\n +  where 0 = len([])"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_lesson_query_persistence",
+          "name": "test_destination_projection_uses_all_effective_query_filters",
+          "check": "FAIL",
+          "failure_reason": "assert (0 == 1)\n +  where 0 = len([])"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_lesson_query_persistence",
+          "name": "test_active_policy_demotes_local_and_transferred_confidence_equally",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_lesson_query_persistence",
+          "name": "test_access_writes_no_cas_snapshot_and_repeated_reads_cannot_refresh_evidence",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_lesson_query_persistence",
+          "name": "test_older_arrival_cannot_replace_newest_actual_evidence_ref",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_lesson_query_persistence",
+          "name": "test_fresh_producer_observation_survives_older_access_retention_hint",
+          "check": "PASS",
+          "failure_reason": null
+        }
+      ]
+    },
+    {
+      "run": "immutable-positive",
+      "source_before": {
+        "sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+        "tree": "cf0fe4946f41e904880ac1c6ec1b0ef7a57663a7",
+        "status": ""
+      },
+      "source_after": {
+        "sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+        "tree": "cf0fe4946f41e904880ac1c6ec1b0ef7a57663a7",
+        "status": ""
+      },
+      "exit_code": 0,
+      "wall_seconds": 12.326054573059082,
+      "PASS": 40,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "complete_output": {
+        "path": "/tmp/e02-D-lesson-partial-8ddd8ebc912744818eb95e2682538ff7/immutable-positive.txt",
+        "bytes": 94106,
+        "sha256": "2e4f8769be948aa98ad410a48cf3b57fd896100ac476088a5fb3d264648f722f",
+        "matches_recorded_sha256": true
+      },
+      "complete_junit": {
+        "path": "/tmp/e02-D-lesson-partial-8ddd8ebc912744818eb95e2682538ff7/immutable-positive.xml",
+        "bytes": 6533,
+        "sha256": "976f382b9a29bce5547e0a0c7eac8972288a8e509188b6770381b1e29276a83d"
+      },
+      "actual_product_origin_count": 389,
+      "base_binding_exceptions": [],
+      "unmatched_origin_count": 0,
+      "backend": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-D-locked-env/bin/python",
+        "versions": {
+          "botorch": "0.16.1",
+          "gpytorch": "1.15.1",
+          "hnswlib": "0.8.0",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "torch": "2.10.0"
+        },
+        "torch_loaded": true,
+        "botorch_loaded": true,
+        "gpytorch_loaded": true,
+        "native_hnsw": null,
+        "denied_imports": []
+      },
+      "cap_env": {
+        "PYTHONPATH": "/workspace/e02-D-published-transfer/policy-engine/src:/workspace/e02-D-published-transfer/policy-engine:/tmp/e02-D-lesson-partial-8ddd8ebc912744818eb95e2682538ff7",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "OMP_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "TORCH_NUM_THREADS": null
+      },
+      "controls": [],
+      "cases": [
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_partial_consumer",
+          "name": "test_partial_local_answer_is_filled_by_one_admitted_transfer",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_partial_consumer",
+          "name": "test_source_run_filter_excludes_other_sources_before_partial_fill",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_partial_consumer",
+          "name": "test_duplicate_evidence_across_routes_does_not_consume_partial_quota_or_refresh",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_partial_consumer",
+          "name": "test_distinct_newer_evidence_is_not_suppressed_as_route_metadata",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_partial_consumer",
+          "name": "test_partial_fill_uses_the_same_as_of_and_freshness_on_both_routes[future]",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_partial_consumer",
+          "name": "test_partial_fill_uses_the_same_as_of_and_freshness_on_both_routes[stale]",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_transfer",
+          "name": "test_resolve_transfer_context_preserves_typed_base_until_explicit_override",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_transfer",
+          "name": "test_query_with_transfer_reapplies_source_trust_and_confidence_filters",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_transfer",
+          "name": "test_query_with_transfer_materializes_cross_domain_same_tenant",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_transfer",
+          "name": "test_same_domain_same_tenant_reuse_stays_local",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_transfer",
+          "name": "test_cross_tenant_transfer_denied_by_default",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_transfer",
+          "name": "test_ttl_demotes_old_lessons_before_archive",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_transfer",
+          "name": "test_invalidation_beats_transfer_materialization",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_as_of",
+          "name": "test_future_cas_evidence_is_not_available_at_past_as_of[local]",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_as_of",
+          "name": "test_future_cas_evidence_is_not_available_at_past_as_of[transfer]",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_as_of",
+          "name": "test_future_cas_evidence_is_not_available_at_past_as_of[materialize]",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_as_of",
+          "name": "test_future_cas_evidence_is_not_available_at_past_as_of[aggregate]",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_as_of",
+          "name": "test_evidence_exactly_at_as_of_remains_available[local]",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_as_of",
+          "name": "test_evidence_exactly_at_as_of_remains_available[transfer]",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_as_of",
+          "name": "test_evidence_exactly_at_as_of_remains_available[materialize]",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_as_of",
+          "name": "test_evidence_exactly_at_as_of_remains_available[aggregate]",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_as_of",
+          "name": "test_retention_reads_and_restart_never_refresh_evidence",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_as_of",
+          "name": "test_conflicting_as_of_is_refused_before_materialization",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_as_of",
+          "name": "test_query_as_of_round_trip_preserves_explicit_time",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_as_of",
+          "name": "test_newer_persisted_version_is_not_reinterpreted_as_older_evidence",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_as_of",
+          "name": "test_aggregate_transfer_lookup_keeps_the_explicit_target_time",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_as_of",
+          "name": "test_naive_query_time_is_refused",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_as_of",
+          "name": "test_historical_read_retains_evidence_at_actual_access_time[False]",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_as_of",
+          "name": "test_historical_read_retains_evidence_at_actual_access_time[True]",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lessons",
+          "name": "test_lesson_registry_dedupes_and_tracks_occurrences",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lessons",
+          "name": "test_lesson_registry_invalidate_and_gc",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lessons",
+          "name": "test_lesson_from_failure_card_preserves_failure_metadata",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lessons",
+          "name": "test_repeated_reads_do_not_restore_confidence_without_new_evidence",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_lesson_query_persistence",
+          "name": "test_real_controller_keeps_typed_nested_context_in_lesson_consumer[False]",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_lesson_query_persistence",
+          "name": "test_real_controller_keeps_typed_nested_context_in_lesson_consumer[True]",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_lesson_query_persistence",
+          "name": "test_destination_projection_uses_all_effective_query_filters",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_lesson_query_persistence",
+          "name": "test_active_policy_demotes_local_and_transferred_confidence_equally",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_lesson_query_persistence",
+          "name": "test_access_writes_no_cas_snapshot_and_repeated_reads_cannot_refresh_evidence",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_lesson_query_persistence",
+          "name": "test_older_arrival_cannot_replace_newest_actual_evidence_ref",
+          "check": "PASS",
+          "failure_reason": null
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_lesson_query_persistence",
+          "name": "test_fresh_producer_observation_survives_older_access_retention_hint",
+          "check": "PASS",
+          "failure_reason": null
+        }
+      ]
+    },
+    {
+      "run": "removal",
+      "source_before": {
+        "sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+        "tree": "cf0fe4946f41e904880ac1c6ec1b0ef7a57663a7",
+        "status": ""
+      },
+      "source_after": {
+        "sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+        "tree": "cf0fe4946f41e904880ac1c6ec1b0ef7a57663a7",
+        "status": ""
+      },
+      "exit_code": 1,
+      "wall_seconds": 11.62069582939148,
+      "PASS": 1,
+      "FAIL": 1,
+      "ERROR": 0,
+      "SKIP": 0,
+      "complete_output": {
+        "path": "/tmp/e02-D-lesson-partial-8ddd8ebc912744818eb95e2682538ff7/removal.txt",
+        "bytes": 95820,
+        "sha256": "4c79242282ea1a36d4073a5a017271285b18a3832be55fd9734edc175b7f8477",
+        "matches_recorded_sha256": true
+      },
+      "complete_junit": {
+        "path": "/tmp/e02-D-lesson-partial-8ddd8ebc912744818eb95e2682538ff7/removal.xml",
+        "bytes": 2290,
+        "sha256": "55c3312f1933b9fca919ba8cb0f92b02f05f27afe1ad93062b0b1285db975c43"
+      },
+      "actual_product_origin_count": 389,
+      "base_binding_exceptions": [],
+      "unmatched_origin_count": 0,
+      "backend": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-D-locked-env/bin/python",
+        "versions": {
+          "botorch": "0.16.1",
+          "gpytorch": "1.15.1",
+          "hnswlib": "0.8.0",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "torch": "2.10.0"
+        },
+        "torch_loaded": true,
+        "botorch_loaded": true,
+        "gpytorch_loaded": true,
+        "native_hnsw": null,
+        "denied_imports": []
+      },
+      "cap_env": {
+        "PYTHONPATH": "/workspace/e02-D-published-transfer/policy-engine/src:/workspace/e02-D-published-transfer/policy-engine:/tmp/e02-D-lesson-partial-8ddd8ebc912744818eb95e2682538ff7",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "OMP_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "TORCH_NUM_THREADS": null
+      },
+      "controls": [
+        {
+          "quantity": "one keyword removal in memory",
+          "method": "LessonRegistry.query_with_transfer",
+          "removed": "exclude_cards=results",
+          "original_method_sha256": "2c1d57ef697ca8933549e45e5da59e3b268505f834b001a2afdbffd16e157774",
+          "modified_normalized_ast_sha256": "ffbb9a8c19c6c6c705d4abd3dde178ba88913f9d4c5f17faa019e0d84b9acfe8",
+          "source_files_unchanged": true
+        }
+      ],
+      "cases": [
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_partial_consumer",
+          "name": "test_duplicate_evidence_across_routes_does_not_consume_partial_quota_or_refresh",
+          "check": "FAIL",
+          "failure_reason": "AssertionError: assert ['duplicate', 'duplicate'] == ['duplicate', 'distinct']\n  \n  At index 1 diff: 'duplicate' != 'distinct'\n  Use -v to get more diff"
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_lesson_partial_consumer",
+          "name": "test_partial_local_answer_is_filled_by_one_admitted_transfer",
+          "check": "PASS",
+          "failure_reason": null
+        }
+      ]
+    },
+    {
+      "run": "original-timestamp",
+      "source_before": {
+        "sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+        "tree": "cf0fe4946f41e904880ac1c6ec1b0ef7a57663a7",
+        "status": ""
+      },
+      "source_after": {
+        "sha": "409dce868a8a4f0c80fc02881b089ba93a26914d",
+        "tree": "cf0fe4946f41e904880ac1c6ec1b0ef7a57663a7",
+        "status": ""
+      },
+      "exit_code": 1,
+      "wall_seconds": 11.555901765823364,
+      "PASS": 0,
+      "FAIL": 3,
+      "ERROR": 0,
+      "SKIP": 0,
+      "complete_output": {
+        "path": "/tmp/e02-D-lesson-partial-8ddd8ebc912744818eb95e2682538ff7/original-timestamp.txt",
+        "bytes": 96472,
+        "sha256": "d245e8350117125ad6b9f63abdd4c2e1d5f7f1a99e0f7b14895319fb00c81ea5",
+        "matches_recorded_sha256": true
+      },
+      "complete_junit": {
+        "path": "/tmp/e02-D-lesson-partial-8ddd8ebc912744818eb95e2682538ff7/original-timestamp.xml",
+        "bytes": 1795,
+        "sha256": "76515bff10af9ca843bcbf4aef217ed4e9688310efe77e3602f12684dc52d7ce"
+      },
+      "actual_product_origin_count": 389,
+      "base_binding_exceptions": [],
+      "unmatched_origin_count": 0,
+      "backend": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-D-locked-env/bin/python",
+        "versions": {
+          "botorch": "0.16.1",
+          "gpytorch": "1.15.1",
+          "hnswlib": "0.8.0",
+          "pydantic": "2.12.5",
+          "pytest": "9.0.2",
+          "torch": "2.10.0"
+        },
+        "torch_loaded": true,
+        "botorch_loaded": true,
+        "gpytorch_loaded": true,
+        "native_hnsw": null,
+        "denied_imports": []
+      },
+      "cap_env": {
+        "PYTHONPATH": "/workspace/e02-D-published-transfer/policy-engine/src:/workspace/e02-D-published-transfer/policy-engine:/tmp/e02-D-lesson-partial-8ddd8ebc912744818eb95e2682538ff7",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "OMP_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "VECLIB_MAXIMUM_THREADS": null,
+        "TORCH_NUM_THREADS": null
+      },
+      "controls": [
+        {
+          "base": "3ed63c748e1e080d0628d8cdf557841fe9a4364a",
+          "original_test_file_sha256": "bcc7c3a732c7cc99f8cad6745eb9755b24db035fd355337c1d062cc08fd1385a",
+          "unchanged_original_function_objects": [
+            "tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_real_controller_keeps_typed_nested_context_in_lesson_consumer[False]",
+            "tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_real_controller_keeps_typed_nested_context_in_lesson_consumer[True]",
+            "tests/unit/scientist/methods/search/test_lesson_query_persistence.py::test_destination_projection_uses_all_effective_query_filters"
+          ],
+          "current_product_source_unchanged": true
+        }
+      ],
+      "cases": [
+        {
+          "classname": "tests.unit.scientist.methods.search.test_lesson_query_persistence",
+          "name": "test_real_controller_keeps_typed_nested_context_in_lesson_consumer[False]",
+          "check": "FAIL",
+          "failure_reason": "AssertionError"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_lesson_query_persistence",
+          "name": "test_real_controller_keeps_typed_nested_context_in_lesson_consumer[True]",
+          "check": "FAIL",
+          "failure_reason": "AssertionError"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_lesson_query_persistence",
+          "name": "test_destination_projection_uses_all_effective_query_filters",
+          "check": "FAIL",
+          "failure_reason": "AssertionError"
+        }
+      ]
+    }
+  ],
+  "release_fragment": {
+    "id": "2026-10-06-e02-lesson-partial-answer",
+    "title": "Fill partial lesson answers with distinct admitted evidence",
+    "type": "fixed",
+    "component": "scientist-search",
+    "owner": "team-policyos-runtime",
+    "summary": "Transfer discovery suppresses original lesson evidence already returned locally, and duplicate copies across namespaces, before applying its result quota. Re-reading an existing transferred card no longer materializes another occurrence or hides a distinct eligible card.",
+    "surface_classification": "internal: internal-only",
+    "evidence": [
+      "tests/unit/scientist/search/test_lesson_partial_consumer.py"
+    ],
+    "compatibility": "Existing source-run, confidence, trust and evidence-time admission predicates remain active on both routes. The optional internal exclude_cards argument identifies already returned cards; distinct newer persisted evidence remains eligible.",
+    "migration": "No persisted format migration is required. Existing CAS cards and namespace indexes retain their original evidence timestamps and references.",
+    "limitations": "This is CAS-backed lesson discovery and partial-answer admission. It does not provide tenant authorization or legitimate authorized evidence revalidation."
+  },
+  "scope_boundaries": [
+    "No TransferManager numeric GP fit or native ANN query is asserted by these LessonRegistry tests. Torch/BoTorch/GPyTorch are loaded by collection, not claimed as executed numerical evidence. Native HNSW is not loaded.",
+    "Tenant labels and provenance weighting are existing admission data, not actual source reuse authorization. B131 remains a separate held input.",
+    "Newer persisted content remains eligible under the existing version rule; actual authorized source revalidation/time authority remains B137 held.",
+    "CAS/local namespace evidence is bounded; no universal downstream authority, production evaluator truth or distributed atomicity is inferred.",
+    "This independent reviewer read code, tests, release fragment and complete hashed deciding outputs and verified all 389 executed source origins per run. No new test/backend process was launched.",
+    "Receipt publication to Git by the canonical writer/root and final composed wave remain root responsibilities. No G acceptance or formal closure is claimed."
+  ],
+  "P41_inherited": "not_established",
+  "runtime_executions_by_this_reviewer": 0,
+  "finding_closed": false,
+  "accepted_in_G": false,
+  "unresolved_owned_B136_mechanism_or_consumer_residual": null
+}

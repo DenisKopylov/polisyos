@@ -1,0 +1,37 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "/workspace/e02-D3-receipts/stress/runtime_runner.py",
+    "tests/unit/scientist/search/test_stress_scenario_evidence.py",
+    "tests/unit/scientist/search/test_adversarial.py",
+    "tests/unit/scientist/search/test_adversarial_streaming.py",
+    "tests/unit/scientist/search/test_policy_blueprint_runtime_guards.py",
+    "tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py",
+    "tests/unit/remediation/test_fun_03.py",
+    "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+    "-q",
+    "--basetemp",
+    "/dev/shm/e02-D-STR-frozen-20261006-a",
+    "--junitxml=/workspace/e02-D3-receipts/stress/frozen-a-junit.xml"
+  ],
+  "cwd": "/workspace/e02-D-published-stress/policy-engine",
+  "environment_overrides": {
+    "PYTHONPATH": "src:.",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+  },
+  "exit_code": 1,
+  "wall_seconds": 55.41247081699839,
+  "max_rss_kib": 1112416,
+  "source_sha": "6e9c6662d74977847f70e7c66228ca529f1e1bf1",
+  "source_sha_after": "6e9c6662d74977847f70e7c66228ca529f1e1bf1",
+  "selected_test_bytes": {
+    "tests/unit/scientist/search/test_stress_scenario_evidence.py": "6ba2b106fa143d1d63e1dc892de2baa1ca42391b60e66d02ec7d4da7a0a3b7ff",
+    "tests/unit/scientist/search/test_adversarial.py": "4afd6424485fcbaeb9a4b6e9f468d5d0f297bc95596a278e6d8bd34af1cfe9fa",
+    "tests/unit/scientist/search/test_adversarial_streaming.py": "0227f239fd504924a2591bdbe391ddc1bb2f62d516d1d0e3221e6bd614ccadb5",
+    "tests/unit/scientist/search/test_policy_blueprint_runtime_guards.py": "b91b7d84ade1f2caf7b54d3b586c3824a5b1bcf5bd99108db82d87fa3606b6bb",
+    "tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py": "a3c75cc27764e1502d98c9f90fbc626649971d088884f49111f52d4691c50a06",
+    "tests/unit/remediation/test_fun_03.py": "3121bfade5befa9b6175ae8adf66690c18258a37610255a62156752efb0f81eb",
+    "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py": "80986710cf9f54e8c37c3d2cb12f7edfeb303e35a41cbbd5708c695db5d075c5"
+  }
+}

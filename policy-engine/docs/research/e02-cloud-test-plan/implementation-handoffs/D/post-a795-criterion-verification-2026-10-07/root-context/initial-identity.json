@@ -1,0 +1,42 @@
+{
+  "scratch": "/dev/shm/e02-D-post-a795-88ghpj7t",
+  "cwd": "/dev/shm/e02-D-oct07-continuation",
+  "branch": "codex/e02-D-oct07-continuation",
+  "status": "## codex/e02-D-oct07-continuation\n",
+  "created_utc": "2026-10-07T17:24:13.230840+00:00",
+  "pins": {
+    "origin/main": {
+      "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+    },
+    "origin/codex/e02-integration": {
+      "sha": "9806442ddb47d624a2940bac75d9d6248e934c48",
+      "tree": "4a1caafc331990e0ebf0130a9051c08ae1ffcbd4"
+    },
+    "origin/codex/e02-D-oct07-continuation": {
+      "sha": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "tree": "3e05fcf727bf660a5570225b9600ca410a7082be"
+    },
+    "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79": {
+      "sha": "6e8725faa42ca28c8fd72e5f8da4ca0f6e6a8f79",
+      "tree": "f79fc5304324b92aeed741d7abdd6fc6f54a130a"
+    },
+    "cbc46a0bc87761bc2267a0daa84da489d6702e89": {
+      "sha": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "tree": "3e05fcf727bf660a5570225b9600ca410a7082be"
+    },
+    "a795967a80818a61fbc939a8d1b1ec8b0fca6477": {
+      "sha": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668"
+    },
+    "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2": {
+      "sha": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+      "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4"
+    }
+  },
+  "dependency83_ancestor_G": true,
+  "D_ancestor_G": false,
+  "3b_to_a795_paths": [
+    "policy-engine/tests/unit/scientist/methods/search/test_service_persistence.py"
+  ]
+}

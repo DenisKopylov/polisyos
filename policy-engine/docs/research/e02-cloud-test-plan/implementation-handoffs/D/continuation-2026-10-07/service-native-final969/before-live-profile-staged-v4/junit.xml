@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="2" time="5.901" timestamp="2026-10-07T10:23:09.419127+00:00" hostname="565838a1e059"><testcase classname="e02-D-live-profile-v4-before-0if1omk0.test_live_profile_before" name="test_actual_live_profile_change_refuses_before_duplicate_skip[evaluator_scale]" time="0.074"><failure message="AssertionError: changed actual live profile must refuse before treating old completed CAS as a current duplicate&#10;assert False">tmp_path = PosixPath('/dev/shm/e02-D-live-profile-v4-before-0if1omk0/basetemp/test_actual_live_profile_chang0')
+change = 'evaluator_scale'
+
+    @pytest.mark.parametrize('change',['evaluator_scale','nested_context'])
+    def test_actual_live_profile_change_refuses_before_duplicate_skip(tmp_path,change):
+     runner,store,_,suite,evaluator,loop=f._runner(tmp_path,promotable=False)
+     service=runner.create_service(loop,suite_ref=suite,max_iterations=4,dedup=TrialDeduplicator())
+     context={'offset':0,'caller_scope':{'split':'original'}}
+     first=service.ask(None,None,context)[0]
+     measurement=service.controller._evaluate_for_tell(first.payload,iteration=0,context=context)
+     service.tell(first.candidate_id,measurement)
+     oldref=service.checkpoint_ref
+     oldbytes=store.get_verified_snapshot(oldref).data
+     oldconfig=_decode_checkpoint(oldbytes)['configuration']
+     before=deepcopy(service.controller._generator.get_state())
+     if change=='evaluator_scale': evaluator.scale=2
+     else: context['caller_scope']['split']='changed'
+     currentconfig=service._configuration(context)
+     assert currentconfig != oldconfig, 'falsifier must actually change persisted input profile'
+     print('LIVE_PROFILE_BEFORE:'+json.dumps({'change':change,'old_reference':oldref.model_dump(mode='json'),'old_bytes_sha256':hashlib.sha256(oldbytes).hexdigest(),'old_config':oldconfig,'current_config':currentconfig,'generator_before':before,'calls_before':evaluator.calls},sort_keys=True))
+     refused=False
+     proposals=None
+     try:
+      proposals=service.ask(None,None,context)
+     except ValueError:
+      refused=True
+     print('LIVE_PROFILE_AFTER:'+json.dumps({'change':change,'refused':refused,'returned_proposals':None if proposals is None else [x.model_dump(mode='json') for x in proposals],'generator_after':service.controller._generator.get_state(),'calls_after':evaluator.calls,'current_checkpoint':service.checkpoint_ref.model_dump(mode='json')},sort_keys=True))
+&gt;    assert refused, 'changed actual live profile must refuse before treating old completed CAS as a current duplicate'
+E    AssertionError: changed actual live profile must refuse before treating old completed CAS as a current duplicate
+E    assert False
+
+../../e02-D-live-profile-v4-before-0if1omk0/test_live_profile_before.py:37: AssertionError</failure></testcase><testcase classname="e02-D-live-profile-v4-before-0if1omk0.test_live_profile_before" name="test_actual_live_profile_change_refuses_before_duplicate_skip[nested_context]" time="0.064"><failure message="AssertionError: changed actual live profile must refuse before treating old completed CAS as a current duplicate&#10;assert False">tmp_path = PosixPath('/dev/shm/e02-D-live-profile-v4-before-0if1omk0/basetemp/test_actual_live_profile_chang1')
+change = 'nested_context'
+
+    @pytest.mark.parametrize('change',['evaluator_scale','nested_context'])
+    def test_actual_live_profile_change_refuses_before_duplicate_skip(tmp_path,change):
+     runner,store,_,suite,evaluator,loop=f._runner(tmp_path,promotable=False)
+     service=runner.create_service(loop,suite_ref=suite,max_iterations=4,dedup=TrialDeduplicator())
+     context={'offset':0,'caller_scope':{'split':'original'}}
+     first=service.ask(None,None,context)[0]
+     measurement=service.controller._evaluate_for_tell(first.payload,iteration=0,context=context)
+     service.tell(first.candidate_id,measurement)
+     oldref=service.checkpoint_ref
+     oldbytes=store.get_verified_snapshot(oldref).data
+     oldconfig=_decode_checkpoint(oldbytes)['configuration']
+     before=deepcopy(service.controller._generator.get_state())
+     if change=='evaluator_scale': evaluator.scale=2
+     else: context['caller_scope']['split']='changed'
+     currentconfig=service._configuration(context)
+     assert currentconfig != oldconfig, 'falsifier must actually change persisted input profile'
+     print('LIVE_PROFILE_BEFORE:'+json.dumps({'change':change,'old_reference':oldref.model_dump(mode='json'),'old_bytes_sha256':hashlib.sha256(oldbytes).hexdigest(),'old_config':oldconfig,'current_config':currentconfig,'generator_before':before,'calls_before':evaluator.calls},sort_keys=True))
+     refused=False
+     proposals=None
+     try:
+      proposals=service.ask(None,None,context)
+     except ValueError:
+      refused=True
+     print('LIVE_PROFILE_AFTER:'+json.dumps({'change':change,'refused':refused,'returned_proposals':None if proposals is None else [x.model_dump(mode='json') for x in proposals],'generator_after':service.controller._generator.get_state(),'calls_after':evaluator.calls,'current_checkpoint':service.checkpoint_ref.model_dump(mode='json')},sort_keys=True))
+&gt;    assert refused, 'changed actual live profile must refuse before treating old completed CAS as a current duplicate'
+E    AssertionError: changed actual live profile must refuse before treating old completed CAS as a current duplicate
+E    assert False
+
+../../e02-D-live-profile-v4-before-0if1omk0/test_live_profile_before.py:37: AssertionError</failure></testcase></testsuite></testsuites>

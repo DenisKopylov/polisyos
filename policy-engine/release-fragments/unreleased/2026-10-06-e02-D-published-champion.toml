@@ -1,0 +1,44 @@
+id = "2026-10-06-e02-D-published-champion"
+title = "Bind champion comparisons to immutable inputs and drive native ask/tell"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-runtime"
+surface_classification = "public_stable: polisyos.scientist"
+summary = "Benchmark suites snapshot data and split references; generic champion comparison validates complete candidate, evaluation, suite and consumed-input identities, evaluator build and metric policy. Every native comparison evaluates the actual incumbent under the same active context and binds the exact predecessor used by guardrails before canonical lock-held comparison. Numeric and boolean autotune fields admit strict finite primitives before coercion, including mutation, policy, evaluation and cached pointer values. The existing native autotune runner calls public ask/tell through one controller acceptance owner."
+evidence = ["tests/unit/scientist/methods/autotune/test_promotion_basis_witness.py", "tests/unit/scientist/methods/autotune/test_benchmark_primitive_admission.py", "tests/unit/scientist/methods/autotune/test_registry_and_runner.py", "tests/unit/remediation/test_srv_01.py", "tests/unit/remediation/test_srv_03.py"]
+compatibility = "Old unbound generic comparison inputs are refused; candidate-only suites explicitly declare that basis. Previously coerced numeric strings, boolean numbers, noninteger counts and nonfinite numeric fields are refused; integer JSON metrics remain valid. Comparison records support only benchmark-comparison.v1. Existing narrow independently verified claim-promotion compatibility remains. POSIX flock, canonical reread and atomic pointer replacement remain; metadata attachment cannot replace a champion."
+limitations = "Content identity and evaluator build do not appoint a promotion authority. Persisted SearchService restore, served hierarchical caller cutover and distributed registry coordination remain unestablished. Imported resource supplier history does not establish resource-accounting closure."
+
+change_class = "persisted-artifact-format"
+migration = "Re-persist generic benchmark suites with dataset and split CAS refs, or explicitly declare candidate-only inputs. Emit comparison basis and full predecessor candidate/evaluation refs on both paired evaluations; re-evaluate the incumbent under the same active callback context. Regenerate malformed numeric and boolean artifacts from correctly typed producer inputs and use their new CAS references. Emit finite metric/policy/mutation numbers, integer counts and boolean guardrails/promotion flags; do not cast malformed external evidence to repair it. Old unbound generic promotion inputs are refused."
+api = "BenchmarkSuite and BenchmarkEvaluation gain strict persisted comparison fields; the generic registry requires paired incumbent evidence. Existing consider_promotion has no expected_predecessor argument. Native SearchLoopRunner invokes ask/tell; no persisted SearchService restore API is introduced."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "typed-benchmark-primitive-admission"
+change_class = "persisted-artifact-format"
+impact = "breaking_requires_consumer_action"
+surface = "public_stable: polisyos.scientist"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "immediate_fail_closed"
+release_note = "Regenerate malformed persisted inputs with finite numeric fields, integer counts and actual boolean guardrails/flags. Numeric strings and boolean numbers are refused before champion effects. Valid integer JSON metrics remain supported; no API or registry is added."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "generic-benchmark-comparison-content-and-predecessor"
+change_class = "persisted-artifact-format"
+impact = "breaking_requires_consumer_action"
+surface = "public_stable: polisyos.scientist"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "immediate_fail_closed"
+release_note = "Re-persist unbound generic suites and produce active-context paired incumbent evaluations with exact predecessor refs before promotion; old strict readers reject the new fields."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["README.md"]
+runbook_docs = []

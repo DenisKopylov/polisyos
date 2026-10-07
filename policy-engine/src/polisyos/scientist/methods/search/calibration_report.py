@@ -11,7 +11,11 @@ from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.scientist.methods.search.cold_start import BurnInRunReport
-from polisyos.scientist.methods.search.lessons import LessonIndexSnapshot, LessonPattern, LessonRegistry
+from polisyos.scientist.methods.search.lessons import (
+    LessonIndexSnapshot,
+    LessonPattern,
+    LessonRegistry,
+)
 from polisyos.scientist.methods.search.sentinels import SentinelObservation, SentinelSet
 from polisyos.scientist.methods.search.stages import CorrelationTracker, DriftAlert
 
@@ -84,6 +88,9 @@ def build_calibration_report(
 
     tracker = correlation_tracker or CorrelationTracker()
     metrics = tracker.compute_metrics()
+    observed = tracker.record_count > 0
+    false_negative_rate = float(metrics.get("false_negative_rate", 0.0)) if observed else None
+    spearman_correlation = float(metrics.get("spearman_correlation", 0.0)) if observed else None
     alerts = tracker.drift_alerts()
     observations = list(sentinel_observations or [])
     sentinel_pass_rate = metrics.get("sentinel_pass_rate")
@@ -108,14 +115,16 @@ def build_calibration_report(
         AcceptanceCriterionStatus(
             name="false_negative_rate",
             target="< 0.02",
-            actual=float(metrics.get("false_negative_rate", 0.0)),
-            passed=float(metrics.get("false_negative_rate", 0.0)) < 0.02,
+            actual=false_negative_rate,
+            passed=None if false_negative_rate is None else false_negative_rate < 0.02,
+            note="No paired calibration observations." if not observed else None,
         ),
         AcceptanceCriterionStatus(
             name="spearman_l2_l4",
             target="> 0.6",
-            actual=float(metrics.get("spearman_correlation", 0.0)),
-            passed=float(metrics.get("spearman_correlation", 0.0)) > 0.6,
+            actual=spearman_correlation,
+            passed=None if spearman_correlation is None else spearman_correlation > 0.6,
+            note="No paired calibration observations." if not observed else None,
         ),
         AcceptanceCriterionStatus(
             name="expensive_stage_load_reduction",
@@ -153,16 +162,30 @@ def build_calibration_report(
         "observation_count": len(observations),
     }
 
+    metadata: dict[str, Any] = {
+        "burn_in_present": burn_in_report is not None,
+        "lesson_pattern_count": len(top_lessons),
+    }
+    if correlation_tracker is not None:
+        # The native report reader already consumes this existing snapshot.
+        # Preserve supplied observations; an absent tracker remains projection-only.
+        metadata["correlation_tracker_snapshot"] = correlation_tracker.to_snapshot().model_dump(
+            mode="json"
+        )
+
     return FunnelCalibrationReport(
         current_mode=str(metrics.get("routing_mode", "normal")),
         gaps=gaps,
         routing_health={
+            "calibration_state": metrics.get("calibration_state", "not_established"),
             "sample_count": metrics.get("sample_count", 0),
             "rolling_sample_count": metrics.get("rolling_sample_count", 0),
-            "false_positive_rate": metrics.get("false_positive_rate", 0.0),
-            "false_negative_rate": metrics.get("false_negative_rate", 0.0),
-            "spearman_correlation": metrics.get("spearman_correlation", 0.0),
-            "rolling_spearman_correlation": metrics.get("rolling_spearman_correlation", 0.0),
+            "false_positive_rate": metrics.get("false_positive_rate", 0.0) if observed else None,
+            "false_negative_rate": false_negative_rate,
+            "spearman_correlation": spearman_correlation,
+            "rolling_spearman_correlation": (
+                metrics.get("rolling_spearman_correlation", 0.0) if observed else None
+            ),
             "promotion_ban_active": metrics.get("promotion_ban_active", False),
         },
         expensive_stage_load_reduction=expensive_stage_load_reduction,
@@ -171,10 +194,7 @@ def build_calibration_report(
         recommended_actions=recommended_actions,
         acceptance_criteria=acceptance_criteria,
         drift_alerts=alerts,
-        metadata={
-            "burn_in_present": burn_in_report is not None,
-            "lesson_pattern_count": len(top_lessons),
-        },
+        metadata=metadata,
     )
 
 
@@ -187,18 +207,24 @@ def render_calibration_report(
 
     normalized = format.strip().lower()
     if normalized == "json":
-        return report.model_dump_json(indent=2, exclude_none=True)
+        return report.model_dump_json(indent=2)
     if normalized != "md":
         raise ValueError(f"Unsupported calibration report format: {format}")
+
+    spearman = report.routing_health.get("spearman_correlation")
+    false_negative = report.routing_health.get("false_negative_rate")
+    spearman_text = "n/a" if spearman is None else f"{float(spearman):.3f}"
+    false_negative_text = "n/a" if false_negative is None else f"{float(false_negative):.3f}"
 
     lines = [
         "# Funnel Calibration Report",
         "",
         f"- Mode: `{report.current_mode}`",
         f"- Gaps: {', '.join(report.gaps) if report.gaps else 'none'}",
+        f"- Calibration state: {report.routing_health.get('calibration_state', 'unspecified')}",
         f"- Sample count: {report.routing_health.get('sample_count', 0)}",
-        f"- Spearman (L2 vs L4): {float(report.routing_health.get('spearman_correlation', 0.0)):.3f}",
-        f"- False-negative rate: {float(report.routing_health.get('false_negative_rate', 0.0)):.3f}",
+        f"- Spearman (L2 vs L4): {spearman_text}",
+        f"- False-negative rate: {false_negative_text}",
         "",
         "## Acceptance Criteria",
     ]

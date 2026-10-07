@@ -1,0 +1,189 @@
+{
+  "schema": "e02.D.native-state.objective-only680.scoped-carry.v1",
+  "author": "/root/gp_oct07",
+  "source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+  "previous_qualified_source": "96905636726483fdea3a98d9313871d825b54a9e",
+  "strong_numerical_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+  "slice_base": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+  "complete_changed_path_set_from969": [
+    "policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md",
+    "policy-engine/release-fragments/unreleased/2026-10-07-fiscal-float64-admission.toml",
+    "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_fiscal_numeric_admission.py"
+  ],
+  "exact_current_changed_bindings": [
+    {
+      "path": "policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md",
+      "git_blob": "767659b246dc79e9c4e445db5f7abad915634d1e",
+      "sha256": "60089f9a062dc5b0142d2d8d5adbeb477a744966f34f319ca23473866efe475a"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-fiscal-float64-admission.toml",
+      "git_blob": "31638908e65913212b866065e670252ce25ad398",
+      "sha256": "fdf1f7f45e0449e62c473b62217096fdd4317946b5d7d234d03176211a88931e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+      "git_blob": "76f15a5d276754db6c719515f79414f41af9c52c",
+      "sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_fiscal_numeric_admission.py",
+      "git_blob": "dd1de0ca3aeff24862f0406e9e07905b8e3b56e7",
+      "sha256": "89b7fe53ee40da9fec92528278772267944edb250d923d45018dfb33846bf206"
+    }
+  ],
+  "prior_sealed_manifest_sha256": "a16669b1a5cb4a09edf8217c0f06742f670a132b2f136976f89fe14ef5990843",
+  "prior_sealed_handoff_sha256": "8f55a894167e26ff48489d5c7abd4995860433dd93bf7995aea27da290691029",
+  "mandatory_prior_correction_hashes": [
+    "315e983834ccc09de1aa23130f45b0651824e4e5340728fded3c37df3313defd",
+    "6c8c8bd904e3d4485814f1811388751d72c40f37674c887d2c4aa661369cc88a",
+    "11ff8463d637b5c53254e7fd07e8c5bd197fb3afdc2cac4dc6482548afba7fce"
+  ],
+  "main_observed_binding_count_verified": 1608,
+  "unique_actual_observed_repo_paths_verified": 331,
+  "scope_rows": [
+    {
+      "original_scope": "GP43",
+      "original_output_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "actual_observed_binding_count": 309,
+      "exact_same_bytes_from969_count": 308,
+      "changed_observed_modules_from969": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+          "prior_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "current_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "original_runtime_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+          "previous_git_blob": "8926e63c6d587778d0ba6628bd59865314292fe7",
+          "previous_sha256": "940c84a3425e8ed1e93de2eae881100fd88a49dd978a108e5d78e5f2fa5fe17c",
+          "current_git_blob": "76f15a5d276754db6c719515f79414f41af9c52c",
+          "current_sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8",
+          "actual_delta": "Only shared fiscal _read_metric_aliases +stdlibDecimal import; full allremaining objective nodes ASTidentical.",
+          "numerical_scope": "Kernel/posterior/state/corpus/transforms/RNG/parametercodec/objective enums/classes/base/composite fullmethodAST unchanged. Prior raw admitted fixture values are finite int/float/explicit scored benchmark rows, not FiscalDecimal/textunderflow. Actual new rawfiscal→Base/Composite/publicPlateau/Target path is independently tested73 atcurrent680; no inferenceofcurrentfiscalproperty fromoldGP."
+        }
+      ],
+      "classification": "Original c0 strongproperty receipts stayc0; final969 scopedcarry with its mandatory315e+6c8+11ff corrections remains required. This is an additional680 objective-module qualifier, not oldsource/head relabel or numericalreplay."
+    },
+    {
+      "original_scope": "State142",
+      "original_output_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "actual_observed_binding_count": 280,
+      "exact_same_bytes_from969_count": 279,
+      "changed_observed_modules_from969": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+          "prior_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "current_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "original_runtime_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+          "previous_git_blob": "8926e63c6d587778d0ba6628bd59865314292fe7",
+          "previous_sha256": "940c84a3425e8ed1e93de2eae881100fd88a49dd978a108e5d78e5f2fa5fe17c",
+          "current_git_blob": "76f15a5d276754db6c719515f79414f41af9c52c",
+          "current_sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8",
+          "actual_delta": "Only shared fiscal _read_metric_aliases +stdlibDecimal import; full allremaining objective nodes ASTidentical.",
+          "numerical_scope": "Kernel/posterior/state/corpus/transforms/RNG/parametercodec/objective enums/classes/base/composite fullmethodAST unchanged. Prior raw admitted fixture values are finite int/float/explicit scored benchmark rows, not FiscalDecimal/textunderflow. Actual new rawfiscal→Base/Composite/publicPlateau/Target path is independently tested73 atcurrent680; no inferenceofcurrentfiscalproperty fromoldGP."
+        }
+      ],
+      "classification": "Original c0 strongproperty receipts stayc0; final969 scopedcarry with its mandatory315e+6c8+11ff corrections remains required. This is an additional680 objective-module qualifier, not oldsource/head relabel or numericalreplay."
+    },
+    {
+      "original_scope": "MO88",
+      "original_output_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "actual_observed_binding_count": 265,
+      "exact_same_bytes_from969_count": 264,
+      "changed_observed_modules_from969": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+          "prior_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "current_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "original_runtime_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+          "previous_git_blob": "8926e63c6d587778d0ba6628bd59865314292fe7",
+          "previous_sha256": "940c84a3425e8ed1e93de2eae881100fd88a49dd978a108e5d78e5f2fa5fe17c",
+          "current_git_blob": "76f15a5d276754db6c719515f79414f41af9c52c",
+          "current_sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8",
+          "actual_delta": "Only shared fiscal _read_metric_aliases +stdlibDecimal import; full allremaining objective nodes ASTidentical.",
+          "numerical_scope": "Kernel/posterior/state/corpus/transforms/RNG/parametercodec/objective enums/classes/base/composite fullmethodAST unchanged. Prior raw admitted fixture values are finite int/float/explicit scored benchmark rows, not FiscalDecimal/textunderflow. Actual new rawfiscal→Base/Composite/publicPlateau/Target path is independently tested73 atcurrent680; no inferenceofcurrentfiscalproperty fromoldGP."
+        }
+      ],
+      "classification": "Original c0 strongproperty receipts stayc0; final969 scopedcarry with its mandatory315e+6c8+11ff corrections remains required. This is an additional680 objective-module qualifier, not oldsource/head relabel or numericalreplay."
+    },
+    {
+      "original_scope": "minimal55_15_UNRUN",
+      "original_output_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "actual_observed_binding_count": 252,
+      "exact_same_bytes_from969_count": 251,
+      "changed_observed_modules_from969": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+          "prior_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "current_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "original_runtime_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+          "previous_git_blob": "8926e63c6d587778d0ba6628bd59865314292fe7",
+          "previous_sha256": "940c84a3425e8ed1e93de2eae881100fd88a49dd978a108e5d78e5f2fa5fe17c",
+          "current_git_blob": "76f15a5d276754db6c719515f79414f41af9c52c",
+          "current_sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8",
+          "actual_delta": "Only shared fiscal _read_metric_aliases +stdlibDecimal import; full allremaining objective nodes ASTidentical.",
+          "numerical_scope": "Kernel/posterior/state/corpus/transforms/RNG/parametercodec/objective enums/classes/base/composite fullmethodAST unchanged. Prior raw admitted fixture values are finite int/float/explicit scored benchmark rows, not FiscalDecimal/textunderflow. Actual new rawfiscal→Base/Composite/publicPlateau/Target path is independently tested73 atcurrent680; no inferenceofcurrentfiscalproperty fromoldGP."
+        }
+      ],
+      "classification": "Original c0 strongproperty receipts stayc0; final969 scopedcarry with its mandatory315e+6c8+11ff corrections remains required. This is an additional680 objective-module qualifier, not oldsource/head relabel or numericalreplay."
+    },
+    {
+      "original_scope": "warm_rejection_reports3",
+      "original_output_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "actual_observed_binding_count": 251,
+      "exact_same_bytes_from969_count": 250,
+      "changed_observed_modules_from969": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+          "prior_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "current_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "original_runtime_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+          "previous_git_blob": "8926e63c6d587778d0ba6628bd59865314292fe7",
+          "previous_sha256": "940c84a3425e8ed1e93de2eae881100fd88a49dd978a108e5d78e5f2fa5fe17c",
+          "current_git_blob": "76f15a5d276754db6c719515f79414f41af9c52c",
+          "current_sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8",
+          "actual_delta": "Only shared fiscal _read_metric_aliases +stdlibDecimal import; full allremaining objective nodes ASTidentical.",
+          "numerical_scope": "Kernel/posterior/state/corpus/transforms/RNG/parametercodec/objective enums/classes/base/composite fullmethodAST unchanged. Prior raw admitted fixture values are finite int/float/explicit scored benchmark rows, not FiscalDecimal/textunderflow. Actual new rawfiscal→Base/Composite/publicPlateau/Target path is independently tested73 atcurrent680; no inferenceofcurrentfiscalproperty fromoldGP."
+        }
+      ],
+      "classification": "Original c0 strongproperty receipts stayc0; final969 scopedcarry with its mandatory315e+6c8+11ff corrections remains required. This is an additional680 objective-module qualifier, not oldsource/head relabel or numericalreplay."
+    },
+    {
+      "original_scope": "warm_report_removal3_expectedFAIL",
+      "original_output_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "actual_observed_binding_count": 251,
+      "exact_same_bytes_from969_count": 250,
+      "changed_observed_modules_from969": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+          "prior_source": "96905636726483fdea3a98d9313871d825b54a9e",
+          "current_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+          "original_runtime_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+          "previous_git_blob": "8926e63c6d587778d0ba6628bd59865314292fe7",
+          "previous_sha256": "940c84a3425e8ed1e93de2eae881100fd88a49dd978a108e5d78e5f2fa5fe17c",
+          "current_git_blob": "76f15a5d276754db6c719515f79414f41af9c52c",
+          "current_sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8",
+          "actual_delta": "Only shared fiscal _read_metric_aliases +stdlibDecimal import; full allremaining objective nodes ASTidentical.",
+          "numerical_scope": "Kernel/posterior/state/corpus/transforms/RNG/parametercodec/objective enums/classes/base/composite fullmethodAST unchanged. Prior raw admitted fixture values are finite int/float/explicit scored benchmark rows, not FiscalDecimal/textunderflow. Actual new rawfiscal→Base/Composite/publicPlateau/Target path is independently tested73 atcurrent680; no inferenceofcurrentfiscalproperty fromoldGP."
+        }
+      ],
+      "classification": "Original c0 strongproperty receipts stayc0; final969 scopedcarry with its mandatory315e+6c8+11ff corrections remains required. This is an additional680 objective-module qualifier, not oldsource/head relabel or numericalreplay."
+    }
+  ],
+  "new_import": "Decimal/DecimalException stdlib alreadyused byunchanged common.serialization/Gateway; no GP/backend/library/corpus dependencychange. Existing locked/native/minimal versions remain declared inoldreceipt; no crossbuildresume claim.",
+  "affected_actual_consumer_checks": "Currentfiscal73/guardremoval27FAIL+46PASS exact680; actualconfiguredGP3 remains969, no defaultnewfactory/MLL assertionat680. Parent runs affectedService18/Transfer13 scope separately.",
+  "independent_source_review": [
+    "f90f392167a5e07f9f8928c4dd692b2512f7a23b3278d3348db53d877515dd98",
+    "f850a6ee429bc9462509979af8ab36f5fcdeb175710a60f0b33ceb358cb690a1"
+  ],
+  "limitations": [
+    "Changed importedobjective module is explicitly qualified, never declaredbyteidentical; acceptedDecimal/textunderflow semantics are newlytested, not inherited frommodelposterior.",
+    "BudgetDeficitObjective rawFloat64 results cannot recover alreadylostlexeme; arbitrarycustomcoercible/Fraction/extendedprecision origin underflow notestablished bythisboundedfiscalprofile.",
+    "Actualfiscal scientificunit/sign/aliaslaw and productiondata/history/tenant/deploymentauthority remain appointedownerinputs; no newclosurelaw.",
+    "No currentfullGP43/MO88/State142 or configuredGP3 rerun, no sumacrosshistoricalcandidates."
+  ],
+  "accepted_G": false,
+  "formal_closed": false,
+  "P41": "not_established"
+}

@@ -1,0 +1,36 @@
+{
+  "files": [
+    {
+      "path": "champion_receipts.py",
+      "sha256": "da08685f5563774a3307db3b76926822285ddfdc24284102156ee0885459e28f",
+      "bytes": 4516
+    },
+    {
+      "path": "original-criterion-bindings.json",
+      "sha256": "d5ed58a86f3027989ed429d7ec1487f67b5b1a50cf70695ed8b34de95c894ffd",
+      "bytes": 7230
+    },
+    {
+      "path": "owner-source-minimum.json",
+      "sha256": "c7cf8ab1d6ced422520ac9283293e9de4ca14a3e09ef539e9c7cc0fc86ea69eb",
+      "bytes": 5812
+    },
+    {
+      "path": "review-inputs.json",
+      "sha256": "ab37ad056c2671f4ea112f62f83a56ff421cf18f11ff06d01128cf189c2d0edb",
+      "bytes": 2911
+    },
+    {
+      "path": "run_profile.py",
+      "sha256": "8a50ae7051cf18890abc7686e0ed7766a1450931be15d3f5e4e1fea46b6b9e3f",
+      "bytes": 6897
+    },
+    {
+      "path": "test_combined_champion.py",
+      "sha256": "b450fcae43548ad09129ac4aace1fcfca88e0fd9c8e22240dd7790a6e44f8997",
+      "bytes": 7156
+    }
+  ],
+  "test_execution": "UNRUN",
+  "source_mutations": 0
+}

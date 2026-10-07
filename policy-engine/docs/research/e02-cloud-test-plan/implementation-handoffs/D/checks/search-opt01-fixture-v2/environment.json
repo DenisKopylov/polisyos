@@ -1,0 +1,53 @@
+{
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "executable": "/workspace/e02-D-locked-env/bin/python",
+  "source": {
+    "head": "c3fe956011df8185c226155b86488294fe16143e",
+    "tree": "6a8be9c4e7d98dc42dd8244d25e8f72c6a1c7cf4",
+    "branch": "codex/e02-D-published-search",
+    "tracked_status": "",
+    "product_delta_from_base": "",
+    "utc": "2026-10-06T12:48:51.306776+00:00"
+  },
+  "packages": {
+    "pytest": "9.0.2",
+    "ruff": "0.14.10",
+    "torch": "2.10.0",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "pydantic": "2.12.5"
+  },
+  "environment": {
+    "PYTHONPATH": "src:.",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer",
+    "OMP_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null,
+    "POLISYOS_PYTEST_WORKERS": null,
+    "PYTEST_ADDOPTS": null
+  },
+  "observer": {
+    "bytes": 4783,
+    "sha256": "98622492a87103142a00fee9e654da54841764c6abe2a1f02126b42a71e4c53f"
+  },
+  "capture": {
+    "bytes": 7528,
+    "sha256": "5f5fdb5ab79f1f13d3bc1a179ea88d734d23a224a571118612fe9019df45042c"
+  },
+  "limits_added": false,
+  "changed_existing_functions": [
+    "test_unassessed_candidate_cannot_be_reported_as_not_dominated",
+    "test_empty_and_invalid_front_preserves_schema_as_incomplete",
+    "test_non_finite_and_missing_metrics_are_excluded_from_numeric_front",
+    "test_mixed_objective_coverage_is_typed_and_keeps_finite_front",
+    "test_duplicate_invalid_candidate_refs_keep_distinct_input_positions"
+  ],
+  "original_assertion_ast": "identical",
+  "added_functions": [
+    "_cas_eval"
+  ]
+}

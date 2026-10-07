@@ -1,0 +1,680 @@
+{
+  "schema": "e02.D.independent-source-review-addendum.v1",
+  "reviewer": "numerical_oracle",
+  "closure_ids": [],
+  "supersedes_only": "Frozen82 aggregate-empty-component/phaseD4 manifest/serializer regression hold; original4f917d76bb7447ad1174eeef4c0b4f6fd55ddc01 evidence remains historical and immutable.",
+  "correction_source_sha": "ee6d0024cc9dd7e1c27381f6fdfe112c465b6581",
+  "correction_tree": "9555f7e6345f435a0d02aeec0d6eceac65efc99b",
+  "composed_runtime_sha": "40220c6f0f0b63223b9974e4bdf6add5262aa5af",
+  "test_fixture_successor_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+  "successor_tree": "139db301e70eea5173811b066592278ee3f91eb4",
+  "verdict": "PASS within bounded corrected properties: all-component completeness, actual phaseD4 CAS schema alignment, declared resource DTO JSON preservation. Overall originalSTR/E/quality closure remains PARTIAL/UNRUN/FAIL as recorded.",
+  "independent_source_review": {
+    "full_frozen82_to_ee6_product_delta_read": true,
+    "product_delta_manifest": [
+      {
+        "source_sha": "ee6d0024cc9dd7e1c27381f6fdfe112c465b6581",
+        "path": "policy-engine/src/polisyos/scientist/methods/doe/README.md",
+        "git_blob": "e6c41570f3d3fbd2202b387c0bc895bd9912a18f",
+        "bytes": 8572,
+        "sha256": "8674189b9dd74b452e6742c4e3993e9c82fe41dc5876938391915480525cd412"
+      },
+      {
+        "source_sha": "ee6d0024cc9dd7e1c27381f6fdfe112c465b6581",
+        "path": "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+        "git_blob": "428c5cbfa2edf118f2a4957ebd851e3dc1b14a93",
+        "bytes": 10530,
+        "sha256": "cdf7ffe7bd6e3921749e7aa61624d43fa9e8f831495533bf22441744478cc4ee"
+      },
+      {
+        "source_sha": "ee6d0024cc9dd7e1c27381f6fdfe112c465b6581",
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+        "git_blob": "b148a1290c348e05f6d6215c5c67d44f74dfd7f7",
+        "bytes": 102451,
+        "sha256": "6a580b15706cb26ef3cbcdc0f06b3b2995b3f1c505ab82aebd9a580c8d4f0745"
+      }
+    ],
+    "completeness": "scenario_complete requires aggregate evidence.complete AND every declared component present/complete. DTO status validation, is_robust and blueprint recompute metadata/status all use this property. Empty declared components remain conditional despite an observed positive finite subset.",
+    "phaseD4_schema": "Actual _run_and_register_phase_d4_challenge_suites now writes SchemaInfo version from its typed suite report rather than hardcoded1.0.",
+    "projection": "Actual existing serializer retains outcome evaluation_status plus outcome/stage/trace compute amount, cost source, Decimal amount as string-or-null, and resource-event references. Stage feedback remains. No provider settlement/billing or actual paid node execution inferred from declared DTO fixtures.",
+    "caller_path": "Frozen successor actual blueprint execute writes _serialize_funnel_outcome to new_state.params.funnel_outcome and _funnel_outcome. Fixture correction uses this admitted existing params field instead of ArtifactRef-only reports_index.",
+    "own_product_bytes_ee6_to_composed_successor": "All5 listed counter/report/blueprint product paths identical. Composed peer resource/core/funnel changes are separate owner/root review inputs, not an independent whole-source acceptance claim here.",
+    "wave_to_successor_product_diff": [],
+    "wave_to_successor_test_delta": "Only the three-case persistence fixture uses ExperimentState.params.funnel_outcome and reads restored.params.funnel_outcome. Existing serialization assertions/expected values are unchanged.",
+    "B04_execute_AST": "Exact execute AST is identical frozen82\u2192successor; independent82 canonical one-file declared-read PASS remains applicable to this unchanged read body. Whole9 foreign-node contract errors remain held."
+  },
+  "actual_runtime": {
+    "earlier_ee6_projection_attempt": {
+      "status": "ERROR/UNRUN",
+      "resource": {
+        "source_sha": "ee6d0024cc9dd7e1c27381f6fdfe112c465b6581",
+        "command": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "/workspace/e02-D3-receipts/stress/challenge_runtime_runner.py",
+          "-q",
+          "tests/unit/scientist/search/test_blueprint_resource_projection.py",
+          "tests/unit/scientist/search/test_challenge_scenario_projection.py::test_empty_component_stays_incomplete_beside_a_complete_case_set",
+          "--basetemp",
+          "/dev/shm/e02-D-projection-green-e947c334f9b243ef8692a3186b3fa5a8",
+          "--junitxml",
+          "/workspace/e02-D3-receipts/stress/projection-green-junit.xml"
+        ],
+        "exit_code": -9,
+        "wall_seconds": 26.688943525994546,
+        "peak_rss_kib": 795252,
+        "source_sha_after": "ee6d0024cc9dd7e1c27381f6fdfe112c465b6581",
+        "git_status": "?? docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/complete-result-pack-census.json\n"
+      },
+      "complete_output": "stress-correction-independent/projection-green-complete.txt"
+    },
+    "composed_142": {
+      "resource": {
+        "source_sha": "40220c6f0f0b63223b9974e4bdf6add5262aa5af",
+        "command": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "/workspace/e02-D3-receipts/stress/challenge_runtime_runner.py",
+          "-q",
+          "tests/unit/scientist/search/test_stress_scenario_evidence.py",
+          "tests/unit/scientist/search/test_adversarial.py",
+          "tests/unit/scientist/search/test_adversarial_streaming.py",
+          "tests/unit/scientist/search/test_policy_blueprint_runtime_guards.py",
+          "tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py",
+          "tests/unit/remediation/test_fun_03.py",
+          "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+          "tests/unit/scientist/search/test_challenge_scenario_projection.py",
+          "tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py",
+          "tests/unit/scientist/search/test_blueprint_resource_projection.py",
+          "--basetemp",
+          "/dev/shm/e02-D-final-consumer-wave-06f91411131a4fca93484ae727c3d4cb",
+          "--junitxml",
+          "/workspace/e02-D3-receipts/stress/final-consumer-wave-junit.xml"
+        ],
+        "exit_code": 1,
+        "wall_seconds": 56.164719332999084,
+        "peak_rss_kib": 940384,
+        "source_sha_after": "40220c6f0f0b63223b9974e4bdf6add5262aa5af",
+        "git_status": "?? docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/complete-result-pack-census.json\n"
+      },
+      "junit_counts": {
+        "tests": 142,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "actual_pass_count": 139,
+      "failures": [
+        {
+          "classname": "tests.unit.scientist.search.test_blueprint_resource_projection",
+          "name": "test_declared_resource_observations_survive_blueprint_json_and_fresh_cas_reader[None]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_blueprint_resource_projection",
+          "name": "test_declared_resource_observations_survive_blueprint_json_and_fresh_cas_reader[spend1]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.unit.scientist.search.test_blueprint_resource_projection",
+          "name": "test_declared_resource_observations_survive_blueprint_json_and_fresh_cas_reader[spend2]",
+          "time": "0.001"
+        }
+      ],
+      "empty_component_actual_case": {
+        "classname": "tests.unit.scientist.search.test_challenge_scenario_projection",
+        "name": "test_empty_component_stays_incomplete_beside_a_complete_case_set",
+        "time": "0.012"
+      },
+      "whole_verdict": "FAIL; not142PASS",
+      "interpretation": "All three failures occur after every new serializer assertion passed, at a malformed reports_index persistence fixture. Full completed output/JUnit is retained; empty-component and actual phaseD4 report cases pass."
+    },
+    "fixture_successor_4": {
+      "resource": {
+        "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+        "command": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "/workspace/e02-D3-receipts/stress/challenge_runtime_runner.py",
+          "-q",
+          "tests/unit/scientist/search/test_blueprint_resource_projection.py",
+          "--basetemp",
+          "/dev/shm/e02-D-final-projection-companion-e768700c6d3042038423c2aad45cde4d",
+          "--junitxml",
+          "/workspace/e02-D3-receipts/stress/final-projection-companion-junit.xml"
+        ],
+        "exit_code": 0,
+        "wall_seconds": 22.984394693005015,
+        "peak_rss_kib": 967464,
+        "source_sha_after": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+        "git_status": "?? docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/complete-result-pack-census.json\n"
+      },
+      "junit_counts": {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "scope": "Same source; three declared amount variants None/Decimal0/precision amount roundtrip through actual FileSystemCAS/newreader plus actual phaseD4 manifest/body schema. Not a rerun of the complete142 suite."
+    }
+  },
+  "actual_case_intake_removal": {
+    "intact": "Actual helper four malformed passed values1/text false/NaN/Inf refuse; genuineFalse remains failed.",
+    "removed": "Actual defining-function bool guard removed plus old bool coercion restored with markers retained: all4 malformed values admitted; expectedFAIL exit1.",
+    "runtime_scope": "Actual case helper/class only; no fullblueprint/backend/billing claim. Earlier fullrawbool removal SIGKILL remains ERROR/UNRUN."
+  },
+  "origin_integrity": [
+    {
+      "log": "final-consumer-wave-complete.txt",
+      "module": "polisyos.scientist.methods.backtesting.adversarial",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/backtesting/adversarial.py",
+      "source_sha": "40220c6f0f0b63223b9974e4bdf6add5262aa5af",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/adversarial.py",
+      "git_blob": "8d86fcedabe0da458aa3c9c2cac1a980062671eb",
+      "bytes": 19925,
+      "sha256": "f27357119530f2b126903926a362de595a081fe337133d2c71b573c00a08035d",
+      "status": "MATCH"
+    },
+    {
+      "log": "final-consumer-wave-complete.txt",
+      "module": "polisyos.scientist.methods.doe.designs",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "source_sha": "40220c6f0f0b63223b9974e4bdf6add5262aa5af",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "git_blob": "de831a24d51efaa0c9c017a109e9a9912ad2c719",
+      "bytes": 14386,
+      "sha256": "2cdff56bdd7641bea47efe0bfb57677039389a72975e749c51089d4d5513586e",
+      "status": "MATCH"
+    },
+    {
+      "log": "final-consumer-wave-complete.txt",
+      "module": "polisyos.scientist.methods.doe.stress_report",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+      "source_sha": "40220c6f0f0b63223b9974e4bdf6add5262aa5af",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+      "git_blob": "428c5cbfa2edf118f2a4957ebd851e3dc1b14a93",
+      "bytes": 10530,
+      "sha256": "cdf7ffe7bd6e3921749e7aa61624d43fa9e8f831495533bf22441744478cc4ee",
+      "status": "MATCH"
+    },
+    {
+      "log": "final-consumer-wave-complete.txt",
+      "module": "polisyos.scientist.methods.doe.sampling",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "source_sha": "40220c6f0f0b63223b9974e4bdf6add5262aa5af",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "git_blob": "b06ad3b209c60550f87b7bc434d42cfa21196dfc",
+      "bytes": 3927,
+      "sha256": "a8d629515b316b48055b763da9eede1a620769f0423890a61d15b09d8bfc3d8e",
+      "status": "MATCH"
+    },
+    {
+      "log": "final-consumer-wave-complete.txt",
+      "module": "polisyos.scientist.methods.search.adversarial",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+      "source_sha": "40220c6f0f0b63223b9974e4bdf6add5262aa5af",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+      "git_blob": "23538253a6c49ebfee01574b02a2d4d07d4dfc5d",
+      "bytes": 37161,
+      "sha256": "a00f99197074360a8ec969d671180e01a57ffde37126f78addbba938b74698b1",
+      "status": "MATCH"
+    },
+    {
+      "log": "final-consumer-wave-complete.txt",
+      "module": "polisyos.scientist.policy_design.adversary",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+      "source_sha": "40220c6f0f0b63223b9974e4bdf6add5262aa5af",
+      "path": "policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+      "git_blob": "f5dd49480dae308e341edfac8bd01cc0c578d5dd",
+      "bytes": 17160,
+      "sha256": "edcf3b78c47eaf458fcad98023fc7247bd2bbe5500a5a00389b60033bfae1529",
+      "status": "MATCH"
+    },
+    {
+      "log": "final-consumer-wave-complete.txt",
+      "module": "polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+      "source_sha": "40220c6f0f0b63223b9974e4bdf6add5262aa5af",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+      "git_blob": "b148a1290c348e05f6d6215c5c67d44f74dfd7f7",
+      "bytes": 102451,
+      "sha256": "6a580b15706cb26ef3cbcdc0f06b3b2995b3f1c505ab82aebd9a580c8d4f0745",
+      "status": "MATCH"
+    },
+    {
+      "log": "final-consumer-wave-complete.txt",
+      "module": "polisyos.scientist.methods.search.funnel.level5_refutation_governance",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py",
+      "source_sha": "40220c6f0f0b63223b9974e4bdf6add5262aa5af",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py",
+      "git_blob": "df830d86c2d62dd9ce57c0731a571feddfd37a79",
+      "bytes": 26944,
+      "sha256": "66ca3aa761cc81068febf95944b1ce38ada07da4d5d3f157341fc6d0e2ecb3cb",
+      "status": "MATCH"
+    },
+    {
+      "log": "final-consumer-wave-complete.txt",
+      "module": "polisyos.scientist.methods.search.funnel.orchestrator",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "source_sha": "40220c6f0f0b63223b9974e4bdf6add5262aa5af",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "git_blob": "f5752151ab11d4df0cde974d3454acb126228933",
+      "bytes": 63654,
+      "sha256": "896d8747b980d3e5977f46e8a352bc437b2c50a3f700b841c3b782a80c1c240c",
+      "status": "MATCH"
+    },
+    {
+      "log": "final-projection-companion-complete.txt",
+      "module": "polisyos.scientist.methods.backtesting.adversarial",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/backtesting/adversarial.py",
+      "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/adversarial.py",
+      "git_blob": "8d86fcedabe0da458aa3c9c2cac1a980062671eb",
+      "bytes": 19925,
+      "sha256": "f27357119530f2b126903926a362de595a081fe337133d2c71b573c00a08035d",
+      "status": "MATCH"
+    },
+    {
+      "log": "final-projection-companion-complete.txt",
+      "module": "polisyos.scientist.methods.doe.designs",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "git_blob": "de831a24d51efaa0c9c017a109e9a9912ad2c719",
+      "bytes": 14386,
+      "sha256": "2cdff56bdd7641bea47efe0bfb57677039389a72975e749c51089d4d5513586e",
+      "status": "MATCH"
+    },
+    {
+      "log": "final-projection-companion-complete.txt",
+      "module": "polisyos.scientist.methods.doe.stress_report",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+      "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+      "git_blob": "428c5cbfa2edf118f2a4957ebd851e3dc1b14a93",
+      "bytes": 10530,
+      "sha256": "cdf7ffe7bd6e3921749e7aa61624d43fa9e8f831495533bf22441744478cc4ee",
+      "status": "MATCH"
+    },
+    {
+      "log": "final-projection-companion-complete.txt",
+      "module": "polisyos.scientist.methods.doe.sampling",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+      "git_blob": "b06ad3b209c60550f87b7bc434d42cfa21196dfc",
+      "bytes": 3927,
+      "sha256": "a8d629515b316b48055b763da9eede1a620769f0423890a61d15b09d8bfc3d8e",
+      "status": "MATCH"
+    },
+    {
+      "log": "final-projection-companion-complete.txt",
+      "module": "polisyos.scientist.methods.search.adversarial",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+      "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+      "git_blob": "23538253a6c49ebfee01574b02a2d4d07d4dfc5d",
+      "bytes": 37161,
+      "sha256": "a00f99197074360a8ec969d671180e01a57ffde37126f78addbba938b74698b1",
+      "status": "MATCH"
+    },
+    {
+      "log": "final-projection-companion-complete.txt",
+      "module": "polisyos.scientist.policy_design.adversary",
+      "status": "UNIMPORTED"
+    },
+    {
+      "log": "final-projection-companion-complete.txt",
+      "module": "polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+      "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+      "git_blob": "b148a1290c348e05f6d6215c5c67d44f74dfd7f7",
+      "bytes": 102451,
+      "sha256": "6a580b15706cb26ef3cbcdc0f06b3b2995b3f1c505ab82aebd9a580c8d4f0745",
+      "status": "MATCH"
+    },
+    {
+      "log": "final-projection-companion-complete.txt",
+      "module": "polisyos.scientist.methods.search.funnel.level5_refutation_governance",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py",
+      "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py",
+      "git_blob": "df830d86c2d62dd9ce57c0731a571feddfd37a79",
+      "bytes": 26944,
+      "sha256": "66ca3aa761cc81068febf95944b1ce38ada07da4d5d3f157341fc6d0e2ecb3cb",
+      "status": "MATCH"
+    },
+    {
+      "log": "final-projection-companion-complete.txt",
+      "module": "polisyos.scientist.methods.search.funnel.orchestrator",
+      "loaded_path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "git_blob": "f5752151ab11d4df0cde974d3454acb126228933",
+      "bytes": 63654,
+      "sha256": "896d8747b980d3e5977f46e8a352bc437b2c50a3f700b841c3b782a80c1c240c",
+      "status": "MATCH"
+    }
+  ],
+  "final_source_profile_integrity": {
+    "files": [
+      {
+        "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+        "path": "policy-engine/pyproject.toml",
+        "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+        "bytes": 11007,
+        "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+        "status": "MATCH"
+      },
+      {
+        "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+        "path": "policy-engine/pytest.ini",
+        "git_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+        "bytes": 1021,
+        "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+        "status": "MATCH"
+      },
+      {
+        "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+        "path": "policy-engine/uv.lock",
+        "git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+        "bytes": 779204,
+        "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+        "status": "MATCH"
+      },
+      {
+        "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+        "git_blob": "23538253a6c49ebfee01574b02a2d4d07d4dfc5d",
+        "bytes": 37161,
+        "sha256": "a00f99197074360a8ec969d671180e01a57ffde37126f78addbba938b74698b1",
+        "status": "MATCH"
+      },
+      {
+        "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+        "path": "policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+        "git_blob": "f5dd49480dae308e341edfac8bd01cc0c578d5dd",
+        "bytes": 17160,
+        "sha256": "edcf3b78c47eaf458fcad98023fc7247bd2bbe5500a5a00389b60033bfae1529",
+        "status": "MATCH"
+      },
+      {
+        "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+        "path": "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+        "git_blob": "428c5cbfa2edf118f2a4957ebd851e3dc1b14a93",
+        "bytes": 10530,
+        "sha256": "cdf7ffe7bd6e3921749e7aa61624d43fa9e8f831495533bf22441744478cc4ee",
+        "status": "MATCH"
+      },
+      {
+        "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+        "path": "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+        "git_blob": "de831a24d51efaa0c9c017a109e9a9912ad2c719",
+        "bytes": 14386,
+        "sha256": "2cdff56bdd7641bea47efe0bfb57677039389a72975e749c51089d4d5513586e",
+        "status": "MATCH"
+      },
+      {
+        "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+        "git_blob": "b148a1290c348e05f6d6215c5c67d44f74dfd7f7",
+        "bytes": 102451,
+        "sha256": "6a580b15706cb26ef3cbcdc0f06b3b2995b3f1c505ab82aebd9a580c8d4f0745",
+        "status": "MATCH"
+      },
+      {
+        "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+        "path": "policy-engine/src/polisyos/scientist/methods/backtesting/adversarial.py",
+        "git_blob": "8d86fcedabe0da458aa3c9c2cac1a980062671eb",
+        "bytes": 19925,
+        "sha256": "f27357119530f2b126903926a362de595a081fe337133d2c71b573c00a08035d",
+        "status": "MATCH"
+      },
+      {
+        "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+        "path": "policy-engine/tests/unit/scientist/search/test_adversarial.py",
+        "git_blob": "fbb5c536d1164fb720d9a694567b859b704e8260",
+        "bytes": 19765,
+        "sha256": "331de9a07ab9b6e50ab0f53bf5811c89d81ad3da9de41d5ca028a7e4706962c1",
+        "status": "MATCH"
+      },
+      {
+        "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+        "path": "policy-engine/tests/unit/scientist/search/test_stress_scenario_evidence.py",
+        "git_blob": "46eb13801fc5ce5f0529b4d7df20033d63c8bef5",
+        "bytes": 13248,
+        "sha256": "2305ffaecac2613846308cd03fcd618be22519d1289ef5fe42e155595dd13ca0",
+        "status": "MATCH"
+      },
+      {
+        "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+        "path": "policy-engine/tests/unit/scientist/search/test_challenge_scenario_projection.py",
+        "git_blob": "6b78b1d3d8fbd944d1e150a0145c80a5296bee57",
+        "bytes": 9998,
+        "sha256": "2d860e5f67a816884215388b2b2d10445dc01b51ccddd84fc81da6e02e82e6cc",
+        "status": "MATCH"
+      },
+      {
+        "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+        "path": "policy-engine/tests/unit/scientist/search/test_blueprint_resource_projection.py",
+        "git_blob": "8209dd1b2902c675f208f0e1b738e43b6baa8133",
+        "bytes": 6530,
+        "sha256": "4686046be866f2846ce33c7f4de839f367cab0b0c459b661333dbb61c94eb021",
+        "status": "MATCH"
+      },
+      {
+        "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+        "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py",
+        "git_blob": "7fa3a7c4a0aa6de2892e9ef855323b3b02c19dc2",
+        "bytes": 12039,
+        "sha256": "1b53543b89c294ade7e8ab921f3cab9f24defb0a7a05f3b7679878c488635690",
+        "status": "MATCH"
+      },
+      {
+        "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+        "path": "policy-engine/tests/unit/scientist/search/test_adversarial_streaming.py",
+        "git_blob": "94a2ba899a6f5c26481e1747e9e6ec787f826730",
+        "bytes": 10766,
+        "sha256": "0227f239fd504924a2591bdbe391ddc1bb2f62d516d1d0e3221e6bd614ccadb5",
+        "status": "MATCH"
+      },
+      {
+        "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+        "path": "policy-engine/tests/unit/scientist/search/test_policy_blueprint_runtime_guards.py",
+        "git_blob": "d90a9e2a7ab1d9a6a88d4c3d79cc33f3cecb2cec",
+        "bytes": 22198,
+        "sha256": "b91b7d84ade1f2caf7b54d3b586c3824a5b1bcf5bd99108db82d87fa3606b6bb",
+        "status": "MATCH"
+      },
+      {
+        "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+        "path": "policy-engine/tests/unit/scientist/methods/search/funnel/test_level5_refutation_governance.py",
+        "git_blob": "9b5e2babdd364006b4ccf80d1d59679ded8f028a",
+        "bytes": 7470,
+        "sha256": "c430123968bc3a3acc180a470377ae7afbde9dc5e893bc8a61700fc588a33820",
+        "status": "MATCH"
+      },
+      {
+        "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+        "path": "policy-engine/tests/unit/remediation/test_fun_03.py",
+        "git_blob": "29b58f452610d32f3783d88939ca7623d9028e5a",
+        "bytes": 26008,
+        "sha256": "3121bfade5befa9b6175ae8adf66690c18258a37610255a62156752efb0f81eb",
+        "status": "MATCH"
+      },
+      {
+        "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+        "path": "policy-engine/tests/unit/scientist/policy_design/test_phase_b_policy_workers.py",
+        "git_blob": "1a23e241868467ef25da5e328f5ae68d4e0accd9",
+        "bytes": 11914,
+        "sha256": "80986710cf9f54e8c37c3d2cb12f7edfeb303e35a41cbbd5708c695db5d075c5",
+        "status": "MATCH"
+      },
+      {
+        "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+        "path": "policy-engine/tests/integration/scientist/methods/search/stress_doe_bridge_probe.py",
+        "git_blob": "4fb854d01a7c954b3d2a9a614f2a824fbd4d376b",
+        "bytes": 11855,
+        "sha256": "4bfbcecd73dbc126a9711a384bf283cdaf779b2918e7beb6bf8d5a9ab8ea51fb",
+        "status": "MATCH"
+      },
+      {
+        "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+        "path": "policy-engine/tests/integration/scientist/methods/search/stress_property_removal_probe.py",
+        "git_blob": "9d7dd8f5969eb5e458b24fb3c58195b3a1d69c3f",
+        "bytes": 4557,
+        "sha256": "b7f3a736ab2f48cb32059798888020b0a3f055bc7e8e5145d440a19513160ecd",
+        "status": "MATCH"
+      },
+      {
+        "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+        "path": "policy-engine/tests/integration/scientist/methods/search/stress_case_intake_probe.py",
+        "git_blob": "e12dae825e90db18af1c601452f737b36f2f1b30",
+        "bytes": 4091,
+        "sha256": "d0977d77d24ee5491adc7a10b6a8f550f4c957340fd378fca388805288ecf746",
+        "status": "MATCH"
+      }
+    ],
+    "entire_src_tree": "c6199ee8bcb953ffcfcc7230fd0f14b19b91314f",
+    "architecture_tree": "4ee55a12145835f59e93c0100dccd0c27672f8e6",
+    "verdict": "Git input integrity only, not whole-source behavior acceptance"
+  },
+  "quality": {
+    "ruff_author_scoped": "Actual captured14 paths check/formatPASS; no whole repository gate inferred.",
+    "mypy_latest": {
+      "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "mypy",
+        "--follow-imports=silent",
+        "src/polisyos/scientist/methods/doe/stress_report.py",
+        "src/polisyos/scientist/methods/doe/designs.py",
+        "src/polisyos/scientist/methods/backtesting/adversarial.py",
+        "src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py"
+      ],
+      "exit_code": -9,
+      "wall_seconds": 83.46548886600067,
+      "peak_rss_kib": 524664,
+      "source_sha_after": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec"
+    },
+    "mypy_latest_verdict": "SIGKILL-9/83.465s emptyoutput =>ERROR/UNRUN, notPASS.",
+    "original_B04_B19_B23": "Complete original9 state-read errors/53+9+15 modulebudget/date errors/10publiclinkerrors remain held; no waiver."
+  },
+  "preservation_and_limitations": [
+    "No reviewer production/test edits, backend runs, source archives, dependencies, children or CPU/process/thread/test-worker caps.",
+    "No cleanup/deletion; moderate copies only. Original commands retain exactbasetemps; no universal transient existence claim.",
+    "Observed finite-set fractions remain conditional; case scientific predicates are consumer asserted; no population law/issuer/source-universe proof.",
+    "Native E/D full-profile composition remains two actual SIGKILLERROR/UNRUN attempts, not closed by these adapter cases.",
+    "No current GP26 repetition or changed analytic expected values. Independent23GPv4 and prior transferCAS witnesses retain their exact source profile scope."
+  ],
+  "lossless_evidence": [
+    {
+      "path": "stress-correction-independent/projection-green-complete.txt",
+      "original_path": "/workspace/e02-D3-receipts/stress/projection-green-complete.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "stress-correction-independent/projection-green-resource.json",
+      "original_path": "/workspace/e02-D3-receipts/stress/projection-green-resource.json",
+      "bytes": 874,
+      "sha256": "5373ded07314721533d741cb291b1fe46b0b4c221067dfbd5e0bfbea8a75e3ee"
+    },
+    {
+      "path": "stress-correction-independent/final-consumer-wave-complete.txt",
+      "original_path": "/workspace/e02-D3-receipts/stress/final-consumer-wave-complete.txt",
+      "bytes": 26643,
+      "sha256": "e59770136ca871381b73da9140095be0242190849e582dc21914a1fa1d3f7522"
+    },
+    {
+      "path": "stress-correction-independent/final-consumer-wave-resource.json",
+      "original_path": "/workspace/e02-D3-receipts/stress/final-consumer-wave-resource.json",
+      "bytes": 1363,
+      "sha256": "0acab46d8bcbb963e6b87f62a452b756b167a9e429a959e838b40daf8287754e"
+    },
+    {
+      "path": "stress-correction-independent/final-consumer-wave-junit.xml",
+      "original_path": "/workspace/e02-D3-receipts/stress/final-consumer-wave-junit.xml",
+      "bytes": 60097,
+      "sha256": "ff05e21504b5e97b1c935c3681e40650476223ffb28979f99b1e2b92de5f89be"
+    },
+    {
+      "path": "stress-correction-independent/final-projection-companion-complete.txt",
+      "original_path": "/workspace/e02-D3-receipts/stress/final-projection-companion-complete.txt",
+      "bytes": 3037,
+      "sha256": "db141f75efa388d5dd6dcf059fe20e3dd1d37506a354a3fc56f8ff55db323323"
+    },
+    {
+      "path": "stress-correction-independent/final-projection-companion-resource.json",
+      "original_path": "/workspace/e02-D3-receipts/stress/final-projection-companion-resource.json",
+      "bytes": 754,
+      "sha256": "53c5f35eded7b45a74c4381e1f290a2975785162f0efaffd9c027a947f88e137"
+    },
+    {
+      "path": "stress-correction-independent/final-projection-companion-junit.xml",
+      "original_path": "/workspace/e02-D3-receipts/stress/final-projection-companion-junit.xml",
+      "bytes": 1011,
+      "sha256": "71cc5c1c1950c006022a0201b784b40ffdf6e820c0b8278ba4ee5d90d7cfb502"
+    },
+    {
+      "path": "stress-correction-independent/final-mypy-four-paths-complete.txt",
+      "original_path": "/workspace/e02-D3-receipts/stress/final-mypy-four-paths-complete.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "stress-correction-independent/final-mypy-four-paths-resource.json",
+      "original_path": "/workspace/e02-D3-receipts/stress/final-mypy-four-paths-resource.json",
+      "bytes": 590,
+      "sha256": "a6321386b69ed39529ce409cfa8e5333f6d4fb8271452dad12610452f90753ce"
+    },
+    {
+      "path": "stress-correction-independent/final-ruff14-complete.txt",
+      "original_path": "/workspace/e02-D3-receipts/stress/final-ruff14-complete.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "stress-correction-independent/final-ruff14-format.txt",
+      "original_path": "/workspace/e02-D3-receipts/stress/final-ruff14-format.txt",
+      "bytes": 27,
+      "sha256": "2afb1c293434bc55d84b35d54454a0bf9aa84e41cda426817a5c6693d432e37a"
+    },
+    {
+      "path": "stress-correction-independent/final-source-profile.json",
+      "original_path": "/workspace/e02-D3-receipts/stress/final-source-profile.json",
+      "bytes": 7768,
+      "sha256": "08907e79eece8af36f3ea60d97cd429358ed4ddc986dcc1e8876de3f889fbaa3"
+    },
+    {
+      "path": "stress-correction-independent/case-intake-positive-complete.txt",
+      "original_path": "/workspace/e02-D3-receipts/stress/case-intake-positive-complete.txt",
+      "bytes": 1959,
+      "sha256": "edd0d622b23391f85f872b64dc13f72f8533e04ff0376754755673ce52fc39f3"
+    },
+    {
+      "path": "stress-correction-independent/case-intake-positive-resource.json",
+      "original_path": "/workspace/e02-D3-receipts/stress/case-intake-positive-resource.json",
+      "bytes": 412,
+      "sha256": "08b85b51212eb2490a4f0335f973eca522b09e799dc1889cbacae8bc721b8e8d"
+    },
+    {
+      "path": "stress-correction-independent/case-intake-remove_strict_bool-complete.txt",
+      "original_path": "/workspace/e02-D3-receipts/stress/case-intake-remove_strict_bool-complete.txt",
+      "bytes": 1736,
+      "sha256": "e747bdfa5afcb847e80867603a0605f148cc29aa0406e0373df86817708a1702"
+    },
+    {
+      "path": "stress-correction-independent/case-intake-remove_strict_bool-resource.json",
+      "original_path": "/workspace/e02-D3-receipts/stress/case-intake-remove_strict_bool-resource.json",
+      "bytes": 422,
+      "sha256": "813e4c583c6436924f7a869fc0736063d3515e2ba681ef7f99049c59f2be3833"
+    },
+    {
+      "path": "stress-correction-independent/case-intake-helper.py.txt",
+      "source_sha": "cf358ef1f08eb6836d0dd399297f059dc9aaa15b",
+      "source_path": "policy-engine/tests/integration/scientist/methods/search/stress_case_intake_probe.py",
+      "bytes": 4091,
+      "sha256": "d0977d77d24ee5491adc7a10b6a8f550f4c957340fd378fca388805288ecf746"
+    }
+  ]
+}

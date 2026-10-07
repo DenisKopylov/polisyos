@@ -1,0 +1,631 @@
+{
+  "schema": "e02-D-owner-input.v1",
+  "source_sha": "6b5195b5400ce10f5ed72e952a368648f0cc7ac9",
+  "owner_requested": "B budget middleware owner via parent/G contract selection",
+  "status": "missing_public_typed_snapshot_port; recorded-state consumer implemented without authority extension",
+  "actual_checked_profiles": [
+    {
+      "source_sha": "28231314770215be0e646d33d8c1f567211f6c19",
+      "tree": "11e109f7f3eb33bdfdb43e8bf829204755eb424d",
+      "files": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+          "source_sha": "28231314770215be0e646d33d8c1f567211f6c19",
+          "blob": "4dcf43321044bd9bf9a0c579417af8ba29344945",
+          "bytes": 6067,
+          "sha256": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0",
+          "classes": {
+            "BudgetMiddleware": {
+              "methods": [
+                "__init__",
+                "budget_state",
+                "settlement_owner_identity",
+                "pre_check",
+                "check_thresholds",
+                "record_spend_safe",
+                "reserve_safe",
+                "release_safe",
+                "commit_safe",
+                "settle_spend_safe",
+                "resolve_spend_safe"
+              ],
+              "annotated_fields": []
+            }
+          }
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "source_sha": "28231314770215be0e646d33d8c1f567211f6c19",
+          "blob": "48908cebc44656fc6b22105d8d7a99d3acf915b6",
+          "bytes": 26353,
+          "sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f",
+          "classes": {
+            "BudgetLedgerWriter": {
+              "methods": [],
+              "annotated_fields": [
+                "host_id",
+                "writer_id",
+                "pid"
+              ]
+            },
+            "BudgetLedgerMutation": {
+              "methods": [],
+              "annotated_fields": [
+                "revision",
+                "operation",
+                "key",
+                "amount",
+                "applied_amount",
+                "provider",
+                "reserved",
+                "writer",
+                "committed_at"
+              ]
+            },
+            "BudgetLedgerSpendReceipt": {
+              "methods": [],
+              "annotated_fields": [
+                "event_id",
+                "payload_digest",
+                "key",
+                "amount",
+                "provider",
+                "revision",
+                "committed_at"
+              ]
+            },
+            "BudgetLedgerSettlementOutcomeUnknownError": {
+              "methods": [
+                "__init__"
+              ],
+              "annotated_fields": []
+            },
+            "BudgetLedgerSnapshot": {
+              "methods": [],
+              "annotated_fields": [
+                "schema_version",
+                "canonical_contract",
+                "coordination_mode",
+                "ledger_id",
+                "revision",
+                "updated_at",
+                "last_writer",
+                "recent_mutations",
+                "state",
+                "spend_receipts"
+              ]
+            },
+            "BudgetLedgerMutationResult": {
+              "methods": [],
+              "annotated_fields": [
+                "state",
+                "revision",
+                "applied_amount",
+                "reserved"
+              ]
+            },
+            "BudgetLedger": {
+              "methods": [
+                "settlement_owner_identity",
+                "load",
+                "snapshot",
+                "load_or_bootstrap",
+                "record_spend",
+                "reserve",
+                "release",
+                "commit_reservation",
+                "settle_spend",
+                "resolve_spend"
+              ],
+              "annotated_fields": []
+            },
+            "FileBudgetLedger": {
+              "methods": [
+                "__init__",
+                "load",
+                "settlement_owner_identity",
+                "snapshot",
+                "load_or_bootstrap",
+                "record_spend",
+                "reserve",
+                "release",
+                "commit_reservation",
+                "settle_spend",
+                "resolve_spend",
+                "_file_lock",
+                "_mutate",
+                "_load_snapshot",
+                "_persist_snapshot",
+                "_build_snapshot",
+                "_build_mutation",
+                "_normalize_snapshot",
+                "_needs_contract_upgrade"
+              ],
+              "annotated_fields": []
+            }
+          }
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/context.py",
+          "source_sha": "28231314770215be0e646d33d8c1f567211f6c19",
+          "blob": "938e25daf571f2b95e50f40b421fe16f3f21892e",
+          "bytes": 3822,
+          "sha256": "af6ed089cbc85b13730b640dfe089504f61dfa2a21d296744ede3f18920c7375",
+          "classes": {
+            "FoundryPort": {
+              "methods": [
+                "compile",
+                "execute"
+              ],
+              "annotated_fields": []
+            },
+            "FabricPort": {
+              "methods": [
+                "snapshot"
+              ],
+              "annotated_fields": []
+            },
+            "ScholarPort": {
+              "methods": [
+                "enrich"
+              ],
+              "annotated_fields": []
+            },
+            "LexPort": {
+              "methods": [
+                "evaluate"
+              ],
+              "annotated_fields": []
+            },
+            "Tracer": {
+              "methods": [
+                "start_as_current_span"
+              ],
+              "annotated_fields": []
+            },
+            "ExecutionContext": {
+              "methods": [],
+              "annotated_fields": [
+                "store",
+                "run",
+                "logger",
+                "tracer",
+                "metrics",
+                "audit",
+                "depth",
+                "fabric",
+                "foundry",
+                "scholar",
+                "lex",
+                "memory",
+                "eval_safety_execution_context",
+                "eval_safety_verifier",
+                "epoch_certificate_issuance_owner",
+                "prepared_skg_read"
+              ]
+            },
+            "ClaimCapableExecutionContext": {
+              "methods": [],
+              "annotated_fields": [
+                "claim_ledger_owner"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "source_sha": "29dbecef14f077cfc4cefffdf3bc6f29379e6ab0",
+      "tree": "01c65637362066b9525dc3bc9a6a397499ade7ac",
+      "files": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+          "source_sha": "29dbecef14f077cfc4cefffdf3bc6f29379e6ab0",
+          "blob": "4dcf43321044bd9bf9a0c579417af8ba29344945",
+          "bytes": 6067,
+          "sha256": "7473c899326ced68354b9acb46d7b9d7b77deabe762d9c8743840aa4fe5faef0",
+          "classes": {
+            "BudgetMiddleware": {
+              "methods": [
+                "__init__",
+                "budget_state",
+                "settlement_owner_identity",
+                "pre_check",
+                "check_thresholds",
+                "record_spend_safe",
+                "reserve_safe",
+                "release_safe",
+                "commit_safe",
+                "settle_spend_safe",
+                "resolve_spend_safe"
+              ],
+              "annotated_fields": []
+            }
+          }
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "source_sha": "29dbecef14f077cfc4cefffdf3bc6f29379e6ab0",
+          "blob": "48908cebc44656fc6b22105d8d7a99d3acf915b6",
+          "bytes": 26353,
+          "sha256": "0f3787add5620fe4c1c62a7c1c5dba2d3c7c48f685c16c9a6f4d48230731b83f",
+          "classes": {
+            "BudgetLedgerWriter": {
+              "methods": [],
+              "annotated_fields": [
+                "host_id",
+                "writer_id",
+                "pid"
+              ]
+            },
+            "BudgetLedgerMutation": {
+              "methods": [],
+              "annotated_fields": [
+                "revision",
+                "operation",
+                "key",
+                "amount",
+                "applied_amount",
+                "provider",
+                "reserved",
+                "writer",
+                "committed_at"
+              ]
+            },
+            "BudgetLedgerSpendReceipt": {
+              "methods": [],
+              "annotated_fields": [
+                "event_id",
+                "payload_digest",
+                "key",
+                "amount",
+                "provider",
+                "revision",
+                "committed_at"
+              ]
+            },
+            "BudgetLedgerSettlementOutcomeUnknownError": {
+              "methods": [
+                "__init__"
+              ],
+              "annotated_fields": []
+            },
+            "BudgetLedgerSnapshot": {
+              "methods": [],
+              "annotated_fields": [
+                "schema_version",
+                "canonical_contract",
+                "coordination_mode",
+                "ledger_id",
+                "revision",
+                "updated_at",
+                "last_writer",
+                "recent_mutations",
+                "state",
+                "spend_receipts"
+              ]
+            },
+            "BudgetLedgerMutationResult": {
+              "methods": [],
+              "annotated_fields": [
+                "state",
+                "revision",
+                "applied_amount",
+                "reserved"
+              ]
+            },
+            "BudgetLedger": {
+              "methods": [
+                "settlement_owner_identity",
+                "load",
+                "snapshot",
+                "load_or_bootstrap",
+                "record_spend",
+                "reserve",
+                "release",
+                "commit_reservation",
+                "settle_spend",
+                "resolve_spend"
+              ],
+              "annotated_fields": []
+            },
+            "FileBudgetLedger": {
+              "methods": [
+                "__init__",
+                "load",
+                "settlement_owner_identity",
+                "snapshot",
+                "load_or_bootstrap",
+                "record_spend",
+                "reserve",
+                "release",
+                "commit_reservation",
+                "settle_spend",
+                "resolve_spend",
+                "_file_lock",
+                "_mutate",
+                "_load_snapshot",
+                "_persist_snapshot",
+                "_build_snapshot",
+                "_build_mutation",
+                "_normalize_snapshot",
+                "_needs_contract_upgrade"
+              ],
+              "annotated_fields": []
+            }
+          }
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/context.py",
+          "source_sha": "29dbecef14f077cfc4cefffdf3bc6f29379e6ab0",
+          "blob": "938e25daf571f2b95e50f40b421fe16f3f21892e",
+          "bytes": 3822,
+          "sha256": "af6ed089cbc85b13730b640dfe089504f61dfa2a21d296744ede3f18920c7375",
+          "classes": {
+            "FoundryPort": {
+              "methods": [
+                "compile",
+                "execute"
+              ],
+              "annotated_fields": []
+            },
+            "FabricPort": {
+              "methods": [
+                "snapshot"
+              ],
+              "annotated_fields": []
+            },
+            "ScholarPort": {
+              "methods": [
+                "enrich"
+              ],
+              "annotated_fields": []
+            },
+            "LexPort": {
+              "methods": [
+                "evaluate"
+              ],
+              "annotated_fields": []
+            },
+            "Tracer": {
+              "methods": [
+                "start_as_current_span"
+              ],
+              "annotated_fields": []
+            },
+            "ExecutionContext": {
+              "methods": [],
+              "annotated_fields": [
+                "store",
+                "run",
+                "logger",
+                "tracer",
+                "metrics",
+                "audit",
+                "depth",
+                "fabric",
+                "foundry",
+                "scholar",
+                "lex",
+                "memory",
+                "eval_safety_execution_context",
+                "eval_safety_verifier",
+                "epoch_certificate_issuance_owner",
+                "prepared_skg_read"
+              ]
+            },
+            "ClaimCapableExecutionContext": {
+              "methods": [],
+              "annotated_fields": [
+                "claim_ledger_owner"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "source_sha": "dae863be52dc612e7ccef8b52a542159ca69e330",
+      "tree": "6bfdd861109ad189ce4ed583f52e062d0ad53c6f",
+      "files": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+          "source_sha": "dae863be52dc612e7ccef8b52a542159ca69e330",
+          "blob": "9ec1ef8622779386ff7740df58781caa9643c9d4",
+          "bytes": 4060,
+          "sha256": "b4f23451fcb1eb71ba5cc26b2d985c71e5fe71093aba73c4a4eadb82292e7952",
+          "classes": {
+            "BudgetMiddleware": {
+              "methods": [
+                "__init__",
+                "budget_state",
+                "pre_check",
+                "check_thresholds",
+                "record_spend_safe",
+                "reserve_safe",
+                "release_safe",
+                "commit_safe"
+              ],
+              "annotated_fields": []
+            }
+          }
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "source_sha": "dae863be52dc612e7ccef8b52a542159ca69e330",
+          "blob": "4a223413b8f81a07db4e11fd2aa310a615123b62",
+          "bytes": 15990,
+          "sha256": "5930d2decb1f8f952237aa02d542f0e7a162bfc053c139a835248d0f3cbe23dc",
+          "classes": {
+            "BudgetLedgerWriter": {
+              "methods": [],
+              "annotated_fields": [
+                "host_id",
+                "writer_id",
+                "pid"
+              ]
+            },
+            "BudgetLedgerMutation": {
+              "methods": [],
+              "annotated_fields": [
+                "revision",
+                "operation",
+                "key",
+                "amount",
+                "applied_amount",
+                "provider",
+                "reserved",
+                "writer",
+                "committed_at"
+              ]
+            },
+            "BudgetLedgerSnapshot": {
+              "methods": [],
+              "annotated_fields": [
+                "schema_version",
+                "canonical_contract",
+                "coordination_mode",
+                "ledger_id",
+                "revision",
+                "updated_at",
+                "last_writer",
+                "recent_mutations",
+                "state"
+              ]
+            },
+            "BudgetLedgerMutationResult": {
+              "methods": [],
+              "annotated_fields": [
+                "state",
+                "revision",
+                "applied_amount",
+                "reserved"
+              ]
+            },
+            "BudgetLedger": {
+              "methods": [
+                "load",
+                "snapshot",
+                "load_or_bootstrap",
+                "record_spend",
+                "reserve",
+                "release",
+                "commit_reservation"
+              ],
+              "annotated_fields": []
+            },
+            "FileBudgetLedger": {
+              "methods": [
+                "__init__",
+                "load",
+                "snapshot",
+                "load_or_bootstrap",
+                "record_spend",
+                "reserve",
+                "release",
+                "commit_reservation",
+                "_file_lock",
+                "_mutate",
+                "_read_snapshot_from_fd",
+                "_load_snapshot",
+                "_persist_snapshot",
+                "_build_snapshot",
+                "_build_mutation",
+                "_normalize_snapshot",
+                "_needs_contract_upgrade"
+              ],
+              "annotated_fields": []
+            }
+          }
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/context.py",
+          "source_sha": "dae863be52dc612e7ccef8b52a542159ca69e330",
+          "blob": "938e25daf571f2b95e50f40b421fe16f3f21892e",
+          "bytes": 3822,
+          "sha256": "af6ed089cbc85b13730b640dfe089504f61dfa2a21d296744ede3f18920c7375",
+          "classes": {
+            "FoundryPort": {
+              "methods": [
+                "compile",
+                "execute"
+              ],
+              "annotated_fields": []
+            },
+            "FabricPort": {
+              "methods": [
+                "snapshot"
+              ],
+              "annotated_fields": []
+            },
+            "ScholarPort": {
+              "methods": [
+                "enrich"
+              ],
+              "annotated_fields": []
+            },
+            "LexPort": {
+              "methods": [
+                "evaluate"
+              ],
+              "annotated_fields": []
+            },
+            "Tracer": {
+              "methods": [
+                "start_as_current_span"
+              ],
+              "annotated_fields": []
+            },
+            "ExecutionContext": {
+              "methods": [],
+              "annotated_fields": [
+                "store",
+                "run",
+                "logger",
+                "tracer",
+                "metrics",
+                "audit",
+                "depth",
+                "fabric",
+                "foundry",
+                "scholar",
+                "lex",
+                "memory",
+                "eval_safety_execution_context",
+                "eval_safety_verifier",
+                "epoch_certificate_issuance_owner",
+                "prepared_skg_read"
+              ]
+            },
+            "ClaimCapableExecutionContext": {
+              "methods": [],
+              "annotated_fields": [
+                "claim_ledger_owner"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "available_contract": "BudgetMiddleware.budget_state reads the configured recorded state; current282/adapters29d identity is public, runtime dae identity absent. FileBudgetLedger.snapshot() already returns typed BudgetLedgerSnapshot, but no checked middleware profile exposes a public snapshot delegate. Checked ExecutionContext has no budget field.",
+  "requested_minimum": {
+    "source_path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+    "existing_supplier_type": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py:BudgetLedgerSnapshot",
+    "proposed_signature": "owner-chosen public budget snapshot method -> BudgetLedgerSnapshot | None",
+    "semantics": "Read the already configured ledger snapshot under middleware lock, without a second ledger parameter. Memory profile returns explicit unavailable snapshot/None, not a synthetic durable ledger, revision or receipt. Delegate must preserve schema/ledger/contract/revision/spend_receipts from one canonical supplier view.",
+    "test_path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_middleware.py",
+    "acceptance": "Actual FileBudgetLedger settlement/reopen through a fresh configured middleware returns the same typed snapshot revision and immutable event receipt; another real writer updates recorded spend and revision; unsupported/corrupt supplier schema refuses; memory accounting has no synthetic receipt/revision. D consumes only the public port and preserves cost-origin unavailability until separately supplied."
+  },
+  "D_consumer_paths": [
+    "policy-engine/src/polisyos/scientist/methods/search/controller.py:_refresh_budget_snapshot",
+    "policy-engine/src/polisyos/scientist/methods/search/run_state.py:budget_evidence",
+    "policy-engine/src/polisyos/scientist/methods/search/stopping.py:CostBudgetStopping"
+  ],
+  "actual_current_consumer": "Public recorded-state scalar and optional public owner identity; recorded_by_provider aggregate. ledger revision/receipt and provider cost-origin unavailable. Configured middleware remains the owner; no private _ledger access, new ledger, producer billing/source authority or run attribution invented.",
+  "limits": [
+    "No published B producer changes requested or made here.",
+    "A typed receipt amount/provider alone does not establish provider-reported cost origin.",
+    "This packet is a missing supplier contract, not a PASSED combined snapshot consumer."
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "receipt_commit": "510507325975f137d3fe9cc5a76aca1cedc303d4",
+  "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-final.json",
+  "receipt_sha256": "0fc141ce8d19eedc6d8c1992e9f3606e416a56d038447bf61e1550ac3ba5a6d7",
+  "checked_git_bindings": [
+    {
+      "pointer": "/deciding_outputs/affected_green",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-affected-green.txt",
+      "sha256": "0647772224174713e6766e97ab63014e559583a7b0f63d34892f026085077485",
+      "matching_git_sources": [
+        "510507325975f137d3fe9cc5a76aca1cedc303d4"
+      ]
+    },
+    {
+      "pointer": "/deciding_outputs/affected_red_fixture",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-affected-red-fixture.txt",
+      "sha256": "f30a3dbfe87adadf7224e25c8063cc0564b8062ff265ed995f7cc62396754f0a",
+      "matching_git_sources": [
+        "510507325975f137d3fe9cc5a76aca1cedc303d4"
+      ]
+    },
+    {
+      "pointer": "/deciding_outputs/composed_native",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-composed-native.txt",
+      "sha256": "51cf6aec88c21f5706924863afc11341238dd605390e420c10d62adf51593d6f",
+      "matching_git_sources": [
+        "510507325975f137d3fe9cc5a76aca1cedc303d4"
+      ]
+    },
+    {
+      "pointer": "/deciding_outputs/composed_producer",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-composed-producer.txt",
+      "sha256": "ba3def62e1ec2f99f802e08f6c6abdef19e0258e4cf1aa1947405fff6b1aa7e6",
+      "matching_git_sources": [
+        "510507325975f137d3fe9cc5a76aca1cedc303d4"
+      ]
+    },
+    {
+      "pointer": "/deciding_outputs/paid_sentinel",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-paid-sentinel.txt",
+      "sha256": "5eff5a5b13adf07073ef19564dee1b74bdf82c23d8f771816a4eff0c00ed053d",
+      "matching_git_sources": [
+        "510507325975f137d3fe9cc5a76aca1cedc303d4"
+      ]
+    },
+    {
+      "pointer": "/deciding_outputs/baseline_worker_negative",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-baseline-worker-negative.txt",
+      "sha256": "b4dd501ba8d2d510482905acd3d85be24b4d4c1ca5f7c4731ac139d6a4d954e7",
+      "matching_git_sources": [
+        "510507325975f137d3fe9cc5a76aca1cedc303d4"
+      ]
+    },
+    {
+      "pointer": "/deciding_outputs/projection_owner_red",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-projection-owner-red.txt",
+      "sha256": "687ed5baf964246b5f1b828216ffeb09cf050b0fc76357b8d752e1b670d8e336",
+      "matching_git_sources": [
+        "510507325975f137d3fe9cc5a76aca1cedc303d4"
+      ]
+    },
+    {
+      "pointer": "/deciding_outputs/projection_corrective_green",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-projection-corrective-green.txt",
+      "sha256": "24009a6cded6923b9c8ec7f6b4f4be0a4753db28fa4ff466f6a4b2617450cd26",
+      "matching_git_sources": [
+        "510507325975f137d3fe9cc5a76aca1cedc303d4"
+      ]
+    },
+    {
+      "pointer": "/deciding_outputs/canonical_promotion_green",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-canonical-promotion-green.txt",
+      "sha256": "1f3a3309271ae46e7195a17ef95dead062a1c6d874688944cff2bd6259078d5a",
+      "matching_git_sources": [
+        "510507325975f137d3fe9cc5a76aca1cedc303d4"
+      ]
+    },
+    {
+      "pointer": "/probe_input",
+      "path": "policy-engine/tests/integration/scientist/methods/search/funnel/producer_bridge_probe.py",
+      "sha256": "49d49c6fce0443a4c8ff84b90406cde16d329b36d21ebc8dd7ee92f260f143f0",
+      "matching_git_sources": [
+        "653ba2ac07b9bb67310175f428c9433c22d427ae",
+        "510507325975f137d3fe9cc5a76aca1cedc303d4"
+      ]
+    },
+    {
+      "pointer": "/binding_verification",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-handoff-check.txt",
+      "sha256": "e0f336fa253d07dee9774c2b359afdb346bb96618be6365e0dc11e8315071fe3",
+      "matching_git_sources": [
+        "510507325975f137d3fe9cc5a76aca1cedc303d4"
+      ]
+    },
+    {
+      "pointer": "/independent_funnel_review",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-independent.json",
+      "sha256": "6ead1d66ea081c676a8c0ea29d1ff5fe3d9dfc0195924996bcb5d7bdadb98164",
+      "matching_git_sources": [
+        "537dd9d8d30179a525da70b6822176b455026273"
+      ]
+    }
+  ],
+  "external_path_scope": [],
+  "result": "PASS metadata hashes/bytes only; no runtime or finding verdict"
+}

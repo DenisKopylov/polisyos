@@ -1,0 +1,22 @@
+{
+  "schema": "D.current-capability.authority-bridge-clarification.v1",
+  "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "sealed_accounting_manifest_sha256": "ae51035f25c33b127be459fd582b192ed40bece4b9a7a44953c82b33ddf32c45",
+  "superseded_current_label_pointers": [
+    "owner-inputs.json#/packets/key=typed_write_permit/capability_state_label",
+    "ledger-overlay.json#/owner_packets/key=typed_write_permit/capability_state_label",
+    "ledger-overlay.json#/occurrences/id=B164@FUN-03/qualification/capability_state_label",
+    "taskboard.json#B164@FUN-03/residual/capability_state_label"
+  ],
+  "primary_current_capability_label": "not_established",
+  "reason": "The real purpose-bound issuer/current verifier/commit owner is not appointed and no actual issued positive permit/source refs are available. An existing typed authority chain has not been established, so bridge_missing must not imply one exists.",
+  "D_consumer_bridge_requirement": "Conditional: after actual owner/current typed chain is supplied, its binding and serialized revoke/effect bridge remains the requested integration contract. No authority subsystem or synthetic valid permit is introduced.",
+  "historical_label_preserved_as_provenance": "bridge_missing in immutable older packets; original minimum requested content is unchanged.",
+  "finding": "B164",
+  "finding_disposition_proposal": "held",
+  "valid_owner_positive_check": "UNRUN",
+  "formal_closed": false,
+  "accepted_in_G": false,
+  "changes_source_test_or_counts": false,
+  "read_rule": "This append-only current capability clarification supersedes only the indicated current label interpretation; sealed original texts, packet content and all deciding outputs stay unchanged."
+}

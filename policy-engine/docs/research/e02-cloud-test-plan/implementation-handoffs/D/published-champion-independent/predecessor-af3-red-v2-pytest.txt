@@ -1,0 +1,145 @@
+{"challenger_guardrails": {"no_divergence": true, "uncertainty_not_worse": true}, "challenger_metrics": {"aggregate_fit_quality": 0.8763636363636363, "divergence_rate": 0.0, "runtime_cost_score": 1.0, "sample_count": 1.0, "uncertainty_conditioning_score": 0.6000000000000001}, "competing_metrics": {"aggregate_fit_quality": 0.5258064516129032, "divergence_rate": 0.0, "runtime_cost_score": 1.0, "sample_count": 1.0, "uncertainty_conditioning_score": 1.0}, "competing_ref": {"artifact_id": "sha256:64c8f91738d8684d2d21bf6219921ffe9c6d2f833c02f74bdd535b244246f46e", "kind": "scientist.autotune.calibration_meta.candidate", "media_type": "application/json"}, "decision": {"champion": {"candidate_ref": {"artifact_id": "sha256:7a0fb85f0f66325eedc414f397260b41ec462ccbcf9487b7d290179d82fd99f1", "kind": "scientist.autotune.calibration_meta.candidate", "media_type": "application/json"}, "evaluation_ref": {"artifact_id": "sha256:a86cda8801c3c32c493c1d5367a0a89dd4c6aa0a21321963031f296b6dbd08ce", "kind": "scientist.autotune.calibration_meta.evaluation", "media_type": "application/json"}, "loop_id": "calibration_meta", "metadata": {"compare_split": "holdout", "promoted_by_policy": {"compare_split": "holdout", "direction": "maximize", "loop_id": "calibration_meta", "min_improvement": 0.0, "min_sample_count": 1, "primary_metric": "aggregate_fit_quality", "required_guardrails": ["no_divergence", "uncertainty_not_worse"]}, "suite_id": "independent-predecessor", "suite_ref": "sha256:72789866c3500a684b4de566bea6ee6febfd835bbd8637ed9da8f6ef7ebd50c9"}, "metrics": {"aggregate_fit_quality": 0.8763636363636363, "divergence_rate": 0.0, "runtime_cost_score": 1.0, "sample_count": 1.0, "uncertainty_conditioning_score": 0.6000000000000001}, "promoted_at": "2026-10-06T10:38:58.223766Z", "search_space_version": "1.0", "suite_version": "1.0"}, "loop_id": "calibration_meta", "previous_champion": {"candidate_ref": {"artifact_id": "sha256:64c8f91738d8684d2d21bf6219921ffe9c6d2f833c02f74bdd535b244246f46e", "kind": "scientist.autotune.calibration_meta.candidate", "media_type": "application/json"}, "evaluation_ref": {"artifact_id": "sha256:2148f02b98509875505aa35b1439d66a3476af469620fea641509759e81dfd17", "kind": "scientist.autotune.calibration_meta.evaluation", "media_type": "application/json"}, "loop_id": "calibration_meta", "metadata": {"compare_split": "holdout", "promoted_by_policy": {"compare_split": "holdout", "direction": "maximize", "loop_id": "calibration_meta", "min_improvement": 0.0, "min_sample_count": 1, "primary_metric": "aggregate_fit_quality", "required_guardrails": ["no_divergence", "uncertainty_not_worse"]}, "suite_id": "independent-predecessor", "suite_ref": "sha256:72789866c3500a684b4de566bea6ee6febfd835bbd8637ed9da8f6ef7ebd50c9"}, "metrics": {"aggregate_fit_quality": 0.5258064516129032, "divergence_rate": 0.0, "runtime_cost_score": 1.0, "sample_count": 1.0, "uncertainty_conditioning_score": 1.0}, "promoted_at": "2026-10-06T10:38:58.177221Z", "search_space_version": "1.0", "suite_version": "1.0"}, "promoted": true, "reason": "promoted"}, "observed_ref": {"artifact_id": "sha256:7a0fb85f0f66325eedc414f397260b41ec462ccbcf9487b7d290179d82fd99f1", "kind": "scientist.autotune.calibration_meta.candidate", "media_type": "application/json"}, "predecessor_ref": {"artifact_id": "sha256:2a4300e9660b446ff3cc4974fa257d3d9688183f0a43c1aa73280a00cd994958", "kind": "scientist.autotune.calibration_meta.candidate", "media_type": "application/json"}}
+F
+=================================== FAILURES ===================================
+__ test_real_calibration_guardrails_cannot_change_predecessor_mid_evaluation ___
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-234/test_real_calibration_guardrai0')
+
+    def test_real_calibration_guardrails_cannot_change_predecessor_mid_evaluation(tmp_path) -> None:
+        dataset = tmp_path / "cases.jsonl"
+        dataset.write_text('{"case_id":"selection"}\n{"case_id":"holdout"}\n')
+        split = tmp_path / "split.json"
+        split.write_text(
+            BenchmarkSplitManifest(
+                suite_id="independent-predecessor",
+                id_field="case_id",
+                selection_ids=["selection"],
+                holdout_ids=["holdout"],
+            ).model_dump_json()
+        )
+        store = FileSystemCAS(tmp_path / "cas")
+        registry_root = tmp_path / "registry"
+        registry = ChampionRegistry(root=registry_root, store=store)
+        suite = persist_benchmark_suite(
+            store,
+            BenchmarkSuite(
+                suite_id="independent-predecessor",
+                kind="calibration_meta",
+                dataset_path=str(dataset),
+                split_manifest_path=str(split),
+            ),
+        )
+        entered = Event()
+        released = Event()
+        results = []
+        errors = []
+    
+        def actual_runner(row, config, context):
+            del context
+            if config.learning_rate == 0.03 and row["case_id"] == "selection":
+                entered.set()
+                assert released.wait(20), "competing native writer did not release the barrier"
+            rmse, condition = {
+                0.01: (10.0, 10.0),
+                0.02: (1.0, 1.0),
+                0.03: (0.0, 10 ** (2 / 3)),
+            }[config.learning_rate]
+            return CalibrationReport(
+                total_loss=rmse,
+                fit_quality=CalibrationFitQuality(
+                    aggregate=CalibrationFitMetrics(mse=rmse**2, rmse=rmse, mae=rmse, r2=0.9, n=5)
+                ),
+                uncertainties=CalibrationUncertainty(hessian_condition=condition),
+                execution_context={"runtime_seconds": 0.0},
+            )
+    
+        def run(learning_rate):
+            return SearchLoopRunner(store=store, registry=registry).run(
+                SearchLoopSpec(
+                    loop_id="calibration_meta",
+                    mutation_codec=PydanticMutationCodec(CalibrationMetaSearchConfig),
+                    candidate_generator=SequenceCandidateGenerator(
+                        [CalibrationMetaSearchConfig(learning_rate=learning_rate)]
+                    ),
+                    benchmark_evaluator=CalibrationMetaEvaluator(store=store, registry=registry),
+                    promotion_policy=default_calibration_policy(),
+                ),
+                suite_ref=suite,
+                context={"calibration_runner": actual_runner},
+                max_iterations=1,
+            )
+    
+        assert run(0.01).iterations_completed == 1
+        predecessor = registry.get("calibration_meta")
+        assert predecessor is not None
+    
+        def evaluate_challenger():
+            try:
+                results.append(run(0.03))
+            except BaseException as error:
+                errors.append(error)
+    
+        worker = Thread(target=evaluate_challenger)
+        worker.start()
+        try:
+            assert entered.wait(20), "actual challenger did not reach the case barrier"
+            assert run(0.02).iterations_completed == 1
+            competing = registry.get("calibration_meta")
+            assert competing is not None
+            assert competing.candidate_ref != predecessor.candidate_ref
+        finally:
+            released.set()
+            worker.join(20)
+        assert not worker.is_alive()
+        assert not errors
+        assert len(results) == 1
+        assert results[0].iterations_completed == 1
+        stage_b = results[0].history[0].stage_b_result
+        assert stage_b is not None
+        challenger = load_model_artifact(
+            store, stage_b["simulation_results"]["evaluation_ref"], BenchmarkEvaluation
+        )
+        competing_evaluation = load_model_artifact(store, competing.evaluation_ref, BenchmarkEvaluation)
+        fresh = ChampionRegistry(root=registry_root, store=FileSystemCAS(tmp_path / "cas"))
+        observed = fresh.get("calibration_meta")
+        assert observed is not None
+        print(
+            json.dumps(
+                {
+                    "predecessor_ref": predecessor.candidate_ref.model_dump(mode="json"),
+                    "competing_ref": competing.candidate_ref.model_dump(mode="json"),
+                    "observed_ref": observed.candidate_ref.model_dump(mode="json"),
+                    "challenger_metrics": challenger.holdout_metrics,
+                    "competing_metrics": competing_evaluation.holdout_metrics,
+                    "challenger_guardrails": challenger.guardrails,
+                    "decision": stage_b["feedback"]["promotion_decision"],
+                },
+                sort_keys=True,
+            )
+        )
+        assert (
+            challenger.holdout_metrics["aggregate_fit_quality"]
+            > (competing_evaluation.holdout_metrics["aggregate_fit_quality"])
+        )
+        # Condition10**(2/3) has uncertainty score .6; condition1 has score1.
+        # A higher primary fit cannot authorize weakening the real incumbent's
+        # uncertainty guardrail by .4 when the declared allowance is only .05.
+        assert challenger.holdout_metrics["uncertainty_conditioning_score"] < (
+            competing_evaluation.holdout_metrics["uncertainty_conditioning_score"] - 0.05
+        )
+>       assert observed.candidate_ref == competing.candidate_ref
+E       assert ArtifactRef(a...e_sha256=None) == ArtifactRef(a...e_sha256=None)
+E         
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/autotune/test_q3_independent_predecessor.py:158: AssertionError
+=============================== warnings summary ===============================
+../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/autotune/test_q3_independent_predecessor.py::test_real_calibration_guardrails_cannot_change_predecessor_mid_evaluation
+1 failed, 2 warnings in 11.43s

@@ -1,0 +1,130 @@
+{
+  "source_sha": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+  "interpreter": "/workspace/e02-D-locked-env/bin/python",
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "exitstatus_before_origin_guard": 0,
+  "source_cells": [
+    {
+      "module": "polisyos.scientist.methods.search.frontier",
+      "origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+      "git_path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+      "bytes": 8407,
+      "sha256": "9b25db434f925ed289e4fa6531eb39c65cf3a6b5f8b150641a3e43568f706a87",
+      "expected_sha256": "9b25db434f925ed289e4fa6531eb39c65cf3a6b5f8b150641a3e43568f706a87",
+      "status": "MATCH"
+    },
+    {
+      "module": "polisyos.scientist.methods.search.objective",
+      "origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/methods/search/objective.py",
+      "git_path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+      "bytes": 10078,
+      "sha256": "940c84a3425e8ed1e93de2eae881100fd88a49dd978a108e5d78e5f2fa5fe17c",
+      "expected_sha256": "940c84a3425e8ed1e93de2eae881100fd88a49dd978a108e5d78e5f2fa5fe17c",
+      "status": "MATCH"
+    },
+    {
+      "module": "polisyos.scientist.methods.autotune.bayesian_generator",
+      "origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "git_path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "bytes": 21632,
+      "sha256": "24d627c7b358f7b5b4d23bcc5bc8601645a46c5bf66923497ca811fdf61e545c",
+      "expected_sha256": "24d627c7b358f7b5b4d23bcc5bc8601645a46c5bf66923497ca811fdf61e545c",
+      "status": "MATCH"
+    },
+    {
+      "module": "polisyos.scientist.methods.search.controller",
+      "origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "git_path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "bytes": 52122,
+      "sha256": "eb42bb8709756ba14f7e5ecdbaf4b7e30d204b3bb776fc545f9c50a641d9e8c3",
+      "expected_sha256": "eb42bb8709756ba14f7e5ecdbaf4b7e30d204b3bb776fc545f9c50a641d9e8c3",
+      "status": "MATCH"
+    },
+    {
+      "module": "polisyos.scientist.methods.search.service",
+      "origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "git_path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "bytes": 11808,
+      "sha256": "1c822301ed87e8008661c0d0ff558dfc15dab2d437de069636b313da987e9428",
+      "expected_sha256": "1c822301ed87e8008661c0d0ff558dfc15dab2d437de069636b313da987e9428",
+      "status": "MATCH"
+    },
+    {
+      "module": "polisyos.scientist.methods.search.strategies.bayesian",
+      "origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "git_path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+      "bytes": 48512,
+      "sha256": "ce9ff64af3438d4485c654e220b8d0a5d84ce90623e0e9a6a63e7ae8baf715c6",
+      "expected_sha256": "ce9ff64af3438d4485c654e220b8d0a5d84ce90623e0e9a6a63e7ae8baf715c6",
+      "status": "MATCH"
+    },
+    {
+      "module": "polisyos.core.llm.response",
+      "origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/core/llm/response.py",
+      "git_path": "policy-engine/src/polisyos/core/llm/response.py",
+      "bytes": 7900,
+      "sha256": "619b1932b93254b0c3853f479d0892caf982f39ceb68bc0d9cfa74f2b8ccbcbc",
+      "expected_sha256": "619b1932b93254b0c3853f479d0892caf982f39ceb68bc0d9cfa74f2b8ccbcbc",
+      "status": "MATCH"
+    },
+    {
+      "module": "polisyos.scientist.orchestration.llm.gateway_client",
+      "origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "git_path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "bytes": 28121,
+      "sha256": "43ddf80278eef25a761bfcba103947d34769d4d32a9b804cb480c9b25c639da7",
+      "expected_sha256": "43ddf80278eef25a761bfcba103947d34769d4d32a9b804cb480c9b25c639da7",
+      "status": "MATCH"
+    },
+    {
+      "module": "polisyos.scientist.orchestration.llm.budget_enforcer",
+      "origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "git_path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "bytes": 21033,
+      "sha256": "72634b2475b861190b9d00c2339d58784d3ccf88c7dfb976b68d877a1641d35b",
+      "expected_sha256": "72634b2475b861190b9d00c2339d58784d3ccf88c7dfb976b68d877a1641d35b",
+      "status": "MATCH"
+    },
+    {
+      "module": "polisyos.scientist.orchestration.engine.budget_middleware",
+      "origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "git_path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "bytes": 6361,
+      "sha256": "9f35f68061d1a6a38d3d8725866fd0c4df9581f361f23d88fa8d6d5e0dc27ac7",
+      "expected_sha256": "9f35f68061d1a6a38d3d8725866fd0c4df9581f361f23d88fa8d6d5e0dc27ac7",
+      "status": "MATCH"
+    },
+    {
+      "module": "polisyos.scientist.orchestration.engine.budget_ledger",
+      "origin": "/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "git_path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "bytes": 27862,
+      "sha256": "2249df49d8fe86c96a9d1bcec8336c7f62294573a70160ff4513ea9360ff3773",
+      "expected_sha256": "2249df49d8fe86c96a9d1bcec8336c7f62294573a70160ff4513ea9360ff3773",
+      "status": "MATCH"
+    }
+  ],
+  "origin_failures": [],
+  "backend_modules_actually_loaded": {
+    "torch": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/__init__.py",
+    "botorch": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/__init__.py",
+    "gpytorch": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/gpytorch/__init__.py",
+    "numpy": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/numpy/__init__.py",
+    "scipy": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/scipy/__init__.py"
+  },
+  "environment": {
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null,
+    "VECLIB_MAXIMUM_THREADS": null,
+    "BLIS_NUM_THREADS": null,
+    "POLISYOS_PYTEST_WORKERS": null,
+    "POLISYOS_PYTEST_DIST": null,
+    "POLISYOS_TORCH_NUM_THREADS": null,
+    "POLISYOS_TORCH_INTEROP_THREADS": null,
+    "XLA_FLAGS": null,
+    "PYTEST_ADDOPTS": null
+  },
+  "origin_guard": "Every one of11 named actual loaded native modules must be within frozen root and byte-equal to exact Git source; no replacement import/model/consumer."
+}

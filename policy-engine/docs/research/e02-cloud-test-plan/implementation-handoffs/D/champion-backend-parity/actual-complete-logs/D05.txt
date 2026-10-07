@@ -1,0 +1,13 @@
+
+> @polisyos/runtime-dashboard@0.1.0 contracts:verify /workspace/e02-D-published-root/policy-engine/apps/runtime-dashboard
+> node ./scripts/verify-runtime-contracts.mjs
+
+
+ RUN  v4.1.5 /workspace/e02-D-published-root/policy-engine/apps/runtime-dashboard
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  12:02:50
+   Duration  230.08s (transform 6.58s, setup 136.34s, import 3.10s, tests 346ms, environment 3.92s)
+

@@ -1,0 +1,81 @@
+{
+  "schema": "policyos.e02.D.independent-review.v1",
+  "reviewer": "numerical_oracle",
+  "slice": "truthful no-prior stress basis and original STR-01 engineering criteria",
+  "verdict": "PASS within the actual no-prior-report consumer property",
+  "closure_ids": [],
+  "source": "2af38d95e83cf3f1ab121c47ff8898f5a0920bec",
+  "tree": "9acd8a77a1018fecd3c6dca030eb1b9b387b4856",
+  "implementation": "c3a074b5d865815d8c1fa8227afcf967792109c1",
+  "payload": "29a7d8fe1971ae4cb9e18968179f9473d1661f0b",
+  "handoff": "f8ebe5f714d42398d07d9797f853c03553ec1603",
+  "source_review": {
+    "complete_defining_implementation_delta_read": true,
+    "complete200_line_native_probe_read": true,
+    "source_delta": "When no existing stress report can be loaded, the defining blueprint consumer creates schema1.1 with zero established base scenarios, base_total_scenarios_evaluated0 and base_scenario_basis unavailable. It preserves the existing typed vulnerability extraction, merge, recompute and actual schema-matched CAS persistence.",
+    "ordinary_Git_adoption": "Entire product src tree is byte-identical between eb826 and test-only2af. The changed no-prior implementation originates at c3 and is retained in both sources.",
+    "unknown_and_known_basis": "A typed32-case supplemental report retains its complete own32 denominator and one violation. It does not supply the missing base scenario basis; that explicit unknown component leaves the combined score unavailable and partial."
+  },
+  "deciding_runtime": {
+    "execution_owner": "baseline_census",
+    "reviewer_backend_runs": 0,
+    "positive": {
+      "cases": 2,
+      "outcome": "PASS",
+      "exit_code": 0,
+      "wall_seconds": 19.554849375999765,
+      "peak_rss_kib": 804996,
+      "function": "The actual unmodified blueprint._ensure_stress_test_report reference; positive mode does not compile or extract a replacement function."
+    },
+    "removal": {
+      "cases": 2,
+      "outcome": "expected FAIL",
+      "exit_code": 1,
+      "wall_seconds": 19.27716282599431,
+      "peak_rss_kib": 818932,
+      "mutation": "Only total_scenarios_evaluated0 and metadata.base_total_scenarios_evaluated0 are changed to1 in the actual defining function AST, then executed with the original module globals. All other AST fields match. Production files remain unchanged.",
+      "effect": "The empty report invents total1 instead of0; the supplemented report invents total33 instead of32. Both actual_count/no_invented_base_attempt checks fail, while schema1.1, matching CAS schema, unavailable score, partial status and unknown-base component checks still pass."
+    },
+    "actual_chain": "FileSystemCAS -> actual default registry bundle -> RunContext.start -> ExecutionContext -> typed policy evaluation -> real case adapter/suite producer where supplied -> actual blueprint consumer -> new FileSystemCAS -> full typed report and manifest readback.",
+    "empty": "Fresh report has total0/base0, no invented scenario evidence, robustness_scoreNone and partial/is_robustFalse.",
+    "supplemented": "32 explicitly declared case outcomes produce finite32/violated1, own observed fraction31/32 and high occurrence1. Fresh report has total32/base0, an explicit unknown base component, combined scoreNone and partial/is_robustFalse.",
+    "backend": "Root-provisioned DOE CPython3.14.7 environment. This consumer path has ordinary registry/context/case/CAS objects; it is not another GP fit or statistical performance replay.",
+    "no_added_CPU_limits": "Full probe and resource argv read: no CPU/thread/process/test-worker limits, no cleanup. Scientific32-case fixture is a declared input, not a worker cap."
+  },
+  "evidence_review": {
+    "payload_members_hash_size_verified": 4,
+    "explicit_handoff_Git_references_hash_size_verified": 28,
+    "actual_loaded_product_origins_verified_against_Git": {"positive": 8, "removal": 8},
+    "positive_function_source_and_hash_equal_Git": true,
+    "negative_AST_exact_two_constant_change_verified": true,
+    "source_before_after_SHA_verified": true,
+    "full_complete_positive_and_removal_outputs_read": true,
+    "verifier": "build-stress-absent-independent.py.txt",
+    "deciding_output": "stress-absent-independent-binding-output.json"
+  },
+  "original_criterion_recommendation": {
+    "B106@STR-01": {
+      "acceptance_sha256": "1d212bb12a7346fc8c2480723fddd43da874e2e1daa2d2070a6233ab75795d43",
+      "text": "**Приёмка.** Изменение `collect_top_k` не изменяет итог той же серии. Десять проявлений одной проблемы и одно проявление не смешиваются. При нулевом количестве оценённых сценариев или непроверенных условиях score не должен выглядеть установленной устойчивостью. При адаптивном/раннем прекращении доля в обследованном наборе не является автоматически вероятностью отказа во всём пространстве.",
+      "recommendation": "Supports closed_bounded_engineering on the original finite observed-stream criteria, subject to root accounting/admission. Earlier frozen counter/cap/grouping/unknown/early-stop/removal controls plus ee6 complete-component correction, the ordinary E-to-D probe and this actual zero-base consumer address the declared engineering properties."
+    },
+    "B107@STR-01": {
+      "acceptance_sha256": "83e4adcea92922a6991dbd16937e9dc47cca02d83f0beccf2eb7e2f43623e0a3",
+      "text": "**Приёмка.** Табличные контрпримеры для maximize-utility и minimize-cost, порога в обе стороны, отрицательных значений, отсутствующих/нечисленных результатов. Запись worst-case совпадает с определённым нарушением. Эта правка должна идти вместе с B106: правильный экстремум ещё не означает правильно посчитанную полноту/устойчивость.",
+      "recommendation": "Supports closed_bounded_engineering paired with B106, subject to root accounting/admission. The independently reviewed complete source/tests include both objective directions, threshold/sign/nonfinite/absent controls; the ordinary minimize-cost producer-consumer stream independently reconciles15 violations and worst2.5. This two-case absent-basis probe supplies no additional direction law."
+    },
+    "scope": "Population probability, scientific case truth, empirical product-performance history and deployed adoption remain excluded claims. The original finite engineering criteria do not add a mandatory generic production/history dataset. No finding closure or G acceptance is performed by this leaf."
+  },
+  "prior_independent_evidence": [
+    {"commit": "4f917d76bb7447ad1174eeef4c0b4f6fd55ddc01", "path": "continuation/stress82-independent-review.json", "scope": "Frozen82 counter/case/retry controls and explicit hold on then-present incomplete-component escape"},
+    {"commit": "5084a2f596a4478d3e5a15926010e23affe4976c", "path": "continuation/stress-correction-independent-review.json", "scope": "ee6 complete-component, schema-manifest and resource DTO correction;139/3 historical fixture error and unchanged-expectation4PASS retained separately"},
+    {"commit": "09598aa3a07694089499d7d11156248b39131e1b", "path": "continuation/stress-doe-independent-review.json", "scope": "Actual ordinary E-to-D finite stream38/15 and per-round admission, with three killed report runs retained UNRUN"}
+  ],
+  "limitations": [
+    "Positive mode invokes the actual defining consumer function with real ordinary framework objects. It does not run the whole node scheduling/funnel pipeline or authenticate the scientific truth of the supplied case outcomes.",
+    "The new completed direct consumer witness resolves the missing no-prior property evidence for its exact two inputs. It does not retroactively convert the three earlier killed pytest scopes into PASS or imply the whole challenge file completed.",
+    "The structured author handoff proposes bounded closure and retains closure_ids empty. This review recommends a bounded engineering disposition; root/G must adjudicate accounting and combined/local acceptance separately.",
+    "Required whole quality checks remain independently classified. Scoped runtime PASS does not waive B04/B19/B23, mypy failures/resource errors or any release gate.",
+    "No permanent deletion occurs. Captured before/after source and loaded file bindings are verified; the direct resource records do not capture final git status and no universal clean-status/transient-preservation claim is made."
+  ]
+}

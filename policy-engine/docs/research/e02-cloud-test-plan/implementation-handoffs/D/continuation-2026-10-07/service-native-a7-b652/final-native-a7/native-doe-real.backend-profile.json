@@ -1,0 +1,84 @@
+{
+  "argv_profile": "Exact native-doe-real python+PYTHONPATH, environment audit after actual13PASS; not another testcase execution",
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "executable": "/workspace/e02-D-locked-env/bin/python",
+  "sys_path": [
+    "",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine",
+    "/workspace/e02-D-locked-env/lib/python3.14/site-packages",
+    "/workspace/e02-D-doe-env/lib/python3.14/site-packages",
+    "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python314.zip",
+    "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14",
+    "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/lib-dynload"
+  ],
+  "packages": {
+    "torch": "2.10.0",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "SALib": "1.5.2",
+    "SALib.sample.morris": "1.5.2",
+    "SALib.analyze.morris": "1.5.2",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "pandas": "2.3.3",
+    "matplotlib": "3.10.8",
+    "multiprocess": "0.70.19",
+    "dill": "0.4.1",
+    "pytest": "9.0.2"
+  },
+  "imports": {
+    "torch": {
+      "path": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/__init__.py",
+      "sha256": "d6388b1e3b16c1f9a22a87898e5f205fa13a97bd65c163f4829a157e0d9d602f"
+    },
+    "botorch": {
+      "path": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/__init__.py",
+      "sha256": "448b14d019f28371eb2f116b1a035118203b8e3b325c1bba34681ad41f8e2b41"
+    },
+    "gpytorch": {
+      "path": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/gpytorch/__init__.py",
+      "sha256": "0ee8ea29d595cd3ec26b37abc93bbe98f8e293802ef85341b8f7faedf80572ee"
+    },
+    "SALib": {
+      "path": "/workspace/e02-D-doe-env/lib/python3.14/site-packages/SALib/__init__.py",
+      "sha256": "1a02129b6e01eac5a75de01d80ba02cd78caeff1cb25e04fd7403712a5039487"
+    },
+    "SALib.sample.morris": {
+      "path": "/workspace/e02-D-doe-env/lib/python3.14/site-packages/SALib/sample/morris/__init__.py",
+      "sha256": "78a1483593c5c278d8c0cba2b8256f58c3a032f7abb7e2d6ea9554a398d510ff"
+    },
+    "SALib.analyze.morris": {
+      "path": "/workspace/e02-D-doe-env/lib/python3.14/site-packages/SALib/analyze/morris.py",
+      "sha256": "c81b5aefc88fea6e2b18b70fca65e6efd7a7dc37db63970ed35bc2c80ad6dde5"
+    },
+    "numpy": {
+      "path": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/numpy/__init__.py",
+      "sha256": "93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38"
+    },
+    "scipy": {
+      "path": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/scipy/__init__.py",
+      "sha256": "a72412a5c62442876e073a01da1910c84b7214d1382380b71a873b470420dd68"
+    },
+    "pandas": {
+      "path": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/pandas/__init__.py",
+      "sha256": "108be8ca3ae1a2a5c765ee6f87e8867d87c2fb5a89107e6c2d3a6acc96612b7b"
+    },
+    "matplotlib": {
+      "path": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/matplotlib/__init__.py",
+      "sha256": "c6c47d1ecf25d7934f38c8a55c3b8e116d41aa08d8ecfa82f6ae8af589216a3a"
+    },
+    "multiprocess": {
+      "path": "/workspace/e02-D-doe-env/lib/python3.14/site-packages/multiprocess/__init__.py",
+      "sha256": "5d65010c6a2b5240d6d3887ae317b9d69515f4de60cef4838f7b4d4f67a489fc"
+    },
+    "dill": {
+      "path": "/workspace/e02-D-doe-env/lib/python3.14/site-packages/dill/__init__.py",
+      "sha256": "63cbac9f3a5fb1c949c53e93bd16066ab117916117a6bbf8942d992746c63366"
+    },
+    "pytest": {
+      "path": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/pytest/__init__.py",
+      "sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766"
+    }
+  }
+}

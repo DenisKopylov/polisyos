@@ -1,0 +1,95 @@
+id = "2026-10-07-search-state-and-native-factory"
+title = "Admit search continuation before changing live state"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-runtime"
+change_class = "persisted-artifact-format"
+surface_classification = "internal: internal-only"
+summary = "Native scalar factory continuation preserves its proposal policy, sampler checkpoints refuse unrepresentable values atomically, Grid state binds the actual grid configuration, embedding convergence requires declared current measurements, native adapters preserve supported checkpoint custody, and canonical owner admission keeps unresolved charges unavailable."
+evidence = ["tests/unit/scientist/methods/search/test_sequence_generator_admission.py", "tests/unit/scientist/methods/search/test_service_factory_fault_resume.py", "tests/unit/scientist/methods/search/strategies/test_strategy_state.py", "tests/unit/scientist/methods/search/strategies/test_state_inventory.py", "tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py", "tests/unit/scientist/methods/search/test_strategy_adapter_factory_resume.py", "tests/unit/scientist/methods/search/test_controller_owner_admission.py"]
+compatibility = "Valid finite Base RNG/Sobol codecs and scalar StrategyAdapter policy remain unchanged. Grid continuation requires supported profile 1 and its original points/cutoff/space/size. Empty scalar Sequence configuration refuses explicitly; the existing batch-empty path remains supported. Embedding measurements require real finite coordinates and explicit nonblank model/version."
+migration = "Retain original checkpoints and refuse marker edits. For incomplete historical Grid or changed source-bound native factory checkpoints, use their recorded supported implementation for exact continuation or start an explicitly new run. Supply the actual owner model/revision for embedding convergence; do not fabricate a version."
+api = "Existing internal StrategyState and native factory/public resume entry points are retained. Topology selection initializes at its actual suggestion owner and preserves the existing handled unavailable result. No public facade or new optimizer is introduced."
+limitations = "Bounded native CAS/fresh-reader and deterministic model fixtures do not appoint a scientific evaluator, served production caller or embedding authority, and do not establish distributed atomicity. Missing optional numerical backends remain UNRUN for their numerical properties."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]
+runbook_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]
+
+[[compatibility_change]]
+id = "grid-checkpoint-profile-1"
+change_class = "persisted-artifact-format"
+impact = "breaking"
+surface = "internal: internal-only"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "Internal incomplete profiles refuse; retain their recorded implementation for exact continuation."
+release_note = "Unversioned Grid checkpoints lack cutoff/profile binding and refuse; supported profile 1 preserves the actual next grid subject and exhaustion boundary."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]
+runbook_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]
+
+[[compatibility_change]]
+id = "embedding-current-measurement-profile"
+change_class = "internal"
+impact = "breaking"
+surface = "internal: internal-only"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "Anonymous or unversioned measurements are unavailable until their owner declares actual identity and revision."
+release_note = "Implicit class-name and missing model-version labels no longer establish semantic convergence; recovery requires two fresh admitted measurements."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]
+runbook_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]
+
+[[compatibility_change]]
+id = "native-scalar-sequence-admission"
+change_class = "runtime-state-format"
+impact = "internal"
+surface = "internal: internal-only"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "not_applicable"
+release_note = "Empty scalar Sequence configuration refuses with a controlled ValueError while existing batch-empty lifecycle and scalar acquisition policy remain supported; source-bound native checkpoints retain their recorded-build compatibility rule."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]
+runbook_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]
+
+[[compatibility_change]]
+id = "native-adapter-supported-checkpoint-custody"
+change_class = "persisted-artifact-format"
+impact = "internal"
+surface = "internal: internal-only"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "Historical missing adapter state cannot reconstruct a continuation; retain its recorded build or start a new run."
+release_note = "Canonical Scalar/default-extractor adapters retain original strategy state and synchronized history custody; custom/no-state/non-file profiles keep live operation and explicitly refuse persisted resume. Grid batches retain a finite short remainder and their zero-count no-op."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]
+runbook_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]
+
+[[compatibility_change]]
+id = "search-checkpoint-finite-json-token-admission"
+change_class = "persisted-artifact-format"
+impact = "breaking"
+surface = "internal: internal-only"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "Unsupported numerical tokens refuse before restoration; retain original artifact and diagnostic."
+release_note = "Both native and nested strategy checkpoints refuse nonzero float underflow, overflow, nonfinite constants and unsupported exponent range before normalizing original bytes; genuine zero remains supported. Generic JSON and owner LLM parsers retain their contracts."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]
+runbook_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]
+
+[[compatibility_change]]
+id = "native-search-budget-admission-and-nullable-spend"
+change_class = "runtime-state-format"
+impact = "breaking"
+surface = "internal: internal-only"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "Old strict readers may reject None/admission; use the recorded reader and matching owner or an explicitly new run after resolution."
+release_note = "The existing canonical owner pre_check fences unresolved settlement before proposals. Run state preserves unavailable spend as None with an empty snapshot and typed admission evidence; initialized admitted zero and historical finite records remain distinct. B retains ledger schema and migration ownership."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]
+runbook_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]

@@ -1,0 +1,1411 @@
+{
+  "schema": "e02.cleanup.retained_candidates.v1",
+  "runtime_candidate": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+  "trash_capability": "Unavailable in cloud; no manual deletion or DIY trash substitute performed by root",
+  "candidates": [
+    {
+      "absolute_path": "/dev/shm/e02-D-backend-parity-review",
+      "exists_observed": true,
+      "action": "Retain; task-specific repeatable scratch/runtime candidate only. No native Trash available; no permanent cleanup authorized.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-backend-extension-243.json",
+            "bytes": 17075,
+            "sha256": "c3fe8929022d3d3be87f8bd28bab0c1a6d2e6e4cb5338fbec3616b7b3a8295ab"
+          },
+          "json_pointer": "/preservation/retained_cleanup_candidates/0"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/dev/shm/e02-D-final-FUN-03-aa57ce848f724932bb5f358be4db91a1",
+      "exists_observed": true,
+      "action": "Retain; task-specific repeatable scratch/runtime candidate only. No native Trash available; no permanent cleanup authorized."
+    },
+    {
+      "absolute_path": "/dev/shm/e02-D-final-OPT-01-3f663109e14341b9956afc4548d36a51",
+      "exists_observed": true,
+      "action": "Retain; task-specific repeatable scratch/runtime candidate only. No native Trash available; no permanent cleanup authorized."
+    },
+    {
+      "absolute_path": "/dev/shm/e02-D-funnel-c335-l6-e2272f805cf44ff38ff03af1e529515a",
+      "exists_observed": false,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-final.json",
+            "bytes": 51650,
+            "sha256": "0fc141ce8d19eedc6d8c1992e9f3606e416a56d038447bf61e1550ac3ba5a6d7"
+          },
+          "json_pointer": "/cleanup_deviation/retained_cleanup_candidates/10"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/dev/shm/e02-D-parity-env",
+      "exists_observed": true,
+      "action": "Retain; task-specific repeatable scratch/runtime candidate only. No native Trash available; no permanent cleanup authorized."
+    },
+    {
+      "absolute_path": "/dev/shm/e02-D-root-closeout",
+      "exists_observed": true,
+      "action": "Retain; task-specific repeatable scratch/runtime candidate only. No native Trash available; no permanent cleanup authorized."
+    },
+    {
+      "absolute_path": "/dev/shm/e02-D-root-partial-oracle-merge",
+      "exists_observed": true,
+      "action": "Retain; task-specific repeatable scratch/runtime candidate only. No native Trash available; no permanent cleanup authorized."
+    },
+    {
+      "absolute_path": "/dev/shm/e02-D-root-resource-0f889",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-base/root-resource-review.json",
+            "bytes": 20048,
+            "sha256": "2f61d6bcec93cea8d2707ba985ff5ff37bed1ab2a813938461af87442907daf6"
+          },
+          "json_pointer": "/cleanup_candidates/0"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/dev/shm/e02-D-root-wide-fixtures-2efe117dc58f4072aa60b18a77e4befe",
+      "exists_observed": true,
+      "action": "Retain; task-specific repeatable scratch/runtime candidate only. No native Trash available; no permanent cleanup authorized."
+    },
+    {
+      "absolute_path": "/dev/shm/e02-D2-transfer-composed-8eb",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/40/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/dev/shm/e02-D2-transfer-retention-final",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/39/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/dev/shm/e02-oracle-ebeb-uncapped7-b3637b7e35f344ac8b5a6e8ca7dc0206",
+      "exists_observed": false,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oracle-runtime-profile-supersession.json",
+            "bytes": 4253,
+            "sha256": "f4904e4a6bb639a2d35f99636a885dd2cbb3f0993590445d09e94bae67e5d769"
+          },
+          "json_pointer": "/cleanup_candidates/1"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/dev/shm/e02-oracle-final243-gp-transfer-744e953a05d046e7a98868197834ee61",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/root-243-gp-transfer-independent-review.json",
+            "bytes": 9183,
+            "sha256": "e7cab3ad98416ee911148564f3e98fe58a534ce32857730b7e241ba631e60ceb"
+          },
+          "json_pointer": "/cleanup_candidates/0"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/dev/shm/e02-oracle-final3f38-native142-0ab3369db8354882986a1e6979b1c818",
+      "exists_observed": true,
+      "action": "Retain; task-specific repeatable scratch/runtime candidate only. No native Trash available; no permanent cleanup authorized.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent-review.json",
+            "bytes": 18548,
+            "sha256": "6eef8f6aeedc2ecf99d177f570822b19ee7c4b5873163fc6b086b824b372aba9"
+          },
+          "json_pointer": "/preservation/scratch_cleanup_candidate"
+        },
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-independent-binding-and-current142-manifest.json",
+            "bytes": 3253,
+            "sha256": "14cb2e57292ead7aa462431269fca0201ff52c7335a387bf21d659e8df3d4add"
+          },
+          "json_pointer": "/cleanup_candidates/0"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/dev/shm/e02-oracle-fiscal-893/archive",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-893-independent-review.json",
+            "bytes": 10443,
+            "sha256": "61806ba1463d836915616bfb30721dc362f22b5bfe2edde5d07e2a85ffa50f56"
+          },
+          "json_pointer": "/cleanup_candidates/0"
+        },
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-893-independent-review.json",
+            "bytes": 7262,
+            "sha256": "ec98b761fd330e468927ccafaebd4c42d5eb389ba48b8bf12732d52e3d6c1724"
+          },
+          "json_pointer": "/cleanup_candidates/0"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/dev/shm/e02-oracle-legacy-425/archive",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-independent-review.json",
+            "bytes": 17656,
+            "sha256": "39a4256226c52bc41422e431587f031393d8aac1c8bb03de4741df6ceb3f4639"
+          },
+          "json_pointer": "/cleanup_candidates/0"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/dev/shm/e02-oracle-resource-c8aafea/archive",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-settlement-c8aafea-independent-review.json",
+            "bytes": 8987,
+            "sha256": "549b8385944e6106663cc3f3e71f91a9627d07f88b40ef07470e6caffd80f433"
+          },
+          "json_pointer": "/cleanup_candidates/0"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/dev/shm/e02-oracle-search-cb47/archive",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-cb47-independent-review.json",
+            "bytes": 11342,
+            "sha256": "db32171b91a00f501b07e56668f175700cea2d72a567b61af960cd1612db1376"
+          },
+          "json_pointer": "/cleanup_candidates/0"
+        },
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-ebeb-independent-review.json",
+            "bytes": 15068,
+            "sha256": "2de03a0dacd605418e8898832bcf17f6e4e85e4d4dc854edc4e7507654d919ce"
+          },
+          "json_pointer": "/cleanup_candidates/1"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/dev/shm/e02-oracle-search-ebeb/archive",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-893-independent-review.json",
+            "bytes": 10443,
+            "sha256": "61806ba1463d836915616bfb30721dc362f22b5bfe2edde5d07e2a85ffa50f56"
+          },
+          "json_pointer": "/cleanup_candidates/1"
+        },
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-ebeb-independent-review.json",
+            "bytes": 7298,
+            "sha256": "576f26fd324f7efc26c6d8c39bb6e9595e163c265c471d4ec4676d1399a558c2"
+          },
+          "json_pointer": "/cleanup_candidates/0"
+        },
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oracle-runtime-profile-supersession.json",
+            "bytes": 4253,
+            "sha256": "f4904e4a6bb639a2d35f99636a885dd2cbb3f0993590445d09e94bae67e5d769"
+          },
+          "json_pointer": "/cleanup_candidates/0"
+        },
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-ebeb-independent-review.json",
+            "bytes": 15068,
+            "sha256": "2de03a0dacd605418e8898832bcf17f6e4e85e4d4dc854edc4e7507654d919ce"
+          },
+          "json_pointer": "/cleanup_candidates/0"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/dev/shm/search-A-apply-base-198-tunumfzo",
+      "exists_observed": true,
+      "action": "Retain; task-specific repeatable scratch/runtime candidate only. No native Trash available; no permanent cleanup authorized.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-q1-coverage.json",
+            "bytes": 93772,
+            "sha256": "061f3e72269ede805551ba64a84b03ef70767bd036c023c36bd54b3cd1eac49a"
+          },
+          "json_pointer": "/cleanup_candidates/0"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/dev/shm/search-canonical-frozen-659714afd0744956b0a9aab814656b74",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-q1-coverage.json",
+            "bytes": 93772,
+            "sha256": "061f3e72269ede805551ba64a84b03ef70767bd036c023c36bd54b3cd1eac49a"
+          },
+          "json_pointer": "/cleanup_candidates/4"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/dev/shm/search-canonical-paths-558ba78d8e8a401381bd0d873f91bfdb",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-q1-coverage.json",
+            "bytes": 93772,
+            "sha256": "061f3e72269ede805551ba64a84b03ef70767bd036c023c36bd54b3cd1eac49a"
+          },
+          "json_pointer": "/cleanup_candidates/3"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/dev/shm/search-mo-ebeb-f6ls6is6",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-q1-coverage.json",
+            "bytes": 93772,
+            "sha256": "061f3e72269ede805551ba64a84b03ef70767bd036c023c36bd54b3cd1eac49a"
+          },
+          "json_pointer": "/cleanup_candidates/2"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/dev/shm/search-pareto-12ee-ddxucvpe",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-q1-coverage.json",
+            "bytes": 93772,
+            "sha256": "061f3e72269ede805551ba64a84b03ef70767bd036c023c36bd54b3cd1eac49a"
+          },
+          "json_pointer": "/cleanup_candidates/1"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/dev/shm/search-release-425-mq1zsxkx",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-q1-coverage.json",
+            "bytes": 93772,
+            "sha256": "061f3e72269ede805551ba64a84b03ef70767bd036c023c36bd54b3cd1eac49a"
+          },
+          "json_pointer": "/cleanup_candidates/6"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/dev/shm/search-release-q1-_m63z3ja",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-q1-coverage.json",
+            "bytes": 93772,
+            "sha256": "061f3e72269ede805551ba64a84b03ef70767bd036c023c36bd54b3cd1eac49a"
+          },
+          "json_pointer": "/cleanup_candidates/5"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/tmp/e02-D-funnel-composed-9e592",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-final.json",
+            "bytes": 51650,
+            "sha256": "0fc141ce8d19eedc6d8c1992e9f3606e416a56d038447bf61e1550ac3ba5a6d7"
+          },
+          "json_pointer": "/cleanup_deviation/retained_cleanup_candidates/1"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/tmp/e02-D-funnel-stress-complete-fcdw2gom",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-final.json",
+            "bytes": 51650,
+            "sha256": "0fc141ce8d19eedc6d8c1992e9f3606e416a56d038447bf61e1550ac3ba5a6d7"
+          },
+          "json_pointer": "/cleanup_deviation/retained_cleanup_candidates/2"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/tmp/e02-D-funnel-stress-complete-ll83v0n_",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-final.json",
+            "bytes": 51650,
+            "sha256": "0fc141ce8d19eedc6d8c1992e9f3606e416a56d038447bf61e1550ac3ba5a6d7"
+          },
+          "json_pointer": "/cleanup_deviation/retained_cleanup_candidates/6"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/tmp/e02-D-funnel-stress-early_stop-iv_wd2ml",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-final.json",
+            "bytes": 51650,
+            "sha256": "0fc141ce8d19eedc6d8c1992e9f3606e416a56d038447bf61e1550ac3ba5a6d7"
+          },
+          "json_pointer": "/cleanup_deviation/retained_cleanup_candidates/5"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/tmp/e02-D-funnel-stress-early_stop-y1x_ma55",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-final.json",
+            "bytes": 51650,
+            "sha256": "0fc141ce8d19eedc6d8c1992e9f3606e416a56d038447bf61e1550ac3ba5a6d7"
+          },
+          "json_pointer": "/cleanup_deviation/retained_cleanup_candidates/9"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/tmp/e02-D-funnel-stress-no_finite-0gzqplvw",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-final.json",
+            "bytes": 51650,
+            "sha256": "0fc141ce8d19eedc6d8c1992e9f3606e416a56d038447bf61e1550ac3ba5a6d7"
+          },
+          "json_pointer": "/cleanup_deviation/retained_cleanup_candidates/8"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/tmp/e02-D-funnel-stress-no_finite-5d4dsvy7",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-final.json",
+            "bytes": 51650,
+            "sha256": "0fc141ce8d19eedc6d8c1992e9f3606e416a56d038447bf61e1550ac3ba5a6d7"
+          },
+          "json_pointer": "/cleanup_deviation/retained_cleanup_candidates/4"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/tmp/e02-D-funnel-stress-partial-66823njp",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-final.json",
+            "bytes": 51650,
+            "sha256": "0fc141ce8d19eedc6d8c1992e9f3606e416a56d038447bf61e1550ac3ba5a6d7"
+          },
+          "json_pointer": "/cleanup_deviation/retained_cleanup_candidates/3"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/tmp/e02-D-funnel-stress-partial-cs796dma",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-final.json",
+            "bytes": 51650,
+            "sha256": "0fc141ce8d19eedc6d8c1992e9f3606e416a56d038447bf61e1550ac3ba5a6d7"
+          },
+          "json_pointer": "/cleanup_deviation/retained_cleanup_candidates/7"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D-locked-env",
+      "exists_observed": true,
+      "action": "Retain; task-specific repeatable scratch/runtime candidate only. No native Trash available; no permanent cleanup authorized."
+    },
+    {
+      "absolute_path": "/workspace/e02-D-published-root/policy-engine/.pytest_cache",
+      "exists_observed": false,
+      "action": "Retain; task-specific repeatable scratch/runtime candidate only. No native Trash available; no permanent cleanup authorized."
+    },
+    {
+      "absolute_path": "/workspace/e02-D-published-root/policy-engine/node_modules",
+      "exists_observed": true,
+      "action": "Retain; task-specific repeatable scratch/runtime candidate only. No native Trash available; no permanent cleanup authorized."
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts",
+      "exists_observed": true,
+      "action": "Retain; task-specific repeatable scratch/runtime candidate only. No native Trash available; no permanent cleanup authorized."
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/funnel/base-worker-check",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-final.json",
+            "bytes": 51650,
+            "sha256": "0fc141ce8d19eedc6d8c1992e9f3606e416a56d038447bf61e1550ac3ba5a6d7"
+          },
+          "json_pointer": "/cleanup_deviation/retained_cleanup_candidates/0"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/oracle-gp-4c337/archive",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-analytic-continuation-immutable-review.json",
+            "bytes": 18100,
+            "sha256": "1197c9004e5571190fc3db660304642e698d57f0bb01b83a9400094d8718fe0c"
+          },
+          "json_pointer": "/cleanup_candidates/0"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/oracle-gp-87f22/archive",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-analytic-continuation-immutable-review.json",
+            "bytes": 18100,
+            "sha256": "1197c9004e5571190fc3db660304642e698d57f0bb01b83a9400094d8718fe0c"
+          },
+          "json_pointer": "/cleanup_candidates/1"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/oracle-resource-d80/archive",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-settlement-d80-independent-review.json",
+            "bytes": 10048,
+            "sha256": "85ff987384e6045d61e3153716964a353b508e2b70f636208dcbc1f516b07c24"
+          },
+          "json_pointer": "/cleanup_candidates/0"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/oracle-resource-dcb203/archive",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-settlement-dcb203-independent-review.json",
+            "bytes": 9355,
+            "sha256": "f7344e8e19eed787c58aeea1a404c3f33008c00bf0f24afb26222009cfa22892"
+          },
+          "json_pointer": "/cleanup_candidates/0"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/bridge-load-report-candidate.txt",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/0/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/bridge-load-report-final.txt",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/1/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/lesson-retention-base.txt",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/2/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/lessons-all-candidate.txt",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/3/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/lessons-base.txt",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/4/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/lessons-existing-candidate.txt",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/5/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/lessons-immutable.txt",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/6/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/lessons-origins.txt",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/7/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/lessons-property-removal.txt",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/8/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/numeric-all-candidate.txt",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/9/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/numeric-all-final.txt",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/10/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/numeric-candidate-final.txt",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/11/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/numeric-candidate-fixed.txt",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/12/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/numeric-candidate.txt",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/13/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/numeric-immutable.txt",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/14/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/numeric-origins.txt",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/15/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/numeric-property-removal.txt",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/16/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/original-input-and-report-candidate.txt",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/17/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/original-input-type-base.txt",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/18/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/typed-input-base",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/19/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/typed-input-base-final.txt",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/20/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/typed-input-base.txt",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/21/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/typed-input-healthy",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/22/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/typed-input-immutable-final.txt",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/23/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/typed-input-immutable.txt",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/24/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/typed-input-origins-final.txt",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/25/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/typed-input-origins.txt",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/26/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/vector-base.log",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/27/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/vector-candidate.log",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/28/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/vector-envelope-base.txt",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/29/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/vector-envelope-candidate-final.txt",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/30/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/vector-envelope-candidate.txt",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/31/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/vector-envelope-immutable.txt",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/32/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/vector-envelope-origins.txt",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/33/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/vector-final.log",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/34/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/vector-immutable.log",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/35/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/vector-origins.log",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/36/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/vector-property-removal.log",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/37/path"
+        }
+      ]
+    },
+    {
+      "absolute_path": "/workspace/e02-D2-receipts/transfer/vector-source-bound.log",
+      "exists_observed": true,
+      "action": "Retain owner-declared repeatable scratch candidate; no native Trash, no permanent cleanup. Unique unpublished data still requires preservation review.",
+      "source_candidate_refs": [
+        {
+          "document": {
+            "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+            "bytes": 8207,
+            "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+          },
+          "json_pointer": "/candidates_for_later_native_trash_review/38/path"
+        }
+      ]
+    }
+  ],
+  "preservation": "Production data, tracked code, useful documents and unique unpublished data are excluded. Worktrees/registrations retained; no prune. Exact available deciding bytes are in Git; unknown untracked outputs are not assumed repeatable. Candidates stay until existing owner/G no longer needs them.",
+  "previous_observed_deviations": [
+    "published-funnel-final.json: historical base-worker-check incomplete directory removal/recreation",
+    "transfer-scratch-trash-deviation.json: explicit historical snapshot and generated package/cache removals",
+    "search-cleanup-deviation.json: two temporary test directories permanently removed",
+    "published-champion-independent/cleanup-deviation.json: helper snapshots/archives removed",
+    "champion-parity-environment.json: historical architectureTemporaryDirectory auto cleanup after ENOSPC; initial69pyc scope incomplete",
+    "transfer-cleanup-candidates-followup.json: default pytest retention directory absence, actor/time not established",
+    "frontend-ci-243-payload/cleanup-observed.json.gz: browser automatic profiles and download temporary cleanup; no wholetransient census"
+  ],
+  "limitations": "Earlier deviations remain recorded and are not excused or retroactively converted to Trash operations. Native tool/framework transient cleanup not globally measured; no universal retention claim. Trash not emptied.",
+  "enumeration_scope": {
+    "root_candidates": 13,
+    "owner_declared_candidate_document_refs": [
+      {
+        "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-893-independent-review.json",
+        "bytes": 10443,
+        "sha256": "61806ba1463d836915616bfb30721dc362f22b5bfe2edde5d07e2a85ffa50f56"
+      },
+      {
+        "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/budget-deficit-ebeb-independent-review.json",
+        "bytes": 7298,
+        "sha256": "576f26fd324f7efc26c6d8c39bb6e9595e163c265c471d4ec4676d1399a558c2"
+      },
+      {
+        "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-backend-extension-243.json",
+        "bytes": 17075,
+        "sha256": "c3fe8929022d3d3be87f8bd28bab0c1a6d2e6e4cb5338fbec3616b7b3a8295ab"
+      },
+      {
+        "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent-review.json",
+        "bytes": 18548,
+        "sha256": "6eef8f6aeedc2ecf99d177f570822b19ee7c4b5873163fc6b086b824b372aba9"
+      },
+      {
+        "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-independent-binding-and-current142-manifest.json",
+        "bytes": 3253,
+        "sha256": "14cb2e57292ead7aa462431269fca0201ff52c7335a387bf21d659e8df3d4add"
+      },
+      {
+        "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-analytic-continuation-immutable-review.json",
+        "bytes": 18100,
+        "sha256": "1197c9004e5571190fc3db660304642e698d57f0bb01b83a9400094d8718fe0c"
+      },
+      {
+        "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-425-independent-review.json",
+        "bytes": 17656,
+        "sha256": "39a4256226c52bc41422e431587f031393d8aac1c8bb03de4741df6ceb3f4639"
+      },
+      {
+        "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/legacy-frontier-893-independent-review.json",
+        "bytes": 7262,
+        "sha256": "ec98b761fd330e468927ccafaebd4c42d5eb389ba48b8bf12732d52e3d6c1724"
+      },
+      {
+        "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oracle-runtime-profile-supersession.json",
+        "bytes": 4253,
+        "sha256": "f4904e4a6bb639a2d35f99636a885dd2cbb3f0993590445d09e94bae67e5d769"
+      },
+      {
+        "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-base/root-resource-review.json",
+        "bytes": 20048,
+        "sha256": "2f61d6bcec93cea8d2707ba985ff5ff37bed1ab2a813938461af87442907daf6"
+      },
+      {
+        "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-funnel-final.json",
+        "bytes": 51650,
+        "sha256": "0fc141ce8d19eedc6d8c1992e9f3606e416a56d038447bf61e1550ac3ba5a6d7"
+      },
+      {
+        "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-settlement-c8aafea-independent-review.json",
+        "bytes": 8987,
+        "sha256": "549b8385944e6106663cc3f3e71f91a9627d07f88b40ef07470e6caffd80f433"
+      },
+      {
+        "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-settlement-d80-independent-review.json",
+        "bytes": 10048,
+        "sha256": "85ff987384e6045d61e3153716964a353b508e2b70f636208dcbc1f516b07c24"
+      },
+      {
+        "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/resource-settlement-dcb203-independent-review.json",
+        "bytes": 9355,
+        "sha256": "f7344e8e19eed787c58aeea1a404c3f33008c00bf0f24afb26222009cfa22892"
+      },
+      {
+        "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/root-243-gp-transfer-independent-review.json",
+        "bytes": 9183,
+        "sha256": "e7cab3ad98416ee911148564f3e98fe58a534ce32857730b7e241ba631e60ceb"
+      },
+      {
+        "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-cb47-independent-review.json",
+        "bytes": 11342,
+        "sha256": "db32171b91a00f501b07e56668f175700cea2d72a567b61af960cd1612db1376"
+      },
+      {
+        "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-ebeb-independent-review.json",
+        "bytes": 15068,
+        "sha256": "2de03a0dacd605418e8898832bcf17f6e4e85e4d4dc854edc4e7507654d919ce"
+      },
+      {
+        "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-q1-coverage.json",
+        "bytes": 93772,
+        "sha256": "061f3e72269ede805551ba64a84b03ef70767bd036c023c36bd54b3cd1eac49a"
+      },
+      {
+        "source_sha": "8bd3fbba77c8f1dcee13148357adee1a417ef5c9",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/transfer-cleanup-candidates-followup.json",
+        "bytes": 8207,
+        "sha256": "084449c8a5d790c66ba7a17586b78348079fefb532866797b56cb00fd685c114"
+      }
+    ],
+    "exact_candidate_count": 83,
+    "method": "Read tracked D JSON candidate fields only; record current existence without removing or moving. Historical owner declaration is a review candidate, not proof every path is repeatable or all framework transient paths enumerated."
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "reviewer": "/root/census_oct07",
+  "supersedes_criterion_proposal_only": "B124",
+  "prior_receipt": "/dev/shm/e02-D-census-review-oct07/Service-CTL-Champion-final-a7-runtime-independent-review.json",
+  "prior_receipt_sha256": "4a6542511a37626abe12d4f9dc928cf4e77ba58bf86278ba4cbc9c64e22c8da1",
+  "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "finding_disposition_proposal": "open",
+  "code_ready": "owned ordinary dedup/marker-binding correction pending",
+  "bounded_old_scope": "Actual date2/date-removal2 proves absent-marker subject identity and fresh registry/CAS behavior. It does not prove normal Runner.run dedup option or content binding a returned valid candidate_hash marker. Full old outputs retained; other original criterion joins unchanged.",
+  "own_residuals": [
+    "SearchLoopRunner.run dedup option declared but unused, ordinary canonical duplicate/trace-only candidate still invokes actual evaluator",
+    "Returned valid SHA marker short-circuits full payload hash, allows changed semantic date collapse while retaining marker"
+  ],
+  "new_actual_probe": {
+    "path": "/dev/shm/e02-D-B124-marker-binding-a7-c20y84s7/observations.json",
+    "sha256": "ef399348592e4c1ad6ee8f871805d76f4da919f9ca22e36780a4353fc16c857e",
+    "bytes": 12900
+  },
+  "required_falsifier": "Actual ordinary Runner with normal duplicate vs intentional replica must preserve scoped evaluation effects; retained valid marker with changed semantic date/content must change effective identity or fail closed. Real fresh registry must retain two logical dates.",
+  "formal_closed": false,
+  "accepted_G": false
+}

@@ -1,0 +1,1 @@
+AST_SCOPE_RESULT {"mode": "canonical", "exitcode": 0, "output": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-canonical63"}

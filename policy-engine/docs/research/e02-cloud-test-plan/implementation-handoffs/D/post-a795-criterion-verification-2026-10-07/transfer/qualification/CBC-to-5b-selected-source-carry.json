@@ -1,0 +1,19 @@
+{
+  "actual_CBC_scopes_not_retagged": true,
+  "legacy6_new_source": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+  "full_changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-07-funnel-cost-input-origins.toml",
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/README.md",
+    "policy-engine/tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer_legacy_refusal.py"
+  ],
+  "release_fragment_explicit_changed": true,
+  "unenteredREADME_two_test_additions_and_fragment": true,
+  "old_selected_reached_repo_paths_unchanged": 304,
+  "declared_catalog_CBC6861_5b6863_includesMarkdown": true,
+  "whole_catalog_identity": false,
+  "new_code_or_oldtest_execution_claim": false,
+  "oldproofcarried_by_exactassertion_blob_observedmodule_source": true,
+  "nonmodule_file_read_syscall_trace": false,
+  "P41": "not_established"
+}

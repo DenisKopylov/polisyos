@@ -1,0 +1,18 @@
+{
+  "schema": "D.readonly-accounting-overlay-files.v1",
+  "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+  "seal": true,
+  "files": [
+    {
+      "path": "ledger-overlay.json",
+      "sha256": "463c973799cf3e86065ec7554e9c95f535eee416976c60b745767529e7609f48",
+      "bytes": 586502
+    },
+    {
+      "path": "source-bindings.json",
+      "sha256": "4e6c70712df6c6ba4094e44f2baaa0f51eee7bf07120607984df4872ecdcb7b1",
+      "bytes": 1646
+    }
+  ]
+}

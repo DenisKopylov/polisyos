@@ -1,0 +1,56 @@
+{
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "executable": "/workspace/e02-D-locked-env/bin/python",
+  "modules": {
+    "torch": {
+      "path": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/__init__.py",
+      "sha256": "d6388b1e3b16c1f9a22a87898e5f205fa13a97bd65c163f4829a157e0d9d602f",
+      "version": "2.10.0+cu128"
+    },
+    "botorch": {
+      "path": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/__init__.py",
+      "sha256": "448b14d019f28371eb2f116b1a035118203b8e3b325c1bba34681ad41f8e2b41",
+      "version": "0.16.1"
+    },
+    "gpytorch": {
+      "path": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/gpytorch/__init__.py",
+      "sha256": "0ee8ea29d595cd3ec26b37abc93bbe98f8e293802ef85341b8f7faedf80572ee",
+      "version": "1.15.1"
+    },
+    "SALib": {
+      "path": "/workspace/e02-D-doe-env/lib/python3.14/site-packages/SALib/__init__.py",
+      "sha256": "1a02129b6e01eac5a75de01d80ba02cd78caeff1cb25e04fd7403712a5039487",
+      "version": null
+    },
+    "numpy": {
+      "path": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/numpy/__init__.py",
+      "sha256": "93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38",
+      "version": "2.3.5"
+    },
+    "scipy": {
+      "path": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/scipy/__init__.py",
+      "sha256": "a72412a5c62442876e073a01da1910c84b7214d1382380b71a873b470420dd68",
+      "version": "1.16.3"
+    },
+    "polisyos.scientist.methods.autotune.runtime": {
+      "path": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "sha256": "4bcddcf8b7ef4696fe26a3daa3394053672eb8a43007e0bf0b993c5bf87e17eb",
+      "version": null
+    },
+    "polisyos.scientist.methods.search.service": {
+      "path": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "sha256": "b73158016ef2a6e9324159b7de3d34206ef5a866bcdc1a675adb9281c815e127",
+      "version": null
+    },
+    "polisyos.scientist.methods.search.sensitivity_adapter": {
+      "path": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+      "sha256": "af3d6c12ae461e550897eb5a32b3a6f5c2ba930e41533e99f7bd8b9ac42b0a46",
+      "version": null
+    },
+    "polisyos.scientist.methods.autotune.sensitivity_bridge": {
+      "path": "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+      "sha256": "93d9e4a24dd8ac9c53411d1220b75612c56d2eb2c5e3580bb898f770e0239e98",
+      "version": null
+    }
+  }
+}

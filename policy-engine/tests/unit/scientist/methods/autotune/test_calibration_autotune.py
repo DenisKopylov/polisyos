@@ -6,6 +6,7 @@ import pytest
 
 pytest.importorskip("jax")
 
+from polisyos.core.artifacts.manifest import input_ref_from_artifact_ref
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.calibration.report import (
     CalibrationFitMetrics,
@@ -150,7 +151,9 @@ def test_calibration_meta_promotion_uses_fit_quality_and_blocks_divergence(tmp_p
     evaluator = CalibrationMetaEvaluator(store=store, registry=registry)
 
     good_candidate_ref = persist_mutation_artifact(
-        store, CalibrationMetaSearchConfig(learning_rate=0.01)
+        store,
+        CalibrationMetaSearchConfig(learning_rate=0.01),
+        inputs=[input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
     )
 
     def good_runner(row, config, context):
@@ -171,10 +174,13 @@ def test_calibration_meta_promotion_uses_fit_quality_and_blocks_divergence(tmp_p
         good_candidate_ref,
         good_eval_ref,
         default_calibration_policy(),
+        suite_ref=suite_ref,
     )
 
     bad_candidate_ref = persist_mutation_artifact(
-        store, CalibrationMetaSearchConfig(learning_rate=0.5)
+        store,
+        CalibrationMetaSearchConfig(learning_rate=0.5),
+        inputs=[input_ref_from_artifact_ref(suite_ref, role="benchmark_suite")],
     )
 
     def bad_runner(row, config, context):
@@ -194,8 +200,86 @@ def test_calibration_meta_promotion_uses_fit_quality_and_blocks_divergence(tmp_p
         bad_candidate_ref,
         bad_eval_ref,
         default_calibration_policy(),
+        suite_ref=suite_ref,
     )
 
     assert good_decision.promoted is True
     assert bad_eval.guardrails["no_divergence"] is False
     assert bad_decision.promoted is False
+
+
+def test_native_challenger_guard_and_primary_pair_share_captured_predecessor(tmp_path) -> None:
+    from polisyos.foundry.calibration.report import CalibrationUncertainty
+    from polisyos.scientist.methods.autotune.models import SearchLoopSpec
+    from polisyos.scientist.methods.autotune.runtime import (
+        PydanticMutationCodec,
+        SearchLoopRunner,
+        SequenceCandidateGenerator,
+    )
+
+    store = FileSystemCAS(tmp_path / "cas")
+    registry = ChampionRegistry(root=tmp_path / "registry", store=store)
+    suite = persist_benchmark_suite(store, _calibration_suite(tmp_path))
+    evaluator = CalibrationMetaEvaluator(store=store, registry=registry)
+    runner = SearchLoopRunner(store=store, registry=registry)
+
+    def report(rmse, condition):
+        return _report(rmse=rmse, runtime_seconds=2.0).model_copy(
+            update={"uncertainties": CalibrationUncertainty(hessian_condition=condition)}
+        )
+
+    def spec(rate):
+        return SearchLoopSpec(
+            loop_id="calibration_meta",
+            mutation_codec=PydanticMutationCodec(CalibrationMetaSearchConfig),
+            candidate_generator=SequenceCandidateGenerator(
+                [CalibrationMetaSearchConfig(learning_rate=rate)]
+            ),
+            benchmark_evaluator=evaluator,
+            promotion_policy=default_calibration_policy(),
+        )
+
+    runner.run(
+        spec(0.01),
+        suite_ref=suite,
+        context={"calibration_runner": lambda row, config, context: report(100, 1e12)},
+        max_iterations=1,
+    )
+    before = registry.get("calibration_meta")
+    competing = None
+
+    def competitor_callback(row, config, context):
+        return report(0.5, 1) if config.learning_rate == 0.03 else report(100, 1e12)
+
+    def challenger_callback(row, config, context):
+        nonlocal competing
+        if config.learning_rate == 0.02:
+            if competing is None:
+                runner.run(
+                    spec(0.03),
+                    suite_ref=suite,
+                    context={"calibration_runner": competitor_callback},
+                    max_iterations=1,
+                )
+                competing = registry.get("calibration_meta")
+            return report(0.0001, 1e12)
+        return competitor_callback(row, config, context)
+
+    result = runner.run(
+        spec(0.02),
+        suite_ref=suite,
+        context={"calibration_runner": challenger_callback},
+        max_iterations=1,
+    )
+    feedback = result.history[0].stage_b_result["feedback"]
+    assert competing is not None
+    assert competing.candidate_ref != before.candidate_ref
+    assert feedback["guardrails"]["uncertainty_not_worse"] is True
+    assert feedback["promotion_decision"]["reason"] == "incumbent_changed_during_evaluation"
+    assert not feedback["promotion_decision"]["promoted"]
+    assert (
+        ChampionRegistry(root=tmp_path / "registry", store=FileSystemCAS(tmp_path / "cas"))
+        .get("calibration_meta")
+        .candidate_ref
+        == competing.candidate_ref
+    )

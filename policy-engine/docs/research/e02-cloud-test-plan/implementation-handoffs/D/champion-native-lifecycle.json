@@ -1,0 +1,308 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "champion-native-lifecycle",
+  "closure_ids": [],
+  "covered_finding_ids": [
+    "LA-014",
+    "LA-015"
+  ],
+  "bundle_ids": [
+    "SRV-01",
+    "SRV-03"
+  ],
+  "slice_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "local_parent_sha": "3252461c2a19df163151a514f7102e0147177412",
+  "implementation_commits": [
+    "185a3492900044046ec2996c42875314979d8b4b"
+  ],
+  "candidate_source_sha": "185a3492900044046ec2996c42875314979d8b4b",
+  "candidate_tree_sha": "bcaab880c54070d65c416a650755a308716faf37",
+  "production_source_freeze_sha": "b328bb9abee30cb556ba7af4cf15dd5388386f12",
+  "branch": "codex/e02-D-published-champion",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/tests/unit/scientist/methods/search/test_native_ask_tell_witness.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py"
+  ],
+  "source_identities": [
+    {
+      "source_sha": "6598979d50b2501d91d5e2281b9f92d4513df9f7",
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_native_ask_tell_witness.py",
+      "git_blob": "778ab63717e86d5dce4f69c2de3924f3979e84af",
+      "sha256": "2165e66a5f5e0262128ba74d575b5888f5e143005626ae5b6ba55a55a9430969",
+      "bytes": 6142
+    },
+    {
+      "source_sha": "185a3492900044046ec2996c42875314979d8b4b",
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py",
+      "git_blob": "87b768988fab6907c782bb8202c2a61d93192145",
+      "sha256": "f9d51f6132961fa3580ce86b64b058f7a068f94d616766721ba793c60a716e3f",
+      "bytes": 11363
+    },
+    {
+      "source_sha": "b328bb9abee30cb556ba7af4cf15dd5388386f12",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "git_blob": "d36f811b37644cda85e14ea3090f0990df461b18",
+      "sha256": "067fa62f1c86b99e0e3e83080543904ae076585488de69fe1ecc8caa303087f1",
+      "bytes": 12107
+    },
+    {
+      "source_sha": "b328bb9abee30cb556ba7af4cf15dd5388386f12",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "git_blob": "ec450e056308d7bc351fb652ff7f705463bdf404",
+      "sha256": "1c822301ed87e8008661c0d0ff558dfc15dab2d437de069636b313da987e9428",
+      "bytes": 11808
+    }
+  ],
+  "prior_receipt": {
+    "source_sha": "3252461c2a19df163151a514f7102e0147177412",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published.json",
+    "git_blob": "fba0f4d2cbd39b9bc985b1b6710bab35a9c60874",
+    "sha256": "9f3c85f5ae931cf40b332c0be00a56a38f6a5c475efc6fd8500d24fcd798e2c0",
+    "bytes": 112472
+  },
+  "test_consolidation": {
+    "operation": "Git rename; old unique path absent on185, no duplicate aliases",
+    "preserved_original_test_functions": [
+      "test_native_route_forbids_private_full_evaluation_and_preserves_warm_sentinel_empty_stop",
+      "test_native_failure_leaves_only_pending_candidate_then_same_instance_tell_continues",
+      "test_native_partial_batch_stop_retains_unaccepted_pending_without_double_count",
+      "test_public_call_removal_trap_is_reached_before_history_acceptance"
+    ],
+    "all_original_test_AST_identical": true,
+    "original_case_count": 5,
+    "new_case_count": 3,
+    "new_properties": [
+      "existing public SearchLoopRunner twice uses actual public ask/tell and independent run IDs/history/counters; actual current-context pair + newly reopened CAS contains original1 and current2 evaluations",
+      "actual MaxIterations>=1 contract refuses zero before candidate evaluation/pointer effect",
+      "actual native empty batch supplier exhausts after3 attempts with zero accepted history/best/evaluations"
+    ],
+    "prod_diff_vs_b328": []
+  },
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-rA",
+        "--basetemp=/dev/shm/e02-D2-champion-canonical-d13620ab9af74a218dd31aa49add9cb1",
+        "tests/unit/scientist/methods/autotune/test_native_search_lifecycle.py"
+      ],
+      "target_sha": "185a3492900044046ec2996c42875314979d8b4b",
+      "environment": {
+        "interpreter": "/workspace/e02-D-locked-env/bin/python",
+        "PYTHONPATH": "src:.",
+        "cap_variables": {
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "POLISYOS_PYTEST_WORKERS": null
+        },
+        "profile": "existing immutable locked lint,test,runtime,search_bo,vector-search; actual production bytes match prior source-bound profile"
+      },
+      "input_closure": {
+        "source_sha": "185a3492900044046ec2996c42875314979d8b4b",
+        "source_tree": "bcaab880c54070d65c416a650755a308716faf37",
+        "basetemp": "/dev/shm/e02-D2-champion-canonical-d13620ab9af74a218dd31aa49add9cb1",
+        "basetemp_existed_before_run": false,
+        "fixture_retention": "preserve this fresh basetemp; no cleanup requested",
+        "test_sha256": "f9d51f6132961fa3580ce86b64b058f7a068f94d616766721ba793c60a716e3f",
+        "cap_variables": {
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "POLISYOS_PYTEST_WORKERS": null
+        }
+      },
+      "outcome": "PASS",
+      "deciding_output": "8 passed,2 warnings in7.08s",
+      "measurement": {
+        "exit_code": 0,
+        "wall_seconds": 11.066105079997214,
+        "max_rss_kib": 1170212
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-native-lifecycle/canonical-lifecycle-final.txt.gz",
+        "encoding": "gzip",
+        "sha256": "1bcc88e94bb66d70374df3d7c487f473e3c8a1639f8842d89543a3a8d61744ca",
+        "bytes": 1151,
+        "decoded_sha256": "01cd15b1840140dc8121cce24196c1ff63abea168bbe5288d1365dcbeeffb0f0",
+        "decoded_bytes": 3016
+      },
+      "fixture_after_run": {
+        "path": "/dev/shm/e02-D2-champion-canonical-d13620ab9af74a218dd31aa49add9cb1",
+        "exists": true,
+        "next_use": "preserve; never reuse as pytest basetemp"
+      }
+    },
+    {
+      "target_sha": "185a3492900044046ec2996c42875314979d8b4b",
+      "outcome": "ERROR",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "tools/devx/architecture/guardrails.py",
+        "check"
+      ],
+      "description": "exit2; required generated-artifact measurements UNRUN due ENOSPC during internally created temporary uv-cache; no complete architecture verdict",
+      "measurement": {
+        "exit_code": 2,
+        "wall_seconds": 33.998427698999876
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-native-lifecycle/architecture-185.txt.gz",
+        "encoding": "gzip",
+        "sha256": "3f710f136c2be642aa888a08f3a2cfd3d6ff3c7949a654304912c5220717f8d8",
+        "bytes": 9536,
+        "decoded_sha256": "772e03f79cc83aedb82c88a768e70c66c43ba9960e85e43c9a618c95be52b955",
+        "decoded_bytes": 122104
+      }
+    },
+    {
+      "target_sha": "185a3492900044046ec2996c42875314979d8b4b",
+      "outcome": "FAIL",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "tools/quality/lint/lint_imports.py",
+        "--policy",
+        "architecture/imports/policy.toml",
+        "--exceptions",
+        "architecture/imports/exceptions.toml"
+      ],
+      "description": "exit1; actual full2698 Python parse,21 unadjudicated violations; full15 changed source-input overlap, violation path overlap empty, no inherited waiver",
+      "measurement": {
+        "exit_code": 1,
+        "wall_seconds": 17.812664659999427
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-native-lifecycle/imports-185.txt.gz",
+        "encoding": "gzip",
+        "sha256": "150be5e635645948d60765a2cb6b65e592b291483179f0cdc512fbe71312d17a",
+        "bytes": 1502,
+        "decoded_sha256": "ab9d109b796932d6e22ad778af5a506f67a6021b98021576caf154c98213f5a6",
+        "decoded_bytes": 7399
+      }
+    },
+    {
+      "target_sha": "185a3492900044046ec2996c42875314979d8b4b",
+      "outcome": "FAIL",
+      "command": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "tools/ops_runners/release/check_compatibility_release_gates.py",
+        "--repo-root",
+        ".",
+        "--fail-on-contract-errors"
+      ],
+      "description": "exit1;2 contract errors in old lex ownership/acquisition fragments missing public_surface_inventory_reviewed; fullgate remains FAIL, no P41 exemption",
+      "measurement": {
+        "exit_code": 1,
+        "wall_seconds": 0.1800974439975107
+      },
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-native-lifecycle/release-185.txt.gz",
+        "encoding": "gzip",
+        "sha256": "11605ccee083ef4dccaee3d073d0a0867112b50e24ce7c9cf36be8e766bb4855",
+        "bytes": 765,
+        "decoded_sha256": "a82e55a9b3de5c71b92dc133946112b2795fc7ace8de1646abe3684407a24b59",
+        "decoded_bytes": 1723
+      }
+    }
+  ],
+  "property": {
+    "statement": "Canonical named lifecycle file exercises existing public native run route and local state boundaries on real existing production classes; it adds no persisted-service API.",
+    "runtime_path": [
+      "SearchLoopRunner.run",
+      "existing native driver public ask/_evaluate_for_tell/tell",
+      "Core CAS actual candidate/evaluation",
+      "ChampionRegistry canonical pointer",
+      "detached SearchResult history and counters"
+    ],
+    "proxy_divergence": "iteration count alone can hide reused history or stale CAS/evaluation; second public run verifies independently detached first history and fresh reopened current champion while original evaluation remains intact",
+    "negative_controls": [
+      "unchanged original public ask/tell traps",
+      "unchanged private full-evaluation forbidden path",
+      "actual zero-iteration constructor refusal before any evaluate/pointer effect"
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "bounded native runtime lifecycle verified; served cutover/persisted crash-resume/legacy rollback remain partial",
+  "uncapped_verification_plan": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-native-lifecycle/uncapped-verification-plan.json",
+    "sha256": "83b5a832a6baf2f68dfc3914e60337b305faea014b7ec47ffbb965714bd27af4",
+    "bytes": 43261
+  },
+  "import_21_observation": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-native-lifecycle/imports-185-derived.json",
+    "sha256": "771763388ab0ca034a25c5f574db075c648e6d4d197ab7886cfbab45a46b5c5c",
+    "bytes": 21014
+  },
+  "preservation_scope_correction": {
+    "amends_prior_receipt_scope": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-published.json@3252461c2a19df163151a514f7102e0147177412",
+    "preserved": "committed exact source/proof and complete lossless deciding logs; new explicit lifecycle basetemp exists after run",
+    "prior_pytest": "owner runs before canonical8 used default pytest basetemp. Framework may remove older default-retention fixtures; historical temporary CAS/index directories are not promised preserved. Exact automatic cleanup denominator not established.",
+    "schema_probe": "original schema compatibility recipe used TemporaryDirectory and automatically removed its small fixture CAS on context exit; output refs/logs are retained, actual original CAS bytes are not preserved. This is a process deviation, not a runtime/schema verdict waiver.",
+    "architecture_default_attempt": "I invoked canonical default guard before reading its preservation option. It internally copytree-created isolated source/privateenvironment/uv-cache in /tmp/polisyos_generated_freshness_4m60dvwp then TemporaryDirectory cleaned it on exit. Required generated checks failed ENOSPC, no verdict admitted. Other automatic cache cleanup exact scope not established. No subsequent default guard/sync/temp cleanup runs.",
+    "future_architecture": "source supports --generated-freshness-workspace-root fresh never-used caller-owned path and optional existing uv-cache offline; this is a runtime source copy, not a Git checkout/worktree. Full source-copy/sync/cache requirements need root admission; no future run silently substitutes --skip-generated-checks for full PASS.",
+    "manual_cleanup": "none by this followup; original scratch logs and renamed tracked test source histories preserved. No Trash or deletion workflow invoked."
+  },
+  "nondeciding_preparation": {
+    "output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-native-lifecycle/canonical-lifecycle-iteration.txt.gz",
+      "encoding": "gzip",
+      "sha256": "0739b9e54c5cffa18336306901289a330cc9de6384a60201d788c8227bb11851",
+      "bytes": 1058,
+      "decoded_sha256": "5cec6a2fc76bea227b24d0818bee8f5899865f1cd1ba37d1f7e97f779acce4b2",
+      "decoded_bytes": 3392
+    },
+    "source_snapshot": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-native-lifecycle/canonical-lifecycle-preparation-source.txt.gz",
+      "sha256": "f31f1be55869592a7022aaaad868a489d04e3760445a6dd3da53fef2b5dadf58",
+      "bytes": 2994
+    },
+    "decoded_source_sha256": "bd4d0d6617aa5490558e9aa3b1e2d1a54691b0edce2617ac995b32895aee64c6",
+    "scope": "uncommitted preparation source, not membership in185 tree",
+    "result": "1 failed,7 passed; initially assumed zero budget returned empty result, actual constructor rejects it. Test corrected to current source contract; no production change or inherited attribution."
+  },
+  "authority_boundary": {
+    "authoritative_for": [
+      "bounded runtime route/state and exact artifact readback tested"
+    ],
+    "may_not_use_for": [
+      "persisted SearchService restore or successful policy rollback",
+      "deployed served hierarchical cutover",
+      "promotion/evaluator appointment or public policy authority",
+      "global architecture/import/release acceptance"
+    ]
+  },
+  "limitations_and_next_owner": [
+    "Root freezes full MO/FUN/GP/transfer/champion combined source before one wide affected wave and complete uncapped verify/CI plan; no fullsuite run by leaf.",
+    "The full mandatory wrapper commands remain UNRUN because numerical-thread caps conflict with user instructions. The source-derived direct argv plan retains all default selectors/configuration and distinct added gates; installed dependencies do not imply PASS.",
+    "Actual available uv0.12.19 violates pinned0.9.21 preflight; docs dependencies and lifelines/mapie missing from read-only locked profile. Writable parity overlay can satisfy admitted installability/dependencies without mutating shared backend.",
+    "Exact quality failures/errors above remain visible. No inherited red waiver or global gate acceptance; root/owning boundary authors must reconcile actual diagnostics.",
+    "Earlier default/TemporaryDirectory fixture lifecycle was not preservation-safe; complete logs/source/proof survive Git, original ephemeral CAS state may not. No further cleanup; future pytest requires fresh nonexistent --basetemp.",
+    "No persisted service restore or crash/restart history/evaluation-count replay contract was added; same-instance tell continuation remains bounded existing behavior."
+  ],
+  "pattern_pass": [
+    "P01",
+    "P02",
+    "P10",
+    "P27",
+    "P28",
+    "P29",
+    "P35",
+    "P37",
+    "P38",
+    "P41"
+  ]
+}

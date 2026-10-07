@@ -1,0 +1,30 @@
+{
+  "gp-defining": {
+    "selectors": [
+      "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+      "tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py::test_real_same_corpus_and_append_resume_do_not_fit",
+      "tests/integration/scientist/methods/search/test_configured_transfer_controller.py",
+      "tests/unit/scientist/methods/search/strategies/test_gp_warm_admission_reports.py"
+    ],
+    "property": "Actual current locked SingleTaskGP 10/11-row independent original-unit mean/fullcovariance, whole vs warm/current corpus/plan, fitted state/transform/RNG mutation/refusal, initial/due/basis refit vs resume/append0, real configured SearchController CAS8 first proposal and rejection reasons. Not full GP43 replay."
+  },
+  "state-effective": {
+    "selectors": [
+      "tests/unit/scientist/methods/search/strategies/test_state_inventory.py",
+      "tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py",
+      "tests/unit/scientist/search/strategies/test_space_codec.py",
+      "tests/unit/scientist/search/strategies/test_neural_checkpoint.py",
+      "tests/unit/scientist/methods/search/strategies/test_effective_actions.py"
+    ],
+    "property": "Supported direct persisted Random/Grid/RL/NN warm state CAS/fresh next sequence/corrupt foreign refusal/independent replica; actual Sobol index/preparation/cache law; bool/integer/category/log effective action and late Grid partial finite exhaustion. Supported directNN profile distinctfrom unsupported opaque NN service adapter."
+  },
+  "mo-supported": {
+    "selectors": [
+      "tests/unit/scientist/methods/search/strategies/test_mo_checkpoint.py::test_current_mo_profile_actual_cas_sobol_next_sequence_and_independent_replica",
+      "tests/unit/scientist/methods/search/strategies/test_mo_checkpoint.py::test_native_mo_fitted_cas_restore_matches_independent_mean_and_full_covariance",
+      "tests/unit/scientist/methods/search/strategies/test_mo_checkpoint.py::test_native_mo_next_ehvi_and_fit_clock_matches_uninterrupted_with_ambient_rng_owned",
+      "tests/unit/scientist/methods/search/strategies/test_mo_checkpoint.py::test_native_mo_changed_fitted_parameter_with_recomputed_local_digest_is_not_marker_equivalence"
+    ],
+    "property": "Supported MO primitive/fitted sequential CPU state CAS freshread/nextsequence, independent8-row two-component original-unit NumPy covariance; saved modelparameter mutation controls and existing refit_each_ask law. Not allMO88 replay."
+  }
+}

@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="39" time="1.856" timestamp="2026-10-07T17:40:23.393607+00:00" hostname="565838a1e059"><testcase classname="tests.unit.scientist.search.test_transfer_context_criteria" name="test_nested_serialized_and_equivalent_explicit_fields_have_the_same_scope" file="tests/unit/scientist/search/test_transfer_context_criteria.py" line="8" time="0.005"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.search.test_transfer_context_criteria" name="test_invalid_base_does_not_leak_partial_scope_and_explicit_scope_remains_addressed" file="tests/unit/scientist/search/test_transfer_context_criteria.py" line="24" time="0.000"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.search.test_transfer_context_criteria" name="test_truly_unknown_domain_keeps_a_run_addressed_isolated_fallback" file="tests/unit/scientist/search/test_transfer_context_criteria.py" line="33" time="0.000"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.search.test_lesson_query_persistence" name="test_real_controller_keeps_typed_nested_context_in_lesson_consumer[False]" file="tests/unit/scientist/methods/search/test_lesson_query_persistence.py" line="44" time="0.017"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.search.test_lesson_query_persistence" name="test_real_controller_keeps_typed_nested_context_in_lesson_consumer[True]" file="tests/unit/scientist/methods/search/test_lesson_query_persistence.py" line="44" time="0.010"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.search.test_lesson_query_persistence" name="test_destination_projection_uses_all_effective_query_filters" file="tests/unit/scientist/methods/search/test_lesson_query_persistence.py" line="58" time="0.026"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.search.test_lesson_query_persistence" name="test_active_policy_demotes_local_and_transferred_confidence_equally" file="tests/unit/scientist/methods/search/test_lesson_query_persistence.py" line="96" time="0.019"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.search.test_lesson_query_persistence" name="test_access_writes_no_cas_snapshot_and_repeated_reads_cannot_refresh_evidence" file="tests/unit/scientist/methods/search/test_lesson_query_persistence.py" line="111" time="0.012"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.search.test_lesson_query_persistence" name="test_older_arrival_cannot_replace_newest_actual_evidence_ref" file="tests/unit/scientist/methods/search/test_lesson_query_persistence.py" line="136" time="0.017"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.search.test_lesson_query_persistence" name="test_fresh_producer_observation_survives_older_access_retention_hint" file="tests/unit/scientist/methods/search/test_lesson_query_persistence.py" line="160" time="0.016"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.search.test_lesson_transfer" name="test_resolve_transfer_context_preserves_typed_base_until_explicit_override" file="tests/unit/scientist/search/test_lesson_transfer.py" line="42" time="0.000"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.search.test_lesson_transfer" name="test_query_with_transfer_reapplies_source_trust_and_confidence_filters" file="tests/unit/scientist/search/test_lesson_transfer.py" line="75" time="0.023"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.search.test_lesson_transfer" name="test_query_with_transfer_materializes_cross_domain_same_tenant" file="tests/unit/scientist/search/test_lesson_transfer.py" line="181" time="0.018"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.search.test_lesson_transfer" name="test_same_domain_same_tenant_reuse_stays_local" file="tests/unit/scientist/search/test_lesson_transfer.py" line="224" time="0.009"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.search.test_lesson_transfer" name="test_cross_tenant_transfer_denied_by_default" file="tests/unit/scientist/search/test_lesson_transfer.py" line="250" time="0.009"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.search.test_lesson_transfer" name="test_ttl_demotes_old_lessons_before_archive" file="tests/unit/scientist/search/test_lesson_transfer.py" line="280" time="0.009"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.search.test_lesson_transfer" name="test_invalidation_beats_transfer_materialization" file="tests/unit/scientist/search/test_lesson_transfer.py" line="308" time="0.012"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.search.test_lesson_as_of" name="test_future_cas_evidence_is_not_available_at_past_as_of[local]" file="tests/unit/scientist/search/test_lesson_as_of.py" line="48" time="0.010"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.search.test_lesson_as_of" name="test_future_cas_evidence_is_not_available_at_past_as_of[transfer]" file="tests/unit/scientist/search/test_lesson_as_of.py" line="48" time="0.010"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.search.test_lesson_as_of" name="test_future_cas_evidence_is_not_available_at_past_as_of[materialize]" file="tests/unit/scientist/search/test_lesson_as_of.py" line="48" time="0.009"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.search.test_lesson_as_of" name="test_future_cas_evidence_is_not_available_at_past_as_of[aggregate]" file="tests/unit/scientist/search/test_lesson_as_of.py" line="48" time="0.010"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.search.test_lesson_as_of" name="test_evidence_exactly_at_as_of_remains_available[local]" file="tests/unit/scientist/search/test_lesson_as_of.py" line="74" time="0.018"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.search.test_lesson_as_of" name="test_evidence_exactly_at_as_of_remains_available[transfer]" file="tests/unit/scientist/search/test_lesson_as_of.py" line="74" time="0.017"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.search.test_lesson_as_of" name="test_evidence_exactly_at_as_of_remains_available[materialize]" file="tests/unit/scientist/search/test_lesson_as_of.py" line="74" time="0.016"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.search.test_lesson_as_of" name="test_evidence_exactly_at_as_of_remains_available[aggregate]" file="tests/unit/scientist/search/test_lesson_as_of.py" line="74" time="0.009"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.search.test_lesson_as_of" name="test_retention_reads_and_restart_never_refresh_evidence" file="tests/unit/scientist/search/test_lesson_as_of.py" line="93" time="0.012"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.search.test_lesson_as_of" name="test_conflicting_as_of_is_refused_before_materialization" file="tests/unit/scientist/search/test_lesson_as_of.py" line="117" time="0.008"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.search.test_lesson_as_of" name="test_query_as_of_round_trip_preserves_explicit_time" file="tests/unit/scientist/search/test_lesson_as_of.py" line="134" time="0.000"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.search.test_lesson_as_of" name="test_newer_persisted_version_is_not_reinterpreted_as_older_evidence" file="tests/unit/scientist/search/test_lesson_as_of.py" line="140" time="0.017"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.search.test_lesson_as_of" name="test_aggregate_transfer_lookup_keeps_the_explicit_target_time" file="tests/unit/scientist/search/test_lesson_as_of.py" line="160" time="0.009"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.search.test_lesson_as_of" name="test_naive_query_time_is_refused" file="tests/unit/scientist/search/test_lesson_as_of.py" line="172" time="0.001"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.search.test_lesson_as_of" name="test_historical_read_retains_evidence_at_actual_access_time[False]" file="tests/unit/scientist/search/test_lesson_as_of.py" line="177" time="0.011"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.search.test_lesson_as_of" name="test_historical_read_retains_evidence_at_actual_access_time[True]" file="tests/unit/scientist/search/test_lesson_as_of.py" line="177" time="0.012"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.search.test_lesson_partial_consumer" name="test_partial_local_answer_is_filled_by_one_admitted_transfer" file="tests/unit/scientist/search/test_lesson_partial_consumer.py" line="77" time="0.030"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.search.test_lesson_partial_consumer" name="test_source_run_filter_excludes_other_sources_before_partial_fill" file="tests/unit/scientist/search/test_lesson_partial_consumer.py" line="105" time="0.042"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.search.test_lesson_partial_consumer" name="test_duplicate_evidence_across_routes_does_not_consume_partial_quota_or_refresh" file="tests/unit/scientist/search/test_lesson_partial_consumer.py" line="125" time="0.059"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.search.test_lesson_partial_consumer" name="test_distinct_newer_evidence_is_not_suppressed_as_route_metadata" file="tests/unit/scientist/search/test_lesson_partial_consumer.py" line="154" time="0.033"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.search.test_lesson_partial_consumer" name="test_partial_fill_uses_the_same_as_of_and_freshness_on_both_routes[future]" file="tests/unit/scientist/search/test_lesson_partial_consumer.py" line="179" time="0.049"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.search.test_lesson_partial_consumer" name="test_partial_fill_uses_the_same_as_of_and_freshness_on_both_routes[stale]" file="tests/unit/scientist/search/test_lesson_partial_consumer.py" line="179" time="0.047"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase></testsuite></testsuites>

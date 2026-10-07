@@ -1,0 +1,39 @@
+{
+  "P41": "not_established; no inherited-red claim",
+  "actual_cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "actual_fit_start_ids": 9,
+  "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "assessed_product_tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+  "backend": {
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "hnswlib": "0.8.0",
+    "numpy": "2.3.5",
+    "pytest": "9.0.2",
+    "scipy": "1.16.3",
+    "torch": "2.10.0"
+  },
+  "complete_executable_input_denominator": 6861,
+  "deciding_output_sha256": {
+    "after.json": "6903bcb917792f9b6c19fe53ae9c78ace5725581d75ca1b5f7492730cb9c8971",
+    "assessed-source-equivalence.json": "5827b0a981746b7603adc391ff241b72c34fb415fc1db802475fd9a598fb83d6",
+    "before.json": "6903bcb917792f9b6c19fe53ae9c78ace5725581d75ca1b5f7492730cb9c8971",
+    "command.json": "62fb47a8228e7744339849f8ae229a2cff29ccb42e4064f5b4bdb8b5490dcce5",
+    "events.jsonl": "ae33b1ccc8b92e491b56f2a9ef6c06531c5c6215c553075cd2dd3a31cbd85feb",
+    "fit-events.jsonl": "84d1988ce41e1ac4905360f634a3fe5f7b1ef14f673795ccbc0286f428141b5d",
+    "junit.xml": "aa832f5abb1387f2de38551b8c783b5cca55056b08388eb1d7cecdc425da6f97",
+    "origins.json": "383c23f2164edd4d79f488ddedd6a9d983647bcc1af8c1c52caa6c9963073439"
+  },
+  "exitcode": 0,
+  "harness_file": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/run_current_owner_scopes.py",
+  "harness_sha256": "60544198b0f5de11257798f7bf4165235214e70b5e5f238f71bdee0cc8ac5d4f",
+  "mode": "gp-defining",
+  "outer_streams": "Append hashes after wrapper END; not hashed prematurely here",
+  "predicate": "Actual current locked SingleTaskGP 10/11-row independent original-unit mean/fullcovariance, whole vs warm/current corpus/plan, fitted state/transform/RNG mutation/refusal, initial/due/basis refit vs resume/append0, real configured SearchController CAS8 first proposal and rejection reasons. Not full GP43 replay.",
+  "source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "source_and_executable_inputs_immutable": true,
+  "torch_interop_threads_after": 1,
+  "torch_threads_after": 4,
+  "tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+  "wall_s": 13.631410572008463
+}

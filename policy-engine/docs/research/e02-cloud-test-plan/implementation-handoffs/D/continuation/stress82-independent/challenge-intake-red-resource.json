@@ -1,0 +1,19 @@
+{
+  "source_sha": "59e65f125df8c8c5448f6a04250792a97dd45590",
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "/workspace/e02-D3-receipts/stress/challenge_runtime_runner.py",
+    "-q",
+    "tests/unit/scientist/search/test_challenge_scenario_projection.py",
+    "-k",
+    "actual_case_intake or ten_same_issue",
+    "--basetemp",
+    "/dev/shm/e02-D-challenge-intake-red-444f90539ddb472c9e64585bcfc81e43",
+    "--junitxml",
+    "/workspace/e02-D3-receipts/stress/challenge-intake-red-junit.xml"
+  ],
+  "exit_code": 1,
+  "wall_seconds": 21.639052120997803,
+  "peak_rss_kib": 975336,
+  "source_sha_after": "59e65f125df8c8c5448f6a04250792a97dd45590"
+}

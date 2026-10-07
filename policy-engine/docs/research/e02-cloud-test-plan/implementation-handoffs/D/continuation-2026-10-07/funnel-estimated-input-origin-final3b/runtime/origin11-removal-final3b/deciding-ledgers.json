@@ -1,0 +1,93 @@
+{
+  "scope": "Actual post-test canonical fixture state. Not a standalone scientific or authority verdict.",
+  "files": [
+    {
+      "fixture_path": "test_native_failed_input_origi0/budget.json",
+      "bytes": 2447,
+      "sha256": "6b36cb1959944e43a06c4490c60c2237b30e09e16fef6757a285ade8b6ea1ad4",
+      "lossless_gzip": "/dev/shm/e02-D-funnel-oct07/origin11-removal-final3b-deciding-ledgers/e0935507641c5a44.json.gz",
+      "gzip_bytes": 864,
+      "gzip_sha256": "16d9dea68c6007609d98597d0e7b30c8495be657d614304c0fa2271e23bc1d1f"
+    },
+    {
+      "fixture_path": "test_native_failed_input_origi1/budget.json",
+      "bytes": 2446,
+      "sha256": "ff4fc5b14b1f60c1c146c4d4229ac7115f6150b76324d0ee93b598ba1f13c571",
+      "lossless_gzip": "/dev/shm/e02-D-funnel-oct07/origin11-removal-final3b-deciding-ledgers/3d30cfdfc727929c.json.gz",
+      "gzip_bytes": 860,
+      "gzip_sha256": "1d315399652db36ad696c41e0bb4f44fc82c6deaa0bfc078bc42145889cbaed6"
+    },
+    {
+      "fixture_path": "test_native_failed_input_origi2/budget.json",
+      "bytes": 2447,
+      "sha256": "fd38ac1c53593d66a28fc1025c9e2b46fc1cedd9b889f184aa9d62cd08b9ca34",
+      "lossless_gzip": "/dev/shm/e02-D-funnel-oct07/origin11-removal-final3b-deciding-ledgers/c189dcc28cd099ac.json.gz",
+      "gzip_bytes": 857,
+      "gzip_sha256": "95ddd03c42ee979e17c30d8650cfa41ddbc1dab5d37e2f3bf1824776f00ce768"
+    },
+    {
+      "fixture_path": "test_native_failed_input_origi3/budget.json",
+      "bytes": 3384,
+      "sha256": "2e8b02827c6d2e82cc24723738927032c0f1190ab5811318227807c4d5c930ac",
+      "lossless_gzip": "/dev/shm/e02-D-funnel-oct07/origin11-removal-final3b-deciding-ledgers/1f7c5d860eabddd6.json.gz",
+      "gzip_bytes": 1022,
+      "gzip_sha256": "39f87e28d4bc8a67e5ec27f6af0c1acd9f4fdbd11cc9aa28feaa6fef47e9b437"
+    },
+    {
+      "fixture_path": "test_native_failed_input_origi4/budget.json",
+      "bytes": 3383,
+      "sha256": "71c6cd60210eae014712a46a300a71acd5dbe6c337bb8445d233a61301839529",
+      "lossless_gzip": "/dev/shm/e02-D-funnel-oct07/origin11-removal-final3b-deciding-ledgers/5b3bed588324de2e.json.gz",
+      "gzip_bytes": 1019,
+      "gzip_sha256": "32648bb27a932df02277b213f900e18b4b346d5939686cc2955c3cb9f5702772"
+    },
+    {
+      "fixture_path": "test_native_failed_input_origi5/budget.json",
+      "bytes": 3389,
+      "sha256": "0f8a0876c99dadc25254588f3c7997789e8c989a48e3a7fde8b2e9eb393efc0c",
+      "lossless_gzip": "/dev/shm/e02-D-funnel-oct07/origin11-removal-final3b-deciding-ledgers/224969293ab774ee.json.gz",
+      "gzip_bytes": 1019,
+      "gzip_sha256": "9933ee03d0ff82e3f7119e777d489f07f6d72fa2a286aad89d0fc1b1eec55f40"
+    },
+    {
+      "fixture_path": "test_native_unknown_amount_pre0/budget.json",
+      "bytes": 2438,
+      "sha256": "8febcb88524d0053843c2ad9210a00854f0cef6ac5c1b782c5dd4318a3c9cdd5",
+      "lossless_gzip": "/dev/shm/e02-D-funnel-oct07/origin11-removal-final3b-deciding-ledgers/083106949ca1cbb7.json.gz",
+      "gzip_bytes": 852,
+      "gzip_sha256": "4f4969b86fa946c9c379d92054aef770e95522ae9c80cf58750a71b9ed5fc430"
+    },
+    {
+      "fixture_path": "test_native_unknown_amount_pre1/budget.json",
+      "bytes": 4434,
+      "sha256": "f10a18e8306cced2c52757be4f6af14ca6908c878a24a803e56aa9890bdf4491",
+      "lossless_gzip": "/dev/shm/e02-D-funnel-oct07/origin11-removal-final3b-deciding-ledgers/317f399d0db26e72.json.gz",
+      "gzip_bytes": 1144,
+      "gzip_sha256": "7f957397de0d985d2550a00cd4d45a48df15c9bd576d781e4f086fe4ab995540"
+    },
+    {
+      "fixture_path": "test_native_unknown_amount_pre2/budget.json",
+      "bytes": 4378,
+      "sha256": "c22214c176ff42dace0215e2d8657ff06b09cdb8c1b477d10381d30f8f85d1e8",
+      "lossless_gzip": "/dev/shm/e02-D-funnel-oct07/origin11-removal-final3b-deciding-ledgers/b3aa6c375143e37e.json.gz",
+      "gzip_bytes": 1145,
+      "gzip_sha256": "4697eee04a8297190e0b8b77744065f5ed613996b76a87022dd6e3f5f608e09f"
+    },
+    {
+      "fixture_path": "test_native_zero_estimate_is_n0/budget.json",
+      "bytes": 2447,
+      "sha256": "e4b82f059a1e2e4f1b4d2f97ad8390b7b0bbdd0010ebe09aa54d7ac1371d1f2c",
+      "lossless_gzip": "/dev/shm/e02-D-funnel-oct07/origin11-removal-final3b-deciding-ledgers/3d29c05599a94683.json.gz",
+      "gzip_bytes": 859,
+      "gzip_sha256": "fd6e0053bcb29d0625ea81f1924d5d86fa9c4ec9e80ef81b59114aec09541886"
+    },
+    {
+      "fixture_path": "test_two_native_input_origins_0/budget.json",
+      "bytes": 4443,
+      "sha256": "ab34a74b56ee64aad368caf08fd7c3c22d7c356be52cdcdf9f25ef083045eb15",
+      "lossless_gzip": "/dev/shm/e02-D-funnel-oct07/origin11-removal-final3b-deciding-ledgers/f835252a2e2a7012.json.gz",
+      "gzip_bytes": 1147,
+      "gzip_sha256": "b7c8956be40114da5c8533c0be3aeaf3cd1503db888de8c1fc2d257b7e40bcff"
+    }
+  ]
+}

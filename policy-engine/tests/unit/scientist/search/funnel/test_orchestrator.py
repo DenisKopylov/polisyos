@@ -2,14 +2,15 @@
 
 from __future__ import annotations
 
+from copy import deepcopy
 from decimal import Decimal
 from unittest.mock import MagicMock
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.methods.autotune.models import BenchmarkEvaluation, BenchmarkSplit
 from polisyos.scientist.methods.doe.stress_report import StressTestReport
-from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.methods.search.funnel.level5_refutation_governance import (
     Level5RefutationGovernanceStage,
 )
@@ -265,7 +266,11 @@ class TestFunnelOrchestrator:
             dataset_scores = {"dataset-v1": 1.0, "dataset-v2": 2.0}
             return FunnelStageResult(
                 policy_candidate=dict(candidate),
-                objective_value=dataset_scores[context["dataset_version"]],
+                objective_value=(
+                    3.0
+                    if context["evaluation_role"] == "independent_control"
+                    else dataset_scores[context["dataset_version"]]
+                ),
                 is_promising=True,
                 stage_name="L0",
                 uncertainty_envelope=UncertaintyEnvelope.deterministic(),
@@ -303,6 +308,22 @@ class TestFunnelOrchestrator:
         assert cached_ticket.submitted_via_cache is True
         assert stage.evaluate.call_count == 2
 
+        # An independent control on the same input/model is a new evaluation,
+        # while its ordinary predecessor retains the original result/history.
+        ordinary_history = deepcopy((ticket_v1.stage_results, ticket_v1.trace))
+        control_context = {**context_v1, "evaluation_role": "independent_control"}
+        control_ticket = orch.submit(candidate, control_context)
+        control_outcome = orch.advance(control_ticket, policy="full")
+        assert stage.evaluate.call_count == 3
+        assert control_ticket is not ticket_v1
+        assert stage.evaluate.call_args.args[1]["evaluation_role"] == "independent_control"
+        assert control_outcome.final_result is not None
+        assert control_outcome.final_result.objective_value == 3.0
+        assert outcome_v1.final_result.objective_value == 1.0
+        assert (ticket_v1.stage_results, ticket_v1.trace) == ordinary_history
+        assert orch.submit(candidate, context_v1) is ticket_v1
+        assert stage.evaluate.call_count == 3
+
     def test_freeze_mode_continuation_preserves_partial_progress(self):
         class _Tracker:
             mode = "normal"
@@ -327,9 +348,7 @@ class TestFunnelOrchestrator:
             stage.evaluate.return_value.compute_actual_usd = cost
         stages[3].estimated_cost_usd = 1.0
         tracker = _Tracker()
-        budget = BudgetState(
-            limits={"run": BudgetLimit(key="run", max_usd=Decimal("0.5"))}
-        )
+        budget = BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("5"))})
         orch = FunnelOrchestrator(
             stages,
             budget_state=budget,
@@ -339,16 +358,16 @@ class TestFunnelOrchestrator:
         context = {"dataset_version": "dataset-v1"}
 
         ticket = orch.submit(candidate, context)
+        orch.advance(ticket, target_level=2)
+        tracker.mode = "freeze_frontier"
         outcome = orch.advance(ticket, policy="full")
 
         assert outcome.final_action == "defer"
-        assert ticket.last_scheduling_decision is not None
-        assert ticket.last_scheduling_decision.recommended_action == "defer"
         prior_stage_results = dict(ticket.stage_results)
         prior_trace = list(ticket.trace)
         prior_cost = sum(step.compute_actual_usd for step in ticket.trace)
 
-        tracker.mode = "freeze_frontier"
+        tracker.mode = "normal"
         successor = orch.submit(candidate, context)
 
         assert successor is not ticket
@@ -359,7 +378,7 @@ class TestFunnelOrchestrator:
         assert successor.trace == prior_trace
         assert sum(step.compute_actual_usd for step in successor.trace) == prior_cost
 
-    def test_retry_cheaper_continuation_preserves_partial_progress(self):
+    def test_retry_cheaper_spend_only_does_not_resume(self):
         stages = [
             _make_stage(0, "L0"),
             _make_stage(1, "L1"),
@@ -391,15 +410,12 @@ class TestFunnelOrchestrator:
         budget.record_spend("run", Decimal("0.01"))
         successor = orch.submit(candidate, context)
 
-        assert successor is not ticket
-        assert successor.parent_ticket_id == ticket.ticket_id
-        assert successor.lineage[:-1] == ticket.lineage
-        assert successor.continuation_reason is not None
+        assert successor is ticket
         assert successor.stage_results == prior_stage_results
         assert successor.trace == prior_trace
         assert sum(step.compute_actual_usd for step in successor.trace) == prior_cost
 
-    def test_stage_defer_continuation_without_scheduler_decision(self):
+    def test_stage_defer_without_discriminator_does_not_resume(self):
         stages = [_make_stage(0, "L0"), _make_stage(1, "L1"), _make_stage(2, "L2")]
         for stage, cost in zip(stages[:2], (0.1, 0.2), strict=True):
             stage.evaluate.return_value.compute_actual_usd = cost
@@ -421,10 +437,7 @@ class TestFunnelOrchestrator:
         budget.record_spend("run", Decimal("0.01"))
         successor = orch.submit(candidate, context)
 
-        assert successor is not ticket
-        assert successor.parent_ticket_id == ticket.ticket_id
-        assert successor.lineage[:-1] == ticket.lineage
-        assert successor.continuation_reason is not None
+        assert successor is ticket
         assert successor.stage_results == prior_stage_results
         assert successor.trace == prior_trace
         assert sum(step.compute_actual_usd for step in successor.trace) == prior_cost
@@ -472,10 +485,7 @@ class TestFunnelOrchestrator:
         budget.record_spend("run", Decimal("0.01"))
         successor_a = orch.submit(candidate, context_a)
 
-        assert successor_a is not ticket_a
-        assert successor_a.parent_ticket_id == ticket_a.ticket_id
-        assert successor_a.parent_ticket_id != ticket_b.ticket_id
-        assert successor_a.lineage[:-1] == ticket_a.lineage
+        assert successor_a is ticket_a
         assert successor_a.stage_results == prior_a_results
         assert successor_a.stage_results[1].objective_value == 1.0
         assert successor_a.trace == prior_a_trace
@@ -628,7 +638,8 @@ class TestFunnelOrchestrator:
         )
 
         assert outcome.completed is True
-        assert outcome.final_action == "complete"
+        assert outcome.final_action == "defer_to_human"
+        assert outcome.final_result.feedback["promotion_admission_status"] == "bridge_missing"
         assert outcome.final_result is not None
         assert outcome.final_result.stage_name == "funnel_L6_promotion"
         assert outcome.audit_refs

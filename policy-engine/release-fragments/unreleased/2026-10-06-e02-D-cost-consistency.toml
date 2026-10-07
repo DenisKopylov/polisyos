@@ -1,0 +1,10 @@
+id = "2026-10-06-e02-D-cost-consistency"
+title = "Refuse conflicting provider cost declarations"
+type = "fixed"
+component = "core-llm"
+owner = "team-policyos-runtime"
+surface_classification = "internal"
+summary = "Validate the existing USD total aliases and base-plus-platform-fee basis together. Conflicting finite reported totals refuse intake rather than selecting the first or cheaper value. Original Gateway declarations govern its normalized envelope; genuine zero and consistent decimal components remain admitted."
+evidence = ["tests/integration/core/llm/test_provider_cost_consistency.py"]
+compatibility = "Healthy SDK fixtures now declare only their actual fields; malformed present fields still refuse. Raw HTTP JSON underflow remains a separate Gateway decoder owner input."
+limitations = "Local provider reports and recorded spend are not external invoice authority."

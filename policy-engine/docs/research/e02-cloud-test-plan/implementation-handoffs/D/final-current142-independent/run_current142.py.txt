@@ -1,0 +1,145 @@
+"""One unchanged native pytest child; parent imports only the standard library."""
+
+from __future__ import annotations
+
+import argparse
+import datetime
+import hashlib
+import json
+import os
+import subprocess
+import sys
+import time
+import uuid
+from pathlib import Path
+from typing import Any
+
+ROOT = Path("/workspace/e02-D-published-root")
+PRODUCT = ROOT / "policy-engine"
+FROZEN = "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973"
+PYTHON = "/workspace/e02-D-locked-env/bin/python"
+SELECTORS = [
+    "tests/unit/scientist/methods/search/test_legacy_frontier_independent_oracle.py",
+    "tests/unit/scientist/methods/search/test_budget_deficit_independent_oracle.py",
+    "tests/integration/core/llm/test_native_gateway_cost_intake.py",
+    "tests/integration/core/llm/test_native_gateway_cost_range.py",
+]
+MODULES = [
+    "polisyos.scientist.methods.search.frontier",
+    "polisyos.scientist.methods.search.objective",
+    "polisyos.scientist.methods.autotune.bayesian_generator",
+    "polisyos.scientist.methods.search.controller",
+    "polisyos.scientist.methods.search.service",
+    "polisyos.scientist.methods.search.strategies.bayesian",
+    "polisyos.core.llm.response",
+    "polisyos.scientist.orchestration.llm.gateway_client",
+    "polisyos.scientist.orchestration.llm.budget_enforcer",
+    "polisyos.scientist.orchestration.engine.budget_middleware",
+    "polisyos.scientist.orchestration.engine.budget_ledger",
+]
+CAP_NAMES = [
+    "OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS",
+    "NUMEXPR_NUM_THREADS", "VECLIB_MAXIMUM_THREADS", "BLIS_NUM_THREADS",
+    "POLISYOS_PYTEST_WORKERS", "POLISYOS_PYTEST_DIST",
+    "POLISYOS_TORCH_NUM_THREADS", "POLISYOS_TORCH_INTEROP_THREADS",
+    "XLA_FLAGS", "PYTEST_ADDOPTS",
+]
+
+
+def git(*args: str) -> bytes:
+    return subprocess.check_output(["git", "--no-optional-locks", *args], cwd=ROOT)
+
+
+def sha(raw: bytes) -> str:
+    return hashlib.sha256(raw).hexdigest()
+
+
+def state() -> dict[str, str]:
+    return {
+        "head": git("rev-parse", "HEAD").decode().strip(),
+        "tree": git("rev-parse", "HEAD^{tree}").decode().strip(),
+        "tracked_status": git("status", "--porcelain", "--untracked-files=no").decode(),
+        "diff": git("diff", "HEAD", "--binary").decode(),
+    }
+
+
+def require(condition: bool, text: str) -> None:
+    if not condition:
+        raise ValueError(text)
+
+
+def save(path: Path, value: Any) -> None:
+    path.write_text(json.dumps(value, indent=2) + "\n")
+
+
+def child(output: Path, arguments: list[str]) -> int:
+    import pytest
+
+    class Observer:
+        @staticmethod
+        def pytest_sessionfinish(session: Any, exitstatus: int) -> None:
+            cells = []
+            failures = []
+            for name in MODULES:
+                module = sys.modules.get(name)
+                origin = getattr(module, "__file__", None)
+                try:
+                    require(origin is not None, f"module was not loaded: {name}")
+                    path = Path(origin).resolve()
+                    relative = path.relative_to(ROOT.resolve()).as_posix()
+                    raw = path.read_bytes()
+                    expected = git("show", f"{FROZEN}:{relative}")
+                    require(raw == expected, f"origin bytes differ: {name}")
+                    cells.append({"module": name, "origin": str(path), "git_path": relative, "bytes": len(raw), "sha256": sha(raw), "expected_sha256": sha(expected), "status": "MATCH"})
+                except (OSError, ValueError, subprocess.CalledProcessError) as error:
+                    failures.append({"module": name, "error": repr(error)})
+            observed = {"source_sha": FROZEN, "interpreter": sys.executable, "python": sys.version, "exitstatus_before_origin_guard": exitstatus, "source_cells": cells, "origin_failures": failures, "backend_modules_actually_loaded": {name: str(getattr(sys.modules[name], "__file__", None)) for name in ("torch", "botorch", "gpytorch", "numpy", "scipy") if name in sys.modules}, "environment": {k: os.environ.get(k) for k in CAP_NAMES}, "origin_guard": "Every one of11 named actual loaded native modules must be within frozen root and byte-equal to exact Git source; no replacement import/model/consumer."}
+            save(output, observed)
+            if failures:
+                session.exitstatus = pytest.ExitCode.INTERNAL_ERROR
+
+    return int(pytest.main(arguments, plugins=[Observer()]))
+
+
+def parent() -> int:
+    before = state()
+    require(before["head"] == FROZEN and before["tracked_status"] == "" and before["diff"] == "", "root source is not exact clean freeze")
+    require(all(os.environ.get(k) is None for k in CAP_NAMES), "ambient numeric/worker override present; do not silently alter it")
+    scratch = Path("/dev/shm") / ("e02-oracle-final3f38-native142-" + uuid.uuid4().hex)
+    scratch.mkdir()
+    basetemp = scratch / "new-fixtures"
+    require(not basetemp.exists(), "basetemp must not exist")
+    input_cells = []
+    for selector in SELECTORS:
+        raw = (PRODUCT / selector).read_bytes()
+        frozen_raw = git("show", f"{FROZEN}:policy-engine/{selector}")
+        require(raw == frozen_raw, "test input differs from Git")
+        input_cells.append({"path": "policy-engine/" + selector, "bytes": len(raw), "sha256": sha(raw)})
+    environment = dict(os.environ)
+    environment.update(PYTHONPATH="src:.", PYTHONDONTWRITEBYTECODE="1", TIKTOKEN_CACHE_DIR="/workspace/e02-D2-receipts/tokenizer")
+    arguments = [*SELECTORS, "--basetemp=" + str(basetemp), "-o", "addopts=", "--import-mode=importlib", "--strict-markers", "-q", "-s", "-rA", "--junitxml=" + str(scratch / "junit.xml")]
+    argv = [PYTHON, "-B", str(Path(__file__).resolve()), "--child", str(scratch / "actual-origins.json"), *arguments]
+    record = {"source_before": before, "source_sha": FROZEN, "actual_product": str(PRODUCT), "argv": argv, "equivalent_pytest_argv": [PYTHON, "-B", "-m", "pytest", *arguments], "test_inputs": input_cells, "no_held_Torch_parent": "torch" not in sys.modules, "environment": {k: environment.get(k) for k in [*CAP_NAMES, "PYTHONPATH", "PYTHONDONTWRITEBYTECODE", "TIKTOKEN_CACHE_DIR"]}, "fresh_basetemp_before_exists": False, "scratch": str(scratch), "started_utc": datetime.datetime.now(datetime.timezone.utc).isoformat()}
+    save(scratch / "command.json", record)
+    sys.stdout.write(json.dumps({"scratch": str(scratch), "source": FROZEN, "selectors": SELECTORS}) + "\n")
+    sys.stdout.flush()
+    start = time.monotonic()
+    with (scratch / "complete.txt").open("wb") as stdout:
+        process = subprocess.Popen(argv, cwd=PRODUCT, env=environment, stdout=stdout, stderr=subprocess.STDOUT)
+        record["child_pid"] = process.pid
+        save(scratch / "command.json", record)
+        code = process.wait()
+    record.update(exit_code=code, wall_seconds=time.monotonic() - start, ended_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(), source_after=state(), basetemp_after_exists=basetemp.exists(), preservation="No cleanup or deletion; actual fixtures and complete output retained.")
+    record["source_before_after_equal_and_clean"] = record["source_before"] == record["source_after"]
+    save(scratch / "command.json", record)
+    require(record["source_before_after_equal_and_clean"], "source changed during execution")
+    sys.stdout.write(json.dumps({"scratch": str(scratch), "exit_code": code, "wall_seconds": record["wall_seconds"], "source_before_after_equal_and_clean": True}) + "\n")
+    return code
+
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1 and sys.argv[1] == "--child":
+        raise SystemExit(child(Path(sys.argv[2]), sys.argv[3:]))
+    parser = argparse.ArgumentParser()
+    parser.parse_args()
+    raise SystemExit(parent())

@@ -1,0 +1,79 @@
+{
+  "source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "original_complete_output": "actual680/fiscal-dependent.stdout.txt",
+  "records": [
+    {
+      "stdout_line": 17,
+      "actual_output_line_sha256": "dfc99e2554ab5b7c12ab73efc820b7be440f137c2d01fe2eb7644e365dddf3f9",
+      "keys": [
+        "failure",
+        "fresh",
+        "live"
+      ],
+      "artifact_refs": [
+        {
+          "artifact_id": "sha256:642d6bf165bcd22ceba9d4603f33e76ba636612220effd760db12048d519cfbf",
+          "kind": "scientist.search.service_checkpoint",
+          "manifest_profile_sha256": "sha256:d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a",
+          "media_type": "application/json"
+        },
+        {
+          "artifact_id": "sha256:642d6bf165bcd22ceba9d4603f33e76ba636612220effd760db12048d519cfbf",
+          "kind": "scientist.search.service_checkpoint",
+          "manifest_profile_sha256": "sha256:d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a",
+          "media_type": "application/json"
+        }
+      ],
+      "fresh_and_live_equal": true
+    },
+    {
+      "stdout_line": 18,
+      "actual_output_line_sha256": "4abb3e0dac8504b5bcc795079f3a00d6f29f4eb6bac2a1e24f9f5d94049ffd3a",
+      "keys": [
+        "failure",
+        "fresh",
+        "live"
+      ],
+      "artifact_refs": [
+        {
+          "artifact_id": "sha256:618773342e422bb49b54cebcb7f74aec4efc2a2427a5a27c01513ac3b6bf2ac3",
+          "kind": "scientist.search.service_checkpoint",
+          "manifest_profile_sha256": "sha256:d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a",
+          "media_type": "application/json"
+        },
+        {
+          "artifact_id": "sha256:618773342e422bb49b54cebcb7f74aec4efc2a2427a5a27c01513ac3b6bf2ac3",
+          "kind": "scientist.search.service_checkpoint",
+          "manifest_profile_sha256": "sha256:d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a",
+          "media_type": "application/json"
+        }
+      ],
+      "fresh_and_live_equal": true
+    },
+    {
+      "stdout_line": 19,
+      "actual_output_line_sha256": "9e16bff087f2f569a5daeaeb8b7fd71f0b475123272654ceabc725e55e11faf4",
+      "keys": [
+        "failure",
+        "fresh",
+        "live"
+      ],
+      "artifact_refs": [
+        {
+          "artifact_id": "sha256:52ac1cc00982e1dfe1cfd21a5fe8a5cbfe9a28c99d30a2f9c8d34600b7ba0cae",
+          "kind": "scientist.search.service_checkpoint",
+          "manifest_profile_sha256": "sha256:d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a",
+          "media_type": "application/json"
+        },
+        {
+          "artifact_id": "sha256:52ac1cc00982e1dfe1cfd21a5fe8a5cbfe9a28c99d30a2f9c8d34600b7ba0cae",
+          "kind": "scientist.search.service_checkpoint",
+          "manifest_profile_sha256": "sha256:d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a",
+          "media_type": "application/json"
+        }
+      ],
+      "fresh_and_live_equal": true
+    }
+  ],
+  "scope": "Index of actual deciding stdout fresh/live observations and qualified refs. Full original stdout is the deciding evidence; no synthetic reader/evaluation or extra measurement inferred."
+}

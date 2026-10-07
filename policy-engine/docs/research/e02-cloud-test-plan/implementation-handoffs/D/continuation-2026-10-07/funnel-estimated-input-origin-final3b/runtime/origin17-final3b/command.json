@@ -1,0 +1,143 @@
+{
+  "source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+  "head_after": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "status_after": "",
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "actual_command": [
+    "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "/dev/shm/e02-D-funnel-oct07/run_frozen_input_origins.py",
+    "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+    "origin17-final3b",
+    "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py",
+    "tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_native_policy_callers_full_split_actual_events_and_fresh_reopen",
+    "tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_actual_spend_does_not_resume_but_released_owned_capacity_rechecks_remaining_work",
+    "tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py"
+  ],
+  "pytest_argv": [
+    "-o",
+    "addopts=",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp=/dev/shm/e02-D-funnel-oct07/origin17-final3b-fixtures",
+    "--junitxml=/dev/shm/e02-D-funnel-oct07/origin17-final3b.junit.xml",
+    "-vv",
+    "-rA",
+    "tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py",
+    "tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_native_policy_callers_full_split_actual_events_and_fresh_reopen",
+    "tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_actual_spend_does_not_resume_but_released_owned_capacity_rechecks_remaining_work",
+    "tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py"
+  ],
+  "env_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1",
+    "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src",
+    "TMPDIR": "/dev/shm/e02-D-funnel-oct07",
+    "HYPOTHESIS_STORAGE_DIRECTORY": "/dev/shm/e02-D-funnel-oct07/hypothesis",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer",
+    "E02_B66_TARGET_ROOT": "/dev/shm/e02-D-oct07-continuation",
+    "E02_B66_TARGET_SHA": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2"
+  },
+  "exit": 0,
+  "wall_seconds": 12.216177940368652,
+  "phase_counts": {
+    "call:passed": 17,
+    "setup:passed": 17,
+    "teardown:passed": 17
+  },
+  "outputs": {
+    "origin17-final3b.stdout.txt": {
+      "path": "/dev/shm/e02-D-funnel-oct07/origin17-final3b.stdout.txt",
+      "bytes": 15437,
+      "sha256": "4fce97700667e2fcbb81637893033cd90b3f4076411b27b29880b8296f25201f"
+    },
+    "origin17-final3b.stderr.txt": {
+      "path": "/dev/shm/e02-D-funnel-oct07/origin17-final3b.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "origin17-final3b.junit.xml": {
+      "path": "/dev/shm/e02-D-funnel-oct07/origin17-final3b.junit.xml",
+      "bytes": 3953,
+      "sha256": "43ab603a55ee8b3cbbb8958f714566edf928b7f17ee724a79c058c6789c85e0c"
+    },
+    "origin17-final3b.phases.json": {
+      "path": "/dev/shm/e02-D-funnel-oct07/origin17-final3b.phases.json",
+      "bytes": 15818,
+      "sha256": "83d94c90fbe41a10864a6beb95d563a9b165fa0c865d7c0a1e8404d9b6f605e0"
+    },
+    "origin17-final3b.inputs.json": {
+      "path": "/dev/shm/e02-D-funnel-oct07/origin17-final3b.inputs.json",
+      "bytes": 1201670,
+      "sha256": "267950573494031f48ad7dc8edadc42b5c16df5b8dddd753bf1fe2cbb08af172"
+    },
+    "origin17-final3b.modules.json": {
+      "path": "/dev/shm/e02-D-funnel-oct07/origin17-final3b.modules.json",
+      "bytes": 415570,
+      "sha256": "4469ec404fc328e69701b9b494f5d7b28dee720bcda888c7b626cc794c21be87"
+    },
+    "origin17-final3b.environment.json": {
+      "path": "/dev/shm/e02-D-funnel-oct07/origin17-final3b.environment.json",
+      "bytes": 10503,
+      "sha256": "28fdd07f411ed3b4385bb58d13110b62296526dd6ce61c7eae01ae4a05ddfbc0"
+    },
+    "origin17-final3b.cgroup-before.json": {
+      "path": "/dev/shm/e02-D-funnel-oct07/origin17-final3b.cgroup-before.json",
+      "bytes": 506,
+      "sha256": "6f86d3182901b9373c4ec24ebdc8b395b1faf20f5e042dfcd08bad5ff2d8522d"
+    },
+    "origin17-final3b.cgroup-after.json": {
+      "path": "/dev/shm/e02-D-funnel-oct07/origin17-final3b.cgroup-after.json",
+      "bytes": 507,
+      "sha256": "62655b25241f4a0222b988284f150e48549f374f6f1a4c724fbc822b699b64c3"
+    },
+    "origin17-final3b.deciding-ledgers.json": {
+      "path": "/dev/shm/e02-D-funnel-oct07/origin17-final3b.deciding-ledgers.json",
+      "bytes": 7579,
+      "sha256": "a0a992d560b1ecdb95f92cd8eec137b1e66e42387e191d494ab7395458590321"
+    },
+    "origin17-final3b.deciding-cas.json": {
+      "path": "/dev/shm/e02-D-funnel-oct07/origin17-final3b.deciding-cas.json",
+      "bytes": 23693,
+      "sha256": "45eca06f9203b7f00a838445e55e6969591df1d2f31fa7a17cc55860c5d8b7cf"
+    }
+  },
+  "input_denominator": 6321,
+  "input_available": 6320,
+  "input_digest": "a19ca26a90ab90c524c424562e0640227ff17268dcd7e0dffda98101583bbd33",
+  "changed_paths": [],
+  "same_source_and_inputs": true,
+  "standard_asset_before_sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7",
+  "standard_asset_after_sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7",
+  "standard_asset_unchanged": true,
+  "runtime_profile": "Actual canonical B adopted local filesystem ledger/Decimal decoder/real configured native worker factory and D bounded consumer profile; no invoice/native estimand/promotion authority",
+  "P41": "no inherited-red attribution; source/input stability only",
+  "cgroup_before": {
+    "unix_time": 1791384255.753263,
+    "files": {
+      "memory.current": "16143810560\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 38170685\noom 300\noom_kill 57\noom_group_kill 0\n",
+      "memory.events.local": "low 0\nhigh 0\nmax 38170685\noom 300\noom_kill 0\noom_group_kill 0\n",
+      "memory.peak": "17183465472\n",
+      "pids.current": "1041\n",
+      "pids.max": "max\n"
+    },
+    "scope": "shared cgroup observation; event deltas do not attribute a kill to this process"
+  },
+  "cgroup_after": {
+    "unix_time": 1791384268.0001535,
+    "files": {
+      "memory.current": "16837853184\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 38170832\noom 300\noom_kill 57\noom_group_kill 0\n",
+      "memory.events.local": "low 0\nhigh 0\nmax 38170832\noom 300\noom_kill 0\noom_group_kill 0\n",
+      "memory.peak": "17183465472\n",
+      "pids.current": "1053\n",
+      "pids.max": "max\n"
+    },
+    "scope": "shared cgroup observation; event deltas do not attribute a kill to this process"
+  },
+  "deciding_ledger_count": 18,
+  "deciding_cas_count": 45
+}

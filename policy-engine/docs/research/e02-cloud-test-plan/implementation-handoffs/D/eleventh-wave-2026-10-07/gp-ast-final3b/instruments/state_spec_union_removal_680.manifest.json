@@ -1,0 +1,15 @@
+{
+  "schema": "D.e02.state-spec-binding-exact-legacy-union-removal.v1",
+  "original_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "original_path": "policy-engine/tools/quality/diagnostics/check_state_reads.py",
+  "removed_boundary": "Only binding/cardinality/scope admission before extracting declaration reads; current entire extract body replaced with exact680 original unionfunction, unchangedfreehelper bindings",
+  "old_full_node_AST_sha256": "294dae418d5e8795283494286e37e7d54c29bf07bf9ba9ff1a0ee4c225a13248",
+  "original_function_sha256": "d42773e0d890eb2197437d8744cf2e9bd217df313c836b6866df508a1bc79dd6",
+  "plugin": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/state_spec_union_removal_680.py",
+  "plugin_sha256": "f53dcdc63802cb7fd2d4d89cea16291452013f03afe816b003be1113db686bba",
+  "target_selector": "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding",
+  "expected_actual_counterfactual": "25case assertionsFAIL atcode==2 after actualchecker returnsPASS0, noERROR/SKIP. No selecting firstbinding fakecounterfactual.",
+  "protected_data": "Perfixture exactsource/hashes/currentmeasurementfields unchanged; especially validmodule_spec thenemptymodule_spec yieldsfalsePASS asoldrealcaller",
+  "runtime": "UNRUN until immutable rootapplied source44+cannonical63 positive stable; author not reviewer",
+  "additional_original_failure_check": "Singleemptydeclaration→actualFAIL1 from originalmissingread remains independent; unionremoval does not remove comparison guard."
+}

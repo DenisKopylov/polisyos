@@ -1,0 +1,1163 @@
+{
+  "schema": "e02.D.current-original-eight-essential-handoff.v1",
+  "author": "/root/math_oct07",
+  "status": "source-qualified engineering proposals; pending independent root review of current Math outputs/namespace sidecar; no formal G closure",
+  "execution_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "execution_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+  "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "assessed_product_tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+  "production_source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "G_read_source": "9806442ddb47d624a2940bac75d9d6248e934c48",
+  "scope": "All8 original acceptance occurrences preserved. Actual four selected packets are separate executions, not a wholeD total. Old154 and disjoint MO27/153/b5-104/fiscal73 retain old pins, exact unchanged source/assertion qualification only. Current source has newreceipt docs; completecatalog not relabelled a795.",
+  "checks": {
+    "quantity-consumers": {
+      "check_result": {
+        "PASS": 17,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "receipt_admission": {
+        "verdict": "ERROR",
+        "reasons": [
+          "actual_loaded_origin_unreadable_untracked_or_candidate_mismatch"
+        ],
+        "expected_case_denominator": 17,
+        "declared_count_predicate_basis": "consumer_asserted_until_independently_reconciled",
+        "command_without_pytest_no_case_property_claim": false,
+        "actual_collected": 17,
+        "phase_denominator": 51,
+        "missing_python_child_packets": [],
+        "sparse_unread_boundaries": 8894,
+        "property_result_distinct_from_receipt_admission": true
+      },
+      "source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+      "source_inputs_before_after_equal": true,
+      "all_tracked_input_count": 17619,
+      "available_tracked_input_count": 8725,
+      "runtime": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-D-locked-env/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "installed_packages": {
+          "pytest": "9.0.2",
+          "pytest-asyncio": "1.3.0",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "SALib": null,
+          "torch": "2.10.0",
+          "botorch": "0.16.1",
+          "gpytorch": "1.15.1",
+          "hnswlib": "0.8.0"
+        },
+        "limitations": [
+          "Installed package metadata only; actual loaded backend origins are separate."
+        ]
+      },
+      "backend": "Actual pinned BoTorch0.16.1/Torch2.10+cu128/GPyTorch1.15.1 hypervolume partitioner and MO indicator; no GP fit selected. Existing exact float64 bounded1–4D profile.",
+      "wall_seconds": 32.475893120019464,
+      "sampled_peak_family_RSS_KiB": 1186940,
+      "complete_phase_count": 51,
+      "selected_count": 17,
+      "receipt": {
+        "path": "quantity-consumers/receipt.json",
+        "sha256": "7b4095d41505df526541be2792fc908aedaa54e5031f2433a56382261bd06ef2",
+        "bytes": 319613
+      },
+      "JUnit": {
+        "path": "quantity-consumers/junit.xml",
+        "sha256": "32d3f8af30d61a22b9062773c11f66040266b5e944d701d64d85c49d37baa7bf",
+        "bytes": 3458
+      }
+    },
+    "fiscal-consumers": {
+      "check_result": {
+        "PASS": 24,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "receipt_admission": {
+        "verdict": "ADMITTED",
+        "reasons": [],
+        "expected_case_denominator": 24,
+        "declared_count_predicate_basis": "consumer_asserted_until_independently_reconciled",
+        "command_without_pytest_no_case_property_claim": false,
+        "actual_collected": 24,
+        "phase_denominator": 72,
+        "missing_python_child_packets": [],
+        "sparse_unread_boundaries": 8894,
+        "property_result_distinct_from_receipt_admission": true
+      },
+      "source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+      "source_inputs_before_after_equal": true,
+      "all_tracked_input_count": 17619,
+      "available_tracked_input_count": 8725,
+      "runtime": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "installed_packages": {
+          "pytest": "9.0.2",
+          "pytest-asyncio": "1.3.0",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "SALib": null,
+          "torch": null,
+          "botorch": null,
+          "gpytorch": null,
+          "hnswlib": null
+        },
+        "limitations": [
+          "Installed package metadata only; actual loaded backend origins are separate."
+        ]
+      },
+      "backend": "Actual canonical Gateway response-text decoder to BudgetDeficit/Composite/Plateau/Target; HTTP transport fixture, numeric engineering profile only; no fiscal issuer-law input.",
+      "wall_seconds": 2.016089231998194,
+      "sampled_peak_family_RSS_KiB": 74700,
+      "complete_phase_count": 72,
+      "selected_count": 24,
+      "receipt": {
+        "path": "fiscal-consumers/receipt.json",
+        "sha256": "7b34a678e823c91c118cde3eebc3c06ca200648b4a6326ba0d27f16c10141699",
+        "bytes": 81142
+      },
+      "JUnit": {
+        "path": "fiscal-consumers/junit.xml",
+        "sha256": "43c4fda67481b36d5d453f4f54502a498e984fd65bc30c68f937530950986853",
+        "bytes": 5293
+      }
+    },
+    "stress-consumers": {
+      "check_result": {
+        "PASS": 22,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "receipt_admission": {
+        "verdict": "ADMITTED",
+        "reasons": [],
+        "expected_case_denominator": 22,
+        "declared_count_predicate_basis": "consumer_asserted_until_independently_reconciled",
+        "command_without_pytest_no_case_property_claim": false,
+        "actual_collected": 22,
+        "phase_denominator": 66,
+        "missing_python_child_packets": [],
+        "sparse_unread_boundaries": 8894,
+        "property_result_distinct_from_receipt_admission": true
+      },
+      "source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+      "source_inputs_before_after_equal": true,
+      "all_tracked_input_count": 17619,
+      "available_tracked_input_count": 8725,
+      "runtime": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-D-locked-env/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "installed_packages": {
+          "pytest": "9.0.2",
+          "pytest-asyncio": "1.3.0",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "SALib": null,
+          "torch": "2.10.0",
+          "botorch": "0.16.1",
+          "gpytorch": "1.15.1",
+          "hnswlib": "0.8.0"
+        },
+        "limitations": [
+          "Installed package metadata only; actual loaded backend origins are separate."
+        ]
+      },
+      "backend": "Actual scenario producer→typedreport→ordinaryblueprint→CASfresh; declared physical thresholds/directions/observed sample fraction; no population probability.",
+      "wall_seconds": 25.46998409301159,
+      "sampled_peak_family_RSS_KiB": 677820,
+      "complete_phase_count": 66,
+      "selected_count": 22,
+      "receipt": {
+        "path": "stress-consumers/receipt.json",
+        "sha256": "a9982d2fb6f0af966fda49d68ff9f8aead115978101d0402568878f22796fef0",
+        "bytes": 151850
+      },
+      "JUnit": {
+        "path": "stress-consumers/junit.xml",
+        "sha256": "6d47245befee4e1cb08867c42271b8a1eb1060f11e6a59668b98caed1cd919df",
+        "bytes": 3891
+      }
+    },
+    "stopping-convergence": {
+      "check_result": {
+        "PASS": 50,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "receipt_admission": {
+        "verdict": "ADMITTED",
+        "reasons": [],
+        "expected_case_denominator": 50,
+        "declared_count_predicate_basis": "consumer_asserted_until_independently_reconciled",
+        "command_without_pytest_no_case_property_claim": false,
+        "actual_collected": 50,
+        "phase_denominator": 150,
+        "missing_python_child_packets": [],
+        "sparse_unread_boundaries": 8894,
+        "property_result_distinct_from_receipt_admission": true
+      },
+      "source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+      "source_inputs_before_after_equal": true,
+      "all_tracked_input_count": 17619,
+      "available_tracked_input_count": 8725,
+      "runtime": {
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+        "installed_packages": {
+          "pytest": "9.0.2",
+          "pytest-asyncio": "1.3.0",
+          "pydantic": "2.12.5",
+          "numpy": "2.3.5",
+          "scipy": "1.16.3",
+          "SALib": null,
+          "torch": null,
+          "botorch": null,
+          "gpytorch": null,
+          "hnswlib": null
+        },
+        "limitations": [
+          "Installed package metadata only; actual loaded backend origins are separate."
+        ]
+      },
+      "backend": "Actual fresh declared toy embeddings and native SearchController plateau/retained-best; analytic cosine/Decimal oracle. Numerical GP backend not selected.",
+      "wall_seconds": 6.946041146002244,
+      "sampled_peak_family_RSS_KiB": 242052,
+      "complete_phase_count": 150,
+      "selected_count": 50,
+      "receipt": {
+        "path": "stopping-convergence/receipt.json",
+        "sha256": "747f77f119aa341d9cafa9dcb79d22e2fafb521de4d1c2b0c56b21ae61d823e9",
+        "bytes": 89466
+      },
+      "JUnit": {
+        "path": "stopping-convergence/junit.xml",
+        "sha256": "1c519ebfcb48c8b247aa2abbb8cf83f292d79cf187bff77b0b4e988863004dcb",
+        "bytes": 9898
+      }
+    }
+  },
+  "criterion_occurrences": [
+    {
+      "id": "B106@STR-01",
+      "finding_id": "B106",
+      "bundle": "STR-01",
+      "original_acceptance_text": "**Приёмка.** Изменение `collect_top_k` не изменяет итог той же серии. Десять проявлений одной проблемы и одно проявление не смешиваются. При нулевом количестве оценённых сценариев или непроверенных условиях score не должен выглядеть установленной устойчивостью. При адаптивном/раннем прекращении доля в обследованном наборе не является автоматически вероятностью отказа во всём пространстве.",
+      "original_acceptance_binding": {
+        "byte_offset": 617064,
+        "bytes": 706,
+        "sha256": "1d212bb12a7346fc8c2480723fddd43da874e2e1daa2d2070a6233ab75795d43"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          2738,
+          2749
+        ],
+        "byte_offset": 614780,
+        "bytes": 2992,
+        "sha256": "250b3bd2f5bc433b540605f3c9e37eddab7a5c693326c6193bb94cc9d4c67e33"
+      },
+      "original_authority": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/0"
+      },
+      "runtime_property": "Attempted/finite/violated counts precede grouping/top-k; repeated issue occurrences remain distinct, zero/missing basis unavailable, incomplete/adaptive finite fraction conditional; all components including empty/unknown preserve completeness.",
+      "actual_consumer": "Actual stress/challenge producers -> typed1.1 report -> ordinary blueprint _ensure/merge -> real L5 and JSON/CAS fresh reader.",
+      "P37": {
+        "predicate_basis": [
+          "recomputed",
+          "consumer_asserted",
+          "independently_reconciled"
+        ],
+        "required_owner_positive": "not_required_for_bounded_engineering_original_criterion",
+        "independent_acceptance": "pending root independent current receipt/sidecar review"
+      },
+      "P38": {
+        "divergent_proxy": "Identical actual stream at top-k1/20 and distinct occurrence multiplicities keeps23/38; grouped issue count or zero-denominator score1 is divergent.",
+        "old_protected_property_removal_outputs": [
+          {
+            "executed_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+            "canonical_evidence": {
+              "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/STP-STR469-threefile-seal-and-original-criterion-independent-review.json",
+              "bytes": 3475,
+              "container": "direct_file"
+            },
+            "sha256": "d950b06c22f68472f8dd51ef40d09e72663d9f218d8deb9d4ecaf3ecb758bb3f"
+          },
+          {
+            "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+            "canonical_evidence": {
+              "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+              "bytes": 29365,
+              "container": "direct_file"
+            },
+            "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77"
+          },
+          {
+            "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+            "canonical_evidence": {
+              "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+              "bytes": 5056,
+              "container": "direct_file"
+            },
+            "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587"
+          }
+        ],
+        "current_contrasts": "Current selected literal zero versus missing/unavailable; retained coordinate labels versus stale full identity; actual top-k fixed stream/scenario occurrence counts; current embedding invalid/fresh recovery; signed Decimal plateau table."
+      },
+      "current_execution_scopes": [
+        {
+          "scope": "stress-consumers",
+          "receipt": {
+            "path": "stress-consumers/receipt.json",
+            "sha256": "a9982d2fb6f0af966fda49d68ff9f8aead115978101d0402568878f22796fef0",
+            "bytes": 151850
+          },
+          "checks": {
+            "PASS": 22,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "admission": "ADMITTED"
+        }
+      ],
+      "quantity17_origin_receipt_rule": null,
+      "B111_native_primary4": null,
+      "decision_proposal": "closed_bounded_original_engineering_proposal_pending_independent_current_review",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "capability_status": "bounded_supported_mechanism_and_named_consumer_available",
+      "residual": "G frozen integration acceptance/broad common gate UNRUN; no default deployed or scientific law claim",
+      "P41": "not_established: no slice-base command with full-input zero-overlap, no inherited-red waiver claimed",
+      "qualified_candidate_source": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+      "qualified_candidate_tree": "5738498b09aadca51e0bb73fa6d104e3354dc603",
+      "qualified_assertion_execution_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "no_new_5b_execution": true
+    },
+    {
+      "id": "B107@STR-01",
+      "finding_id": "B107",
+      "bundle": "STR-01",
+      "original_acceptance_text": "**Приёмка.** Табличные контрпримеры для maximize-utility и minimize-cost, порога в обе стороны, отрицательных значений, отсутствующих/нечисленных результатов. Запись worst-case совпадает с определённым нарушением. Эта правка должна идти вместе с B106: правильный экстремум ещё не означает правильно посчитанную полноту/устойчивость.",
+      "original_acceptance_binding": {
+        "byte_offset": 620436,
+        "bytes": 572,
+        "sha256": "83e4adcea92922a6991dbd16937e9dc47cca02d83f0beccf2eb7e2f43623e0a3"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          2750,
+          2761
+        ],
+        "byte_offset": 617772,
+        "bytes": 3238,
+        "sha256": "35367e5237da490c93fb99395113d7251a972437ec52e1a54a8003e74d63eb7e"
+      },
+      "original_authority": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/1"
+      },
+      "runtime_property": "Declared physical threshold/direction controls for maximized utility and minimized cost; actual worst-case selection follows violation relation, invalid/missing threshold refuses/unavailable.",
+      "actual_consumer": "Real typed CompositeObjective/adversarial and E sensitivity rounds -> producer -> report -> CAS fresh reader.",
+      "P37": {
+        "predicate_basis": [
+          "recomputed",
+          "consumer_asserted",
+          "independently_reconciled"
+        ],
+        "required_owner_positive": "not_required_for_bounded_engineering_original_criterion",
+        "independent_acceptance": "pending root independent current receipt/sidecar review"
+      },
+      "P38": {
+        "divergent_proxy": "Choosing largest raw value for every objective disagrees with cost-minimization worst violation, even when completeness markers persist.",
+        "old_protected_property_removal_outputs": [
+          {
+            "executed_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+            "canonical_evidence": {
+              "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/STP-STR469-threefile-seal-and-original-criterion-independent-review.json",
+              "bytes": 3475,
+              "container": "direct_file"
+            },
+            "sha256": "d950b06c22f68472f8dd51ef40d09e72663d9f218d8deb9d4ecaf3ecb758bb3f"
+          },
+          {
+            "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+            "canonical_evidence": {
+              "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+              "bytes": 29365,
+              "container": "direct_file"
+            },
+            "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77"
+          },
+          {
+            "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+            "canonical_evidence": {
+              "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+              "bytes": 5056,
+              "container": "direct_file"
+            },
+            "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587"
+          }
+        ],
+        "current_contrasts": "Current selected literal zero versus missing/unavailable; retained coordinate labels versus stale full identity; actual top-k fixed stream/scenario occurrence counts; current embedding invalid/fresh recovery; signed Decimal plateau table."
+      },
+      "current_execution_scopes": [
+        {
+          "scope": "stress-consumers",
+          "receipt": {
+            "path": "stress-consumers/receipt.json",
+            "sha256": "a9982d2fb6f0af966fda49d68ff9f8aead115978101d0402568878f22796fef0",
+            "bytes": 151850
+          },
+          "checks": {
+            "PASS": 22,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "admission": "ADMITTED"
+        }
+      ],
+      "quantity17_origin_receipt_rule": null,
+      "B111_native_primary4": null,
+      "decision_proposal": "closed_bounded_original_engineering_proposal_pending_independent_current_review",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "capability_status": "bounded_supported_mechanism_and_named_consumer_available",
+      "residual": "G frozen integration acceptance/broad common gate UNRUN; no default deployed or scientific law claim",
+      "P41": "not_established: no slice-base command with full-input zero-overlap, no inherited-red waiver claimed",
+      "qualified_candidate_source": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+      "qualified_candidate_tree": "5738498b09aadca51e0bb73fa6d104e3354dc603",
+      "qualified_assertion_execution_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "no_new_5b_execution": true
+    },
+    {
+      "id": "B108@OPT-01",
+      "finding_id": "B108",
+      "bundle": "OPT-01",
+      "original_acceptance_text": "**Приёмка и предел.** Эквивалентные кодировки balance/deficit дают одинаковый score; ноль не считается отсутствием; полностью отсутствующее, конфликтующее, non-finite и несовместимые единицы различены. Настоящие симуляционные producer и пользовательский search здесь не запускались.",
+      "original_acceptance_binding": {
+        "byte_offset": 651124,
+        "bytes": 480,
+        "sha256": "8d4cbd469a454de4a7f4a26aa91c3fdf8aabf3b2b59bb77651b99146bcaa888c"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          2897,
+          2910
+        ],
+        "byte_offset": 647789,
+        "bytes": 3817,
+        "sha256": "f43cecf8c2c66d6cc7bce5c5174b45fe7692e5018e1364c9798302104f8e4b55"
+      },
+      "original_authority": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/2"
+      },
+      "runtime_property": "Existing four fiscalaliases rejectpresentnonzeroDecimal/text that underflowtozero, invalid/nonfinite/bool/overflow/conflicts; realcanonicaldecoder→Budget/Composite→Plateau/Target preserves unavailable and truezero/subnormal. Original explicitincompatible-unit law remains actualownerinput.",
+      "actual_consumer": "Actual fiscal extractor/CLI and legacy controller scalar evaluation.",
+      "P37": {
+        "predicate_basis": [
+          "recomputed",
+          "consumer_asserted",
+          "independently_reconciled"
+        ],
+        "required_owner_positive": "not_established",
+        "independent_acceptance": "pending root independent current receipt/sidecar review"
+      },
+      "P38": {
+        "divergent_proxy": "Float balance and deficit equivalence or metadata unit string does not establish issuer unit/sign law; incompatible-unit positive input remains not_established.",
+        "old_protected_property_removal_outputs": [
+          {
+            "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+            "canonical_evidence": {
+              "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+              "bytes": 5056,
+              "container": "direct_file"
+            },
+            "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587"
+          },
+          {
+            "executed_source": null,
+            "canonical_evidence": {
+              "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-a7-b652/recipes-and-original-bindings/B108-unit-intake-minimum-owner-input.json",
+              "bytes": 6836,
+              "container": "direct_file"
+            },
+            "sha256": "e3e4919b03042099c804f35fbe94012ef7c6f9a73e47337528ecb9a51dd1b76a"
+          }
+        ],
+        "current_contrasts": "Current selected literal zero versus missing/unavailable; retained coordinate labels versus stale full identity; actual top-k fixed stream/scenario occurrence counts; current embedding invalid/fresh recovery; signed Decimal plateau table."
+      },
+      "current_execution_scopes": [
+        {
+          "scope": "fiscal-consumers",
+          "receipt": {
+            "path": "fiscal-consumers/receipt.json",
+            "sha256": "7b34a678e823c91c118cde3eebc3c06ca200648b4a6326ba0d27f16c10141699",
+            "bytes": 81142
+          },
+          "checks": {
+            "PASS": 24,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "admission": "ADMITTED"
+        }
+      ],
+      "quantity17_origin_receipt_rule": null,
+      "B111_native_primary4": null,
+      "decision_proposal": "limited",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "capability_status": "owner_unit_sign_alias_law_not_established; numeric intake/consumer available",
+      "residual": "owner_declared_fiscal_profile",
+      "P41": "not_established: no slice-base command with full-input zero-overlap, no inherited-red waiver claimed",
+      "qualified_candidate_source": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+      "qualified_candidate_tree": "5738498b09aadca51e0bb73fa6d104e3354dc603",
+      "qualified_assertion_execution_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "no_new_5b_execution": true
+    },
+    {
+      "id": "B109@OPT-01",
+      "finding_id": "B109",
+      "bundle": "OPT-01",
+      "original_acceptance_text": "**Приёмка и предел.** Согласовать быстрый и прямой фронт для 1–4 измерений, перестановок входа, равенств одной/всех координат и обоих направлений после нормализации. Приведённый тестовый patch использует простой конечный контроль, не предлагается как production-оптимизация. Неправильный конечный выбор пользователя не измерялся; доказано расхождение данного математического helper.",
+      "original_acceptance_binding": {
+        "byte_offset": 654995,
+        "bytes": 686,
+        "sha256": "784670e535c99a1baee35da6689f515779b3b616a5829ab125c608fcc4f712b3"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          2911,
+          2924
+        ],
+        "byte_offset": 651606,
+        "bytes": 4077,
+        "sha256": "817c0ddda8c8883a0b7cccb111a97d8c230dd67e9859a3fb1fba47553c1b402d"
+      },
+      "original_authority": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/3"
+      },
+      "runtime_property": "Fast normalized finite-front agrees with independent strict all-pairs dominance across1–4D, input/whole-axis permutations, every direction pattern, one/all-coordinate ties, retaining distinct equal candidate IDs; actual typed full-coordinate front CAS round-trip tested.",
+      "actual_consumer": "ParetoPromoter.compute_front → typed ParetoFront → actual FileSystemCAS → fresh FileSystemCAS/load_model_artifact → actual ParetoPromoter.is_dominated.",
+      "P37": {
+        "predicate_basis": [
+          "recomputed",
+          "consumer_asserted",
+          "independently_reconciled"
+        ],
+        "required_owner_positive": "not_required_for_bounded_engineering_original_criterion",
+        "independent_acceptance": "pending root independent current receipt/sidecar review"
+      },
+      "P38": {
+        "divergent_proxy": "Independent all-pairs/Fraction oracle, tied-coordinate/permuted-front control disagrees with strict-per-axis fast path; optional A provider is not this comparator predicate.",
+        "old_protected_property_removal_outputs": [
+          {
+            "executed_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+            "canonical_evidence": {
+              "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/math-adapter-final969/numerical/current-numerical-handoff.json",
+              "bytes": 54214,
+              "container": "direct_file"
+            },
+            "sha256": "0b1d9f194413e1b22dfa89cee88d81c315a7df582455cc690d8fc5835a7c1464"
+          },
+          {
+            "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+            "canonical_evidence": {
+              "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/math-adapter-final969/numerical/numerical-current-final-unchanged-carry.json",
+              "bytes": 86408,
+              "container": "direct_file"
+            },
+            "sha256": "9edc5a7486bebe6adcb5a1d09aa88e4953a09e166818d6624f60d913238d34cf"
+          },
+          {
+            "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+            "canonical_evidence": {
+              "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+              "bytes": 29365,
+              "container": "direct_file"
+            },
+            "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77"
+          },
+          {
+            "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+            "canonical_evidence": {
+              "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+              "bytes": 5056,
+              "container": "direct_file"
+            },
+            "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587"
+          }
+        ],
+        "current_contrasts": "Current selected literal zero versus missing/unavailable; retained coordinate labels versus stale full identity; actual top-k fixed stream/scenario occurrence counts; current embedding invalid/fresh recovery; signed Decimal plateau table."
+      },
+      "current_execution_scopes": [
+        {
+          "scope": "quantity-consumers",
+          "receipt": {
+            "path": "quantity-consumers/receipt.json",
+            "sha256": "7b4095d41505df526541be2792fc908aedaa54e5031f2433a56382261bd06ef2",
+            "bytes": 319613
+          },
+          "checks": {
+            "PASS": 17,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "admission": "ERROR"
+        }
+      ],
+      "quantity17_origin_receipt_rule": "Original generic ERROR retained; source-backed two-Torch virtual namespace explanation in named sidecar qualifies bounded property only, not global admission",
+      "B111_native_primary4": null,
+      "decision_proposal": "closed_bounded_original_engineering_proposal_pending_independent_current_review",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "capability_status": "bounded_supported_mechanism_and_named_consumer_available",
+      "residual": "Root current quantity17 sidecar/output review pending",
+      "P41": "not_established: no slice-base command with full-input zero-overlap, no inherited-red waiver claimed",
+      "qualified_candidate_source": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+      "qualified_candidate_tree": "5738498b09aadca51e0bb73fa6d104e3354dc603",
+      "qualified_assertion_execution_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "no_new_5b_execution": true
+    },
+    {
+      "id": "B110@OPT-01",
+      "finding_id": "B110",
+      "bundle": "OPT-01",
+      "original_acceptance_text": "**Приёмка и предел.** Фронт, его сериализация/round-trip и `is_dominated` дают одно отношение. Смена display-label не меняет решение; смена split не исчезает. Это локальная потеря семантики, а не доказательство, что все производственные policies сейчас имеют такие повторения.",
+      "original_acceptance_binding": {
+        "byte_offset": 658592,
+        "bytes": 455,
+        "sha256": "199ef2ac1ae718655b08fbb78829e6ed0768b46df5d1b99fad56aa69181c1184"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          2925,
+          2938
+        ],
+        "byte_offset": 655683,
+        "bytes": 3366,
+        "sha256": "a6be752b83d6e94ed4d0bcccef41670106a65bac64827f8cf4645a0401239d6d"
+      },
+      "original_authority": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/4"
+      },
+      "runtime_property": "Full metric+split+unit+direction+definition-version identities bind raw/normalized values and reference; same-metric different-split tradeoff survives actual CAS; complete-axis permutations/display label changes preserve relation; duplicate full identity and stale schema/version/unit/direction/split identity refuse.",
+      "actual_consumer": "ParetoPromoter.compute_front → typed ParetoFront → actual FileSystemCAS → fresh FileSystemCAS/load_model_artifact → actual ParetoPromoter.is_dominated.",
+      "P37": {
+        "predicate_basis": [
+          "recomputed",
+          "consumer_asserted",
+          "independently_reconciled"
+        ],
+        "required_owner_positive": "not_required_for_bounded_engineering_original_criterion",
+        "independent_acceptance": "pending root independent current receipt/sidecar review"
+      },
+      "P38": {
+        "divergent_proxy": "Display label change preserves relation; different split retains separate coordinate; duplicate full identity refuses instead of dropping one labelled dimension.",
+        "old_protected_property_removal_outputs": [
+          {
+            "executed_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+            "canonical_evidence": {
+              "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/math-adapter-final969/numerical/current-numerical-handoff.json",
+              "bytes": 54214,
+              "container": "direct_file"
+            },
+            "sha256": "0b1d9f194413e1b22dfa89cee88d81c315a7df582455cc690d8fc5835a7c1464"
+          },
+          {
+            "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+            "canonical_evidence": {
+              "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/math-adapter-final969/numerical/numerical-current-final-unchanged-carry.json",
+              "bytes": 86408,
+              "container": "direct_file"
+            },
+            "sha256": "9edc5a7486bebe6adcb5a1d09aa88e4953a09e166818d6624f60d913238d34cf"
+          },
+          {
+            "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+            "canonical_evidence": {
+              "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+              "bytes": 29365,
+              "container": "direct_file"
+            },
+            "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77"
+          },
+          {
+            "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+            "canonical_evidence": {
+              "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+              "bytes": 5056,
+              "container": "direct_file"
+            },
+            "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587"
+          }
+        ],
+        "current_contrasts": "Current selected literal zero versus missing/unavailable; retained coordinate labels versus stale full identity; actual top-k fixed stream/scenario occurrence counts; current embedding invalid/fresh recovery; signed Decimal plateau table."
+      },
+      "current_execution_scopes": [
+        {
+          "scope": "quantity-consumers",
+          "receipt": {
+            "path": "quantity-consumers/receipt.json",
+            "sha256": "7b4095d41505df526541be2792fc908aedaa54e5031f2433a56382261bd06ef2",
+            "bytes": 319613
+          },
+          "checks": {
+            "PASS": 17,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "admission": "ERROR"
+        }
+      ],
+      "quantity17_origin_receipt_rule": "Original generic ERROR retained; source-backed two-Torch virtual namespace explanation in named sidecar qualifies bounded property only, not global admission",
+      "B111_native_primary4": null,
+      "decision_proposal": "closed_bounded_original_engineering_proposal_pending_independent_current_review",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "capability_status": "bounded_supported_mechanism_and_named_consumer_available",
+      "residual": "Root current quantity17 sidecar/output review pending",
+      "P41": "not_established: no slice-base command with full-input zero-overlap, no inherited-red waiver claimed",
+      "qualified_candidate_source": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+      "qualified_candidate_tree": "5738498b09aadca51e0bb73fa6d104e3354dc603",
+      "qualified_assertion_execution_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "no_new_5b_execution": true
+    },
+    {
+      "id": "B111@OPT-01",
+      "finding_id": "B111",
+      "bundle": "OPT-01",
+      "original_acceptance_text": "**Приёмка.** Перестановки не меняют конечный фронт; invalid сохраняет причину; reference point и hypervolume конечны или явно недоступны; генезис и смена чемпиона не публикуют неопределённое число. Проверить реальный CAS и существующие upstream guards, не дублируя их несовместимыми кодами.",
+      "original_acceptance_binding": {
+        "byte_offset": 662708,
+        "bytes": 484,
+        "sha256": "4d1c7ff7de3b274c2aa4e16230b323102adacd871d551f30616d9d8f3b2eec65"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          2939,
+          2954
+        ],
+        "byte_offset": 659049,
+        "bytes": 4145,
+        "sha256": "534be6222dccd944bb884e893436c32d82eef90be857ad763412d9df270c6245"
+      },
+      "original_authority": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/5"
+      },
+      "runtime_property": "Current CBC quantity17 actual typed finite/missing/nonfinite states and real Registry/Frontier/CAS/MO indicator consumers; original3b native primary4 retained at its execution pin with exact source/import/config carry toCBC and5b. Genuine0 and unavailable differ. Exact old c0 numerical geometry/oracles remain source-qualified; rationalpositive underflow is a separate bounded class.",
+      "actual_consumer": "CBC46 actual quantity17: ParetoRegistry→fresh CAS/readback and ordinary frontier disk projection; actual MOBayesianOptimizer quantity indicator/backend refusal. Its generic capture ERROR remains explicit with named two-Torch-namespace sidecar. Original3b primary4: native Runner→BenchmarkEvaluation→Objective/Controller/Service→CASfresh→Champion, qualified by exact881 CBC/5b bindings, no new4/50run. Current CBC Champion21/controller25 independently reviewed relevant guarded publication/typed-ObjectiveStack intersections; no old969/680 receipts labeled current.",
+      "P37": {
+        "predicate_basis": [
+          "recomputed",
+          "consumer_asserted",
+          "independently_reconciled"
+        ],
+        "required_owner_positive": "not_required_for_bounded_engineering_original_criterion",
+        "independent_acceptance": "pending root independent current receipt/sidecar review"
+      },
+      "P38": {
+        "divergent_proxy": "Producer assessment/available markers cannot substitute for actual quantity; typed metrics{} previously became numeric0 in native best/front/CAS. Genuine measured0 versus missing/status-error must diverge in current actual native consumer. Rational positive underflow is separate bounded class.",
+        "old_protected_property_removal_outputs": [
+          {
+            "executed_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+            "canonical_evidence": {
+              "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/math-adapter-final969/numerical/current-numerical-handoff.json",
+              "bytes": 54214,
+              "container": "direct_file"
+            },
+            "sha256": "0b1d9f194413e1b22dfa89cee88d81c315a7df582455cc690d8fc5835a7c1464"
+          },
+          {
+            "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+            "canonical_evidence": {
+              "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/math-adapter-final969/numerical/numerical-current-final-unchanged-carry.json",
+              "bytes": 86408,
+              "container": "direct_file"
+            },
+            "sha256": "9edc5a7486bebe6adcb5a1d09aa88e4953a09e166818d6624f60d913238d34cf"
+          },
+          {
+            "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+            "canonical_evidence": {
+              "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+              "bytes": 29365,
+              "container": "direct_file"
+            },
+            "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77"
+          },
+          {
+            "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+            "canonical_evidence": {
+              "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+              "bytes": 5056,
+              "container": "direct_file"
+            },
+            "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587"
+          }
+        ],
+        "current_contrasts": "Current selected literal zero versus missing/unavailable; retained coordinate labels versus stale full identity; actual top-k fixed stream/scenario occurrence counts; current embedding invalid/fresh recovery; signed Decimal plateau table."
+      },
+      "current_execution_scopes": [
+        {
+          "scope": "quantity-consumers",
+          "receipt": {
+            "path": "quantity-consumers/receipt.json",
+            "sha256": "7b4095d41505df526541be2792fc908aedaa54e5031f2433a56382261bd06ef2",
+            "bytes": 319613
+          },
+          "checks": {
+            "PASS": 17,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "admission": "ERROR"
+        }
+      ],
+      "quantity17_origin_receipt_rule": "Original generic ERROR retained; source-backed two-Torch virtual namespace explanation in named sidecar qualifies bounded property only, not global admission",
+      "B111_native_primary4": "Actual original3b four cases plus independently checkable all881-binding CBC carry; no new4/50 execution",
+      "decision_proposal": "closed_bounded_original_engineering_proposal_pending_independent_current_review",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "capability_status": "bounded_supported_mechanism_and_named_consumer_available",
+      "residual": "Independent root Math quantity17/source-backed namespace sidecar review pending; generic receipt admission stays ERROR. Formal G source acceptance/closure and common integration replay remain unavailable.",
+      "P41": "not_established: no slice-base command with full-input zero-overlap, no inherited-red waiver claimed",
+      "qualified_candidate_source": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+      "qualified_candidate_tree": "5738498b09aadca51e0bb73fa6d104e3354dc603",
+      "qualified_assertion_execution_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "no_new_5b_execution": true,
+      "historical_G_runtime_binding_literal": {
+        "runtime_property": "Fulloriginaltypedquantity/front/reference/finite/missing/nonfinite states plus actualnative missing/statusnotok→None/NaN unsatisfied/nonpromising/no best/front/champion versus genuine0/1 persistedfresh readback. Rationalpositiveunderflow is separateclass, not substitutecriterion.",
+        "actual_consumer": "ActualParetoRegistry/CASreadback+MOBayesianOptimizer; nativeRunner→typedBenchmarkEvaluation→Objective/Controller/Service→qualifiedCASfreshreader→Champion. Exactpriormathematical/oracle outputs plusactual969native48/Champion44/fourcontrols and680fiscalinput18 current.",
+        "rule": "Verbatim prior G decision/ledger narrative retained as historical binding; its969/680 pins are historical, not current execution receipts."
+      },
+      "current_adjacent_consumer_scope": "Independent CBC Champion21 guarded candidate/evaluation/suite basis and actual genesis/successor/freshreader path; controller25 actual malformed-present ObjectiveStack→best/front→CAS guard. Adjacent whole scopes are not added toquantity17 or an aggregate PASS."
+    },
+    {
+      "id": "B122@STP-01",
+      "finding_id": "B122",
+      "bundle": "STP-01",
+      "original_acceptance_text": "**Приёмка.** Ноль, малые значения обоих знаков, регресс и реальный прогресс; критерий после нормализации согласован с направлением цели. Ранее полученный полезный результат сохраняется независимо от того, что следующий шаг остановлен как плато. Повышение терпения и увеличение числа прогонов не устраняют ошибку знака.",
+      "original_acceptance_binding": {
+        "byte_offset": 729833,
+        "bytes": 584,
+        "sha256": "9fb880ce2c75c7770deca54b1861fb86071f57aa1e4db5e51793fcfac56b115e"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3222,
+          3235
+        ],
+        "byte_offset": 727307,
+        "bytes": 3112,
+        "sha256": "d9413dc95965e6f0b64b056c37dd5a1452b59dd7605a5b9f033db4776ac50f9c"
+      },
+      "original_authority": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/16"
+      },
+      "runtime_property": "Signed zero/small-value plateau uses normalized direction and declared unit/profile tolerance; regression/progress differ and true stop preserves prior best.",
+      "actual_consumer": "Actual plateau check -> native/controller stopping -> returned best; Decimal analytic oracle.",
+      "P37": {
+        "predicate_basis": [
+          "recomputed",
+          "consumer_asserted",
+          "independently_reconciled"
+        ],
+        "required_owner_positive": "not_required_for_bounded_engineering_original_criterion",
+        "independent_acceptance": "pending root independent current receipt/sidecar review"
+      },
+      "P38": {
+        "divergent_proxy": "Absolute delta or signless relative improvement falsely declares plateau after real progress/regression; independent Decimal direction table and actual controller best readback discriminate.",
+        "old_protected_property_removal_outputs": [
+          {
+            "executed_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+            "canonical_evidence": {
+              "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/STP-STR469-threefile-seal-and-original-criterion-independent-review.json",
+              "bytes": 3475,
+              "container": "direct_file"
+            },
+            "sha256": "d950b06c22f68472f8dd51ef40d09e72663d9f218d8deb9d4ecaf3ecb758bb3f"
+          },
+          {
+            "executed_source": "96905636726483fdea3a98d9313871d825b54a9e",
+            "canonical_evidence": {
+              "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+              "bytes": 29365,
+              "container": "direct_file"
+            },
+            "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77"
+          },
+          {
+            "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+            "canonical_evidence": {
+              "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+              "bytes": 5056,
+              "container": "direct_file"
+            },
+            "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587"
+          }
+        ],
+        "current_contrasts": "Current selected literal zero versus missing/unavailable; retained coordinate labels versus stale full identity; actual top-k fixed stream/scenario occurrence counts; current embedding invalid/fresh recovery; signed Decimal plateau table."
+      },
+      "current_execution_scopes": [
+        {
+          "scope": "stopping-convergence",
+          "receipt": {
+            "path": "stopping-convergence/receipt.json",
+            "sha256": "747f77f119aa341d9cafa9dcb79d22e2fafb521de4d1c2b0c56b21ae61d823e9",
+            "bytes": 89466
+          },
+          "checks": {
+            "PASS": 50,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "admission": "ADMITTED"
+        }
+      ],
+      "quantity17_origin_receipt_rule": null,
+      "B111_native_primary4": null,
+      "decision_proposal": "closed_bounded_original_engineering_proposal_pending_independent_current_review",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "capability_status": "bounded_supported_mechanism_and_named_consumer_available",
+      "residual": "G frozen integration acceptance/broad common gate UNRUN; no default deployed or scientific law claim",
+      "P41": "not_established: no slice-base command with full-input zero-overlap, no inherited-red waiver claimed",
+      "qualified_candidate_source": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+      "qualified_candidate_tree": "5738498b09aadca51e0bb73fa6d104e3354dc603",
+      "qualified_assertion_execution_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "no_new_5b_execution": true
+    },
+    {
+      "id": "B41@STP-01",
+      "finding_id": "B41",
+      "bundle": "STP-01",
+      "original_acceptance_text": "**Проверка:** отказ/отсутствие текущего embedding не создаёт semantic-convergence; корректные одинаковые текущие векторы дают соответствующий ограниченный результат; другая размерность/версия embedding не сравнивается без совместимости. Приоритет условный до подтверждения использования detector в нужном пользовательском пути.",
+      "original_acceptance_binding": {
+        "byte_offset": 159547,
+        "bytes": 566,
+        "sha256": "4a76b7b1923f16245bdc19a10b05570aa47c2ca063e8e1a2faf3eb0112576937"
+      },
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          770,
+          783
+        ],
+        "byte_offset": 157036,
+        "bytes": 3079,
+        "sha256": "e1f40309a038a4a6b1e8e41e5c6aca361111791be6f58a32d8f4ccd8812d680a"
+      },
+      "original_authority": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/42"
+      },
+      "runtime_property": "Missing current embedding cannot establish semantic convergence; actual fresh same-model vectors positive, incompatible dimension/version refuses.",
+      "actual_consumer": "Actual current embedding/convergence admission controls and native stop criterion.",
+      "P37": {
+        "predicate_basis": [
+          "recomputed",
+          "consumer_asserted",
+          "independently_reconciled"
+        ],
+        "required_owner_positive": "not_required_for_bounded_engineering_original_criterion",
+        "independent_acceptance": "pending root independent current receipt/sidecar review"
+      },
+      "P38": {
+        "divergent_proxy": "Stale previousembedding, absentprovenance marker or bool/nonfinitecurrentvector can masquerade equal;12metadata/4numeric removal FAIL versus genuinevalid currentvectors and alias profile controls distinguish; conditional deployed caller separate.",
+        "old_protected_property_removal_outputs": [
+          {
+            "executed_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+            "canonical_evidence": {
+              "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/reviews-final-context/B41-b5-runtime-independent-review.json",
+              "bytes": 56746,
+              "container": "direct_file"
+            },
+            "sha256": "107d386627435b068eaa7a1bb57fb89dd41efeab2e35cf778053640e1f7e4904"
+          },
+          {
+            "executed_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+            "canonical_evidence": {
+              "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-state-a7/native-state-and-B41-a7-scoped-carry-independent-review.json",
+              "bytes": 4342,
+              "container": "direct_file"
+            },
+            "sha256": "66e7c798641e2ee15497e0a90fb69e5fb39a69d73a2194ea5a0e59023d2089fa"
+          },
+          {
+            "executed_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+            "canonical_evidence": {
+              "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/root-context-final680/fiscal-final680-73-18-13-removals-and-carry-independent-review.json",
+              "bytes": 5056,
+              "container": "direct_file"
+            },
+            "sha256": "5ae1297eb87d66ba43b78b34808f2fc08f0224ebe2878826175184f7c0e48587"
+          }
+        ],
+        "current_contrasts": "Current selected literal zero versus missing/unavailable; retained coordinate labels versus stale full identity; actual top-k fixed stream/scenario occurrence counts; current embedding invalid/fresh recovery; signed Decimal plateau table."
+      },
+      "current_execution_scopes": [
+        {
+          "scope": "stopping-convergence",
+          "receipt": {
+            "path": "stopping-convergence/receipt.json",
+            "sha256": "747f77f119aa341d9cafa9dcb79d22e2fafb521de4d1c2b0c56b21ae61d823e9",
+            "bytes": 89466
+          },
+          "checks": {
+            "PASS": 50,
+            "FAIL": 0,
+            "ERROR": 0,
+            "SKIP": 0
+          },
+          "admission": "ADMITTED"
+        }
+      ],
+      "quantity17_origin_receipt_rule": null,
+      "B111_native_primary4": null,
+      "decision_proposal": "closed_bounded_original_engineering_proposal_pending_independent_current_review",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "capability_status": "bounded_supported_mechanism_and_named_consumer_available",
+      "residual": "G frozen integration acceptance/broad common gate UNRUN; no default deployed or scientific law claim",
+      "P41": "not_established: no slice-base command with full-input zero-overlap, no inherited-red waiver claimed",
+      "qualified_candidate_source": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+      "qualified_candidate_tree": "5738498b09aadca51e0bb73fa6d104e3354dc603",
+      "qualified_assertion_execution_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "no_new_5b_execution": true
+    }
+  ],
+  "source_qualification": {
+    "bytes": 9783,
+    "sha256": "2fb533ed8c31a2668728bde302b3bb2d5459357450ae299e97bf1175fdb5019c",
+    "original_path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/publication-essential-CBC46/core-source-qualification.essential.json"
+  },
+  "quantity17_pseudo_namespace_sidecar": {
+    "sha256": "4a751b751b02795ff3c1a90f32ee3d5d980124a8d93d04681f4a05410d93907c",
+    "bytes": 5837,
+    "original_path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/quantity17-pseudo-namespace-reconciliation.json",
+    "encoding": "utf-8"
+  },
+  "B111_native_primary4_carry": {
+    "bytes": 52631,
+    "sha256": "e7d2425d22b90a39b3e27e8c61f75bd734cbda753a0731dfb86d7b43be2641c6",
+    "original_path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/publication-essential-CBC46/primary4-carry.essential.json"
+  },
+  "optional_backends": "Quantity actual BoTorch/Torch/GPyTorch loaded at locked versions; no GP fit selected. Fiscal/convergence pure minimal profile has noTorch, not a GP property PASS. No SKIP in these selected packets.",
+  "ordinary_source_or_test_changes": [],
+  "full_G_gate": "UNRUN",
+  "source_or_receipt_classification": "No product FAIL exposed in selected checks; quantity generic receipt ERROR preserved as capture limitation. Current computational qualification requires independent source-backed namespace reconciliation review.",
+  "source_admission_or_publication": "D receipt proposal only; root owns Git/handoff publication; G sole integration publisher; main not authorized.",
+  "cleanup": "No cleanup performed; all controlled fixtures and used environments retained. Exact repeatable fixture candidates recorded in per-scope inventories; unique evidence/instruments preserved.",
+  "raw_lossless_packet": {
+    "manifest": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/publication-current-CBC46/output-manifest.json",
+      "bytes": 844,
+      "sha256": "e779cd190353f975c8f6220f454c93b61d24c6e6764a30f563e123cfae860598"
+    },
+    "HANDOFF": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/publication-current-CBC46/HANDOFF.json",
+      "bytes": 89287,
+      "sha256": "367ed9f67cf982014a231dc83c3dfe9200e9747e57ec18c7649d8f5af8c3d774"
+    },
+    "complete_deciding_output": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/publication-current-CBC46/complete-deciding-output.json.gz",
+      "bytes": 2120180,
+      "sha256": "3b229f987f6baf306c8bfd5fc07f0cf55aff39da4c46439645dd5be9d55d3021"
+    },
+    "rule": "External raw pack remains byte-identical; essential packet is separately derived, no original deciding evidence mutated."
+  },
+  "input_origin_identity_proof": {
+    "bytes": 52078,
+    "sha256": "9b2447d98da765805444e695dd823447d25c8409a6b21baaee909aa4d1b582b3",
+    "original_path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/publication-essential-CBC46/input-origin-identity.essential.json"
+  },
+  "essential_packet_policy": "Complete literal command/receipt/stdout/stderr/JUnit/fullphases/session/collected/resources/specs retained. Giant complete tracked catalogs/origin inventories retained externally only by exact full raw path/hash and compact recomputable identity proof; independent review may bind them. No tracked source copies, no original streams truncated.",
+  "supersedes_unpublished_essential_draft": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/publication-essential-CBC46/HANDOFF.json",
+    "sha256": "ebe64edc730ee14f242e995ddce14f819067d0724210b8d93f9fb4b2d2458bf5",
+    "bytes": 59628
+  },
+  "qualified_candidate_source": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+  "qualified_candidate_tree": "5738498b09aadca51e0bb73fa6d104e3354dc603",
+  "qualified_candidate_carry": {
+    "file": "all8-current-CBC46-to5b-scoped-qualification.json",
+    "sha256": "92e7037b04ee39e24678bdb74a666641a7d7f297ab4d6e7bf2c8670af486938f",
+    "bytes": 23427
+  },
+  "independent_adjacent_consumer_review": {
+    "file": "Service25-Champion21-current-CBC46-independent-runtime-review.json",
+    "sha256": "a51bc8c23d7597870b2b4d7e3aa089b4691051073f412cb7a8b4065376cf9484",
+    "bytes": 20927,
+    "scope": "Actual controller25/champion21 CBC46; named old3b/a795 carry; full Service B120 dependency belongs separate matrix review"
+  },
+  "current_candidate_qualification": "No product FAIL exposed in selected checks; quantity generic receipt ERROR preserved as capture limitation. Current computational qualification requires independent source-backed namespace reconciliation review."
+}

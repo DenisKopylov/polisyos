@@ -1,0 +1,209 @@
+{
+  "schema_version": "independent-numerical-review.v1",
+  "reviewer": "/root/numerical_oracle",
+  "scope": "Actual native MO reference preparation before Torch conversion/arithmetic; B111 numeric-intake class extension",
+  "criterion_source": {
+    "integration_pin": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "B110": {
+      "lines": [
+        2925,
+        2938
+      ],
+      "block_sha256": "a6be752b83d6e94ed4d0bcccef41670106a65bac64827f8cf4645a0401239d6d"
+    },
+    "B111": {
+      "lines": [
+        2939,
+        2954
+      ],
+      "block_sha256": "534be6222dccd944bb884e893436c32d82eef90be857ad763412d9df270c6245"
+    }
+  },
+  "test_commit": "5d351d0f1f8a34acad951537ba47f36a4849f401",
+  "test_path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_multiobjective_reference_independent_oracle.py",
+  "test_sha256": "1d9849a2669fc1bec1161ed44171347042fd4765223f64362780825aeb216824",
+  "independent_expected": "Same exact overlap volume16, outside reference zero, and genuine automatic-offset0 volume1. No reference sign/range scientific law chosen. Hugeint/bool/text/NaN/Inf and wrong explicit dimension must yield null typed invalid_reference_point before numerical preparation.",
+  "baseline": {
+    "command_metadata": {
+      "source": "e2b1c6f7e7157e72d4a56008da5edb85f01a9312",
+      "tree": "1b6e573e04df38c53b15944f314d3aad7309144c",
+      "test_commit": "5d351d0f1f8a34acad951537ba47f36a4849f401",
+      "test_sha256": "1d9849a2669fc1bec1161ed44171347042fd4765223f64362780825aeb216824",
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/scientist/methods/search/strategies/test_multiobjective_reference_independent_oracle.py",
+        "-p",
+        "reference_source_binding_probe",
+        "-ra",
+        "--basetemp=/dev/shm/mo-reference-e2-f16eeed87c3c4cafa172c9b627bda9a3",
+        "--junitxml=/workspace/e02-D-published-oracle/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/mo-reference-independent/baseline-junit.xml"
+      ],
+      "cwd": "/tmp/pareto-box-union-e2-113f4d507bb647d1a90639749330f2dc/policy-engine",
+      "returncode": 1,
+      "wall_seconds": 28.74228528099775,
+      "fresh_basetemp": "/dev/shm/mo-reference-e2-f16eeed87c3c4cafa172c9b627bda9a3",
+      "agent_added_caps": false,
+      "existing_application_runtime_policy": "MOBayesianOptimizer calls existing apply_torch_runtime_settings; observed Torch threads4/interop1. No extra test/orchestrator thread setting."
+    },
+    "counts": {
+      "tests": 14,
+      "failures": 7,
+      "errors": 0,
+      "skipped": 0
+    },
+    "status": "FAIL",
+    "actual_origin_bindings": {
+      "source": "e2b1c6f7e7157e72d4a56008da5edb85f01a9312",
+      "errors": [],
+      "loaded_backend_versions": {
+        "torch": "2.10.0+cu128",
+        "botorch": "0.16.1",
+        "gpytorch": "1.15.1"
+      },
+      "loaded_polisyos_count": 857
+    }
+  },
+  "corrective": {
+    "command_metadata": {
+      "source": "163a3b51630bca46b99ce660b40749fb79ed6b40",
+      "tree": "c0d81a144e904119db8521eb5ac9c533214e957c",
+      "test_commit": "5d351d0f1f8a34acad951537ba47f36a4849f401",
+      "test_sha256": "1d9849a2669fc1bec1161ed44171347042fd4765223f64362780825aeb216824",
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/scientist/methods/search/strategies/test_multiobjective_reference_independent_oracle.py",
+        "-p",
+        "reference_source_binding_probe",
+        "-ra",
+        "--basetemp=/dev/shm/mo-reference-163-953be4f0ba58410d822cd7f4b8c4f5c1",
+        "--junitxml=/workspace/e02-D-published-oracle/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/mo-reference-independent/candidate-junit.xml"
+      ],
+      "cwd": "/tmp/mo-reference-163-dbf251fa9a6b4eaa897ba6afa15fa510/policy-engine",
+      "returncode": 0,
+      "wall_seconds": 20.515095430004294,
+      "scratch": "/tmp/mo-reference-163-dbf251fa9a6b4eaa897ba6afa15fa510",
+      "fresh_basetemp": "/dev/shm/mo-reference-163-953be4f0ba58410d822cd7f4b8c4f5c1",
+      "basetemp_observed_after": false,
+      "agent_added_caps": false,
+      "existing_application_runtime_policy": "MOBayesianOptimizer calls existing apply_torch_runtime_settings; prior exact-source witness observed Torch threads4/interop1. No extra test/orchestrator thread setting.",
+      "input_scope": [
+        "policy-engine/src",
+        "policy-engine/tools",
+        "policy-engine/architecture",
+        "policy-engine/pyproject.toml",
+        "policy-engine/pytest.ini",
+        "policy-engine/tests/conftest.py",
+        "policy-engine/tests/_helpers",
+        "policy-engine/tests/quarantine.toml",
+        "policy-engine/tests/unit/scientist/conftest.py",
+        "policy-engine/tests/unit/scientist/methods/search/strategies/test_multiobjective_reference_independent_oracle.py"
+      ],
+      "preparation": {
+        "prior_immutable_source_view": "/tmp/pareto-box-union-e2-113f4d507bb647d1a90639749330f2dc",
+        "prior_source": "e2b1c6f7e7157e72d4a56008da5edb85f01a9312",
+        "hardlinked_unchanged_files": 4211,
+        "fresh_successor_blob_paths": [
+          "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+          "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py"
+        ],
+        "prior_view_mutated": false
+      },
+      "omitted_inputs": "Other tests/docs/fixtures/data omitted, not claimed tested; actual missing inputs remain ERROR/UNRUN."
+    },
+    "counts": {
+      "tests": 14,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "status": "PASS",
+    "actual_origin_bindings": {
+      "source": "163a3b51630bca46b99ce660b40749fb79ed6b40",
+      "errors": [],
+      "loaded_backend_versions": {
+        "torch": "2.10.0+cu128",
+        "botorch": "0.16.1",
+        "gpytorch": "1.15.1"
+      },
+      "loaded_polisyos_count": 857
+    }
+  },
+  "source_review": {
+    "source": "163a3b51630bca46b99ce660b40749fb79ed6b40",
+    "tree": "c0d81a144e904119db8521eb5ac9c533214e957c",
+    "full_delta_reviewed": "e2 to163 MO _reference_configuration, shared finite scalar, length admission, guarded compute path and validated reference/offset update; BGC additional147-line slice separately identified",
+    "delta_paths": [
+      "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py"
+    ],
+    "review_result": "Shared intake prevents previous OverflowError/ValueError escapes and bool numerical coercion in both configured reference paths; unavailable does not erase valid front membership. No new range/sign policy or fallback zero.",
+    "BGC_scope": "Additional generator checkpoint/transfer code and test source read; owner runtime evidence requested. Not independently runtime verified by this14-case consumer proof."
+  },
+  "current_verdict": "PASS for unchanged14 on163; preceding exact e2 baseline remains7FAIL/7PASS",
+  "counts_are_separate": "21 geometry e2 and14 reference163 are distinct executions/sources, not one35-case full-source run.",
+  "proof_files": {
+    "mo-reference-independent/baseline-command.json": {
+      "bytes": 1215,
+      "sha256": "6f2a66db3504dcc253d5cf0f10acfe04e156b5fec86bd58a530a72d9eb897021"
+    },
+    "mo-reference-independent/baseline-complete.txt": {
+      "bytes": 13130,
+      "sha256": "b7fce094641d5d6d0dd9c978caf68fc6109abd6b7b3e7ba5a41d5537e33cc78c"
+    },
+    "mo-reference-independent/baseline-junit.xml": {
+      "bytes": 14172,
+      "sha256": "6a310d5a88a62f00ef33437e28043dcc5a7ae508f97030b26293ab68957261de"
+    },
+    "mo-reference-independent/baseline-origins.json": {
+      "bytes": 344385,
+      "sha256": "e12aeb2840bbc3ca9e0704dd6c7de072db18fd393b53fd4dd57481b082967301"
+    },
+    "mo-reference-independent/candidate-command.json": {
+      "bytes": 2418,
+      "sha256": "d63311b3bdae076746d39baee004c4c7369054b356a8ff051a0bdc6e3b80b7fa"
+    },
+    "mo-reference-independent/candidate-complete.txt": {
+      "bytes": 660,
+      "sha256": "c8a5308d45dc8912e725bbf44464fca4cadcf86fcfbe6577a7a704849247c96a"
+    },
+    "mo-reference-independent/candidate-junit.xml": {
+      "bytes": 3953,
+      "sha256": "ceee7acfc61ca6f3126790ee8f39e88000d2c47b832cad443060443e05755a17"
+    },
+    "mo-reference-independent/candidate-origins.json": {
+      "bytes": 341814,
+      "sha256": "df34205542d2e825c4764fdb747f07950bf875bf60fac4b01315ffeae0c6aead"
+    },
+    "mo-reference-independent/run_reference_successor.py.txt": {
+      "bytes": 4802,
+      "sha256": "7fe0d46dc793a759b4a05e00c914795236114840c0d2dfaff43426ac5c75745d"
+    }
+  },
+  "P37": {
+    "expected": "recomputed",
+    "actual_native_execution": "recomputed",
+    "scientific_reference_authority": "not_established"
+  },
+  "P40": "Reference construction before canonical finite guard is the same numeric-intake class; offset extended generically rather than enumerated object patches.",
+  "P41": "No inherited waiver or hidden baseline failures.",
+  "limitations": [
+    "835/e2 geometry and857/163 reference loaded source origins are committed exact-byte proofs, not all possible modules.",
+    "No fresh GP26/MLL replay for extra BGC delta.",
+    "No backend absence PASS claim; optional backend versions actually loaded in native runs.",
+    "No new caps or source writes; existing application runtime thread policy documented.",
+    "Fresh163 basetemp path absent after run:14 cases never request tmp_path; absence alone is not deletion evidence.",
+    "Retain prior failure output and all source views; no universal transient preservation claim."
+  ],
+  "cleanup_candidates": [
+    "/tmp/mo-reference-163-dbf251fa9a6b4eaa897ba6afa15fa510",
+    "/dev/shm/mo-reference-163-953be4f0ba58410d822cd7f4b8c4f5c1",
+    "/dev/shm/mo-reference-e2-f16eeed87c3c4cafa172c9b627bda9a3"
+  ]
+}

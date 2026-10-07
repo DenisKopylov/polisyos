@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="2" time="0.139" timestamp="2026-10-06T16:32:59.084984+00:00" hostname="565838a1e059"><testcase classname="tests.unit.scientist.search.test_challenge_scenario_projection" name="test_ten_same_issue_case_occurrences_remain_ten_after_presentation[1]" time="0.015"><failure message="pydantic_core._pydantic_core.ValidationError: 1 validation error for StressTestReport&#10;  Value error, report score and adequacy disagree with observed scenario evidence [type=value_error, input_value={'schema_version': '1.1',...re_status': 'observed'}}, input_type=dict]&#10;    For further information visit https://errors.pydantic.dev/2.12/v/value_error">cap = 1
+tmp_path = PosixPath('/dev/shm/e02-D-removal-example_fraction-b579b9f2c2374b81b79a04962085b0fe/test_ten_same_issue_case_occur0')
+
+    @pytest.mark.parametrize("cap", [1, 10])
+    def test_ten_same_issue_case_occurrences_remain_ten_after_presentation(
+        cap: int, tmp_path: Path
+    ) -&gt; None:
+        from polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime import (
+            _recompute_stress_test_report,
+        )
+    
+        report = _suite(
+            FileSystemCAS(tmp_path / "cas"), [_case(i, i &lt; 22) for i in range(32)]
+        ).stress_test_report
+        assert report is not None and report.scenario_evidence is not None
+        assert report.scenario_evidence.violated_scenarios == 10
+        presentation = report.model_copy(update={"vulnerabilities": report.vulnerabilities[:cap]})
+&gt;       observed = _recompute_stress_test_report(presentation)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/search/test_challenge_scenario_projection.py:200: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = StressTestReport(schema_version='1.1', report_id='stress_strategic_gaming_v1_loop', total_scenarios_evaluated=32, adve...tablished', 'challenge_family_counts': {'strategic': 32}, 'blocking_failure_count': 10, 'derived_from_phase_d4': True})
+
+&gt;   ???
+E   pydantic_core._pydantic_core.ValidationError: 1 validation error for StressTestReport
+E     Value error, report score and adequacy disagree with observed scenario evidence [type=value_error, input_value={'schema_version': '1.1',...re_status': 'observed'}}, input_type=dict]
+E       For further information visit https://errors.pydantic.dev/2.12/v/value_error
+
+/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py::actual-property-removal:53: ValidationError</failure></testcase><testcase classname="tests.unit.scientist.search.test_challenge_scenario_projection" name="test_ten_same_issue_case_occurrences_remain_ten_after_presentation[10]" time="0.007" /></testsuite></testsuites>

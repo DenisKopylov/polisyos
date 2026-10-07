@@ -1,0 +1,93 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_ test_contract_import_does_not_attempt_optional_execution_backends[polisyos.scientist.methods.autotune] _
+
+module_name = 'polisyos.scientist.methods.autotune'
+
+    @pytest.mark.parametrize(
+        "module_name",
+        ["polisyos.scientist.methods.autotune", "polisyos.scientist.methods.autotune.pareto"],
+    )
+    def test_contract_import_does_not_attempt_optional_execution_backends(module_name: str) -> None:
+        script = """
+    import importlib.abc
+    import importlib
+    import json
+    import sys
+    
+    attempts = []
+    class DeniedOptionalImports(importlib.abc.MetaPathFinder):
+        def find_spec(self, fullname, path=None, target=None):
+            if fullname.split('.')[0] in {'torch', 'botorch', 'gpytorch', 'hnswlib'}:
+                attempts.append(fullname)
+                raise ModuleNotFoundError('declared optional-backend denial: ' + fullname, name=fullname)
+            return None
+    
+    sys.meta_path.insert(0, DeniedOptionalImports())
+    module = importlib.import_module(sys.argv[1])
+    print(json.dumps({'module': module.__name__, 'origin': module.__file__, 'attempts': attempts}))
+    """
+        process = subprocess.run(
+            [sys.executable, "-c", script, module_name],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        assert process.returncode == 0, process.stderr
+        observed = json.loads(process.stdout)
+        assert observed["module"] == module_name
+>       assert observed["attempts"] == [], observed
+E       AssertionError: {'attempts': ['torch'], 'module': 'polisyos.scientist.methods.autotune', 'origin': '/workspace/e02-D-published-oracle/policy-engine/src/polisyos/scientist/methods/autotune/__init__.py'}
+E       assert ['torch'] == []
+E         
+E         Left contains one more item: 'torch'
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/autotune/test_lazy_import_boundary_independent_oracle.py:44: AssertionError
+_ test_contract_import_does_not_attempt_optional_execution_backends[polisyos.scientist.methods.autotune.pareto] _
+
+module_name = 'polisyos.scientist.methods.autotune.pareto'
+
+    @pytest.mark.parametrize(
+        "module_name",
+        ["polisyos.scientist.methods.autotune", "polisyos.scientist.methods.autotune.pareto"],
+    )
+    def test_contract_import_does_not_attempt_optional_execution_backends(module_name: str) -> None:
+        script = """
+    import importlib.abc
+    import importlib
+    import json
+    import sys
+    
+    attempts = []
+    class DeniedOptionalImports(importlib.abc.MetaPathFinder):
+        def find_spec(self, fullname, path=None, target=None):
+            if fullname.split('.')[0] in {'torch', 'botorch', 'gpytorch', 'hnswlib'}:
+                attempts.append(fullname)
+                raise ModuleNotFoundError('declared optional-backend denial: ' + fullname, name=fullname)
+            return None
+    
+    sys.meta_path.insert(0, DeniedOptionalImports())
+    module = importlib.import_module(sys.argv[1])
+    print(json.dumps({'module': module.__name__, 'origin': module.__file__, 'attempts': attempts}))
+    """
+        process = subprocess.run(
+            [sys.executable, "-c", script, module_name],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        assert process.returncode == 0, process.stderr
+        observed = json.loads(process.stdout)
+        assert observed["module"] == module_name
+>       assert observed["attempts"] == [], observed
+E       AssertionError: {'attempts': ['torch'], 'module': 'polisyos.scientist.methods.autotune.pareto', 'origin': '/workspace/e02-D-published-oracle/policy-engine/src/polisyos/scientist/methods/autotune/pareto.py'}
+E       assert ['torch'] == []
+E         
+E         Left contains one more item: 'torch'
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/autotune/test_lazy_import_boundary_independent_oracle.py:44: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/autotune/test_lazy_import_boundary_independent_oracle.py::test_contract_import_does_not_attempt_optional_execution_backends[polisyos.scientist.methods.autotune]
+FAILED tests/unit/scientist/methods/autotune/test_lazy_import_boundary_independent_oracle.py::test_contract_import_does_not_attempt_optional_execution_backends[polisyos.scientist.methods.autotune.pareto]

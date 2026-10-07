@@ -1,0 +1,5 @@
+import hashlib,importlib,importlib.metadata,json,sys
+from pathlib import Path
+names=['polisyos.scientist.methods.search.strategies.bayesian','polisyos.scientist.methods.search.strategies.multi_objective','polisyos.scientist.methods.autotune.pareto','polisyos.scientist.methods.autotune.bayesian_generator','polisyos.scientist.methods.search.objective']
+modules={name:importlib.import_module(name) for name in names}
+print(json.dumps({'python':sys.version,'executable':sys.executable,'origins':{name:module.__file__ for name,module in modules.items()},'source_hashes':{name:hashlib.sha256(Path(module.__file__).read_bytes()).hexdigest() for name,module in modules.items()},'packages':{name:importlib.metadata.version(name) for name in ['torch','botorch','gpytorch','numpy','scipy','pydantic','pytest']}}))

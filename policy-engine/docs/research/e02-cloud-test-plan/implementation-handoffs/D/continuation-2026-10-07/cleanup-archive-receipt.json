@@ -1,0 +1,41 @@
+{
+  "authorization": "В облаке можешь удалять не нужное самостоятельно, разрешаю",
+  "actions": [
+    {
+      "path": "/tmp/e02-numerical-six-frozen_final.bkjlkmqi/source.tar",
+      "size": 457676800,
+      "git_commit": "dabdd83fe235155a91dc6c7b1d85c7cfa5db6346",
+      "actual_sha256": "3f92b2c4aefe52869da21d3f54f77e7897125e19bcebe35d85cb7ab802e49188",
+      "reproduced_git_archive_sha256": "7c781dc7f18878d917549b0d12546ae3b3c243a3dde1cbc44cb7149b8f951210",
+      "reproduction_exit": 0,
+      "stderr": "",
+      "identical_reproducible": false,
+      "product_archive_sha256": "3f92b2c4aefe52869da21d3f54f77e7897125e19bcebe35d85cb7ab802e49188",
+      "product_archive_exit": 0,
+      "product_archive_identical": true,
+      "action": "delete byte-identical reproducible Git archive, keep Git source and extracted tree",
+      "open_fd_matches": [],
+      "started_at": 1791358951.9946575,
+      "finished_at": 1791358952.023167,
+      "path_exists_after": false
+    },
+    {
+      "path": "/tmp/e02-numerical-six-slice_base.g0icmzay/source.tar",
+      "size": 456171520,
+      "git_commit": "c40d4acae1ce58b597267255026d9356565828fd",
+      "actual_sha256": "ca706f1cbca058db48c8979ec4d054879fcf98f37f62774d7ad1cc9495b6a79d",
+      "reproduced_git_archive_sha256": "a4f86f9f28c546b3f41982ec26283177ad8bdff13ac271eceac1588934d7cc22",
+      "reproduction_exit": 0,
+      "stderr": "",
+      "identical_reproducible": false,
+      "product_archive_sha256": "ca706f1cbca058db48c8979ec4d054879fcf98f37f62774d7ad1cc9495b6a79d",
+      "product_archive_exit": 0,
+      "product_archive_identical": true,
+      "action": "delete byte-identical reproducible Git archive, keep Git source and extracted tree",
+      "open_fd_matches": [],
+      "started_at": 1791358952.0343156,
+      "finished_at": 1791358952.0619428,
+      "path_exists_after": false
+    }
+  ]
+}

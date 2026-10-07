@@ -1,0 +1,374 @@
+{
+  "schema": "policyos.e02.D.transfer_original_criteria.v1",
+  "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+  "ledger_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/ledger.json",
+  "ledger_sha256": "702638d85dacaddcb6a7952a4c0a279897f08b23840e15a7d8af8beacb506bc4",
+  "canonical_owner_TSV_source": {
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "bytes": 549568,
+      "sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+      "bytes": 9504,
+      "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+      "bytes": 12413,
+      "sha256": "f587df5256ebef909b4060a588c2f947f31b173adf8d44b32e7f4eea5abd1f75"
+    },
+    "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/D.md": {
+      "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/D.md",
+      "bytes": 110393,
+      "sha256": "622284b984ec12fcba96084cfad13e346112a0539ae081da683e1b663c5b4b6d"
+    }
+  },
+  "criterion_occurrences": [
+    {
+      "id": "B128@TRN-01",
+      "finding_id": "B128",
+      "criterion_card": "TRN-01",
+      "canonical_closure_owner": "TRN-01",
+      "role": "canonical_owner",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3417,
+          3430
+        ],
+        "byte_offset": 773355,
+        "bytes": 4127,
+        "sha256": "af4e4b72706ecdef581727483780ed33bff190d295add23a9813ed7b903ffb2b"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** реальный сохранённый Evaluation проходит существующий мост без ручного monkeypatch; несовместимая запись различается с действительно пустой историей; количество принятых, отклонённых и недоступных записей согласовано. Конструктор нельзя исправлять отдельно от B130–B132: сейчас эта ошибка маскирует последующие дефекты отбора и смысла.",
+        "byte_offset": 776394,
+        "bytes": 619,
+        "sha256": "549b289852eaabc2275c031208657ce535c20cdd971105ff0e452e5f6662e5d7"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B128@TRN-01",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+          "bytes": 21441,
+          "sha256": "5e3aca3b4be36e07922b75d4afa208e440f48c00d911e4c540e41da385de12e5"
+        }
+      }
+    },
+    {
+      "id": "B129@TRN-02",
+      "finding_id": "B129",
+      "criterion_card": "TRN-02",
+      "canonical_closure_owner": "TRN-02",
+      "role": "canonical_owner",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3431,
+          3444
+        ],
+        "byte_offset": 777482,
+        "bytes": 3983,
+        "sha256": "b84b680f12b3c9e1226bfe1f0db09c0afb8b4cc338bb20d850188be0ef1fc32b"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** история, найденная в индексе размером более 1000, читается без второго ANN; изменение `top_k` discovery не меняет адресуемость уже выбранного артефакта; повреждённая ссылка не подменяется другой похожей историей. Строгие фильтры применимости учитывать до окончательного лимита, но не смешивать их с адресным чтением.",
+        "byte_offset": 780379,
+        "bytes": 582,
+        "sha256": "88b1c5aec30b187f76018f9b7e7c7b8f7aabd54e4479465a0b39a549af27c49a"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B129@TRN-02",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-02.md",
+          "bytes": 17678,
+          "sha256": "e357afdc8a41beeb2a13493b27e4626cf648031c78c602d841989861253ebc12"
+        }
+      }
+    },
+    {
+      "id": "B130@TRN-01",
+      "finding_id": "B130",
+      "criterion_card": "TRN-01",
+      "canonical_closure_owner": "TRN-01",
+      "role": "canonical_owner",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3445,
+          3458
+        ],
+        "byte_offset": 781465,
+        "bytes": 3702,
+        "sha256": "9f18f5b71de39a4ca820a167f74bf206775f04050db33327aa6ccd6525dca4e7"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** минимум и максимум исходных целей после нормализации приводят к правильному порядку; полные равенства не создают ложных различий; ограничение объёма не превышается, а свободная квота заполняется согласно объявленной политике. Миграция старого корпуса должна установить значение scalar, не угадывать его по имени.",
+        "byte_offset": 784342,
+        "bytes": 593,
+        "sha256": "b70b31214ee588708f1536a62ef11dd85932c5bedf2e99e7b2d6320815ecabf3"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B130@TRN-01",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+          "bytes": 21441,
+          "sha256": "5e3aca3b4be36e07922b75d4afa208e440f48c00d911e4c540e41da385de12e5"
+        }
+      }
+    },
+    {
+      "id": "B131@TRN-01",
+      "finding_id": "B131",
+      "criterion_card": "TRN-01",
+      "canonical_closure_owner": "TRN-01",
+      "role": "canonical_owner",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3459,
+          3472
+        ],
+        "byte_offset": 785167,
+        "bytes": 4079,
+        "sha256": "60545080be6e14231a07b082abb322b91f9b304c40dbed2d2cc701223470910c"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** различающиеся пространства не считаются численно тождественными; разрешённый адаптер преобразует действительные параметры; несовместимая оценка остаётся доступной как идея с ограничением. Новая версия данных может требовать переоценки, но не полного запрета межзадачного обучения. Проверить tenant/split у действительного владельца, а не доверять тексту метаданных.",
+        "byte_offset": 788048,
+        "bytes": 691,
+        "sha256": "e6742f51f48e338f3410307c69a2e42b12c6205c34d9c8c4947e784ba842b8dd"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B131@TRN-01",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+          "bytes": 21441,
+          "sha256": "5e3aca3b4be36e07922b75d4afa208e440f48c00d911e4c540e41da385de12e5"
+        }
+      }
+    },
+    {
+      "id": "B132@TRN-01",
+      "finding_id": "B132",
+      "criterion_card": "TRN-01",
+      "canonical_closure_owner": "TRN-01",
+      "role": "canonical_owner",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3473,
+          3486
+        ],
+        "byte_offset": 789246,
+        "bytes": 3673,
+        "sha256": "53d130ee4cb74e9043c80076be6e6c123789c8d6d9de51e7105c1901f1243894"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** разные кандидаты сохраняют разные настоящие ссылки; координаты не попадают в метрики; direction round-trip не меняет смысл; отсутствующий holdout остаётся отсутствующим; nonpromotable продолжает действовать. Прежние placeholder-записи не повышать автоматически при миграции.",
+        "byte_offset": 791900,
+        "bytes": 482,
+        "sha256": "5833cd83c20ce8f2a897ab4c13b475daaabcfa4adec33cb2a1376fcba78c4fcb"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B132@TRN-01",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+          "bytes": 21441,
+          "sha256": "5e3aca3b4be36e07922b75d4afa208e440f48c00d911e4c540e41da385de12e5"
+        }
+      }
+    },
+    {
+      "id": "B133@TRN-02",
+      "finding_id": "B133",
+      "criterion_card": "TRN-02",
+      "canonical_closure_owner": "TRN-02",
+      "role": "canonical_owner",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3487,
+          3500
+        ],
+        "byte_offset": 792919,
+        "bytes": 3384,
+        "sha256": "8c7d3f2d133708780969d4ad10524a5cf9b461acb4d24117f4bb39506962890a"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** новый допустимый snapshot одинаково читается холодным и тёплым путями; replay конкретной старой ссылки остаётся старым; мутация потребителя не меняет общий результат; ограничение памяти не скрывает действительный артефакт. B129 должен передать точную ссылку, иначе этот ремонт останется неполным.",
+        "byte_offset": 795310,
+        "bytes": 552,
+        "sha256": "48f75c8fbb72fbc3c446e8677e4976ccc20d3f3624b34260ce20e01a26b39a3d"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B133@TRN-02",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-02.md",
+          "bytes": 17678,
+          "sha256": "e357afdc8a41beeb2a13493b27e4626cf648031c78c602d841989861253ebc12"
+        }
+      }
+    },
+    {
+      "id": "B134@TRN-02",
+      "finding_id": "B134",
+      "criterion_card": "TRN-02",
+      "canonical_closure_owner": "TRN-02",
+      "role": "canonical_owner",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3501,
+          3514
+        ],
+        "byte_offset": 796303,
+        "bytes": 4534,
+        "sha256": "c877d26c3cb5a8d078a8e40b23e6d1bf3cf5ff5844a4357b08db2f8fb447cd3e"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** отказ добавления не портит старые запросы; failed load оставляет прежнее полностью согласованное поколение; загрузка без нужных bytes не публикуется частично; проверены capacity, неверная форма и настоящие нативные исключения. Resize допустим только внутри выделенного ресурса. Не снимать лимиты и не перестраивать весь индекс на каждом нормальном запросе.",
+        "byte_offset": 799747,
+        "bytes": 651,
+        "sha256": "36d571033f9b9e3b58f6f9f7bc93a01ed4c6e799a7791d815fa39932fd68de9d"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B134@TRN-02",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-02.md",
+          "bytes": 17678,
+          "sha256": "e357afdc8a41beeb2a13493b27e4626cf648031c78c602d841989861253ebc12"
+        }
+      }
+    },
+    {
+      "id": "B135@TRN-03",
+      "finding_id": "B135",
+      "criterion_card": "TRN-03",
+      "canonical_closure_owner": "TRN-03",
+      "role": "canonical_owner",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3515,
+          3528
+        ],
+        "byte_offset": 800837,
+        "bytes": 3204,
+        "sha256": "2616ea6686a29681f5379ae2e54588f2a82afd9882dd1909aa261ee5990ed1e7"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** вложенный объект, сериализованный объект и равнозначные явные поля ведут к одному эффективному предметному контексту; настоящее разрешённое override работает; невалидный base имеет адресный результат; isolated-fallback остаётся для действительно неизвестной области.",
+        "byte_offset": 803219,
+        "bytes": 490,
+        "sha256": "01ce84941fd8680e13557f709b04c7978d7003b2c358dcc81363e2d973aaa136"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B135@TRN-03",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-03.md",
+          "bytes": 16604,
+          "sha256": "c7cce0fdded201121b425a14faefe58e7d1e13475d931a33eed5d82621c8aa2a"
+        }
+      }
+    },
+    {
+      "id": "B136@TRN-03",
+      "finding_id": "B136",
+      "criterion_card": "TRN-03",
+      "canonical_closure_owner": "TRN-03",
+      "role": "canonical_owner",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3529,
+          3542
+        ],
+        "byte_offset": 804041,
+        "bytes": 3976,
+        "sha256": "1182d49f6e0f40a47b62e7bfe488d75ff540516f4ba6f022cbedba1340c60deb"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** переданный threshold и trust-filter соблюдаются независимо от маршрута; локальный промах не меняет требования; действительно допустимая transferred-карточка возвращается; несоответствующая не материализуется зря. Проверить source_run_id и политику частичного ответа, не только два численных примера.",
+        "byte_offset": 807152,
+        "bytes": 535,
+        "sha256": "dbc583087ea526396c4d1b2b4230d2058a76565496b4bdac824060a759dee116"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B136@TRN-03",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-03.md",
+          "bytes": 16604,
+          "sha256": "c7cce0fdded201121b425a14faefe58e7d1e13475d931a33eed5d82621c8aa2a"
+        }
+      }
+    },
+    {
+      "id": "B137@TRN-03",
+      "finding_id": "B137",
+      "criterion_card": "TRN-03",
+      "canonical_closure_owner": "TRN-03",
+      "role": "canonical_owner",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3543,
+          3556
+        ],
+        "byte_offset": 808017,
+        "bytes": 4247,
+        "sha256": "133330308d63d9cf44d4105d556e1e4740ff31b519643791722beb8a8a7bc961"
+      },
+      "canonical_content": {
+        "text": "**Приёмка:** любое число обычных чтений не повышает доверие; настоящая разрешённая ревалидация создаёт новую версию с новыми основаниями; повторный холодный и тёплый запрос дают одинаковую содержательную степень актуальности. Retention может учитывать популярность, evidence sufficiency — нет. Проверить восстановление после restart и перенос, а не только пару запросов в одной памяти.",
+        "byte_offset": 811080,
+        "bytes": 676,
+        "sha256": "a712c0b6eddcecf9e4b23c77fc2f4732fea66953462e3cb3bfcd4a6ed376be2f"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B137@TRN-03",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-03.md",
+          "bytes": 16604,
+          "sha256": "c7cce0fdded201121b425a14faefe58e7d1e13475d931a33eed5d82621c8aa2a"
+        }
+      }
+    }
+  ]
+}

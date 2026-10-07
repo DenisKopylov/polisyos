@@ -1,0 +1,17 @@
+{
+  "old_execution_source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "new_assessed_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "current_receipt_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "actual_prior_module_rows": 1174,
+  "unique_candidate_paths": 1174,
+  "all_initial_loaded_repo_module_bytes_match_old_and_current": true,
+  "raw_ignored_prior_module_manifest": {
+    "path": "/dev/shm/e02-D-funnel-oct07/origin17-final3b.modules.json",
+    "bytes": 415570,
+    "sha256": "4469ec404fc328e69701b9b494f5d7b28dee720bcda888c7b626cc794c21be87",
+    "not_copied_to_Git": true
+  },
+  "scope": "Only actual reached old17 runtime modules, not whole current catalog or all original criteria. Execution stays3b; Node15 new runtime pending.",
+  "qualification": "old17 unchanged source/test/import assertion carry",
+  "P41": "not_established"
+}

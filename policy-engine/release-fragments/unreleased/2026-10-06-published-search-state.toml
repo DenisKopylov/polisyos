@@ -1,0 +1,8 @@
+type = "fixed"
+summary = "Bind native search points to attainable executed actions and validate strategy state types before replay."
+component = "scientist-search"
+owner = "team-policyos-runtime"
+change_class = "runtime-state-format"
+compatibility = "New state artifacts use strategy_state.v2. Structurally valid legacy envelopes remain readable, while malformed versions, booleans used as integers, nonfinite state and incompatible space fingerprints are refused."
+migration = "The attainable_projection.v1 space identity changes checkpoint compatibility; start a new search when an older space fingerprint differs."
+limitations = "These changes do not establish deployment invocation, transfer source authority, or optimization quality."

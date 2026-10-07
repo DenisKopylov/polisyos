@@ -1,0 +1,58 @@
+{
+  "schema": "e02.D.baseline-navigation-and-no-current-closure.v1",
+  "import_command": "python3 policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py --check",
+  "import_stdout": "import-check.stdout.json",
+  "import_stderr": "import-check.stderr.txt",
+  "exit": 0,
+  "full_verification_read_before_queries": {
+    "source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/results/verification.json",
+    "bytes": 13971,
+    "sha256": "26fcc44ff5094586402edf421cb04faf944578be3f628edd2577f5ed589d2c17"
+  },
+  "baseline": "15 compact texts/2074 planned cells/zero raw archives/product_closure not_established",
+  "query_results": [
+    {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/query-global.stdout.json",
+      "bytes": 71222,
+      "sha256": "1e3b6ea0517a7d030d1c80efafd0fc9183ab7b7feb99846d9323baf632158d51",
+      "use": "navigation_only_not_ownership_or_current_product_verdict"
+    },
+    {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/query-D.stdout.json",
+      "bytes": 11701,
+      "sha256": "3d16a37519b4dbd684092dfd97a89e348e89ca0239e12867ea47b44d5b08dcb3",
+      "use": "navigation_only_not_ownership_or_current_product_verdict"
+    },
+    {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/query-B110.json",
+      "bytes": 105434,
+      "sha256": "294f835ee5822c4ecfdbc1f9eb3874c07c6b376c998952c92627f4f495d7f34c",
+      "use": "navigation_only_not_ownership_or_current_product_verdict"
+    },
+    {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/query-B115.json",
+      "bytes": 44659,
+      "sha256": "7014bc39e6e6712d1198cdd9bccd8e96d2e97fbc96ad8591d65a76eece64e1e7",
+      "use": "navigation_only_not_ownership_or_current_product_verdict"
+    },
+    {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/query-B120.json",
+      "bytes": 102967,
+      "sha256": "d3b96d6fe20014834190fffd145b54f5e0351149b0e121330004042f884048e4",
+      "use": "navigation_only_not_ownership_or_current_product_verdict"
+    },
+    {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/query-B129.json",
+      "bytes": 26033,
+      "sha256": "314b79627dad647b85c51681c85c5fa126e4148f8f9f2021ade371ee16c5de5f",
+      "use": "navigation_only_not_ownership_or_current_product_verdict"
+    }
+  ],
+  "D_historical_partial_cells": [
+    "B112",
+    "B113",
+    "B127"
+  ],
+  "historical_scope": "Older17/18 cells are locators; neither current CBC/a795 failures nor PASS. Full owner127/282 TSV/card+46criteria verified separately by Census."
+}

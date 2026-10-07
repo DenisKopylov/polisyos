@@ -1,0 +1,190 @@
+{
+  "schema": "e02.git_administrative_storage_preservation.v1",
+  "unit": "D",
+  "source_before": "bf84b0ab4375528e807a0fbc92dc1310735a787c",
+  "source_tree_before": "9086e8320a4ceba632107d47fd2cc78e262d05b7",
+  "operation_scope": "Native Git index encoding and preservation-only administrative shared-index storage; code/tests/hooks/refs/unique data/deciding outputs retained unchanged. All writers paused before own-index changes.",
+  "no_cleanup_or_permanent_data_deletion": true,
+  "records": [
+    {
+      "receipt_path": "/tmp/e02-D-root-split-index-qe4a8ae4/applied.json",
+      "sha256": "2d784a122973c7cd7b7cdbf3fe0a6575300ce8db79ce2d035d16b58c76b46526",
+      "complete_receipt": {
+        "operation": "native_git_split_index_storage_encoding",
+        "returncode": 0,
+        "root": "/workspace/e02-D-published-root",
+        "head_before_and_after": "e2ecac2b7f66b4d8c61416e5fc8534140b2d2cdb",
+        "tree_before_and_after": "b072f06279e68221b5ddb8867cae15971f214ad0",
+        "branch_before_and_after": "refs/heads/codex/e02-D-published-root",
+        "complete_stage_debug_before_and_after_sha256": "634be72110e6a46362b5a43b5e61e5ab1e11f21e46cd1431128ac002dd3b3d4f",
+        "old_index_backup": "/tmp/e02-D-root-split-index-qe4a8ae4/original.index",
+        "old_index_sha256": "16ed87eb6b85aa060ec4ce6e58885c132c97b912e5b5d962cbcc80ef32d44cf0",
+        "old_index_bytes": 1310376,
+        "new_index_bytes": 55640,
+        "shared_index": "../polisyos/.git/worktrees/e02-D-published-root/sharedindex.3b19f8fd0bd3b2cd9742e3c256a500c5045ee69d",
+        "source_tests_hooks_refs_unchanged": true,
+        "index_expiry_disabled_during_operation": true,
+        "data_deleted": false
+      }
+    },
+    {
+      "receipt_path": "/tmp/e02-D-champion-split-trial-wqe_05qc/applied.json",
+      "sha256": "5e8349c21e27421f4e41e387ac607c301262a355bd20b18e441303687f4ff277",
+      "complete_receipt": {
+        "operation": "native_git_split_index_encoding_preverified_trial",
+        "root": "/workspace/e02-D-published-champion",
+        "branch": "refs/heads/codex/e02-D-published-champion",
+        "head_before_and_after": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+        "tree_before_and_after": "ae90a66a882ee9b434cd21554043d887056d75b2",
+        "complete_staging_entries_flags_sha256_before_and_after": "85f47689bf94a66174af18aa23f72dff296072e67b63c0e37c6572617233e238",
+        "status_before_and_after": " M policy-engine/README.md\n M policy-engine/release-fragments/unreleased/2026-10-06-native-search-resume.toml\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/\n",
+        "old_complete_index_backup": "/tmp/e02-D-champion-split-trial-wqe_05qc/original.index",
+        "old_index_sha256": "757635ba9962a7e117e6ed82ed1c0daab48cf6cd415041a3a932a1a686c6de3a",
+        "old_bytes": 1270174,
+        "new_index_bytes": 53819,
+        "shared_index_path": "../polisyos/.git/worktrees/e02-D-published-champion/sharedindex.fbaa9755f642ae95c186815150c7dfd48ea3d7b3",
+        "source_tests_hooks_refs_unchanged": true,
+        "expiry_disabled_during_native_operation": true,
+        "cleanup_or_data_deleted": false
+      }
+    },
+    {
+      "receipt_path": "/tmp/e02-D-root-sharedindex-preservation-wtmrt0v_/applied.json",
+      "sha256": "734899a593b89ee4eefa1f57190c0b43eaba4a0d7a2270e853e8c40cd35d6164",
+      "complete_receipt": {
+        "operation": "preserve immutable native Git shared-index bytes on existing /tmp storage; administrative path symlink, all data retained",
+        "source_sharedindex": "/workspace/polisyos/.git/worktrees/e02-D-published-root/sharedindex.3b19f8fd0bd3b2cd9742e3c256a500c5045ee69d",
+        "preserved_bytes": "/tmp/e02-D-root-sharedindex-preservation-wtmrt0v_/native.sharedindex",
+        "size": 1254836,
+        "sha256": "2b33adc1135b3cf180a5f7137fa46247c6023019889b39d859c201cf2694386b",
+        "all_before_after_equal": true,
+        "bindings": {
+          "head": "8c25b12f5613546b450a5a2d49f68bf5d032a701541bc834ca376c0691d3c9cc",
+          "tree": "8197ca8f1f6c127625ca88cd5a9dfcd48dae1d5ace5107ca0ca7ee8669f8e2fa",
+          "branch": "e203b649171a03efdb3b3e102d814268086e8e14d60ae4691a8b4a4019cb17b9",
+          "status": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "entries": "d5fa2447233bb55c78230267544385a0bc78af9894c7429e91f37de702eba956",
+          "index_tree": "8197ca8f1f6c127625ca88cd5a9dfcd48dae1d5ace5107ca0ca7ee8669f8e2fa"
+        },
+        "head": "bf84b0ab4375528e807a0fbc92dc1310735a787c",
+        "tree": "9086e8320a4ceba632107d47fd2cc78e262d05b7",
+        "branch": "codex/e02-D-published-root",
+        "source_tests_hooks_refs_changed": false,
+        "no_cleanup_or_unique_data_deletion": true,
+        "first_attempt_without_inode_repurpose": "ERROR ENOSPC; preserved original bytes at /tmp/e02-D-root-sharedindex-preservation-3v6uuava/native.sharedindex"
+      }
+    },
+    {
+      "receipt_path": "/tmp/e02-D-gp-sharedindex-preservation-850s7r4_/applied.json",
+      "sha256": "56a726a8e7f352ec22fa5e9044972830d59bf8f565c21166846250597eedee83",
+      "complete_receipt": {
+        "operation": "preserved native immutable Git shared-index administrative bytes; no code/outputs lost",
+        "root": "/workspace/e02-D-published-champion",
+        "sharedindex": "/workspace/polisyos/.git/worktrees/e02-D-published-champion/sharedindex.fbaa9755f642ae95c186815150c7dfd48ea3d7b3",
+        "preserved_bytes": "/tmp/e02-D-gp-sharedindex-preservation-850s7r4_/native.sharedindex",
+        "size": 1216455,
+        "sha256": "968d5edb623a1d08593a049d2267d9e703edf6b469511b9ccfb17ebf86b4f5df",
+        "all_stage_debug_tree_head_branch_status_equal": true,
+        "head": "3c49bfa906c1bbed5b65923fe9637bd1bce4d330",
+        "tree": "36c61a0a0c550cb8b3f0371d477c164e59050842",
+        "bindings": {
+          "head": "0729b8beb212562266c0803a91a5a28fed8fbfb0acb65174e3109cfa28d3eb51",
+          "tree": "b9415cec7b42060fd8c088ceb9a516082b7b180d7f6bc5d234d4104a82d65e4e",
+          "branch": "c4cd1bb03c456ea66403dc8dfd18dfae102ed181f8f071bf97454ac28f179ef8",
+          "status": "f06309ec1dc802e6cc90e4f70f9dd3e4a1aae835ace2ced09dd4534a8709168d",
+          "entries": "cdbd70ac6216be8d6ec892fcd9de0cfaa927d4733cd2f1bef03681b6b9ba1761",
+          "index_tree": "b9415cec7b42060fd8c088ceb9a516082b7b180d7f6bc5d234d4104a82d65e4e"
+        }
+      }
+    },
+    {
+      "receipt_path": "/tmp/e02-D-index-split-preservation-ibem7wjq/applied.json",
+      "sha256": "7393a40ffd20eeb5bb0257cee5bb265ec79918dd42afc739a8f5cdcfd0c9121b",
+      "complete_receipt": {
+        "operation": "native split index preserves full entries/flags; immutable administrative shared bytes preserved on /tmp",
+        "root": "/workspace/e02-D-published-search",
+        "original_index_backup": "/tmp/e02-D-index-split-preservation-ibem7wjq/original.index",
+        "original_index_sha256": "da1c3f076713afc37c337bf2e378cc86409ff6e2e8444175b8fd788157334859",
+        "old_bytes": 1282448,
+        "new_bytes": 54649,
+        "shared_index": "/workspace/polisyos/.git/worktrees/e02-D-published-search/sharedindex.6d8c9fd9ac976493ccc78db34ac51ccebd74f360",
+        "shared_index_preserved_bytes": "/tmp/e02-D-index-split-preservation-ibem7wjq/native.sharedindex",
+        "shared_index_sha256": "581ee67d2e669f262a55300bc809bddec35743ce7916e814396696dd078eb18c",
+        "all_stage_debug_tree_head_branch_status_equal": true,
+        "head": "5e6b743c39073e1f04526199e528fea4cd9cb043",
+        "tree": "ce2943f53b14638ddc548547429766499ab8cbe5",
+        "bindings": {
+          "head": "8f5485659945238f92c441f02188f323831cb5a6b8f954546bf00b87409f4a08",
+          "tree": "679772a00c652e240628f8a2940fd5dfd6d7fa3b6a8b6c4a4aa128772fb656a1",
+          "branch": "0e8f4db27c339c194aa67f752242612d8d709fe7906125f7447ab15b6ffc7ae2",
+          "status": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "entries": "ec67ed1bb7d84f9c071109a063892af4f5012d00a2d6ed019be3b5c5eb66b134",
+          "index_tree": "679772a00c652e240628f8a2940fd5dfd6d7fa3b6a8b6c4a4aa128772fb656a1"
+        },
+        "no_code_outputs_or_unique_data_deleted": true,
+        "source_tests_hooks_refs_unchanged": true
+      }
+    },
+    {
+      "receipt_path": "/tmp/e02-D-index-split-preservation-wep3mop3/applied.json",
+      "sha256": "2ba783faad561fd75d7f1d954288ea94986ca917f08f520dee9b50e825bf2e2b",
+      "complete_receipt": {
+        "operation": "native split index preserves full entries/flags; immutable administrative shared bytes preserved on /tmp",
+        "root": "/workspace/e02-D-published-funnel",
+        "original_index_backup": "/tmp/e02-D-index-split-preservation-wep3mop3/original.index",
+        "original_index_sha256": "f1a8ea77a0f5375ede54c69db73ea2a6ad04a79a3fd7e529d3591d700429ad72",
+        "old_bytes": 1271041,
+        "new_bytes": 54165,
+        "shared_index": "/workspace/polisyos/.git/worktrees/e02-D-published-funnel/sharedindex.cdb9575fa99f98e84da64769f2e4c2255354a750",
+        "shared_index_preserved_bytes": "/tmp/e02-D-index-split-preservation-wep3mop3/native.sharedindex",
+        "shared_index_sha256": "692bf507eea648bfdfa53e9356d53320c4586a32a22561d6e6c636715cfa86c8",
+        "all_stage_debug_tree_head_branch_status_equal": true,
+        "head": "04bc57aa74c58d24af1921976158d8e6e32283a0",
+        "tree": "e7a57f986d8022b16a05b613947e8c76e067e906",
+        "bindings": {
+          "head": "20f703be9dad7b1ee3438a81819c6b9d5cbc836a1e276497373de1978578c910",
+          "tree": "e88da3b17740e1dc92c9596a7a1f04124bb1c538bf38c8388ea0bd56c2db56d8",
+          "branch": "812737c3c5491a3f5c99c8c59c7614eb16699a3a654314821f65014afa6aa507",
+          "status": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "entries": "827f9028664bee2b37a18cb66c69acf99163c8745efe3a83429215dfc8585b8d",
+          "index_tree": "e88da3b17740e1dc92c9596a7a1f04124bb1c538bf38c8388ea0bd56c2db56d8"
+        },
+        "no_code_outputs_or_unique_data_deleted": true,
+        "source_tests_hooks_refs_unchanged": true
+      }
+    },
+    {
+      "receipt_path": "/tmp/e02-D-index-split-preservation-6il5szvl/applied.json",
+      "sha256": "50bee280ee184428785b6c86db1bcc91681a9ce5a4b828e6d7ea78b445bbc902",
+      "complete_receipt": {
+        "operation": "native split index preserves full entries/flags; immutable administrative shared bytes preserved on /tmp",
+        "root": "/workspace/e02-D-published-oracle",
+        "original_index_backup": "/tmp/e02-D-index-split-preservation-6il5szvl/original.index",
+        "original_index_sha256": "86e531ba8d795cd2bf84479650135811279aae930e04a2f839f9a32131d6070b",
+        "old_bytes": 1272113,
+        "new_bytes": 53560,
+        "shared_index": "/workspace/polisyos/.git/worktrees/e02-D-published-oracle/sharedindex.be153be598b5b5dffdd6047f3bd37dcdb5b9639c",
+        "shared_index_preserved_bytes": "/tmp/e02-D-index-split-preservation-6il5szvl/native.sharedindex",
+        "shared_index_sha256": "1e1387dc53d18827ef057204788280763f5e6646011c411896ff1fd6d7d9f484",
+        "all_stage_debug_tree_head_branch_status_equal": true,
+        "head": "8a57c1e9df9e586529133487c8dec9f2bdb7288e",
+        "tree": "15d0dbe4fd6d60ff22fc9e81ec48e48509725879",
+        "bindings": {
+          "head": "2c7bd95ca1d66db52cd0a4858fc309de6bca600b84bad0bcac91743b611c4322",
+          "tree": "7e908f8371e7cdbe626c6ac885ca328d481f1fac48c84b4e114c3a8e3f0f751a",
+          "branch": "bf6cfde122f98f1812803bf037de343e5ab2b692bff98ceebac99ed217af6da5",
+          "status": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "entries": "b15f235860351fb37df8663b96aa7148946dd08f6bb4f142f64e0f6ab97db1be",
+          "index_tree": "7e908f8371e7cdbe626c6ac885ca328d481f1fac48c84b4e114c3a8e3f0f751a"
+        },
+        "no_code_outputs_or_unique_data_deleted": true,
+        "source_tests_hooks_refs_unchanged": true
+      }
+    }
+  ],
+  "limitations": [
+    "Existing /tmp preserved administrative files remain required by active lane symlinks; do not remove them or retire an active checkout.",
+    "Initial root link-only attempt hit ENOSPC, leaving source and Git state unchanged. Verified byte-preservation before storage inode repurpose then restored normal native Git operations.",
+    "No native Trash available. Reproducible fixtures/environments/checkouts are only listed as future cleanup candidates; no cleanup performed."
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "schema": "e02.D.publication-only-integrity-check.v1",
+  "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "product_source_test_tools_changed_paths": [],
+  "maintained_metadata_and_instrument_diff_check": {
+    "returncode": 0,
+    "paths": 114
+  },
+  "whole_evidence_diff_check": {
+    "returncode": 2,
+    "literal_deciding_output_paths_with_whitespace": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/funnel-estimated-input-origin-final3b/runtime/origin11-removal-final3b/stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/funnel-estimated-input-origin-final3b/runtime/origin17-final3b/stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/adopted-G-CAS-async7/stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/gp-ast-final3b/AST-positive44/wrapper.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/gp-ast-final3b/AST-remove25/wrapper.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/gp-ast-final3b/GP-positive12/wrapper.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/gp-ast-final3b/GP-remove8/junit.xml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/eleventh-wave-2026-10-07/gp-ast-final3b/GP-remove8/wrapper.stdout.txt"
+    ],
+    "interpretation": "Literal stdout/JUnit whitespace preserved so admitted output hashes remain exact. This is not a source assertion failure, a PASS for this whole check, a waiver, or a P41 inherited-red claim."
+  },
+  "staging_admission": "Existing standalone sparse checkout: ordinary git add refused new out-of-definition evidence paths; exact verified manifest files admitted with git add --sparse -f. No checkout creation or sparse source change."
+}

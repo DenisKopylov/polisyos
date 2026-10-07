@@ -1,0 +1,44 @@
+{
+  "schema": "D.e02.own-module-size-unchanged-delta.v1",
+  "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "original_canonical_modulebudget_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+  "original_complete_report": "/dev/shm/e02-D-module-budget-c0-2ubu7oj_/stdout.json",
+  "original_complete_report_sha256": "9b4204d16bbfea64d82ead0f0376d7cf747fbf5455f33c95b0de151aa2491301",
+  "global_gate": "not_PASS: originalactual82contract_errors/6findings retained; no rerun/waiver/inherited P41 established",
+  "own_paths": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+      "source_sha256": "e4699f9b1f892a3850406d0ef582bcf8072e19192d040783468d8c33b9c21f8a",
+      "lines": 824,
+      "exact_c0_bytes_unchanged": true,
+      "below_existing_default_warning1000": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_mo_checkpoint.py",
+      "source_sha256": "09da631e0ae044d02eea10335abb1f3aed64348d95a5e3d5977185a5b921a7bf",
+      "lines": 510,
+      "exact_c0_bytes_unchanged": true,
+      "below_existing_default_warning1000": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_state_inventory.py",
+      "source_sha256": "dd56117e838ac0e713f89e490788e5868613272da7611e7fd70701fad76b4d38",
+      "lines": 249,
+      "exact_c0_bytes_unchanged": true,
+      "below_existing_default_warning1000": true
+    }
+  ],
+  "new_tool_v3_scratch_not_current_runtime": {
+    "check_state_reads.a7.v3.py": {
+      "lines": 236,
+      "sha256": "b8aac38b9dd330da8e09891e7a40fe1fbbd3deee4850fa6f22446ba826c6d558",
+      "below_existing_default_warning1000": true
+    },
+    "test_state_reads_constructor_admission.a7.v3.py": {
+      "lines": 201,
+      "sha256": "cc5d43a89f0f3c6fedfe03e96383aa13656c6b27a6ff3d59aefd8df3a0d8bb92",
+      "below_existing_default_warning1000": true
+    }
+  },
+  "limitations": "This is an exact own-path byte/size delta scan; not global contract acceptance."
+}

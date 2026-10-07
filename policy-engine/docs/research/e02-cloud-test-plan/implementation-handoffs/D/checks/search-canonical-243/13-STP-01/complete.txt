@@ -1,0 +1,47 @@
+....................................                                     [100%]
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py::test_current_measurement_is_required_despite_two_equal_old_vectors[failure]
+PASSED tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py::test_current_measurement_is_required_despite_two_equal_old_vectors[dimension]
+PASSED tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py::test_current_measurement_is_required_despite_two_equal_old_vectors[model]
+PASSED tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py::test_current_measurement_is_required_despite_two_equal_old_vectors[version]
+PASSED tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py::test_current_measurement_is_required_despite_two_equal_old_vectors[missing]
+PASSED tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py::test_two_current_compatible_vectors_have_analytic_cosine_one
+PASSED tests/unit/scientist/methods/search/test_stopping_limitations.py::test_missing_unit_cannot_claim_objective_convergence
+PASSED tests/unit/scientist/methods/search/test_stopping_limitations.py::test_missing_profile_cannot_claim_objective_convergence
+PASSED tests/unit/scientist/methods/search/test_stopping_limitations.py::test_standard_preset_still_honors_budget_without_objective_unit
+PASSED tests/unit/scientist/methods/search/test_stopping_limitations.py::test_malformed_patience_is_rejected[True]
+PASSED tests/unit/scientist/methods/search/test_stopping_limitations.py::test_malformed_patience_is_rejected[False]
+PASSED tests/unit/scientist/methods/search/test_stopping_limitations.py::test_malformed_patience_is_rejected[1.5]
+PASSED tests/unit/scientist/methods/search/test_stopping_limitations.py::test_malformed_patience_is_rejected[2]
+PASSED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[minimize-0-1-True]
+PASSED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[minimize-0--1-False]
+PASSED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[minimize-0--0.01-True]
+PASSED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[minimize-0--0.0101-False]
+PASSED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[minimize-0.005--0.001-True]
+PASSED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[minimize-100-99-True]
+PASSED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[minimize-100-98-False]
+PASSED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[maximize-0--1-True]
+PASSED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[maximize-0-1-False]
+PASSED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[maximize-0-0.01-True]
+PASSED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[maximize-0-0.0101-False]
+PASSED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[maximize--0.005-0.001-True]
+PASSED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[maximize--100--99-True]
+PASSED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_plateau_matches_declared_unit_decimal_oracle[maximize--100--98-False]
+PASSED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_unit_conversion_also_scales_absolute_tolerance
+PASSED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_custom_coefficients_use_their_declared_tolerance
+PASSED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_present_invalid_observation_cannot_establish_plateau[None]
+PASSED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_present_invalid_observation_cannot_establish_plateau[1.0]
+PASSED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_present_invalid_observation_cannot_establish_plateau[True]
+PASSED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_present_invalid_observation_cannot_establish_plateau[nan]
+PASSED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_present_invalid_observation_cannot_establish_plateau[inf]
+PASSED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_absent_observation_does_not_shorten_plateau_basis
+PASSED tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py::test_declared_plateau_stops_native_controller_and_preserves_best
+36 passed, 2 warnings in 7.30s

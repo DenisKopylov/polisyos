@@ -1,0 +1,325 @@
+{
+  "reviewer": "/root/census_oct07",
+  "verdict": "GO_SOURCE_QUALIFIED_NATIVE_SCOPES_AND_ORIGINAL_CRITERION_PROPOSALS",
+  "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "tree": "e809693afe3b84e02d473b5744142d026afbe509",
+  "verified_receipts": [
+    {
+      "name": "champion",
+      "counts": {
+        "PASS": 44,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "receipt_sha256": "ae96d9c6b78c23e510689dfc1bbccc538c822b931748ebc05c497d6e39008ac5",
+      "junit_sha256": "170f2248e33ebe735be3b4816598da8436711b82965742ae65a56e2398548f2e",
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": {
+        "findings": [
+          "B111",
+          "B116",
+          "B117"
+        ],
+        "notes": [
+          "Exacta7 full44PASS: wrongpair/loop/split/suite/policy, actualevaluator/cache-content replay basis, localunderlock canonicalreread/races/fresh crash readers/strict primitive numeric admission.",
+          "B333 combinedcanonicalCAS edge verified separately by TRNauthor; no scientific evaluatorrights/production rights/distributed orpowerloss guarantee."
+        ]
+      }
+    },
+    {
+      "name": "contracts",
+      "counts": {
+        "PASS": 2,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "receipt_sha256": "876c94345a0450c180ae5e6ea3f441838d64820c48dc4a20494d549321243a6b",
+      "junit_sha256": "8244533102105da1ea6dcfd09b3a118966204bf5560c3c7e0279ad92a96bc81c",
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": {
+        "findings": [
+          "LA-014"
+        ],
+        "notes": [
+          "Exacta7 tests2PASS actualLegacySearchServiceAdapter ask/tell andboundedFunnelwrapper (mockstage), NOT aliasrun_search.",
+          "Alias actualrun_search extension4b38 pendingnexttestonlyfreeze, actualNativeDriver.run_search covered41 elsewhere."
+        ]
+      }
+    },
+    {
+      "name": "ctl",
+      "counts": {
+        "PASS": 30,
+        "FAIL": 2,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "receipt_sha256": "e1567f30dd335b7ecd7324226ab1b81ffda23983cbbb12fda178147630bee1fe",
+      "junit_sha256": "d9a4837826d6af72dd4e0636558b5b7b77b53eb80bcee8dfd35c3d5bd41d41df",
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": {
+        "findings": [
+          "B118",
+          "B119",
+          "B120",
+          "B121",
+          "B123",
+          "B124",
+          "B127"
+        ],
+        "notes": [
+          "Exacta7 initialcohort30PASS2FAIL retained; both paidcells failed on uncachedtokenizerasset proxy403 before payment, not productFAIL interpretation.",
+          "Sameexactcells subsequently2PASS with canonicalalreadyavailable cl100kassetSHA223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7; do not rewrite or sum universalPASS.",
+          "Directowner11 now actualPASS incl unknownNone/CASfreshJSON; Objective4 correctedfixtures allPASS, nativeDate2/Grid4factory1PASS, originalrepeated/concurrent/warmbudget checksPASS."
+        ]
+      }
+    },
+    {
+      "name": "cursor-removal",
+      "counts": {
+        "PASS": 0,
+        "FAIL": 2,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "receipt_sha256": "31abe3c00e9ccb119dc71f301112dd1342ef443d09b7740dea6234a206dbed99",
+      "junit_sha256": "fb5560f7ee3aa31a60d7b92cd6a935c76bcef965fd0b392bab1ca7d38ba1c438",
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": {
+        "findings": [
+          "LA-014",
+          "LA-015"
+        ],
+        "notes": [
+          "Actual2expectedFAIL physicalnextcandidate3 insteadrequired2 whenrestoredcursorremoved withmarkerssaved."
+        ]
+      }
+    },
+    {
+      "name": "date-removal",
+      "counts": {
+        "PASS": 0,
+        "FAIL": 2,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "receipt_sha256": "011be7cf6279e69f6c048a1910000bbee05f4d6463da67daf441889aa3f04e36",
+      "junit_sha256": "58db7870e81850a9cb3f033503af48d2e42a9791dccb66878856afb074508bca",
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": {
+        "findings": [
+          "B124"
+        ],
+        "notes": [
+          "Actual2expectedFAIL native andexternalregistry logicalsubjects2→1 whensemanticdate elided; all3fullhistory/evaluation/replica rows retained."
+        ]
+      }
+    },
+    {
+      "name": "grid-removal",
+      "counts": {
+        "PASS": 0,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "receipt_sha256": "b80b4411d901800ff8d85305610da1c2c743f2c45f61782c6c95ac9b9a2f56d5",
+      "junit_sha256": "4e2d72338a18e19f571e865a4d33f56c4756bb3037f74ebdb1ff63a6b12a4d24",
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": {
+        "findings": [
+          "B127"
+        ],
+        "notes": [
+          "Actual1expectedFAIL: removal ofshortremaining batch bridge losesphysicalcandidate4 during actualordinaryfactory request."
+        ]
+      }
+    },
+    {
+      "name": "native-doe-real",
+      "counts": {
+        "PASS": 13,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "receipt_sha256": "2acae22e00ca1ad764c3ef3955ea8a2a2dafd2adf75d3935bf9a5c5acefc3861",
+      "junit_sha256": "bb6fdcfb3745e50a4787bf07a532ba8f5268fedcafc8253425f92056813644aa",
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": {
+        "findings": [
+          "B113",
+          "LA-014",
+          "LA-015"
+        ],
+        "notes": [
+          "Exacta7 actualSALib1.5.2+Torch2.10.0cu128/BoTorch0.16.1/GPyTorch1.15.1 supportedmixedprofile: actual24-run design→qualifiedCAS→native coordinateordering→strict typedMutation/evaluationCAS→fresh publicresume.",
+          "Two returnedreference mutation negatives refuse after actualresolver and beforefactorypublication; no warmfit ornewscientificlaw claimed.",
+          "Explicitbackendaudit is separateenvironment importcheck, not another testcaseexecution."
+        ]
+      }
+    },
+    {
+      "name": "native-doe",
+      "counts": {
+        "PASS": 0,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 1
+      },
+      "receipt_sha256": "12a62c6e2b10ff750259705ace4203735936a26362ffe70ededd19cf1af5632b",
+      "junit_sha256": "61461af6a61a068045dd8091265aedd45c7512af7137ce282fc21ac26d0a547c",
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": {
+        "findings": [
+          "B113",
+          "LA-014",
+          "LA-015"
+        ],
+        "notes": [
+          "Initial locked-onlyprofile1collectionSKIP,0testcasephases =>UNRUN becauseSALibabsent, no numericalPASS.",
+          "Subsequent explicitexistinglocked-first+DOEextra profile actuallyruns native-doe-real13PASS; originalskipoutput retained.",
+          "Dconsumer/refbinding only; noE B100 sampler/analyzerlaw or populationlaw claim."
+        ]
+      }
+    },
+    {
+      "name": "objective-removal",
+      "counts": {
+        "PASS": 2,
+        "FAIL": 2,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "receipt_sha256": "91bec98700eb4260772fa5811a73744edc77e1007a2a706c196839140fd6133c",
+      "junit_sha256": "da9a3fd2f94fd615fe300126a08a3249d5c1e09a578955bd9477d40e8459f6b5",
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": {
+        "findings": [
+          "B123"
+        ],
+        "notes": [
+          "Actual2expectedFAIL malformed-presentvector/bundle reclassified asmissing whileactualrawpayload preserved; persistedlegacyobjective100 best/front becomesadmitted.",
+          "Absentlegacy andvalidtyped2PASS controls preserve distinctvalidlaw, no inventedscalar fallbackequivalence."
+        ]
+      }
+    },
+    {
+      "name": "paid-original-real",
+      "counts": {
+        "PASS": 2,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "receipt_sha256": "8ca0825bf1f786bac47b116f138887347a8c61b43c84e002257c6b3325c80610",
+      "junit_sha256": "4c50bf7fe3b6c3147db5b8ef81e91f37ff11459ef473a4422f22ea601356b511",
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": {
+        "findings": [
+          "B118",
+          "B120",
+          "B121"
+        ],
+        "notes": [
+          "Exacta7 nativepaidSentinel andliteral two-run comparison2PASS using actualreadonly tokenizerasset.",
+          "ActualScenarioAdversaryWorker→LLMBudgetEnforcer→canonicalB1.2durablefreshreceipts; sentinel100 excluded frombest/front/training/newbudget, retainedfirstresult and cumulative2→4receiptprefix; same mutablecontroller matches twofreshcontrollers.",
+          "Knownproviderfixture reports amount, not invoice authority. Existingworker caller explicitlybinds actualsearchID/evaluationID in thisboundedworkflow; no unappointedproductionstage context claimed."
+        ]
+      }
+    },
+    {
+      "name": "run-reset-removal",
+      "counts": {
+        "PASS": 0,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "receipt_sha256": "27999e2e482a69a224efb86ad5dca36e082c6f0c7042a184426c85e79e938ac2",
+      "junit_sha256": "de16ae6c50fe0984f7810cdcf44e7d50f2d73643b6221763de08370d41016bf8",
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": {
+        "findings": [
+          "B118",
+          "B121"
+        ],
+        "notes": [
+          "Actual1expectedassertionFAIL: preserve freshsearchID/status andactualpaidowner/stopping/warmcalls butremoveperrunstate; secondrunblocked byoldnewcount andcanonicalspend2 remains insteadexpected4."
+        ]
+      }
+    },
+    {
+      "name": "sentinel-removal",
+      "counts": {
+        "PASS": 0,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "receipt_sha256": "b5b9eb30ab28b8fcb96c8070abe413f2900d9cce48e79b82aedea3daac3aaeb6",
+      "junit_sha256": "479909c1f7ba6476a062c50a09367eba19da9ec10c07bf6ec088cee3f2eb6b8f",
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": {
+        "findings": [
+          "B118",
+          "B121"
+        ],
+        "notes": [
+          "Actual1expectedassertionFAIL: sentinelrawmarker andrealpaidresource retained; removeonlysentineltransition classification, wronglycountscontrolasordinary andtruncatesordinarywork, actualspend1 insteadexpected2."
+        ]
+      }
+    },
+    {
+      "name": "service",
+      "counts": {
+        "PASS": 41,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "receipt_sha256": "793b3514b6442bd6bd6ed168f133ce4ff2c86a89a30c8d0ebf4d6e197aa31316",
+      "junit_sha256": "26b9f25dfff42148e2f6272ae4d209283fc93329ed8b778836d68cc93c9ec1b9",
+      "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": {
+        "findings": [
+          "B118",
+          "B119",
+          "B121",
+          "LA-014",
+          "LA-015"
+        ],
+        "notes": [
+          "Exacta7 actual41PASS: ordinaryfactory CAS put/readback faults+secondprocess physicalnextcandidate/history/frontier/stopping/failure/partial and realtopology.",
+          "NativeoriginalAPI/lifecycle acceptance is supplemented by MathAdapter126/fullpersistence and Legacycompatibility actual2; no claim of appointedexternalserveddeployment."
+        ]
+      }
+    }
+  ],
+  "git_critical_binding_checks": 404,
+  "original_criterion_join": {
+    "B118": "Actual two same-controller paid runs vs two fresh controls, cumulative durable2->4 event prefix, first snapshot detached, concurrent nonreentrant refusal; state-reset/sentinel removals produce actualpaid count divergence.",
+    "B119": "Permanent/transient empty, finite exhausted/partial, actualgenerator cancellation/failure reasons and bounded cleanup/generation-attempt state in actualService41/CTL30; paid resource controls in literal two-run workflow.",
+    "B121": "Declared new-evaluation allowance preserved with warm history; sentinel paid but excluded best/front/training/new counts; actualpaidworker/B1.2 settlement/freshreader.",
+    "B123": "Actual typed resolver->realObjectiveStack->best/frontier/history->actualCASpublication->freshrestore/resume; malformed-present refuses scalar fallback, absentlegacy100 and correcttyped inputs distinct. Actualremovalinvalid2FAIL/valid2PASS.",
+    "B124": "Actual dateful logicalsubject relation persisted through nativeService3fullIDs/replicas andoptionalParetoRegistry2subjects/freshdisk, trace/JSONpermutation dedup; date removal2FAIL.",
+    "B127": "Actualdeclared Gridbatch3 finite1..4 latepartiallast4/pendingfreshCASresume/finalexhaustion complements State142/effective-actions15/Adapter50 identities. Integer/category/boolcontinuous law source/test scopes separatelybound, no solehelperclosure.",
+    "LA-015": "Actual new/resume/stopping/warm/empty/sentinel/evaluatorfailure and equality of physical final/history/frontier in nativeService41+actualAdapter50/persistence72. CTLcompanion supplier; SRV03 canonical.",
+    "LA-014": "Nativeconsumer/persistence/contract-only laziness/actualasktell/unknownduplicate/typedfrontier/freshstate established by joined scopedreceipts; explicitlegacyaliasrun_search literalcell remains tinytestreplay pending."
+  },
+  "P37": "All original predicates tied to actual native caller, actual candidate/evaluation IDs, physical generator cursor/history, typed payload and canonical persisted B debit/snapshot.",
+  "P38": "Removing actual cursor restore/shortlastbatch/date relation/typedpresent semantic or per-run/sentinel transitions retainsmarkers and causes expected real output/effect divergence; trace/display alone insufficient.",
+  "environment_qualification": "CTL initial30PASS2FAIL retained; exactpaid2 PASS after actual readonly canonical cl100k asset availability. DOE initialSALibcollectionSKIP is UNRUN; actual explicit locked-first+SALib1.5.2 profile13PASS and importaudit separate. Generic copied backend string on paid/DOE/removal runner metadata does not redefine argv/source/output; actual runtime profile is stated here and actualbackendimportaudit retained.",
+  "input_qualification": "All critical declared available input bindings checked against exacta7 Git; full6313 materialized src/tests/config denominator stable. Fulltracked15484 includes7069 sparse unavailable paths; no wholetrackedavailability/P41 claim.",
+  "limitations": [
+    "Current rootdefault native paths only, no foreign unappointed deployed served caller or production authority",
+    "LocalPOSIX pointer guarantees only, no distributed/powerloss claim",
+    "No summed wholeD/nativewavePASS; each receipt exactsource/scope",
+    "B120 actual composed canonical budget publicfactory/race remains UNRUN until corrected fixture",
+    "No formal G closure/acceptance"
+  ],
+  "accepted_G": false,
+  "formal_closed": false
+}

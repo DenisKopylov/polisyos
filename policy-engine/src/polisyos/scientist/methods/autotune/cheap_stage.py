@@ -19,8 +19,12 @@ from .models import (
     MutationArtifact,
     PromotionPolicy,
     SearchLoopSpec,
+    benchmark_comparison_basis,
+    benchmark_evaluator_profile,
     default_cas_root,
+    load_benchmark_inputs,
     load_model_artifact,
+    resolve_comparison_incumbent,
 )
 from .registry import ChampionRegistry
 from .runtime import ChampionBackedRuntimeLoader, PydanticMutationCodec
@@ -104,16 +108,12 @@ class CheapStageBenchmarkEvaluator(BenchmarkedEvaluator):
         store = context.get("store") or self._store
         if store is None:
             raise ValueError("CheapStageBenchmarkEvaluator requires a CAS store")
+        incumbent = resolve_comparison_incumbent(
+            context.get("registry") or self._registry, context, CHEAP_STAGE_LOOP_ID
+        )
         suite = load_model_artifact(store, suite_ref, BenchmarkSuite)
         candidate = load_model_artifact(store, candidate_ref, CheapStageTuningConfig)
-        if suite.dataset_path is None or suite.split_manifest_path is None:
-            raise ValueError(
-                "CheapStage benchmark suite requires dataset_path and split_manifest_path",
-            )
-        records = _read_jsonl(Path(suite.dataset_path))
-        split_manifest = BenchmarkSplitManifest.model_validate_json(
-            Path(suite.split_manifest_path).read_text(encoding="utf-8")
-        )
+        records, split_manifest = load_benchmark_inputs(store, suite)
         selection_records = _records_for_split(
             records,
             split_manifest=split_manifest,
@@ -130,6 +130,7 @@ class CheapStageBenchmarkEvaluator(BenchmarkedEvaluator):
             records=records,
             split_manifest=split_manifest,
             context=context,
+            incumbent=incumbent,
         )
         selection_metrics = _cheap_stage_metrics(
             selection_records,
@@ -158,6 +159,13 @@ class CheapStageBenchmarkEvaluator(BenchmarkedEvaluator):
             suite_id=suite.suite_id,
             suite_version=suite.suite_version,
             candidate_ref=candidate_ref,
+            comparison_basis=benchmark_comparison_basis(
+                store,
+                suite_ref,
+                context.get("policy") or default_cheap_stage_policy(),
+                benchmark_evaluator_profile(self),
+            ),
+            runtime_split_type=BenchmarkSplit.HOLDOUT,
             selection_metrics=selection_metrics,
             holdout_metrics=holdout_metrics,
             sample_counts={
@@ -168,6 +176,12 @@ class CheapStageBenchmarkEvaluator(BenchmarkedEvaluator):
             },
             guardrails=guardrails,
             promotable=all(guardrails.values()),
+            comparison_predecessor_candidate_ref=(
+                incumbent.candidate_ref if incumbent is not None else None
+            ),
+            comparison_predecessor_evaluation_ref=(
+                incumbent.evaluation_ref if incumbent is not None else None
+            ),
         )
 
     def _champion_stage_b_eval_rate(
@@ -178,6 +192,7 @@ class CheapStageBenchmarkEvaluator(BenchmarkedEvaluator):
         records: list[dict[str, Any]],
         split_manifest: BenchmarkSplitManifest,
         context: dict[str, Any],
+        incumbent,
     ) -> float:
         registry = context.get("registry") or self._registry
         store = context.get("store") or self._store
@@ -192,7 +207,7 @@ class CheapStageBenchmarkEvaluator(BenchmarkedEvaluator):
                 threshold=0.5,
                 champion_eval_rate=None,
             )["stage_b_eval_rate"]
-        champion = registry.get(CHEAP_STAGE_LOOP_ID)
+        champion = incumbent
         if champion is None or champion.candidate_ref.artifact_id == candidate_ref.artifact_id:
             return _cheap_stage_metrics(
                 holdout_records,

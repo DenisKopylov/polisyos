@@ -1,0 +1,3064 @@
+{
+  "schema": "policyos.e02.independent_original_criterion_review.v1",
+  "unit": "D",
+  "role": "independent read-only acceptance review; no backend execution, Git writes, checkouts or child agents",
+  "source_availability": {
+    "sha": "e73bde06d5b796b99ad84898810b34985787be47",
+    "tree": "af25d6fef7ed0398ff2c1d221166984f3e458766",
+    "branch": "codex/e02-D-published-root",
+    "status": "## codex/e02-D-published-root\n"
+  },
+  "slice_base_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+  "original_criteria_source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "G_checkpoint_sha": "127dc7ab8365d29eb656fe32c0c894f6cc971286",
+  "G_accepted_D": false,
+  "closure_ids": [],
+  "predicate_basis": "independently_reconciled",
+  "predicate_scope": "Exact original text/hash/owner bindings and source-qualified prior evidence metadata plus finite semantic review. Runtime predicates are not recomputed in this read-only task. Scientific authority, final composed execution and G acceptance remain not_established.",
+  "denominator": {
+    "full_finding_owner_rows": 282,
+    "full_bundle_owner_rows": 127,
+    "D_findings": 45,
+    "D_bundles": 17,
+    "occurrences": 46,
+    "canonical_owner_occurrences": 45,
+    "supplier_occurrences": 1,
+    "canonical_input_git_reads": 51
+  },
+  "binding_verification": {
+    "MATCH": true,
+    "errors": [],
+    "all_original_occurrence_binding_results": [
+      {
+        "occurrence_id": "B106@STR-01",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B107@STR-01",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B108@OPT-01",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B109@OPT-01",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B110@OPT-01",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B111@OPT-01",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B112@OPT-02",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B113@OPT-02",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B114@OPT-03",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B115@OPT-03",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B116@OPT-04",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B117@OPT-04",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B118@CTL-01",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B119@CTL-01",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B120@CTL-03",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B121@CTL-03",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B122@STP-01",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B123@CTL-03",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B124@CTL-02",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B125@CTL-02",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B126@CTL-02",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B127@OPT-02",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B128@TRN-01",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B129@TRN-02",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B130@TRN-01",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B131@TRN-01",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B132@TRN-01",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B133@TRN-02",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B134@TRN-02",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B135@TRN-03",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B136@TRN-03",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B137@TRN-03",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B156@FUN-01",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B157@FUN-02",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B158@FUN-01",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B159@FUN-01",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B160@FUN-02",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B161@FUN-03",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B162@FUN-02",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B163@FUN-03",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B164@FUN-03",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B165@FUN-02",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "B41@STP-01",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "LA-014@SRV-01",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "LA-015@CTL-01",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      },
+      {
+        "occurrence_id": "LA-015@SRV-03",
+        "matches": {
+          "original_fragment_sha256": true,
+          "exact_original_acceptance_text": true,
+          "acceptance_sha256": true,
+          "line_locator": true,
+          "full_fragment_present_in_canonical_card": true,
+          "original_receipt_finding_id": true,
+          "original_receipt_criterion_card": true,
+          "original_receipt_canonical_closure_owner": true,
+          "original_receipt_role": true,
+          "original_receipt_original_fragment": true,
+          "original_receipt_canonical_content": true
+        }
+      }
+    ],
+    "exact_references": [
+      {
+        "group": "canonical_inputs",
+        "key": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+        "sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2",
+        "bytes": 549568,
+        "MATCH": true
+      },
+      {
+        "group": "canonical_inputs",
+        "key": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+        "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722",
+        "bytes": 9504,
+        "MATCH": true
+      },
+      {
+        "group": "canonical_inputs",
+        "key": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+        "sha256": "f587df5256ebef909b4060a588c2f947f31b173adf8d44b32e7f4eea5abd1f75",
+        "bytes": 12413,
+        "MATCH": true
+      },
+      {
+        "group": "canonical_inputs",
+        "key": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/D.md",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/D.md",
+        "sha256": "622284b984ec12fcba96084cfad13e346112a0539ae081da683e1b663c5b4b6d",
+        "bytes": 110393,
+        "MATCH": true
+      },
+      {
+        "group": "canonical_original_documents",
+        "key": "B_r19",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+        "bytes": 1336380,
+        "MATCH": true
+      },
+      {
+        "group": "canonical_original_documents",
+        "key": "LA_r09",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+        "bytes": 648034,
+        "MATCH": true
+      },
+      {
+        "group": "canonical_cards",
+        "key": "CTL-01",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-01.md",
+        "sha256": "77acb86b5800839d7bd15bac4e242cf614d029011e694b500ed905e6bb13080f",
+        "bytes": 17621,
+        "MATCH": true
+      },
+      {
+        "group": "canonical_cards",
+        "key": "CTL-02",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-02.md",
+        "sha256": "e84619189496527f0f6cc2d75d395ef17279dea27112c8b6669f99a8579a1197",
+        "bytes": 16456,
+        "MATCH": true
+      },
+      {
+        "group": "canonical_cards",
+        "key": "CTL-03",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-03.md",
+        "sha256": "96e6ce518edd40fa702efe89415427396b8e086ad4f7f3533c9227cb2919065e",
+        "bytes": 16904,
+        "MATCH": true
+      },
+      {
+        "group": "canonical_cards",
+        "key": "FUN-01",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-01.md",
+        "sha256": "f154277d83c6779a7b591d87c5874fc9e283e9d34c531361dc30660ed9ef4482",
+        "bytes": 15946,
+        "MATCH": true
+      },
+      {
+        "group": "canonical_cards",
+        "key": "FUN-02",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-02.md",
+        "sha256": "5482d56f8a77858b77844bdbbf3867481c2701a6dd671bd138efaccf83c47ef1",
+        "bytes": 18569,
+        "MATCH": true
+      },
+      {
+        "group": "canonical_cards",
+        "key": "FUN-03",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-03.md",
+        "sha256": "a17dfceb6cc580c9a60ffdcf202b8d9ccff5e672b425a98ecb14de17faa6c34b",
+        "bytes": 16050,
+        "MATCH": true
+      },
+      {
+        "group": "canonical_cards",
+        "key": "OPT-01",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-01.md",
+        "sha256": "3c7df5d39ca7a6351ebf5fb21adee73462df7e7063adbaec6514c004feb7ce0e",
+        "bytes": 20853,
+        "MATCH": true
+      },
+      {
+        "group": "canonical_cards",
+        "key": "OPT-02",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-02.md",
+        "sha256": "4e56f98d11b39bec14b9ddca221f8ccae2042bae3e4f41831be9caa309f7be2f",
+        "bytes": 16968,
+        "MATCH": true
+      },
+      {
+        "group": "canonical_cards",
+        "key": "OPT-03",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-03.md",
+        "sha256": "0bb18c83c79a6a8094af1cc3c22421a488e72520e6c7abd79d724a4f38ff037b",
+        "bytes": 12239,
+        "MATCH": true
+      },
+      {
+        "group": "canonical_cards",
+        "key": "OPT-04",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-04.md",
+        "sha256": "5c2f21464b6af46c3291b1722af179c1106e94aa087aeb0b6dd3fcc378d84684",
+        "bytes": 13217,
+        "MATCH": true
+      },
+      {
+        "group": "canonical_cards",
+        "key": "SRV-01",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SRV-01.md",
+        "sha256": "30ed9110908bed7ecfa681c4895f3aceabc3260b5f3c9ea3060824a46084a3d0",
+        "bytes": 8706,
+        "MATCH": true
+      },
+      {
+        "group": "canonical_cards",
+        "key": "SRV-03",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SRV-03.md",
+        "sha256": "7e7b2c264ef861d3b28b1a55de7f62a57ff127e6bac3d7fa66de51a8e183dce0",
+        "bytes": 9440,
+        "MATCH": true
+      },
+      {
+        "group": "canonical_cards",
+        "key": "STP-01",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STP-01.md",
+        "sha256": "a9fb522de58a5c9e0524fa9cc209080d4f3f72e20f1b111f8872097b280a4d7c",
+        "bytes": 11176,
+        "MATCH": true
+      },
+      {
+        "group": "canonical_cards",
+        "key": "STR-01",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STR-01.md",
+        "sha256": "e0532566d84e5e3d62d5e8b03a41eaf96d9a11aa155cc5475a0fb2a5d910d966",
+        "bytes": 11099,
+        "MATCH": true
+      },
+      {
+        "group": "canonical_cards",
+        "key": "TRN-01",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+        "sha256": "5e3aca3b4be36e07922b75d4afa208e440f48c00d911e4c540e41da385de12e5",
+        "bytes": 21441,
+        "MATCH": true
+      },
+      {
+        "group": "canonical_cards",
+        "key": "TRN-02",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-02.md",
+        "sha256": "e357afdc8a41beeb2a13493b27e4626cf648031c78c602d841989861253ebc12",
+        "bytes": 17678,
+        "MATCH": true
+      },
+      {
+        "group": "canonical_cards",
+        "key": "TRN-03",
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-03.md",
+        "sha256": "c7cce0fdded201121b425a14faefe58e7d1e13475d931a33eed5d82621c8aa2a",
+        "bytes": 16604,
+        "MATCH": true
+      },
+      {
+        "group": "references",
+        "key": "continuation_ledger",
+        "source_sha": "79ee23eb1c9e311d8d08ec6d7033f98b72646ea6",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/criterion-ledger.json",
+        "sha256": "dcfeaad1fb6289a3baf52f7a597dd62c3c09d5e229d99fb1c3c74d8a0552b854",
+        "bytes": 129749,
+        "MATCH": true
+      },
+      {
+        "group": "references",
+        "key": "historical_accounting",
+        "source_sha": "79ee23eb1c9e311d8d08ec6d7033f98b72646ea6",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "sha256": "fb6f8d6fd8e7ebaea6df25c469429cfe9d1f314a4e62caa6dbce514f164e76ad",
+        "bytes": 176452,
+        "MATCH": true
+      },
+      {
+        "group": "references",
+        "key": "complete_result_pack",
+        "source_sha": "3d49a2e327258eb6c0f6007d249c60935eb3d375",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/complete-result-pack-census.json",
+        "sha256": "b35d8860e60d926f4b99cd464cfb141fb1166a7318ea7a12147e28348e55ca11",
+        "bytes": 79975,
+        "MATCH": true
+      },
+      {
+        "group": "references",
+        "key": "stress_absent_independent",
+        "source_sha": "c40e633fc01398cdf757f3361f6e1ed0d62497ab",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/stress-absent-independent-review.json",
+        "sha256": "31b797fc6d52f552cb05f41b1bfc8cfe761285d25e3a725e3dc18f78443e1079",
+        "bytes": 8875,
+        "MATCH": true
+      },
+      {
+        "group": "references",
+        "key": "stress_ordinary",
+        "source_sha": "f8ebe5f714d42398d07d9797f853c03553ec1603",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-ordinary-DOE-and-absent-basis.json",
+        "sha256": "ae16a277dba3170265fdc5a6f58cac885a9e0f9da6912ee3160cb7670514ff64",
+        "bytes": 31368,
+        "MATCH": true
+      },
+      {
+        "group": "references",
+        "key": "stress_actual_consumers",
+        "source_sha": "0905131301921f9256bf0e9b4e62f41292f8e2dd",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-funnel-actual-consumer.json",
+        "sha256": "4e6446f11bff7c1a1d5e5efc9b8239ce448330ead631e1fb24f3d4c50c56e7f3",
+        "bytes": 13137,
+        "MATCH": true
+      },
+      {
+        "group": "references",
+        "key": "stress_doe_independent",
+        "source_sha": "09598aa3a07694089499d7d11156248b39131e1b",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/stress-doe-independent-review.json",
+        "sha256": "2f8834b31fa03db004018dbc313957953f28cafa1a05e50e855f5b3302fed07b",
+        "bytes": 6954,
+        "MATCH": true
+      },
+      {
+        "group": "references",
+        "key": "stress_component_independent",
+        "source_sha": "5084a2f596a4478d3e5a15926010e23affe4976c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/stress-correction-independent-review.json",
+        "sha256": "30535b8355cac99396f4b2cbd32af956456d4abb602679dd36c6c848fe21ad81",
+        "bytes": 35947,
+        "MATCH": true
+      },
+      {
+        "group": "references",
+        "key": "transfer_criteria",
+        "source_sha": "4fff9e8089bfba442e2ec8710cda45bfd9b6959c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/transfer-selection-criteria.json",
+        "sha256": "f266455a686de71a5e59f900a8913a9b33a0739f980b49afb17f165850236b6d",
+        "bytes": 47859,
+        "MATCH": true
+      },
+      {
+        "group": "references",
+        "key": "funnel_native",
+        "source_sha": "56d1ee7b0837b361c34937d384b423fd86d72f29",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-d796.json",
+        "sha256": "b2e996186916ddb8871f1c60d8e8e9740f4d6fa764fafc4ceeeb1270bf82f1ce",
+        "bytes": 34670,
+        "MATCH": true
+      },
+      {
+        "group": "references",
+        "key": "funnel_native_independent",
+        "source_sha": "79ee23eb1c9e311d8d08ec6d7033f98b72646ea6",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/independent-funnel-d796-review.json",
+        "sha256": "b59815b3534e8cdbb3f51e56e72619e8aaccf461ecf1c6b1b041c8a056623ac3",
+        "bytes": 43232,
+        "MATCH": true
+      },
+      {
+        "group": "references",
+        "key": "funnel_node",
+        "source_sha": "d877127c6fae40de0bd1b33ac8f126dee7b93f26",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-node.json",
+        "sha256": "db5218da598210bdf37435dfa059fd542001f3ae523aadaec259f512c073ec81",
+        "bytes": 17021,
+        "MATCH": true
+      },
+      {
+        "group": "references",
+        "key": "funnel_cost_stopping",
+        "source_sha": "1159cad1c970c783b30c943cf2eb38b61265f48d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-funnel-cost-stopping.json",
+        "sha256": "37ff90ee4be290e932eaba25cb3018162947ea214bb460a7c11cce371041a269",
+        "bytes": 9096,
+        "MATCH": true
+      },
+      {
+        "group": "references",
+        "key": "native_champion",
+        "source_sha": "b2fefca972c4fddb8cd372a3c4cef0f0de94fca0",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication.json",
+        "sha256": "f30c1ed99a02549de5d695cdd45ff821f62b26de6277ce2c33f1590e946b623d",
+        "bytes": 179990,
+        "MATCH": true
+      },
+      {
+        "group": "references",
+        "key": "native_service_independent_red",
+        "source_sha": "79ee23eb1c9e311d8d08ec6d7033f98b72646ea6",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/independent-service-f258-review.json",
+        "sha256": "8bcb867a94566766c7d023a9863cbf02fcbe8b5c461655f202e4d7daa9be3295",
+        "bytes": 22912,
+        "MATCH": true
+      },
+      {
+        "group": "references",
+        "key": "stopping_prior",
+        "source_sha": "79ee23eb1c9e311d8d08ec6d7033f98b72646ea6",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-stress.json",
+        "sha256": "55081ea8d40f7c879e816431c03fcfbebeef51796201b197c2bdb3b8c360d046",
+        "bytes": 48981,
+        "MATCH": true
+      },
+      {
+        "group": "references",
+        "key": "search_quantity",
+        "source_sha": "2a129be622ac8c54a37021b1aa6becbdfc4305d6",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-exact-quantity-continuation.json",
+        "sha256": "54c5100bd26f4e997185b090ecb6c4b25cd90017ae1b1c221578771ac7461c88",
+        "bytes": 20820,
+        "MATCH": true
+      },
+      {
+        "group": "references",
+        "key": "search_quantity_independent",
+        "source_sha": "79ee23eb1c9e311d8d08ec6d7033f98b72646ea6",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/mo-reference-independent-review.json",
+        "sha256": "cd5db98ec99f15566e0dabe337a4d35056810f76ac4de95c39602b8915b5e8f9",
+        "bytes": 10142,
+        "MATCH": true
+      },
+      {
+        "group": "references",
+        "key": "frontier_transport_independent",
+        "source_sha": "79ee23eb1c9e311d8d08ec6d7033f98b72646ea6",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/frontier-export-independent-review.json",
+        "sha256": "888bf0471dce9c00abef5caa2224ed523d604a28b58e94f3e5a1f773a1584aba",
+        "bytes": 6768,
+        "MATCH": true
+      },
+      {
+        "group": "references",
+        "key": "search_generators",
+        "source_sha": "3a4e8f211a5384d9d61bec24d54477532b100574",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-generator-source-bound-continuation.json",
+        "sha256": "9ac4bf4170243b4f938fdc916613e69819147f29da715c99bc898a6aac6391fe",
+        "bytes": 53859,
+        "MATCH": true
+      },
+      {
+        "group": "references",
+        "key": "gp4_independent",
+        "source_sha": "22b5fd724414416e3d617f0546479b122ed6f313",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/gp-profile4-independent-review.json",
+        "sha256": "137bb8751854b99f469fac20bd7a25bcfcaeccb7c8ecd7f2ff9a3ec753c05e17",
+        "bytes": 8775,
+        "MATCH": true
+      },
+      {
+        "group": "references",
+        "key": "search_numeric_space",
+        "source_sha": "594b14654f5446f3900c564e05fc3cf5a5c4c498",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-space-numeric-continuation.json",
+        "sha256": "f55c8f2ffdfcd15ab2f5ab248f552f3a1d32aab4cba626ed6a8d87a8ed617ee6",
+        "bytes": 16906,
+        "MATCH": true
+      },
+      {
+        "group": "references",
+        "key": "prior_current142",
+        "source_sha": "79ee23eb1c9e311d8d08ec6d7033f98b72646ea6",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-current142-independent-review.json",
+        "sha256": "6eef8f6aeedc2ecf99d177f570822b19ee7c4b5873163fc6b086b824b372aba9",
+        "bytes": 18548,
+        "MATCH": true
+      },
+      {
+        "group": "references",
+        "key": "prior_search",
+        "source_sha": "79ee23eb1c9e311d8d08ec6d7033f98b72646ea6",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-q1-coverage.json",
+        "sha256": "061f3e72269ede805551ba64a84b03ef70767bd036c023c36bd54b3cd1eac49a",
+        "bytes": 93772,
+        "MATCH": true
+      },
+      {
+        "group": "references",
+        "key": "served_hierarchical_packet",
+        "source_sha": "79ee23eb1c9e311d8d08ec6d7033f98b72646ea6",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/served-search-owner-input.json",
+        "sha256": "21fd375730b486242658ae404180a3ee6c4ea2863782613d4460969aeff97e7b",
+        "bytes": 2501,
+        "MATCH": true
+      },
+      {
+        "group": "references",
+        "key": "G_owner_actions",
+        "source_sha": "127dc7ab8365d29eb656fe32c0c894f6cc971286",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/D-delta-owner-actions-2026-10-06.md",
+        "sha256": "a502ec7666873b7629d6f0e5469690b8adc09cfb496d66be1f05d32c022ce25a",
+        "bytes": 12694,
+        "MATCH": true
+      },
+      {
+        "group": "references",
+        "key": "DOE_coordinate_independent",
+        "source_sha": "4a4475c78938883b45a59133fc7d4cfea410b064",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/doe-coordinate-independent-review.json",
+        "sha256": "53a23eee0e68a5934df7d334aed850776bf59aa733f29fa1e87f1125e26c98b6",
+        "bytes": 14593,
+        "MATCH": true
+      }
+    ]
+  },
+  "current_source_qualified_junit_reconciliation": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory/e02-D-native-doe-6fe-positive-junit.xml.gz",
+      "source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+      "encoded_sha256": "15c71243938415d91b594a60173d201d23fd51ad7e0b8b5c938c9df9950462a5",
+      "raw_sha256": "a3c3c089c59eaa89bcd736d1fbafec80148e9ef42d58d907864ec770ec20077a",
+      "actual_cases": 15,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "scope": "Source-bound prior actual execution, not a fresh final composed run."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-champion-publication/champion-verified-final-positive-junit.xml",
+      "source_sha": "dcae37b9d775abfbd8da63d9a1b0fdddcdb7c230",
+      "encoded_sha256": "47e6150750e3403318e5791389b921dc6c120c60ffd8500364e8f640c21c0842",
+      "raw_sha256": "47e6150750e3403318e5791389b921dc6c120c60ffd8500364e8f640c21c0842",
+      "actual_cases": 151,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "scope": "Source-bound prior actual execution, not a fresh final composed run."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/gp-profile4-independent/candidate-junit.xml",
+      "source_sha": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+      "encoded_sha256": "6c41c735d380ab4aaeffd30b440179e91f0582b8157fd9b8e1b1f1c359904d09",
+      "raw_sha256": "6c41c735d380ab4aaeffd30b440179e91f0582b8157fd9b8e1b1f1c359904d09",
+      "actual_cases": 23,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0,
+      "scope": "Source-bound prior actual execution, not a fresh final composed run."
+    }
+  ],
+  "mandatory_draft_corrections": [
+    {
+      "id": "owner-appointment-wording",
+      "finding": "Packets contain role labels named appointed_owner while appointed_owner_decision_ref is null.",
+      "repair": "Use requested_canonical_owner and appointment_status=not_established; an external role and a future packet do not appoint a concrete authority."
+    },
+    {
+      "id": "current-B1.1-cost-receipt",
+      "finding": "Draft B120 details still cite old D1.0 raw24 and say current1.1 absent; current continuation-gateway-b11-current.json is received.",
+      "repair": "Bind current04bc actual24=21FAIL/3PASS, decoder10origins and schema1.1 persisted zero/release observation; FAIL is current product failure, not removal PASS or P41 inherited."
+    },
+    {
+      "id": "native-factory-publication",
+      "finding": "Draft B125 and LA014/15 still say final6fe15 and caller scan pending; full receipt and actual15-case JUnit are now committed.",
+      "repair": "Bind native-doe-default-factory.json, source6fe15 and all2701-file source scan, separate latest9de one-case optional profile successor and final composed fullselector UNRUN."
+    },
+    {
+      "id": "quantity-corrective",
+      "finding": "Draft B110/111 pending source/old underflow needs new4393/source-and-complete-output exact references.",
+      "repair": "Do not infer fresh PASS from code. Preserve default direct-model failures and explicit persisted profile separately; bind actual ordinary exporter2 and independently unchanged13 deciding outputs once committed."
+    }
+  ],
+  "urgent_owned_or_consumer_clauses": {
+    "B119": {
+      "state": "verification_clause_pending",
+      "clause": "Generator cancellation/refusal preserves its reason and prior partial state.",
+      "source_bound_question": "BayesianCandidateGenerator.generate catches every Exception from native suggest and falls back; distinguish permitted backend degradation from a declared stop/refusal/cancellation. Public service ask rollback rethrows ordinary errors, but a swallowed adapter reason never reaches it.",
+      "falsifier": "Have the existing native suggest owner emit a real declared stop/refusal/cancellation; public run/ask must preserve its reason and prior accepted history. Retain fallback marker/config while removing reason preservation. A genuine supported backend-unavailable fallback remains separate."
+    },
+    "B136": {
+      "state": "verification_clause_pending",
+      "clause": "Source-run scope and explicit partial-answer policy, beyond threshold/local-miss examples.",
+      "source_bound_question": "Actual query_with_transfer fills local partial results from transfer until limit. Examined selectors cover local-miss/filters/materialization and source_run, but no executed local-one plus transferred-one fill/cross-route duplication policy receipt was found. Canonical owner is investigating/adding a bounded control.",
+      "falsifier": "Persist one applicable local card and a distinct applicable transfer card, query limit two under exact source_run/trust/confidence, and compare fresh reopen. Wrong source_run must not fill; remove partial fill while retaining policy/filter markers and positive must fail. Any dedup claim needs its own declared identity/control, rather than an invented policy."
+    },
+    "B117": {
+      "state": "affected_consumer_in_final_wave",
+      "clause": "Existing specialized claim pointer and promotion_basis coherence.",
+      "selectors": [
+        "tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py::test_promoted_champion_executes_and_publishes_strong_fulltext",
+        "tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py::test_evaluation_candidate_mismatch_blocks_admission",
+        "tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py::test_required_guardrail_false_blocks_admission"
+      ],
+      "falsifier": "Changed pointer/evaluation with retained promotion_basis must refuse. Current generic writer/crash proof cannot by itself be called execution of the specialized claim consumer."
+    },
+    "B123": {
+      "state": "exact_consumer_citations_required",
+      "clause": "Resolver, real ObjectiveStack, best/frontier and subsequent publication; no universal promotion authority gate.",
+      "selectors": [
+        "tests/unit/scientist/search/test_search_loop.py::TestOptimizationFlow::test_malformed_typed_evaluation_cannot_fall_back_to_legacy_objective",
+        "tests/unit/remediation/test_srv_01.py::test_malformed_typed_feedback_cannot_fall_back_to_scalar_best",
+        "tests/unit/scientist/methods/search/test_service_persistence.py::test_fresh_public_service_retains_typed_policy_history_frontier_and_next_tell"
+      ],
+      "falsifier": "Delete the typed-present resolver refusal while retaining typed markers: malformed-present must remain absent from best/frontier, valid typed fresh history/frontier/public tell must remain preserved, and absent input stays the admitted legacy control."
+    },
+    "B110": {
+      "state": "new_quantity_publication_receipt_pending",
+      "clause": "Full identity through actual front/CAS round-trip/is_dominated, including axis/policy/value/reference reindex and omissions.",
+      "falsifier": "Paired reindex preserves physical relation; stale/missing/nonfinite omission coordinate identity refuses. Independent 13-case expected values need exact final source/complete output and cannot be replaced by author helper checks."
+    },
+    "B111": {
+      "state": "new_quantity_consumer_receipt_pending",
+      "clause": "Exact supported dominated union, typed unavailable including positive underflow/derived reference overflow, actual registry/report/champion consumers.",
+      "falsifier": "Three-dimensional axis front has exact union zero; positive tiny box must become typed underflow unavailable rather than available zero. Positive nonzero, genuine zero and missing/unsupported/invalid reason must survive fresh CAS/ordinary export. New ordinary two-case publication execution is pending from root."
+    },
+    "B114": {
+      "state": "changed_ordinary_bridge_final_execution_required",
+      "clause": "Existing real GP numeric corpus proof is strong; changed default SearchConfig.transfer_manager bridge needs its actual five-case consumer.",
+      "selectors": [
+        "tests/integration/scientist/methods/search/test_configured_transfer_controller.py"
+      ],
+      "falsifier": "Default configured bridge must resolve exact qualified CAS and populate actual SingleTaskGP train X/Y. Changed source bytes, basis, direction and false source outcomes refuse before fit. Backend absent is UNRUN."
+    },
+    "B128": {
+      "state": "changed_ordinary_bridge_final_execution_required",
+      "clause": "Use actual saved Evaluation bridge with counts/reasons; default configured path above must execute separately from prior explicit-injection proof.",
+      "selectors": [
+        "tests/integration/scientist/methods/search/test_configured_transfer_controller.py"
+      ],
+      "falsifier": "Same exact source row accepted; unavailable/malformed/not-applicable are distinguished before default receiver fit. No ANN lookup substitutes exact-ref resolution."
+    }
+  },
+  "criterion_occurrences": [
+    {
+      "occurrence_id": "B106@STR-01",
+      "finding_id": "B106",
+      "canonical_bundle": "STR-01",
+      "canonical_closure_owner": "STR-01",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          2738,
+          2749
+        ],
+        "original_fragment_sha256": "250b3bd2f5bc433b540605f3c9e37eddab7a5c693326c6193bb94cc9d4c67e33",
+        "exact_acceptance_paragraph_sha256": "1d212bb12a7346fc8c2480723fddd43da874e2e1daa2d2070a6233ab75795d43",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STR-01.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B106@STR-01"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "Attempted/finite/violated counts precede grouping/top-k; repeated issue occurrences remain distinct, zero/missing basis unavailable, incomplete/adaptive finite fraction conditional; all components including empty/unknown preserve completeness.",
+      "actual_consumer_review": "Actual stress/challenge producers -> typed1.1 report -> ordinary blueprint _ensure/merge -> real L5 and JSON/CAS fresh reader.",
+      "source_qualified_evidence_reference_keys": [
+        "stress_absent_independent",
+        "stress_ordinary",
+        "stress_actual_consumers",
+        "stress_component_independent",
+        "stress_doe_independent"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": null,
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B107@STR-01",
+      "finding_id": "B107",
+      "canonical_bundle": "STR-01",
+      "canonical_closure_owner": "STR-01",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          2750,
+          2761
+        ],
+        "original_fragment_sha256": "35367e5237da490c93fb99395113d7251a972437ec52e1a54a8003e74d63eb7e",
+        "exact_acceptance_paragraph_sha256": "83e4adcea92922a6991dbd16937e9dc47cca02d83f0beccf2eb7e2f43623e0a3",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STR-01.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B107@STR-01"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "Declared physical threshold/direction controls for maximized utility and minimized cost; actual worst-case selection follows violation relation, invalid/missing threshold refuses/unavailable.",
+      "actual_consumer_review": "Real typed CompositeObjective/adversarial and E sensitivity rounds -> producer -> report -> CAS fresh reader.",
+      "source_qualified_evidence_reference_keys": [
+        "stress_absent_independent",
+        "stress_ordinary",
+        "stress_actual_consumers",
+        "stopping_prior"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": null,
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B108@OPT-01",
+      "finding_id": "B108",
+      "canonical_bundle": "OPT-01",
+      "canonical_closure_owner": "OPT-01",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          2897,
+          2910
+        ],
+        "original_fragment_sha256": "f43cecf8c2c66d6cc7bce5c5174b45fe7692e5018e1364c9798302104f8e4b55",
+        "exact_acceptance_paragraph_sha256": "8d4cbd469a454de4a7f4a26aa91c3fdf8aabf3b2b59bb77651b99146bcaa888c",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-01.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B108@OPT-01"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "Balance/deficit aliases resolve equivalent values under declared sign/unit profile; genuine zero, missing, conflicting, nonfinite, overflow and incompatible unit states remain distinct.",
+      "actual_consumer_review": "Actual fiscal extractor/CLI and legacy controller scalar evaluation.",
+      "source_qualified_evidence_reference_keys": [
+        "prior_current142",
+        "prior_search"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": null,
+      "full_task_boundary": {
+        "bounded_intake_recommendation": "closed_bounded_engineering",
+        "actual_fiscal_issuer_scope": "held separate authority/input claim",
+        "owner_declared_fiscal_unit_profile_ref": null
+      },
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B109@OPT-01",
+      "finding_id": "B109",
+      "canonical_bundle": "OPT-01",
+      "canonical_closure_owner": "OPT-01",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          2911,
+          2924
+        ],
+        "original_fragment_sha256": "817c0ddda8c8883a0b7cccb111a97d8c230dd67e9859a3fb1fba47553c1b402d",
+        "exact_acceptance_paragraph_sha256": "784670e535c99a1baee35da6689f515779b3b616a5829ab125c608fcc4f712b3",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-01.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B109@OPT-01"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "Native fast/direct strict Pareto fronts agree on1–4D finite lattice, permutations, ties and both normalized directions; distinct equal-valued candidates remain.",
+      "actual_consumer_review": "Actual Pareto/MO numerical helpers and existing registry consumers.",
+      "source_qualified_evidence_reference_keys": [
+        "search_quantity",
+        "search_quantity_independent",
+        "prior_search"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": null,
+      "full_task_boundary": {
+        "original_finite_criterion_recommendation": "closed_bounded_engineering",
+        "ordinary_workflow_state": "open",
+        "actual_gap": "Default HierarchicalPolicySearchAdapter coordinator has no ParetoRegistry; actual A-W04 admitted frontier/export and A-W01 appointed caller bridge are not supplied.",
+        "next_owner": "A-W04 producer/export + A-W01 caller + D-W01 registry/consumer",
+        "required_input_ref": null
+      },
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B110@OPT-01",
+      "finding_id": "B110",
+      "canonical_bundle": "OPT-01",
+      "canonical_closure_owner": "OPT-01",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          2925,
+          2938
+        ],
+        "original_fragment_sha256": "a6be752b83d6e94ed4d0bcccef41670106a65bac64827f8cf4645a0401239d6d",
+        "exact_acceptance_paragraph_sha256": "199ef2ac1ae718655b08fbb78829e6ed0768b46df5d1b99fad56aa69181c1184",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-01.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B110@OPT-01"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "Ordered coordinatev2 preserves full metric/split/direction/unit/explicit definition-version identity through serialization/CAS and is_dominated; labels do not change relation.",
+      "actual_consumer_review": "Actual promoter/frontier -> persisted typed coordinate schema -> fresh reader.",
+      "source_qualified_evidence_reference_keys": [
+        "search_quantity",
+        "prior_search"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": {
+        "state": "new_quantity_publication_receipt_pending",
+        "clause": "Full identity through actual front/CAS round-trip/is_dominated, including axis/policy/value/reference reindex and omissions.",
+        "falsifier": "Paired reindex preserves physical relation; stale/missing/nonfinite omission coordinate identity refuses. Independent 13-case expected values need exact final source/complete output and cannot be replaced by author helper checks."
+      },
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B111@OPT-01",
+      "finding_id": "B111",
+      "canonical_bundle": "OPT-01",
+      "canonical_closure_owner": "OPT-01",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          2939,
+          2954
+        ],
+        "original_fragment_sha256": "534be6222dccd944bb884e893436c32d82eef90be857ad763412d9df270c6245",
+        "exact_acceptance_paragraph_sha256": "4d1c7ff7de3b274c2aa4e16230b323102adacd871d551f30616d9d8f3b2eec65",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-01.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B111@OPT-01"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "Invalid/unknown metric reason is preserved; finite/typed unavailable exact1–4D reference/HV cannot publish NaN/inf at genesis/change; full quantity assessment survives real frontier-report CAS.",
+      "actual_consumer_review": "Actual MO computation -> registry fresh reader -> PolicyArtifactBuilder/report -> CAS fresh reader; upstream registry guards retained.",
+      "source_qualified_evidence_reference_keys": [
+        "search_quantity",
+        "search_quantity_independent",
+        "frontier_transport_independent",
+        "native_champion"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": {
+        "state": "new_quantity_consumer_receipt_pending",
+        "clause": "Exact supported dominated union, typed unavailable including positive underflow/derived reference overflow, actual registry/report/champion consumers.",
+        "falsifier": "Three-dimensional axis front has exact union zero; positive tiny box must become typed underflow unavailable rather than available zero. Positive nonzero, genuine zero and missing/unsupported/invalid reason must survive fresh CAS/ordinary export. New ordinary two-case publication execution is pending from root."
+      },
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B112@OPT-02",
+      "finding_id": "B112",
+      "canonical_bundle": "OPT-02",
+      "canonical_closure_owner": "OPT-02",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          2955,
+          2968
+        ],
+        "original_fragment_sha256": "ebcbfcc121108068640bc1d871fd4f596f6fdd3c0e6c54203025810562dea15f",
+        "exact_acceptance_paragraph_sha256": "346a175ccdf5884dc409464a2363ff08bee370b2e406d2aa45a103abcedf7234",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-02.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B112@OPT-02"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "Supported actual SearchSpace first suggestion, categorical/log physical round-trip and optional-backend refusal execute real wrapper/backend path.",
+      "actual_consumer_review": "Native BayesianCandidateGenerator supported source-bound GPprofile4/strategy wrapper.",
+      "source_qualified_evidence_reference_keys": [
+        "search_generators",
+        "gp4_independent",
+        "search_numeric_space"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": null,
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B113@OPT-02",
+      "finding_id": "B113",
+      "canonical_bundle": "OPT-02",
+      "canonical_closure_owner": "OPT-02",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          2969,
+          2982
+        ],
+        "original_fragment_sha256": "1bd3fb58eb1fd1fbdc00d8a88c085a3c60b33ee11fab6f5e8c8c80c1c5d17115",
+        "exact_acceptance_paragraph_sha256": "a58659486c95650eb9a6228a8df62809daede33c44d147794b7f4e78d7ed7624",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-02.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B113@OPT-02"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "Actual physical/category coordinates, full candidate IDs and both supported history encodings retain intended objective value; missing values stay unavailable.",
+      "actual_consumer_review": "Actual source-bound generator/history restore and physical evaluation adapter.",
+      "source_qualified_evidence_reference_keys": [
+        "search_generators",
+        "gp4_independent",
+        "search_numeric_space"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": null,
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B114@OPT-03",
+      "finding_id": "B114",
+      "canonical_bundle": "OPT-03",
+      "canonical_closure_owner": "OPT-03",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          2983,
+          2996
+        ],
+        "original_fragment_sha256": "751ea1f4c2439927f429abb7d2be1bd0c15d45fd802529085431f219337fd766",
+        "exact_acceptance_paragraph_sha256": "b2eab2dd0f76dd6fe89611272edc500c3b3d5e0ef5fa5857251aa73944c096b3",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-03.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B114@OPT-03"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "Warm+new and whole same actual corpus produce same supported GP training basis/plan; reject reasons explicit; immutable duplicate ref not double counted and independent repetitions retained.",
+      "actual_consumer_review": "Native SingleTaskGP with actual persisted warm-source transfer bridge.",
+      "source_qualified_evidence_reference_keys": [
+        "search_generators",
+        "gp4_independent",
+        "transfer_criteria"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": {
+        "state": "changed_ordinary_bridge_final_execution_required",
+        "clause": "Existing real GP numeric corpus proof is strong; changed default SearchConfig.transfer_manager bridge needs its actual five-case consumer.",
+        "selectors": [
+          "tests/integration/scientist/methods/search/test_configured_transfer_controller.py"
+        ],
+        "falsifier": "Default configured bridge must resolve exact qualified CAS and populate actual SingleTaskGP train X/Y. Changed source bytes, basis, direction and false source outcomes refuse before fit. Backend absent is UNRUN."
+      },
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B115@OPT-03",
+      "finding_id": "B115",
+      "canonical_bundle": "OPT-03",
+      "canonical_closure_owner": "OPT-03",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          2997,
+          3010
+        ],
+        "original_fragment_sha256": "4d5afea998b22ec18956bf039ae38fd1751fe457a8994ce87161fa2fdac20872",
+        "exact_acceptance_paragraph_sha256": "60c5a8366edbd7193eafd15fb6c048061373a4dac4502e54b328c78b75225156",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-03.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B115@OPT-03"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "Actual learned SingleTaskGP parameters/transforms/version/shape/new-observation state are restored or explicitly refit with matching independent analytic posterior; quality and saved fitting cost separate.",
+      "actual_consumer_review": "Actual supported GPprofile4 warm corpus/config/refit/RNG -> next prediction/suggestion.",
+      "source_qualified_evidence_reference_keys": [
+        "search_generators",
+        "gp4_independent"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": null,
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B116@OPT-04",
+      "finding_id": "B116",
+      "canonical_bundle": "OPT-04",
+      "canonical_closure_owner": "OPT-04",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          3011,
+          3024
+        ],
+        "original_fragment_sha256": "3f04f3ddd1d21f7ffbea51147028ae51287460255c7b5dc52ad9a1b487e49f98",
+        "exact_acceptance_paragraph_sha256": "838816f2bb639f8c98b0972d2433933f1d8c3f39d8d14f6ee03d52f59c4004ab",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-04.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B116@OPT-04"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "Wrong candidate/loop/split/suite/basis cannot change pointer; same-basis actual evaluator positive resolves immutable verified snapshot and paired incumbent under active context.",
+      "actual_consumer_review": "Actual native B manifest-qualified evaluator -> ChampionRegistry -> cold read.",
+      "source_qualified_evidence_reference_keys": [
+        "native_champion",
+        "prior_search"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": null,
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B117@OPT-04",
+      "finding_id": "B117",
+      "canonical_bundle": "OPT-04",
+      "canonical_closure_owner": "OPT-04",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          3025,
+          3038
+        ],
+        "original_fragment_sha256": "716aa89ce5b68d85b0487a8509806214c17d261958740f7363c2228a033f924d",
+        "exact_acceptance_paragraph_sha256": "9bc6c9b17b4234d10455cb41f4a8e6380c31163687291bb38242529bb954d319",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-04.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B117@OPT-04"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "Captured predecessor reconciled under real POSIX lock; competing native writer cannot overwrite newer accepted pointer; real os._exit before/after replace yields complete old/new cold state.",
+      "actual_consumer_review": "Actual local writers and filesystem champion pointer fresh readers.",
+      "source_qualified_evidence_reference_keys": [
+        "native_champion"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": {
+        "state": "affected_consumer_in_final_wave",
+        "clause": "Existing specialized claim pointer and promotion_basis coherence.",
+        "selectors": [
+          "tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py::test_promoted_champion_executes_and_publishes_strong_fulltext",
+          "tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py::test_evaluation_candidate_mismatch_blocks_admission",
+          "tests/unit/scientist/methods/autotune/test_claim_adjudication_runtime.py::test_required_guardrail_false_blocks_admission"
+        ],
+        "falsifier": "Changed pointer/evaluation with retained promotion_basis must refuse. Current generic writer/crash proof cannot by itself be called execution of the specialized claim consumer."
+      },
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B118@CTL-01",
+      "finding_id": "B118",
+      "canonical_bundle": "CTL-01",
+      "canonical_closure_owner": "CTL-01",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          3164,
+          3177
+        ],
+        "original_fragment_sha256": "c92cdd35554b9006c3632ceb0314c7378ad6ab123b9abf3ce040c25f5ba12b90",
+        "exact_acceptance_paragraph_sha256": "0b2c57a0df378303470a151c0d9ffa22e3e8eaa952e3f607113478a80e9581f0",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-01.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B118@CTL-01"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "Independent run state/history/ledger remains detached; warm/sentinel/paid scopes retain own accounting; mutable concurrent owner reuse is isolated or explicitly refused.",
+      "actual_consumer_review": "SearchRunState/controller and actual native worker/controller ledger chain.",
+      "source_qualified_evidence_reference_keys": [
+        "native_champion",
+        "stopping_prior",
+        "funnel_cost_stopping"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": null,
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B119@CTL-01",
+      "finding_id": "B119",
+      "canonical_bundle": "CTL-01",
+      "canonical_closure_owner": "CTL-01",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          3178,
+          3191
+        ],
+        "original_fragment_sha256": "c10292d6ac97feeb9e4cdb704950050d5f363157c2c7deb125810a2141891ac0",
+        "exact_acceptance_paragraph_sha256": "2df8d82c78083a0795327b04b6d0175330efa9f45f87e41b60ae40f89c635f97",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-01.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B119@CTL-01"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "original_clause_verification_pending",
+      "engineering_property_review": "Persistent empty supplier terminates with exact exhaustion/partial result; bounded transient empty can reach real candidate; warm/sentinel/evaluator failure reasons and paid calls survive.",
+      "actual_consumer_review": "Actual public NativeSearchService/SearchLoopRunner known lifecycle cases.",
+      "source_qualified_evidence_reference_keys": [
+        "native_champion",
+        "stopping_prior",
+        "funnel_cost_stopping"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": {
+        "state": "verification_clause_pending",
+        "clause": "Generator cancellation/refusal preserves its reason and prior partial state.",
+        "source_bound_question": "BayesianCandidateGenerator.generate catches every Exception from native suggest and falls back; distinguish permitted backend degradation from a declared stop/refusal/cancellation. Public service ask rollback rethrows ordinary errors, but a swallowed adapter reason never reaches it.",
+        "falsifier": "Have the existing native suggest owner emit a real declared stop/refusal/cancellation; public run/ask must preserve its reason and prior accepted history. Retain fallback marker/config while removing reason preservation. A genuine supported backend-unavailable fallback remains separate."
+      },
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B120@CTL-03",
+      "finding_id": "B120",
+      "canonical_bundle": "CTL-03",
+      "canonical_closure_owner": "CTL-03",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          3192,
+          3205
+        ],
+        "original_fragment_sha256": "5217798c76f0d4b4fdb0bcac33fb4b6eaf726f690f2c8babfbac7a37744c3b29",
+        "exact_acceptance_paragraph_sha256": "fc2bdc0f5a2f9ab501ed9195ce1b0116184989c4a1c66c6fd3ab34716b4fb8d6",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-03.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B120@CTL-03"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "limited_current_product_FAIL_at_canonical_B_intake",
+      "engineering_property_review": "Real native Gateway/provider event -> B settle/resolve -> same-owner native controller stopping/result, cache/retry/readback scopes retain measured expense.",
+      "actual_consumer_review": "Actual paid native worker/L3L4/controller/service and fresh B ledger owner.",
+      "source_qualified_evidence_reference_keys": [
+        "funnel_cost_stopping",
+        "funnel_native",
+        "funnel_native_independent"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": null,
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B121@CTL-03",
+      "finding_id": "B121",
+      "canonical_bundle": "CTL-03",
+      "canonical_closure_owner": "CTL-03",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          3206,
+          3221
+        ],
+        "original_fragment_sha256": "b47c247722c53867b98ba5f11bf37fa25f5a904284cf2cabf99661c5347c5203",
+        "exact_acceptance_paragraph_sha256": "926f2f672300e9dd03830f1677ba7354bf461218ef9c41841e1f9f6a72f30548",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-03.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B121@CTL-03"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "Declared new-evaluation budget excludes eligible warm history; sentinel work spends resource while not becoming training/best/frontier; current native known-case combinations retain these roles.",
+      "actual_consumer_review": "Actual warm corpus -> native controller initial sentinel -> public ask/tell/run -> same B owner.",
+      "source_qualified_evidence_reference_keys": [
+        "native_champion",
+        "stopping_prior",
+        "funnel_cost_stopping"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": null,
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B122@STP-01",
+      "finding_id": "B122",
+      "canonical_bundle": "STP-01",
+      "canonical_closure_owner": "STP-01",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          3222,
+          3235
+        ],
+        "original_fragment_sha256": "d9413dc95965e6f0b64b056c37dd5a1452b59dd7605a5b9f033db4776ac50f9c",
+        "exact_acceptance_paragraph_sha256": "9fb880ce2c75c7770deca54b1861fb86071f57aa1e4db5e51793fcfac56b115e",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STP-01.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B122@STP-01"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "Signed zero/small-value plateau uses normalized direction and declared unit/profile tolerance; regression/progress differ and true stop preserves prior best.",
+      "actual_consumer_review": "Actual plateau check -> native/controller stopping -> returned best; Decimal analytic oracle.",
+      "source_qualified_evidence_reference_keys": [
+        "stopping_prior",
+        "native_champion"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": null,
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B123@CTL-03",
+      "finding_id": "B123",
+      "canonical_bundle": "CTL-03",
+      "canonical_closure_owner": "CTL-03",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          3236,
+          3249
+        ],
+        "original_fragment_sha256": "a36f027f31c7f0f4b9ff333811b9ecc4bb6a480853a13d7d026d2543593d9a95",
+        "exact_acceptance_paragraph_sha256": "e38f999cb45a59fb619e7f89e35f20f752b4f0be6d279b6136de1f674b45befd",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-03.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B123@CTL-03"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "Typed present malformed data is refused; actual resolver/ObjectiveStack/result best/frontier/publication semantics retain valid legacy absence and typed stage/provenance distinction.",
+      "actual_consumer_review": "Existing real ObjectiveStack -> native controller/public tell -> typed canonical history/frontier -> publication.",
+      "source_qualified_evidence_reference_keys": [
+        "prior_search",
+        "native_champion",
+        "stopping_prior"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": {
+        "state": "exact_consumer_citations_required",
+        "clause": "Resolver, real ObjectiveStack, best/frontier and subsequent publication; no universal promotion authority gate.",
+        "selectors": [
+          "tests/unit/scientist/search/test_search_loop.py::TestOptimizationFlow::test_malformed_typed_evaluation_cannot_fall_back_to_legacy_objective",
+          "tests/unit/remediation/test_srv_01.py::test_malformed_typed_feedback_cannot_fall_back_to_scalar_best",
+          "tests/unit/scientist/methods/search/test_service_persistence.py::test_fresh_public_service_retains_typed_policy_history_frontier_and_next_tell"
+        ],
+        "falsifier": "Delete the typed-present resolver refusal while retaining typed markers: malformed-present must remain absent from best/frontier, valid typed fresh history/frontier/public tell must remain preserved, and absent input stays the admitted legacy control."
+      },
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B124@CTL-02",
+      "finding_id": "B124",
+      "canonical_bundle": "CTL-02",
+      "canonical_closure_owner": "CTL-02",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          3250,
+          3263
+        ],
+        "original_fragment_sha256": "77a12566a323c32df2df5d2440997a01226630d79ef6fd1d1f5b939a3b1fa3c5",
+        "exact_acceptance_paragraph_sha256": "dcfbad092c0072a6fb2c7094e9b53f0fa51977ab80a742ace74838785f9a1133",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-02.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B124@CTL-02"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "Semantic configuration/date identity is stable under field order and audit-only dates; actual evaluation replicas are preserved.",
+      "actual_consumer_review": "Existing common persisted strategy profile/runtime.",
+      "source_qualified_evidence_reference_keys": [
+        "search_generators",
+        "prior_search"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": null,
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B125@CTL-02",
+      "finding_id": "B125",
+      "canonical_bundle": "CTL-02",
+      "canonical_closure_owner": "CTL-02",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          3264,
+          3277
+        ],
+        "original_fragment_sha256": "da6f01affaab6b25e26af7613845243eeafc15f0041b3374d39ce18adbe7721b",
+        "exact_acceptance_paragraph_sha256": "0a36083564c7d95755126ca040b59efa5abd004855ffbaa995399a6915d6217d",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-02.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B125@CTL-02"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "Supported strategy common RNG/state round-trip and actual GPprofile4 replay are bound; malformed/foreign-state admission is tested in prior profiles.",
+      "actual_consumer_review": "Native generator/checkpoint -> ordinary public resume -> next sequence.",
+      "source_qualified_evidence_reference_keys": [
+        "search_generators",
+        "gp4_independent",
+        "prior_search",
+        "native_champion",
+        "DOE_coordinate_independent"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": null,
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B126@CTL-02",
+      "finding_id": "B126",
+      "canonical_bundle": "CTL-02",
+      "canonical_closure_owner": "CTL-02",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          3278,
+          3291
+        ],
+        "original_fragment_sha256": "f05138039bb68e205dc185417722e7c5113d18276733c1e4f91577e83476e16d",
+        "exact_acceptance_paragraph_sha256": "0054a0cfb74b77d2cfa02a6671ed1ee829854b1a9cf1cbadb05537ffa85ef532",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-02.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B126@CTL-02"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "Logical Sobol index advances consistently for individual/batched/checkpointed sampling, resumed next sequence, independent replica RNG; cached suggestion does not repeat point.",
+      "actual_consumer_review": "Actual supported Sobol/runtime strategy checkpoint controls.",
+      "source_qualified_evidence_reference_keys": [
+        "search_generators",
+        "prior_search"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": null,
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B127@OPT-02",
+      "finding_id": "B127",
+      "canonical_bundle": "OPT-02",
+      "canonical_closure_owner": "OPT-02",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          3292,
+          3305
+        ],
+        "original_fragment_sha256": "ae9f5e873bb33019cfd9524bd407a26c8aa7a5ec84cd2af79a6f2e497427cc70",
+        "exact_acceptance_paragraph_sha256": "0cb92c67b7ad455eb8cbb3bba8a88d7297d3ba6dd2e8ec6284edc152f670ac06",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-02.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B127@OPT-02"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "Strict finite physical normalize/denormalize and attainable discrete/continuous domain preserve actual executed action aliases, pending/completed identity and exhaustion.",
+      "actual_consumer_review": "Real SearchSpace/domain strategy + evaluation adapter; known alias/rng checks.",
+      "source_qualified_evidence_reference_keys": [
+        "search_numeric_space",
+        "search_generators",
+        "gp4_independent"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": null,
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B128@TRN-01",
+      "finding_id": "B128",
+      "canonical_bundle": "TRN-01",
+      "canonical_closure_owner": "TRN-01",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          3417,
+          3430
+        ],
+        "original_fragment_sha256": "af4e4b72706ecdef581727483780ed33bff190d295add23a9813ed7b903ffb2b",
+        "exact_acceptance_paragraph_sha256": "549b289852eaabc2275c031208657ce535c20cdd971105ff0e452e5f6662e5d7",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B128@TRN-01"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "Real saved qualified Evaluation and run history bridge become supported warm training rows; empty incompatible input differs from filtered rejection and known malformed sources reject before eligible source.",
+      "actual_consumer_review": "Actual saved CAS run -> discovery/projection -> WarmStartBridge -> native GP source corpus.",
+      "source_qualified_evidence_reference_keys": [
+        "transfer_criteria",
+        "search_generators",
+        "gp4_independent"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": {
+        "state": "changed_ordinary_bridge_final_execution_required",
+        "clause": "Use actual saved Evaluation bridge with counts/reasons; default configured path above must execute separately from prior explicit-injection proof.",
+        "selectors": [
+          "tests/integration/scientist/methods/search/test_configured_transfer_controller.py"
+        ],
+        "falsifier": "Same exact source row accepted; unavailable/malformed/not-applicable are distinguished before default receiver fit. No ANN lookup substitutes exact-ref resolution."
+      },
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B129@TRN-02",
+      "finding_id": "B129",
+      "canonical_bundle": "TRN-02",
+      "canonical_closure_owner": "TRN-02",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          3431,
+          3444
+        ],
+        "original_fragment_sha256": "b84b680f12b3c9e1226bfe1f0db09c0afb8b4cc338bb20d850188be0ef1fc32b",
+        "exact_acceptance_paragraph_sha256": "88b1c5aec30b187f76018f9b7e7c7b8f7aabd54e4479465a0b39a549af27c49a",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-02.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B129@TRN-02"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "Captured full catalog exact ref remains addressable beyond1000; ANN discovery is separate, all admission filters/source quota precede final top-k and bad ref cannot alias cached identity.",
+      "actual_consumer_review": "Actual >1000 B FileSystemCAS/native HNSW discovery/ref lookup and barrier-captured catalog.",
+      "source_qualified_evidence_reference_keys": [
+        "transfer_criteria"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": null,
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B130@TRN-01",
+      "finding_id": "B130",
+      "canonical_bundle": "TRN-01",
+      "canonical_closure_owner": "TRN-01",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          3445,
+          3458
+        ],
+        "original_fragment_sha256": "9f18f5b71de39a4ca820a167f74bf206775f04050db33327aa6ccd6525dca4e7",
+        "exact_acceptance_paragraph_sha256": "b70b31214ee588708f1536a62ef11dd85932c5bedf2e99e7b2d6320815ecabf3",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B130@TRN-01"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "Normalized minimized loss sort agrees for min/max, stable ties and per-source quota redistribution; legacy scalar codec not guessed from metric name.",
+      "actual_consumer_review": "Actual warm-source candidate allocation/merge with native round-robin quotas.",
+      "source_qualified_evidence_reference_keys": [
+        "transfer_criteria"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": null,
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B131@TRN-01",
+      "finding_id": "B131",
+      "canonical_bundle": "TRN-01",
+      "canonical_closure_owner": "TRN-01",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          3459,
+          3472
+        ],
+        "original_fragment_sha256": "60545080be6e14231a07b082abb322b91f9b304c40dbed2d2cc701223470910c",
+        "exact_acceptance_paragraph_sha256": "e6742f51f48e338f3410307c69a2e42b12c6205c34d9c8c4947e784ba842b8dd",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B131@TRN-01"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "held_original_positive_input",
+      "engineering_property_review": "Content-bound technical numeric transfer basis enforces dimensions/units/direction/data/model/eval/split/scalar owner refs without treating metadata assertions as authority.",
+      "actual_consumer_review": "Actual numeric warm-transfer admission.",
+      "source_qualified_evidence_reference_keys": [
+        "transfer_criteria"
+      ],
+      "missing_original_positive": "Actual tenant/split/source reuse owner decision and approved adapter/basis are absent. Metadata-only content binding supplies no authorization.",
+      "current_delta_condition": null,
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B132@TRN-01",
+      "finding_id": "B132",
+      "canonical_bundle": "TRN-01",
+      "canonical_closure_owner": "TRN-01",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          3473,
+          3486
+        ],
+        "original_fragment_sha256": "53d130ee4cb74e9043c80076be6e6c123789c8d6d9de51e7105c1901f1243894",
+        "exact_acceptance_paragraph_sha256": "5833cd83c20ce8f2a897ab4c13b475daaabcfa4adec33cb2a1376fcba78c4fcb",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B132@TRN-01"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "Each candidate keeps its own exact ref and real metrics, actual parameter coordinates not metric dictionary; holdout-missing/nonpromotable/placeholder rows do not fabricate target evaluation.",
+      "actual_consumer_review": "Actual WarmStartBridge resolves CAS candidate/BenchmarkEvaluation lineage and both direction codecs.",
+      "source_qualified_evidence_reference_keys": [
+        "transfer_criteria"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": null,
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B133@TRN-02",
+      "finding_id": "B133",
+      "canonical_bundle": "TRN-02",
+      "canonical_closure_owner": "TRN-02",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          3487,
+          3500
+        ],
+        "original_fragment_sha256": "8c7d3f2d133708780969d4ad10524a5cf9b461acb4d24117f4bb39506962890a",
+        "exact_acceptance_paragraph_sha256": "48f75c8fbb72fbc3c446e8677e4976ccc20d3f3624b34260ce20e01a26b39a3d",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-02.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B133@TRN-02"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "Cold/warm reads use complete qualified ArtifactRef+codec key, same subject/raw bytes, copy-return isolated from caller mutation and cache hit validates immutable bytes.",
+      "actual_consumer_review": "Native FileSystemCAS fresh/warm exact readers and bounded immutable transfer caches.",
+      "source_qualified_evidence_reference_keys": [
+        "transfer_criteria"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": null,
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B134@TRN-02",
+      "finding_id": "B134",
+      "canonical_bundle": "TRN-02",
+      "canonical_closure_owner": "TRN-02",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          3501,
+          3514
+        ],
+        "original_fragment_sha256": "c877d26c3cb5a8d078a8e40b23e6d1bf3cf5ff5844a4357b08db2f8fb447cd3e",
+        "exact_acceptance_paragraph_sha256": "36d571033f9b9e3b58f6f9f7bc93a01ed4c6e799a7791d815fa39932fd68de9d",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-02.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B134@TRN-02"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "Failed native add/load/missing/corrupt bytes/capacity/shape/backend exception preserves old complete coherent generation; ordinary queries neither rebuild nor overrun capacity.",
+      "actual_consumer_review": "Actual native HNSW/qualified CAS pointer publication and captured-query reader.",
+      "source_qualified_evidence_reference_keys": [
+        "transfer_criteria"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": null,
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B135@TRN-03",
+      "finding_id": "B135",
+      "canonical_bundle": "TRN-03",
+      "canonical_closure_owner": "TRN-03",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          3515,
+          3528
+        ],
+        "original_fragment_sha256": "2616ea6686a29681f5379ae2e54588f2a82afd9882dd1909aa261ee5990ed1e7",
+        "exact_acceptance_paragraph_sha256": "01ce84941fd8680e13557f709b04c7978d7003b2c358dcc81363e2d973aaa136",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-03.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B135@TRN-03"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "Nested/serialized/explicit typed context and permitted overrides resolve same effective base; malformed base reported/discarded before defaults; unknown remains isolated.",
+      "actual_consumer_review": "Actual shared-context resolver and lesson-transfer query.",
+      "source_qualified_evidence_reference_keys": [
+        "transfer_criteria"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": null,
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B136@TRN-03",
+      "finding_id": "B136",
+      "canonical_bundle": "TRN-03",
+      "canonical_closure_owner": "TRN-03",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          3529,
+          3542
+        ],
+        "original_fragment_sha256": "1182d49f6e0f40a47b62e7bfe488d75ff540516f4ba6f022cbedba1340c60deb",
+        "exact_acceptance_paragraph_sha256": "dbc583087ea526396c4d1b2b4230d2058a76565496b4bdac824060a759dee116",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-03.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B136@TRN-03"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "original_clause_verification_pending",
+      "engineering_property_review": "Threshold/trust/source_run/local_transfer/partial filtering applies before final quota and before raw materialization; irrelevant/future bodies skipped.",
+      "actual_consumer_review": "Actual retrieval and known boundary/as-of/native lesson transfer consumers.",
+      "source_qualified_evidence_reference_keys": [
+        "transfer_criteria"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": {
+        "state": "verification_clause_pending",
+        "clause": "Source-run scope and explicit partial-answer policy, beyond threshold/local-miss examples.",
+        "source_bound_question": "Actual query_with_transfer fills local partial results from transfer until limit. Examined selectors cover local-miss/filters/materialization and source_run, but no executed local-one plus transferred-one fill/cross-route duplication policy receipt was found. Canonical owner is investigating/adding a bounded control.",
+        "falsifier": "Persist one applicable local card and a distinct applicable transfer card, query limit two under exact source_run/trust/confidence, and compare fresh reopen. Wrong source_run must not fill; remove partial fill while retaining policy/filter markers and positive must fail. Any dedup claim needs its own declared identity/control, rather than an invented policy."
+      },
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B137@TRN-03",
+      "finding_id": "B137",
+      "canonical_bundle": "TRN-03",
+      "canonical_closure_owner": "TRN-03",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          3543,
+          3556
+        ],
+        "original_fragment_sha256": "133330308d63d9cf44d4105d556e1e4740ff31b519643791722beb8a8a7bc961",
+        "exact_acceptance_paragraph_sha256": "a712c0b6eddcecf9e4b23c77fc2f4732fea66953462e3cb3bfcd4a6ed376be2f",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-03.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B137@TRN-03"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "held_original_positive_input",
+      "engineering_property_review": "Retention reads cannot raise trust; confidence/as-of evidence preserved through cold/warm/restart/transfer.",
+      "actual_consumer_review": "Actual lesson index/report reads and transfer evidence anchors.",
+      "source_qualified_evidence_reference_keys": [
+        "transfer_criteria"
+      ],
+      "missing_original_positive": "Actual authorized revalidation/new-version positive with new grounds is absent. Retention reads cannot manufacture it.",
+      "current_delta_condition": null,
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B156@FUN-01",
+      "finding_id": "B156",
+      "canonical_bundle": "FUN-01",
+      "canonical_closure_owner": "FUN-01",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          4105,
+          4116
+        ],
+        "original_fragment_sha256": "88bc80dd038085f5bdb4e2715279d0cc6a06fa677d318e847dc00614e6a56ca0",
+        "exact_acceptance_paragraph_sha256": "846c22dd69b5b1495efbaff0f982894e6e08b49e0c42e21e0f38b477aa243fa1",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-01.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B156@FUN-01"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "Same effective native request/role/version caches only current lineage; independent run/cache controls distinguish changed requests and leave original attempt unchanged.",
+      "actual_consumer_review": "Actual FunnelOrchestrator/native configured worker cache/ledger chain.",
+      "source_qualified_evidence_reference_keys": [
+        "funnel_native",
+        "funnel_native_independent"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": null,
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B157@FUN-02",
+      "finding_id": "B157",
+      "canonical_bundle": "FUN-02",
+      "canonical_closure_owner": "FUN-02",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          4117,
+          4128
+        ],
+        "original_fragment_sha256": "c27f7a7ba4108a5f8f2027bed47b3d3bfa56955f30034c1ede266fc07d7c8284",
+        "exact_acceptance_paragraph_sha256": "260d939d59a70f8f9acca08bc5386d4ac4e4070c4725b6287fd2c1a4d534444b",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-02.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B157@FUN-02"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "held_original_positive_input",
+      "engineering_property_review": "Available configured Foundry20/80 draws/cost use actual producer controls, but native effective sample/draw bridge remains absent.",
+      "actual_consumer_review": "Actual L3/L4 configuration and context isolation controls.",
+      "source_qualified_evidence_reference_keys": [
+        "funnel_native",
+        "funnel_native_independent"
+      ],
+      "missing_original_positive": "Native effective sample/draw/estimand producer is absent. Foundry 20/80 is a separate actual profile and cannot prove native 500/64/32 labels.",
+      "current_delta_condition": null,
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B158@FUN-01",
+      "finding_id": "B158",
+      "canonical_bundle": "FUN-01",
+      "canonical_closure_owner": "FUN-01",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          4129,
+          4140
+        ],
+        "original_fragment_sha256": "bd4643a221c0c9934fdf37c2d8b90d97aa93ad09ac95fa3324e23bd04ea4a2c3",
+        "exact_acceptance_paragraph_sha256": "17cc0ecc4baa734906042063c70ef2cbd4394c206b868333448594ad8897fb9f",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-01.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B158@FUN-01"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "Actual full/split allowed work/cost/stop parity on unchanged boundary; changed capacity/input reevaluation changes necessary outcome and preserves completed work.",
+      "actual_consumer_review": "Actual native full/split worker funnel with real B ledger/capacity owner.",
+      "source_qualified_evidence_reference_keys": [
+        "funnel_native",
+        "funnel_native_independent",
+        "funnel_node",
+        "funnel_cost_stopping"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": null,
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B159@FUN-01",
+      "finding_id": "B159",
+      "canonical_bundle": "FUN-01",
+      "canonical_closure_owner": "FUN-01",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          4141,
+          4152
+        ],
+        "original_fragment_sha256": "d079d053de81c0e87ac40adcb2b25c4d1b5ed34f95636412a1abec5c629e0696",
+        "exact_acceptance_paragraph_sha256": "7c3b6b49bb03dfb2af6f56e6db82cd302fc5d9c2ae1f6e666b1ab16f11598f36",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-01.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B159@FUN-01"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "No-new-premise repeat performs no paid work; lifted frozen-capacity/native budget premise resumes only remaining stages while permanent blocker/lineage/paid expense remain.",
+      "actual_consumer_review": "Actual native FunnelOrchestrator pause/resume and changed capacity guards.",
+      "source_qualified_evidence_reference_keys": [
+        "funnel_native",
+        "funnel_native_independent",
+        "funnel_node"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": null,
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B160@FUN-02",
+      "finding_id": "B160",
+      "canonical_bundle": "FUN-02",
+      "canonical_closure_owner": "FUN-02",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          4153,
+          4164
+        ],
+        "original_fragment_sha256": "de9f5f2da46e9d846cdf6d085d670e14a8f42dea464b332e8764900444c026e8",
+        "exact_acceptance_paragraph_sha256": "7f3880ae72b62b26a91f8386be0ac3391e9188fb146b3ed1c757df1a7d2eafba",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-02.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B160@FUN-02"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "Empty/capped/no-result remains unassessed while actual finite0 retained; typed complete/partial/pending actual node projection survives ordinary ExperimentState JSON and fresh CAS.",
+      "actual_consumer_review": "Actual native paid/partial/ACK funnel outcomes -> real node serializer -> ordinary JSON/CAS reopen.",
+      "source_qualified_evidence_reference_keys": [
+        "funnel_native",
+        "funnel_node",
+        "stress_actual_consumers"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": null,
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B161@FUN-03",
+      "finding_id": "B161",
+      "canonical_bundle": "FUN-03",
+      "canonical_closure_owner": "FUN-03",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          4165,
+          4176
+        ],
+        "original_fragment_sha256": "f08fecf0caf482a9f2d93c1f808ea16daa2232de161e5eeb98a7995fa2d41e0a",
+        "exact_acceptance_paragraph_sha256": "64bf6d3e30756d1ee3a22a8b81bc2164a41f51931333e269114da303a8fa3b78",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-03.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B161@FUN-03"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "held_original_positive_input",
+      "engineering_property_review": "Refinement aggregates reject unsupported min/last-wins replacement and preserve independent unknown risks.",
+      "actual_consumer_review": "Actual L5 tracker and reenterable consumer guards.",
+      "source_qualified_evidence_reference_keys": [
+        "funnel_native",
+        "funnel_node"
+      ],
+      "missing_original_positive": "Authorized same-subject/value/input/rule/time refinement/supersession law and producer positive are absent. Do not select global minimum or latest.",
+      "current_delta_condition": null,
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B162@FUN-02",
+      "finding_id": "B162",
+      "canonical_bundle": "FUN-02",
+      "canonical_closure_owner": "FUN-02",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          4177,
+          4188
+        ],
+        "original_fragment_sha256": "898e61d52e838908faca4e23e38fdd86046fd7678a9c44a1c38b0ebda40bd837",
+        "exact_acceptance_paragraph_sha256": "806665be954b1b87fb1bcc5e05e2ef2779226c0558e4fa6a30cd18a680681075",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-02.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B162@FUN-02"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "Malformed/missing interval and true0 are distinct; finite interval arithmetic yields expected results while preserving other stage findings.",
+      "actual_consumer_review": "Actual L3/L4 confidence interval assessment/tracker consumption.",
+      "source_qualified_evidence_reference_keys": [
+        "funnel_native",
+        "funnel_native_independent",
+        "funnel_node"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": null,
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B163@FUN-03",
+      "finding_id": "B163",
+      "canonical_bundle": "FUN-03",
+      "canonical_closure_owner": "FUN-03",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          4189,
+          4200
+        ],
+        "original_fragment_sha256": "0c5055c18e4bbfb9bc2ed8cbc6904766eb95627e736de08f4084a90fb2be8ba5",
+        "exact_acceptance_paragraph_sha256": "000272e0d8331087a33d20ff52c4d2a8696681b0c82513a8562f372789a48e92",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-03.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B163@FUN-03"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "Empty corpus is not established rather than poor measured corpus; public metrics/tracker/routing are coherent and compatible native tracker restart preserves publication guards.",
+      "actual_consumer_review": "Actual FunnelOrchestrator/native L5 routing and persisted tracker controls.",
+      "source_qualified_evidence_reference_keys": [
+        "funnel_native",
+        "funnel_native_independent",
+        "funnel_node"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": null,
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B164@FUN-03",
+      "finding_id": "B164",
+      "canonical_bundle": "FUN-03",
+      "canonical_closure_owner": "FUN-03",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          4201,
+          4212
+        ],
+        "original_fragment_sha256": "ed8189c34e88eec186ca2c6c3d764e796f0cc4f967c601f6a5ec223c43b6c137",
+        "exact_acceptance_paragraph_sha256": "a367b70e08a3ff6f3515593c46fe2686a9c2f02532daf2c243f57613777b993e",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-03.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B164@FUN-03"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "held_original_positive_input",
+      "engineering_property_review": "Boolean/retained marker/callback bypasses yield0 forbidden effects and prepared payload reading stays bounded.",
+      "actual_consumer_review": "Actual generic Level6 effect denial and prepared payload reader.",
+      "source_qualified_evidence_reference_keys": [
+        "funnel_native",
+        "funnel_native_independent",
+        "funnel_node"
+      ],
+      "missing_original_positive": "Existing real permit issuer/current verifier/revoke-serialized write owner is absent. Valid current positive is UNRUN; bool/callback refusal and guard removal do not appoint authority.",
+      "current_delta_condition": null,
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B165@FUN-02",
+      "finding_id": "B165",
+      "canonical_bundle": "FUN-02",
+      "canonical_closure_owner": "FUN-02",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          4213,
+          4224
+        ],
+        "original_fragment_sha256": "93f3c511f14729529cf4353e326c6bd33ad6686ab19385bc56f88210cdd5e258",
+        "exact_acceptance_paragraph_sha256": "42c25e1cf8e4e9d84ab45a3cb8577b7c2d5d6791112006c30aa15b6d3ce7127e",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FUN-02.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B165@FUN-02"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "Final aggregate verdict retained independent of optional intermediate verdict; actual score/authority and typed stage/trace/outcome cost attribution survive node JSON/CAS.",
+      "actual_consumer_review": "Actual native outcome -> real node serializer -> ordinary params.funnel_outcome JSON -> fresh CAS readback.",
+      "source_qualified_evidence_reference_keys": [
+        "funnel_native",
+        "funnel_native_independent",
+        "funnel_node",
+        "stress_actual_consumers"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": null,
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "B41@STP-01",
+      "finding_id": "B41",
+      "canonical_bundle": "STP-01",
+      "canonical_closure_owner": "STP-01",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "fragment_lines": [
+          770,
+          783
+        ],
+        "original_fragment_sha256": "e1f40309a038a4a6b1e8e41e5c6aca361111791be6f58a32d8f4ccd8812d680a",
+        "exact_acceptance_paragraph_sha256": "4a76b7b1923f16245bdc19a10b05570aa47c2ca063e8e1a2faf3eb0112576937",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/STP-01.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "B41@STP-01"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "Missing current embedding cannot establish semantic convergence; actual fresh same-model vectors positive, incompatible dimension/version refuses.",
+      "actual_consumer_review": "Actual current embedding/convergence admission controls and native stop criterion.",
+      "source_qualified_evidence_reference_keys": [
+        "stopping_prior",
+        "native_champion"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": null,
+      "full_task_boundary": null,
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "LA-014@SRV-01",
+      "finding_id": "LA-014",
+      "canonical_bundle": "SRV-01",
+      "canonical_closure_owner": "SRV-01",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "fragment_lines": [
+          455,
+          481
+        ],
+        "original_fragment_sha256": "7846126004d9315f65d6e3dc9fa392b3942a05ba430f862e7c7176e87c11b0e2",
+        "exact_acceptance_paragraph_sha256": "a94d827f2038968fc442e5801bf48f5a675dcacfb375b927e2de05cc541665fd",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SRV-01.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "LA-014@SRV-01"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "Contract-only lazy import, public ask/tell/run, unknown/duplicate IDs and supported typed frontier/pending/history checkpoint restore are preserved; real ask CAS put/readback faults corrected after independent red.",
+      "actual_consumer_review": "Actual NativeSearchService/public facade -> same transition owner -> real B CAS -> fresh resume.",
+      "source_qualified_evidence_reference_keys": [
+        "native_champion",
+        "native_service_independent_red",
+        "prior_search",
+        "DOE_coordinate_independent"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": null,
+      "full_task_boundary": {
+        "original_native_factory_state": "Current15/scan owner-reported; exact Git-bound final payload pending",
+        "served_factory_scope": "held separate G task edge; actual appointed served caller/input/ref remains null",
+        "required_served_factory_input_ref": null
+      },
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "LA-015@CTL-01",
+      "finding_id": "LA-015",
+      "canonical_bundle": "CTL-01",
+      "canonical_closure_owner": "SRV-03",
+      "role": "supplier_companion_only",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "fragment_lines": [
+          482,
+          512
+        ],
+        "original_fragment_sha256": "b47c90844cb88bfc43a454c4d3b1b550ab9a19913fafce7b138c9df1a8b22f29",
+        "exact_acceptance_paragraph_sha256": "219f17404aedddcd4196a85dc9b05d5d28403c12812d551c241e26b850d285e8",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-01.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "LA-015@CTL-01"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "supplier_verified_only_no_duplicate_closure",
+      "engineering_property_review": "Real autotune native factory uses one state owner and preserves known ordinary plus warm/sentinel/empty/failure/resume subjects, history/frontier/final/cost; retained imports/histories use compatible readers.",
+      "actual_consumer_review": "Actual methods/autotune SearchLoopRunner native service and existing public fresh-resume consumers.",
+      "source_qualified_evidence_reference_keys": [
+        "native_champion",
+        "native_service_independent_red",
+        "prior_search",
+        "DOE_coordinate_independent"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": null,
+      "full_task_boundary": {
+        "original_native_factory_state": "Current15/scan owner-reported; exact Git-bound final payload pending",
+        "served_factory_scope": "held separate G task edge; actual appointed served caller/input/ref remains null",
+        "required_served_factory_input_ref": null
+      },
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "occurrence_id": "LA-015@SRV-03",
+      "finding_id": "LA-015",
+      "canonical_bundle": "SRV-03",
+      "canonical_closure_owner": "SRV-03",
+      "role": "canonical_owner",
+      "original_acceptance_ref": {
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "document": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+        "fragment_lines": [
+          482,
+          512
+        ],
+        "original_fragment_sha256": "b47c90844cb88bfc43a454c4d3b1b550ab9a19913fafce7b138c9df1a8b22f29",
+        "exact_acceptance_paragraph_sha256": "219f17404aedddcd4196a85dc9b05d5d28403c12812d551c241e26b850d285e8",
+        "canonical_card": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SRV-03.md",
+        "original_accounting_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "original_accounting_occurrence": "LA-015@SRV-03"
+      },
+      "original_binding_MATCH": true,
+      "review_state": "bounded_engineering_proposal_pending_final_composed_checks",
+      "engineering_property_review": "Real autotune native factory uses one state owner and preserves known ordinary plus warm/sentinel/empty/failure/resume subjects, history/frontier/final/cost; retained imports/histories use compatible readers.",
+      "actual_consumer_review": "Actual methods/autotune SearchLoopRunner native service and existing public fresh-resume consumers.",
+      "source_qualified_evidence_reference_keys": [
+        "native_champion",
+        "native_service_independent_red",
+        "prior_search",
+        "DOE_coordinate_independent"
+      ],
+      "missing_original_positive": null,
+      "current_delta_condition": null,
+      "full_task_boundary": {
+        "original_native_factory_state": "Current15/scan owner-reported; exact Git-bound final payload pending",
+        "served_factory_scope": "held separate G task edge; actual appointed served caller/input/ref remains null",
+        "required_served_factory_input_ref": null
+      },
+      "fresh_final_wave_outcome": "UNRUN at this review snapshot; prior exact receipts remain separately source-qualified",
+      "finding_closed": false,
+      "accepted_in_G": false
+    }
+  ],
+  "required_original_positive_inputs": {
+    "B131": "Actual tenant/split/source reuse owner decision and approved adapter/basis are absent. Metadata-only content binding supplies no authorization.",
+    "B137": "Actual authorized revalidation/new-version positive with new grounds is absent. Retention reads cannot manufacture it.",
+    "B157": "Native effective sample/draw/estimand producer is absent. Foundry 20/80 is a separate actual profile and cannot prove native 500/64/32 labels.",
+    "B161": "Authorized same-subject/value/input/rule/time refinement/supersession law and producer positive are absent. Do not select global minimum or latest.",
+    "B164": "Existing real permit issuer/current verifier/revoke-serialized write owner is absent. Valid current positive is UNRUN; bool/callback refusal and guard removal do not appoint authority."
+  },
+  "owner_packet_scope_review": {
+    "draft_path": "/tmp/e02-D-minimum-owner-inputs-r5zssk4a/owner-inputs-draft.json",
+    "sha256": "bbe005448160ca17e5720d0306e00ca24ce307c9c17caa10461f504be6f87b04",
+    "packet_count": 16,
+    "minimum_supplied_refs": {
+      "tenant_split_transfer": null,
+      "authorized_revalidation": null,
+      "native_draw_producer": null,
+      "same_scope_refinement": null,
+      "typed_write_permit": null,
+      "lossless_gateway_cost": null,
+      "owned_multikey_durability": null,
+      "public_typed_budget_snapshot": null,
+      "A_frontier_default_workflow": null,
+      "served_hierarchical_context": null,
+      "ordinary_blueprint_configured_owner": null,
+      "B_canonical_history_compatibility": null,
+      "B_public_API_surface": null,
+      "E_mutable_cardinality_cap": null,
+      "owner_declared_fiscal_profile": null,
+      "D_coordinate_volume_corrective": null
+    },
+    "notes": [
+      "No generic production dataset, new permission subsystem, new uncertainty law, new GP, distributed guarantee or invoice truth is required by this review.",
+      "B108 finite alias/unit criterion and B109 finite fast/direct math criterion may have bounded engineering proposals; actual fiscal issuer and A default frontier workflow remain separate held/open task packets.",
+      "B134 original native coherent generation criterion is engineering; the original text does not require an institutional metadata issuer to prove native failure isolation.",
+      "LA014/15 finite public native factory and known restore/lifecycle criteria are engineering; appointed external hierarchical/served mapping remains a separate owner/input edge.",
+      "Shared B ledger/snapshot/Gateway ownership and original B commit history must remain canonical. Actual default translator two-key profile is a genuine durability dependency, not an invented optional schema project.",
+      "Generic local_read_only_recipe wording should be supplemented with the exact already-tracked caller/selector and minimum owner ref for each packet; this review executes no future owner positive."
+    ]
+  },
+  "pattern_pass": {
+    "P01": "Applied to exact finite acceptance binding, ordinary consumer and negative scope; unreceived authority and final runtime are not promoted.",
+    "P02": "Applied to exact finite acceptance binding, ordinary consumer and negative scope; unreceived authority and final runtime are not promoted.",
+    "P05": "Applied to exact finite acceptance binding, ordinary consumer and negative scope; unreceived authority and final runtime are not promoted.",
+    "P09": "Applied to exact finite acceptance binding, ordinary consumer and negative scope; unreceived authority and final runtime are not promoted.",
+    "P10": "Applied to exact finite acceptance binding, ordinary consumer and negative scope; unreceived authority and final runtime are not promoted.",
+    "P14": "Applied to exact finite acceptance binding, ordinary consumer and negative scope; unreceived authority and final runtime are not promoted.",
+    "P27": "Applied to exact finite acceptance binding, ordinary consumer and negative scope; unreceived authority and final runtime are not promoted.",
+    "P29": "Applied to exact finite acceptance binding, ordinary consumer and negative scope; unreceived authority and final runtime are not promoted.",
+    "P32": "Applied to exact finite acceptance binding, ordinary consumer and negative scope; unreceived authority and final runtime are not promoted.",
+    "P35": "Applied to exact finite acceptance binding, ordinary consumer and negative scope; unreceived authority and final runtime are not promoted.",
+    "P37": "Applied to exact finite acceptance binding, ordinary consumer and negative scope; unreceived authority and final runtime are not promoted.",
+    "P38": "Applied to exact finite acceptance binding, ordinary consumer and negative scope; unreceived authority and final runtime are not promoted.",
+    "P40": "Applied to exact finite acceptance binding, ordinary consumer and negative scope; unreceived authority and final runtime are not promoted.",
+    "P41": "Applied to exact finite acceptance binding, ordinary consumer and negative scope; unreceived authority and final runtime are not promoted."
+  },
+  "limitations": [
+    "This is an independent acceptance audit, not independent fresh runtime replay of every referenced suite.",
+    "All39 non-held/non-B120 rows are potential finite engineering proposals only; B119/B136 current clause checks and final changed-denominator execution must complete before full recommendations.",
+    "Original historical statuses and zero formal/G closures remain unchanged.",
+    "No P41 inherited classification was established by exact command on slice base plus complete zero-overlap input denominator.",
+    "No source data or tracked source trees were copied, no files deleted, and all scratch outputs remain preserved."
+  ]
+}

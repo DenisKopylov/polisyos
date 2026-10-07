@@ -1,0 +1,73 @@
+{
+  "schema": "e02.D.FUN.append_only_final969.v1",
+  "implementation_source": {
+    "sha": "96905636726483fdea3a98d9313871d825b54a9e",
+    "tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60"
+  },
+  "slice_base": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+  "previous_sealed499": {
+    "output_manifest_path": "/dev/shm/e02-D-funnel-oct07/sealed-b652-publication-git-service-v3/output-manifest.json",
+    "sha256": "739d0f21b05f1ac2e82c3b360fdcf785e2e4a1757d18dd3172e6fa2a56c87744",
+    "handoff_sha256": "35695b37f843e8962f81eb67390f888380a8efb20ac75857da5f48def73c96c8",
+    "unchanged": true
+  },
+  "current_runtime": {
+    "schema": "e02.D.FUN.final969.actual_public_factory10.v1",
+    "candidate": "96905636726483fdea3a98d9313871d825b54a9e",
+    "tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+    "slice_base": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+    "exact_source_clean_before_after": true,
+    "check_result": "PASS",
+    "actual_phase_counts": {
+      "call:passed": 10,
+      "setup:passed": 10,
+      "teardown:passed": 10
+    },
+    "actual_deciding_ledger_count": 10,
+    "wall_seconds": 20.317721366882324,
+    "selected_tests": [
+      "tests/unit/scientist/methods/search/test_service_owner_budget_factory.py"
+    ],
+    "runtime_profile": "supported minimal actual Python/Pydantic/NumPy canonical local filesystem B1.2 budget ledger/Decimal HTTP decoder, actual configured SearchLoopRunner factory, CAS fresh restore/resume; optional Torch/BoTorch/HNSW numerical backends unused",
+    "bounded_consumer_properties": [
+      "actual canonical source-bound paid and literal-zero physical receipt fresh reader, declared distinct budget key",
+      "known paid cutoff before generator/evaluator",
+      "actual tiny raw JSON unknown-pending owner forbids proposal/evaluation and restores honest None costing",
+      "same factory CAS fresh restore/public resume and changed key/rule refusal",
+      "actual post-preflight durable owner change survives proposal rollback owner refresh"
+    ],
+    "independent_oracle": "actual canonical reopened ledger bytes and receipt/cost snapshot, complete runtime assertions; no invoice truth",
+    "negative": "Existing exact b652 original-budget-owner rollback-removal FAIL retained in canonical Service Git receipt at237c342, same financial preflight/rollback owner branches AST identity; current actual owner-change positive rerun10",
+    "historical_originals": "sealed499 untouched; prior c0 faults, a7 factory10 fixtureFAIL and V1 collectionERROR preserve original source/disposition",
+    "financial_six_a7_scope": "source/function-qualified carry only, not new execution. Changed Service/Runtime modules supplemented by actual current10; changed dedup/primary contracts have independent owner replays",
+    "Gaccepted": false,
+    "formal_closed": 0,
+    "held_positive_inputs": [
+      "B157 native actual sample/work estimand profile",
+      "B161 authority-bound same subject/value/time authorized refinement",
+      "B164 appointed issued permit/current verifier/write serialization"
+    ]
+  },
+  "deciding_output_manifest": "lossless-manifest.json",
+  "qualified_prior_source_bindings": {
+    "original_path": "/dev/shm/e02-D-funnel-oct07/final969-financial-source-delta-qualification-v3.json",
+    "lossless_gzip": "lossless/4da12d31644735b0c7eef90ef53638c921170118ada06b93218bf7dbd1661c3d.gz",
+    "original_sha256": "4da12d31644735b0c7eef90ef53638c921170118ada06b93218bf7dbd1661c3d"
+  },
+  "complete_changed_path_sets_in_bindings": true,
+  "actual_producer_artifact_bridge_consumer": "canonical response bytes\u2192Decimal owner decoder\u2192D enforcer\u2192B1.2 durable completion/settlement\u2192fresh owner costing\u2192actual public configured SearchLoopRunner factory\u2192native Service/CAS checkpoint\u2192fresh public restore/resume",
+  "original_criteria_ledger": "Previous exact11 criteria/card bindings and16 scoped owner packets remain immutable; this supplemental receipt updates current candidate consumer/output only. B120/B156/B158/B159/B160/B162/B163/B165 bounded engineering closure proposals, B157/B161/B164 held; G decides closure/acceptance.",
+  "independent_review": "pending separate reviewer receipt, no author self-review",
+  "P37": "Actual persisted B receipt/snapshot plus no-proposal/fresh restore costing predicates; raw provider trace alone cannot establish debit",
+  "P38": "Marker-preserving current real owner pending controls and previously independently measured rollback-removal expectedFAIL distinguish traces/old-zero from current canonical facts; optional dedup/finite-primary property outside financial scope",
+  "P41": "not established/not asserted: no inherited-red claim",
+  "limitations": [
+    "No production invoice/history/data transfer or scientific estimand authority",
+    "No optional GP/vector backend claim from minimal financial runtime",
+    "No distributed/multikey atomicity guarantee",
+    "Previous a7 repeated scopes are scoped carries, not final969 reexecutions",
+    "Final source source/index untouched by leaf; parent publishes exact deciding packet separately"
+  ],
+  "cleanup": "No leaf deletion/cleanup. Reproducible fixtures can be inventory candidates only after publication; preserve all deciding data and existing env.",
+  "delivery_prefix": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/oct07-canonical-B12-funnel-final969/"
+}

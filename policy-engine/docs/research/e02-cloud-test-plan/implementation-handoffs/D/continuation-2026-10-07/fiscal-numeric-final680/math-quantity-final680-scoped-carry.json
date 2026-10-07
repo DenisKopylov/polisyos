@@ -1,0 +1,154 @@
+{
+  "schema": "e02.D.math.assertion-scoped-candidate-carry.v2",
+  "author": "math_oct07",
+  "original_runtime_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+  "original_runtime_tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2",
+  "previous_qualified_source": "96905636726483fdea3a98d9313871d825b54a9e",
+  "candidate_source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "candidate_tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+  "prior_frozen_carry": {
+    "path": "/tmp/e02-D-adapter-final-native-delta-ljb5dfqb/numerical-current-final-unchanged-carry.json",
+    "sha256": "9edc5a7486bebe6adcb5a1d09aa88e4953a09e166818d6624f60d913238d34cf",
+    "independent_review": {
+      "path": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/math-final969-numerical-carry-independent-review.json",
+      "sha256": "ee21e18628c842fe52a75414c8456dbf2cf3767b12c751540b8245119bd13236"
+    }
+  },
+  "complete_changed_path_set_between969_and680": [
+    "policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md",
+    "policy-engine/release-fragments/unreleased/2026-10-07-fiscal-float64-admission.toml",
+    "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_fiscal_numeric_admission.py"
+  ],
+  "observed_changed_source": {
+    "path": "policy-engine/src/polisyos/scientist/methods/search/objective.py",
+    "prior_sha256": "940c84a3425e8ed1e93de2eae881100fd88a49dd978a108e5d78e5f2fa5fe17c",
+    "current_sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8",
+    "only_changed_named_definition": [
+      "_read_metric_aliases"
+    ],
+    "unchanged_named_definitions": [
+      "OptimizationDirection",
+      "ObjectiveValue",
+      "SearchObjective",
+      "BaseObjective",
+      "GDPGrowthObjective",
+      "BudgetDeficitObjective",
+      "InequalityObjective",
+      "EmploymentObjective",
+      "CompositeObjective",
+      "ObjectivePresets"
+    ],
+    "only_new_import": "stdlib Decimal/DecimalException"
+  },
+  "unchanged_actual_numerical_producer_test_bindings": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+      "unchanged_between969_and680": true,
+      "sha256": "f6787e89fb3ae343e4ed822e00db9c91c44d017effc2aff22dda93f639c54b83",
+      "candidate_blob": "63c3dd0bebe17eb599444070caebbb7acb926417"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py",
+      "unchanged_between969_and680": true,
+      "sha256": "aee369ab873131ac950104d3cf8b832c2ecf1d8109033f1631dc20877478bacd",
+      "candidate_blob": "d12d0bb37b33ffb59513697eb95cc1653912553c"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+      "unchanged_between969_and680": true,
+      "sha256": "e4699f9b1f892a3850406d0ef582bcf8072e19192d040783468d8c33b9c21f8a",
+      "candidate_blob": "385cef31cf0765561651c2015d180db252136370"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/policy_design/output.py",
+      "unchanged_between969_and680": true,
+      "sha256": "6e7222137b4b44b7a71dd2de7d0300f0fee22d05f41df556b2f84dc84ea73598",
+      "candidate_blob": "03cbee8ca84352e246a3ad75faf646343b0244b0"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_hypervolume_profile.py",
+      "unchanged_between969_and680": true,
+      "sha256": "1a2f7b4e752b8011df82731c708a0afd46eb75068f9caf11ef8c18d99530cf04",
+      "candidate_blob": "c0edd75373323ea3473021c13d06d47cb8bc9fde"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_hypervolume_representability.py",
+      "unchanged_between969_and680": true,
+      "sha256": "ce40a93f7ab58d5cae4bbe1cd342f990b9c3549077c3f32cde3271f3d44ec4f4",
+      "candidate_blob": "751f3cbf0afafa58f31d832aba41de31c94018b6"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py",
+      "unchanged_between969_and680": true,
+      "sha256": "f9096dad70b07b8eae9a976e7a65010c592bc2352ad1ded425f47f5b534d1f25",
+      "candidate_blob": "caa3fb0dd90d29fa5de4e22eed2b8b3b675f1167"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_axis_permutation_consumers.py",
+      "unchanged_between969_and680": true,
+      "sha256": "c4f7790d3ecd6dddc2d23197250fb06acd0cd21a8c5887e0ca34d62590b5e990",
+      "candidate_blob": "ad805169cb9bd681968b050cd0977f0f7947b5d1"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_box_union_independent_oracle.py",
+      "unchanged_between969_and680": true,
+      "sha256": "0598f51997d46664ea1342c6bc3cdf96fd1ed005019d368d5a5199c45d1c8947",
+      "candidate_blob": "6de4050e3c59d10c0289af98e261985cf7ce8f73"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+      "unchanged_between969_and680": true,
+      "sha256": "3e61bd27dbf7a3e769e5effa843d5e98306475bc95fe16d94c35694a26ca7df4",
+      "candidate_blob": "c0ec395deab6507d7ef1809d1b2e64963ad47969"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_subnormal_reindex_independent_oracle.py",
+      "unchanged_between969_and680": true,
+      "sha256": "2f167180dd0cf233fe98236dc062161752db9eed3a70b91b0a54129474ef0561",
+      "candidate_blob": "b63219e8da7869d5955303d2955fe78c00670c68"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_mo_reference_representability.py",
+      "unchanged_between969_and680": true,
+      "sha256": "097eaa6a446a8956de5f80ab54ef8dc4ac7fdf180e6651ad6131d57d852b797d",
+      "candidate_blob": "e7fa5ef64ee764edbc7a22dad1aff2362905128d"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py",
+      "unchanged_between969_and680": true,
+      "sha256": "125812f64a5fc6c6a679969f8117819792c17a98e1c7030a815e15e346cea4b8",
+      "candidate_blob": "1ef216bbfcb1c9eb532cdf068c2bb424110f62b5"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_current_quantity_consumers.py",
+      "unchanged_between969_and680": true,
+      "sha256": "c331f05519c4590c96080d6d1491388ca261b1096dedf0100712da1b0c097939",
+      "candidate_blob": "27b8bd73c1717e7245c6496f32bbe2e999b10397"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_frontier_quantity_readback.py",
+      "unchanged_between969_and680": true,
+      "sha256": "fba874ac95a52e961f5d51c62de468e94e05d77700137491fc2143b4202d9071",
+      "candidate_blob": "7325a9a98c2be4fba5494113a8d7b59b29950ef8"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_registry_quantity_projection.py",
+      "unchanged_between969_and680": true,
+      "sha256": "500342e870818200404d2322cf266877631fd4303798fe364104833ae94550e6",
+      "candidate_blob": "a30d763934453ca9f130dbae2fdbc79c1d8d9a49"
+    }
+  ],
+  "scope": "Originalc0 own154 and disjoint27 MOquantity/reference assertions retain oldactualc0source/backend/JUnit outputs; this is fourpath/loadedObjectiveValue/OptimizationDirection/producer/test scoped carry only, not a new154/27execution or wholecurrentproductPASS. Existing969 marker/NativeService/classquantity sourcequalified evidence remains separately pinned969.",
+  "consumed_helper_basis": "All16 previously bound numerical owner/testmodules exactbyteidentical969→680 and no reference to fiscal BudgetDeficitObjective/CompositeObjective/ObjectivePresets/_read_metric_aliases. Current ObjectiveValue/OptimizationDirection and everyotherobjectiveclass/constant unchanged completeAST; only helper is the new fiscal zero/nonzero guard. No geometry/registry/model/kernel/ref/covariance/RNG/CAS serializer/backend definition changed.",
+  "affected_actual_consumer": "Fiscal63+existingobjective10=73 actual680PASS with guardremoval27FAIL46PASS, plus separately provided Service18 and independenttypedcanonical13/HTTPcounterfactual2 outputs; those establish changedfiscal path, not newnumeric154.",
+  "limitations": [
+    "Inherited strong numericaloutputs remain exactc0, priornative service/Adapter outputs exact969; changedBudgetDeficit consumer separatelyreplayed680, no silentnewsourcePASS.",
+    "This sidecar is authored by fiscalfix author and requires independentGP/census delta review before use.",
+    "No arbitrary-precisionlaw/fiscalissuer/sourceunitclaim; alreadyrounded floatzero origin unavailable.",
+    "No P41 completeinputzerooverlap claim or Gacceptance."
+  ],
+  "P41": "not_established",
+  "formal_closed": false,
+  "accepted_in_G": false
+}

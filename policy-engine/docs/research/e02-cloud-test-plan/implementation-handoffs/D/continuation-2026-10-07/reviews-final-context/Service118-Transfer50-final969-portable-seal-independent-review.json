@@ -1,0 +1,36 @@
+{
+  "schema": "D.e02.final969.Service118.Transfer50.portable-seal-independent-review.v1",
+  "reviewer": "/root/census_oct07",
+  "created_utc": "2026-10-07T10:56:43.557295+00:00",
+  "decision": "GO_VERIFIED_IMMUTABLE_PORTABLE_MEMBER_SEALS_AND14_ACTUAL_CAS_MINREFS",
+  "source": "96905636726483fdea3a98d9313871d825b54a9e",
+  "tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "seals": [
+    {
+      "source_root": "/dev/shm/e02-D-oct07-service-start/publication-native-dedup-quantity-final969",
+      "manifest": "manifest.json",
+      "manifest_sha256": "a2d7bb13205de36448e0937f29f97748e173c3ed66ae0f623a86b0f9d23eeec4",
+      "files_verified": 118,
+      "bytes_verified": 4156286,
+      "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/service-native-final969",
+      "copied_destination_member_matches": 118
+    },
+    {
+      "source_root": "/dev/shm/e02-D-B111-B124-final-portable-o7a3b937",
+      "manifest": "files-manifest.json",
+      "manifest_sha256": "63d9c1cec10b01aef862fd52da05ba066af8629f5d2554ce4d857e5c43c3fd68",
+      "files_verified": 50,
+      "bytes_verified": 914850,
+      "canonical_destination": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/native-B111-B124-removals-final969",
+      "copied_destination_member_matches": 50
+    }
+  ],
+  "actual_qualified_minrefs_rehashed": 14,
+  "runtime_review": {
+    "path": "B111-B124-final969-actual-runtime-and-four-removals-independent-review.json",
+    "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77"
+  },
+  "scope": "Seal/member/readback verification only. Prior independent actual48/Service41/Champion44/paid2/DOE13/Legacy2 and four native removals remain exact969; no new execution/whole-D sum. Copied destinations checked from root own append-only docs, not G integration acceptance.",
+  "formal_closed": false,
+  "accepted_G": false
+}

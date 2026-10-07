@@ -1,0 +1,25 @@
+{
+  "schema": "e02.D.fiscal.alias.independent.production.v1",
+  "reviewer": "/root/gp_oct07",
+  "result": "GO bounded Decimal/text float64 alias admission source",
+  "base": "96905636726483fdea3a98d9313871d825b54a9e",
+  "production_patch_sha256": "8a588ae1c8088cd5e2cc8cc6b0bebd74304df5dfac66dce47efc09f2affc22ca",
+  "production_full_objective_sha256": "4af806e2f2844369458d0be87f5396c736bf9d357389b1b3c9e5d5bb9c6e89b8",
+  "complete_delta": "Only shared _read_metric_aliases plus stdlib Decimal/DecimalException import; all other objective methods/classes/globals/import fullAST equal. Real GP/kernel/model/corpus/transforms/RNG/checkpoint production unchanged.",
+  "reasoning": [
+    "Original Decimal/text nonzero whose floatvalue0 now refused before values array and before fallback/aliasmerge. Exact original sign/nonzero tested prior to float64 loss; genuine signedzero compares equalzero and remains supported.",
+    "Existingbool refusal and floatcoercion compatibility preserved; malformed/nonfinite/overflow and Decimal extreme exponent errors return_INVALID, never crash the alias batch.",
+    "The singleexisting four-alias seam feeds BudgetDeficitObjective existing NaN/is_satisfiedfalse and Composite existing propagation; positive representable±5e-324 preserve expected surplus clamp versus deficit magnitude. No silent new alias/numeric unit law.",
+    "Text/Decimal conversion catch broadened only for DecimalException; alreadyroundedfloat0 cannot recover lexeme, explicitly documented."
+  ],
+  "test_review": "Read63new+existing10 proposedcells; tests use actualB GatewayLLMClient._post_json with only HTTPtransportfixture to verifyDecimalbeforeobjective; all currentkernel/model/state numericalreceipts remain c0-qualified. Current73 actualruntimeUNRUN before parentappliedfreeze. Recommend additive existing actual8tiny function assertions through publicImprovementPlateau/TargetAchieved for changed falsezero stopping consumer; this is testdelta, no productionblocker.",
+  "compatibility": "Operator recipe and structuredbreaking semantic-refusal fragment preserve original input/source, newadmittedrun, supportedfloat64 values, no artifact/schema/parser change or scientificauthority.",
+  "limitations": [
+    "Bounded Decimal and numeric-text origin profile; arbitrarycustom floatcoercible/Fraction/extendedprecision originalnonzero underflow not claimed by this patch.",
+    "No exact arbitrary-precision alias equality or scientific fiscalunit/sign/alias law supplied.",
+    "No full GP43/MO88/State142 replay on new source; changedimported objective module requires explicit method/branchqualifier and actualfiscalconsumer checks."
+  ],
+  "formal_closed": false,
+  "accepted_G": false,
+  "P41": "not_established"
+}

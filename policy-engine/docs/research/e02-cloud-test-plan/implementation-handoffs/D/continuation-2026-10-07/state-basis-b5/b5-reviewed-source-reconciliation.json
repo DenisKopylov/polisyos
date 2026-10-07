@@ -1,0 +1,171 @@
+{
+  "schema": "e02.D.independent.source-reconciliation.v1",
+  "reviewer": "census_oct07",
+  "source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+  "tree": "855ae45bd271d207ad3121276a5281454d1d38de",
+  "slice_base": "d610095905262a9b5b05b60c894018a681119367",
+  "all_reviewed_semantics_equal": true,
+  "checks": [
+    {
+      "patch": "/dev/shm/e02-D-oct07-service-start/base-state-finite-admission-d610.patch",
+      "sha256": "ec5b5a94fd6eba72f52c2eab11e2710e7d98da32d1b71edf04735ab938578333",
+      "paths": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+          "reviewed_expected_sha256": "b14b9d504d8227f26c488a59227e33cdc8b0cbc192c37d780728e441e74d1f65",
+          "actual_source_sha256": "b14b9d504d8227f26c488a59227e33cdc8b0cbc192c37d780728e441e74d1f65",
+          "git_blob": "5014def2bf0e9d43a629d335bf1b806a112082a3",
+          "byte_equal": true,
+          "ast_equal": true
+        }
+      ]
+    },
+    {
+      "patch": "/dev/shm/e02-D-oct07-service-start/convergence-provenance-and-numeric-admission-d610.patch",
+      "sha256": "9394a8bf5ef7ce95f299a9992042d50ee783c7dd4900996002c33a7e14af64f1",
+      "paths": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py",
+          "reviewed_expected_sha256": "1aec929a3264cdc69fd32670ec65ff56202e520df177557acafd41b88ccc28d8",
+          "actual_source_sha256": "5298242cd9b3fc4a80adb07c9b78c16063c1bd00b9918088c7130848cc2dd907",
+          "git_blob": "7d771365b7df742ddf80e73eb46aebbf7dba4769",
+          "byte_equal": false,
+          "ast_equal": true
+        }
+      ]
+    },
+    {
+      "patch": "/dev/shm/e02-D-oct07-service-start/state-and-convergence-numeric-compatibility-reviewed-d610.patch",
+      "sha256": "612043b5bdca228d19d139da747d3b9d05356f092513777a7c3c7663d15c764a",
+      "paths": [
+        {
+          "path": "policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md",
+          "reviewed_expected_sha256": "3d0a9dbc11747415367f4c7b837bd786c462f23de883a22f4b653bd716289205",
+          "actual_source_sha256": "3d0a9dbc11747415367f4c7b837bd786c462f23de883a22f4b653bd716289205",
+          "git_blob": "11aa20f5b2f24a7586cf733c293f105df1414512",
+          "byte_equal": true,
+          "ast_equal": null
+        }
+      ]
+    },
+    {
+      "patch": "/dev/shm/e02-D-NN-state-finald610-mfgxf6wo/proposed_base_numeric_state_tests.patch",
+      "sha256": "37dc41ba39d0587a44ac8f11cd8e65144288e047a4820b067b0e1f767f39c106",
+      "paths": [
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_strategy_state.py",
+          "reviewed_expected_sha256": "2611d834690c90d43243f2e8eab061383ea2da0d2a95924371b015a6f795cabe",
+          "actual_source_sha256": "2611d834690c90d43243f2e8eab061383ea2da0d2a95924371b015a6f795cabe",
+          "git_blob": "4444af739f1cf0a75bf115ca24a8c65226c862c8",
+          "byte_equal": true,
+          "ast_equal": true
+        }
+      ]
+    },
+    {
+      "patch": "/tmp/e02-D-math-oct07-drafts/B41-declared-basis-probes.final21.patch",
+      "sha256": "71b9633306959bb0e4bc9022593bcd704a582ea08766270230aaa1a8f8528162",
+      "paths": [
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+          "reviewed_expected_sha256": "bfe8ee7a6e0be2f2eaa60f976c611dc4f32ccb8d64561bb1307737b8afa04a61",
+          "actual_source_sha256": "bfe8ee7a6e0be2f2eaa60f976c611dc4f32ccb8d64561bb1307737b8afa04a61",
+          "git_blob": "c297ce60f484e15d577ddd14adb5fd7efd28bf0d",
+          "byte_equal": true,
+          "ast_equal": true
+        }
+      ]
+    },
+    {
+      "patch": "/tmp/e02-D-math-oct07-drafts/B41-positive-fixture-metadata.patch",
+      "sha256": "d348a76a7ac19b8aaa454a9814914852071467831b9713348631f3fd84e3eaef",
+      "paths": [
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_semantic.py",
+          "reviewed_expected_sha256": "205719a1d4a41530d54dba993aadc905df5564283e7c544fd93fc170eaec8f97",
+          "actual_source_sha256": "205719a1d4a41530d54dba993aadc905df5564283e7c544fd93fc170eaec8f97",
+          "git_blob": "8e0dcf5f5ea506485620c257f093d8f4ecfd2c8e",
+          "byte_equal": true,
+          "ast_equal": true
+        }
+      ]
+    },
+    {
+      "patch": "/dev/shm/e02-D-funnel-oct07/funnel-calibration-report-bridge-v3.patch",
+      "sha256": "82436da72d39a4cc2b97fd11375ce81bad02fd674f3191dca80ae809cc087871",
+      "paths": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/calibration_report.py",
+          "reviewed_expected_sha256": "efed471749e555935c1e3ed1e1165d287cda8c077a3adfb171e86e0526d2f367",
+          "actual_source_sha256": "40963bec0e551c9ce6aad6798bf62b0f268a347d603e9a463490c18b4ff37cd7",
+          "git_blob": "5a48a6c22e09e79e993d456539795ed3a3fc9e94",
+          "byte_equal": false,
+          "ast_equal": true
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/search/test_calibration_report.py",
+          "reviewed_expected_sha256": "16cd627674a21222cd22a6008393ac7e5c1c26c6613c3b74a55ff92ecdcbc49a",
+          "actual_source_sha256": "e952f6bd1dcb7b90ee22b8a78b0f69f7a002859ee47fbbd5a96431cbc16217e0",
+          "git_blob": "34c63ebbf776849c7d9b377da093bb7792f79a90",
+          "byte_equal": false,
+          "ast_equal": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/README.md",
+          "reviewed_expected_sha256": "2aa8994be33e2f416e72db0a22adbfc9c37f37a68195b4fe8116c0bbd4a4169a",
+          "actual_source_sha256": "2aa8994be33e2f416e72db0a22adbfc9c37f37a68195b4fe8116c0bbd4a4169a",
+          "git_blob": "1e20c03d0f2ce775548cae285d82d094297434ea",
+          "byte_equal": true,
+          "ast_equal": null
+        },
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-07-funnel-calibration-report-state.toml",
+          "reviewed_expected_sha256": "651f7df5001e0f82b725d2ee84283f35a460b29990c27f1a718ff66a4378f60e",
+          "actual_source_sha256": "651f7df5001e0f82b725d2ee84283f35a460b29990c27f1a718ff66a4378f60e",
+          "git_blob": "676845140004a0ddb421d1f4e9ebc17a311f9c16",
+          "byte_equal": true,
+          "ast_equal": null
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_fun_03.py",
+          "reviewed_expected_sha256": "66d6cf98527ff0840081273cccab56e76c0bf78a04cdfc1be18f1e73fc575fef",
+          "actual_source_sha256": "5fb8e1471b980a5bda16a473e57710875f73847dd160e703bca0c6e7ee4c2c1c",
+          "git_blob": "902c36b0e0f4b7acc7dda085f68ad6d2c07c13cb",
+          "byte_equal": false,
+          "ast_equal": true
+        }
+      ]
+    },
+    {
+      "patch": "/dev/shm/e02-D-realnative-error-probe-mja52dcf/same-1002-topk-discriminator.patch",
+      "sha256": "d7ad0660036e1bf4e84a4bc07bd0327e1ab36fd1dfb336bac9fcfaf842097964",
+      "paths": [
+        {
+          "path": "policy-engine/tests/unit/scientist/agent/test_vector_generation_consumer.py",
+          "reviewed_expected_sha256": "14eade1c0f0ed5b494d5ad55da712400f25241d9b3a786b538e1e3d124b8ce09",
+          "actual_source_sha256": "14eade1c0f0ed5b494d5ad55da712400f25241d9b3a786b538e1e3d124b8ce09",
+          "git_blob": "7c59fd18900004f9720768315069f6e399ef89db",
+          "byte_equal": true,
+          "ast_equal": true
+        }
+      ]
+    }
+  ],
+  "complete_changed_paths": [
+    "policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md",
+    "policy-engine/release-fragments/unreleased/2026-10-07-funnel-calibration-report-state.toml",
+    "policy-engine/src/polisyos/scientist/methods/search/calibration_report.py",
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/README.md",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py",
+    "policy-engine/tests/unit/remediation/test_fun_03.py",
+    "policy-engine/tests/unit/scientist/agent/test_vector_generation_consumer.py",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_strategy_state.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_semantic.py",
+    "policy-engine/tests/unit/scientist/search/test_calibration_report.py"
+  ],
+  "limitations": [
+    "No new runtime result from AST identity alone. Parent format receipts independently reconstructed and checked here. Grid/MO final changes pending separately. G acceptance remains false."
+  ]
+}

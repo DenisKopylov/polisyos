@@ -1,0 +1,55 @@
+{
+  "schema": "policyos.e02.owner_input_packet.v1",
+  "unit": "D",
+  "kind": "B-CAS\u2192TRN02-combined-native-consumer",
+  "finding_bindings": [
+    "B129",
+    "B133",
+    "B134"
+  ],
+  "existing_port": {
+    "name": "FileSystemCAS.get_verified_snapshot(ArtifactID|ArtifactRef|str)",
+    "D_dependency_source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+    "D_dependency_store_blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+    "D_dependency_snapshot_blob": "0e5cab25d5ddeb168c520afcdd88c7b8c215f257",
+    "fetched_B_head": "b33330a0b443cc07bfff873a08022eddade6f52e",
+    "public_signature_body_comparison": "identical AST SHA ab7320ace61de46d8e7adc1f7652f7e9a3bb8bc010af19c702cd61f9f6f65c71; selected deeper read-result seam inspected, fresh B source available; no independent full CAS acceptance review or combined native runtime from source equality.",
+    "B_dependency_store_blob": "02e3253de23db5d64c21b69ce4cc85daa4f0778c",
+    "B_dependency_snapshot_blob": "557fbb829dec5e9f349e5de7a7d5013ca1c2a2ef"
+  },
+  "minimal_request": "G selects integration adoption source and meaningful actual replay on common freeze; available canonical B API/source no longer bridge_missing. Held tenant reuse/scientific authority remains independent.",
+  "consumer_test_draft": "policy-engine/tests/unit/scientist/agent/test_vector_generation_consumer.py::test_exact_transfer_reference_beyond_1000_keys_survives_fresh_native_reader",
+  "draft_patch_sha256": null,
+  "runtime_path": [
+    "Actual ordinary register_run1001 distinct donor snapshots + originalsource last at nativeindex1001; all exactCAS snapshots verified kind/media/schema/fingerprint/row equality",
+    "One actual fullcatalogHNSW discovery yields1002; exact keymap source reference; ANN then prohibited",
+    "Persisted composite\u2192second Python process actual HNSW/CAS load",
+    "Existing B-owned get_verified_snapshot exact ArtifactRef;26 actualread receipts with independent digest + manifest binding",
+    "TransferLearningManager exact alias and source originalmeasurement/basis numerical admission",
+    "Same composite ref alteredbytes refuses and oldgeneration remainscoherent"
+  ],
+  "status": "Available ordinary canonical B333 source + current79 D native consumer actually executed and source-admitted in separately reviewed combined_dependency_profile. Root default integration/adoption acceptance remains G decision.",
+  "predicate_basis": "recomputed for D local consumer; not_established for currentB integration acceptance",
+  "authority_limitations": [
+    "Existing local D current65 and prior17 actual native witnesses are source-qualified; no current B333 combined execution claim.",
+    "Fixture-owner/tenant basis is not institutional authorization or production evaluation rights",
+    "In-process vector pointer and local filesystem witnesses do not establish distributed/power-loss guarantees"
+  ],
+  "input_basis": "1001 ordinary discovery registrations faithfully retain2 original controlled donor rows (source IDs,basis,refs,values,time unchanged); selected originalsource supplies2 numerical rows. No1001 independent measuredexecutions claim.",
+  "D_consumer_source": "79b943d221f46b2cc94eff06cdfdc714efe5a0e0",
+  "D_consumer_tree": "1a9f14f84e66f09c830134e2a6ee3e3f15e2b3cc",
+  "D_consumer_check": "PASS actual2 sync consumers with parent+3 actual freshchildren all7 B origins, no skips; intended native finite removal1FAIL.",
+  "D_deciding_outputs": "../checks/b5-original65/",
+  "implemented_selector": "policy-engine/tests/unit/scientist/agent/test_vector_generation_consumer.py::test_exact_transfer_reference_beyond_1000_keys_survives_fresh_native_reader",
+  "B_receipt_context": {
+    "source_ref": "b33330a0b443cc07bfff873a08022eddade6f52e",
+    "CAS_owner_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/cas-successor-native-consumer-audit.json",
+    "scope": "Committed owner metadata reconciliation pins DD native575 CAS compatibility cases; no current D VectorMemoryStore/TransferLearningManager combined case found; actual raw/native source remains separately qualified."
+  },
+  "complete_deciding_outputs": [
+    "checks/79-B333-pair2/",
+    "checks/79-B333-native-removal1/"
+  ],
+  "actual_minrefs": "combined-B333/controlled-original-minrefs.json",
+  "combined_source_map": "combined-B333/B333-module-map.json"
+}

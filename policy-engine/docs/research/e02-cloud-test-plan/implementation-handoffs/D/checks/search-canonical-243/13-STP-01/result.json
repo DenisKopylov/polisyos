@@ -1,0 +1,127 @@
+{
+  "ordinal": 13,
+  "bundle": "STP-01",
+  "canonical_line": 387,
+  "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py tests/unit/scientist/methods/search/test_stopping_limitations.py tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py -ra",
+  "canonical_pytest_arguments": [
+    "-q",
+    "tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+    "tests/unit/scientist/methods/search/test_stopping_limitations.py",
+    "tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+    "-ra"
+  ],
+  "selectors": [
+    "tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+    "tests/unit/scientist/methods/search/test_stopping_limitations.py",
+    "tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py"
+  ],
+  "source_before": {
+    "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+    "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+    "branch": "codex/e02-D-published-root",
+    "tracked_status": "",
+    "full_tracked_diff": "",
+    "utc": "2026-10-06T12:26:29.198061+00:00"
+  },
+  "metadata": {
+    "argv": [
+      "/workspace/e02-D-locked-env/bin/python",
+      "-B",
+      "/workspace/e02-D-published-search/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_metadata.py",
+      "/workspace/e02-D-published-root",
+      "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 9.029996231998666,
+    "output": {
+      "bytes": 6955,
+      "sha256": "02a24226ed889c3696b259b98d768c95d45863ab54bd5173bbd41b9a014675b7"
+    },
+    "stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "/workspace/e02-D-published-search/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py",
+    "/workspace/e02-D-published-search/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/13-STP-01/events.jsonl",
+    "-q",
+    "tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+    "tests/unit/scientist/methods/search/test_stopping_limitations.py",
+    "tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+    "-ra",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "--basetemp",
+    "/dev/shm/search-canonical-243-13-STP-01-9d3cbcde9c974c3494a021a66f5ec8ec",
+    "--junitxml",
+    "/workspace/e02-D-published-search/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/13-STP-01/junit.xml",
+    "-rA"
+  ],
+  "equivalent_pytest_argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+    "tests/unit/scientist/methods/search/test_stopping_limitations.py",
+    "tests/unit/scientist/methods/search/test_stopping_numerical_oracle.py",
+    "-ra",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "--basetemp",
+    "/dev/shm/search-canonical-243-13-STP-01-9d3cbcde9c974c3494a021a66f5ec8ec",
+    "--junitxml",
+    "/workspace/e02-D-published-search/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/13-STP-01/junit.xml",
+    "-rA"
+  ],
+  "basetemp": "/dev/shm/search-canonical-243-13-STP-01-9d3cbcde9c974c3494a021a66f5ec8ec",
+  "basetemp_existed_before": false,
+  "exit_code": 0,
+  "wall_seconds": 11.50882888099295,
+  "source_after": {
+    "head": "243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3",
+    "tree": "f3763c0911f1f80d8c5ee049667045a594fb55c2",
+    "branch": "codex/e02-D-published-root",
+    "tracked_status": "",
+    "full_tracked_diff": "",
+    "utc": "2026-10-06T12:26:49.770587+00:00"
+  },
+  "complete_output": {
+    "bytes": 6002,
+    "sha256": "19fc79dd6dc7e7e06493e264f81987000d4f55a1f42600b6f75c7eea9eb95810"
+  },
+  "max_rss_kib": 1200496,
+  "rss_scope": "cumulative high-water of completed metadata and pytest children in this stdlib-only parent; not isolated per-child peak",
+  "completed_call_outcomes": {
+    "passed": 36
+  },
+  "failed_reports": [],
+  "skipped_reports": [],
+  "event_stream": {
+    "bytes": 67933,
+    "sha256": "d3bea67a29b46c179f500cb507d93a72b1294cd5903c74f5aee9d3546ae679bb"
+  },
+  "junit": {
+    "file": {
+      "bytes": 6612,
+      "sha256": "581f5533cada7cae103cba9958beb447a2a4f402fc3c644c98c95941a9544fb9"
+    },
+    "counts": {
+      "tests": 36,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    }
+  },
+  "outcome": "PASS",
+  "limit": "Any skipped optional/native-backend query scope remains UNRUN, even if other tests passed. A crash retains actual completed failing reports but supplies no complete command verdict. No inherited-red/P41 waiver. Native Python call entries are observations, not standalone fit/numerical acceptance.",
+  "event_stream_git_filename": "events.jsonl.txt"
+}

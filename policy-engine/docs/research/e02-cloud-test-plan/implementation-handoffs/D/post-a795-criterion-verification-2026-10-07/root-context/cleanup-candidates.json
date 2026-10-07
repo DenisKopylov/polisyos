@@ -1,0 +1,80 @@
+{
+  "schema": "e02.D.cleanup-candidates-no-deletion.v1",
+  "utc": "2026-10-07T18:55:48.872468+00:00",
+  "performed": false,
+  "publication_and_readback_gate": "pending credentials; therefore no cleanup eligibility asserted",
+  "native_Trash_tools": {
+    "gio": null,
+    "trash-put": null
+  },
+  "candidate_paths": [
+    {
+      "path": "/dev/shm/e02-D-funnel-oct07/origin11-removal-final3b-fixtures",
+      "exists": true,
+      "class": "controlled regenerated test fixture directory",
+      "eligibility": "pending exact byte custody/publication/readback/activity/openhandles and regenerated recipe confirmation; preserve unique deciding bytes"
+    },
+    {
+      "path": "/dev/shm/e02-D-funnel-oct07/origin17-final3b-fixtures",
+      "exists": true,
+      "class": "controlled regenerated test fixture directory",
+      "eligibility": "pending exact byte custody/publication/readback/activity/openhandles and regenerated recipe confirmation; preserve unique deciding bytes"
+    },
+    {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/quantity-consumers/fixtures",
+      "exists": true,
+      "class": "controlled regenerated test fixture directory",
+      "eligibility": "pending exact byte custody/publication/readback/activity/openhandles and regenerated recipe confirmation; preserve unique deciding bytes"
+    },
+    {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/stress-consumers/fixtures",
+      "exists": true,
+      "class": "controlled regenerated test fixture directory",
+      "eligibility": "pending exact byte custody/publication/readback/activity/openhandles and regenerated recipe confirmation; preserve unique deciding bytes"
+    }
+  ],
+  "environments": [
+    {
+      "path": "/workspace/e02-D-locked-env",
+      "eligibility": "retained; active shared source/origin verification/formatting context, no removal"
+    },
+    {
+      "path": "/workspace/e02-D-doe-env",
+      "eligibility": "retained; active shared source/origin verification/formatting context, no removal"
+    },
+    {
+      "path": "/tmp/e02-D-runtime-minimal-20261006",
+      "eligibility": "retained; active shared source/origin verification/formatting context, no removal"
+    },
+    {
+      "path": "/workspace/polisyos/policy-engine/.venv",
+      "eligibility": "retained; active shared source/origin verification/formatting context, no removal"
+    }
+  ],
+  "never_candidates": [
+    "production data",
+    "source checkout and Git objects",
+    "project documentation",
+    "unique owner inputs",
+    "only deciding outputs"
+  ],
+  "permanent_deletion": false,
+  "Trash_emptied": false,
+  "disk_observation": {
+    "/workspace": {
+      "total": 33770192896,
+      "used": 32036093952,
+      "free": 0
+    },
+    "/tmp": {
+      "total": 9441349632,
+      "used": 5403062272,
+      "free": 4038287360
+    },
+    "/dev/shm": {
+      "total": 9441349632,
+      "used": 6530027520,
+      "free": 2911322112
+    }
+  }
+}

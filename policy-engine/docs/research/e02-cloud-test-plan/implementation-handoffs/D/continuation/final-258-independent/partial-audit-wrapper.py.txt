@@ -1,0 +1,67 @@
+"""Audit the frozen corrective capture using the existing original metadata verifier."""
+from __future__ import annotations
+import hashlib
+import json
+from pathlib import Path
+import runpy
+
+CAPTURE = Path('/tmp/e02-D-final-root-wave-258a6c89-20261006')
+SOURCE = '258a6c89ea7cbb8394d39965a243a4bab3592358'
+ORIGINAL_HELPER = Path('/tmp/e02-oracle-final-partial-audit-20261006.py')
+ORIGINAL_SHA256 = '91d8f13791eef486362d258f62e8c91f91cde1e47a623797db2cb3015cd4dfe2'
+if hashlib.sha256(ORIGINAL_HELPER.read_bytes()).hexdigest() != ORIGINAL_SHA256:
+    raise ValueError('Original metadata verifier bytes changed')
+namespace = runpy.run_path(str(ORIGINAL_HELPER))
+function = namespace['audit']
+function.__globals__['SOURCE'] = SOURCE
+function.__globals__['CAPTURE'] = CAPTURE
+original_group = function.__globals__['group']
+
+
+def group(nodeid: str) -> str:
+    try:
+        return original_group(nodeid)
+    except KeyError:
+        return 'unclassified_actual_failure:' + nodeid.split('::')[0]
+
+
+function.__globals__['group'] = group
+report = function()
+report['schema'] = 'polisyos.e02.independent_corrective_partial_wave_review.v1'
+report['measurement_helper'] = {
+    'existing_commit': '2fa4074df4e2aee923cb3b233dbe8f9963884b84',
+    'existing_path': 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-partial-optional-independent/partial-audit.py.txt',
+    'sha256': ORIGINAL_SHA256,
+    'adaptation': 'Only source/capture inputs and generic unknown failure classification; historical fixed prose replaced with facts from this new capture.',
+}
+report['limitations'] = [
+    'The child ended with SIGKILL (-9); no PID-specific cause is established from global memory counters.',
+    'No case_start, case_report or case_finish is present: zero testcase assertions ran to an observable verdict.',
+    'The observer wrote collected-nodeids.json before its collection-finish census, but no collection_complete event exists.',
+    'The artifact count describes recorded collected identities, not successful normal completion of collection or the suite.',
+    'All recorded collected testcases remain UNRUN; the 15 collection skips remain UNRUN for their native backend predicates.',
+    'No JUnit, final observer summary or session_finish exists. There is no whole-suite PASS or test-level failure verdict in this capture.',
+    'Observed main-process product paths and captured inputs can establish source integrity only, never native fitting or numerical acceptance.',
+    'The historical c17 failed calls and b9 bounded guard results remain separate evidence and are not superseded by this interruption.',
+]
+report['event_trace_classification'] = {
+    'collection_complete_observed': report['event_kind_counts'].get('collection_complete', 0) > 0,
+    'case_start_observed': report['event_kind_counts'].get('case_start', 0),
+    'case_report_observed': report['event_kind_counts'].get('case_report', 0),
+    'case_finish_observed': report['event_kind_counts'].get('case_finish', 0),
+    'session_finish_observed': report['event_kind_counts'].get('session_finish', 0),
+    'assertion_failure_classes': report['failure_classes'],
+    'predicate_verdict': 'UNRUN',
+}
+destination = Path('/tmp/e02-oracle-258-partial-independent-review.json')
+if destination.exists():
+    raise ValueError('Fresh append-only review output required')
+destination.write_text(json.dumps(report, indent=2) + '\n')
+print(json.dumps({'output': str(destination), 'bytes': len(destination.read_bytes()),
+    'sha256': hashlib.sha256(destination.read_bytes()).hexdigest(),
+    'denominator': report['denominator'],
+    'snapshot_discrepancies': len(report['snapshots']['frozen_git_discrepancies']),
+    'product_paths': report['loaded_product_origins']['unique_paths'],
+    'origin_discrepancies': len(report['loaded_product_origins']['frozen_git_discrepancies']),
+    'events': report['event_kind_counts'],
+    'verdict': report['whole_suite_verdict']}, indent=2))

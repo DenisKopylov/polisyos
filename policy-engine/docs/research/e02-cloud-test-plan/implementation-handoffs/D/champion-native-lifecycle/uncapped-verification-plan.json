@@ -1,0 +1,1275 @@
+{
+  "schema": "policyos.e02.uncapped_verification_plan.v1",
+  "source_sha": "185a3492900044046ec2996c42875314979d8b4b",
+  "source_tree": "bcaab880c54070d65c416a650755a308716faf37",
+  "runtime_source_freeze": "b328bb9abee30cb556ba7af4cf15dd5388386f12",
+  "status": "UNRUN_PLAN_ONLY; no verify/ci-parity wrapper PASS",
+  "source_inputs": [
+    {
+      "source_sha": "185a3492900044046ec2996c42875314979d8b4b",
+      "path": "policy-engine/tools/devx/workspace/verify.py",
+      "sha256": "864ec1e4f463b63610986cd86b93a1b61687408b84e1a9c64cd6d6a65d587207",
+      "git_blob": "c8c884f8edafdcf9f63d6572cb41a2929f3a64a9",
+      "bytes": 12277
+    },
+    {
+      "source_sha": "185a3492900044046ec2996c42875314979d8b4b",
+      "path": "policy-engine/tools/devx/workspace/ci_parity.py",
+      "sha256": "8ee3abda4668c4bbc24c58412b11eda51eaae9c046b98ad80ff5b17705e26619",
+      "git_blob": "26b66d48e7ce4d28a92389842213fd51acf53f34",
+      "bytes": 11939
+    },
+    {
+      "source_sha": "185a3492900044046ec2996c42875314979d8b4b",
+      "path": "policy-engine/tools/devx/workspace/_common.py",
+      "sha256": "fadb1e8e48587a79fdeafdf7ce23216518d4f09a06c3045b0ed1f1c0133c267a",
+      "git_blob": "5f99fd0e73d91ca28e3be56442679d3f7772acaa",
+      "bytes": 7324
+    },
+    {
+      "source_sha": "185a3492900044046ec2996c42875314979d8b4b",
+      "path": "policy-engine/tools/devx/workspace/doctor.py",
+      "sha256": "6d71f9367e0680b0b3799e94df7b0b6249c4ca41f669d62a6982c924dcdeb58b",
+      "git_blob": "b5fbf833e303ca3046199ea28b5e3925931bb627",
+      "bytes": 22715
+    },
+    {
+      "source_sha": "185a3492900044046ec2996c42875314979d8b4b",
+      "path": "policy-engine/tools/quality/validation/check_extension_examples.py",
+      "sha256": "ff61698d5cd82893d79d1199fb60e4bc7ccdcaa0d0cdb10c52d7965b6cef3c58",
+      "git_blob": "3de29e47e42614bc0bc080c7ff9f69cc5faf62bc",
+      "bytes": 17431
+    },
+    {
+      "source_sha": "185a3492900044046ec2996c42875314979d8b4b",
+      "path": "policy-engine/docs/reference/quality-gates.md",
+      "sha256": "b8fd86119ed42f6400548a5977a08e426346167db3ae39895028c5a898298b9d",
+      "git_blob": "6089ea41c53460d6848701b17ed01258d834f3d2",
+      "bytes": 33606
+    },
+    {
+      "source_sha": "185a3492900044046ec2996c42875314979d8b4b",
+      "path": "policy-engine/tools/AGENTS.md",
+      "sha256": "7ee89c2d2a63ca8b344ec206be3da1f181c54bf5bae6f6e10c75c9ee4e88b41a",
+      "git_blob": "ee39645f795092de53ddc04cb0d10e7d9a7385a2",
+      "bytes": 455
+    },
+    {
+      "source_sha": "185a3492900044046ec2996c42875314979d8b4b",
+      "path": "policy-engine/pyproject.toml",
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "bytes": 11007
+    },
+    {
+      "source_sha": "185a3492900044046ec2996c42875314979d8b4b",
+      "path": "policy-engine/uv.lock",
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+      "bytes": 779204
+    },
+    {
+      "source_sha": "185a3492900044046ec2996c42875314979d8b4b",
+      "path": "policy-engine/pytest.ini",
+      "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+      "git_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+      "bytes": 1021
+    },
+    {
+      "source_sha": "185a3492900044046ec2996c42875314979d8b4b",
+      "path": "policy-engine/tools/cli.py",
+      "sha256": "c8050cd2ab1bc46bd3792ba772470e758efdb8c35bcb28b110eb3ba558b501c9",
+      "git_blob": "eecca6679e79a9335187a57db58b3eec386c5d2e",
+      "bytes": 25923
+    },
+    {
+      "source_sha": "185a3492900044046ec2996c42875314979d8b4b",
+      "path": "policy-engine/apps/runtime-dashboard/package.json",
+      "sha256": "e8d8ad4efe1e7e2b17cdbda770ed31157b94cdea51de2ab721ef1fabadb72f6a",
+      "git_blob": "0eca7ad3345d1492d108b8847d79ea55c7719615",
+      "bytes": 11599
+    }
+  ],
+  "source_default_profiles": {
+    "verify": "--backend-only default doctor; pytest-workers None; no worker count override",
+    "ci_parity": "--skip-browser, frontend+backend+docs+runtime-http, default doctor, no smoke/visual additions"
+  },
+  "user_precedence": "literal wrappers inject six numeric-thread caps=1, incompatible with user instruction. Direct exact selectors and args below remove only these forced numeric env overrides, use existing locked Python and fresh preserved basetemp; no source edits or test selection weakening. No sync command runs implicitly.",
+  "minimum_combined_backend_ci_plan": [
+    {
+      "group": "verify_backend",
+      "label": "lint imports",
+      "canonical_argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+        "run",
+        "python",
+        "tools/quality/lint/lint_imports.py",
+        "--policy",
+        "architecture/imports/policy.toml",
+        "--exceptions",
+        "architecture/imports/exceptions.toml"
+      ],
+      "canonical_env": {},
+      "cwd": "/workspace/e02-D-published-champion/policy-engine",
+      "uncapped_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "tools/quality/lint/lint_imports.py",
+        "--policy",
+        "architecture/imports/policy.toml",
+        "--exceptions",
+        "architecture/imports/exceptions.toml"
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src:."
+      },
+      "removed_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "status": "UNRUN_PLAN_ONLY"
+    },
+    {
+      "group": "verify_backend",
+      "label": "check package import gates (shell-package closure)",
+      "canonical_argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+        "run",
+        "polisyos-tools",
+        "validation",
+        "check-package-import-gates",
+        "--fail-closed",
+        "--json-output",
+        "_build/.tmp/last-mile/package-import-gates.json"
+      ],
+      "canonical_env": {},
+      "cwd": "/workspace/e02-D-published-champion/policy-engine",
+      "uncapped_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "tools.cli",
+        "validation",
+        "check-package-import-gates",
+        "--fail-closed",
+        "--json-output",
+        "_build/.tmp/last-mile/package-import-gates.json"
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src:."
+      },
+      "removed_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "status": "UNRUN_PLAN_ONLY"
+    },
+    {
+      "group": "verify_backend",
+      "label": "lint foundry",
+      "canonical_argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+        "run",
+        "python",
+        "-m",
+        "tools.quality.lint.lint_foundry",
+        "--repo-root",
+        "."
+      ],
+      "canonical_env": {},
+      "cwd": "/workspace/e02-D-published-champion/policy-engine",
+      "uncapped_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "tools.quality.lint.lint_foundry",
+        "--repo-root",
+        "."
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src:."
+      },
+      "removed_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "status": "UNRUN_PLAN_ONLY"
+    },
+    {
+      "group": "verify_backend",
+      "label": "check state reads",
+      "canonical_argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+        "run",
+        "python",
+        "tools/quality/diagnostics/check_state_reads.py"
+      ],
+      "canonical_env": {},
+      "cwd": "/workspace/e02-D-published-champion/policy-engine",
+      "uncapped_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "tools/quality/diagnostics/check_state_reads.py"
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src:."
+      },
+      "removed_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "status": "UNRUN_PLAN_ONLY"
+    },
+    {
+      "group": "verify_backend",
+      "label": "check scholar imports",
+      "canonical_argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+        "run",
+        "python",
+        "tools/quality/lint/check_scholar_imports.py"
+      ],
+      "canonical_env": {},
+      "cwd": "/workspace/e02-D-published-champion/policy-engine",
+      "uncapped_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "tools/quality/lint/check_scholar_imports.py"
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src:."
+      },
+      "removed_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "status": "UNRUN_PLAN_ONLY"
+    },
+    {
+      "group": "verify_backend",
+      "label": "check connector contracts",
+      "canonical_argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+        "run",
+        "polisyos-tools",
+        "connectors",
+        "check-contracts",
+        "--check"
+      ],
+      "canonical_env": {},
+      "cwd": "/workspace/e02-D-published-champion/policy-engine",
+      "uncapped_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "tools.cli",
+        "connectors",
+        "check-contracts",
+        "--check"
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src:."
+      },
+      "removed_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "status": "UNRUN_PLAN_ONLY"
+    },
+    {
+      "group": "verify_backend",
+      "label": "check schema freshness",
+      "canonical_argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+        "run",
+        "--extra",
+        "ml",
+        "python",
+        "tools/quality/diagnostics/gen_schema.py",
+        "--check"
+      ],
+      "canonical_env": {},
+      "cwd": "/workspace/e02-D-published-champion/policy-engine",
+      "uncapped_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "tools/quality/diagnostics/gen_schema.py",
+        "--check"
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src:."
+      },
+      "removed_wrapper_numeric_caps": {},
+      "required_extra_profiles": [
+        "ml"
+      ],
+      "status": "UNRUN_PLAN_ONLY"
+    },
+    {
+      "group": "verify_backend",
+      "label": "check runtime API contract",
+      "canonical_argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+        "run",
+        "--extra",
+        "runtime",
+        "--extra",
+        "ml",
+        "python",
+        "tools/ops_runners/runtime/check_runtime_api_contract.py"
+      ],
+      "canonical_env": {},
+      "cwd": "/workspace/e02-D-published-champion/policy-engine",
+      "uncapped_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "tools/ops_runners/runtime/check_runtime_api_contract.py"
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src:."
+      },
+      "removed_wrapper_numeric_caps": {},
+      "required_extra_profiles": [
+        "runtime",
+        "ml"
+      ],
+      "status": "UNRUN_PLAN_ONLY"
+    },
+    {
+      "group": "verify_backend",
+      "label": "check last-mile inventory baseline",
+      "canonical_argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+        "run",
+        "python",
+        "tools/quality/validation/repository_last_mile_inventory.py",
+        "--json-output",
+        "_build/.tmp/last-mile/inventory.json",
+        "--check"
+      ],
+      "canonical_env": {},
+      "cwd": "/workspace/e02-D-published-champion/policy-engine",
+      "uncapped_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "tools/quality/validation/repository_last_mile_inventory.py",
+        "--json-output",
+        "_build/.tmp/last-mile/inventory.json",
+        "--check"
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src:."
+      },
+      "removed_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "status": "UNRUN_PLAN_ONLY"
+    },
+    {
+      "group": "verify_backend",
+      "label": "build honest diagnostics coverage dashboard",
+      "canonical_argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+        "run",
+        "python",
+        "tools/quality/validation/build_honest_diagnostics_coverage.py",
+        "--repo-root",
+        ".",
+        "--output-dir",
+        "_build/honest-diagnostics/coverage"
+      ],
+      "canonical_env": {},
+      "cwd": "/workspace/e02-D-published-champion/policy-engine",
+      "uncapped_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "tools/quality/validation/build_honest_diagnostics_coverage.py",
+        "--repo-root",
+        ".",
+        "--output-dir",
+        "_build/honest-diagnostics/coverage"
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src:."
+      },
+      "removed_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "status": "UNRUN_PLAN_ONLY"
+    },
+    {
+      "group": "verify_backend",
+      "label": "check honest diagnostics substrate drift",
+      "canonical_argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+        "run",
+        "python",
+        "tools/quality/validation/check_substrate_drift.py",
+        "--repo-root",
+        ".",
+        "--require-passing"
+      ],
+      "canonical_env": {},
+      "cwd": "/workspace/e02-D-published-champion/policy-engine",
+      "uncapped_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "tools/quality/validation/check_substrate_drift.py",
+        "--repo-root",
+        ".",
+        "--require-passing"
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src:."
+      },
+      "removed_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "status": "UNRUN_PLAN_ONLY"
+    },
+    {
+      "group": "verify_backend",
+      "label": "check extension example contract coverage",
+      "canonical_argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+        "run",
+        "python",
+        "tools/quality/validation/check_extension_examples.py",
+        "--skip-install",
+        "--skip-discovery",
+        "--skip-pytest"
+      ],
+      "canonical_env": {},
+      "cwd": "/workspace/e02-D-published-champion/policy-engine",
+      "uncapped_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "tools/quality/validation/check_extension_examples.py",
+        "--skip-install",
+        "--skip-discovery",
+        "--skip-pytest"
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src:."
+      },
+      "removed_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "status": "UNRUN_PLAN_ONLY"
+    },
+    {
+      "group": "verify_backend",
+      "label": "check schemas pure-data closure",
+      "canonical_argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+        "run",
+        "python",
+        "-c",
+        "from pathlib import Path\n\nroot = Path(\"schemas\")\noutput = Path(\"_build/.tmp/last-mile/schemas-python-residue.txt\")\noutput.parent.mkdir(parents=True, exist_ok=True)\nmatches = []\nif root.exists():\n    for path in sorted(root.rglob(\"*\")):\n        if path.name == \"__pycache__\" or path.suffix == \".py\":\n            matches.append(path.as_posix())\noutput.write_text(\"\\n\".join(matches) + (\"\\n\" if matches else \"\"), encoding=\"utf-8\")\nif matches:\n    print(\"\\n\".join(matches))\n    raise SystemExit(1)"
+      ],
+      "canonical_env": {},
+      "cwd": "/workspace/e02-D-published-champion/policy-engine",
+      "uncapped_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-c",
+        "from pathlib import Path\n\nroot = Path(\"schemas\")\noutput = Path(\"_build/.tmp/last-mile/schemas-python-residue.txt\")\noutput.parent.mkdir(parents=True, exist_ok=True)\nmatches = []\nif root.exists():\n    for path in sorted(root.rglob(\"*\")):\n        if path.name == \"__pycache__\" or path.suffix == \".py\":\n            matches.append(path.as_posix())\noutput.write_text(\"\\n\".join(matches) + (\"\\n\" if matches else \"\"), encoding=\"utf-8\")\nif matches:\n    print(\"\\n\".join(matches))\n    raise SystemExit(1)"
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src:."
+      },
+      "removed_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "status": "UNRUN_PLAN_ONLY"
+    },
+    {
+      "group": "verify_backend",
+      "label": "pytest fast backend gate",
+      "canonical_argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+        "run",
+        "pytest",
+        "-m",
+        "not integration",
+        "--ignore=tests/unit/runtime/http"
+      ],
+      "canonical_env": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1",
+        "BLIS_NUM_THREADS": "1"
+      },
+      "cwd": "/workspace/e02-D-published-champion/policy-engine",
+      "uncapped_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "-m",
+        "not integration",
+        "--ignore=tests/unit/runtime/http",
+        "--basetemp=/dev/shm/e02-D-parity-pytest-1a8acc4ab47548b2a1420cd96219fae7"
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src:."
+      },
+      "removed_wrapper_numeric_caps": {
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1",
+        "BLIS_NUM_THREADS": "1"
+      },
+      "required_extra_profiles": [],
+      "status": "UNRUN_PLAN_ONLY",
+      "basetemp": {
+        "path": "/dev/shm/e02-D-parity-pytest-1a8acc4ab47548b2a1420cd96219fae7",
+        "existed_at_plan_generation": false,
+        "execution_precondition": "refuse execution if path now exists; allocate a different never-used path for any rerun",
+        "cleanup": "preserve; pytest may delete preexisting --basetemp, hence never reuse"
+      }
+    },
+    {
+      "group": "ci_addition",
+      "label": "pytest runtime/http",
+      "canonical_argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+        "run",
+        "pytest",
+        "tests/unit/runtime/http"
+      ],
+      "canonical_env": {},
+      "cwd": "/workspace/e02-D-published-champion/policy-engine",
+      "uncapped_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "pytest",
+        "tests/unit/runtime/http",
+        "--basetemp=/dev/shm/e02-D-parity-pytest-bb84adc5f9a14783899bdb24632e10de"
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src:."
+      },
+      "removed_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "status": "UNRUN_PLAN_ONLY",
+      "basetemp": {
+        "path": "/dev/shm/e02-D-parity-pytest-bb84adc5f9a14783899bdb24632e10de",
+        "existed_at_plan_generation": false,
+        "execution_precondition": "refuse execution if path now exists; allocate a different never-used path for any rerun",
+        "cleanup": "preserve; pytest may delete preexisting --basetemp, hence never reuse"
+      }
+    },
+    {
+      "group": "ci_addition",
+      "label": "check directory health ratchet",
+      "canonical_argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+        "run",
+        "python",
+        "tools/quality/validation/directory_health.py",
+        "--repo-root",
+        ".",
+        "--json-output",
+        "_build/.tmp/last-mile/directory-health.json",
+        "--markdown-output",
+        "_build/.tmp/last-mile/directory-health.md",
+        "--fail-on-regression"
+      ],
+      "canonical_env": {},
+      "cwd": "/workspace/e02-D-published-champion/policy-engine",
+      "uncapped_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "tools/quality/validation/directory_health.py",
+        "--repo-root",
+        ".",
+        "--json-output",
+        "_build/.tmp/last-mile/directory-health.json",
+        "--markdown-output",
+        "_build/.tmp/last-mile/directory-health.md",
+        "--fail-on-regression"
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src:."
+      },
+      "removed_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "status": "UNRUN_PLAN_ONLY"
+    },
+    {
+      "group": "ci_addition",
+      "label": "check test ratchets and helper topology",
+      "canonical_argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+        "run",
+        "python",
+        "tools/quality/testing/report_test_ratchets.py",
+        "--format",
+        "json",
+        "--output",
+        "_build/.tmp/last-mile/test-ratchets.json",
+        "--fail-on-regression"
+      ],
+      "canonical_env": {},
+      "cwd": "/workspace/e02-D-published-champion/policy-engine",
+      "uncapped_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "tools/quality/testing/report_test_ratchets.py",
+        "--format",
+        "json",
+        "--output",
+        "_build/.tmp/last-mile/test-ratchets.json",
+        "--fail-on-regression"
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src:."
+      },
+      "removed_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "status": "UNRUN_PLAN_ONLY"
+    },
+    {
+      "group": "ci_addition",
+      "label": "check architecture phase6-1 report-only contracts",
+      "canonical_argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+        "run",
+        "python",
+        "tools/quality/validation/architecture_report_only_contracts.py",
+        "--report",
+        "phase6-1",
+        "--json-output",
+        "_build/.tmp/last-mile/architecture-phase6-1.json",
+        "--fail-on-contract-errors"
+      ],
+      "canonical_env": {},
+      "cwd": "/workspace/e02-D-published-champion/policy-engine",
+      "uncapped_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "tools/quality/validation/architecture_report_only_contracts.py",
+        "--report",
+        "phase6-1",
+        "--json-output",
+        "_build/.tmp/last-mile/architecture-phase6-1.json",
+        "--fail-on-contract-errors"
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src:."
+      },
+      "removed_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "status": "UNRUN_PLAN_ONLY"
+    },
+    {
+      "group": "ci_addition",
+      "label": "check validator module-size budget",
+      "canonical_argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+        "run",
+        "python",
+        "tools/quality/validation/architecture_report_only_contracts.py",
+        "--report",
+        "module-size",
+        "--json-output",
+        "_build/.tmp/last-mile/module-size.json",
+        "--fail-on-contract-errors"
+      ],
+      "canonical_env": {},
+      "cwd": "/workspace/e02-D-published-champion/policy-engine",
+      "uncapped_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "tools/quality/validation/architecture_report_only_contracts.py",
+        "--report",
+        "module-size",
+        "--json-output",
+        "_build/.tmp/last-mile/module-size.json",
+        "--fail-on-contract-errors"
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src:."
+      },
+      "removed_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "status": "UNRUN_PLAN_ONLY"
+    },
+    {
+      "group": "ci_addition",
+      "label": "report debt ledger reconciliation",
+      "canonical_argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+        "run",
+        "python",
+        "tools/quality/validation/check_debt_ledger.py",
+        "--check",
+        "--report-only"
+      ],
+      "canonical_env": {},
+      "cwd": "/workspace/e02-D-published-champion/policy-engine",
+      "uncapped_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "tools/quality/validation/check_debt_ledger.py",
+        "--check",
+        "--report-only"
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src:."
+      },
+      "removed_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "status": "UNRUN_PLAN_ONLY"
+    },
+    {
+      "group": "ci_addition",
+      "label": "check extension example installability",
+      "canonical_argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+        "run",
+        "python",
+        "tools/quality/validation/check_extension_examples.py"
+      ],
+      "canonical_env": {},
+      "cwd": "/workspace/e02-D-published-champion/policy-engine",
+      "uncapped_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "tools/quality/validation/check_extension_examples.py"
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src:."
+      },
+      "removed_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "status": "UNRUN_PLAN_ONLY",
+      "execution_blocker": "canonical tool installs into active interpreter and starts hidden pytest; writable overlay required, fresh PYTEST_ADDOPTS basetemp propagated to that single child; do not run this command with shared readonly locked interpreter"
+    },
+    {
+      "group": "ci_addition",
+      "label": "check ADR thematic index freshness",
+      "canonical_argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+        "run",
+        "python",
+        "tools/quality/validation/generate_adr_index.py",
+        "--check"
+      ],
+      "canonical_env": {},
+      "cwd": "/workspace/e02-D-published-champion/policy-engine",
+      "uncapped_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "tools/quality/validation/generate_adr_index.py",
+        "--check"
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src:."
+      },
+      "removed_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "status": "UNRUN_PLAN_ONLY"
+    },
+    {
+      "group": "ci_addition",
+      "label": "check docs accuracy",
+      "canonical_argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+        "run",
+        "--extra",
+        "docs",
+        "python",
+        "tools/quality/validation/check_docs_accuracy.py",
+        "--repo-root",
+        "."
+      ],
+      "canonical_env": {},
+      "cwd": "/workspace/e02-D-published-champion/policy-engine",
+      "uncapped_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "tools/quality/validation/check_docs_accuracy.py",
+        "--repo-root",
+        "."
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src:."
+      },
+      "removed_wrapper_numeric_caps": {},
+      "required_extra_profiles": [
+        "docs"
+      ],
+      "status": "UNRUN_PLAN_ONLY"
+    },
+    {
+      "group": "ci_addition",
+      "label": "build docs in strict mode",
+      "canonical_argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+        "run",
+        "--extra",
+        "docs",
+        "python",
+        "-m",
+        "mkdocs",
+        "build",
+        "--strict"
+      ],
+      "canonical_env": {},
+      "cwd": "/workspace/e02-D-published-champion/policy-engine",
+      "uncapped_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "-m",
+        "mkdocs",
+        "build",
+        "--strict"
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src:."
+      },
+      "removed_wrapper_numeric_caps": {},
+      "required_extra_profiles": [
+        "docs"
+      ],
+      "status": "UNRUN_PLAN_ONLY"
+    },
+    {
+      "group": "ci_addition",
+      "label": "check semantic docstring quality",
+      "canonical_argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+        "run",
+        "--extra",
+        "docs",
+        "python",
+        "tools/quality/validation/check_docstring_quality.py",
+        "--repo-root",
+        ".",
+        "--allowlist",
+        "tools/quality/validation/docstring_quality_allowlist.txt",
+        "--coverage-scope",
+        "public-surface",
+        "--minimum-coverage",
+        "85"
+      ],
+      "canonical_env": {},
+      "cwd": "/workspace/e02-D-published-champion/policy-engine",
+      "uncapped_argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "tools/quality/validation/check_docstring_quality.py",
+        "--repo-root",
+        ".",
+        "--allowlist",
+        "tools/quality/validation/docstring_quality_allowlist.txt",
+        "--coverage-scope",
+        "public-surface",
+        "--minimum-coverage",
+        "85"
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src:."
+      },
+      "removed_wrapper_numeric_caps": {},
+      "required_extra_profiles": [
+        "docs"
+      ],
+      "status": "UNRUN_PLAN_ONLY"
+    }
+  ],
+  "backend_command_count": 25,
+  "verify_backend_command_count": 14,
+  "ci_addition_command_count": 11,
+  "frontend_ci_skip_browser_plan": [
+    {
+      "group": "ci_frontend_skip_browser",
+      "label": "npm typecheck",
+      "canonical_argv": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "canonical_env": {},
+      "cwd": "/workspace/e02-D-published-champion/policy-engine/apps/runtime-dashboard",
+      "uncapped_argv": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src:."
+      },
+      "removed_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "status": "UNRUN_PLAN_ONLY"
+    },
+    {
+      "group": "ci_frontend_skip_browser",
+      "label": "npm lint",
+      "canonical_argv": [
+        "npm",
+        "run",
+        "lint"
+      ],
+      "canonical_env": {},
+      "cwd": "/workspace/e02-D-published-champion/policy-engine/apps/runtime-dashboard",
+      "uncapped_argv": [
+        "npm",
+        "run",
+        "lint"
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src:."
+      },
+      "removed_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "status": "UNRUN_PLAN_ONLY"
+    },
+    {
+      "group": "ci_frontend_skip_browser",
+      "label": "npm format check",
+      "canonical_argv": [
+        "npm",
+        "run",
+        "format:check"
+      ],
+      "canonical_env": {},
+      "cwd": "/workspace/e02-D-published-champion/policy-engine/apps/runtime-dashboard",
+      "uncapped_argv": [
+        "npm",
+        "run",
+        "format:check"
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src:."
+      },
+      "removed_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "status": "UNRUN_PLAN_ONLY"
+    },
+    {
+      "group": "ci_frontend_skip_browser",
+      "label": "npm architecture check",
+      "canonical_argv": [
+        "npm",
+        "run",
+        "check:architecture"
+      ],
+      "canonical_env": {},
+      "cwd": "/workspace/e02-D-published-champion/policy-engine/apps/runtime-dashboard",
+      "uncapped_argv": [
+        "npm",
+        "run",
+        "check:architecture"
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src:."
+      },
+      "removed_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "status": "UNRUN_PLAN_ONLY"
+    },
+    {
+      "group": "ci_frontend_skip_browser",
+      "label": "npm contract fixtures",
+      "canonical_argv": [
+        "npm",
+        "run",
+        "contracts:verify"
+      ],
+      "canonical_env": {},
+      "cwd": "/workspace/e02-D-published-champion/policy-engine/apps/runtime-dashboard",
+      "uncapped_argv": [
+        "npm",
+        "run",
+        "contracts:verify"
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src:."
+      },
+      "removed_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "status": "UNRUN_PLAN_ONLY"
+    },
+    {
+      "group": "ci_frontend_skip_browser",
+      "label": "npm coverage",
+      "canonical_argv": [
+        "npm",
+        "run",
+        "test:coverage"
+      ],
+      "canonical_env": {},
+      "cwd": "/workspace/e02-D-published-champion/policy-engine/apps/runtime-dashboard",
+      "uncapped_argv": [
+        "npm",
+        "run",
+        "test:coverage"
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src:."
+      },
+      "removed_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "status": "UNRUN_PLAN_ONLY"
+    },
+    {
+      "group": "ci_frontend_skip_browser",
+      "label": "npm build",
+      "canonical_argv": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "canonical_env": {},
+      "cwd": "/workspace/e02-D-published-champion/policy-engine/apps/runtime-dashboard",
+      "uncapped_argv": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src:."
+      },
+      "removed_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "status": "UNRUN_PLAN_ONLY"
+    },
+    {
+      "group": "ci_frontend_skip_browser",
+      "label": "npm build-storybook",
+      "canonical_argv": [
+        "npm",
+        "run",
+        "build-storybook"
+      ],
+      "canonical_env": {},
+      "cwd": "/workspace/e02-D-published-champion/policy-engine/apps/runtime-dashboard",
+      "uncapped_argv": [
+        "npm",
+        "run",
+        "build-storybook"
+      ],
+      "env_overrides": {
+        "PYTHONPATH": "src:."
+      },
+      "removed_wrapper_numeric_caps": {},
+      "required_extra_profiles": [],
+      "status": "UNRUN_PLAN_ONLY"
+    }
+  ],
+  "frontend_command_count": 8,
+  "doctor_preflight": {
+    "canonical_verify_argv": [
+      "/workspace/e02-D-locked-env/bin/python",
+      "-m",
+      "tools.devx.workspace.doctor",
+      "--skip-contract-checks"
+    ],
+    "canonical_ci_argv": [
+      "/workspace/e02-D-locked-env/bin/python",
+      "-m",
+      "tools.devx.workspace.doctor"
+    ],
+    "status": "UNRUN; expand internals below to avoid hidden uv run sync and shared interpreter mutation",
+    "steps": [
+      {
+        "label": "Python baseline",
+        "argv": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "--version"
+        ],
+        "criterion": "Python3.14.x"
+      },
+      {
+        "label": "Node baseline",
+        "argv": [
+          "node",
+          "--version"
+        ],
+        "criterion": "Node22.x; prepend actual approved Node22 bin to PATH"
+      },
+      {
+        "label": "uv baseline",
+        "argv": [
+          "uv",
+          "--version"
+        ],
+        "criterion": "uv0.9.21",
+        "observed": "uv 0.12.19 (x86_64-unknown-linux-gnu)",
+        "result": "FAIL baseline version mismatch in actual version probe; doctor itself not run"
+      },
+      {
+        "label": "Chromium launch even backend-only or skip-browser",
+        "cwd": "/workspace/e02-D-published-champion/policy-engine/apps/runtime-dashboard",
+        "argv": [
+          "node",
+          "-e",
+          "const { chromium } = require(\"playwright\");\n(async () => {\n  const browser = await chromium.launch({ headless: true });\n  await browser.close();\n})().catch((error) => {\n  console.error(error);\n  process.exit(1);\n});"
+        ],
+        "requirement": "installed playwright JS and downloaded native Chromium; skip-browser only skips parity browser suites, not doctor"
+      },
+      {
+        "label": "lockfile check",
+        "argv": [
+          "uv",
+          "lock",
+          "--check"
+        ],
+        "cwd": "/workspace/e02-D-published-champion/policy-engine",
+        "requirement": "canonical uv version, permitted network/offline caches"
+      },
+      {
+        "label": "pnpm lock check",
+        "argv": [
+          "corepack",
+          "pnpm",
+          "install",
+          "--frozen-lockfile",
+          "--lockfile-only",
+          "--ignore-scripts"
+        ],
+        "cwd": "/workspace/e02-D-published-champion/policy-engine",
+        "effect": "canonical doctor lockfile-only verification; not checkout hook provisioning"
+      }
+    ],
+    "ci_generated_contracts": [
+      {
+        "argv": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "tools/quality/diagnostics/gen_schema.py",
+          "--check"
+        ],
+        "profiles": [
+          "ml"
+        ]
+      },
+      {
+        "argv": [
+          "/workspace/e02-D-locked-env/bin/python",
+          "tools/ops_runners/runtime/check_runtime_api_contract.py"
+        ],
+        "profiles": [
+          "runtime",
+          "ml"
+        ]
+      },
+      {
+        "argv": [
+          "corepack",
+          "pnpm",
+          "run",
+          "contracts:verify"
+        ],
+        "cwd": "/workspace/e02-D-published-champion/policy-engine/apps/runtime-dashboard"
+      }
+    ],
+    "optional_surfaces": "empty by source default; credentials, DSNs, signing services and owner inputs not silently required or printed"
+  },
+  "environment": {
+    "locked_interpreter": "/workspace/e02-D-locked-env/bin/python",
+    "shared_locked_environment": "read-only, no uv sync/pip install into it",
+    "versions_observed": {
+      "python": "Python 3.14.7",
+      "uv": "uv 0.12.19 (x86_64-unknown-linux-gnu)",
+      "node22": "v22.23.3"
+    },
+    "distribution_metadata_availability": {
+      "mkdocs": null,
+      "mkdocs-material": null,
+      "mkdocstrings": null,
+      "scikit-learn": "1.8.0",
+      "lifelines": null,
+      "mapie": null,
+      "pytest": "9.0.2",
+      "pytest-xdist": "3.8.0",
+      "pytest-benchmark": "5.2.3",
+      "torch": "2.10.0",
+      "botorch": "0.16.1",
+      "gpytorch": "1.15.1",
+      "hnswlib": "0.8.0",
+      "jax": "0.8.2",
+      "scipy": "1.16.3",
+      "fastapi": "0.128.6",
+      "PyJWT": "2.11.0",
+      "pip": null
+    },
+    "availability_scope": "installed metadata only, not proof backend execution or complete test capability",
+    "required_declared_profiles": {
+      "lint": [
+        "basedpyright>=1.34.0",
+        "mypy>=1.19.1",
+        "pre-commit>=4.5.1",
+        "ruff>=0.14.10",
+        "types-requests>=2.32.4.20250913"
+      ],
+      "test": [
+        "pytest>=7.4.0",
+        "pytest-asyncio>=0.23.0",
+        "pytest-benchmark>=4.0.0",
+        "pytest-xdist>=3.6.1",
+        "hypothesis>=6.0.0",
+        "jsonschema[format-nongpl]>=4.25.1",
+        "rdflib>=7.0.0",
+        "policy-engine[runtime-http]"
+      ],
+      "runtime": [
+        "policy-engine[runtime-http]",
+        "policy-engine[observability]",
+        "policy-engine[structured-logging]"
+      ],
+      "runtime-http": [
+        "fastapi>=0.109.0",
+        "uvicorn[standard]>=0.27.0",
+        "httpx>=0.27.0",
+        "PyJWT>=2.8.0"
+      ],
+      "ml": [
+        "scikit-learn>=1.6.0",
+        "lifelines>=0.30.0",
+        "mapie>=1.0.0"
+      ],
+      "docs": [
+        "mkdocs>=1.6.0",
+        "mkdocs-material>=9.6.0",
+        "mkdocstrings[python]>=0.30.0"
+      ],
+      "search_bo": [
+        "torch>=2.0.0",
+        "gpytorch>=1.11",
+        "botorch>=0.9.0",
+        "linear_operator>=0.5.0",
+        "scipy>=1.10.0"
+      ],
+      "search_mo": [
+        "torch>=2.0.0",
+        "gpytorch>=1.11",
+        "botorch>=0.9.0",
+        "linear_operator>=0.5.0",
+        "scipy>=1.10.0"
+      ],
+      "vector-search": [
+        "hnswlib==0.8.0"
+      ]
+    },
+    "node_path_prefix": "/home/agent/.npm/_npx/52027bd8fc0022aa/node_modules/node/bin",
+    "native_requirements": [
+      "actual Torch/BoTorch/GPyTorch CPU for numeric search consumers",
+      "hnswlib native extension for vector consumers",
+      "JAX/scipy numeric dependencies for full selected tests; availability is not witness",
+      "Node22/corepack/pnpm workspace installed, generated TS client/source binders",
+      "Chromium+Playwright for literal doctor even with skip-browser",
+      "writable isolated parity overlay for canonical editable extension installer"
+    ],
+    "missing_profile_dependencies": [
+      "mkdocs",
+      "mkdocs-material",
+      "mkdocstrings",
+      "lifelines",
+      "mapie"
+    ]
+  },
+  "test_scope": {
+    "full_fast_backend": "all pytest.ini tests testpaths under source tree, -m not integration, ignore tests/unit/runtime/http; no filename cap, no worker/numerical cap added",
+    "full_ci_http": "tests/unit/runtime/http in separate uncapped child",
+    "benchmark_branch": "default pytest-workers None includes nonintegration benchmarks in same fast run. Optional canonical parallel branch splits nonbenchmark -n auto/worksteal and benchmark; not selected by default plan",
+    "preserve_configuration": "retain pytest.ini addopts/import-mode/strict-markers/benchmark-storage; add only unique basetemp",
+    "excluded_by_construction": [
+      "integration-marked tests in fast gate",
+      "browser suite commands when skip-browser explicitly selected",
+      "optional e2e smoke/visual commands disabled by source default"
+    ],
+    "possible_skips": "optional absent backend/service skips remain SKIP/UNRUN, never scientific PASS"
+  },
+  "execution_order": "freeze source first; run full fast backend once. If source/cwd/env/selectors/config/input bytes identical, reuse that same execution for verify and ci-parity nested fast gate instead of duplicate full suite; keep all distinct ci additions and surface checks. Root owns final combined freeze and execution.",
+  "extension_overlay": {
+    "authorized_path": "/dev/shm/e02-D-parity-env",
+    "creation": "fresh nonexistent environment only; no checkout/worktree created",
+    "proposed_creator": [
+      "/workspace/e02-D-locked-env/bin/python",
+      "-m",
+      "venv",
+      "--without-pip",
+      "/dev/shm/e02-D-parity-env"
+    ],
+    "sitepackages_bridge": ".pth points to read-only locked site-packages; overlay sysconfig.purelib asserted and active imports/version/hash checks required",
+    "installer": "canonical _install_editable uses overlay python -m pip if available, otherwise uv pip install --python overlay --no-deps -e exact example path; do not substitute production gate",
+    "child_pytest": "canonical installer contains one run_example_tests subprocess; PYTEST_ADDOPTS fresh nonexistent --basetemp supplies that child without patching pytest. If any additional pytest call is discovered, allocate one fresh per child and refuse reuse.",
+    "status": "authorized concept; creation/install/discovery pending; no PASS implied",
+    "cleanup": "preserve environment/source/logs/fixture basetemp; list automatic tool cleanup honestly if any"
+  },
+  "limitations": [
+    "This is a source-derived subprocess plan, not full wrapper execution or broad runtime acceptance.",
+    "uv0.12.19 actual available tool violates source-pinned0.9.21 doctor prerequisite; needs admitted canonical tool.",
+    "Missing docs/ml packages require separately provisioned supported profile before complete corresponding gates. Direct locked command avoids sync, it does not erase required dependencies.",
+    "Editable install cannot mutate shared lockedenv. Full install/discovery/smoke gate waits root freeze; environmental overlay acceptance is separate.",
+    "Generated check tools may write ignored outputs and ordinary installers may internally clean transient build directories; no universal preservation claim without measured lifecycle.",
+    "No deployed services, credentials, live branch protection, authority appointment, or production corpus is supplied by this plan."
+  ]
+}

@@ -76,6 +76,15 @@ def test_legacy_search_service_adapter_exposes_ask_tell() -> None:
     assert result.best_candidate == proposals[0].payload
     assert result.best_objective == 1.0
 
+    retained_tell = result.model_dump(mode="python")
+    run = adapter.run_search(initial_context={"run_id": "R_contract_full"})
+    assert run.iterations_completed == run.stage_a_evaluations == run.stage_b_evaluations == 1
+    assert len(run.history) == 1
+    assert run.history[0].candidate == proposals[0].payload
+    assert run.history[0].objective_value == run.best_objective == 1.0
+    assert run.best_candidate == proposals[0].payload
+    assert result.model_dump(mode="python") == retained_tell
+
 
 def test_orchestrator_funnel_service_submits_and_reads_outcome() -> None:
     stage = MagicMock(spec=FunnelStage)

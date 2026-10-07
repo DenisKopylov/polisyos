@@ -1,0 +1,54 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "-o",
+    "junit_family=xunit1",
+    "-o",
+    "junit_logging=all",
+    "-o",
+    "junit_log_passing_tests=true",
+    "--basetemp",
+    "/dev/shm/e02-D-transfer-empty4-viekcqkp/basetemp",
+    "--junitxml",
+    "/dev/shm/e02-D-transfer-empty4-viekcqkp/junit.xml",
+    "-q",
+    "tests/unit/scientist/agent/test_vector_generation_consumer.py::test_persisted_empty_transfer_history_is_not_a_rejected_or_unavailable_intake"
+  ],
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "source": "79b943d221f46b2cc94eff06cdfdc714efe5a0e0",
+  "tree": "1a9f14f84e66f09c830134e2a6ee3e3f15e2b3cc",
+  "status_porcelain": "",
+  "mode": "empty4",
+  "environment_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "TMPDIR": "/dev/shm/e02-D-transfer-empty4-viekcqkp/tmp",
+    "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine"
+  },
+  "inputs": {
+    "policy-engine/tests/unit/scientist/agent/test_vector_generation_consumer.py": "31b30704d68690c610761371b25a750f9f1efbf3",
+    "policy-engine/tests/unit/scientist/agent/vector_generation_reader.py": "02a9e2074bdbfea3f57bcd950c6953a387cb6408",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py": "1a7e97f9b558f1a27c6977661b6797fcbbb38278",
+    "policy-engine/src/polisyos/scientist/agent/vector_memory.py": "3e68ab919b915427300869d6b378d12f585d1f00",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py": "078d61b349147d0542e6012c49fcf205d09c0c0f",
+    "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py": "40532c3c0d20eb8e64ea3b1589c7a1cbae5dedd6",
+    "policy-engine/src/polisyos/core/artifacts/store.py": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+    "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py": "0e5cab25d5ddeb168c520afcdd88c7b8c215f257"
+  },
+  "fixture_inputs": [
+    {
+      "path": "/dev/shm/e02-D-transfer-empty-intake-w7x85jux/run_frozen_checks.py",
+      "sha256": "d39003c609bef48316af4e14a12f86a65f3ef146ba314d8545cbabad5914ce44",
+      "bytes": 6683
+    }
+  ],
+  "backend_profile": "actual HNSW0.8.0, NumPy2.3.5, Python3.14.7 locked environment; ordinary FileSystemCAS exact refs",
+  "seed_inputs": "Native default100, original deterministic measured2 donor rows; explicit empty/invalid/unsupported codec controls or ordinary1002 discovery snapshots, no production or scientific authority",
+  "compute_limits_introduced": false,
+  "classification": "current_D_persisted_intake_control",
+  "accepted_in_G": false,
+  "start_utc": "2026-10-07T08:58:59.624234+00:00"
+}

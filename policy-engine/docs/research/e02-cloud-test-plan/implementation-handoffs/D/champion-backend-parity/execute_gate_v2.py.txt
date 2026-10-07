@@ -1,0 +1,115 @@
+"""Execute one exact source-derived gate, preserving output and observed boundaries."""
+import fcntl
+import hashlib
+import json
+import os
+import subprocess
+import resource
+import sys
+import time
+from datetime import datetime, timezone
+from pathlib import Path
+
+scratch=Path('/dev/shm/e02-D-backend-parity-review')
+plan_path=Path(sys.argv[1])
+key=sys.argv[2]
+plan=json.loads(plan_path.read_text())
+assert plan['status']=='FROZEN_READY', 'No execution before explicit root freeze'
+row=next(x for x in plan['execution_gates'] if x['id']==key)
+root=Path(plan['repo_root'])
+product=root/'policy-engine'
+python='/dev/shm/e02-D-parity-env/bin/python'
+run=scratch/'results-v2'/key
+assert not run.exists(), 'Never replace a deciding execution'
+run.mkdir(parents=True)
+locks=scratch/'locks'
+locks.mkdir(exist_ok=True)
+
+def save(name,value):
+    (run/name).write_text(json.dumps(value,indent=2)+'\n')
+def git(*args):
+    return subprocess.check_output(['/usr/bin/git','--no-optional-locks','-C',str(root),*args]).decode()
+def source_state():
+    return {'head':git('rev-parse','HEAD').strip(),'tree':git('rev-parse','HEAD^{tree}').strip(),'tracked_status':git('status','--porcelain','--untracked-files=no'),'tracked_diff':git('diff','--binary','HEAD')}
+def host_state():
+    value={'observed_at':datetime.now(timezone.utc).isoformat()}
+    for name,path in {'cgroup_memory_events':'/sys/fs/cgroup/memory.events','cgroup_memory_current':'/sys/fs/cgroup/memory.current','cgroup_memory_max':'/sys/fs/cgroup/memory.max'}.items():
+        p=Path(path)
+        value[name]=p.read_text() if p.exists() else None
+    value['physical_memory']={line.split(':',1)[0]:line.split(':',1)[1].strip() for line in Path('/proc/meminfo').read_text().splitlines() if line.split(':',1)[0] in {'MemTotal','MemAvailable','SwapTotal','SwapFree'}}
+    return value
+
+handles=[]
+# Only actual contended state is locked, not a process/CPU/test-worker quota.
+for name,mode in row.get('resource_locks',[]):
+    handle=(locks/(name+'.lock')).open('a+')
+    fcntl.flock(handle,fcntl.LOCK_EX if mode=='exclusive' else fcntl.LOCK_SH)
+    handles.append(handle)
+
+before=source_state()
+save('source-before.json',before)
+assert before['head']==plan['frozen_sha'] and before['tree']==plan['frozen_tree']
+assert before['tracked_status']=='' and before['tracked_diff']==''
+
+env=dict(os.environ)
+env.update({'PYTHONDONTWRITEBYTECODE':'1','PYTHONPATH':str(product/'src')+':'+str(product),'PATH':'/dev/shm/e02-D-parity-env/bin:/home/agent/.npm/_npx/52027bd8fc0022aa/node_modules/node/bin:'+env.get('PATH',''),'UV_CACHE_DIR':'/dev/shm/e02-D-parity-uv-cache'})
+cap_names=['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS','VECLIB_MAXIMUM_THREADS','BLIS_NUM_THREADS','POLISYOS_PYTEST_WORKERS','POLISYOS_PYTEST_DIST','POLISYOS_TORCH_NUM_THREADS','POLISYOS_TORCH_INTEROP_THREADS','XLA_FLAGS']
+caps={name:env.get(name) for name in cap_names}
+assert all(caps[name] is None for name in cap_names[:6]), 'Do not silently execute a capped child'
+assert env.get('PYTEST_ADDOPTS','')=='', 'Do not import unreviewed selector/config overrides'
+if row.get('fresh_basetemp'):
+    base=Path(row['fresh_basetemp'])
+    assert not base.exists(), 'Never reuse --basetemp; pytest would delete it'
+if row.get('child_pytest_basetemp'):
+    base=Path(row['child_pytest_basetemp'])
+    assert not base.exists(), 'Never reuse child --basetemp'
+    env['PYTEST_ADDOPTS']='--basetemp='+str(base)
+if row.get('preserve_absent_site'):
+    assert not (product/'_build/site').exists(), 'Existing docs site must be preserved; request new explicit path instead of allowing clean'
+
+artifacts=[]
+for relative in row.get('output_paths',[]):
+    p=product/relative
+    if p.is_file():
+        data=p.read_bytes()
+        backup=run/'before-artifacts'/relative
+        backup.parent.mkdir(parents=True,exist_ok=True)
+        backup.write_bytes(data)
+        artifacts.append({'path':relative,'before_rawfile_sha256':hashlib.sha256(data).hexdigest(),'bytes':len(data),'backup':str(backup)})
+    elif p.exists():
+        artifacts.append({'path':relative,'preexisting_kind':'directory','action':'No removal or replacement by runner; exact canonical tool owns normal output lifecycle.'})
+    else:
+        artifacts.append({'path':relative,'before':'absent'})
+save('artifact-before.json',artifacts)
+
+record={'id':key,'label':row['label'],'started_at':datetime.now(timezone.utc).isoformat(),'argv':row['argv'],'cwd':row.get('cwd',str(product)),'env':{name:env.get(name) for name in ['PYTHONPATH','PYTHONDONTWRITEBYTECODE','UV_CACHE_DIR','PYTEST_ADDOPTS']},'numeric_and_worker_env':caps,'source_before':before,'host_before':host_state(),'resource_locks':row.get('resource_locks',[]),'fresh_basetemp':row.get('fresh_basetemp'),'child_pytest_basetemp':row.get('child_pytest_basetemp'),'basetemp_existed_before':False if row.get('fresh_basetemp') or row.get('child_pytest_basetemp') else None,'status':'RUNNING'}
+save('record.json',record)
+start=time.monotonic()
+try:
+    with (run/'complete.txt').open('wb') as output:
+        process=subprocess.Popen(row['argv'],cwd=row.get('cwd',str(product)),env=env,stdin=subprocess.DEVNULL,stdout=output,stderr=subprocess.STDOUT)
+        record['pid']=process.pid
+        save('record.json',record)
+        code=process.wait()
+    record.update(exit_code=code,wall_seconds=time.monotonic()-start,finished_at=datetime.now(timezone.utc).isoformat(),status='PASS' if code==0 else 'NONZERO; attribution not_established until output reviewed')
+except OSError as exc:
+    record.update(exit_code=None,wall_seconds=time.monotonic()-start,finished_at=datetime.now(timezone.utc).isoformat(),status='ERROR environment/launcher',error=repr(exc))
+usage=resource.getrusage(resource.RUSAGE_CHILDREN)
+save('resource-complete.json',{'method':'stdlib resource.getrusage(RUSAGE_CHILDREN); no resource limits imposed','ru_utime':usage.ru_utime,'ru_stime':usage.ru_stime,'ru_maxrss_kib_linux':usage.ru_maxrss,'ru_majflt':usage.ru_majflt,'ru_minflt':usage.ru_minflt,'ru_inblock':usage.ru_inblock,'ru_oublock':usage.ru_oublock,'ru_nvcsw':usage.ru_nvcsw,'ru_nivcsw':usage.ru_nivcsw})
+record['host_after']=host_state()
+record['source_after']=source_state()
+record['source_unchanged']=record['source_after']==before
+if not record['source_unchanged']:
+    record['status']='SOURCE_CHANGED; cannot claim exact frozen-source check'
+save('source-after.json',record['source_after'])
+for relative in row.get('output_paths',[]):
+    p=product/relative
+    if p.is_file():
+        data=p.read_bytes()
+        dest=run/'artifacts'/relative
+        dest.parent.mkdir(parents=True,exist_ok=True)
+        dest.write_bytes(data)
+record['retained_outputs']=[{'path':str(p),'bytes':p.stat().st_size,'rawfile_sha256':hashlib.sha256(p.read_bytes()).hexdigest()} for p in run.rglob('*') if p.is_file() and p.name not in {'record.json'}]
+save('record.json',record)
+print(json.dumps({key:record['status'],'exit_code':record['exit_code'],'wall_seconds':record['wall_seconds'],'source_unchanged':record['source_unchanged']}),flush=True)
+raise SystemExit(0 if record.get('exit_code')==0 and record['source_unchanged'] else 1)

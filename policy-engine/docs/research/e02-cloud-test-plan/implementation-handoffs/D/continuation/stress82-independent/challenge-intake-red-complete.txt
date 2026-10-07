@@ -1,0 +1,103 @@
+FFFFFF                                                                   [100%]
+=================================== FAILURES ===================================
+__________ test_actual_case_intake_refuses_before_boolean_coercion[1] __________
+
+malformed = 1
+
+    @pytest.mark.parametrize("malformed", [1, "false", float("nan"), float("inf")])
+    def test_actual_case_intake_refuses_before_boolean_coercion(malformed: object) -> None:
+>       with pytest.raises(TypeError, match="passed.*bool"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'TypeError'>
+
+tests/unit/scientist/search/test_challenge_scenario_projection.py:176: Failed
+________ test_actual_case_intake_refuses_before_boolean_coercion[false] ________
+
+malformed = 'false'
+
+    @pytest.mark.parametrize("malformed", [1, "false", float("nan"), float("inf")])
+    def test_actual_case_intake_refuses_before_boolean_coercion(malformed: object) -> None:
+>       with pytest.raises(TypeError, match="passed.*bool"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'TypeError'>
+
+tests/unit/scientist/search/test_challenge_scenario_projection.py:176: Failed
+_________ test_actual_case_intake_refuses_before_boolean_coercion[nan] _________
+
+malformed = nan
+
+    @pytest.mark.parametrize("malformed", [1, "false", float("nan"), float("inf")])
+    def test_actual_case_intake_refuses_before_boolean_coercion(malformed: object) -> None:
+>       with pytest.raises(TypeError, match="passed.*bool"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'TypeError'>
+
+tests/unit/scientist/search/test_challenge_scenario_projection.py:176: Failed
+_________ test_actual_case_intake_refuses_before_boolean_coercion[inf] _________
+
+malformed = inf
+
+    @pytest.mark.parametrize("malformed", [1, "false", float("nan"), float("inf")])
+    def test_actual_case_intake_refuses_before_boolean_coercion(malformed: object) -> None:
+>       with pytest.raises(TypeError, match="passed.*bool"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'TypeError'>
+
+tests/unit/scientist/search/test_challenge_scenario_projection.py:176: Failed
+____ test_ten_same_issue_case_occurrences_remain_ten_after_presentation[1] _____
+
+cap = 1
+tmp_path = PosixPath('/dev/shm/e02-D-challenge-intake-red-444f90539ddb472c9e64585bcfc81e43/test_ten_same_issue_case_occur0')
+
+    @pytest.mark.parametrize("cap", [1, 10])
+    def test_ten_same_issue_case_occurrences_remain_ten_after_presentation(
+        cap: int, tmp_path: Path
+    ) -> None:
+        from polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime import (
+            _recompute_stress_test_report,
+        )
+    
+        report = _suite(
+            FileSystemCAS(tmp_path / "cas"), [_case(i, i < 22) for i in range(32)]
+        ).stress_test_report
+>       assert report is not None and report.scenario_evidence is not None
+E       AssertionError: assert (StressTestReport(schema_version='1.0', report_id='stress_strategic_gaming_v1_loop', total_scenarios_evaluated=32, adve...gaming_v1', 'challenge_family_counts': {'strategic': 32}, 'blocking_failure_count': 10, 'derived_from_phase_d4': True}) is not None and None is not None)
+E        +  where None = StressTestReport(schema_version='1.0', report_id='stress_strategic_gaming_v1_loop', total_scenarios_evaluated=32, adve...gaming_v1', 'challenge_family_counts': {'strategic': 32}, 'blocking_failure_count': 10, 'derived_from_phase_d4': True}).scenario_evidence
+
+tests/unit/scientist/search/test_challenge_scenario_projection.py:197: AssertionError
+____ test_ten_same_issue_case_occurrences_remain_ten_after_presentation[10] ____
+
+cap = 10
+tmp_path = PosixPath('/dev/shm/e02-D-challenge-intake-red-444f90539ddb472c9e64585bcfc81e43/test_ten_same_issue_case_occur1')
+
+    @pytest.mark.parametrize("cap", [1, 10])
+    def test_ten_same_issue_case_occurrences_remain_ten_after_presentation(
+        cap: int, tmp_path: Path
+    ) -> None:
+        from polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime import (
+            _recompute_stress_test_report,
+        )
+    
+        report = _suite(
+            FileSystemCAS(tmp_path / "cas"), [_case(i, i < 22) for i in range(32)]
+        ).stress_test_report
+>       assert report is not None and report.scenario_evidence is not None
+E       AssertionError: assert (StressTestReport(schema_version='1.0', report_id='stress_strategic_gaming_v1_loop', total_scenarios_evaluated=32, adve...gaming_v1', 'challenge_family_counts': {'strategic': 32}, 'blocking_failure_count': 10, 'derived_from_phase_d4': True}) is not None and None is not None)
+E        +  where None = StressTestReport(schema_version='1.0', report_id='stress_strategic_gaming_v1_loop', total_scenarios_evaluated=32, adve...gaming_v1', 'challenge_family_counts': {'strategic': 32}, 'blocking_failure_count': 10, 'derived_from_phase_d4': True}).scenario_evidence
+
+tests/unit/scientist/search/test_challenge_scenario_projection.py:197: AssertionError
+=============================== warnings summary ===============================
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/search/test_challenge_scenario_projection.py::test_actual_case_intake_refuses_before_boolean_coercion[1]
+FAILED tests/unit/scientist/search/test_challenge_scenario_projection.py::test_actual_case_intake_refuses_before_boolean_coercion[false]
+FAILED tests/unit/scientist/search/test_challenge_scenario_projection.py::test_actual_case_intake_refuses_before_boolean_coercion[nan]
+FAILED tests/unit/scientist/search/test_challenge_scenario_projection.py::test_actual_case_intake_refuses_before_boolean_coercion[inf]
+FAILED tests/unit/scientist/search/test_challenge_scenario_projection.py::test_ten_same_issue_case_occurrences_remain_ten_after_presentation[1]
+FAILED tests/unit/scientist/search/test_challenge_scenario_projection.py::test_ten_same_issue_case_occurrences_remain_ten_after_presentation[10]
+RUNTIME_ENVIRONMENT={"executable": "/workspace/e02-D-locked-env/bin/python", "exit_code": 1, "modules": [{"module": "polisyos.scientist.methods.backtesting.adversarial", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/backtesting/adversarial.py", "sha256": "26b16eedb5fc8629931a5cae7fa44b4425b2c360114134c6bc6331fe2cb19496"}, {"module": "polisyos.scientist.methods.doe.designs", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/designs.py", "sha256": "2cdff56bdd7641bea47efe0bfb57677039389a72975e749c51089d4d5513586e"}, {"module": "polisyos.scientist.methods.doe.stress_report", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/stress_report.py", "sha256": "06c96057208cfce3380f8db6c18374ead2d79e6d60c60866566f2336232d2cd9"}, {"module": "polisyos.scientist.methods.doe.sampling", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/doe/sampling.py", "sha256": "a8d629515b316b48055b763da9eede1a620769f0423890a61d15b09d8bfc3d8e"}, {"module": "polisyos.scientist.methods.search.adversarial", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/search/adversarial.py", "sha256": "a00f99197074360a8ec969d671180e01a57ffde37126f78addbba938b74698b1"}, {"module": "polisyos.scientist.policy_design.adversary", "path": null, "sha256": null}, {"module": "polisyos.scientist.nodes.builtins.decide.run_policy_blueprint_runtime", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py", "sha256": "0fb75594a07be36d29c3a5fba4057b0136946c806dffbdfe4b11075400616450"}, {"module": "polisyos.scientist.methods.search.funnel.level5_refutation_governance", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/search/funnel/level5_refutation_governance.py", "sha256": "f2e4ae18185eda455a714719f6596419143cc70587af7dee3ba4ca9f728550b4"}, {"module": "polisyos.scientist.methods.search.funnel.orchestrator", "path": "/workspace/e02-D-published-stress/policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py", "sha256": "693f7646f03267b772284f003c3da3b2550e0be7f31d85b1a036fe902e506aff"}], "pydantic": "2.12.5", "pytest": "9.0.2", "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]"}

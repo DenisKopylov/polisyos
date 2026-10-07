@@ -1,0 +1,85 @@
+import ast, hashlib, json, os, shutil, subprocess, xml.etree.ElementTree as ET
+from pathlib import Path
+repo=Path('/workspace/e02-D-published-search'); product=repo/'policy-engine'
+base='96eb9b9fb7f2acfa872dc741cbfdd96949c5d203'; candidate='83b87b845210bdb579f47b4cc2418a3d9804e2fe'
+def git(*args): return subprocess.check_output(['git',*args],cwd=repo,text=True).strip()
+def digest(p): return hashlib.sha256(p.read_bytes()).hexdigest()
+def dump(p,v): p.parent.mkdir(parents=True,exist_ok=True);p.write_text(json.dumps(v,indent=2)+'\n')
+root=product/'docs/research/e02-cloud-test-plan/implementation-handoffs/D'
+evidence=root/'checks/search-generator-continuation'; evidence.mkdir(parents=True,exist_ok=True)
+rows=[
+('bde-wrapper13','search-generator-final-cc6b9f2a73484350bff628fdedfdc280','PASS','Historical wrapper plus actual CAS workflow, before fitted-row association fix'),
+('dfe-current14','search-generator-current-b41d458110664a07b952a42bbf30f992','PASS','Bounded current-row reader proof; alias control below falsified complete fitted association'),
+('alias-preparation-error','search-generator-id-binding-9e30d3e15807428faf4a5c1ede269e95','UNRUN','Capture preparation FileNotFoundError hashing a selector containing ::testname; no pytest child'),
+('dfe-alias-red','search-generator-id-binding-d54a9c4c11094edfa6631eceb1ae1b9e','FAIL','Real fitted8 checkpoint accepts coherent aliased ID with unchanged tensors/model; exact uncommitted defining input bytes preserved'),
+('d38-native34','search-fitted-source-final-d918ab80f4324f228d84574ea10d02a2','PASS','Canonical ordered fitted source-row reconciliation; actual native/CAS/resume/scalar/serialization consumers'),
+('672-scalar7','search-scalar-final-fd74554aaf16461c9b5e2af9dc50d0fe','PASS','Actual batch invalid scalar omission, remaining valid rows retained; JSON int/float domain preserved'),
+('672-property-removal','search-fitted-association-removal-706671f68a744c9fbd4aa634653e6cb5','FAIL','FAIL_AS_REQUIRED: child-only reconciliation removal accepts distinct-ID permutation with model/hash/markers retained'),
+('350-native-append-unrun','search-native-source-final-bf0aa956f6b7466383c94c78c7414317','ERROR','SIGKILL -9 before output/JUnit/origin verdict; appended direct-native same-CAS-corruption assertion UNRUN'),
+('672-quality-history','search-generator-quality-672','ERROR','Initial capture AssertionError had no saved subprocess stdout/result; later saved Ruff outputs are bounded separate checks'),
+]
+checks=[]
+for label,folder,outcome,meaning in rows:
+    source=Path('/workspace/e02-D2-receipts')/folder; target=evidence/label;target.mkdir(exist_ok=True)
+    files=[]
+    for p in sorted(source.iterdir()):
+        if not p.is_file(): continue
+        name=p.name+'.txt' if p.suffix=='.py' else p.name
+        dst=target/name;shutil.copyfile(p,dst)
+        files.append({'path':str(dst.relative_to(repo)),'sha256':digest(dst),'bytes':dst.stat().st_size})
+    row={'id':label,'outcome':outcome,'meaning':meaning,'files':files}
+    if (source/'run.json').exists():
+        run=json.loads((source/'run.json').read_text());row.update({k:run[k] for k in ['source_sha','source_tree','argv','environment_overrides','cwd','returncode','wall_seconds','source_after','status_after','output_sha256'] if k in run})
+    if (source/'junit.xml').exists():
+        xml=ET.parse(source/'junit.xml').getroot();suites=xml.findall('.//testsuite');row['junit']={k:sum(int(s.get(k,'0')) for s in suites) for k in ['tests','failures','errors','skipped']}
+    checks.append(row)
+# Preserve actual capture errors with no fabricated timestamp/backend verdict.
+for label,error in [('alias-preparation-error','FileNotFoundError before pytest while hashing selector path containing ::testname; exact traceback was tool-reported but not retained in scratch. Predicate basis not_established for traceback bytes. No child existed.'),('672-quality-history','Traceback (most recent call last):\n  File "<stdin>", line 11, in <module>\nAssertionError\nTool-reported error transcribed; subprocess identity/result/stdout were not persisted. No inherited-red attribution.')]:
+    p=evidence/label/'capture-error-transcription.txt';p.write_text(error+'\n');checks[[r['id'] for r in checks].index(label)]['files'].append({'path':str(p.relative_to(repo)),'sha256':digest(p),'bytes':p.stat().st_size})
+p=evidence/'created-helper-preserved.txt';shutil.copyfile('/workspace/e02-D2-receipts/search-created-common-numeric-source.txt',p)
+# Fresh light quality gates, no Torch parent/import.
+quality=evidence/'83-quality';quality.mkdir(exist_ok=True)
+paths=git('diff','--name-only',base,candidate,'--','*.py').splitlines(); owned=[p.removeprefix('policy-engine/') for p in paths]
+for name,args in [('ruff-check',['check']),('ruff-format',['format','--check'])]:
+    argv=['/workspace/e02-D-locked-env/bin/python','-B','-m','ruff',*args,*owned]
+    child=subprocess.run(argv,cwd=product,stdout=subprocess.PIPE,stderr=subprocess.STDOUT)
+    log=quality/(name+'.txt');log.write_bytes(child.stdout)
+    dump(quality/(name+'.json'),{'target_sha':candidate,'argv':argv,'returncode':child.returncode,'output_sha256':digest(log),'input_paths':paths})
+    assert child.returncode==0
+argv=['/workspace/e02-D-locked-env/bin/python','-B','/workspace/e02-D2-receipts/search-generator-quality-672/release-gate.py']
+child=subprocess.run(argv,cwd=product,env={**os.environ,'PYTHONPATH':'src:.','PYTHONDONTWRITEBYTECODE':'1'},stdout=subprocess.PIPE,stderr=subprocess.STDOUT);log=quality/'release-gate.txt';log.write_bytes(child.stdout)
+dump(quality/'release-gate.json',{'target_sha':candidate,'argv':argv,'returncode':child.returncode,'output_sha256':digest(log)});assert child.returncode==0
+# Function/class AST identity across guard-only delta, and existing serialization behaviors.
+def nodes(text):return [ast.dump(n,include_attributes=False) for n in ast.parse(text).body if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef,ast.ClassDef))]
+ast_record={}
+for path in ['policy-engine/tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py','policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_scalar_admission.py']:
+    before=git('show','350519adde62860982fba8e14e72ce83ef421d65:'+path);after=(repo/path).read_text();assert nodes(before)==nodes(after);ast_record[path]={'function_class_count':len(nodes(after)),'all_bodies_equal':True,'before_sha':'350519adde62860982fba8e14e72ce83ef421d65','after_sha':candidate}
+path='policy-engine/src/polisyos/common/serialization.py'; before=nodes(git('show',base+':'+path));after=nodes((repo/path).read_text());assert all(n in after for n in before);ast_record[path]={'existing_function_class_count':len(before),'existing_ast_unchanged':True,'new_helper_only':True}
+dump(quality/'ast-reconciliation.json',ast_record)
+changed=git('diff','--name-only',base,candidate).splitlines()
+manifest=[{'path':p,'git_blob':git('rev-parse',candidate+':'+p),'sha256':digest(repo/p)} for p in changed]
+dump(evidence/'candidate-changed-paths.json',{'slice_base_sha':base,'slice_base_tree':git('rev-parse',base+'^{tree}'),'candidate_sha':candidate,'candidate_tree':git('rev-parse',candidate+'^{tree}'),'complete_changed_paths':manifest})
+receipt={
+'schema':'policyos.e02.implementation_handoff.v1','unit':'D','slice':'generator-source-bound-continuation','closure_ids':[],
+'covered_finding_ids':['B112','B113','B114','B115','B127'],'bundle_ids':['OPT-02','OPT-03'],
+'slice_base_sha':base,'slice_base_tree_sha':git('rev-parse',base+'^{tree}'),'candidate_sha':candidate,'candidate_tree_sha':git('rev-parse',candidate+'^{tree}'),'production_source_sha':'67250d22dfae8f95cd44d9029d9c10dccfc69c3c','core_gp_source_sha':'d38f94c8a8095abb00052b8e78f7b8a470453ed4','branch':'codex/e02-D-published-search','pull_request':None,
+'implementation_commits':git('rev-list','--reverse',base+'..'+candidate).splitlines(),
+'changed_paths_manifest':str((evidence/'candidate-changed-paths.json').relative_to(repo)),
+'criteria':'policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/D.md#OPT-02-and-OPT-03; original criteria remain binding, no inferred finding closure',
+'baseline_cells':{'status':'navigation_only','canonical_baseline':'policy-engine/docs/research/e02-cloud-test-plan/results/routes.tsv','quantity_predecessor_receipt_sha':'2a129be622ac8c54a37021b1aa6becbdfc4305d6'},
+'environment':{'python':'3.14.7','runtime':'/workspace/e02-D-locked-env/bin/python','torch_distribution':'2.10.0','torch_binary':'2.10.0+cu128','botorch':'0.16.1','gpytorch':'1.15.1','numpy':'2.3.5','pytest':'9.0.2','ruff':'0.14.10','pydantic':'2.12.5','execution':'CPU; actual versions/module origins/native calls retained in each successful junit.native.json; no parent Torch import; no artificial limits'},
+'checks':checks,'light_quality':{'source_sha':candidate,'directory':str(quality.relative_to(repo)),'outcome':'PASS','scope':'14 owned changed Python paths Ruff check/format; two own recognized breaking release fragments; existing AST/guard-body reconciliation'},
+'property':{'statement':'Configured original source rows are re-resolved and numerically reconciled, in exact order, against fitted record IDs and raw GP X/Y before numerical model mutation. Existing learned transforms, model, RNG and allowed refit schedule are preserved.',
+'runtime_path':['full original CAS refs and configured numeric_transfer_basis.v1 reader','internal BGC wrapper v2/indexed converted history','native StrategyState GP version4/full fitted_evaluations','fresh same configured admission then ID/X/Y reconciliation','load actual model/transforms/RNG; native suggest and allowed due refit'],
+'proxy_divergence':'At dfe, coherent alias IDs/hash plus unchanged tensors/model admitted a different fitted source identity. Wrapper set/subset coverage and saved hashes alone did not establish ordered numerical association.',
+'negative_controls':['original dfe coherent alias actual FAIL','duplicate and distinct-ID permutation atomically refused after correction','current-row changed fullref/basis/direction/outcome refused before live mutation','same original CAS ref with changed original measurement refuses wrapper restore','child-only reconciliation removal keeps all model/hash/policy markers and FAILS distinct-ID permutation control'],
+'authority_purpose':'conditional technical numerical continuation, never institutional source authorization or scientific optimization advantage','version':'native GP4 and BGC wrapper2; older incomplete profiles refused; migration recipe tracks original-byte preservation and fresh allowed fit'},
+'predicate_basis':'recomputed','predicate_scope':'Only configured technical row identity, supported numeric codec and native fitted quantities. Institutional truth/appointment is not established by this synthetic fixture.',
+'independent_evidence':[{'receipt_sha':'22b5fd724414416e3d617f0546479b122ed6f313','path':'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/gp-profile4-independent-review.json','verified_source_sha':'d38f94c8a8095abb00052b8e78f7b8a470453ed4','outcome':'23 PASS / 0 SKIP','scope':'unchanged independent ten/eleven row original-unit full mean/covariance, fit counts, actual consumed RNG, profile4 support/profile3 atomic refusal; not a fresh83 replay'}, {'receipt_sha':'7d7b35876400a7b9a35e47f178e0dcdf158c9d00','path':'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/mo-reference-independent-review.json','scope':'historical exact163 MO reference14 and e2 boxunion21; no fresh BGC execution'}],
+'successor_binding':{'672_vs_d38':'GP/bounds/model algorithms byte-identical; Evaluation restores original JSON int/float supported domain and adds Fraction rejection; actual scalar7 rerun','350_vs_672':'only direct native same-CAS-corruption assertion appended; actual run SIGKILL before verdict, new assertion UNRUN','83_vs_350':'only optional backend importorskip and integration markers; every native function/class AST unchanged; optional absence means UNRUN, not numeric PASS'},
+'capability_state_or_finding_state':'bounded implementation_and_verification; final G acceptance and production-source claims remain held/open',
+'limitations_and_next_owner':['G owns original finding-level acceptance, joined source and production history read-only rerun; closure_ids empty.','Configured numeric CAS identity is conditional: declared source units/evaluator semantics/owner authorization still require institutional supplier/G acceptance.','Controller/service ordinary run factory, full lifecycle and persisted raw history are gp_witness-owned; standalone BGC proof is not deployment or whole service acceptance.','A global eligible/feasible/unknown denominator, provider/export and served frontier chain remain open; prior proposed patch is not a consumer.','Native GP4 refuses v1-v3 and BGC wrapper2 refuses wrapper1; preserve bytes/recover original corpus and fresh allowed fit using linked breaking migration recipe.','350 new direct-native corrupted-CAS assertion is ERROR/UNRUN after SIGKILL, not inherited PASS; no P41 waiver or global verdict.','Current native numerical proof is locked CPU supported backend only, not cross-backend bit identity, arbitrary GP kernels or production history advantage.','Space raw-coordinate hugeint admission is newly granted same-class follow-up, not silently covered by current scalar7.','DOE delivered sensitivity ranking actual generator consumer remains next engineering slice; metadata alone is not consumer proof.'],
+'preservation':{'created_helper':str(p.relative_to(repo)),'sha256':digest(p),'status':'abandoned uncommitted new-module source preserved by move; actual helper appended to existing serialization module','deletion':'none in this continuation payload; no global preservation claim'}
+}
+dump(root/'search-generator-source-bound-continuation.json',receipt)
+print(json.dumps({'receipt':str(root/'search-generator-source-bound-continuation.json'),'checks':[(r['id'],r['outcome'],r.get('junit')) for r in checks],'manifest_paths':len(manifest),'source_sha':candidate},indent=2))

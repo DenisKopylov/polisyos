@@ -1,0 +1,38 @@
+{
+  "schema": "polisyos.e02.D.independent_draft_review.v1",
+  "reviewer": "/root/census_oct07",
+  "author": "/root/transfer_oct07",
+  "author_is_reviewer": false,
+  "source": "d610095905262a9b5b05b60c894018a681119367",
+  "artifact": "/dev/shm/e02-D-realnative-error-probe-mja52dcf/actual-native-original-clauses.patch",
+  "artifact_sha256": "d6903962dff01b8a5a0e05def84d483afd35c96c14aad4e743938dbcbb33e8cd",
+  "result": "SOURCE_READY_IMMUTABLE_NEW_AND_CHANGED_SELECTORS_PENDING",
+  "apply_check_exit": 0,
+  "protected_original_clause": "B134 actual native exceptions leave prior index/meta/key-map generation coherent; fake/wrapper-injected exceptions do not alone prove this clause.",
+  "source_review": [
+    "The fixture uses actual HNSW save bytes (248), removes last body byte (247), verifies unchanged complete admitted header; a real typed CAS ref and bundle digest bind changed bytes.",
+    "Actual VectorMemoryStore.load_from_artifact reaches installed native C++ load and must raise RuntimeError; assertions retain old generation object identity and actual query output.",
+    "Fresh worker real load repeats same refusal; exactly two verified CAS reads; no fake Index, monkeypatched native loader or injected RuntimeError.",
+    "Exact exception text is bounded to executed hnswlib0.8.0 supported profile, not cross-version guarantee.",
+    "B129 same1002 actual native discovery top_k1/2 runs before monkeypatched ANN prohibition, independently reselects original source and verifies exact qualified history ref unchanged. All subsequent reads remain exact and ANN forbidden."
+  ],
+  "actual_developmental_output": {
+    "path": "/dev/shm/e02-D-realnative-error-probe-mja52dcf/stdout.txt",
+    "sha256": "88be02a696286fdffa750c485539a0b5da50633cc2f6b10171152c839b9d54dc",
+    "scope": "Tiny actual immutable d610 mechanism probe; not new committed pytest selector PASS."
+  },
+  "P37": {
+    "predicate": "Real native loader exception occurs before one immutable pointer publication; previous actual generation remains usable.",
+    "basis": "C++ RuntimeError with valid content-bound CAS/header; object identity+query and fresh process."
+  },
+  "P38": {
+    "proxy": "Valid CAS/header/declared labels are insufficient for truncated native body; protected loader must actually execute/refuse.",
+    "negative": "Body truncation only, all outer markers valid."
+  },
+  "limitations": [
+    "No power-loss/distributed atomicity claim.",
+    "B129/B134 complete bounded proposals require next immutable changed1002/new real native exception execution and existing3 context criterion receipt for B135."
+  ],
+  "G_accepted": false,
+  "read_only": true
+}

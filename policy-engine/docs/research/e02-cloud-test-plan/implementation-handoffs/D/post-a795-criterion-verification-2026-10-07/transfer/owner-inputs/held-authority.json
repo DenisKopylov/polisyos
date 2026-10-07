@@ -1,0 +1,73 @@
+{
+  "schema": "policyos.e02.D.minimal_owner_requests.v1",
+  "packets": [
+    {
+      "key": "tenant_split_transfer",
+      "finding_ids": [
+        "B131"
+      ],
+      "relation_to_original_criterion": "required_original_positive",
+      "state": "held",
+      "minimum_input_ref": null,
+      "producer": "Existing data/evaluation/tenant owner authorizes specific source-to-target numerical reuse.",
+      "artifact_or_output": "Existing owner decision plus source/target qualified CAS refs; no new synthetic authority registry.",
+      "bridge": "Content-bound numeric_transfer_basis.v1/WarmStartBridge retains actual physical parameters, unit/direction and complete data/model/evaluator/split/scalarizer refs.",
+      "actual_consumer": "Real saved evaluation -> native warm-transfer target.",
+      "minimum_owner_supplied_content": [
+        "Actual source and target tenant/split/subject refs",
+        "Specific allowed reuse/adapter decision from the real owner",
+        "Source/target data/model/evaluator/metric/unit/direction basis",
+        "Exact source physical parameter and evaluation refs",
+        "Permitted adapter/ref and bounded applicability, or explicit refusal"
+      ],
+      "falsifier": "Change tenant/split, target basis or allowed adapter while retaining owner text/source markers; actual numeric row must refuse unchanged target state. same owner-supplied decision must admit the bounded positive; incompatible content remains an idea.",
+      "requested_canonical_owner": "Actual tenant/split/source reuse decision owner to be confirmed by A/G; D TRN-01 consumes it",
+      "appointment_not_established": true,
+      "request_source": "d610095905262a9b5b05b60c894018a681119367",
+      "binding_source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+      "binding_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+      "check_state": "UNRUN for genuine owner positive",
+      "predicate_basis": "not_established for issuer/decision/refs",
+      "local_read_only_recipe": [
+        "Read owner minimum exact ArtifactRef through existing verified_snapshot reader; do not transfer production data into cloud.",
+        "Use current configured warm consumer for tenant reuse; use cold/warm/restart/local+transfer/as_of lesson consumers for authorized evidence.",
+        "Change owner scope or remove actual grounds while preserving metadata markers; actual admitted positive must refuse."
+      ],
+      "limitations": "Actual owner appointment and authority refs absent; synthetic fixture labels do not supply them."
+    },
+    {
+      "key": "authorized_revalidation",
+      "finding_ids": [
+        "B137"
+      ],
+      "relation_to_original_criterion": "required_original_positive",
+      "state": "held",
+      "minimum_input_ref": null,
+      "producer": "Actual authorized revalidation occurrence with new grounds, not retention access.",
+      "artifact_or_output": "Existing lesson/evidence new-version artifact plus actual occurrence/grounds/authorization refs.",
+      "bridge": "Existing lesson evidence anchor/version/as-of reader; retention sidecar remains separate.",
+      "actual_consumer": "Cold/warm/restart and transfer reads of the same lesson.",
+      "minimum_owner_supplied_content": [
+        "Prior and newly produced exact evidence refs/version",
+        "Actual new grounds and occurrence time from producer",
+        "Owner authorization for this revalidation purpose",
+        "Subject/input/rule scope tying old and new version",
+        "Declared content/confidence/freshness basis"
+      ],
+      "falsifier": "Repeated ordinary reads/retention-only updates never refresh evidence trust. Remove new grounds or real authorization while retaining new-version/time labels; revalidation positive must refuse. Fresh restart reader must reproduce the actual admitted evidence degree.",
+      "requested_canonical_owner": "Actual lesson/evidence revalidation issuer to be confirmed by G; D TRN-03 reader",
+      "appointment_not_established": true,
+      "request_source": "d610095905262a9b5b05b60c894018a681119367",
+      "binding_source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+      "binding_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+      "check_state": "UNRUN for genuine owner positive",
+      "predicate_basis": "not_established for issuer/decision/refs",
+      "local_read_only_recipe": [
+        "Read owner minimum exact ArtifactRef through existing verified_snapshot reader; do not transfer production data into cloud.",
+        "Use current configured warm consumer for tenant reuse; use cold/warm/restart/local+transfer/as_of lesson consumers for authorized evidence.",
+        "Change owner scope or remove actual grounds while preserving metadata markers; actual admitted positive must refuse."
+      ],
+      "limitations": "Actual owner appointment and authority refs absent; synthetic fixture labels do not supply them."
+    }
+  ]
+}

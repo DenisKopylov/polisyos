@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 import logging
 import math
 from collections.abc import Mapping
@@ -9,11 +11,17 @@ from datetime import UTC, datetime
 from enum import Enum
 from typing import Any
 
+from polisyos.core.artifacts import ArtifactRef
 from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.scientist.methods.search.run_state import _canonical_checkpoint_owner
 from polisyos.scientist.methods.search.strategies.space import (
     SearchSpace as NativeSearchSpace,
 )
-from polisyos.scientist.methods.search.strategies.types import ParameterBounds, ParameterType
+from polisyos.scientist.methods.search.strategies.types import (
+    ParameterBounds,
+    ParameterType,
+    StrategyState,
+)
 
 from .models import BenchmarkEvaluation, BenchmarkSplit, MetricDirection
 
@@ -72,9 +80,11 @@ def _merge_identity_sources(
 
 
 def _finite_float(value: Any) -> float | object:
+    if isinstance(value, bool):
+        return _INVALID
     try:
         result = float(value)
-    except (TypeError, ValueError):
+    except (TypeError, ValueError, OverflowError):
         return _INVALID
     return result if math.isfinite(result) else _INVALID
 
@@ -109,13 +119,37 @@ def _try_import_bayesian():
         return None
 
 
-class SearchSpace:
+class SearchSpace(NativeSearchSpace):
     """Autotune adapter backed by the canonical strategy ``SearchSpace``."""
 
     def __init__(self, bounds: list[dict[str, Any] | ParameterBounds]) -> None:
-        self._native = NativeSearchSpace(
-            bounds=[self._to_parameter_bound(bound) for bound in bounds]
-        )
+        super().__init__(bounds=[self._to_parameter_bound(bound) for bound in bounds])
+        self._parameter_declarations = {
+            native.name: {
+                "unit": supplied.get("unit", "unspecified")
+                if isinstance(supplied, dict)
+                else "unspecified",
+                "distribution": supplied.get("distribution", "uniform")
+                if isinstance(supplied, dict)
+                else "uniform",
+                "distribution_spec": supplied.get("distribution_spec")
+                if isinstance(supplied, dict)
+                else None,
+            }
+            for native, supplied in zip(self.bounds, bounds, strict=True)
+        }
+
+    def sensitivity_parameter_basis(self) -> list[dict[str, Any]]:
+        """Project actual native bounds plus their explicitly configured declarations."""
+        return [
+            {
+                "name": bound.name,
+                "lower_bound": bound.lower,
+                "upper_bound": bound.upper,
+                **self._parameter_declarations[bound.name],
+            }
+            for bound in self.bounds
+        ]
 
     @staticmethod
     def _to_parameter_bound(bound: dict[str, Any] | ParameterBounds) -> ParameterBounds:
@@ -143,39 +177,8 @@ class SearchSpace:
         )
 
     @property
-    def bounds(self) -> list[ParameterBounds]:
-        """Return the canonical parameter bounds used by the strategy."""
-        return self._native.bounds
-
-    @property
-    def dim(self) -> int:
-        return self._native.dim
-
-    @property
-    def param_bounds(self) -> list[Any]:
-        """Compatibility alias for consumers that inspect parameter bounds."""
-        return self._native.bounds
-
-    @property
-    def names(self) -> list[str]:
-        """Return canonical expanded parameter names."""
-        return self._native.names
-
-    def normalize(self, params: dict[str, Any]) -> tuple[float, ...]:
-        """Normalize parameters through the canonical strategy implementation."""
-        return self._native.normalize(params)
-
-    def denormalize(self, vector: tuple[float, ...]) -> dict[str, Any]:
-        """Resolve a relaxed vector to the effective typed execution."""
-        return self._native.denormalize(vector)
-
-    def sample_sobol(self, n_samples: int, seed: int = 42) -> list[tuple[float, ...]]:
-        """Sample relaxed vectors through the canonical strategy implementation."""
-        return self._native.sample_sobol(n_samples=n_samples, seed=seed)
-
-    def to_botorch_bounds(self) -> Any:
-        """Delegate optional BoTorch bounds construction to the native space."""
-        return self._native.to_botorch_bounds()
+    def param_bounds(self) -> list[ParameterBounds]:
+        return self.bounds
 
 
 class BayesianCandidateGenerator:
@@ -193,6 +196,8 @@ class BayesianCandidateGenerator:
         compare_split: BenchmarkSplit = BenchmarkSplit.HOLDOUT,
         n_initial: int = 6,
         seed: int = 42,
+        warm_start_bridge: Any = None,
+        warm_start_fingerprint: Any = None,
     ) -> None:
         self._primary_metric = primary_metric
         self._direction = direction
@@ -203,18 +208,50 @@ class BayesianCandidateGenerator:
         self._optimizer: Any = None
         self._botorch_available = False
         self._warm_evals: list[Any] = []
+        self._activity_started = False
+        self._history_digests: list[str] = []
+        self._history_rows: list[dict[str, Any]] = []
+        self._resume_history_required = False
+        self._sensitivity_order: dict[str, Any] | None = None
+        self._sensitivity_admission: Any = None
+        if (warm_start_bridge is None) != (warm_start_fingerprint is None):
+            raise ValueError("Warm-start bridge and configured target fingerprint must be paired")
+        numerical_basis = None
+        admission = None
+        if warm_start_bridge is not None:
+            numerical_basis = warm_start_bridge.target_basis(warm_start_fingerprint)
+            admission = warm_start_bridge.admit_warm_start
+            if (
+                numerical_basis.metric != primary_metric
+                or numerical_basis.direction.value != direction.value
+                or numerical_basis.split != compare_split.value
+            ):
+                raise ValueError(
+                    "Configured generator metric/direction/split differs from numerical target"
+                )
 
         deps = _try_import_bayesian()
         if deps is not None and search_space is not None:
             BayesianConfig, BayesianOptimizer, _, _, _, _, _ = deps
             try:
                 cfg = BayesianConfig(n_initial=n_initial, seed=seed)
-                self._optimizer = BayesianOptimizer(search_space, config=cfg)
-                self._botorch_available = True
-                if self._warm_evals:
-                    self._optimizer.warm_start(self._warm_evals)
+                self._optimizer = BayesianOptimizer(
+                    search_space,
+                    config=cfg,
+                    numerical_basis=numerical_basis,
+                    warm_start_admission=admission,
+                )
+                self._botorch_available = self._optimizer.backend_available
             except Exception as exc:
+                if numerical_basis is not None:
+                    raise ValueError(
+                        "Configured numerical warm-start receiver refused its basis"
+                    ) from exc
                 logger.warning("BayesianCandidateGenerator: optimizer init failed: %s", exc)
+        if warm_start_bridge is not None:
+            if self._optimizer is None:
+                raise ValueError("Configured warm-start requires a native optimizer receiver")
+            self.warm_start(warm_start_bridge.load_warm_start(warm_start_fingerprint))
 
     @property
     def botorch_available(self) -> bool:
@@ -226,16 +263,413 @@ class BayesianCandidateGenerator:
         if self._optimizer is not None:
             self._optimizer.warm_start(evaluations)
 
+    def configure_transfer(self, bridge: Any, fingerprint: Any) -> None:
+        """Bind the owner-paired transfer reader before any generator activity.
+
+        Construct and admit a fresh receiver first. A failed basis or CAS
+        admission leaves this generator's previous optimizer and RNG untouched.
+        """
+        if bridge is None or fingerprint is None:
+            raise ValueError("Configured transfer requires a paired bridge and target fingerprint")
+        if self._activity_started or self._warm_evals or self._history_digests:
+            raise ValueError("Transfer must be configured before warm/history/generation")
+        replacement = BayesianCandidateGenerator(
+            self._search_space,
+            primary_metric=self._primary_metric,
+            direction=self._direction,
+            compare_split=self._compare_split,
+            n_initial=self._n_initial,
+            seed=self._seed,
+            warm_start_bridge=bridge,
+            warm_start_fingerprint=fingerprint,
+        )
+        self._optimizer = replacement._optimizer
+        self._botorch_available = replacement._botorch_available
+        self._warm_evals = replacement._warm_evals
+
+    def configure_sensitivity_order(
+        self,
+        parameter_order: list[str],
+        *,
+        analysis_ref: ArtifactRef,
+        analysis_identity: dict[str, Any],
+        parameter_basis: list[dict[str, Any]],
+        analysis_reader: Any,
+    ) -> None:
+        """Apply a resolved exploratory coordinate permutation before native activity.
+
+        Ranking assigns the existing Sobol/GP coordinates to physical parameter
+        names. It makes no optimization-quality or population-law claim. The
+        configured canonical reader is invoked before proposal and restoration.
+        """
+        if not callable(analysis_reader):
+            raise ValueError("Sensitivity ordering requires its configured analysis reader")
+        ref = ArtifactRef.model_validate(analysis_ref)
+        if ref.manifest_profile_sha256 is None:
+            raise ValueError("Sensitivity ordering requires a full selected manifest reference")
+        if (
+            not isinstance(self._search_space, SearchSpace)
+            or self._optimizer is None
+            or not self._botorch_available
+        ):
+            raise ValueError("Sensitivity ordering requires the configured native search space")
+        names = [bound.name for bound in self._search_space.bounds]
+        if (
+            not isinstance(parameter_order, list)
+            or any(not isinstance(name, str) for name in parameter_order)
+            or len(parameter_order) != len(names)
+            or len(set(parameter_order)) != len(names)
+            or set(parameter_order) != set(names)
+        ):
+            raise ValueError("Sensitivity ranking must cover each native parameter exactly once")
+        expected = {row["name"]: row for row in self._search_space.sensitivity_parameter_basis()}
+        if (
+            not isinstance(parameter_basis, list)
+            or len(parameter_basis) != len(names)
+            or any(
+                not isinstance(row, dict)
+                or not isinstance(row.get("name"), str)
+                or row["name"] not in expected
+                for row in parameter_basis
+            )
+            or len({row["name"] for row in parameter_basis}) != len(names)
+        ):
+            raise ValueError("Sensitivity parameter basis is incomplete")
+        for row in parameter_basis:
+            native = expected[row["name"]]
+            if self._json_bytes(row) != self._json_bytes(native):
+                raise ValueError("Sensitivity bounds/unit/distribution differ from native space")
+            if (
+                not isinstance(row["unit"], str)
+                or row["unit"] in {"", "unspecified"}
+                or row["distribution"] != "uniform"
+            ):
+                raise ValueError("Unsupported sensitivity unit/distribution profile")
+        if any(
+            bound.dtype != ParameterType.CONTINUOUS or bound.log_scale
+            for bound in self._search_space.bounds
+        ):
+            raise ValueError(
+                "Sensitivity order profile supports continuous non-log coordinates only"
+            )
+        if (
+            not isinstance(analysis_identity, dict)
+            or set(analysis_identity) != {"design_id", "analysis_id"}
+            or any(
+                not isinstance(value, str)
+                or len(value) != 64
+                or any(c not in "0123456789abcdef" for c in value)
+                for value in analysis_identity.values()
+            )
+        ):
+            raise ValueError("Sensitivity analysis identity is invalid")
+        policy = {
+            "profile": "exploratory_coordinate_order.v1",
+            "parameter_order": list(parameter_order),
+            "analysis_ref": ref.model_dump(mode="json"),
+            "analysis_identity": dict(analysis_identity),
+            "parameter_basis": parameter_basis,
+            "authority_purpose": "exploratory_parameter_experiment",
+            "population_law_status": "not_established",
+        }
+        if self._json_bytes(analysis_reader()) != self._json_bytes(policy):
+            raise ValueError("Sensitivity source does not reproduce its ordering configuration")
+        if self._sensitivity_order is not None and self._json_bytes(
+            self._sensitivity_order
+        ) == self._json_bytes(policy):
+            self._sensitivity_admission = analysis_reader
+            return  # Same configuration revalidation does not change an active stream.
+        if (
+            self._activity_started
+            or self._warm_evals
+            or self._history_digests
+            or self._optimizer._numerical_basis is not None
+        ):
+            raise ValueError("Sensitivity order must precede transfer/warm/history/generation")
+        by_name = {bound.name: bound for bound in self._search_space.bounds}
+        ordered = SearchSpace(
+            [
+                {
+                    "name": name,
+                    "lower": by_name[name].lower,
+                    "upper": by_name[name].upper,
+                    **self._search_space._parameter_declarations[name],
+                }
+                for name in parameter_order
+            ]
+        )
+        deps = _try_import_bayesian()
+        if deps is None:
+            raise ValueError("Sensitivity ordering requires the actual native receiver")
+        _, optimizer, _, _, _, _, _ = deps
+        replacement = optimizer(ordered, config=self._optimizer._config)
+        self._search_space = ordered
+        self._optimizer = replacement
+        self._botorch_available = replacement.backend_available
+        self._sensitivity_order = json.loads(self._json_bytes(policy))
+        self._sensitivity_admission = analysis_reader
+
+    def _admit_sensitivity_order(self) -> None:
+        if self._sensitivity_order is not None:
+            if not callable(self._sensitivity_admission) or self._json_bytes(
+                self._sensitivity_admission()
+            ) != self._json_bytes(self._sensitivity_order):
+                raise ValueError("Sensitivity ordering no longer matches its original CAS source")
+
+    def _checkpoint_config(self) -> dict[str, Any]:
+        config = {
+            "primary_metric": self._primary_metric,
+            "direction": self._direction.value,
+            "compare_split": self._compare_split.value,
+            "space": self._search_space.sobol_space_fingerprint() if self._search_space else None,
+            "n_initial": self._n_initial,
+            "seed": self._seed,
+            "numerical_basis": getattr(self._optimizer, "_basis_payload", None),
+        }
+        if self._sensitivity_order is not None:
+            config["sensitivity_order"] = self._sensitivity_order
+        return config
+
+    @staticmethod
+    def _json_bytes(value: Any) -> bytes:
+        try:
+            return json.dumps(value, sort_keys=True, allow_nan=False).encode("utf-8")
+        except (TypeError, ValueError, OverflowError) as exc:
+            raise ValueError("Generator checkpoint requires finite JSON data") from exc
+
+    @classmethod
+    def _history_row_digest(cls, evaluation: Any) -> str:
+        """Bind converted numerical inputs; service custody owns the raw history.
+
+        Conversion-generated timestamps and wall durations do not define a GP
+        observation. Missing/nonfinite scores remain unavailable, never zero.
+        """
+        scalar = evaluation.scalar_score
+        record = {
+            "candidate_id": evaluation.candidate_id,
+            "params": evaluation.params,
+            "params_normalized": evaluation.params_normalized,
+            "scalar_score": scalar if math.isfinite(scalar) else None,
+            "stage_a_passed": evaluation.stage_a_passed,
+            "status": evaluation.status.value,
+            "provenance_ref": evaluation.provenance_ref,
+            "identity": {
+                key: evaluation.metadata[key]
+                for key in _IDENTITY_KEYS
+                | {
+                    "numeric_transfer_basis",
+                    "candidate_ref",
+                    "evaluation_ref",
+                    "transfer_history_ref",
+                    "source_row_index",
+                }
+                if key in evaluation.metadata
+            },
+        }
+        return hashlib.sha256(cls._json_bytes(record)).hexdigest()
+
+    def get_state(self) -> dict[str, Any] | None:
+        """Return native state, or expose a borrowed wrapper profile as live-only."""
+        if not _canonical_checkpoint_owner(self, BayesianCandidateGenerator):
+            return None
+        self._admit_sensitivity_order()
+        if self._optimizer is None:
+            raise ValueError("Generator checkpoint requires a native strategy receiver")
+        native = self._optimizer.get_state()
+        if native.iteration != len(self._history_rows):
+            raise ValueError("Generator checkpoint consumed-history cursor differs from native state")
+        return {
+            "schema_version": "bayesian_candidate_generator.v3",
+            "config": self._checkpoint_config(),
+            "native_backend_available": self._botorch_available,
+            "activity_started": self._activity_started,
+            "history_digests": list(self._history_digests),
+            "consumed_history_count": native.iteration,
+            "history_rows": json.loads(self._json_bytes(self._history_rows)),
+            "strategy_state": json.loads(native.to_artifact()),
+        }
+
+    def validate_checkpoint_history(
+        self, history: list[Any], state: dict[str, Any]
+    ) -> None:
+        """Bind every saved consumed row to the actual complete service history."""
+        if not _canonical_checkpoint_owner(self, BayesianCandidateGenerator):
+            raise ValueError("generator_checkpoint_owner_profile_unsupported")
+        rows = state.get("history_rows")
+        digests = state.get("history_digests")
+        count = state.get("consumed_history_count")
+        native = StrategyState.from_artifact(self._json_bytes(state.get("strategy_state")))
+        if (
+            state.get("schema_version") != "bayesian_candidate_generator.v3"
+            or type(count) is not int
+            or count < 0
+            or native.iteration != count
+            or not isinstance(rows, list)
+            or not isinstance(digests, list)
+            or len(rows) != count
+            or len(digests) != count
+            or self._optimizer is None
+        ):
+            raise ValueError("Generator checkpoint current-row coverage is incomplete")
+        current = self._history_to_evaluations(history)
+        if len(current) < len(rows):
+            raise ValueError("Generator checkpoint consumed history is incomplete")
+        for index, record in enumerate(rows):
+            evaluation = current[index]
+            if (
+                not isinstance(record, dict)
+                or set(record) != {"input_index", "evaluation"}
+                or type(record["input_index"]) is not int
+                or record["input_index"] != index
+                or self._history_row_digest(evaluation) != digests[index]
+                or (
+                    record["evaluation"] is None
+                    if evaluation.is_valid
+                    else record["evaluation"] is not None
+                )
+            ):
+                raise ValueError("Generator checkpoint consumed history differs from saved rows")
+            if evaluation.is_valid:
+                saved = self._optimizer._decode_evaluation(record["evaluation"])
+                if self._history_row_digest(saved) != digests[index]:
+                    raise ValueError("Generator checkpoint row differs from consumed history")
+
+    def set_state(self, state: dict[str, Any]) -> None:
+        """Validate wrapper identity before the native atomic model/RNG restore."""
+        if not _canonical_checkpoint_owner(self, BayesianCandidateGenerator):
+            raise ValueError("generator_checkpoint_owner_profile_unsupported")
+        self._admit_sensitivity_order()
+        fields = {
+            "schema_version",
+            "config",
+            "native_backend_available",
+            "activity_started",
+            "history_digests",
+            "consumed_history_count",
+            "history_rows",
+            "strategy_state",
+        }
+        if type(state) is not dict or set(state) != fields:
+            raise ValueError("Generator checkpoint fields are incomplete or unknown")
+        if state["schema_version"] != "bayesian_candidate_generator.v3":
+            raise ValueError("Unsupported generator checkpoint schema")
+        if self._json_bytes(state["config"]) != self._json_bytes(self._checkpoint_config()):
+            raise ValueError("Generator checkpoint metric/split/space/configuration changed")
+        if type(state["native_backend_available"]) is not bool or (
+            state["native_backend_available"] != self._botorch_available
+        ):
+            raise ValueError("Generator checkpoint native backend availability changed")
+        if type(state["activity_started"]) is not bool:
+            raise ValueError("Generator activity flag must be boolean")
+        digests = state["history_digests"]
+        if not isinstance(digests, list) or any(
+            not isinstance(item, str)
+            or len(item) != 64
+            or any(c not in "0123456789abcdef" for c in item)
+            for item in digests
+        ):
+            raise ValueError("Generator converted-history binding is invalid")
+        if digests and not state["activity_started"]:
+            raise ValueError("Generator history cannot precede activity")
+        if self._optimizer is None:
+            raise ValueError("Generator checkpoint requires a native strategy receiver")
+        native = StrategyState.from_artifact(self._json_bytes(state["strategy_state"]))
+        rows = state["history_rows"]
+        count = state["consumed_history_count"]
+        if (
+            type(count) is not int
+            or count < 0
+            or count != native.iteration
+            or not isinstance(rows, list)
+            or len(rows) != count
+            or len(digests) != count
+        ):
+            raise ValueError("Generator checkpoint current-row coverage is incomplete")
+        current = []
+        for index, record in enumerate(rows):
+            if (
+                not isinstance(record, dict)
+                or set(record) != {"input_index", "evaluation"}
+                or type(record["input_index"]) is not int
+                or record["input_index"] != index
+            ):
+                raise ValueError("Generator checkpoint current-row index is invalid")
+            if record["evaluation"] is None:
+                continue  # An unavailable converted outcome cannot supply model evidence.
+            evaluation = self._optimizer._decode_evaluation(record["evaluation"])
+            if not evaluation.is_valid or self._history_row_digest(evaluation) != digests[index]:
+                raise ValueError(
+                    "Generator checkpoint current-row content differs from its history"
+                )
+            current.append(evaluation)
+
+        # Use the existing receiving strategy's one admission reader. This
+        # resolves transferred current rows before any live model/RNG restore,
+        # including rows that were not part of the saved warm corpus.
+        deps = _try_import_bayesian()
+        if deps is None or self._search_space is None:
+            raise ValueError("Generator checkpoint lacks its native receiver")
+        _, BayesianOptimizer, _, _, _, _, _ = deps
+        probe = BayesianOptimizer(
+            self._search_space,
+            config=self._optimizer._config,
+            numerical_basis=self._optimizer._numerical_basis,
+            warm_start_admission=self._optimizer._warm_start_admission,
+        )
+        warm = [
+            probe._decode_evaluation(record)
+            for record in native.metadata.get("warm_evaluations", [])
+        ]
+        probe.warm_start(warm)
+        admitted = probe._effective_training_corpus(current)
+        if native.model_state is not None:
+            if not admitted:
+                raise ValueError("Generator checkpoint has no source-bound fitted observations")
+            # Prepare actual numeric records without a model construction or
+            # MLL fit. Every saved fitted row needs its original current/warm
+            # source binding, including legitimate pending-refit prefixes.
+            probe._prepare_training_data(admitted)
+            fitted_ids = native.metadata.get("fitted_record_ids")
+            if not isinstance(fitted_ids, list) or not set(fitted_ids) <= set(
+                probe._training_record_ids
+            ):
+                raise ValueError("Generator fitted corpus lacks complete original row bindings")
+        self._optimizer.set_state(native)
+        self._activity_started = state["activity_started"]
+        self._history_digests = list(digests)
+        self._history_rows = json.loads(self._json_bytes(rows))
+        self._resume_history_required = True
+        self._warm_evals = list(self._optimizer._warm_evals)
+
     def generate(
         self,
         history: list[Any],
         current_best: dict[str, Any] | None,
         context: dict[str, Any],
     ) -> dict[str, Any]:
+        self._admit_sensitivity_order()
+        self._activity_started = True
         if not self._botorch_available or self._optimizer is None:
             return self._fallback_generate(history, current_best, context)
 
         evals = self._history_to_evaluations(history)
+        digests = [self._history_row_digest(evaluation) for evaluation in evals]
+        if (
+            self._resume_history_required
+            and digests[: len(self._history_digests)] != self._history_digests
+        ):
+            raise ValueError("Generator resume history differs from checkpoint numerical inputs")
+        self._history_digests = digests
+        self._history_rows = [
+            {
+                "input_index": index,
+                "evaluation": self._optimizer._encode_evaluation(evaluation)
+                if evaluation.is_valid
+                else None,
+            }
+            for index, evaluation in enumerate(evals)
+        ]
+        self._resume_history_required = False
         try:
             candidate = self._optimizer.suggest(evals)
             return candidate.to_dict()
@@ -258,7 +692,9 @@ class BayesianCandidateGenerator:
         return dict(context) if context else {}
 
     @staticmethod
-    def _history_parts(entry: Any) -> tuple[
+    def _history_parts(
+        entry: Any,
+    ) -> tuple[
         dict[str, Any],
         dict[str, Any],
         dict[str, Any],
@@ -396,7 +832,9 @@ class BayesianCandidateGenerator:
             try:
                 normalized = tuple(self._search_space.normalize(params))
             except (TypeError, ValueError):
-                logger.warning("Skipping history entry %s: candidate params cannot be normalized", idx)
+                logger.warning(
+                    "Skipping history entry %s: candidate params cannot be normalized", idx
+                )
                 continue
 
             identity = self._history_identity(
@@ -409,12 +847,20 @@ class BayesianCandidateGenerator:
                 logger.warning("Skipping history entry %s: conflicting identity fields", idx)
                 continue
             candidate_id = str(identity.get("candidate_id") or f"hist_{idx}")
-            score, score_is_scalar = self._history_score(
-                entry=entry,
-                candidate=candidate,
-                stage_b_result=stage_b_result,
-                entry_mapping=entry_mapping,
+            raw_stage_a = getattr(
+                entry, "stage_a_passed", entry_mapping.get("stage_a_passed", _MISSING)
             )
+            valid_stage_type = raw_stage_a is _MISSING or type(raw_stage_a) is bool
+            stage_a_passed = raw_stage_a is _MISSING or raw_stage_a is True
+            if valid_stage_type:
+                score, score_is_scalar = self._history_score(
+                    entry=entry,
+                    candidate=candidate,
+                    stage_b_result=stage_b_result,
+                    entry_mapping=entry_mapping,
+                )
+            else:
+                score, score_is_scalar = _INVALID, True
             has_score = score not in {_MISSING, _INVALID}
             if has_score:
                 score_value = float(score)
@@ -426,9 +872,6 @@ class BayesianCandidateGenerator:
             else:
                 scalar = math.inf
 
-            stage_a_passed = bool(
-                getattr(entry, "stage_a_passed", entry_mapping.get("stage_a_passed", True))
-            )
             feedback = _as_mapping(stage_b_result.get("feedback"))
             reported_status = str(
                 feedback.get("status") or stage_b_result.get("status") or ""
@@ -457,13 +900,17 @@ class BayesianCandidateGenerator:
             )
             for key, value in identity.items():
                 metadata[key] = value
-            if not has_score:
+            if not valid_stage_type:
+                metadata["invalid_reason"] = "malformed_stage_a_passed"
+            elif not has_score:
                 metadata["invalid_reason"] = "missing_or_invalid_score"
 
             timestamp = getattr(entry, "timestamp", None)
             if not isinstance(timestamp, datetime):
                 timestamp = datetime.now(UTC)
-            duration = getattr(entry, "duration_seconds", entry_mapping.get("duration_seconds", 0.0))
+            duration = getattr(
+                entry, "duration_seconds", entry_mapping.get("duration_seconds", 0.0)
+            )
             try:
                 duration_seconds = float(duration)
             except (TypeError, ValueError):
@@ -552,11 +999,7 @@ def benchmark_to_evaluation(
     if dim and len(params_normalized) != dim:
         return None
 
-    scalar = (
-        -float(finite_value)
-        if direction == MetricDirection.MAXIMIZE
-        else float(finite_value)
-    )
+    scalar = -float(finite_value) if direction == MetricDirection.MAXIMIZE else float(finite_value)
     split_value = split.value
     metadata = {
         **benchmark_metadata,

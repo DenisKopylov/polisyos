@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="14.986" timestamp="2026-10-06T15:52:54.181744+00:00" hostname="565838a1e059"><testcase classname="tests.unit.scientist.search.test_stress_scenario_evidence" name="test_anonymous_report_retry_is_counted_once_at_actual_cas_path" time="0.067"><failure message="AssertionError: assert 6 == 4&#10; +  where 6 = StressScenarioEvidence(attempted=6, finite_evaluated=6, violated_scenarios=1, unknown_or_nonfinite=0, planned_scenario... medium_occurrences=0, assessment_rule='component_assessments', objective_direction=None, vulnerability_threshold=None).attempted&#10; +    where StressScenarioEvidence(attempted=6, finite_evaluated=6, violated_scenarios=1, unknown_or_nonfinite=0, planned_scenario... medium_occurrences=0, assessment_rule='component_assessments', objective_direction=None, vulnerability_threshold=None) = StressTestReport(schema_version='1.1', report_id='stress.report.sha256_c42730049349378d74d321cd131c8d2becfc8b5ed60ab7d...il', 'unique_vulnerability_count': 1, 'unknown_or_nonfinite': 0, 'valid_evaluation_count': 2, 'violated_scenarios': 1}).scenario_evidence&#10; +      where StressTestReport(schema_version='1.1', report_id='stress.report.sha256_c42730049349378d74d321cd131c8d2becfc8b5ed60ab7d...il', 'unique_vulnerability_count': 1, 'unknown_or_nonfinite': 0, 'valid_evaluation_count': 2, 'violated_scenarios': 1}) = &lt;function test_anonymous_report_retry_is_counted_once_at_actual_cas_path.&lt;locals&gt;.read at 0x7f780a8c83b0&gt;(ArtifactRef(artifact_id=ArtifactID(root='sha256:12afd0646a437f1545536cb83bb9dc800f29ccd5f3316bdea07dc92ac84236ee'), kind='scientist.stress_test_report', media_type='application/json', manifest_profile_sha256=None))">tmp_path = PosixPath('/dev/shm/e02-D-retry-red-full-da110845438f4f98a28e8603c3993b81/test_anonymous_report_retry_is0')
+
+    def test_anonymous_report_retry_is_counted_once_at_actual_cas_path(tmp_path: Path) -&gt; None:
+        store = FileSystemCAS(tmp_path / "cas")
+        registry = build_default_registry_bundle(store).bundle_ref
+        run = RunContext.start(store=store, registry_bundle=registry, run_id="retry-counts")
+        ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("retry-counts"))
+        base = _run([1.0, 3.0])
+        child = _run([1.0, 1.0])
+        ref = store.put_json(
+            base.model_dump(mode="json"),
+            PutOptions(kind="scientist.stress_test_report", media_type="application/json"),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        state = ExperimentState(
+            run_id="retry-counts", artifacts_index={ARTIFACT_STRESS_TEST_REPORT_REF: ref}
+        )
+        first = _ensure_stress_test_report(
+            ctx,
+            state,
+            evaluation_vector=PolicyEvaluationVector(candidate_id="c"),
+            supplemental_reports=[child],
+        )
+        retried_state = state.model_copy(
+            update={"artifacts_index": {ARTIFACT_STRESS_TEST_REPORT_REF: first}}
+        )
+        second = _ensure_stress_test_report(
+            ctx,
+            retried_state,
+            evaluation_vector=PolicyEvaluationVector(candidate_id="c"),
+            supplemental_reports=[child],
+        )
+    
+        def read(reference):
+            return StressTestReport.model_validate(
+                from_canonical_bytes(store.get_bytes(reference.artifact_id))
+            )
+    
+        assert read(first).scenario_evidence.attempted == 4
+&gt;       assert read(second).scenario_evidence.attempted == 4
+E       AssertionError: assert 6 == 4
+E        +  where 6 = StressScenarioEvidence(attempted=6, finite_evaluated=6, violated_scenarios=1, unknown_or_nonfinite=0, planned_scenario... medium_occurrences=0, assessment_rule='component_assessments', objective_direction=None, vulnerability_threshold=None).attempted
+E        +    where StressScenarioEvidence(attempted=6, finite_evaluated=6, violated_scenarios=1, unknown_or_nonfinite=0, planned_scenario... medium_occurrences=0, assessment_rule='component_assessments', objective_direction=None, vulnerability_threshold=None) = StressTestReport(schema_version='1.1', report_id='stress.report.sha256_c42730049349378d74d321cd131c8d2becfc8b5ed60ab7d...il', 'unique_vulnerability_count': 1, 'unknown_or_nonfinite': 0, 'valid_evaluation_count': 2, 'violated_scenarios': 1}).scenario_evidence
+E        +      where StressTestReport(schema_version='1.1', report_id='stress.report.sha256_c42730049349378d74d321cd131c8d2becfc8b5ed60ab7d...il', 'unique_vulnerability_count': 1, 'unknown_or_nonfinite': 0, 'valid_evaluation_count': 2, 'violated_scenarios': 1}) = &lt;function test_anonymous_report_retry_is_counted_once_at_actual_cas_path.&lt;locals&gt;.read at 0x7f780a8c83b0&gt;(ArtifactRef(artifact_id=ArtifactID(root='sha256:12afd0646a437f1545536cb83bb9dc800f29ccd5f3316bdea07dc92ac84236ee'), kind='scientist.stress_test_report', media_type='application/json', manifest_profile_sha256=None))
+
+tests/unit/scientist/search/test_stress_scenario_evidence.py:268: AssertionError</failure></testcase></testsuite></testsuites>

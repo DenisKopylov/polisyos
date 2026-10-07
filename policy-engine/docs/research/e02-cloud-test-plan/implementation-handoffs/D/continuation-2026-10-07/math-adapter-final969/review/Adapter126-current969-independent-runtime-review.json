@@ -1,0 +1,73 @@
+{
+  "schema": "e02.D.independent.Adapter126969.runtime.v1",
+  "reviewer": "/root/gp_oct07",
+  "result": "GO bounded public defaultGridAdapter persistence/restore consumer",
+  "source": "96905636726483fdea3a98d9313871d825b54a9e",
+  "tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "handoff_sha256": "7c1ff25457eb6cd7f6776552340c3ad0b36b0062dbde2f40408606f8f1c05178",
+  "complete_gzip_sha256": "1f071664c43a23c1ff158244754e9f6bd4da722f5667723acb21333aa57fc0ce",
+  "lossless_records_verified": 731,
+  "de_duplicated_contents_verified": 251,
+  "source_bindings_verified": 13,
+  "modes": {
+    "positive": {
+      "checks": {
+        "PASS": 126
+      },
+      "phases": {
+        "('setup', 'passed')": 126,
+        "('call', 'passed')": 126,
+        "('teardown', 'passed')": 126
+      },
+      "repo_module_origins_verified": 1161,
+      "junit_sha256": "4d487b4e75e9d12e39243386c713d0b9399469ac30167167318749a1add2bbd4",
+      "result_sha256": "3262088cc185034b3fbb741c5b64947163465f9afe520274941404c8e9077985"
+    },
+    "remove_history": {
+      "checks": {
+        "FAIL": 2
+      },
+      "phases": {
+        "('setup', 'passed')": 2,
+        "('call', 'failed')": 2,
+        "('teardown', 'passed')": 2
+      },
+      "repo_module_origins_verified": 849,
+      "junit_sha256": "c3968d9a9d3e3f0f9177a7d966e745bb95dfaef51cbe38038eaece472bea21c7",
+      "result_sha256": "b138ed4d5efb0157d804729b7cedc9254173248a528af67d808c41c4ffa0bd5e"
+    },
+    "remove_inner_numeric": {
+      "checks": {
+        "FAIL": 2
+      },
+      "phases": {
+        "('setup', 'passed')": 2,
+        "('call', 'failed')": 2,
+        "('teardown', 'passed')": 2
+      },
+      "repo_module_origins_verified": 849,
+      "junit_sha256": "a5a53232740854b6d01c4a5ebdbfa011b2b54e3a0532bab1adfc026f997e8064",
+      "result_sha256": "6eb5c303a98b993969e2be55c11e27ca9c8d068cee3eeeb0d10c4def3537ab6b"
+    }
+  },
+  "original_occurrences_exact": [
+    "B125@CTL-02",
+    "B127@OPT-02",
+    "LA-014@SRV-01",
+    "LA-015@CTL-01",
+    "LA-015@SRV-03"
+  ],
+  "criterion_basis": "Actual defaultScalar codec+extractor SearchSpace→GridAdapter→public factory/ask/tell→qualified CAS checkpoint→fresh publicrunner.resume/readback; independent fullphysical1..5 vs split pending2/3then4/5 stream, actual generatorupdate onlynew rows, unknown/duplicate ownedIDs refuse atomically. Changed strategy/space/config/codec/historyprefix/raw innerJSON tiny/extreme tokens refuse before state/evaluator effects. Real genuinezero/representable±5e-324 controls. Removal history2+innernumeric2 are actual DID_NOT_RAISE failures at freshreader guard, not environment skips. Actual126=50Adapter+72servicepersistence+4Sequence.",
+  "backend": "Supported minimal Python3.14.7/pytest9.0.2 profile; no GP/vector numericalPASS claimed",
+  "P37": "Actual saved cursor/history/pending/physical evaluations/fresh readback, not marker",
+  "P38": "Two guard-removal classes preserve otherwise identical raw bytes/identity and fail actual protected consumer",
+  "P41": "not_established",
+  "limitations": [
+    "Contribution only to B125/B127/LA-014/LA-015 original criteria; all supported strategy evidence remains separately bound",
+    "No customcodec/callback persisted replay claim; live-only works and checkpoint profile explicitly refuses",
+    "No scientific/served deployment caller appointment or cross-version guarantee",
+    "15927tracked denominator includes7069explicit sparse/unavailable; no fulluniverse read/P41 zero-overlap claim"
+  ],
+  "formal_closed": false,
+  "accepted_G": false
+}

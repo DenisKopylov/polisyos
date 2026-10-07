@@ -1,0 +1,1534 @@
+{
+  "schema": "D.E02.canonical-predicate-patterns-original46.v1",
+  "candidate": "8e864f4ed0eeedf509d836381b20976c413f2443",
+  "typed_basis_enum": [
+    "institutionally_supplied",
+    "recomputed",
+    "consumer_asserted",
+    "independently_reconciled",
+    "not_established"
+  ],
+  "current_used_basis_subset": [
+    "recomputed",
+    "consumer_asserted",
+    "independently_reconciled",
+    "not_established"
+  ],
+  "each_original_gate_basis_reference": "criterion-overlay.json /rows/*/P37/original_each_load_bearing_gate with original CBC 230 predicates",
+  "rows": [
+    {
+      "id": "B106@STR-01",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/0/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "math_final_rows",
+          "pointer": "/rows/0"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "math_final_rows",
+          "pointer": "/rows/0"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/0/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B107@STR-01",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/1/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "math_final_rows",
+          "pointer": "/rows/1"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "math_final_rows",
+          "pointer": "/rows/1"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/1/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B108@OPT-01",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/2/P37"
+        },
+        "real_owner_positive_basis": "not_established",
+        "gate_specific_overrides": {
+          "catalog": "math_final_rows",
+          "pointer": "/rows/2"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "math_final_rows",
+          "pointer": "/rows/2"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/2/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B109@OPT-01",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/3/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "math_final_rows",
+          "pointer": "/rows/3"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "math_final_rows",
+          "pointer": "/rows/3"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/3/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B110@OPT-01",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/4/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "math_final_rows",
+          "pointer": "/rows/4"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "math_final_rows",
+          "pointer": "/rows/4"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/4/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B111@OPT-01",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/5/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "math_final_rows",
+          "pointer": "/rows/5"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "math_final_rows",
+          "pointer": "/rows/5"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/5/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B112@OPT-02",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/6/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "gp_rows",
+          "pointer": "/rows/0"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "gp_rows",
+          "pointer": "/rows/0"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/6/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B113@OPT-02",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/7/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "gp_rows",
+          "pointer": "/rows/1"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "gp_rows",
+          "pointer": "/rows/1"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/7/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B114@OPT-03",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/8/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "gp_rows",
+          "pointer": "/rows/2"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "gp_rows",
+          "pointer": "/rows/2"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/8/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B115@OPT-03",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/9/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "gp_rows",
+          "pointer": "/rows/3"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "gp_rows",
+          "pointer": "/rows/3"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/9/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B116@OPT-04",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/10/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "service_rows",
+          "pointer": "/rows/0"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "service_rows",
+          "pointer": "/rows/0"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/10/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B117@OPT-04",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/11/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "service_rows",
+          "pointer": "/rows/1"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "service_rows",
+          "pointer": "/rows/1"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/11/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B118@CTL-01",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/12/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "service_rows",
+          "pointer": "/rows/2"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "service_rows",
+          "pointer": "/rows/2"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/12/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B119@CTL-01",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/13/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "service_rows",
+          "pointer": "/rows/3"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "service_rows",
+          "pointer": "/rows/3"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/13/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B120@CTL-03",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/14/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "service_rows",
+          "pointer": "/rows/4"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "service_rows",
+          "pointer": "/rows/4"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/14/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B121@CTL-03",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/15/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "service_rows",
+          "pointer": "/rows/5"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "service_rows",
+          "pointer": "/rows/5"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/15/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B122@STP-01",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/16/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "math_final_rows",
+          "pointer": "/rows/6"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "math_final_rows",
+          "pointer": "/rows/6"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/16/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B123@CTL-03",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/17/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "service_rows",
+          "pointer": "/rows/6"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "service_rows",
+          "pointer": "/rows/6"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/17/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B124@CTL-02",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/18/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "service_rows",
+          "pointer": "/rows/7"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "service_rows",
+          "pointer": "/rows/7"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/18/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B125@CTL-02",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/19/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "gp_rows",
+          "pointer": "/rows/4"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "gp_rows",
+          "pointer": "/rows/4"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/19/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B126@CTL-02",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/20/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "gp_rows",
+          "pointer": "/rows/5"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "gp_rows",
+          "pointer": "/rows/5"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/20/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B127@OPT-02",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/21/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "gp_rows",
+          "pointer": "/rows/6"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "gp_rows",
+          "pointer": "/rows/6"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/21/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B128@TRN-01",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/22/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "transfer_rows",
+          "pointer": "/rows/0"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "transfer_rows",
+          "pointer": "/rows/0"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/22/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B129@TRN-02",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/23/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "transfer_rows",
+          "pointer": "/rows/1"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "transfer_rows",
+          "pointer": "/rows/1"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/23/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B130@TRN-01",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/24/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "transfer_rows",
+          "pointer": "/rows/2"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "transfer_rows",
+          "pointer": "/rows/2"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/24/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B131@TRN-01",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/25/P37"
+        },
+        "real_owner_positive_basis": "not_established",
+        "gate_specific_overrides": {
+          "catalog": "transfer_rows",
+          "pointer": "/rows/3"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "transfer_rows",
+          "pointer": "/rows/3"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/25/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B132@TRN-01",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/26/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "transfer_rows",
+          "pointer": "/rows/4"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "transfer_rows",
+          "pointer": "/rows/4"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/26/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B133@TRN-02",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/27/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "transfer_rows",
+          "pointer": "/rows/5"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "transfer_rows",
+          "pointer": "/rows/5"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/27/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B134@TRN-02",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/28/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "transfer_rows",
+          "pointer": "/rows/6"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "transfer_rows",
+          "pointer": "/rows/6"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/28/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B135@TRN-03",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/29/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "transfer_rows",
+          "pointer": "/rows/7"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "transfer_rows",
+          "pointer": "/rows/7"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/29/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B136@TRN-03",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/30/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "transfer_rows",
+          "pointer": "/rows/8"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "transfer_rows",
+          "pointer": "/rows/8"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/30/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B137@TRN-03",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/31/P37"
+        },
+        "real_owner_positive_basis": "not_established",
+        "gate_specific_overrides": {
+          "catalog": "transfer_rows",
+          "pointer": "/rows/9"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "transfer_rows",
+          "pointer": "/rows/9"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/31/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B156@FUN-01",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/32/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "funnel_rows",
+          "pointer": "/findings/0"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "funnel_rows",
+          "pointer": "/findings/0"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/32/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B157@FUN-02",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/33/P37"
+        },
+        "real_owner_positive_basis": "not_established",
+        "gate_specific_overrides": {
+          "catalog": "funnel_rows",
+          "pointer": "/findings/1"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "funnel_rows",
+          "pointer": "/findings/1"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/33/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B158@FUN-01",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/34/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "funnel_rows",
+          "pointer": "/findings/2"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "funnel_rows",
+          "pointer": "/findings/2"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/34/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B159@FUN-01",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/35/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "funnel_rows",
+          "pointer": "/findings/3"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "funnel_rows",
+          "pointer": "/findings/3"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/35/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B160@FUN-02",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/36/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "funnel_rows",
+          "pointer": "/findings/4"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "funnel_rows",
+          "pointer": "/findings/4"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/36/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B161@FUN-03",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/37/P37"
+        },
+        "real_owner_positive_basis": "not_established",
+        "gate_specific_overrides": {
+          "catalog": "funnel_rows",
+          "pointer": "/findings/5"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "funnel_rows",
+          "pointer": "/findings/5"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/37/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B162@FUN-02",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/38/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "funnel_rows",
+          "pointer": "/findings/6"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "funnel_rows",
+          "pointer": "/findings/6"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/38/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B163@FUN-03",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/39/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "funnel_rows",
+          "pointer": "/findings/7"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "funnel_rows",
+          "pointer": "/findings/7"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/39/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B164@FUN-03",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/40/P37"
+        },
+        "real_owner_positive_basis": "not_established",
+        "gate_specific_overrides": {
+          "catalog": "funnel_rows",
+          "pointer": "/findings/8"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "funnel_rows",
+          "pointer": "/findings/8"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/40/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B165@FUN-02",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/41/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "funnel_rows",
+          "pointer": "/findings/9"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "funnel_rows",
+          "pointer": "/findings/9"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/41/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "B41@STP-01",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/42/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "math_final_rows",
+          "pointer": "/rows/7"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "math_final_rows",
+          "pointer": "/rows/7"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/42/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "LA-014@SRV-01",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/43/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "service_rows",
+          "pointer": "/rows/8"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "service_rows",
+          "pointer": "/rows/8"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/43/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "LA-015@CTL-01",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/44/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "service_rows",
+          "pointer": "/rows/9"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "service_rows",
+          "pointer": "/rows/9"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/44/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    },
+    {
+      "id": "LA-015@SRV-03",
+      "P37": {
+        "typed_bounded_engineering_bases": [
+          "consumer_asserted",
+          "recomputed",
+          "independently_reconciled"
+        ],
+        "original_each_load_bearing_gate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/45/P37"
+        },
+        "real_owner_positive_basis": "not_required_for_named_bounded_engineering_assertion",
+        "gate_specific_overrides": {
+          "catalog": "service_rows",
+          "pointer": "/rows/10"
+        },
+        "no_proposal_equals_formal_authority": true
+      },
+      "P38": {
+        "gate_specific_divergence": {
+          "catalog": "service_rows",
+          "pointer": "/rows/10"
+        },
+        "original_predicate": {
+          "catalog": "D_ledger",
+          "pointer": "/occurrences/45/P38"
+        },
+        "synthetic_fixture_success_not_owner_acceptance": true
+      },
+      "formal_closed": false,
+      "P41": "not_established"
+    }
+  ],
+  "role_of_namespace_or_export_or_source_markers": "Cannot substitute actual fitted numerical value, protected consumer/readback, financial debit, independent control callback, native artifact, issuer law or real authority decision."
+}

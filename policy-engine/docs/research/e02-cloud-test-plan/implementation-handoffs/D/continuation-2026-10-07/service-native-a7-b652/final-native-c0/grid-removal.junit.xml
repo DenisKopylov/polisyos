@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="2.721" timestamp="2026-10-07T09:17:52.133919+00:00" hostname="565838a1e059"><testcase classname="tests.unit.scientist.methods.search.test_grid_factory_finite_exhaustion" name="test_actual_finite_grid_factory_retains_short_last_batch_and_exhausted_fresh_resume" time="0.575"><failure message="polisyos.scientist.methods.search.strategies.errors.StrategyExhaustedError: Grid exhausted after 4 candidates">tmp_path = PosixPath('/dev/shm/e02-D-oct07-service-start/final-native-c0/grid-removal-fixtures/test_actual_finite_grid_factor0')
+
+    def test_actual_finite_grid_factory_retains_short_last_batch_and_exhausted_fresh_resume(
+        tmp_path,
+    ):
+        source, store, _, _, first_evaluator = _finite_factory(tmp_path)
+        batch = source.ask(None, None, {})
+        assert [item.payload["value"] for item in batch] == [1, 2, 3]
+        assert len(source._pending_candidates) == 3
+        for iteration, proposal in enumerate(batch):
+            actual = source.controller._evaluate_for_tell(
+                proposal.payload, iteration=iteration, context={}
+            )
+            source.tell(proposal.candidate_id, actual)
+        assert [row.candidate["value"] for row in source.controller._history] == [1, 2, 3]
+        assert len(source._completed_candidate_ids) == 3 and source._pending_candidates == {}
+        assert first_evaluator.calls == [1, 2, 1, 3, 2]
+        # The existing adaptive policy may request more than three after cheap
+        # evaluations; the native Grid must retain its one remaining physical row.
+&gt;       remaining = source.ask(None, None, {})
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/search/test_grid_factory_finite_exhaustion.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/methods/search/service.py:573: in ask
+    return self._ask_proposals(goal, search_space, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/search/service.py:703: in _ask_proposals
+    payloads = self.controller._generate_candidates(
+src/polisyos/scientist/methods/search/controller.py:821: in _generate_candidates
+    return generate_batch(
+src/polisyos/scientist/methods/search/strategies/adapter.py:70: in generate_batch
+    candidates = self._strategy.suggest_batch(self._evaluations, batch_size=batch_size)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/methods/search/strategies/base.py:92: in suggest_batch
+    candidates.append(self.suggest(evaluations, pending=candidates))
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.scientist.methods.search.strategies.grid.GridSearchStrategy object at 0x7fa68e355a90&gt;
+
+    def suggest(
+        self,
+        evaluations: list[Evaluation],
+        pending: list[PolicyCandidate] | None = None,
+    ) -&gt; PolicyCandidate:
+        del evaluations, pending
+        if self._cursor &gt;= len(self._grid_params):
+&gt;           raise StrategyExhaustedError(
+                f"Grid exhausted after {len(self._grid_params)} candidates"
+            )
+E           polisyos.scientist.methods.search.strategies.errors.StrategyExhaustedError: Grid exhausted after 4 candidates
+
+src/polisyos/scientist/methods/search/strategies/grid.py:45: StrategyExhaustedError</failure></testcase></testsuite></testsuites>

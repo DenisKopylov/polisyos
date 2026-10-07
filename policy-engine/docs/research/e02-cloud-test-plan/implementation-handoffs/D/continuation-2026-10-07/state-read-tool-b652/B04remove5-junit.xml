@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="5" skipped="0" tests="5" time="0.165" timestamp="2026-10-07T10:06:17.283482+00:00" hostname="565838a1e059"><testcase classname="tests.repo_quality.tools.test_state_reads_constructor_admission" name="test_actual_checker_preserves_missing_read_failure[NodeSpec]" time="0.008"><failure message="assert (0 == 1)">tree = (PosixPath('/dev/shm/e02-D-B04remove5-b652-i4p1rqge/basetemp/test_actual_checker_preserves_0/src'), PosixPath('/dev/shm/e02-D-B04remove5-b652-i4p1rqge/basetemp/test_actual_checker_preserves_0/src/polisyos/scientist/nodes/builtins'))
+capsys = &lt;_pytest.capture.CaptureFixture object at 0x7f8aee604440&gt;
+constructor = 'NodeSpec'
+
+    @pytest.mark.parametrize("constructor", ["NodeSpec", "OutputAwareNodeSpec"])
+    def test_actual_checker_preserves_missing_read_failure(tree, capsys, constructor):
+        _, selected = tree
+        node = selected / "node.py"
+        node.write_text(_node(constructor, []))
+        code, text, receipt = _run(capsys)
+&gt;       assert code == 1 and "missing state_reads path 'inputs.required'" in text
+E       assert (0 == 1)
+
+tests/repo_quality/tools/test_state_reads_constructor_admission.py:63: AssertionError</failure></testcase><testcase classname="tests.repo_quality.tools.test_state_reads_constructor_admission" name="test_actual_checker_preserves_missing_read_failure[OutputAwareNodeSpec]" time="0.004"><failure message="assert (0 == 1)">tree = (PosixPath('/dev/shm/e02-D-B04remove5-b652-i4p1rqge/basetemp/test_actual_checker_preserves_1/src'), PosixPath('/dev/shm/e02-D-B04remove5-b652-i4p1rqge/basetemp/test_actual_checker_preserves_1/src/polisyos/scientist/nodes/builtins'))
+capsys = &lt;_pytest.capture.CaptureFixture object at 0x7f8aed38a210&gt;
+constructor = 'OutputAwareNodeSpec'
+
+    @pytest.mark.parametrize("constructor", ["NodeSpec", "OutputAwareNodeSpec"])
+    def test_actual_checker_preserves_missing_read_failure(tree, capsys, constructor):
+        _, selected = tree
+        node = selected / "node.py"
+        node.write_text(_node(constructor, []))
+        code, text, receipt = _run(capsys)
+&gt;       assert code == 1 and "missing state_reads path 'inputs.required'" in text
+E       assert (0 == 1)
+
+tests/repo_quality/tools/test_state_reads_constructor_admission.py:63: AssertionError</failure></testcase><testcase classname="tests.repo_quality.tools.test_state_reads_constructor_admission" name="test_outside_selector_evidence_cannot_supply_selected_read[NodeSpec]" time="0.004"><failure message="assert (0 == 1)">tree = (PosixPath('/dev/shm/e02-D-B04remove5-b652-i4p1rqge/basetemp/test_outside_selector_evidence0/src'), PosixPath('/dev/shm/e02-D-B04remove5-b652-i4p1rqge/basetemp/test_outside_selector_evidence0/src/polisyos/scientist/nodes/builtins'))
+capsys = &lt;_pytest.capture.CaptureFixture object at 0x7f8aed389e50&gt;
+constructor = 'NodeSpec'
+
+    @pytest.mark.parametrize("constructor", ["NodeSpec", "OutputAwareNodeSpec"])
+    def test_outside_selector_evidence_cannot_supply_selected_read(tree, capsys, constructor):
+        src, selected = tree
+        node = selected / "node.py"
+        node.write_text(_node(constructor, []))
+        outside = src / "outside_selector.py"
+        outside.write_text(_node(constructor, ["inputs.required"]))
+        code, text, receipt = _run(capsys)
+&gt;       assert code == 1 and "missing state_reads path 'inputs.required'" in text
+E       assert (0 == 1)
+
+tests/repo_quality/tools/test_state_reads_constructor_admission.py:76: AssertionError</failure></testcase><testcase classname="tests.repo_quality.tools.test_state_reads_constructor_admission" name="test_outside_selector_evidence_cannot_supply_selected_read[OutputAwareNodeSpec]" time="0.005"><failure message="assert (0 == 1)">tree = (PosixPath('/dev/shm/e02-D-B04remove5-b652-i4p1rqge/basetemp/test_outside_selector_evidence1/src'), PosixPath('/dev/shm/e02-D-B04remove5-b652-i4p1rqge/basetemp/test_outside_selector_evidence1/src/polisyos/scientist/nodes/builtins'))
+capsys = &lt;_pytest.capture.CaptureFixture object at 0x7f8aed0d4770&gt;
+constructor = 'OutputAwareNodeSpec'
+
+    @pytest.mark.parametrize("constructor", ["NodeSpec", "OutputAwareNodeSpec"])
+    def test_outside_selector_evidence_cannot_supply_selected_read(tree, capsys, constructor):
+        src, selected = tree
+        node = selected / "node.py"
+        node.write_text(_node(constructor, []))
+        outside = src / "outside_selector.py"
+        outside.write_text(_node(constructor, ["inputs.required"]))
+        code, text, receipt = _run(capsys)
+&gt;       assert code == 1 and "missing state_reads path 'inputs.required'" in text
+E       assert (0 == 1)
+
+tests/repo_quality/tools/test_state_reads_constructor_admission.py:76: AssertionError</failure></testcase><testcase classname="tests.repo_quality.tools.test_state_reads_constructor_admission" name="test_async_execute_missing_read_preserves_original_failure" time="0.004"><failure message="assert 0 == 1">tree = (PosixPath('/dev/shm/e02-D-B04remove5-b652-i4p1rqge/basetemp/test_async_execute_missing_rea0/src'), PosixPath('/dev/shm/e02-D-B04remove5-b652-i4p1rqge/basetemp/test_async_execute_missing_rea0/src/polisyos/scientist/nodes/builtins'))
+capsys = &lt;_pytest.capture.CaptureFixture object at 0x7f8aed0d50f0&gt;
+
+    def test_async_execute_missing_read_preserves_original_failure(tree, capsys):
+        _, selected = tree
+        node = selected / "node.py"
+        node.write_text(_node("NodeSpec", []).replace("def execute", "async def execute"))
+        code, text, receipt = _run(capsys)
+&gt;       assert code == 1
+E       assert 0 == 1
+
+tests/repo_quality/tools/test_state_reads_constructor_admission.py:178: AssertionError</failure></testcase></testsuite></testsuites>

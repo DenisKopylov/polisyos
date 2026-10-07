@@ -1,0 +1,46 @@
+{
+  "schema": "e02.D.independent-test-only-scope-append-review.v1",
+  "reviewer": "math_oct07",
+  "author": "service_oct07",
+  "decision": "GO exact d23 fixture-only dependency qualification; no runtime replay",
+  "reviewed_qualified_carry": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/publication/qualified-carry-d23.json",
+    "bytes": 5301,
+    "sha256": "0c8fccda4683e183c554462da76db1b93bce74a53b65d218f7adc5afb869f8c7"
+  },
+  "prior_independent_runtime_and_matrix": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/math/Service-own11-v3-and-final5b-independent-qualified-review.json",
+    "bytes": 4603,
+    "sha256": "7cda275a6e4562b45275e51effc659274002f19f54fc97d6b7a08353651e399c"
+  },
+  "independently_recomputed_full_incremental_git_delta": [
+    "M\tpolicy-engine/tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py"
+  ],
+  "rechecked_current_candidate_origin_paths": [
+    {
+      "scope": "controller",
+      "actual_CBC_origin_paths_checked": 1156,
+      "exact_d23_bytes": true,
+      "delta_overlap": []
+    },
+    {
+      "scope": "champion",
+      "actual_CBC_origin_paths_checked": 264,
+      "exact_d23_bytes": true,
+      "delta_overlap": []
+    }
+  ],
+  "financial17_blob_refs_match_d23": true,
+  "sealed_service_archive": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/publication/deciding-essential.tar.gz",
+    "bytes": 95802,
+    "sha256": "5b6cf92deec2f10d5591ef9d5960df4a26753ce6e544ab9f3022a08826c045d7"
+  },
+  "actual_execution_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "qualified_candidate": "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+  "no_new_CBC_or_A7_results_relabelled_d23_PASS": true,
+  "complete_current_financial_import_closure": "not_established",
+  "P41": "not_established/no inherited-red waiver",
+  "formal_closed": false,
+  "accepted_in_G": false
+}

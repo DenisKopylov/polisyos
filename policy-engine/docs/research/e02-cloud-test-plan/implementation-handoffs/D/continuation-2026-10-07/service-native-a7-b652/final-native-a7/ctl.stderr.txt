@@ -1,0 +1,85 @@
+2026-10-07 09:45:59.663 | INFO     | polisyos.common.logger:_call:120 - Starting search 5e70a66f
+2026-10-07 09:45:59.664 | WARNING  | polisyos.common.logger:_call:120 - Degraded path component=search.controller operation=resolve_policy_evaluation reason=policy_evaluation_parse_failed envelope={'component': 'search.controller', 'operation': 'resolve_policy_evaluation', 'reason': 'policy_evaluation_parse_failed', 'error_type': 'TypeError', 'message': 'policy evaluation is not an owner vector or admitted mapping', 'retryable': False, 'degraded': True, 'details': {'exception_type': 'TypeError'}}
+2026-10-07 09:45:59.718 | WARNING  | polisyos.common.logger:_call:120 - Degraded path component=search.controller operation=resolve_policy_evaluation reason=policy_evaluation_parse_failed envelope={'component': 'search.controller', 'operation': 'resolve_policy_evaluation', 'reason': 'policy_evaluation_parse_failed', 'error_type': 'TypeError', 'message': 'policy evaluation is not an owner vector or admitted mapping', 'retryable': False, 'degraded': True, 'details': {'exception_type': 'TypeError'}}
+2026-10-07 09:45:59.718 | INFO     | polisyos.common.logger:_call:120 - Stopping: Maximum iterations (1) reached
+2026-10-07 09:45:59.723 | INFO     | polisyos.common.logger:_call:120 - Starting search aeee4bd5
+2026-10-07 09:45:59.724 | WARNING  | polisyos.common.logger:_call:120 - Degraded path component=search.controller operation=resolve_policy_evaluation reason=policy_evaluation_parse_failed envelope={'component': 'search.controller', 'operation': 'resolve_policy_evaluation', 'reason': 'policy_evaluation_parse_failed', 'error_type': 'ValidationError', 'message': "1 validation error for PolicyEvaluationVector\nunexpected\n  Extra inputs are not permitted [type=extra_forbidden, input_value='typed', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden", 'retryable': False, 'degraded': True, 'details': {'exception_type': 'ValidationError'}}
+2026-10-07 09:45:59.724 | WARNING  | polisyos.common.logger:_call:120 - Degraded path component=search.controller operation=resolve_policy_evaluation reason=policy_evaluation_parse_failed envelope={'component': 'search.controller', 'operation': 'resolve_policy_evaluation', 'reason': 'policy_evaluation_parse_failed', 'error_type': 'ValidationError', 'message': "1 validation error for PolicyEvaluationVector\nunexpected\n  Extra inputs are not permitted [type=extra_forbidden, input_value='typed', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden", 'retryable': False, 'degraded': True, 'details': {'exception_type': 'ValidationError'}}
+2026-10-07 09:45:59.724 | INFO     | polisyos.common.logger:_call:120 - Stopping: Maximum iterations (1) reached
+2026-10-07 09:45:59.725 | INFO     | polisyos.common.logger:_call:120 - Starting search ab9efad8
+2026-10-07 09:45:59.726 | WARNING  | polisyos.common.logger:_call:120 - Degraded path component=search.controller operation=resolve_policy_evaluation reason=policy_evaluation_parse_failed envelope={'component': 'search.controller', 'operation': 'resolve_policy_evaluation', 'reason': 'policy_evaluation_parse_failed', 'error_type': 'TypeError', 'message': 'policy evaluation is not an owner vector or admitted mapping', 'retryable': False, 'degraded': True, 'details': {'exception_type': 'TypeError'}}
+2026-10-07 09:45:59.726 | WARNING  | polisyos.common.logger:_call:120 - Degraded path component=search.controller operation=resolve_policy_evaluation reason=policy_evaluation_parse_failed envelope={'component': 'search.controller', 'operation': 'resolve_policy_evaluation', 'reason': 'policy_evaluation_parse_failed', 'error_type': 'TypeError', 'message': 'policy evaluation is not an owner vector or admitted mapping', 'retryable': False, 'degraded': True, 'details': {'exception_type': 'TypeError'}}
+2026-10-07 09:45:59.726 | INFO     | polisyos.common.logger:_call:120 - Stopping: Maximum iterations (1) reached
+2026-10-07 09:45:59.727 | INFO     | polisyos.common.logger:_call:120 - Starting search 6449ece7
+2026-10-07 09:45:59.732 | WARNING  | polisyos.common.logger:_call:120 - Degraded path component=search.controller operation=resolve_policy_evaluation reason=policy_evaluation_parse_failed envelope={'component': 'search.controller', 'operation': 'resolve_policy_evaluation', 'reason': 'policy_evaluation_parse_failed', 'error_type': 'TypeError', 'message': 'policy evaluation is not an owner vector or admitted mapping', 'retryable': False, 'degraded': True, 'details': {'exception_type': 'TypeError'}}
+2026-10-07 09:45:59.732 | WARNING  | polisyos.common.logger:_call:120 - Degraded path component=search.controller operation=resolve_policy_evaluation reason=policy_evaluation_parse_failed envelope={'component': 'search.controller', 'operation': 'resolve_policy_evaluation', 'reason': 'policy_evaluation_parse_failed', 'error_type': 'TypeError', 'message': 'policy evaluation is not an owner vector or admitted mapping', 'retryable': False, 'degraded': True, 'details': {'exception_type': 'TypeError'}}
+2026-10-07 09:45:59.732 | INFO     | polisyos.common.logger:_call:120 - Stopping: Maximum iterations (1) reached
+2026-10-07 09:45:59.740 | INFO     | polisyos.common.logger:_call:120 - Starting search 20ebdde7
+2026-10-07 09:45:59.796 | INFO     | polisyos.common.logger:_call:120 - Stopping: Cost budget (1.0 USD) exhausted
+2026-10-07 09:45:59.806 | INFO     | polisyos.common.logger:_call:120 - Starting search af908184
+2026-10-07 09:45:59.814 | INFO     | polisyos.common.logger:_call:120 - Starting search 41c796b6
+2026-10-07 09:45:59.830 | INFO     | polisyos.common.logger:_call:120 - Stopping: generation_exhausted
+2026-10-07 09:45:59.836 | INFO     | polisyos.common.logger:_call:120 - Starting search bd56c269
+2026-10-07 09:45:59.837 | INFO     | polisyos.common.logger:_call:120 - Stopping: Cost budget (1.0 USD) exhausted
+2026-10-07 09:45:59.838 | INFO     | polisyos.common.logger:_call:120 - Starting search b6e2e105
+2026-10-07 09:45:59.839 | INFO     | polisyos.common.logger:_call:120 - Stopping: Maximum iterations (1) reached
+2026-10-07 09:45:59.843 | INFO     | polisyos.common.logger:_call:120 - Starting search 25f5d6fc
+2026-10-07 09:45:59.844 | WARNING  | polisyos.common.logger:_call:120 - Degraded path component=search.controller operation=resolve_policy_evaluation reason=policy_evaluation_parse_failed envelope={'component': 'search.controller', 'operation': 'resolve_policy_evaluation', 'reason': 'policy_evaluation_parse_failed', 'error_type': 'TypeError', 'message': 'policy evaluation is not an owner vector or admitted mapping', 'retryable': False, 'degraded': True, 'details': {'exception_type': 'TypeError'}}
+2026-10-07 09:45:59.844 | WARNING  | polisyos.common.logger:_call:120 - Degraded path component=search.controller operation=resolve_policy_evaluation reason=policy_evaluation_parse_failed envelope={'component': 'search.controller', 'operation': 'resolve_policy_evaluation', 'reason': 'policy_evaluation_parse_failed', 'error_type': 'TypeError', 'message': 'policy evaluation is not an owner vector or admitted mapping', 'retryable': False, 'degraded': True, 'details': {'exception_type': 'TypeError'}}
+2026-10-07 09:45:59.844 | INFO     | polisyos.common.logger:_call:120 - Stopping: Maximum iterations (1) reached
+2026-10-07 09:45:59.845 | INFO     | polisyos.common.logger:_call:120 - Starting search 42135cad
+2026-10-07 09:45:59.846 | INFO     | polisyos.common.logger:_call:120 - Stopping: Maximum iterations (1) reached
+2026-10-07 09:45:59.846 | INFO     | polisyos.common.logger:_call:120 - Starting search 1daf71e4
+2026-10-07 09:45:59.847 | INFO     | polisyos.common.logger:_call:120 - Stopping: Maximum iterations (1) reached
+2026-10-07 09:45:59.851 | INFO     | polisyos.common.logger:_call:120 - Starting search 55e13f08
+2026-10-07 09:45:59.851 | INFO     | polisyos.common.logger:_call:120 - Stopping: Initial sentinel evaluated
+2026-10-07 09:45:59.852 | INFO     | polisyos.common.logger:_call:120 - Starting search febf6ffa
+2026-10-07 09:45:59.853 | INFO     | polisyos.common.logger:_call:120 - Stopping: Maximum iterations (2) reached
+2026-10-07 09:45:59.854 | INFO     | polisyos.common.logger:_call:120 - Starting search 093a3303
+2026-10-07 09:45:59.859 | INFO     | polisyos.common.logger:_call:120 - Stopping: Maximum iterations (1) reached
+2026-10-07 09:45:59.862 | INFO     | polisyos.common.logger:_call:120 - Starting search 612ddfa5
+2026-10-07 09:46:00.946 | INFO     | polisyos.common.logger:_call:120 - Starting search 0ace98fd
+2026-10-07 09:46:01.488 | INFO     | polisyos.common.logger:_call:120 - Starting search 29952de3
+2026-10-07 09:46:01.489 | WARNING  | polisyos.common.logger:_call:120 - Degraded path component=search.controller operation=resolve_policy_evaluation reason=policy_evaluation_parse_failed envelope={'component': 'search.controller', 'operation': 'resolve_policy_evaluation', 'reason': 'policy_evaluation_parse_failed', 'error_type': 'ValidationError', 'message': "1 validation error for PolicyEvaluationVector\nunexpected\n  Extra inputs are not permitted [type=extra_forbidden, input_value='typed payload', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden", 'retryable': False, 'degraded': True, 'details': {'exception_type': 'ValidationError'}}
+2026-10-07 09:46:01.489 | WARNING  | polisyos.common.logger:_call:120 - Degraded path component=search.controller operation=resolve_policy_evaluation reason=policy_evaluation_parse_failed envelope={'component': 'search.controller', 'operation': 'resolve_policy_evaluation', 'reason': 'policy_evaluation_parse_failed', 'error_type': 'ValidationError', 'message': "1 validation error for PolicyEvaluationVector\nunexpected\n  Extra inputs are not permitted [type=extra_forbidden, input_value='typed payload', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden", 'retryable': False, 'degraded': True, 'details': {'exception_type': 'ValidationError'}}
+2026-10-07 09:46:01.489 | INFO     | polisyos.common.logger:_call:120 - Stopping: Maximum iterations (1) reached
+2026-10-07 09:46:01.490 | INFO     | polisyos.common.logger:_call:120 - Starting search 7c13c429
+2026-10-07 09:46:01.490 | INFO     | polisyos.common.logger:_call:120 - Stopping: Maximum iterations (1) reached
+2026-10-07 09:46:01.512 | INFO     | polisyos.common.logger:_call:120 - Starting search 01a84541
+2026-10-07 09:46:01.513 | INFO     | polisyos.common.logger:_call:120 - Stopping: budget_owner_admission_refused:BudgetLedgerCompletionRequiredError
+2026-10-07 09:46:01.533 | INFO     | polisyos.common.logger:_call:120 - Starting search d28572ec
+2026-10-07 09:46:01.534 | INFO     | polisyos.common.logger:_call:120 - Stopping: budget_owner_admission_refused:BudgetLedgerCompletionRequiredError
+2026-10-07 09:46:01.592 | INFO     | polisyos.common.logger:_call:120 - Starting search c60410db
+2026-10-07 09:46:01.593 | INFO     | polisyos.common.logger:_call:120 - Stopping: Cost budget unavailable for key 'cumulative_cost_usd'
+2026-10-07 09:46:01.621 | INFO     | polisyos.common.logger:_call:120 - Starting search ef878cf9
+2026-10-07 09:46:01.622 | INFO     | polisyos.common.logger:_call:120 - Stopping: Cost budget unavailable for key 'cumulative_cost_usd'
+2026-10-07 09:46:01.663 | INFO     | polisyos.common.logger:_call:120 - Starting search cb6b20c5
+2026-10-07 09:46:01.664 | INFO     | polisyos.common.logger:_call:120 - Stopping: Cost budget (1.0 USD) exhausted
+2026-10-07 09:46:01.715 | INFO     | polisyos.common.logger:_call:120 - Starting search 7c5bf5be
+2026-10-07 09:46:01.716 | INFO     | polisyos.common.logger:_call:120 - Stopping: budget_owner_admission_refused:BudgetExhaustedError
+2026-10-07 09:46:01.731 | INFO     | polisyos.common.logger:_call:120 - Starting search 8a32d7b0
+2026-10-07 09:46:01.763 | INFO     | polisyos.common.logger:_call:120 - Starting search 793b46a6
+2026-10-07 09:46:01.788 | INFO     | polisyos.common.logger:_call:120 - Stopping: Cost budget unavailable for key 'cumulative_cost_usd'
+2026-10-07 09:46:01.809 | INFO     | polisyos.common.logger:_call:120 - Starting search f23d6aba
+2026-10-07 09:46:01.809 | INFO     | polisyos.common.logger:_call:120 - Stopping: Cost budget unavailable for key 'cumulative_cost_usd'
+2026-10-07 09:46:01.833 | INFO     | polisyos.common.logger:_call:120 - Starting search f848c1ea
+2026-10-07 09:46:01.833 | INFO     | polisyos.common.logger:_call:120 - Stopping: Cost budget unavailable for key 'cumulative_cost_usd'
+2026-10-07 09:46:01.856 | INFO     | polisyos.common.logger:_call:120 - Starting search 8d6cb276
+2026-10-07 09:46:01.857 | INFO     | polisyos.common.logger:_call:120 - Stopping: Cost budget unavailable for key 'cumulative_cost_usd'
+2026-10-07 09:46:01.865 | INFO     | polisyos.common.logger:_call:120 - Starting search 3ff0ef53
+2026-10-07 09:46:01.909 | WARNING  | polisyos.common.logger:_call:120 - Degraded path component=search.controller operation=resolve_policy_evaluation reason=policy_evaluation_parse_failed envelope={'component': 'search.controller', 'operation': 'resolve_policy_evaluation', 'reason': 'policy_evaluation_parse_failed', 'error_type': 'ValidationError', 'message': "1 validation error for PolicyEvaluationVector\nunexpected\n  Extra inputs are not permitted [type=extra_forbidden, input_value='present malformed', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden", 'retryable': False, 'degraded': True, 'details': {'exception_type': 'ValidationError'}}
+2026-10-07 09:46:01.909 | WARNING  | polisyos.common.logger:_call:120 - Degraded path component=search.controller operation=resolve_policy_evaluation reason=policy_evaluation_parse_failed envelope={'component': 'search.controller', 'operation': 'resolve_policy_evaluation', 'reason': 'policy_evaluation_parse_failed', 'error_type': 'ValidationError', 'message': "1 validation error for PolicyEvaluationVector\nunexpected\n  Extra inputs are not permitted [type=extra_forbidden, input_value='present malformed', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden", 'retryable': False, 'degraded': True, 'details': {'exception_type': 'ValidationError'}}
+2026-10-07 09:46:01.924 | INFO     | polisyos.common.logger:_call:120 - Stopping: Maximum iterations (1) reached
+2026-10-07 09:46:01.967 | INFO     | polisyos.common.logger:_call:120 - Starting search c0826744
+2026-10-07 09:46:02.002 | WARNING  | polisyos.common.logger:_call:120 - Degraded path component=search.controller operation=resolve_policy_evaluation reason=policy_evaluation_bundle_parse_failed envelope={'component': 'search.controller', 'operation': 'resolve_policy_evaluation', 'reason': 'policy_evaluation_bundle_parse_failed', 'error_type': 'ValidationError', 'message': "1 validation error for PolicyEvaluationBundle\nunexpected\n  Extra inputs are not permitted [type=extra_forbidden, input_value='present malformed', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden", 'retryable': False, 'degraded': True, 'details': {'exception_type': 'ValidationError'}}
+2026-10-07 09:46:02.002 | WARNING  | polisyos.common.logger:_call:120 - Degraded path component=search.controller operation=resolve_policy_evaluation reason=policy_evaluation_bundle_parse_failed envelope={'component': 'search.controller', 'operation': 'resolve_policy_evaluation', 'reason': 'policy_evaluation_bundle_parse_failed', 'error_type': 'ValidationError', 'message': "1 validation error for PolicyEvaluationBundle\nunexpected\n  Extra inputs are not permitted [type=extra_forbidden, input_value='present malformed', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden", 'retryable': False, 'degraded': True, 'details': {'exception_type': 'ValidationError'}}
+2026-10-07 09:46:02.017 | INFO     | polisyos.common.logger:_call:120 - Stopping: Maximum iterations (1) reached
+2026-10-07 09:46:02.063 | INFO     | polisyos.common.logger:_call:120 - Starting search da82600b
+2026-10-07 09:46:02.104 | INFO     | polisyos.common.logger:_call:120 - Stopping: Maximum iterations (1) reached
+2026-10-07 09:46:02.149 | INFO     | polisyos.common.logger:_call:120 - Starting search 3e04f72f
+2026-10-07 09:46:02.200 | INFO     | polisyos.common.logger:_call:120 - Stopping: Maximum iterations (1) reached
+2026-10-07 09:46:02.266 | INFO     | polisyos.common.logger:_call:120 - Starting search c398be6c
+2026-10-07 09:46:02.401 | INFO     | polisyos.common.logger:_call:120 - Stopping: Maximum iterations (3) reached
+2026-10-07 09:46:02.465 | INFO     | polisyos.common.logger:_call:120 - Starting search 8087ae9d
+2026-10-07 09:46:02.603 | INFO     | polisyos.common.logger:_call:120 - Stopping: Maximum iterations (3) reached
+2026-10-07 09:46:03.340 | INFO     | polisyos.common.logger:_call:120 - Stopping: generation_exhausted

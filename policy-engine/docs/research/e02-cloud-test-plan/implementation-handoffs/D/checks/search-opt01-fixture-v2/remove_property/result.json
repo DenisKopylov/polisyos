@@ -1,0 +1,94 @@
+{
+  "mode": "remove_property",
+  "canonical_command": "cd policy-engine && python -m pytest -q tests/unit/scientist/methods/autotune/test_pareto.py tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py tests/unit/scientist/methods/search/test_hypervolume_limitations.py -ra",
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "-c",
+    "import hashlib,json,runpy,subprocess,sys\nfrom pathlib import Path\nimport pytest\nroot,source,observer,event,mode,*arguments=sys.argv[1:]\nObserver=runpy.run_path(observer)['Observer']\nclass Measurement(Observer):\n def pytest_sessionfinish(self,session,exitstatus):\n  origins={}\n  for name in ['polisyos.scientist.methods.autotune.pareto','polisyos.scientist.methods.autotune.models','polisyos.core.artifacts.store','polisyos.core.canon.canon_json']:\n   path=Path(sys.modules[name].__file__).resolve()\n   relative=path.relative_to(root).as_posix()\n   data=subprocess.check_output(['git','show',source+':'+relative],cwd=root)\n   origins[name]={'path':str(path),'git_path':relative,'sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'git_match':data==path.read_bytes()}\n   assert origins[name]['git_match']\n  self.emit('session_finish',exitstatus=int(exitstatus),native_origins=origins)\nif mode=='remove_property':\n from polisyos.scientist.methods.autotune.pareto import ParetoPromoter\n original=ParetoPromoter._assess_objective_vector\n def replace_unusable_with_zero(self,evaluation):\n  vector,missing,nonfinite=original(self,evaluation)\n  return (tuple(0.0 for _ in self._policies),[],[]) if vector is None else (vector,missing,nonfinite)\n ParetoPromoter._assess_objective_vector=replace_unusable_with_zero\n print('PROPERTY_REMOVAL: unusable required coordinates become zero; metadata, strict CAS reader and tests unchanged',flush=True)\nraise SystemExit(pytest.main(arguments,plugins=[Measurement(event)]))\n",
+    "/workspace/e02-D-published-search",
+    "c3fe956011df8185c226155b86488294fe16143e",
+    "/workspace/e02-D-published-search/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py.txt",
+    "/workspace/e02-D-published-search/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/remove_property/events.jsonl.txt",
+    "remove_property",
+    "-q",
+    "tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_unassessed_candidate_cannot_be_reported_as_not_dominated",
+    "tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_empty_and_invalid_front_preserves_schema_as_incomplete",
+    "tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_non_finite_and_missing_metrics_are_excluded_from_numeric_front",
+    "tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_mixed_objective_coverage_is_typed_and_keeps_finite_front",
+    "tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_duplicate_invalid_candidate_refs_keep_distinct_input_positions",
+    "-ra",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "--basetemp",
+    "/dev/shm/search-opt01-v2-remove_property-c041bc7286aa44dbae69853885b2f690",
+    "--junitxml",
+    "/workspace/e02-D-published-search/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/remove_property/junit.xml",
+    "-rA"
+  ],
+  "equivalent_pytest_argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-q",
+    "tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_unassessed_candidate_cannot_be_reported_as_not_dominated",
+    "tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_empty_and_invalid_front_preserves_schema_as_incomplete",
+    "tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_non_finite_and_missing_metrics_are_excluded_from_numeric_front",
+    "tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_mixed_objective_coverage_is_typed_and_keeps_finite_front",
+    "tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::test_duplicate_invalid_candidate_refs_keep_distinct_input_positions",
+    "-ra",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "--basetemp",
+    "/dev/shm/search-opt01-v2-remove_property-c041bc7286aa44dbae69853885b2f690",
+    "--junitxml",
+    "/workspace/e02-D-published-search/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-opt01-fixture-v2/remove_property/junit.xml",
+    "-rA"
+  ],
+  "basetemp": "/dev/shm/search-opt01-v2-remove_property-c041bc7286aa44dbae69853885b2f690",
+  "basetemp_existed_before": false,
+  "exit_code": 1,
+  "wall_seconds": 14.357302142001572,
+  "source_before": {
+    "head": "c3fe956011df8185c226155b86488294fe16143e",
+    "tree": "6a8be9c4e7d98dc42dd8244d25e8f72c6a1c7cf4",
+    "branch": "codex/e02-D-published-search",
+    "tracked_status": "",
+    "product_delta_from_base": "",
+    "utc": "2026-10-06T12:49:25.284594+00:00"
+  },
+  "source_after": {
+    "head": "c3fe956011df8185c226155b86488294fe16143e",
+    "tree": "6a8be9c4e7d98dc42dd8244d25e8f72c6a1c7cf4",
+    "branch": "codex/e02-D-published-search",
+    "tracked_status": "",
+    "product_delta_from_base": "",
+    "utc": "2026-10-06T12:49:39.642568+00:00"
+  },
+  "junit_counts": {
+    "tests": 5,
+    "failed": 4,
+    "errors": 0,
+    "skipped": 0,
+    "passed": 1
+  },
+  "outputs": {
+    "complete.txt": {
+      "bytes": 21100,
+      "sha256": "a5b7abb053c5af0529d24d37412c3dddda3f7082f8906fc3908b59be3ab2f1d7"
+    },
+    "events.jsonl.txt": {
+      "bytes": 16198,
+      "sha256": "b844a516696809092da73ed1c0cb6bda591285a9969360d0f6d2aace5ec33475"
+    },
+    "junit.xml": {
+      "bytes": 6078,
+      "sha256": "678fcbfa166003b26df124d98c4ac56dd8f4a8ad877b79a7985c9386e2b19816"
+    }
+  }
+}

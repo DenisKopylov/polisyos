@@ -1,0 +1,56 @@
+{
+  "steps": [
+    {
+      "argv": [
+        "uv",
+        "venv",
+        "--python",
+        "/workspace/e02-D-locked-env/bin/python",
+        "/workspace/e02-D-doe-env"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 0.061374664306640625,
+      "output": "Using CPython 3.14.7 interpreter at: /workspace/e02-D-locked-env/bin/python\nCreating virtual environment at: /workspace/e02-D-doe-env\nActivate with: source /workspace/e02-D-doe-env/bin/activate\n"
+    },
+    {
+      "argv": [
+        "uv",
+        "pip",
+        "install",
+        "--python",
+        "/workspace/e02-D-doe-env/bin/python",
+        "--no-deps",
+        "--require-hashes",
+        "-r",
+        "/workspace/e02-D3-receipts/doe-environment/requirements.txt"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 1.810211420059204,
+      "output": "Using Python 3.14.7 environment at: /workspace/e02-D-doe-env\nResolved 3 packages in 618ms\nPrepared 3 packages in 1.13s\nInstalled 3 packages in 3ms\n + dill==0.4.1\n + multiprocess==0.70.19\n + salib==1.5.2\n"
+    },
+    {
+      "argv": [
+        "/workspace/e02-D-doe-env/bin/python",
+        "-c",
+        "import importlib.metadata as m,json,sys; from SALib.sample import sobol; print(json.dumps({\"executable\":sys.executable,\"versions\":{n:m.version(n) for n in [\"SALib\",\"multiprocess\",\"dill\",\"numpy\",\"scipy\",\"pandas\",\"matplotlib\",\"botorch\",\"gpytorch\",\"torch\"]},\"actual_sobol_rows\":sobol.sample({\"num_vars\":1,\"names\":[\"x\"],\"bounds\":[[0,1]]},4,seed=17).tolist()}))"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 1.4901454448699951,
+      "output": "{\"executable\": \"/workspace/e02-D-doe-env/bin/python\", \"versions\": {\"SALib\": \"1.5.2\", \"multiprocess\": \"0.70.19\", \"dill\": \"0.4.1\", \"numpy\": \"2.3.5\", \"scipy\": \"1.16.3\", \"pandas\": \"2.3.3\", \"matplotlib\": \"3.10.8\", \"botorch\": \"0.16.1\", \"gpytorch\": \"1.15.1\", \"torch\": \"2.10.0\"}, \"actual_sobol_rows\": [[0.946460816077888], [0.7683451734483242], [0.946460816077888], [0.7683451734483242], [0.11367509048432112], [0.13445957098156214], [0.11367509048432112], [0.13445957098156214], [0.2585514821112156], [0.7041353303939104], [0.2585514821112156], [0.7041353303939104], [0.677289966493845], [0.3226854344829917], [0.677289966493845], [0.3226854344829917]]}\n"
+    }
+  ],
+  "shared_environment_mutated": false,
+  "reuse_purelib": "/workspace/e02-D-locked-env/lib/python3.14/site-packages",
+  "uv_lock_sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+  "schema": "policyos.e02.D.optional-doe-environment.v1",
+  "source_sha": "f2586cb5c0402eb6ceca25aac51a98602d8d418f",
+  "source_tree": "1158fd5644e83904189648d5531808be5f30bb90",
+  "environment_root": "/workspace/e02-D-doe-env",
+  "python": "/workspace/e02-D-doe-env/bin/python",
+  "pins_from": "policy-engine/uv.lock",
+  "requirement_file": "dill==0.4.1 --hash=sha256:1e1ce33e978ae97fcfcff5638477032b801c46c7c65cf717f95fbc2248f79a9d\nmultiprocess==0.70.19 --hash=sha256:e8cc7fbdff15c0613f0a1f1f8744bef961b0a164c0ca29bdff53e9d2d93c5e5f\nSALib==1.5.2 --hash=sha256:6f4b6bebc1eeed1d081c8f951fa8c2ad7b0cd8a7159d206af48ef137cc806c43\n",
+  "availability_check": "PASS actual SALib.sample.sobol seed17; native D/E workflow UNRUN at provisioning",
+  "previous_absence": "UNRUN: both prior interpreters lacked SALib and multiprocess",
+  "limitation": "Reuses original locked numeric site-packages through explicit .pth; shared installed environments untouched. Availability does not establish scientific law, optimizer outcome or actual D/E consumer.",
+  "cleanup": "No native Trash available; retain /workspace/e02-D-doe-env and /workspace/e02-D3-receipts/doe-environment. No permanent deletion."
+}

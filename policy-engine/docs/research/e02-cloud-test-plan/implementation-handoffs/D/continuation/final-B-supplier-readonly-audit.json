@@ -1,0 +1,840 @@
+{
+  "schema": "policyos.e02.readonly_supplier_audit.v1",
+  "unit": "D",
+  "scope": "Completed final B supplier remote/fetch/parser/source comparison; no capability runtime or product/test/source writes. Metadata recomputation only from the exact already-fetched immutable objects.",
+  "author": "/root/search_owner",
+  "closure_ids": [],
+  "previous_packet": {
+    "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/B-supplier-availability-20261006.json",
+    "present": true,
+    "blob": "97ee01f0eb56420ad457333f0903a799d1962c8e",
+    "bytes": 45878,
+    "sha256": "f69877c497f74e0bcd58be8d9881fbd512277a67a2d9ce41426a599c07696ef7",
+    "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+  },
+  "observed_remote_refs": {
+    "adapters": {
+      "branch": "refs/heads/codex/e02-B-current-adapters",
+      "sha": "b51d5469e20b39d0b9250bfced692f360eb93a57",
+      "packet_sha": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a",
+      "tree": "777c3a82afa395ef66c67012a48e70940949ebc7",
+      "packet_tree": "08002464d44374ad70c58c8fcfcb848715c48fb6"
+    },
+    "composition": {
+      "branch": "refs/heads/codex/e02-B-current-composition",
+      "sha": "d6339c7bfd87963b3d6e57bcaf1dc19c0e826149",
+      "packet_sha": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+      "tree": "67a84e1e43415eb1d646c88cdc96d6e79e92a11d",
+      "packet_tree": "0bf6400bb60358c99bdecfb7184382f271959144"
+    },
+    "durability": {
+      "branch": "refs/heads/codex/e02-B-current-durability",
+      "sha": "c85e5c5a87fe148cb8b69694a214e3bdd6967de2",
+      "packet_sha": "2d6318b0acc25fd30dfdf8de0229ef43e221c1b0",
+      "tree": "ffd279dd16bcfdafeaa0e9cceffde47e10ff818f",
+      "packet_tree": "f661a5a4c87c9dd9de4f85df68c4c47b5547443c"
+    },
+    "runtime": {
+      "branch": "refs/heads/codex/e02-B-current-runtime",
+      "sha": "f70eeaaff3a6ff43e0d5a88b61fcd9b9c32d99d2",
+      "packet_sha": "79094b7f05c88c0a494b295cd905594ca4cce8f4",
+      "tree": "8adc37677df4268f3d2e8b7338ac22bd919b2e24",
+      "packet_tree": "13d4bcd26070615b28e98c6d21227f42b008c902"
+    }
+  },
+  "completed_commands": [
+    {
+      "argv": [
+        "git",
+        "ls-remote",
+        "--heads",
+        "origin",
+        "refs/heads/codex/e02-B-current-adapters",
+        "refs/heads/codex/e02-B-current-composition",
+        "refs/heads/codex/e02-B-current-durability",
+        "refs/heads/codex/e02-B-current-runtime"
+      ],
+      "cwd": "/workspace/e02-D-published-search",
+      "exit_code": 0,
+      "stdout": "b51d5469e20b39d0b9250bfced692f360eb93a57\trefs/heads/codex/e02-B-current-adapters\nd6339c7bfd87963b3d6e57bcaf1dc19c0e826149\trefs/heads/codex/e02-B-current-composition\nc85e5c5a87fe148cb8b69694a214e3bdd6967de2\trefs/heads/codex/e02-B-current-durability\nf70eeaaff3a6ff43e0d5a88b61fcd9b9c32d99d2\trefs/heads/codex/e02-B-current-runtime\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "fetch",
+        "--no-tags",
+        "origin",
+        "b51d5469e20b39d0b9250bfced692f360eb93a57",
+        "d6339c7bfd87963b3d6e57bcaf1dc19c0e826149",
+        "c85e5c5a87fe148cb8b69694a214e3bdd6967de2",
+        "f70eeaaff3a6ff43e0d5a88b61fcd9b9c32d99d2"
+      ],
+      "cwd": "/workspace/e02-D-published-search",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "From https://github.com/DenisKopylov/polisyos\n * branch                b51d5469e20b39d0b9250bfced692f360eb93a57 -> FETCH_HEAD\n * branch                d6339c7bfd87963b3d6e57bcaf1dc19c0e826149 -> FETCH_HEAD\n * branch                c85e5c5a87fe148cb8b69694a214e3bdd6967de2 -> FETCH_HEAD\n * branch                f70eeaaff3a6ff43e0d5a88b61fcd9b9c32d99d2 -> FETCH_HEAD\n",
+      "scope": "Own FETCH_HEAD/objects only; exact pinned commits. No checkout, switch, source, branch or root mutation."
+    }
+  ],
+  "parser_comparison": [
+    {
+      "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "present": true,
+      "blob": "52005eecef61a6ed0b727a7a444e28cf3acfa1e4",
+      "bytes": 28121,
+      "sha256": "43ddf80278eef25a761bfcba103947d34769d4d32a9b804cb480c9b25c639da7",
+      "name": "root258",
+      "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd",
+      "method": "GatewayLLMClient._post_json",
+      "method_ast_sha256": "99594ed6164f229b485d201687ba5cdabbf10a9835d9777aa39e3b3e1dcbe6f5",
+      "line": 431,
+      "end_line": 541,
+      "json_loads_calls": [
+        {
+          "line": 508,
+          "source": "json.loads(raw_text)",
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "sha": "b51d5469e20b39d0b9250bfced692f360eb93a57",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "present": true,
+      "blob": "235b7e1b9008bb60323a464b10563d8d76520e78",
+      "bytes": 27826,
+      "sha256": "df2db47dfb56639242cbb14edff4740c2c177ea6400d435a89d2deafa4ee4c8c",
+      "name": "adapters",
+      "tree": "777c3a82afa395ef66c67012a48e70940949ebc7",
+      "method": "GatewayLLMClient._post_json",
+      "method_ast_sha256": "99594ed6164f229b485d201687ba5cdabbf10a9835d9777aa39e3b3e1dcbe6f5",
+      "line": 443,
+      "end_line": 553,
+      "json_loads_calls": [
+        {
+          "line": 520,
+          "source": "json.loads(raw_text)",
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "sha": "d6339c7bfd87963b3d6e57bcaf1dc19c0e826149",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "present": true,
+      "blob": "52005eecef61a6ed0b727a7a444e28cf3acfa1e4",
+      "bytes": 28121,
+      "sha256": "43ddf80278eef25a761bfcba103947d34769d4d32a9b804cb480c9b25c639da7",
+      "name": "composition",
+      "tree": "67a84e1e43415eb1d646c88cdc96d6e79e92a11d",
+      "method": "GatewayLLMClient._post_json",
+      "method_ast_sha256": "99594ed6164f229b485d201687ba5cdabbf10a9835d9777aa39e3b3e1dcbe6f5",
+      "line": 431,
+      "end_line": 541,
+      "json_loads_calls": [
+        {
+          "line": 508,
+          "source": "json.loads(raw_text)",
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "sha": "c85e5c5a87fe148cb8b69694a214e3bdd6967de2",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "present": true,
+      "blob": "52005eecef61a6ed0b727a7a444e28cf3acfa1e4",
+      "bytes": 28121,
+      "sha256": "43ddf80278eef25a761bfcba103947d34769d4d32a9b804cb480c9b25c639da7",
+      "name": "durability",
+      "tree": "ffd279dd16bcfdafeaa0e9cceffde47e10ff818f",
+      "method": "GatewayLLMClient._post_json",
+      "method_ast_sha256": "99594ed6164f229b485d201687ba5cdabbf10a9835d9777aa39e3b3e1dcbe6f5",
+      "line": 431,
+      "end_line": 541,
+      "json_loads_calls": [
+        {
+          "line": 508,
+          "source": "json.loads(raw_text)",
+          "keywords": []
+        }
+      ]
+    },
+    {
+      "sha": "f70eeaaff3a6ff43e0d5a88b61fcd9b9c32d99d2",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "present": true,
+      "blob": "52005eecef61a6ed0b727a7a444e28cf3acfa1e4",
+      "bytes": 28121,
+      "sha256": "43ddf80278eef25a761bfcba103947d34769d4d32a9b804cb480c9b25c639da7",
+      "name": "runtime",
+      "tree": "8adc37677df4268f3d2e8b7338ac22bd919b2e24",
+      "method": "GatewayLLMClient._post_json",
+      "method_ast_sha256": "99594ed6164f229b485d201687ba5cdabbf10a9835d9777aa39e3b3e1dcbe6f5",
+      "line": 431,
+      "end_line": 541,
+      "json_loads_calls": [
+        {
+          "line": 508,
+          "source": "json.loads(raw_text)",
+          "keywords": []
+        }
+      ]
+    }
+  ],
+  "parser_verdict": "All5 immutable method ASTs match previous packet digest. All calls remain json.loads(raw_text), no parse_float/parse_int/numeric-preservation keywords. No newly supplied lossless ±1e-1000 HTTP parser repair. This task executed no HTTP/backend test.",
+  "seven_path_contract_comparison": {
+    "paths": [
+      "policy-engine/src/polisyos/core/llm/settlement.py",
+      "policy-engine/src/polisyos/core/llm/response.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+      "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py"
+    ],
+    "branches": 4,
+    "cells": 28,
+    "all_packet_current_blobs_equal": true,
+    "complete_matrix": [
+      {
+        "branch": "adapters",
+        "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+        "packet": {
+          "sha": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a",
+          "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+          "present": true,
+          "blob": "a21bca5b1280069d6852bad0b5437d9783925886",
+          "bytes": 21507,
+          "sha256": "6d680b37b3107322ec79e56d6e7959b6605c5af22be641d6305f65bc495f78a7"
+        },
+        "current": {
+          "sha": "b51d5469e20b39d0b9250bfced692f360eb93a57",
+          "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+          "present": true,
+          "blob": "a21bca5b1280069d6852bad0b5437d9783925886",
+          "bytes": 21507,
+          "sha256": "6d680b37b3107322ec79e56d6e7959b6605c5af22be641d6305f65bc495f78a7"
+        },
+        "blob_equal": true
+      },
+      {
+        "branch": "adapters",
+        "path": "policy-engine/src/polisyos/core/llm/response.py",
+        "packet": {
+          "sha": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a",
+          "path": "policy-engine/src/polisyos/core/llm/response.py",
+          "present": true,
+          "blob": "33c7b310aef734b31c2ed2e61fe28d6525524b97",
+          "bytes": 8621,
+          "sha256": "9964c5183108f47143cec32b0beb8b65aa4de6df706757b3a1f02be1c77b0581"
+        },
+        "current": {
+          "sha": "b51d5469e20b39d0b9250bfced692f360eb93a57",
+          "path": "policy-engine/src/polisyos/core/llm/response.py",
+          "present": true,
+          "blob": "33c7b310aef734b31c2ed2e61fe28d6525524b97",
+          "bytes": 8621,
+          "sha256": "9964c5183108f47143cec32b0beb8b65aa4de6df706757b3a1f02be1c77b0581"
+        },
+        "blob_equal": true
+      },
+      {
+        "branch": "adapters",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "packet": {
+          "sha": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "present": true,
+          "blob": "edc20aeef614fa3486868b04fc4be03ace992893",
+          "bytes": 59381,
+          "sha256": "312f31fd3fd6062124b3124a526e4997f6d05e3d79b9c5ce0ec968dec5a41efe"
+        },
+        "current": {
+          "sha": "b51d5469e20b39d0b9250bfced692f360eb93a57",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "present": true,
+          "blob": "edc20aeef614fa3486868b04fc4be03ace992893",
+          "bytes": 59381,
+          "sha256": "312f31fd3fd6062124b3124a526e4997f6d05e3d79b9c5ce0ec968dec5a41efe"
+        },
+        "blob_equal": true
+      },
+      {
+        "branch": "adapters",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "packet": {
+          "sha": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+          "present": true,
+          "blob": "596731c164fc1ad264b4f157f74b58cf73f7c513",
+          "bytes": 10751,
+          "sha256": "6ad7d0eddbfa7aef9f6f32de5c35505047016367a8b6aa54edbdba99eba3c0f8"
+        },
+        "current": {
+          "sha": "b51d5469e20b39d0b9250bfced692f360eb93a57",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+          "present": true,
+          "blob": "596731c164fc1ad264b4f157f74b58cf73f7c513",
+          "bytes": 10751,
+          "sha256": "6ad7d0eddbfa7aef9f6f32de5c35505047016367a8b6aa54edbdba99eba3c0f8"
+        },
+        "blob_equal": true
+      },
+      {
+        "branch": "adapters",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "packet": {
+          "sha": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+          "present": true,
+          "blob": "70b6067337a239d98ae468f2d8cb229a1d7bd336",
+          "bytes": 58032,
+          "sha256": "66432ce3a2844a8e8b3dee12ada29c7cd093a6aa93065b20234498724e6db71a"
+        },
+        "current": {
+          "sha": "b51d5469e20b39d0b9250bfced692f360eb93a57",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+          "present": true,
+          "blob": "70b6067337a239d98ae468f2d8cb229a1d7bd336",
+          "bytes": 58032,
+          "sha256": "66432ce3a2844a8e8b3dee12ada29c7cd093a6aa93065b20234498724e6db71a"
+        },
+        "blob_equal": true
+      },
+      {
+        "branch": "adapters",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+        "packet": {
+          "sha": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+          "present": true,
+          "blob": "e4aece7bace8cc969a0c896727c09cd80cef25bf",
+          "bytes": 43152,
+          "sha256": "e84db90c7c193c721602c506229cce6b7ab3d1af051e26ef032692992d66a7d5"
+        },
+        "current": {
+          "sha": "b51d5469e20b39d0b9250bfced692f360eb93a57",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+          "present": true,
+          "blob": "e4aece7bace8cc969a0c896727c09cd80cef25bf",
+          "bytes": 43152,
+          "sha256": "e84db90c7c193c721602c506229cce6b7ab3d1af051e26ef032692992d66a7d5"
+        },
+        "blob_equal": true
+      },
+      {
+        "branch": "adapters",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+        "packet": {
+          "sha": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+          "present": true,
+          "blob": "311b66e54dea6c49c4a295121f3ece57aa4a30b9",
+          "bytes": 9508,
+          "sha256": "e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68"
+        },
+        "current": {
+          "sha": "b51d5469e20b39d0b9250bfced692f360eb93a57",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+          "present": true,
+          "blob": "311b66e54dea6c49c4a295121f3ece57aa4a30b9",
+          "bytes": 9508,
+          "sha256": "e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68"
+        },
+        "blob_equal": true
+      },
+      {
+        "branch": "composition",
+        "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+        "packet": {
+          "sha": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+          "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+          "present": false
+        },
+        "current": {
+          "sha": "d6339c7bfd87963b3d6e57bcaf1dc19c0e826149",
+          "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+          "present": false
+        },
+        "blob_equal": true
+      },
+      {
+        "branch": "composition",
+        "path": "policy-engine/src/polisyos/core/llm/response.py",
+        "packet": {
+          "sha": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+          "path": "policy-engine/src/polisyos/core/llm/response.py",
+          "present": true,
+          "blob": "7f994fec0b2b9a8da55a10d9a101f5ebe2ca2144",
+          "bytes": 7266,
+          "sha256": "e1eb1142786bee44c0400547ac020bb45ca0df5037f995a593f7f0c6c8245627"
+        },
+        "current": {
+          "sha": "d6339c7bfd87963b3d6e57bcaf1dc19c0e826149",
+          "path": "policy-engine/src/polisyos/core/llm/response.py",
+          "present": true,
+          "blob": "7f994fec0b2b9a8da55a10d9a101f5ebe2ca2144",
+          "bytes": 7266,
+          "sha256": "e1eb1142786bee44c0400547ac020bb45ca0df5037f995a593f7f0c6c8245627"
+        },
+        "blob_equal": true
+      },
+      {
+        "branch": "composition",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "packet": {
+          "sha": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "present": true,
+          "blob": "4a223413b8f81a07db4e11fd2aa310a615123b62",
+          "bytes": 15990,
+          "sha256": "5930d2decb1f8f952237aa02d542f0e7a162bfc053c139a835248d0f3cbe23dc"
+        },
+        "current": {
+          "sha": "d6339c7bfd87963b3d6e57bcaf1dc19c0e826149",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "present": true,
+          "blob": "4a223413b8f81a07db4e11fd2aa310a615123b62",
+          "bytes": 15990,
+          "sha256": "5930d2decb1f8f952237aa02d542f0e7a162bfc053c139a835248d0f3cbe23dc"
+        },
+        "blob_equal": true
+      },
+      {
+        "branch": "composition",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "packet": {
+          "sha": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+          "present": true,
+          "blob": "9ec1ef8622779386ff7740df58781caa9643c9d4",
+          "bytes": 4060,
+          "sha256": "b4f23451fcb1eb71ba5cc26b2d985c71e5fe71093aba73c4a4eadb82292e7952"
+        },
+        "current": {
+          "sha": "d6339c7bfd87963b3d6e57bcaf1dc19c0e826149",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+          "present": true,
+          "blob": "9ec1ef8622779386ff7740df58781caa9643c9d4",
+          "bytes": 4060,
+          "sha256": "b4f23451fcb1eb71ba5cc26b2d985c71e5fe71093aba73c4a4eadb82292e7952"
+        },
+        "blob_equal": true
+      },
+      {
+        "branch": "composition",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "packet": {
+          "sha": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+          "present": true,
+          "blob": "a9495ddede391755196189929ee02c10f75364cd",
+          "bytes": 16299,
+          "sha256": "54941c92d7c8642afc45bdd8f1e957784b1a70b20d23721f1234fabc62aa8557"
+        },
+        "current": {
+          "sha": "d6339c7bfd87963b3d6e57bcaf1dc19c0e826149",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+          "present": true,
+          "blob": "a9495ddede391755196189929ee02c10f75364cd",
+          "bytes": 16299,
+          "sha256": "54941c92d7c8642afc45bdd8f1e957784b1a70b20d23721f1234fabc62aa8557"
+        },
+        "blob_equal": true
+      },
+      {
+        "branch": "composition",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+        "packet": {
+          "sha": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+          "present": true,
+          "blob": "e339ef2fbf1a3e8718e6154d57d782a8298bed63",
+          "bytes": 26825,
+          "sha256": "3b07ed40a82ea2f0e302e3406944c68b6b0497b49e054d5399b27c36473dc903"
+        },
+        "current": {
+          "sha": "d6339c7bfd87963b3d6e57bcaf1dc19c0e826149",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+          "present": true,
+          "blob": "e339ef2fbf1a3e8718e6154d57d782a8298bed63",
+          "bytes": 26825,
+          "sha256": "3b07ed40a82ea2f0e302e3406944c68b6b0497b49e054d5399b27c36473dc903"
+        },
+        "blob_equal": true
+      },
+      {
+        "branch": "composition",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+        "packet": {
+          "sha": "85e97d91801bac9a4314655e81a4fe8c68a17235",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+          "present": true,
+          "blob": "1e2be71d382f95f660b0b40a82006709308c7c65",
+          "bytes": 9249,
+          "sha256": "ed56939b568bd84996a904436c78b11a95cd96e6ba9d6acd3581ba9c344ff308"
+        },
+        "current": {
+          "sha": "d6339c7bfd87963b3d6e57bcaf1dc19c0e826149",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+          "present": true,
+          "blob": "1e2be71d382f95f660b0b40a82006709308c7c65",
+          "bytes": 9249,
+          "sha256": "ed56939b568bd84996a904436c78b11a95cd96e6ba9d6acd3581ba9c344ff308"
+        },
+        "blob_equal": true
+      },
+      {
+        "branch": "durability",
+        "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+        "packet": {
+          "sha": "2d6318b0acc25fd30dfdf8de0229ef43e221c1b0",
+          "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+          "present": true,
+          "blob": "c2c631442a3ecf7587425445565d723598eaba81",
+          "bytes": 8687,
+          "sha256": "c2d9ee2d061898a7b4f31181cd9ef23ebf193c467ad4bb18785dcd435f189c3b"
+        },
+        "current": {
+          "sha": "c85e5c5a87fe148cb8b69694a214e3bdd6967de2",
+          "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+          "present": true,
+          "blob": "c2c631442a3ecf7587425445565d723598eaba81",
+          "bytes": 8687,
+          "sha256": "c2d9ee2d061898a7b4f31181cd9ef23ebf193c467ad4bb18785dcd435f189c3b"
+        },
+        "blob_equal": true
+      },
+      {
+        "branch": "durability",
+        "path": "policy-engine/src/polisyos/core/llm/response.py",
+        "packet": {
+          "sha": "2d6318b0acc25fd30dfdf8de0229ef43e221c1b0",
+          "path": "policy-engine/src/polisyos/core/llm/response.py",
+          "present": true,
+          "blob": "947105fccabb40710f563e3e57d71ed06e7f0bb3",
+          "bytes": 7635,
+          "sha256": "04778d8fe0dd2cb6e29a9547865321afb92e8355fbbffd602f5d4e276948f6af"
+        },
+        "current": {
+          "sha": "c85e5c5a87fe148cb8b69694a214e3bdd6967de2",
+          "path": "policy-engine/src/polisyos/core/llm/response.py",
+          "present": true,
+          "blob": "947105fccabb40710f563e3e57d71ed06e7f0bb3",
+          "bytes": 7635,
+          "sha256": "04778d8fe0dd2cb6e29a9547865321afb92e8355fbbffd602f5d4e276948f6af"
+        },
+        "blob_equal": true
+      },
+      {
+        "branch": "durability",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "packet": {
+          "sha": "2d6318b0acc25fd30dfdf8de0229ef43e221c1b0",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "present": true,
+          "blob": "edc20aeef614fa3486868b04fc4be03ace992893",
+          "bytes": 59381,
+          "sha256": "312f31fd3fd6062124b3124a526e4997f6d05e3d79b9c5ce0ec968dec5a41efe"
+        },
+        "current": {
+          "sha": "c85e5c5a87fe148cb8b69694a214e3bdd6967de2",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "present": true,
+          "blob": "edc20aeef614fa3486868b04fc4be03ace992893",
+          "bytes": 59381,
+          "sha256": "312f31fd3fd6062124b3124a526e4997f6d05e3d79b9c5ce0ec968dec5a41efe"
+        },
+        "blob_equal": true
+      },
+      {
+        "branch": "durability",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "packet": {
+          "sha": "2d6318b0acc25fd30dfdf8de0229ef43e221c1b0",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+          "present": true,
+          "blob": "596731c164fc1ad264b4f157f74b58cf73f7c513",
+          "bytes": 10751,
+          "sha256": "6ad7d0eddbfa7aef9f6f32de5c35505047016367a8b6aa54edbdba99eba3c0f8"
+        },
+        "current": {
+          "sha": "c85e5c5a87fe148cb8b69694a214e3bdd6967de2",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+          "present": true,
+          "blob": "596731c164fc1ad264b4f157f74b58cf73f7c513",
+          "bytes": 10751,
+          "sha256": "6ad7d0eddbfa7aef9f6f32de5c35505047016367a8b6aa54edbdba99eba3c0f8"
+        },
+        "blob_equal": true
+      },
+      {
+        "branch": "durability",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "packet": {
+          "sha": "2d6318b0acc25fd30dfdf8de0229ef43e221c1b0",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+          "present": true,
+          "blob": "ac98ed93e6c48d8f409f10e37d8133bd676a0569",
+          "bytes": 28432,
+          "sha256": "dd6a95c397d7fac287cc26ff1f18c37e4d18c0b1abb152bd04f43f9a0efcd61e"
+        },
+        "current": {
+          "sha": "c85e5c5a87fe148cb8b69694a214e3bdd6967de2",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+          "present": true,
+          "blob": "ac98ed93e6c48d8f409f10e37d8133bd676a0569",
+          "bytes": 28432,
+          "sha256": "dd6a95c397d7fac287cc26ff1f18c37e4d18c0b1abb152bd04f43f9a0efcd61e"
+        },
+        "blob_equal": true
+      },
+      {
+        "branch": "durability",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+        "packet": {
+          "sha": "2d6318b0acc25fd30dfdf8de0229ef43e221c1b0",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+          "present": true,
+          "blob": "b1e91052c288df38bfa451cdee6a0436d4836b35",
+          "bytes": 37271,
+          "sha256": "5a5e011522d661e6da34cab1c15c00e77b4cf9549da52240b77f64e8db779462"
+        },
+        "current": {
+          "sha": "c85e5c5a87fe148cb8b69694a214e3bdd6967de2",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+          "present": true,
+          "blob": "b1e91052c288df38bfa451cdee6a0436d4836b35",
+          "bytes": 37271,
+          "sha256": "5a5e011522d661e6da34cab1c15c00e77b4cf9549da52240b77f64e8db779462"
+        },
+        "blob_equal": true
+      },
+      {
+        "branch": "durability",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+        "packet": {
+          "sha": "2d6318b0acc25fd30dfdf8de0229ef43e221c1b0",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+          "present": true,
+          "blob": "311b66e54dea6c49c4a295121f3ece57aa4a30b9",
+          "bytes": 9508,
+          "sha256": "e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68"
+        },
+        "current": {
+          "sha": "c85e5c5a87fe148cb8b69694a214e3bdd6967de2",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+          "present": true,
+          "blob": "311b66e54dea6c49c4a295121f3ece57aa4a30b9",
+          "bytes": 9508,
+          "sha256": "e7df151746213f3d7df9fda50b80a8e76f955f9444b9f627c6751fc0772cce68"
+        },
+        "blob_equal": true
+      },
+      {
+        "branch": "runtime",
+        "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+        "packet": {
+          "sha": "79094b7f05c88c0a494b295cd905594ca4cce8f4",
+          "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+          "present": false
+        },
+        "current": {
+          "sha": "f70eeaaff3a6ff43e0d5a88b61fcd9b9c32d99d2",
+          "path": "policy-engine/src/polisyos/core/llm/settlement.py",
+          "present": false
+        },
+        "blob_equal": true
+      },
+      {
+        "branch": "runtime",
+        "path": "policy-engine/src/polisyos/core/llm/response.py",
+        "packet": {
+          "sha": "79094b7f05c88c0a494b295cd905594ca4cce8f4",
+          "path": "policy-engine/src/polisyos/core/llm/response.py",
+          "present": true,
+          "blob": "7f994fec0b2b9a8da55a10d9a101f5ebe2ca2144",
+          "bytes": 7266,
+          "sha256": "e1eb1142786bee44c0400547ac020bb45ca0df5037f995a593f7f0c6c8245627"
+        },
+        "current": {
+          "sha": "f70eeaaff3a6ff43e0d5a88b61fcd9b9c32d99d2",
+          "path": "policy-engine/src/polisyos/core/llm/response.py",
+          "present": true,
+          "blob": "7f994fec0b2b9a8da55a10d9a101f5ebe2ca2144",
+          "bytes": 7266,
+          "sha256": "e1eb1142786bee44c0400547ac020bb45ca0df5037f995a593f7f0c6c8245627"
+        },
+        "blob_equal": true
+      },
+      {
+        "branch": "runtime",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "packet": {
+          "sha": "79094b7f05c88c0a494b295cd905594ca4cce8f4",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "present": true,
+          "blob": "4a223413b8f81a07db4e11fd2aa310a615123b62",
+          "bytes": 15990,
+          "sha256": "5930d2decb1f8f952237aa02d542f0e7a162bfc053c139a835248d0f3cbe23dc"
+        },
+        "current": {
+          "sha": "f70eeaaff3a6ff43e0d5a88b61fcd9b9c32d99d2",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "present": true,
+          "blob": "4a223413b8f81a07db4e11fd2aa310a615123b62",
+          "bytes": 15990,
+          "sha256": "5930d2decb1f8f952237aa02d542f0e7a162bfc053c139a835248d0f3cbe23dc"
+        },
+        "blob_equal": true
+      },
+      {
+        "branch": "runtime",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "packet": {
+          "sha": "79094b7f05c88c0a494b295cd905594ca4cce8f4",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+          "present": true,
+          "blob": "9ec1ef8622779386ff7740df58781caa9643c9d4",
+          "bytes": 4060,
+          "sha256": "b4f23451fcb1eb71ba5cc26b2d985c71e5fe71093aba73c4a4eadb82292e7952"
+        },
+        "current": {
+          "sha": "f70eeaaff3a6ff43e0d5a88b61fcd9b9c32d99d2",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+          "present": true,
+          "blob": "9ec1ef8622779386ff7740df58781caa9643c9d4",
+          "bytes": 4060,
+          "sha256": "b4f23451fcb1eb71ba5cc26b2d985c71e5fe71093aba73c4a4eadb82292e7952"
+        },
+        "blob_equal": true
+      },
+      {
+        "branch": "runtime",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+        "packet": {
+          "sha": "79094b7f05c88c0a494b295cd905594ca4cce8f4",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+          "present": true,
+          "blob": "a9495ddede391755196189929ee02c10f75364cd",
+          "bytes": 16299,
+          "sha256": "54941c92d7c8642afc45bdd8f1e957784b1a70b20d23721f1234fabc62aa8557"
+        },
+        "current": {
+          "sha": "f70eeaaff3a6ff43e0d5a88b61fcd9b9c32d99d2",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+          "present": true,
+          "blob": "a9495ddede391755196189929ee02c10f75364cd",
+          "bytes": 16299,
+          "sha256": "54941c92d7c8642afc45bdd8f1e957784b1a70b20d23721f1234fabc62aa8557"
+        },
+        "blob_equal": true
+      },
+      {
+        "branch": "runtime",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+        "packet": {
+          "sha": "79094b7f05c88c0a494b295cd905594ca4cce8f4",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+          "present": true,
+          "blob": "e339ef2fbf1a3e8718e6154d57d782a8298bed63",
+          "bytes": 26825,
+          "sha256": "3b07ed40a82ea2f0e302e3406944c68b6b0497b49e054d5399b27c36473dc903"
+        },
+        "current": {
+          "sha": "f70eeaaff3a6ff43e0d5a88b61fcd9b9c32d99d2",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+          "present": true,
+          "blob": "e339ef2fbf1a3e8718e6154d57d782a8298bed63",
+          "bytes": 26825,
+          "sha256": "3b07ed40a82ea2f0e302e3406944c68b6b0497b49e054d5399b27c36473dc903"
+        },
+        "blob_equal": true
+      },
+      {
+        "branch": "runtime",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+        "packet": {
+          "sha": "79094b7f05c88c0a494b295cd905594ca4cce8f4",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+          "present": true,
+          "blob": "1e2be71d382f95f660b0b40a82006709308c7c65",
+          "bytes": 9249,
+          "sha256": "ed56939b568bd84996a904436c78b11a95cd96e6ba9d6acd3581ba9c344ff308"
+        },
+        "current": {
+          "sha": "f70eeaaff3a6ff43e0d5a88b61fcd9b9c32d99d2",
+          "path": "policy-engine/src/polisyos/scientist/orchestration/llm/factory.py",
+          "present": true,
+          "blob": "1e2be71d382f95f660b0b40a82006709308c7c65",
+          "bytes": 9249,
+          "sha256": "ed56939b568bd84996a904436c78b11a95cd96e6ba9d6acd3581ba9c344ff308"
+        },
+        "blob_equal": true
+      }
+    ],
+    "command_pattern": [
+      "git",
+      "diff",
+      "--name-only",
+      "<packet_sha>",
+      "<current_sha>",
+      "--",
+      "<seven_paths>"
+    ],
+    "changed_paths_by_branch": {
+      "adapters": [],
+      "composition": [],
+      "durability": [],
+      "runtime": []
+    }
+  },
+  "adapter_gateway_delta": {
+    "from": "31d613077b1fc8e5d48ffde4af7f1ba855657b0a",
+    "to": "b51d5469e20b39d0b9250bfced692f360eb93a57",
+    "diff_command": [
+      "git",
+      "diff",
+      "31d613077b1fc8e5d48ffde4af7f1ba855657b0a",
+      "b51d5469e20b39d0b9250bfced692f360eb93a57",
+      "--",
+      "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py"
+    ],
+    "complete_output": "diff --git a/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py b/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py\nindex 337af9293..235b7e1b9 100644\n--- a/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py\n+++ b/policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py\n@@ -631,6 +631,7 @@ class GatewayLLMClient:\n                     )\n                 )\n \n+        response_headers = payload.get(\"_gateway_response_headers\")\n         return GatewayLLMResponse(\n             content=content,\n             usage=usage,\n@@ -638,9 +639,7 @@ class GatewayLLMClient:\n             provider=_as_str(payload.get(\"provider\")) or self.provider_hint,\n             request_id=_as_str(payload.get(\"_gateway_request_id\")),\n             response_headers=(\n-                dict(payload.get(\"_gateway_response_headers\"))\n-                if isinstance(payload.get(\"_gateway_response_headers\"), dict)\n-                else None\n+                dict(response_headers) if isinstance(response_headers, dict) else None\n             ),\n             raw=payload,\n             tool_calls=tool_calls,\n",
+    "meaning": "Response headers bound once in local variable; parser method and paid settlement contract unchanged."
+  },
+  "B120_disposition": "No newly available lossless Gateway decoder supplier fix. Existing canonical B decoder owner remains needed for preserving raw ±1e-1000 values before D admission; no new PASS or new runtime result inferred.",
+  "already_provided_paid_cache": {
+    "state": "PROVIDED_BOUNDED13PASS",
+    "implementation_sha": "0c039c0a58981e6c33271e121d6bcb0e8621fa97",
+    "receipt_sha": "89f0520e7176bc15e86fdad4ca087e5b8335e2af",
+    "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/llm-cache-native-custody.json",
+    "actual_runtime_sha": "06c538cb5e18ffc9a67b754d74a67d9a4ea7cd04",
+    "no_missing_capability_flag": true,
+    "scope": "Local native paid receipt/freshreader/cache custody13PASS remains exact historical scope; no invoice/globalfactory claim."
+  },
+  "preservation": {
+    "own_head_before_after": "89f0520e7176bc15e86fdad4ca087e5b8335e2af",
+    "own_tree_before_after": "c7f2e3c7f3bd401b3f36dc019642e229bc53dcf6",
+    "own_status_before_after": "",
+    "new_backend_tests": 0,
+    "root_writes": false,
+    "product_test_configuration_writes": false,
+    "worktrees_or_checkouts": false,
+    "source_body_copies": false,
+    "deletion": false,
+    "new_metadata_file_only": true
+  },
+  "observation_time": "not_recorded; do not invent a remote observation timestamp",
+  "predicate_basis": "recomputed",
+  "limitations": [
+    "Exact immutable branch snapshots only; remote branches may advance after observed refs.",
+    "No supplier-wide quality, compatible deployment, invoice or formal finding closure is inferred.",
+    "Root documentation advanced separately during read-only audit; parser comparison is pinned to exact root258."
+  ],
+  "completed_commands_output_basis": "Structured transcription of the successful completed tool stdout/stderr and exact command arguments; no original redirected fetch or ls-remote raw file was created. Immutable source/path/AST digests were recomputed for this audit file; this is not a new capability/runtime test."
+}

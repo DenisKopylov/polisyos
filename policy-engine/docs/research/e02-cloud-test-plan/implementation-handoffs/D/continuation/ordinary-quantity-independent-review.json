@@ -1,0 +1,80 @@
+{
+  "schema": "polisyos.e02.independent-ordinary-quantity-review.v1",
+  "reviewer": "numerical_oracle",
+  "verdict": "PASS in exact conditional ordinary 2D registry-to-report scope; no test/backend rerun",
+  "closure_ids": [],
+  "author_runtime_source": {
+    "sha": "e73bde06d5b796b99ad84898810b34985787be47",
+    "tree": "af25d6fef7ed0398ff2c1d221166984f3e458766",
+    "lane": "/workspace/e02-D-published-root",
+    "source_before_after_clean": true
+  },
+  "defining_test": {
+    "sha": "96694022d1e1ee5461ff25cf1d125bdae194c103",
+    "tree": "f10b02f56441942c4bae89eb630024e31c465cb3",
+    "path": "policy-engine/tests/unit/scientist/methods/search/test_registry_quantity_projection.py",
+    "sha256": "500342e870818200404d2322cf266877631fd4303798fe364104833ae94550e6",
+    "prior_fixture": "07ecd5f0714c72c1aa224d27dea2c1f0e0b91632 used str instead of existing typed ParetoView; its actual2FAIL remains a fixture/API misuse, not a production regression.",
+    "sole_fixture_delta": "Import/use ParetoView.GLOBAL_FEASIBLE; numerical cases and assertions unchanged."
+  },
+  "actual_result": {
+    "tests": 2,
+    "passed": 2,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "exit_code": 0,
+    "natural_completion": true,
+    "pytest_seconds": 12.42,
+    "wall_seconds": 17.039539673001855,
+    "complete_sha256": "e6f2ce27640dda81e3a01ae2e01f1a54498f9a7672d89575876e838816d4144c",
+    "captured_versions": {
+      "torch": null,
+      "botorch": null,
+      "gpytorch": null,
+      "pytest": "9.0.2"
+    },
+    "observer_scope": "No Torch/BoTorch/GPyTorch reported loaded; this is the supported pure2D quantity/profile, not optional-GP execution."
+  },
+  "independent_review": {
+    "complete_test_code_read": true,
+    "all8_original_measurement_files_hashed": true,
+    "all1127_reported_captured_product_submodule_hashes_match_exact_runtime_Git": true,
+    "same_quantity_and_registry_bytes_as4393": true,
+    "root_exporter_delta_present": true,
+    "source_helpers_read": "Stdlib capture+pytest observer, no caps/backend allocations in parent. Observer reports submodules against rootGit; root beforeafter SHA/status match.",
+    "assertion_basis": "MIN declared policy_value/employment coordinates; raw1e-200 and2e-200 -> positive exact Fraction width\u00b2 with float0; two tied raw1e-200 rows -> genuinezero. Independent rational discriminator unchanged; no model/kernel/posterior expected calculation.",
+    "consumer_path": [
+      "Persist two actual PolicyCandidateSchema refs",
+      "Public ParetoRegistry.update with each PolicyEvaluationVector and caller-declared two-axis basis",
+      "Fresh ParetoRegistry reads disk snapshot",
+      "Complete2/2 projection, exact ranked candidate hashes and assessment checked",
+      "Actual PolicyArtifactBuilder._build_frontier_report receives snapshot",
+      "Canonical persist_policy_frontier_report",
+      "Fresh FileSystemCAS +load_policy_frontier_report verifies metadata nullable quantity/full typed assessment/view projection/ranked refs"
+    ],
+    "underflow_output": "Global feasible valueNone, unavailable/not_established/nonzero_derived_hypervolume_underflow; one lower-cost frontier candidate, complete2/2.",
+    "zero_output": "Global feasible available/recomputed exact_empty0, both tied refs retained; no substitution of unavailable withzero."
+  },
+  "original_criteria": "B111@OPT-01 actual persisted derived quantity companion; B110 coordinate/rank projection companion. Original198 canonical OPT-01 scope remains unchanged; this does not close all criteria.",
+  "prior_independent_proof": {
+    "sha": "0a20b5012f9c9d46b6a45a1d7723d142ccebe556",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/subnormal-reindex-independent-candidate-review.json",
+    "resolution": "Resolves only its fresh ordinary underflow-update/report consumer dependency in this exact root composition. Default direct typed-model writer4FAIL remains explicit; generic default safety not inferred."
+  },
+  "binding_output": "ordinary-quantity-independent-binding.json",
+  "author_full_transport": "Pending separate owner Git package at review time; exact8 raw paths/byte counts/hashes retained in binding output, no immutable author transport SHA invented.",
+  "limitations": [
+    "Conditional declared two-axis basis and synthetic candidate/source fixture; no source-universe, eligible-population completeness or institutional unit appointment.",
+    "Calls actual builder projection method; no complete public build/promotion lifecycle or external A provider appointment inferred.",
+    "No separate model-fit instrumentation here; source/test path does not request fitting and observer reports optional GP modules absent. No GP numerical PASS claimed.",
+    "Observed1127 submodules bind this actual job; top-level polisyos and non-Python extensions are outside that reported denominator.",
+    "Initial fixture2FAIL, earlier default-model4FAIL and full independent baseline7FAIL remain preserved.",
+    "Root/G closure accounting, whole quality limits and final composed broad runtime remain separate."
+  ],
+  "cleanup_candidates_no_deletion": [
+    "/dev/shm/e02-oracle-ordinary-quantity-independent-binding.json",
+    "/tmp/e02-D-ordinary-quantity-root-10f7e1f739a449e18aa7b1d4f46d74d9",
+    "/tmp/e02-D-hv-fixtures-a2fb20a482bc4163892bd21b7a01e28b"
+  ]
+}

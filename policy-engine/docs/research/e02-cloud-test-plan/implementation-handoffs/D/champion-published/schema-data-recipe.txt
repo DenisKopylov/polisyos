@@ -1,0 +1,48 @@
+from __future__ import annotations
+import hashlib, importlib.util, json, subprocess, sys, tempfile
+from pathlib import Path
+from pydantic import ValidationError
+from polisyos.core.artifacts.manifest import InputRef
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.scientist.methods.autotune.models import BenchmarkEvaluation, BenchmarkSplit, BenchmarkSuite, load_json_artifact, persist_benchmark_evaluation, persist_benchmark_suite
+from polisyos.scientist.methods.autotune.registry import ChampionRegistry
+ROOT = Path('/workspace/e02-D-published-champion')
+SOURCE = subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
+BASE = '198076863e143dea9f89f02734b13d50dae3eed5'
+old_path=Path('/dev/shm/e02-D2-champion-old-models.py')
+old_path.write_bytes(subprocess.check_output(['git','show',f'{BASE}:policy-engine/src/polisyos/scientist/methods/autotune/models.py'],cwd=ROOT))
+def module(name,path):
+    spec=importlib.util.spec_from_file_location(name,path)
+    obj=importlib.util.module_from_spec(spec); sys.modules[name]=obj; spec.loader.exec_module(obj); return obj
+old=module('champion_old_models',old_path)
+test=module('champion_schema_test',ROOT/'policy-engine/tests/unit/scientist/methods/autotune/test_promotion_basis_witness.py')
+with tempfile.TemporaryDirectory(prefix='champion-schema-',dir='/dev/shm') as directory:
+    store=FileSystemCAS(Path(directory)/'cas')
+    suite=test._suite(store)
+    candidate=test._candidate(store,suite,1)
+    evaluation=test._evaluation(store,suite,candidate,1)
+    print(json.dumps({'source_sha':SOURCE,'source_tree':subprocess.check_output(['git','rev-parse','HEAD^{tree}'],cwd=ROOT,text=True).strip(),'legacy_reader_source_sha':BASE,'legacy_reader_path':str(old_path),'legacy_reader_sha256':hashlib.sha256(old_path.read_bytes()).hexdigest(),'new_module_path':sys.modules[BenchmarkSuite.__module__].__file__,'suite':suite.model_dump(mode='json'),'evaluation':evaluation.model_dump(mode='json'),'schema_or_data_rollback_only':True,'persisted_search_service_restore':'unsupported_missing_API'},sort_keys=True))
+    for ref,cls,expected in ((suite,old.BenchmarkSuite,'data_basis'),(evaluation,old.BenchmarkEvaluation,'comparison_basis')):
+        try: old.load_model_artifact(store,ref,cls)
+        except ValidationError as exc:
+            errors=[{'loc':list(e['loc']),'type':e['type'],'msg':e['msg']} for e in exc.errors()]
+            assert any(e['loc']==[expected] and e['type']=='extra_forbidden' for e in errors), errors
+            assert not any(e['type']=='float_type' for e in errors), errors
+            print('OLDER_READER_REFUSED '+json.dumps({'kind':ref.kind,'errors':errors},sort_keys=True))
+        else: raise AssertionError(f'old reader admitted {ref.kind}')
+    body=load_json_artifact(store,evaluation)
+    body['comparison_basis']['schema_version']='benchmark-comparison.v2'
+    try: BenchmarkEvaluation.model_validate(body)
+    except ValidationError as exc:
+        assert any(e['loc']==('comparison_basis','schema_version') and e['type']=='literal_error' for e in exc.errors())
+        print('CURRENT_READER_UNKNOWN_COMPARISON_VERSION_REFUSED')
+    else: raise AssertionError('unknown version admitted')
+    unbound=persist_benchmark_suite(store,BenchmarkSuite(suite_id='comparison-suite'))
+    unbound_candidate=test._candidate(store,unbound,1)
+    legacy=persist_benchmark_evaluation(store,BenchmarkEvaluation(loop_id='comparison-witness',suite_id='comparison-suite',candidate_ref=unbound_candidate,holdout_metrics={'score':1.0},sample_counts={'holdout':1},runtime_split_type=BenchmarkSplit.HOLDOUT,promotable=True),inputs=[InputRef(artifact_id=unbound.artifact_id,role='benchmark_suite')])
+    registry=ChampionRegistry(root=Path(directory)/'registry',store=store)
+    decision=registry.consider_promotion('comparison-witness',unbound_candidate,legacy,test._policy(),suite_ref=unbound)
+    assert not decision.promoted and registry.get('comparison-witness') is None
+    assert decision.reason=='evaluation_comparison_basis_required',decision
+    print('CURRENT_READER_LEGACY_UNBOUND_COMPARISON_REFUSED '+decision.reason)
+print('PASS bounded persisted comparison schema/data compatibility; no SearchService restore or policy rollback claim.')

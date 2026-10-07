@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
-from polisyos.scientist.methods.autotune.dedup import TrialDeduplicator, TrialFingerprint
+from polisyos.scientist.methods.autotune.dedup import (
+    TrialDeduplicator,
+    TrialFingerprint,
+)
 from polisyos.scientist.methods.autotune.models import MutationArtifact
 
 
@@ -42,7 +45,11 @@ class TestTrialDeduplicator:
 
     def test_dict_candidate(self):
         dedup = TrialDeduplicator()
-        c = {"loop_id": "loop1", "artifact_version": "1.0", "search_space_version": "1.0"}
+        c = {
+            "loop_id": "loop1",
+            "artifact_version": "1.0",
+            "search_space_version": "1.0",
+        }
         dedup.register(c, "loop")
         assert dedup.is_duplicate(c, "loop") is True
 
@@ -63,4 +70,4 @@ class TestTrialDeduplicator:
         fp = dedup.register(_candidate("a"), "loop")
         assert isinstance(fp, TrialFingerprint)
         assert fp.loop_id == "loop"
-        assert len(fp.digest) == 16
+        assert len(fp.digest) == 64

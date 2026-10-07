@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="7" skipped="0" tests="85" time="11.208" timestamp="2026-10-06T15:10:03.602245+00:00" hostname="565838a1e059"><testcase classname="tests.unit.scientist.methods.autotune.test_hypervolume_profile" name="test_actual_quantity_is_exact_and_order_independent[points0-ref0-2.0]" time="0.005" /><testcase classname="tests.unit.scientist.methods.autotune.test_hypervolume_profile" name="test_actual_quantity_is_exact_and_order_independent[points1-ref1-5.0]" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_hypervolume_profile" name="test_actual_quantity_is_exact_and_order_independent[points2-ref2-0.0]" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_hypervolume_profile" name="test_actual_quantity_is_exact_and_order_independent[points3-ref3-16.0]" time="0.177" /><testcase classname="tests.unit.scientist.methods.autotune.test_hypervolume_profile" name="test_unsupported_backend_has_no_substitute_quantity" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_hypervolume_profile" name="test_mutable_scalar_input_is_refused_as_one_original_row[True]" time="0.002" /><testcase classname="tests.unit.scientist.methods.autotune.test_hypervolume_profile" name="test_mutable_scalar_input_is_refused_as_one_original_row[broken]" time="0.002" /><testcase classname="tests.unit.scientist.methods.autotune.test_hypervolume_profile" name="test_mutable_scalar_input_is_refused_as_one_original_row[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_hypervolume_profile" name="test_mutable_scalar_input_is_refused_as_one_original_row[nan]" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_hypervolume_profile" name="test_mutable_scalar_input_is_refused_as_one_original_row[inf]" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_hypervolume_profile" name="test_full_coordinate_version_split_unit_roundtrip_and_changed_basis_refusal" time="0.002" /><testcase classname="tests.unit.scientist.methods.search.strategies.test_multiobjective_hypervolume_admission" name="test_actual_strategy_quantity_and_backend_absence_are_distinct" time="0.721" /><testcase classname="tests.unit.scientist.methods.search.strategies.test_multiobjective_hypervolume_admission" name="test_strategy_excludes_invalid_scalar_without_fabricating_zero[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]" time="0.011"><failure message="dataclasses.FrozenInstanceError: cannot assign to field 'raw_value'">raw = 100000000000000000...0000000000000000000
+
+    @pytest.mark.parametrize("raw", [10**400, True, "broken", float("nan"), float("inf")])
+    def test_strategy_excludes_invalid_scalar_without_fabricating_zero(raw):
+        optimizer = strategy()
+        evaluations = rows()
+&gt;       evaluations[1].objectives[0].raw_value = raw
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ObjectiveValue(name='a', raw_value=1.0, direction=&lt;OptimizationDirection.MAXIMIZE: 'maximize'&gt;, weight=1.0, is_satisfied=True, threshold=None)
+name = 'raw_value', value = 100000000000000000...0000000000000000000
+
+&gt;   ???
+E   dataclasses.FrozenInstanceError: cannot assign to field 'raw_value'
+
+&lt;string&gt;:20: FrozenInstanceError</failure></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_multiobjective_hypervolume_admission" name="test_strategy_excludes_invalid_scalar_without_fabricating_zero[True]" time="0.001"><failure message="dataclasses.FrozenInstanceError: cannot assign to field 'raw_value'">raw = True
+
+    @pytest.mark.parametrize("raw", [10**400, True, "broken", float("nan"), float("inf")])
+    def test_strategy_excludes_invalid_scalar_without_fabricating_zero(raw):
+        optimizer = strategy()
+        evaluations = rows()
+&gt;       evaluations[1].objectives[0].raw_value = raw
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ObjectiveValue(name='a', raw_value=1.0, direction=&lt;OptimizationDirection.MAXIMIZE: 'maximize'&gt;, weight=1.0, is_satisfied=True, threshold=None)
+name = 'raw_value', value = True
+
+&gt;   ???
+E   dataclasses.FrozenInstanceError: cannot assign to field 'raw_value'
+
+&lt;string&gt;:20: FrozenInstanceError</failure></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_multiobjective_hypervolume_admission" name="test_strategy_excludes_invalid_scalar_without_fabricating_zero[broken]" time="0.001"><failure message="dataclasses.FrozenInstanceError: cannot assign to field 'raw_value'">raw = 'broken'
+
+    @pytest.mark.parametrize("raw", [10**400, True, "broken", float("nan"), float("inf")])
+    def test_strategy_excludes_invalid_scalar_without_fabricating_zero(raw):
+        optimizer = strategy()
+        evaluations = rows()
+&gt;       evaluations[1].objectives[0].raw_value = raw
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ObjectiveValue(name='a', raw_value=1.0, direction=&lt;OptimizationDirection.MAXIMIZE: 'maximize'&gt;, weight=1.0, is_satisfied=True, threshold=None)
+name = 'raw_value', value = 'broken'
+
+&gt;   ???
+E   dataclasses.FrozenInstanceError: cannot assign to field 'raw_value'
+
+&lt;string&gt;:20: FrozenInstanceError</failure></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_multiobjective_hypervolume_admission" name="test_strategy_excludes_invalid_scalar_without_fabricating_zero[nan]" time="0.001"><failure message="dataclasses.FrozenInstanceError: cannot assign to field 'raw_value'">raw = nan
+
+    @pytest.mark.parametrize("raw", [10**400, True, "broken", float("nan"), float("inf")])
+    def test_strategy_excludes_invalid_scalar_without_fabricating_zero(raw):
+        optimizer = strategy()
+        evaluations = rows()
+&gt;       evaluations[1].objectives[0].raw_value = raw
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ObjectiveValue(name='a', raw_value=1.0, direction=&lt;OptimizationDirection.MAXIMIZE: 'maximize'&gt;, weight=1.0, is_satisfied=True, threshold=None)
+name = 'raw_value', value = nan
+
+&gt;   ???
+E   dataclasses.FrozenInstanceError: cannot assign to field 'raw_value'
+
+&lt;string&gt;:20: FrozenInstanceError</failure></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_multiobjective_hypervolume_admission" name="test_strategy_excludes_invalid_scalar_without_fabricating_zero[inf]" time="0.001"><failure message="dataclasses.FrozenInstanceError: cannot assign to field 'raw_value'">raw = inf
+
+    @pytest.mark.parametrize("raw", [10**400, True, "broken", float("nan"), float("inf")])
+    def test_strategy_excludes_invalid_scalar_without_fabricating_zero(raw):
+        optimizer = strategy()
+        evaluations = rows()
+&gt;       evaluations[1].objectives[0].raw_value = raw
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ObjectiveValue(name='a', raw_value=1.0, direction=&lt;OptimizationDirection.MAXIMIZE: 'maximize'&gt;, weight=1.0, is_satisfied=True, threshold=None)
+name = 'raw_value', value = inf
+
+&gt;   ???
+E   dataclasses.FrozenInstanceError: cannot assign to field 'raw_value'
+
+&lt;string&gt;:20: FrozenInstanceError</failure></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_multiobjective_hypervolume_admission" name="test_actual_zero_and_no_usable_inputs_have_different_assessments" time="0.000"><failure message="dataclasses.FrozenInstanceError: cannot assign to field 'raw_value'">def test_actual_zero_and_no_usable_inputs_have_different_assessments():
+        optimizer = strategy()
+        evaluations = rows()
+        for evaluation in evaluations:
+&gt;           evaluation.objectives[1].raw_value = 0.0
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/methods/search/strategies/test_multiobjective_hypervolume_admission.py:72: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ObjectiveValue(name='b', raw_value=1.0, direction=&lt;OptimizationDirection.MAXIMIZE: 'maximize'&gt;, weight=1.0, is_satisfied=True, threshold=None)
+name = 'raw_value', value = 0.0
+
+&gt;   ???
+E   dataclasses.FrozenInstanceError: cannot assign to field 'raw_value'
+
+&lt;string&gt;:20: FrozenInstanceError</failure></testcase><testcase classname="tests.unit.scientist.methods.search.test_frontier_quantity_readback" name="test_registry_native_disk_reader_retains_quantity_unavailability" time="0.003" /><testcase classname="tests.unit.scientist.methods.search.test_frontier_quantity_readback" name="test_registry_computed_zero_stays_available_on_readback" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_two_objective_front" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_dominated_candidate" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_unassessed_candidate_cannot_be_reported_as_not_dominated" time="0.052" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_two_dimensional_fast_front_removes_equal_secondary_value_from_later_group" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_three_dimensional_fast_front_removes_equal_secondary_value_from_later_group" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_three_dimensional_same_first_group_uses_local_strict_dominance[points0-expected_indices0]" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_three_dimensional_same_first_group_uses_local_strict_dominance[points1-expected_indices1]" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_three_dimensional_same_first_group_retains_duplicate_and_incomparable_ties" time="0.000" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_three_dimensional_minimize_direction_keeps_lower_raw_cost" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_empty_evaluations" time="0.000" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_single_objective" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_non_dominated_on_empty_front" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_requires_at_least_one_policy" time="0.000" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_two_objective_front_preserves_duplicate_ties" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_coordinate_identity_keeps_split_unit_and_direction" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_single_axis_identity_preserves_split_and_direction_without_unit" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_single_axis_identity_distinguishes_absent_and_present_unit" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_coordinate_schema_round_trips_and_labels_reference_point" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_missing_coordinate_schema_is_explicit_legacy_or_fails_closed" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_tampered_coordinate_id_is_rejected" time="0.002" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_complete_v1_payload_has_exact_coordinate_and_reference_keys" time="0.005"><failure message="AssertionError: assert {'coordinate_...members', ...} == {'coordinate_...e_point', ...}&#10;  &#10;  Extra items in the left set:&#10;  'hypervolume_assessment'&#10;  Use -v to get more diff">self = &lt;tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront object at 0x7f0a45caf5c0&gt;
+
+    def test_complete_v1_payload_has_exact_coordinate_and_reference_keys(self):
+        """Complete v1 payloads expose one exact, mutually bound key set."""
+        # Catches the production mutation that adds a schema marker but leaves
+        # member/reference dictionaries on an untyped or divergent key set.
+        promoter = ParetoPromoter(_policies("score"))
+        payload = promoter.compute_front([_eval(score=1.0)]).model_dump(mode="json")
+    
+&gt;       assert set(payload) == {
+            "schema_version",
+            "members",
+            "hypervolume",
+            "reference_point",
+            "coordinate_schema",
+            "coordinate_reference_point",
+            "input_assessment",
+        }
+E       AssertionError: assert {'coordinate_...members', ...} == {'coordinate_...e_point', ...}
+E         
+E         Extra items in the left set:
+E         'hypervolume_assessment'
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/autotune/test_pareto.py:548: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_empty_and_invalid_front_preserves_schema_as_incomplete" time="0.038" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_empty_coordinate_values_cannot_yield_permissive_is_dominated_false" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_duplicate_full_coordinate_is_rejected" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_non_finite_and_missing_metrics_are_excluded_from_numeric_front" time="0.071" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_mixed_objective_coverage_is_typed_and_keeps_finite_front" time="0.060" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_reconstructed_input_assessment_rejects_duplicate_or_out_of_range_positions[omission_indices0]" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_reconstructed_input_assessment_rejects_duplicate_or_out_of_range_positions[omission_indices1]" time="0.000" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_validated_input_assessment_cannot_gain_an_omission_after_validation" time="0.000" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_duplicate_invalid_candidate_refs_keep_distinct_input_positions" time="0.035" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_invalid_reference_point_does_not_emit_non_finite_hypervolume" time="0.000" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_fast_front_matches_independent_slow_oracle[metric_names0-points0]" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_fast_front_matches_independent_slow_oracle[metric_names1-points1]" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_fast_front_matches_independent_slow_oracle[metric_names2-points2]" time="0.001" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto.TestParetoFront" name="test_three_objective_front_matches_slow_reference" time="0.007" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle" name="test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions0]" time="0.004" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle" name="test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions1]" time="0.004" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle" name="test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions2]" time="0.005" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle" name="test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions3]" time="0.005" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle" name="test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions4]" time="0.005" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle" name="test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions5]" time="0.005" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle" name="test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions6]" time="0.019" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle" name="test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions7]" time="0.019" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle" name="test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions8]" time="0.019" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle" name="test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions9]" time="0.021" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle" name="test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions10]" time="0.020" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle" name="test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions11]" time="0.019" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle" name="test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions12]" time="0.018" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle" name="test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions13]" time="0.019" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle" name="test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions14]" time="0.028" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle" name="test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions15]" time="0.028" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle" name="test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions16]" time="0.028" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle" name="test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions17]" time="0.029" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle" name="test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions18]" time="0.029" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle" name="test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions19]" time="0.029" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle" name="test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions20]" time="0.028" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle" name="test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions21]" time="0.028" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle" name="test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions22]" time="0.029" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle" name="test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions23]" time="0.031" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle" name="test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions24]" time="0.028" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle" name="test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions25]" time="0.029" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle" name="test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions26]" time="0.030" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle" name="test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions27]" time="0.032" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle" name="test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions28]" time="0.035" /><testcase classname="tests.unit.scientist.methods.autotune.test_pareto_numerical_oracle" name="test_declared_direction_lattice_matches_direct_dominance_after_permutation[directions29]" time="0.033" /></testsuite></testsuites>

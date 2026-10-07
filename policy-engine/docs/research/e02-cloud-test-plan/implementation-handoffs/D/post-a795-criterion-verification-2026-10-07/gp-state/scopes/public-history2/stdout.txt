@@ -1,0 +1,29 @@
+ACTUAL_MIXED_HISTORY_PUBLIC_CAS minimize sha256:02523971a9e1084da2e60bd0c9b991aad4aa99625616ce03d178b3e30e414a1e [[0.2], [0.4], [0.6], [0.8]] [[-20.0], [-8.0], [-4.0], [-8.0]] 5.507372638557091
+.ACTUAL_MIXED_HISTORY_PUBLIC_CAS maximize sha256:12303c0bb57800a0cca5448b73e88d61d5572e8ccf940c2a68c0db141bb5bf9c [[0.2], [0.4], [0.6], [0.8]] [[20.0], [8.0], [4.0], [8.0]] 0.6564334140737048
+.
+=============================== warnings summary ===============================
+../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1303
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1303: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; jaxtyping
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_mixed_history_formats_reach_public_generate_and_fresh_cas_next_proposal[minimize]
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_mixed_history_formats_reach_public_generate_and_fresh_cas_next_proposal[minimize]
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_mixed_history_formats_reach_public_generate_and_fresh_cas_next_proposal[minimize]
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_mixed_history_formats_reach_public_generate_and_fresh_cas_next_proposal[maximize]
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_mixed_history_formats_reach_public_generate_and_fresh_cas_next_proposal[maximize]
+tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_mixed_history_formats_reach_public_generate_and_fresh_cas_next_proposal[maximize]
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/analytic.py:340: NumericsWarning: ExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 ExpectedImprovement 	 --> 	 LogExpectedImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+2 passed, 8 warnings in 2.80s
+GP_WRAPPER_SCOPE_RESULT {"mode": "public-history2", "exitcode": 0, "fit_starts": 2, "output": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/public-history2"}

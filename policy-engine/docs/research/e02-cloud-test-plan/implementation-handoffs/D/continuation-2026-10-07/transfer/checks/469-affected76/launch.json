@@ -1,0 +1,41 @@
+{
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "-o",
+    "junit_family=xunit1",
+    "--basetemp",
+    "/dev/shm/e02-D-transfer-frozen469-06qbulta/basetemp",
+    "--junitxml",
+    "/dev/shm/e02-D-transfer-frozen469-06qbulta/junit.xml",
+    "-q",
+    "tests/unit/scientist/agent/test_vector_generation_consumer.py",
+    "tests/unit/scientist/agent/test_vector_memory.py",
+    "tests/unit/remediation/test_trn_02.py",
+    "tests/unit/scientist/methods/search/strategies/test_transfer.py"
+  ],
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "source": "46933aa2d97e236a949c490650a483c9a2838d98",
+  "tree": "91cd2360ef82a45b2cb069bfb2a15f74c6812c1d",
+  "implementation": "4d8c44c6e813b68a870624fe608aad0cc249ce1b",
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "TMPDIR": "/dev/shm/e02-D-transfer-frozen469-06qbulta/tmp",
+    "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine"
+  },
+  "inputs": {
+    "policy-engine/src/polisyos/scientist/agent/vector_memory.py": "3e68ab919b915427300869d6b378d12f585d1f00",
+    "policy-engine/tests/unit/scientist/agent/test_vector_generation_consumer.py": "5961b7e7b14fe28c2aa81608925f7a0a4f094001",
+    "policy-engine/tests/unit/scientist/agent/vector_generation_reader.py": "02a9e2074bdbfea3f57bcd950c6953a387cb6408",
+    "policy-engine/tests/unit/scientist/agent/test_vector_memory.py": "88753b5536a0cc4dc8121e4b016d29102745861b",
+    "policy-engine/tests/unit/remediation/test_trn_02.py": "fdd17afd4ea92030d599b4947d35c03caaf36d48",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py": "1a7e97f9b558f1a27c6977661b6797fcbbb38278",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py": "078d61b349147d0542e6012c49fcf205d09c0c0f",
+    "policy-engine/src/polisyos/core/artifacts/store.py": "092ffebacd3623539e8cb097e46a2ce9300bb606"
+  },
+  "seed": "HNSW constructor default100; analytic measured-history fixed data; deterministic arc1001 inputs",
+  "numerical_worker_process_limits_introduced": false
+}

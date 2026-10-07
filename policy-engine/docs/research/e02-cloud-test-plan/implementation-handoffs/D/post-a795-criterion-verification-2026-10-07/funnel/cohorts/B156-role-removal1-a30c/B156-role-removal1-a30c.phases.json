@@ -1,0 +1,23 @@
+[
+  {
+    "nodeid": "tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_submit_cache_is_scoped_to_effective_context",
+    "when": "setup",
+    "outcome": "passed",
+    "duration": 0.004675959993619472,
+    "longrepr": null
+  },
+  {
+    "nodeid": "tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_submit_cache_is_scoped_to_effective_context",
+    "when": "call",
+    "outcome": "failed",
+    "duration": 0.0023283330083359033,
+    "longrepr": "self = <search.funnel.test_orchestrator.TestFunnelOrchestrator object at 0x7f0dd71e6b60>\n\n    def test_submit_cache_is_scoped_to_effective_context(self):\n        stage = _make_stage(0, \"L0\")\n    \n        def evaluate(candidate, context):\n            dataset_scores = {\"dataset-v1\": 1.0, \"dataset-v2\": 2.0}\n            return FunnelStageResult(\n                policy_candidate=dict(candidate),\n                objective_value=(\n                    3.0\n                    if context[\"evaluation_role\"] == \"independent_control\"\n                    else dataset_scores[context[\"dataset_version\"]]\n                ),\n                is_promising=True,\n                stage_name=\"L0\",\n                uncertainty_envelope=UncertaintyEnvelope.deterministic(),\n                fidelity_level=0,\n            )\n    \n        stage.evaluate.side_effect = evaluate\n        orch = FunnelOrchestrator([stage])\n        candidate = {\"candidate_id\": \"same-candidate\"}\n        context_v1 = {\n            \"dataset_version\": \"dataset-v1\",\n            \"model_version\": \"model-v1\",\n            \"evaluation_role\": \"ordinary\",\n        }\n        context_v2 = {\n            \"dataset_version\": \"dataset-v2\",\n            \"model_version\": \"model-v1\",\n            \"evaluation_role\": \"ordinary\",\n        }\n    \n        ticket_v1 = orch.submit(candidate, context_v1)\n        outcome_v1 = orch.advance(ticket_v1, policy=\"full\")\n        ticket_v2 = orch.submit(candidate, context_v2)\n        outcome_v2 = orch.advance(ticket_v2, policy=\"full\")\n    \n        assert ticket_v2 is not ticket_v1\n        assert outcome_v2.ticket_id != outcome_v1.ticket_id\n        assert outcome_v1.final_result is not None\n        assert outcome_v2.final_result is not None\n        assert outcome_v1.final_result.objective_value == 1.0\n        assert outcome_v2.final_result.objective_value == 2.0\n    \n        cached_ticket = orch.submit(candidate, context_v1)\n        assert cached_ticket is ticket_v1\n        assert cached_ticket.submitted_via_cache is True\n        assert stage.evaluate.call_count == 2\n    \n        # An independent control on the same input/model is a new evaluation,\n        # while its ordinary predecessor retains the original result/history.\n        ordinary_history = deepcopy((ticket_v1.stage_results, ticket_v1.trace))\n        control_context = {**context_v1, \"evaluation_role\": \"independent_control\"}\n        control_ticket = orch.submit(candidate, control_context)\n        control_outcome = orch.advance(control_ticket, policy=\"full\")\n>       assert stage.evaluate.call_count == 3\nE       AssertionError: assert 2 == 3\nE        +  where 2 = <MagicMock name='mock.evaluate' id='139697422201056'>.call_count\nE        +    where <MagicMock name='mock.evaluate' id='139697422201056'> = <MagicMock spec='FunnelStage' id='139698002396896'>.evaluate\n\ntests/unit/scientist/search/funnel/test_orchestrator.py:317: AssertionError"
+  },
+  {
+    "nodeid": "tests/unit/scientist/search/funnel/test_orchestrator.py::TestFunnelOrchestrator::test_submit_cache_is_scoped_to_effective_context",
+    "when": "teardown",
+    "outcome": "passed",
+    "duration": 0.00023372500436380506,
+    "longrepr": null
+  }
+]

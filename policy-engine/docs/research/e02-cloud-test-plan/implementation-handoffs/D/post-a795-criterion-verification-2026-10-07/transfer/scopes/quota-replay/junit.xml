@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="39" time="7.168" timestamp="2026-10-07T17:40:23.390009+00:00" hostname="565838a1e059"><testcase classname="tests.unit.scientist.methods.search.strategies.test_transfer" name="test_exact_history_faithfully_rehydrates_and_ranks_direction_normalized_minima[minimize]" file="tests/unit/scientist/methods/search/strategies/test_transfer.py" line="143" time="0.213"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_transfer" name="test_exact_history_faithfully_rehydrates_and_ranks_direction_normalized_minima[maximize]" file="tests/unit/scientist/methods/search/strategies/test_transfer.py" line="143" time="0.198"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_transfer" name="test_candidate_content_not_ref_markers_binds_the_physical_input" file="tests/unit/scientist/methods/search/strategies/test_transfer.py" line="241" time="0.067"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_transfer" name="test_checkpoint_replay_re_resolves_original_artifacts_on_cache_hit" file="tests/unit/scientist/methods/search/strategies/test_transfer.py" line="270" time="0.103"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_transfer" name="test_cache_full_identity_copy_lru_budget_and_exact_alias_lookup" file="tests/unit/scientist/methods/search/strategies/test_transfer.py" line="281" time="0.069"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_transfer" name="test_missing_basis_never_uses_first_source_as_target" file="tests/unit/scientist/methods/search/strategies/test_transfer.py" line="306" time="0.051"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_transfer" name="test_original_benchmark_outcome_is_admitted_without_dto_coercion[promotable-false]" file="tests/unit/scientist/methods/search/strategies/test_transfer.py" line="315" time="0.127"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_transfer" name="test_original_benchmark_outcome_is_admitted_without_dto_coercion[guardrails-value1]" file="tests/unit/scientist/methods/search/strategies/test_transfer.py" line="315" time="0.085"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_transfer" name="test_original_benchmark_outcome_is_admitted_without_dto_coercion[guardrails-value2]" file="tests/unit/scientist/methods/search/strategies/test_transfer.py" line="315" time="0.068"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_transfer" name="test_original_benchmark_outcome_is_admitted_without_dto_coercion[selection_metrics-value3]" file="tests/unit/scientist/methods/search/strategies/test_transfer.py" line="315" time="0.066"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_transfer" name="test_original_benchmark_outcome_is_admitted_without_dto_coercion[sample_counts-value4]" file="tests/unit/scientist/methods/search/strategies/test_transfer.py" line="315" time="0.067"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_transfer" name="test_original_benchmark_outcome_is_admitted_without_dto_coercion[runtime_split_type-holdout]" file="tests/unit/scientist/methods/search/strategies/test_transfer.py" line="315" time="0.065"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_transfer" name="test_every_role_ref_is_resolved_again_on_checkpoint_restore[data_ref]" file="tests/unit/scientist/methods/search/strategies/test_transfer.py" line="350" time="0.067"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_transfer" name="test_every_role_ref_is_resolved_again_on_checkpoint_restore[model_ref]" file="tests/unit/scientist/methods/search/strategies/test_transfer.py" line="350" time="0.069"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_transfer" name="test_every_role_ref_is_resolved_again_on_checkpoint_restore[evaluator_ref]" file="tests/unit/scientist/methods/search/strategies/test_transfer.py" line="350" time="0.068"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_transfer" name="test_every_role_ref_is_resolved_again_on_checkpoint_restore[split_ref]" file="tests/unit/scientist/methods/search/strategies/test_transfer.py" line="350" time="0.069"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_transfer" name="test_every_role_ref_is_resolved_again_on_checkpoint_restore[scalarizer_ref]" file="tests/unit/scientist/methods/search/strategies/test_transfer.py" line="350" time="0.071"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_transfer" name="test_every_role_ref_is_resolved_again_on_checkpoint_restore[owner_ref]" file="tests/unit/scientist/methods/search/strategies/test_transfer.py" line="350" time="0.073"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_transfer" name="test_physical_out_of_bounds_cannot_hide_behind_clipped_normalization" file="tests/unit/scientist/methods/search/strategies/test_transfer.py" line="362" time="0.066"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_transfer" name="test_unknown_history_codec_refuses_before_caching_or_training" file="tests/unit/scientist/methods/search/strategies/test_transfer.py" line="395" time="0.050"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_transfer" name="test_original_benchmark_physical_input_cannot_coerce_boolean_to_number" file="tests/unit/scientist/methods/search/strategies/test_transfer.py" line="403" time="0.072"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_transfer_selection_criteria" name="test_uneven_histories_redistribute_only_admitted_remaining_quota[0]" file="tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py" line="36" time="0.070"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_transfer_selection_criteria" name="test_uneven_histories_redistribute_only_admitted_remaining_quota[1]" file="tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py" line="36" time="0.095"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_transfer_selection_criteria" name="test_uneven_histories_redistribute_only_admitted_remaining_quota[3]" file="tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py" line="36" time="0.094"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_transfer_selection_criteria" name="test_uneven_histories_redistribute_only_admitted_remaining_quota[4]" file="tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py" line="36" time="0.096"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_transfer_selection_criteria" name="test_uneven_histories_redistribute_only_admitted_remaining_quota[10]" file="tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py" line="36" time="0.095"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_transfer_selection_criteria" name="test_complete_score_ties_preserve_explicit_independent_replica_identity" file="tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py" line="53" time="0.076"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_transfer_selection_criteria" name="test_bridge_source_limit_follows_content_admission_and_replay_has_no_ann" file="tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py" line="81" time="0.087"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_transfer_selection_criteria" name="test_bridge_preserves_the_declared_limit_on_nonempty_admitted_sources" file="tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py" line="130" time="0.077"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_transfer_selection_criteria" name="test_whole_catalog_query_captures_one_native_generation_during_publication" file="tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py" line="143" time="0.047"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.autotune.test_warm_start" name="test_loads_native_discovery_and_uses_same_canonical_reader_for_replay" file="tests/unit/scientist/methods/autotune/test_warm_start.py" line="16" time="0.162"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.autotune.test_warm_start" name="test_reverse_replay_preserves_original_metric_ref_and_metadata_without_promotion[minimize]" file="tests/unit/scientist/methods/autotune/test_warm_start.py" line="32" time="0.079"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.autotune.test_warm_start" name="test_reverse_replay_preserves_original_metric_ref_and_metadata_without_promotion[maximize]" file="tests/unit/scientist/methods/autotune/test_warm_start.py" line="32" time="0.079"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.autotune.test_warm_start" name="test_reverse_replay_refuses_unresolved_or_modified_observations" file="tests/unit/scientist/methods/autotune/test_warm_start.py" line="58" time="0.081"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.autotune.test_warm_start" name="test_reverse_replay_requires_the_configured_metric" file="tests/unit/scientist/methods/autotune/test_warm_start.py" line="68" time="0.055"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.methods.autotune.test_warm_start" name="test_malformed_source_refusal_remains_visible_after_receiving_admission" file="tests/unit/scientist/methods/autotune/test_warm_start.py" line="80" time="0.063"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.search.test_warm_start.TestWarmStart" name="test_initial_evaluations_seed_history" file="tests/unit/scientist/search/test_warm_start.py" line="55" time="0.375"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.search.test_warm_start.TestWarmStart" name="test_warm_start_updates_best" file="tests/unit/scientist/search/test_warm_start.py" line="74" time="0.002"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase><testcase classname="tests.unit.scientist.search.test_warm_start.TestWarmStart" name="test_empty_initial_evaluations" file="tests/unit/scientist/search/test_warm_start.py" line="90" time="0.002"><system-out>--------------------------------- Captured Log ---------------------------------
+
+--------------------------------- Captured Out ---------------------------------
+
+</system-out><system-err>--------------------------------- Captured Err ---------------------------------
+
+</system-err></testcase></testsuite></testsuites>

@@ -1,0 +1,31 @@
+{
+  "schema": "D.census.estimated-origin-projection-full-coherent-review.v1",
+  "reviewer": "/root/census_oct07",
+  "author": "/root/funnel_oct07",
+  "base": "73c679235fee50fd920e9d7bb41c403cdff7779f",
+  "draft": "/dev/shm/e02-D-funnel-oct07/resource-input-origin-draft-v2/resource-input-origins.patch",
+  "patch_sha256": "371027f1c4d0c7626527dc24902b2369c0a5fbd1dfeecfb80b21595392facdca",
+  "paths": [
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+    "policy-engine/tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py",
+    "policy-engine/src/polisyos/scientist/methods/search/funnel/README.md",
+    "policy-engine/release-fragments/unreleased/2026-10-07-funnel-cost-input-origins.toml"
+  ],
+  "result": "STATIC_GO_BOUNDED_RUNTIME_PENDING",
+  "production": "One existing failed-settlement projection classifies nonempty typed reported and estimated subsets independently. Known estimate cannot establish reported zero; literal Decimal0 remains a row and establishes only its own origin. Unknown amount makes absent component unknown and observed known subset partial. Input components remain independent of actual persisted settlement/debit. No new B parser/ledger/receipt/API/scientific authority.",
+  "test_denominator": 11,
+  "test_chain": "Actual configured native TextGateway bytes -> B1.2 reported or usage-price estimated ProducerEvent -> real canonical FileBudgetLedger pending/failure observer -> existing Funnel feedback -> actual RunPolicyBlueprintRuntimeNode serializer helper -> ExperimentState JSON -> real FileSystemCAS -> fresh FileSystemCAS/ExperimentState readback.",
+  "independent_oracle": "Declared50000 prompt tokens ×Decimal0.00001=Decimal0.5 calculated independently of producer estimate; explicitreported0 and0.25/unknown amount/tiny raw bytes distinguished. Actual pendingevent amount/origin/IDs and canonical ledger state/receipt invariance asserted.",
+  "faults": "lose_ack delegates actual settle_spend only in write_before_ack positive committed-after-unknown-ack profile; zero-debit profile raises before settlement. Both keep outstanding reservation obligations and refuse favorable final_action. No fabricated ledger receipt.",
+  "bounded_mixed_fixture": "Two actual existing L3/L4 native handlers with distinct real budget keys are deliberately composed inside one stage observer. It measures independent obtained reported/estimated/unknown inputs; it does not establish that ordinary failedL3 naturally allowsL4 scheduling or any defaultstage/deployedcaller law.",
+  "consumer_scope": "Direct actual Node serializer helper plus real ExperimentState JSON/CAS fresh reader; this new test does not execute the entire Node.run. Existing wholeNode receipts stay separately source-bound and affectedconsumers should be replayed after finalfreeze.",
+  "compatibility": "Additive estimated feedback fields and truthful null/not_reported in place of false estimated-only reported0; free typed feedback projections preserve fields. Internal release syntax/classifier coherent, migration requires readers retain origin/null; no ledger/schema/publicauthority changes claimed.",
+  "P37": "Exactpatch/classification recomputed, independent arithmetic and actualcanonical typed events/CAS demanded by tests; runtime candidate execution still UNRUN.",
+  "P38": "Empty sum of reported-origin rows measures algebraic0 but does not prove measuredreportedzero when only an estimated0.5 event exists. Present origin fields alone do not prove receipt; test reads actualcanonical event payload and durable state.",
+  "required_after_freeze": [
+    "Execute new11 plus affectedordinarypending/funnel/node consumer selectors on exactfinalsource; preserve fulloutput/JUnit/sourceorigins and dependencyidentity.",
+    "One marker-preserving removal control should restore old reported-empty-sum0 while retaining estimatedfields/event payload/statusmarkers, yielding actualestimated-only refusal assertion.",
+    "Do not rerun the independent unchangedexact680 Gfactory10 receipt merely to duplicate evidence."
+  ],
+  "limitations": "Provider fixtures/pricing do not appoint invoice/scientific truth; new11 is not yet actualPASS, no original finding/G acceptance from staticGO. No source/index/ref mutations by reviewer."
+}

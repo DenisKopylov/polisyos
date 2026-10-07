@@ -1,0 +1,25 @@
+{
+  "source_sha": "8eb99fc1da48232321eba0e92ecff20d96beff1c",
+  "cwd": "/dev/shm/e02-D-funnel-independent-8eb99fc1/policy-engine",
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=-ra --import-mode=importlib --strict-markers --benchmark-storage=file://./_cache/benchmarks",
+    "-q",
+    "-s",
+    "tests/unit/scientist/methods/search/funnel/test_fun_independent_compatibility_cost.py"
+  ],
+  "env": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "src:.",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+  },
+  "exit_code": 1,
+  "wall_seconds": 17.40549509000266,
+  "max_rss_kib": 1272396,
+  "rss_scope": "cumulative high-water of completed children in this capture process",
+  "log_sha256": "c09948e7d07f5e886eca7302724692eb478fb6bbcbd4c18b818abf5c3b50e6cd"
+}

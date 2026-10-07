@@ -1,0 +1,254 @@
+{
+  "schema": "e02.D.oct07.bootstrap.v1",
+  "observed_at": "2026-10-07T07:46:37.973582+00:00",
+  "branch": "codex/e02-D-oct07-continuation",
+  "root": "/dev/shm/e02-D-oct07-continuation",
+  "source_pins": {
+    "HEAD": {
+      "commit": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+      "tree": "bb6213c0cde3246e63c04f749547f40f35644a15"
+    },
+    "origin/main": {
+      "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+    },
+    "origin/codex/e02-integration": {
+      "commit": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+      "tree": "f27a36aa7eae9d6e329e0602ea40b6169a5bcf35"
+    },
+    "origin/codex/e02-D-published-root": {
+      "commit": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+      "tree": "bb6213c0cde3246e63c04f749547f40f35644a15"
+    }
+  },
+  "slice_base": {
+    "commit": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+    "tree": "bb6213c0cde3246e63c04f749547f40f35644a15"
+  },
+  "fresh_G_accepted_D": false,
+  "ancestry": [
+    {
+      "ancestor": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+      "descendant": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "exit": 0,
+      "is_ancestor": true
+    },
+    {
+      "ancestor": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "descendant": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+      "exit": 0,
+      "is_ancestor": true
+    },
+    {
+      "ancestor": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+      "descendant": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+      "exit": 0,
+      "is_ancestor": true
+    },
+    {
+      "ancestor": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+      "descendant": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+      "exit": 1,
+      "is_ancestor": false
+    },
+    {
+      "ancestor": "ff277db7798fc312654704fa51c52e00f53f10f4",
+      "descendant": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+      "exit": 0,
+      "is_ancestor": true
+    }
+  ],
+  "raw_commands": [
+    {
+      "argv": [
+        "git",
+        "status",
+        "-sb"
+      ],
+      "cwd": "/dev/shm/e02-D-oct07-continuation",
+      "exit": 0,
+      "stdout": "## codex/e02-D-oct07-continuation\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD",
+        "HEAD^{tree}"
+      ],
+      "cwd": "/dev/shm/e02-D-oct07-continuation",
+      "exit": 0,
+      "stdout": "828283eefe9c3ae14e0f99899a0a502a8b1a253c\nbb6213c0cde3246e63c04f749547f40f35644a15\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "origin/main",
+        "origin/main^{tree}"
+      ],
+      "cwd": "/dev/shm/e02-D-oct07-continuation",
+      "exit": 0,
+      "stdout": "198076863e143dea9f89f02734b13d50dae3eed5\n2b754a92c27959e2e747738d47ed0b419f3b6dd8\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "origin/codex/e02-integration",
+        "origin/codex/e02-integration^{tree}"
+      ],
+      "cwd": "/dev/shm/e02-D-oct07-continuation",
+      "exit": 0,
+      "stdout": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7\nf27a36aa7eae9d6e329e0602ea40b6169a5bcf35\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "origin/codex/e02-D-published-root",
+        "origin/codex/e02-D-published-root^{tree}"
+      ],
+      "cwd": "/dev/shm/e02-D-oct07-continuation",
+      "exit": 0,
+      "stdout": "828283eefe9c3ae14e0f99899a0a502a8b1a253c\nbb6213c0cde3246e63c04f749547f40f35644a15\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "1ddcd7b3905e52c0d19db091823a64830139fa64",
+        "198076863e143dea9f89f02734b13d50dae3eed5"
+      ],
+      "cwd": "/dev/shm/e02-D-oct07-continuation",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "828283eefe9c3ae14e0f99899a0a502a8b1a253c"
+      ],
+      "cwd": "/dev/shm/e02-D-oct07-continuation",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "828283eefe9c3ae14e0f99899a0a502a8b1a253c"
+      ],
+      "cwd": "/dev/shm/e02-D-oct07-continuation",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "258a6c89ea7cbb8394d39965a243a4bab3592358",
+        "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7"
+      ],
+      "cwd": "/dev/shm/e02-D-oct07-continuation",
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "ff277db7798fc312654704fa51c52e00f53f10f4",
+        "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7"
+      ],
+      "cwd": "/dev/shm/e02-D-oct07-continuation",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--name-status",
+        "ff277db7798fc312654704fa51c52e00f53f10f4",
+        "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7"
+      ],
+      "cwd": "/dev/shm/e02-D-oct07-continuation",
+      "exit": 0,
+      "stdout": "M\tpolicy-engine/docs/research/e02-cloud-test-plan/closure-decisions/A.md\nM\tpolicy-engine/docs/research/e02-cloud-test-plan/closure-decisions/F.md\nM\tpolicy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json\nM\tpolicy-engine/docs/research/e02-cloud-test-plan/closure-decisions/execution-sequence.md\nM\tpolicy-engine/docs/research/e02-cloud-test-plan/closure-decisions/method-decisions.md\nM\tpolicy-engine/docs/research/e02-cloud-test-plan/closure-decisions/semantic-decisions.md\nM\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-06/A-resume-after-delivery.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/A.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/B.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/C.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/COMMON.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/D.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/E.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/F.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/README.md\nM\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/README.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checkpoint-13.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/2034-pins.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/D-ask/README.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/D-ask/deciding-output.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/D-ask/receipt.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/D-ask/results/context-attempt2.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/D-ask/results/context.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/README.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/cleanup-actions.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/current-bindings-preservation.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/planning-input-checks/coverage-unsupported-flag.stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/planning-input-checks/coverage-unsupported-flag.stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/planning-input-checks/coverage.stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/planning-input-checks/coverage.stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/planning-input-checks/import.stderr.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/planning-input-checks/import.stdout.txt\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/planning-input-checks/receipt.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/A-binding-independent.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/B-CAS-DUR-evidence.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/B-async-JIT-runtime.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/B-checkpoint-oracles.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/B-checkpoint-runtime.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/B-deciding.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/B-installed-backends-surface.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/B-owner-footprint.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/CE-carry-delta.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/D-Search-consumers.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/D-identity-deciding.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/D-math-runtime.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/D-oracles-transfer.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/F-Fry-econ-Lex.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/F-causal-confidence.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/F-graph-SCM.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/F-identity-surface-deciding.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/G-D-ask-independent.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/admission-order-checks.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/compactnew-six-identity.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/disk-candidates.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/final-pack-independent.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/identity-queue-addendum-20261007.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/identity-queue.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/old-session-disposition.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/retired-source-value.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/reviews/six-accounting-independent.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-eighth-wave/six-root-inputs.json\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/A.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/B.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/C.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/D.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/E.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/F.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/README.md\nA\tpolicy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/original-A-binding-corrections.json\n",
+      "stderr": ""
+    }
+  ],
+  "receipts": [
+    {
+      "path": "resume.receipt.json",
+      "bytes": 118736,
+      "sha256": "041bf715f33ec6fd783f21e1acccaecd0d8e7aa8be59049e5ba6d16805735c0c"
+    },
+    {
+      "path": "create.receipt.json",
+      "bytes": 118674,
+      "sha256": "bc5b8923bddf188dd8c14557fb120d85615bc2aa8740fb3ac03a1e4c8d79a03c"
+    },
+    {
+      "path": "standalone-checkout.json",
+      "bytes": 130853,
+      "sha256": "e29d8b083c189bd6e129c957a7ac1a68337b3901bef063550d993a2cdb510e02"
+    },
+    {
+      "path": "cleanup-mypy-receipt.json",
+      "bytes": 593,
+      "sha256": "71c3e3c19d94887134878d9c4edb12e5d841724ff7afa76c6c288fcdceb2a8cc"
+    },
+    {
+      "path": "cleanup-archive-receipt.json",
+      "bytes": 1911,
+      "sha256": "63184c03a1e5c6649138ddd4b8456ea4efa674b559581d70bde3769d743c7067"
+    },
+    {
+      "path": "cleanup-extra-archive-receipt.json",
+      "bytes": 5804,
+      "sha256": "5f74e93386bad2904aed8e920157acc5eb4974357dd3e14e8dd6bbe50a859593"
+    },
+    {
+      "path": "standalone-admission-independent-review.json",
+      "bytes": 15756,
+      "sha256": "21a9d6206a1fc7e0c2c77404ddb99ed2965c9eef43cc19f510fc03fa5594a5c2"
+    },
+    {
+      "path": "cleanup-extracted-duplicate-receipt.json",
+      "bytes": 250324,
+      "sha256": "1a438d932608f679c6597ff276fdd339cfb301768f0a5f943378761548dadaba"
+    },
+    {
+      "path": "cleanup-extracted-duplicate-precheck.json.gz",
+      "bytes": 1110246,
+      "sha256": "93874cc06e9d3d40f7e4cb8f366649bfbcfb6317cef6591ebc452a3917869dc3",
+      "uncompressed_sha256": "1cac7240880a3be135a3497184fd56c696c3b5e7c69e5f8256054518d43990b3",
+      "role": "complete read-only per-file exact Git-blob precheck; deciding cleanup receipt references original uncompressed hash"
+    }
+  ],
+  "history_mode": "Standalone shared-object sparse Git checkout preserving complete logical D history at828; own common directory writable, original18 registrations unchanged",
+  "object_storage_dependency": "/workspace/polisyos/.git/objects and its live preservation targets retained; new clone not standalone durable object copy",
+  "scope": "Mandatory original17/45/46 accounting and5queues. Metadata baseline before new product writes; no backend PASS or finding closure",
+  "cleanup_authorization": "В облаке можешь удалять не нужное самостоятельно, разрешаю",
+  "cleanup_scope": "Confirmed unused generated cache, exact Git-content duplicate archives and byte-identical ordinary files from two obsolete unregistered extracted archives. Original Git/checkouts, all changed/untracked/unique files, deciding outputs, active native environments and live Git object targets retained. Separate full prechecks/receipts enumerate exact paths; no registrations pruned."
+}

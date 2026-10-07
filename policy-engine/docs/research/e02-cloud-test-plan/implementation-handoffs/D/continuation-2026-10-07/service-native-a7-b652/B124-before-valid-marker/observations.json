@@ -1,0 +1,313 @@
+{
+  "source_sha": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "profile": "bounded actual returned-hash marker diagnostic; no productionlaw or closureclaim",
+  "cases": [
+    {
+      "profile": "invalid-format",
+      "retained_returned_marker": "unchanged-upstream-hash-marker",
+      "source": {
+        "head": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+        "status": "",
+        "inputs": {
+          "src/polisyos/scientist/methods/search/controller.py": "9bbbd5b23c9ef43d18370f3bd0e25243eb56cdcd844a2d5f83744c30d4bbcc53",
+          "src/polisyos/scientist/methods/search/frontier.py": "e06f9901b021f0e85df3d60d6b778552c017fed6d69953fb4bf767d7515cd082",
+          "src/polisyos/scientist/methods/search/pareto_registry.py": "aee369ab873131ac950104d3cf8b832c2ecf1d8109033f1631dc20877478bacd",
+          "tests/unit/scientist/methods/search/test_semantic_dates_persisted_consumers.py": "435a9bf8ab41bf2c31b22b69929f3e8864bced9e84f85397f3e96311a047a1aa"
+        }
+      },
+      "input_profile": "same actual native date3 defining positive; only returned metadata.candidate_hash added unchanged",
+      "check": "ERROR",
+      "exception_type": "ValidationError",
+      "exception_message": "1 validation error for ArtifactRef\nartifact_id\n  Value error, sha256 hex must be 64 lowercase characters [0-9a-f] [type=value_error, input_value='sha256:unchanged-upstrea...00000000000000000000000', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error",
+      "after": {
+        "head": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+        "status": "",
+        "inputs": {
+          "src/polisyos/scientist/methods/search/controller.py": "9bbbd5b23c9ef43d18370f3bd0e25243eb56cdcd844a2d5f83744c30d4bbcc53",
+          "src/polisyos/scientist/methods/search/frontier.py": "e06f9901b021f0e85df3d60d6b778552c017fed6d69953fb4bf767d7515cd082",
+          "src/polisyos/scientist/methods/search/pareto_registry.py": "aee369ab873131ac950104d3cf8b832c2ecf1d8109033f1631dc20877478bacd",
+          "tests/unit/scientist/methods/search/test_semantic_dates_persisted_consumers.py": "435a9bf8ab41bf2c31b22b69929f3e8864bced9e84f85397f3e96311a047a1aa"
+        }
+      },
+      "outputs": {
+        "stdout.txt": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stderr.txt": {
+          "sha256": "7f4479a37e48d8077f4c9701f79296d14d2be6bcf6ae755fb3e9b47e997dfaaf",
+          "bytes": 4574
+        }
+      }
+    },
+    {
+      "profile": "retained-valid-format",
+      "retained_returned_marker": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "source": {
+        "head": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+        "status": "",
+        "inputs": {
+          "src/polisyos/scientist/methods/search/controller.py": "9bbbd5b23c9ef43d18370f3bd0e25243eb56cdcd844a2d5f83744c30d4bbcc53",
+          "src/polisyos/scientist/methods/search/frontier.py": "e06f9901b021f0e85df3d60d6b778552c017fed6d69953fb4bf767d7515cd082",
+          "src/polisyos/scientist/methods/search/pareto_registry.py": "aee369ab873131ac950104d3cf8b832c2ecf1d8109033f1631dc20877478bacd",
+          "tests/unit/scientist/methods/search/test_semantic_dates_persisted_consumers.py": "435a9bf8ab41bf2c31b22b69929f3e8864bced9e84f85397f3e96311a047a1aa"
+        }
+      },
+      "input_profile": "same actual native date3 defining positive; only returned metadata.candidate_hash added unchanged",
+      "check": "FAIL",
+      "observed_history": 3,
+      "semantic_dates": [
+        "2026-01-01",
+        "2026-01-01",
+        "2026-02-01"
+      ],
+      "expected_distinct_logical_subjects": 2,
+      "observed_distinct_registry_subjects": 1,
+      "registry_keys": [
+        "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      ],
+      "retained_evaluation_ids": [
+        "full-fixture-evaluation-1",
+        "full-fixture-evaluation-2",
+        "full-fixture-evaluation-3"
+      ],
+      "checkpoint_ref": {
+        "artifact_id": "sha256:7345f91ae0d17081854d021119a3fb9ea8991344b9bb451a3a6621da0d197044",
+        "kind": "scientist.search.service_checkpoint",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a"
+      },
+      "fresh_registry": {
+        "schema_version": "2.0",
+        "loop_id": "4387c682",
+        "task_family": "policy",
+        "domain": "isolated::unknown",
+        "updated_at": "2026-10-07T09:56:42.093579Z",
+        "entries": {
+          "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": {
+            "candidate_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "candidate_id": "full-fixture-evaluation-3",
+            "candidate_ref": null,
+            "policy_family": null,
+            "evaluation": {
+              "candidate_id": "full-fixture-evaluation-3",
+              "primary": {
+                "policy_value": {
+                  "name": "policy_value",
+                  "kind": "primary",
+                  "value": 2.0,
+                  "direction": "maximize",
+                  "weight": 1.0,
+                  "threshold": null,
+                  "status": null,
+                  "source": null,
+                  "metadata": {}
+                },
+                "employment": {
+                  "name": "employment",
+                  "kind": "primary",
+                  "value": 0.5,
+                  "direction": "maximize",
+                  "weight": 1.0,
+                  "threshold": null,
+                  "status": null,
+                  "source": null,
+                  "metadata": {}
+                }
+              },
+              "hard_constraints": {},
+              "secondary": {},
+              "penalties": {},
+              "feasible": true,
+              "blocking_reasons": [],
+              "metadata": {
+                "replicate_id": "independent-replica-3",
+                "candidate_hash": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+              }
+            },
+            "task_family": "policy",
+            "domain": "isolated::unknown",
+            "seed_payload": {
+              "cost": 2,
+              "semantic": {
+                "metadata": {
+                  "starts_at": "2026-02-01",
+                  "effective_date": "2026-01-15"
+                }
+              },
+              "created_at": "2026-04-01",
+              "metadata": {
+                "loaded_at": "2026-04-01"
+              },
+              "_replica": 3
+            },
+            "seed_only": false,
+            "provenance_weight": 1.0,
+            "transfer_chain": [],
+            "source_loop_id": "4387c682",
+            "published_at": "2026-10-07T09:56:42.091739Z",
+            "view_membership": [],
+            "dominance_metadata": {
+              "feasible": true,
+              "diagnostic_objective_value": -2.5,
+              "seed_only": false
+            },
+            "promotion_metadata": {
+              "iteration": 2,
+              "feedback": {
+                "verdict": "APPROVE"
+              }
+            },
+            "metadata": {}
+          }
+        },
+        "frontiers": {
+          "global_feasible": [
+            "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          ],
+          "equity_aware": [
+            "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          ],
+          "low_risk": [
+            "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          ],
+          "implementation_simple": [
+            "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          ]
+        },
+        "hypervolume_by_view": {
+          "global_feasible": 0.0,
+          "equity_aware": 0.0,
+          "low_risk": 0.0,
+          "implementation_simple": 0.0
+        },
+        "hypervolume_assessments": {
+          "global_feasible": {
+            "version": "hypervolume-assessment.v2",
+            "status": "available",
+            "basis": "recomputed",
+            "reason": null,
+            "profile": "dominated_box_union.float64.maximize.v1",
+            "algorithm": "exact_empty"
+          },
+          "equity_aware": {
+            "version": "hypervolume-assessment.v2",
+            "status": "available",
+            "basis": "recomputed",
+            "reason": null,
+            "profile": "dominated_box_union.float64.maximize.v1",
+            "algorithm": "exact_empty"
+          },
+          "low_risk": {
+            "version": "hypervolume-assessment.v2",
+            "status": "available",
+            "basis": "recomputed",
+            "reason": null,
+            "profile": "dominated_box_union.float64.maximize.v1",
+            "algorithm": "exact_empty"
+          },
+          "implementation_simple": {
+            "version": "hypervolume-assessment.v2",
+            "status": "available",
+            "basis": "recomputed",
+            "reason": null,
+            "profile": "dominated_box_union.float64.maximize.v1",
+            "algorithm": "exact_empty"
+          }
+        },
+        "view_assessments": {
+          "global_feasible": {
+            "status": "basis_limited",
+            "coverage_status": "complete",
+            "basis_scope": {
+              "scope": "observed_axis_union",
+              "coordinate_ids": [
+                "employment",
+                "policy_value"
+              ],
+              "basis_ref": null
+            },
+            "input_count": 1,
+            "assessed_count": 1,
+            "unassessed_candidate_hashes": [],
+            "missing_coordinate_ids_by_candidate_hash": {},
+            "non_finite_coordinate_ids_by_candidate_hash": {},
+            "unresolved_axis_contract_candidate_hashes": []
+          },
+          "equity_aware": {
+            "status": "basis_limited",
+            "coverage_status": "complete",
+            "basis_scope": {
+              "scope": "observed_axis_union",
+              "coordinate_ids": [
+                "policy_value"
+              ],
+              "basis_ref": null
+            },
+            "input_count": 1,
+            "assessed_count": 1,
+            "unassessed_candidate_hashes": [],
+            "missing_coordinate_ids_by_candidate_hash": {},
+            "non_finite_coordinate_ids_by_candidate_hash": {},
+            "unresolved_axis_contract_candidate_hashes": []
+          },
+          "low_risk": {
+            "status": "basis_limited",
+            "coverage_status": "complete",
+            "basis_scope": {
+              "scope": "observed_axis_union",
+              "coordinate_ids": [
+                "policy_value"
+              ],
+              "basis_ref": null
+            },
+            "input_count": 1,
+            "assessed_count": 1,
+            "unassessed_candidate_hashes": [],
+            "missing_coordinate_ids_by_candidate_hash": {},
+            "non_finite_coordinate_ids_by_candidate_hash": {},
+            "unresolved_axis_contract_candidate_hashes": []
+          },
+          "implementation_simple": {
+            "status": "basis_limited",
+            "coverage_status": "complete",
+            "basis_scope": {
+              "scope": "observed_axis_union",
+              "coordinate_ids": [
+                "policy_value"
+              ],
+              "basis_ref": null
+            },
+            "input_count": 1,
+            "assessed_count": 1,
+            "unassessed_candidate_hashes": [],
+            "missing_coordinate_ids_by_candidate_hash": {},
+            "non_finite_coordinate_ids_by_candidate_hash": {},
+            "unresolved_axis_contract_candidate_hashes": []
+          }
+        },
+        "objective_basis_by_view": {}
+      },
+      "after": {
+        "head": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+        "status": "",
+        "inputs": {
+          "src/polisyos/scientist/methods/search/controller.py": "9bbbd5b23c9ef43d18370f3bd0e25243eb56cdcd844a2d5f83744c30d4bbcc53",
+          "src/polisyos/scientist/methods/search/frontier.py": "e06f9901b021f0e85df3d60d6b778552c017fed6d69953fb4bf767d7515cd082",
+          "src/polisyos/scientist/methods/search/pareto_registry.py": "aee369ab873131ac950104d3cf8b832c2ecf1d8109033f1631dc20877478bacd",
+          "tests/unit/scientist/methods/search/test_semantic_dates_persisted_consumers.py": "435a9bf8ab41bf2c31b22b69929f3e8864bced9e84f85397f3e96311a047a1aa"
+        }
+      },
+      "outputs": {
+        "stdout.txt": {
+          "sha256": "349396b34559c2637f387c38eef24157585de97fc3d6dec65d85de0f382b94c0",
+          "bytes": 6337
+        },
+        "stderr.txt": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      }
+    }
+  ]
+}

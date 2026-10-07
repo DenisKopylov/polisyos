@@ -1,0 +1,32 @@
+{
+  "schema": "e02.native_git_administrative_receipt.v1",
+  "slice_base": "613343c3ef00379038b5ac07127605528f166531",
+  "payload_commit": "536c2f5131463aae48a192e26ef74a6907ddaa9d",
+  "payload_tree": "50dd54d3a170e1db49dd55e8d421c8cb94192ee0",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-git-storage-preservation4/header.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-git-storage-preservation4/complete-administrative-outputs.json.xz"
+  ],
+  "inputs_and_complete_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-git-storage-preservation4/header.json",
+      "bytes": 1459,
+      "sha256": "8955423d4ea3b9f4c8c668ada745c6ed8c7f3c5e0eb33a8d42d1f135cb8a3cac"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-git-storage-preservation4/complete-administrative-outputs.json.xz",
+      "bytes": 1094352,
+      "sha256": "f27b7f8a0749c883cd1b970d6ef02ff8648fc09bc72c661b783aae2d99c8436d"
+    }
+  ],
+  "check": "PASS_EXACT_NATIVE_OBJECT_BYTE_AND_ID_PRESERVATION_ONLY",
+  "scientific_or_finding_verdict": null,
+  "tracked_source_test_mutation": false,
+  "code_paths_changed": [],
+  "data_deleted": false,
+  "cleanup": "No native Trash: preserve active native Git object/index/pack targets and all original deciding outputs; no fixture or environment cleanup.",
+  "limitations": [
+    "Resource availability is not a property PASS.",
+    "Original long-symlink ENOSPC is retained, not hidden."
+  ]
+}

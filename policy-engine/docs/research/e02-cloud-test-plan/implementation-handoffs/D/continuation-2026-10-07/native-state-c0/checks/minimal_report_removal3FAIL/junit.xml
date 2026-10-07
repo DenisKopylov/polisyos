@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="0.105" timestamp="2026-10-07T09:23:36.734013+00:00" hostname="565838a1e059"><testcase classname="tests.unit.scientist.methods.search.strategies.test_gp_warm_admission_reports" name="test_warm_admission_preserves_each_explicit_rejection_reason[nan]" time="0.006"><failure message="AssertionError: assert [] == [{'candidate_...is_mismatch'}]&#10;  &#10;  Right contains 4 more items, first extra item: {'candidate_id': 'invalid', 'reason': 'invalid_outcome'}&#10;  Use -v to get more diff">invalid = nan
+
+    @pytest.mark.parametrize("invalid", [float("nan"), 10**400, True], ids=["nan", "overflow", "bool"])
+    def test_warm_admission_preserves_each_explicit_rejection_reason(invalid):
+        space = SearchSpace([ParameterBounds("x")])
+        basis = {
+            "profile": "synthetic_scalar_gp.v1",
+            "search_space_fingerprint": space.sobol_space_fingerprint(),
+            "context_fingerprint": "synthetic/warm-admission-reports.v1",
+            "metric": "cost",
+            "unit": "fixture_cost",
+            "direction": "minimize",
+        }
+        strategy = BayesianOptimizer(space, BayesianConfig(seed=31), numerical_basis=basis)
+        admitted = rows(space, 1)[0]
+        admitted.candidate_id = "warm-admitted"
+        admitted.metadata["warm_start_compatibility"] = {
+            "search_space_fingerprint": basis["search_space_fingerprint"],
+            "input_transform_fingerprint": "Normalize[0,1]",
+            "outcome_transform_fingerprint": "Standardize[m=1]",
+            "noise_model_fingerprint": "GaussianLikelihood[inferred]",
+            "objective_fingerprint": "scalar_score[minimize]",
+            "context_fingerprint": basis["context_fingerprint"],
+        }
+        rejected = []
+        for identity in ("invalid", "unbound", "coordinate", "basis"):
+            row = copy.deepcopy(admitted)
+            row.candidate_id = identity
+            rejected.append(row)
+        rejected[0].scalar_score = invalid
+        rejected[1].provenance_ref = None
+        rejected[2].params_normalized = (0.75,)
+        rejected[3].metadata["warm_start_compatibility"]["context_fingerprint"] = "foreign/context"
+        strategy.warm_start([admitted, *rejected])
+&gt;       assert strategy.last_warm_start_report == [
+            {"candidate_id": "invalid", "reason": "invalid_outcome"},
+            {"candidate_id": "unbound", "reason": "missing_origin"},
+            {"candidate_id": "coordinate", "reason": "physical_coordinate_mismatch"},
+            {"candidate_id": "basis", "reason": "numerical_basis_mismatch"},
+        ]
+E       AssertionError: assert [] == [{'candidate_...is_mismatch'}]
+E         
+E         Right contains 4 more items, first extra item: {'candidate_id': 'invalid', 'reason': 'invalid_outcome'}
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/search/strategies/test_gp_warm_admission_reports.py:53: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_gp_warm_admission_reports" name="test_warm_admission_preserves_each_explicit_rejection_reason[overflow]" time="0.001"><failure message="AssertionError: assert [] == [{'candidate_...is_mismatch'}]&#10;  &#10;  Right contains 4 more items, first extra item: {'candidate_id': 'invalid', 'reason': 'invalid_outcome'}&#10;  Use -v to get more diff">invalid = 100000000000000000...0000000000000000000
+
+    @pytest.mark.parametrize("invalid", [float("nan"), 10**400, True], ids=["nan", "overflow", "bool"])
+    def test_warm_admission_preserves_each_explicit_rejection_reason(invalid):
+        space = SearchSpace([ParameterBounds("x")])
+        basis = {
+            "profile": "synthetic_scalar_gp.v1",
+            "search_space_fingerprint": space.sobol_space_fingerprint(),
+            "context_fingerprint": "synthetic/warm-admission-reports.v1",
+            "metric": "cost",
+            "unit": "fixture_cost",
+            "direction": "minimize",
+        }
+        strategy = BayesianOptimizer(space, BayesianConfig(seed=31), numerical_basis=basis)
+        admitted = rows(space, 1)[0]
+        admitted.candidate_id = "warm-admitted"
+        admitted.metadata["warm_start_compatibility"] = {
+            "search_space_fingerprint": basis["search_space_fingerprint"],
+            "input_transform_fingerprint": "Normalize[0,1]",
+            "outcome_transform_fingerprint": "Standardize[m=1]",
+            "noise_model_fingerprint": "GaussianLikelihood[inferred]",
+            "objective_fingerprint": "scalar_score[minimize]",
+            "context_fingerprint": basis["context_fingerprint"],
+        }
+        rejected = []
+        for identity in ("invalid", "unbound", "coordinate", "basis"):
+            row = copy.deepcopy(admitted)
+            row.candidate_id = identity
+            rejected.append(row)
+        rejected[0].scalar_score = invalid
+        rejected[1].provenance_ref = None
+        rejected[2].params_normalized = (0.75,)
+        rejected[3].metadata["warm_start_compatibility"]["context_fingerprint"] = "foreign/context"
+        strategy.warm_start([admitted, *rejected])
+&gt;       assert strategy.last_warm_start_report == [
+            {"candidate_id": "invalid", "reason": "invalid_outcome"},
+            {"candidate_id": "unbound", "reason": "missing_origin"},
+            {"candidate_id": "coordinate", "reason": "physical_coordinate_mismatch"},
+            {"candidate_id": "basis", "reason": "numerical_basis_mismatch"},
+        ]
+E       AssertionError: assert [] == [{'candidate_...is_mismatch'}]
+E         
+E         Right contains 4 more items, first extra item: {'candidate_id': 'invalid', 'reason': 'invalid_outcome'}
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/search/strategies/test_gp_warm_admission_reports.py:53: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.methods.search.strategies.test_gp_warm_admission_reports" name="test_warm_admission_preserves_each_explicit_rejection_reason[bool]" time="0.001"><failure message="AssertionError: assert [] == [{'candidate_...is_mismatch'}]&#10;  &#10;  Right contains 4 more items, first extra item: {'candidate_id': 'invalid', 'reason': 'invalid_outcome'}&#10;  Use -v to get more diff">invalid = True
+
+    @pytest.mark.parametrize("invalid", [float("nan"), 10**400, True], ids=["nan", "overflow", "bool"])
+    def test_warm_admission_preserves_each_explicit_rejection_reason(invalid):
+        space = SearchSpace([ParameterBounds("x")])
+        basis = {
+            "profile": "synthetic_scalar_gp.v1",
+            "search_space_fingerprint": space.sobol_space_fingerprint(),
+            "context_fingerprint": "synthetic/warm-admission-reports.v1",
+            "metric": "cost",
+            "unit": "fixture_cost",
+            "direction": "minimize",
+        }
+        strategy = BayesianOptimizer(space, BayesianConfig(seed=31), numerical_basis=basis)
+        admitted = rows(space, 1)[0]
+        admitted.candidate_id = "warm-admitted"
+        admitted.metadata["warm_start_compatibility"] = {
+            "search_space_fingerprint": basis["search_space_fingerprint"],
+            "input_transform_fingerprint": "Normalize[0,1]",
+            "outcome_transform_fingerprint": "Standardize[m=1]",
+            "noise_model_fingerprint": "GaussianLikelihood[inferred]",
+            "objective_fingerprint": "scalar_score[minimize]",
+            "context_fingerprint": basis["context_fingerprint"],
+        }
+        rejected = []
+        for identity in ("invalid", "unbound", "coordinate", "basis"):
+            row = copy.deepcopy(admitted)
+            row.candidate_id = identity
+            rejected.append(row)
+        rejected[0].scalar_score = invalid
+        rejected[1].provenance_ref = None
+        rejected[2].params_normalized = (0.75,)
+        rejected[3].metadata["warm_start_compatibility"]["context_fingerprint"] = "foreign/context"
+        strategy.warm_start([admitted, *rejected])
+&gt;       assert strategy.last_warm_start_report == [
+            {"candidate_id": "invalid", "reason": "invalid_outcome"},
+            {"candidate_id": "unbound", "reason": "missing_origin"},
+            {"candidate_id": "coordinate", "reason": "physical_coordinate_mismatch"},
+            {"candidate_id": "basis", "reason": "numerical_basis_mismatch"},
+        ]
+E       AssertionError: assert [] == [{'candidate_...is_mismatch'}]
+E         
+E         Right contains 4 more items, first extra item: {'candidate_id': 'invalid', 'reason': 'invalid_outcome'}
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/search/strategies/test_gp_warm_admission_reports.py:53: AssertionError</failure></testcase></testsuite></testsuites>

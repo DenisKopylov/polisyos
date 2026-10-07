@@ -1,0 +1,8 @@
+type = "changed"
+summary = "Single-objective GP checkpoints use gp_state_version=3 with the fitted and full-refit raw corpus, ordered observation identities, fitted transforms/model bytes, complete persisted warm-row content, numerical target, refit counters, backend identity and local RNG. Incomplete older GP checkpoints are refused. Warm history requires an explicit configured synthetic target or the numeric_transfer_basis.v1 CAS admission reader; restore repeats admission. Same-basis continuation uses conditioning without a silent MLL refit; due schedules and changed corpus identities refit. Acquisition uses the versioned sobol_ranked_restarts.v1 policy with locally seeded scored restart pools and qEI sampler, changing restart selection while preserving ambient Torch RNG. RL checkpoints now bind a supported linear_decay.v1 schedule and nested strategy state; incomplete old wrapper states are refused. These are technical continuation properties, not source authorization, production deployment or optimization-quality claims."
+component = "scientist-search"
+owner = "team-policyos-runtime"
+change_class = "runtime-state-format"
+compatibility = "Incomplete older GP/RL checkpoints are refused. GP profile3 and sobol_ranked_restarts.v1 explicitly change continuation/restart behavior."
+migration = "Create a fresh search for unsupported state/policy/basis/backend fingerprints; configure synthetic target or canonical CAS admission reader. Restore and every tagged numerical training use repeat admission."
+limitations = "Conditional technical continuation is not production source authorization, deployment or quality advantage."

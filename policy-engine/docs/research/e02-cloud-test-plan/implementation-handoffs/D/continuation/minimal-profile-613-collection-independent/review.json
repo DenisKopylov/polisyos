@@ -1,0 +1,255 @@
+{
+  "schema": "policyos.e02.independent_optional_profile_collection_review.v1",
+  "verdict": "ERROR_NONOPTIONAL_COLLECTION_SEAM_WITH_OPTIONAL_SKIP_UNRUN",
+  "runtime_source_sha": "613343c3ef00379038b5ac07127605528f166531",
+  "runtime_source_tree": "f66e7144053be71db9840f9b7d468237fd1c809e",
+  "code_and_test_diff_vs8c": [],
+  "minimal_profile": {
+    "original_path": "/tmp/e02-D-runtime-minimal-profile-receipt.json",
+    "bytes": 217952,
+    "sha256": "8ac6a0f04c56b3d1ff0976c81aedb0b805e9a9efee486939467af01b93fd36d7",
+    "distributions": 148,
+    "optional_backends_installed_and_loaded": {
+      "torch": false,
+      "botorch": false,
+      "gpytorch": false,
+      "hnswlib": false,
+      "SALib": false
+    },
+    "kind": "Actual core+runtime+test environment, no import-denial plugin or fake optional packages."
+  },
+  "selector_plan": {
+    "path": "/tmp/e02-oracle-minimal-613343-selector-79f590f827a84bbd91e7b23ba3ea64df.json",
+    "bytes": 141285,
+    "sha256": "ef59476f7fba15495c4adcf3f55c83b6a289974036131ad944343fca8a453e24",
+    "counts": {
+      "canonical_commands": 17,
+      "canonical_raw_selectors": 53,
+      "canonical_unique_paths": 38,
+      "changed_test_inputs": 74,
+      "changed_pytest_files": 68,
+      "unique_union_selectors": 99,
+      "non_pytest_probes": 4,
+      "worker_helpers": 2
+    },
+    "union_selectors": 99,
+    "underlying_paths": 99,
+    "known_historical_critical_review_difference": [
+      {
+        "review": "champion_independent_review",
+        "reviewed_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+        "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+        "reviewed_rawfile_sha256": "44e3d754ff360641c3921f5c99d77592960ead0a3c04e9ffc7b7674ef1bf2f06",
+        "current_rawfile_sha256": "5d966a542e590936b2e162594c4c1f987422f8333e255b34e432ca17d46bf7b9",
+        "byte_identical": false
+      }
+    ],
+    "interpretation": "The old6fe service blob differs due to the separately reviewed B119 correction. This plan preserves that historical difference; actual current root origins match frozen613."
+  },
+  "actual_command_manifest": "execution-manifest.json",
+  "actual_result": "result.json",
+  "status": "ERROR_PYTEST_COLLECTION",
+  "actual_exit": 2,
+  "wall_seconds": 32.527832711988594,
+  "resource_usage": {
+    "user_seconds": 21.07847,
+    "system_seconds": 5.581738,
+    "maxrss_KiB_linux": 603216
+  },
+  "collection": {
+    "selected_files": 99,
+    "collected_nodeids": 1202,
+    "failed_collection_modules": 1,
+    "optional_backend_skipped_modules": 15,
+    "deselected": 0,
+    "test_body_phases": 0,
+    "junit": {
+      "PASS": 0,
+      "FAIL": 0,
+      "ERROR": 1,
+      "SKIP": 15
+    },
+    "numeric_and_test_body_properties": "UNRUN; collected counts and missing-backend skips are not test or backend PASS"
+  },
+  "source_bindings": {
+    "actual_unique_repository_paths": 1208,
+    "module_census_records": 1208,
+    "transient_exec_records": 1208,
+    "independent_Git_match_errors": [],
+    "all_records_match": true,
+    "identity_projection_sha256": "59be0ada1b07e37316c317a96791d15b58867a42555602e799a28d7a99c1d632",
+    "scope": "All recorded main-process repository-origin paths. No external distribution or child-worker source census invented."
+  },
+  "failed_collection": [
+    {
+      "nodeid": "tests/unit/scientist/orchestration/engine/test_budget_ledger.py",
+      "full_traceback": "ImportError while importing test module '/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger.py'.\nHint: make sure your test modules/packages have valid Python names.\nTraceback:\ntests/unit/scientist/orchestration/engine/test_budget_ledger.py:8: in <module>\n    from polisyos.scientist.orchestration.engine.budget_ledger import (\nE   ImportError: cannot import name 'BudgetResourceEvent' from 'polisyos.scientist.orchestration.engine.budget_ledger' (/workspace/e02-D-published-root/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py)",
+      "classification": "Nonoptional stale D fixture imports an absent class; not a missing Torch/HNSW/SALib error."
+    }
+  ],
+  "optional_skips": [
+    {
+      "nodeid": "tests/integration/scientist/methods/search/test_configured_transfer_controller.py",
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/integration/scientist/methods/search/test_configured_transfer_controller.py', 30, 'Skipped: UNRUN: configured native transfer requires Torch')",
+      "property_status": "UNRUN"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py', 15, 'Skipped: UNRUN: native numerical adapter requires Torch')",
+      "property_status": "UNRUN"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py",
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/autotune/test_generator_checkpoint_activation.py', 9, 'Skipped: UNRUN: optional numerical runtime unavailable')",
+      "property_status": "UNRUN"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/autotune/test_native_doe_factory.py",
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/autotune/test_native_doe_factory.py', 7, 'Skipped: UNRUN: actual DOE backend required')",
+      "property_status": "UNRUN"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py",
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/autotune/test_receiver_preserved_basis_review.py', 41, 'Skipped: UNRUN: native receiver review requires Torch')",
+      "property_status": "UNRUN"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py",
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py', 7, 'Skipped: SALib not installed')",
+      "property_status": "UNRUN"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/autotune/test_sensitivity_order_consumer.py",
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/autotune/test_sensitivity_order_consumer.py', 7, 'Skipped: UNRUN: actual DOE backend required')",
+      "property_status": "UNRUN"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/autotune/test_transfer_workflow.py",
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py', 37, 'Skipped: UNRUN: native transfer workflow requires Torch')",
+      "property_status": "UNRUN"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/doe/test_analysis_receipt.py",
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/doe/test_analysis_receipt.py', 10, \"Skipped: could not import 'SALib': No module named 'SALib'\")",
+      "property_status": "UNRUN"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py', 27, 'Skipped: UNRUN: native analytic GP continuation requires Torch')",
+      "property_status": "UNRUN"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/search/strategies/test_gp_scalar_admission.py",
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_scalar_admission.py', 7, 'Skipped: UNRUN: optional numerical runtime unavailable')",
+      "property_status": "UNRUN"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/search/strategies/test_mo_reference_representability.py",
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/search/strategies/test_mo_reference_representability.py', 7, 'Skipped: UNRUN: actual native MO backend')",
+      "property_status": "UNRUN"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/search/strategies/test_multiobjective_reference_independent_oracle.py",
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/search/strategies/test_multiobjective_reference_independent_oracle.py', 15, 'Skipped: UNRUN: actual MO reference consumer requires Torch')",
+      "property_status": "UNRUN"
+    },
+    {
+      "nodeid": "tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py",
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py', 11, 'Skipped: UNRUN: transfer selection requires native HNSW')",
+      "property_status": "UNRUN"
+    },
+    {
+      "nodeid": "tests/unit/scientist/search/strategies/test_neural_checkpoint.py",
+      "reason": "('/workspace/e02-D-published-root/policy-engine/tests/unit/scientist/search/strategies/test_neural_checkpoint.py', 19, 'Skipped: UNRUN: native CAS/ANN producer requires hnswlib')",
+      "property_status": "UNRUN"
+    }
+  ],
+  "recommendation": {
+    "owner": "funnel_owner via root",
+    "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger.py",
+    "current_stale_references": [
+      "BudgetResourceEvent",
+      "reserve_resource",
+      "settle_resource"
+    ],
+    "actual_existing_ports": [
+      "BudgetLedgerSpendReceipt",
+      "reserve_safe",
+      "settle_spend_safe",
+      "resolve_spend_safe"
+    ],
+    "action": "Migrate the stale fixture to current native public owner ports while preserving meaningful measured cost, dedupe, conflict, split/reopen assertions. Do not hide it with a skip/ignore or add aliases/new authority."
+  },
+  "runtime_options": {
+    "maxfail": 0,
+    "markexpr": "",
+    "keyword": "",
+    "numprocesses": null,
+    "timeout": null,
+    "run_quarantine": true,
+    "collectonly": true,
+    "ignore": null
+  },
+  "before_after_root_inputs_and_HEAD_clean": true,
+  "basetemp": {
+    "path": "/tmp/e02-oracle-minimal-collect-613343-79f590f827a84bbd91e7b23ba3ea64df/pytest-basetemp-523fdc03c95b4e51b274a1066a69c6aa",
+    "before": "NONEXISTING",
+    "after_exists": false,
+    "interpretation": "Collect-only may never create this directory; absence is not evidence of deletion."
+  },
+  "limitations": [
+    "Discovery/collection only. No numerical test bodies or GP26 replay.",
+    "Overall collection is ERROR because one genuine nonoptional seam remains. Do not label all unsupported profiles PASS.",
+    "Fifteen optional module skips are legitimate missing-backend UNRUN within this profile, not numerical success.",
+    "Root source and complete normal pytest configuration were used without marker/keyword filters, ignores, deselection, caps or introduced fake modules.",
+    "Independent historical fit/analytic proofs are separate and not inherited."
+  ],
+  "actual_runtime_cache_writer": "RELEASED on natural child completion",
+  "product_or_test_edits": 0,
+  "child_agents": 0,
+  "cleanup_actions": 0,
+  "closure_ids": [],
+  "external_input_git_references": [
+    {
+      "role": "minimal profile receipt",
+      "source_sha": "6a157f301b400fe46268bcc53610359bb9ee4a71",
+      "tree": "d276ff74974c33727d954944fad9efa37210dd39",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-runtime-profile.json",
+      "bytes": 11996,
+      "sha256": "ffaad852c0b507931a7b2337a314446712aa9feb319d8450a9046068fe98d859",
+      "raw_original_profile": {
+        "source_sha": "8391c8db699564a6af39cf66477e141cc6d30030",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/minimal-runtime-profile-proof/complete-profile-metadata.json.xz",
+        "member": "e02-D-runtime-minimal-profile-receipt.json",
+        "raw_bytes": 217952,
+        "raw_sha256": "8ac6a0f04c56b3d1ff0976c81aedb0b805e9a9efee486939467af01b93fd36d7"
+      }
+    },
+    {
+      "role": "selector measurement source",
+      "source_sha": "6333d6205a4abd14e6ef246a668cbff51e72b482",
+      "carrier_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-root-wave-8c-interruption-proof/output.json.gz",
+      "member": "harness/e02-D-final-selector-plan.py",
+      "bytes": 12531,
+      "sha256": "e3e2ab9bfc9ee6fe86bfb9612f2c6f8bd383b1899f70ccb271492ba0794b3df8"
+    },
+    {
+      "role": "snapshot helper",
+      "source_sha": "e038bca98f9e33dca33cc49221a85311a5ab5704",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-proof/broad-wave-source-helpers.py.txt",
+      "git_blob": "18bb8a8042ca864e5a7a98901eade4fa4b5d3ab6",
+      "bytes": 20492,
+      "sha256": "f383a1ff3bd2a22776b914e6d038d6f8883772acc78e051c27bb1db15f5a56e7"
+    },
+    {
+      "role": "passive observer",
+      "source_sha": "e038bca98f9e33dca33cc49221a85311a5ab5704",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/configured-transfer-8c-native-proof/broad-runtime-observer.py.txt",
+      "git_blob": "435096b0e79f2fe6e2d6df3b518c245189420f0a",
+      "bytes": 12753,
+      "sha256": "1beccd4a0caa7af25a68c54a85341949d809f0e75d61cdf61d5d4ffbcfc8cf81"
+    }
+  ],
+  "root_tracked_writes": 0,
+  "pytest_cache_scope": "Normal pytest cache may write ignored root cache entries; tracked root source/tests and HEAD stayed clean. Runtime/cache child is ended."
+}

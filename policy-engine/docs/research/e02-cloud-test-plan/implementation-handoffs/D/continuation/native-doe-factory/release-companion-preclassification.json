@@ -1,0 +1,50 @@
+{
+  "runtime_source_sha": "6fe84b7dbfd8342b543e798fdeacd9be38fba7eb",
+  "scope": "actual canonical fragment validator on one own changed fragment, not full release readiness",
+  "fragment": {
+    "path": "release-fragments/unreleased/2026-10-06-native-search-resume.toml",
+    "git_blob": "56fb6df3a27151589d16350b72285b9a6b66c87b",
+    "sha256": "2b71b353d3473c41337cdeb9c1f5d1aaf5185a8b1dacd80e303070f22c0d4ead",
+    "bytes": 7438
+  },
+  "readme": {
+    "path": "README.md",
+    "sha256": "665ec9a0b29cd8e8af4adc792e120ecf7b484fb3e69c9f57632808feb6744275"
+  },
+  "policy": {
+    "path": "architecture/gates/compatibility_release.toml",
+    "sha256": "ad2c8d7940c7568d6feac37be1c76d3c0704abf859e29b8e61c958bdf8cd69a3",
+    "breaking_impacts": [
+      "breaking",
+      "removed",
+      "removal",
+      "major"
+    ]
+  },
+  "contract_errors": [
+    {
+      "check": "public-surface-review",
+      "severity": "error",
+      "subject": "release-fragments/unreleased/2026-10-06-native-search-resume.toml:native-recorded-cost-evidence",
+      "message": "python public API change requires public_surface_inventory_reviewed=true",
+      "detail": ""
+    },
+    {
+      "check": "public-surface-review",
+      "severity": "error",
+      "subject": "release-fragments/unreleased/2026-10-06-native-search-resume.toml:native-plateau-scalar-admission",
+      "message": "python public API change requires public_surface_inventory_reviewed=true",
+      "detail": ""
+    },
+    {
+      "check": "public-surface-review",
+      "severity": "error",
+      "subject": "release-fragments/unreleased/2026-10-06-native-search-resume.toml:native-autotune-verified-cas-inputs",
+      "message": "python public API change requires public_surface_inventory_reviewed=true",
+      "detail": ""
+    }
+  ],
+  "findings": [],
+  "breaking_runtime_migration_runbook_checks": true,
+  "status": "FAIL"
+}

@@ -1,0 +1,29 @@
+{
+  "schema": "e02.D.raw-provenance-and-unperformed-cleanup.v1",
+  "candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "raw_availability": "Large inventories/origin tables/fixture pools are preserved at external ignored paths recorded in each scoped receipt. They are not Git-available unless explicitly embedded in a compact lossless package.",
+  "service_full_raw_archive": {
+    "path": "/dev/shm/e02-D-history-portable-lossless-a795-r8lq491m/deciding-output-lossless.tar.gz",
+    "bytes": 2454624,
+    "sha256": "8aeb20ac86170383fba874d982c4559d6a05a749f994e4ba14464394f1aa325a"
+  },
+  "published_service_small_archive": {
+    "path": "service-history-final-a795/deciding-essential.tar.gz",
+    "bytes": 137126,
+    "sha256": "24d4e9e9c67a8b880da6ee4e33a5dd0a74f3d65d0e5ea5ed041ebba66b87da8f",
+    "regular_safe_members": 102
+  },
+  "native_Trash": "Not found; no cleanup or permanent unlink performed.",
+  "cleanup_candidates": [
+    {
+      "absolute_path": "/dev/shm/e02-D-funnel-oct07/origin17-final3b-fixtures",
+      "eligibility": "not_established; after publication/readback must verify inactivity, open handles, exact regenerability and retained unique deciding bytes"
+    },
+    {
+      "absolute_path": "/dev/shm/e02-D-funnel-oct07/origin11-removal-final3b-fixtures",
+      "eligibility": "not_established; after publication/readback must verify inactivity, open handles, exact regenerability and retained unique deciding bytes"
+    }
+  ],
+  "protected": "Source/docs/unique owner inputs/deciding outputs, all used environments and live Git object alternates remain preserved.",
+  "production_data": "No production dataset transferred; exact owner data checks remain local/read-only with minimum refs."
+}

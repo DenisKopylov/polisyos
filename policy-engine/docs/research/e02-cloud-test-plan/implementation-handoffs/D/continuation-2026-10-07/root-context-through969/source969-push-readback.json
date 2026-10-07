@@ -1,0 +1,20 @@
+{
+  "schema": "D.git.source-publication.v1",
+  "utc": "2026-10-07T10:50:33.491655+00:00",
+  "source": "96905636726483fdea3a98d9313871d825b54a9e",
+  "tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "branch": "codex/e02-D-oct07-continuation",
+  "auth_issue": "No shell HTTPS credential helper after prior237 publication; existing authenticated gh identity verified, gh auth setup-git configured helper; no token values captured.",
+  "normal_push_returncode": 0,
+  "argv": [
+    "git",
+    "ls-remote",
+    "origin",
+    "refs/heads/codex/e02-D-oct07-continuation"
+  ],
+  "returncode": 0,
+  "stdout": "96905636726483fdea3a98d9313871d825b54a9e\trefs/heads/codex/e02-D-oct07-continuation\n",
+  "stderr": "",
+  "main_push": false,
+  "force_push": false
+}

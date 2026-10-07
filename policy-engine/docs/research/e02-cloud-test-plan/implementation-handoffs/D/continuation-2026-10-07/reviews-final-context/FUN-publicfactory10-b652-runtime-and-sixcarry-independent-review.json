@@ -1,0 +1,148 @@
+{
+  "reviewer": "/root/census_oct07",
+  "decision": "GO_ACTUAL_PUBLIC_FACTORY10_AND_EXACT_SIX_COHORT_SOURCE_CARRY",
+  "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+  "tree": "e677b5e24493a7083287c3bea31bca1892c3be29",
+  "positive": {
+    "PASS": 10,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0,
+    "actual_phases": 30,
+    "input_denominator": 6314,
+    "JUnit_sha256": "18bacf326c2f8cea58ddd1d0cda546d23498ea4ba943b32ab64a41581604fae8",
+    "full_lossless_output_rows": 26,
+    "actual_canonical_snapshot_denominator": 10,
+    "snapshots": [
+      {
+        "fixture": "test_actual_owner_change_after0/resource-budget.json",
+        "spent": {
+          "run": "0.0"
+        },
+        "reserved": {
+          "run": "0.00004"
+        },
+        "receipts": 1,
+        "pending": 1
+      },
+      {
+        "fixture": "test_public_factory_pending_ow0/resource-budget.json",
+        "spent": {
+          "run": "0.0"
+        },
+        "reserved": {
+          "run": "0.00004"
+        },
+        "receipts": 1,
+        "pending": 1
+      },
+      {
+        "fixture": "test_public_factory_pending_ow1/resource-budget.json",
+        "spent": {
+          "run": "0.0"
+        },
+        "reserved": {
+          "run": "0.00004"
+        },
+        "receipts": 1,
+        "pending": 1
+      },
+      {
+        "fixture": "test_public_factory_resume_ref0/resource-budget.json",
+        "spent": {
+          "run": "0.0"
+        },
+        "reserved": {
+          "run": "0"
+        },
+        "receipts": 1,
+        "pending": 0
+      },
+      {
+        "fixture": "test_public_factory_resume_ref1/resource-budget.json",
+        "spent": {
+          "run": "0.0"
+        },
+        "reserved": {
+          "run": "0"
+        },
+        "receipts": 1,
+        "pending": 0
+      },
+      {
+        "fixture": "test_public_runner_consumes_tr0/resource-budget.json",
+        "spent": {
+          "run": "0.0"
+        },
+        "reserved": {
+          "run": "0"
+        },
+        "receipts": 1,
+        "pending": 0
+      },
+      {
+        "fixture": "test_public_runner_consumes_tr1/resource-budget.json",
+        "spent": {
+          "run": "1.0"
+        },
+        "reserved": {
+          "run": "0"
+        },
+        "receipts": 1,
+        "pending": 0
+      },
+      {
+        "fixture": "test_public_runner_consumes_tr2/resource-budget.json",
+        "spent": {
+          "native-resource": "0.0"
+        },
+        "reserved": {
+          "native-resource": "0"
+        },
+        "receipts": 1,
+        "pending": 0
+      },
+      {
+        "fixture": "test_public_runner_consumes_tr3/resource-budget.json",
+        "spent": {
+          "native-resource": "1.0"
+        },
+        "reserved": {
+          "native-resource": "0"
+        },
+        "receipts": 1,
+        "pending": 0
+      },
+      {
+        "fixture": "test_public_runner_paid_cutoff0/resource-budget.json",
+        "spent": {
+          "run": "1.0"
+        },
+        "reserved": {
+          "run": "0"
+        },
+        "receipts": 1,
+        "pending": 0
+      }
+    ]
+  },
+  "carry": {
+    "input": "/dev/shm/e02-D-funnel-oct07/a7-to-b652-exact-six-cohort-carry.json",
+    "sha256": "d0b04e8c4e10f7b307e21a33c19703951b62007e381ca7ff277a9542c055ab01",
+    "exact_unique_Git_module_test_pairs": 1211,
+    "actual_observed_module_rows": 2936,
+    "selectedtestfiles": 33,
+    "six_actual_original_outputs_verified": true,
+    "source_of_outputs": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+    "current_candidate": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+    "no_product_src_delta": true
+  },
+  "runtime_chain": "OrdinarypublicSearchLoopRunner constructor canonicalowner/key/costlaw → create_service/run -> actualzero/paidfreshsnapshot/cutoff -> physicaltinyunknown intent -> preflight/transaction rollbackfreshowner -> checkpoint/freshpublicresume. Mutableowner afterpreflight seam executes realHTTPcompletion unknown andasserts live/stoppingNone, preservedpending/history/cursor/CASbytes; freshownerworkfenced.",
+  "P37": "recomputed actualcanonicalBdurableevent/receipt/pendingstate andfreshreader; independentlyreconciled actualcompletephase/source/payload/readback. Provider HTTPfixture noinvoiceauthority.",
+  "P38": "Genuinezero originalreceipt remains validzero but laterphysicaltinyunknown must not project currentbudget_spentzero. Effectrace holds initialknownmarkers/oldCAS andintroduces actualpendingowner afterpreflight; live andstoppingNone observed.",
+  "original_B120_status": "Last independent postrollbackfreshowner removal1 control pending; fullpositive/32raw18cache30HTTP292owner138funnel113state/paid2 joins now actualsupported. No removalPASS presumed.",
+  "historical": "a7factory10 fixtureFAIL andnamespacev1collectiondiagnosis retained; successfulb652sameassertions normal registeredhelper custody fixes actualtestpremise only.",
+  "formal_closed": false,
+  "accepted_G": false,
+  "P41": "not_established; no inherited-red oruniversalzero-overlapclaim"
+}

@@ -1,0 +1,202 @@
+{
+  "execution_source": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+  "tree": "5738498b09aadca51e0bb73fa6d104e3354dc603",
+  "source_stable": true,
+  "phase_counts": {
+    "call:failed": 5,
+    "call:passed": 13,
+    "setup:passed": 18,
+    "teardown:passed": 18
+  },
+  "separate_denominators": {
+    "literalNode15": {
+      "PASS": 10,
+      "FAIL": 5
+    },
+    "persistedTracker3": {
+      "PASS": 3,
+      "FAIL": 0
+    }
+  },
+  "rows": [
+    {
+      "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_configured_paid_or_zero_settlement_fresh_cas[False-1.0]",
+      "check": "PASSED",
+      "classification": "bounded actual consumer PASS",
+      "reason": null
+    },
+    {
+      "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_configured_paid_or_zero_settlement_fresh_cas[False-0.0]",
+      "check": "PASSED",
+      "classification": "bounded actual consumer PASS",
+      "reason": null
+    },
+    {
+      "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_configured_paid_or_zero_settlement_fresh_cas[True-1.0]",
+      "check": "FAILED",
+      "classification": "test_defect",
+      "reason": "Invalid fixture expectation: ordinary native Node Stage A ends at L2; no L3/L4 physical producer has executed; partial reported amount None and empty real receipt set are correct."
+    },
+    {
+      "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_configured_paid_or_zero_settlement_fresh_cas[True-0.0]",
+      "check": "FAILED",
+      "classification": "test_defect",
+      "reason": "Invalid fixture expectation: ordinary native Node Stage A ends at L2; no L3/L4 physical producer has executed; partial reported amount None and empty real receipt set are correct."
+    },
+    {
+      "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_empty_has_no_numeric_positive_no_resource[stages]",
+      "check": "PASSED",
+      "classification": "bounded actual consumer PASS",
+      "reason": null
+    },
+    {
+      "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_empty_has_no_numeric_positive_no_resource[cap]",
+      "check": "PASSED",
+      "classification": "bounded actual consumer PASS",
+      "reason": null
+    },
+    {
+      "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_width_retains_available_scores_and_money[None-ci_width_missing-1.0]",
+      "check": "PASSED",
+      "classification": "bounded actual consumer PASS",
+      "reason": null
+    },
+    {
+      "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_width_retains_available_scores_and_money[broken-ci_width_invalid-1.0]",
+      "check": "PASSED",
+      "classification": "bounded actual consumer PASS",
+      "reason": null
+    },
+    {
+      "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_width_retains_available_scores_and_money[nan-ci_width_invalid-1.0]",
+      "check": "PASSED",
+      "classification": "bounded actual consumer PASS",
+      "reason": null
+    },
+    {
+      "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_width_retains_available_scores_and_money[0.0-full_fidelity_bootstrap-0.0]",
+      "check": "PASSED",
+      "classification": "bounded actual consumer PASS",
+      "reason": null
+    },
+    {
+      "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_width_retains_available_scores_and_money[0.4-full_fidelity_bootstrap-0.1]",
+      "check": "FAILED",
+      "classification": "test_defect",
+      "reason": "Invalid fixture oracle copied ATE2 expected0.1 into actual fixture declaring ATE0; existing supported normalizer treats finite positive CI width at zero effect as uncertainty1."
+    },
+    {
+      "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_final_aggregate_survives_optional_approve[False]",
+      "check": "PASSED",
+      "classification": "bounded actual consumer PASS",
+      "reason": null
+    },
+    {
+      "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_final_aggregate_survives_optional_approve[True]",
+      "check": "PASSED",
+      "classification": "bounded actual consumer PASS",
+      "reason": null
+    },
+    {
+      "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_unknown_cost_preserves_pending_and_no_false_zero[1e-1000]",
+      "check": "FAILED",
+      "classification": "test_defect",
+      "reason": "Invalid fixture comparator: generic json.dumps emits Infinity; canonical ExperimentState.model_dump_json maps child failure nonfinite sentinel to null. Cell stopped before pending assertions; those remaining assertions UNRUN on initial source."
+    },
+    {
+      "nodeid": "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py::test_literal_node_unknown_cost_preserves_pending_and_no_false_zero[-1e-1000]",
+      "check": "FAILED",
+      "classification": "test_defect",
+      "reason": "Invalid fixture comparator: generic json.dumps emits Infinity; canonical ExperimentState.model_dump_json maps child failure nonfinite sentinel to null. Cell stopped before pending assertions; those remaining assertions UNRUN on initial source."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_fun_03.py::test_native_execute_restores_report_corpus_into_actual_funnel_then_preserves_guards[False]",
+      "check": "PASSED",
+      "classification": "bounded actual consumer PASS",
+      "reason": null
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_fun_03.py::test_native_execute_restores_report_corpus_into_actual_funnel_then_preserves_guards[True]",
+      "check": "PASSED",
+      "classification": "bounded actual consumer PASS",
+      "reason": null
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_fun_03.py::test_native_execute_snapshot_removal_keeps_labels_but_does_not_invent_tracker",
+      "check": "PASSED",
+      "classification": "bounded actual consumer PASS",
+      "reason": null
+    }
+  ],
+  "complete_outputs": {
+    "node15-tracker3-5b5.stdout.txt": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5.stdout.txt",
+      "bytes": 201085,
+      "sha256": "b364be85c7fac920dd6c42619cf566ffb9a9e4896bb39b791a9059b7e3b03c1b"
+    },
+    "node15-tracker3-5b5.stderr.txt": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "node15-tracker3-5b5.junit.xml": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5.junit.xml",
+      "bytes": 199376,
+      "sha256": "1e8d7edbf7d2551861f4121bd156b72256654088d8ea7befb26fee0389f91709"
+    },
+    "node15-tracker3-5b5.phases.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5.phases.json",
+      "bytes": 124947,
+      "sha256": "ddb579b8744f4fd0310b6dcbcb2fccf7db7c5f8a31b25e28ba1fb91ef62ec591"
+    },
+    "node15-tracker3-5b5.inputs.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5.inputs.json",
+      "bytes": 1202106,
+      "sha256": "ef3ae852769d7c384a9e4c2646bff9437ff464a0afc8f94d2af46eb639307df8"
+    },
+    "node15-tracker3-5b5.modules.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5.modules.json",
+      "bytes": 415570,
+      "sha256": "f87f344d58d67591d6aff5fbbc8967204d2bc0ac549c999ec1c4f7db1afa1d6d"
+    },
+    "node15-tracker3-5b5.environment.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5.environment.json",
+      "bytes": 10567,
+      "sha256": "4ff34d95fb6af1d69ee233bd391b86140877958ec3b2c7a14d16395a044c8522"
+    },
+    "node15-tracker3-5b5.cgroup-before.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5.cgroup-before.json",
+      "bytes": 504,
+      "sha256": "3e791854081bf0389623f6c830eb9b8658326f0686d4cc3a6ef3db4e868f2745"
+    },
+    "node15-tracker3-5b5.cgroup-after.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5.cgroup-after.json",
+      "bytes": 506,
+      "sha256": "c89847ab0b7326285f7e4584b3c2b6e3efdce30b0ccbc461b837803d3d589583"
+    },
+    "node15-tracker3-5b5.cgroup-during.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5.cgroup-during.json",
+      "bytes": 5339,
+      "sha256": "fa6d5a965903e89487daced598234058b8c248c0e9a2c05f793f6e1f8c71eae2"
+    },
+    "node15-tracker3-5b5.deciding-ledgers.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5.deciding-ledgers.json",
+      "bytes": 6814,
+      "sha256": "607be0efbaf1025f6f39343c91e1602335aff93e6e0618bf88290e0388177372"
+    },
+    "node15-tracker3-5b5.deciding-cas.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5.deciding-cas.json",
+      "bytes": 219978,
+      "sha256": "87908e3aba537a13618bd14e9023390ec356a9ce7369048f6cf6bc81a4f15396"
+    },
+    "node15-tracker3-5b5.deciding-node-observations.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5.deciding-node-observations.json",
+      "bytes": 6211,
+      "sha256": "167eb48095fcbd793ef095858c2c9b2d6d501ff0e8c70fa9bb574c50f95617d9"
+    }
+  },
+  "fix": "external test-only oracle corrections, root sole writer; no production patch/failed profile replacement",
+  "inherited_attribution": "not_established/no inherited-red claim",
+  "cgroup": "Shared cgroup memory.events before/after equal; no kills attributed; successful process return1 is actual assertion failure",
+  "proposals": "No whole-family/formal closure or G acceptance inferred"
+}

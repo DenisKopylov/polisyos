@@ -1,0 +1,978 @@
+{
+  "schema": "D.E02.current-original-ten-transfer-matrix.v1",
+  "original_acceptance_source": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "actual_CBC": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "new_legacy6_source": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+  "rows": [
+    {
+      "id": "B128@TRN-01",
+      "finding_id": "B128",
+      "bundle": "TRN-01",
+      "closure_owner": "TRN-01",
+      "role": "canonical_owner",
+      "queue": "Q2",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3417,
+          3430
+        ],
+        "byte_offset": 773355,
+        "bytes": 4127,
+        "sha256": "af4e4b72706ecdef581727483780ed33bff190d295add23a9813ed7b903ffb2b"
+      },
+      "original_acceptance_binding": {
+        "byte_offset": 776394,
+        "bytes": 619,
+        "sha256": "549b289852eaabc2275c031208657ce535c20cdd971105ff0e452e5f6662e5d7"
+      },
+      "original_acceptance_text": "**Приёмка:** реальный сохранённый Evaluation проходит существующий мост без ручного monkeypatch; несовместимая запись различается с действительно пустой историей; количество принятых, отклонённых и недоступных записей согласовано. Конструктор нельзя исправлять отдельно от B130–B132: сейчас эта ошибка маскирует последующие дефекты отбора и смысла.",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/22"
+      },
+      "original_card_ref": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+        "sha256": "5e3aca3b4be36e07922b75d4afa208e440f48c00d911e4c540e41da385de12e5",
+        "bytes": 21441,
+        "git_blob": "be64b5a3f916bf5e5009d8a2701f834e494c044a"
+      },
+      "actual_execution_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "current_candidate": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+      "newlegacy_actual_execution_source": null,
+      "scope_evidence": [
+        {
+          "scope": "native",
+          "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+          "actual_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+          "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+          "new_test_source_is_5b": false,
+          "counts": {
+            "PASS": 28
+          },
+          "declared_directory_denominator": 6861,
+          "main_reached_repo_paths": 260,
+          "runtime_resource": {
+            "children_maxrss_kib": 899352,
+            "children_system_seconds": 0.5257459999999999,
+            "children_user_seconds": 6.317705,
+            "self_maxrss_kib": 877872,
+            "self_system_seconds": 1.675282,
+            "self_user_seconds": 10.086853000000001
+          },
+          "elapsed_seconds": 18.046588110009907,
+          "all_source_inputs_before_after_unchanged": true,
+          "complete_deciding_outputs": "scopes/native/",
+          "property": "Actual supported HNSW cosine/numeric boundary, immutable generation one-pointer old/new readers, real C++ load failure, native capacity/add rollback, qualified ref tamper, ordinary1002 donor discovery snapshots with exact selected history and freshchild26reads; actual persisted intake0empty/2rejected/1unavailable/2accepted."
+        },
+        {
+          "scope": "quota-replay",
+          "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+          "actual_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+          "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+          "new_test_source_is_5b": false,
+          "counts": {
+            "PASS": 39
+          },
+          "declared_directory_denominator": 6861,
+          "main_reached_repo_paths": 292,
+          "runtime_resource": {
+            "children_maxrss_kib": 883404,
+            "children_system_seconds": 0.06661299999999999,
+            "children_user_seconds": 0.043683,
+            "self_maxrss_kib": 883404,
+            "self_system_seconds": 1.0528739999999999,
+            "self_user_seconds": 7.507211
+          },
+          "elapsed_seconds": 9.800959064014023,
+          "all_source_inputs_before_after_unchanged": true,
+          "complete_deciding_outputs": "scopes/quota-replay/",
+          "property": "Actual qualified candidate/evaluation/role refs plus content-bound basis before quota; independent min/max and tie allocation, exact cold/warm immutable copy/LRU/budget, legacy refusal, forward/reverse metric/direction/missingholdout/nonpromotable lineage; current controller initial intake. No tenant/scientific authority."
+        }
+      ],
+      "consumer": "Actual persisted empty/invalid/unavailable/nonempty CASintake and configuredordinaryWarmStartBridge; GPowner realconfiguredCAS8 and publicRunner8/7 confirms actualnative receiving",
+      "negative_or_removal": "Intake removal retains CASref but collapses report:3assertionFAIL/trueemptyPASS",
+      "independent_review": "reviews/TRN-original10-current-CBC-independent-runtime-review.json; legacy6 separately reviews/TRN-legacy6-current5b-independent-runtime-review.json",
+      "GP_receiving_actual_edge": "GPcurrentCBC gp-defining configuredcontroller8 actualSingleTaskGP; transfer-public3 actual8/7 nativefit. Externalindependentreview d0c0a00c; no fabricated Backend PASS.",
+      "P37": "independently_reconciled",
+      "P38": "Intake removal retains CASref but collapses report:3assertionFAIL/trueemptyPASS",
+      "P40": "Originalclass widened to actualcurrentnative/CAS/freshconsumer and explicitlegacy refusal; no newly divergentowned mechanism. Preserved marker withoutactualrows/backend/ref cannot satisfycriterion",
+      "P41": "not_established",
+      "disposition_proposal": "closed",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "residual": null,
+      "ordinary_fixable_owned_residual": null
+    },
+    {
+      "id": "B129@TRN-02",
+      "finding_id": "B129",
+      "bundle": "TRN-02",
+      "closure_owner": "TRN-02",
+      "role": "canonical_owner",
+      "queue": "Q2",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3431,
+          3444
+        ],
+        "byte_offset": 777482,
+        "bytes": 3983,
+        "sha256": "b84b680f12b3c9e1226bfe1f0db09c0afb8b4cc338bb20d850188be0ef1fc32b"
+      },
+      "original_acceptance_binding": {
+        "byte_offset": 780379,
+        "bytes": 582,
+        "sha256": "88b1c5aec30b187f76018f9b7e7c7b8f7aabd54e4479465a0b39a549af27c49a"
+      },
+      "original_acceptance_text": "**Приёмка:** история, найденная в индексе размером более 1000, читается без второго ANN; изменение `top_k` discovery не меняет адресуемость уже выбранного артефакта; повреждённая ссылка не подменяется другой похожей историей. Строгие фильтры применимости учитывать до окончательного лимита, но не смешивать их с адресным чтением.",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/23"
+      },
+      "original_card_ref": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-02.md",
+        "sha256": "e357afdc8a41beeb2a13493b27e4626cf648031c78c602d841989861253ebc12",
+        "bytes": 17678,
+        "git_blob": "eae89b8ccfe27e68b9e4599f34a5c932f7457e22"
+      },
+      "actual_execution_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "current_candidate": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+      "newlegacy_actual_execution_source": null,
+      "scope_evidence": [
+        {
+          "scope": "native",
+          "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+          "actual_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+          "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+          "new_test_source_is_5b": false,
+          "counts": {
+            "PASS": 28
+          },
+          "declared_directory_denominator": 6861,
+          "main_reached_repo_paths": 260,
+          "runtime_resource": {
+            "children_maxrss_kib": 899352,
+            "children_system_seconds": 0.5257459999999999,
+            "children_user_seconds": 6.317705,
+            "self_maxrss_kib": 877872,
+            "self_system_seconds": 1.675282,
+            "self_user_seconds": 10.086853000000001
+          },
+          "elapsed_seconds": 18.046588110009907,
+          "all_source_inputs_before_after_unchanged": true,
+          "complete_deciding_outputs": "scopes/native/",
+          "property": "Actual supported HNSW cosine/numeric boundary, immutable generation one-pointer old/new readers, real C++ load failure, native capacity/add rollback, qualified ref tamper, ordinary1002 donor discovery snapshots with exact selected history and freshchild26reads; actual persisted intake0empty/2rejected/1unavailable/2accepted."
+        },
+        {
+          "scope": "quota-replay",
+          "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+          "actual_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+          "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+          "new_test_source_is_5b": false,
+          "counts": {
+            "PASS": 39
+          },
+          "declared_directory_denominator": 6861,
+          "main_reached_repo_paths": 292,
+          "runtime_resource": {
+            "children_maxrss_kib": 883404,
+            "children_system_seconds": 0.06661299999999999,
+            "children_user_seconds": 0.043683,
+            "self_maxrss_kib": 883404,
+            "self_system_seconds": 1.0528739999999999,
+            "self_user_seconds": 7.507211
+          },
+          "elapsed_seconds": 9.800959064014023,
+          "all_source_inputs_before_after_unchanged": true,
+          "complete_deciding_outputs": "scopes/quota-replay/",
+          "property": "Actual qualified candidate/evaluation/role refs plus content-bound basis before quota; independent min/max and tie allocation, exact cold/warm immutable copy/LRU/budget, legacy refusal, forward/reverse metric/direction/missingholdout/nonpromotable lineage; current controller initial intake. No tenant/scientific authority."
+        }
+      ],
+      "consumer": "Actual1002ordinaryregistered snapshots, sameactualsource history selected at full/topk1/topk2 then exactread withsecondANNforbidden; qualified corruption refuses; finalapplicabilityfilter beforequota",
+      "negative_or_removal": "Actualsamecomposite-ref bytes altered aftersuccess: freshchildrefusal oldcoherent;ANNcannotresolve replacement",
+      "independent_review": "reviews/TRN-original10-current-CBC-independent-runtime-review.json; legacy6 separately reviews/TRN-legacy6-current5b-independent-runtime-review.json",
+      "GP_receiving_actual_edge": null,
+      "P37": "independently_reconciled",
+      "P38": "Actualsamecomposite-ref bytes altered aftersuccess: freshchildrefusal oldcoherent;ANNcannotresolve replacement",
+      "P40": "Originalclass widened to actualcurrentnative/CAS/freshconsumer and explicitlegacy refusal; no newly divergentowned mechanism. Preserved marker withoutactualrows/backend/ref cannot satisfycriterion",
+      "P41": "not_established",
+      "disposition_proposal": "closed",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "residual": null,
+      "ordinary_fixable_owned_residual": null
+    },
+    {
+      "id": "B130@TRN-01",
+      "finding_id": "B130",
+      "bundle": "TRN-01",
+      "closure_owner": "TRN-01",
+      "role": "canonical_owner",
+      "queue": "Q2",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3445,
+          3458
+        ],
+        "byte_offset": 781465,
+        "bytes": 3702,
+        "sha256": "9f18f5b71de39a4ca820a167f74bf206775f04050db33327aa6ccd6525dca4e7"
+      },
+      "original_acceptance_binding": {
+        "byte_offset": 784342,
+        "bytes": 593,
+        "sha256": "b70b31214ee588708f1536a62ef11dd85932c5bedf2e99e7b2d6320815ecabf3"
+      },
+      "original_acceptance_text": "**Приёмка:** минимум и максимум исходных целей после нормализации приводят к правильному порядку; полные равенства не создают ложных различий; ограничение объёма не превышается, а свободная квота заполняется согласно объявленной политике. Миграция старого корпуса должна установить значение scalar, не угадывать его по имени.",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/24"
+      },
+      "original_card_ref": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+        "sha256": "5e3aca3b4be36e07922b75d4afa208e440f48c00d911e4c540e41da385de12e5",
+        "bytes": 21441,
+        "git_blob": "be64b5a3f916bf5e5009d8a2701f834e494c044a"
+      },
+      "actual_execution_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "current_candidate": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+      "newlegacy_actual_execution_source": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+      "scope_evidence": [
+        {
+          "scope": "quota-replay",
+          "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+          "actual_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+          "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+          "new_test_source_is_5b": false,
+          "counts": {
+            "PASS": 39
+          },
+          "declared_directory_denominator": 6861,
+          "main_reached_repo_paths": 292,
+          "runtime_resource": {
+            "children_maxrss_kib": 883404,
+            "children_system_seconds": 0.06661299999999999,
+            "children_user_seconds": 0.043683,
+            "self_maxrss_kib": 883404,
+            "self_system_seconds": 1.0528739999999999,
+            "self_user_seconds": 7.507211
+          },
+          "elapsed_seconds": 9.800959064014023,
+          "all_source_inputs_before_after_unchanged": true,
+          "complete_deciding_outputs": "scopes/quota-replay/",
+          "property": "Actual qualified candidate/evaluation/role refs plus content-bound basis before quota; independent min/max and tie allocation, exact cold/warm immutable copy/LRU/budget, legacy refusal, forward/reverse metric/direction/missingholdout/nonpromotable lineage; current controller initial intake. No tenant/scientific authority."
+        },
+        {
+          "scope": "legacy6",
+          "actual_execution_head": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+          "actual_tree": "5738498b09aadca51e0bb73fa6d104e3354dc603",
+          "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+          "new_test_source_is_5b": true,
+          "counts": {
+            "PASS": 6
+          },
+          "declared_directory_denominator": 6863,
+          "main_reached_repo_paths": 256,
+          "runtime_resource": {
+            "children_maxrss_kib": 866876,
+            "children_system_seconds": 0.074748,
+            "children_user_seconds": 0.035257,
+            "self_maxrss_kib": 866876,
+            "self_system_seconds": 0.667481,
+            "self_user_seconds": 5.4912410000000005
+          },
+          "elapsed_seconds": 5.6373568499984685,
+          "all_source_inputs_before_after_unchanged": true,
+          "complete_deciding_outputs": "scopes/legacy6/",
+          "property": "Actual supported-v2 positive then persisted schema1/absent and real candidate placeholder refusal through fresh native/CAS WarmStartBridge; no numeric promotion; all min/max"
+        }
+      ],
+      "consumer": "Actual min/max normalized ordering, fullties/replica policy, quota0/1/3/4/10 and declaredfill; persisted schema1/absent explicitlyunsupportedcodec, nooldscalarsemanticguess",
+      "negative_or_removal": "Six native/CAS legacynegative cells retain genuine supportedv2 positive then refuse; zero candidateaddress never measured",
+      "independent_review": "reviews/TRN-original10-current-CBC-independent-runtime-review.json; legacy6 separately reviews/TRN-legacy6-current5b-independent-runtime-review.json",
+      "GP_receiving_actual_edge": null,
+      "P37": "independently_reconciled",
+      "P38": "Six native/CAS legacynegative cells retain genuine supportedv2 positive then refuse; zero candidateaddress never measured",
+      "P40": "Originalclass widened to actualcurrentnative/CAS/freshconsumer and explicitlegacy refusal; no newly divergentowned mechanism. Preserved marker withoutactualrows/backend/ref cannot satisfycriterion",
+      "P41": "not_established",
+      "disposition_proposal": "closed",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "residual": null,
+      "ordinary_fixable_owned_residual": null
+    },
+    {
+      "id": "B131@TRN-01",
+      "finding_id": "B131",
+      "bundle": "TRN-01",
+      "closure_owner": "TRN-01",
+      "role": "canonical_owner",
+      "queue": "Q2",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3459,
+          3472
+        ],
+        "byte_offset": 785167,
+        "bytes": 4079,
+        "sha256": "60545080be6e14231a07b082abb322b91f9b304c40dbed2d2cc701223470910c"
+      },
+      "original_acceptance_binding": {
+        "byte_offset": 788048,
+        "bytes": 691,
+        "sha256": "e6742f51f48e338f3410307c69a2e42b12c6205c34d9c8c4947e784ba842b8dd"
+      },
+      "original_acceptance_text": "**Приёмка:** различающиеся пространства не считаются численно тождественными; разрешённый адаптер преобразует действительные параметры; несовместимая оценка остаётся доступной как идея с ограничением. Новая версия данных может требовать переоценки, но не полного запрета межзадачного обучения. Проверить tenant/split у действительного владельца, а не доверять тексту метаданных.",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/25"
+      },
+      "original_card_ref": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+        "sha256": "5e3aca3b4be36e07922b75d4afa208e440f48c00d911e4c540e41da385de12e5",
+        "bytes": 21441,
+        "git_blob": "be64b5a3f916bf5e5009d8a2701f834e494c044a"
+      },
+      "actual_execution_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "current_candidate": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+      "newlegacy_actual_execution_source": null,
+      "scope_evidence": [
+        {
+          "scope": "quota-replay",
+          "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+          "actual_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+          "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+          "new_test_source_is_5b": false,
+          "counts": {
+            "PASS": 39
+          },
+          "declared_directory_denominator": 6861,
+          "main_reached_repo_paths": 292,
+          "runtime_resource": {
+            "children_maxrss_kib": 883404,
+            "children_system_seconds": 0.06661299999999999,
+            "children_user_seconds": 0.043683,
+            "self_maxrss_kib": 883404,
+            "self_system_seconds": 1.0528739999999999,
+            "self_user_seconds": 7.507211
+          },
+          "elapsed_seconds": 9.800959064014023,
+          "all_source_inputs_before_after_unchanged": true,
+          "complete_deciding_outputs": "scopes/quota-replay/",
+          "property": "Actual qualified candidate/evaluation/role refs plus content-bound basis before quota; independent min/max and tie allocation, exact cold/warm immutable copy/LRU/budget, legacy refusal, forward/reverse metric/direction/missingholdout/nonpromotable lineage; current controller initial intake. No tenant/scientific authority."
+        }
+      ],
+      "consumer": "Current incompatible physical/basis/bounds/direction/ref/outcome beforefit refusal; actualauthorizedtenant/split/adapter positive missing",
+      "negative_or_removal": "Fixtureowner labels not authority; changedbasis remains refusal absentappointedowner",
+      "independent_review": "reviews/TRN-original10-current-CBC-independent-runtime-review.json; legacy6 separately reviews/TRN-legacy6-current5b-independent-runtime-review.json",
+      "GP_receiving_actual_edge": null,
+      "P37": "not_established for real owner positive; independently_reconciled current engineering guard only",
+      "P38": "Fixtureowner labels not authority; changedbasis remains refusal absentappointedowner",
+      "P40": "Originalclass widened to actualcurrentnative/CAS/freshconsumer and explicitlegacy refusal; no newly divergentowned mechanism. Preserved marker withoutactualrows/backend/ref cannot satisfycriterion",
+      "P41": "not_established",
+      "disposition_proposal": "held",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "residual": {
+        "owned_fixable_defect": null,
+        "required_owner_positive": {
+          "required_runtime_falsifier": "tenant/split/source-target basis changed while source approval text remains; numeric reuse requires actual owner decision",
+          "required_input_keys": [
+            "tenant_split_transfer"
+          ],
+          "prior_exact_criterion_pointer": "/findings/26",
+          "minimum_positive": "Original owner16 packet binding retained; actual owner input/decision needed, no wholeproductiondata request."
+        },
+        "capability_state_label": "not_established",
+        "authority_or_nativeinput_not_synthesized": true
+      },
+      "ordinary_fixable_owned_residual": null
+    },
+    {
+      "id": "B132@TRN-01",
+      "finding_id": "B132",
+      "bundle": "TRN-01",
+      "closure_owner": "TRN-01",
+      "role": "canonical_owner",
+      "queue": "Q2",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3473,
+          3486
+        ],
+        "byte_offset": 789246,
+        "bytes": 3673,
+        "sha256": "53d130ee4cb74e9043c80076be6e6c123789c8d6d9de51e7105c1901f1243894"
+      },
+      "original_acceptance_binding": {
+        "byte_offset": 791900,
+        "bytes": 482,
+        "sha256": "5833cd83c20ce8f2a897ab4c13b475daaabcfa4adec33cb2a1376fcba78c4fcb"
+      },
+      "original_acceptance_text": "**Приёмка:** разные кандидаты сохраняют разные настоящие ссылки; координаты не попадают в метрики; direction round-trip не меняет смысл; отсутствующий holdout остаётся отсутствующим; nonpromotable продолжает действовать. Прежние placeholder-записи не повышать автоматически при миграции.",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/26"
+      },
+      "original_card_ref": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+        "sha256": "5e3aca3b4be36e07922b75d4afa208e440f48c00d911e4c540e41da385de12e5",
+        "bytes": 21441,
+        "git_blob": "be64b5a3f916bf5e5009d8a2701f834e494c044a"
+      },
+      "actual_execution_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "current_candidate": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+      "newlegacy_actual_execution_source": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+      "scope_evidence": [
+        {
+          "scope": "quota-replay",
+          "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+          "actual_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+          "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+          "new_test_source_is_5b": false,
+          "counts": {
+            "PASS": 39
+          },
+          "declared_directory_denominator": 6861,
+          "main_reached_repo_paths": 292,
+          "runtime_resource": {
+            "children_maxrss_kib": 883404,
+            "children_system_seconds": 0.06661299999999999,
+            "children_user_seconds": 0.043683,
+            "self_maxrss_kib": 883404,
+            "self_system_seconds": 1.0528739999999999,
+            "self_user_seconds": 7.507211
+          },
+          "elapsed_seconds": 9.800959064014023,
+          "all_source_inputs_before_after_unchanged": true,
+          "complete_deciding_outputs": "scopes/quota-replay/",
+          "property": "Actual qualified candidate/evaluation/role refs plus content-bound basis before quota; independent min/max and tie allocation, exact cold/warm immutable copy/LRU/budget, legacy refusal, forward/reverse metric/direction/missingholdout/nonpromotable lineage; current controller initial intake. No tenant/scientific authority."
+        },
+        {
+          "scope": "legacy6",
+          "actual_execution_head": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+          "actual_tree": "5738498b09aadca51e0bb73fa6d104e3354dc603",
+          "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+          "new_test_source_is_5b": true,
+          "counts": {
+            "PASS": 6
+          },
+          "declared_directory_denominator": 6863,
+          "main_reached_repo_paths": 256,
+          "runtime_resource": {
+            "children_maxrss_kib": 866876,
+            "children_system_seconds": 0.074748,
+            "children_user_seconds": 0.035257,
+            "self_maxrss_kib": 866876,
+            "self_system_seconds": 0.667481,
+            "self_user_seconds": 5.4912410000000005
+          },
+          "elapsed_seconds": 5.6373568499984685,
+          "all_source_inputs_before_after_unchanged": true,
+          "complete_deciding_outputs": "scopes/legacy6/",
+          "property": "Actual supported-v2 positive then persisted schema1/absent and real candidate placeholder refusal through fresh native/CAS WarmStartBridge; no numeric promotion; all min/max"
+        }
+      ],
+      "consumer": "Actual fullcandidate/evaluation qualifiedrefs, metric/physical separation, min/max roundtrip, absentholdout, nonpromotable; nativefresh persistedzeroaddress rejected",
+      "negative_or_removal": "Realplaceholdercandidate refs+rewrittenBenchmarkEvaluation preservev2 but rejected2/noadmitted rows",
+      "independent_review": "reviews/TRN-original10-current-CBC-independent-runtime-review.json; legacy6 separately reviews/TRN-legacy6-current5b-independent-runtime-review.json",
+      "GP_receiving_actual_edge": null,
+      "P37": "independently_reconciled",
+      "P38": "Realplaceholdercandidate refs+rewrittenBenchmarkEvaluation preservev2 but rejected2/noadmitted rows",
+      "P40": "Originalclass widened to actualcurrentnative/CAS/freshconsumer and explicitlegacy refusal; no newly divergentowned mechanism. Preserved marker withoutactualrows/backend/ref cannot satisfycriterion",
+      "P41": "not_established",
+      "disposition_proposal": "closed",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "residual": null,
+      "ordinary_fixable_owned_residual": null
+    },
+    {
+      "id": "B133@TRN-02",
+      "finding_id": "B133",
+      "bundle": "TRN-02",
+      "closure_owner": "TRN-02",
+      "role": "canonical_owner",
+      "queue": "Q2",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3487,
+          3500
+        ],
+        "byte_offset": 792919,
+        "bytes": 3384,
+        "sha256": "8c7d3f2d133708780969d4ad10524a5cf9b461acb4d24117f4bb39506962890a"
+      },
+      "original_acceptance_binding": {
+        "byte_offset": 795310,
+        "bytes": 552,
+        "sha256": "48f75c8fbb72fbc3c446e8677e4976ccc20d3f3624b34260ce20e01a26b39a3d"
+      },
+      "original_acceptance_text": "**Приёмка:** новый допустимый snapshot одинаково читается холодным и тёплым путями; replay конкретной старой ссылки остаётся старым; мутация потребителя не меняет общий результат; ограничение памяти не скрывает действительный артефакт. B129 должен передать точную ссылку, иначе этот ремонт останется неполным.",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/27"
+      },
+      "original_card_ref": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-02.md",
+        "sha256": "e357afdc8a41beeb2a13493b27e4626cf648031c78c602d841989861253ebc12",
+        "bytes": 17678,
+        "git_blob": "eae89b8ccfe27e68b9e4599f34a5c932f7457e22"
+      },
+      "actual_execution_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "current_candidate": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+      "newlegacy_actual_execution_source": null,
+      "scope_evidence": [
+        {
+          "scope": "native",
+          "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+          "actual_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+          "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+          "new_test_source_is_5b": false,
+          "counts": {
+            "PASS": 28
+          },
+          "declared_directory_denominator": 6861,
+          "main_reached_repo_paths": 260,
+          "runtime_resource": {
+            "children_maxrss_kib": 899352,
+            "children_system_seconds": 0.5257459999999999,
+            "children_user_seconds": 6.317705,
+            "self_maxrss_kib": 877872,
+            "self_system_seconds": 1.675282,
+            "self_user_seconds": 10.086853000000001
+          },
+          "elapsed_seconds": 18.046588110009907,
+          "all_source_inputs_before_after_unchanged": true,
+          "complete_deciding_outputs": "scopes/native/",
+          "property": "Actual supported HNSW cosine/numeric boundary, immutable generation one-pointer old/new readers, real C++ load failure, native capacity/add rollback, qualified ref tamper, ordinary1002 donor discovery snapshots with exact selected history and freshchild26reads; actual persisted intake0empty/2rejected/1unavailable/2accepted."
+        },
+        {
+          "scope": "quota-replay",
+          "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+          "actual_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+          "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+          "new_test_source_is_5b": false,
+          "counts": {
+            "PASS": 39
+          },
+          "declared_directory_denominator": 6861,
+          "main_reached_repo_paths": 292,
+          "runtime_resource": {
+            "children_maxrss_kib": 883404,
+            "children_system_seconds": 0.06661299999999999,
+            "children_user_seconds": 0.043683,
+            "self_maxrss_kib": 883404,
+            "self_system_seconds": 1.0528739999999999,
+            "self_user_seconds": 7.507211
+          },
+          "elapsed_seconds": 9.800959064014023,
+          "all_source_inputs_before_after_unchanged": true,
+          "complete_deciding_outputs": "scopes/quota-replay/",
+          "property": "Actual qualified candidate/evaluation/role refs plus content-bound basis before quota; independent min/max and tie allocation, exact cold/warm immutable copy/LRU/budget, legacy refusal, forward/reverse metric/direction/missingholdout/nonpromotable lineage; current controller initial intake. No tenant/scientific authority."
+        }
+      ],
+      "consumer": "Actualexactqualifiedhistory immutable cache/cold/warm/oldref replay/copyisolation/LRU/bytebudget;selectedactualref transportedwithoutsecondANN",
+      "negative_or_removal": "Everyrole exactresolver+content mutation/oldalias tests;cache cannot hidebadrefs",
+      "independent_review": "reviews/TRN-original10-current-CBC-independent-runtime-review.json; legacy6 separately reviews/TRN-legacy6-current5b-independent-runtime-review.json",
+      "GP_receiving_actual_edge": null,
+      "P37": "independently_reconciled",
+      "P38": "Everyrole exactresolver+content mutation/oldalias tests;cache cannot hidebadrefs",
+      "P40": "Originalclass widened to actualcurrentnative/CAS/freshconsumer and explicitlegacy refusal; no newly divergentowned mechanism. Preserved marker withoutactualrows/backend/ref cannot satisfycriterion",
+      "P41": "not_established",
+      "disposition_proposal": "closed",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "residual": null,
+      "ordinary_fixable_owned_residual": null
+    },
+    {
+      "id": "B134@TRN-02",
+      "finding_id": "B134",
+      "bundle": "TRN-02",
+      "closure_owner": "TRN-02",
+      "role": "canonical_owner",
+      "queue": "Q2",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3501,
+          3514
+        ],
+        "byte_offset": 796303,
+        "bytes": 4534,
+        "sha256": "c877d26c3cb5a8d078a8e40b23e6d1bf3cf5ff5844a4357b08db2f8fb447cd3e"
+      },
+      "original_acceptance_binding": {
+        "byte_offset": 799747,
+        "bytes": 651,
+        "sha256": "36d571033f9b9e3b58f6f9f7bc93a01ed4c6e799a7791d815fa39932fd68de9d"
+      },
+      "original_acceptance_text": "**Приёмка:** отказ добавления не портит старые запросы; failed load оставляет прежнее полностью согласованное поколение; загрузка без нужных bytes не публикуется частично; проверены capacity, неверная форма и настоящие нативные исключения. Resize допустим только внутри выделенного ресурса. Не снимать лимиты и не перестраивать весь индекс на каждом нормальном запросе.",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/28"
+      },
+      "original_card_ref": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-02.md",
+        "sha256": "e357afdc8a41beeb2a13493b27e4626cf648031c78c602d841989861253ebc12",
+        "bytes": 17678,
+        "git_blob": "eae89b8ccfe27e68b9e4599f34a5c932f7457e22"
+      },
+      "actual_execution_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "current_candidate": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+      "newlegacy_actual_execution_source": null,
+      "scope_evidence": [
+        {
+          "scope": "native",
+          "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+          "actual_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+          "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+          "new_test_source_is_5b": false,
+          "counts": {
+            "PASS": 28
+          },
+          "declared_directory_denominator": 6861,
+          "main_reached_repo_paths": 260,
+          "runtime_resource": {
+            "children_maxrss_kib": 899352,
+            "children_system_seconds": 0.5257459999999999,
+            "children_user_seconds": 6.317705,
+            "self_maxrss_kib": 877872,
+            "self_system_seconds": 1.675282,
+            "self_user_seconds": 10.086853000000001
+          },
+          "elapsed_seconds": 18.046588110009907,
+          "all_source_inputs_before_after_unchanged": true,
+          "complete_deciding_outputs": "scopes/native/",
+          "property": "Actual supported HNSW cosine/numeric boundary, immutable generation one-pointer old/new readers, real C++ load failure, native capacity/add rollback, qualified ref tamper, ordinary1002 donor discovery snapshots with exact selected history and freshchild26reads; actual persisted intake0empty/2rejected/1unavailable/2accepted."
+        }
+      ],
+      "consumer": "Real nativequery load/update readers observewholeold/new singlepointer; actualcapacity/shape/nativeC++loaderexception/addafterfailure/missingtamper/nonfinitelegacy preserveoldgeneration",
+      "negative_or_removal": "Privatefiniteadmission removal:actualvalidCASnativeNaN positive premise thentrueDIDNOTRAISE assertionFAIL",
+      "independent_review": "reviews/TRN-original10-current-CBC-independent-runtime-review.json; legacy6 separately reviews/TRN-legacy6-current5b-independent-runtime-review.json",
+      "GP_receiving_actual_edge": null,
+      "P37": "independently_reconciled",
+      "P38": "Privatefiniteadmission removal:actualvalidCASnativeNaN positive premise thentrueDIDNOTRAISE assertionFAIL",
+      "P40": "Originalclass widened to actualcurrentnative/CAS/freshconsumer and explicitlegacy refusal; no newly divergentowned mechanism. Preserved marker withoutactualrows/backend/ref cannot satisfycriterion",
+      "P41": "not_established",
+      "disposition_proposal": "closed",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "residual": null,
+      "ordinary_fixable_owned_residual": null
+    },
+    {
+      "id": "B135@TRN-03",
+      "finding_id": "B135",
+      "bundle": "TRN-03",
+      "closure_owner": "TRN-03",
+      "role": "canonical_owner",
+      "queue": "Q2",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3515,
+          3528
+        ],
+        "byte_offset": 800837,
+        "bytes": 3204,
+        "sha256": "2616ea6686a29681f5379ae2e54588f2a82afd9882dd1909aa261ee5990ed1e7"
+      },
+      "original_acceptance_binding": {
+        "byte_offset": 803219,
+        "bytes": 490,
+        "sha256": "01ce84941fd8680e13557f709b04c7978d7003b2c358dcc81363e2d973aaa136"
+      },
+      "original_acceptance_text": "**Приёмка:** вложенный объект, сериализованный объект и равнозначные явные поля ведут к одному эффективному предметному контексту; настоящее разрешённое override работает; невалидный base имеет адресный результат; isolated-fallback остаётся для действительно неизвестной области.",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/29"
+      },
+      "original_card_ref": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-03.md",
+        "sha256": "c7cce0fdded201121b425a14faefe58e7d1e13475d931a33eed5d82621c8aa2a",
+        "bytes": 16604,
+        "git_blob": "cce61650d0e6d743b102171edf6e412dd2b350c0"
+      },
+      "actual_execution_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "current_candidate": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+      "newlegacy_actual_execution_source": null,
+      "scope_evidence": [
+        {
+          "scope": "lessons",
+          "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+          "actual_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+          "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+          "new_test_source_is_5b": false,
+          "counts": {
+            "PASS": 39
+          },
+          "declared_directory_denominator": 6861,
+          "main_reached_repo_paths": 244,
+          "runtime_resource": {
+            "children_maxrss_kib": 299168,
+            "children_system_seconds": 0.08290299999999999,
+            "children_user_seconds": 0.053251,
+            "self_maxrss_kib": 299168,
+            "self_system_seconds": 0.464298,
+            "self_user_seconds": 2.868963
+          },
+          "elapsed_seconds": 4.174713538988726,
+          "all_source_inputs_before_after_unchanged": true,
+          "complete_deciding_outputs": "scopes/lessons/",
+          "property": "Actual local/query_with_transfer/materialize/context persistedCAS reader, same typed subject/overrides and trust/confidence/source/partial filters; future-asof refusal, retention/restart cannot refresh evidence. Authorized revalidation positive absent."
+        }
+      ],
+      "consumer": "Actualtyped/nested/JSON/explicitcontext sameeffective subject, permittedoverride;invalidaddressedresult,trulyunknownisolatedfallback",
+      "negative_or_removal": "Actualcontext criteria3 plus currentcontrollerpersistedquery typedreadback",
+      "independent_review": "reviews/TRN-original10-current-CBC-independent-runtime-review.json; legacy6 separately reviews/TRN-legacy6-current5b-independent-runtime-review.json",
+      "GP_receiving_actual_edge": null,
+      "P37": "independently_reconciled",
+      "P38": "Actualcontext criteria3 plus currentcontrollerpersistedquery typedreadback",
+      "P40": "Originalclass widened to actualcurrentnative/CAS/freshconsumer and explicitlegacy refusal; no newly divergentowned mechanism. Preserved marker withoutactualrows/backend/ref cannot satisfycriterion",
+      "P41": "not_established",
+      "disposition_proposal": "closed",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "residual": null,
+      "ordinary_fixable_owned_residual": null
+    },
+    {
+      "id": "B136@TRN-03",
+      "finding_id": "B136",
+      "bundle": "TRN-03",
+      "closure_owner": "TRN-03",
+      "role": "canonical_owner",
+      "queue": "Q2",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3529,
+          3542
+        ],
+        "byte_offset": 804041,
+        "bytes": 3976,
+        "sha256": "1182d49f6e0f40a47b62e7bfe488d75ff540516f4ba6f022cbedba1340c60deb"
+      },
+      "original_acceptance_binding": {
+        "byte_offset": 807152,
+        "bytes": 535,
+        "sha256": "dbc583087ea526396c4d1b2b4230d2058a76565496b4bdac824060a759dee116"
+      },
+      "original_acceptance_text": "**Приёмка:** переданный threshold и trust-filter соблюдаются независимо от маршрута; локальный промах не меняет требования; действительно допустимая transferred-карточка возвращается; несоответствующая не материализуется зря. Проверить source_run_id и политику частичного ответа, не только два численных примера.",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/30"
+      },
+      "original_card_ref": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-03.md",
+        "sha256": "c7cce0fdded201121b425a14faefe58e7d1e13475d931a33eed5d82621c8aa2a",
+        "bytes": 16604,
+        "git_blob": "cce61650d0e6d743b102171edf6e412dd2b350c0"
+      },
+      "actual_execution_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "current_candidate": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+      "newlegacy_actual_execution_source": null,
+      "scope_evidence": [
+        {
+          "scope": "lessons",
+          "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+          "actual_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+          "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+          "new_test_source_is_5b": false,
+          "counts": {
+            "PASS": 39
+          },
+          "declared_directory_denominator": 6861,
+          "main_reached_repo_paths": 244,
+          "runtime_resource": {
+            "children_maxrss_kib": 299168,
+            "children_system_seconds": 0.08290299999999999,
+            "children_user_seconds": 0.053251,
+            "self_maxrss_kib": 299168,
+            "self_system_seconds": 0.464298,
+            "self_user_seconds": 2.868963
+          },
+          "elapsed_seconds": 4.174713538988726,
+          "all_source_inputs_before_after_unchanged": true,
+          "complete_deciding_outputs": "scopes/lessons/",
+          "property": "Actual local/query_with_transfer/materialize/context persistedCAS reader, same typed subject/overrides and trust/confidence/source/partial filters; future-asof refusal, retention/restart cannot refresh evidence. Authorized revalidation positive absent."
+        }
+      ],
+      "consumer": "Actual localquery/querywithtransfer/materialize sharedthreshold/trust/source/partial policy; rejectedbeforematerialization/finalsourcequota",
+      "negative_or_removal": "Fixedcontext/filtercontrols and partialempty/unknown crossroutes;no label-only success",
+      "independent_review": "reviews/TRN-original10-current-CBC-independent-runtime-review.json; legacy6 separately reviews/TRN-legacy6-current5b-independent-runtime-review.json",
+      "GP_receiving_actual_edge": null,
+      "P37": "independently_reconciled",
+      "P38": "Fixedcontext/filtercontrols and partialempty/unknown crossroutes;no label-only success",
+      "P40": "Originalclass widened to actualcurrentnative/CAS/freshconsumer and explicitlegacy refusal; no newly divergentowned mechanism. Preserved marker withoutactualrows/backend/ref cannot satisfycriterion",
+      "P41": "not_established",
+      "disposition_proposal": "closed",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "residual": null,
+      "ordinary_fixable_owned_residual": null
+    },
+    {
+      "id": "B137@TRN-03",
+      "finding_id": "B137",
+      "bundle": "TRN-03",
+      "closure_owner": "TRN-03",
+      "role": "canonical_owner",
+      "queue": "Q2",
+      "original_fragment": {
+        "document_key": "B_r19",
+        "lines": [
+          3543,
+          3556
+        ],
+        "byte_offset": 808017,
+        "bytes": 4247,
+        "sha256": "133330308d63d9cf44d4105d556e1e4740ff31b519643791722beb8a8a7bc961"
+      },
+      "original_acceptance_binding": {
+        "byte_offset": 811080,
+        "bytes": 676,
+        "sha256": "a712c0b6eddcecf9e4b23c77fc2f4732fea66953462e3cb3bfcd4a6ed376be2f"
+      },
+      "original_acceptance_text": "**Приёмка:** любое число обычных чтений не повышает доверие; настоящая разрешённая ревалидация создаёт новую версию с новыми основаниями; повторный холодный и тёплый запрос дают одинаковую содержательную степень актуальности. Retention может учитывать популярность, evidence sufficiency — нет. Проверить восстановление после restart и перенос, а не только пару запросов в одной памяти.",
+      "original_criterion_ref": {
+        "git_ref": "617988f7cfb8e5cb74b6beba41704eb117b0e033",
+        "git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+        "sha256": "9dbdeffa5f2aa44ff7df2cfeb9e1fe9358fdbc96ab9f7ac22632a8ed150af1ee",
+        "bytes": 467218,
+        "git_blob": "5e6cd0ab5f92cf2d939d3bc3a59cd503800fd0ca",
+        "json_pointer": "/criterion_occurrences/31"
+      },
+      "original_card_ref": {
+        "git_ref": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-03.md",
+        "sha256": "c7cce0fdded201121b425a14faefe58e7d1e13475d931a33eed5d82621c8aa2a",
+        "bytes": 16604,
+        "git_blob": "cce61650d0e6d743b102171edf6e412dd2b350c0"
+      },
+      "actual_execution_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+      "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "current_candidate": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+      "newlegacy_actual_execution_source": null,
+      "scope_evidence": [
+        {
+          "scope": "lessons",
+          "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+          "actual_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+          "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+          "new_test_source_is_5b": false,
+          "counts": {
+            "PASS": 39
+          },
+          "declared_directory_denominator": 6861,
+          "main_reached_repo_paths": 244,
+          "runtime_resource": {
+            "children_maxrss_kib": 299168,
+            "children_system_seconds": 0.08290299999999999,
+            "children_user_seconds": 0.053251,
+            "self_maxrss_kib": 299168,
+            "self_system_seconds": 0.464298,
+            "self_user_seconds": 2.868963
+          },
+          "elapsed_seconds": 4.174713538988726,
+          "all_source_inputs_before_after_unchanged": true,
+          "complete_deciding_outputs": "scopes/lessons/",
+          "property": "Actual local/query_with_transfer/materialize/context persistedCAS reader, same typed subject/overrides and trust/confidence/source/partial filters; future-asof refusal, retention/restart cannot refresh evidence. Authorized revalidation positive absent."
+        }
+      ],
+      "consumer": "Actualfuture-asof拒否/readTTL/lastaccess retention doesnotrefresh evidence; coldwarmrestart/exactoldnewlessonreplay;authorizedrevalidation newgroundspositive missing",
+      "negative_or_removal": "Access-onlyfuture evidence cannotcreate freshness; actualnewgrounds requiresappointedowner/ref",
+      "independent_review": "reviews/TRN-original10-current-CBC-independent-runtime-review.json; legacy6 separately reviews/TRN-legacy6-current5b-independent-runtime-review.json",
+      "GP_receiving_actual_edge": null,
+      "P37": "not_established for real owner positive; independently_reconciled current engineering guard only",
+      "P38": "Access-onlyfuture evidence cannotcreate freshness; actualnewgrounds requiresappointedowner/ref",
+      "P40": "Originalclass widened to actualcurrentnative/CAS/freshconsumer and explicitlegacy refusal; no newly divergentowned mechanism. Preserved marker withoutactualrows/backend/ref cannot satisfycriterion",
+      "P41": "not_established",
+      "disposition_proposal": "held",
+      "formal_closed": false,
+      "accepted_in_G": false,
+      "residual": {
+        "owned_fixable_defect": null,
+        "required_owner_positive": {
+          "required_runtime_falsifier": "future evidence or retention access-only update cannot make past-as-of evidence fresh; only authorized new grounds/version can revalidate",
+          "required_input_keys": [
+            "authorized_revalidation"
+          ],
+          "prior_exact_criterion_pointer": "/findings/32",
+          "minimum_positive": "Original owner16 packet binding retained; actual owner input/decision needed, no wholeproductiondata request."
+        },
+        "capability_state_label": "not_established",
+        "authority_or_nativeinput_not_synthesized": true
+      },
+      "ordinary_fixable_owned_residual": null
+    }
+  ],
+  "proposals": {
+    "closed": 8,
+    "held": 2
+  },
+  "formally_closed": 0,
+  "accepted_in_G": false
+}

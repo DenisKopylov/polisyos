@@ -1,0 +1,775 @@
+{
+  "schema": "e02.D.independent.runtime-review.v1",
+  "reviewer": "census_oct07",
+  "source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+  "tree": "855ae45bd271d207ad3121276a5281454d1d38de",
+  "status": "CURRENT65_PASS_SEVEN_BOUND_ORIGINAL_PROPOSALS_B128_CLAUSE_PENDING_TWO_HELD",
+  "full_author_handoff": {
+    "path": "/dev/shm/e02-D-transfer-final-receipt-a4nlymzm/handoff-current-b5.json",
+    "sha256": "bcf3244ce266b768e984ee31c2319ba0ce2e353c18594dcfbd3a7733530da39c"
+  },
+  "portable_complete_manifest": {
+    "path": "/dev/shm/e02-D-transfer-final-receipt-a4nlymzm/output-manifest.json",
+    "sha256": "aee7816ac4aa968ae718f8442fd8bfcb5fb966186b18a59fd4e9e0fc0eff48a3",
+    "all_files_verified": 66
+  },
+  "actual_argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "no:cacheprovider",
+    "-o",
+    "junit_family=xunit1",
+    "-o",
+    "junit_logging=all",
+    "-o",
+    "junit_log_passing_tests=true",
+    "--basetemp",
+    "/dev/shm/e02-D-transfer-original-current-_cr03jr_/basetemp",
+    "--junitxml",
+    "/dev/shm/e02-D-transfer-original-current-_cr03jr_/junit.xml",
+    "-q",
+    "tests/unit/scientist/agent/test_vector_generation_consumer.py::test_exact_transfer_reference_beyond_1000_keys_survives_fresh_native_reader",
+    "tests/unit/scientist/agent/test_vector_transfer_process.py::test_actual_native_loader_exception_keeps_the_old_generation",
+    "tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py",
+    "tests/unit/scientist/search/test_warm_start.py",
+    "tests/unit/scientist/methods/autotune/test_warm_start.py",
+    "tests/unit/scientist/search/test_transfer_context_criteria.py",
+    "tests/unit/scientist/methods/search/test_lesson_query_persistence.py",
+    "tests/unit/scientist/search/test_lesson_transfer.py",
+    "tests/unit/scientist/search/test_lesson_as_of.py",
+    "tests/unit/scientist/search/test_lesson_partial_consumer.py"
+  ],
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "TMPDIR": "/dev/shm/e02-D-transfer-original-current-_cr03jr_/tmp",
+    "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine"
+  },
+  "input_profile": "Controlled original2 measuredsource;1001 ordinarydiscovery snapshots carry copied untoucheddonorrows. Lesson explicit times/asof/filter/partial profiles and legacywarmcaller exact declaredfixtures; no production or authority claim",
+  "exact_current21source_test_blobs_verified": {
+    "policy-engine/tests/unit/scientist/agent/test_vector_generation_consumer.py": "7c59fd18900004f9720768315069f6e399ef89db",
+    "policy-engine/tests/unit/scientist/agent/test_vector_transfer_process.py": "55d3a5f1f67e6b5bad3c21f8874cddbb026a227c",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer_selection_criteria.py": "5e135c9a53ee2e9a75abf177afa98d4e0a9cd5e2",
+    "policy-engine/tests/unit/scientist/search/test_warm_start.py": "ecc944b8ad9c90b508ac036c5e3eb1005e9f33db",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_warm_start.py": "1e5011c1ead8dc6fbecc3c10a0adc1ae6218b278",
+    "policy-engine/tests/unit/scientist/search/test_transfer_context_criteria.py": "22539ef17eb8cb193fda6c6ec24224d584027516",
+    "policy-engine/tests/unit/scientist/methods/search/test_lesson_query_persistence.py": "32827cc8e4f267b9d9e6d4bf86eb0ffb0c3ed216",
+    "policy-engine/tests/unit/scientist/search/test_lesson_transfer.py": "181989c9d088407ed09df30014e5f5a23ccd48c4",
+    "policy-engine/tests/unit/scientist/search/test_lesson_as_of.py": "5543f3ac347ee94724874da5ba6a01385da54786",
+    "policy-engine/tests/unit/scientist/search/test_lesson_partial_consumer.py": "63274a25fb0a3a5315fe9fb05b29e3d931d69c2d",
+    "policy-engine/src/polisyos/scientist/agent/vector_memory.py": "3e68ab919b915427300869d6b378d12f585d1f00",
+    "policy-engine/tests/unit/scientist/agent/vector_generation_reader.py": "02a9e2074bdbfea3f57bcd950c6953a387cb6408",
+    "policy-engine/tests/unit/scientist/agent/vector_transfer_process_worker.py": "ddfdbcdd8e6492771f432beb1629729093c90849",
+    "policy-engine/src/polisyos/scientist/methods/search/lessons.py": "0520a440f0b5285d3976f152dad5a0dbfe9c35cb",
+    "policy-engine/src/polisyos/scientist/methods/search/transfer_context.py": "0963066824070b40fbe3d999d61d553b02728ec9",
+    "policy-engine/src/polisyos/scientist/methods/search/controller.py": "850eeac5abe58df4f7c2ef0d56b836f404477e7d",
+    "policy-engine/src/polisyos/scientist/methods/autotune/warm_start.py": "40532c3c0d20eb8e64ea3b1589c7a1cbae5dedd6",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py": "078d61b349147d0542e6012c49fcf205d09c0c0f",
+    "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py": "1a7e97f9b558f1a27c6977661b6797fcbbb38278",
+    "policy-engine/src/polisyos/core/artifacts/store.py": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+    "policy-engine/src/polisyos/core/artifacts/_integrity_ops.py": "0e5cab25d5ddeb168c520afcdd88c7b8c215f257"
+  },
+  "results": {
+    "bytes": 52718,
+    "sha256": "97695fcfcd3b49972c9f3cbc5564b76d48cdd7bdb3a10f4132bfaa3f8c9ad791",
+    "case_counts": {
+      "PASS": 65,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0
+    },
+    "testcases": [
+      {
+        "class": "tests.unit.scientist.agent.test_vector_generation_consumer",
+        "name": "test_exact_transfer_reference_beyond_1000_keys_survives_fresh_native_reader",
+        "result": "PASS",
+        "time": "10.075",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.agent.test_vector_transfer_process",
+        "name": "test_actual_native_loader_exception_keeps_the_old_generation",
+        "result": "PASS",
+        "time": "0.468",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.methods.search.strategies.test_transfer_selection_criteria",
+        "name": "test_uneven_histories_redistribute_only_admitted_remaining_quota[0]",
+        "result": "PASS",
+        "time": "0.065",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.methods.search.strategies.test_transfer_selection_criteria",
+        "name": "test_uneven_histories_redistribute_only_admitted_remaining_quota[1]",
+        "result": "PASS",
+        "time": "0.109",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.methods.search.strategies.test_transfer_selection_criteria",
+        "name": "test_uneven_histories_redistribute_only_admitted_remaining_quota[3]",
+        "result": "PASS",
+        "time": "0.097",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.methods.search.strategies.test_transfer_selection_criteria",
+        "name": "test_uneven_histories_redistribute_only_admitted_remaining_quota[4]",
+        "result": "PASS",
+        "time": "0.091",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.methods.search.strategies.test_transfer_selection_criteria",
+        "name": "test_uneven_histories_redistribute_only_admitted_remaining_quota[10]",
+        "result": "PASS",
+        "time": "0.090",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.methods.search.strategies.test_transfer_selection_criteria",
+        "name": "test_complete_score_ties_preserve_explicit_independent_replica_identity",
+        "result": "PASS",
+        "time": "0.073",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.methods.search.strategies.test_transfer_selection_criteria",
+        "name": "test_bridge_source_limit_follows_content_admission_and_replay_has_no_ann",
+        "result": "PASS",
+        "time": "0.083",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.methods.search.strategies.test_transfer_selection_criteria",
+        "name": "test_bridge_preserves_the_declared_limit_on_nonempty_admitted_sources",
+        "result": "PASS",
+        "time": "0.075",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.methods.search.strategies.test_transfer_selection_criteria",
+        "name": "test_whole_catalog_query_captures_one_native_generation_during_publication",
+        "result": "PASS",
+        "time": "0.045",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_warm_start.TestWarmStart",
+        "name": "test_initial_evaluations_seed_history",
+        "result": "PASS",
+        "time": "0.344",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_warm_start.TestWarmStart",
+        "name": "test_warm_start_updates_best",
+        "result": "PASS",
+        "time": "0.002",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_warm_start.TestWarmStart",
+        "name": "test_empty_initial_evaluations",
+        "result": "PASS",
+        "time": "0.002",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_warm_start.TestParetoFront",
+        "name": "test_pareto_front_populated",
+        "result": "PASS",
+        "time": "0.002",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_warm_start.TestDominates",
+        "name": "test_strictly_better",
+        "result": "PASS",
+        "time": "0.000",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_warm_start.TestDominates",
+        "name": "test_equal_does_not_dominate",
+        "result": "PASS",
+        "time": "0.000",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_warm_start.TestDominates",
+        "name": "test_partial_does_not_dominate",
+        "result": "PASS",
+        "time": "0.000",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_warm_start.TestDominates",
+        "name": "test_different_length",
+        "result": "PASS",
+        "time": "0.000",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_warm_start.TestAdaptiveBatchSizing",
+        "name": "test_config_accepts_batch_size",
+        "result": "PASS",
+        "time": "0.000",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.methods.autotune.test_warm_start",
+        "name": "test_loads_native_discovery_and_uses_same_canonical_reader_for_replay",
+        "result": "PASS",
+        "time": "0.158",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.methods.autotune.test_warm_start",
+        "name": "test_reverse_replay_preserves_original_metric_ref_and_metadata_without_promotion[minimize]",
+        "result": "PASS",
+        "time": "0.078",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.methods.autotune.test_warm_start",
+        "name": "test_reverse_replay_preserves_original_metric_ref_and_metadata_without_promotion[maximize]",
+        "result": "PASS",
+        "time": "0.078",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.methods.autotune.test_warm_start",
+        "name": "test_reverse_replay_refuses_unresolved_or_modified_observations",
+        "result": "PASS",
+        "time": "0.072",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.methods.autotune.test_warm_start",
+        "name": "test_reverse_replay_requires_the_configured_metric",
+        "result": "PASS",
+        "time": "0.055",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.methods.autotune.test_warm_start",
+        "name": "test_malformed_source_refusal_remains_visible_after_receiving_admission",
+        "result": "PASS",
+        "time": "0.061",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_transfer_context_criteria",
+        "name": "test_nested_serialized_and_equivalent_explicit_fields_have_the_same_scope",
+        "result": "PASS",
+        "time": "0.000",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_transfer_context_criteria",
+        "name": "test_invalid_base_does_not_leak_partial_scope_and_explicit_scope_remains_addressed",
+        "result": "PASS",
+        "time": "0.000",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_transfer_context_criteria",
+        "name": "test_truly_unknown_domain_keeps_a_run_addressed_isolated_fallback",
+        "result": "PASS",
+        "time": "0.000",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.methods.search.test_lesson_query_persistence",
+        "name": "test_real_controller_keeps_typed_nested_context_in_lesson_consumer[False]",
+        "result": "PASS",
+        "time": "0.010",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.methods.search.test_lesson_query_persistence",
+        "name": "test_real_controller_keeps_typed_nested_context_in_lesson_consumer[True]",
+        "result": "PASS",
+        "time": "0.010",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.methods.search.test_lesson_query_persistence",
+        "name": "test_destination_projection_uses_all_effective_query_filters",
+        "result": "PASS",
+        "time": "0.025",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.methods.search.test_lesson_query_persistence",
+        "name": "test_active_policy_demotes_local_and_transferred_confidence_equally",
+        "result": "PASS",
+        "time": "0.019",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.methods.search.test_lesson_query_persistence",
+        "name": "test_access_writes_no_cas_snapshot_and_repeated_reads_cannot_refresh_evidence",
+        "result": "PASS",
+        "time": "0.012",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.methods.search.test_lesson_query_persistence",
+        "name": "test_older_arrival_cannot_replace_newest_actual_evidence_ref",
+        "result": "PASS",
+        "time": "0.017",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.methods.search.test_lesson_query_persistence",
+        "name": "test_fresh_producer_observation_survives_older_access_retention_hint",
+        "result": "PASS",
+        "time": "0.015",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_lesson_transfer",
+        "name": "test_resolve_transfer_context_preserves_typed_base_until_explicit_override",
+        "result": "PASS",
+        "time": "0.000",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_lesson_transfer",
+        "name": "test_query_with_transfer_reapplies_source_trust_and_confidence_filters",
+        "result": "PASS",
+        "time": "0.022",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_lesson_transfer",
+        "name": "test_query_with_transfer_materializes_cross_domain_same_tenant",
+        "result": "PASS",
+        "time": "0.017",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_lesson_transfer",
+        "name": "test_same_domain_same_tenant_reuse_stays_local",
+        "result": "PASS",
+        "time": "0.010",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_lesson_transfer",
+        "name": "test_cross_tenant_transfer_denied_by_default",
+        "result": "PASS",
+        "time": "0.009",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_lesson_transfer",
+        "name": "test_ttl_demotes_old_lessons_before_archive",
+        "result": "PASS",
+        "time": "0.009",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_lesson_transfer",
+        "name": "test_invalidation_beats_transfer_materialization",
+        "result": "PASS",
+        "time": "0.012",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_lesson_as_of",
+        "name": "test_future_cas_evidence_is_not_available_at_past_as_of[local]",
+        "result": "PASS",
+        "time": "0.010",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_lesson_as_of",
+        "name": "test_future_cas_evidence_is_not_available_at_past_as_of[transfer]",
+        "result": "PASS",
+        "time": "0.010",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_lesson_as_of",
+        "name": "test_future_cas_evidence_is_not_available_at_past_as_of[materialize]",
+        "result": "PASS",
+        "time": "0.009",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_lesson_as_of",
+        "name": "test_future_cas_evidence_is_not_available_at_past_as_of[aggregate]",
+        "result": "PASS",
+        "time": "0.010",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_lesson_as_of",
+        "name": "test_evidence_exactly_at_as_of_remains_available[local]",
+        "result": "PASS",
+        "time": "0.009",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_lesson_as_of",
+        "name": "test_evidence_exactly_at_as_of_remains_available[transfer]",
+        "result": "PASS",
+        "time": "0.016",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_lesson_as_of",
+        "name": "test_evidence_exactly_at_as_of_remains_available[materialize]",
+        "result": "PASS",
+        "time": "0.016",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_lesson_as_of",
+        "name": "test_evidence_exactly_at_as_of_remains_available[aggregate]",
+        "result": "PASS",
+        "time": "0.010",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_lesson_as_of",
+        "name": "test_retention_reads_and_restart_never_refresh_evidence",
+        "result": "PASS",
+        "time": "0.012",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_lesson_as_of",
+        "name": "test_conflicting_as_of_is_refused_before_materialization",
+        "result": "PASS",
+        "time": "0.008",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_lesson_as_of",
+        "name": "test_query_as_of_round_trip_preserves_explicit_time",
+        "result": "PASS",
+        "time": "0.000",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_lesson_as_of",
+        "name": "test_newer_persisted_version_is_not_reinterpreted_as_older_evidence",
+        "result": "PASS",
+        "time": "0.017",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_lesson_as_of",
+        "name": "test_aggregate_transfer_lookup_keeps_the_explicit_target_time",
+        "result": "PASS",
+        "time": "0.009",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_lesson_as_of",
+        "name": "test_naive_query_time_is_refused",
+        "result": "PASS",
+        "time": "0.001",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_lesson_as_of",
+        "name": "test_historical_read_retains_evidence_at_actual_access_time[False]",
+        "result": "PASS",
+        "time": "0.011",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_lesson_as_of",
+        "name": "test_historical_read_retains_evidence_at_actual_access_time[True]",
+        "result": "PASS",
+        "time": "0.011",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_lesson_partial_consumer",
+        "name": "test_partial_local_answer_is_filled_by_one_admitted_transfer",
+        "result": "PASS",
+        "time": "0.028",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_lesson_partial_consumer",
+        "name": "test_source_run_filter_excludes_other_sources_before_partial_fill",
+        "result": "PASS",
+        "time": "0.041",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_lesson_partial_consumer",
+        "name": "test_duplicate_evidence_across_routes_does_not_consume_partial_quota_or_refresh",
+        "result": "PASS",
+        "time": "0.058",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_lesson_partial_consumer",
+        "name": "test_distinct_newer_evidence_is_not_suppressed_as_route_metadata",
+        "result": "PASS",
+        "time": "0.033",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_lesson_partial_consumer",
+        "name": "test_partial_fill_uses_the_same_as_of_and_freshness_on_both_routes[future]",
+        "result": "PASS",
+        "time": "0.044",
+        "failure": null
+      },
+      {
+        "class": "tests.unit.scientist.search.test_lesson_partial_consumer",
+        "name": "test_partial_fill_uses_the_same_as_of_and_freshness_on_both_routes[stale]",
+        "result": "PASS",
+        "time": "0.044",
+        "failure": null
+      }
+    ]
+  },
+  "rows": [
+    {
+      "id": "B128@TRN-01",
+      "finding_id": "B128",
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B128@TRN-01",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+          "bytes": 21441,
+          "sha256": "5e3aca3b4be36e07922b75d4afa208e440f48c00d911e4c540e41da385de12e5"
+        }
+      },
+      "criterion_text_sha256": "549b289852eaabc2275c031208657ce535c20cdd971105ff0e452e5f6662e5d7",
+      "state": "ordinary_criterion_clause_pending",
+      "actual_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "consumer_basis": "Real saved CAS Evaluation is consumed by current canonical WarmStart; malformed source remains a visible refusal and report counts survive receiving admission. Separate GP owner supplies the configured real model consumer.",
+      "residual": "B128 same persisted/CAS transfer intake validempty versus incompatible/unavailable discrimination needs explicit control; initial_evaluations=[] is a different intake. Author preparing tiny existing-port test, no production change required.",
+      "formal_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "id": "B129@TRN-02",
+      "finding_id": "B129",
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B129@TRN-02",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-02.md",
+          "bytes": 17678,
+          "sha256": "e357afdc8a41beeb2a13493b27e4626cf648031c78c602d841989861253ebc12"
+        }
+      },
+      "criterion_text_sha256": "88b1c5aec30b187f76018f9b7e7c7b8f7aabd54e4479465a0b39a549af27c49a",
+      "state": "closed_proposal_supported",
+      "actual_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "consumer_basis": "Within the same actual1002 catalog, top_k=None/1/2 retain the original source exact history_ref. ANN is then prohibited for actual exact address, warm read and fresh persisted native reader. Invalid bytes do not substitute similar history.",
+      "residual": "No unresolved owned mechanism in reviewed bounded original criterion; formal G decision pending.",
+      "formal_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "id": "B130@TRN-01",
+      "finding_id": "B130",
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B130@TRN-01",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+          "bytes": 21441,
+          "sha256": "5e3aca3b4be36e07922b75d4afa208e440f48c00d911e4c540e41da385de12e5"
+        }
+      },
+      "criterion_text_sha256": "b70b31214ee588708f1536a62ef11dd85932c5bedf2e99e7b2d6320815ecabf3",
+      "state": "closed_proposal_supported",
+      "actual_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "consumer_basis": "Current canonical reverse bridge executes both objective directions. Nine current selection cases exercise quota0/1/3/4/10, independent equal-score original measurement refs, strict admission before source limit and the declared remaining quota policy. Unknown old codec refuses rather than guesses scalar semantics.",
+      "residual": "No unresolved owned mechanism in reviewed bounded original criterion; formal G decision pending.",
+      "formal_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "id": "B131@TRN-01",
+      "finding_id": "B131",
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B131@TRN-01",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+          "bytes": 21441,
+          "sha256": "5e3aca3b4be36e07922b75d4afa208e440f48c00d911e4c540e41da385de12e5"
+        }
+      },
+      "criterion_text_sha256": "e6742f51f48e338f3410307c69a2e42b12c6205c34d9c8c4947e784ba842b8dd",
+      "state": "held",
+      "actual_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "consumer_basis": "Genuine tenant/split/source-owner numerical reuse and allowed adapter decision are absent. Fixture role refs do not appoint institutional authority.",
+      "residual": "Actual owner-positive input, not established by fixture labels.",
+      "formal_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "id": "B132@TRN-01",
+      "finding_id": "B132",
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B132@TRN-01",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-01.md",
+          "bytes": 21441,
+          "sha256": "5e3aca3b4be36e07922b75d4afa208e440f48c00d911e4c540e41da385de12e5"
+        }
+      },
+      "criterion_text_sha256": "5833cd83c20ce8f2a897ab4c13b475daaabcfa4adec33cb2a1376fcba78c4fcb",
+      "state": "closed_proposal_supported",
+      "actual_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "consumer_basis": "Current reverse bridge preserves distinct real candidate/evaluation refs, physical coordinates apart from original metrics, directions, absent holdout and nonpromotable status. Modified/unresolved observations and configured metric mismatch refuse.",
+      "residual": "No unresolved owned mechanism in reviewed bounded original criterion; formal G decision pending.",
+      "formal_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "id": "B133@TRN-02",
+      "finding_id": "B133",
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B133@TRN-02",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-02.md",
+          "bytes": 17678,
+          "sha256": "e357afdc8a41beeb2a13493b27e4626cf648031c78c602d841989861253ebc12"
+        }
+      },
+      "criterion_text_sha256": "48f75c8fbb72fbc3c446e8677e4976ccc20d3f3624b34260ce20e01a26b39a3d",
+      "state": "closed_proposal_supported",
+      "actual_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "consumer_basis": "Actual exact-ref/cache/copy/LRU and old/new snapshot controls remain recorded at469 with unchanged direct transfer reader/core CAS/test blobs. Current canonical replay and1002 fresh native reader execute atb5. No new59 execution is claimed.",
+      "residual": "No unresolved owned mechanism in reviewed bounded original criterion; formal G decision pending.",
+      "formal_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "id": "B134@TRN-02",
+      "finding_id": "B134",
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B134@TRN-02",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-02.md",
+          "bytes": 17678,
+          "sha256": "e357afdc8a41beeb2a13493b27e4626cf648031c78c602d841989861253ebc12"
+        }
+      },
+      "criterion_text_sha256": "36d571033f9b9e3b58f6f9f7bc93a01ed4c6e799a7791d815fa39932fd68de9d",
+      "state": "closed_proposal_supported",
+      "actual_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "consumer_basis": "Actual native add/load/capacity/shape and old-or-new reader controls ran at469; private native finite admission and supported zero controls ran atd610. Current catalog barrier and EXISTING actual C++ failed-load child execute atb5 with full passing stdout. No duplicate exception test added.",
+      "residual": "No unresolved owned mechanism in reviewed bounded original criterion; formal G decision pending.",
+      "formal_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "id": "B135@TRN-03",
+      "finding_id": "B135",
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B135@TRN-03",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-03.md",
+          "bytes": 16604,
+          "sha256": "c7cce0fdded201121b425a14faefe58e7d1e13475d931a33eed5d82621c8aa2a"
+        }
+      },
+      "criterion_text_sha256": "01ce84941fd8680e13557f709b04c7978d7003b2c358dcc81363e2d973aaa136",
+      "state": "closed_proposal_supported",
+      "actual_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "consumer_basis": "Current original context3 covers nested/serialized/equivalent explicit fields, permitted override, invalid addressed base and truly unknown isolated fallback; current real controller/CAS lesson consumers also execute.",
+      "residual": "No unresolved owned mechanism in reviewed bounded original criterion; formal G decision pending.",
+      "formal_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "id": "B136@TRN-03",
+      "finding_id": "B136",
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B136@TRN-03",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-03.md",
+          "bytes": 16604,
+          "sha256": "c7cce0fdded201121b425a14faefe58e7d1e13475d931a33eed5d82621c8aa2a"
+        }
+      },
+      "criterion_text_sha256": "dbc583087ea526396c4d1b2b4230d2058a76565496b4bdac824060a759dee116",
+      "state": "closed_proposal_supported",
+      "actual_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "consumer_basis": "Current persisted local/transfer threshold, trust/source-run, partial fill/dedup, shared as-of/TTL and refusal before irrelevant materialization execute.",
+      "residual": "No unresolved owned mechanism in reviewed bounded original criterion; formal G decision pending.",
+      "formal_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "id": "B137@TRN-03",
+      "finding_id": "B137",
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B137@TRN-03",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/TRN-03.md",
+          "bytes": 16604,
+          "sha256": "c7cce0fdded201121b425a14faefe58e7d1e13475d931a33eed5d82621c8aa2a"
+        }
+      },
+      "criterion_text_sha256": "a712c0b6eddcecf9e4b23c77fc2f4732fea66953462e3cb3bfcd4a6ed376be2f",
+      "state": "held",
+      "actual_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "consumer_basis": "Current ordinary retention/read/TTL/future-as-of/cold/warm/restart/transfer components execute. Genuine authorized revalidation with new grounds and exact evidence versions remains absent.",
+      "residual": "Actual owner-positive input, not established by fixture labels.",
+      "formal_closed": false,
+      "accepted_in_G": false
+    }
+  ],
+  "prior_qualified_evidence": "Prior d61017/source46959/historical828lesson receipts remain separate exactsource/input/output scopes. Reviewer earlier d610-current17 and sourcebindings confirmed. SharedBase changed to b5, so old scopes are not claimed new execution or zero-overlap inheritance. Current65 reruns actual canonical/legacy warm and real controller/lesson consumers with changed dependency.",
+  "native_witness": "Actual1002 ordinary registered discovery histories retain exact selected source ref on top_k=None/1/2, then ANN forbidden and actual fresh native child reads exact refs.1001 histories carry untouched two original donor rows each, not1001 independent measured executions. Existing actual C++ corrupted-native load executes in fresh process and preserves old generation. No duplicate exception test added.",
+  "P37": "Exact ArtifactRef/CAS content/typed coordinate+context basis and independent count/quota/filter/as-of predicates are asserted through actual producer/bridge/readback. An ANN hit, marker, class or access time alone is insufficient.",
+  "P38": "Same-ref altered bytes/invalid native finite storage fail before pointer swap; same1002 discovery top_k cannot erase selected exact address; retained markers and local miss cannot bypass transfer threshold/trust/as-of. Current native exception is actual C++ RuntimeError, not fake wrapper throw.",
+  "limitations": [
+    "B131 tenant/split adapter authority positive and B137 actual authorized revalidation newgrounds/version remain held; ordinary retention/restart/transfer mechanisms actually pass.",
+    "B128 original persisted empty versus incompatible clause pending tiny ordinary test; do not approve all8 from aggregate65.",
+    "Deeper new B CAS owner minref/combined source receipt is a separate integration input; no current execution on unseen owner source.",
+    "Nativefloat32 approximate discovery is not ANN completeness/population/scientific reuse authority.",
+    "Lost historical nonzero finitezero collapse cannot be recovered without original raw embeddings; bounded original-input limitation explicit.",
+    "No artificial quotas, whole-D PASS, distributed atomicity or P41 waiver.",
+    "G acceptance=false."
+  ]
+}

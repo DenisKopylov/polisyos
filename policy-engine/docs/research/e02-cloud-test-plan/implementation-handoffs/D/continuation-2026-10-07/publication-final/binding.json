@@ -1,0 +1,32 @@
+{
+  "schema": "D.e02.append-only-publication-seal.v1",
+  "utc": "2026-10-07T11:26:41.452593+00:00",
+  "implementation_sha": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "implementation_tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+  "reviewed_receipt_sha": "1df761b27a195235b1fe63e8cbfaec3625cfe179",
+  "reviewed_receipt_tree": "5bee19bdda221937bdb6613979a81931f5df49b7",
+  "slice_predecessor": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+  "append_only_files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/publication-final/complete-independent-review.json",
+      "bytes": 31701,
+      "sha256": "b3221f2859850ad93e5d3edcaf8e3e3df94cee11a50c4f10e922bc42e6ae3d51",
+      "source_path_provenance": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/final-publication-5bee19bdda-complete-independent-review.json"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/publication-final/receipt-remote-readback.json",
+      "bytes": 1042,
+      "sha256": "31094eddb4de4f8c0b9f2dce7f6113cafaa88c3fd7a9b1e93cb7785e042c52f7",
+      "source_path_provenance": "/dev/shm/e02-D-oct07-root-admission/final-receipt-remote-readback.json"
+    }
+  ],
+  "changed_path_set": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/publication-final/complete-independent-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/publication-final/receipt-remote-readback.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/publication-final/binding.json"
+  ],
+  "original_publication_membership": "907 indexed files plus original index itself = 908 files. That immutable index is not relabeled as covering this three-file append.",
+  "runtime": "No runtime dependency or source change; no numerical/test replay performed for this publication metadata append.",
+  "acceptance": "39 bounded proposals, 5 held, 1 limited; formal closure=0, G accepted=0. Independent publication-integrity GO is not code/scientific authority or G acceptance.",
+  "publication": "Own D topic only, normal push, no main push, no force, no rebase."
+}

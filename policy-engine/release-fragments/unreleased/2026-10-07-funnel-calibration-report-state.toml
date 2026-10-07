@@ -1,0 +1,11 @@
+id = "2026-10-07-funnel-calibration-report-state"
+title = "Preserve supplied calibration corpus and unassessed empty reports"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-runtime"
+surface_classification = "internal: internal-only"
+summary = "The existing report producer preserves a supplied real tracker snapshot for the native runtime reader. Empty corpus rates and acceptance checks remain null/unassessed through JSON, Markdown, CAS and runtime projection, while genuinely observed zero remains numeric."
+evidence = ["tests/unit/scientist/search/test_calibration_report.py", "tests/unit/scientist/search/test_correlation_tracker.py", "tests/unit/remediation/test_fun_03.py"]
+compatibility = "Additive report metadata using existing tracker snapshot 1.0. Legacy reports without tracker state remain projection-only. AcceptanceCriterionStatus already permits null actual/passed; rendered JSON now retains those explicit null values. Genuinely empty routing rates become null and retain not_established/no_promotion state."
+migration = "Use existing build_calibration_report(correlation_tracker=...) and persist/readback helpers. Consumers must preserve calibration_state and handle declared unassessed nulls instead of comparing missing measurements as zero. No new tracker, registry or permission API is introduced."
+limitations = "Supplied snapshot transport is bounded to the existing supported profile. Owner admission of real calibration evidence and current promotion permission remain separate contracts."

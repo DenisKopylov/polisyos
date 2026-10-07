@@ -1,0 +1,27 @@
+{
+  "source_sha": "b328bb9abee30cb556ba7af4cf15dd5388386f12",
+  "tree": "a15e4fa7c4f060cbf95116129e032b5209012188",
+  "status": "ERROR_before_test_execution",
+  "failures": [
+    {
+      "capture_label": "callback-b328-green",
+      "action": "Python3.14.7 tarfile.extractall(filter='data') of exact git archive",
+      "exception": "OSError: [Errno 28] No space left on device",
+      "path": "/workspace/e02-D2-receipts/q3-independent/immutable-b328bb9abee3-callback-b328-green/policy-engine/tests/contract"
+    },
+    {
+      "capture_label": "predecessor-af3-red",
+      "source_sha": "af3f4f9234bb2f6188fe4524aac0d4fcca04619e",
+      "action": "mkdir of own immutable archive directory",
+      "exception": "OSError: [Errno 28] No space left on device"
+    }
+  ],
+  "observed_filesystem": {
+    "size": "32G",
+    "used": "30G",
+    "available": "0",
+    "use_percent": "100%",
+    "inode_use_percent": "41%"
+  },
+  "recovery": "Remove only completed/partial independent Q3 source archive copies and temporary tar; retain source-bound output logs and manifests. Replay serially with one archive copy. No test verdict came from these preparation errors."
+}

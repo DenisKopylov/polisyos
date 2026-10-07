@@ -1,0 +1,123 @@
+{
+  "schema": "D.independent.GP-AST-current3b-runtime-portable.v1",
+  "reviewer": "census_oct07",
+  "review": "GO",
+  "executed_source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+  "checks": [
+    {
+      "scope": "GP-positive12",
+      "cases": {
+        "PASS": 12
+      },
+      "phases": 36,
+      "repository_origins": 257,
+      "junit": {
+        "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-positive12/junit.xml",
+        "sha256": "094070f270ecc8194bffe54f7b589a2bb72557d744d6668e2c7809da7f19bf2c",
+        "bytes": 2800
+      },
+      "result": {
+        "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-positive12/result.json",
+        "sha256": "e6c123579cbf4cf28ce53775d50d6e853ad9578002daedeb266aba59d1b77b9f",
+        "bytes": 1788
+      }
+    },
+    {
+      "scope": "GP-remove8",
+      "cases": {
+        "FAIL": 8
+      },
+      "phases": 24,
+      "repository_origins": 251,
+      "junit": {
+        "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-remove8/junit.xml",
+        "sha256": "570385c6797ace15b0b2c127f06bb48e3e9dafc4bcba20eeb5c3ed899a5ab485",
+        "bytes": 26752
+      },
+      "result": {
+        "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-remove8/result.json",
+        "sha256": "342ddb4ce8c4e7279ac660bd8246194712278c2ceb8920c4b67fbedc23c91dc4",
+        "bytes": 1694
+      }
+    },
+    {
+      "scope": "AST-positive44",
+      "cases": {
+        "PASS": 44
+      },
+      "phases": 132,
+      "repository_origins": 81,
+      "junit": {
+        "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-positive44/junit.xml",
+        "sha256": "90d6e03f479c0a49bc5abb49a840726e16655e1115778bd919f6b7f8bea194ea",
+        "bytes": 12930
+      },
+      "result": {
+        "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-positive44/result.json",
+        "sha256": "36fbb9c60a7a4513ec8abdd6a4fc18b214955750a424d6b515e38ebf0b7d8ede",
+        "bytes": 1580
+      }
+    },
+    {
+      "scope": "AST-remove25",
+      "cases": {
+        "FAIL": 25
+      },
+      "phases": 75,
+      "repository_origins": 81,
+      "junit": {
+        "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-remove25/junit.xml",
+        "sha256": "74418a1981503925d84efea7df353fed443839bad16c2fe8e1d2d6af507e9436",
+        "bytes": 220687
+      },
+      "result": {
+        "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-remove25/result.json",
+        "sha256": "3a7a93323f049a6551aa2cfdcfcdfc88d9fff418d9100b6e964d32df4fb26b48",
+        "bytes": 1577
+      }
+    }
+  ],
+  "native_mll_starts_and_returns": {
+    "starts": 3,
+    "returns": 3,
+    "rows": [
+      8,
+      4,
+      4
+    ],
+    "callable": "botorch.fit.fit_gpytorch_mll"
+  },
+  "canonical_AST": {
+    "actual_selected_read_operations": 63,
+    "measurement": {
+      "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-canonical63/actual-measurement.json",
+      "sha256": "d0cae3889c347ea4fe4bf7511e84a228e08f9f05a0c823acc48b5325da95fdb1",
+      "bytes": 27790
+    },
+    "not_63_pytest_cases": true
+  },
+  "selected_fragments": "3 scoped metadata PASS; global release gate UNRUN",
+  "exact_Git_byte_reconciliation": {
+    "selected_inputs_per_executable_scope": 6861,
+    "before_after_unchanged": true,
+    "all_selected_initial_bytes_match_executed_Git": true
+  },
+  "compact_manifest": {
+    "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/publication-GP-AST-final3b31e/output-manifest.json",
+    "sha256": "9166e55db86135d3b04bb78af266d4c05d592c902732db918ceea4e50ad60201",
+    "bytes": 10864
+  },
+  "portable_members": 62,
+  "portable_bytes": 950372,
+  "limitations": [
+    "New wrapper12 is consumed-count/CAS/fit/restore/next-proposal evidence, not renewal of old independent posterior43/MO88/state142.",
+    "AST coarse direct-binding/prefix predicate is a diagnostic; canonical63 is one file-reader command, not runtime integration.",
+    "Large complete input/module/resource origin inventories were read independently here but remain ignored exact path/hash references; portable package includes complete deciding streams/events/fits.",
+    "GNU time missing preflight zeroexecution ERROR preserved; alternate completed standard POSIX capture records resources.",
+    "Candidatea795 is separate; a test-only scope qualification is required, not relabeling these executions."
+  ],
+  "formal_closed": 0,
+  "accepted_in_G": false,
+  "P41": "not_established"
+}

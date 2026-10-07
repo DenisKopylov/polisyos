@@ -64,6 +64,7 @@ from polisyos.ir.model_layer.types import OptimizationDirection, SelectorOperato
 from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.evidence.claims.head_index import build_default_claim_ledger_owner
+from polisyos.scientist.methods.autotune.pareto import compute_hypervolume_assessed
 from polisyos.scientist.methods.search.judge_stack import JudgeVerdict
 from polisyos.scientist.methods.search.pareto_registry import (
     ParetoBasisScope,
@@ -1005,3 +1006,50 @@ def test_rejected_alternatives_v1_serialization_is_byte_exact(tmp_path) -> None:
         name="polisyos.scientist.policy_design.RejectedAlternativesSummary",
         version="1.0",
     )
+
+
+@pytest.mark.parametrize(
+    ("points", "reference", "expected_value", "expected_reason"),
+    [
+        ([(2.0,)], (0.0,), 2.0, None),
+        ([(0.0,)], (0.0,), 0.0, None),
+        ([], (0.0,), None, "no_usable_inputs"),
+        ([(10**400,)], (0.0,), None, "invalid_numeric_input"),
+        ([(1.0,)], (True,), None, "invalid_reference_point"),
+    ],
+    ids=["computed-positive", "computed-zero", "unassessed", "overflow", "invalid-reference"],
+)
+def test_frontier_quantity_assessment_survives_ordinary_export_and_cas(
+    tmp_path, points, reference, expected_value, expected_reason
+) -> None:
+    """The ordinary output consumer retains the producer's full quantity result."""
+    result = compute_hypervolume_assessed(points, reference)
+    assert result.value == expected_value
+    assert result.assessment.reason == expected_reason
+    candidate = _candidate()
+    snapshot = ParetoRegistrySnapshot(
+        loop_id="quantity-export",
+        hypervolume_by_view={"global_feasible": result.value},
+        hypervolume_assessments={"global_feasible": result.assessment},
+    )
+    registry = ParetoRegistry(root=tmp_path / "registry")
+    registry._write_snapshot(snapshot.loop_id, snapshot)
+    reopened = ParetoRegistry(root=tmp_path / "registry").get_snapshot(snapshot.loop_id)
+    report = PolicyArtifactBuilder()._build_frontier_report(
+        PolicyArtifactBuildInput(
+            loop_id=snapshot.loop_id,
+            run_id="quantity-export-run",
+            candidate=candidate,
+            candidate_hash=candidate.candidate_hash(),
+            pareto_snapshot=reopened,
+        )
+    )
+    store = FileSystemCAS(tmp_path / "cas")
+    ref = persist_policy_frontier_report(store, report)
+    fresh = load_policy_frontier_report(FileSystemCAS(tmp_path / "cas"), ref)
+    assert fresh.metadata["hypervolume_by_view"]["global_feasible"] == expected_value
+    assert fresh.metadata["hypervolume_assessments"]["global_feasible"] == (
+        result.assessment.model_dump(mode="json")
+    )
+    assert fresh.source_feasible_candidate_hashes == ()
+    assert fresh.global_frontier == []

@@ -1,0 +1,1187 @@
+{
+  "schema": "e02.D.current-essential-deciding-manifest.v1",
+  "source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "product_candidate": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "qualified_candidate": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+  "archive": {
+    "path": "deciding-essential.tar.gz",
+    "bytes": 95802,
+    "sha256": "5b6cf92deec2f10d5591ef9d5960df4a26753ce6e544ab9f3022a08826c045d7"
+  },
+  "member_count": 194,
+  "uncompressed_member_bytes": 730451,
+  "members": [
+    {
+      "path": "CBC46-to5b-qualified-carry.json",
+      "bytes": 3294,
+      "sha256": "f93b9cc9090f34c389b7fb365db6daeb2626c82b8a4a3b7bd16264a5969a29d2",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/CBC46-to5b-qualified-carry.json"
+    },
+    {
+      "path": "HANDOFF.json",
+      "bytes": 5012,
+      "sha256": "da500bfdfdb44abdc743a8e028c1e26965f9a5d3e26855ea0c8c2e8c3a4090c7",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/HANDOFF.json"
+    },
+    {
+      "path": "a795-carry.derived.json",
+      "bytes": 53080,
+      "sha256": "313e96c44c4c784a2a8132481a3f6eb41bd147554c1941dbe41d4babc4f4a8f6",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/a795-carry.derived.json"
+    },
+    {
+      "path": "champion/command.derived.json",
+      "bytes": 6255,
+      "sha256": "354ea30051452bd3de453fc92481a34d4ba4d40f886d79423f676ae6b658a5b9",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/champion/command.derived.json"
+    },
+    {
+      "path": "champion/junit.xml",
+      "bytes": 4079,
+      "sha256": "fa3f306a3cc60a638799b4d396b0e82c04e9785e6a82d6189bf708cf257594d5",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/champion/junit.xml"
+    },
+    {
+      "path": "champion/phases.complete.json",
+      "bytes": 21061,
+      "sha256": "2eee94305ec147e1d4f98cabd1eb47a52d661f103ed0810d0ba72c5ac17e93e9",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/champion/phases.complete.json"
+    },
+    {
+      "path": "champion/stderr.txt",
+      "bytes": 1470,
+      "sha256": "f84a275b1ed32423d45668953eb8e9d722dfaf0d5a0551876afda4d4fc49ac10",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/champion/stderr.txt"
+    },
+    {
+      "path": "champion/stdout.txt",
+      "bytes": 2781,
+      "sha256": "64ae78cb4aa36585e938acacd9f73760f6dc8604cef04f8d547dd7e9aad32f62",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/champion/stdout.txt"
+    },
+    {
+      "path": "champion/summary.json",
+      "bytes": 908,
+      "sha256": "4b417e1df08e7bf710a011d6b46b95043558868fbab4ca340bb743b45f0bbdc1",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/champion/summary.json"
+    },
+    {
+      "path": "champion-current.selectors.json",
+      "bytes": 1995,
+      "sha256": "ebab6936b00026933f9d27eddc1b0370c78f854899edc619f9cc70854eac79c4",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/champion-current.selectors.json"
+    },
+    {
+      "path": "champion-final-pointer-absence.final.json",
+      "bytes": 5213,
+      "sha256": "aae2586e0c4c8c46c82bbe345fac16c8fd60aab752a52988ebb64960d4b26976",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/champion-final-pointer-absence.final.json"
+    },
+    {
+      "path": "controller/command.derived.json",
+      "bytes": 5342,
+      "sha256": "a7120f2fae29aa1a429ffc41b811d2ee320c00be8c08ddfac7506eb23b002b16",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/controller/command.derived.json"
+    },
+    {
+      "path": "controller/junit.xml",
+      "bytes": 4880,
+      "sha256": "7240f55a42565a4482df129b231fb06bacdc414610a69a295de8089da26d4be4",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/controller/junit.xml"
+    },
+    {
+      "path": "controller/phases.complete.json",
+      "bytes": 23792,
+      "sha256": "cb9fb306f93caa18746f16b0973835971f72b5b2d35a2446df933e84ff75f297",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/controller/phases.complete.json"
+    },
+    {
+      "path": "controller/stderr.txt",
+      "bytes": 16141,
+      "sha256": "ca9fde99ee6e8851ac85ecbc7b77a863789b65417c7653334fdf1589383ecae5",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/controller/stderr.txt"
+    },
+    {
+      "path": "controller/stdout.txt",
+      "bytes": 4601,
+      "sha256": "324129dff84cc0b6d557ab0890ba3252d28a2764baae8f26f455a3e0becf8d93",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/controller/stdout.txt"
+    },
+    {
+      "path": "controller/summary.json",
+      "bytes": 910,
+      "sha256": "f3edb27c45c2bd5d0141e5a9dbfd2cb9d0d4da0c29ed69acbf82ddd3f9d31bba",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/controller/summary.json"
+    },
+    {
+      "path": "controller-current.selectors.json",
+      "bytes": 1017,
+      "sha256": "40e2f30a42a51dc0d3192e822fdf18836561f10cb1f4139d78ddb0cf99f6f317",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/controller-current.selectors.json"
+    },
+    {
+      "path": "external-raw-bindings.json",
+      "bytes": 2834,
+      "sha256": "138b90934e17f811561b0ce3b9dcad25540934eec03863792802c728333eefbc",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/external-raw-bindings.json"
+    },
+    {
+      "path": "financial-A7-selected-call-edge-qualification.json",
+      "bytes": 11298,
+      "sha256": "07b8f6168f16f43c28e3f123b3d794a2184366c26d560a08d98e4f0911bbb178",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/financial-A7-selected-call-edge-qualification.json"
+    },
+    {
+      "path": "import-check.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/import-check.stderr.txt"
+    },
+    {
+      "path": "import-check.stdout.txt",
+      "bytes": 112,
+      "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/import-check.stdout.txt"
+    },
+    {
+      "path": "instrument-selection-proof.json",
+      "bytes": 1314,
+      "sha256": "f544952e2ad3c0a0cac0f2eface235c18bee1aa04eda678aa0b476fa6b5ade4f",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/instrument-selection-proof.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun0/cas/artifacts/sha256/28/39/2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8.blob",
+      "bytes": 45,
+      "sha256": "2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun0/cas/artifacts/sha256/28/39/2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun0/cas/artifacts/sha256/28/39/2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8.view.577b5a791ddb47faa64e712288497167136063625cf9505d5d97f2c6cb742f29.manifest.json",
+      "bytes": 369,
+      "sha256": "4c3dbb6ea97f593147750d8fe265989c17c80afdfb279a5f4d8f4513ea5db930",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun0/cas/artifacts/sha256/28/39/2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8.view.577b5a791ddb47faa64e712288497167136063625cf9505d5d97f2c6cb742f29.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun0/cas/artifacts/sha256/28/e2/28e231f8e820e99e78ed9cf30a3871382ceaab56f771b928e3e31402027e2721.blob",
+      "bytes": 1804,
+      "sha256": "28e231f8e820e99e78ed9cf30a3871382ceaab56f771b928e3e31402027e2721",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun0/cas/artifacts/sha256/28/e2/28e231f8e820e99e78ed9cf30a3871382ceaab56f771b928e3e31402027e2721.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun0/cas/artifacts/sha256/28/e2/28e231f8e820e99e78ed9cf30a3871382ceaab56f771b928e3e31402027e2721.view.a4d8a6efbbb923c38ee02a5c7cbcd9db220b3caeea98a83203931b93a56c0102.manifest.json",
+      "bytes": 1613,
+      "sha256": "6073520e4675a40491963a50ab2bed736aad3612565976326fdf936590bd530e",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun0/cas/artifacts/sha256/28/e2/28e231f8e820e99e78ed9cf30a3871382ceaab56f771b928e3e31402027e2721.view.a4d8a6efbbb923c38ee02a5c7cbcd9db220b3caeea98a83203931b93a56c0102.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun0/cas/artifacts/sha256/48/56/4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1.blob",
+      "bytes": 97,
+      "sha256": "4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun0/cas/artifacts/sha256/48/56/4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun0/cas/artifacts/sha256/48/56/4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1.view.06177002ed71836a0d9f125a34894a9d8f826b18ec682e9319106133b35bd596.manifest.json",
+      "bytes": 860,
+      "sha256": "fd091c8e1eaa94d7bc995d411cd4968d2fabd8cffe541cd4ebb7d6db20a081fb",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun0/cas/artifacts/sha256/48/56/4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1.view.06177002ed71836a0d9f125a34894a9d8f826b18ec682e9319106133b35bd596.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun0/cas/artifacts/sha256/b7/a7/b7a709a1d0de69be7ee08e914e3081f719a119f662f2d8dfc7f3db571f75d029.blob",
+      "bytes": 961,
+      "sha256": "b7a709a1d0de69be7ee08e914e3081f719a119f662f2d8dfc7f3db571f75d029",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun0/cas/artifacts/sha256/b7/a7/b7a709a1d0de69be7ee08e914e3081f719a119f662f2d8dfc7f3db571f75d029.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun0/cas/artifacts/sha256/b7/a7/b7a709a1d0de69be7ee08e914e3081f719a119f662f2d8dfc7f3db571f75d029.view.c47d7ac17b0cc99acc3a72de212d331a0bd3d0bf76952d2a0f225bb9da382263.manifest.json",
+      "bytes": 1078,
+      "sha256": "b7bd4478d5a23bada55cc7e5c2481f30a31eb54869d3f84c3059449031316010",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun0/cas/artifacts/sha256/b7/a7/b7a709a1d0de69be7ee08e914e3081f719a119f662f2d8dfc7f3db571f75d029.view.c47d7ac17b0cc99acc3a72de212d331a0bd3d0bf76952d2a0f225bb9da382263.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun0/cas/artifacts/sha256/f4/af/f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf.blob",
+      "bytes": 199,
+      "sha256": "f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun0/cas/artifacts/sha256/f4/af/f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun0/cas/artifacts/sha256/f4/af/f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf.view.5b35c3ab73cf3301229f18893f3c8d6ad68e3fc345e440d6c438b03855ac1f24.manifest.json",
+      "bytes": 872,
+      "sha256": "c58e080cf436c3024df22c4cb5e49e998ac490ec57b95e64caef25e3beead3a0",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun0/cas/artifacts/sha256/f4/af/f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf.view.5b35c3ab73cf3301229f18893f3c8d6ad68e3fc345e440d6c438b03855ac1f24.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun0/champions/verified/champion.json",
+      "bytes": 1291,
+      "sha256": "9a7bf35ec81676471c9cb539103eab566b4a53a4c0307ae4a9906f96138a0495",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun0/champions/verified/champion.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun1/cas/artifacts/sha256/16/f5/16f58ffb4ef299576fbe68f568978b78c5a9eb6c642fde74f60eb3864ba6bad5.blob",
+      "bytes": 2422,
+      "sha256": "16f58ffb4ef299576fbe68f568978b78c5a9eb6c642fde74f60eb3864ba6bad5",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun1/cas/artifacts/sha256/16/f5/16f58ffb4ef299576fbe68f568978b78c5a9eb6c642fde74f60eb3864ba6bad5.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun1/cas/artifacts/sha256/16/f5/16f58ffb4ef299576fbe68f568978b78c5a9eb6c642fde74f60eb3864ba6bad5.view.f038757a730d9566de9eca0dc9dbe688537dca6e5aeb480b9c7ca76b948e1bbf.manifest.json",
+      "bytes": 2078,
+      "sha256": "aaf98729cf94e672b7ab6dae4d19f8fb147c59a4226d2ec2634b647ae45b9090",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun1/cas/artifacts/sha256/16/f5/16f58ffb4ef299576fbe68f568978b78c5a9eb6c642fde74f60eb3864ba6bad5.view.f038757a730d9566de9eca0dc9dbe688537dca6e5aeb480b9c7ca76b948e1bbf.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun1/cas/artifacts/sha256/19/ef/19ef4916c59e9d5a04f5c35e936d5a86a9f8c853625666ce0d29d9247d7076c0.blob",
+      "bytes": 961,
+      "sha256": "19ef4916c59e9d5a04f5c35e936d5a86a9f8c853625666ce0d29d9247d7076c0",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun1/cas/artifacts/sha256/19/ef/19ef4916c59e9d5a04f5c35e936d5a86a9f8c853625666ce0d29d9247d7076c0.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun1/cas/artifacts/sha256/19/ef/19ef4916c59e9d5a04f5c35e936d5a86a9f8c853625666ce0d29d9247d7076c0.view.c47d7ac17b0cc99acc3a72de212d331a0bd3d0bf76952d2a0f225bb9da382263.manifest.json",
+      "bytes": 1078,
+      "sha256": "56736552adfd36dcad32e9f34ebea6058ccfa509a2f4e242f6d4818ab223ab18",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun1/cas/artifacts/sha256/19/ef/19ef4916c59e9d5a04f5c35e936d5a86a9f8c853625666ce0d29d9247d7076c0.view.c47d7ac17b0cc99acc3a72de212d331a0bd3d0bf76952d2a0f225bb9da382263.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun1/cas/artifacts/sha256/23/f3/23f3440acecd2af7d21081de477bda075ba4627be242e404a99e3f3e2e3b0d6b.blob",
+      "bytes": 97,
+      "sha256": "23f3440acecd2af7d21081de477bda075ba4627be242e404a99e3f3e2e3b0d6b",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun1/cas/artifacts/sha256/23/f3/23f3440acecd2af7d21081de477bda075ba4627be242e404a99e3f3e2e3b0d6b.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun1/cas/artifacts/sha256/23/f3/23f3440acecd2af7d21081de477bda075ba4627be242e404a99e3f3e2e3b0d6b.view.62929db20c50deee477039d3e4f526f421e361b8f8065bcc4673e4e4a04ec754.manifest.json",
+      "bytes": 860,
+      "sha256": "29a7bb64b81c06a9840ce1f15d3e04dfd4cfd45204560efeda5e35134e820caf",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun1/cas/artifacts/sha256/23/f3/23f3440acecd2af7d21081de477bda075ba4627be242e404a99e3f3e2e3b0d6b.view.62929db20c50deee477039d3e4f526f421e361b8f8065bcc4673e4e4a04ec754.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun1/cas/artifacts/sha256/28/39/2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8.blob",
+      "bytes": 45,
+      "sha256": "2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun1/cas/artifacts/sha256/28/39/2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun1/cas/artifacts/sha256/28/39/2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8.view.577b5a791ddb47faa64e712288497167136063625cf9505d5d97f2c6cb742f29.manifest.json",
+      "bytes": 369,
+      "sha256": "65f0c47e350a873f0b9ac055e8189ed543ec9d20377cc7514aea9ee0a187c9cd",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun1/cas/artifacts/sha256/28/39/2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8.view.577b5a791ddb47faa64e712288497167136063625cf9505d5d97f2c6cb742f29.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun1/cas/artifacts/sha256/48/56/4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1.blob",
+      "bytes": 97,
+      "sha256": "4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun1/cas/artifacts/sha256/48/56/4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun1/cas/artifacts/sha256/48/56/4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1.view.62929db20c50deee477039d3e4f526f421e361b8f8065bcc4673e4e4a04ec754.manifest.json",
+      "bytes": 860,
+      "sha256": "dcc6776668ca0d7860eb7d1b736c7bdbf9a63d01ad8dfa5adaf7771d2e568996",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun1/cas/artifacts/sha256/48/56/4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1.view.62929db20c50deee477039d3e4f526f421e361b8f8065bcc4673e4e4a04ec754.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun1/cas/artifacts/sha256/5d/55/5d555faaa11da7da5fa37bf15c09a29c10047ef8ba13296e8dee84abd5308a40.blob",
+      "bytes": 1804,
+      "sha256": "5d555faaa11da7da5fa37bf15c09a29c10047ef8ba13296e8dee84abd5308a40",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun1/cas/artifacts/sha256/5d/55/5d555faaa11da7da5fa37bf15c09a29c10047ef8ba13296e8dee84abd5308a40.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun1/cas/artifacts/sha256/5d/55/5d555faaa11da7da5fa37bf15c09a29c10047ef8ba13296e8dee84abd5308a40.view.dafbc4856632814d9688c993fd456a156e47870de5ee4ed4c9702829c017ae13.manifest.json",
+      "bytes": 1613,
+      "sha256": "e2bf555b774a179393a166ca74cd6756497779400e589a29093566820b267cf0",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun1/cas/artifacts/sha256/5d/55/5d555faaa11da7da5fa37bf15c09a29c10047ef8ba13296e8dee84abd5308a40.view.dafbc4856632814d9688c993fd456a156e47870de5ee4ed4c9702829c017ae13.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun1/cas/artifacts/sha256/e4/91/e491ef404a314c93aa77012e6969aae2e60fb53a44cf683780edb2d0f28d5cc2.blob",
+      "bytes": 2719,
+      "sha256": "e491ef404a314c93aa77012e6969aae2e60fb53a44cf683780edb2d0f28d5cc2",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun1/cas/artifacts/sha256/e4/91/e491ef404a314c93aa77012e6969aae2e60fb53a44cf683780edb2d0f28d5cc2.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun1/cas/artifacts/sha256/e4/91/e491ef404a314c93aa77012e6969aae2e60fb53a44cf683780edb2d0f28d5cc2.view.d2dabd100ad53946e2182f9f09489fbd9b4a2c091e7b9b8cebc6ecae30a01c19.manifest.json",
+      "bytes": 2309,
+      "sha256": "4f197aefb72986f227ad90464ec05e5a680eec8d4466f862fb4a1105f5a4a01a",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun1/cas/artifacts/sha256/e4/91/e491ef404a314c93aa77012e6969aae2e60fb53a44cf683780edb2d0f28d5cc2.view.d2dabd100ad53946e2182f9f09489fbd9b4a2c091e7b9b8cebc6ecae30a01c19.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun1/cas/artifacts/sha256/f4/af/f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf.blob",
+      "bytes": 199,
+      "sha256": "f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun1/cas/artifacts/sha256/f4/af/f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun1/cas/artifacts/sha256/f4/af/f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf.view.5b35c3ab73cf3301229f18893f3c8d6ad68e3fc345e440d6c438b03855ac1f24.manifest.json",
+      "bytes": 872,
+      "sha256": "9110e71a94de6a80a348cdc2ea9e05343bb4fc22b02f191a04522dd5e686cdd0",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun1/cas/artifacts/sha256/f4/af/f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf.view.5b35c3ab73cf3301229f18893f3c8d6ad68e3fc345e440d6c438b03855ac1f24.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun1/champions/verified/champion.json",
+      "bytes": 1291,
+      "sha256": "be7d559beea12c75e64988f7a980ab478a209cbabc5cba8efe4b7fb64f6b9397",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_process_exit_aroun1/champions/verified/champion.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_reused_content_kee0/cas/artifacts/sha256/28/39/2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8.blob",
+      "bytes": 45,
+      "sha256": "2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_reused_content_kee0/cas/artifacts/sha256/28/39/2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_reused_content_kee0/cas/artifacts/sha256/28/39/2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8.view.577b5a791ddb47faa64e712288497167136063625cf9505d5d97f2c6cb742f29.manifest.json",
+      "bytes": 369,
+      "sha256": "b9bcb3a044e58cf883043496600cfb21e7abbb48125af72389ad6801b6a0da9c",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_reused_content_kee0/cas/artifacts/sha256/28/39/2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8.view.577b5a791ddb47faa64e712288497167136063625cf9505d5d97f2c6cb742f29.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_reused_content_kee0/cas/artifacts/sha256/48/56/4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1.blob",
+      "bytes": 97,
+      "sha256": "4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_reused_content_kee0/cas/artifacts/sha256/48/56/4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_reused_content_kee0/cas/artifacts/sha256/48/56/4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1.view.99ab2c968e544f00d67900e35a9686e85415358132b9fb9257f8051d7eccddf4.manifest.json",
+      "bytes": 860,
+      "sha256": "7a1a75764347ef58c783cf86732f3e8e6482023239754a6a161bffac6f946932",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_reused_content_kee0/cas/artifacts/sha256/48/56/4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1.view.99ab2c968e544f00d67900e35a9686e85415358132b9fb9257f8051d7eccddf4.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_reused_content_kee0/cas/artifacts/sha256/97/95/9795d45736e4872f5160e0accf3a45e35e850d7ccd3b12ab4d9831cf5af3bd68.blob",
+      "bytes": 961,
+      "sha256": "9795d45736e4872f5160e0accf3a45e35e850d7ccd3b12ab4d9831cf5af3bd68",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_reused_content_kee0/cas/artifacts/sha256/97/95/9795d45736e4872f5160e0accf3a45e35e850d7ccd3b12ab4d9831cf5af3bd68.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_reused_content_kee0/cas/artifacts/sha256/97/95/9795d45736e4872f5160e0accf3a45e35e850d7ccd3b12ab4d9831cf5af3bd68.view.c47d7ac17b0cc99acc3a72de212d331a0bd3d0bf76952d2a0f225bb9da382263.manifest.json",
+      "bytes": 1078,
+      "sha256": "fc62daecc9853afea77ca2b65a0e68ad9d86052ecf2af28d1d29ebc398bd5d75",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_reused_content_kee0/cas/artifacts/sha256/97/95/9795d45736e4872f5160e0accf3a45e35e850d7ccd3b12ab4d9831cf5af3bd68.view.c47d7ac17b0cc99acc3a72de212d331a0bd3d0bf76952d2a0f225bb9da382263.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_reused_content_kee0/cas/artifacts/sha256/d8/46/d8462a5dbf60d5f0c6c999ed272a050920af29b4c23f2dcbc70f4a14970ba886.blob",
+      "bytes": 1804,
+      "sha256": "d8462a5dbf60d5f0c6c999ed272a050920af29b4c23f2dcbc70f4a14970ba886",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_reused_content_kee0/cas/artifacts/sha256/d8/46/d8462a5dbf60d5f0c6c999ed272a050920af29b4c23f2dcbc70f4a14970ba886.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_reused_content_kee0/cas/artifacts/sha256/d8/46/d8462a5dbf60d5f0c6c999ed272a050920af29b4c23f2dcbc70f4a14970ba886.view.3337d271a95cc7c915e03472dcba51234551955bea39744f20a6c3c8bde3aa43.manifest.json",
+      "bytes": 1613,
+      "sha256": "b74b9ba678c2102e33c457910bde3e66313a0fd28dd50b9a9f9dae249e926197",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_reused_content_kee0/cas/artifacts/sha256/d8/46/d8462a5dbf60d5f0c6c999ed272a050920af29b4c23f2dcbc70f4a14970ba886.view.3337d271a95cc7c915e03472dcba51234551955bea39744f20a6c3c8bde3aa43.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_reused_content_kee0/cas/artifacts/sha256/f4/af/f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf.blob",
+      "bytes": 199,
+      "sha256": "f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_reused_content_kee0/cas/artifacts/sha256/f4/af/f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_reused_content_kee0/cas/artifacts/sha256/f4/af/f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf.view.5b35c3ab73cf3301229f18893f3c8d6ad68e3fc345e440d6c438b03855ac1f24.manifest.json",
+      "bytes": 872,
+      "sha256": "99b32b3ff2672d1bed3e588d938889e7f9b680618eace3e39221c1db16a76bc0",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_reused_content_kee0/cas/artifacts/sha256/f4/af/f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf.view.5b35c3ab73cf3301229f18893f3c8d6ad68e3fc345e440d6c438b03855ac1f24.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_actual_reused_content_kee0/champions/verified/champion.json",
+      "bytes": 1291,
+      "sha256": "4c51cf31b8a35b68974ffd3cc2bc9192f7bb6115efb485038a8533c6b499752b",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_actual_reused_content_kee0/champions/verified/champion.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_is_idem0/.polisyos/artifacts/sha256/5c/6d/5c6d9718b6667f61ed5125bb8d8e9255e3a8d236a4f0275ae5b1f8f2a014af4a.blob",
+      "bytes": 109,
+      "sha256": "5c6d9718b6667f61ed5125bb8d8e9255e3a8d236a4f0275ae5b1f8f2a014af4a",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_is_idem0/.polisyos/artifacts/sha256/5c/6d/5c6d9718b6667f61ed5125bb8d8e9255e3a8d236a4f0275ae5b1f8f2a014af4a.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_is_idem0/.polisyos/artifacts/sha256/5c/6d/5c6d9718b6667f61ed5125bb8d8e9255e3a8d236a4f0275ae5b1f8f2a014af4a.view.9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47.manifest.json",
+      "bytes": 647,
+      "sha256": "0b014a35edea09d515da84111349c4136957a88cae81faffa578ba78fb212282",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_is_idem0/.polisyos/artifacts/sha256/5c/6d/5c6d9718b6667f61ed5125bb8d8e9255e3a8d236a4f0275ae5b1f8f2a014af4a.view.9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_is_idem0/.polisyos/artifacts/sha256/bf/48/bf4874dea5010fd9d25f3be677846b151dbe1f324636d9aa1fb7bdccf64e4cfc.blob",
+      "bytes": 99,
+      "sha256": "bf4874dea5010fd9d25f3be677846b151dbe1f324636d9aa1fb7bdccf64e4cfc",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_is_idem0/.polisyos/artifacts/sha256/bf/48/bf4874dea5010fd9d25f3be677846b151dbe1f324636d9aa1fb7bdccf64e4cfc.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_is_idem0/.polisyos/artifacts/sha256/bf/48/bf4874dea5010fd9d25f3be677846b151dbe1f324636d9aa1fb7bdccf64e4cfc.view.686fb28017051d54b9d5f9df54a0bede47e2359f69ea8199edf53dc331583aad.manifest.json",
+      "bytes": 872,
+      "sha256": "623a2981ad10d3a67481dff433cd2c367886cf0aa1d1efeb9e939e0807574ff0",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_is_idem0/.polisyos/artifacts/sha256/bf/48/bf4874dea5010fd9d25f3be677846b151dbe1f324636d9aa1fb7bdccf64e4cfc.view.686fb28017051d54b9d5f9df54a0bede47e2359f69ea8199edf53dc331583aad.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_is_idem0/.polisyos/artifacts/sha256/c4/cf/c4cf3e15eeb1be51e227fd4b6092299e49c916cdab2c41bc95d1f71e4386fc4f.blob",
+      "bytes": 1292,
+      "sha256": "c4cf3e15eeb1be51e227fd4b6092299e49c916cdab2c41bc95d1f71e4386fc4f",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_is_idem0/.polisyos/artifacts/sha256/c4/cf/c4cf3e15eeb1be51e227fd4b6092299e49c916cdab2c41bc95d1f71e4386fc4f.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_is_idem0/.polisyos/artifacts/sha256/c4/cf/c4cf3e15eeb1be51e227fd4b6092299e49c916cdab2c41bc95d1f71e4386fc4f.view.63e7a4a2d1d579fd3315119937eb59ee4dc8338e2729e5e0e936af449cef5cbd.manifest.json",
+      "bytes": 1398,
+      "sha256": "28a92a8a61649b6323afb3811830578e253aebb26ae71beef6349b3e9c167102",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_is_idem0/.polisyos/artifacts/sha256/c4/cf/c4cf3e15eeb1be51e227fd4b6092299e49c916cdab2c41bc95d1f71e4386fc4f.view.63e7a4a2d1d579fd3315119937eb59ee4dc8338e2729e5e0e936af449cef5cbd.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_is_idem0/.polisyos/search_registry/dummy_loop/champion.json",
+      "bytes": 1272,
+      "sha256": "9db5ed791ed6bf4fe8f8a1296988c6b07ac2ba8b3007a863af638c5a6481e19c",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_is_idem0/.polisyos/search_registry/dummy_loop/champion.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_keeps_n0/.polisyos/artifacts/sha256/5c/6d/5c6d9718b6667f61ed5125bb8d8e9255e3a8d236a4f0275ae5b1f8f2a014af4a.blob",
+      "bytes": 109,
+      "sha256": "5c6d9718b6667f61ed5125bb8d8e9255e3a8d236a4f0275ae5b1f8f2a014af4a",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_keeps_n0/.polisyos/artifacts/sha256/5c/6d/5c6d9718b6667f61ed5125bb8d8e9255e3a8d236a4f0275ae5b1f8f2a014af4a.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_keeps_n0/.polisyos/artifacts/sha256/5c/6d/5c6d9718b6667f61ed5125bb8d8e9255e3a8d236a4f0275ae5b1f8f2a014af4a.view.9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47.manifest.json",
+      "bytes": 647,
+      "sha256": "f24627bf28d7c63f894746d72b18c6ece9ce12ae1c0dd681083517b1edd1d050",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_keeps_n0/.polisyos/artifacts/sha256/5c/6d/5c6d9718b6667f61ed5125bb8d8e9255e3a8d236a4f0275ae5b1f8f2a014af4a.view.9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_keeps_n0/.polisyos/artifacts/sha256/bf/48/bf4874dea5010fd9d25f3be677846b151dbe1f324636d9aa1fb7bdccf64e4cfc.blob",
+      "bytes": 99,
+      "sha256": "bf4874dea5010fd9d25f3be677846b151dbe1f324636d9aa1fb7bdccf64e4cfc",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_keeps_n0/.polisyos/artifacts/sha256/bf/48/bf4874dea5010fd9d25f3be677846b151dbe1f324636d9aa1fb7bdccf64e4cfc.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_keeps_n0/.polisyos/artifacts/sha256/bf/48/bf4874dea5010fd9d25f3be677846b151dbe1f324636d9aa1fb7bdccf64e4cfc.view.686fb28017051d54b9d5f9df54a0bede47e2359f69ea8199edf53dc331583aad.manifest.json",
+      "bytes": 872,
+      "sha256": "08e865a79a7701ae7f00c180472392c9431a79cbe6c52437f9b31c14e5ca87ec",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_keeps_n0/.polisyos/artifacts/sha256/bf/48/bf4874dea5010fd9d25f3be677846b151dbe1f324636d9aa1fb7bdccf64e4cfc.view.686fb28017051d54b9d5f9df54a0bede47e2359f69ea8199edf53dc331583aad.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_keeps_n0/.polisyos/artifacts/sha256/c4/cf/c4cf3e15eeb1be51e227fd4b6092299e49c916cdab2c41bc95d1f71e4386fc4f.blob",
+      "bytes": 1292,
+      "sha256": "c4cf3e15eeb1be51e227fd4b6092299e49c916cdab2c41bc95d1f71e4386fc4f",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_keeps_n0/.polisyos/artifacts/sha256/c4/cf/c4cf3e15eeb1be51e227fd4b6092299e49c916cdab2c41bc95d1f71e4386fc4f.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_keeps_n0/.polisyos/artifacts/sha256/c4/cf/c4cf3e15eeb1be51e227fd4b6092299e49c916cdab2c41bc95d1f71e4386fc4f.view.63e7a4a2d1d579fd3315119937eb59ee4dc8338e2729e5e0e936af449cef5cbd.manifest.json",
+      "bytes": 1398,
+      "sha256": "5686de1bd30de7edce4955e38657d27272c9f70bcc7ef7e0b6f7e114cdfacc4c",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_keeps_n0/.polisyos/artifacts/sha256/c4/cf/c4cf3e15eeb1be51e227fd4b6092299e49c916cdab2c41bc95d1f71e4386fc4f.view.63e7a4a2d1d579fd3315119937eb59ee4dc8338e2729e5e0e936af449cef5cbd.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_keeps_n0/.polisyos/search_registry/dummy_loop/champion.json",
+      "bytes": 1272,
+      "sha256": "d4e45450ac65ec5fb9fbd9d7080e5b1fd8d83935e52638691b4869776bc85ad7",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_keeps_n0/.polisyos/search_registry/dummy_loop/champion.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_rejects7/.polisyos/artifacts/sha256/18/a6/18a6c9add18bbfdedf4ce88b9a048dad8f815cb0949c03e681b246ec00ec73cd.blob",
+      "bytes": 1292,
+      "sha256": "18a6c9add18bbfdedf4ce88b9a048dad8f815cb0949c03e681b246ec00ec73cd",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_rejects7/.polisyos/artifacts/sha256/18/a6/18a6c9add18bbfdedf4ce88b9a048dad8f815cb0949c03e681b246ec00ec73cd.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_rejects7/.polisyos/artifacts/sha256/18/a6/18a6c9add18bbfdedf4ce88b9a048dad8f815cb0949c03e681b246ec00ec73cd.view.df8b7f84f63f5422652989460968b1ab81a9583986ff3aca50c7240ad293dee3.manifest.json",
+      "bytes": 1398,
+      "sha256": "8ef6996adbc0af61bfdbe8ad035e031a35c6d06dbdedaa9ac8bee5b22fb5e82e",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_rejects7/.polisyos/artifacts/sha256/18/a6/18a6c9add18bbfdedf4ce88b9a048dad8f815cb0949c03e681b246ec00ec73cd.view.df8b7f84f63f5422652989460968b1ab81a9583986ff3aca50c7240ad293dee3.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_rejects7/.polisyos/artifacts/sha256/5c/6d/5c6d9718b6667f61ed5125bb8d8e9255e3a8d236a4f0275ae5b1f8f2a014af4a.blob",
+      "bytes": 109,
+      "sha256": "5c6d9718b6667f61ed5125bb8d8e9255e3a8d236a4f0275ae5b1f8f2a014af4a",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_rejects7/.polisyos/artifacts/sha256/5c/6d/5c6d9718b6667f61ed5125bb8d8e9255e3a8d236a4f0275ae5b1f8f2a014af4a.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_rejects7/.polisyos/artifacts/sha256/5c/6d/5c6d9718b6667f61ed5125bb8d8e9255e3a8d236a4f0275ae5b1f8f2a014af4a.view.9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47.manifest.json",
+      "bytes": 647,
+      "sha256": "0b014a35edea09d515da84111349c4136957a88cae81faffa578ba78fb212282",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_rejects7/.polisyos/artifacts/sha256/5c/6d/5c6d9718b6667f61ed5125bb8d8e9255e3a8d236a4f0275ae5b1f8f2a014af4a.view.9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_rejects7/.polisyos/artifacts/sha256/f8/8e/f88ed6c6af186f7b43595080c3f28ce5002f7324b550dac1b35312b02c5a2ebb.blob",
+      "bytes": 99,
+      "sha256": "f88ed6c6af186f7b43595080c3f28ce5002f7324b550dac1b35312b02c5a2ebb",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_rejects7/.polisyos/artifacts/sha256/f8/8e/f88ed6c6af186f7b43595080c3f28ce5002f7324b550dac1b35312b02c5a2ebb.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_rejects7/.polisyos/artifacts/sha256/f8/8e/f88ed6c6af186f7b43595080c3f28ce5002f7324b550dac1b35312b02c5a2ebb.view.686fb28017051d54b9d5f9df54a0bede47e2359f69ea8199edf53dc331583aad.manifest.json",
+      "bytes": 872,
+      "sha256": "e3d9a5b0c64c639020978fbcaeebdac00403126d1f34b850ff66213d6212b054",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_rejects7/.polisyos/artifacts/sha256/f8/8e/f88ed6c6af186f7b43595080c3f28ce5002f7324b550dac1b35312b02c5a2ebb.view.686fb28017051d54b9d5f9df54a0bede47e2359f69ea8199edf53dc331583aad.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_rejects7/.polisyos/search_registry/dummy_loop/champion.json",
+      "bytes": 840,
+      "sha256": "279835e54d7c66cfcbe601867bc6952815c3b0796c978bd9035a834ea9129c4f",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_rejects7/.polisyos/search_registry/dummy_loop/champion.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/artifacts/sha256/18/a6/18a6c9add18bbfdedf4ce88b9a048dad8f815cb0949c03e681b246ec00ec73cd.blob",
+      "bytes": 1292,
+      "sha256": "18a6c9add18bbfdedf4ce88b9a048dad8f815cb0949c03e681b246ec00ec73cd",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/artifacts/sha256/18/a6/18a6c9add18bbfdedf4ce88b9a048dad8f815cb0949c03e681b246ec00ec73cd.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/artifacts/sha256/18/a6/18a6c9add18bbfdedf4ce88b9a048dad8f815cb0949c03e681b246ec00ec73cd.view.df8b7f84f63f5422652989460968b1ab81a9583986ff3aca50c7240ad293dee3.manifest.json",
+      "bytes": 1398,
+      "sha256": "359dbf0b00239cd5166601b31a0e326ed21a9d729063f8326af252827d67838d",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/artifacts/sha256/18/a6/18a6c9add18bbfdedf4ce88b9a048dad8f815cb0949c03e681b246ec00ec73cd.view.df8b7f84f63f5422652989460968b1ab81a9583986ff3aca50c7240ad293dee3.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/artifacts/sha256/23/01/23014085a39c0e61216f02f32b77229a8738fbb19c832ee0934cd510a351eea9.blob",
+      "bytes": 1914,
+      "sha256": "23014085a39c0e61216f02f32b77229a8738fbb19c832ee0934cd510a351eea9",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/artifacts/sha256/23/01/23014085a39c0e61216f02f32b77229a8738fbb19c832ee0934cd510a351eea9.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/artifacts/sha256/23/01/23014085a39c0e61216f02f32b77229a8738fbb19c832ee0934cd510a351eea9.view.29ff77070f74955534309418b2fad9c6fb66035a250d1f875c86f1cd0d60f0d4.manifest.json",
+      "bytes": 1648,
+      "sha256": "c4450f45b368582f2178b5ea20ba456334ef23e20eab253fb3e3d1eb039ffd48",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/artifacts/sha256/23/01/23014085a39c0e61216f02f32b77229a8738fbb19c832ee0934cd510a351eea9.view.29ff77070f74955534309418b2fad9c6fb66035a250d1f875c86f1cd0d60f0d4.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/artifacts/sha256/5c/6d/5c6d9718b6667f61ed5125bb8d8e9255e3a8d236a4f0275ae5b1f8f2a014af4a.blob",
+      "bytes": 109,
+      "sha256": "5c6d9718b6667f61ed5125bb8d8e9255e3a8d236a4f0275ae5b1f8f2a014af4a",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/artifacts/sha256/5c/6d/5c6d9718b6667f61ed5125bb8d8e9255e3a8d236a4f0275ae5b1f8f2a014af4a.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/artifacts/sha256/5c/6d/5c6d9718b6667f61ed5125bb8d8e9255e3a8d236a4f0275ae5b1f8f2a014af4a.view.9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47.manifest.json",
+      "bytes": 647,
+      "sha256": "f24627bf28d7c63f894746d72b18c6ece9ce12ae1c0dd681083517b1edd1d050",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/artifacts/sha256/5c/6d/5c6d9718b6667f61ed5125bb8d8e9255e3a8d236a4f0275ae5b1f8f2a014af4a.view.9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/artifacts/sha256/62/ec/62ec8562714fd1115d673a43b6b788d45dd21f1aaef6eeb7fbc3f78ed8f141ac.blob",
+      "bytes": 2213,
+      "sha256": "62ec8562714fd1115d673a43b6b788d45dd21f1aaef6eeb7fbc3f78ed8f141ac",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/artifacts/sha256/62/ec/62ec8562714fd1115d673a43b6b788d45dd21f1aaef6eeb7fbc3f78ed8f141ac.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/artifacts/sha256/62/ec/62ec8562714fd1115d673a43b6b788d45dd21f1aaef6eeb7fbc3f78ed8f141ac.view.78d02bd429a3f6d10c119db07977be7e75240adfb3e50025c1a8f58e73f15c09.manifest.json",
+      "bytes": 2094,
+      "sha256": "9d2b45e5b85e63b01949de2262913730fd8305b6afb27895632bffb6275537e3",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/artifacts/sha256/62/ec/62ec8562714fd1115d673a43b6b788d45dd21f1aaef6eeb7fbc3f78ed8f141ac.view.78d02bd429a3f6d10c119db07977be7e75240adfb3e50025c1a8f58e73f15c09.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/artifacts/sha256/67/8d/678df2f6952421574347c3fd9cef84775143172c8ff1fe7bf046c9e260f5d523.blob",
+      "bytes": 99,
+      "sha256": "678df2f6952421574347c3fd9cef84775143172c8ff1fe7bf046c9e260f5d523",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/artifacts/sha256/67/8d/678df2f6952421574347c3fd9cef84775143172c8ff1fe7bf046c9e260f5d523.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/artifacts/sha256/67/8d/678df2f6952421574347c3fd9cef84775143172c8ff1fe7bf046c9e260f5d523.view.686fb28017051d54b9d5f9df54a0bede47e2359f69ea8199edf53dc331583aad.manifest.json",
+      "bytes": 872,
+      "sha256": "d591d537b4f305254a41d40b306d1238c2f67e34ffbfe68786cd44f0d00238b6",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/artifacts/sha256/67/8d/678df2f6952421574347c3fd9cef84775143172c8ff1fe7bf046c9e260f5d523.view.686fb28017051d54b9d5f9df54a0bede47e2359f69ea8199edf53dc331583aad.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/artifacts/sha256/a3/da/a3dab1a2889cfb9a4a31cd75af3f0084ee132e9062f8e338b605d564327e9c04.blob",
+      "bytes": 1914,
+      "sha256": "a3dab1a2889cfb9a4a31cd75af3f0084ee132e9062f8e338b605d564327e9c04",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/artifacts/sha256/a3/da/a3dab1a2889cfb9a4a31cd75af3f0084ee132e9062f8e338b605d564327e9c04.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/artifacts/sha256/a3/da/a3dab1a2889cfb9a4a31cd75af3f0084ee132e9062f8e338b605d564327e9c04.view.37d372dc92ef42b160de14a279e5fb2764e5aa9ba2a0225f76bcbbded277d72d.manifest.json",
+      "bytes": 1648,
+      "sha256": "a7a80c55fcca94d409ad83a54c928adb4228d8d30da1bf0c1a4280c78f5a10a5",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/artifacts/sha256/a3/da/a3dab1a2889cfb9a4a31cd75af3f0084ee132e9062f8e338b605d564327e9c04.view.37d372dc92ef42b160de14a279e5fb2764e5aa9ba2a0225f76bcbbded277d72d.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/artifacts/sha256/bf/48/bf4874dea5010fd9d25f3be677846b151dbe1f324636d9aa1fb7bdccf64e4cfc.blob",
+      "bytes": 99,
+      "sha256": "bf4874dea5010fd9d25f3be677846b151dbe1f324636d9aa1fb7bdccf64e4cfc",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/artifacts/sha256/bf/48/bf4874dea5010fd9d25f3be677846b151dbe1f324636d9aa1fb7bdccf64e4cfc.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/artifacts/sha256/bf/48/bf4874dea5010fd9d25f3be677846b151dbe1f324636d9aa1fb7bdccf64e4cfc.view.686fb28017051d54b9d5f9df54a0bede47e2359f69ea8199edf53dc331583aad.manifest.json",
+      "bytes": 872,
+      "sha256": "08e865a79a7701ae7f00c180472392c9431a79cbe6c52437f9b31c14e5ca87ec",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/artifacts/sha256/bf/48/bf4874dea5010fd9d25f3be677846b151dbe1f324636d9aa1fb7bdccf64e4cfc.view.686fb28017051d54b9d5f9df54a0bede47e2359f69ea8199edf53dc331583aad.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/artifacts/sha256/e7/3b/e73bab5211549467207bed745d815ff3020bbb8c98dee34b0c2d87d86d97c61c.blob",
+      "bytes": 2213,
+      "sha256": "e73bab5211549467207bed745d815ff3020bbb8c98dee34b0c2d87d86d97c61c",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/artifacts/sha256/e7/3b/e73bab5211549467207bed745d815ff3020bbb8c98dee34b0c2d87d86d97c61c.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/artifacts/sha256/e7/3b/e73bab5211549467207bed745d815ff3020bbb8c98dee34b0c2d87d86d97c61c.view.f4c2964c8f7285fd817f0c0f3c6fc3e00376482d952060f5453cde20cc3e8503.manifest.json",
+      "bytes": 2094,
+      "sha256": "60a3408b98bcc5cc21860b08bd4493a20203e71781f2da2d9b89ce3e5ee48dd0",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/artifacts/sha256/e7/3b/e73bab5211549467207bed745d815ff3020bbb8c98dee34b0c2d87d86d97c61c.view.f4c2964c8f7285fd817f0c0f3c6fc3e00376482d952060f5453cde20cc3e8503.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/artifacts/sha256/f8/8e/f88ed6c6af186f7b43595080c3f28ce5002f7324b550dac1b35312b02c5a2ebb.blob",
+      "bytes": 99,
+      "sha256": "f88ed6c6af186f7b43595080c3f28ce5002f7324b550dac1b35312b02c5a2ebb",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/artifacts/sha256/f8/8e/f88ed6c6af186f7b43595080c3f28ce5002f7324b550dac1b35312b02c5a2ebb.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/artifacts/sha256/f8/8e/f88ed6c6af186f7b43595080c3f28ce5002f7324b550dac1b35312b02c5a2ebb.view.686fb28017051d54b9d5f9df54a0bede47e2359f69ea8199edf53dc331583aad.manifest.json",
+      "bytes": 872,
+      "sha256": "1cf87a164a428c830bdd9e71c4b68df5784eb35592a9692bb56c5c150f3070d4",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/artifacts/sha256/f8/8e/f88ed6c6af186f7b43595080c3f28ce5002f7324b550dac1b35312b02c5a2ebb.view.686fb28017051d54b9d5f9df54a0bede47e2359f69ea8199edf53dc331583aad.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/search_registry/dummy_loop/champion.json",
+      "bytes": 1272,
+      "sha256": "1aeaa7f6dbb710a666d2649380cf92e09721dee84e7d2e79f255c55296a8497f",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_champion_registry_seriali0/.polisyos/search_registry/dummy_loop/champion.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_competing_native_writer_r0/cas/artifacts/sha256/0c/9b/0c9ba59172f7b23d56eac498c0fdc2387c5eed2f68cf092e1513c0c03241a4db.blob",
+      "bytes": 1804,
+      "sha256": "0c9ba59172f7b23d56eac498c0fdc2387c5eed2f68cf092e1513c0c03241a4db",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_competing_native_writer_r0/cas/artifacts/sha256/0c/9b/0c9ba59172f7b23d56eac498c0fdc2387c5eed2f68cf092e1513c0c03241a4db.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_competing_native_writer_r0/cas/artifacts/sha256/0c/9b/0c9ba59172f7b23d56eac498c0fdc2387c5eed2f68cf092e1513c0c03241a4db.view.ba261f1a4299b62b7975046f2e14b8b62306ba93d3743124ca8b9da76c14e7ef.manifest.json",
+      "bytes": 1828,
+      "sha256": "f3b6ffd9e9643f1a9e7c111aabc29039e043d17c933dc5718cf7997d9e86adbf",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_competing_native_writer_r0/cas/artifacts/sha256/0c/9b/0c9ba59172f7b23d56eac498c0fdc2387c5eed2f68cf092e1513c0c03241a4db.view.ba261f1a4299b62b7975046f2e14b8b62306ba93d3743124ca8b9da76c14e7ef.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_competing_native_writer_r0/cas/artifacts/sha256/23/f3/23f3440acecd2af7d21081de477bda075ba4627be242e404a99e3f3e2e3b0d6b.blob",
+      "bytes": 97,
+      "sha256": "23f3440acecd2af7d21081de477bda075ba4627be242e404a99e3f3e2e3b0d6b",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_competing_native_writer_r0/cas/artifacts/sha256/23/f3/23f3440acecd2af7d21081de477bda075ba4627be242e404a99e3f3e2e3b0d6b.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_competing_native_writer_r0/cas/artifacts/sha256/23/f3/23f3440acecd2af7d21081de477bda075ba4627be242e404a99e3f3e2e3b0d6b.view.ca2406f821e2bee47504a8535342492dbac1ab8d5ccdb1c19d2f494694a8d0dc.manifest.json",
+      "bytes": 860,
+      "sha256": "3c9f69f43ff1f0cf1cb67b0b994a24b2aabef016a38e342f4220d4d27a009eec",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_competing_native_writer_r0/cas/artifacts/sha256/23/f3/23f3440acecd2af7d21081de477bda075ba4627be242e404a99e3f3e2e3b0d6b.view.ca2406f821e2bee47504a8535342492dbac1ab8d5ccdb1c19d2f494694a8d0dc.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_competing_native_writer_r0/cas/artifacts/sha256/28/39/2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8.blob",
+      "bytes": 45,
+      "sha256": "2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_competing_native_writer_r0/cas/artifacts/sha256/28/39/2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_competing_native_writer_r0/cas/artifacts/sha256/28/39/2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8.view.577b5a791ddb47faa64e712288497167136063625cf9505d5d97f2c6cb742f29.manifest.json",
+      "bytes": 369,
+      "sha256": "4c3dbb6ea97f593147750d8fe265989c17c80afdfb279a5f4d8f4513ea5db930",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_competing_native_writer_r0/cas/artifacts/sha256/28/39/2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8.view.577b5a791ddb47faa64e712288497167136063625cf9505d5d97f2c6cb742f29.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_competing_native_writer_r0/cas/artifacts/sha256/48/56/4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1.blob",
+      "bytes": 97,
+      "sha256": "4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_competing_native_writer_r0/cas/artifacts/sha256/48/56/4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_competing_native_writer_r0/cas/artifacts/sha256/48/56/4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1.view.ca2406f821e2bee47504a8535342492dbac1ab8d5ccdb1c19d2f494694a8d0dc.manifest.json",
+      "bytes": 860,
+      "sha256": "2eadfe321f91ecc5a48c4597de43cecbd44e68567711c359be5d6c98c9323712",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_competing_native_writer_r0/cas/artifacts/sha256/48/56/4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1.view.ca2406f821e2bee47504a8535342492dbac1ab8d5ccdb1c19d2f494694a8d0dc.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_competing_native_writer_r0/cas/artifacts/sha256/62/5e/625e3a82a6bb0e5894efee0b537498c1daa9f3480eeba4e7d36f39e99893c9ed.blob",
+      "bytes": 2719,
+      "sha256": "625e3a82a6bb0e5894efee0b537498c1daa9f3480eeba4e7d36f39e99893c9ed",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_competing_native_writer_r0/cas/artifacts/sha256/62/5e/625e3a82a6bb0e5894efee0b537498c1daa9f3480eeba4e7d36f39e99893c9ed.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_competing_native_writer_r0/cas/artifacts/sha256/62/5e/625e3a82a6bb0e5894efee0b537498c1daa9f3480eeba4e7d36f39e99893c9ed.view.4a4e3b274aad67fbdb29a6c651960f57c37ad84e7ef9c4206c9462246a85f99a.manifest.json",
+      "bytes": 2524,
+      "sha256": "4ccc8b99fc9122ef5db1ca3f51eb42dc162edb3c941dd244349e74be9f5caeb1",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_competing_native_writer_r0/cas/artifacts/sha256/62/5e/625e3a82a6bb0e5894efee0b537498c1daa9f3480eeba4e7d36f39e99893c9ed.view.4a4e3b274aad67fbdb29a6c651960f57c37ad84e7ef9c4206c9462246a85f99a.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_competing_native_writer_r0/cas/artifacts/sha256/74/d8/74d89698b6aab867bf6f40c56b2e7bb5fe189fc349c45c8a3fabf0ae8d32ece3.blob",
+      "bytes": 2422,
+      "sha256": "74d89698b6aab867bf6f40c56b2e7bb5fe189fc349c45c8a3fabf0ae8d32ece3",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_competing_native_writer_r0/cas/artifacts/sha256/74/d8/74d89698b6aab867bf6f40c56b2e7bb5fe189fc349c45c8a3fabf0ae8d32ece3.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_competing_native_writer_r0/cas/artifacts/sha256/74/d8/74d89698b6aab867bf6f40c56b2e7bb5fe189fc349c45c8a3fabf0ae8d32ece3.view.568d1626a50d0dfbe2c533e4785edf639c34465a86186fd3083b6155a1d95dfb.manifest.json",
+      "bytes": 2078,
+      "sha256": "2f8a4f033dafacbf18a8d9254029c2ce751611420e326446ccdc9b7e3275e5a6",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_competing_native_writer_r0/cas/artifacts/sha256/74/d8/74d89698b6aab867bf6f40c56b2e7bb5fe189fc349c45c8a3fabf0ae8d32ece3.view.568d1626a50d0dfbe2c533e4785edf639c34465a86186fd3083b6155a1d95dfb.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_competing_native_writer_r0/cas/artifacts/sha256/9b/11/9b11702c3eadc0a4edc1369afcfa0a3ce9ad56f7e441ccd6ec9b8eb8d3797779.blob",
+      "bytes": 961,
+      "sha256": "9b11702c3eadc0a4edc1369afcfa0a3ce9ad56f7e441ccd6ec9b8eb8d3797779",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_competing_native_writer_r0/cas/artifacts/sha256/9b/11/9b11702c3eadc0a4edc1369afcfa0a3ce9ad56f7e441ccd6ec9b8eb8d3797779.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_competing_native_writer_r0/cas/artifacts/sha256/9b/11/9b11702c3eadc0a4edc1369afcfa0a3ce9ad56f7e441ccd6ec9b8eb8d3797779.view.c47d7ac17b0cc99acc3a72de212d331a0bd3d0bf76952d2a0f225bb9da382263.manifest.json",
+      "bytes": 1078,
+      "sha256": "6c839f144bf2a01b44b0872ea13f573bf8b976027e232f3dfa927abf0335182a",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_competing_native_writer_r0/cas/artifacts/sha256/9b/11/9b11702c3eadc0a4edc1369afcfa0a3ce9ad56f7e441ccd6ec9b8eb8d3797779.view.c47d7ac17b0cc99acc3a72de212d331a0bd3d0bf76952d2a0f225bb9da382263.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_competing_native_writer_r0/cas/artifacts/sha256/f4/af/f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf.blob",
+      "bytes": 199,
+      "sha256": "f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_competing_native_writer_r0/cas/artifacts/sha256/f4/af/f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_competing_native_writer_r0/cas/artifacts/sha256/f4/af/f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf.view.5b35c3ab73cf3301229f18893f3c8d6ad68e3fc345e440d6c438b03855ac1f24.manifest.json",
+      "bytes": 872,
+      "sha256": "c58e080cf436c3024df22c4cb5e49e998ac490ec57b95e64caef25e3beead3a0",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_competing_native_writer_r0/cas/artifacts/sha256/f4/af/f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf.view.5b35c3ab73cf3301229f18893f3c8d6ad68e3fc345e440d6c438b03855ac1f24.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_competing_native_writer_r0/champions/verified/champion.json",
+      "bytes": 1291,
+      "sha256": "965a3ff3c852bd8058af880a2bb83218b42a987fefbceb7b9c5e7cadfa4348bc",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_competing_native_writer_r0/champions/verified/champion.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_native_evaluator_registry0/cas/artifacts/sha256/23/f3/23f3440acecd2af7d21081de477bda075ba4627be242e404a99e3f3e2e3b0d6b.blob",
+      "bytes": 97,
+      "sha256": "23f3440acecd2af7d21081de477bda075ba4627be242e404a99e3f3e2e3b0d6b",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_native_evaluator_registry0/cas/artifacts/sha256/23/f3/23f3440acecd2af7d21081de477bda075ba4627be242e404a99e3f3e2e3b0d6b.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_native_evaluator_registry0/cas/artifacts/sha256/23/f3/23f3440acecd2af7d21081de477bda075ba4627be242e404a99e3f3e2e3b0d6b.view.e791a5caab7230cff2b999a0a6d8874c9f301a4379f75ad669f4065d32dce7cf.manifest.json",
+      "bytes": 860,
+      "sha256": "6216d39ac28dfe2e45fd17820296ba6fb5bac513ef031358d5ef8914b4609901",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_native_evaluator_registry0/cas/artifacts/sha256/23/f3/23f3440acecd2af7d21081de477bda075ba4627be242e404a99e3f3e2e3b0d6b.view.e791a5caab7230cff2b999a0a6d8874c9f301a4379f75ad669f4065d32dce7cf.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_native_evaluator_registry0/cas/artifacts/sha256/28/39/2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8.blob",
+      "bytes": 45,
+      "sha256": "2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_native_evaluator_registry0/cas/artifacts/sha256/28/39/2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_native_evaluator_registry0/cas/artifacts/sha256/28/39/2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8.view.577b5a791ddb47faa64e712288497167136063625cf9505d5d97f2c6cb742f29.manifest.json",
+      "bytes": 369,
+      "sha256": "8f712794eba37d8f40a18b371f50f89af8ae9dd855ee47b988bb8745a6368d75",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_native_evaluator_registry0/cas/artifacts/sha256/28/39/2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8.view.577b5a791ddb47faa64e712288497167136063625cf9505d5d97f2c6cb742f29.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_native_evaluator_registry0/cas/artifacts/sha256/3c/e7/3ce7b00abd134da085123be7965ce738635cd114cd1bffe8cef97c34a61a1aeb.blob",
+      "bytes": 961,
+      "sha256": "3ce7b00abd134da085123be7965ce738635cd114cd1bffe8cef97c34a61a1aeb",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_native_evaluator_registry0/cas/artifacts/sha256/3c/e7/3ce7b00abd134da085123be7965ce738635cd114cd1bffe8cef97c34a61a1aeb.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_native_evaluator_registry0/cas/artifacts/sha256/3c/e7/3ce7b00abd134da085123be7965ce738635cd114cd1bffe8cef97c34a61a1aeb.view.c47d7ac17b0cc99acc3a72de212d331a0bd3d0bf76952d2a0f225bb9da382263.manifest.json",
+      "bytes": 1078,
+      "sha256": "0352f26e1d14a04a599160f379d237828a96ed81958257e3de28e81bbc90f57a",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_native_evaluator_registry0/cas/artifacts/sha256/3c/e7/3ce7b00abd134da085123be7965ce738635cd114cd1bffe8cef97c34a61a1aeb.view.c47d7ac17b0cc99acc3a72de212d331a0bd3d0bf76952d2a0f225bb9da382263.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_native_evaluator_registry0/cas/artifacts/sha256/48/56/4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1.blob",
+      "bytes": 97,
+      "sha256": "4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_native_evaluator_registry0/cas/artifacts/sha256/48/56/4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_native_evaluator_registry0/cas/artifacts/sha256/48/56/4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1.view.e791a5caab7230cff2b999a0a6d8874c9f301a4379f75ad669f4065d32dce7cf.manifest.json",
+      "bytes": 860,
+      "sha256": "5519e8212a077ce08a74c9b861b12ceb81d6aa5602f522abb3032c31161b4d3b",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_native_evaluator_registry0/cas/artifacts/sha256/48/56/4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1.view.e791a5caab7230cff2b999a0a6d8874c9f301a4379f75ad669f4065d32dce7cf.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_native_evaluator_registry0/cas/artifacts/sha256/7c/3a/7c3a24554bdd432d7e782611377099d3dcda966b1870d742775c2cdb7f30fa78.blob",
+      "bytes": 1804,
+      "sha256": "7c3a24554bdd432d7e782611377099d3dcda966b1870d742775c2cdb7f30fa78",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_native_evaluator_registry0/cas/artifacts/sha256/7c/3a/7c3a24554bdd432d7e782611377099d3dcda966b1870d742775c2cdb7f30fa78.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_native_evaluator_registry0/cas/artifacts/sha256/7c/3a/7c3a24554bdd432d7e782611377099d3dcda966b1870d742775c2cdb7f30fa78.view.8260b3f870a2660b0ed9e91d0575f595ca1ed0546d998565cfda2ad3ea59d0ac.manifest.json",
+      "bytes": 1828,
+      "sha256": "00104a70a3ef575fe7a765e77b572804656d74d0851fb5fd9897738148cef206",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_native_evaluator_registry0/cas/artifacts/sha256/7c/3a/7c3a24554bdd432d7e782611377099d3dcda966b1870d742775c2cdb7f30fa78.view.8260b3f870a2660b0ed9e91d0575f595ca1ed0546d998565cfda2ad3ea59d0ac.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_native_evaluator_registry0/cas/artifacts/sha256/ad/e4/ade454eb52e9ca8661b1caccd3263784837b4f9b1e661de64e39a5b20a768e9c.blob",
+      "bytes": 2719,
+      "sha256": "ade454eb52e9ca8661b1caccd3263784837b4f9b1e661de64e39a5b20a768e9c",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_native_evaluator_registry0/cas/artifacts/sha256/ad/e4/ade454eb52e9ca8661b1caccd3263784837b4f9b1e661de64e39a5b20a768e9c.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_native_evaluator_registry0/cas/artifacts/sha256/ad/e4/ade454eb52e9ca8661b1caccd3263784837b4f9b1e661de64e39a5b20a768e9c.view.9c0e01c35b3db066eec500e8cdacc6584133df6e7d2952bcb967ce0341050633.manifest.json",
+      "bytes": 2524,
+      "sha256": "a7baf49eb7129759b4f29397945d5c33df43f49a2fada9a3df2787a71df1dff4",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_native_evaluator_registry0/cas/artifacts/sha256/ad/e4/ade454eb52e9ca8661b1caccd3263784837b4f9b1e661de64e39a5b20a768e9c.view.9c0e01c35b3db066eec500e8cdacc6584133df6e7d2952bcb967ce0341050633.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_native_evaluator_registry0/cas/artifacts/sha256/e0/d9/e0d9c64b93c8a5bc7d19493e4d819987996425486d4a0b4442a7ba0147f6147a.blob",
+      "bytes": 2422,
+      "sha256": "e0d9c64b93c8a5bc7d19493e4d819987996425486d4a0b4442a7ba0147f6147a",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_native_evaluator_registry0/cas/artifacts/sha256/e0/d9/e0d9c64b93c8a5bc7d19493e4d819987996425486d4a0b4442a7ba0147f6147a.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_native_evaluator_registry0/cas/artifacts/sha256/e0/d9/e0d9c64b93c8a5bc7d19493e4d819987996425486d4a0b4442a7ba0147f6147a.view.eb042d91bb40cd65103149c792b48ae86fcef5597d1ee9cfb6c77878b120ca8c.manifest.json",
+      "bytes": 2078,
+      "sha256": "295d2f1604f8cf7b5f232ee42ae82cb613801f0d8cf98fa7bf47989135a3f1dc",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_native_evaluator_registry0/cas/artifacts/sha256/e0/d9/e0d9c64b93c8a5bc7d19493e4d819987996425486d4a0b4442a7ba0147f6147a.view.eb042d91bb40cd65103149c792b48ae86fcef5597d1ee9cfb6c77878b120ca8c.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_native_evaluator_registry0/cas/artifacts/sha256/f4/af/f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf.blob",
+      "bytes": 199,
+      "sha256": "f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_native_evaluator_registry0/cas/artifacts/sha256/f4/af/f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_native_evaluator_registry0/cas/artifacts/sha256/f4/af/f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf.view.5b35c3ab73cf3301229f18893f3c8d6ad68e3fc345e440d6c438b03855ac1f24.manifest.json",
+      "bytes": 872,
+      "sha256": "d355ecae567603b7961b8d0d5e07dc9538af0c3b8c2b2fbb61bf57c1609530b2",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_native_evaluator_registry0/cas/artifacts/sha256/f4/af/f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf.view.5b35c3ab73cf3301229f18893f3c8d6ad68e3fc345e440d6c438b03855ac1f24.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_native_evaluator_registry0/champions/verified/champion.json",
+      "bytes": 1291,
+      "sha256": "b108457159a7dd0796baa98a2b76b2ca9d96a309b3ca2075906022402e0c1121",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_native_evaluator_registry0/champions/verified/champion.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_native_seed_incumbent_is_0/cas/artifacts/sha256/23/f3/23f3440acecd2af7d21081de477bda075ba4627be242e404a99e3f3e2e3b0d6b.blob",
+      "bytes": 97,
+      "sha256": "23f3440acecd2af7d21081de477bda075ba4627be242e404a99e3f3e2e3b0d6b",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_native_seed_incumbent_is_0/cas/artifacts/sha256/23/f3/23f3440acecd2af7d21081de477bda075ba4627be242e404a99e3f3e2e3b0d6b.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_native_seed_incumbent_is_0/cas/artifacts/sha256/23/f3/23f3440acecd2af7d21081de477bda075ba4627be242e404a99e3f3e2e3b0d6b.view.8a05515fedb039288c4aa22f83167b9a0b99015c6379ea3b688fb29c30f79e56.manifest.json",
+      "bytes": 860,
+      "sha256": "97e43c51b9fd78b85460a829b47adf263bc7a464033e8bafe0c039194ef3db9a",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_native_seed_incumbent_is_0/cas/artifacts/sha256/23/f3/23f3440acecd2af7d21081de477bda075ba4627be242e404a99e3f3e2e3b0d6b.view.8a05515fedb039288c4aa22f83167b9a0b99015c6379ea3b688fb29c30f79e56.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_native_seed_incumbent_is_0/cas/artifacts/sha256/28/39/2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8.blob",
+      "bytes": 45,
+      "sha256": "2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_native_seed_incumbent_is_0/cas/artifacts/sha256/28/39/2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_native_seed_incumbent_is_0/cas/artifacts/sha256/28/39/2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8.view.577b5a791ddb47faa64e712288497167136063625cf9505d5d97f2c6cb742f29.manifest.json",
+      "bytes": 369,
+      "sha256": "b9bcb3a044e58cf883043496600cfb21e7abbb48125af72389ad6801b6a0da9c",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_native_seed_incumbent_is_0/cas/artifacts/sha256/28/39/2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8.view.577b5a791ddb47faa64e712288497167136063625cf9505d5d97f2c6cb742f29.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_native_seed_incumbent_is_0/cas/artifacts/sha256/41/dd/41dd0f4d8d14acfaeb82b20762e3f63bf7cf07805a01e2b3093662ab6b7657a2.blob",
+      "bytes": 2719,
+      "sha256": "41dd0f4d8d14acfaeb82b20762e3f63bf7cf07805a01e2b3093662ab6b7657a2",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_native_seed_incumbent_is_0/cas/artifacts/sha256/41/dd/41dd0f4d8d14acfaeb82b20762e3f63bf7cf07805a01e2b3093662ab6b7657a2.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_native_seed_incumbent_is_0/cas/artifacts/sha256/41/dd/41dd0f4d8d14acfaeb82b20762e3f63bf7cf07805a01e2b3093662ab6b7657a2.view.f7c40cdf33cbc48c5e620ad59d3643248c00ab6171c819a9b3e1ba0bbc466612.manifest.json",
+      "bytes": 2524,
+      "sha256": "9309239eb5d843043503a7fdef4c83cbd35e36ba1fd538dfcb810937551fb412",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_native_seed_incumbent_is_0/cas/artifacts/sha256/41/dd/41dd0f4d8d14acfaeb82b20762e3f63bf7cf07805a01e2b3093662ab6b7657a2.view.f7c40cdf33cbc48c5e620ad59d3643248c00ab6171c819a9b3e1ba0bbc466612.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_native_seed_incumbent_is_0/cas/artifacts/sha256/48/56/4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1.blob",
+      "bytes": 97,
+      "sha256": "4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_native_seed_incumbent_is_0/cas/artifacts/sha256/48/56/4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_native_seed_incumbent_is_0/cas/artifacts/sha256/48/56/4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1.view.b43b5a226d1b302ac6f57ab42da88308732f0ba638a88917bbfc7495641ba9aa.manifest.json",
+      "bytes": 646,
+      "sha256": "042fa6a9e5ebc3361667be324f2bc27c2cb89f286aa4660e6f25f597c85b9c1c",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_native_seed_incumbent_is_0/cas/artifacts/sha256/48/56/4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1.view.b43b5a226d1b302ac6f57ab42da88308732f0ba638a88917bbfc7495641ba9aa.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_native_seed_incumbent_is_0/cas/artifacts/sha256/48/69/486911eabcc138e650fd9ce4d72a37d5c0fd45daa9057ef8fb7780d96fa08b71.blob",
+      "bytes": 961,
+      "sha256": "486911eabcc138e650fd9ce4d72a37d5c0fd45daa9057ef8fb7780d96fa08b71",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_native_seed_incumbent_is_0/cas/artifacts/sha256/48/69/486911eabcc138e650fd9ce4d72a37d5c0fd45daa9057ef8fb7780d96fa08b71.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_native_seed_incumbent_is_0/cas/artifacts/sha256/48/69/486911eabcc138e650fd9ce4d72a37d5c0fd45daa9057ef8fb7780d96fa08b71.view.c47d7ac17b0cc99acc3a72de212d331a0bd3d0bf76952d2a0f225bb9da382263.manifest.json",
+      "bytes": 1078,
+      "sha256": "8911aab5912d32f2dd2c8b7ec0cb507f628811da260f1df6f1e1de60f60e5ab6",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_native_seed_incumbent_is_0/cas/artifacts/sha256/48/69/486911eabcc138e650fd9ce4d72a37d5c0fd45daa9057ef8fb7780d96fa08b71.view.c47d7ac17b0cc99acc3a72de212d331a0bd3d0bf76952d2a0f225bb9da382263.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_native_seed_incumbent_is_0/cas/artifacts/sha256/68/5b/685b8d19b2ea2257bf48173b861f1b57bb8ee30fe0c3b24834d9d47fe55741dc.blob",
+      "bytes": 559,
+      "sha256": "685b8d19b2ea2257bf48173b861f1b57bb8ee30fe0c3b24834d9d47fe55741dc",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_native_seed_incumbent_is_0/cas/artifacts/sha256/68/5b/685b8d19b2ea2257bf48173b861f1b57bb8ee30fe0c3b24834d9d47fe55741dc.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_native_seed_incumbent_is_0/cas/artifacts/sha256/68/5b/685b8d19b2ea2257bf48173b861f1b57bb8ee30fe0c3b24834d9d47fe55741dc.view.58fe6b1f91fc19c92ea871184f3493dc8e49b5dc7501a66d4441772d5b44e739.manifest.json",
+      "bytes": 1174,
+      "sha256": "8770c9b5d39b266da1f71421c2564fb5e98464e91c6b9cad84d12166eeebdfd8",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_native_seed_incumbent_is_0/cas/artifacts/sha256/68/5b/685b8d19b2ea2257bf48173b861f1b57bb8ee30fe0c3b24834d9d47fe55741dc.view.58fe6b1f91fc19c92ea871184f3493dc8e49b5dc7501a66d4441772d5b44e739.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_native_seed_incumbent_is_0/cas/artifacts/sha256/dd/eb/ddeb35a0ceefb7e731b956ac36279f43e08a6db9628da51935132d7a488a2960.blob",
+      "bytes": 2422,
+      "sha256": "ddeb35a0ceefb7e731b956ac36279f43e08a6db9628da51935132d7a488a2960",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_native_seed_incumbent_is_0/cas/artifacts/sha256/dd/eb/ddeb35a0ceefb7e731b956ac36279f43e08a6db9628da51935132d7a488a2960.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_native_seed_incumbent_is_0/cas/artifacts/sha256/dd/eb/ddeb35a0ceefb7e731b956ac36279f43e08a6db9628da51935132d7a488a2960.view.ec98dee1ce08b29b1f10702257a7a32d9e28d358313c7c9563242b4303c9e7e2.manifest.json",
+      "bytes": 2078,
+      "sha256": "9db8a60e6b4009f689121c52f987710fdfe6bd8d0f219bb277229a4c82e59fca",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_native_seed_incumbent_is_0/cas/artifacts/sha256/dd/eb/ddeb35a0ceefb7e731b956ac36279f43e08a6db9628da51935132d7a488a2960.view.ec98dee1ce08b29b1f10702257a7a32d9e28d358313c7c9563242b4303c9e7e2.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_native_seed_incumbent_is_0/cas/artifacts/sha256/f4/af/f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf.blob",
+      "bytes": 199,
+      "sha256": "f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_native_seed_incumbent_is_0/cas/artifacts/sha256/f4/af/f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_native_seed_incumbent_is_0/cas/artifacts/sha256/f4/af/f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf.view.5b35c3ab73cf3301229f18893f3c8d6ad68e3fc345e440d6c438b03855ac1f24.manifest.json",
+      "bytes": 872,
+      "sha256": "99b32b3ff2672d1bed3e588d938889e7f9b680618eace3e39221c1db16a76bc0",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_native_seed_incumbent_is_0/cas/artifacts/sha256/f4/af/f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf.view.5b35c3ab73cf3301229f18893f3c8d6ad68e3fc345e440d6c438b03855ac1f24.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_native_seed_incumbent_is_0/champions/verified/champion.json",
+      "bytes": 1291,
+      "sha256": "26d4fbde043ae710e56f69e8d73ab877fddb77dd24361dcd068e00249a0ed78b",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_native_seed_incumbent_is_0/champions/verified/champion.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_search_loop_runner_promot0/.polisyos/artifacts/sha256/10/f2/10f289575ce94b87e3b958fc8b1cf1fc456010a8b8b03c42fb6da98e82434a4d.blob",
+      "bytes": 2213,
+      "sha256": "10f289575ce94b87e3b958fc8b1cf1fc456010a8b8b03c42fb6da98e82434a4d",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_search_loop_runner_promot0/.polisyos/artifacts/sha256/10/f2/10f289575ce94b87e3b958fc8b1cf1fc456010a8b8b03c42fb6da98e82434a4d.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_search_loop_runner_promot0/.polisyos/artifacts/sha256/10/f2/10f289575ce94b87e3b958fc8b1cf1fc456010a8b8b03c42fb6da98e82434a4d.view.80366ca25e6965a8196c266bba82d697bdba316e7b0e49554e7187409f4bf8f3.manifest.json",
+      "bytes": 2094,
+      "sha256": "a066ecd6a70969101f014b9516912b7da3896b40871c65940fecf44ef9577bce",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_search_loop_runner_promot0/.polisyos/artifacts/sha256/10/f2/10f289575ce94b87e3b958fc8b1cf1fc456010a8b8b03c42fb6da98e82434a4d.view.80366ca25e6965a8196c266bba82d697bdba316e7b0e49554e7187409f4bf8f3.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_search_loop_runner_promot0/.polisyos/artifacts/sha256/14/00/14002e2732a6d6a8ae71edbe8b2145d2cbdcdfee264a380c2023037df4476ade.blob",
+      "bytes": 1292,
+      "sha256": "14002e2732a6d6a8ae71edbe8b2145d2cbdcdfee264a380c2023037df4476ade",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_search_loop_runner_promot0/.polisyos/artifacts/sha256/14/00/14002e2732a6d6a8ae71edbe8b2145d2cbdcdfee264a380c2023037df4476ade.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_search_loop_runner_promot0/.polisyos/artifacts/sha256/14/00/14002e2732a6d6a8ae71edbe8b2145d2cbdcdfee264a380c2023037df4476ade.view.2c2e54b9f5223cd1e2ecfca737340f5ff6ae6599cd8c077248b4b6d829e4a958.manifest.json",
+      "bytes": 1398,
+      "sha256": "a4ebffddeb86670bfae765258be85dd8c0c2dfe6a3893ab1f06c8b1ce5e8924c",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_search_loop_runner_promot0/.polisyos/artifacts/sha256/14/00/14002e2732a6d6a8ae71edbe8b2145d2cbdcdfee264a380c2023037df4476ade.view.2c2e54b9f5223cd1e2ecfca737340f5ff6ae6599cd8c077248b4b6d829e4a958.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_search_loop_runner_promot0/.polisyos/artifacts/sha256/3d/35/3d356a415249bc77d6b4bd2866bf7041b92e2351787bd7f5edc543af69599a79.blob",
+      "bytes": 1914,
+      "sha256": "3d356a415249bc77d6b4bd2866bf7041b92e2351787bd7f5edc543af69599a79",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_search_loop_runner_promot0/.polisyos/artifacts/sha256/3d/35/3d356a415249bc77d6b4bd2866bf7041b92e2351787bd7f5edc543af69599a79.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_search_loop_runner_promot0/.polisyos/artifacts/sha256/3d/35/3d356a415249bc77d6b4bd2866bf7041b92e2351787bd7f5edc543af69599a79.view.bf77e57219d7d91981d62a52da61e9bf574e90e0f76e7b0127fc715eb6717486.manifest.json",
+      "bytes": 1648,
+      "sha256": "aae1fb3ebf2f516db35169b42e8f21ddefcffeecc3900e8abf2816ac1f475903",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_search_loop_runner_promot0/.polisyos/artifacts/sha256/3d/35/3d356a415249bc77d6b4bd2866bf7041b92e2351787bd7f5edc543af69599a79.view.bf77e57219d7d91981d62a52da61e9bf574e90e0f76e7b0127fc715eb6717486.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_search_loop_runner_promot0/.polisyos/artifacts/sha256/5c/6d/5c6d9718b6667f61ed5125bb8d8e9255e3a8d236a4f0275ae5b1f8f2a014af4a.blob",
+      "bytes": 109,
+      "sha256": "5c6d9718b6667f61ed5125bb8d8e9255e3a8d236a4f0275ae5b1f8f2a014af4a",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_search_loop_runner_promot0/.polisyos/artifacts/sha256/5c/6d/5c6d9718b6667f61ed5125bb8d8e9255e3a8d236a4f0275ae5b1f8f2a014af4a.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_search_loop_runner_promot0/.polisyos/artifacts/sha256/5c/6d/5c6d9718b6667f61ed5125bb8d8e9255e3a8d236a4f0275ae5b1f8f2a014af4a.view.9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47.manifest.json",
+      "bytes": 647,
+      "sha256": "0b014a35edea09d515da84111349c4136957a88cae81faffa578ba78fb212282",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_search_loop_runner_promot0/.polisyos/artifacts/sha256/5c/6d/5c6d9718b6667f61ed5125bb8d8e9255e3a8d236a4f0275ae5b1f8f2a014af4a.view.9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_search_loop_runner_promot0/.polisyos/artifacts/sha256/67/8d/678df2f6952421574347c3fd9cef84775143172c8ff1fe7bf046c9e260f5d523.blob",
+      "bytes": 99,
+      "sha256": "678df2f6952421574347c3fd9cef84775143172c8ff1fe7bf046c9e260f5d523",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_search_loop_runner_promot0/.polisyos/artifacts/sha256/67/8d/678df2f6952421574347c3fd9cef84775143172c8ff1fe7bf046c9e260f5d523.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_search_loop_runner_promot0/.polisyos/artifacts/sha256/67/8d/678df2f6952421574347c3fd9cef84775143172c8ff1fe7bf046c9e260f5d523.view.686fb28017051d54b9d5f9df54a0bede47e2359f69ea8199edf53dc331583aad.manifest.json",
+      "bytes": 872,
+      "sha256": "2c223f9c222952ae909992b41adfb2de1fcfe67bb5519a8984ea2b50eac38541",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_search_loop_runner_promot0/.polisyos/artifacts/sha256/67/8d/678df2f6952421574347c3fd9cef84775143172c8ff1fe7bf046c9e260f5d523.view.686fb28017051d54b9d5f9df54a0bede47e2359f69ea8199edf53dc331583aad.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_search_loop_runner_promot0/.polisyos/artifacts/sha256/7d/4a/7d4ad86bacd4b2a8a2ea07c5af189b48bd7396d3f48daaeb50c7b42631fd945c.blob",
+      "bytes": 99,
+      "sha256": "7d4ad86bacd4b2a8a2ea07c5af189b48bd7396d3f48daaeb50c7b42631fd945c",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_search_loop_runner_promot0/.polisyos/artifacts/sha256/7d/4a/7d4ad86bacd4b2a8a2ea07c5af189b48bd7396d3f48daaeb50c7b42631fd945c.blob"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_search_loop_runner_promot0/.polisyos/artifacts/sha256/7d/4a/7d4ad86bacd4b2a8a2ea07c5af189b48bd7396d3f48daaeb50c7b42631fd945c.view.686fb28017051d54b9d5f9df54a0bede47e2359f69ea8199edf53dc331583aad.manifest.json",
+      "bytes": 872,
+      "sha256": "0fd5a28a11b898943b07d138c6fe19b466898871b6d036a89707f91e0b2c9a56",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_search_loop_runner_promot0/.polisyos/artifacts/sha256/7d/4a/7d4ad86bacd4b2a8a2ea07c5af189b48bd7396d3f48daaeb50c7b42631fd945c.view.686fb28017051d54b9d5f9df54a0bede47e2359f69ea8199edf53dc331583aad.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/champion/champion-current-fixtures/test_search_loop_runner_promot0/.polisyos/search_registry/dummy_loop/champion.json",
+      "bytes": 1272,
+      "sha256": "ccc6875ec7000ac43980c1848135e1cbf24bd388342c6c6550cb91961ae86678",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/champion/champion-current-fixtures/test_search_loop_runner_promot0/.polisyos/search_registry/dummy_loop/champion.json"
+    },
+    {
+      "path": "oracle-minrefs/controller/controller-current-fixtures/test_measured_provider_charge_0/budget.json",
+      "bytes": 3593,
+      "sha256": "54e3e5996539f4bd824b0e90937a76e6868e0a430364d9900070e4099735e31c",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/controller/controller-current-fixtures/test_measured_provider_charge_0/budget.json"
+    },
+    {
+      "path": "oracle-minrefs/controller/controller-current-fixtures/test_native_paid_funnel_receip0/budget.json",
+      "bytes": 5562,
+      "sha256": "6457d48b30556a02164d9fb1802aaa12a9c825e6abae26a9bddac53acb737c73",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/controller/controller-current-fixtures/test_native_paid_funnel_receip0/budget.json"
+    },
+    {
+      "path": "oracle-minrefs/controller/controller-current-fixtures/test_native_paid_funnel_receip1/budget.json",
+      "bytes": 5562,
+      "sha256": "c883898481202d21eb7709ff72b1050d211f72ba75235476de3adc637a08abbb",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/controller/controller-current-fixtures/test_native_paid_funnel_receip1/budget.json"
+    },
+    {
+      "path": "oracle-minrefs/controller/controller-current-fixtures/test_native_paid_funnel_receip2/budget.json",
+      "bytes": 7270,
+      "sha256": "e8fd0eb66d61179404643ac3a29fc29deb867fb46bf70f8ce95f3af0391872a7",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/controller/controller-current-fixtures/test_native_paid_funnel_receip2/budget.json"
+    },
+    {
+      "path": "oracle-minrefs/controller/controller-current-fixtures/test_native_paid_funnel_receip3/budget.json",
+      "bytes": 7270,
+      "sha256": "55d14503ba772f8c4c870632b3aad37d7fe515a35c2ce44a081968096e7dad4e",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/controller/controller-current-fixtures/test_native_paid_funnel_receip3/budget.json"
+    },
+    {
+      "path": "oracle-minrefs/controller/controller-current-fixtures/test_native_paid_sentinel_stop0/budget.json",
+      "bytes": 3288,
+      "sha256": "39ab6b44a625a575f839c6332877497757d06dbb982aac6b7c2b562bb2e24b5f",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/controller/controller-current-fixtures/test_native_paid_sentinel_stop0/budget.json"
+    },
+    {
+      "path": "oracle-minrefs/controller/controller-current-fixtures/test_real_objective_stack_nati0/cas/artifacts/sha256/0b/c4/0bc4702e9e4fc543cd4c2a04d0b21ccac0e667a7196432bc85d0c73e1dffd6da.blob",
+      "bytes": 3432,
+      "sha256": "0bc4702e9e4fc543cd4c2a04d0b21ccac0e667a7196432bc85d0c73e1dffd6da",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/controller/controller-current-fixtures/test_real_objective_stack_nati0/cas/artifacts/sha256/0b/c4/0bc4702e9e4fc543cd4c2a04d0b21ccac0e667a7196432bc85d0c73e1dffd6da.blob"
+    },
+    {
+      "path": "oracle-minrefs/controller/controller-current-fixtures/test_real_objective_stack_nati0/cas/artifacts/sha256/0b/c4/0bc4702e9e4fc543cd4c2a04d0b21ccac0e667a7196432bc85d0c73e1dffd6da.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "793088acdcd594088f186f25f1d3fc4ef663ff7c079344239721e791fcd6d6ab",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/controller/controller-current-fixtures/test_real_objective_stack_nati0/cas/artifacts/sha256/0b/c4/0bc4702e9e4fc543cd4c2a04d0b21ccac0e667a7196432bc85d0c73e1dffd6da.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/controller/controller-current-fixtures/test_real_objective_stack_nati1/cas/artifacts/sha256/f7/6b/f76b3765694e80105882276659744a61273c44b9e6a4d85dfdd745be5b28c711.blob",
+      "bytes": 3446,
+      "sha256": "f76b3765694e80105882276659744a61273c44b9e6a4d85dfdd745be5b28c711",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/controller/controller-current-fixtures/test_real_objective_stack_nati1/cas/artifacts/sha256/f7/6b/f76b3765694e80105882276659744a61273c44b9e6a4d85dfdd745be5b28c711.blob"
+    },
+    {
+      "path": "oracle-minrefs/controller/controller-current-fixtures/test_real_objective_stack_nati1/cas/artifacts/sha256/f7/6b/f76b3765694e80105882276659744a61273c44b9e6a4d85dfdd745be5b28c711.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "2a8003e5457c4db8a1b35a1bc945c8067985ed0813b7fa6780565887a7abaf4b",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/controller/controller-current-fixtures/test_real_objective_stack_nati1/cas/artifacts/sha256/f7/6b/f76b3765694e80105882276659744a61273c44b9e6a4d85dfdd745be5b28c711.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/controller/controller-current-fixtures/test_real_objective_stack_nati2/cas/artifacts/sha256/81/99/81997df05ffb060e9b2790c3aff1044e58e163e92fce94df578ae47916da11eb.blob",
+      "bytes": 4014,
+      "sha256": "81997df05ffb060e9b2790c3aff1044e58e163e92fce94df578ae47916da11eb",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/controller/controller-current-fixtures/test_real_objective_stack_nati2/cas/artifacts/sha256/81/99/81997df05ffb060e9b2790c3aff1044e58e163e92fce94df578ae47916da11eb.blob"
+    },
+    {
+      "path": "oracle-minrefs/controller/controller-current-fixtures/test_real_objective_stack_nati2/cas/artifacts/sha256/81/99/81997df05ffb060e9b2790c3aff1044e58e163e92fce94df578ae47916da11eb.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 651,
+      "sha256": "f112a4f512b1b01d908d8ce3ba8d166e34b9c3264cf2ac57190330177384c956",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/controller/controller-current-fixtures/test_real_objective_stack_nati2/cas/artifacts/sha256/81/99/81997df05ffb060e9b2790c3aff1044e58e163e92fce94df578ae47916da11eb.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/controller/controller-current-fixtures/test_real_objective_stack_nati3/cas/artifacts/sha256/ee/c4/eec477d03bf6bc16535e4556861f3472ae1584bd0fab1907d9f73f1b74251e79.blob",
+      "bytes": 19051,
+      "sha256": "eec477d03bf6bc16535e4556861f3472ae1584bd0fab1907d9f73f1b74251e79",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/controller/controller-current-fixtures/test_real_objective_stack_nati3/cas/artifacts/sha256/ee/c4/eec477d03bf6bc16535e4556861f3472ae1584bd0fab1907d9f73f1b74251e79.blob"
+    },
+    {
+      "path": "oracle-minrefs/controller/controller-current-fixtures/test_real_objective_stack_nati3/cas/artifacts/sha256/ee/c4/eec477d03bf6bc16535e4556861f3472ae1584bd0fab1907d9f73f1b74251e79.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json",
+      "bytes": 652,
+      "sha256": "4be2c77040ba0687acc59728a2a0413ccae4841f043ac050428cf9c198fe77cc",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/controller/controller-current-fixtures/test_real_objective_stack_nati3/cas/artifacts/sha256/ee/c4/eec477d03bf6bc16535e4556861f3472ae1584bd0fab1907d9f73f1b74251e79.view.d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a.manifest.json"
+    },
+    {
+      "path": "oracle-minrefs/controller/controller-current-fixtures/test_repeated_native_runs_rese0/budget.json",
+      "bytes": 1240,
+      "sha256": "cb0cddbcfb85c8c64f697e3adce6f700ee6d26780ca9813691e828da3b265e5c",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/controller/controller-current-fixtures/test_repeated_native_runs_rese0/budget.json"
+    },
+    {
+      "path": "oracle-minrefs/controller/controller-current-fixtures/test_trace_cost_one_without_se0/budget.json",
+      "bytes": 2438,
+      "sha256": "8dfbac65c3e1612b637fad756e4bd37b13cbfe09f83497e45b8ab0bf6a525051",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/controller/controller-current-fixtures/test_trace_cost_one_without_se0/budget.json"
+    },
+    {
+      "path": "oracle-minrefs/controller/controller-current-fixtures/test_two_paid_runs_on_same_con0/one-mutable-controller/budget.json",
+      "bytes": 10221,
+      "sha256": "1b18b2303952f47a8b7b983c873a93d77a1a0c9041c3cab40b0240f8ef517099",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/controller/controller-current-fixtures/test_two_paid_runs_on_same_con0/one-mutable-controller/budget.json"
+    },
+    {
+      "path": "oracle-minrefs/controller/controller-current-fixtures/test_two_paid_runs_on_same_con0/two-fresh-controllers/budget.json",
+      "bytes": 10221,
+      "sha256": "d021a5ec927f885c0ab22d4306c391180e3256088af4beca025d527a1f25937f",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs/controller/controller-current-fixtures/test_two_paid_runs_on_same_con0/two-fresh-controllers/budget.json"
+    },
+    {
+      "path": "oracle-minrefs-manifest.json",
+      "bytes": 106678,
+      "sha256": "0b245ce0c7cfb0d358e95493cfaaf0cf6b3d5b250b6b9edde4882a55ca898b8c",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/oracle-minrefs-manifest.json"
+    },
+    {
+      "path": "original50-primary4-carry.derived.json",
+      "bytes": 52646,
+      "sha256": "2537f1508a9a2dea6781f499f10a5271aefe27350e0cf65c6f8b31c912070cba",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/original50-primary4-carry.derived.json"
+    },
+    {
+      "path": "own11-original-criteria-current-matrix.v3.json",
+      "bytes": 59107,
+      "sha256": "05c27a6d9104a079012be73701d28f341ec465f0418208b8323e9c12a622e8eb",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/own11-original-criteria-current-matrix.v3.json"
+    },
+    {
+      "path": "owner-census.json",
+      "bytes": 2970,
+      "sha256": "52f86f48868ff400b002ad95914998c6043fc30214c106d374660ad0e255390d",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/owner-census.json"
+    },
+    {
+      "path": "reached-closure-proof.derived.json",
+      "bytes": 45715,
+      "sha256": "be7e03721879cddaa68a7773f55f0ceb149faa7e10f6474fd255a79e04f41088",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/reached-closure-proof.derived.json"
+    },
+    {
+      "path": "reviews/current25-21-own11v2-independent-review.json",
+      "bytes": 20927,
+      "sha256": "a51bc8c23d7597870b2b4d7e3aa089b4691051073f412cb7a8b4065376cf9484",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/reviews/current25-21-own11v2-independent-review.json"
+    },
+    {
+      "path": "reviews/financial-A7-selected-call-edge-independent-review.json",
+      "bytes": 2405,
+      "sha256": "473971e819d10f7322d555f873419e027825825183116279448b30dec6ca4b00",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/reviews/financial-A7-selected-call-edge-independent-review.json"
+    },
+    {
+      "path": "reviews/own11-v3-final5b-independent-review.json",
+      "bytes": 4603,
+      "sha256": "7cda275a6e4562b45275e51effc659274002f19f54fc97d6b7a08353651e399c",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/reviews/own11-v3-final5b-independent-review.json"
+    },
+    {
+      "path": "source-footprint.json",
+      "bytes": 17600,
+      "sha256": "690e04cb220f74bcd08bad935a61747d944c0d260bb2a8561827241972637483",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/source-footprint.json"
+    },
+    {
+      "path": "tokenizer-input.json",
+      "bytes": 414,
+      "sha256": "d8b23aa9475933426fac47ee43236ab68343df6ea3381abae67809046acf92df",
+      "origin_path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/tokenizer-input.json"
+    }
+  ],
+  "essential_representation": "Full literal deciding stdout/stderr/JUnit/full case phases and selected raw oracle minrefs. Complete argv/env/backend/resource fields delivered in explicit derived subset. Giant full input/origin/catalog maps remain independently reviewed raw outside Git at exact external hashes. No tracked source copies or unobserved dataset transfers.",
+  "raw_original_dictionary_boundary": "Explicit derived objects have new SHA and preserved raw original path/hash, not silently retagged as original complete command/origin dictionaries.",
+  "excluded_external_unaccepted_draft": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/service/essential-stage/champion-final-pointer-absence.derived.json",
+    "bytes": 3,
+    "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "reason": "Early empty partial derived collection draft, never a deciding output; corrected final absence list is inside delivery. Original retained externally, no deletion."
+  }
+}

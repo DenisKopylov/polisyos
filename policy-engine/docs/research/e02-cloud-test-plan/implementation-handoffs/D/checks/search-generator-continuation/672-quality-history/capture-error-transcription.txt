@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "<stdin>", line 11, in <module>
+AssertionError
+Tool-reported error transcribed; subprocess identity/result/stdout were not persisted. No inherited-red attribution.

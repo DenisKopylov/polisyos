@@ -1,0 +1,130 @@
+"""Stdlib-only frozen OPT01 capture; backend imports stay in the pytest child."""
+
+import ast
+import datetime
+import hashlib
+import importlib.metadata
+import json
+import os
+from pathlib import Path
+import shlex
+import subprocess
+import sys
+import time
+import uuid
+import xml.etree.ElementTree as ET
+
+ROOT = Path('/workspace/e02-D-published-search')
+PRODUCT = ROOT / 'policy-engine'
+SOURCE = 'c3fe956011df8185c226155b86488294fe16143e'
+BASE = '243ca4e04d6fcb2cbe8c9494e68f06c75fe749a3'
+PYTHON = '/workspace/e02-D-locked-env/bin/python'
+HERE = Path(__file__).resolve().parent
+ENV = dict(os.environ, PYTHONPATH='src:.', PYTHONDONTWRITEBYTECODE='1',
+           TIKTOKEN_CACHE_DIR='/workspace/e02-D2-receipts/tokenizer')
+OBSERVER = PRODUCT / 'docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-canonical-243/capture_plugin.py.txt'
+PLAN = PRODUCT / 'docs/research/e02-cloud-test-plan/closure-decisions/D.md'
+TEST = 'policy-engine/tests/unit/scientist/methods/autotune/test_pareto.py'
+NAMES = ['test_unassessed_candidate_cannot_be_reported_as_not_dominated',
+         'test_empty_and_invalid_front_preserves_schema_as_incomplete',
+         'test_non_finite_and_missing_metrics_are_excluded_from_numeric_front',
+         'test_mixed_objective_coverage_is_typed_and_keeps_finite_front',
+         'test_duplicate_invalid_candidate_refs_keep_distinct_input_positions']
+
+BOOTSTRAP = '''import hashlib,json,runpy,subprocess,sys
+from pathlib import Path
+import pytest
+root,source,observer,event,mode,*arguments=sys.argv[1:]
+Observer=runpy.run_path(observer)['Observer']
+class Measurement(Observer):
+ def pytest_sessionfinish(self,session,exitstatus):
+  origins={}
+  for name in ['polisyos.scientist.methods.autotune.pareto','polisyos.scientist.methods.autotune.models','polisyos.core.artifacts.store','polisyos.core.canon.canon_json']:
+   path=Path(sys.modules[name].__file__).resolve()
+   relative=path.relative_to(root).as_posix()
+   data=subprocess.check_output(['git','show',source+':'+relative],cwd=root)
+   origins[name]={'path':str(path),'git_path':relative,'sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'git_match':data==path.read_bytes()}
+   assert origins[name]['git_match']
+  self.emit('session_finish',exitstatus=int(exitstatus),native_origins=origins)
+if mode=='remove_property':
+ from polisyos.scientist.methods.autotune.pareto import ParetoPromoter
+ original=ParetoPromoter._assess_objective_vector
+ def replace_unusable_with_zero(self,evaluation):
+  vector,missing,nonfinite=original(self,evaluation)
+  return (tuple(0.0 for _ in self._policies),[],[]) if vector is None else (vector,missing,nonfinite)
+ ParetoPromoter._assess_objective_vector=replace_unusable_with_zero
+ print('PROPERTY_REMOVAL: unusable required coordinates become zero; metadata, strict CAS reader and tests unchanged',flush=True)
+raise SystemExit(pytest.main(arguments,plugins=[Measurement(event)]))
+'''
+
+
+def git(*args):
+    return subprocess.check_output(['git',*args],cwd=ROOT,text=True).strip()
+
+
+def fingerprint(path):
+    data=path.read_bytes()
+    return {'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}
+
+
+def snapshot():
+    result={'head':git('rev-parse','HEAD'),'tree':git('rev-parse','HEAD^{tree}'),
+            'branch':git('symbolic-ref','--short','HEAD'),
+            'tracked_status':git('status','--porcelain','--untracked-files=no'),
+            'product_delta_from_base':git('diff',BASE,'--name-only','--','policy-engine/src'),
+            'utc':datetime.datetime.now(datetime.UTC).isoformat()}
+    assert result['head']==SOURCE and not result['tracked_status'] and not result['product_delta_from_base'],result
+    return result
+
+
+def run(mode):
+    before=snapshot()
+    lines=PLAN.read_text().splitlines()
+    index=next(i for i,line in enumerate(lines) if line.startswith('### OPT-01'))
+    line=next(line for line in lines[index:] if line.startswith('cd policy-engine && python -m pytest '))
+    literal=shlex.split(line.split(' && ',1)[1])[3:]
+    args=literal if mode=='canonical' else ['-q',*[f'tests/unit/scientist/methods/autotune/test_pareto.py::TestParetoFront::{name}' for name in NAMES],'-ra']
+    directory=HERE/mode
+    directory.mkdir(exist_ok=False)
+    basetemp=Path('/dev/shm')/f'search-opt01-v2-{mode}-{uuid.uuid4().hex}'
+    assert not basetemp.exists()
+    args=[*args,'-o','addopts=','--import-mode=importlib','--strict-markers','--basetemp',str(basetemp),'--junitxml',str(directory/'junit.xml'),'-rA']
+    argv=[PYTHON,'-B','-c',BOOTSTRAP,str(ROOT),SOURCE,str(OBSERVER),str(directory/'events.jsonl.txt'),mode,*args]
+    start=time.monotonic()
+    with (directory/'complete.txt').open('xb') as stream:
+        child=subprocess.run(argv,cwd=PRODUCT,env=ENV,stdout=stream,stderr=subprocess.STDOUT)
+    after=snapshot()
+    cases=list(ET.parse(directory/'junit.xml').iter('testcase'))
+    counts={'tests':len(cases),'failed':sum(c.find('failure') is not None for c in cases),'errors':sum(c.find('error') is not None for c in cases),'skipped':sum(c.find('skipped') is not None for c in cases)}
+    counts['passed']=counts['tests']-counts['failed']-counts['errors']-counts['skipped']
+    result={'mode':mode,'canonical_command':line,'argv':argv,'equivalent_pytest_argv':[PYTHON,'-B','-m','pytest',*args],
+            'basetemp':str(basetemp),'basetemp_existed_before':False,'exit_code':child.returncode,'wall_seconds':time.monotonic()-start,
+            'source_before':before,'source_after':after,'junit_counts':counts,
+            'outputs':{name:fingerprint(directory/name) for name in ['complete.txt','events.jsonl.txt','junit.xml']}}
+    (directory/'result.json').write_text(json.dumps(result,indent=2)+'\n')
+    print(json.dumps({'mode':mode,'exit_code':child.returncode,'counts':counts,'wall_seconds':result['wall_seconds']}),flush=True)
+
+
+if __name__=='__main__':
+    mode=sys.argv[1]
+    if mode=='metadata':
+        result={'python':sys.version,'executable':sys.executable,'source':snapshot(),
+                'packages':{name:importlib.metadata.version(name) for name in ['pytest','ruff','torch','botorch','gpytorch','numpy','scipy','pydantic']},
+                'environment':{name:ENV.get(name) for name in ['PYTHONPATH','PYTHONDONTWRITEBYTECODE','TIKTOKEN_CACHE_DIR','OMP_NUM_THREADS','MKL_NUM_THREADS','OPENBLAS_NUM_THREADS','NUMEXPR_NUM_THREADS','POLISYOS_PYTEST_WORKERS','PYTEST_ADDOPTS']},
+                'observer':fingerprint(OBSERVER),'capture':fingerprint(Path(__file__)),'limits_added':False}
+        old=ast.parse(subprocess.check_output(['git','show',BASE+':'+TEST],cwd=ROOT,text=True))
+        new=ast.parse((ROOT/TEST).read_text())
+        functions=lambda tree:{node.name:node for node in ast.walk(tree) if isinstance(node,ast.FunctionDef)}
+        a,b=functions(old),functions(new)
+        changes=[]
+        for name in a:
+            if ast.dump(a[name])!=ast.dump(b[name]): changes.append(name)
+            original=[ast.dump(node) for node in ast.walk(a[name]) if isinstance(node,ast.Assert)]
+            current=[ast.dump(node) for node in ast.walk(b[name]) if isinstance(node,ast.Assert)]
+            assert original==current,name
+        assert set(changes)==set(NAMES),changes
+        result.update(changed_existing_functions=changes,original_assertion_ast='identical',added_functions=sorted(b.keys()-a.keys()))
+        (HERE/'environment.json').write_text(json.dumps(result,indent=2)+'\n')
+        print(json.dumps({'source':result['source']['head'],'assertions':'identical','packages':result['packages']}))
+    else:
+        run(mode)

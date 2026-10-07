@@ -1,0 +1,64 @@
+{
+  "decision": "GO_STATIC_ONLY_RUNTIME_UNRUN",
+  "reviewer": "/root/census_oct07",
+  "author": "/root/funnel_oct07",
+  "execution": "No pytest, native producer or product effect executed by this review",
+  "base": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "patch": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/native-node-consumer15-cbc-v2.patch",
+    "sha256": "c8f6e9119daa66a0b7b5e0813f96329b038d18993da61e3dc7017c7813323046",
+    "bytes": 15643,
+    "apply_check_exit": 0,
+    "new_test_sha256": "9064a24f731419ba510e63368edb4bea967cd56ada63dbb7f210c6820316a069"
+  },
+  "negative": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/remove_node_resource_owner.py",
+    "sha256": "2e6053cd23f32af94636eccd235941693d4ee8f8b3945e3f4d686040e2cd7bc9",
+    "effect": "Only Node constructor budget_middleware argument set to None; real context owner/native worker fallback/physical paid ledger remain",
+    "planned_cells": 4,
+    "expected_property_failure": "Financial projection loses settled amount; explicit not-None assertion prevents incidental Decimal TypeError from serving as discriminator"
+  },
+  "helper": {
+    "path": "/dev/shm/e02-D-oct07-continuation/policy-engine/tests/unit/remediation/test_fun_03.py",
+    "sha256": "5fb8e1471b980a5bda16a473e57710875f73847dd160e703bca0c6e7ee4c2c1c",
+    "scientific_evidence_authority": "controlled nonfinancial boundaries; no native draw/refinement/permit positive",
+    "actual_kept": "Literal Node, real workflow engine, L3/L4 funnel adapters, actual configured native workers, Gateway decoder, canonical B1.2 ledger, returned state and fresh CAS"
+  },
+  "cells": {
+    "paid_or_zero_full_split": 4,
+    "empty_or_capped": 2,
+    "width_states": 5,
+    "optional_verdict": 2,
+    "tiny_unknown": 2,
+    "total": 15
+  },
+  "P37": {
+    "basis": "producer supplied by controlled adapter observer; existing native worker physically consumes actual stage evaluation ID and owner; ledger and returned Node projection independently compared to two physical events × declared fixture cost",
+    "oracle": "Decimal(cost) times actual two event denominator; fresh ledger receipt IDs and fresh ExperimentState CAS readback",
+    "scientific_authority": "not_established; no equation/issuer claim"
+  },
+  "P38": {
+    "divergence": "Removing only Node-to-Funnel owner port retains debit while returned projection fails",
+    "retained_markers": [
+      "context owner",
+      "actual worker transport",
+      "durable receipt",
+      "stage event identity",
+      "scientific fixture output",
+      "CAS state"
+    ]
+  },
+  "scope_limits": [
+    "Test-only source addition; no production source repair",
+    "The default scientific backend issuing paid calls is not established; observer deliberately adds native worker",
+    "Known controlled scientific/early stages and promotion evidence are not authority positives",
+    "No claim to whole FUN family closure from these fifteen cells alone",
+    "B157 producer_missing, B161 refinement not_established, B164 authority not_established remain held"
+  ],
+  "companion": {
+    "internal_classification": "accurate; no public signature/DTO change",
+    "inventory_true": "Supported by independently verified exact G980 scientist42 review and unchanged facade/inventory/contract; no ABI regeneration",
+    "README_scope": "Explicitly states controlled producer addition and held independent inputs"
+  },
+  "format_reconciliation": "Formatted v2 test parsed; declared test hash exact; semantic predicates and 15-cell denominator retained; ordinary helper contains no FunnelOrchestrator/workflow-engine replacement"
+}

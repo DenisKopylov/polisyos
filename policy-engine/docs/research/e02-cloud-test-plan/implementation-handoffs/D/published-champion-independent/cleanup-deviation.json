@@ -1,0 +1,13 @@
+{
+  "status": "recorded_cleanup_deviation_no_further_cleanup",
+  "instruction": "Root relayed user native Trash ONLY restriction after the listed removal command had completed; absent native Trash, return exact candidates.",
+  "permanently_removed_paths": [
+    "/workspace/e02-D2-receipts/q3-independent/immutable-af3f4f9234bb-callback-af3-red",
+    "/workspace/e02-D2-receipts/q3-independent/immutable-b328bb9abee3-callback-b328-green",
+    "/workspace/e02-D2-receipts/q3-independent/callback-b328-green.tar"
+  ],
+  "operations": "Own completed/failed exported archive directories removed with shutil.rmtree, temporary tar unlinked. The regenerated tar at the same path was also unlinked by the already-started original capture driver after extraction.",
+  "retained": "All completed deciding pytest/environment/hash manifests. All immutable Git source objects and all checkouts/production bytes retained. Failed partial archive was pre-test only.",
+  "subsequent_action": "Stop all deletion/cleanup. New minimal exact Git inputs and temporary tar retained under /dev/shm. Driver no longer deletes its tar or exported directory.",
+  "limitations": "The deleted first red exported directory cannot be inspected in place; exact Git source and proof bytes plus complete captured output/module origins/hashes remain reviewable. No deletion is described as native Trash."
+}

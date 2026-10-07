@@ -1,0 +1,26 @@
+{
+  "source_sha": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+  "oracle_sha": "5e93c25cb78714b4d8e121bdf7e401c5a1b6cc73",
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "tests/integration/scientist/methods/search/stress_property_removal_probe.py",
+    "example_fraction",
+    "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+    "-q",
+    "tests/unit/scientist/search/test_challenge_scenario_projection.py",
+    "-k",
+    "ten_same_issue",
+    "--basetemp",
+    "/dev/shm/e02-D-removal-example_fraction-b579b9f2c2374b81b79a04962085b0fe",
+    "--junitxml",
+    "/workspace/e02-D3-receipts/stress/removal-example_fraction-junit.xml"
+  ],
+  "environment": {
+    "PYTHONPATH": "src:.",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "executable": "/workspace/e02-D-locked-env/bin/python"
+  },
+  "exit_code": 1,
+  "wall_seconds": 23.816039700992405,
+  "peak_rss_kib": 835348
+}

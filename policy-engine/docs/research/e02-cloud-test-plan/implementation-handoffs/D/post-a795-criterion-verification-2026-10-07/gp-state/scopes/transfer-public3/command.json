@@ -1,0 +1,68 @@
+{
+  "actual_cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "actual_numeric_thread_env_no_caps": {
+    "MKL_NUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null,
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null
+  },
+  "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "assessed_product_tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+  "backend": {
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "hnswlib": "0.8.0",
+    "numpy": "2.3.5",
+    "pytest": "9.0.2",
+    "scipy": "1.16.3",
+    "torch": "2.10.0"
+  },
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "env_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine"
+  },
+  "executable": "/workspace/e02-D-locked-env/bin/python",
+  "harness_file": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/run_current_owner_transfer.py",
+  "harness_sha256": "abf9d1d335105cd2ca85a0d4d109b8049fdbf43b07279fa972b4f6dee54d9b28",
+  "new_posterior_oracle": "Current selected analytic original-unit fullcovariance only when defining selector actually executes; older other core receipts remain source-qualified separately",
+  "profile": "existing supported CPU/sequential owner profiles; locked currentversion; no scientific/source/tenant authority",
+  "pytest_argv": [
+    "-o",
+    "addopts=",
+    "-p",
+    "no:cacheprovider",
+    "-q",
+    "-s",
+    "-ra",
+    "--basetemp=/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/transfer-public3/basetemp",
+    "--junitxml=/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/transfer-public3/junit.xml",
+    "tests/unit/scientist/methods/autotune/test_transfer_workflow.py"
+  ],
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "scope_plan": {
+    "property": "Original TRN01 receiving public SearchLoopRunner configured transfer_manager \u2192 exact CAS8/7 rows \u2192 real locked SingleTaskGP MLL \u2192 native wrapperv3 CAS fresh restore/same next; altered outcome exact-ref refusal before fit. Separate original consumer from SearchController.",
+    "selectors": [
+      "tests/unit/scientist/methods/autotune/test_transfer_workflow.py"
+    ]
+  },
+  "source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "sys_path": [
+    "/dev/shm/e02-D-post-a795-88ghpj7t/gp",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine/src",
+    "/dev/shm/e02-D-oct07-continuation/policy-engine",
+    "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python314.zip",
+    "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14",
+    "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/lib-dynload",
+    "/workspace/e02-D-locked-env/lib/python3.14/site-packages"
+  ],
+  "torch_interop_threads_before": 5,
+  "torch_threads_before": 5,
+  "tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+  "wrapper_argv": [
+    "/dev/shm/e02-D-post-a795-88ghpj7t/gp/run_current_owner_transfer.py",
+    "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+    "/dev/shm/e02-D-post-a795-88ghpj7t/gp/current-wave/transfer-public3",
+    "transfer-public3"
+  ]
+}

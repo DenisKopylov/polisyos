@@ -1,0 +1,62 @@
+REMOVAL: actual owner/preflight/key/receipt/unknown-intent/oldCAS/generator/history retained; only post-rollback canonical accounting refresh removed
+F
+=================================== FAILURES ===================================
+_ test_actual_owner_change_after_ask_preflight_is_not_rolled_back_to_known_zero _
+
+tmp_path = PosixPath('/dev/shm/e02-D-oct07-service-start/final-native-b652/rollback-removal-discovery-fixtures/test_actual_owner_change_after0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fb0968688a0>
+
+    def test_actual_owner_change_after_ask_preflight_is_not_rolled_back_to_known_zero(
+        tmp_path, monkeypatch
+    ):
+        zero_gateway, path, zero = _actual_operation(tmp_path, "0")
+        _physical_call(zero)
+        runner, store, suite, evaluator, spec = _runner(tmp_path, path)
+        service = runner.create_service(spec, suite_ref=suite, max_iterations=3)
+        proposal = service.ask(None, None, {})[0]
+        before_ref = service.checkpoint_ref
+        before_bytes = store.get_bytes(before_ref)
+        before_pending = deepcopy(service._pending_candidates)
+        before_generator = deepcopy(spec.candidate_generator.get_state())
+        gateway, _, unresolved = _actual_operation(tmp_path, "1e-1000")
+        owner = service.controller._config.budget_middleware
+        original = owner.pre_check
+        visits = []
+    
+        def admit_then_actual_owner_changes(alias, budget_key="run"):
+            result = original(alias, budget_key)
+            visits.append((alias, budget_key))
+            if len(visits) == 1:
+                # Exact barrier seam: the real owner admitted preflight, then an
+                # obtained physical completion retained its actual unknown amount.
+                with pytest.raises(LLMAccountingError):
+                    _physical_call(unresolved)
+            return result
+    
+        monkeypatch.setattr(owner, "pre_check", admit_then_actual_owner_changes)
+        with pytest.raises(BudgetLedgerCompletionRequiredError):
+            service.ask(None, None, {})
+        assert len(visits) == 1 and visits[0][1] == "run"
+        assert spec.candidate_generator.get_state() == before_generator
+        assert (
+            service._pending_candidates == before_pending == {proposal.candidate_id: proposal.payload}
+        )
+        assert evaluator.calls == [] and service.controller._history == []
+        assert service.checkpoint_ref == before_ref and store.get_bytes(before_ref) == before_bytes
+>       assert service.controller._run_state.budget_spent is None
+E       AssertionError: assert 0.0 is None
+E        +  where 0.0 = SearchRunState(search_id='f6886bcd', status=<SearchStatus.RUNNING: 'running'>, history=[], best_candidate=None, best_o...00561645', budget_ledger_revision=None, policy_evaluation_errors=0, generation_transition=None, pareto_projection=None).budget_spent
+E        +    where SearchRunState(search_id='f6886bcd', status=<SearchStatus.RUNNING: 'running'>, history=[], best_candidate=None, best_o...00561645', budget_ledger_revision=None, policy_evaluation_errors=0, generation_transition=None, pareto_projection=None) = <polisyos.scientist.methods.search.controller.SearchController object at 0x7fb0811c2660>._run_state
+E        +      where <polisyos.scientist.methods.search.controller.SearchController object at 0x7fb0811c2660> = <polisyos.scientist.methods.search.service.NativeSearchService object at 0x7fb0811c2900>.controller
+
+tests/unit/scientist/methods/search/test_service_owner_budget_factory.py:203: AssertionError
+=============================== warnings summary ===============================
+../../../../tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/search/test_service_owner_budget_factory.py::test_actual_owner_change_after_ask_preflight_is_not_rolled_back_to_known_zero
+1 failed, 1 warning in 1.75s

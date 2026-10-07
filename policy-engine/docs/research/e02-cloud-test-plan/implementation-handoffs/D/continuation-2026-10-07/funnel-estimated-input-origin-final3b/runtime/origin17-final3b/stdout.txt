@@ -1,0 +1,126 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.0.2, pluggy-1.6.0 -- /tmp/e02-D-runtime-minimal-20261006/bin/python
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/dev/shm/e02-D-oct07-continuation/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /dev/shm/e02-D-oct07-continuation/policy-engine
+configfile: pytest.ini
+plugins: xdist-3.8.0, benchmark-5.2.3, asyncio-1.3.0, langsmith-0.6.0, jaxtyping-0.3.4, hypothesis-6.151.2, anyio-4.12.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 17 items
+
+tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-estimated-None-estimated0-not_reported-estimated] PASSED [  5%]
+tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-reported_zero-reported1-None-reported-not_estimated] PASSED [ 11%]
+tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-reported_quarter-reported2-None-reported-not_estimated] PASSED [ 17%]
+tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-estimated-None-estimated0-not_reported-estimated] PASSED [ 23%]
+tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-reported_zero-reported1-None-reported-not_estimated] PASSED [ 29%]
+tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-reported_quarter-reported2-None-reported-not_estimated] PASSED [ 35%]
+tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_zero_estimate_is_not_a_provider_reported_zero PASSED [ 41%]
+tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_two_native_input_origins_keep_independent_subset_amounts PASSED [ 47%]
+tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_unknown_amount_preserves_component_absence_and_partial_input[None] PASSED [ 52%]
+tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_unknown_amount_preserves_component_absence_and_partial_input[reported_quarter] PASSED [ 58%]
+tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_unknown_amount_preserves_component_absence_and_partial_input[estimated] PASSED [ 64%]
+tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_native_policy_callers_full_split_actual_events_and_fresh_reopen PASSED [ 70%]
+tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_actual_spend_does_not_resume_but_released_owned_capacity_rechecks_remaining_work PASSED [ 76%]
+tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py::test_actual_native_pending_receipt_survives_blueprint_json_and_fresh_cas[False] PASSED [ 82%]
+tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py::test_actual_native_pending_receipt_survives_blueprint_json_and_fresh_cas[True] PASSED [ 88%]
+tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py::test_native_factory_unknown_amount_remains_null_pending_after_fresh_blueprint_cas[1e-1000] PASSED [ 94%]
+tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py::test_native_factory_unknown_amount_remains_null_pending_after_fresh_blueprint_cas[-1e-1000] PASSED [100%]
+
+=============================== warnings summary ===============================
+../../../../tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+_ test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-estimated-None-estimated0-not_reported-estimated] _
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 14:44:25.656 | ERROR    | polisyos.common.logger:_call:120 - L3 workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual settlement acknowledgement unavailable
+
+_ test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-reported_zero-reported1-None-reported-not_estimated] _
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 14:44:25.699 | ERROR    | polisyos.common.logger:_call:120 - L3 workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual settlement acknowledgement unavailable
+
+_ test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-reported_quarter-reported2-None-reported-not_estimated] _
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 14:44:25.718 | ERROR    | polisyos.common.logger:_call:120 - L3 workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual settlement acknowledgement unavailable
+
+_ test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-estimated-None-estimated0-not_reported-estimated] _
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 14:44:25.736 | ERROR    | polisyos.common.logger:_call:120 - L3 workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual settlement acknowledgement unavailable
+
+_ test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-reported_zero-reported1-None-reported-not_estimated] _
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 14:44:25.755 | ERROR    | polisyos.common.logger:_call:120 - L3 workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual settlement acknowledgement unavailable
+
+_ test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-reported_quarter-reported2-None-reported-not_estimated] _
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 14:44:25.774 | ERROR    | polisyos.common.logger:_call:120 - L3 workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual settlement acknowledgement unavailable
+
+__________ test_native_zero_estimate_is_not_a_provider_reported_zero ___________
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 14:44:25.795 | ERROR    | polisyos.common.logger:_call:120 - L3 workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual settlement acknowledgement unavailable
+
+________ test_two_native_input_origins_keep_independent_subset_amounts _________
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 14:44:25.813 | ERROR    | polisyos.common.logger:_call:120 - L3 workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual settlement acknowledgement unavailable
+
+2026-10-07 14:44:25.825 | ERROR    | polisyos.common.logger:_call:120 - ExpensiveStage workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual settlement acknowledgement unavailable
+
+_ test_native_unknown_amount_preserves_component_absence_and_partial_input[None] _
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 14:44:25.849 | ERROR    | polisyos.common.logger:_call:120 - L3 workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual provider amount is unknown; retain the obtained operation
+
+_ test_native_unknown_amount_preserves_component_absence_and_partial_input[reported_quarter] _
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 14:44:25.865 | ERROR    | polisyos.common.logger:_call:120 - L3 workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual provider amount is unknown; retain the obtained operation
+
+2026-10-07 14:44:25.888 | ERROR    | polisyos.common.logger:_call:120 - ExpensiveStage workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual settlement acknowledgement unavailable
+
+_ test_native_unknown_amount_preserves_component_absence_and_partial_input[estimated] _
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 14:44:25.907 | ERROR    | polisyos.common.logger:_call:120 - L3 workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual provider amount is unknown; retain the obtained operation
+
+2026-10-07 14:44:25.918 | ERROR    | polisyos.common.logger:_call:120 - ExpensiveStage workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual settlement acknowledgement unavailable
+
+_____ test_native_policy_callers_full_split_actual_events_and_fresh_reopen _____
+------------------------------ Captured log call -------------------------------
+WARNING  polisyos.core.observability._metrics_registry_base:_metrics_registry_base.py:263 Prometheus metrics exporter disabled after bootstrap failure: [Errno 98] Address already in use
+_ test_actual_native_pending_receipt_survives_blueprint_json_and_fresh_cas[False] _
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 14:44:26.107 | ERROR    | polisyos.common.logger:_call:120 - L3 workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual settlement acknowledgment unavailable
+
+_ test_actual_native_pending_receipt_survives_blueprint_json_and_fresh_cas[True] _
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 14:44:26.125 | ERROR    | polisyos.common.logger:_call:120 - L3 workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual settlement acknowledgment unavailable
+
+_ test_native_factory_unknown_amount_remains_null_pending_after_fresh_blueprint_cas[1e-1000] _
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 14:44:26.142 | ERROR    | polisyos.common.logger:_call:120 - L3 workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual provider amount is unknown; retain the obtained operation
+
+_ test_native_factory_unknown_amount_remains_null_pending_after_fresh_blueprint_cas[-1e-1000] _
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 14:44:26.159 | ERROR    | polisyos.common.logger:_call:120 - L3 workflow failed: LLM provider result received but mandatory accounting failed; reconciliation required: actual provider amount is unknown; retain the obtained operation
+
+-- generated xml file: /dev/shm/e02-D-funnel-oct07/origin17-final3b.junit.xml --
+=========================== short test summary info ============================
+PASSED tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-estimated-None-estimated0-not_reported-estimated]
+PASSED tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-reported_zero-reported1-None-reported-not_estimated]
+PASSED tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-reported_quarter-reported2-None-reported-not_estimated]
+PASSED tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-estimated-None-estimated0-not_reported-estimated]
+PASSED tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-reported_zero-reported1-None-reported-not_estimated]
+PASSED tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-reported_quarter-reported2-None-reported-not_estimated]
+PASSED tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_zero_estimate_is_not_a_provider_reported_zero
+PASSED tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_two_native_input_origins_keep_independent_subset_amounts
+PASSED tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_unknown_amount_preserves_component_absence_and_partial_input[None]
+PASSED tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_unknown_amount_preserves_component_absence_and_partial_input[reported_quarter]
+PASSED tests/integration/scientist/methods/search/funnel/test_resource_input_origins.py::test_native_unknown_amount_preserves_component_absence_and_partial_input[estimated]
+PASSED tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_native_policy_callers_full_split_actual_events_and_fresh_reopen
+PASSED tests/integration/scientist/methods/search/funnel/test_orchestrator.py::test_actual_spend_does_not_resume_but_released_owned_capacity_rechecks_remaining_work
+PASSED tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py::test_actual_native_pending_receipt_survives_blueprint_json_and_fresh_cas[False]
+PASSED tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py::test_actual_native_pending_receipt_survives_blueprint_json_and_fresh_cas[True]
+PASSED tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py::test_native_factory_unknown_amount_remains_null_pending_after_fresh_blueprint_cas[1e-1000]
+PASSED tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py::test_native_factory_unknown_amount_remains_null_pending_after_fresh_blueprint_cas[-1e-1000]
+======================== 17 passed, 1 warning in 9.50s =========================

@@ -1,0 +1,28 @@
+{
+  "schema": "e02.D.independent.draft-review.v1",
+  "reviewer": "census_oct07",
+  "source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+  "status": "GO_TEST_ONLY_EXISTING_CONSUMER_CONTROL_RUNTIME_PENDING",
+  "artifact": {
+    "path": "/dev/shm/e02-D-transfer-empty-intake-w7x85jux/persisted-empty-intake.patch",
+    "bytes": 4246,
+    "sha256": "c360838a482f38c0aaab6dc4f5104530dd1dfff3a0029d31303986547a76faff"
+  },
+  "original_criterion": "B128 actual persisted empty history distinct from incompatible/unavailable; real saved Evaluation existing bridge counts.",
+  "test_scope": "Four reader controls keep real original two measured evaluations unchanged for positive; existing changed_history canonical2.0 CAS seam alters payload explicitly for empty/invalid/unsupported-codec, actual native metadata points exact qualified ref, saved generation -> fresh FileSystemCAS -> real HNSW load -> actual discovery -> ordinary WarmStartBridge and reports.",
+  "cases": {
+    "empty": "Real typed persisted evaluations=[] yields loaded/accepted/rejected/unavailable/selected all0 with no rejections. No positive observation fabricated.",
+    "invalid": "Two bool scalar false measured rows count loaded2/rejected2, accepted0/unavailable0, explicit finite JSON number reason.",
+    "unavailable": "Unsupported codec source count unavailable1/loaded0, precise codec refusal rather than emptyhistory.",
+    "nonempty": "Real original2 measured IDs selected/accepted2 with exact saved discovery ref and no rejections."
+  },
+  "P37": "Actual CAS/history schema/body and ordinary receiving bridge admission/report counts; empty initial_evaluations fixture is not used as substitute for this canonical persisted intake.",
+  "P38": "Same otherwise-valid fingerprint/index/context markers with invalid scalar or unsupported codec distinguish rejected/unavailable from empty. Actual report bytes retained in JUnit property.",
+  "limitations": [
+    "Test-only scope, no production repair or changed register_run([]) publication policy.",
+    "No manual monkeypatch/GP fit/numerical backend or tenant reuse authority claim.",
+    "Missing HNSW SKIP must be numerical/native property UNRUN, never PASS.",
+    "Parent immutable source execution of4 controls still required before B128 closed proposal.",
+    "No G acceptance or wholeTRN PASS from draft."
+  ]
+}

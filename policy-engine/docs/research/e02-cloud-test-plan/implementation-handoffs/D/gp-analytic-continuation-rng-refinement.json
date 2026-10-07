@@ -1,0 +1,31 @@
+{
+  "schema_version": "e02.D.gp-analytic-rng-refinement.v1",
+  "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commit": "8be28ae5ab7176a2d82f322520c3d050b85dae7c",
+  "implementation_tree": "5ba61c4fc35b12653aacff06271ac6a9797fc79c",
+  "previous_analytic_implementation": "538f354484d0c71d5de2c7d3be60f4cdc9a6da26",
+  "production_writes": false,
+  "authorized_scope": "Root approved refinement of the actual RNG consumption discriminator; analytic kernel/mean/covariance expectations unchanged.",
+  "correction": "Global Torch RNG at optimize_acqf entry is a proxy: explicit local seeded restart tensors can be valid while ambient state remains unchanged. Observe actual batch_initial_conditions or actual native initializer output; mutated saved local RNG must change consumed tensors or fail closed. Compare uninterrupted/resumed actual tensors and proposals; preserve ambient stream.",
+  "test_path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+  "source_target": {
+    "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+  },
+  "command": "PYTHONPATH=src:. PYTHONDONTWRITEBYTECODE=1 /workspace/e02-D-locked-env/bin/python -m pytest tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py -o addopts='' -q -s -rA",
+  "environment": "Same locked CPython3.14.7/Torch2.10.0/BoTorch0.16.1/GPyTorch1.15.1/NumPy2.3.5, own lane origins",
+  "deciding_output": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/gp-analytic-continuation-rng-baseline.txt",
+    "sha256": "fcdd96a52b5b92ab0d85878d77102b105f0a7974a1bd378da986684cd957d796",
+    "bytes": 29627
+  },
+  "result": "FAIL",
+  "summary": "13 failed, 9 passed, 2 warnings in 10.92s",
+  "exit_code": 1,
+  "closure_ids": [],
+  "limitations": [
+    "Original538 baseline remains traceable; its entry-global-RNG assertion is superseded by actual consumed tensors, not reinterpreted as a production requirement.",
+    "At base, dropped warm corpus blocks several RNG/resume consumers; do not localize those as independent RNG bugs.",
+    "No production-history/authority/statistical advantage claim."
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "schema": "policyos.e02.D.final_accounting_validation.v1",
+  "candidate_source": {
+    "sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+    "tree": "2528701d167b1c07efa96b8891c4d825eea5a1fd"
+  },
+  "predicate_basis": "independently_reconciled",
+  "predicate_scope": "Actual canonical literal/hash/owner/role/input binding and output metadata reconciliation; no formal closure.",
+  "original_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+  "findings": 45,
+  "criteria": 46,
+  "bundles": 17,
+  "queues": 5,
+  "owner_packets": 16,
+  "original46_literals_owners_roles_fragments_and_hashes": "ALL_MATCH",
+  "distribution": {
+    "OPEN_VERIFICATION_PENDING": 39,
+    "OPEN_CURRENT_UPSTREAM_FAIL": 1,
+    "HELD_ORIGINAL_POSITIVE_INPUT": 5
+  },
+  "LA015_supplier_companion": "CTL-01 supplier_companion_only; canonical closure SRV-03",
+  "full_changed_paths": 973,
+  "original15_input_occurrences": 92,
+  "current258_input_equal": 76,
+  "current258_input_changed": 16,
+  "current258_changed_unique_test_paths": 11,
+  "actual_final_wave_predicates": 1249,
+  "actual_final_wave_test_reports": 0,
+  "all13_final_carrier_members_MATCH": true,
+  "current_declared_input_bindings": 5568,
+  "current_observed_exec_bindings": 1366,
+  "current_tree_path_errors": 0,
+  "errors": [],
+  "backend_runs": 0,
+  "root_source_test_writes": 0,
+  "children": 0
+}

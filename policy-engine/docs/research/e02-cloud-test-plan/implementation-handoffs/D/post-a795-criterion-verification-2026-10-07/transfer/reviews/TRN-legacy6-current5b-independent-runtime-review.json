@@ -1,0 +1,197 @@
+{
+  "decision": "GO_BOUNDED_CURRENT_LEGACY_AND_PLACEHOLDER_REFUSAL",
+  "reviewer": "/root/census_oct07",
+  "execution_source": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+  "execution_tree": "5738498b09aadca51e0bb73fa6d104e3354dc603",
+  "assessed_product": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "check_result": "PASS",
+  "cases": 6,
+  "phases": 18,
+  "ERROR": 0,
+  "SKIP": 0,
+  "complete_executable_inputs": 6863,
+  "all_declared_inputs_match_actual_Git_blob": true,
+  "source_inputs_before_after_unchanged": true,
+  "later_test_delta_paths_read_from_exact_execution_Git": [],
+  "origins": {
+    "main_repo_paths": 256,
+    "main_external_paths": 3134,
+    "all_captured_hashes_recomputed": true,
+    "complete_child_inventory": "not claimed"
+  },
+  "deciding_refs": [
+    {
+      "artifact_id": "sha256:615a99ce9fd2fc12b631ba769837ee26405814362f17ee5e792bf750cdd121fc",
+      "kind": "search.transfer.history",
+      "bytes": 8008,
+      "sha256": "615a99ce9fd2fc12b631ba769837ee26405814362f17ee5e792bf750cdd121fc"
+    },
+    {
+      "artifact_id": "sha256:5a85d9851e3de20a2e5e3b2da690d899fcf6106926c495c24919cee2b86920d4",
+      "kind": "vector_memory.bundle",
+      "bytes": 2560,
+      "sha256": "5a85d9851e3de20a2e5e3b2da690d899fcf6106926c495c24919cee2b86920d4"
+    },
+    {
+      "artifact_id": "sha256:cdd373a45081a0ed7f1e9b0b9f35f0fea3820d999cf3cda64b12947b176b7e1e",
+      "kind": "search.transfer.history",
+      "bytes": 8010,
+      "sha256": "cdd373a45081a0ed7f1e9b0b9f35f0fea3820d999cf3cda64b12947b176b7e1e"
+    },
+    {
+      "artifact_id": "sha256:2c53724ed6f6c261f1ee2ebf3032e831071ef16212d35fd1c0903bf253daf738",
+      "kind": "vector_memory.bundle",
+      "bytes": 2560,
+      "sha256": "2c53724ed6f6c261f1ee2ebf3032e831071ef16212d35fd1c0903bf253daf738"
+    },
+    {
+      "artifact_id": "sha256:4dbae50d1c2490657c172f508d2139dd9fad0e7b8e8cdc0c82627575712c3325",
+      "kind": "search.transfer.history",
+      "bytes": 7985,
+      "sha256": "4dbae50d1c2490657c172f508d2139dd9fad0e7b8e8cdc0c82627575712c3325"
+    },
+    {
+      "artifact_id": "sha256:1bd042c1b96a7e505927877e82182ee1d80a1285bed968d382524c4e18984fab",
+      "kind": "vector_memory.bundle",
+      "bytes": 2560,
+      "sha256": "1bd042c1b96a7e505927877e82182ee1d80a1285bed968d382524c4e18984fab"
+    },
+    {
+      "artifact_id": "sha256:4e1111a7a70ac185fedc66288129a57ec8c2c8870fc4dfa971725ca06640bda6",
+      "kind": "search.transfer.history",
+      "bytes": 7987,
+      "sha256": "4e1111a7a70ac185fedc66288129a57ec8c2c8870fc4dfa971725ca06640bda6"
+    },
+    {
+      "artifact_id": "sha256:cedb90cd3b025d5e794a783034d9998aa1cd047fbd3750e0dae892a6ab0c9640",
+      "kind": "vector_memory.bundle",
+      "bytes": 2560,
+      "sha256": "cedb90cd3b025d5e794a783034d9998aa1cd047fbd3750e0dae892a6ab0c9640"
+    },
+    {
+      "artifact_id": "sha256:a08cda8bdc2c41f11a046afe7241d364d0db502871465e1e854206d4d5933882",
+      "kind": "search.transfer.history",
+      "bytes": 8008,
+      "sha256": "a08cda8bdc2c41f11a046afe7241d364d0db502871465e1e854206d4d5933882"
+    },
+    {
+      "artifact_id": "sha256:8a5fbe5a651891889777b87c12fdb5ac2ca1c6be4f241c157e9ec9b45c92be34",
+      "kind": "vector_memory.bundle",
+      "bytes": 2560,
+      "sha256": "8a5fbe5a651891889777b87c12fdb5ac2ca1c6be4f241c157e9ec9b45c92be34"
+    },
+    {
+      "artifact_id": "sha256:1baf7cbade5c0a87cbb88ac71cea967c91429849c02591cdf1ddd3ae50e24863",
+      "kind": "search.transfer.history",
+      "bytes": 8010,
+      "sha256": "1baf7cbade5c0a87cbb88ac71cea967c91429849c02591cdf1ddd3ae50e24863"
+    },
+    {
+      "artifact_id": "sha256:0efdcef5a234d19a795fedf905762fc78a5176894002783f4e4e4b94996461cc",
+      "kind": "vector_memory.bundle",
+      "bytes": 2560,
+      "sha256": "0efdcef5a234d19a795fedf905762fc78a5176894002783f4e4e4b94996461cc"
+    }
+  ],
+  "observed_case_counts": [
+    {
+      "case": "test_persisted_legacy_scalar_or_placeholder_has_visible_refusal_without_promotion[schema1-minimize]",
+      "legacy": "schema1",
+      "direction": "minimize",
+      "counts": {
+        "accepted": 0,
+        "loaded": 0,
+        "rejected": 0,
+        "selected": 0,
+        "unavailable": 1
+      },
+      "numeric_and_reverse_rows": 0
+    },
+    {
+      "case": "test_persisted_legacy_scalar_or_placeholder_has_visible_refusal_without_promotion[schema1-maximize]",
+      "legacy": "schema1",
+      "direction": "maximize",
+      "counts": {
+        "accepted": 0,
+        "loaded": 0,
+        "rejected": 0,
+        "selected": 0,
+        "unavailable": 1
+      },
+      "numeric_and_reverse_rows": 0
+    },
+    {
+      "case": "test_persisted_legacy_scalar_or_placeholder_has_visible_refusal_without_promotion[schema-absent-minimize]",
+      "legacy": "schema-absent",
+      "direction": "minimize",
+      "counts": {
+        "accepted": 0,
+        "loaded": 0,
+        "rejected": 0,
+        "selected": 0,
+        "unavailable": 1
+      },
+      "numeric_and_reverse_rows": 0
+    },
+    {
+      "case": "test_persisted_legacy_scalar_or_placeholder_has_visible_refusal_without_promotion[schema-absent-maximize]",
+      "legacy": "schema-absent",
+      "direction": "maximize",
+      "counts": {
+        "accepted": 0,
+        "loaded": 0,
+        "rejected": 0,
+        "selected": 0,
+        "unavailable": 1
+      },
+      "numeric_and_reverse_rows": 0
+    },
+    {
+      "case": "test_persisted_legacy_scalar_or_placeholder_has_visible_refusal_without_promotion[placeholder-minimize]",
+      "legacy": "placeholder",
+      "direction": "minimize",
+      "counts": {
+        "accepted": 0,
+        "loaded": 2,
+        "rejected": 2,
+        "selected": 0,
+        "unavailable": 0
+      },
+      "numeric_and_reverse_rows": 0
+    },
+    {
+      "case": "test_persisted_legacy_scalar_or_placeholder_has_visible_refusal_without_promotion[placeholder-maximize]",
+      "legacy": "placeholder",
+      "direction": "maximize",
+      "counts": {
+        "accepted": 0,
+        "loaded": 2,
+        "rejected": 2,
+        "selected": 0,
+        "unavailable": 0
+      },
+      "numeric_and_reverse_rows": 0
+    }
+  ],
+  "producer_artifact_bridge_consumer": "Supported v2 source positive premise; persisted schema1/absent or qualified evaluation with zero candidate address; actual native saved/reloaded index + fresh CAS -> ordinary WarmStartBridge -> reverse replay no numeric rows",
+  "independent_oracle": "Two controlled source rows: unsupported codec loaded0/unavailable1; unresolved candidate zero address loaded2/rejected2, both min/max; no guessed scalar convention",
+  "P37": {
+    "current_source_input_origin_and_ref": "independently_reconciled",
+    "qualified_ref_digest": "recomputed",
+    "consumer_refusal_counts": "consumer_asserted"
+  },
+  "P38": "Retain genuine native/CAS history/evaluation markers and visibly refuse unsupported scalar convention or missing candidate address; supported two-row positive excludes blanket refusal",
+  "originals": "B130/B132 clauses contributed; CBC native/quota/lessons remain distinct current receipts. No tenant/revalidation/scientific authority or whole-D total.",
+  "finding_disposition": "bounded_closed_proposals unchanged",
+  "formal_closed": false,
+  "accepted_in_G": false,
+  "P41": "not_established",
+  "command": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/legacy-run5b/actual-legacy6/command.json",
+    "sha256": "fa78bf734a71b58fa82f94efe640744e7d26b3880cadd8d9792f60481643e5f0"
+  },
+  "junit": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/legacy-run5b/actual-legacy6/junit.xml",
+    "sha256": "844f1e3430824d7cc980c37c0886e845ee04d5363430a70e1c6def30beaeb4bf"
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "schema": "D.e02.G-original-criterion-verification-packet.v1",
+  "unit": "D",
+  "candidate": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+  "slice_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "published_common_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "fresh_G": {
+    "record": "76746fececd1a183a516c48f07ce2835baa8a2d1",
+    "tree": "51929dd44a3650c7842bf77aedcdeba6ecd1a755",
+    "COMMON_sha256": "f408d34394bab5f708df7afb6f59195588b5fc394b8304434c9e2fbe2238be79",
+    "COMMON_bytes": 8565,
+    "delta": "21docs-only ninthwave feedback sinceebae; Dfeedbackinput b5 not969/680; no acceptance/closure/sourceintegration",
+    "D_current_is_G_ancestor": false,
+    "main_unchanged": "198076863e143dea9f89f02734b13d50dae3eed5"
+  },
+  "counts": {
+    "closed": 39,
+    "held": 5,
+    "limited": 1,
+    "open_owned": 0
+  },
+  "owned_open": [],
+  "owner_input_held": [
+    "B131",
+    "B137",
+    "B157",
+    "B161",
+    "B164"
+  ],
+  "unit_profile_limited": [
+    "B108"
+  ],
+  "original46_criteria": {
+    "ledger": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/final-accounting-680/ledger.json",
+    "original_text_unchanged": true,
+    "binding_source": "198076863e143dea9f89f02734b13d50dae3eed5"
+  },
+  "receipt_publication": {
+    "exact_candidate": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+    "tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+    "complete_outputs": "canonicalDpaths/losslesscontentpools in ledger and evidence-map; receivingreceiptcommitsupplyfetchedreadback",
+    "accepted_G": false
+  },
+  "G_remaining_verification": [
+    "Reviewexact680source/fullchangedpaths/original46clausejoins; Gsoleintegrationacceptance notassumed",
+    "One sharedfrozenintegration replay (nativeGP/vector optionalbackend availability explicit), no forced newwholeDsum ofoldsources",
+    "Obtain only5heldrealownerpositive minimumrefs/decisions andactualB108unit/sign/aliaslaw; localread-onlyproduction check onlywhencriterion needsit",
+    "Keep E B100/Mmutablecap/Aoptionalfrontierserving/generatedAPI/frontend/architecturequality ownerdecisions separate; do not block fulfilled original comparator/consumer criteria by neighborcapability",
+    "Recordformalclosed/limited/held/open dispositions explicitly in G; D39 are closureproposals not acceptedclosure"
+  ],
+  "P41": "not_established; no inherited-red waiver without exact slice-base command+complete zero-overlap input denominator",
+  "publication_authority": "D topic commits/PR/handoff only. Gsoleintegrationpublisher. Main requires separate specific humanauthorization.",
+  "cleanup": "Code/documents/unique inputs/deciding outputs retained; no permanent deletion/Trash emptying. Cloud cleanup candidates must be exact/unused/regenerable and listed only."
+}

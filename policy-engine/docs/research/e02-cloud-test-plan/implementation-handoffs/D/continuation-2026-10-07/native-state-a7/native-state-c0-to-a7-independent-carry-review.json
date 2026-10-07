@@ -1,0 +1,67 @@
+{
+  "schema": "D.e02.independent-native-candidate-carry-review.v1",
+  "reviewer": "/root/math_oct07",
+  "author": "/root/gp_oct07",
+  "carry_path": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/native-state-c0-to-a7-scoped-carry.json",
+  "carry_sha256": "abef09196d1495c0d14ba9e0c92601eab06a86b94bdf0686da00a976f62c5f37",
+  "result": "GO bounded numerical/state unchanged assertions qualified to originalc0, affected currenta7 transfer consumer independently verified",
+  "original_source": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+  "candidate_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "candidate_tree": "e809693afe3b84e02d473b5744142d026afbe509",
+  "complete_changed_path_denominator": 25,
+  "unique_actual_observed_repository_bindings_verified": 331,
+  "external_loaded_file_hash_bindings_verified": 2284,
+  "scopes": [
+    {
+      "scope": "GP43",
+      "loaded_repository_binding_count": 309,
+      "changed_loaded_modules": [
+        "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+        "policy-engine/src/polisyos/scientist/methods/search/service.py"
+      ],
+      "interpretation": "Unchanged numerical/state assertions only; original test execution remains c0-qualified."
+    },
+    {
+      "scope": "State142",
+      "loaded_repository_binding_count": 280,
+      "changed_loaded_modules": [],
+      "interpretation": "Unchanged numerical/state assertions only; original test execution remains c0-qualified."
+    },
+    {
+      "scope": "MO88",
+      "loaded_repository_binding_count": 265,
+      "changed_loaded_modules": [],
+      "interpretation": "Unchanged numerical/state assertions only; original test execution remains c0-qualified."
+    },
+    {
+      "scope": "minimal55_15_UNRUN",
+      "loaded_repository_binding_count": 252,
+      "changed_loaded_modules": [],
+      "interpretation": "Unchanged numerical/state assertions only; original test execution remains c0-qualified."
+    },
+    {
+      "scope": "warm_rejection_reports3",
+      "loaded_repository_binding_count": 251,
+      "changed_loaded_modules": [],
+      "interpretation": "Unchanged numerical/state assertions only; original test execution remains c0-qualified."
+    },
+    {
+      "scope": "warm_report_removal3_expectedFAIL",
+      "loaded_repository_binding_count": 251,
+      "changed_loaded_modules": [],
+      "interpretation": "Unchanged numerical/state assertions only; original test execution remains c0-qualified."
+    }
+  ],
+  "scope_analysis": [
+    "Only GP43 actually loaded changed Runner/NativeService; strong posterior/state/RNG fixture branches do not enter financial/analysis path. Existing noowner and noanalysis supported branch behavior reviewed independently, not hidden as annotation-only.",
+    "Actual affected transfer publicRunner3 was replayed on a7 and independently originalCAS→8/7loggedSingleTaskGP fit bindings checked; twoactualMLL returns, exactref alteredbyte/origin mismatch controls.",
+    "No broad currentGP43/MO88/State142 replay or cross-build publicservice checkpoint compatibility implied. Oldoutputs keepc0 source; unchanged GP/MO/State ownserializers/profile/model/RNG objects byte-identical.",
+    "Financial defaultpublicfactory/ownerask and sourcedanalysis admission differ and require separate current Service/FUN/DOE consumer receipts.",
+    "Currenta7 minimal55/15UNRUN+collector supplement separately reviewed and source-qualified; no absentbackend numerical PASS."
+  ],
+  "original_review": "/tmp/e02-D-math-oct07-drafts/GP-State-MO-currentc0-final-additive-independent-review.json",
+  "actual_affected_review": "/tmp/e02-D-math-oct07-drafts/transfer-affected-a7-independent-runtime-review.json",
+  "P41": "not_established; no inheritedred waiver",
+  "formal_closed": false,
+  "accepted_in_G": false
+}

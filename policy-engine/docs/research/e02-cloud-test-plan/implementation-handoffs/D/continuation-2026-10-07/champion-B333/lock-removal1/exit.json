@@ -1,0 +1,42 @@
+{
+  "returncode": 1,
+  "elapsed_seconds": 21.125954853981966,
+  "end_utc": "2026-10-07T09:46:08.856196+00:00",
+  "source_after": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "status_after": "",
+  "source_unchanged": true,
+  "origin_admission": {
+    "groups": [
+      {
+        "path": "/dev/shm/e02-D-champion-B333-lock-removal1-xin6t2_5/module-origins.500041.jsonl",
+        "pid": 500041,
+        "valid": true,
+        "modules": [
+          "polisyos.common.async_tools",
+          "polisyos.core.artifacts._integrity_ops",
+          "polisyos.core.artifacts._signature_ops",
+          "polisyos.core.artifacts._transfer_ops",
+          "polisyos.core.artifacts.async_store",
+          "polisyos.core.artifacts.signing",
+          "polisyos.core.artifacts.store"
+        ]
+      },
+      {
+        "path": "/dev/shm/e02-D-champion-B333-lock-removal1-xin6t2_5/module-origins.500378.jsonl",
+        "pid": 500378,
+        "valid": true,
+        "modules": [
+          "polisyos.common.async_tools",
+          "polisyos.core.artifacts._integrity_ops",
+          "polisyos.core.artifacts._signature_ops",
+          "polisyos.core.artifacts._transfer_ops",
+          "polisyos.core.artifacts.async_store",
+          "polisyos.core.artifacts.signing",
+          "polisyos.core.artifacts.store"
+        ]
+      }
+    ],
+    "minimum_processes": 2,
+    "accepted": true
+  }
+}

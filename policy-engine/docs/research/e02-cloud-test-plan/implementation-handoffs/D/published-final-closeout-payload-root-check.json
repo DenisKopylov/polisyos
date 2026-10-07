@@ -1,0 +1,96 @@
+{
+  "schema": "e02.D.root.final_payload_manifest_check.v1",
+  "payload_sha": "9c8d6d85d90d00c3dcebfaefc935a56ccdeadd9d",
+  "payload_tree": "031dc43a32a553323be41eefce27cbcb20a9086f",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout-final/G-local-production-inputs.json",
+      "bytes": 9399,
+      "sha256": "34a02eb060508bbf739c24ab1ff7c0fe0c2da625e8b597bc60cd2c948c4bc6fe"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout-final/README.md",
+      "bytes": 4943,
+      "sha256": "7c7c4119ff614600bd1513a93c61121af57f7d1322b6935a5386ed24f2476a08"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout-final/check_receipt_bindings.py.txt",
+      "bytes": 3408,
+      "sha256": "7e4d88112f7e34f9956dae7459b29899be84fd1c4238b71703b38d218625c4a5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout-final/delivery-changed-paths.json",
+      "bytes": 105337,
+      "sha256": "3bd3b3df7ac17d9ce83ea594854e3db258caee5c4ac94b6bd10f3a4f4989a9ff"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout-final/final-cleanup-candidates.json",
+      "bytes": 70644,
+      "sha256": "47070875ee821e3e6c03956f7e9d560043d581f12b742e71596123cc503909a1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout-final/final-criterion-root-audit.json",
+      "bytes": 25701,
+      "sha256": "963049b515b5ea0a69e4895faf7b10f75101c05034e811d1ba4e17d1f5268cd9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout-final/final-current142-independent-review-root-binding.json",
+      "bytes": 5635,
+      "sha256": "5aab5bdbeb732bcd0caa18361c9b5be5e76aecad247ac6d5ec33e163239fb3a4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout-final/final-fetch-main.json",
+      "bytes": 885,
+      "sha256": "fa43167f49d6eca383c2651e367850dbb43caa9e4ef65e942e74f84e46af2293"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout-final/final-fixture-migration-independent-root-binding.json",
+      "bytes": 4233,
+      "sha256": "31275fdfdb4805d96ef1b3f534ef104eec17dc65da9ee77f9b8b8b4223f69679"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout-final/final-git-payload-binding-independent-review-root-binding.json",
+      "bytes": 5133,
+      "sha256": "c2c78e42f2afea5a7381b3a6421a534a5fdfe6faa0563907ffcf0f7e3c823604"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout-final/final-summary.json",
+      "bytes": 32764,
+      "sha256": "a199af4c7f9f173a673f3a59d5fb08710ca72db7edc38a718d0a9f0b50be7a4d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout-final/independent-8bd-review-checkpoint.json",
+      "bytes": 6478,
+      "sha256": "1bca6869a4e5aeb5315954513a4bbd6e94a9a8b18e37e8f3080151c602847080"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout-final/independent-8bd-review-full.json",
+      "bytes": 15682,
+      "sha256": "a759fb090a8ded1f9cd09902a8bf119d1f3fa8b24c58716d6d5b10b07f122f15"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout-final/metadata-review-resolution.json",
+      "bytes": 1322,
+      "sha256": "7f979d002a10bc30bce44ea581119192de7ab1f642ccae56c5d29083db879532"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout-final/published-G-local-contract-skeleton-root-binding.json",
+      "bytes": 2731,
+      "sha256": "9c10a37490a0e7d66e60b6b18f4a0a36100320609f596ae54fe1a226548f5ac0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout-final/published-final-criterion-accounting-root-binding.json",
+      "bytes": 30344,
+      "sha256": "85198d49102c016d9d5bbdb95267baa406d316a8c78f48ebbc85ed2a161aa433"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-closeout-final/published-final-root-replay-root-binding.json",
+      "bytes": 3820,
+      "sha256": "3d2a2560ee0c038d3862dbbd93374067d1b67f691a09bd33411fc2b3d7447f2a"
+    }
+  ],
+  "complete_changed_paths_count": 855,
+  "complete_changed_path_set_matches": true,
+  "predicate_basis": "recomputed",
+  "scope": "Exact final document bytes and complete changed-path denominator only; not runtime/criterion/authority acceptance."
+}

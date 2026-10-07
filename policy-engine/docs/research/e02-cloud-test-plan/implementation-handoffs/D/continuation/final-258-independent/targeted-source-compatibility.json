@@ -1,0 +1,201 @@
+{
+  "schema": "polisyos.e02.independent_final_target_input_compatibility.v1",
+  "final_source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+  "new_runtime": false,
+  "scopes": [
+    {
+      "scope": "optional38",
+      "actual_previous_runtime_sha": "b9fc7d005d39ded686f276fae8eae617b683bac6",
+      "final_source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+      "production_python_differences": [],
+      "test_and_config_binding_checks": [
+        {
+          "path": "policy-engine/tests/unit/scientist/agent/test_vector_memory.py",
+          "prior_git_blob": "88753b5536a0cc4dc8121e4b016d29102745861b",
+          "final_git_blob": "88753b5536a0cc4dc8121e4b016d29102745861b",
+          "bytes_equal": true
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_trn_02.py",
+          "prior_git_blob": "fdd17afd4ea92030d599b4947d35c03caaf36d48",
+          "final_git_blob": "fdd17afd4ea92030d599b4947d35c03caaf36d48",
+          "bytes_equal": true
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+          "prior_git_blob": "7355d1f768b15b6a087639272b4eec9ae73c1aac",
+          "final_git_blob": "7355d1f768b15b6a087639272b4eec9ae73c1aac",
+          "bytes_equal": true
+        },
+        {
+          "path": "policy-engine/pytest.ini",
+          "prior_git_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+          "final_git_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+          "bytes_equal": true
+        },
+        {
+          "path": "policy-engine/pyproject.toml",
+          "prior_git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "final_git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "bytes_equal": true
+        },
+        {
+          "path": "policy-engine/uv.lock",
+          "prior_git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+          "final_git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+          "bytes_equal": true
+        }
+      ],
+      "existing_receipt_path_at_final": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/optional-native-profile-handoff.json",
+      "existing_receipt_git_blob": "4a7204b67e889a5c50ef6e2e292d3e02484683e8",
+      "historical_outcome_scope": "optional38",
+      "qualification": "17 backend-independent PASS and21 native SKIP/UNRUN; not native numerical acceptance",
+      "new_runtime_or_aggregate_PASS": false
+    },
+    {
+      "scope": "paid_cache13",
+      "actual_previous_runtime_sha": "06c538cb5e18ffc9a67b754d74a67d9a4ea7cd04",
+      "final_source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+      "production_python_differences": [],
+      "test_and_config_binding_checks": [
+        {
+          "path": "policy-engine/tests/unit/remediation/test_llm_01.py",
+          "prior_git_blob": "a6ed83a0060842d17fafa87d007c1567386934f2",
+          "final_git_blob": "a6ed83a0060842d17fafa87d007c1567386934f2",
+          "bytes_equal": true
+        },
+        {
+          "path": "policy-engine/pytest.ini",
+          "prior_git_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+          "final_git_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+          "bytes_equal": true
+        },
+        {
+          "path": "policy-engine/pyproject.toml",
+          "prior_git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "final_git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "bytes_equal": true
+        },
+        {
+          "path": "policy-engine/uv.lock",
+          "prior_git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+          "final_git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+          "bytes_equal": true
+        }
+      ],
+      "existing_receipt_path_at_final": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/llm-cache-native-custody.json",
+      "existing_receipt_git_blob": "9c54487e8e1897a4e46b0bb7931143828ad6eccf",
+      "historical_outcome_scope": "paid_cache13",
+      "qualification": "13 native paid-cache fixture/consumer cases PASS; bounded owner-recorded custody, not external billing authority",
+      "new_runtime_or_aggregate_PASS": false
+    },
+    {
+      "scope": "stress57",
+      "actual_previous_runtime_sha": "b9fc7d005d39ded686f276fae8eae617b683bac6",
+      "final_source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+      "production_python_differences": [],
+      "test_and_config_binding_checks": [
+        {
+          "path": "policy-engine/tests/unit/scientist/search/test_stress_scenario_evidence.py",
+          "prior_git_blob": "46eb13801fc5ce5f0529b4d7df20033d63c8bef5",
+          "final_git_blob": "46eb13801fc5ce5f0529b4d7df20033d63c8bef5",
+          "bytes_equal": true
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py",
+          "prior_git_blob": "7fa3a7c4a0aa6de2892e9ef855323b3b02c19dc2",
+          "final_git_blob": "7fa3a7c4a0aa6de2892e9ef855323b3b02c19dc2",
+          "bytes_equal": true
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/search/test_challenge_scenario_projection.py",
+          "prior_git_blob": "ea47bfb6b887321aabb1c45d85bffd641c55b7d9",
+          "final_git_blob": "ea47bfb6b887321aabb1c45d85bffd641c55b7d9",
+          "bytes_equal": true
+        },
+        {
+          "path": "policy-engine/pytest.ini",
+          "prior_git_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+          "final_git_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+          "bytes_equal": true
+        },
+        {
+          "path": "policy-engine/pyproject.toml",
+          "prior_git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "final_git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "bytes_equal": true
+        },
+        {
+          "path": "policy-engine/uv.lock",
+          "prior_git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+          "final_git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+          "bytes_equal": true
+        }
+      ],
+      "existing_receipt_path_at_final": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/final-stress-probes-independent-review.json",
+      "existing_receipt_git_blob": "1e458cefd26d1cc8e1b4fb7fd585e1505ada0a6c",
+      "historical_outcome_scope": "stress57",
+      "qualification": "Healthy whole3files57PASS; property-removal2runs each53PASS4FAIL retained separately; no invented population/scientific authority",
+      "new_runtime_or_aggregate_PASS": false
+    },
+    {
+      "scope": "root44",
+      "actual_previous_runtime_sha": "f2d5401c9cd8a02a74579e4c47b836042a12eb99",
+      "final_source_sha": "258a6c89ea7cbb8394d39965a243a4bab3592358",
+      "production_python_differences": [],
+      "test_and_config_binding_checks": [
+        {
+          "path": "policy-engine/tests/unit/scientist/nodes/builtins/planning/test_hierarchical_configured_registry_bridge.py",
+          "prior_git_blob": "f892d0e0a53f5531d998125ec7f5d13c2acd418c",
+          "final_git_blob": "f892d0e0a53f5531d998125ec7f5d13c2acd418c",
+          "bytes_equal": true
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger.py",
+          "prior_git_blob": "29d2a4a2fb972af1dac72ce568a67da966c806ea",
+          "final_git_blob": "29d2a4a2fb972af1dac72ce568a67da966c806ea",
+          "bytes_equal": true
+        },
+        {
+          "path": "policy-engine/tests/integration/scientist/methods/search/funnel/test_orchestrator.py",
+          "prior_git_blob": "ff54043b63bed3e21c2e4f5cf2a1a454ae72927a",
+          "final_git_blob": "ff54043b63bed3e21c2e4f5cf2a1a454ae72927a",
+          "bytes_equal": true
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/nodes/builtins/planning/test_run_hierarchical_policy_search.py",
+          "prior_git_blob": "c1671e0ee1b0c5b597f1c1724f23c1f804afa761",
+          "final_git_blob": "c1671e0ee1b0c5b597f1c1724f23c1f804afa761",
+          "bytes_equal": true
+        },
+        {
+          "path": "policy-engine/pytest.ini",
+          "prior_git_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+          "final_git_blob": "f6b18091a37290d7b5c375b3aef44ffebc0a293a",
+          "bytes_equal": true
+        },
+        {
+          "path": "policy-engine/pyproject.toml",
+          "prior_git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "final_git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+          "bytes_equal": true
+        },
+        {
+          "path": "policy-engine/uv.lock",
+          "prior_git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+          "final_git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+          "bytes_equal": true
+        }
+      ],
+      "existing_receipt_path_at_final": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-composed-affected44.json",
+      "existing_receipt_git_blob": "b38e35e70f824ff81ba60ee41bcc0fe6e44a3c13",
+      "historical_outcome_scope": "root44",
+      "qualification": "35node+7ledger+2ordinaryconsumer44PASS; original imported_bundle individually uncaptured historical scope caveat remains",
+      "new_runtime_or_aggregate_PASS": false
+    }
+  ],
+  "interpretation": "Equal immutable input blobs support bounded source compatibility only. Every historical result remains bound to its actual source, environment, input denominator and custody limits. The final1249case wave remains ERROR/UNRUN, not a sum or inheritance of targetedPASS.",
+  "P41": "not_established",
+  "formal_closed": 0,
+  "G_accepted": false
+}

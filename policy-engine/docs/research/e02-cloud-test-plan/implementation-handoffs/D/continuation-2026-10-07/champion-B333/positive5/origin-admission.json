@@ -1,0 +1,132 @@
+{
+  "groups": [
+    {
+      "path": "/dev/shm/e02-D-champion-B333-combined5-bu0ikwsg/module-origins.500034.jsonl",
+      "pid": 500034,
+      "valid": true,
+      "modules": [
+        "polisyos.common.async_tools",
+        "polisyos.core.artifacts._integrity_ops",
+        "polisyos.core.artifacts._signature_ops",
+        "polisyos.core.artifacts._transfer_ops",
+        "polisyos.core.artifacts.async_store",
+        "polisyos.core.artifacts.signing",
+        "polisyos.core.artifacts.store"
+      ]
+    },
+    {
+      "path": "/dev/shm/e02-D-champion-B333-combined5-bu0ikwsg/module-origins.500380.jsonl",
+      "pid": 500380,
+      "valid": true,
+      "modules": [
+        "polisyos.common.async_tools",
+        "polisyos.core.artifacts._integrity_ops",
+        "polisyos.core.artifacts._signature_ops",
+        "polisyos.core.artifacts._transfer_ops",
+        "polisyos.core.artifacts.async_store",
+        "polisyos.core.artifacts.signing",
+        "polisyos.core.artifacts.store"
+      ]
+    },
+    {
+      "path": "/dev/shm/e02-D-champion-B333-combined5-bu0ikwsg/module-origins.500453.jsonl",
+      "pid": 500453,
+      "valid": true,
+      "modules": [
+        "polisyos.common.async_tools",
+        "polisyos.core.artifacts._integrity_ops",
+        "polisyos.core.artifacts._signature_ops",
+        "polisyos.core.artifacts._transfer_ops",
+        "polisyos.core.artifacts.async_store",
+        "polisyos.core.artifacts.signing",
+        "polisyos.core.artifacts.store"
+      ]
+    },
+    {
+      "path": "/dev/shm/e02-D-champion-B333-combined5-bu0ikwsg/module-origins.500582.jsonl",
+      "pid": 500582,
+      "valid": true,
+      "modules": [
+        "polisyos.common.async_tools",
+        "polisyos.core.artifacts._integrity_ops",
+        "polisyos.core.artifacts._signature_ops",
+        "polisyos.core.artifacts._transfer_ops",
+        "polisyos.core.artifacts.async_store",
+        "polisyos.core.artifacts.signing",
+        "polisyos.core.artifacts.store"
+      ]
+    },
+    {
+      "path": "/dev/shm/e02-D-champion-B333-combined5-bu0ikwsg/module-origins.500763.jsonl",
+      "pid": 500763,
+      "valid": true,
+      "modules": [
+        "polisyos.common.async_tools",
+        "polisyos.core.artifacts._integrity_ops",
+        "polisyos.core.artifacts._signature_ops",
+        "polisyos.core.artifacts._transfer_ops",
+        "polisyos.core.artifacts.async_store",
+        "polisyos.core.artifacts.signing",
+        "polisyos.core.artifacts.store"
+      ]
+    },
+    {
+      "path": "/dev/shm/e02-D-champion-B333-combined5-bu0ikwsg/module-origins.501088.jsonl",
+      "pid": 501088,
+      "valid": true,
+      "modules": [
+        "polisyos.common.async_tools",
+        "polisyos.core.artifacts._integrity_ops",
+        "polisyos.core.artifacts._signature_ops",
+        "polisyos.core.artifacts._transfer_ops",
+        "polisyos.core.artifacts.async_store",
+        "polisyos.core.artifacts.signing",
+        "polisyos.core.artifacts.store"
+      ]
+    },
+    {
+      "path": "/dev/shm/e02-D-champion-B333-combined5-bu0ikwsg/module-origins.501489.jsonl",
+      "pid": 501489,
+      "valid": true,
+      "modules": [
+        "polisyos.common.async_tools",
+        "polisyos.core.artifacts._integrity_ops",
+        "polisyos.core.artifacts._signature_ops",
+        "polisyos.core.artifacts._transfer_ops",
+        "polisyos.core.artifacts.async_store",
+        "polisyos.core.artifacts.signing",
+        "polisyos.core.artifacts.store"
+      ]
+    },
+    {
+      "path": "/dev/shm/e02-D-champion-B333-combined5-bu0ikwsg/module-origins.501742.jsonl",
+      "pid": 501742,
+      "valid": true,
+      "modules": [
+        "polisyos.common.async_tools",
+        "polisyos.core.artifacts._integrity_ops",
+        "polisyos.core.artifacts._signature_ops",
+        "polisyos.core.artifacts._transfer_ops",
+        "polisyos.core.artifacts.async_store",
+        "polisyos.core.artifacts.signing",
+        "polisyos.core.artifacts.store"
+      ]
+    },
+    {
+      "path": "/dev/shm/e02-D-champion-B333-combined5-bu0ikwsg/module-origins.501785.jsonl",
+      "pid": 501785,
+      "valid": true,
+      "modules": [
+        "polisyos.common.async_tools",
+        "polisyos.core.artifacts._integrity_ops",
+        "polisyos.core.artifacts._signature_ops",
+        "polisyos.core.artifacts._transfer_ops",
+        "polisyos.core.artifacts.async_store",
+        "polisyos.core.artifacts.signing",
+        "polisyos.core.artifacts.store"
+      ]
+    }
+  ],
+  "minimum_processes": 9,
+  "accepted": true
+}

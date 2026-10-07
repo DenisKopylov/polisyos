@@ -1,0 +1,179 @@
+{
+  "schema": "e02.D.fiscal680.independent-runtime-review.v1",
+  "reviewer": "/root/gp_oct07",
+  "result": "GO bounded fiscalDecimal/textfloat64mechanism and actualconsumer",
+  "source": "68070854bddba2593efaef59a107a3cbe3b08d4d",
+  "tree": "459895cbc549d8f4b6c8fd38510f5ab2cb690c4e",
+  "outputs_root": "/tmp/e02-D-fiscal-numeric-969-oh344e_d",
+  "scopes": {
+    "positive": {
+      "checks": {
+        "PASS": 73
+      },
+      "junit_sha256": "290fcf33b509cd369c31c23708740e1b16994aaa6f6e507b767edce03f0c8172",
+      "full_complete_outputs_verified": {
+        "origins.json": {
+          "sha256": "95125d055a71381fc65328fd2490ff08e080b097d9161b3f3bd2ecc258388490",
+          "bytes": 22743
+        },
+        "junit.xml": {
+          "sha256": "290fcf33b509cd369c31c23708740e1b16994aaa6f6e507b767edce03f0c8172",
+          "bytes": 14497
+        },
+        "events.jsonl": {
+          "sha256": "7f2b99caf8774d6c477c7f292a890e2e62fd8c0670f77417bf0d9606983f6485",
+          "bytes": 53252
+        },
+        "collected.json": {
+          "sha256": "65e5ebf1dd690ceb828ba3b847ab134248f39d3826edd6e44c12a43a00f7b324",
+          "bytes": 11696
+        },
+        "stderr.txt": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stdout.txt": {
+          "sha256": "330dde22aaf7d7c3300e373c8556901ab964f1dfc551b4d6fbbbb55f71a1c452",
+          "bytes": 25418
+        },
+        "command.json": {
+          "sha256": "c582d89e66f1dc196e18e1ba29e05b0d8730af3a3ea00d3a92801577b3efd7e7",
+          "bytes": 1983
+        },
+        "before.json": {
+          "sha256": "f497606454d234998b0a26569fe8721c9adeb5976f32cec6f747842314f4eef6",
+          "bytes": 2104254
+        }
+      },
+      "phase_counts": {
+        "('setup', 'passed')": 73,
+        "('call', 'passed')": 73,
+        "('teardown', 'passed')": 73
+      },
+      "actual_repo_origin_count": 88,
+      "actual_HTTP_tiny_false_plateau_failures": 0,
+      "failure_classes": {},
+      "available_input_reads_and_git_blobs_verified": 8860,
+      "argv": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-p",
+        "no:cacheprovider",
+        "-p",
+        "e02_math_capture",
+        "--basetemp=/tmp/e02-D-fiscal-numeric-969-oh344e_d/positive/fixtures",
+        "--junitxml=/tmp/e02-D-fiscal-numeric-969-oh344e_d/positive/junit.xml",
+        "-vv",
+        "-s",
+        "-rA",
+        "tests/unit/scientist/methods/search/test_fiscal_numeric_admission.py",
+        "tests/unit/scientist/methods/search/test_objective.py"
+      ]
+    },
+    "remove_underflow": {
+      "checks": {
+        "FAIL": 27,
+        "PASS": 46
+      },
+      "junit_sha256": "60f0aa1f7c098111df3498fe70ae972df743ca4f94f0789b78b6a5894554fee3",
+      "full_complete_outputs_verified": {
+        "origins.json": {
+          "sha256": "097bcf8ca0f651c91ca557ca88a1554c80d04b0c2202ba7ba7819251893c78f1",
+          "bytes": 22743
+        },
+        "junit.xml": {
+          "sha256": "60f0aa1f7c098111df3498fe70ae972df743ca4f94f0789b78b6a5894554fee3",
+          "bytes": 63093
+        },
+        "events.jsonl": {
+          "sha256": "bd9142a661e1f6bdfdfe0b4b7231e2d9bf2a320ea69f387381c28cd700eff704",
+          "bytes": 53255
+        },
+        "collected.json": {
+          "sha256": "65e5ebf1dd690ceb828ba3b847ab134248f39d3826edd6e44c12a43a00f7b324",
+          "bytes": 11696
+        },
+        "stderr.txt": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "stdout.txt": {
+          "sha256": "0ebacb51b1b6318fb7e64b2c54d336996ba1bc65e7c0b1fadb4fafe0a21b892d",
+          "bytes": 74531
+        },
+        "command.json": {
+          "sha256": "808635deda6b3f728f2c793776b068c15cb83dfa445d1c1cafb6b522b0009219",
+          "bytes": 2052
+        },
+        "before.json": {
+          "sha256": "f497606454d234998b0a26569fe8721c9adeb5976f32cec6f747842314f4eef6",
+          "bytes": 2104254
+        }
+      },
+      "phase_counts": {
+        "('setup', 'passed')": 73,
+        "('call', 'failed')": 27,
+        "('teardown', 'passed')": 73,
+        "('call', 'passed')": 46
+      },
+      "actual_repo_origin_count": 88,
+      "actual_HTTP_tiny_false_plateau_failures": 8,
+      "failure_classes": {
+        "test_fiscal_nonzero_underflow_cannot_be_zero_or_fallback": 16,
+        "test_fiscal_invalid_scalar_refuses_without_fallback": 1,
+        "test_fiscal_tiny_alias_and_zero_conflict_remains_unavailable": 2,
+        "test_actual_response_text_nonzero_decimal_is_unavailable_to_fiscal_consumer": 8
+      },
+      "available_input_reads_and_git_blobs_verified": 8860,
+      "argv": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-p",
+        "no:cacheprovider",
+        "-p",
+        "e02_math_capture",
+        "-p",
+        "e02_fiscal_remove_underflow",
+        "--basetemp=/tmp/e02-D-fiscal-numeric-969-oh344e_d/remove_underflow/fixtures",
+        "--junitxml=/tmp/e02-D-fiscal-numeric-969-oh344e_d/remove_underflow/junit.xml",
+        "-vv",
+        "-s",
+        "-rA",
+        "tests/unit/scientist/methods/search/test_fiscal_numeric_admission.py",
+        "tests/unit/scientist/methods/search/test_objective.py"
+      ]
+    }
+  },
+  "immutable_source_tests_nochanges": true,
+  "full_tracked_inputs": 15929,
+  "available_bytes_verified": 8860,
+  "explicit_sparse_missing_inputs": 7069,
+  "beforeafter_untracked_owner_receipts": "Explicit unchanged untracked owner output dirs recorded; trackedcode/tests/configclean and exactHEAD/tree stable. No claimed globallyempty status.",
+  "actual_workflow": "CanonicalB GatewayLLMClient._post_json parsesrealresponse-texttokens preservingDecimal; onlyHTTPtransportcontrolled→existingsolefiscalaliasseam→BudgetDeficitObjective Basefinite/thresholdassessment→CompositeNaN→publicImprovementPlateau/TargetAchievedfalseconvergence refusal. Positive trueDecimalzero, signedzero, ±5e-324 and ordinary sign/alias outputs verified.",
+  "independent_expected_basis": "Raw Decimal/text tinybeforefloatconversion nonzero vs genuinezero; numeric expectedzero/surplus/absdeficit/subnormal according toexistingdeclared boundedobjectivelaw. No productionunitissuer appointed.",
+  "negative_discriminator": "Single new guard removed via AST atimport retainingall source/alias/identity markers; exactsame73collected IDs,27actualassertionFAIL+46positivecontrolsPASS. EightrealHTTP tinycases reachincorrectPlateau.should_stop=True ratherthanharnesserror; existingtruezero controlsstayPASS.",
+  "production_review_sha256": "f90f392167a5e07f9f8928c4dd692b2512f7a23b3278d3348db53d877515dd98",
+  "test_staged_review_sha256": "f850a6ee429bc9462509979af8ab36f5fcdeb175710a60f0b33ceb358cb690a1",
+  "P37": "Actualquantity/stopping behavior, not successfuldecode/marker equality",
+  "P38": "Lossyfloat0 producesfalseoptimalzero/plateau; preservedrawnonzero forcesunavailable. Paid/genuinezero/subnormal controls distinguishproxy",
+  "P41": "not_established; pre-fix67 isownsourcecounterexample, not inheritedred",
+  "limitations": [
+    "No invoice/ledgercharge/GPbackend/scientificfiscalunit/sign/aliasauthority claim fromHTTPfixture/minimal73",
+    "Supported Decimal/numerictext underflowadmission only; arbitraryextended/customcoercible origins notestablished",
+    "Oldposterior43/MO88/State142 remainsc0qualified, nativeGP3 remains969 with explicitobjective-only680carry; no fullnumericalreplay"
+  ],
+  "formal_closed": false,
+  "accepted_G": false
+}

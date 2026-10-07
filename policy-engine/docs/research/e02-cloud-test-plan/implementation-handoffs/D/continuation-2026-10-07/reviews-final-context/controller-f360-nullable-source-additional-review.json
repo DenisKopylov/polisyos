@@ -1,0 +1,18 @@
+{
+  "reviewer": "census_oct07",
+  "status": "GO_SOURCE_WIDENING_WITH_EXISTING_FUN_OWNER11_TEST_REVIEW_PENDING_EXECUTION",
+  "patch": {
+    "path": "/dev/shm/e02-D-oct07-service-start/controller-canonical-owner-admission-persisted-final-b5.patch",
+    "sha256": "f360ffe0ffe46e589197848dab545d10838f84df8f0634ba83233c483cc0a768",
+    "bytes": 9851
+  },
+  "review": [
+    "Readfullthree-filedelta. Actualconfiguredownerpre_check invoked beforeproposal; pending/error retains original exception and no snapshotcost fallback. Known BudgetExhaustedError retains knownamount snapshot, genuineinitializedzero remainsdistinct.",
+    "OrdinaryNativeService directask stopping path consumes actualownerfence; runstate/stoppingstate actualbudget_spentNone whenunavailable ratherthan numeric0 proxy.",
+    "Freshfrom_checkpoint nullableNone admittedonlywith falseavailable, emptycostsnapshot andexplicitnonblank unavailable reason; admission exactlyadmitted/exhausted/unavailable onlyconfigured_owner_recorded_state. Unknowncannotcarry numericcost/provideraggregate/spendkeypresence/snapshot.",
+    "Historicalfinite amountwithoutadditiveadmission stayssupported. Localpre_check→snapshot isseparateexistingownerAPIpair, no nonatomicrace or distributedguarantee claim. No secondledger/schemaauthority introduced.",
+    "ExistingindependentFUN eleven actualproducer/checkpoint controls reviewed separately; no runtimePASS inferredfromsource."
+  ],
+  "runtime_result": "UNRUN_ON_FINAL_CANONICAL_B12_COMPOSITION",
+  "accepted_in_G": false
+}

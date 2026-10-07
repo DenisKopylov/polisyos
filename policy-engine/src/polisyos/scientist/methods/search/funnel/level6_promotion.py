@@ -67,33 +67,25 @@ class Level6PromotionStage(FunnelStage):
         terminal_action = "complete"
         audit_refs = list(getattr(prior_result, "audit_refs", []))
         feedback = dict(getattr(prior_result, "feedback", {}) or {})
+        if promotion_payload is not None:
+            feedback["promotion_result_read_only"] = True
         degradation_mode = str(context.get("funnel_degradation_mode", "normal"))
         preflight_blocked = degradation_mode in {"no_promotion", "reduced_judge", "auto_cap"}
-
-        owner_recheck = self._promotion_owner_recheck
-        if owner_recheck is None:
-            candidate_owner_recheck = context.get("promotion_owner_recheck")
-            if callable(candidate_owner_recheck):
-                owner_recheck = candidate_owner_recheck
 
         if (
             promotion_payload is None
             and self._promotion_runner is not None
             and not preflight_blocked
         ):
-            if owner_recheck is not None:
-                try:
-                    owner_allows_write = _owner_recheck_allows_write(
-                        owner_recheck(candidate, context)
-                    )
-                except Exception as exc:  # pragma: no cover - defensive owner boundary
-                    owner_allows_write = False
-                    feedback["promotion_owner_recheck_error"] = type(exc).__name__
-                if not owner_allows_write:
-                    terminal_action = "defer_to_human"
-                    failure_cards.append(_owner_recheck_failure_card())
-            if terminal_action == "complete":
-                promotion_payload = self._promotion_runner(candidate, context)
+            # No promotion-purpose issuer/verifier and revoke-serialized commit
+            # port is integrated here. A callback or retained bool is preflight
+            # self-attestation, not current admission at the protected writer.
+            terminal_action = "defer_to_human"
+            failure_cards.append(_owner_recheck_failure_card())
+            feedback["promotion_admission_status"] = "bridge_missing"
+            feedback["promotion_required_contract"] = (
+                "owner_issued_promotion_permit_and_revoke_serialized_commit"
+            )
 
         if preflight_blocked:
             terminal_action = "defer_to_human"
@@ -302,13 +294,8 @@ def _looks_like_policy_promotion_result(value: Any) -> bool:
 
 
 def _owner_recheck_allows_write(value: Any) -> bool:
-    """Normalize the owner callback without treating a missing result as allow."""
-
-    if isinstance(value, bool):
-        return value
-    if isinstance(value, str):
-        return value.strip().lower() in {"allow", "allowed", "authorized", "ok", "true"}
-    return bool(value)
+    """Legacy callback results cannot establish promotion-purpose admission."""
+    return False
 
 
 def _owner_recheck_failure_card() -> TypedFailureCard:
@@ -316,8 +303,8 @@ def _owner_recheck_failure_card() -> TypedFailureCard:
         judge_name="L6_promotion",
         failure_type="promotion_owner_recheck_failed",
         severity=FailureSeverity.WARNING,
-        description="Promotion owner did not confirm write permission at commit boundary.",
-        remediation_hint="Refresh the current owner permission and retry promotion.",
+        description="Promotion lacks an owner-issued permit, independent current verifier, and revoke-serialized commit boundary.",
+        remediation_hint="Integrate the appointed promotion writer's typed current-admission contract before effectful promotion.",
     )
 
 

@@ -1,0 +1,50 @@
+{
+  "actual_execution_head": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "analytic": [
+    {
+      "case": "initial",
+      "rows": 10,
+      "queries": 7,
+      "state_sha256": "923ce999aebc9a4ec3031bd188e80fbb463a39e9928ec3bb551d5883431e2960",
+      "mean_max_abs_difference": 1.4210854715202004e-14,
+      "full_covariance_max_abs_difference": 2.4147350785597155e-14,
+      "independent_method": "stdlib math RBF+Cholesky; raw corpus/formula, saved tensors decoded weights_only; no model/kernel/posterior/transform method",
+      "true_MLL_count": 1
+    },
+    {
+      "case": "conditioned",
+      "rows": 11,
+      "queries": 7,
+      "state_sha256": "f0d7097546629cb870f578f33fb3ab3b3e68d0d6b1e08c704564f76c95421814",
+      "mean_max_abs_difference": 1.4210854715202004e-14,
+      "full_covariance_max_abs_difference": 7.55046524435199e-15,
+      "independent_method": "stdlib math RBF+Cholesky; raw corpus/formula, saved tensors decoded weights_only; no model/kernel/posterior/transform method",
+      "true_MLL_count": 0
+    }
+  ],
+  "CAS_record_bytes_verified": 84,
+  "CAS_to_native_training": [
+    {
+      "case": "public-runner8",
+      "actual_rows": 8,
+      "history_ref": "sha256:ada9b5a9bd443b4e311b07995795733bfe51ba2a2388128602d36f8d87c9b889",
+      "native_model_class": "SingleTaskGP",
+      "normalized_X_max_abs_difference": 0.0,
+      "standardized_Y_max_abs_difference": 0.0,
+      "calculation": "parsed real saved history; raw analytic score formula; min/range and sample stdev independent of model transforms",
+      "posttest_ref_tamper_phase": "qualified evaluation altered only after successful fit/restore; original matching fullref bytes retained in configured-controller8 pool"
+    },
+    {
+      "case": "public-runner7",
+      "actual_rows": 7,
+      "history_ref": "sha256:202becd47b3b4b4ccb0789a535f3df614b2053aa65f5857fee3aa5a3ccc1ab79",
+      "native_model_class": "SingleTaskGP",
+      "normalized_X_max_abs_difference": 0.0,
+      "standardized_Y_max_abs_difference": 3.3306690738754696e-16,
+      "calculation": "parsed real saved history; raw analytic score formula; min/range and sample stdev independent of model transforms",
+      "posttest_ref_tamper_phase": "qualified evaluation altered only after successful fit/restore; original matching fullref bytes retained in configured-controller8 pool"
+    }
+  ],
+  "new_fits_or_models_constructed": false
+}

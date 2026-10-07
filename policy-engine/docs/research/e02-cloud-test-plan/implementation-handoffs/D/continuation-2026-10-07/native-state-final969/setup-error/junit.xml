@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="1" time="0.209" timestamp="2026-10-07T10:41:02.008605+00:00" hostname="565838a1e059"><testcase classname="" name="tests.unit.scientist.methods.autotune.test_transfer_workflow" time="0.000"><error message="collection failure">ImportError while importing test module '/dev/shm/e02-D-oct07-continuation/policy-engine/tests/unit/scientist/methods/autotune/test_transfer_workflow.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/scientist/methods/autotune/test_transfer_workflow.py:32: in &lt;module&gt;
+    from tests.unit.scientist.methods.search.strategies.test_transfer import (
+E   ModuleNotFoundError: No module named 'tests'</error></testcase></testsuite></testsuites>

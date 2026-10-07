@@ -1,0 +1,51 @@
+{
+  "schema": "e02.D.independent-review.v1",
+  "reviewer": "transfer_oct07",
+  "created_utc": "2026-10-07T14:06:23.464620+00:00",
+  "decision": "GO_SOURCE_TEST_AND_REMOVAL_ONLY",
+  "base": "4645738aee05809552e95aecb14d365793fc6bb2",
+  "test_patch_sha256": "e3fee73a20fe77684fcfa9e8e1c183ba6e8f138848cb801fdc8db09e7dbc1112",
+  "test_manifest_sha256": "474b3173b1dcf5cc548c07824fad92bda8ab249ecaad43655bc0c139d0192623",
+  "test_draft_sha256": "da7b6ac631867a0eba8ddc66e1c27837e37a98997f2adec38d26c74b1572c931",
+  "full_old_module_AST_preserved": true,
+  "new_functions": [
+    "test_public_wrapper_consumption_count_cannot_be_erased_with_paired_history",
+    "test_public_wrapper_count_covers_unavailable_converted_rows_and_skips_unusable_params",
+    "test_public_wrapper_warm_eight_cas_rows_and_zero_current_history_restore_without_refit"
+  ],
+  "scope": "10 new wrapper/CAS controls plus2 unchanged mixed-public fit consumers, distinct from prior independent posterior oracle",
+  "review": {
+    "eight_corruptions": "Actual native Sobol state consumes3converted rows including unavailable row; model_stateNone and independently nativeIteration3. Paired arrays empty/truncated, with/without count rebasing, travel actualCAS/fresh read through set_state and public history-admission port. Native artifact byte-identical; rejection retains fresh state/RNG/model.",
+    "converted_denominator": "4raw rows, one unusable-parameter skip,3converted rows including unavailable. Indexed0/1/2 andcount3 validactualCAS/fresh state produces same nextrealSobol, no fitted-model claim.",
+    "warm_zero_current": "8actual candidate/evaluation/source roleCASrefs through native HNSW/exact history/WarmStartBridge. Live+fresh realSingleTaskGP train_inputs/train_targets, Normalize bounds and Standardize means/sample-std compared with independent NumPy min/range/mean/ddof1 from originalresolvedrows. RealMLLcall delegates installed backend; receiving0 separate fromwarm8. Fresh restores model/ambientTorch without additionalMLL, same nextacquisition/no-op fits.",
+    "oracle_limit": "No model.posterior used as independent oracle; existing whole module AST unchanged and old receipts remain source-qualified."
+  },
+  "negative": {
+    "plugin_sha256": "f13c209edf1f28eedcec8ef3d7c1472f4307f7f5e694cc053950a4ca68bdec97",
+    "plugin_manifest_sha256": "1e05cba66e482c914c3caaf2b5829b0a9bb10d401ae499b1e1e99a1c95c81fc1",
+    "exact_actual_removed_guard_terms": {
+      "set_state": [
+        "count != native.iteration",
+        "len(rows) != count",
+        "len(digests) != count"
+      ],
+      "validate_checkpoint_history": [
+        "native.iteration != count",
+        "len(rows) != count",
+        "len(digests) != count"
+      ]
+    },
+    "retained": "v3schema/config/count type/nonnegative/nativeartifact/RNG/indexed records/digest comparison and actualCAS/fresh reader",
+    "mechanism": "Restore only prior paired-length coverage in bothmethods; independently native count grounding removed.",
+    "expected": "8trueassertionFAIL after actual accepts lostpaired corpus withnative3; noERROR/SKIP/timeout qualifies."
+  },
+  "P37": "independently_reconciled source/tests, runtimeUNRUN until immutable rootfreeze/actualbackend/sourceorigins/decidingoutputs",
+  "P38": "Fitted marker fields alone do not prove backend corpus; independently transformed actual train_inputs/targets now distinguish them. Native3 differs from erasedpaired0/1 underremoval.",
+  "P40": "deeper checkpoint/history marker coverage; one complete row/count/nativecursor mechanism, legitimatewarmonlyreceiving0 supported",
+  "limitations": [
+    "Declared synthetic analytic fixture is not production scientific/tenant authority.",
+    "MissingHNSW/Torch/BoTorch/GPyTorch SKIP isUNRUN, never numericalPASS.",
+    "SelectedCPU/sequential/same-version profile only, no distributed/concurrent/GPU/cross-version claim."
+  ],
+  "no_source_index_git_mutations": true
+}

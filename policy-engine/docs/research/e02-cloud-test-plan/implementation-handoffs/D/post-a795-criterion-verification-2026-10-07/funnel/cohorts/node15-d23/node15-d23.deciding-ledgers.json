@@ -1,0 +1,125 @@
+{
+  "scope": "Actual post-test canonical fixture state. Not a standalone scientific or authority verdict.",
+  "files": [
+    {
+      "fixture_path": "test_literal_node_configured_p0/native-resources/budget.json",
+      "bytes": 5588,
+      "sha256": "a5722155cdc48d51d9b796f820bdec62ef0e5653749617e11fc4c84280226493",
+      "lossless_gzip": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-d23-deciding-ledgers/6474dd6760757fc5.json.gz",
+      "gzip_bytes": 903,
+      "gzip_sha256": "4de5b9b8b634afed5f2e0797ea5060b8c8e1a25e0881b7f100d7e415f7d524a2"
+    },
+    {
+      "fixture_path": "test_literal_node_configured_p1/native-resources/budget.json",
+      "bytes": 5588,
+      "sha256": "b36d7418ef435c23747fba1ed271b8e523d958c1a15898bccc8a6e5e45e6f653",
+      "lossless_gzip": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-d23-deciding-ledgers/90a99a3ddb25ff62.json.gz",
+      "gzip_bytes": 900,
+      "gzip_sha256": "e3617b857190840fcdb992e96f17a31fac191e39bb7f3f823b3658b084161921"
+    },
+    {
+      "fixture_path": "test_literal_node_configured_p2/native-resources/budget.json",
+      "bytes": 5588,
+      "sha256": "254ec4e868770aafdf6e388f1f9512c4b70f4386955600962ff9371dab50a795",
+      "lossless_gzip": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-d23-deciding-ledgers/dd1821c775849080.json.gz",
+      "gzip_bytes": 908,
+      "gzip_sha256": "294e252ecb120a2bf92948b9fdc9e3ce7d1973fb1f8c6bd280e524cda36d751c"
+    },
+    {
+      "fixture_path": "test_literal_node_configured_p3/native-resources/budget.json",
+      "bytes": 5588,
+      "sha256": "b67269f6f9ed2a23c6f43b1bb912282e499a6db34720f020438f0b567e2cc27b",
+      "lossless_gzip": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-d23-deciding-ledgers/64b7ae3a9cd3c222.json.gz",
+      "gzip_bytes": 900,
+      "gzip_sha256": "056fdfef2e7b8f5d2ad5961bce737d1fda3d673d5adbaa06bc6bf822b7e3cac4"
+    },
+    {
+      "fixture_path": "test_literal_node_empty_has_no0/native-resources/budget.json",
+      "bytes": 887,
+      "sha256": "603a06dac698764a84bf2722443539881b4d6c4a36eb78cb41e916c7872e74c9",
+      "lossless_gzip": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-d23-deciding-ledgers/608c1bff651e423c.json.gz",
+      "gzip_bytes": 407,
+      "gzip_sha256": "573f5bd586fbff182ba953b4af1104a869bcbba6783191f8b8233f8919d3a8e3"
+    },
+    {
+      "fixture_path": "test_literal_node_empty_has_no1/native-resources/budget.json",
+      "bytes": 887,
+      "sha256": "3a215d31bbcf3af72ef4324d10ca4647d7f9d6bf70cac4132b76a367e3806b50",
+      "lossless_gzip": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-d23-deciding-ledgers/1c72e21928f0be4b.json.gz",
+      "gzip_bytes": 408,
+      "gzip_sha256": "51ec3b5ba39f970e26442f445347878cbda8b06b85b639cd4365b42b490da450"
+    },
+    {
+      "fixture_path": "test_literal_node_final_aggreg0/native-resources/budget.json",
+      "bytes": 5588,
+      "sha256": "96d4b230e75e4b84f36028314dfd107f049f24e2823c785548fd70a89aa11753",
+      "lossless_gzip": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-d23-deciding-ledgers/cdb25e4f0ba3d035.json.gz",
+      "gzip_bytes": 902,
+      "gzip_sha256": "b3edc0a2123bc28a7350ff0ed986a149eef0048760233c283c26185a7a2f6c34"
+    },
+    {
+      "fixture_path": "test_literal_node_final_aggreg1/native-resources/budget.json",
+      "bytes": 5586,
+      "sha256": "da47e3ff38cc2204234d25248861e3414e1258b59a4b4fa065f5af480053c6f8",
+      "lossless_gzip": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-d23-deciding-ledgers/49a4c4f54602f52f.json.gz",
+      "gzip_bytes": 901,
+      "gzip_sha256": "c2c1e49368ab10f1219149b8e56a43e4b1ffeca4c1bc935904170827d492ec5f"
+    },
+    {
+      "fixture_path": "test_literal_node_unknown_cost0/native-resources/budget.json",
+      "bytes": 2477,
+      "sha256": "eddff71453b1f276c6f45c6017c2ae567ed291cd772d199bea17524853fe8ea0",
+      "lossless_gzip": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-d23-deciding-ledgers/ee8475cd813df139.json.gz",
+      "gzip_bytes": 867,
+      "gzip_sha256": "8a86b462aaa02cdeb05561790e7bb9c4e9d138e76f4e43cb3ad10300ded655bf"
+    },
+    {
+      "fixture_path": "test_literal_node_unknown_cost1/native-resources/budget.json",
+      "bytes": 2477,
+      "sha256": "bb5f9b73972ec0b1a3ba9b83ad1c062660bc53923d24bd7d58a047bc98eca8b4",
+      "lossless_gzip": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-d23-deciding-ledgers/718ccd95693ee148.json.gz",
+      "gzip_bytes": 866,
+      "gzip_sha256": "3e18e026bf3ceb98d4291e3b86e099f7b91d78c22b3fe6e9dedc2b158161d970"
+    },
+    {
+      "fixture_path": "test_literal_node_width_retain0/native-resources/budget.json",
+      "bytes": 5588,
+      "sha256": "99ffea9de0c994bb97d6613b819dd951730f91c03d2d5b98553976af7b428512",
+      "lossless_gzip": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-d23-deciding-ledgers/360a90f2469daaea.json.gz",
+      "gzip_bytes": 901,
+      "gzip_sha256": "5ad373ec9e6f5d28960fcc0d93df7a0745c1d671e6414296e18d5b3b83da6a9e"
+    },
+    {
+      "fixture_path": "test_literal_node_width_retain1/native-resources/budget.json",
+      "bytes": 5614,
+      "sha256": "8716f9422751177d19057aed23ac39517503b45d442688a5e7bc4e6ab3abe797",
+      "lossless_gzip": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-d23-deciding-ledgers/00e74a9db3bfc443.json.gz",
+      "gzip_bytes": 906,
+      "gzip_sha256": "f3644d3d8c1055af22a6ac99c557fa4332bf6115a08547067f398e3b5464d6cb"
+    },
+    {
+      "fixture_path": "test_literal_node_width_retain2/native-resources/budget.json",
+      "bytes": 5614,
+      "sha256": "3a984d4550a7b8dbe200be79ee997c9f152140c1952a60a1dcbf337ad5679cf3",
+      "lossless_gzip": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-d23-deciding-ledgers/5924b4ae0483e465.json.gz",
+      "gzip_bytes": 905,
+      "gzip_sha256": "4b0b3a9fca7114abf98c9187f618166830530a7e9a8380d11d071657833a3280"
+    },
+    {
+      "fixture_path": "test_literal_node_width_retain3/native-resources/budget.json",
+      "bytes": 5588,
+      "sha256": "e2f10fee84261c6c62c11631b3f522a5af432ea72a0caf81c74eb8eb6d60088c",
+      "lossless_gzip": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-d23-deciding-ledgers/2842be5457f7bad9.json.gz",
+      "gzip_bytes": 903,
+      "gzip_sha256": "ef312eef3cdfddfb7de693242c343ec7462519742709277c4316a015d51324f5"
+    },
+    {
+      "fixture_path": "test_literal_node_width_retain4/native-resources/budget.json",
+      "bytes": 5588,
+      "sha256": "dc8c42859af9e5d7ffe1c48e9e29947a9226f0d88f1b18eea57e026831a3aaeb",
+      "lossless_gzip": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-d23-deciding-ledgers/0429c50dac0f6e21.json.gz",
+      "gzip_bytes": 901,
+      "gzip_sha256": "f1289829705015d45f9cd8fcc9d6b8aed49ca4b4767240e6624ca542c01a48e7"
+    }
+  ]
+}

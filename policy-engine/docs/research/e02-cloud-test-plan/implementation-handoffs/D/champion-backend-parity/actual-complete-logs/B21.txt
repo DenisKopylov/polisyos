@@ -1,0 +1,60 @@
+Using Python 3.14.7 environment at: /dev/shm/e02-D-parity-env
+Resolved 1 package in 2ms
+   Building polisyos-fabric-connector-example @ file:///workspace/e02-D-published-root/policy-engine/examples/extensions/fabric_connector
+      Built polisyos-fabric-connector-example @ file:///workspace/e02-D-published-root/policy-engine/examples/extensions/fabric_connector
+Prepared 1 package in 4.08s
+Installed 1 package in 0.30ms
+ + polisyos-fabric-connector-example==0.1.0 (from file:///workspace/e02-D-published-root/policy-engine/examples/extensions/fabric_connector)
+Using Python 3.14.7 environment at: /dev/shm/e02-D-parity-env
+Resolved 1 package in 2ms
+   Building polisyos-foundry-method-example @ file:///workspace/e02-D-published-root/policy-engine/examples/extensions/foundry_method
+      Built polisyos-foundry-method-example @ file:///workspace/e02-D-published-root/policy-engine/examples/extensions/foundry_method
+Prepared 1 package in 328ms
+Installed 1 package in 0.27ms
+ + polisyos-foundry-method-example==0.1.0 (from file:///workspace/e02-D-published-root/policy-engine/examples/extensions/foundry_method)
+Using Python 3.14.7 environment at: /dev/shm/e02-D-parity-env
+Resolved 1 package in 2ms
+   Building polisyos-scientist-governance-pass-example @ file:///workspace/e02-D-published-root/policy-engine/examples/extensions/scientist_governance_pass
+      Built polisyos-scientist-governance-pass-example @ file:///workspace/e02-D-published-root/policy-engine/examples/extensions/scientist_governance_pass
+Prepared 1 package in 370ms
+Installed 1 package in 0.24ms
+ + polisyos-scientist-governance-pass-example==0.1.0 (from file:///workspace/e02-D-published-root/policy-engine/examples/extensions/scientist_governance_pass)
+Using Python 3.14.7 environment at: /dev/shm/e02-D-parity-env
+Resolved 1 package in 1ms
+   Building polisyos-scientist-node-example @ file:///workspace/e02-D-published-root/policy-engine/examples/extensions/scientist_node
+      Built polisyos-scientist-node-example @ file:///workspace/e02-D-published-root/policy-engine/examples/extensions/scientist_node
+Prepared 1 package in 337ms
+Installed 1 package in 0.25ms
+ + polisyos-scientist-node-example==0.1.0 (from file:///workspace/e02-D-published-root/policy-engine/examples/extensions/scientist_node)
+Using Python 3.14.7 environment at: /dev/shm/e02-D-parity-env
+Resolved 1 package in 2ms
+   Building polisyos-data-forge-domain-example @ file:///workspace/e02-D-published-root/policy-engine/examples/extensions/data_forge_domain
+      Built polisyos-data-forge-domain-example @ file:///workspace/e02-D-published-root/policy-engine/examples/extensions/data_forge_domain
+Prepared 1 package in 334ms
+Installed 1 package in 0.24ms
+ + polisyos-data-forge-domain-example==0.1.0 (from file:///workspace/e02-D-published-root/policy-engine/examples/extensions/data_forge_domain)
+Using Python 3.14.7 environment at: /dev/shm/e02-D-parity-env
+Resolved 1 package in 2ms
+   Building polisyos-lex-normpack-example @ file:///workspace/e02-D-published-root/policy-engine/examples/extensions/lex_normpack
+      Built polisyos-lex-normpack-example @ file:///workspace/e02-D-published-root/policy-engine/examples/extensions/lex_normpack
+Prepared 1 package in 337ms
+Installed 1 package in 0.24ms
+ + polisyos-lex-normpack-example==0.1.0 (from file:///workspace/e02-D-published-root/policy-engine/examples/extensions/lex_normpack)
+Using Python 3.14.7 environment at: /dev/shm/e02-D-parity-env
+Resolved 1 package in 2ms
+   Building polisyos-runtime-middleware-example @ file:///workspace/e02-D-published-root/policy-engine/examples/extensions/runtime_middleware
+      Built polisyos-runtime-middleware-example @ file:///workspace/e02-D-published-root/policy-engine/examples/extensions/runtime_middleware
+Prepared 1 package in 338ms
+Installed 1 package in 0.25ms
+ + polisyos-runtime-middleware-example==0.1.0 (from file:///workspace/e02-D-published-root/policy-engine/examples/extensions/runtime_middleware)
+discovered 6 extension examples
+discovered 1 governance pass extension example(s)
+........                                                                 [100%]
+[extension-examples] install -e examples/extensions/fabric_connector
+[extension-examples] install -e examples/extensions/foundry_method
+[extension-examples] install -e examples/extensions/scientist_governance_pass
+[extension-examples] install -e examples/extensions/scientist_node
+[extension-examples] install -e examples/extensions/data_forge_domain
+[extension-examples] install -e examples/extensions/lex_normpack
+[extension-examples] install -e examples/extensions/runtime_middleware
+Extension example gate passed for 7 example(s).

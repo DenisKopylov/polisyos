@@ -1,0 +1,32 @@
+{
+  "classification": "PASS_PACKAGING_BYTES_ONLY",
+  "candidate_sha": "9a8f72e42b48e59820b6983eda2f94816a1a4aed",
+  "candidate_tree": "27b6c1a313aed5a88a6c9dc135df36035c168f71",
+  "original_sha": "334f3b0e8a1e7313dbe05fec46331f1c52a9c5ad",
+  "original_carrier_sha256": "87d7375a40bbbfeacb58d94be706ee0b0a047f4db63a6b9a172eab7b94369d3c",
+  "current_carrier_sha256": "6b3c990bf15cbae25378ccdd07401527f92657992914c2f06748e7b73ac9872d",
+  "other_members_unchanged": 58,
+  "replacements": [
+    {
+      "index": 54,
+      "name": "owner_fb9/champion-profile-final-verify.py.txt",
+      "git_blob": "931afecb68048a22a5af8329a7332953d2ea1a35",
+      "bytes": 2218,
+      "sha256": "027e678329e3b46ec84e992488f67021aaa16d0986b9b95579a3a1f2b2e77ab8"
+    },
+    {
+      "index": 57,
+      "name": "owner_fb9/champion-profile-final-removal.py.txt",
+      "git_blob": "a6097c24d45f13bfa310afcf3c2b5eb41a0f1163",
+      "bytes": 1467,
+      "sha256": "ef05a3a28783e7c6001168ddcb91438abf83dbe4d16268b476aba7c8e20d77be"
+    }
+  ],
+  "exact_raw_restoration_sha256": "d26fdd61420a78d7a4979aa3acb875804e6f74ef97181fc2997d7dc796e53cc0",
+  "metadata_delta_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/independent-service-f258-output.json.gz",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/independent-service-f258-packaging-correction.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/independent-service-f258-packaging.README.md"
+  ],
+  "runtime_or_product_or_test_edits": 0
+}

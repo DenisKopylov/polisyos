@@ -1,0 +1,462 @@
+{
+  "schema": "e02.D.original16-owner-packets.FUN-scoped-b652-updates.v1",
+  "original_owner_packet_source": {
+    "sha": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+    "bytes": 135805,
+    "sha256": "34b45fe0e47cf07f4a5f7a109008e8f637a0b2650e5f1f1e4087a419c3c13c0a"
+  },
+  "source": {
+    "sha": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+    "tree": "e677b5e24493a7083287c3bea31bca1892c3be29"
+  },
+  "fresh_G_checkpoint": "ebae80eaa25482d84bc6ad2e78721bc318bc0228",
+  "denominator": {
+    "packets": 16,
+    "findings": 45,
+    "occurrences": 46,
+    "FUN_owned_occurrences": 11
+  },
+  "rows": [
+    {
+      "key": "tenant_split_transfer",
+      "finding_ids": [
+        "B131"
+      ],
+      "original_relation_to_criterion": "required_original_positive",
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "json_pointer": "/packets/0",
+        "canonical_packet_sha256": "960cfdc39fac59244a97d7a2f846f23a7db22008de5048b67d9a6a1eb50dafe0"
+      },
+      "original_minimum_input_ref": null,
+      "accepted_in_G": false,
+      "formal_closed": false,
+      "D_FUN_scope": "outside FUN source/closure lease; root merges corresponding owner disposition",
+      "current_state": "DEFER_TO_ROOT_CURRENT_OWNER_RECEIPT_NO_LEAF_RECLASSIFICATION",
+      "production_positive_minref": null,
+      "predicate_basis": "not_assessed_by_FUN; no unchanged historical missing claim carried forward",
+      "owner_action": "Use current matching independent queue source/receipt, preserve original requirement and minimum scoped real input."
+    },
+    {
+      "key": "authorized_revalidation",
+      "finding_ids": [
+        "B137"
+      ],
+      "original_relation_to_criterion": "required_original_positive",
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "json_pointer": "/packets/1",
+        "canonical_packet_sha256": "c9908d6856203b197664ffa9c92bd172275a7555ad83a9dc65576292a3468a81"
+      },
+      "original_minimum_input_ref": null,
+      "accepted_in_G": false,
+      "formal_closed": false,
+      "D_FUN_scope": "outside FUN source/closure lease; root merges corresponding owner disposition",
+      "current_state": "DEFER_TO_ROOT_CURRENT_OWNER_RECEIPT_NO_LEAF_RECLASSIFICATION",
+      "production_positive_minref": null,
+      "predicate_basis": "not_assessed_by_FUN; no unchanged historical missing claim carried forward",
+      "owner_action": "Use current matching independent queue source/receipt, preserve original requirement and minimum scoped real input."
+    },
+    {
+      "key": "native_draw_producer",
+      "finding_ids": [
+        "B157"
+      ],
+      "original_relation_to_criterion": "required_original_positive",
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "json_pointer": "/packets/2",
+        "canonical_packet_sha256": "49960044292b9ad087d1f24605b0ce3a404503ee326e5e5e0f020a065fb8b547"
+      },
+      "original_minimum_input_ref": null,
+      "accepted_in_G": false,
+      "formal_closed": false,
+      "D_FUN_scope": "owned scientific/authority prerequisite packet",
+      "current_state": "held/not_established",
+      "requested_owner": "E/F native sample/input owner, B appointed ordinary runtime factory; D consumes",
+      "actual_minrefs": null,
+      "typed_requirements": [
+        "actual sample/work ArtifactRef with seed/config/estimand and native report",
+        "effective native L3 reduced and L4 full values actually consumed; untouched caller/run scope",
+        "directL4 versus L3->L4 allowed outputs and cost/work counts on one exact input"
+      ],
+      "consumer": "ProductionPolicyEvaluationBackend -> _PolicyRuntimeWorkflowEngine -> L3/L4 -> native node result",
+      "minimum_local_recipe": "Owner supplies minimal report/samples/profile and supported factory input. Compare same request directL4 and L3->L4, inspect actual materialized draws/work and preserved caller state. Foundry20/80 fixture is a separate supported profile, not native labels500/64/32.",
+      "positive": "UNRUN; no synthetic substitute",
+      "bounded_controls": "actual a7 affected138/state113 and exact carry b652, independent review; no requested native law/authority positive"
+    },
+    {
+      "key": "same_scope_refinement",
+      "finding_ids": [
+        "B161"
+      ],
+      "original_relation_to_criterion": "required_original_positive",
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "json_pointer": "/packets/3",
+        "canonical_packet_sha256": "9b914cf26ff3fdb23bbc1f3f103171c8d4c5d3087c62faee6aa1318d6c837730"
+      },
+      "original_minimum_input_ref": null,
+      "accepted_in_G": false,
+      "formal_closed": false,
+      "D_FUN_scope": "owned scientific/authority prerequisite packet",
+      "current_state": "held/not_established",
+      "requested_owner": "G appoints existing knowledge/refinement authority and producer owner",
+      "actual_minrefs": null,
+      "typed_requirements": [
+        "prior/later exact evidence refs: same subject/value/population/input/rule/time",
+        "explicit authorized refinement/supersession relation with occurrence anchors",
+        "independent risk components remain high/unknown and different population does not replace old unknown"
+      ],
+      "consumer": "UncertaintyEnvelope / L5 tracker -> FunnelOrchestrator aggregate result",
+      "minimum_local_recipe": "Owner provides minimal paired estimates plus declared rule. Exercise actual aggregate consumer and independently compare refined target and preserved independent high risk. No global min/last-write rule is invented.",
+      "positive": "UNRUN; no synthetic substitute",
+      "bounded_controls": "actual a7 affected138/state113 and exact carry b652, independent review; no requested native law/authority positive"
+    },
+    {
+      "key": "typed_write_permit",
+      "finding_ids": [
+        "B164"
+      ],
+      "original_relation_to_criterion": "required_original_positive",
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "json_pointer": "/packets/4",
+        "canonical_packet_sha256": "9e33b47f1edd302fc68ac02c4e20835c467bff3c41c37db84e300a46670985e2"
+      },
+      "original_minimum_input_ref": null,
+      "accepted_in_G": false,
+      "formal_closed": false,
+      "D_FUN_scope": "owned scientific/authority prerequisite packet",
+      "current_state": "held/not_established",
+      "requested_owner": "G appoints existing promotion issuer/current verifier/write owner",
+      "actual_minrefs": null,
+      "typed_requirements": [
+        "owner-issued typed permit bound run/candidate/ticket generation/purpose/schema/rule/provenance/time/revocation epoch",
+        "existing writer verify+effect commit boundary serialized with revoke/current generation",
+        "real prepared payload; validpositive persistedoneeffect/freshreadback; wrongissuer/purpose/scope/expired/stale/revokedzero; revoke afterpreflight booltrue zeroeffects"
+      ],
+      "consumer": "Level6PromotionStage -> appointed existing write owner",
+      "minimum_local_recipe": "Supply exact issuer/verifier/write owner source/API and minimal permit/payload refs. Use barrier revoke after preflight and observe persisted effects with fresh reader. Current generic bool/callback refusal remains bridge_missing; no owner-issued positive run exists. Generic artifact signing or evaluation permits do not appoint promotion purpose.",
+      "positive": "UNRUN; no synthetic substitute",
+      "bounded_controls": "actual a7 affected138/state113 and exact carry b652, independent review; no requested native law/authority positive"
+    },
+    {
+      "key": "lossless_gateway_cost",
+      "finding_ids": [
+        "B120"
+      ],
+      "original_relation_to_criterion": "required_original_numeric_boundary",
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "json_pointer": "/packets/5",
+        "canonical_packet_sha256": "a1f8ecfc11a0ed70493e45e297b372ab038a2f1fc3e5a42ea9a208bc5ce29b6e"
+      },
+      "original_minimum_input_ref": null,
+      "accepted_in_G": false,
+      "formal_closed": false,
+      "D_FUN_scope": "current financial/consumer source evidence contribution; root joins cross-unit/owner-quality decisions",
+      "current_state": "OWNER_IMPLEMENTATION_ADOPTED_ACTUAL_CURRENT_BOUNDARY_PASS",
+      "current_scope_and_limitations": "Canonical B e7 successful-response JSON Decimal decoder and source-selected B1.2 adopted. Exact a7 raw32/HTTP30 and b652 configured factory zero/paid/tiny controls actualPASS. No invoice truth claim.",
+      "actual_receipts": "raw32-a7e;owner-HTTP30-a7e;publicfactory10-b652",
+      "actual_supplier_sources": {
+        "B_adapters": "f0111fefcb6fa48e8ccb4aab213a14694dc206ad",
+        "B_durability": "7ea3e5b4c9799e8c1bad62ea26a84a4fb9eb1894",
+        "B_runtime": "21dbeabe539f8154c30e5b2e1745d8d34224fe34",
+        "B_decoder_owner_implementation": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+        "B_HTTP30_owner_test": "81abcf87803270ed1463157d4149722d7b04ab42"
+      },
+      "production_positive_minref": null,
+      "predicate_basis": "recomputed actual declared profile; source-qualified unchanged a7 carry to b652, new factory10 actualb652"
+    },
+    {
+      "key": "owned_multikey_durability",
+      "finding_ids": [
+        "B120",
+        "B158",
+        "B159"
+      ],
+      "original_relation_to_criterion": "actual_default_translator_two_key_durability_profile_dependency",
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "json_pointer": "/packets/6",
+        "canonical_packet_sha256": "1c01e945a423c29f2631f35c424cba9255018dc5355f0f592a76b9da914b2925"
+      },
+      "original_minimum_input_ref": null,
+      "accepted_in_G": false,
+      "formal_closed": false,
+      "D_FUN_scope": "current financial/consumer source evidence contribution; root joins cross-unit/owner-quality decisions",
+      "current_state": "CANONICAL_B12_CONSUMED_PROFILE_AVAILABLE_ACTUAL_BOUND_SCOPE_PASS",
+      "current_scope_and_limitations": "Actual default translator consumes two accounting keys. Full/split and one physical-event identity/fresh receipt/retry/unknownACK controls PASS via existing B1.2 APIs. Cross-key all-or-nothing/distributed semantics are not inferred; canonical owner schema/transition contract remains selected B source.",
+      "actual_receipts": "affected138-a7e;owner-defining9-a7e;defining-state7-a7e",
+      "actual_supplier_sources": {
+        "B_adapters": "f0111fefcb6fa48e8ccb4aab213a14694dc206ad",
+        "B_durability": "7ea3e5b4c9799e8c1bad62ea26a84a4fb9eb1894",
+        "B_runtime": "21dbeabe539f8154c30e5b2e1745d8d34224fe34",
+        "B_decoder_owner_implementation": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+        "B_HTTP30_owner_test": "81abcf87803270ed1463157d4149722d7b04ab42"
+      },
+      "production_positive_minref": null,
+      "predicate_basis": "recomputed actual declared profile; source-qualified unchanged a7 carry to b652, new factory10 actualb652"
+    },
+    {
+      "key": "public_typed_budget_snapshot",
+      "finding_ids": [
+        "B118",
+        "B120",
+        "B121"
+      ],
+      "original_relation_to_criterion": "additional_read_contract_only",
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "json_pointer": "/packets/7",
+        "canonical_packet_sha256": "314d591b14b1033a07dea214cdf43cc06731875c18fafb229dc0f6e1c1570555"
+      },
+      "original_minimum_input_ref": null,
+      "accepted_in_G": false,
+      "formal_closed": false,
+      "D_FUN_scope": "current financial/consumer source evidence contribution; root joins cross-unit/owner-quality decisions",
+      "current_state": "EXISTING_PUBLIC_OWNER_READ_AND_FRESH_RECEIPT_CONSUMER_AVAILABLE",
+      "current_scope_and_limitations": "Current D consumer fences actual configured owner.pre_check before existing public budget_state; fresh public FileBudgetLedger.snapshot exposes canonical revision/receipt/owner schema. Unknown admission projects typedNone and refuses proposal; knownemptyzero/paid preserved. Convenience delegate/public-surface decision remains separate owner-quality scope, not a missing original budget consumer.",
+      "actual_receipts": "publicfactory10-b652;affected138-a7e;defining-state7-a7e",
+      "actual_supplier_sources": {
+        "B_adapters": "f0111fefcb6fa48e8ccb4aab213a14694dc206ad",
+        "B_durability": "7ea3e5b4c9799e8c1bad62ea26a84a4fb9eb1894",
+        "B_runtime": "21dbeabe539f8154c30e5b2e1745d8d34224fe34",
+        "B_decoder_owner_implementation": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+        "B_HTTP30_owner_test": "81abcf87803270ed1463157d4149722d7b04ab42"
+      },
+      "production_positive_minref": null,
+      "predicate_basis": "recomputed actual declared profile; source-qualified unchanged a7 carry to b652, new factory10 actualb652"
+    },
+    {
+      "key": "A_frontier_default_workflow",
+      "finding_ids": [
+        "B109"
+      ],
+      "original_relation_to_criterion": "separate_G_ordinary_workflow_task",
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "json_pointer": "/packets/8",
+        "canonical_packet_sha256": "5908f8634fe3e0a75840acf1de999c3da6a4ad276da49dae4fb8d25728257298"
+      },
+      "original_minimum_input_ref": null,
+      "accepted_in_G": false,
+      "formal_closed": false,
+      "D_FUN_scope": "outside FUN source/closure lease; root merges corresponding owner disposition",
+      "current_state": "DEFER_TO_ROOT_CURRENT_OWNER_RECEIPT_NO_LEAF_RECLASSIFICATION",
+      "production_positive_minref": null,
+      "predicate_basis": "not_assessed_by_FUN; no unchanged historical missing claim carried forward",
+      "owner_action": "Use current matching independent queue source/receipt, preserve original requirement and minimum scoped real input."
+    },
+    {
+      "key": "served_hierarchical_context",
+      "finding_ids": [
+        "LA-014",
+        "LA-015",
+        "B109"
+      ],
+      "original_relation_to_criterion": "separate_G_served_factory_scope",
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "json_pointer": "/packets/9",
+        "canonical_packet_sha256": "a795a6a5cabfd14db3dfe53960f7959ea4aaaaaa9dd069260d2a4aca25935cc9"
+      },
+      "original_minimum_input_ref": null,
+      "accepted_in_G": false,
+      "formal_closed": false,
+      "D_FUN_scope": "outside FUN source/closure lease; root merges corresponding owner disposition",
+      "current_state": "DEFER_TO_ROOT_CURRENT_OWNER_RECEIPT_NO_LEAF_RECLASSIFICATION",
+      "production_positive_minref": null,
+      "predicate_basis": "not_assessed_by_FUN; no unchanged historical missing claim carried forward",
+      "owner_action": "Use current matching independent queue source/receipt, preserve original requirement and minimum scoped real input."
+    },
+    {
+      "key": "ordinary_blueprint_configured_owner",
+      "finding_ids": [
+        "B120",
+        "B158",
+        "B160",
+        "B165"
+      ],
+      "original_relation_to_criterion": "additional_actual_factory_profile",
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "json_pointer": "/packets/10",
+        "canonical_packet_sha256": "f45c0e693b3027b763eb228c5cb56b42c246584cd9824f3e0d0bab122a441fe3"
+      },
+      "original_minimum_input_ref": null,
+      "accepted_in_G": false,
+      "formal_closed": false,
+      "D_FUN_scope": "current financial/consumer source evidence contribution; root joins cross-unit/owner-quality decisions",
+      "current_state": "ACTUAL_BOUNDED_CONFIGURED_NATIVE_FACTORY_CONSUMER_PROVIDED",
+      "current_scope_and_limitations": "Existing configured B factory/native policy callers supply actual physical operations and canonical settlement→FUN/blueprint projection→fresh ledger/CAS in supported fixture context. This does not appoint production caller/evaluation authority/native sample producer; minimum real production refs only if that distinct scope is requested.",
+      "actual_receipts": "cache18-a7e;affected138-a7e;publicfactory10-b652",
+      "actual_supplier_sources": {
+        "B_adapters": "f0111fefcb6fa48e8ccb4aab213a14694dc206ad",
+        "B_durability": "7ea3e5b4c9799e8c1bad62ea26a84a4fb9eb1894",
+        "B_runtime": "21dbeabe539f8154c30e5b2e1745d8d34224fe34",
+        "B_decoder_owner_implementation": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+        "B_HTTP30_owner_test": "81abcf87803270ed1463157d4149722d7b04ab42"
+      },
+      "production_positive_minref": null,
+      "predicate_basis": "recomputed actual declared profile; source-qualified unchanged a7 carry to b652, new factory10 actualb652"
+    },
+    {
+      "key": "B_canonical_history_compatibility",
+      "finding_ids": [
+        "LA-014",
+        "LA-015",
+        "B120"
+      ],
+      "original_relation_to_criterion": "additional_actual_persisted_owner_profile",
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "json_pointer": "/packets/11",
+        "canonical_packet_sha256": "c2b419b6db3d6675016f0808ba99f599cae448f7d8157f7248d8f245e9db1074"
+      },
+      "original_minimum_input_ref": null,
+      "accepted_in_G": false,
+      "formal_closed": false,
+      "D_FUN_scope": "current financial/consumer source evidence contribution; root joins cross-unit/owner-quality decisions",
+      "current_state": "OWNER_B12_SUPPORTED_MIGRATION_REFUSAL_AND_NATIVE_READS_AVAILABLE",
+      "current_scope_and_limitations": "Owner-selected legacy1.0/1.1 to1.2 migration/refusal tests and operator docs adopted; supported native persisted SearchRunState/Service fresh reads tested. Actual production persisted history refs remain local/read-only and are requested only for a criterion asserting those histories; no invented D-shaped1.0 schema.",
+      "actual_receipts": "owner-defining9-a7e;defining-state7-a7e;publicfactory10-b652",
+      "actual_supplier_sources": {
+        "B_adapters": "f0111fefcb6fa48e8ccb4aab213a14694dc206ad",
+        "B_durability": "7ea3e5b4c9799e8c1bad62ea26a84a4fb9eb1894",
+        "B_runtime": "21dbeabe539f8154c30e5b2e1745d8d34224fe34",
+        "B_decoder_owner_implementation": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+        "B_HTTP30_owner_test": "81abcf87803270ed1463157d4149722d7b04ab42"
+      },
+      "production_positive_minref": null,
+      "predicate_basis": "recomputed actual declared profile; source-qualified unchanged a7 carry to b652, new factory10 actualb652"
+    },
+    {
+      "key": "B_public_API_surface",
+      "finding_ids": [
+        "B118",
+        "B120",
+        "B121",
+        "LA-014",
+        "LA-015"
+      ],
+      "original_relation_to_criterion": "separate_quality_API_gate",
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "json_pointer": "/packets/12",
+        "canonical_packet_sha256": "89aa7d0c474bf466fcfdab4aeda5368373e355c2650c6e7b17792f2c5fce114a"
+      },
+      "original_minimum_input_ref": null,
+      "accepted_in_G": false,
+      "formal_closed": false,
+      "D_FUN_scope": "current financial/consumer source evidence contribution; root joins cross-unit/owner-quality decisions",
+      "current_state": "OWNER_SOURCE_SIGNATURES_CLASSIFICATION_COMPANIONS_ADOPTED_QUALITY_DECISION_SEPARATE",
+      "current_scope_and_limitations": "Canonical source/API/README/structured release and supported consumer interfaces adopted. Actual runtimePASS does not establish complete generated API/schema/architecture/frontend quality gates; canonical owner inventory/companion disposition remains root/B review responsibility.",
+      "actual_receipts": "owner-defining9-a7e;canonical adopted source/full independent source reviews",
+      "actual_supplier_sources": {
+        "B_adapters": "f0111fefcb6fa48e8ccb4aab213a14694dc206ad",
+        "B_durability": "7ea3e5b4c9799e8c1bad62ea26a84a4fb9eb1894",
+        "B_runtime": "21dbeabe539f8154c30e5b2e1745d8d34224fe34",
+        "B_decoder_owner_implementation": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+        "B_HTTP30_owner_test": "81abcf87803270ed1463157d4149722d7b04ab42"
+      },
+      "production_positive_minref": null,
+      "predicate_basis": "recomputed actual declared profile; source-qualified unchanged a7 carry to b652, new factory10 actualb652"
+    },
+    {
+      "key": "E_mutable_cardinality_cap",
+      "finding_ids": [
+        "B106",
+        "B107",
+        "B112",
+        "B113",
+        "B127"
+      ],
+      "original_relation_to_criterion": "E_DOE01_dependency_profile",
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "json_pointer": "/packets/13",
+        "canonical_packet_sha256": "7f2d5be5e9c15082b5b84e0bd90a826504624936b626367c9f18a6ce6fc7b1e3"
+      },
+      "original_minimum_input_ref": null,
+      "accepted_in_G": false,
+      "formal_closed": false,
+      "D_FUN_scope": "outside FUN source/closure lease; root merges corresponding owner disposition",
+      "current_state": "DEFER_TO_ROOT_CURRENT_OWNER_RECEIPT_NO_LEAF_RECLASSIFICATION",
+      "production_positive_minref": null,
+      "predicate_basis": "not_assessed_by_FUN; no unchanged historical missing claim carried forward",
+      "owner_action": "Use current matching independent queue source/receipt, preserve original requirement and minimum scoped real input."
+    },
+    {
+      "key": "owner_declared_fiscal_profile",
+      "finding_ids": [
+        "B108"
+      ],
+      "original_relation_to_criterion": "separate_scientific_issuer_claim",
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "json_pointer": "/packets/14",
+        "canonical_packet_sha256": "17da85fe955eda61ec3edbaeeea9d4544e0f384bb5ad3327824d5fd2c0dce59f"
+      },
+      "original_minimum_input_ref": null,
+      "accepted_in_G": false,
+      "formal_closed": false,
+      "D_FUN_scope": "outside FUN source/closure lease; root merges corresponding owner disposition",
+      "current_state": "DEFER_TO_ROOT_CURRENT_OWNER_RECEIPT_NO_LEAF_RECLASSIFICATION",
+      "production_positive_minref": null,
+      "predicate_basis": "not_assessed_by_FUN; no unchanged historical missing claim carried forward",
+      "owner_action": "Use current matching independent queue source/receipt, preserve original requirement and minimum scoped real input."
+    },
+    {
+      "key": "D_coordinate_volume_corrective",
+      "finding_ids": [
+        "B110",
+        "B111"
+      ],
+      "original_relation_to_criterion": "required_original_same_class_control",
+      "original_packet_ref": {
+        "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-accounting-final258/owner-inputs.json",
+        "json_pointer": "/packets/15",
+        "canonical_packet_sha256": "4667c76322d1acd5164da01317bd9b707f9a7e74d0661836b65fab950da24919"
+      },
+      "original_minimum_input_ref": {
+        "source_sha": "bd50417df1e467cc3d2e2292f23aaad58fa21f40",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/quantity-omission-representability.json",
+        "blob": "0d1eb21e4da3b533bb09a848167999a3471fb544",
+        "bytes": 24250,
+        "sha256": "8c4f41b2d6e7cf870576186610f75800ccf01cd72b128a54d8b0d49ac5ebb18f"
+      },
+      "accepted_in_G": false,
+      "formal_closed": false,
+      "D_FUN_scope": "outside FUN source/closure lease; root merges corresponding owner disposition",
+      "current_state": "DEFER_TO_ROOT_CURRENT_OWNER_RECEIPT_NO_LEAF_RECLASSIFICATION",
+      "production_positive_minref": null,
+      "predicate_basis": "not_assessed_by_FUN; no unchanged historical missing claim carried forward",
+      "owner_action": "Use current matching independent queue source/receipt, preserve original requirement and minimum scoped real input."
+    }
+  ],
+  "all_original_keys_and_findings_preserved": true,
+  "source_scope": "FUN adds scoped source/consumer update to canonical sixteen rows; root combines other owners. No authority appointment or G acceptance.",
+  "current_factory_independent_review": "FUN-publicfactory10-b652-runtime-and-sixcarry-independent-review.json SHA51a46d7f277343078554793e861bdedb0acf674ddb3643e9e22c47ea2eb0844d",
+  "remaining_actual_budget_refresh_race": "Resolved actual supported currentpositive b65210PASS + independently executed rollback-refresh removal1 expectedassertionFAIL0versusNone, reviewed4003; no product-source rerun invented",
+  "current_independent_negative_review": "Legacy2-and-budget-owner-removal1-b652-independent-review.json SHA4003f214d3dac2a1aa3b9ebc45fd65b70ff023915b27a0b501442e9f86d8b526",
+  "current_finding_proposal_scope": "Eight original bounded FUN/CTL03 proposals closed; three native scientific/authority held. Root joins other seven owner packet lease dispositions separately."
+}

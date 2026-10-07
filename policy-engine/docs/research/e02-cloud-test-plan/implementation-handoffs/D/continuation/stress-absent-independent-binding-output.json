@@ -1,0 +1,335 @@
+{
+  "schema": "policyos.e02.D.independent-binding-review.v1",
+  "reviewer": "numerical_oracle",
+  "source": "2af38d95e83cf3f1ab121c47ff8898f5a0920bec",
+  "tree": "9acd8a77a1018fecd3c6dca030eb1b9b387b4856",
+  "handoff": "f8ebe5f714d42398d07d9797f853c03553ec1603",
+  "handoff_references": [
+    {
+      "source": "83ee2ef08de961b03ecb6b63259b75954541d286",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-producer-blueprint.json",
+      "sha256": "686126c40709d00ac8b39ce6bc5731c2f52e724b1cd85b096bcf74a2847a8896",
+      "bytes": 30066,
+      "result": "MATCH"
+    },
+    {
+      "source": "97c85fae2d4505ec8248540d98b9556296244208",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+      "bytes": 1336380,
+      "result": "MATCH"
+    },
+    {
+      "source": "97c85fae2d4505ec8248540d98b9556296244208",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+      "bytes": 648034,
+      "result": "MATCH"
+    },
+    {
+      "source": "eb826b57fd9ea98550b93f840aca6d54e6454a27",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/D.md",
+      "sha256": "622284b984ec12fcba96084cfad13e346112a0539ae081da683e1b663c5b4b6d",
+      "bytes": 110393,
+      "result": "MATCH"
+    },
+    {
+      "source": "c2cbd72c0d11dab73b277c97f389840dfd187b17",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/results/verification.json",
+      "sha256": "26fcc44ff5094586402edf421cb04faf944578be3f628edd2577f5ed589d2c17",
+      "bytes": 13971,
+      "result": "MATCH"
+    },
+    {
+      "source": "3d49a2e327258eb6c0f6007d249c60935eb3d375",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/complete-result-pack-census.json",
+      "sha256": "b35d8860e60d926f4b99cd464cfb141fb1166a7318ea7a12147e28348e55ca11",
+      "bytes": 79975,
+      "result": "MATCH"
+    },
+    {
+      "source": "3d49a2e327258eb6c0f6007d249c60935eb3d375",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-E-DOE01-bridge-request.json",
+      "sha256": "3e2a8bad7c8dc5b715e0408d7329044d120392cabef354ade085fbc3186987f8",
+      "bytes": 4579,
+      "result": "MATCH"
+    },
+    {
+      "source": "c0a40bd6745eb3e5a4d5ccdc31171e349255f6b5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-environment-provision.json",
+      "sha256": "4597f650e105af4db2113715b72f6cb8dfc0db0b6608892a9dce5d9fd1af627f",
+      "bytes": 2538,
+      "result": "MATCH"
+    },
+    {
+      "source": "c0a40bd6745eb3e5a4d5ccdc31171e349255f6b5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-environment-requirements.txt",
+      "sha256": "ecc8c61909749407fd3cba2e8f4d1d2a5293937672315069d4b5bfe165942164",
+      "bytes": 284,
+      "result": "MATCH"
+    },
+    {
+      "source": "c0a40bd6745eb3e5a4d5ccdc31171e349255f6b5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-ordinary-inputs.json",
+      "sha256": "fb74df437369cf759695564e47bd5ab243bce285f469106a62bf2d543f390850",
+      "bytes": 5597,
+      "result": "MATCH"
+    },
+    {
+      "source": "c0a40bd6745eb3e5a4d5ccdc31171e349255f6b5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-ordinary-complete.txt",
+      "sha256": "40844bb8fddbc2e45d53c90f1a15cd01decf367bfa8c7d8df85a9446497ac1c7",
+      "bytes": 6859,
+      "result": "MATCH"
+    },
+    {
+      "source": "c0a40bd6745eb3e5a4d5ccdc31171e349255f6b5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-ordinary-resource.json",
+      "sha256": "8cc5190d16e6050cfc05ce6dbc4f1a845b4c052174941f1a54b46a4ff8ecbebe",
+      "bytes": 467,
+      "result": "MATCH"
+    },
+    {
+      "source": "c0a40bd6745eb3e5a4d5ccdc31171e349255f6b5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-ordinary-origin-check.json",
+      "sha256": "128c9b499252146d279aebb33e6fa18f7cf40f5293fe147b9b9bb5b85879a09c",
+      "bytes": 4913,
+      "result": "MATCH"
+    },
+    {
+      "source": "c0a40bd6745eb3e5a4d5ccdc31171e349255f6b5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/no-prior-report-red-complete.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "result": "MATCH"
+    },
+    {
+      "source": "c0a40bd6745eb3e5a4d5ccdc31171e349255f6b5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/no-prior-report-red-resource.json",
+      "sha256": "6ca14108073d2013bf35831e6f8803140d287d8a0866fdac4a76c0541e89857f",
+      "bytes": 664,
+      "result": "MATCH"
+    },
+    {
+      "source": "c0a40bd6745eb3e5a4d5ccdc31171e349255f6b5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/no-prior-report-green-complete.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "result": "MATCH"
+    },
+    {
+      "source": "c0a40bd6745eb3e5a4d5ccdc31171e349255f6b5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/no-prior-report-green-resource.json",
+      "sha256": "d726c03c9d673ac7c8915c4172ffab80b6f8d36771d5325254c9335f12671142",
+      "bytes": 635,
+      "result": "MATCH"
+    },
+    {
+      "source": "c0a40bd6745eb3e5a4d5ccdc31171e349255f6b5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-report-consumer-complete.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "result": "MATCH"
+    },
+    {
+      "source": "c0a40bd6745eb3e5a4d5ccdc31171e349255f6b5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-report-consumer-resource.json",
+      "sha256": "060e39d60988112307c3984c12c9aa943ad654e16a4ac664f5051bd221374c86",
+      "bytes": 776,
+      "result": "MATCH"
+    },
+    {
+      "source": "c0a40bd6745eb3e5a4d5ccdc31171e349255f6b5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-actual-profile-complete.txt",
+      "sha256": "cf3bc2f9c245fd54c6e51444e5bf8d407b872f677881b73c578e0fb3e1ae8ae2",
+      "bytes": 6899,
+      "result": "MATCH"
+    },
+    {
+      "source": "c0a40bd6745eb3e5a4d5ccdc31171e349255f6b5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-actual-profile-inputs.json",
+      "sha256": "e1cf845f3c3c5f7b66b5b8a4523580606b235bf9b84798485c69bf1113522c2c",
+      "bytes": 4072,
+      "result": "MATCH"
+    },
+    {
+      "source": "c0a40bd6745eb3e5a4d5ccdc31171e349255f6b5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-followup-proof/doe-actual-profile-resource.json",
+      "sha256": "c0a23e410de539026714cd394e10964baaffbc7fcac4f17693b199e846e7ad33",
+      "bytes": 518,
+      "result": "MATCH"
+    },
+    {
+      "source": "29a7d8fe1971ae4cb9e18968179f9473d1661f0b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-absent-report-proof/absent-direct-positive-complete.txt",
+      "sha256": "62de12349cfcd142f15530f2c0d882907550f11cb724c8b7b4da57038817c159",
+      "bytes": 8911,
+      "result": "MATCH"
+    },
+    {
+      "source": "29a7d8fe1971ae4cb9e18968179f9473d1661f0b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-absent-report-proof/absent-direct-positive-resource.json",
+      "sha256": "d179b049f6044e6de77d5ac488c8f8d5e0be8bef33a59534018e8532ed77a2c9",
+      "bytes": 747,
+      "result": "MATCH"
+    },
+    {
+      "source": "29a7d8fe1971ae4cb9e18968179f9473d1661f0b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-absent-report-proof/absent-direct-removal-complete.txt",
+      "sha256": "5e6136a8b443d260f4ad1570a82f1980a1a0d52c626339f50f41775f081a01dd",
+      "bytes": 8327,
+      "result": "MATCH"
+    },
+    {
+      "source": "29a7d8fe1971ae4cb9e18968179f9473d1661f0b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-absent-report-proof/absent-direct-removal-resource.json",
+      "sha256": "25c34bedffdbe590585c092002b16b086bd9ac1a8444abaf7ac4fbe2adf83ccd",
+      "bytes": 756,
+      "result": "MATCH"
+    },
+    {
+      "source": "2af38d95e83cf3f1ab121c47ff8898f5a0920bec",
+      "path": "policy-engine/tests/integration/scientist/methods/search/stress_absent_report_probe.py",
+      "sha256": "5b7ff27e6f5418d2f2cffdf624b1c3df9797747a432d0820d571eba45697d022",
+      "bytes": 9100,
+      "result": "MATCH"
+    },
+    {
+      "source": "5084a2f596a4478d3e5a15926010e23affe4976c",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/stress-correction-independent-review.json",
+      "sha256": "30535b8355cac99396f4b2cbd32af956456d4abb602679dd36c6c848fe21ad81",
+      "bytes": 35947,
+      "result": "MATCH"
+    }
+  ],
+  "unique_handoff_reference_count": 28,
+  "payload_transport": "29a7d8fe1971ae4cb9e18968179f9473d1661f0b",
+  "payloads": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-absent-report-proof/absent-direct-positive-complete.txt",
+      "sha256": "62de12349cfcd142f15530f2c0d882907550f11cb724c8b7b4da57038817c159",
+      "bytes": 8911,
+      "result": "MATCH"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-absent-report-proof/absent-direct-positive-resource.json",
+      "sha256": "d179b049f6044e6de77d5ac488c8f8d5e0be8bef33a59534018e8532ed77a2c9",
+      "bytes": 747,
+      "result": "MATCH"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-absent-report-proof/absent-direct-removal-complete.txt",
+      "sha256": "5e6136a8b443d260f4ad1570a82f1980a1a0d52c626339f50f41775f081a01dd",
+      "bytes": 8327,
+      "result": "MATCH"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-absent-report-proof/absent-direct-removal-resource.json",
+      "sha256": "25c34bedffdbe590585c092002b16b086bd9ac1a8444abaf7ac4fbe2adf83ccd",
+      "bytes": 756,
+      "result": "MATCH"
+    }
+  ],
+  "actual_function_matches_Git": true,
+  "controlled_AST_delta_fields": 2,
+  "production_eb826_to_2af_equal": true,
+  "runs": [
+    {
+      "scope": "positive",
+      "source": "2af38d95e83cf3f1ab121c47ff8898f5a0920bec",
+      "exit_code": 0,
+      "cases": 2,
+      "checks": [
+        {
+          "actual_count": true,
+          "manifest_body_schema_match": true,
+          "no_evidence_invented": true,
+          "no_invented_base_attempt": true,
+          "partial": true,
+          "schema_1_1": true,
+          "unavailable_combined_score": true
+        },
+        {
+          "actual_case_component": true,
+          "actual_count": true,
+          "manifest_body_schema_match": true,
+          "no_invented_base_attempt": true,
+          "partial": true,
+          "schema_1_1": true,
+          "unavailable_combined_score": true,
+          "unknown_base_component_retained": true
+        }
+      ],
+      "loaded_origins_verified": 8,
+      "wall_seconds": 19.554849375999765,
+      "resource": {
+        "source_sha": "2af38d95e83cf3f1ab121c47ff8898f5a0920bec",
+        "command": [
+          "/workspace/e02-D-doe-env/bin/python",
+          "tests/integration/scientist/methods/search/stress_absent_report_probe.py",
+          "positive",
+          "2af38d95e83cf3f1ab121c47ff8898f5a0920bec"
+        ],
+        "exit_code": 0,
+        "wall_seconds": 19.554849375999765,
+        "peak_rss_kib": 804996,
+        "source_sha_after": "2af38d95e83cf3f1ab121c47ff8898f5a0920bec",
+        "environment": {
+          "PYTHONPATH": "src:.",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+        },
+        "scope": "Actual defining blueprint function and ordinary context/registry/case producer/CAS fresh reader; no pytest collection/extracted defining function in positive mode."
+      }
+    },
+    {
+      "scope": "removal",
+      "source": "2af38d95e83cf3f1ab121c47ff8898f5a0920bec",
+      "exit_code": 1,
+      "cases": 2,
+      "checks": [
+        {
+          "actual_count": false,
+          "manifest_body_schema_match": true,
+          "no_evidence_invented": true,
+          "no_invented_base_attempt": false,
+          "partial": true,
+          "schema_1_1": true,
+          "unavailable_combined_score": true
+        },
+        {
+          "actual_case_component": true,
+          "actual_count": false,
+          "manifest_body_schema_match": true,
+          "no_invented_base_attempt": false,
+          "partial": true,
+          "schema_1_1": true,
+          "unavailable_combined_score": true,
+          "unknown_base_component_retained": true
+        }
+      ],
+      "loaded_origins_verified": 8,
+      "wall_seconds": 19.27716282599431,
+      "resource": {
+        "source_sha": "2af38d95e83cf3f1ab121c47ff8898f5a0920bec",
+        "command": [
+          "/workspace/e02-D-doe-env/bin/python",
+          "tests/integration/scientist/methods/search/stress_absent_report_probe.py",
+          "invent_attempt",
+          "2af38d95e83cf3f1ab121c47ff8898f5a0920bec"
+        ],
+        "exit_code": 1,
+        "wall_seconds": 19.27716282599431,
+        "peak_rss_kib": 818932,
+        "source_sha_after": "2af38d95e83cf3f1ab121c47ff8898f5a0920bec",
+        "environment": {
+          "PYTHONPATH": "src:.",
+          "PYTHONDONTWRITEBYTECODE": "1",
+          "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+        },
+        "scope": "Only actual defining no-prior zero-count property removed in memory; same ordinary context/case/CAS controls, markers/body/schema preserved; no production file writes."
+      }
+    }
+  ],
+  "execution": "stdlib Git/hash/JSON/AST verification; no backend or pytest run"
+}

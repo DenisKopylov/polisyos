@@ -1,0 +1,551 @@
+{
+  "P41": "not_established; no exactslice-base diagnostic replay/fullzero-overlap proof",
+  "actual_new_warning_paths": [
+    "policy-engine/src/polisyos/scientist/methods/search/service.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_service_trial_deduplication.py"
+  ],
+  "canonical_diagnostic_source": "policy-engine/tools/quality/validation/architecture_report_only_contracts.py",
+  "canonical_diagnostic_source_sha256": "0ef8a92b01014c799607e26f52afd933a4d68432f0bdb0a3760f4128207595a2",
+  "development_metadata": {
+    "path": "/dev/shm/e02-D-strategy-inventory-d610-znejismj/modulebudget-new-native-staged-delta.json",
+    "sha256": "2967d6c44a1fde431c116ae7fe3bc16001b94a18f1ecf6ac2aaed7c17650c8f8",
+    "state": "superseded final counts; provenance retained"
+  },
+  "global_gate": "not_established: exact historical c0globalreport82contract_errors/6findings retained; scoped finalmetadata does not turn globalgate green; no P41 attribution",
+  "head": "96905636726483fdea3a98d9313871d825b54a9e",
+  "head_tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "index_tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "module_size_contract_sha256": "07fb68f704cd4f11b7fa57683ea4ee41371319529e4248de27ab136b9caf2682",
+  "owner_packet": {
+    "architecture_contract_owner": "team-architecture",
+    "mechanism_source_owner": "team-policyos-runtime",
+    "request": "Read exactcounts/delta and disposition for declared report_only source warning; provide current extraction/ratchet decision only if required by canonical contract. No waiver/higher threshold/new schema/project is requested.",
+    "validation_tooling_owner": "team-devx only its declared validationglob"
+  },
+  "paths": [
+    {
+      "applicable_contract": {
+        "actual_default_fail_closed_target_reached": false,
+        "actual_default_warning_reached": false,
+        "default": {
+          "default_fail_closed_target_lines": 2500,
+          "default_warning_lines": 1000,
+          "description": "Report-only module size budget. Warnings start at 1,000 lines; fail-closed conversion targets 2,500 lines after the ratchet period. Phase 4.3 records current line counts, shrink plans, owner-ready extraction sequences, and risk notes before physical splits.",
+          "fail_closed_not_before": "2026-10-01",
+          "owner": "team-architecture",
+          "phase": "repository-best-in-class-phase-1.3",
+          "phase_4_3_overlay": "characterization-tests-and-god-module-budgets",
+          "ratchet_period": "2026-Q2..2026-Q4",
+          "report_only_command": "uv run python tools/quality/validation/architecture_report_only_contracts.py --report module-size",
+          "requires_current_lines": true,
+          "requires_extraction_sequence": true,
+          "requires_risk_notes": true,
+          "status": "report_only",
+          "version": 1
+        },
+        "diagnostic_default_behavior": "Existing canonical validator does not enumerate default source/test warning coverage outside explicit budgetrows; absence of rowfinding is not a global sizeGatePASS.",
+        "explicit_budget_rows": [],
+        "line_definition": "canonical _count_lines: nonblank and noncomment physical lines, including multiline strings/docstrings; not ASTstatement count",
+        "validation_tooling_applies": false
+      },
+      "current_frozen": {
+        "blob": "c38f771300030cd9c84dff5de676c3b023fced68",
+        "canonical_count_lines": 560,
+        "physical_lines": 615,
+        "sha256": "4bcddcf8b7ef4696fe26a3daa3394053672eb8a43007e0bf0b993c5bf87e17eb",
+        "source": "96905636726483fdea3a98d9313871d825b54a9e"
+      },
+      "historical": {
+        "affected_a7": {
+          "blob": "2451c5520334a2765298314d53e46502c2b04c90",
+          "canonical_count_lines": 493,
+          "physical_lines": 548,
+          "sha256": "b64d2e6a49e173e58316bf843dab889a775d6b26c9ad6a81d10c2281bce94185",
+          "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e"
+        },
+        "native_c0": {
+          "blob": "0b76e9cf3261cbf86ce86e5b6a8c3b17ca46716a",
+          "canonical_count_lines": 455,
+          "physical_lines": 507,
+          "sha256": "caa6b0463acdfd2d895942626f5e909c16e29492c705b589535836d18ffb7b3b",
+          "source": "c0e03e084460b97475d13ec393069ff59ca4d5ee"
+        },
+        "slice_base": {
+          "blob": "1d19a338b05604f574cd39dcef59b5622df038eb",
+          "canonical_count_lines": 449,
+          "physical_lines": 501,
+          "sha256": "168431c4d10c9f9fb9c13242676a5a062299a10f45b19965f1f6d8fd1ac3e528",
+          "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c"
+        }
+      },
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py"
+    },
+    {
+      "applicable_contract": {
+        "actual_default_fail_closed_target_reached": false,
+        "actual_default_warning_reached": true,
+        "default": {
+          "default_fail_closed_target_lines": 2500,
+          "default_warning_lines": 1000,
+          "description": "Report-only module size budget. Warnings start at 1,000 lines; fail-closed conversion targets 2,500 lines after the ratchet period. Phase 4.3 records current line counts, shrink plans, owner-ready extraction sequences, and risk notes before physical splits.",
+          "fail_closed_not_before": "2026-10-01",
+          "owner": "team-architecture",
+          "phase": "repository-best-in-class-phase-1.3",
+          "phase_4_3_overlay": "characterization-tests-and-god-module-budgets",
+          "ratchet_period": "2026-Q2..2026-Q4",
+          "report_only_command": "uv run python tools/quality/validation/architecture_report_only_contracts.py --report module-size",
+          "requires_current_lines": true,
+          "requires_extraction_sequence": true,
+          "requires_risk_notes": true,
+          "status": "report_only",
+          "version": 1
+        },
+        "diagnostic_default_behavior": "Existing canonical validator does not enumerate default source/test warning coverage outside explicit budgetrows; absence of rowfinding is not a global sizeGatePASS.",
+        "explicit_budget_rows": [],
+        "line_definition": "canonical _count_lines: nonblank and noncomment physical lines, including multiline strings/docstrings; not ASTstatement count",
+        "validation_tooling_applies": false
+      },
+      "current_frozen": {
+        "blob": "0e5d75cb492bf97dd61ceec2d6a94b9b6d8f13e5",
+        "canonical_count_lines": 1283,
+        "physical_lines": 1381,
+        "sha256": "b73158016ef2a6e9324159b7de3d34206ef5a866bcdc1a675adb9281c815e127",
+        "source": "96905636726483fdea3a98d9313871d825b54a9e"
+      },
+      "historical": {
+        "affected_a7": {
+          "blob": "71694945c18fb573fa30b31f9b16942a4a30b508",
+          "canonical_count_lines": 963,
+          "physical_lines": 1047,
+          "sha256": "3df2c3a05c0571065f8ac45c260a03a80c1493ebfab1b0f532d9e90a5a83a6b1",
+          "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e"
+        },
+        "native_c0": {
+          "blob": "6714ab37d0f6014b7f237ae8d956d06bdf1262ec",
+          "canonical_count_lines": 957,
+          "physical_lines": 1035,
+          "sha256": "d8909558cc43e4bb581025424f682cc2b0927d72bd36c62d5cd17db1fa19e115",
+          "source": "c0e03e084460b97475d13ec393069ff59ca4d5ee"
+        },
+        "slice_base": {
+          "blob": "c836b4d11ccf1f7fa18b373ffbf16884a9561106",
+          "canonical_count_lines": 956,
+          "physical_lines": 1036,
+          "sha256": "5d966a542e590936b2e162594c4c1f987422f8333e255b34e432ca17d46bf7b9",
+          "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c"
+        }
+      },
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py"
+    },
+    {
+      "applicable_contract": {
+        "actual_default_fail_closed_target_reached": false,
+        "actual_default_warning_reached": false,
+        "default": {
+          "default_fail_closed_target_lines": 2500,
+          "default_warning_lines": 1000,
+          "description": "Report-only module size budget. Warnings start at 1,000 lines; fail-closed conversion targets 2,500 lines after the ratchet period. Phase 4.3 records current line counts, shrink plans, owner-ready extraction sequences, and risk notes before physical splits.",
+          "fail_closed_not_before": "2026-10-01",
+          "owner": "team-architecture",
+          "phase": "repository-best-in-class-phase-1.3",
+          "phase_4_3_overlay": "characterization-tests-and-god-module-budgets",
+          "ratchet_period": "2026-Q2..2026-Q4",
+          "report_only_command": "uv run python tools/quality/validation/architecture_report_only_contracts.py --report module-size",
+          "requires_current_lines": true,
+          "requires_extraction_sequence": true,
+          "requires_risk_notes": true,
+          "status": "report_only",
+          "version": 1
+        },
+        "diagnostic_default_behavior": "Existing canonical validator does not enumerate default source/test warning coverage outside explicit budgetrows; absence of rowfinding is not a global sizeGatePASS.",
+        "explicit_budget_rows": [],
+        "line_definition": "canonical _count_lines: nonblank and noncomment physical lines, including multiline strings/docstrings; not ASTstatement count",
+        "validation_tooling_applies": false
+      },
+      "current_frozen": {
+        "blob": "38eb98f6cc5999e7c889c3f79433cdfd2eb7730e",
+        "canonical_count_lines": 71,
+        "physical_lines": 93,
+        "sha256": "7c05548d3539ed98b20da6c11fe033af789e0b75672164654b97c68a28f0f5dc",
+        "source": "96905636726483fdea3a98d9313871d825b54a9e"
+      },
+      "historical": {
+        "affected_a7": {
+          "blob": "cec70d07b95504c45c89dbae8c3c72416148bff1",
+          "canonical_count_lines": 50,
+          "physical_lines": 69,
+          "sha256": "a56a1f00a3a44b7ff3c2ac0c049a263a62889f89e724628c2804e090d274436f",
+          "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e"
+        },
+        "native_c0": {
+          "blob": "cec70d07b95504c45c89dbae8c3c72416148bff1",
+          "canonical_count_lines": 50,
+          "physical_lines": 69,
+          "sha256": "a56a1f00a3a44b7ff3c2ac0c049a263a62889f89e724628c2804e090d274436f",
+          "source": "c0e03e084460b97475d13ec393069ff59ca4d5ee"
+        },
+        "slice_base": {
+          "blob": "cec70d07b95504c45c89dbae8c3c72416148bff1",
+          "canonical_count_lines": 50,
+          "physical_lines": 69,
+          "sha256": "a56a1f00a3a44b7ff3c2ac0c049a263a62889f89e724628c2804e090d274436f",
+          "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c"
+        }
+      },
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/dedup.py"
+    },
+    {
+      "applicable_contract": {
+        "actual_default_fail_closed_target_reached": false,
+        "actual_default_warning_reached": false,
+        "default": {
+          "default_fail_closed_target_lines": 2500,
+          "default_warning_lines": 1000,
+          "description": "Report-only module size budget. Warnings start at 1,000 lines; fail-closed conversion targets 2,500 lines after the ratchet period. Phase 4.3 records current line counts, shrink plans, owner-ready extraction sequences, and risk notes before physical splits.",
+          "fail_closed_not_before": "2026-10-01",
+          "owner": "team-architecture",
+          "phase": "repository-best-in-class-phase-1.3",
+          "phase_4_3_overlay": "characterization-tests-and-god-module-budgets",
+          "ratchet_period": "2026-Q2..2026-Q4",
+          "report_only_command": "uv run python tools/quality/validation/architecture_report_only_contracts.py --report module-size",
+          "requires_current_lines": true,
+          "requires_extraction_sequence": true,
+          "requires_risk_notes": true,
+          "status": "report_only",
+          "version": 1
+        },
+        "diagnostic_default_behavior": "Existing canonical validator does not enumerate default source/test warning coverage outside explicit budgetrows; absence of rowfinding is not a global sizeGatePASS.",
+        "explicit_budget_rows": [],
+        "line_definition": "canonical _count_lines: nonblank and noncomment physical lines, including multiline strings/docstrings; not ASTstatement count",
+        "validation_tooling_applies": false
+      },
+      "current_frozen": {
+        "blob": "2604b8369d6b5e98747ba27f2df4e52cf540ca3e",
+        "canonical_count_lines": 232,
+        "physical_lines": 267,
+        "sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b",
+        "source": "96905636726483fdea3a98d9313871d825b54a9e"
+      },
+      "historical": {
+        "affected_a7": {
+          "blob": "3e8a49f58dbec650304023e19e372ab92af9ca72",
+          "canonical_count_lines": 226,
+          "physical_lines": 261,
+          "sha256": "e06f9901b021f0e85df3d60d6b778552c017fed6d69953fb4bf767d7515cd082",
+          "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e"
+        },
+        "native_c0": {
+          "blob": "3e8a49f58dbec650304023e19e372ab92af9ca72",
+          "canonical_count_lines": 226,
+          "physical_lines": 261,
+          "sha256": "e06f9901b021f0e85df3d60d6b778552c017fed6d69953fb4bf767d7515cd082",
+          "source": "c0e03e084460b97475d13ec393069ff59ca4d5ee"
+        },
+        "slice_base": {
+          "blob": "3e8a49f58dbec650304023e19e372ab92af9ca72",
+          "canonical_count_lines": 226,
+          "physical_lines": 261,
+          "sha256": "e06f9901b021f0e85df3d60d6b778552c017fed6d69953fb4bf767d7515cd082",
+          "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c"
+        }
+      },
+      "path": "policy-engine/src/polisyos/scientist/methods/search/frontier.py"
+    },
+    {
+      "applicable_contract": {
+        "actual_default_fail_closed_target_reached": false,
+        "actual_default_warning_reached": true,
+        "default": {
+          "default_fail_closed_target_lines": 2500,
+          "default_warning_lines": 1000,
+          "description": "Report-only module size budget. Warnings start at 1,000 lines; fail-closed conversion targets 2,500 lines after the ratchet period. Phase 4.3 records current line counts, shrink plans, owner-ready extraction sequences, and risk notes before physical splits.",
+          "fail_closed_not_before": "2026-10-01",
+          "owner": "team-architecture",
+          "phase": "repository-best-in-class-phase-1.3",
+          "phase_4_3_overlay": "characterization-tests-and-god-module-budgets",
+          "ratchet_period": "2026-Q2..2026-Q4",
+          "report_only_command": "uv run python tools/quality/validation/architecture_report_only_contracts.py --report module-size",
+          "requires_current_lines": true,
+          "requires_extraction_sequence": true,
+          "requires_risk_notes": true,
+          "status": "report_only",
+          "version": 1
+        },
+        "diagnostic_default_behavior": "Existing canonical validator does not enumerate default source/test warning coverage outside explicit budgetrows; absence of rowfinding is not a global sizeGatePASS.",
+        "explicit_budget_rows": [],
+        "line_definition": "canonical _count_lines: nonblank and noncomment physical lines, including multiline strings/docstrings; not ASTstatement count",
+        "validation_tooling_applies": false
+      },
+      "current_frozen": {
+        "blob": "6b06edb7490579e73464b438480cc0c7c010d6af",
+        "canonical_count_lines": 1028,
+        "physical_lines": 1110,
+        "sha256": "608942a8f9195491c846225050d030b47a6733d1d8602f31960afd852421a6b5",
+        "source": "96905636726483fdea3a98d9313871d825b54a9e"
+      },
+      "historical": {
+        "affected_a7": null,
+        "native_c0": null,
+        "slice_base": null
+      },
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_service_trial_deduplication.py"
+    },
+    {
+      "applicable_contract": {
+        "actual_default_fail_closed_target_reached": false,
+        "actual_default_warning_reached": false,
+        "default": {
+          "default_fail_closed_target_lines": 2500,
+          "default_warning_lines": 1000,
+          "description": "Report-only module size budget. Warnings start at 1,000 lines; fail-closed conversion targets 2,500 lines after the ratchet period. Phase 4.3 records current line counts, shrink plans, owner-ready extraction sequences, and risk notes before physical splits.",
+          "fail_closed_not_before": "2026-10-01",
+          "owner": "team-architecture",
+          "phase": "repository-best-in-class-phase-1.3",
+          "phase_4_3_overlay": "characterization-tests-and-god-module-budgets",
+          "ratchet_period": "2026-Q2..2026-Q4",
+          "report_only_command": "uv run python tools/quality/validation/architecture_report_only_contracts.py --report module-size",
+          "requires_current_lines": true,
+          "requires_extraction_sequence": true,
+          "requires_risk_notes": true,
+          "status": "report_only",
+          "version": 1
+        },
+        "diagnostic_default_behavior": "Existing canonical validator does not enumerate default source/test warning coverage outside explicit budgetrows; absence of rowfinding is not a global sizeGatePASS.",
+        "explicit_budget_rows": [],
+        "line_definition": "canonical _count_lines: nonblank and noncomment physical lines, including multiline strings/docstrings; not ASTstatement count",
+        "validation_tooling_applies": false
+      },
+      "current_frozen": {
+        "blob": "385cef31cf0765561651c2015d180db252136370",
+        "canonical_count_lines": 770,
+        "physical_lines": 824,
+        "sha256": "e4699f9b1f892a3850406d0ef582bcf8072e19192d040783468d8c33b9c21f8a",
+        "source": "96905636726483fdea3a98d9313871d825b54a9e"
+      },
+      "historical": {
+        "affected_a7": {
+          "blob": "385cef31cf0765561651c2015d180db252136370",
+          "canonical_count_lines": 770,
+          "physical_lines": 824,
+          "sha256": "e4699f9b1f892a3850406d0ef582bcf8072e19192d040783468d8c33b9c21f8a",
+          "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e"
+        },
+        "native_c0": {
+          "blob": "385cef31cf0765561651c2015d180db252136370",
+          "canonical_count_lines": 770,
+          "physical_lines": 824,
+          "sha256": "e4699f9b1f892a3850406d0ef582bcf8072e19192d040783468d8c33b9c21f8a",
+          "source": "c0e03e084460b97475d13ec393069ff59ca4d5ee"
+        },
+        "slice_base": {
+          "blob": "2e640de994c3028d46f1e8987e141714189be382",
+          "canonical_count_lines": 514,
+          "physical_lines": 559,
+          "sha256": "6c4e32bf1981be3015964b4657c891b3c9ca46c3504453bc1447e8456e00fb53",
+          "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c"
+        }
+      },
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py"
+    },
+    {
+      "applicable_contract": {
+        "actual_default_fail_closed_target_reached": false,
+        "actual_default_warning_reached": false,
+        "default": {
+          "default_fail_closed_target_lines": 2500,
+          "default_warning_lines": 1000,
+          "description": "Report-only module size budget. Warnings start at 1,000 lines; fail-closed conversion targets 2,500 lines after the ratchet period. Phase 4.3 records current line counts, shrink plans, owner-ready extraction sequences, and risk notes before physical splits.",
+          "fail_closed_not_before": "2026-10-01",
+          "owner": "team-architecture",
+          "phase": "repository-best-in-class-phase-1.3",
+          "phase_4_3_overlay": "characterization-tests-and-god-module-budgets",
+          "ratchet_period": "2026-Q2..2026-Q4",
+          "report_only_command": "uv run python tools/quality/validation/architecture_report_only_contracts.py --report module-size",
+          "requires_current_lines": true,
+          "requires_extraction_sequence": true,
+          "requires_risk_notes": true,
+          "status": "report_only",
+          "version": 1
+        },
+        "diagnostic_default_behavior": "Existing canonical validator does not enumerate default source/test warning coverage outside explicit budgetrows; absence of rowfinding is not a global sizeGatePASS.",
+        "explicit_budget_rows": [],
+        "line_definition": "canonical _count_lines: nonblank and noncomment physical lines, including multiline strings/docstrings; not ASTstatement count",
+        "validation_tooling_applies": false
+      },
+      "current_frozen": {
+        "blob": "afd56c9ffa107917b50d8fa2aedfdd988aea7a93",
+        "canonical_count_lines": 454,
+        "physical_lines": 510,
+        "sha256": "09da631e0ae044d02eea10335abb1f3aed64348d95a5e3d5977185a5b921a7bf",
+        "source": "96905636726483fdea3a98d9313871d825b54a9e"
+      },
+      "historical": {
+        "affected_a7": {
+          "blob": "afd56c9ffa107917b50d8fa2aedfdd988aea7a93",
+          "canonical_count_lines": 454,
+          "physical_lines": 510,
+          "sha256": "09da631e0ae044d02eea10335abb1f3aed64348d95a5e3d5977185a5b921a7bf",
+          "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e"
+        },
+        "native_c0": {
+          "blob": "afd56c9ffa107917b50d8fa2aedfdd988aea7a93",
+          "canonical_count_lines": 454,
+          "physical_lines": 510,
+          "sha256": "09da631e0ae044d02eea10335abb1f3aed64348d95a5e3d5977185a5b921a7bf",
+          "source": "c0e03e084460b97475d13ec393069ff59ca4d5ee"
+        },
+        "slice_base": null
+      },
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_mo_checkpoint.py"
+    },
+    {
+      "applicable_contract": {
+        "actual_default_fail_closed_target_reached": false,
+        "actual_default_warning_reached": false,
+        "default": {
+          "default_fail_closed_target_lines": 2500,
+          "default_warning_lines": 1000,
+          "description": "Report-only module size budget. Warnings start at 1,000 lines; fail-closed conversion targets 2,500 lines after the ratchet period. Phase 4.3 records current line counts, shrink plans, owner-ready extraction sequences, and risk notes before physical splits.",
+          "fail_closed_not_before": "2026-10-01",
+          "owner": "team-architecture",
+          "phase": "repository-best-in-class-phase-1.3",
+          "phase_4_3_overlay": "characterization-tests-and-god-module-budgets",
+          "ratchet_period": "2026-Q2..2026-Q4",
+          "report_only_command": "uv run python tools/quality/validation/architecture_report_only_contracts.py --report module-size",
+          "requires_current_lines": true,
+          "requires_extraction_sequence": true,
+          "requires_risk_notes": true,
+          "status": "report_only",
+          "version": 1
+        },
+        "diagnostic_default_behavior": "Existing canonical validator does not enumerate default source/test warning coverage outside explicit budgetrows; absence of rowfinding is not a global sizeGatePASS.",
+        "explicit_budget_rows": [],
+        "line_definition": "canonical _count_lines: nonblank and noncomment physical lines, including multiline strings/docstrings; not ASTstatement count",
+        "validation_tooling_applies": false
+      },
+      "current_frozen": {
+        "blob": "780442a1fe2562ca71bea48462b6c83bd2542242",
+        "canonical_count_lines": 218,
+        "physical_lines": 249,
+        "sha256": "dd56117e838ac0e713f89e490788e5868613272da7611e7fd70701fad76b4d38",
+        "source": "96905636726483fdea3a98d9313871d825b54a9e"
+      },
+      "historical": {
+        "affected_a7": {
+          "blob": "780442a1fe2562ca71bea48462b6c83bd2542242",
+          "canonical_count_lines": 218,
+          "physical_lines": 249,
+          "sha256": "dd56117e838ac0e713f89e490788e5868613272da7611e7fd70701fad76b4d38",
+          "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e"
+        },
+        "native_c0": {
+          "blob": "780442a1fe2562ca71bea48462b6c83bd2542242",
+          "canonical_count_lines": 218,
+          "physical_lines": 249,
+          "sha256": "dd56117e838ac0e713f89e490788e5868613272da7611e7fd70701fad76b4d38",
+          "source": "c0e03e084460b97475d13ec393069ff59ca4d5ee"
+        },
+        "slice_base": null
+      },
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_state_inventory.py"
+    },
+    {
+      "applicable_contract": {
+        "actual_default_fail_closed_target_reached": false,
+        "actual_default_warning_reached": false,
+        "default": {
+          "default_fail_closed_target_lines": 2500,
+          "default_warning_lines": 1000,
+          "description": "Report-only module size budget. Warnings start at 1,000 lines; fail-closed conversion targets 2,500 lines after the ratchet period. Phase 4.3 records current line counts, shrink plans, owner-ready extraction sequences, and risk notes before physical splits.",
+          "fail_closed_not_before": "2026-10-01",
+          "owner": "team-architecture",
+          "phase": "repository-best-in-class-phase-1.3",
+          "phase_4_3_overlay": "characterization-tests-and-god-module-budgets",
+          "ratchet_period": "2026-Q2..2026-Q4",
+          "report_only_command": "uv run python tools/quality/validation/architecture_report_only_contracts.py --report module-size",
+          "requires_current_lines": true,
+          "requires_extraction_sequence": true,
+          "requires_risk_notes": true,
+          "status": "report_only",
+          "version": 1
+        },
+        "diagnostic_default_behavior": "Existing canonical validator does not enumerate default source/test warning coverage outside explicit budgetrows; absence of rowfinding is not a global sizeGatePASS.",
+        "explicit_budget_rows": [],
+        "line_definition": "canonical _count_lines: nonblank and noncomment physical lines, including multiline strings/docstrings; not ASTstatement count",
+        "validation_tooling_applies": false
+      },
+      "current_frozen": {
+        "blob": "fd2cf955e213d59bf603b6449d4d2cf806bb8f53",
+        "canonical_count_lines": 201,
+        "physical_lines": 236,
+        "sha256": "b8aac38b9dd330da8e09891e7a40fe1fbbd3deee4850fa6f22446ba826c6d558",
+        "source": "96905636726483fdea3a98d9313871d825b54a9e"
+      },
+      "historical": {
+        "affected_a7": {
+          "blob": "772df3c9653d8e1a968a04afbddae847f955bcd7",
+          "canonical_count_lines": 151,
+          "physical_lines": 186,
+          "sha256": "d29463920cd5c5850a0e674e669d958077c0c7b01af0d496bea66745bf51ba47",
+          "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e"
+        },
+        "native_c0": {
+          "blob": "772df3c9653d8e1a968a04afbddae847f955bcd7",
+          "canonical_count_lines": 151,
+          "physical_lines": 186,
+          "sha256": "d29463920cd5c5850a0e674e669d958077c0c7b01af0d496bea66745bf51ba47",
+          "source": "c0e03e084460b97475d13ec393069ff59ca4d5ee"
+        },
+        "slice_base": {
+          "blob": "772df3c9653d8e1a968a04afbddae847f955bcd7",
+          "canonical_count_lines": 151,
+          "physical_lines": 186,
+          "sha256": "d29463920cd5c5850a0e674e669d958077c0c7b01af0d496bea66745bf51ba47",
+          "source": "828283eefe9c3ae14e0f99899a0a502a8b1a253c"
+        }
+      },
+      "path": "policy-engine/tools/quality/diagnostics/check_state_reads.py"
+    },
+    {
+      "applicable_contract": {
+        "actual_default_fail_closed_target_reached": false,
+        "actual_default_warning_reached": false,
+        "default": {
+          "default_fail_closed_target_lines": 2500,
+          "default_warning_lines": 1000,
+          "description": "Report-only module size budget. Warnings start at 1,000 lines; fail-closed conversion targets 2,500 lines after the ratchet period. Phase 4.3 records current line counts, shrink plans, owner-ready extraction sequences, and risk notes before physical splits.",
+          "fail_closed_not_before": "2026-10-01",
+          "owner": "team-architecture",
+          "phase": "repository-best-in-class-phase-1.3",
+          "phase_4_3_overlay": "characterization-tests-and-god-module-budgets",
+          "ratchet_period": "2026-Q2..2026-Q4",
+          "report_only_command": "uv run python tools/quality/validation/architecture_report_only_contracts.py --report module-size",
+          "requires_current_lines": true,
+          "requires_extraction_sequence": true,
+          "requires_risk_notes": true,
+          "status": "report_only",
+          "version": 1
+        },
+        "diagnostic_default_behavior": "Existing canonical validator does not enumerate default source/test warning coverage outside explicit budgetrows; absence of rowfinding is not a global sizeGatePASS.",
+        "explicit_budget_rows": [],
+        "line_definition": "canonical _count_lines: nonblank and noncomment physical lines, including multiline strings/docstrings; not ASTstatement count",
+        "validation_tooling_applies": false
+      },
+      "current_frozen": {
+        "blob": "a2e0e006bcf6033ae290a866a3b4fa6c0bc614e7",
+        "canonical_count_lines": 167,
+        "physical_lines": 201,
+        "sha256": "cc5d43a89f0f3c6fedfe03e96383aa13656c6b27a6ff3d59aefd8df3a0d8bb92",
+        "source": "96905636726483fdea3a98d9313871d825b54a9e"
+      },
+      "historical": {
+        "affected_a7": null,
+        "native_c0": null,
+        "slice_base": null
+      },
+      "path": "policy-engine/tests/repo_quality/tools/test_state_reads_constructor_admission.py"
+    }
+  ],
+  "schema": "e02.D.module-budget-final-frozen-delta.v1",
+  "source_kind": "exact immutable clean finalsource metadata"
+}

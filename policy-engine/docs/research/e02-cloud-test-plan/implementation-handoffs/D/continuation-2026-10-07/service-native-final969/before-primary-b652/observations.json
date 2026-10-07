@@ -1,0 +1,487 @@
+{
+  "source": {
+    "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+    "tree": "e677b5e24493a7083287c3bea31bca1892c3be29",
+    "status": "",
+    "source_paths": {
+      "src/polisyos/scientist/methods/autotune/runtime.py": "b64d2e6a49e173e58316bf843dab889a775d6b26c9ad6a81d10c2281bce94185",
+      "src/polisyos/scientist/methods/search/service.py": "3df2c3a05c0571065f8ac45c260a03a80c1493ebfab1b0f532d9e90a5a83a6b1",
+      "src/polisyos/scientist/methods/search/controller.py": "9bbbd5b23c9ef43d18370f3bd0e25243eb56cdcd844a2d5f83744c30d4bbcc53",
+      "src/polisyos/scientist/methods/search/frontier.py": "e06f9901b021f0e85df3d60d6b778552c017fed6d69953fb4bf767d7515cd082",
+      "src/polisyos/scientist/methods/search/objective.py": "940c84a3425e8ed1e93de2eae881100fd88a49dd978a108e5d78e5f2fa5fe17c",
+      "src/polisyos/common/serialization.py": "485303bf79f150fa9df259d7354d3104a4bdb94d9114cddb6e17dcc424316f0d"
+    },
+    "fixture_path": "/dev/shm/e02-D-B124-independent-tests/v2/test_service_trial_deduplication.py",
+    "fixture_sha256": "7c95a5a59dbc4c2a0be704d9b9bbe31eaffa2765b04c501ba5b3f1f82ad9fb9e"
+  },
+  "source_unchanged": true,
+  "cases": [
+    {
+      "case": "missing_primary",
+      "metric_present": false,
+      "candidate_value": 1,
+      "source": {
+        "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+        "tree": "e677b5e24493a7083287c3bea31bca1892c3be29",
+        "status": "",
+        "source_paths": {
+          "src/polisyos/scientist/methods/autotune/runtime.py": "b64d2e6a49e173e58316bf843dab889a775d6b26c9ad6a81d10c2281bce94185",
+          "src/polisyos/scientist/methods/search/service.py": "3df2c3a05c0571065f8ac45c260a03a80c1493ebfab1b0f532d9e90a5a83a6b1",
+          "src/polisyos/scientist/methods/search/controller.py": "9bbbd5b23c9ef43d18370f3bd0e25243eb56cdcd844a2d5f83744c30d4bbcc53",
+          "src/polisyos/scientist/methods/search/frontier.py": "e06f9901b021f0e85df3d60d6b778552c017fed6d69953fb4bf767d7515cd082",
+          "src/polisyos/scientist/methods/search/objective.py": "940c84a3425e8ed1e93de2eae881100fd88a49dd978a108e5d78e5f2fa5fe17c",
+          "src/polisyos/common/serialization.py": "485303bf79f150fa9df259d7354d3104a4bdb94d9114cddb6e17dcc424316f0d"
+        },
+        "fixture_path": "/dev/shm/e02-D-B124-independent-tests/v2/test_service_trial_deduplication.py",
+        "fixture_sha256": "7c95a5a59dbc4c2a0be704d9b9bbe31eaffa2765b04c501ba5b3f1f82ad9fb9e"
+      },
+      "check": "FAIL",
+      "intended_property": "missing primary remains unavailable; present finite literal zero stays available, one stays actual1; not scientific law",
+      "actual_metric": {},
+      "actual_status": "ok",
+      "history_objective": 0.0,
+      "history_count": 1,
+      "actual_calls": [
+        {
+          "value": 1,
+          "starts_at": "2026-01-01",
+          "replicate_id": null,
+          "seed": null,
+          "candidate_ref": {
+            "artifact_id": "sha256:00596c0d572d20bcfac51bdc1a96439e9f32dc4e7c7512767093a8e899b53b1e",
+            "kind": "scientist.autotune.dedup.candidate",
+            "media_type": "application/json",
+            "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e"
+          },
+          "suite_ref": {
+            "artifact_id": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7",
+            "kind": "scientist.autotune.generic.suite",
+            "media_type": "application/json",
+            "manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47"
+          }
+        }
+      ],
+      "simulation_results": {
+        "score": 0.0,
+        "evaluation_ref": "sha256:28539cceccafd27b6398ccac6bd95e6a051334df3430867c25a45b2ede7db0ef",
+        "candidate_ref": "sha256:00596c0d572d20bcfac51bdc1a96439e9f32dc4e7c7512767093a8e899b53b1e",
+        "evaluation_artifact_ref": {
+          "artifact_id": "sha256:28539cceccafd27b6398ccac6bd95e6a051334df3430867c25a45b2ede7db0ef",
+          "kind": "scientist.autotune.dedup.evaluation",
+          "media_type": "application/json",
+          "manifest_profile_sha256": "sha256:9751b526eb9778ccf3c644fb7224027c584c89d4a4d8307ef8c259ab16ede49e"
+        },
+        "candidate_artifact_ref": {
+          "artifact_id": "sha256:00596c0d572d20bcfac51bdc1a96439e9f32dc4e7c7512767093a8e899b53b1e",
+          "kind": "scientist.autotune.dedup.candidate",
+          "media_type": "application/json",
+          "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e"
+        },
+        "suite_artifact_ref": {
+          "artifact_id": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7",
+          "kind": "scientist.autotune.generic.suite",
+          "media_type": "application/json",
+          "manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47"
+        }
+      },
+      "metric_assessment": null,
+      "best_candidate": {
+        "artifact_version": "1.0",
+        "created_at": "2026-04-01",
+        "loop_id": "dedup",
+        "metadata": {
+          "loaded_at": "2026-04-01",
+          "trace_id": "trace-first"
+        },
+        "notes": [
+          "first observation"
+        ],
+        "replicate_id": null,
+        "search_space_version": "1.0",
+        "seed": null,
+        "semantic": {
+          "metadata": {
+            "effective_date": "2026-01-15",
+            "starts_at": "2026-01-01"
+          }
+        },
+        "value": 1
+      },
+      "best_objective": 0.0,
+      "frontier": [
+        {
+          "candidate": {
+            "artifact_version": "1.0",
+            "created_at": "2026-04-01",
+            "loop_id": "dedup",
+            "metadata": {
+              "loaded_at": "2026-04-01",
+              "trace_id": "trace-first"
+            },
+            "notes": [
+              "first observation"
+            ],
+            "replicate_id": null,
+            "search_space_version": "1.0",
+            "seed": null,
+            "semantic": {
+              "metadata": {
+                "effective_date": "2026-01-15",
+                "starts_at": "2026-01-01"
+              }
+            },
+            "value": 1
+          },
+          "candidate_hash": "sha256:03b79a508c29713293d8b17b0cbe8106e0a167090a96e1e40523ef464581a8ee",
+          "objectives": [
+            {
+              "direction": "minimize",
+              "name": "score",
+              "raw_value": 0.0
+            }
+          ]
+        }
+      ],
+      "checkpoint_ref": {
+        "artifact_id": "sha256:5ef8405c0a247b986a9eace8102d993678764532c682a37f0616b3e9e543a7de",
+        "kind": "scientist.search.service_checkpoint",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a"
+      },
+      "checkpoint_sha256": "5ef8405c0a247b986a9eace8102d993678764532c682a37f0616b3e9e543a7de",
+      "evaluation_ref": {
+        "artifact_id": "sha256:28539cceccafd27b6398ccac6bd95e6a051334df3430867c25a45b2ede7db0ef",
+        "kind": "scientist.autotune.dedup.evaluation",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:9751b526eb9778ccf3c644fb7224027c584c89d4a4d8307ef8c259ab16ede49e"
+      },
+      "evaluation_snapshot_sha256": "28539cceccafd27b6398ccac6bd95e6a051334df3430867c25a45b2ede7db0ef",
+      "history_readback_matches": true,
+      "outputs": {
+        "stdout.txt": {
+          "sha256": "f4fa4e9b7f0d96bac276c3bf4fa6ed69206d47bda0aefaa8e1cc73533ad06c4e",
+          "bytes": 4925
+        },
+        "stderr.txt": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      }
+    },
+    {
+      "case": "genuine_zero",
+      "metric_present": true,
+      "candidate_value": 0,
+      "source": {
+        "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+        "tree": "e677b5e24493a7083287c3bea31bca1892c3be29",
+        "status": "",
+        "source_paths": {
+          "src/polisyos/scientist/methods/autotune/runtime.py": "b64d2e6a49e173e58316bf843dab889a775d6b26c9ad6a81d10c2281bce94185",
+          "src/polisyos/scientist/methods/search/service.py": "3df2c3a05c0571065f8ac45c260a03a80c1493ebfab1b0f532d9e90a5a83a6b1",
+          "src/polisyos/scientist/methods/search/controller.py": "9bbbd5b23c9ef43d18370f3bd0e25243eb56cdcd844a2d5f83744c30d4bbcc53",
+          "src/polisyos/scientist/methods/search/frontier.py": "e06f9901b021f0e85df3d60d6b778552c017fed6d69953fb4bf767d7515cd082",
+          "src/polisyos/scientist/methods/search/objective.py": "940c84a3425e8ed1e93de2eae881100fd88a49dd978a108e5d78e5f2fa5fe17c",
+          "src/polisyos/common/serialization.py": "485303bf79f150fa9df259d7354d3104a4bdb94d9114cddb6e17dcc424316f0d"
+        },
+        "fixture_path": "/dev/shm/e02-D-B124-independent-tests/v2/test_service_trial_deduplication.py",
+        "fixture_sha256": "7c95a5a59dbc4c2a0be704d9b9bbe31eaffa2765b04c501ba5b3f1f82ad9fb9e"
+      },
+      "check": "PASS",
+      "intended_property": "missing primary remains unavailable; present finite literal zero stays available, one stays actual1; not scientific law",
+      "actual_metric": {
+        "score": 0.0
+      },
+      "actual_status": "ok",
+      "history_objective": 0.0,
+      "history_count": 1,
+      "actual_calls": [
+        {
+          "value": 0,
+          "starts_at": "2026-01-01",
+          "replicate_id": null,
+          "seed": null,
+          "candidate_ref": {
+            "artifact_id": "sha256:258f6c105ef82cc2033f7e3e128123d421f46c9f325856979a37223922d62f52",
+            "kind": "scientist.autotune.dedup.candidate",
+            "media_type": "application/json",
+            "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e"
+          },
+          "suite_ref": {
+            "artifact_id": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7",
+            "kind": "scientist.autotune.generic.suite",
+            "media_type": "application/json",
+            "manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47"
+          }
+        }
+      ],
+      "simulation_results": {
+        "score": 0.0,
+        "evaluation_ref": "sha256:976ee3ed9f7e87c60c58aabea25d338a95cf517109f4a9a568394bf63ba24b04",
+        "candidate_ref": "sha256:258f6c105ef82cc2033f7e3e128123d421f46c9f325856979a37223922d62f52",
+        "evaluation_artifact_ref": {
+          "artifact_id": "sha256:976ee3ed9f7e87c60c58aabea25d338a95cf517109f4a9a568394bf63ba24b04",
+          "kind": "scientist.autotune.dedup.evaluation",
+          "media_type": "application/json",
+          "manifest_profile_sha256": "sha256:a4bcdd31236962e4b2aabf9d15b0700068e5082569e5b99dbab17991433e489d"
+        },
+        "candidate_artifact_ref": {
+          "artifact_id": "sha256:258f6c105ef82cc2033f7e3e128123d421f46c9f325856979a37223922d62f52",
+          "kind": "scientist.autotune.dedup.candidate",
+          "media_type": "application/json",
+          "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e"
+        },
+        "suite_artifact_ref": {
+          "artifact_id": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7",
+          "kind": "scientist.autotune.generic.suite",
+          "media_type": "application/json",
+          "manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47"
+        }
+      },
+      "metric_assessment": null,
+      "best_candidate": {
+        "artifact_version": "1.0",
+        "created_at": "2026-04-01",
+        "loop_id": "dedup",
+        "metadata": {
+          "loaded_at": "2026-04-01",
+          "trace_id": "trace-first"
+        },
+        "notes": [
+          "first observation"
+        ],
+        "replicate_id": null,
+        "search_space_version": "1.0",
+        "seed": null,
+        "semantic": {
+          "metadata": {
+            "effective_date": "2026-01-15",
+            "starts_at": "2026-01-01"
+          }
+        },
+        "value": 0
+      },
+      "best_objective": 0.0,
+      "frontier": [
+        {
+          "candidate": {
+            "artifact_version": "1.0",
+            "created_at": "2026-04-01",
+            "loop_id": "dedup",
+            "metadata": {
+              "loaded_at": "2026-04-01",
+              "trace_id": "trace-first"
+            },
+            "notes": [
+              "first observation"
+            ],
+            "replicate_id": null,
+            "search_space_version": "1.0",
+            "seed": null,
+            "semantic": {
+              "metadata": {
+                "effective_date": "2026-01-15",
+                "starts_at": "2026-01-01"
+              }
+            },
+            "value": 0
+          },
+          "candidate_hash": "sha256:8680806e811d84692b8a4d0d54c2a9d0f8b52863f14d505d5f9d2d5532984346",
+          "objectives": [
+            {
+              "direction": "minimize",
+              "name": "score",
+              "raw_value": 0.0
+            }
+          ]
+        }
+      ],
+      "checkpoint_ref": {
+        "artifact_id": "sha256:5b0e359e32bd5e68061783db75c0b2ee0881da127af0db2208492af9c1efa0e6",
+        "kind": "scientist.search.service_checkpoint",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a"
+      },
+      "checkpoint_sha256": "5b0e359e32bd5e68061783db75c0b2ee0881da127af0db2208492af9c1efa0e6",
+      "evaluation_ref": {
+        "artifact_id": "sha256:976ee3ed9f7e87c60c58aabea25d338a95cf517109f4a9a568394bf63ba24b04",
+        "kind": "scientist.autotune.dedup.evaluation",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:a4bcdd31236962e4b2aabf9d15b0700068e5082569e5b99dbab17991433e489d"
+      },
+      "evaluation_snapshot_sha256": "976ee3ed9f7e87c60c58aabea25d338a95cf517109f4a9a568394bf63ba24b04",
+      "history_readback_matches": true,
+      "outputs": {
+        "stdout.txt": {
+          "sha256": "24586892e00b08432f5a17459d4c94a956664c576d1a5f77609b6c7c5f9bea59",
+          "bytes": 4933
+        },
+        "stderr.txt": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      }
+    },
+    {
+      "case": "ordinary_one",
+      "metric_present": true,
+      "candidate_value": 1,
+      "source": {
+        "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+        "tree": "e677b5e24493a7083287c3bea31bca1892c3be29",
+        "status": "",
+        "source_paths": {
+          "src/polisyos/scientist/methods/autotune/runtime.py": "b64d2e6a49e173e58316bf843dab889a775d6b26c9ad6a81d10c2281bce94185",
+          "src/polisyos/scientist/methods/search/service.py": "3df2c3a05c0571065f8ac45c260a03a80c1493ebfab1b0f532d9e90a5a83a6b1",
+          "src/polisyos/scientist/methods/search/controller.py": "9bbbd5b23c9ef43d18370f3bd0e25243eb56cdcd844a2d5f83744c30d4bbcc53",
+          "src/polisyos/scientist/methods/search/frontier.py": "e06f9901b021f0e85df3d60d6b778552c017fed6d69953fb4bf767d7515cd082",
+          "src/polisyos/scientist/methods/search/objective.py": "940c84a3425e8ed1e93de2eae881100fd88a49dd978a108e5d78e5f2fa5fe17c",
+          "src/polisyos/common/serialization.py": "485303bf79f150fa9df259d7354d3104a4bdb94d9114cddb6e17dcc424316f0d"
+        },
+        "fixture_path": "/dev/shm/e02-D-B124-independent-tests/v2/test_service_trial_deduplication.py",
+        "fixture_sha256": "7c95a5a59dbc4c2a0be704d9b9bbe31eaffa2765b04c501ba5b3f1f82ad9fb9e"
+      },
+      "check": "PASS",
+      "intended_property": "missing primary remains unavailable; present finite literal zero stays available, one stays actual1; not scientific law",
+      "actual_metric": {
+        "score": 1.0
+      },
+      "actual_status": "ok",
+      "history_objective": -1.0,
+      "history_count": 1,
+      "actual_calls": [
+        {
+          "value": 1,
+          "starts_at": "2026-01-01",
+          "replicate_id": null,
+          "seed": null,
+          "candidate_ref": {
+            "artifact_id": "sha256:00596c0d572d20bcfac51bdc1a96439e9f32dc4e7c7512767093a8e899b53b1e",
+            "kind": "scientist.autotune.dedup.candidate",
+            "media_type": "application/json",
+            "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e"
+          },
+          "suite_ref": {
+            "artifact_id": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7",
+            "kind": "scientist.autotune.generic.suite",
+            "media_type": "application/json",
+            "manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47"
+          }
+        }
+      ],
+      "simulation_results": {
+        "score": 1.0,
+        "evaluation_ref": "sha256:cb6577dabcf5bbdb9beb90e68beeb946d0ec75979430749e63abbcfd33f6d0de",
+        "candidate_ref": "sha256:00596c0d572d20bcfac51bdc1a96439e9f32dc4e7c7512767093a8e899b53b1e",
+        "evaluation_artifact_ref": {
+          "artifact_id": "sha256:cb6577dabcf5bbdb9beb90e68beeb946d0ec75979430749e63abbcfd33f6d0de",
+          "kind": "scientist.autotune.dedup.evaluation",
+          "media_type": "application/json",
+          "manifest_profile_sha256": "sha256:9751b526eb9778ccf3c644fb7224027c584c89d4a4d8307ef8c259ab16ede49e"
+        },
+        "candidate_artifact_ref": {
+          "artifact_id": "sha256:00596c0d572d20bcfac51bdc1a96439e9f32dc4e7c7512767093a8e899b53b1e",
+          "kind": "scientist.autotune.dedup.candidate",
+          "media_type": "application/json",
+          "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e"
+        },
+        "suite_artifact_ref": {
+          "artifact_id": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7",
+          "kind": "scientist.autotune.generic.suite",
+          "media_type": "application/json",
+          "manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47"
+        }
+      },
+      "metric_assessment": null,
+      "best_candidate": {
+        "artifact_version": "1.0",
+        "created_at": "2026-04-01",
+        "loop_id": "dedup",
+        "metadata": {
+          "loaded_at": "2026-04-01",
+          "trace_id": "trace-first"
+        },
+        "notes": [
+          "first observation"
+        ],
+        "replicate_id": null,
+        "search_space_version": "1.0",
+        "seed": null,
+        "semantic": {
+          "metadata": {
+            "effective_date": "2026-01-15",
+            "starts_at": "2026-01-01"
+          }
+        },
+        "value": 1
+      },
+      "best_objective": -1.0,
+      "frontier": [
+        {
+          "candidate": {
+            "artifact_version": "1.0",
+            "created_at": "2026-04-01",
+            "loop_id": "dedup",
+            "metadata": {
+              "loaded_at": "2026-04-01",
+              "trace_id": "trace-first"
+            },
+            "notes": [
+              "first observation"
+            ],
+            "replicate_id": null,
+            "search_space_version": "1.0",
+            "seed": null,
+            "semantic": {
+              "metadata": {
+                "effective_date": "2026-01-15",
+                "starts_at": "2026-01-01"
+              }
+            },
+            "value": 1
+          },
+          "candidate_hash": "sha256:03b79a508c29713293d8b17b0cbe8106e0a167090a96e1e40523ef464581a8ee",
+          "objectives": [
+            {
+              "direction": "minimize",
+              "name": "score",
+              "raw_value": -1.0
+            }
+          ]
+        }
+      ],
+      "checkpoint_ref": {
+        "artifact_id": "sha256:2880564cb68134f7a2e39e862845333c6dd96229c01c6c556cc14c4a955623f9",
+        "kind": "scientist.search.service_checkpoint",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a"
+      },
+      "checkpoint_sha256": "2880564cb68134f7a2e39e862845333c6dd96229c01c6c556cc14c4a955623f9",
+      "evaluation_ref": {
+        "artifact_id": "sha256:cb6577dabcf5bbdb9beb90e68beeb946d0ec75979430749e63abbcfd33f6d0de",
+        "kind": "scientist.autotune.dedup.evaluation",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:9751b526eb9778ccf3c644fb7224027c584c89d4a4d8307ef8c259ab16ede49e"
+      },
+      "evaluation_snapshot_sha256": "cb6577dabcf5bbdb9beb90e68beeb946d0ec75979430749e63abbcfd33f6d0de",
+      "history_readback_matches": true,
+      "outputs": {
+        "stdout.txt": {
+          "sha256": "2c1b9568b1b6adfaca601856c1a19a8f554244a34028ca3cbdf4754549d9ee10",
+          "bytes": 4936
+        },
+        "stderr.txt": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      }
+    }
+  ],
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-D-locked-env/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41"
+  },
+  "scope": "Actual existing native evaluator\u2192immutableCAS\u2192scalar/history/best/front\u2192fresh owned reader diagnostic; no dedup/custom pipeline/source writes; no scientific/fiscal/invoice claim",
+  "P38": "Absent owned primary metric is substituted with actual numerical zero after normal typed response intake, creating a finite scalar/best/front instead of unavailable. Literal measuredzero is separate positive."
+}

@@ -1,0 +1,43 @@
+{
+  "schema": "D.E02.current-transfer-handoff.v1",
+  "author": "/root/transfer_oct07",
+  "actual_CBC": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "new_legacy6_source": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+  "source_type": "root published append-only topic; leaf readonly verification plus rootcommitted new6test; no new production mechanic fromleaf",
+  "originals": 10,
+  "bundles": 3,
+  "five_CBC_scopes": "native28P,quota-replay39P,lessons39P;intake-removal3F1P,nativefinite-removal1F; no setupERROR/SKIP",
+  "new_5b_scope": "legacy6 6P18phases nativeHNSW,FeshCAS; separateactualsource",
+  "per_occurrence_accounting": "original-ten-criterion-matrix.json",
+  "independent_reviews": [
+    {
+      "path": "reviews/TRN-original10-current-CBC-independent-runtime-review.json",
+      "sha256": "f8c96c75448f7fd23eb0f0b3e86b54cf50f0230d2596cb5ebd3d645071f38d85"
+    },
+    {
+      "path": "reviews/TRN-discovery-denominator-terminology-addendum.json",
+      "sha256": "959d63a20154706e6a03521b629b3845cf04bdf11feb659e2f59ec476066c970"
+    },
+    {
+      "path": "reviews/TRN-legacy6-current5b-independent-runtime-review.json",
+      "sha256": "669490c1da476ed0a6202620b754ed670f73f463957e091f5047765099e2aa6c"
+    }
+  ],
+  "backend_seed_inputs": "Complete commands per profile. Locked actualHNSW0.8.0/NumPy2.3.5/Python3.14.7; no actualGPfit in ownnative/lesson scopes, GP current witnesses separate. Original deterministic fixture seeds; no production dataset transferred.",
+  "predicate_basis": "independently_reconciled engineering gates; tenant/split/revalidation institution inputs not_established",
+  "limitations": [
+    "Eightbounded engineeringclosedproposals, no formalclosure/Gacceptance",
+    "Tenantreuse and authorizedrevalidation positive remainheld; no actualappointedissuer/minref yet",
+    "1002indexeddonor snapshots reuse two controlledpersistedobservations, not1001independentmeasurements",
+    "No distributedatomicity/powerloss guarantee fromlocal singlepointer fixture",
+    "Historicalfinitezero HNSW loss unidentifiable withoutoriginalvector; knownNaNlegacyrefused, genuinezero retained",
+    "Full6861/6863 catalogs andallmainorigininventories rawpath/hash only; newmain sourcecompact map retained. Nofullchildtransitiveorigins claim",
+    "OldCAS/B333combinedsync/GP26/34/22/65 retainoriginalSHA, not a newreplay",
+    "No broadperformance/statistical/scientificquality claim",
+    "AllP41notestablished; no inheritedred waiver",
+    "Current5b releasefragment/README/two newtests changecatalog; scopedmodule/assertioncarry, neverwholecatalogzero"
+  ],
+  "raw_cleanup": "Allunique inputs/decidingoutputs/code retained; no permanentdelete orcleanup performed; root alone nominates inactiveTrashcandidates",
+  "created_utc": "2026-10-07T18:26:28.918821+00:00"
+}

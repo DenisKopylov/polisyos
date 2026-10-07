@@ -6,9 +6,9 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from ._integrity_ops import ArtifactIntegrityError
 from .ids import ArtifactID
-from .manifest import ArtifactManifest
+from .manifest import ArtifactManifest, ArtifactRef, artifact_reference_parts
+from .protocol import VerifiedSnapshotArtifactStore
 
 
 class CASIntegrityReport(BaseModel):
@@ -33,8 +33,8 @@ class CASIntegrityReport(BaseModel):
 
 
 def build_cas_integrity_report(
-    store: Any,
-    artifact_id: ArtifactID | str,
+    store: VerifiedSnapshotArtifactStore,
+    artifact_id: ArtifactID | ArtifactRef | str,
     *,
     referrers: list[str] | tuple[str, ...] = (),
     report_index_refs: list[str] | tuple[str, ...] = (),
@@ -45,18 +45,10 @@ def build_cas_integrity_report(
 ) -> CASIntegrityReport:
     """Return a proof record using the store's manifest and verify primitives."""
 
-    artifact = (
-        ArtifactID.model_validate(artifact_id)
-        if isinstance(artifact_id, str)
-        else artifact_id
-    )
-    verification = store.verify(artifact)
-    if not verification.ok:
-        raise ArtifactIntegrityError(
-            f"CAS integrity report requires a verified artifact: {verification.error}"
-        )
-    manifest = store.get_manifest(artifact)
-    payload_digest = verification.actual_sha256_hex or manifest.integrity.sha256
+    artifact, _profile, ref = artifact_reference_parts(artifact_id)
+    snapshot = store.get_verified_snapshot(ref or artifact)
+    manifest = snapshot.manifest
+    payload_digest = snapshot.actual_sha256_hex
     authority_ref = (
         manifest.authority.authority_envelope_ref if manifest.authority is not None else None
     )

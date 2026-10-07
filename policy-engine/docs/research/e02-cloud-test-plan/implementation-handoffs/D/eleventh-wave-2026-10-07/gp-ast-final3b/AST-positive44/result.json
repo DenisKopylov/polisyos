@@ -1,0 +1,24 @@
+{
+  "P41": "not_established; no slice-base inherited-red claim",
+  "actual_cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "actual_deciding_output_sha256": {
+    "after.json": "ce44d8657b9aedf5d7b60829b2d049dc16123f34457202e570c2a38b53004bcc",
+    "before.json": "ce44d8657b9aedf5d7b60829b2d049dc16123f34457202e570c2a38b53004bcc",
+    "command.json": "641d487fbdbd9218c526666ecd1b487c8e5c961ce60a7be117db9601d9eebaaa",
+    "events.jsonl": "d415debe80d929298e5e15d4662f9ce03607b32d7623d1d74dffce773b440d68",
+    "junit.xml": "90d6e03f479c0a49bc5abb49a840726e16655e1115778bd919f6b7f8bea194ea",
+    "origins.json": "f89f2604634707ee226f36ab3a81e0dd17c4c962ac0d08739bd170c41f6178d0"
+  },
+  "exitcode": 0,
+  "full_executable_input_denominator": 6861,
+  "harness_file": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/run_final_ast_scope.py",
+  "harness_sha256": "ef70a32a7f41d558d3631e3599fbc4e8326307cdd1fc009d615ff7b098a2894e",
+  "mode": "targeted44",
+  "numerical_property": "UNRUN; no GP/node runtime assertion",
+  "predicate_basis": "existing static direct-name execute reads and coarse bucket/prefix requirement; one syntactic direct module declaration; not runtime reaching definitions or per-key semantic coverage",
+  "source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "source_and_complete_executable_inputs_before_after_identical": true,
+  "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+  "wall_s": 2.1176919889985584,
+  "wrapper_stdout_stderr_hashes": "Finalize only after wrapper termination; deliberately not included in this inner result manifest"
+}

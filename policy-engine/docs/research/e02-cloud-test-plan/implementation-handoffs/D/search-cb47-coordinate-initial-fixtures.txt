@@ -1,0 +1,203 @@
+...FFF.
+=================================== FAILURES ===================================
+_____ test_actual_multiobjective_fit_and_acquisition_then_typed_converter ______
+
+    @native
+    def test_actual_multiobjective_fit_and_acquisition_then_typed_converter():
+        space = _space()
+        rows = _rows(space)
+        strategy = MOBayesianOptimizer(
+            space,
+            ["cost", "benefit"],
+            [OptimizationDirection.MINIMIZE, OptimizationDirection.MAXIMIZE],
+            MOConfig(n_initial=3, seed=31, num_restarts=1, raw_samples=16),
+            ResourceArbiter(
+                ResourcePolicy(soft_rss_mb=1_000_000, hard_rss_mb=2_000_000, enable_cleanup=False)
+            ),
+        )
+        with (
+            patch.object(mo_module, "fit_gpytorch_mll", wraps=mo_module.fit_gpytorch_mll) as fit,
+            patch.object(mo_module, "optimize_acqf", wraps=mo_module.optimize_acqf) as optimize,
+        ):
+            candidate = strategy.suggest(rows)
+>       assert fit.call_count == optimize.call_count == 1
+E       AssertionError: assert 0 == 1
+E        +  where 0 = <MagicMock name='optimize_acqf' id='140521602587280'>.call_count
+
+tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py:103: AssertionError
+_ test_actual_neural_fit_recomputes_at_executed_action_after_adversarial_proposal _
+
+    @native
+    def test_actual_neural_fit_recomputes_at_executed_action_after_adversarial_proposal():
+        space = _space()
+        strategy = NeuralSearchStrategy(space, NeuralSearchConfig(n_initial=3, seed=31))
+        torch = _deps.require_torch()
+        torch.set_num_threads(1)
+        observed = {}
+        real_model, real_acq, real_optimize = _deps.SingleTaskGP, _deps.ExpectedImprovement, _deps.optimize_acqf
+    
+        def actual_model(*args, **kwargs):
+            model = real_model(*args, **kwargs)
+            real_posterior = model.posterior
+    
+            def posterior_at(point, *positional, **named):
+                observed["last_posterior_point"] = point.detach().cpu().numpy().copy()
+                return real_posterior(point, *positional, **named)
+    
+            model.posterior = posterior_at
+            return model
+    
+        def actual_acquisition(*args, **kwargs):
+            acquisition = real_acq(*args, **kwargs)
+            real_forward = acquisition.forward
+    
+            def consume(point, *positional, **named):
+                observed["last_acquisition_point"] = point.detach().cpu().numpy().copy()
+                return real_forward(point, *positional, **named)
+    
+            acquisition.forward = consume
+            return acquisition
+    
+        def optimize_then_adversarial_input(*args, **kwargs):
+            proposal, value = real_optimize(*args, **kwargs)
+            observed["actual_optimizer_ran"] = True
+            # Keep the actual fit and acquisition path.  Feed an explicit unattainable
+            # proposal and false acquisition proxy into the final mapping boundary.
+            return (
+                torch.tensor([[0.24, 0.37]], dtype=proposal.dtype, device=proposal.device),
+                torch.full_like(value, 987654321.0),
+            )
+    
+        with (
+            patch.object(_deps, "SingleTaskGP", side_effect=actual_model),
+            patch.object(_deps, "ExpectedImprovement", side_effect=actual_acquisition),
+            patch.object(_deps, "optimize_acqf", side_effect=optimize_then_adversarial_input),
+            patch.object(_deps, "fit_gpytorch_mll", wraps=_deps.fit_gpytorch_mll) as fit,
+        ):
+            candidate = strategy.suggest(_rows(space))
+>       assert fit.call_count == 1 and observed.get("actual_optimizer_ran")
+E       AssertionError: assert (1 == 1 and None)
+E        +  where 1 = <MagicMock name='fit_gpytorch_mll' id='140521602590304'>.call_count
+E        +  and   None = <built-in method get of dict object at 0x7fcdbc2b1500>('actual_optimizer_ran')
+E        +    where <built-in method get of dict object at 0x7fcdbc2b1500> = {'last_acquisition_point': array([[[6.18967175e-01, 5.20501375e-01, 6.48725271e-01]],\n\n       [[1.11436805e-01, 4.6620...      [[1.15288366e-01, 9.76307779e-01, 8.08524755e-01]],\n\n       [[6.22806039e-01, 4.65813619e-01, 2.23847201e-01]]])}.get
+
+tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py:172: AssertionError
+------------------------------ Captured log call -------------------------------
+WARNING  polisyos.scientist.methods.search.strategies.neural:neural.py:109 Neural surrogate fitting failed, falling back to random
+Traceback (most recent call last):
+  File "/dev/shm/e02-oracle-search-cb47/archive/policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py", line 107, in suggest
+    return self._suggest_from_surrogate(all_evals, pending)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/dev/shm/e02-oracle-search-cb47/archive/policy-engine/src/polisyos/scientist/methods/search/strategies/neural.py", line 165, in _suggest_from_surrogate
+    candidate, acq_value = optimize_acqf(
+                           ~~~~~~~~~~~~~^
+        acqf,
+        ^^^^^
+    ...<3 lines>...
+        raw_samples=256,
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/unittest/mock.py", line 1247, in _execute_mock_call
+    result = effect(*args, **kwargs)
+  File "/dev/shm/e02-oracle-search-cb47/archive/policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py", line 156, in optimize_then_adversarial_input
+    proposal, value = real_optimize(*args, **kwargs)
+                      ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/optim/optimize.py", line 768, in optimize_acqf
+    return _optimize_acqf(opt_inputs=opt_acqf_inputs)
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/optim/optimize.py", line 789, in _optimize_acqf
+    return _optimize_acqf_batch(opt_inputs=opt_inputs)
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/optim/optimize.py", line 362, in _optimize_acqf_batch
+    generated_initial_conditions = opt_inputs.get_ic_generator()(
+        acq_function=opt_inputs.acq_function,
+    ...<8 lines>...
+        **opt_inputs.ic_gen_kwargs,
+    )
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/optim/initializers.py", line 443, in gen_batch_initial_conditions
+    acq_function(x_.to(device=device)).cpu()
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1776, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/nn/modules/module.py", line 1787, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/dev/shm/e02-oracle-search-cb47/archive/policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py", line 150, in consume
+    return real_forward(point, *positional, **named)
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/utils/transforms.py", line 299, in decorated
+    output = method(acqf, X, *args, **kwargs)
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/utils/transforms.py", line 362, in decorated
+    output = method(acqf, X, *args, **kwargs)
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/analytic.py", line 360, in forward
+    mean, sigma = self._mean_and_sigma(X)  # `(b1 x ... bk) x 1`
+                  ~~~~~~~~~~~~~~~~~~~~^^^
+  File "/workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/analytic.py", line 106, in _mean_and_sigma
+    posterior = self.model.posterior(
+        X=X, posterior_transform=self.posterior_transform
+    )
+TypeError: test_actual_neural_fit_recomputes_at_executed_action_after_adversarial_proposal.<locals>.actual_model.<locals>.posterior_at() missing 1 required positional argument: 'point'
+_ test_multiobjective_incomplete_vector_is_excluded_or_explicitly_refused[missing] _
+
+malformed = 'missing'
+
+    @native
+    @pytest.mark.parametrize("malformed", ["missing", "nan"])
+    def test_multiobjective_incomplete_vector_is_excluded_or_explicitly_refused(malformed):
+        space = SearchSpace([ParameterBounds("x")])
+        strategy = MOBayesianOptimizer(
+            space, ["cost", "benefit"], [OptimizationDirection.MINIMIZE, OptimizationDirection.MAXIMIZE]
+        )
+        complete = Evaluation(
+            "complete", {"x": 0.2}, (0.2,),
+            [ObjectiveValue("cost", 1.0, OptimizationDirection.MINIMIZE),
+             ObjectiveValue("benefit", 1.0, OptimizationDirection.MAXIMIZE)],
+            1.0, True,
+        )
+        objectives = [ObjectiveValue("benefit", 100.0, OptimizationDirection.MAXIMIZE)]
+        if malformed == "nan":
+            objectives.append(ObjectiveValue("cost", float("nan"), OptimizationDirection.MINIMIZE))
+        invalid = Evaluation("invalid", {"x": 0.8}, (0.8,), objectives, 0.0, True)
+        try:
+            front = strategy.get_pareto_front([complete, invalid])
+        except ValueError:
+            return
+>       assert [row.candidate_id for row in front] == ["complete"], (
+            "An incomplete/nonfinite declared objective vector cannot be a Pareto observation"
+        )
+E       AssertionError: An incomplete/nonfinite declared objective vector cannot be a Pareto observation
+E       assert ['invalid'] == ['complete']
+E         
+E         At index 0 diff: 'invalid' != 'complete'
+E         Use -v to get more diff
+
+tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py:203: AssertionError
+=============================== warnings summary ===============================
+../../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py::test_actual_neural_fit_recomputes_at_executed_action_after_adversarial_proposal
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/acquisition/analytic.py:340: NumericsWarning: ExpectedImprovement has known numerical issues that lead to suboptimal optimization performance. It is strongly recommended to simply replace
+  
+  	 ExpectedImprovement 	 --> 	 LogExpectedImprovement 
+  
+  instead, which fixes the issues and has the same API. See https://arxiv.org/abs/2310.20708 for details.
+    legacy_ei_numerics_warning(legacy_name=type(self).__name__)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+==================================== PASSES ====================================
+=========================== short test summary info ============================
+PASSED tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py::test_explicit_unsupported_affine_span_refuses_before_any_candidate[False]
+PASSED tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py::test_explicit_unsupported_affine_span_refuses_before_any_candidate[True]
+PASSED tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py::test_supported_log_endpoints_and_midpoint_follow_declared_geometry
+PASSED tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py::test_multiobjective_incomplete_vector_is_excluded_or_explicitly_refused[nan]
+FAILED tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py::test_actual_multiobjective_fit_and_acquisition_then_typed_converter
+FAILED tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py::test_actual_neural_fit_recomputes_at_executed_action_after_adversarial_proposal
+FAILED tests/unit/scientist/methods/search/strategies/test_gp_coordinate_consumers_independent_oracle.py::test_multiobjective_incomplete_vector_is_excluded_or_explicitly_refused[missing]
+3 failed, 4 passed, 3 warnings in 10.29s

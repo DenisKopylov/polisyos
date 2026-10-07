@@ -1,0 +1,173 @@
+{
+  "schema": "D.FUN.final3b31.input-origin-independent-runtime-review.v1",
+  "candidate": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+  "verdict": "GO_BOUNDED_INPUT_ORIGIN_PROJECTION_AND_AFFECTED_CONSUMERS",
+  "cohorts": [
+    {
+      "name": "origin17-final3b",
+      "command": {
+        "external_source": "/dev/shm/e02-D-funnel-oct07/origin17-final3b.command.json",
+        "sha256": "865478aba4f3a381189cb0b11dde0b9b139f8ab9f369bd0882c9bec65013e160",
+        "bytes": 6774
+      },
+      "checks": {
+        "PASS": 17,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "phases": 51,
+      "loaded_repository_modules_independently_Git_bound": 1174,
+      "input_count": 6321,
+      "available": 6320,
+      "unavailable": [
+        "policy-engine/ops/observability/grafana/dashboards/scientist-llm-cost.json"
+      ],
+      "complete_captured_artifacts": {
+        "deciding-ledgers": 18,
+        "deciding-cas": 45
+      },
+      "wall_seconds": 12.216177940368652,
+      "failed_cases": [],
+      "junit": {
+        "path": "/dev/shm/e02-D-funnel-oct07/origin17-final3b.junit.xml",
+        "bytes": 3953,
+        "sha256": "43ab603a55ee8b3cbbb8958f714566edf928b7f17ee724a79c058c6789c85e0c"
+      }
+    },
+    {
+      "name": "origin11-removal-final3b",
+      "command": {
+        "external_source": "/dev/shm/e02-D-funnel-oct07/origin11-removal-final3b.command.json",
+        "sha256": "013b878b54232f4d1debf374c4ef60c0aba88b7e5e5ee97db69ba7fb0b966bb5",
+        "bytes": 6270
+      },
+      "checks": {
+        "PASS": 8,
+        "FAIL": 3,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "phases": 33,
+      "loaded_repository_modules_independently_Git_bound": 1174,
+      "input_count": 6321,
+      "available": 6320,
+      "unavailable": [
+        "policy-engine/ops/observability/grafana/dashboards/scientist-llm-cost.json"
+      ],
+      "complete_captured_artifacts": {
+        "deciding-ledgers": 11,
+        "deciding-cas": 33
+      },
+      "wall_seconds": 12.224914073944092,
+      "failed_cases": [
+        "test_native_failed_input_origin_survives_funnel_and_fresh_cas[False-estimated-None-estimated0-not_reported-estimated]",
+        "test_native_failed_input_origin_survives_funnel_and_fresh_cas[True-estimated-None-estimated0-not_reported-estimated]",
+        "test_native_zero_estimate_is_not_a_provider_reported_zero"
+      ],
+      "junit": {
+        "path": "/dev/shm/e02-D-funnel-oct07/origin11-removal-final3b.junit.xml",
+        "bytes": 7543,
+        "sha256": "3ae9095175d5a2a976104f585f97766ba61cd1100b702574a491f09da490b022"
+      }
+    }
+  ],
+  "actual_ledger_snapshots": 29,
+  "actual_CAS_blob_manifest_records": 78,
+  "projection_positive_sample": [
+    {
+      "cohort": "origin17-final3b",
+      "artifact_sha256": "1033b41a2deeca942aff0fb498760fa04a8ede8b4220aee90d19941a93cb5c56",
+      "json_pointer": "/params/_funnel_outcome/stage_results/3/feedback",
+      "fixture_path": "test_native_failed_input_origi0/cas/artifacts/sha256/10/33/1033b41a2deeca942aff0fb498760fa04a8ede8b4220aee90d19941a93cb5c56.blob",
+      "values": {
+        "resource_reported_input_usd": null,
+        "resource_reported_input_status": "not_reported",
+        "resource_estimated_input_usd": "0.5",
+        "resource_estimated_input_status": "estimated",
+        "resource_settlement_status": "unknown"
+      }
+    },
+    {
+      "cohort": "origin17-final3b",
+      "artifact_sha256": "211be7e35c520669f892da42aec9932bd506fd1b6a48bd581584cf4cb9b711da",
+      "json_pointer": "/params/_funnel_outcome/stage_results/3/feedback",
+      "fixture_path": "test_native_failed_input_origi3/cas/artifacts/sha256/21/1b/211be7e35c520669f892da42aec9932bd506fd1b6a48bd581584cf4cb9b711da.blob",
+      "values": {
+        "resource_reported_input_usd": null,
+        "resource_reported_input_status": "not_reported",
+        "resource_estimated_input_usd": "0.5",
+        "resource_estimated_input_status": "estimated",
+        "resource_settlement_status": "committed_after_unknown_ack"
+      }
+    },
+    {
+      "cohort": "origin17-final3b",
+      "artifact_sha256": "d04919cf3cd462f289979375452497c1a9bf76fb2eb931d0a7b78d4cca99d2ad",
+      "json_pointer": "/params/_funnel_outcome/stage_results/3/feedback",
+      "fixture_path": "test_native_zero_estimate_is_n0/cas/artifacts/sha256/d0/49/d04919cf3cd462f289979375452497c1a9bf76fb2eb931d0a7b78d4cca99d2ad.blob",
+      "values": {
+        "resource_reported_input_usd": null,
+        "resource_reported_input_status": "not_reported",
+        "resource_estimated_input_usd": "0.0",
+        "resource_estimated_input_status": "estimated",
+        "resource_settlement_status": "unknown"
+      }
+    }
+  ],
+  "projection_proxy_divergence_sample": [
+    {
+      "cohort": "origin11-removal-final3b",
+      "artifact_sha256": "cd1a6acf0c65e3032978b602fa2139a25a3ec5416e7766ec183fc7f4ed8bf6d8",
+      "json_pointer": "/params/_funnel_outcome/stage_results/3/feedback",
+      "fixture_path": "test_native_failed_input_origi0/cas/artifacts/sha256/cd/1a/cd1a6acf0c65e3032978b602fa2139a25a3ec5416e7766ec183fc7f4ed8bf6d8.blob",
+      "values": {
+        "resource_reported_input_usd": "0",
+        "resource_reported_input_status": "reported",
+        "resource_estimated_input_usd": "0.5",
+        "resource_estimated_input_status": "estimated",
+        "resource_settlement_status": "unknown"
+      }
+    },
+    {
+      "cohort": "origin11-removal-final3b",
+      "artifact_sha256": "73f39196eb1c5592ef8939beac3edb46a3c317de7b276ebbc2fe45c09eaf11f9",
+      "json_pointer": "/params/_funnel_outcome/stage_results/3/feedback",
+      "fixture_path": "test_native_failed_input_origi3/cas/artifacts/sha256/73/f3/73f39196eb1c5592ef8939beac3edb46a3c317de7b276ebbc2fe45c09eaf11f9.blob",
+      "values": {
+        "resource_reported_input_usd": "0",
+        "resource_reported_input_status": "reported",
+        "resource_estimated_input_usd": "0.5",
+        "resource_estimated_input_status": "estimated",
+        "resource_settlement_status": "committed_after_unknown_ack"
+      }
+    },
+    {
+      "cohort": "origin11-removal-final3b",
+      "artifact_sha256": "62f18d98d41690166f1178a90cc70334fca5d4030b8627784d2e7e5f3807a178",
+      "json_pointer": "/params/_funnel_outcome/stage_results/3/feedback",
+      "fixture_path": "test_native_zero_estimate_is_n0/cas/artifacts/sha256/62/f1/62f18d98d41690166f1178a90cc70334fca5d4030b8627784d2e7e5f3807a178.blob",
+      "values": {
+        "resource_reported_input_usd": "0",
+        "resource_reported_input_status": "reported",
+        "resource_estimated_input_usd": "0.0",
+        "resource_estimated_input_status": "estimated",
+        "resource_settlement_status": "unknown"
+      }
+    }
+  ],
+  "independent_numeric_oracle": "50000 × Decimal(0.00001) = Decimal(0.5); estimated0 and reported0 remain different origins. Actualdecoder/provider/event/settlement/CAS receipts retained.",
+  "P37": {
+    "initial_candidate_input_and_loaded_origin_identity": "independently_reconciled",
+    "actual_Hash_and_amount_origin_projection": "recomputed",
+    "real_invoice_or_owner_law": "not_established"
+  },
+  "P38": "Legacy removal retains estimated0.5/0.0, cost-origin, pending,event/digest/key and actual ledger/CAS, but absent reported component becomes fake0/reported; exactly3 assertionFAILs prove proxy divergence. Actual reported0 and mixed0.25+0.5/unknown remain controls.",
+  "limits": [
+    "Mixed L3/L4 paths are explicit composed handlers/distinctkeys under one observer, not failedL3 automaticL4 scheduling.",
+    "New11 execute actual Node serialization helper/ExperimentState→CAS→freshreader, not whole Node.run. Existingfullsplit/prerequisite/pending4 selectors execute their declared native consumers.",
+    "Single unavailable GrafanaJSON is declared and not in selected financial dependency; no metrics/dashboardproperty claimed. Onepytestcache warning and fixed defaultmetrics bootstrap port warning retained.",
+    "Large raw input/module/resource inventories remain ignored path/hash-bound; no whole current financial292/138/globalG/API claim. G680budget10 not repeated. Formalclosure/Gacceptance remain0."
+  ]
+}

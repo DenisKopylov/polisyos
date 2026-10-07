@@ -1,0 +1,683 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "continuation-stress-producer-blueprint",
+  "closure_ids": [],
+  "finding_ids": [
+    "B106",
+    "B107"
+  ],
+  "companion_finding_ids": [
+    "B120",
+    "B160",
+    "B165"
+  ],
+  "bundle_ids": [
+    "STR-01"
+  ],
+  "companion_bundle_ids": [
+    "CTL-03",
+    "FUN-02"
+  ],
+  "slice_base_sha": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+  "implementation_commits": [
+    "6e9c6662d74977847f70e7c66228ca529f1e1bf1",
+    "c2cbd72c0d11dab73b277c97f389840dfd187b17",
+    "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+    "ee6d0024cc9dd7e1c27381f6fdfe112c465b6581"
+  ],
+  "source_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+  "candidate_tree_sha": "139db301e70eea5173811b066592278ee3f91eb4",
+  "branch": "codex/e02-D-published-stress",
+  "pull_request": null,
+  "changed_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-D-stress-scenario-consumer.toml",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/adversarial.py",
+    "policy-engine/src/polisyos/scientist/methods/doe/README.md",
+    "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+    "policy-engine/src/polisyos/scientist/methods/doe/stress_report.py",
+    "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py",
+    "policy-engine/src/polisyos/scientist/policy_design/adversary.py",
+    "policy-engine/tests/integration/scientist/methods/search/stress_doe_bridge_probe.py",
+    "policy-engine/tests/integration/scientist/methods/search/stress_property_removal_probe.py",
+    "policy-engine/tests/unit/scientist/methods/backtesting/test_phase_d4_challenge_suites.py",
+    "policy-engine/tests/unit/scientist/search/test_adversarial.py",
+    "policy-engine/tests/unit/scientist/search/test_blueprint_resource_projection.py",
+    "policy-engine/tests/unit/scientist/search/test_challenge_scenario_projection.py",
+    "policy-engine/tests/unit/scientist/search/test_stress_scenario_evidence.py"
+  ],
+  "test_only_successor_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+  "dependency_composition_sha": "40220c6f0f0b63223b9974e4bdf6add5262aa5af",
+  "dependency_owner_source_sha": "d796963c24ac84f101cd181da0e4eef85872ad42",
+  "G_checkpoint_sha": "363e7ae0cb2929a92d9667334fdc0ac3087daf5e",
+  "original_criteria_and_owner_locators": [
+    {
+      "finding_id": "B106",
+      "canonical_closure_owner": "STR-01",
+      "bundle_ids": [
+        "STR-01"
+      ],
+      "task_anchors": [
+        "D.md#bundle-str-01"
+      ],
+      "criterion_occurrences": [
+        {
+          "bundle": "STR-01",
+          "document": "B_r19",
+          "lines": [
+            2738,
+            2749
+          ],
+          "bytes": [
+            614780,
+            617772
+          ],
+          "criterion_sha256": "250b3bd2f5bc433b540605f3c9e37eddab7a5c693326c6193bb94cc9d4c67e33"
+        }
+      ],
+      "candidate_cell_ids": [
+        "F02-P067",
+        "F04-P120",
+        "F06-P088",
+        "F08-P120",
+        "F09-P068",
+        "F10-P068",
+        "F15-P079",
+        "F15-P142"
+      ],
+      "route_rows": 8,
+      "historical_ledger_status": "partial",
+      "route_grade": "candidate_unverified",
+      "product_closure": "not_established",
+      "canonical_selected_route_pointer": "/findings/16/selected_plan_not_executed"
+    },
+    {
+      "finding_id": "B107",
+      "canonical_closure_owner": "STR-01",
+      "bundle_ids": [
+        "STR-01"
+      ],
+      "task_anchors": [
+        "D.md#bundle-str-01"
+      ],
+      "criterion_occurrences": [
+        {
+          "bundle": "STR-01",
+          "document": "B_r19",
+          "lines": [
+            2750,
+            2761
+          ],
+          "bytes": [
+            617772,
+            621010
+          ],
+          "criterion_sha256": "35367e5237da490c93fb99395113d7251a972437ec52e1a54a8003e74d63eb7e"
+        }
+      ],
+      "candidate_cell_ids": [
+        "F02-P067",
+        "F04-P120",
+        "F06-P088",
+        "F08-P120",
+        "F09-P068",
+        "F10-P068",
+        "F15-P079",
+        "F15-P142"
+      ],
+      "route_rows": 8,
+      "historical_ledger_status": "partial",
+      "route_grade": "candidate_unverified",
+      "product_closure": "not_established",
+      "canonical_selected_route_pointer": "/findings/17/selected_plan_not_executed"
+    },
+    {
+      "finding_id": "B120",
+      "canonical_closure_owner": "CTL-03",
+      "bundle_ids": [
+        "CTL-03"
+      ],
+      "task_anchors": [
+        "D.md#bundle-ctl-03"
+      ],
+      "criterion_occurrences": [
+        {
+          "bundle": "CTL-03",
+          "document": "B_r19",
+          "lines": [
+            3192,
+            3205
+          ],
+          "bytes": [
+            720126,
+            723586
+          ],
+          "criterion_sha256": "5217798c76f0d4b4fdb0bcac33fb4b6eaf726f690f2c8babfbac7a37744c3b29"
+        }
+      ],
+      "candidate_cell_ids": [
+        "F01-P022",
+        "F02-P093",
+        "F02-P129",
+        "F04-P048",
+        "F04-P114",
+        "F05-P042",
+        "F06-P069",
+        "F06-P128",
+        "F06-P140",
+        "F07-P086",
+        "F08-P053",
+        "F08-P115",
+        "F08-P126",
+        "F09-P032",
+        "F10-P051",
+        "F10-P100",
+        "F11-P031",
+        "F12-P115",
+        "F13-P058",
+        "F13-P106",
+        "F14-P134",
+        "F15-P028",
+        "F15-P151"
+      ],
+      "route_rows": 23,
+      "historical_ledger_status": "partial",
+      "route_grade": "candidate_unverified",
+      "product_closure": "not_established",
+      "canonical_selected_route_pointer": "/findings/32/selected_plan_not_executed"
+    },
+    {
+      "finding_id": "B160",
+      "canonical_closure_owner": "FUN-02",
+      "bundle_ids": [
+        "FUN-02"
+      ],
+      "task_anchors": [
+        "D.md#bundle-fun-02"
+      ],
+      "criterion_occurrences": [
+        {
+          "bundle": "FUN-02",
+          "document": "B_r19",
+          "lines": [
+            4153,
+            4164
+          ],
+          "bytes": [
+            958888,
+            961990
+          ],
+          "criterion_sha256": "de9f5f2da46e9d846cdf6d085d670e14a8f42dea464b332e8764900444c026e8"
+        }
+      ],
+      "candidate_cell_ids": [
+        "F01-P095",
+        "F03-P025",
+        "F03-P141",
+        "F04-P073",
+        "F05-P044",
+        "F07-P025",
+        "F07-P089",
+        "F11-P033",
+        "F14-P111",
+        "F15-P030"
+      ],
+      "route_rows": 10,
+      "historical_ledger_status": "partial",
+      "route_grade": "candidate_unverified",
+      "product_closure": "not_established",
+      "canonical_selected_route_pointer": "/findings/76/selected_plan_not_executed"
+    },
+    {
+      "finding_id": "B165",
+      "canonical_closure_owner": "FUN-02",
+      "bundle_ids": [
+        "FUN-02"
+      ],
+      "task_anchors": [
+        "D.md#bundle-fun-02"
+      ],
+      "criterion_occurrences": [
+        {
+          "bundle": "FUN-02",
+          "document": "B_r19",
+          "lines": [
+            4213,
+            4224
+          ],
+          "bytes": [
+            975410,
+            978654
+          ],
+          "criterion_sha256": "93f3c511f14729529cf4353e326c6bd33ad6686ab19385bc56f88210cdd5e258"
+        }
+      ],
+      "candidate_cell_ids": [
+        "F01-P095",
+        "F03-P025",
+        "F03-P141",
+        "F04-P073",
+        "F05-P044",
+        "F07-P025",
+        "F07-P089",
+        "F11-P033",
+        "F14-P111",
+        "F15-P030"
+      ],
+      "route_rows": 10,
+      "historical_ledger_status": "partial",
+      "route_grade": "candidate_unverified",
+      "product_closure": "not_established",
+      "canonical_selected_route_pointer": "/findings/81/selected_plan_not_executed"
+    }
+  ],
+  "criterion_document_bindings": {
+    "B_r19": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_sha": "97c85fae2d4505ec8248540d98b9556296244208",
+      "blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5"
+    },
+    "LA_r09": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "source_sha": "97c85fae2d4505ec8248540d98b9556296244208",
+      "blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+      "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727"
+    }
+  },
+  "baseline_cells": [
+    "F01-P022",
+    "F01-P095",
+    "F02-P067",
+    "F02-P093",
+    "F02-P129",
+    "F03-P025",
+    "F03-P141",
+    "F04-P048",
+    "F04-P073",
+    "F04-P114",
+    "F04-P120",
+    "F05-P042",
+    "F05-P044",
+    "F06-P069",
+    "F06-P088",
+    "F06-P128",
+    "F06-P140",
+    "F07-P025",
+    "F07-P086",
+    "F07-P089",
+    "F08-P053",
+    "F08-P115",
+    "F08-P120",
+    "F08-P126",
+    "F09-P032",
+    "F09-P068",
+    "F10-P051",
+    "F10-P068",
+    "F10-P100",
+    "F11-P031",
+    "F11-P033",
+    "F12-P115",
+    "F13-P058",
+    "F13-P106",
+    "F14-P111",
+    "F14-P134",
+    "F15-P028",
+    "F15-P030",
+    "F15-P079",
+    "F15-P142",
+    "F15-P151"
+  ],
+  "census_ref": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/complete-result-pack-census.json",
+    "source_sha": "3d49a2e327258eb6c0f6007d249c60935eb3d375",
+    "sha256": "b35d8860e60d926f4b99cd464cfb141fb1166a7318ea7a12147e28348e55ca11",
+    "bytes": 79975
+  },
+  "original_baseline_acceptance": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/results/verification.json",
+    "source_sha": "c2cbd72c0d11dab73b277c97f389840dfd187b17",
+    "sha256": "26fcc44ff5094586402edf421cb04faf944578be3f628edd2577f5ed589d2c17",
+    "index_acceptance": "transfer_and_navigation_only",
+    "product_closure": "not_established"
+  },
+  "environment": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/locked-environment.json",
+    "source_sha": "3d49a2e327258eb6c0f6007d249c60935eb3d375",
+    "sha256": "c7c9f4de5b412c39ea40bfb92049587b44dd6bc51e12a7bf5f9fb4f078c2b3ee",
+    "bytes": 6428
+  },
+  "complete_input_profile": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/final-source-profile.json",
+    "source_sha": "3d49a2e327258eb6c0f6007d249c60935eb3d375",
+    "sha256": "08907e79eece8af36f3ea60d97cd429358ed4ddc986dcc1e8876de3f889fbaa3",
+    "bytes": 7768
+  },
+  "payload_manifest": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/payload-manifest.json",
+    "source_sha": "3d49a2e327258eb6c0f6007d249c60935eb3d375",
+    "sha256": "7cc1e17a276e9769538b003dd580e46957ca746a53fd559dad5ecede49771c1d",
+    "bytes": 21995
+  },
+  "checks": [
+    {
+      "name": "schema-context-frozen-b",
+      "target_sha": "c2cbd72c0d11dab73b277c97f389840dfd187b17",
+      "outcome": "PASS",
+      "predicate_basis": "recomputed",
+      "input_closure": "Exact32 native typed schema/retry/context tests with full checked source/test/runtime origins.",
+      "summary": "32PASS/0fail,error,skip; earlier same-source run SIGKILL remains ERROR.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/schema-context-frozen-b-complete.txt",
+        "source_sha": "3d49a2e327258eb6c0f6007d249c60935eb3d375",
+        "sha256": "f9544a95fe26df4955e56eaf344947b3b28c945c60681ac3929efa2585e4e2c9",
+        "bytes": 2933
+      },
+      "runtime_and_command": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/schema-context-frozen-b-resource.json",
+        "source_sha": "3d49a2e327258eb6c0f6007d249c60935eb3d375",
+        "sha256": "927b66b0f1f0fc173174f6e0a0e18f0cdad788468b8715407a6784e001a8232d",
+        "bytes": 950
+      }
+    },
+    {
+      "name": "challenge-frozen",
+      "target_sha": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+      "outcome": "PASS",
+      "predicate_basis": "recomputed",
+      "input_closure": "Actual native32 +15 challenge producer/blueprint +7 existing phaseD4 runner companions.",
+      "summary": "54PASS/0fail,error,skip; bounded source82 before component/projection successor.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/challenge-frozen-complete.txt",
+        "source_sha": "3d49a2e327258eb6c0f6007d249c60935eb3d375",
+        "sha256": "fc39b2b750bc475a01b440c072d486325cf0a3b8e279b5eb8b907a1fb1443451",
+        "bytes": 3194
+      },
+      "runtime_and_command": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/challenge-frozen-resource.json",
+        "source_sha": "3d49a2e327258eb6c0f6007d249c60935eb3d375",
+        "sha256": "68e2930938374e23c3b38fcba676c5398d274803247f223394c93cfb2539174a",
+        "bytes": 898
+      }
+    },
+    {
+      "name": "projection-red",
+      "target_sha": "6331544a406af1c50b7c32f118ac881903ca978b",
+      "outcome": "FAIL",
+      "predicate_basis": "recomputed",
+      "input_closure": "Owned source bytes identical82; frozen new5 controls.",
+      "summary": "5FAIL:3missing evaluation_status, manifest1.0/body1.1, emptycomponent falselycomplete. Unused misplaced trailingassert moved back in063a; firstemptycompletenessfailure alreadydecisive.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/projection-red-complete.txt",
+        "source_sha": "3d49a2e327258eb6c0f6007d249c60935eb3d375",
+        "sha256": "8ae63279dfdb0bfea3034956d2bffd309f87b17969d7da5c7e941b77ff7aae7d",
+        "bytes": 15955
+      },
+      "runtime_and_command": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/projection-red-resource.json",
+        "source_sha": "3d49a2e327258eb6c0f6007d249c60935eb3d375",
+        "sha256": "60f3f20886c3dc7d2f0b446017a7def8ee944e607a08826943d80ae49d441d25",
+        "bytes": 868
+      }
+    },
+    {
+      "name": "final-consumer-wave",
+      "target_sha": "40220c6f0f0b63223b9974e4bdf6add5262aa5af",
+      "outcome": "FAIL",
+      "predicate_basis": "recomputed",
+      "input_closure": "Exact10 complete test paths +full current source/config/officialtokenizer, no caps.",
+      "summary": "142executions=139PASS3FAIL0error/skip. Threeownfixture failures AFTER projection assertions: reports_index accepts ArtifactRefs; actualnode stores params. No inherited-red attribution.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/final-consumer-wave-complete.txt",
+        "source_sha": "3d49a2e327258eb6c0f6007d249c60935eb3d375",
+        "sha256": "e59770136ca871381b73da9140095be0242190849e582dc21914a1fa1d3f7522",
+        "bytes": 26643
+      },
+      "runtime_and_command": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/final-consumer-wave-resource.json",
+        "source_sha": "3d49a2e327258eb6c0f6007d249c60935eb3d375",
+        "sha256": "0acab46d8bcbb963e6b87f62a452b756b167a9e429a959e838b40daf8287754e",
+        "bytes": 1363
+      },
+      "outcome_subsets": {
+        "PASS": 139,
+        "FAIL": 3,
+        "ERROR": 0,
+        "SKIP": 0,
+        "tests": 142
+      }
+    },
+    {
+      "name": "final-projection-companion",
+      "target_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+      "outcome": "PASS",
+      "predicate_basis": "recomputed",
+      "input_closure": "Entire changed4-test projection path with actual params.funnel_outcome; production unchangedee6/402.",
+      "summary": "4PASS0fail,error,skip; missing/zero/long Decimal +exactnewfields survive ordinaryState/freshCAS; actualphaseD4 body/manifest1.1. Nineother paths executedonlyat402, not a currentfull142execution.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/final-projection-companion-complete.txt",
+        "source_sha": "3d49a2e327258eb6c0f6007d249c60935eb3d375",
+        "sha256": "db141f75efa388d5dd6dcf059fe20e3dd1d37506a354a3fc56f8ff55db323323",
+        "bytes": 3037
+      },
+      "runtime_and_command": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/final-projection-companion-resource.json",
+        "source_sha": "3d49a2e327258eb6c0f6007d249c60935eb3d375",
+        "sha256": "53c5f35eded7b45a74c4381e1f290a2975785162f0efaffd9c027a947f88e137",
+        "bytes": 754
+      }
+    },
+    {
+      "name": "removal-example_fraction",
+      "target_sha": "82d3532fd53a74206ee4f31a2fc7150cc1e4962e",
+      "outcome": "FAIL",
+      "predicate_basis": "recomputed",
+      "input_closure": "Actual defining function removed in-memory by frozen oracle5e93; report/schema/scoremarkers and productiondiskbytes retained.",
+      "summary": "cap1FAIL versuscap10PASS; DTO catches example-derivedfraction disagreeing with full scenario counts.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/removal-example_fraction-complete.txt",
+        "source_sha": "3d49a2e327258eb6c0f6007d249c60935eb3d375",
+        "sha256": "bd83392ac75006f938ac4071b50d2d9cb7d53a5185e422b0afcb4c3e2c5c7a15",
+        "bytes": 5406
+      },
+      "runtime_and_command": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/removal-example_fraction-resource.json",
+        "source_sha": "3d49a2e327258eb6c0f6007d249c60935eb3d375",
+        "sha256": "a5095de7255895d9a14dc49a5d5832bd28c96fec1278adbb359fac153c1cdb41",
+        "bytes": 878
+      },
+      "oracle_sha": "5e93c25cb78714b4d8e121bdf7e401c5a1b6cc73"
+    },
+    {
+      "name": "case-intake-positive",
+      "target_sha": "ee6d0024cc9dd7e1c27381f6fdfe112c465b6581",
+      "outcome": "PASS",
+      "predicate_basis": "recomputed",
+      "input_closure": "Actual native case helper/classes only, test oraclecf358; original/effectivefunctionhashes plus loaded exactGitfile bytes.",
+      "summary": "StrictFalse positive kept; samefour malformedrawinputs refused by actualhelper and accepted after guardremoval. Scoped helper execution, not fullblueprint substitute.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/case-intake-positive-complete.txt",
+        "source_sha": "3d49a2e327258eb6c0f6007d249c60935eb3d375",
+        "sha256": "edd0d622b23391f85f872b64dc13f72f8533e04ff0376754755673ce52fc39f3",
+        "bytes": 1959
+      },
+      "runtime_and_command": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/case-intake-positive-resource.json",
+        "source_sha": "3d49a2e327258eb6c0f6007d249c60935eb3d375",
+        "sha256": "08b85b51212eb2490a4f0335f973eca522b09e799dc1889cbacae8bc721b8e8d",
+        "bytes": 412
+      },
+      "oracle_sha": "cf358ef1f08eb6836d0dd399297f059dc9aaa15b"
+    },
+    {
+      "name": "case-intake-remove_strict_bool",
+      "target_sha": "ee6d0024cc9dd7e1c27381f6fdfe112c465b6581",
+      "outcome": "FAIL",
+      "predicate_basis": "recomputed",
+      "input_closure": "Actual native case helper/classes only, test oraclecf358; original/effectivefunctionhashes plus loaded exactGitfile bytes.",
+      "summary": "StrictFalse positive kept; samefour malformedrawinputs refused by actualhelper and accepted after guardremoval. Scoped helper execution, not fullblueprint substitute.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/case-intake-remove_strict_bool-complete.txt",
+        "source_sha": "3d49a2e327258eb6c0f6007d249c60935eb3d375",
+        "sha256": "e747bdfa5afcb847e80867603a0605f148cc29aa0406e0373df86817708a1702",
+        "bytes": 1736
+      },
+      "runtime_and_command": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/case-intake-remove_strict_bool-resource.json",
+        "source_sha": "3d49a2e327258eb6c0f6007d249c60935eb3d375",
+        "sha256": "813e4c583c6436924f7a869fc0736063d3515e2ba681ef7f99049c59f2be3833",
+        "bytes": 422
+      },
+      "oracle_sha": "cf358ef1f08eb6836d0dd399297f059dc9aaa15b"
+    },
+    {
+      "name": "final-mypy-four-paths",
+      "target_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+      "outcome": "ERROR",
+      "predicate_basis": "recomputed",
+      "input_closure": "Full four owned production paths; exact uncapped command in resource record.",
+      "summary": "SIGKILL-9/83.465wall/RSS524664 with emptyoutput; no type verdict or cause inference.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/final-mypy-four-paths-complete.txt",
+        "source_sha": "3d49a2e327258eb6c0f6007d249c60935eb3d375",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "runtime_and_command": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/final-mypy-four-paths-resource.json",
+        "source_sha": "3d49a2e327258eb6c0f6007d249c60935eb3d375",
+        "sha256": "a6321386b69ed39529ce409cfa8e5333f6d4fb8271452dad12610452f90753ce",
+        "bytes": 590
+      }
+    },
+    {
+      "name": "Ruff14",
+      "target_sha": "c9200d0309bec7b2eee04a3fc44a057dfe48cdec",
+      "outcome": "PASS",
+      "predicate_basis": "recomputed",
+      "input_closure": "All14 changed owned Python paths listed in final-source-profile (6production,5tests,3probes).",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/final-ruff14-complete.txt",
+        "source_sha": "3d49a2e327258eb6c0f6007d249c60935eb3d375",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "bytes": 19
+      },
+      "format_output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/final-ruff14-format.txt",
+        "source_sha": "3d49a2e327258eb6c0f6007d249c60935eb3d375",
+        "sha256": "2afb1c293434bc55d84b35d54454a0bf9aa84e41cda426817a5c6693d432e37a",
+        "bytes": 27
+      },
+      "summary": "check exit0/format exit0;14 alreadyformatted."
+    },
+    {
+      "name": "full-result-pack-byte-and-owner-census",
+      "target_sha": "c2cbd72c0d11dab73b277c97f389840dfd187b17",
+      "outcome": "PASS",
+      "predicate_basis": "independently_reconciled",
+      "input_closure": "All15received/6indexes/allownerTSVs/allcanonical criterion occurrence blocks, not sample30.",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/complete-result-pack-census.json",
+        "source_sha": "3d49a2e327258eb6c0f6007d249c60935eb3d375",
+        "sha256": "b35d8860e60d926f4b99cd464cfb141fb1166a7318ea7a12147e28348e55ca11",
+        "bytes": 79975
+      },
+      "summary": "45findings17bundles46criterionoccurrences456routes115cells; reported112PASS3FAILED are historical navigation observations only."
+    },
+    {
+      "name": "import_results --check",
+      "target_sha": "c2cbd72c0d11dab73b277c97f389840dfd187b17",
+      "outcome": "PASS",
+      "predicate_basis": "independently_reconciled",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/results-import-check.txt",
+        "source_sha": "3d49a2e327258eb6c0f6007d249c60935eb3d375",
+        "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4",
+        "bytes": 112
+      },
+      "summary": "Six derived indexes byteequal; transfer/navigation only, no productclosure."
+    },
+    {
+      "name": "validate_coverage --self-check",
+      "target_sha": "c2cbd72c0d11dab73b277c97f389840dfd187b17",
+      "outcome": "PASS",
+      "predicate_basis": "independently_reconciled",
+      "output": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-stress-proof/coverage-self-check.txt",
+        "source_sha": "3d49a2e327258eb6c0f6007d249c60935eb3d375",
+        "sha256": "46a173fcb04644e1f1c9ff0e7753b5f41d1360fe68204299eb58e91fbd86623a",
+        "bytes": 435
+      },
+      "summary": "Full127bundles/282findings/291sourceoccurrences; four count-preserving corruptions rejected; planningbookkeeping only."
+    }
+  ],
+  "property": {
+    "statement": "Actual native stress and declared-case producers preserve attempted/finite/violated/unknown/planned counts before grouping/topk; report→blueprint→CAS/freshreader preserves available finite fractions and refuses unavailable robustness. Whole report completeness includes eachdeclared component, evenemptysets. Existing scenario issue presentation remains bounded andunchanged.",
+    "runtime_path": [
+      "Actual StageB CompositeObjective physical-coordinate evaluation or existing strict declaredChallengeCaseResult producer",
+      "StressTestReport1.1/StressScenarioEvidence",
+      "Actual _ensure/_merge/_recompute blueprintconsumer",
+      "actual CAS andfresh typedreader",
+      "Actual L5/funnel consumers in fullsource402wave; genuinepaid projection independentowner supplement pending"
+    ],
+    "proxy_divergence": "Ten same-issue failures among32cases remain10violated, score22/32 even with1displayedexample; complete4cases plus emptycomponent retains finitefraction1 butpartial/notrobust; reportedexactDecimal/None staysdistinct fromestimatedcost andreportedzero.",
+    "negative_controls": [
+      "actualcount-property in-memory removal failscap1withmarkerskept",
+      "actualrawcasebool guardremoval same4inputs failswithmarkers/strictFalsepositivekept",
+      "typedthresholdbool/string/nonfinite/overflowadmissionrefusal beforecoercion",
+      "schemaunknown/evidenceunderlegacy1.0refusal",
+      "anonymoussame-reportretrycountonce/contentmismatchrefusal",
+      "empty/unknown/skipped/partialcase outcomes notcomplete/promotable"
+    ],
+    "rule_versions": {
+      "StressTestReport": "1.1",
+      "bounded_legacy_reader": "1.0 withoutnewfields, scoresunassessed",
+      "challenge_case_profile": "challenge_case_pass@1.0; expectedoutcome andpasslaw asserted byexistingproducer, not authenticated or recomputed byadapter"
+    },
+    "resource_projection": "Outcome evaluation_status; outcome/stage/trace existing computeamount, source, exactproviderDecimal string-or-null andeventreferences; existingfeedback preserved. No billing or writer authority minted."
+  },
+  "predicate_basis": "not_established",
+  "predicate_scope": "Full criterion/combined deployment/population acceptance remains not established; individual check predicates and source bytes have bounded separate labels. Author is not its own independent reviewer.",
+  "capability_state_or_finding_state": "partial",
+  "limitations_and_next_owner": [
+    {
+      "owner": "STR-01/G principal",
+      "input": "Actual empirical completeness/coverage/inputlaw andproductionhistory where criterion needs them",
+      "ref": null,
+      "state": "held/not_established; finitefraction is notpopulationprobability ormodeluncertainty"
+    },
+    {
+      "owner": "E/DOE-01",
+      "input": "Ordinary selectedsupplier composition andindependent complete bridgeexecution; rawthresholdintakevalidatoradoption",
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-E-DOE01-bridge-request.json",
+        "source_sha": "3d49a2e327258eb6c0f6007d249c60935eb3d375",
+        "sha256": "3e2a8bad7c8dc5b715e0408d7329044d120392cabef354ade085fbc3186987f8",
+        "bytes": 4579
+      },
+      "state": "combinedinitialarchitectureERROR +twocompleteprofileSIGKILLs ERROR/UNRUN; guardedSampler code present, not claimedmissingEmechanism"
+    },
+    {
+      "owner": "A evaluation-admission/runtime factory +D/FUN-02",
+      "input": "Actual canonical evaluation certificate/context/verifier anddeployed configurablecaller mapping",
+      "ref": null,
+      "state": "Internal frozenkw-only PolicyBudgetExecutionContext passes sameexistingBowner inprocess; constructor/contextprobe only. Defaultnode paidprovidernotestablished. Genuineconfiguredpaidserializer proof separatefunnelowner scope."
+    },
+    {
+      "owner": "G verification/backend",
+      "input": "Completed full four-path typecheck andglobal gates",
+      "ref": null,
+      "state": "mypySIGKILL at82andc920 ERROR, no typeverdict. Earlier2pathPASS narrowonly; no inherited waiver."
+    },
+    {
+      "owner": "D follow-on owned blueprint adapter",
+      "input": "No-priorreport truthfulfallback andactualtyped32componentfreshreadercontrol",
+      "ref": null,
+      "state": "Rootapproved nextminimal1.1/zero fallback; current82/ee6 completedscopes remainimmutable. Current no-prior fallback stilllegacy synthetic1; globalunknownbasis mustremainunavailable, typedcomponent fraction retained."
+    }
+  ],
+  "authority_purpose": "Consume existing declaredmechanical scenario/case andresource observations; no new scientific-case law, population model, permit, ledger, institution or externalbilling authority.",
+  "retention_scope": "Freshnonexisting explicitpytestbasetemp perinvocation; framework cleanup confined tospecifiedtestfixtures. No globalpreservation claim orpermanentcleanup/deletion.",
+  "original_receipts_preserved": true
+}

@@ -1,0 +1,52 @@
+{
+  "schema": "D.E02.independent.final-original46-aggregate-metadata-review.v1",
+  "reviewer": "/root/transfer_oct07",
+  "accounting_author": "/root/census_oct07",
+  "created_utc": "2026-10-07T19:10:23.315351+00:00",
+  "verdict": "GO for sealed19 accounting metadata with explicit FUN moderate transport pending; later append-only transport qualifier required before claiming remote fullpacket availability",
+  "reviewed_manifest": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/census/publication-original46-final8e864/portable-manifest.json",
+    "sha256": "b4c08b4973fad4d8a0814f60684a940abdd50e17b8133af326bbde5ec992f742",
+    "members": 19,
+    "all_literal_hashes_bytes_verified": true
+  },
+  "all63_catalog_bytes_verified": true,
+  "catalog_count": 63,
+  "resolved_JSON_pointer_refs_independently": 817,
+  "original46_raw198_acceptance_hash_text_joins_exact": true,
+  "unique_findings": 45,
+  "occurrences": 46,
+  "canonical_bundles": 17,
+  "canonical_owners": 45,
+  "supplier_companion": "LA-015@CTL-01 closureownerSRV-03; uniqueLA015countone",
+  "owner_packets": 16,
+  "unique_dispositions": {
+    "closed": 39,
+    "limited": 1,
+    "held": 5
+  },
+  "occurrence_dispositions": {
+    "closed": 40,
+    "limited": 1,
+    "held": 5
+  },
+  "formal_closed": 0,
+  "accepted_in_G": false,
+  "P41_not_established": 46,
+  "owned_fixable_mechanism_open_established": 0,
+  "required_real_owner_inputs": "B131/B137/B157/B161/B164held positivesUNRUN; B108limitedfiscalunit/sign/alias/profile actualissuer missing. Minimum16packet refs preserved, no newauthority/datasetrequest",
+  "normative_ordinary_bridges": "Node/currentbudget/CAS/volume/API named profiles available with bounded receipts; adjacent Aserving/Ecap/globalquality inputs notaddedoriginalgates",
+  "B164": "Primarynot_established; conditionalbridge_missing only afteractualissuedpermit/currentverifier/commitowner refs; no validpositivefromfixture",
+  "P37": "canonicalall5labels plususedsubset4; original230loadbearinggates remainreference-backed withcurrentfamilyscope overrides",
+  "P38": "actualnative/corpus/ref/quantity/debit/callback/artifact readbacks separatedfromproxy markers andpayload metadata; no genericimportonlyacceptance",
+  "execution_pins": "CBC,currentlegacy5b,literalNoded23 andcurrentB156a30c preserved. Implementation8e testonlysource distinct; no numericalexecution orwholecurrentimport/wholecatalogidentity claim",
+  "B156": "Actuala30c singletonPASS androle-removal genuinecallback2vs3 assertionFAIL independently reviewed0bf3; originalnormal/history/control discriminators separate; no8eexecutedPASSretag",
+  "optional_backend": "3 compatibility/fallbackPASS plus3nativecollectionSKIP numericalUNRUN; no numericalPASSfrommissingbackend",
+  "quantity17": "NumericalassertionsPASS; genericcaptureadmissionERROR preserved, bounded independentnamespace/computation reconciliation only",
+  "quality": "Historical3b diagnostic signal9incompleteUNRUN/receiptERROR; cgroupoomcounterdelta noPID attribution, noestablishedOOM/productFAIL/P41waiver. WholeintegrationqualityUNRUN",
+  "G680_budget10": "Historicalexactscope retained, no rerun orinferredcurrentwholedependencyclosure",
+  "publication": "Root normal append-onlytopiccommits/refreadback pendingcredentials; no publisherGinference/mainpush. Localpendingrefs explicit, notremoteavailable",
+  "cleanup": "No deletion/Trashcleanup; activeenvs/code/uniqueinputs/decidingoutputs preserved; exactcandidatesremainconditional pendingpublication/readback/inactivity. Cloud noTrash permanentdeleteforbidden",
+  "no_new_code_test_runtime_or_Git_writes_by_reviewer": true,
+  "remaining_transport": "Sealedcore FUN manifestcovers4normativefiles; moderatecompleteoutputpacket requiredappend-onlyqualifier tosupersedependingtransport narrative withoutmutating19members"
+}

@@ -5,9 +5,12 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+from importlib.metadata import PackageNotFoundError, version
 from typing import Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+from polisyos.common.serialization import finite_real_scalar
 
 from .models import (
     BenchmarkEvaluation,
@@ -24,6 +27,7 @@ def _canonical_coordinate_id(
     unit_state: Literal["absent", "present"],
     unit: str | None,
     direction: MetricDirection,
+    definition_version: str | None = None,
 ) -> str:
     """Return the content-bound id for one typed coordinate tuple."""
     identity = {
@@ -33,8 +37,11 @@ def _canonical_coordinate_id(
         "unit": unit,
         "unit_state": unit_state,
     }
+    if definition_version is not None:
+        identity["definition_version"] = definition_version
     encoded = json.dumps(identity, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
-    return "pareto-coordinate.v1:" + hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+    prefix = "pareto-coordinate.v1:" if definition_version is None else "pareto-coordinate.v2:"
+    return prefix + hashlib.sha256(encoded.encode("utf-8")).hexdigest()
 
 
 class ParetoCoordinate(BaseModel):
@@ -48,18 +55,24 @@ class ParetoCoordinate(BaseModel):
     unit_state: Literal["absent", "present"]
     unit: str | None = Field(default=None, min_length=1, max_length=64)
     direction: MetricDirection
+    definition_version: str | None = Field(
+        default=None, min_length=1, max_length=128, exclude_if=lambda value: value is None
+    )
 
     @model_validator(mode="after")
     def _validate_content_bound_identity(self) -> Self:
         """Reject ids or unit states that do not describe this typed tuple."""
         if (self.unit_state == "present") != (self.unit is not None):
             raise ValueError("coordinate unit_state does not match unit")
+        if self.definition_version is not None and not self.definition_version.strip():
+            raise ValueError("coordinate definition_version must not be blank")
         expected_id = _canonical_coordinate_id(
             metric=self.metric,
             split=self.split,
             unit_state=self.unit_state,
             unit=self.unit,
             direction=self.direction,
+            definition_version=self.definition_version,
         )
         if self.coordinate_id != expected_id:
             raise ValueError("coordinate_id is not bound to its typed coordinate")
@@ -71,7 +84,7 @@ class ParetoCoordinateSchema(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    version: Literal["pareto-coordinate.v1"] = "pareto-coordinate.v1"
+    version: Literal["pareto-coordinate.v1", "pareto-coordinate.v2"] = "pareto-coordinate.v1"
     status: Literal["complete", "incomplete", "legacy_limited"]
     coordinates: list[ParetoCoordinate] = Field(default_factory=list)
 
@@ -81,6 +94,11 @@ class ParetoCoordinateSchema(BaseModel):
         coordinate_ids = [coordinate.coordinate_id for coordinate in self.coordinates]
         if len(set(coordinate_ids)) != len(coordinate_ids):
             raise ValueError("coordinate schema contains duplicate coordinate ids")
+        if any(
+            (coordinate.definition_version is not None) != (self.version == "pareto-coordinate.v2")
+            for coordinate in self.coordinates
+        ):
+            raise ValueError("coordinate definition versions do not match schema version")
         return self
 
 
@@ -140,9 +158,7 @@ class ParetoInputAssessment(BaseModel):
             raise ValueError("omission input_index must be unique within an assessment")
         if any(index >= self.input_count for index in omission_indices):
             raise ValueError("omission input_index is outside the declared input_count")
-        if self.status == "complete" and (
-            self.input_count == 0 or self.unassessed_evaluations
-        ):
+        if self.status == "complete" and (self.input_count == 0 or self.unassessed_evaluations):
             raise ValueError("complete input assessment requires nonempty fully assessed inputs")
         if self.status == "partial" and (
             self.assessed_count == 0 or not self.unassessed_evaluations
@@ -153,6 +169,202 @@ class ParetoInputAssessment(BaseModel):
         return self
 
 
+class HypervolumeAssessment(BaseModel):
+    """Representability of the existing indicator, separate from front membership."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    version: Literal["hypervolume-assessment.v1", "hypervolume-assessment.v2"] = (
+        "hypervolume-assessment.v1"
+    )
+    status: Literal["available", "unavailable"]
+    basis: Literal["recomputed", "not_established"]
+    reason: (
+        Literal[
+            "non_finite_derived_hypervolume",
+            "nonzero_derived_hypervolume_underflow",
+            "catalog_union_not_recomputed",
+            "invalid_numeric_input",
+            "invalid_reference_point",
+            "no_usable_inputs",
+            "optional_backend_unavailable",
+            "unsupported_backend_profile",
+            "backend_computation_failed",
+            "unsupported_dimension_profile",
+        ]
+        | None
+    ) = None
+    profile: Literal["dominated_box_union.float64.maximize.v1"] | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
+    algorithm: (
+        Literal["exact_empty", "exact_1d", "exact_2d", "botorch_dominated_partitioning"] | None
+    ) = Field(default=None, exclude_if=lambda value: value is None)
+    backend_version: str | None = Field(default=None, exclude_if=lambda value: value is None)
+
+    @model_validator(mode="after")
+    def _validate_status(self) -> Self:
+        if self.status == "available" and (self.basis != "recomputed" or self.reason is not None):
+            raise ValueError("Available hypervolume requires a recomputed indicator")
+        if self.status == "unavailable" and (
+            self.basis != "not_established" or self.reason is None
+        ):
+            raise ValueError("Unavailable hypervolume requires its declared limitation")
+        if self.version == "hypervolume-assessment.v2" and self.profile is None:
+            raise ValueError("v2 hypervolume assessment requires its quantity profile")
+        if (
+            self.version == "hypervolume-assessment.v2"
+            and self.status == "available"
+            and self.algorithm is None
+        ):
+            raise ValueError("Available v2 hypervolume requires its exact algorithm")
+        if self.version == "hypervolume-assessment.v1" and any(
+            value is not None for value in (self.profile, self.algorithm, self.backend_version)
+        ):
+            raise ValueError("Historical hypervolume assessment cannot carry v2 profile fields")
+        return self
+
+
+def validate_hypervolume(value: float | None, assessment: HypervolumeAssessment | None) -> None:
+    if assessment is not None and assessment.status == "unavailable":
+        if value is not None:
+            raise ValueError("Unavailable hypervolume must be null")
+    elif value is None or not math.isfinite(value):
+        raise ValueError("Hypervolume must be finite or explicitly unavailable")
+
+
+class HypervolumeResult(BaseModel):
+    """One exact dominated-box quantity or its explicit unavailability.
+
+    Inputs to the shared adapter use ordered, direction-normalized maximization
+    coordinates. Their reference is explicit; raw units are not rescaled.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True, allow_inf_nan=False)
+    value: float | None
+    assessment: HypervolumeAssessment
+    reference_point: tuple[float, ...] | None = None
+
+    @model_validator(mode="after")
+    def _validate_quantity(self) -> Self:
+        validate_hypervolume(self.value, self.assessment)
+        if self.value is not None and self.value < 0:
+            raise ValueError("Hypervolume cannot be negative")
+        return self
+
+
+def _finite_vector(values: object) -> tuple[float, ...] | None:
+    if not isinstance(values, (list, tuple)):
+        return None
+    converted: list[float] = []
+    for raw in values:
+        value = finite_real_scalar(raw)
+        if value is None:
+            return None
+        converted.append(value)
+    return tuple(converted)
+
+
+def compute_hypervolume_assessed(
+    points: list[tuple[float, ...]], reference_point: tuple[float, ...]
+) -> HypervolumeResult:
+    """Compute exact union volume in the declared float64 maximizing profile.
+
+    One and two dimensions use exact native sweeps. Three/four dimensions use the
+    existing optional BoTorch 0.16.1 dominated-space partitioner with Torch
+    2.10.0 on CPU in float64. Other installed versions are explicitly unsupported
+    until verified. No dimensional bounding-box approximation is substituted.
+    """
+    ref = _finite_vector(reference_point)
+
+    def unavailable(reason: str, backend: str | None = None) -> HypervolumeResult:
+        return HypervolumeResult(
+            value=None,
+            reference_point=ref,
+            assessment=HypervolumeAssessment(
+                version="hypervolume-assessment.v2",
+                status="unavailable",
+                basis="not_established",
+                reason=reason,
+                profile="dominated_box_union.float64.maximize.v1",
+                backend_version=backend,
+            ),
+        )
+
+    if not ref:
+        return unavailable("invalid_reference_point")
+    if len(ref) > 4:
+        return unavailable("unsupported_dimension_profile")
+    if not points:
+        return unavailable("no_usable_inputs")
+    vectors: list[tuple[float, ...]] = []
+    for point in points:
+        vector = _finite_vector(point)
+        if vector is None or len(vector) != len(ref):
+            return unavailable("invalid_numeric_input")
+        vectors.append(vector)
+    # A box contributes only if it strictly exceeds the reference on every
+    # axis. Boundary/outside-reference points have no dominated volume.
+    contributing = [
+        point
+        for point in vectors
+        if all(left > right for left, right in zip(point, ref, strict=True))
+    ]
+    algorithm = "exact_empty"
+    backend = None
+    if not contributing:
+        value = 0.0
+    elif len(ref) == 1:
+        algorithm = "exact_1d"
+        value = max(point[0] for point in contributing) - ref[0]
+    elif len(ref) == 2:
+        algorithm = "exact_2d"
+        value = 0.0
+        previous_y = ref[1]
+        for x, y in sorted(contributing, key=lambda point: point[0], reverse=True):
+            if y > previous_y:
+                value += (x - ref[0]) * (y - previous_y)
+                previous_y = y
+    else:
+        algorithm = "botorch_dominated_partitioning"
+        try:
+            backend = f"botorch={version('botorch')};torch={version('torch')}"
+            if version("botorch") != "0.16.1" or version("torch") != "2.10.0":
+                return unavailable("unsupported_backend_profile", backend)
+            import torch
+            from botorch.utils.multi_objective.box_decompositions.dominated import (
+                DominatedPartitioning,
+            )
+        except (ImportError, OSError, PackageNotFoundError):
+            return unavailable("optional_backend_unavailable", backend)
+        try:
+            partitioning = DominatedPartitioning(
+                ref_point=torch.tensor(ref, dtype=torch.float64, device="cpu"),
+                Y=torch.tensor(contributing, dtype=torch.float64, device="cpu"),
+            )
+            value = float(partitioning.compute_hypervolume().item())
+        except (RuntimeError, ValueError, ArithmeticError):
+            return unavailable("backend_computation_failed", backend)
+    if not math.isfinite(value):
+        return unavailable("non_finite_derived_hypervolume", backend)
+    # Strictly positive side lengths establish positive geometric volume
+    # independently of the float64 product. Zero here is a range/computation
+    # loss, not the exact empty/boundary quantity represented above.
+    if contributing and value == 0.0:
+        return unavailable("nonzero_derived_hypervolume_underflow", backend)
+    return HypervolumeResult(
+        value=value,
+        reference_point=ref,
+        assessment=HypervolumeAssessment(
+            version="hypervolume-assessment.v2",
+            status="available",
+            basis="recomputed",
+            profile="dominated_box_union.float64.maximize.v1",
+            algorithm=algorithm,
+            backend_version=backend,
+        ),
+    )
+
+
 class ParetoFront(BaseModel):
     """Result of Pareto front computation."""
 
@@ -160,7 +372,10 @@ class ParetoFront(BaseModel):
 
     schema_version: Literal["1.0", "2.0"] = "1.0"
     members: list[ParetoMember] = Field(default_factory=list)
-    hypervolume: float = 0.0
+    hypervolume: float | None = 0.0
+    hypervolume_assessment: HypervolumeAssessment | None = Field(
+        default=None, exclude_if=lambda value: value is None
+    )
     reference_point: dict[str, float] = Field(default_factory=dict)
     coordinate_schema: ParetoCoordinateSchema | None = Field(
         default_factory=lambda: ParetoCoordinateSchema(status="legacy_limited")
@@ -175,6 +390,9 @@ class ParetoFront(BaseModel):
             raise ValueError("v2 Pareto front requires input assessment")
         if self.schema_version == "1.0" and self.input_assessment is not None:
             raise ValueError("v1 Pareto front cannot carry v2 input assessment")
+        if self.schema_version == "1.0" and self.hypervolume_assessment is not None:
+            raise ValueError("v1 Pareto front cannot carry the typed indicator assessment")
+        validate_hypervolume(self.hypervolume, self.hypervolume_assessment)
         _validate_coordinate_artifact(self)
         return self
 
@@ -202,28 +420,34 @@ class ParetoFront(BaseModel):
 def _validate_coordinate_artifact(front: ParetoFront) -> None:
     """Validate the shared schema, values, and reference-point key sets."""
     schema = front.coordinate_schema
+    omissions = (
+        front.input_assessment.unassessed_evaluations if front.input_assessment is not None else ()
+    )
+    if omissions and (schema is None or schema.status == "legacy_limited"):
+        raise ValueError("omission coordinates require a bound coordinate schema")
     if schema is None or schema.status == "legacy_limited":
         return
+    coordinate_ids = {coordinate.coordinate_id for coordinate in schema.coordinates}
+    for omission in omissions:
+        omitted_ids = omission.missing_coordinate_ids + omission.non_finite_coordinate_ids
+        if len(set(omitted_ids)) != len(omitted_ids) or not set(omitted_ids) <= coordinate_ids:
+            raise ValueError("omission coordinates do not match the coordinate schema")
     if schema.status == "incomplete":
         if (
             front.members
             or front.reference_point
             or front.coordinate_reference_point
-            or not math.isfinite(front.hypervolume)
-            or front.hypervolume != 0.0
+            or front.hypervolume is not None
         ):
             raise ValueError("incomplete coordinate schema cannot carry v1 values")
         return
 
-    coordinate_ids = {coordinate.coordinate_id for coordinate in schema.coordinates}
     if not coordinate_ids or not front.members:
         raise ValueError("complete coordinate schema requires members and coordinates")
     if set(front.coordinate_reference_point) != coordinate_ids:
         raise ValueError("coordinate reference keys do not match the coordinate schema")
     if any(not math.isfinite(value) for value in front.coordinate_reference_point.values()):
         raise ValueError("coordinate reference point contains a non-finite value")
-    if not math.isfinite(front.hypervolume):
-        raise ValueError("complete coordinate artifact has a non-finite hypervolume")
 
     display_keys: set[str] | None = None
     for member in front.members:
@@ -247,7 +471,9 @@ def _validate_coordinate_artifact(front: ParetoFront) -> None:
         raise ValueError("display reference point contains a non-finite value")
 
 
-def _coordinate_for_policy(policy: PromotionPolicy) -> ParetoCoordinate:
+def _coordinate_for_policy(
+    policy: PromotionPolicy, definition_version: str | None = None
+) -> ParetoCoordinate:
     """Build a collision-safe coordinate identity from all policy dimensions."""
     unit_state = "present" if policy.unit is not None else "absent"
     coordinate_id = _canonical_coordinate_id(
@@ -256,6 +482,7 @@ def _coordinate_for_policy(policy: PromotionPolicy) -> ParetoCoordinate:
         unit_state=unit_state,
         unit=policy.unit,
         direction=policy.direction,
+        definition_version=definition_version,
     )
     return ParetoCoordinate(
         coordinate_id=coordinate_id,
@@ -264,21 +491,39 @@ def _coordinate_for_policy(policy: PromotionPolicy) -> ParetoCoordinate:
         unit_state=unit_state,
         unit=policy.unit,
         direction=policy.direction,
+        definition_version=definition_version,
     )
 
 
 class ParetoPromoter:
     """Promotes candidates using Pareto dominance across multiple objectives."""
 
-    def __init__(self, policies: list[PromotionPolicy]) -> None:
+    def __init__(
+        self, policies: list[PromotionPolicy], *, definition_versions: list[str] | None = None
+    ) -> None:
+        """Bind explicit metric definitions, or retain the bounded legacy v1 tuple.
+
+        Definition versions are producer-supplied, ordered with policies. They
+        are never inferred from metric labels or from an evaluation's contents.
+        """
         if not policies:
             raise ValueError("At least one PromotionPolicy is required")
+        if definition_versions is not None and (
+            len(definition_versions) != len(policies)
+            or any(not isinstance(item, str) or not item.strip() for item in definition_versions)
+        ):
+            raise ValueError("definition_versions must contain one nonempty version per policy")
         self._policies = list(policies)
         metric_counts: dict[str, int] = {}
         for policy in self._policies:
             metric_counts[policy.primary_metric] = metric_counts.get(policy.primary_metric, 0) + 1
 
-        coordinates = [_coordinate_for_policy(policy) for policy in self._policies]
+        coordinates = [
+            _coordinate_for_policy(
+                policy, definition_versions[index] if definition_versions else None
+            )
+            for index, policy in enumerate(self._policies)
+        ]
         coordinate_ids = [coordinate.coordinate_id for coordinate in coordinates]
         if len(set(coordinate_ids)) != len(coordinate_ids):
             raise ValueError("PromotionPolicy coordinates must be unique")
@@ -296,6 +541,9 @@ class ParetoPromoter:
 
         self._coordinates = tuple(coordinates)
         self._coordinate_schema = ParetoCoordinateSchema(
+            version="pareto-coordinate.v2"
+            if definition_versions is not None
+            else "pareto-coordinate.v1",
             status="complete",
             coordinates=coordinates,
         )
@@ -307,10 +555,19 @@ class ParetoPromoter:
         return ParetoFront(
             schema_version="2.0",
             coordinate_schema=ParetoCoordinateSchema(
+                version=self._coordinate_schema.version,
                 status="incomplete",
                 coordinates=list(self._coordinates),
             ),
             input_assessment=assessment,
+            hypervolume=None,
+            hypervolume_assessment=HypervolumeAssessment(
+                version="hypervolume-assessment.v2",
+                status="unavailable",
+                basis="not_established",
+                reason="no_usable_inputs",
+                profile="dominated_box_union.float64.maximize.v1",
+            ),
         )
 
     def compute_front(self, evaluations: list[BenchmarkEvaluation]) -> ParetoFront:
@@ -369,14 +626,14 @@ class ParetoPromoter:
 
         coordinate_ref_point = self._reference_point(objective_vectors)
         ref_point = self._display_reference_point(objective_vectors)
-        hv = self._compute_hypervolume(
+        hv = self._compute_hypervolume_assessed(
             [objective_vectors[i] for i in non_dominated_indices],
             coordinate_ref_point,
         )
-
         return ParetoFront(
             members=members,
-            hypervolume=hv,
+            hypervolume=hv.value,
+            hypervolume_assessment=hv.assessment,
             reference_point=ref_point,
             coordinate_schema=self._coordinate_schema,
             coordinate_reference_point=coordinate_ref_point,
@@ -393,15 +650,20 @@ class ParetoPromoter:
         vector, missing, non_finite = self._assess_objective_vector(candidate)
         if vector is None:
             reason = "missing" if missing else "non-finite"
-            raise ValueError(
-                f"candidate is unassessed: {reason} required Pareto coordinate"
-            )
+            raise ValueError(f"candidate is unassessed: {reason} required Pareto coordinate")
+        schema = front.coordinate_schema
+        if not front.members and schema is not None and schema.status == "legacy_limited":
+            # Historical empty fronts make no cross-basis comparison.
+            return False
+        if schema is None or schema.status == "legacy_limited":
+            raise ValueError("dominance requires a bound coordinate schema")
+        if schema.version != self._coordinate_schema.version or {
+            coordinate.coordinate_id for coordinate in schema.coordinates
+        } != set(self._objective_names):
+            raise ValueError("dominance coordinate basis differs from the configured policies")
+        _validate_coordinate_artifact(front)
         if not front.members:
             return False
-        schema = front.coordinate_schema
-        if schema is None or schema.status != "complete":
-            raise ValueError("v1 dominance requires a complete coordinate schema")
-        _validate_coordinate_artifact(front)
 
         cand_obj = self._vector_to_objectives(vector)
         for member in front.members:
@@ -448,13 +710,15 @@ class ParetoPromoter:
         missing: list[str] = []
         non_finite: list[str] = []
         for policy, coordinate in zip(self._policies, self._coordinates, strict=True):
-            value = ev.primary_value(split=policy.compare_split, metric=policy.primary_metric)
-            if value is None:
+            raw = ev.metrics_for_split(policy.compare_split).get(policy.primary_metric)
+            if raw is None:
                 missing.append(coordinate.coordinate_id)
                 continue
-            if not math.isfinite(value):
+            vector = _finite_vector((raw,))
+            if vector is None:
                 non_finite.append(coordinate.coordinate_id)
                 continue
+            value = vector[0]
             # Normalize: higher is always better
             if policy.direction == MetricDirection.MINIMIZE:
                 value = -value
@@ -652,11 +916,7 @@ class ParetoPromoter:
         """Worst value per objective as reference point."""
         if not objectives:
             return {}
-        if any(
-            not math.isfinite(value)
-            for vector in objectives
-            for value in vector
-        ):
+        if any(not math.isfinite(value) for vector in objectives for value in vector):
             return {}
         return {
             metric_name: min(vector[index] for vector in objectives)
@@ -675,53 +935,28 @@ class ParetoPromoter:
             for index, display_name in enumerate(self._display_objective_names)
         }
 
+    def _compute_hypervolume_assessed(
+        self,
+        front_objectives: list[tuple[float, ...]],
+        ref_point: dict[str, float],
+    ) -> HypervolumeResult:
+        """Use the same exact quantity adapter as the native MO consumer."""
+        if set(ref_point) != set(self._objective_names):
+            return compute_hypervolume_assessed(front_objectives, ())
+        reference = tuple(ref_point[key] for key in self._objective_names)
+        return compute_hypervolume_assessed(front_objectives, reference)
+
     def _compute_hypervolume(
         self,
         front_objectives: list[tuple[float, ...]],
         ref_point: dict[str, float],
-    ) -> float:
-        """Compute hypervolume indicator (exact for 2D, approximate for higher)."""
-        if not front_objectives or not ref_point:
-            return 0.0
-
-        keys = self._objective_names
-        if set(ref_point) != set(keys):
-            return 0.0
-        if any(not math.isfinite(value) for value in ref_point.values()):
-            return 0.0
-        if any(
-            len(objective) != len(keys)
-            or any(not math.isfinite(value) for value in objective)
-            for objective in front_objectives
-        ):
-            return 0.0
-        if len(keys) == 1:
-            return max(0.0, max(obj[0] for obj in front_objectives) - ref_point[keys[0]])
-
-        if len(keys) == 2:
-            return self._hypervolume_2d(front_objectives, ref_point)
-
-        # Rough approximation for >2 objectives: product of ranges
-        hv = 1.0
-        for index, key in enumerate(keys):
-            best = max(obj[index] for obj in front_objectives)
-            hv *= max(0.0, best - ref_point[key])
-        return hv
+    ) -> float | None:
+        """Return an exact quantity, or null when its declared basis is unavailable."""
+        return self._compute_hypervolume_assessed(front_objectives, ref_point).value
 
     def _hypervolume_2d(
         self,
         points: list[tuple[float, ...]],
         ref: dict[str, float],
-    ) -> float:
-        """Exact 2D hypervolume via sweep line."""
-        first_name, second_name = self._objective_names[:2]
-        sorted_pts = sorted(points, key=lambda point: point[0], reverse=True)
-        hv = 0.0
-        prev_k2 = ref[second_name]
-        for pt in sorted_pts:
-            x = pt[0] - ref[first_name]
-            y = pt[1] - prev_k2
-            if x > 0 and y > 0:
-                hv += x * y
-            prev_k2 = max(prev_k2, pt[1])
-        return max(0.0, hv)
+    ) -> float | None:
+        return self._compute_hypervolume(points, ref)

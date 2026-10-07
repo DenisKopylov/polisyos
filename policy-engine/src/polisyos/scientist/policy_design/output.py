@@ -1026,7 +1026,13 @@ class PolicyArtifactBuilder:
                 for key, view_projection in all_projections.items()
             },
             view_projections=all_projections,
-            metadata={"hypervolume_by_view": dict(snapshot.hypervolume_by_view)},
+            metadata={
+                "hypervolume_by_view": dict(snapshot.hypervolume_by_view),
+                "hypervolume_assessments": {
+                    key: assessment.model_dump(mode="json")
+                    for key, assessment in snapshot.hypervolume_assessments.items()
+                },
+            },
         )
 
     def _build_constraint_report(
@@ -1678,11 +1684,7 @@ def _resolve_run_local_candidate_frontier_report_ref(
     if ref is None:
         return None, "frontier_source_report_absent"
     try:
-        artifact_ref = (
-            ref
-            if isinstance(ref, ArtifactRef)
-            else ArtifactRef.model_validate(ref)
-        )
+        artifact_ref = ref if isinstance(ref, ArtifactRef) else ArtifactRef.model_validate(ref)
     except (AttributeError, KeyError, RuntimeError, TypeError, ValidationError, ValueError):
         return None, "frontier_source_report_ref_malformed"
     if artifact_ref.kind != "scientist.policy_frontier_report":

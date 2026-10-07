@@ -1,0 +1,109 @@
+{
+  "receipt_commit": "ce5cbb5a7dfa4cb8672d782ad0dc17a2273203c2",
+  "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-git-payload-binding-independent-review.json",
+  "receipt_sha256": "c979be8fa1402c2c8c0ddcbc56b6a9cb13e6acc27bf1530678ca8b4aeb16c12f",
+  "checked_git_bindings": [
+    {
+      "pointer": "/deciding_observations",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/observations.json",
+      "sha256": "fae597eec5648055cbf26387503142c8e8f1d25d8cf07bdccde9932f3c028f6d",
+      "matching_git_sources": [
+        "ffae948d28f812f68f7dd87a32350c5a9236f0cf",
+        "ce5cbb5a7dfa4cb8672d782ad0dc17a2273203c2"
+      ]
+    },
+    {
+      "pointer": "/exact_verifier_source",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/run_binding_review.py.txt",
+      "sha256": "0c1d9a4f7a925e0487bcb94418446e7b8acae9b894d01301a6e86ec4c4e0112e",
+      "matching_git_sources": [
+        "ffae948d28f812f68f7dd87a32350c5a9236f0cf",
+        "ce5cbb5a7dfa4cb8672d782ad0dc17a2273203c2"
+      ]
+    },
+    {
+      "pointer": "/complete_manifest",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-independent-binding-and-current142-manifest.json",
+      "sha256": "14cb2e57292ead7aa462431269fca0201ff52c7335a387bf21d659e8df3d4add",
+      "matching_git_sources": [
+        "ffae948d28f812f68f7dd87a32350c5a9236f0cf",
+        "ce5cbb5a7dfa4cb8672d782ad0dc17a2273203c2"
+      ]
+    },
+    {
+      "pointer": "/reviewed_receipts/gp",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/root-243-gp-transfer-independent-review.json",
+      "sha256": "e7cab3ad98416ee911148564f3e98fe58a534ce32857730b7e241ba631e60ceb",
+      "matching_git_sources": [
+        "a474ff675264e2264d24e49814f29d873320b1ee",
+        "f92d894e7565144a37fac6e7d7e1808d934bbc0a",
+        "ce5cbb5a7dfa4cb8672d782ad0dc17a2273203c2"
+      ]
+    },
+    {
+      "pointer": "/reviewed_receipts/quality",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-backend-extension-243.json",
+      "sha256": "c3fe8929022d3d3be87f8bd28bab0c1a6d2e6e4cb5338fbec3616b7b3a8295ab",
+      "matching_git_sources": [
+        "56708f9e38b44352e4e38ffe8808f1797764f3dc",
+        "411bec3fe214d26816e3ea4682f1bdd7c35f46e1"
+      ]
+    },
+    {
+      "pointer": "/reviewed_receipts/frontend",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/champion-frontend-ci-243.json",
+      "sha256": "89eab51d784d1a124a47f6a98d2f029d2f4d9752a0d320ed0206796cea5395e8",
+      "matching_git_sources": [
+        "7c04c45bbc8b7f63f544cc49ec6686c5a65b45da",
+        "6f902eed160262da213e5e9a555adfa8eeaa7f19"
+      ]
+    },
+    {
+      "pointer": "/reviewed_receipts/accounting",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-criterion-accounting-delta.json",
+      "sha256": "1ee7e78810b9e79a7c352e87b1bad27d64c478d019f9069463df7af641c96ca1",
+      "matching_git_sources": [
+        "fed62e39b486827f18bdfd5a9d7fc916ea58ecee",
+        "71de73cf04f17f5cbc5b402a993a5a6b87e4335a"
+      ]
+    },
+    {
+      "pointer": "/reviewed_receipts/fun",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-fun03-fixture-migration.json",
+      "sha256": "c5e96eb747dfcc9a8966ac3c90295c53ebb9530d2ead0046272c5fcd2f259180",
+      "matching_git_sources": [
+        "128731122a5fe5ca9d49955ae6ba0ad76a4b1a7d",
+        "5d8a2ae92072ff0f855dc98b1f1b11332706529c"
+      ]
+    },
+    {
+      "pointer": "/reviewed_receipts/search",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/search-canonical-243.json",
+      "sha256": "8e88ae1705ab5326c540ca82bced28f1020b71bd3b02bac5c43150f3d2335a88",
+      "matching_git_sources": [
+        "262749db1965726ee02c1e7618db99493eceb1fe",
+        "9466898dde508b1384f242aced9c41dd476ca079"
+      ]
+    },
+    {
+      "pointer": "/helper_quality/complete_own_quality_observation",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/helper-quality.json",
+      "sha256": "f5f5f91817cf189de2013b6d77927ecbdb316e2eefa9c2e9eecfb6464f98d4f5",
+      "matching_git_sources": [
+        "ffae948d28f812f68f7dd87a32350c5a9236f0cf",
+        "ce5cbb5a7dfa4cb8672d782ad0dc17a2273203c2"
+      ]
+    },
+    {
+      "pointer": "/helper_quality/complete_own_quality_log",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/final-bindings-independent/helper-ruff-complete.txt",
+      "sha256": "cda9e233fb2172bf9a231d3eedac6c1d3cadef4abc0ee3b9a04d1df877403d0e",
+      "matching_git_sources": [
+        "ffae948d28f812f68f7dd87a32350c5a9236f0cf",
+        "ce5cbb5a7dfa4cb8672d782ad0dc17a2273203c2"
+      ]
+    }
+  ],
+  "external_path_scope": [],
+  "result": "PASS metadata hashes/bytes only; no runtime or finding verdict"
+}

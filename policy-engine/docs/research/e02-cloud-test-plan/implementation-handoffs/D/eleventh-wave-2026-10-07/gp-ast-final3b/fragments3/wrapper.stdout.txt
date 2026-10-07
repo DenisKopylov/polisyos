@@ -1,0 +1,1 @@
+{"metadata_result": "PASS", "fragment_count": 3, "output": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/fragments3"}

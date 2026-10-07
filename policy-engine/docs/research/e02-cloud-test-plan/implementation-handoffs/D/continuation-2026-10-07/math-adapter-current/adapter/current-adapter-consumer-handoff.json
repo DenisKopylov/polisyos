@@ -1,0 +1,1455 @@
+{
+  "schema": "D.e02.current-adapter-consumer-handoff.v1",
+  "unit": "D",
+  "author": "/root/math_oct07",
+  "production_authors": [
+    "/root/service_oct07",
+    "/root/gp_oct07"
+  ],
+  "independent_test_reviewer": "/root/census_oct07",
+  "topic": "codex/e02-D-oct07-continuation",
+  "slice_base": "828283eefe9c3ae14e0f99899a0a502a8b1a253c",
+  "implementation_commits": [
+    "79b943d221f46b2cc94eff06cdfdc714efe5a0e0",
+    "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+    "a7efe4b431986c3d79f490879cf49dbdedb1349e"
+  ],
+  "tested_candidate": {
+    "commit": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+    "tree": "e809693afe3b84e02d473b5744142d026afbe509",
+    "full_changed_path_set_from_slice_base": [
+      "policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/bootstrap.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/bootstrap/cleanup-funnel-duplicate-precheck.json.gz",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/bootstrap/cleanup-funnel-duplicate-receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/bootstrap/explicit-fetch-second.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/bootstrap/fresh-G-second-context.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/bootstrap/fresh-fetch-second.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/cleanup-archive-receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/cleanup-extra-archive-receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/cleanup-extracted-duplicate-precheck.json.gz",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/cleanup-extracted-duplicate-receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/cleanup-mypy-receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/create.receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/resume.receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/standalone-admission-independent-review.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/standalone-checkout.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/B41-complete-deciding-output.json.gz",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/B41-handoff.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/B41-independent-review-addendum.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/B41-independent-runtime-review.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/B41-independent-source-review.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/Base-handoff.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/Base-independent-runtime-review.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/Base-independent-source-review.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/Base-independent-test-review.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/README.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/b5-reviewed-source-reconciliation.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/base-finite-positive.junit.xml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/base-finite-positive.receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/base-finite-positive.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/base-finite-positive.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/base-finite-removal.junit.xml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/base-finite-removal.receipt.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/base-finite-removal.stderr.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/base-finite-removal.stdout.txt",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/base_finite_admission_removal.py",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/convergence-format-delta.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/state-basis-b5/output-manifest.json",
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-durable-completion-obligations.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-b-llm-unknown-cost-and-protected-audit.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-07-durable-cache-financial-boundary.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-07-e02-b-gateway-exact-numeric-decode.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-07-e02-d-native-cosine-admission.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-07-e02-mo-fitted-checkpoint.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-07-funnel-cache-settlement-binding.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-07-funnel-calibration-report-state.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-07-funnel-canonical-B12-consumer.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-07-native-search-budget-owner-port.toml",
+      "policy-engine/release-fragments/unreleased/2026-10-07-search-state-and-native-factory.toml",
+      "policy-engine/src/polisyos/common/serialization.py",
+      "policy-engine/src/polisyos/core/llm/README.md",
+      "policy-engine/src/polisyos/core/llm/response.py",
+      "policy-engine/src/polisyos/core/llm/settlement.py",
+      "policy-engine/src/polisyos/core/llm/traced_client.py",
+      "policy-engine/src/polisyos/scientist/agent/README.md",
+      "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+      "policy-engine/src/polisyos/scientist/methods/autotune/execution_plan.py",
+      "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "policy-engine/src/polisyos/scientist/methods/search/calibration_report.py",
+      "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "policy-engine/src/polisyos/scientist/methods/search/funnel/README.md",
+      "policy-engine/src/polisyos/scientist/methods/search/funnel/orchestrator.py",
+      "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+      "policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+      "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/grid.py",
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/convergence.py",
+      "policy-engine/src/polisyos/scientist/orchestration/llm/README.md",
+      "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py",
+      "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py",
+      "policy-engine/src/polisyos/scientist/orchestration/llm/prompt_cache.py",
+      "policy-engine/tests/integration/core/llm/test_gateway_response_text_cost.py",
+      "policy-engine/tests/integration/scientist/methods/search/funnel/test_cache_settlement_binding.py",
+      "policy-engine/tests/integration/scientist/methods/search/funnel/test_native_resource_cost_stopping.py",
+      "policy-engine/tests/integration/scientist/methods/search/funnel/test_orchestrator.py",
+      "policy-engine/tests/integration/scientist/methods/search/funnel/test_pending_outcome_blueprint_projection.py",
+      "policy-engine/tests/integration/scientist/methods/search/funnel/test_resource_receipt_replay_modes.py",
+      "policy-engine/tests/integration/scientist/methods/search/test_controller.py",
+      "policy-engine/tests/unit/remediation/test_fun_03.py",
+      "policy-engine/tests/unit/remediation/test_llm_01.py",
+      "policy-engine/tests/unit/scientist/agent/test_vector_generation_consumer.py",
+      "policy-engine/tests/unit/scientist/agent/vector_generation_reader.py",
+      "policy-engine/tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+      "policy-engine/tests/unit/scientist/methods/autotune/test_native_doe_factory.py",
+      "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_axis_permutation_consumers.py",
+      "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+      "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_warm_admission_reports.py",
+      "policy-engine/tests/unit/scientist/methods/search/strategies/test_mo_checkpoint.py",
+      "policy-engine/tests/unit/scientist/methods/search/strategies/test_state_inventory.py",
+      "policy-engine/tests/unit/scientist/methods/search/strategies/test_strategy_state.py",
+      "policy-engine/tests/unit/scientist/methods/search/test_controller_owner_admission.py",
+      "policy-engine/tests/unit/scientist/methods/search/test_current_quantity_consumers.py",
+      "policy-engine/tests/unit/scientist/methods/search/test_grid_factory_finite_exhaustion.py",
+      "policy-engine/tests/unit/scientist/methods/search/test_semantic_dates_persisted_consumers.py",
+      "policy-engine/tests/unit/scientist/methods/search/test_sequence_generator_admission.py",
+      "policy-engine/tests/unit/scientist/methods/search/test_service_factory_fault_resume.py",
+      "policy-engine/tests/unit/scientist/methods/search/test_service_owner_budget_factory.py",
+      "policy-engine/tests/unit/scientist/methods/search/test_service_persistence.py",
+      "policy-engine/tests/unit/scientist/methods/search/test_strategy_adapter_factory_resume.py",
+      "policy-engine/tests/unit/scientist/methods/search/test_typed_objective_persisted_projection.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_numerical_oracle.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_convergence_semantic.py",
+      "policy-engine/tests/unit/scientist/orchestration/llm/test_budget_enforcer.py",
+      "policy-engine/tests/unit/scientist/orchestration/llm/test_cost_metrics.py",
+      "policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py",
+      "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache.py",
+      "policy-engine/tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py",
+      "policy-engine/tests/unit/scientist/orchestration/llm/test_protected_audit_admission_e02.py",
+      "policy-engine/tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py",
+      "policy-engine/tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py",
+      "policy-engine/tests/unit/scientist/search/test_calibration_report.py"
+    ]
+  },
+  "source_bindings": [
+    {
+      "path": "policy-engine/src/polisyos/common/serialization.py",
+      "blob": "60cf8182efd1daaffc8060f5ac90376e690c48c2",
+      "sha256": "485303bf79f150fa9df259d7354d3104a4bdb94d9114cddb6e17dcc424316f0d"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "blob": "2451c5520334a2765298314d53e46502c2b04c90",
+      "sha256": "b64d2e6a49e173e58316bf843dab889a775d6b26c9ad6a81d10c2281bce94185"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "blob": "7377be536dc63cb1f64f31878f6045c7a9f347e7",
+      "sha256": "9bbbd5b23c9ef43d18370f3bd0e25243eb56cdcd844a2d5f83744c30d4bbcc53"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "blob": "71694945c18fb573fa30b31f9b16942a4a30b508",
+      "sha256": "3df2c3a05c0571065f8ac45c260a03a80c1493ebfab1b0f532d9e90a5a83a6b1"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py",
+      "blob": "058de1cd9d6a28c6ff55e118823dab87d1059564",
+      "sha256": "ef1aa2cb95b2bed2438efe8da91ee9a78940e7a6e8b6e6aec7ae58f2359f4c3b"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+      "blob": "5014def2bf0e9d43a629d335bf1b806a112082a3",
+      "sha256": "b14b9d504d8227f26c488a59227e33cdc8b0cbc192c37d780728e441e74d1f65"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/codec.py",
+      "blob": "5e31120e88b50f4a6900cf52d83689c81d403d27",
+      "sha256": "e77e76875414ce7ce621b9d33c1b54e1f45488a5adb37252b1cdd8984a698df7"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/grid.py",
+      "blob": "af2e277ffc2e47d1efb514ebdbdcf8a3c234f7aa",
+      "sha256": "6c8e7a5507e0f6f2bb166fc739465d073c3ace660ac0f0c8e08bbf445cd7d56a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+      "blob": "0819532200aa6cf4e78819554200fc29e6f4eb14",
+      "sha256": "d34f10e53935ef10265bb798b00b73173ebbb797e97e762f4d912c91bffad6ca"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+      "blob": "bd6817caac28d979beb0d2e343531adec775fae9",
+      "sha256": "d80a22c6282d2a172a0f51e6590e8b3ec786fc8e1ecb47db3bbe8583ab32197c"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_sequence_generator_admission.py",
+      "blob": "2ef3bd7db53ea8d733eb069bc9230ff3baef9db4",
+      "sha256": "f22228df3cec570e56f419c6642396e42ac0028f5510e4e889b3208a0c705eb5"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_service_persistence.py",
+      "blob": "1824e806f808d8c7b3fdf436d0d347c22c3a431d",
+      "sha256": "bbb694579185c19eb77ad64f1a78ddbf7a224a00d7e460818563850eb49c7663"
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/test_strategy_adapter_factory_resume.py",
+      "blob": "126be3f37e39ebe8a4a4aab80a3516130cd721aa",
+      "sha256": "109da54043a4e2c7d9c4c440158efe5782d4c6cec238e2bffdd6eed6cd17a29e"
+    }
+  ],
+  "check_results": [
+    {
+      "mode": "positive",
+      "output_root": "/tmp/e02-D-adapter-final-next-6zl5k0p2/positive",
+      "result": {
+        "source_before": {
+          "pins": [
+            "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+            "e809693afe3b84e02d473b5744142d026afbe509"
+          ],
+          "status": "",
+          "branch": "codex/e02-D-oct07-continuation"
+        },
+        "source_after": {
+          "pins": [
+            "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+            "e809693afe3b84e02d473b5744142d026afbe509"
+          ],
+          "status": "",
+          "branch": "codex/e02-D-oct07-continuation"
+        },
+        "tracked_input_count": 15484,
+        "changed_input_paths": {},
+        "exit_code": 0,
+        "wall_seconds": 59.43708557501668,
+        "ended_utc": "2026-10-07T09:46:22Z",
+        "output_sha256": {
+          "origins.json": "61d062d81947ac22820b89c9ff03e41da9d01556d64596e754b717137e1d5b2b",
+          "junit.xml": "f68c921a6383fcf485292a4be14fb3ef3cd1f6daf419a5c23c57380040125da9",
+          "events.jsonl": "4ae7a791f0be3b9600eaa7b9db06d0ef43601b902d51c86c43b05eba72246927",
+          "collected.json": "3a8fe83d0ae9c919064fa28fcca37a6e4021aa33bd6959de50db295342902cd4",
+          "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdout.txt": "8d71e0d98f06d7e5512ba6b2d4a815e6c3a77389299d09102f9d170d26243d3d",
+          "request.json": "831f732944b8194c1f4a5375bde2d6c47b3b646f84450c658ffc249bd47283cb",
+          "before-inputs.json": "4b247ec1ba74ab2afb806f5671ff560db158b7df861fb04f02ce5dd6792d1cc2"
+        }
+      },
+      "check_results": {
+        "PASS": 126
+      },
+      "complete_testcase_denominator": 126,
+      "per_module_counts": {
+        "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume": 50,
+        "tests.unit.scientist.methods.search.test_service_persistence": 72,
+        "tests.unit.scientist.methods.search.test_sequence_generator_admission": 4
+      },
+      "actual_testcase_IDs": [
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_grid_adapter_public_factory_cas_fresh_resume_preserves_physical_next",
+          "time": "8.232"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_grid_adapter_changed_owned_basis_refuses_before_restore_effect[strategy]",
+          "time": "0.155"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_grid_adapter_changed_owned_basis_refuses_before_restore_effect[space]",
+          "time": "0.169"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_grid_adapter_changed_owned_basis_refuses_before_restore_effect[config]",
+          "time": "0.173"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_grid_adapter_changed_owned_basis_refuses_before_restore_effect[codec]",
+          "time": "0.166"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_adapter_actual_cas_history_prefix_tamper_refuses_before_effect[history_objective]",
+          "time": "0.191"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_adapter_actual_cas_history_prefix_tamper_refuses_before_effect[prefix_digest]",
+          "time": "0.184"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_adapter_nested_strategy_json_underflow_refuses_before_effect[1e-1000]",
+          "time": "0.186"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_adapter_nested_strategy_json_underflow_refuses_before_effect[-1e-1000]",
+          "time": "0.185"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_nonpersisted_actual_policy_codec_and_callback_controller_stay_operational[policy_codec]",
+          "time": "5.708"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_nonpersisted_actual_policy_codec_and_callback_controller_stay_operational[custom_extractor]",
+          "time": "0.002"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_nonpersisted_actual_policy_codec_and_callback_controller_stay_operational[both]",
+          "time": "0.002"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_adapter_nested_representable_rng_control_fresh_resume[0]",
+          "time": "0.489"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_adapter_nested_representable_rng_control_fresh_resume[0.0]",
+          "time": "0.434"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_adapter_nested_representable_rng_control_fresh_resume[5e-324]",
+          "time": "0.487"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_adapter_fresh_checkpoint_unknown_and_duplicate_ids_preserve_pending",
+          "time": "0.080"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_existing_checkpoint_decoders_refuse_raw_invalid_numeric_token[1e-1000-outer]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_existing_checkpoint_decoders_refuse_raw_invalid_numeric_token[1e-1000-inner]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_existing_checkpoint_decoders_refuse_raw_invalid_numeric_token[-1e-1000-outer]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_existing_checkpoint_decoders_refuse_raw_invalid_numeric_token[-1e-1000-inner]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_existing_checkpoint_decoders_refuse_raw_invalid_numeric_token[1e-999999999999999999999-outer]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_existing_checkpoint_decoders_refuse_raw_invalid_numeric_token[1e-999999999999999999999-inner]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_existing_checkpoint_decoders_refuse_raw_invalid_numeric_token[-1e-999999999999999999999-outer]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_existing_checkpoint_decoders_refuse_raw_invalid_numeric_token[-1e-999999999999999999999-inner]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_existing_checkpoint_decoders_refuse_raw_invalid_numeric_token[1e1000-outer]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_existing_checkpoint_decoders_refuse_raw_invalid_numeric_token[1e1000-inner]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_existing_checkpoint_decoders_refuse_raw_invalid_numeric_token[-1e1000-outer]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_existing_checkpoint_decoders_refuse_raw_invalid_numeric_token[-1e1000-inner]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_existing_checkpoint_decoders_refuse_raw_invalid_numeric_token[1e999999999999999999999-outer]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_existing_checkpoint_decoders_refuse_raw_invalid_numeric_token[1e999999999999999999999-inner]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_existing_checkpoint_decoders_refuse_raw_invalid_numeric_token[-1e999999999999999999999-outer]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_existing_checkpoint_decoders_refuse_raw_invalid_numeric_token[-1e999999999999999999999-inner]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_existing_checkpoint_decoders_refuse_raw_invalid_numeric_token[NaN-outer]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_existing_checkpoint_decoders_refuse_raw_invalid_numeric_token[NaN-inner]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_existing_checkpoint_decoders_refuse_raw_invalid_numeric_token[Infinity-outer]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_existing_checkpoint_decoders_refuse_raw_invalid_numeric_token[Infinity-inner]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_existing_checkpoint_decoders_refuse_raw_invalid_numeric_token[-Infinity-outer]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_existing_checkpoint_decoders_refuse_raw_invalid_numeric_token[-Infinity-inner]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_existing_checkpoint_decoders_keep_genuine_zero_and_representable_rng[0-outer]",
+          "time": "0.002"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_existing_checkpoint_decoders_keep_genuine_zero_and_representable_rng[0-inner]",
+          "time": "0.021"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_existing_checkpoint_decoders_keep_genuine_zero_and_representable_rng[-0-outer]",
+          "time": "0.002"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_existing_checkpoint_decoders_keep_genuine_zero_and_representable_rng[-0-inner]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_existing_checkpoint_decoders_keep_genuine_zero_and_representable_rng[0.0-outer]",
+          "time": "0.002"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_existing_checkpoint_decoders_keep_genuine_zero_and_representable_rng[0.0-inner]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_existing_checkpoint_decoders_keep_genuine_zero_and_representable_rng[-0.0-outer]",
+          "time": "0.002"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_existing_checkpoint_decoders_keep_genuine_zero_and_representable_rng[-0.0-inner]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_existing_checkpoint_decoders_keep_genuine_zero_and_representable_rng[5e-324-outer]",
+          "time": "0.002"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_existing_checkpoint_decoders_keep_genuine_zero_and_representable_rng[5e-324-inner]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_existing_checkpoint_decoders_keep_genuine_zero_and_representable_rng[-5e-324-outer]",
+          "time": "0.002"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_existing_checkpoint_decoders_keep_genuine_zero_and_representable_rng[-5e-324-inner]",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_native_factory_failure_checkpoint_fresh_public_resume_retains_evaluated_subject",
+          "time": "0.281"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_pending_and_completed_ids_survive_fresh_reader_and_failed_tell_rolls_back",
+          "time": "0.102"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_stopped_checkpoint_is_terminal_and_wrong_rule_or_suite_refuses_without_effect",
+          "time": "0.102"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_wall_clock_origin_survives_pause_and_empty_generation_is_terminal",
+          "time": "0.059"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[version]",
+          "time": "0.033"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[counter_bool]",
+          "time": "0.013"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[history_count]",
+          "time": "0.013"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[generator_cursor]",
+          "time": "0.014"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[pending_order]",
+          "time": "0.012"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[cost_huge]",
+          "time": "0.014"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[cost_origin_claim]",
+          "time": "0.035"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[hard_limit_bool]",
+          "time": "0.013"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[stage_a_integer]",
+          "time": "0.013"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[pending_carrier]",
+          "time": "0.014"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_cas_checkpoint_corruption_refuses_before_run_state_or_generator_effect[initial_carrier]",
+          "time": "0.014"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_generator_without_checkpoint_contract_refuses_public_resume",
+          "time": "0.009"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_pending_batch_order_survives_canonical_json_key_sorting",
+          "time": "0.150"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_initial_sentinel_failure_resume_preserves_initial_termination",
+          "time": "0.026"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_registered_checkpoint_facade_and_normal_contract_imports_do_not_load_runtime",
+          "time": "0.183"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_failed_ask_publication_restores_cursor_ids_and_last_acknowledged_fresh_view[fail_write]",
+          "time": "0.122"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_failed_ask_publication_restores_cursor_ids_and_last_acknowledged_fresh_view[fail_readback]",
+          "time": "0.047"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_failed_tell_publication_restores_local_state_and_prior_durable_pending_view[fail_write]",
+          "time": "0.019"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_failed_tell_publication_restores_local_state_and_prior_durable_pending_view[fail_readback]",
+          "time": "0.022"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_custom_parameterized_objective_checkpoint_refuses_resume_instead_of_build_identity",
+          "time": "0.007"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_stateless_evaluator_defaults_and_objective_parameters_bind_resume",
+          "time": "0.010"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_warm_and_policy_configuration_changes_refuse_resume[warm_corpus]",
+          "time": "0.010"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_warm_and_policy_configuration_changes_refuse_resume[policy_stack]",
+          "time": "0.028"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_warm_and_policy_configuration_changes_refuse_resume[external_arbiter]",
+          "time": "0.008"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_same_actual_warm_corpus_fresh_reader_preserves_training_and_current_history",
+          "time": "0.038"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_fresh_public_service_retains_typed_policy_history_frontier_and_next_tell",
+          "time": "0.051"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_checkpoint_requires_exact_public_snapshot_profile_on_resume",
+          "time": "0.007"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_actual_checkpoint_consumer_uses_one_public_verified_snapshot_without_split_reads",
+          "time": "0.010"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_budget_constructor_refuses_invalid_present_scalar[True]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_budget_constructor_refuses_invalid_present_scalar[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_budget_constructor_refuses_invalid_present_scalar[nan]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_budget_constructor_refuses_invalid_present_scalar[inf]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_budget_constructor_refuses_invalid_present_scalar[-1]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_budget_constructor_refuses_invalid_present_scalar[0]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_budget_constructor_refuses_invalid_present_scalar[maximum6]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[True-min_improvement]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[True-absolute_tolerance]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000-min_improvement]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000-absolute_tolerance]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[nan-min_improvement]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[nan-absolute_tolerance]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[inf-min_improvement]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[inf-absolute_tolerance]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[-1-min_improvement]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[-1-absolute_tolerance]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[invalid5-min_improvement]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_coefficients_refuse_invalid_present_scale_without_overflow[invalid5-absolute_tolerance]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_observation_unavailable_preserves_declared_formula_and_genuine_zero[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_observation_unavailable_preserves_declared_formula_and_genuine_zero[invalid1]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_plateau_observation_unavailable_preserves_declared_formula_and_genuine_zero[True]",
+          "time": "0.000"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[True]",
+          "time": "0.007"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]",
+          "time": "0.007"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[nan]",
+          "time": "0.007"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[inf]",
+          "time": "0.007"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[-1]",
+          "time": "0.027"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[None]",
+          "time": "0.007"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_cost_observation_and_actual_controller_context_are_unavailable_without_crash[cost6]",
+          "time": "0.007"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_recorded_cost_public_owner_port_reopens_without_receipt_or_provider_origin_authority",
+          "time": "0.021"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_recorded_memory_zero_is_available_without_durable_identity_or_measured_zero",
+          "time": "0.001"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_original_v1_checkpoint_manifest_refuses_explicitly_before_effect",
+          "time": "0.012"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_native_actual_configuration_changes_refuse_before_state_or_evaluation_effect[evaluator]",
+          "time": "0.074"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_native_actual_configuration_changes_refuse_before_state_or_evaluation_effect[context]",
+          "time": "0.074"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_native_actual_configuration_changes_refuse_before_state_or_evaluation_effect[callback]",
+          "time": "0.053"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_native_actual_configuration_changes_refuse_before_state_or_evaluation_effect[codec]",
+          "time": "0.077"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_native_actual_configuration_changes_refuse_before_state_or_evaluation_effect[opaque]",
+          "time": "0.076"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_native_same_content_configuration_and_context_fresh_resume",
+          "time": "0.064"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_decimal_recorded_owner_underflow_is_unavailable_and_wire_underflow_refuses[wire]",
+          "time": "0.037"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_service_persistence",
+          "name": "test_decimal_recorded_owner_underflow_is_unavailable_and_wire_underflow_refuses[canonical_tag]",
+          "time": "0.017"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_sequence_generator_admission",
+          "name": "test_sequence_admission_and_native_consumer_boundaries[scalar-corpus]",
+          "time": "1.729"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_sequence_generator_admission",
+          "name": "test_sequence_admission_and_native_consumer_boundaries[native-factory-refusal]",
+          "time": "19.289"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_sequence_generator_admission",
+          "name": "test_sequence_admission_and_native_consumer_boundaries[lazy-selector-boundary]",
+          "time": "5.780"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_sequence_generator_admission",
+          "name": "test_sequence_admission_and_native_consumer_boundaries[configured-unit-dispatch]",
+          "time": "4.383"
+        }
+      ],
+      "output_sha256": {
+        "result.json": "db55877f96d4cdb7873321a64dcbcb49f78fdc60ba4ae72f85b72aad85edfea9",
+        "origins.json": "61d062d81947ac22820b89c9ff03e41da9d01556d64596e754b717137e1d5b2b",
+        "junit.xml": "f68c921a6383fcf485292a4be14fb3ef3cd1f6daf419a5c23c57380040125da9",
+        "events.jsonl": "4ae7a791f0be3b9600eaa7b9db06d0ef43601b902d51c86c43b05eba72246927",
+        "collected.json": "3a8fe83d0ae9c919064fa28fcca37a6e4021aa33bd6959de50db295342902cd4",
+        "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout.txt": "8d71e0d98f06d7e5512ba6b2d4a815e6c3a77389299d09102f9d170d26243d3d",
+        "request.json": "831f732944b8194c1f4a5375bde2d6c47b3b646f84450c658ffc249bd47283cb",
+        "before-inputs.json": "4b247ec1ba74ab2afb806f5671ff560db158b7df861fb04f02ce5dd6792d1cc2"
+      }
+    },
+    {
+      "mode": "remove_history",
+      "output_root": "/tmp/e02-D-adapter-final-next-6zl5k0p2/remove_history",
+      "result": {
+        "source_before": {
+          "pins": [
+            "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+            "e809693afe3b84e02d473b5744142d026afbe509"
+          ],
+          "status": "",
+          "branch": "codex/e02-D-oct07-continuation"
+        },
+        "source_after": {
+          "pins": [
+            "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+            "e809693afe3b84e02d473b5744142d026afbe509"
+          ],
+          "status": "",
+          "branch": "codex/e02-D-oct07-continuation"
+        },
+        "tracked_input_count": 15484,
+        "changed_input_paths": {},
+        "exit_code": 1,
+        "wall_seconds": 15.270858753006905,
+        "ended_utc": "2026-10-07T09:45:38Z",
+        "output_sha256": {
+          "origins.json": "37dff2cf99c52b904b7b2af5f93de4da45f04545431ead5bebd401202e17d9b6",
+          "junit.xml": "fcd473934a41e53cf7c1ba1b3b36a34707a45b11034dadffb2efe38d2c03b082",
+          "events.jsonl": "c49e7a23693aca1faa6c737be9fbd26665eca72065594ad12052e6c3fe438d9b",
+          "collected.json": "394f0c81f589652a9a9a577f41fc979f307d8d443ad09eed44d2d13b5f574ea6",
+          "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdout.txt": "2035b1e0be1cedcd6962c2d27137ade99c247515cf83e15378ce2287614adb3a",
+          "request.json": "7f86ac5ab94c1da15bfd5104ad4d860a584e962f9c8e03fb4f3eb2c16d825d45",
+          "before-inputs.json": "4b247ec1ba74ab2afb806f5671ff560db158b7df861fb04f02ce5dd6792d1cc2"
+        }
+      },
+      "check_results": {
+        "FAIL": 2
+      },
+      "complete_testcase_denominator": 2,
+      "per_module_counts": {
+        "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume": 2
+      },
+      "actual_testcase_IDs": [
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_adapter_actual_cas_history_prefix_tamper_refuses_before_effect[history_objective]",
+          "time": "6.021"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_adapter_actual_cas_history_prefix_tamper_refuses_before_effect[prefix_digest]",
+          "time": "0.280"
+        }
+      ],
+      "output_sha256": {
+        "result.json": "9a40ad2df5a0b69565814f669e8c721d8c478b17bbee0669f3d02d6695f1e143",
+        "origins.json": "37dff2cf99c52b904b7b2af5f93de4da45f04545431ead5bebd401202e17d9b6",
+        "junit.xml": "fcd473934a41e53cf7c1ba1b3b36a34707a45b11034dadffb2efe38d2c03b082",
+        "events.jsonl": "c49e7a23693aca1faa6c737be9fbd26665eca72065594ad12052e6c3fe438d9b",
+        "collected.json": "394f0c81f589652a9a9a577f41fc979f307d8d443ad09eed44d2d13b5f574ea6",
+        "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout.txt": "2035b1e0be1cedcd6962c2d27137ade99c247515cf83e15378ce2287614adb3a",
+        "request.json": "7f86ac5ab94c1da15bfd5104ad4d860a584e962f9c8e03fb4f3eb2c16d825d45",
+        "before-inputs.json": "4b247ec1ba74ab2afb806f5671ff560db158b7df861fb04f02ce5dd6792d1cc2"
+      }
+    },
+    {
+      "mode": "remove_inner_numeric",
+      "output_root": "/tmp/e02-D-adapter-final-next-6zl5k0p2/remove_inner_numeric",
+      "result": {
+        "source_before": {
+          "pins": [
+            "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+            "e809693afe3b84e02d473b5744142d026afbe509"
+          ],
+          "status": "",
+          "branch": "codex/e02-D-oct07-continuation"
+        },
+        "source_after": {
+          "pins": [
+            "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+            "e809693afe3b84e02d473b5744142d026afbe509"
+          ],
+          "status": "",
+          "branch": "codex/e02-D-oct07-continuation"
+        },
+        "tracked_input_count": 15484,
+        "changed_input_paths": {},
+        "exit_code": 1,
+        "wall_seconds": 18.139419382001506,
+        "ended_utc": "2026-10-07T09:45:41Z",
+        "output_sha256": {
+          "origins.json": "37dff2cf99c52b904b7b2af5f93de4da45f04545431ead5bebd401202e17d9b6",
+          "junit.xml": "4986d85e46a39e39b27d1c9c7bbb950bb5940143fd3352ccecf82ddd530fc93e",
+          "events.jsonl": "19de38074b0d46b14b2bbc4c232ea7477578ce1233396ad6f1578f912ea6f154",
+          "collected.json": "d04bc36120c5a61c8d65829ba699c8eb6163b8d7e1a0a8b9412db109e5a5f716",
+          "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "stdout.txt": "c5ea398b72384daa1eb276fac1540b9d09becf34d1d95b17dce6eb482290821a",
+          "request.json": "e8d23a3ed96190968b7ca8d194a094d294599e74e99732c2fc7cb25558ef5cef",
+          "before-inputs.json": "4b247ec1ba74ab2afb806f5671ff560db158b7df861fb04f02ce5dd6792d1cc2"
+        }
+      },
+      "check_results": {
+        "FAIL": 2
+      },
+      "complete_testcase_denominator": 2,
+      "per_module_counts": {
+        "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume": 2
+      },
+      "actual_testcase_IDs": [
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_adapter_nested_strategy_json_underflow_refuses_before_effect[1e-1000]",
+          "time": "5.566"
+        },
+        {
+          "classname": "tests.unit.scientist.methods.search.test_strategy_adapter_factory_resume",
+          "name": "test_adapter_nested_strategy_json_underflow_refuses_before_effect[-1e-1000]",
+          "time": "0.187"
+        }
+      ],
+      "output_sha256": {
+        "result.json": "671e212d90915bcf8fec104f50d99415851d222dfb8ce308868595a7e9cb27a3",
+        "origins.json": "37dff2cf99c52b904b7b2af5f93de4da45f04545431ead5bebd401202e17d9b6",
+        "junit.xml": "4986d85e46a39e39b27d1c9c7bbb950bb5940143fd3352ccecf82ddd530fc93e",
+        "events.jsonl": "19de38074b0d46b14b2bbc4c232ea7477578ce1233396ad6f1578f912ea6f154",
+        "collected.json": "d04bc36120c5a61c8d65829ba699c8eb6163b8d7e1a0a8b9412db109e5a5f716",
+        "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout.txt": "c5ea398b72384daa1eb276fac1540b9d09becf34d1d95b17dce6eb482290821a",
+        "request.json": "e8d23a3ed96190968b7ca8d194a094d294599e74e99732c2fc7cb25558ef5cef",
+        "before-inputs.json": "4b247ec1ba74ab2afb806f5671ff560db158b7df861fb04f02ce5dd6792d1cc2"
+      }
+    }
+  ],
+  "criterion_accounting": [
+    {
+      "original_occurrence": {
+        "id": "B125@CTL-02",
+        "finding_id": "B125",
+        "criterion_card": "CTL-02",
+        "canonical_closure_owner": "CTL-02",
+        "role": "canonical_owner",
+        "original_fragment": {
+          "document_key": "B_r19",
+          "lines": [
+            3264,
+            3277
+          ],
+          "byte_offset": 738182,
+          "bytes": 3186,
+          "sha256": "da6f01affaab6b25e26af7613845243eeafc15f0041b3374d39ce18adbe7721b"
+        },
+        "canonical_content": {
+          "text": "**Приёмка.** Полный persisted round-trip каждого поддерживаемого strategy-state, а не только `get_state/set_state` в одной памяти. Восстановленная следующая последовательность совпадает; повреждённое/чужое состояние не принимается; случайный поток независимой реплики остаётся независимым.",
+          "byte_offset": 740880,
+          "bytes": 486,
+          "sha256": "0a36083564c7d95755126ca040b59efa5abd004855ffbaa995399a6915d6217d"
+        },
+        "original_acceptance_binding": {
+          "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+          "criterion_occurrence_id": "B125@CTL-02",
+          "canonical_card": {
+            "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-02.md",
+            "bytes": 16456,
+            "sha256": "e84619189496527f0f6cc2d75d395ef17279dea27112c8b6669f99a8579a1197"
+          }
+        }
+      },
+      "exact_source": {
+        "commit": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+        "tree": "e809693afe3b84e02d473b5744142d026afbe509"
+      },
+      "contribution": "Actual default ScalarParameterCodec plus default extractor and canonical SearchSpace -> native Grid -> SearchLoopRunner.create_service/ask/tell -> real CAS checkpoint -> fresh public runner.resume -> identical physical full/split sequence and pending/history/frontier; malformed/prefix/foreign/nested numeric inputs refuse before state effects.",
+      "finding_disposition": "contribution_only; complete owner ledger/other supported strategy and scenario receipts decide original criterion",
+      "formal_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "original_occurrence": {
+        "id": "B127@OPT-02",
+        "finding_id": "B127",
+        "criterion_card": "OPT-02",
+        "canonical_closure_owner": "OPT-02",
+        "role": "canonical_owner",
+        "original_fragment": {
+          "document_key": "B_r19",
+          "lines": [
+            3292,
+            3305
+          ],
+          "byte_offset": 745159,
+          "bytes": 3837,
+          "sha256": "ae9f5e873bb33019cfd9524bd407a26c8aa7a5ec84cd2af79a6f2e497427cc70"
+        },
+        "canonical_content": {
+          "text": "**Приёмка.** Бинарные, integer, categorical и continuous параметры; две разные relaxed-точки с одним эффективным действием; разрешённые независимые реплики; исчерпанное конечное пространство. Проверить фактический адаптер Evaluation и pending/completed-учёт: upstream-канонизация может уже защищать отдельный путь, чего этот локальный опыт не устанавливает.",
+          "byte_offset": 748404,
+          "bytes": 590,
+          "sha256": "0cb92c67b7ad455eb8cbb3bba8a88d7297d3ba6dd2e8ec6284edc152f670ac06"
+        },
+        "original_acceptance_binding": {
+          "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+          "criterion_occurrence_id": "B127@OPT-02",
+          "canonical_card": {
+            "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-02.md",
+            "bytes": 16968,
+            "sha256": "4e56f98d11b39bec14b9ddca221f8ccae2042bae3e4f41831be9caa309f7be2f"
+          }
+        }
+      },
+      "exact_source": {
+        "commit": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+        "tree": "e809693afe3b84e02d473b5744142d026afbe509"
+      },
+      "contribution": "Actual default ScalarParameterCodec plus default extractor and canonical SearchSpace -> native Grid -> SearchLoopRunner.create_service/ask/tell -> real CAS checkpoint -> fresh public runner.resume -> identical physical full/split sequence and pending/history/frontier; malformed/prefix/foreign/nested numeric inputs refuse before state effects.",
+      "finding_disposition": "contribution_only; complete owner ledger/other supported strategy and scenario receipts decide original criterion",
+      "formal_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "original_occurrence": {
+        "id": "LA-014@SRV-01",
+        "finding_id": "LA-014",
+        "criterion_card": "SRV-01",
+        "canonical_closure_owner": "SRV-01",
+        "role": "canonical_owner",
+        "original_fragment": {
+          "document_key": "LA_r09",
+          "lines": [
+            455,
+            481
+          ],
+          "byte_offset": 52637,
+          "bytes": 2835,
+          "sha256": "7846126004d9315f65d6e3dc9fa392b3942a05ba430f862e7c7176e87c11b0e2"
+        },
+        "canonical_content": {
+          "text": "**Приёмочная проверка.** Импорт contract-only не загружает controller; прежний ask/tell, run_search, unknown/duplicate candidate IDs, typed policy evaluation, frontier и resumed state сохраняют согласованный смысл.",
+          "byte_offset": 54712,
+          "bytes": 284,
+          "sha256": "a94d827f2038968fc442e5801bf48f5a675dcacfb375b927e2de05cc541665fd"
+        },
+        "original_acceptance_binding": {
+          "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+          "criterion_occurrence_id": "LA-014@SRV-01",
+          "canonical_card": {
+            "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SRV-01.md",
+            "bytes": 8706,
+            "sha256": "30ed9110908bed7ecfa681c4895f3aceabc3260b5f3c9ea3060824a46084a3d0"
+          }
+        }
+      },
+      "exact_source": {
+        "commit": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+        "tree": "e809693afe3b84e02d473b5744142d026afbe509"
+      },
+      "contribution": "Actual default ScalarParameterCodec plus default extractor and canonical SearchSpace -> native Grid -> SearchLoopRunner.create_service/ask/tell -> real CAS checkpoint -> fresh public runner.resume -> identical physical full/split sequence and pending/history/frontier; malformed/prefix/foreign/nested numeric inputs refuse before state effects.",
+      "finding_disposition": "contribution_only; complete owner ledger/other supported strategy and scenario receipts decide original criterion",
+      "formal_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "original_occurrence": {
+        "id": "LA-015@CTL-01",
+        "finding_id": "LA-015",
+        "criterion_card": "CTL-01",
+        "canonical_closure_owner": "SRV-03",
+        "role": "supplier_companion_only",
+        "original_fragment": {
+          "document_key": "LA_r09",
+          "lines": [
+            482,
+            512
+          ],
+          "byte_offset": 55472,
+          "bytes": 3232,
+          "sha256": "b47c90844cb88bfc43a454c4d3b1b550ab9a19913fafce7b138c9df1a8b22f29"
+        },
+        "canonical_content": {
+          "text": "**Приёмочная проверка.** Новый запуск/продолжение, stopping, warm-history, пустое предложение, sentinel, отказ evaluator и совпадение final/history/frontier на известных сценариях. Проверить не только число итераций, но и предмет оценивания.",
+          "byte_offset": 57790,
+          "bytes": 384,
+          "sha256": "219f17404aedddcd4196a85dc9b05d5d28403c12812d551c241e26b850d285e8"
+        },
+        "original_acceptance_binding": {
+          "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+          "criterion_occurrence_id": "LA-015@CTL-01",
+          "canonical_card": {
+            "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CTL-01.md",
+            "bytes": 17621,
+            "sha256": "77acb86b5800839d7bd15bac4e242cf614d029011e694b500ed905e6bb13080f"
+          }
+        }
+      },
+      "exact_source": {
+        "commit": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+        "tree": "e809693afe3b84e02d473b5744142d026afbe509"
+      },
+      "contribution": "Actual default ScalarParameterCodec plus default extractor and canonical SearchSpace -> native Grid -> SearchLoopRunner.create_service/ask/tell -> real CAS checkpoint -> fresh public runner.resume -> identical physical full/split sequence and pending/history/frontier; malformed/prefix/foreign/nested numeric inputs refuse before state effects.",
+      "finding_disposition": "contribution_only; complete owner ledger/other supported strategy and scenario receipts decide original criterion",
+      "formal_closed": false,
+      "accepted_in_G": false
+    },
+    {
+      "original_occurrence": {
+        "id": "LA-015@SRV-03",
+        "finding_id": "LA-015",
+        "criterion_card": "SRV-03",
+        "canonical_closure_owner": "SRV-03",
+        "role": "canonical_owner",
+        "original_fragment": {
+          "document_key": "LA_r09",
+          "lines": [
+            482,
+            512
+          ],
+          "byte_offset": 55472,
+          "bytes": 3232,
+          "sha256": "b47c90844cb88bfc43a454c4d3b1b550ab9a19913fafce7b138c9df1a8b22f29"
+        },
+        "canonical_content": {
+          "text": "**Приёмочная проверка.** Новый запуск/продолжение, stopping, warm-history, пустое предложение, sentinel, отказ evaluator и совпадение final/history/frontier на известных сценариях. Проверить не только число итераций, но и предмет оценивания.",
+          "byte_offset": 57790,
+          "bytes": 384,
+          "sha256": "219f17404aedddcd4196a85dc9b05d5d28403c12812d551c241e26b850d285e8"
+        },
+        "original_acceptance_binding": {
+          "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+          "criterion_occurrence_id": "LA-015@SRV-03",
+          "canonical_card": {
+            "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+            "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/SRV-03.md",
+            "bytes": 9440,
+            "sha256": "7e7b2c264ef861d3b28b1a55de7f62a57ff127e6bac3d7fa66de51a8e183dce0"
+          }
+        }
+      },
+      "exact_source": {
+        "commit": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+        "tree": "e809693afe3b84e02d473b5744142d026afbe509"
+      },
+      "contribution": "Actual default ScalarParameterCodec plus default extractor and canonical SearchSpace -> native Grid -> SearchLoopRunner.create_service/ask/tell -> real CAS checkpoint -> fresh public runner.resume -> identical physical full/split sequence and pending/history/frontier; malformed/prefix/foreign/nested numeric inputs refuse before state effects.",
+      "finding_disposition": "contribution_only; complete owner ledger/other supported strategy and scenario receipts decide original criterion",
+      "formal_closed": false,
+      "accepted_in_G": false
+    }
+  ],
+  "runtime_profile": {
+    "interpreter": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "environment_overrides": {
+      "PYTHONPATH": "/tmp/e02-D-adapter-final-next-6zl5k0p2:/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONUNBUFFERED": "1",
+      "E02_MATH_OUTPUT_ROOT": "/tmp/e02-D-adapter-final-next-6zl5k0p2/positive",
+      "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer"
+    },
+    "actual_origins": "/tmp/e02-D-adapter-final-next-6zl5k0p2/positive/origins.json",
+    "seed": "Actual deterministic seeded Grid fixture; complete per-test source and CAS checkpoint RNG rows bound by immutable inputs; no new optimizer/RNG law.",
+    "optional_backend": "No GP/vector property claimed; this defining ordinary persisted Grid caller uses supported minimal runtime."
+  },
+  "consumer_path": "Default native SearchLoopRunner -> existing StrategyCandidateGenerator state bridge -> existing StrategyState codec -> real CAS -> fresh public resume/readback and next physical stream.",
+  "independent_oracle": "Uninterrupted full native Grid physical1..5 evaluation stream vs actual split/reopened state; explicit expected candidates/pending cursor/history IDs, not checkpoint marker equality.",
+  "P37_predicate_basis": "Actual generation/pending/history/typed evaluation subject/canonical state and raw wire admission observed on public caller; preserved source/complete input denominator and full phases.",
+  "P38_proxy_divergence": "Deleting pure checkpoint history-prefix admission or inner StrategyState parse_float hook while preserving bytes/markers makes two actual fresh-reader refusal assertions fail; generic state marker/technical metadata is not consumer proof.",
+  "P41": "not_established; no inherited-red claim",
+  "negative_controls": "Current history2FAIL and inner numeric2FAIL are expected removal outcomes; regular corrupt/foreign/extreme raw token negatives pass by refusing before effects.",
+  "supported_boundary": "Checkpoint bridge supports exact ScalarParameterCodec/default extractor/canonical SearchSpace and supported native stateful strategy/build. Custom codec/extractor live-only profiles stay operational, discovery returnsNone, unsupported fresh persistence explicitly refuses. No appointed scientific/deployment authority or cross-version claim.",
+  "historical_attempts": [
+    {
+      "path": "/tmp/e02-D-adapter-final-4z03tr2y",
+      "modes": {
+        "positive": {
+          "check_results": {
+            "FAIL": 13,
+            "PASS": 79
+          },
+          "source": {
+            "pins": [
+              "79b943d221f46b2cc94eff06cdfdc714efe5a0e0",
+              "1a9f14f84e66f09c830134e2a6ee3e3f15e2b3cc"
+            ],
+            "status": "",
+            "branch": "codex/e02-D-oct07-continuation"
+          },
+          "output_sha256": {
+            "result.json": "ae78a8c1961f1419a2cdc9e747aee7f07e48769a95af48259b16ca6a8650f13d",
+            "origins.json": "b631783d3fd7d053e30aa5ae654252fee262f7231b062af116ffe016ba54ef6e",
+            "junit.xml": "922b275a9d545eeff9e42cb888a751a259ba8554726020b103c4df74713cb8ba",
+            "events.jsonl": "c790c3cc780940ba94e00e37a0ad91a39982331a24d107149b8360580196c23d",
+            "collected.json": "a8117fe11cd79e2f0933de91dcc6d615b3ecd2f2a1df27b0647ca0294ee4e7c6",
+            "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stdout.txt": "8a8ed48e230c5992dab1b72fbecef65e03b966d86e9c807b1ac8f2f184cb84a6",
+            "request.json": "aa00db7ab302a9e503989db24bbff4ab431347cb2040ca0eead4ac0efddbcbfb",
+            "before-inputs.json": "a0beda3717d487ba9d795c3994fbadc00d753b7f4d4b92e656d05ede84edeba9"
+          }
+        },
+        "remove_history": {
+          "check_results": {
+            "FAIL": 2
+          },
+          "source": {
+            "pins": [
+              "79b943d221f46b2cc94eff06cdfdc714efe5a0e0",
+              "1a9f14f84e66f09c830134e2a6ee3e3f15e2b3cc"
+            ],
+            "status": "",
+            "branch": "codex/e02-D-oct07-continuation"
+          },
+          "output_sha256": {
+            "result.json": "c187191d502d28d53ea6d4caa81ee26a9b33b24cd6596c529c7709bd4b47c38c",
+            "origins.json": "f14bd1763d8be9e14c0679311787b23a741d17a7824cba592c853f2a55a1715f",
+            "junit.xml": "5763bdd61fae9e949442cb25347d33d3f2795718cd011425551d8126c37f1e6d",
+            "events.jsonl": "7f30820754b989502754426e7e4e72c178996ac271d5bc40530dfc126712fb59",
+            "collected.json": "394f0c81f589652a9a9a577f41fc979f307d8d443ad09eed44d2d13b5f574ea6",
+            "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stdout.txt": "a872c36be39e1e06484ddf465c2cf2b0ec96c32dc7eb2ba7168ba00c0dbc01f1",
+            "request.json": "fb1067e45e69a7e8bf715fb828f5b885848f059f844ecaf3e94f1e2af63a43c8",
+            "before-inputs.json": "a0beda3717d487ba9d795c3994fbadc00d753b7f4d4b92e656d05ede84edeba9"
+          }
+        },
+        "remove_inner_numeric": {
+          "check_results": {
+            "FAIL": 2
+          },
+          "source": {
+            "pins": [
+              "79b943d221f46b2cc94eff06cdfdc714efe5a0e0",
+              "1a9f14f84e66f09c830134e2a6ee3e3f15e2b3cc"
+            ],
+            "status": "",
+            "branch": "codex/e02-D-oct07-continuation"
+          },
+          "output_sha256": {
+            "result.json": "255928012721a26556a1f5b91e2fd3c0503130a4ca2edb854508d6b79de851eb",
+            "origins.json": "f14bd1763d8be9e14c0679311787b23a741d17a7824cba592c853f2a55a1715f",
+            "junit.xml": "b6ab1b1065402ad981c2dab95b418ecc725a439485b62b1b38fa67529ba4cc0b",
+            "events.jsonl": "6ee0ffa60b7911144b0087b9c1437df10a295adfe2ee9bc6d2b591b5b5461212",
+            "collected.json": "d04bc36120c5a61c8d65829ba699c8eb6163b8d7e1a0a8b9412db109e5a5f716",
+            "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stdout.txt": "927407186525eb8fcfa5b8c07092443159d25f79b5bf1d5932edaab421f33204",
+            "request.json": "036cc460350aa51d7ce22cc4462ae0a84530dd371ad9e750e37593e4462c4f27",
+            "before-inputs.json": "a0beda3717d487ba9d795c3994fbadc00d753b7f4d4b92e656d05ede84edeba9"
+          }
+        }
+      },
+      "interpretation": "Immutable earlier fixture failure / inadequate early removal scope, separate from current checks; no inherited-red or product-PASS waiver."
+    },
+    {
+      "path": "/tmp/e02-D-adapter-final-c0-5iwr6ncg",
+      "modes": {
+        "positive": {
+          "check_results": {
+            "PASS": 125,
+            "FAIL": 1
+          },
+          "source": {
+            "pins": [
+              "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+              "db599695f1cddc1a94d719dda4ebfe02f6ab61f2"
+            ],
+            "status": "",
+            "branch": "codex/e02-D-oct07-continuation"
+          },
+          "output_sha256": {
+            "result.json": "2ab5bb01189d739586a86b1243e870626679010ff5a994c57d088400cd3bff35",
+            "origins.json": "87d579c100b107c3c46e518fdc9cfdca0772488141cc8003d8e0aac252cfbf55",
+            "junit.xml": "a6350cd638b89f4dae154a363915fe3fa8b0da9432cc915cf956dab60cfd81ce",
+            "events.jsonl": "0217db2de829307178836e97f9f70dc8de4991d7dda7086a9f1cb1015a310a89",
+            "collected.json": "3a8fe83d0ae9c919064fa28fcca37a6e4021aa33bd6959de50db295342902cd4",
+            "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stdout.txt": "5557456094f73a6302c9f62229bc6e50975b8d7a8c17602a81d1658a635e1da0",
+            "request.json": "d627d03c38aa5b246ee81f621eba66e0f4e40d9587e6db09d57a44a999fe09ff",
+            "before-inputs.json": "74a5800e7ad8fc9e9dc387d8a7ebd8ca65b4ddf8d4001acc6d6e4f3cbd46f058"
+          }
+        },
+        "remove_history": {
+          "check_results": {
+            "FAIL": 2
+          },
+          "source": {
+            "pins": [
+              "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+              "db599695f1cddc1a94d719dda4ebfe02f6ab61f2"
+            ],
+            "status": "",
+            "branch": "codex/e02-D-oct07-continuation"
+          },
+          "output_sha256": {
+            "result.json": "e42da7b5643504baca61eb2d2a95ccd2c34cf2cb70ba21960e93b88a23b504ae",
+            "origins.json": "5a1d6a7dfc1566e53dd3403409e72fc841b2ccb544160d00c0abd455ef447db0",
+            "junit.xml": "97ff99b728f67ea705905ac399c4888f9b9a7dcf34105b5f8a7a34ec12c82246",
+            "events.jsonl": "fb2ea35828e10decb1d5cb1af4551445e7d43834b818fe53cb229495d5b7eee8",
+            "collected.json": "394f0c81f589652a9a9a577f41fc979f307d8d443ad09eed44d2d13b5f574ea6",
+            "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stdout.txt": "f7f17629902973f74d98a9164214669759244b15642bde1ab1e6dce502e1434b",
+            "request.json": "df59aa57abf689e47489375d25340c5c57ace263bdb71f8783894e4699b86a7a",
+            "before-inputs.json": "74a5800e7ad8fc9e9dc387d8a7ebd8ca65b4ddf8d4001acc6d6e4f3cbd46f058"
+          }
+        },
+        "remove_inner_numeric": {
+          "check_results": {
+            "FAIL": 2
+          },
+          "source": {
+            "pins": [
+              "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+              "db599695f1cddc1a94d719dda4ebfe02f6ab61f2"
+            ],
+            "status": "",
+            "branch": "codex/e02-D-oct07-continuation"
+          },
+          "output_sha256": {
+            "result.json": "5da794870e877cbe502878bb711a778ab8b420f08b93bc6e3ffb33017c5b3ff0",
+            "origins.json": "5a1d6a7dfc1566e53dd3403409e72fc841b2ccb544160d00c0abd455ef447db0",
+            "junit.xml": "66ded7c9b7561d3bed52fb46a49b3f166e6cc4edefb904e285bf106d12226622",
+            "events.jsonl": "f8b8ee1dd77e0ea518be0c39836d646e6a9ac563f47ad1d0a334ce72dfe4aab9",
+            "collected.json": "d04bc36120c5a61c8d65829ba699c8eb6163b8d7e1a0a8b9412db109e5a5f716",
+            "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "stdout.txt": "8f39e70317dd02595e7844cafeb23012c9c045b6df13f7609712648bde948c7a",
+            "request.json": "10be9397cc3be7cc038eedf886c90b47b19297fa37f22993af4fc9957283c53a",
+            "before-inputs.json": "74a5800e7ad8fc9e9dc387d8a7ebd8ca65b4ddf8d4001acc6d6e4f3cbd46f058"
+          }
+        }
+      },
+      "interpretation": "Immutable earlier fixture failure / inadequate early removal scope, separate from current checks; no inherited-red or product-PASS waiver."
+    }
+  ],
+  "complete_deciding_output": {
+    "path": "/tmp/e02-D-adapter-final-next-6zl5k0p2/current-adapter-complete-deciding-output.json.gz",
+    "sha256": "541164130cb03232643477d0ff7bbf9387eedc2a2fdd456ad72aaf29edf6f0c3",
+    "bytes": 1974439,
+    "content": "Full requests/stdout/stderr/JUnit/phases/source before-after/complete tracked hashes/origins/unique harness, bounded actual CAS positive and removal bytes, historical fixture failures separately; no tracked source bodies or production inputs."
+  },
+  "formal_closed": false,
+  "accepted_in_G": false,
+  "limitations": [
+    "Canonical finding acceptance belongs to matched full original criterion and owner ledger; this packet alone does not establish all six strategy profiles or all new/resumed/stopped/empty/evaluator-failure scenarios.",
+    "No production history transferred, no deployment caller appointment, no physical scientific evaluator/source/split authority invented."
+  ],
+  "cleanup_candidates": [
+    "/tmp/e02-D-adapter-final-next-6zl5k0p2/positive/fixtures",
+    "/tmp/e02-D-adapter-final-next-6zl5k0p2/remove_history/fixtures",
+    "/tmp/e02-D-adapter-final-next-6zl5k0p2/remove_inner_numeric/fixtures"
+  ],
+  "cleanup": "No cleanup performed by this leaf; deciding outputs/unique input bytes preserved. Cloud lacks Trash; exact candidates listed for owner."
+}

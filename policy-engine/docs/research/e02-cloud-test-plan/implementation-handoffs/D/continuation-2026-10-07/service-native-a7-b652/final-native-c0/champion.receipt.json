@@ -1,0 +1,533 @@
+{
+  "name": "champion",
+  "source_sha": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+  "source_tree": "db599695f1cddc1a94d719dda4ebfe02f6ab61f2",
+  "source_status_before": "",
+  "argv": [
+    "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "-m",
+    "pytest",
+    "--noconftest",
+    "-p",
+    "no:cacheprovider",
+    "-s",
+    "-ra",
+    "--basetemp",
+    "/dev/shm/e02-D-oct07-service-start/final-native-c0/champion-fixtures",
+    "--junitxml",
+    "/dev/shm/e02-D-oct07-service-start/final-native-c0/champion.junit.xml",
+    "tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+    "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py",
+    "tests/unit/scientist/methods/autotune/test_benchmark_primitive_admission.py"
+  ],
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "environment_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine:/dev/shm/e02-D-oct07-service-start"
+  },
+  "backend": "Actual FileSystemCAS/ChampionRegistry/SearchLoopRunner/ChampionBackedRuntimeLoader; bounded paired BenchmarkEvaluator and active suite; existing local flock/CAS atomic pointer, competing threads and fresh process crash reader, no distributed guarantee",
+  "no_artificial_quotas": true,
+  "started_at": "2026-10-07T09:14:46.836319+00:00",
+  "runtime": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "packages": {
+      "pytest": "9.0.2",
+      "pydantic": "2.12.5",
+      "numpy": "2.3.5",
+      "scipy": "1.16.3"
+    }
+  },
+  "returncode": 0,
+  "elapsed_seconds": 40.84671550799976,
+  "completed_at": "2026-10-07T09:15:29.755087+00:00",
+  "source_sha_after": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+  "source_status_after": "",
+  "same_inputs": true,
+  "outputs": {
+    "stdout.txt": {
+      "available": true,
+      "bytes": 3635,
+      "sha256": "c46d5a65e9222ccc4626f220cb53485a0d7b44ed6cd9f16db72e4daea63c5bfb"
+    },
+    "stderr.txt": {
+      "available": true,
+      "bytes": 1470,
+      "sha256": "de41b01c56e45043259d113b7065217f71dbc1fb38774657c6a00b36fb0a29f3"
+    },
+    "junit.xml": {
+      "available": true,
+      "bytes": 8752,
+      "sha256": "4ed70b404c163231e03be33fc7b9e50ab2d30a9b78787129ae9f68dbef9c0fb3"
+    }
+  },
+  "case_phases": {
+    "PASS": 44,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "schema": "e02.D.scoped_native_receipt.v1",
+  "unit": "D",
+  "scope": {
+    "findings": [
+      "B111",
+      "B116",
+      "B117"
+    ],
+    "notes": [
+      "Full current wrongpair/loop/split/suite/policy and actualevaluator/cache-reuse controls, local concurrent writer reread and fresh crash readers, strict primitive admission.",
+      "No scientific evaluator rights, production concurrency, distributed or power-loss guarantee."
+    ]
+  },
+  "original_criterion_status": "unchanged; full original criterion accounting remains separate",
+  "finding_disposition": "not_adjudicated_here",
+  "formally_closed": false,
+  "accepted_G": false,
+  "command_capture_sha256": "9c165728e976a42159fc69ea7932b898d5187b632d83cbfb720eb69abef814ae",
+  "cases": [
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+      "name": "test_default_store_uses_storage_factory",
+      "seconds": "0.002",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+      "name": "test_autotune_persistence_helpers_accept_protocol_backed_store",
+      "seconds": "0.009",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+      "name": "test_search_loop_runner_promotes_and_runtime_loader_reads_champion",
+      "seconds": "0.203",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+      "name": "test_champion_registry_is_idempotent_for_same_candidate_and_evaluation",
+      "seconds": "0.032",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+      "name": "test_champion_registry_rejects_omitted_suite_binding",
+      "seconds": "0.038",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+      "name": "test_champion_registry_rejects_evaluation_for_different_candidate",
+      "seconds": "0.020",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+      "name": "test_champion_registry_rejects_evaluation_for_different_loop",
+      "seconds": "0.016",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+      "name": "test_champion_registry_rejects_policy_for_different_loop",
+      "seconds": "0.016",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+      "name": "test_champion_registry_rejects_incompatible_suite[foreign_suite-1.0-suite_mismatch]",
+      "seconds": "0.038",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+      "name": "test_champion_registry_rejects_incompatible_suite[dummy_suite-2.0-suite_version_mismatch]",
+      "seconds": "0.019",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+      "name": "test_champion_registry_rejects_evaluation_from_different_suite_basis",
+      "seconds": "0.026",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+      "name": "test_champion_registry_rejects_bound_promotion_over_unknown_seed_basis",
+      "seconds": "0.033",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+      "name": "test_champion_registry_rejects_wrong_comparison_split",
+      "seconds": "0.029",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+      "name": "test_champion_registry_rejects_missing_runtime_split_when_resolution_disagrees",
+      "seconds": "0.017",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+      "name": "test_champion_registry_keeps_newer_champion_when_stale_score_arrives",
+      "seconds": "0.081",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+      "name": "test_champion_registry_serializes_compare_and_publish_against_new_predecessor",
+      "seconds": "0.785",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_registry_and_runner",
+      "name": "test_search_loop_runner_rejects_evaluator_from_foreign_suite",
+      "seconds": "0.101",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_champion_verified_snapshot",
+      "name": "test_native_evaluator_registry_and_fresh_process_read_exact_profiles_and_immutable_inputs",
+      "seconds": "4.076",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_champion_verified_snapshot",
+      "name": "test_actual_reused_content_keeps_old_qualified_view_and_refuses_wrong_candidate_profile",
+      "seconds": "0.076",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_champion_verified_snapshot",
+      "name": "test_native_seed_incumbent_is_actually_re_evaluated_on_active_immutable_suite",
+      "seconds": "0.172",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_champion_verified_snapshot",
+      "name": "test_competing_native_writer_refuses_actual_stale_pair_after_lock_held_reread",
+      "seconds": "0.392",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_champion_verified_snapshot",
+      "name": "test_actual_process_exit_around_atomic_pointer_replace_has_complete_fresh_view[before-1]",
+      "seconds": "3.418",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_champion_verified_snapshot",
+      "name": "test_actual_process_exit_around_atomic_pointer_replace_has_complete_fresh_view[after-2]",
+      "seconds": "3.177",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[selection_metrics-score-True]",
+      "seconds": "0.038",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[selection_metrics-score-1]",
+      "seconds": "0.029",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[holdout_metrics-score-False]",
+      "seconds": "0.049",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[holdout_metrics-score-1]",
+      "seconds": "0.071",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[sample_counts-selection-True]",
+      "seconds": "0.029",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[sample_counts-holdout-1]",
+      "seconds": "0.029",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[sample_counts-holdout-1.0]",
+      "seconds": "0.043",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[guardrails-finite-1]",
+      "seconds": "0.031",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[guardrails-finite-true]",
+      "seconds": "0.030",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[None-promotable-1]",
+      "seconds": "0.034",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[None-promotable-true]",
+      "seconds": "0.029",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[None-suite_version-True]",
+      "seconds": "0.029",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "name": "test_raw_primitive_refusal_preserves_complete_basis_and_cold_pointer[comparison_basis-schema_version-benchmark-comparison.v2]",
+      "seconds": "0.029",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "name": "test_nonfinite_evidence_refused_before_producer_persistence[selection_metrics-nan]",
+      "seconds": "0.015",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "name": "test_nonfinite_evidence_refused_before_producer_persistence[selection_metrics-inf]",
+      "seconds": "0.015",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "name": "test_nonfinite_evidence_refused_before_producer_persistence[selection_metrics--inf]",
+      "seconds": "0.015",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "name": "test_nonfinite_evidence_refused_before_producer_persistence[holdout_metrics-nan]",
+      "seconds": "0.016",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "name": "test_nonfinite_evidence_refused_before_producer_persistence[holdout_metrics-inf]",
+      "seconds": "0.017",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "name": "test_nonfinite_evidence_refused_before_producer_persistence[holdout_metrics--inf]",
+      "seconds": "0.016",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "name": "test_declared_builtin_mutation_numeric_fields_refuse_coercion_in_real_cas",
+      "seconds": "0.087",
+      "outcome": "PASS"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.autotune.test_benchmark_primitive_admission",
+      "name": "test_fresh_pointer_reader_refuses_boolean_cached_metric_without_rewrite",
+      "seconds": "0.027",
+      "outcome": "PASS"
+    }
+  ],
+  "effective_input_bindings": {
+    "policy-engine/pyproject.toml": {
+      "index": "100644 c46d8c1c952112ba132d167f05c941304a85cd0c 0",
+      "available": true,
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267"
+    },
+    "policy-engine/ruff.toml": {
+      "index": "100644 a0928fffdad2d96d6030fc23584801beac45b560 0",
+      "available": true,
+      "sha256": "543068227742e00057e19329f2df8ee944090f828a40b3e5da0b72f8e3b06fbd"
+    },
+    "policy-engine/src/polisyos/common/serialization.py": {
+      "index": "100644 60cf8182efd1daaffc8060f5ac90376e690c48c2 0",
+      "available": true,
+      "sha256": "485303bf79f150fa9df259d7354d3104a4bdb94d9114cddb6e17dcc424316f0d"
+    },
+    "policy-engine/src/polisyos/core/llm/response.py": {
+      "index": "100644 bb9d44c605ec9a40cacc6e732bde58a75b7fc2ff 0",
+      "available": true,
+      "sha256": "e5baac7b9e2d3c1d77c22308378d4811c6544d8dbdbc9bdec3afd7b3ec63fdea"
+    },
+    "policy-engine/src/polisyos/core/llm/settlement.py": {
+      "index": "100644 a21bca5b1280069d6852bad0b5437d9783925886 0",
+      "available": true,
+      "sha256": "6d680b37b3107322ec79e56d6e7959b6605c5af22be641d6305f65bc495f78a7"
+    },
+    "policy-engine/src/polisyos/core/llm/traced_client.py": {
+      "index": "100644 df786193b548215d84b4e7b1707c73272416d618 0",
+      "available": true,
+      "sha256": "f982028c7533dacac0df93475177bd840857768744ebf0bfd8c2181af912b81a"
+    },
+    "policy-engine/src/polisyos/scientist/methods/autotune/execution_plan.py": {
+      "index": "100644 792c306fddbf5d6742870c8fd4c4b29fc54e0ea0 0",
+      "available": true,
+      "sha256": "e733c6f99ebbee1c439b861c5b4b84ceed34f15490fade90f831f6402013e3d3"
+    },
+    "policy-engine/src/polisyos/scientist/methods/autotune/models.py": {
+      "index": "100644 5335d35ba3967c9774dbd9d50dcbd02ae91a6786 0",
+      "available": true,
+      "sha256": "75205f0519b23a9df94affa45de27d137ae4deee969663c388190873269db8c5"
+    },
+    "policy-engine/src/polisyos/scientist/methods/autotune/registry.py": {
+      "index": "100644 68affc2d2354e1a3cdd1e339916d74b811d88bea 0",
+      "available": true,
+      "sha256": "1339af524b604462021425b9d88f5cbe278f1a8c927827cb3e26fa4f8f0cc6ba"
+    },
+    "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py": {
+      "index": "100644 0b76e9cf3261cbf86ce86e5b6a8c3b17ca46716a 0",
+      "available": true,
+      "sha256": "caa6b0463acdfd2d895942626f5e909c16e29492c705b589535836d18ffb7b3b"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/controller.py": {
+      "index": "100644 7377be536dc63cb1f64f31878f6045c7a9f347e7 0",
+      "available": true,
+      "sha256": "9bbbd5b23c9ef43d18370f3bd0e25243eb56cdcd844a2d5f83744c30d4bbcc53"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/frontier.py": {
+      "index": "100644 3e8a49f58dbec650304023e19e372ab92af9ca72 0",
+      "available": true,
+      "sha256": "e06f9901b021f0e85df3d60d6b778552c017fed6d69953fb4bf767d7515cd082"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/objective.py": {
+      "index": "100644 8926e63c6d587778d0ba6628bd59865314292fe7 0",
+      "available": true,
+      "sha256": "940c84a3425e8ed1e93de2eae881100fd88a49dd978a108e5d78e5f2fa5fe17c"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py": {
+      "index": "100644 d12d0bb37b33ffb59513697eb95cc1653912553c 0",
+      "available": true,
+      "sha256": "aee369ab873131ac950104d3cf8b832c2ecf1d8109033f1631dc20877478bacd"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/run_state.py": {
+      "index": "100644 c3a90ffe3db0cf7158bc847fb824b18b0502866d 0",
+      "available": true,
+      "sha256": "411e2b5a922bf57af4f51735b44f7e491f98e75e3a83940b8fb3eb76e7fa3cb8"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/service.py": {
+      "index": "100644 6714ab37d0f6014b7f237ae8d956d06bdf1262ec 0",
+      "available": true,
+      "sha256": "d8909558cc43e4bb581025424f682cc2b0927d72bd36c62d5cd17db1fa19e115"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/stopping.py": {
+      "index": "100644 533befa968e43ea734b729d0932c39b5128c26bf 0",
+      "available": true,
+      "sha256": "84aaa5c7a3737000985d39c6b3b8803bb03a052e64b702944ca322a2ae1234ee"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py": {
+      "index": "100644 058de1cd9d6a28c6ff55e118823dab87d1059564 0",
+      "available": true,
+      "sha256": "ef1aa2cb95b2bed2438efe8da91ee9a78940e7a6e8b6e6aec7ae58f2359f4c3b"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/base.py": {
+      "index": "100644 5014def2bf0e9d43a629d335bf1b806a112082a3 0",
+      "available": true,
+      "sha256": "b14b9d504d8227f26c488a59227e33cdc8b0cbc192c37d780728e441e74d1f65"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/grid.py": {
+      "index": "100644 af2e277ffc2e47d1efb514ebdbdcf8a3c234f7aa 0",
+      "available": true,
+      "sha256": "6c8e7a5507e0f6f2bb166fc739465d073c3ace660ac0f0c8e08bbf445cd7d56a"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/types.py": {
+      "index": "100644 bd6817caac28d979beb0d2e343531adec775fae9 0",
+      "available": true,
+      "sha256": "d80a22c6282d2a172a0f51e6590e8b3ec786fc8e1ecb47db3bbe8583ab32197c"
+    },
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget.py": {
+      "index": "100644 1a2fbb73bb87d60674d168791a214f882e79347f 0",
+      "available": true,
+      "sha256": "76adb290dd270a7a8ce6fb0823bf1f035c00673f3662abf7cb35ca13d8209516"
+    },
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py": {
+      "index": "100644 edc20aeef614fa3486868b04fc4be03ace992893 0",
+      "available": true,
+      "sha256": "312f31fd3fd6062124b3124a526e4997f6d05e3d79b9c5ce0ec968dec5a41efe"
+    },
+    "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py": {
+      "index": "100644 596731c164fc1ad264b4f157f74b58cf73f7c513 0",
+      "available": true,
+      "sha256": "6ad7d0eddbfa7aef9f6f32de5c35505047016367a8b6aa54edbdba99eba3c0f8"
+    },
+    "policy-engine/src/polisyos/scientist/orchestration/llm/budget_enforcer.py": {
+      "index": "100644 9274ce741610f596ed2e1a5ad09f7300d0af1c24 0",
+      "available": true,
+      "sha256": "36fdec407bfdde1a65464e45d49267c7253601e350843bb9c0fdb383f16e84c4"
+    },
+    "policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py": {
+      "index": "100644 0dc65ee8cbe6477c50deb965d4d7cc12b3f6c5a2 0",
+      "available": true,
+      "sha256": "4161bc6dfa38838c107228672fab9e1468087c19ae7ddb4f510247577fac29c3"
+    },
+    "policy-engine/src/polisyos/scientist/policy_design/objectives.py": {
+      "index": "100644 f7e1945d99245cd8ea762be22f91150684878ad6 0",
+      "available": true,
+      "sha256": "0f4682e1157ff2ae1bbc349d1d88363cc9e37eecbbcb0b898b405d141ea15253"
+    },
+    "policy-engine/tests/integration/core/llm/test_gateway_response_text_cost.py": {
+      "index": "100644 56f6349dc0482df07498425e663e9947cd753b76 0",
+      "available": true,
+      "sha256": "aaf35bfdf97fdb35f3ff9e48ece8805ce656b600039b587a6851acb3dae96ecc"
+    },
+    "policy-engine/tests/unit/scientist/methods/autotune/test_benchmark_primitive_admission.py": {
+      "index": "100644 308ad8610a03f5790e75a0d250b6f4f466c6397a 0",
+      "available": true,
+      "sha256": "1838267e2bca47f37ca6bf76b90c1872dd4490567244fc40a110c255600ad3f4"
+    },
+    "policy-engine/tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py": {
+      "index": "100644 e5db88df8a2f115d886c592bdf291d4013d3f21a 0",
+      "available": true,
+      "sha256": "f9a5a1453c99d51d1e09dd2f53f48f1d9547a0c1ca428560568dc1d304e1d0bf"
+    },
+    "policy-engine/tests/unit/scientist/methods/autotune/test_registry_and_runner.py": {
+      "index": "100644 d888eb10cc7d45111c9ad7a960313e61bf8aca59 0",
+      "available": true,
+      "sha256": "adad9a5ea8c326703b0424c1820a77b7449dd962e399a1a7f31948efdf360cb2"
+    },
+    "policy-engine/uv.lock": {
+      "index": "100644 85f1fb2150a4da454fee02108565381d44f56730 0",
+      "available": true,
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463"
+    }
+  },
+  "input_verification": {
+    "all_tracked_denominator": 15481,
+    "all_available": 8411,
+    "all_unavailable_historical_sparse_paths": 7070,
+    "src_tests_lock_config_denominator": 6312,
+    "src_tests_lock_config_missing": [],
+    "changed_available_inputs": [],
+    "full_manifest_before_sha256": "5a5b2a08b0c71fac2b250e71e99e339df9e8c0e804159d99560c32a83a80f7e1",
+    "full_manifest_after_sha256": "5a5b2a08b0c71fac2b250e71e99e339df9e8c0e804159d99560c32a83a80f7e1",
+    "full_derived_manifest_local_only": true,
+    "source_git_tree_is_portable_authority": true
+  },
+  "P37": "Each result uses the original typed/candidate/recorded-accounting premise from actual native inputs; supported/excluded profiles are explicit.",
+  "P38": "Marker-preserving controls remove actual cursor restore/finite batch/date relation, or retain real cost while settlement is absent; no marker alone is a runtime witness.",
+  "P41": "not_established; no inherited-red or slice-base zero-overlap claim",
+  "cleanup": "All fixture/derived capture paths retained; no native Trash available, no permanent deletion authorized."
+}

@@ -1,0 +1,33 @@
+{
+  "schema": "e02.D.fresh-G-context.v1",
+  "D_source": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+  "fetched_main": {
+    "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+  },
+  "fetched_G": {
+    "sha": "a0ac10fc11975c345312034d0e568b4cfc330d76",
+    "tree": "ae067d9bcd96ff123b76d3b6eebef27a1736079c",
+    "previous": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+    "complete_delta_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/E.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/semantic-decisions.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/E.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/decisions/B201-B202-E-owner-2026-10-07.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/decisions/B201-B202-E-owner-2026-10-07.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/E.md"
+    ],
+    "source_delta": false,
+    "description": "Six E semantic-owner/documentation files; no G source or D acceptance change."
+  },
+  "COMMON": {
+    "git_ref": "a0ac10fc11975c345312034d0e568b4cfc330d76",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/COMMON.md",
+    "sha256": "f408d34394bab5f708df7afb6f59195588b5fc394b8304434c9e2fbe2238be79",
+    "fully_read": true
+  },
+  "D_accepted_G": false,
+  "D_ancestor_G": false,
+  "anchor_ancestor_main": true,
+  "cleanup_authorization_supersedes_COMMON_trash_rule": "User 2026-10-07 explicitly authorized deleting unnecessary cloud data; only inactive byte-identical Git duplicates removed, unique inputs/outputs retained."
+}

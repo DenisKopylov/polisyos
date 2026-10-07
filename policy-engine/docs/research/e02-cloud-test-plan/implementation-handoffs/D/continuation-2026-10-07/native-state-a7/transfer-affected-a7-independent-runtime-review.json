@@ -1,0 +1,370 @@
+{
+  "schema": "D.e02.independent-current-transfer-consumer-review.v1",
+  "reviewer": "/root/math_oct07",
+  "author": "/root/gp_oct07",
+  "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "tree": "e809693afe3b84e02d473b5744142d026afbe509",
+  "output_root": "/dev/shm/e02-D-transfer-affected-a7-dr4o3tl5",
+  "result": "GO bounded current actual transfer workflow3PASS; separate unchanged currentc0 numerical witnesses carry only on reviewed delta",
+  "check_results": {
+    "PASS": 3,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "actual_MLL_returns": 2,
+  "complete_input_denominator": 6313,
+  "loaded_source_origin_bindings_checked": 297,
+  "complete_output_sha256": {
+    "result.json": "98dbc1d30aa7850cc382da3024f232610b3067795a68b83d84a6c502b93809cc",
+    "cgroup-after.json": "9f21db5eb1c0985013174e0ee303e5fbbd7821fb1fd9ea26a9d3ca33991180ec",
+    "after.json": "6f6464528b328ed8d2dfa34d70319a79cc5bc824a4c97ba6f6bfff00eb47e867",
+    "origins.json": "9feb409209c8908f863c35e879b7f1deea7133bdc1ab917eb899114a44c1ffd5",
+    "junit.xml": "13c4fb6a6909c93ba4bec67121ba9b107c11f9be5c30bf99af655d5d4dd24641",
+    "fit-events.jsonl": "bf60a6573b3712e5c132acb086e74c3c3dcc80b887dc051a71e0734cd4e4464b",
+    "events.jsonl": "340a1e6b1d70f5d77fbec8356205c7a9c5efed0f3b59d78ed7be5baf7ccaf85b",
+    "backend-before.json": "6c68a0df87d4bf2447539bf52b59b9f2dbb507cac74127e16e89d6ab98c788ee",
+    "execution.json": "58adff9407c4aa81e8707d195078ecc46e731ed4a56bcc08b4709031497130f8",
+    "cgroup-before.json": "0dd1965c3a4f99166a4622d135f4c20922aa06dbbb43d51c43a3bc360647228a",
+    "before.json": "6f6464528b328ed8d2dfa34d70319a79cc5bc824a4c97ba6f6bfff00eb47e867",
+    "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout.log": "51baff24f70aa820bb4e4be8d79a2afc1d8c35ffb99a9d982cdb8cf7c697132d",
+    "selectors.json": "179933e01b7e679d33f753c163d55a8fc8147d25752f418db3142bc7d7bf21ab",
+    "run.py": "3e00f78d2991b4e44c32907dfcc4b76f3f1ef6466cce4c6f319d922c326c9f5d"
+  },
+  "independent_raw_corpus_to_actual_fit": [
+    {
+      "rows": 8,
+      "original_history_ref": "/dev/shm/e02-D-transfer-affected-a7-dr4o3tl5/basetemp/test_actual_public_workflow_fi0/cas/artifacts/sha256/ad/a9/ada9b5a9bd443b4e311b07995795733bfe51ba2a2388128602d36f8d87c9b889.blob",
+      "history_sha256": "ada9b5a9bd443b4e311b07995795733bfe51ba2a2388128602d36f8d87c9b889",
+      "original_x": [
+        [
+          0.3333333333333333
+        ],
+        [
+          0.4444444444444444
+        ],
+        [
+          0.2222222222222222
+        ],
+        [
+          0.5555555555555556
+        ],
+        [
+          0.1111111111111111
+        ],
+        [
+          0.6666666666666666
+        ],
+        [
+          0.7777777777777778
+        ],
+        [
+          0.8888888888888888
+        ]
+      ],
+      "original_scores": [
+        0.011344444444444445,
+        0.015541975308641973,
+        0.031838271604938274,
+        0.044430864197530874,
+        0.07702345679012346,
+        0.09801111111111109,
+        0.17628271604938273,
+        0.27924567901234565
+      ],
+      "actual_initial_raw_train_X": [
+        [
+          [
+            0.3333333333333333
+          ],
+          [
+            0.4444444444444444
+          ],
+          [
+            0.2222222222222222
+          ],
+          [
+            0.5555555555555556
+          ],
+          [
+            0.1111111111111111
+          ],
+          [
+            0.6666666666666666
+          ],
+          [
+            0.7777777777777778
+          ],
+          [
+            0.8888888888888888
+          ]
+        ]
+      ],
+      "actual_standardized_train_Y": [
+        0.8633800390411897,
+        0.8182879939914195,
+        0.6432247602687818,
+        0.5079486251194709,
+        0.15782215767419588,
+        -0.06763806757465532,
+        -0.9084720840909604,
+        -2.0145534244294425
+      ],
+      "saved_outcome_mean": -0.0917148148148148,
+      "saved_outcome_std": 0.09308805709664558,
+      "saved_input_coefficient": 0.7777777777777777,
+      "saved_input_offset": 0.1111111111111111,
+      "actual_MLL_return_transformed_train_X": [
+        [
+          [
+            0.28571428571428575
+          ],
+          [
+            0.4285714285714286
+          ],
+          [
+            0.14285714285714288
+          ],
+          [
+            0.5714285714285715
+          ],
+          [
+            0.0
+          ],
+          [
+            0.7142857142857144
+          ],
+          [
+            0.8571428571428573
+          ],
+          [
+            1.0
+          ]
+        ]
+      ],
+      "verified_role_reference_occurrences": 56,
+      "original_evaluation_refs": [
+        {
+          "artifact_id": "sha256:64028940779262aff06a434ae710b25d89de2e6c2d965a3bdca359388677288f",
+          "kind": "scientist.autotune.analytic.evaluation",
+          "manifest_profile_sha256": "sha256:92344e9441aca35237374b5de9474aa8ec1c94b1b4143d947d044faf9dda560f",
+          "media_type": "application/json"
+        },
+        {
+          "artifact_id": "sha256:d66a11467f9135c5a8f9281319ca7fba6f3c13be86b9186a47ee1aa081804951",
+          "kind": "scientist.autotune.analytic.evaluation",
+          "manifest_profile_sha256": "sha256:26f0eb0c353d4758ce680eb45f814c87a56398a525fa888955942cde9a50086d",
+          "media_type": "application/json"
+        },
+        {
+          "artifact_id": "sha256:6795c7b1491e87628377c1dccf3ed2aaf96f0d7ff40ba6ebd5b49edb4006570a",
+          "kind": "scientist.autotune.analytic.evaluation",
+          "manifest_profile_sha256": "sha256:d00bd6e7d86bbc9a1c69a5a65ae5634914f25b77d0f815c710085534a12f3e5d",
+          "media_type": "application/json"
+        },
+        {
+          "artifact_id": "sha256:dcb8ddc64f5162fc5814702bc978e16e00ad0e2a5efe5aa248c9072b3b175ec5",
+          "kind": "scientist.autotune.analytic.evaluation",
+          "manifest_profile_sha256": "sha256:b68add55c29c5d133121f42922b17c5fbca8ef4dd6f84cf04c40747f9ee7ee36",
+          "media_type": "application/json"
+        },
+        {
+          "artifact_id": "sha256:4b1758d82fbbae1a92d10a5a68f61f695b493b36a3fb1115d0057fc35f538b4f",
+          "kind": "scientist.autotune.analytic.evaluation",
+          "manifest_profile_sha256": "sha256:919d389d09853de6433b9283821f2f1b3a7065acbc90e3b795dc5bc4ee073cb6",
+          "media_type": "application/json"
+        },
+        {
+          "artifact_id": "sha256:60d22d7e092296081da49d20f9f4723665a1e45fbf3391c09f8cc1d65dd25650",
+          "kind": "scientist.autotune.analytic.evaluation",
+          "manifest_profile_sha256": "sha256:ff475bbf37de14fef1d7ed60b2b83f8693c02ea911d01ac32d4d614dacaab301",
+          "media_type": "application/json"
+        },
+        {
+          "artifact_id": "sha256:b857b764268c30994099dcc400a83f74a6688cb03dd7db8c09dc8a214bb99fe2",
+          "kind": "scientist.autotune.analytic.evaluation",
+          "manifest_profile_sha256": "sha256:9971cfbf28345fc13278aa25c1723a1041fcb7fbf865cec74b932142f7b96e2c",
+          "media_type": "application/json"
+        },
+        {
+          "artifact_id": "sha256:b0cfbe74292c3a42266b45c7878a6a89336dad4c3f81257b8052d2a1170563fc",
+          "kind": "scientist.autotune.analytic.evaluation",
+          "manifest_profile_sha256": "sha256:f43987244e4bc6dc11b846ff11ae022aad64937b9926f136f8664c68903156ff",
+          "media_type": "application/json"
+        }
+      ],
+      "intentional_same_ref_altered_bytes_negative": [
+        {
+          "artifact_id": "sha256:64028940779262aff06a434ae710b25d89de2e6c2d965a3bdca359388677288f",
+          "kind": "scientist.autotune.analytic.evaluation",
+          "manifest_profile_sha256": "sha256:92344e9441aca35237374b5de9474aa8ec1c94b1b4143d947d044faf9dda560f",
+          "media_type": "application/json"
+        }
+      ]
+    },
+    {
+      "rows": 7,
+      "original_history_ref": "/dev/shm/e02-D-transfer-affected-a7-dr4o3tl5/basetemp/test_actual_public_workflow_fi1/cas/artifacts/sha256/20/2b/202becd47b3b4b4ccb0789a535f3df614b2053aa65f5857fee3aa5a3ccc1ab79.blob",
+      "history_sha256": "202becd47b3b4b4ccb0789a535f3df614b2053aa65f5857fee3aa5a3ccc1ab79",
+      "original_x": [
+        [
+          0.3333333333333333
+        ],
+        [
+          0.4444444444444444
+        ],
+        [
+          0.2222222222222222
+        ],
+        [
+          0.5555555555555556
+        ],
+        [
+          0.6666666666666666
+        ],
+        [
+          0.7777777777777778
+        ],
+        [
+          0.8888888888888888
+        ]
+      ],
+      "original_scores": [
+        0.011344444444444445,
+        0.015541975308641973,
+        0.031838271604938274,
+        0.044430864197530874,
+        0.09801111111111109,
+        0.17628271604938273,
+        0.27924567901234565
+      ],
+      "actual_initial_raw_train_X": [
+        [
+          [
+            0.3333333333333333
+          ],
+          [
+            0.4444444444444444
+          ],
+          [
+            0.2222222222222222
+          ],
+          [
+            0.5555555555555556
+          ],
+          [
+            0.6666666666666666
+          ],
+          [
+            0.7777777777777778
+          ],
+          [
+            0.8888888888888888
+          ]
+        ]
+      ],
+      "actual_standardized_train_Y": [
+        0.8218809815736228,
+        0.7800487160444265,
+        0.6176410969310758,
+        0.49214430034348655,
+        -0.04183226552919631,
+        -0.8218809815736232,
+        -1.848001847789793
+      ],
+      "saved_outcome_mean": -0.09381358024691357,
+      "saved_outcome_std": 0.10034194445595851,
+      "saved_input_coefficient": 0.6666666666666666,
+      "saved_input_offset": 0.2222222222222222,
+      "actual_MLL_return_transformed_train_X": [
+        [
+          [
+            0.16666666666666666
+          ],
+          [
+            0.3333333333333333
+          ],
+          [
+            0.0
+          ],
+          [
+            0.5000000000000001
+          ],
+          [
+            0.6666666666666666
+          ],
+          [
+            0.8333333333333334
+          ],
+          [
+            1.0
+          ]
+        ]
+      ],
+      "verified_role_reference_occurrences": 49,
+      "original_evaluation_refs": [
+        {
+          "artifact_id": "sha256:64028940779262aff06a434ae710b25d89de2e6c2d965a3bdca359388677288f",
+          "kind": "scientist.autotune.analytic.evaluation",
+          "manifest_profile_sha256": "sha256:92344e9441aca35237374b5de9474aa8ec1c94b1b4143d947d044faf9dda560f",
+          "media_type": "application/json"
+        },
+        {
+          "artifact_id": "sha256:d66a11467f9135c5a8f9281319ca7fba6f3c13be86b9186a47ee1aa081804951",
+          "kind": "scientist.autotune.analytic.evaluation",
+          "manifest_profile_sha256": "sha256:26f0eb0c353d4758ce680eb45f814c87a56398a525fa888955942cde9a50086d",
+          "media_type": "application/json"
+        },
+        {
+          "artifact_id": "sha256:6795c7b1491e87628377c1dccf3ed2aaf96f0d7ff40ba6ebd5b49edb4006570a",
+          "kind": "scientist.autotune.analytic.evaluation",
+          "manifest_profile_sha256": "sha256:d00bd6e7d86bbc9a1c69a5a65ae5634914f25b77d0f815c710085534a12f3e5d",
+          "media_type": "application/json"
+        },
+        {
+          "artifact_id": "sha256:dcb8ddc64f5162fc5814702bc978e16e00ad0e2a5efe5aa248c9072b3b175ec5",
+          "kind": "scientist.autotune.analytic.evaluation",
+          "manifest_profile_sha256": "sha256:b68add55c29c5d133121f42922b17c5fbca8ef4dd6f84cf04c40747f9ee7ee36",
+          "media_type": "application/json"
+        },
+        {
+          "artifact_id": "sha256:60d22d7e092296081da49d20f9f4723665a1e45fbf3391c09f8cc1d65dd25650",
+          "kind": "scientist.autotune.analytic.evaluation",
+          "manifest_profile_sha256": "sha256:ff475bbf37de14fef1d7ed60b2b83f8693c02ea911d01ac32d4d614dacaab301",
+          "media_type": "application/json"
+        },
+        {
+          "artifact_id": "sha256:b857b764268c30994099dcc400a83f74a6688cb03dd7db8c09dc8a214bb99fe2",
+          "kind": "scientist.autotune.analytic.evaluation",
+          "manifest_profile_sha256": "sha256:9971cfbf28345fc13278aa25c1723a1041fcb7fbf865cec74b932142f7b96e2c",
+          "media_type": "application/json"
+        },
+        {
+          "artifact_id": "sha256:b0cfbe74292c3a42266b45c7878a6a89336dad4c3f81257b8052d2a1170563fc",
+          "kind": "scientist.autotune.analytic.evaluation",
+          "manifest_profile_sha256": "sha256:f43987244e4bc6dc11b846ff11ae022aad64937b9926f136f8664c68903156ff",
+          "media_type": "application/json"
+        }
+      ],
+      "intentional_same_ref_altered_bytes_negative": [
+        {
+          "artifact_id": "sha256:64028940779262aff06a434ae710b25d89de2e6c2d965a3bdca359388677288f",
+          "kind": "scientist.autotune.analytic.evaluation",
+          "manifest_profile_sha256": "sha256:92344e9441aca35237374b5de9474aa8ec1c94b1b4143d947d044faf9dda560f",
+          "media_type": "application/json"
+        }
+      ]
+    }
+  ],
+  "oracle_scope": "Independent canonical float-repr decode plus controlled analytic raw arithmetic and saved Standardize/Normalize conversion checks actual logged SingleTaskGP fit inputs/targets. This is an independent corpus binding check, not a new independent posterior oracle. Currentc0 NumPy full-covariance oracle stays separately source qualified.",
+  "consumer": "Existing explicitly configured bridge with native ANN discovery -> exact real CAS refs -> public SearchLoopRunner evaluator -> actual fitted SingleTaskGP -> real CAS StrategyState -> fresh native restore; target origin mismatch discovered yet cannot fit, changed original evaluation bytes refuse under unchanged full ref.",
+  "limitations": [
+    "Analytic producer and explicit bridge are controlled conditional inputs, not production/scientific/evaluator/tenant authority or default discovery law.",
+    "Same-model posterior equality in existing consumer is only restored-state consistency, not independent numerical oracle.",
+    "No new full original finding formal closure or G acceptance inferred from three consumers.",
+    "Runtime uses existing native owner policy; numerical process/thread limits were not introduced by reviewer."
+  ],
+  "formal_closed": false,
+  "accepted_in_G": false
+}

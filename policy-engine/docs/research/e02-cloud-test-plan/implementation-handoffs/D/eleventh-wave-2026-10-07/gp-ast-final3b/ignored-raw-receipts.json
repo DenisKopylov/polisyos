@@ -1,0 +1,138 @@
+[
+  {
+    "availability": "preserved ignored cloud scratch; not claimed portableGit content",
+    "bytes": 992127,
+    "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-positive12/before.json",
+    "reason": "complete input/module/resource raw census or reproducible rendered notes; compact summary and independent source reconciliation retained in Git",
+    "scope": "GP-positive12",
+    "sha256": "dd61f18a913267fc430ccfbbf3c83d1a780d1cd0991dcf6cc81efa96fd1e5932"
+  },
+  {
+    "availability": "preserved ignored cloud scratch; not claimed portableGit content",
+    "bytes": 992127,
+    "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-positive12/after.json",
+    "reason": "complete input/module/resource raw census or reproducible rendered notes; compact summary and independent source reconciliation retained in Git",
+    "scope": "GP-positive12",
+    "sha256": "dd61f18a913267fc430ccfbbf3c83d1a780d1cd0991dcf6cc81efa96fd1e5932"
+  },
+  {
+    "availability": "preserved ignored cloud scratch; not claimed portableGit content",
+    "bytes": 888095,
+    "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-positive12/origins.json",
+    "reason": "complete input/module/resource raw census or reproducible rendered notes; compact summary and independent source reconciliation retained in Git",
+    "scope": "GP-positive12",
+    "sha256": "e768b12f02545af8788d10e28d88dc8ef95d4d9c3ca5f4fb7289b104cd69d863"
+  },
+  {
+    "availability": "preserved ignored cloud scratch; not claimed portableGit content",
+    "bytes": 992127,
+    "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-remove8/before.json",
+    "reason": "complete input/module/resource raw census or reproducible rendered notes; compact summary and independent source reconciliation retained in Git",
+    "scope": "GP-remove8",
+    "sha256": "dd61f18a913267fc430ccfbbf3c83d1a780d1cd0991dcf6cc81efa96fd1e5932"
+  },
+  {
+    "availability": "preserved ignored cloud scratch; not claimed portableGit content",
+    "bytes": 992127,
+    "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-remove8/after.json",
+    "reason": "complete input/module/resource raw census or reproducible rendered notes; compact summary and independent source reconciliation retained in Git",
+    "scope": "GP-remove8",
+    "sha256": "dd61f18a913267fc430ccfbbf3c83d1a780d1cd0991dcf6cc81efa96fd1e5932"
+  },
+  {
+    "availability": "preserved ignored cloud scratch; not claimed portableGit content",
+    "bytes": 780083,
+    "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-remove8/origins.json",
+    "reason": "complete input/module/resource raw census or reproducible rendered notes; compact summary and independent source reconciliation retained in Git",
+    "scope": "GP-remove8",
+    "sha256": "7c3fca0ea1430a6172e5870c98afed5fa41c64aeae8ad2686d74d2897d711540"
+  },
+  {
+    "availability": "preserved ignored cloud scratch; not claimed portableGit content",
+    "bytes": 992133,
+    "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-canonical63/before.json",
+    "reason": "complete input/module/resource raw census or reproducible rendered notes; compact summary and independent source reconciliation retained in Git",
+    "scope": "AST-canonical63",
+    "sha256": "ce44d8657b9aedf5d7b60829b2d049dc16123f34457202e570c2a38b53004bcc"
+  },
+  {
+    "availability": "preserved ignored cloud scratch; not claimed portableGit content",
+    "bytes": 992133,
+    "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-canonical63/after.json",
+    "reason": "complete input/module/resource raw census or reproducible rendered notes; compact summary and independent source reconciliation retained in Git",
+    "scope": "AST-canonical63",
+    "sha256": "ce44d8657b9aedf5d7b60829b2d049dc16123f34457202e570c2a38b53004bcc"
+  },
+  {
+    "availability": "preserved ignored cloud scratch; not claimed portableGit content",
+    "bytes": 992133,
+    "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-positive44/before.json",
+    "reason": "complete input/module/resource raw census or reproducible rendered notes; compact summary and independent source reconciliation retained in Git",
+    "scope": "AST-positive44",
+    "sha256": "ce44d8657b9aedf5d7b60829b2d049dc16123f34457202e570c2a38b53004bcc"
+  },
+  {
+    "availability": "preserved ignored cloud scratch; not claimed portableGit content",
+    "bytes": 992133,
+    "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-positive44/after.json",
+    "reason": "complete input/module/resource raw census or reproducible rendered notes; compact summary and independent source reconciliation retained in Git",
+    "scope": "AST-positive44",
+    "sha256": "ce44d8657b9aedf5d7b60829b2d049dc16123f34457202e570c2a38b53004bcc"
+  },
+  {
+    "availability": "preserved ignored cloud scratch; not claimed portableGit content",
+    "bytes": 237465,
+    "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-positive44/origins.json",
+    "reason": "complete input/module/resource raw census or reproducible rendered notes; compact summary and independent source reconciliation retained in Git",
+    "scope": "AST-positive44",
+    "sha256": "f89f2604634707ee226f36ab3a81e0dd17c4c962ac0d08739bd170c41f6178d0"
+  },
+  {
+    "availability": "preserved ignored cloud scratch; not claimed portableGit content",
+    "bytes": 992133,
+    "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-remove25/before.json",
+    "reason": "complete input/module/resource raw census or reproducible rendered notes; compact summary and independent source reconciliation retained in Git",
+    "scope": "AST-remove25",
+    "sha256": "ce44d8657b9aedf5d7b60829b2d049dc16123f34457202e570c2a38b53004bcc"
+  },
+  {
+    "availability": "preserved ignored cloud scratch; not claimed portableGit content",
+    "bytes": 992133,
+    "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-remove25/after.json",
+    "reason": "complete input/module/resource raw census or reproducible rendered notes; compact summary and independent source reconciliation retained in Git",
+    "scope": "AST-remove25",
+    "sha256": "ce44d8657b9aedf5d7b60829b2d049dc16123f34457202e570c2a38b53004bcc"
+  },
+  {
+    "availability": "preserved ignored cloud scratch; not claimed portableGit content",
+    "bytes": 237465,
+    "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-remove25/origins.json",
+    "reason": "complete input/module/resource raw census or reproducible rendered notes; compact summary and independent source reconciliation retained in Git",
+    "scope": "AST-remove25",
+    "sha256": "f89f2604634707ee226f36ab3a81e0dd17c4c962ac0d08739bd170c41f6178d0"
+  },
+  {
+    "availability": "preserved ignored cloud scratch; not claimed portableGit content",
+    "bytes": 1607,
+    "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/fragments3/before.json",
+    "reason": "complete input/module/resource raw census or reproducible rendered notes; compact summary and independent source reconciliation retained in Git",
+    "scope": "fragments3",
+    "sha256": "f6dc12a623c3f96ba1b94831c123528d5cf08d0ceb1e6ae6b9b19542ac31f583"
+  },
+  {
+    "availability": "preserved ignored cloud scratch; not claimed portableGit content",
+    "bytes": 2785,
+    "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/fragments3/after.json",
+    "reason": "complete input/module/resource raw census or reproducible rendered notes; compact summary and independent source reconciliation retained in Git",
+    "scope": "fragments3",
+    "sha256": "0d1b2a8f2f8ed7bc68b7858ab30dd480970bcb05c154069bb28fc9e1566ce772"
+  },
+  {
+    "availability": "preserved ignored cloud scratch; not claimed portableGit content",
+    "bytes": 6233,
+    "path": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/fragments3/selected-release-notes.md",
+    "reason": "complete input/module/resource raw census or reproducible rendered notes; compact summary and independent source reconciliation retained in Git",
+    "scope": "fragments3",
+    "sha256": "c2d997f98a0454df32a790020537d6d56ebdc626591143eb39e01e67ec4caa44"
+  }
+]

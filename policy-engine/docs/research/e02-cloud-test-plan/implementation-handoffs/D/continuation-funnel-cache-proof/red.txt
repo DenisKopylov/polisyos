@@ -1,0 +1,134 @@
+FFF...                                                                   [100%]
+=================================== FAILURES ===================================
+_ test_native_http_cached_payload_cannot_borrow_unbound_paid_receipt[content] __
+
+tmp_path = PosixPath('/dev/shm/e02-D-funnel-cache-ea22f6a8b1ba42d9b1555ed38de730b0/test_native_http_cached_payloa0')
+alteration = 'content'
+
+    @pytest.mark.parametrize("alteration", ["content", "missing-receipt", "foreign-request"])
+    @pytest.mark.asyncio
+    async def test_native_http_cached_payload_cannot_borrow_unbound_paid_receipt(tmp_path, alteration):
+        gateway = _text["TextGateway"](_text["response_text"]("usage", "cost_usd", "1"))
+        _, cache, enforcer, middleware, _ = _owner["_durable_stack"](tmp_path, gateway=gateway)
+        first = await enforcer.generate(
+            user="original request", temperature=0.0, _prompt_tokens_estimate=1
+        )
+        original_settlement = producer_settlement(first)
+        key = next(iter(cache._cache._store))  # Observe actual runtime key; no private write.
+        cached = cache._cache.get(key)
+        if alteration == "content":
+            cached.content = "altered output with retained producer receipt"
+        elif alteration == "missing-receipt":
+            cached._polisyos_settlement = None
+        else:
+            other = await enforcer.generate(
+                user="foreign request", temperature=0.0, _prompt_tokens_estimate=1
+            )
+            cached._polisyos_settlement = producer_settlement(other)
+        # Public cache supplier stores its immutable serialized response normally.
+        # This preserves cache-owner markers and exercises admission on actual get.
+        cache._cache.put(key, cached)
+        result = await enforcer.generate(
+            user="original request", temperature=0.0, _prompt_tokens_estimate=1
+        )
+        actual = producer_settlement(result)
+        if actual.event.kind == "reuse":
+            # A free grant must consume the original response bytes and request.
+>           assert result.content == first.content
+E           AssertionError: assert 'altered outp...ducer receipt' == 'observed response'
+E             
+E             - observed response
+E             + altered output with retained producer receipt
+
+tests/integration/core/llm/test_cache_response_binding.py:44: AssertionError
+_ test_native_http_cached_payload_cannot_borrow_unbound_paid_receipt[missing-receipt] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-funnel-cache-ea22f6a8b1ba42d9b1555ed38de730b0/test_native_http_cached_payloa1')
+alteration = 'missing-receipt'
+
+    @pytest.mark.parametrize("alteration", ["content", "missing-receipt", "foreign-request"])
+    @pytest.mark.asyncio
+    async def test_native_http_cached_payload_cannot_borrow_unbound_paid_receipt(tmp_path, alteration):
+        gateway = _text["TextGateway"](_text["response_text"]("usage", "cost_usd", "1"))
+        _, cache, enforcer, middleware, _ = _owner["_durable_stack"](tmp_path, gateway=gateway)
+        first = await enforcer.generate(
+            user="original request", temperature=0.0, _prompt_tokens_estimate=1
+        )
+        original_settlement = producer_settlement(first)
+        key = next(iter(cache._cache._store))  # Observe actual runtime key; no private write.
+        cached = cache._cache.get(key)
+        if alteration == "content":
+            cached.content = "altered output with retained producer receipt"
+        elif alteration == "missing-receipt":
+            cached._polisyos_settlement = None
+        else:
+            other = await enforcer.generate(
+                user="foreign request", temperature=0.0, _prompt_tokens_estimate=1
+            )
+            cached._polisyos_settlement = producer_settlement(other)
+        # Public cache supplier stores its immutable serialized response normally.
+        # This preserves cache-owner markers and exercises admission on actual get.
+        cache._cache.put(key, cached)
+        result = await enforcer.generate(
+            user="original request", temperature=0.0, _prompt_tokens_estimate=1
+        )
+        actual = producer_settlement(result)
+        if actual.event.kind == "reuse":
+            # A free grant must consume the original response bytes and request.
+            assert result.content == first.content
+            assert actual.event.response_digest == original_settlement.event.response_digest
+>           assert actual.event.origin_event_id == original_settlement.event.event_id
+E           AssertionError: assert None == 'llm-producer:5688b54792204b1b95858306b5613776'
+E            +  where None = LLMProducerEvent(event_id='cache-reuse:8a6859eb5153476394bc6399701acdd3', request_digest='sha256:57a274fd7cc4c1e8b74ee...odel='test-model', provider='provider-a', amount=Decimal('0'), cost_origin='reuse', kind='reuse', origin_event_id=None).origin_event_id
+E            +    where LLMProducerEvent(event_id='cache-reuse:8a6859eb5153476394bc6399701acdd3', request_digest='sha256:57a274fd7cc4c1e8b74ee...odel='test-model', provider='provider-a', amount=Decimal('0'), cost_origin='reuse', kind='reuse', origin_event_id=None) = LLMProducerSettlement(event=LLMProducerEvent(event_id='cache-reuse:8a6859eb5153476394bc6399701acdd3', request_digest='...48d2ea8cb9f5d1b793ddef1f006effdf07f13cc0a5b6e62556e4433239433a', status='committed', receipts=(), durability='ledger')).event
+E            +  and   'llm-producer:5688b54792204b1b95858306b5613776' = LLMProducerEvent(event_id='llm-producer:5688b54792204b1b95858306b5613776', request_digest='sha256:57a274fd7cc4c1e8b74e...st-model', provider='provider-a', amount=Decimal('1.0'), cost_origin='reported', kind='provider', origin_event_id=None).event_id
+E            +    where LLMProducerEvent(event_id='llm-producer:5688b54792204b1b95858306b5613776', request_digest='sha256:57a274fd7cc4c1e8b74e...st-model', provider='provider-a', amount=Decimal('1.0'), cost_origin='reported', kind='provider', origin_event_id=None) = LLMProducerSettlement(event=LLMProducerEvent(event_id='llm-producer:5688b54792204b1b95858306b5613776', request_digest=...revision=2, committed_at=datetime.datetime(2026, 10, 6, 15, 43, 17, 458476, tzinfo=TzInfo(0))),), durability='ledger')).event
+
+tests/integration/core/llm/test_cache_response_binding.py:46: AssertionError
+_ test_native_http_cached_payload_cannot_borrow_unbound_paid_receipt[foreign-request] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-funnel-cache-ea22f6a8b1ba42d9b1555ed38de730b0/test_native_http_cached_payloa2')
+alteration = 'foreign-request'
+
+    @pytest.mark.parametrize("alteration", ["content", "missing-receipt", "foreign-request"])
+    @pytest.mark.asyncio
+    async def test_native_http_cached_payload_cannot_borrow_unbound_paid_receipt(tmp_path, alteration):
+        gateway = _text["TextGateway"](_text["response_text"]("usage", "cost_usd", "1"))
+        _, cache, enforcer, middleware, _ = _owner["_durable_stack"](tmp_path, gateway=gateway)
+        first = await enforcer.generate(
+            user="original request", temperature=0.0, _prompt_tokens_estimate=1
+        )
+        original_settlement = producer_settlement(first)
+        key = next(iter(cache._cache._store))  # Observe actual runtime key; no private write.
+        cached = cache._cache.get(key)
+        if alteration == "content":
+            cached.content = "altered output with retained producer receipt"
+        elif alteration == "missing-receipt":
+            cached._polisyos_settlement = None
+        else:
+            other = await enforcer.generate(
+                user="foreign request", temperature=0.0, _prompt_tokens_estimate=1
+            )
+            cached._polisyos_settlement = producer_settlement(other)
+        # Public cache supplier stores its immutable serialized response normally.
+        # This preserves cache-owner markers and exercises admission on actual get.
+        cache._cache.put(key, cached)
+        result = await enforcer.generate(
+            user="original request", temperature=0.0, _prompt_tokens_estimate=1
+        )
+        actual = producer_settlement(result)
+        if actual.event.kind == "reuse":
+            # A free grant must consume the original response bytes and request.
+            assert result.content == first.content
+            assert actual.event.response_digest == original_settlement.event.response_digest
+>           assert actual.event.origin_event_id == original_settlement.event.event_id
+E           AssertionError: assert 'llm-producer...f8bb19b8e90da' == 'llm-producer...ad079b69ab07e'
+E             
+E             - llm-producer:0b35464e1ef146abba0ad079b69ab07e
+E             + llm-producer:7bd9c82d1f9e48818fef8bb19b8e90da
+
+tests/integration/core/llm/test_cache_response_binding.py:46: AssertionError
+=========================== short test summary info ============================
+FAILED tests/integration/core/llm/test_cache_response_binding.py::test_native_http_cached_payload_cannot_borrow_unbound_paid_receipt[content]
+FAILED tests/integration/core/llm/test_cache_response_binding.py::test_native_http_cached_payload_cannot_borrow_unbound_paid_receipt[missing-receipt]
+FAILED tests/integration/core/llm/test_cache_response_binding.py::test_native_http_cached_payload_cannot_borrow_unbound_paid_receipt[foreign-request]

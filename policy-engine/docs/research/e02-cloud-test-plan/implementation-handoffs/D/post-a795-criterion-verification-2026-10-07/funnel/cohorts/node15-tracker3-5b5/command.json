@@ -1,0 +1,156 @@
+{
+  "source": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+  "assessed_production_source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "assessed_scope": "actual execution on given frozen HEAD; product/test and new canonical Node test recorded separately, no prior run relabeled current",
+  "tree": "5738498b09aadca51e0bb73fa6d104e3354dc603",
+  "head_after": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+  "status_after": "",
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "actual_command": [
+    "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/run_current_native_node_cohort.py",
+    "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+    "node15-tracker3-5b5",
+    "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py",
+    "tests/unit/remediation/test_fun_03.py::test_native_execute_restores_report_corpus_into_actual_funnel_then_preserves_guards",
+    "tests/unit/remediation/test_fun_03.py::test_native_execute_snapshot_removal_keeps_labels_but_does_not_invent_tracker"
+  ],
+  "pytest_argv": [
+    "-o",
+    "addopts=",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp=/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5-fixtures",
+    "--junitxml=/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5.junit.xml",
+    "-vv",
+    "-rA",
+    "tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py",
+    "tests/unit/remediation/test_fun_03.py::test_native_execute_restores_report_corpus_into_actual_funnel_then_preserves_guards",
+    "tests/unit/remediation/test_fun_03.py::test_native_execute_snapshot_removal_keeps_labels_but_does_not_invent_tracker"
+  ],
+  "env_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1",
+    "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src",
+    "TMPDIR": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel",
+    "HYPOTHESIS_STORAGE_DIRECTORY": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/hypothesis",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer",
+    "E02_B66_TARGET_ROOT": "/dev/shm/e02-D-oct07-continuation",
+    "E02_B66_TARGET_SHA": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+    "POLISYOS_METRICS_PORT": "53439"
+  },
+  "exit": 1,
+  "wall_seconds": 11.905896186828613,
+  "phase_counts": {
+    "call:failed": 5,
+    "call:passed": 13,
+    "setup:passed": 18,
+    "teardown:passed": 18
+  },
+  "outputs": {
+    "node15-tracker3-5b5.stdout.txt": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5.stdout.txt",
+      "bytes": 201085,
+      "sha256": "b364be85c7fac920dd6c42619cf566ffb9a9e4896bb39b791a9059b7e3b03c1b"
+    },
+    "node15-tracker3-5b5.stderr.txt": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "node15-tracker3-5b5.junit.xml": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5.junit.xml",
+      "bytes": 199376,
+      "sha256": "1e8d7edbf7d2551861f4121bd156b72256654088d8ea7befb26fee0389f91709"
+    },
+    "node15-tracker3-5b5.phases.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5.phases.json",
+      "bytes": 124947,
+      "sha256": "ddb579b8744f4fd0310b6dcbcb2fccf7db7c5f8a31b25e28ba1fb91ef62ec591"
+    },
+    "node15-tracker3-5b5.inputs.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5.inputs.json",
+      "bytes": 1202106,
+      "sha256": "ef3ae852769d7c384a9e4c2646bff9437ff464a0afc8f94d2af46eb639307df8"
+    },
+    "node15-tracker3-5b5.modules.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5.modules.json",
+      "bytes": 415570,
+      "sha256": "f87f344d58d67591d6aff5fbbc8967204d2bc0ac549c999ec1c4f7db1afa1d6d"
+    },
+    "node15-tracker3-5b5.environment.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5.environment.json",
+      "bytes": 10567,
+      "sha256": "4ff34d95fb6af1d69ee233bd391b86140877958ec3b2c7a14d16395a044c8522"
+    },
+    "node15-tracker3-5b5.cgroup-before.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5.cgroup-before.json",
+      "bytes": 504,
+      "sha256": "3e791854081bf0389623f6c830eb9b8658326f0686d4cc3a6ef3db4e868f2745"
+    },
+    "node15-tracker3-5b5.cgroup-after.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5.cgroup-after.json",
+      "bytes": 506,
+      "sha256": "c89847ab0b7326285f7e4584b3c2b6e3efdce30b0ccbc461b837803d3d589583"
+    },
+    "node15-tracker3-5b5.cgroup-during.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5.cgroup-during.json",
+      "bytes": 5339,
+      "sha256": "fa6d5a965903e89487daced598234058b8c248c0e9a2c05f793f6e1f8c71eae2"
+    },
+    "node15-tracker3-5b5.deciding-ledgers.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5.deciding-ledgers.json",
+      "bytes": 6814,
+      "sha256": "607be0efbaf1025f6f39343c91e1602335aff93e6e0618bf88290e0388177372"
+    },
+    "node15-tracker3-5b5.deciding-cas.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5.deciding-cas.json",
+      "bytes": 219978,
+      "sha256": "87908e3aba537a13618bd14e9023390ec356a9ce7369048f6cf6bc81a4f15396"
+    },
+    "node15-tracker3-5b5.deciding-node-observations.json": {
+      "path": "/dev/shm/e02-D-post-a795-88ghpj7t/funnel/node15-tracker3-5b5.deciding-node-observations.json",
+      "bytes": 6211,
+      "sha256": "167eb48095fcbd793ef095858c2c9b2d6d501ff0e8c70fa9bb574c50f95617d9"
+    }
+  },
+  "input_denominator": 6323,
+  "input_available": 6322,
+  "input_digest": "5dfa75554cbb3c03baa7741125a9f8f0a222089130990e7f315716c8c0dab51a",
+  "changed_paths": [],
+  "same_source_and_inputs": true,
+  "standard_asset_before_sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7",
+  "standard_asset_after_sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7",
+  "standard_asset_unchanged": true,
+  "runtime_profile": "Actual canonical B adopted local filesystem ledger/Decimal decoder/real configured native worker factory and D bounded consumer profile; no invoice/native estimand/promotion authority",
+  "P41": "no inherited-red attribution; source/input stability only",
+  "cgroup_before": {
+    "unix_time": 1791396483.35672,
+    "files": {
+      "memory.current": "15394406400\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 58\noom_group_kill 0\n",
+      "memory.events.local": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 0\noom_group_kill 0\n",
+      "memory.peak": "17183465472\n",
+      "pids.current": "998\n",
+      "pids.max": "max\n"
+    },
+    "scope": "shared cgroup observation; event deltas do not attribute a kill to this process"
+  },
+  "cgroup_after": {
+    "unix_time": 1791396495.360069,
+    "files": {
+      "memory.current": "15932514304\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 58\noom_group_kill 0\n",
+      "memory.events.local": "low 0\nhigh 0\nmax 38332306\noom 301\noom_kill 0\noom_group_kill 0\n",
+      "memory.peak": "17183465472\n",
+      "pids.current": "1011\n",
+      "pids.max": "max\n"
+    },
+    "scope": "shared cgroup observation; event deltas do not attribute a kill to this process"
+  },
+  "deciding_ledger_count": 15,
+  "deciding_cas_count": 396,
+  "deciding_node_observation_count": 13
+}

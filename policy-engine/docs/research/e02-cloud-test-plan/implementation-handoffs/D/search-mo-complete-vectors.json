@@ -1,0 +1,131 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "D",
+  "slice": "search-mo-complete-vectors",
+  "finding_ids": [
+    "B109",
+    "B111",
+    "B127"
+  ],
+  "closure_ids": [],
+  "bundle_ids": [
+    "OPT-01",
+    "OPT-02"
+  ],
+  "slice_base_sha": "987eab5dc6ad5e175efeb9875043b57916d0481c",
+  "published_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_commits": [
+    "ebeb7040dd66250752a1ccb10a28c939d201fb30"
+  ],
+  "candidate_tree_sha": "b0631ecb8840fc2d9482ddeb283e9c8a823ac5fc",
+  "branch": "codex/e02-D-published-search",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-mo-vectors/search-mo-12ee-negative.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-mo-vectors/search-mo-candidate.txt",
+    "policy-engine/release-fragments/unreleased/2026-10-06-published-mo-vector-admission.toml",
+    "policy-engine/src/polisyos/scientist/methods/search/strategies/multi_objective.py",
+    "policy-engine/tests/unit/remediation/test_opt_01_mo_vectors.py"
+  ],
+  "predicate_basis": "recomputed",
+  "predicate_scope": "complete finite declared MO vectors and actual native frontier/model training; no production denominator or quality claim",
+  "environment": {
+    "interpreter": "/workspace/e02-D-locked-env/bin/python",
+    "python": "3.14.7",
+    "torch": "2.10.0+cu128",
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "ruff": "0.14.10",
+    "PYTHONPATH": "src:."
+  },
+  "checks": [
+    {
+      "target_sha": "12ee3c730f6ac9b6cff292e70eef4437f8c37b22",
+      "test_commit": "ebeb7040dd66250752a1ccb10a28c939d201fb30",
+      "outcome": "FAIL",
+      "command": "PYTHONPATH=src:. /workspace/e02-D-locked-env/bin/python -m pytest -o addopts= -q tests/unit/remediation/test_opt_01_mo_vectors.py",
+      "deciding_output": "14 failed, 3 warnings in 8.06s",
+      "source_execution": "immutable12ee archive with exactnewtest overlay fromebeb; productfiles untouched",
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-mo-vectors/search-mo-12ee-exact-negative.txt",
+      "sha256": "f8a25e5244ff0dad0f5b0e19e0d50643d70e1ccdd28237fc56fe211110149764",
+      "bytes": 24052
+    },
+    {
+      "target_sha": "ebeb7040dd66250752a1ccb10a28c939d201fb30",
+      "outcome": "PASS",
+      "command": "PYTHONPATH=src:. /workspace/e02-D-locked-env/bin/python -m pytest -o addopts= -q tests/unit/remediation/test_opt_01_mo_vectors.py tests/unit/scientist/search/strategies/test_multi_objective.py tests/unit/remediation/test_opt_02_strategy_consumers.py",
+      "deciding_output": "23 passed, 4 warnings in 2.45s",
+      "source_execution": "immutableebeb archive; moduleorigins/fullenvironment inoutput",
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-mo-vectors/search-mo-ebeb.txt",
+      "sha256": "89e4ab6f8f1613823dce32ac5f5665725fa1c4f3e12792e40872e7266c694a6b",
+      "bytes": 2614
+    },
+    {
+      "target_sha": "ebeb7040dd66250752a1ccb10a28c939d201fb30",
+      "outcome": "PASS",
+      "deciding_output": "Ruff0.14.10 checkPASS;22 filesformatPASS",
+      "scope": "allQ1 changedsource+testfiles andA native dependencyrecipe",
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-mo-vectors/search-ruff-ebeb.txt",
+      "sha256": "362c8fd01d2f2cd2893fc6c8ee73410e04c57995df561fb21ac34a49adff83d7",
+      "bytes": 3110
+    }
+  ],
+  "inputs_and_seed_policy": {
+    "configured_names": [
+      "cost",
+      "benefit"
+    ],
+    "ordered_directions": [
+      "minimize",
+      "maximize"
+    ],
+    "seed": 47,
+    "counterexample": "complete(cost1,benefit1) versus missingcostbenefit100/scalar0; missing axis cannot become0",
+    "negative_variants": [
+      "missing",
+      "NaN",
+      "Inf",
+      "bool",
+      "duplicate declaredobjective",
+      "direction mismatch"
+    ],
+    "training": "three actualrows x.15/.45/.85, rawcost1/2/3, benefit2/1/4; invalidmissing-cost fourthrowexcluded; nativeY=[[-1,2],[-2,1],[-3,4]]; actualSumMarginalLogLikelihood fit1 for twoSingleTaskGPmodels",
+    "status": "originalinput_count4/assessed_count3 and rejectionindex/fullID/reason; entirelyunassessed5rows remainsunavailable andSobolcoldstart withreport"
+  },
+  "runtime_path": [
+    "shared strict declaredvector reader",
+    "nativeTorch orPythonPareto",
+    "canonicalfinite trainadmission/subset",
+    "actualModelListGP+MLL",
+    "existing EHVI/qEHVI",
+    "canonical executedcandidate withoriginal objective_admission status"
+  ],
+  "properties": [
+    "No missing declaredcoordinate default0; matching raw direction and finite typedvalues required.",
+    "Allaffected vector consumers useoneadmission; declaredordering/ModelListGP/EHVI algorithms preserved.",
+    "Original denominator remainsvisible instatus; unknownrows do notbecome assessedby exclusion.",
+    "Training canonicalizes actualexecuted physical coordinates and refuses mismatchedsuppliedvectors."
+  ],
+  "limitations_and_next_owner": [
+    "Native scalar compute_hypervolume returntype/backend-absence behavior was not redesigned; thisslice establishes its admitted vector input, not a new typedscientific hypervolume convention.",
+    "Previously NaN could already be omitted by backend dominance in somecases; baselinefailures include missingreport/status, not a claim that everyinvalidvariant previouslywon.",
+    "A independentproducer/denominator andservedtypedindicator export remain2FAIL at12ee; theseunmodifiedsourcebytesareidentical atebeb.",
+    "MO fitted numericalcheckpoint continuation remainsnotestablished; onlysingleobjectiveGP profile wasproved.",
+    "Independentwriter-owned unchanged missingvector regression eb401c24e rerun pending; nooracleauthorship orfixturequality/sourcehistoryclaim."
+  ],
+  "diagnostic_outputs": [
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-mo-vectors/search-mo-12ee-negative.txt",
+      "sha256": "9d1d5ee345b047311170e0e703a7e7b9d62f6c1779837e0abd7dcb35fa3ebae4",
+      "bytes": 23477,
+      "predicate_basis": "not_established",
+      "scope": "intermediate exacttest/source identity not captured; finalexactoverlay decides"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-mo-vectors/search-mo-candidate.txt",
+      "sha256": "9a6cad187fe9199a9a2bd649907c5c892f6c92c79c952fe2e74d75292554a769",
+      "bytes": 1921,
+      "predicate_basis": "not_established",
+      "scope": "intermediate exacttest/source identity not captured; finalexactoverlay decides"
+    }
+  ]
+}

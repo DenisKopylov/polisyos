@@ -1,0 +1,1312 @@
+{
+  "positive_then_negative_capture_boundary": true,
+  "selected_records": [
+    {
+      "qualified_ref": {
+        "artifact_id": "sha256:28aa7beffd826511216aa74633230571c73787c3fd38212d742774aee198a3f0",
+        "kind": "vector_memory.bundle",
+        "media_type": "application/json"
+      },
+      "receipt_sha256": "28aa7beffd826511216aa74633230571c73787c3fd38212d742774aee198a3f0",
+      "receipt_manifest_sha256": "1487ca6ed582c4e6aeb3797296fa88f3b15cbaea1f3646f0a5180662633ff3b1",
+      "after_test_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/basetemp/test_exact_transfer_reference_0/cas/artifacts/sha256/28/aa/28aa7beffd826511216aa74633230571c73787c3fd38212d742774aee198a3f0.blob",
+      "after_test_sha256": "5b35869119694500e7267918fa72bc330e87e44b6922b178f7657b43d5466256",
+      "same_bytes_as_positive_receipt": false,
+      "receipt_bytes": 2308648,
+      "kind": "vector_memory.bundle",
+      "large_or_negative_posttest_body_not_copied": true
+    },
+    {
+      "qualified_ref": {
+        "artifact_id": "sha256:1d2a0e566b31f5d10737012eaf801b5afd24a4b2fe61d86aab7113a689260ff9",
+        "kind": "vector_memory.index",
+        "media_type": "application/octet-stream"
+      },
+      "receipt_sha256": "1d2a0e566b31f5d10737012eaf801b5afd24a4b2fe61d86aab7113a689260ff9",
+      "receipt_manifest_sha256": "6f6dea536ac55aa14674c7a41528295e3e64380818ec429a017739a9cd484d2a",
+      "after_test_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/basetemp/test_exact_transfer_reference_0/cas/artifacts/sha256/1d/2a/1d2a0e566b31f5d10737012eaf801b5afd24a4b2fe61d86aab7113a689260ff9.blob",
+      "after_test_sha256": "1d2a0e566b31f5d10737012eaf801b5afd24a4b2fe61d86aab7113a689260ff9",
+      "same_bytes_as_positive_receipt": true,
+      "receipt_bytes": 152400,
+      "kind": "vector_memory.index",
+      "large_or_negative_posttest_body_not_copied": true
+    },
+    {
+      "qualified_ref": {
+        "artifact_id": "sha256:f0f34a9a4f2dd09afe5edc70f565b77c57b1da48404085f11c042422a641ee28",
+        "kind": "search.transfer.history",
+        "media_type": "application/json"
+      },
+      "receipt_sha256": "f0f34a9a4f2dd09afe5edc70f565b77c57b1da48404085f11c042422a641ee28",
+      "receipt_manifest_sha256": "4f47bd966d3524402d97c32aa3e5d570d58bf5b3c2fc4c1cd26bd52290bf43c9",
+      "after_test_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/basetemp/test_exact_transfer_reference_0/cas/artifacts/sha256/f0/f3/f0f34a9a4f2dd09afe5edc70f565b77c57b1da48404085f11c042422a641ee28.blob",
+      "after_test_sha256": "f0f34a9a4f2dd09afe5edc70f565b77c57b1da48404085f11c042422a641ee28",
+      "same_bytes_as_positive_receipt": true,
+      "receipt_bytes": 8008,
+      "kind": "search.transfer.history",
+      "portable_content_key": "f0f34a9a4f2dd09afe5edc70f565b77c57b1da48404085f11c042422a641ee28"
+    },
+    {
+      "qualified_ref": {
+        "artifact_id": "sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85",
+        "kind": "fixture.numeric.data",
+        "media_type": "application/json"
+      },
+      "receipt_sha256": "469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85",
+      "receipt_manifest_sha256": "5b675ac0b27448ff2bb3b0f9fd9a3bff9e4027d67192e8951b79e1b7892ec007",
+      "after_test_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/basetemp/test_exact_transfer_reference_0/cas/artifacts/sha256/46/9c/469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85.blob",
+      "after_test_sha256": "469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85",
+      "same_bytes_as_positive_receipt": true,
+      "receipt_bytes": 56,
+      "kind": "fixture.numeric.data",
+      "portable_content_key": "469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85"
+    },
+    {
+      "qualified_ref": {
+        "artifact_id": "sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789",
+        "kind": "fixture.numeric.model",
+        "media_type": "application/json"
+      },
+      "receipt_sha256": "63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789",
+      "receipt_manifest_sha256": "648c33a33731b56a6c11f7d271f961e4e44b7b59b4be1112ffc101d7b78bbf8d",
+      "after_test_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/basetemp/test_exact_transfer_reference_0/cas/artifacts/sha256/63/b8/63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789.blob",
+      "after_test_sha256": "63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789",
+      "same_bytes_as_positive_receipt": true,
+      "receipt_bytes": 57,
+      "kind": "fixture.numeric.model",
+      "portable_content_key": "63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789"
+    },
+    {
+      "qualified_ref": {
+        "artifact_id": "sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c",
+        "kind": "fixture.numeric.evaluator",
+        "media_type": "application/json"
+      },
+      "receipt_sha256": "98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c",
+      "receipt_manifest_sha256": "7d8b8daa4d445e68b63dbeebadc2d1db51551ac73ffd14faea79d173a8273656",
+      "after_test_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/basetemp/test_exact_transfer_reference_0/cas/artifacts/sha256/98/c2/98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c.blob",
+      "after_test_sha256": "98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c",
+      "same_bytes_as_positive_receipt": true,
+      "receipt_bytes": 61,
+      "kind": "fixture.numeric.evaluator",
+      "portable_content_key": "98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c"
+    },
+    {
+      "qualified_ref": {
+        "artifact_id": "sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4",
+        "kind": "fixture.numeric.split",
+        "media_type": "application/json"
+      },
+      "receipt_sha256": "b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4",
+      "receipt_manifest_sha256": "14a5b0ecae20b2d142c404af6935e420767de6311981f7f3901d920d2c21ad22",
+      "after_test_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/basetemp/test_exact_transfer_reference_0/cas/artifacts/sha256/b3/1e/b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4.blob",
+      "after_test_sha256": "b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4",
+      "same_bytes_as_positive_receipt": true,
+      "receipt_bytes": 57,
+      "kind": "fixture.numeric.split",
+      "portable_content_key": "b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4"
+    },
+    {
+      "qualified_ref": {
+        "artifact_id": "sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b",
+        "kind": "fixture.numeric.scalarizer",
+        "media_type": "application/json"
+      },
+      "receipt_sha256": "435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b",
+      "receipt_manifest_sha256": "3f38735972b0bb17f11763c57294e23a09422b9d5d5b2d26a6a91aebec8fd390",
+      "after_test_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/basetemp/test_exact_transfer_reference_0/cas/artifacts/sha256/43/5d/435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b.blob",
+      "after_test_sha256": "435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b",
+      "same_bytes_as_positive_receipt": true,
+      "receipt_bytes": 62,
+      "kind": "fixture.numeric.scalarizer",
+      "portable_content_key": "435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b"
+    },
+    {
+      "qualified_ref": {
+        "artifact_id": "sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1",
+        "kind": "fixture.numeric.owner",
+        "media_type": "application/json"
+      },
+      "receipt_sha256": "bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1",
+      "receipt_manifest_sha256": "1a204e2f438c99e3b6d89d498e479ffc6f94d556dbb88ebcab9295ec2a90aaa8",
+      "after_test_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/basetemp/test_exact_transfer_reference_0/cas/artifacts/sha256/be/a3/bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1.blob",
+      "after_test_sha256": "bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1",
+      "same_bytes_as_positive_receipt": true,
+      "receipt_bytes": 57,
+      "kind": "fixture.numeric.owner",
+      "portable_content_key": "bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1"
+    },
+    {
+      "qualified_ref": {
+        "artifact_id": "sha256:f0f34a9a4f2dd09afe5edc70f565b77c57b1da48404085f11c042422a641ee28",
+        "kind": "search.transfer.history",
+        "media_type": "application/json"
+      },
+      "receipt_sha256": "f0f34a9a4f2dd09afe5edc70f565b77c57b1da48404085f11c042422a641ee28",
+      "receipt_manifest_sha256": "4f47bd966d3524402d97c32aa3e5d570d58bf5b3c2fc4c1cd26bd52290bf43c9",
+      "after_test_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/basetemp/test_exact_transfer_reference_0/cas/artifacts/sha256/f0/f3/f0f34a9a4f2dd09afe5edc70f565b77c57b1da48404085f11c042422a641ee28.blob",
+      "after_test_sha256": "f0f34a9a4f2dd09afe5edc70f565b77c57b1da48404085f11c042422a641ee28",
+      "same_bytes_as_positive_receipt": true,
+      "receipt_bytes": 8008,
+      "kind": "search.transfer.history",
+      "portable_content_key": "f0f34a9a4f2dd09afe5edc70f565b77c57b1da48404085f11c042422a641ee28"
+    },
+    {
+      "qualified_ref": {
+        "artifact_id": "sha256:a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0",
+        "kind": "search.candidate",
+        "media_type": "application/json"
+      },
+      "receipt_sha256": "a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0",
+      "receipt_manifest_sha256": "36e8da9510096ea0057a5d2e52b215eaf5a813b6116a761c5e397692617d2b7e",
+      "after_test_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/basetemp/test_exact_transfer_reference_0/cas/artifacts/sha256/a6/70/a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0.blob",
+      "after_test_sha256": "a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0",
+      "same_bytes_as_positive_receipt": true,
+      "receipt_bytes": 52,
+      "kind": "search.candidate",
+      "portable_content_key": "a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0"
+    },
+    {
+      "qualified_ref": {
+        "artifact_id": "sha256:c4d1a3ca621de83530440f70d9de73f0608768bdaaa07801a2893e24f8c64ea3",
+        "kind": "scientist.autotune.analytic.evaluation",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:92344e9441aca35237374b5de9474aa8ec1c94b1b4143d947d044faf9dda560f"
+      },
+      "receipt_sha256": "c4d1a3ca621de83530440f70d9de73f0608768bdaaa07801a2893e24f8c64ea3",
+      "receipt_manifest_sha256": "a2130de908a564e8b6295085a9740d4c8d37551ada5c46ce7344e1a9c3f473cf",
+      "after_test_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/basetemp/test_exact_transfer_reference_0/cas/artifacts/sha256/c4/d1/c4d1a3ca621de83530440f70d9de73f0608768bdaaa07801a2893e24f8c64ea3.blob",
+      "after_test_sha256": "c4d1a3ca621de83530440f70d9de73f0608768bdaaa07801a2893e24f8c64ea3",
+      "same_bytes_as_positive_receipt": true,
+      "receipt_bytes": 2231,
+      "kind": "scientist.autotune.analytic.evaluation",
+      "portable_content_key": "c4d1a3ca621de83530440f70d9de73f0608768bdaaa07801a2893e24f8c64ea3"
+    },
+    {
+      "qualified_ref": {
+        "artifact_id": "sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85",
+        "kind": "fixture.numeric.data",
+        "media_type": "application/json"
+      },
+      "receipt_sha256": "469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85",
+      "receipt_manifest_sha256": "5b675ac0b27448ff2bb3b0f9fd9a3bff9e4027d67192e8951b79e1b7892ec007",
+      "after_test_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/basetemp/test_exact_transfer_reference_0/cas/artifacts/sha256/46/9c/469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85.blob",
+      "after_test_sha256": "469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85",
+      "same_bytes_as_positive_receipt": true,
+      "receipt_bytes": 56,
+      "kind": "fixture.numeric.data",
+      "portable_content_key": "469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85"
+    },
+    {
+      "qualified_ref": {
+        "artifact_id": "sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789",
+        "kind": "fixture.numeric.model",
+        "media_type": "application/json"
+      },
+      "receipt_sha256": "63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789",
+      "receipt_manifest_sha256": "648c33a33731b56a6c11f7d271f961e4e44b7b59b4be1112ffc101d7b78bbf8d",
+      "after_test_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/basetemp/test_exact_transfer_reference_0/cas/artifacts/sha256/63/b8/63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789.blob",
+      "after_test_sha256": "63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789",
+      "same_bytes_as_positive_receipt": true,
+      "receipt_bytes": 57,
+      "kind": "fixture.numeric.model",
+      "portable_content_key": "63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789"
+    },
+    {
+      "qualified_ref": {
+        "artifact_id": "sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c",
+        "kind": "fixture.numeric.evaluator",
+        "media_type": "application/json"
+      },
+      "receipt_sha256": "98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c",
+      "receipt_manifest_sha256": "7d8b8daa4d445e68b63dbeebadc2d1db51551ac73ffd14faea79d173a8273656",
+      "after_test_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/basetemp/test_exact_transfer_reference_0/cas/artifacts/sha256/98/c2/98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c.blob",
+      "after_test_sha256": "98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c",
+      "same_bytes_as_positive_receipt": true,
+      "receipt_bytes": 61,
+      "kind": "fixture.numeric.evaluator",
+      "portable_content_key": "98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c"
+    },
+    {
+      "qualified_ref": {
+        "artifact_id": "sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4",
+        "kind": "fixture.numeric.split",
+        "media_type": "application/json"
+      },
+      "receipt_sha256": "b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4",
+      "receipt_manifest_sha256": "14a5b0ecae20b2d142c404af6935e420767de6311981f7f3901d920d2c21ad22",
+      "after_test_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/basetemp/test_exact_transfer_reference_0/cas/artifacts/sha256/b3/1e/b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4.blob",
+      "after_test_sha256": "b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4",
+      "same_bytes_as_positive_receipt": true,
+      "receipt_bytes": 57,
+      "kind": "fixture.numeric.split",
+      "portable_content_key": "b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4"
+    },
+    {
+      "qualified_ref": {
+        "artifact_id": "sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b",
+        "kind": "fixture.numeric.scalarizer",
+        "media_type": "application/json"
+      },
+      "receipt_sha256": "435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b",
+      "receipt_manifest_sha256": "3f38735972b0bb17f11763c57294e23a09422b9d5d5b2d26a6a91aebec8fd390",
+      "after_test_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/basetemp/test_exact_transfer_reference_0/cas/artifacts/sha256/43/5d/435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b.blob",
+      "after_test_sha256": "435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b",
+      "same_bytes_as_positive_receipt": true,
+      "receipt_bytes": 62,
+      "kind": "fixture.numeric.scalarizer",
+      "portable_content_key": "435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b"
+    },
+    {
+      "qualified_ref": {
+        "artifact_id": "sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1",
+        "kind": "fixture.numeric.owner",
+        "media_type": "application/json"
+      },
+      "receipt_sha256": "bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1",
+      "receipt_manifest_sha256": "1a204e2f438c99e3b6d89d498e479ffc6f94d556dbb88ebcab9295ec2a90aaa8",
+      "after_test_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/basetemp/test_exact_transfer_reference_0/cas/artifacts/sha256/be/a3/bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1.blob",
+      "after_test_sha256": "bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1",
+      "same_bytes_as_positive_receipt": true,
+      "receipt_bytes": 57,
+      "kind": "fixture.numeric.owner",
+      "portable_content_key": "bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1"
+    },
+    {
+      "qualified_ref": {
+        "artifact_id": "sha256:39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a",
+        "kind": "search.candidate",
+        "media_type": "application/json"
+      },
+      "receipt_sha256": "39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a",
+      "receipt_manifest_sha256": "10da5f12e68475f0fb836d0052a404bfe77276e3ae57b3e1a56a70dd084d1ba5",
+      "after_test_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/basetemp/test_exact_transfer_reference_0/cas/artifacts/sha256/39/cb/39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a.blob",
+      "after_test_sha256": "39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a",
+      "same_bytes_as_positive_receipt": true,
+      "receipt_bytes": 52,
+      "kind": "search.candidate",
+      "portable_content_key": "39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a"
+    },
+    {
+      "qualified_ref": {
+        "artifact_id": "sha256:d170211a1ebb797480350f019068fb213acf8eb35ac2793b1c65baf043e085a0",
+        "kind": "scientist.autotune.analytic.evaluation",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:ff475bbf37de14fef1d7ed60b2b83f8693c02ea911d01ac32d4d614dacaab301"
+      },
+      "receipt_sha256": "d170211a1ebb797480350f019068fb213acf8eb35ac2793b1c65baf043e085a0",
+      "receipt_manifest_sha256": "e73f2cea60338c13906f35d89ad608c0156b442df5533c039ab507e2c0735c27",
+      "after_test_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/basetemp/test_exact_transfer_reference_0/cas/artifacts/sha256/d1/70/d170211a1ebb797480350f019068fb213acf8eb35ac2793b1c65baf043e085a0.blob",
+      "after_test_sha256": "d170211a1ebb797480350f019068fb213acf8eb35ac2793b1c65baf043e085a0",
+      "same_bytes_as_positive_receipt": true,
+      "receipt_bytes": 2231,
+      "kind": "scientist.autotune.analytic.evaluation",
+      "portable_content_key": "d170211a1ebb797480350f019068fb213acf8eb35ac2793b1c65baf043e085a0"
+    },
+    {
+      "qualified_ref": {
+        "artifact_id": "sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85",
+        "kind": "fixture.numeric.data",
+        "media_type": "application/json"
+      },
+      "receipt_sha256": "469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85",
+      "receipt_manifest_sha256": "5b675ac0b27448ff2bb3b0f9fd9a3bff9e4027d67192e8951b79e1b7892ec007",
+      "after_test_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/basetemp/test_exact_transfer_reference_0/cas/artifacts/sha256/46/9c/469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85.blob",
+      "after_test_sha256": "469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85",
+      "same_bytes_as_positive_receipt": true,
+      "receipt_bytes": 56,
+      "kind": "fixture.numeric.data",
+      "portable_content_key": "469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85"
+    },
+    {
+      "qualified_ref": {
+        "artifact_id": "sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789",
+        "kind": "fixture.numeric.model",
+        "media_type": "application/json"
+      },
+      "receipt_sha256": "63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789",
+      "receipt_manifest_sha256": "648c33a33731b56a6c11f7d271f961e4e44b7b59b4be1112ffc101d7b78bbf8d",
+      "after_test_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/basetemp/test_exact_transfer_reference_0/cas/artifacts/sha256/63/b8/63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789.blob",
+      "after_test_sha256": "63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789",
+      "same_bytes_as_positive_receipt": true,
+      "receipt_bytes": 57,
+      "kind": "fixture.numeric.model",
+      "portable_content_key": "63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789"
+    },
+    {
+      "qualified_ref": {
+        "artifact_id": "sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c",
+        "kind": "fixture.numeric.evaluator",
+        "media_type": "application/json"
+      },
+      "receipt_sha256": "98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c",
+      "receipt_manifest_sha256": "7d8b8daa4d445e68b63dbeebadc2d1db51551ac73ffd14faea79d173a8273656",
+      "after_test_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/basetemp/test_exact_transfer_reference_0/cas/artifacts/sha256/98/c2/98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c.blob",
+      "after_test_sha256": "98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c",
+      "same_bytes_as_positive_receipt": true,
+      "receipt_bytes": 61,
+      "kind": "fixture.numeric.evaluator",
+      "portable_content_key": "98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c"
+    },
+    {
+      "qualified_ref": {
+        "artifact_id": "sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4",
+        "kind": "fixture.numeric.split",
+        "media_type": "application/json"
+      },
+      "receipt_sha256": "b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4",
+      "receipt_manifest_sha256": "14a5b0ecae20b2d142c404af6935e420767de6311981f7f3901d920d2c21ad22",
+      "after_test_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/basetemp/test_exact_transfer_reference_0/cas/artifacts/sha256/b3/1e/b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4.blob",
+      "after_test_sha256": "b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4",
+      "same_bytes_as_positive_receipt": true,
+      "receipt_bytes": 57,
+      "kind": "fixture.numeric.split",
+      "portable_content_key": "b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4"
+    },
+    {
+      "qualified_ref": {
+        "artifact_id": "sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b",
+        "kind": "fixture.numeric.scalarizer",
+        "media_type": "application/json"
+      },
+      "receipt_sha256": "435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b",
+      "receipt_manifest_sha256": "3f38735972b0bb17f11763c57294e23a09422b9d5d5b2d26a6a91aebec8fd390",
+      "after_test_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/basetemp/test_exact_transfer_reference_0/cas/artifacts/sha256/43/5d/435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b.blob",
+      "after_test_sha256": "435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b",
+      "same_bytes_as_positive_receipt": true,
+      "receipt_bytes": 62,
+      "kind": "fixture.numeric.scalarizer",
+      "portable_content_key": "435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b"
+    },
+    {
+      "qualified_ref": {
+        "artifact_id": "sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1",
+        "kind": "fixture.numeric.owner",
+        "media_type": "application/json"
+      },
+      "receipt_sha256": "bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1",
+      "receipt_manifest_sha256": "1a204e2f438c99e3b6d89d498e479ffc6f94d556dbb88ebcab9295ec2a90aaa8",
+      "after_test_path": "/dev/shm/e02-D-post-a795-88ghpj7t/transfer/current-wave/native/basetemp/test_exact_transfer_reference_0/cas/artifacts/sha256/be/a3/bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1.blob",
+      "after_test_sha256": "bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1",
+      "same_bytes_as_positive_receipt": true,
+      "receipt_bytes": 57,
+      "kind": "fixture.numeric.owner",
+      "portable_content_key": "bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1"
+    },
+    {
+      "scope": "legacy6",
+      "test": "test_persisted_legacy_scalar_or_placeholder_has_visible_refusal_without_promotion[schema1-minimize]",
+      "qualified_ref": {
+        "artifact_id": "sha256:615a99ce9fd2fc12b631ba769837ee26405814362f17ee5e792bf750cdd121fc",
+        "kind": "search.transfer.history",
+        "media_type": "application/json"
+      },
+      "actual_sha256": "615a99ce9fd2fc12b631ba769837ee26405814362f17ee5e792bf750cdd121fc",
+      "portable_content_key": "615a99ce9fd2fc12b631ba769837ee26405814362f17ee5e792bf750cdd121fc",
+      "bytes": 8008,
+      "manifests": [
+        {
+          "sha256": "23d03c392a07b02d61b741faf0943528d2d39ad8f8ee9adb7be71e46f6afcac6",
+          "content": {
+            "artifact_id": "sha256:615a99ce9fd2fc12b631ba769837ee26405814362f17ee5e792bf750cdd121fc",
+            "byte_size": 8008,
+            "canon": {
+              "ensure_ascii": false,
+              "exclude_none": true,
+              "forbid_floats": false,
+              "forbid_nan_inf": true,
+              "max_depth": 128,
+              "name": "polisyos.canon.json",
+              "separators": [
+                ",",
+                ":"
+              ],
+              "sort_keys": true,
+              "version": "0.2.0"
+            },
+            "created_at": "2026-10-07T18:09:25Z",
+            "inputs": [],
+            "integrity": {
+              "sha256": "615a99ce9fd2fc12b631ba769837ee26405814362f17ee5e792bf750cdd121fc"
+            },
+            "kind": "search.transfer.history",
+            "manifest_schema_version": "v3",
+            "media_type": "application/json",
+            "warnings": []
+          }
+        },
+        {
+          "sha256": "23d03c392a07b02d61b741faf0943528d2d39ad8f8ee9adb7be71e46f6afcac6",
+          "content": {
+            "artifact_id": "sha256:615a99ce9fd2fc12b631ba769837ee26405814362f17ee5e792bf750cdd121fc",
+            "byte_size": 8008,
+            "canon": {
+              "ensure_ascii": false,
+              "exclude_none": true,
+              "forbid_floats": false,
+              "forbid_nan_inf": true,
+              "max_depth": 128,
+              "name": "polisyos.canon.json",
+              "separators": [
+                ",",
+                ":"
+              ],
+              "sort_keys": true,
+              "version": "0.2.0"
+            },
+            "created_at": "2026-10-07T18:09:25Z",
+            "inputs": [],
+            "integrity": {
+              "sha256": "615a99ce9fd2fc12b631ba769837ee26405814362f17ee5e792bf750cdd121fc"
+            },
+            "kind": "search.transfer.history",
+            "manifest_schema_version": "v3",
+            "media_type": "application/json",
+            "warnings": []
+          }
+        }
+      ]
+    },
+    {
+      "scope": "legacy6",
+      "test": "test_persisted_legacy_scalar_or_placeholder_has_visible_refusal_without_promotion[schema1-minimize]",
+      "qualified_ref": {
+        "artifact_id": "sha256:5a85d9851e3de20a2e5e3b2da690d899fcf6106926c495c24919cee2b86920d4",
+        "kind": "vector_memory.bundle",
+        "media_type": "application/json"
+      },
+      "actual_sha256": "5a85d9851e3de20a2e5e3b2da690d899fcf6106926c495c24919cee2b86920d4",
+      "portable_content_key": "5a85d9851e3de20a2e5e3b2da690d899fcf6106926c495c24919cee2b86920d4",
+      "bytes": 2560,
+      "manifests": [
+        {
+          "sha256": "4beda564d6205afbc59c75dd4cbdda97d6af71898966f35c310da823af6cd40c",
+          "content": {
+            "artifact_id": "sha256:5a85d9851e3de20a2e5e3b2da690d899fcf6106926c495c24919cee2b86920d4",
+            "byte_size": 2560,
+            "canon": {
+              "ensure_ascii": false,
+              "exclude_none": true,
+              "forbid_floats": false,
+              "forbid_nan_inf": true,
+              "max_depth": 128,
+              "name": "polisyos.canon.json",
+              "separators": [
+                ",",
+                ":"
+              ],
+              "sort_keys": true,
+              "version": "0.2.0"
+            },
+            "created_at": "2026-10-07T18:09:25Z",
+            "inputs": [],
+            "integrity": {
+              "sha256": "5a85d9851e3de20a2e5e3b2da690d899fcf6106926c495c24919cee2b86920d4"
+            },
+            "kind": "vector_memory.bundle",
+            "manifest_schema_version": "v3",
+            "media_type": "application/json",
+            "warnings": []
+          }
+        },
+        {
+          "sha256": "4beda564d6205afbc59c75dd4cbdda97d6af71898966f35c310da823af6cd40c",
+          "content": {
+            "artifact_id": "sha256:5a85d9851e3de20a2e5e3b2da690d899fcf6106926c495c24919cee2b86920d4",
+            "byte_size": 2560,
+            "canon": {
+              "ensure_ascii": false,
+              "exclude_none": true,
+              "forbid_floats": false,
+              "forbid_nan_inf": true,
+              "max_depth": 128,
+              "name": "polisyos.canon.json",
+              "separators": [
+                ",",
+                ":"
+              ],
+              "sort_keys": true,
+              "version": "0.2.0"
+            },
+            "created_at": "2026-10-07T18:09:25Z",
+            "inputs": [],
+            "integrity": {
+              "sha256": "5a85d9851e3de20a2e5e3b2da690d899fcf6106926c495c24919cee2b86920d4"
+            },
+            "kind": "vector_memory.bundle",
+            "manifest_schema_version": "v3",
+            "media_type": "application/json",
+            "warnings": []
+          }
+        }
+      ]
+    },
+    {
+      "scope": "legacy6",
+      "test": "test_persisted_legacy_scalar_or_placeholder_has_visible_refusal_without_promotion[schema1-maximize]",
+      "qualified_ref": {
+        "artifact_id": "sha256:cdd373a45081a0ed7f1e9b0b9f35f0fea3820d999cf3cda64b12947b176b7e1e",
+        "kind": "search.transfer.history",
+        "media_type": "application/json"
+      },
+      "actual_sha256": "cdd373a45081a0ed7f1e9b0b9f35f0fea3820d999cf3cda64b12947b176b7e1e",
+      "portable_content_key": "cdd373a45081a0ed7f1e9b0b9f35f0fea3820d999cf3cda64b12947b176b7e1e",
+      "bytes": 8010,
+      "manifests": [
+        {
+          "sha256": "5e3795e61b093de37af7d5b4729e5887979a538fd73895a5def869bf0f34915b",
+          "content": {
+            "artifact_id": "sha256:cdd373a45081a0ed7f1e9b0b9f35f0fea3820d999cf3cda64b12947b176b7e1e",
+            "byte_size": 8010,
+            "canon": {
+              "ensure_ascii": false,
+              "exclude_none": true,
+              "forbid_floats": false,
+              "forbid_nan_inf": true,
+              "max_depth": 128,
+              "name": "polisyos.canon.json",
+              "separators": [
+                ",",
+                ":"
+              ],
+              "sort_keys": true,
+              "version": "0.2.0"
+            },
+            "created_at": "2026-10-07T18:09:25Z",
+            "inputs": [],
+            "integrity": {
+              "sha256": "cdd373a45081a0ed7f1e9b0b9f35f0fea3820d999cf3cda64b12947b176b7e1e"
+            },
+            "kind": "search.transfer.history",
+            "manifest_schema_version": "v3",
+            "media_type": "application/json",
+            "warnings": []
+          }
+        },
+        {
+          "sha256": "5e3795e61b093de37af7d5b4729e5887979a538fd73895a5def869bf0f34915b",
+          "content": {
+            "artifact_id": "sha256:cdd373a45081a0ed7f1e9b0b9f35f0fea3820d999cf3cda64b12947b176b7e1e",
+            "byte_size": 8010,
+            "canon": {
+              "ensure_ascii": false,
+              "exclude_none": true,
+              "forbid_floats": false,
+              "forbid_nan_inf": true,
+              "max_depth": 128,
+              "name": "polisyos.canon.json",
+              "separators": [
+                ",",
+                ":"
+              ],
+              "sort_keys": true,
+              "version": "0.2.0"
+            },
+            "created_at": "2026-10-07T18:09:25Z",
+            "inputs": [],
+            "integrity": {
+              "sha256": "cdd373a45081a0ed7f1e9b0b9f35f0fea3820d999cf3cda64b12947b176b7e1e"
+            },
+            "kind": "search.transfer.history",
+            "manifest_schema_version": "v3",
+            "media_type": "application/json",
+            "warnings": []
+          }
+        }
+      ]
+    },
+    {
+      "scope": "legacy6",
+      "test": "test_persisted_legacy_scalar_or_placeholder_has_visible_refusal_without_promotion[schema1-maximize]",
+      "qualified_ref": {
+        "artifact_id": "sha256:2c53724ed6f6c261f1ee2ebf3032e831071ef16212d35fd1c0903bf253daf738",
+        "kind": "vector_memory.bundle",
+        "media_type": "application/json"
+      },
+      "actual_sha256": "2c53724ed6f6c261f1ee2ebf3032e831071ef16212d35fd1c0903bf253daf738",
+      "portable_content_key": "2c53724ed6f6c261f1ee2ebf3032e831071ef16212d35fd1c0903bf253daf738",
+      "bytes": 2560,
+      "manifests": [
+        {
+          "sha256": "1977dc42f54c16a99bf2b12628f29464fc2ce792e6d7dcdcf07d55bd55334a4a",
+          "content": {
+            "artifact_id": "sha256:2c53724ed6f6c261f1ee2ebf3032e831071ef16212d35fd1c0903bf253daf738",
+            "byte_size": 2560,
+            "canon": {
+              "ensure_ascii": false,
+              "exclude_none": true,
+              "forbid_floats": false,
+              "forbid_nan_inf": true,
+              "max_depth": 128,
+              "name": "polisyos.canon.json",
+              "separators": [
+                ",",
+                ":"
+              ],
+              "sort_keys": true,
+              "version": "0.2.0"
+            },
+            "created_at": "2026-10-07T18:09:25Z",
+            "inputs": [],
+            "integrity": {
+              "sha256": "2c53724ed6f6c261f1ee2ebf3032e831071ef16212d35fd1c0903bf253daf738"
+            },
+            "kind": "vector_memory.bundle",
+            "manifest_schema_version": "v3",
+            "media_type": "application/json",
+            "warnings": []
+          }
+        },
+        {
+          "sha256": "1977dc42f54c16a99bf2b12628f29464fc2ce792e6d7dcdcf07d55bd55334a4a",
+          "content": {
+            "artifact_id": "sha256:2c53724ed6f6c261f1ee2ebf3032e831071ef16212d35fd1c0903bf253daf738",
+            "byte_size": 2560,
+            "canon": {
+              "ensure_ascii": false,
+              "exclude_none": true,
+              "forbid_floats": false,
+              "forbid_nan_inf": true,
+              "max_depth": 128,
+              "name": "polisyos.canon.json",
+              "separators": [
+                ",",
+                ":"
+              ],
+              "sort_keys": true,
+              "version": "0.2.0"
+            },
+            "created_at": "2026-10-07T18:09:25Z",
+            "inputs": [],
+            "integrity": {
+              "sha256": "2c53724ed6f6c261f1ee2ebf3032e831071ef16212d35fd1c0903bf253daf738"
+            },
+            "kind": "vector_memory.bundle",
+            "manifest_schema_version": "v3",
+            "media_type": "application/json",
+            "warnings": []
+          }
+        }
+      ]
+    },
+    {
+      "scope": "legacy6",
+      "test": "test_persisted_legacy_scalar_or_placeholder_has_visible_refusal_without_promotion[schema-absent-minimize]",
+      "qualified_ref": {
+        "artifact_id": "sha256:4dbae50d1c2490657c172f508d2139dd9fad0e7b8e8cdc0c82627575712c3325",
+        "kind": "search.transfer.history",
+        "media_type": "application/json"
+      },
+      "actual_sha256": "4dbae50d1c2490657c172f508d2139dd9fad0e7b8e8cdc0c82627575712c3325",
+      "portable_content_key": "4dbae50d1c2490657c172f508d2139dd9fad0e7b8e8cdc0c82627575712c3325",
+      "bytes": 7985,
+      "manifests": [
+        {
+          "sha256": "ef3636cb5c538d0d1cf702267ebbbbb5628c1a7609640ea21fe93c18ca667220",
+          "content": {
+            "artifact_id": "sha256:4dbae50d1c2490657c172f508d2139dd9fad0e7b8e8cdc0c82627575712c3325",
+            "byte_size": 7985,
+            "canon": {
+              "ensure_ascii": false,
+              "exclude_none": true,
+              "forbid_floats": false,
+              "forbid_nan_inf": true,
+              "max_depth": 128,
+              "name": "polisyos.canon.json",
+              "separators": [
+                ",",
+                ":"
+              ],
+              "sort_keys": true,
+              "version": "0.2.0"
+            },
+            "created_at": "2026-10-07T18:09:25Z",
+            "inputs": [],
+            "integrity": {
+              "sha256": "4dbae50d1c2490657c172f508d2139dd9fad0e7b8e8cdc0c82627575712c3325"
+            },
+            "kind": "search.transfer.history",
+            "manifest_schema_version": "v3",
+            "media_type": "application/json",
+            "warnings": []
+          }
+        },
+        {
+          "sha256": "ef3636cb5c538d0d1cf702267ebbbbb5628c1a7609640ea21fe93c18ca667220",
+          "content": {
+            "artifact_id": "sha256:4dbae50d1c2490657c172f508d2139dd9fad0e7b8e8cdc0c82627575712c3325",
+            "byte_size": 7985,
+            "canon": {
+              "ensure_ascii": false,
+              "exclude_none": true,
+              "forbid_floats": false,
+              "forbid_nan_inf": true,
+              "max_depth": 128,
+              "name": "polisyos.canon.json",
+              "separators": [
+                ",",
+                ":"
+              ],
+              "sort_keys": true,
+              "version": "0.2.0"
+            },
+            "created_at": "2026-10-07T18:09:25Z",
+            "inputs": [],
+            "integrity": {
+              "sha256": "4dbae50d1c2490657c172f508d2139dd9fad0e7b8e8cdc0c82627575712c3325"
+            },
+            "kind": "search.transfer.history",
+            "manifest_schema_version": "v3",
+            "media_type": "application/json",
+            "warnings": []
+          }
+        }
+      ]
+    },
+    {
+      "scope": "legacy6",
+      "test": "test_persisted_legacy_scalar_or_placeholder_has_visible_refusal_without_promotion[schema-absent-minimize]",
+      "qualified_ref": {
+        "artifact_id": "sha256:1bd042c1b96a7e505927877e82182ee1d80a1285bed968d382524c4e18984fab",
+        "kind": "vector_memory.bundle",
+        "media_type": "application/json"
+      },
+      "actual_sha256": "1bd042c1b96a7e505927877e82182ee1d80a1285bed968d382524c4e18984fab",
+      "portable_content_key": "1bd042c1b96a7e505927877e82182ee1d80a1285bed968d382524c4e18984fab",
+      "bytes": 2560,
+      "manifests": [
+        {
+          "sha256": "7b73ade891d770f01ab4e5d8ab691055406786d908fba2adc99de2169837c65a",
+          "content": {
+            "artifact_id": "sha256:1bd042c1b96a7e505927877e82182ee1d80a1285bed968d382524c4e18984fab",
+            "byte_size": 2560,
+            "canon": {
+              "ensure_ascii": false,
+              "exclude_none": true,
+              "forbid_floats": false,
+              "forbid_nan_inf": true,
+              "max_depth": 128,
+              "name": "polisyos.canon.json",
+              "separators": [
+                ",",
+                ":"
+              ],
+              "sort_keys": true,
+              "version": "0.2.0"
+            },
+            "created_at": "2026-10-07T18:09:25Z",
+            "inputs": [],
+            "integrity": {
+              "sha256": "1bd042c1b96a7e505927877e82182ee1d80a1285bed968d382524c4e18984fab"
+            },
+            "kind": "vector_memory.bundle",
+            "manifest_schema_version": "v3",
+            "media_type": "application/json",
+            "warnings": []
+          }
+        },
+        {
+          "sha256": "7b73ade891d770f01ab4e5d8ab691055406786d908fba2adc99de2169837c65a",
+          "content": {
+            "artifact_id": "sha256:1bd042c1b96a7e505927877e82182ee1d80a1285bed968d382524c4e18984fab",
+            "byte_size": 2560,
+            "canon": {
+              "ensure_ascii": false,
+              "exclude_none": true,
+              "forbid_floats": false,
+              "forbid_nan_inf": true,
+              "max_depth": 128,
+              "name": "polisyos.canon.json",
+              "separators": [
+                ",",
+                ":"
+              ],
+              "sort_keys": true,
+              "version": "0.2.0"
+            },
+            "created_at": "2026-10-07T18:09:25Z",
+            "inputs": [],
+            "integrity": {
+              "sha256": "1bd042c1b96a7e505927877e82182ee1d80a1285bed968d382524c4e18984fab"
+            },
+            "kind": "vector_memory.bundle",
+            "manifest_schema_version": "v3",
+            "media_type": "application/json",
+            "warnings": []
+          }
+        }
+      ]
+    },
+    {
+      "scope": "legacy6",
+      "test": "test_persisted_legacy_scalar_or_placeholder_has_visible_refusal_without_promotion[schema-absent-maximize]",
+      "qualified_ref": {
+        "artifact_id": "sha256:4e1111a7a70ac185fedc66288129a57ec8c2c8870fc4dfa971725ca06640bda6",
+        "kind": "search.transfer.history",
+        "media_type": "application/json"
+      },
+      "actual_sha256": "4e1111a7a70ac185fedc66288129a57ec8c2c8870fc4dfa971725ca06640bda6",
+      "portable_content_key": "4e1111a7a70ac185fedc66288129a57ec8c2c8870fc4dfa971725ca06640bda6",
+      "bytes": 7987,
+      "manifests": [
+        {
+          "sha256": "3a6d07db8191f50ecd87164ce9db0455183c3cbcbe2dc9473fdfac127b842a6c",
+          "content": {
+            "artifact_id": "sha256:4e1111a7a70ac185fedc66288129a57ec8c2c8870fc4dfa971725ca06640bda6",
+            "byte_size": 7987,
+            "canon": {
+              "ensure_ascii": false,
+              "exclude_none": true,
+              "forbid_floats": false,
+              "forbid_nan_inf": true,
+              "max_depth": 128,
+              "name": "polisyos.canon.json",
+              "separators": [
+                ",",
+                ":"
+              ],
+              "sort_keys": true,
+              "version": "0.2.0"
+            },
+            "created_at": "2026-10-07T18:09:25Z",
+            "inputs": [],
+            "integrity": {
+              "sha256": "4e1111a7a70ac185fedc66288129a57ec8c2c8870fc4dfa971725ca06640bda6"
+            },
+            "kind": "search.transfer.history",
+            "manifest_schema_version": "v3",
+            "media_type": "application/json",
+            "warnings": []
+          }
+        },
+        {
+          "sha256": "3a6d07db8191f50ecd87164ce9db0455183c3cbcbe2dc9473fdfac127b842a6c",
+          "content": {
+            "artifact_id": "sha256:4e1111a7a70ac185fedc66288129a57ec8c2c8870fc4dfa971725ca06640bda6",
+            "byte_size": 7987,
+            "canon": {
+              "ensure_ascii": false,
+              "exclude_none": true,
+              "forbid_floats": false,
+              "forbid_nan_inf": true,
+              "max_depth": 128,
+              "name": "polisyos.canon.json",
+              "separators": [
+                ",",
+                ":"
+              ],
+              "sort_keys": true,
+              "version": "0.2.0"
+            },
+            "created_at": "2026-10-07T18:09:25Z",
+            "inputs": [],
+            "integrity": {
+              "sha256": "4e1111a7a70ac185fedc66288129a57ec8c2c8870fc4dfa971725ca06640bda6"
+            },
+            "kind": "search.transfer.history",
+            "manifest_schema_version": "v3",
+            "media_type": "application/json",
+            "warnings": []
+          }
+        }
+      ]
+    },
+    {
+      "scope": "legacy6",
+      "test": "test_persisted_legacy_scalar_or_placeholder_has_visible_refusal_without_promotion[schema-absent-maximize]",
+      "qualified_ref": {
+        "artifact_id": "sha256:cedb90cd3b025d5e794a783034d9998aa1cd047fbd3750e0dae892a6ab0c9640",
+        "kind": "vector_memory.bundle",
+        "media_type": "application/json"
+      },
+      "actual_sha256": "cedb90cd3b025d5e794a783034d9998aa1cd047fbd3750e0dae892a6ab0c9640",
+      "portable_content_key": "cedb90cd3b025d5e794a783034d9998aa1cd047fbd3750e0dae892a6ab0c9640",
+      "bytes": 2560,
+      "manifests": [
+        {
+          "sha256": "c8aee296f69da4bc71a0d7e0af29e1051eb1faf619794f112f0d4b9c8a0008f4",
+          "content": {
+            "artifact_id": "sha256:cedb90cd3b025d5e794a783034d9998aa1cd047fbd3750e0dae892a6ab0c9640",
+            "byte_size": 2560,
+            "canon": {
+              "ensure_ascii": false,
+              "exclude_none": true,
+              "forbid_floats": false,
+              "forbid_nan_inf": true,
+              "max_depth": 128,
+              "name": "polisyos.canon.json",
+              "separators": [
+                ",",
+                ":"
+              ],
+              "sort_keys": true,
+              "version": "0.2.0"
+            },
+            "created_at": "2026-10-07T18:09:25Z",
+            "inputs": [],
+            "integrity": {
+              "sha256": "cedb90cd3b025d5e794a783034d9998aa1cd047fbd3750e0dae892a6ab0c9640"
+            },
+            "kind": "vector_memory.bundle",
+            "manifest_schema_version": "v3",
+            "media_type": "application/json",
+            "warnings": []
+          }
+        },
+        {
+          "sha256": "c8aee296f69da4bc71a0d7e0af29e1051eb1faf619794f112f0d4b9c8a0008f4",
+          "content": {
+            "artifact_id": "sha256:cedb90cd3b025d5e794a783034d9998aa1cd047fbd3750e0dae892a6ab0c9640",
+            "byte_size": 2560,
+            "canon": {
+              "ensure_ascii": false,
+              "exclude_none": true,
+              "forbid_floats": false,
+              "forbid_nan_inf": true,
+              "max_depth": 128,
+              "name": "polisyos.canon.json",
+              "separators": [
+                ",",
+                ":"
+              ],
+              "sort_keys": true,
+              "version": "0.2.0"
+            },
+            "created_at": "2026-10-07T18:09:25Z",
+            "inputs": [],
+            "integrity": {
+              "sha256": "cedb90cd3b025d5e794a783034d9998aa1cd047fbd3750e0dae892a6ab0c9640"
+            },
+            "kind": "vector_memory.bundle",
+            "manifest_schema_version": "v3",
+            "media_type": "application/json",
+            "warnings": []
+          }
+        }
+      ]
+    },
+    {
+      "scope": "legacy6",
+      "test": "test_persisted_legacy_scalar_or_placeholder_has_visible_refusal_without_promotion[placeholder-minimize]",
+      "qualified_ref": {
+        "artifact_id": "sha256:a08cda8bdc2c41f11a046afe7241d364d0db502871465e1e854206d4d5933882",
+        "kind": "search.transfer.history",
+        "media_type": "application/json"
+      },
+      "actual_sha256": "a08cda8bdc2c41f11a046afe7241d364d0db502871465e1e854206d4d5933882",
+      "portable_content_key": "a08cda8bdc2c41f11a046afe7241d364d0db502871465e1e854206d4d5933882",
+      "bytes": 8008,
+      "manifests": [
+        {
+          "sha256": "2befb474382179d892fbbd297ffdeb326e358290e3878b0f7a34c72948dd4b59",
+          "content": {
+            "artifact_id": "sha256:a08cda8bdc2c41f11a046afe7241d364d0db502871465e1e854206d4d5933882",
+            "byte_size": 8008,
+            "canon": {
+              "ensure_ascii": false,
+              "exclude_none": true,
+              "forbid_floats": false,
+              "forbid_nan_inf": true,
+              "max_depth": 128,
+              "name": "polisyos.canon.json",
+              "separators": [
+                ",",
+                ":"
+              ],
+              "sort_keys": true,
+              "version": "0.2.0"
+            },
+            "created_at": "2026-10-07T18:09:25Z",
+            "inputs": [],
+            "integrity": {
+              "sha256": "a08cda8bdc2c41f11a046afe7241d364d0db502871465e1e854206d4d5933882"
+            },
+            "kind": "search.transfer.history",
+            "manifest_schema_version": "v3",
+            "media_type": "application/json",
+            "warnings": []
+          }
+        },
+        {
+          "sha256": "2befb474382179d892fbbd297ffdeb326e358290e3878b0f7a34c72948dd4b59",
+          "content": {
+            "artifact_id": "sha256:a08cda8bdc2c41f11a046afe7241d364d0db502871465e1e854206d4d5933882",
+            "byte_size": 8008,
+            "canon": {
+              "ensure_ascii": false,
+              "exclude_none": true,
+              "forbid_floats": false,
+              "forbid_nan_inf": true,
+              "max_depth": 128,
+              "name": "polisyos.canon.json",
+              "separators": [
+                ",",
+                ":"
+              ],
+              "sort_keys": true,
+              "version": "0.2.0"
+            },
+            "created_at": "2026-10-07T18:09:25Z",
+            "inputs": [],
+            "integrity": {
+              "sha256": "a08cda8bdc2c41f11a046afe7241d364d0db502871465e1e854206d4d5933882"
+            },
+            "kind": "search.transfer.history",
+            "manifest_schema_version": "v3",
+            "media_type": "application/json",
+            "warnings": []
+          }
+        }
+      ]
+    },
+    {
+      "scope": "legacy6",
+      "test": "test_persisted_legacy_scalar_or_placeholder_has_visible_refusal_without_promotion[placeholder-minimize]",
+      "qualified_ref": {
+        "artifact_id": "sha256:8a5fbe5a651891889777b87c12fdb5ac2ca1c6be4f241c157e9ec9b45c92be34",
+        "kind": "vector_memory.bundle",
+        "media_type": "application/json"
+      },
+      "actual_sha256": "8a5fbe5a651891889777b87c12fdb5ac2ca1c6be4f241c157e9ec9b45c92be34",
+      "portable_content_key": "8a5fbe5a651891889777b87c12fdb5ac2ca1c6be4f241c157e9ec9b45c92be34",
+      "bytes": 2560,
+      "manifests": [
+        {
+          "sha256": "23514b89d9de9e3675f0d576b7e0ade9ac1be19faa06e3ab7c768599a83c8cf3",
+          "content": {
+            "artifact_id": "sha256:8a5fbe5a651891889777b87c12fdb5ac2ca1c6be4f241c157e9ec9b45c92be34",
+            "byte_size": 2560,
+            "canon": {
+              "ensure_ascii": false,
+              "exclude_none": true,
+              "forbid_floats": false,
+              "forbid_nan_inf": true,
+              "max_depth": 128,
+              "name": "polisyos.canon.json",
+              "separators": [
+                ",",
+                ":"
+              ],
+              "sort_keys": true,
+              "version": "0.2.0"
+            },
+            "created_at": "2026-10-07T18:09:25Z",
+            "inputs": [],
+            "integrity": {
+              "sha256": "8a5fbe5a651891889777b87c12fdb5ac2ca1c6be4f241c157e9ec9b45c92be34"
+            },
+            "kind": "vector_memory.bundle",
+            "manifest_schema_version": "v3",
+            "media_type": "application/json",
+            "warnings": []
+          }
+        },
+        {
+          "sha256": "23514b89d9de9e3675f0d576b7e0ade9ac1be19faa06e3ab7c768599a83c8cf3",
+          "content": {
+            "artifact_id": "sha256:8a5fbe5a651891889777b87c12fdb5ac2ca1c6be4f241c157e9ec9b45c92be34",
+            "byte_size": 2560,
+            "canon": {
+              "ensure_ascii": false,
+              "exclude_none": true,
+              "forbid_floats": false,
+              "forbid_nan_inf": true,
+              "max_depth": 128,
+              "name": "polisyos.canon.json",
+              "separators": [
+                ",",
+                ":"
+              ],
+              "sort_keys": true,
+              "version": "0.2.0"
+            },
+            "created_at": "2026-10-07T18:09:25Z",
+            "inputs": [],
+            "integrity": {
+              "sha256": "8a5fbe5a651891889777b87c12fdb5ac2ca1c6be4f241c157e9ec9b45c92be34"
+            },
+            "kind": "vector_memory.bundle",
+            "manifest_schema_version": "v3",
+            "media_type": "application/json",
+            "warnings": []
+          }
+        }
+      ]
+    },
+    {
+      "scope": "legacy6",
+      "test": "test_persisted_legacy_scalar_or_placeholder_has_visible_refusal_without_promotion[placeholder-maximize]",
+      "qualified_ref": {
+        "artifact_id": "sha256:1baf7cbade5c0a87cbb88ac71cea967c91429849c02591cdf1ddd3ae50e24863",
+        "kind": "search.transfer.history",
+        "media_type": "application/json"
+      },
+      "actual_sha256": "1baf7cbade5c0a87cbb88ac71cea967c91429849c02591cdf1ddd3ae50e24863",
+      "portable_content_key": "1baf7cbade5c0a87cbb88ac71cea967c91429849c02591cdf1ddd3ae50e24863",
+      "bytes": 8010,
+      "manifests": [
+        {
+          "sha256": "dcadb77b427d0ae55515c67ce171e13f3b63f27265ce05e33357fb0949340f81",
+          "content": {
+            "artifact_id": "sha256:1baf7cbade5c0a87cbb88ac71cea967c91429849c02591cdf1ddd3ae50e24863",
+            "byte_size": 8010,
+            "canon": {
+              "ensure_ascii": false,
+              "exclude_none": true,
+              "forbid_floats": false,
+              "forbid_nan_inf": true,
+              "max_depth": 128,
+              "name": "polisyos.canon.json",
+              "separators": [
+                ",",
+                ":"
+              ],
+              "sort_keys": true,
+              "version": "0.2.0"
+            },
+            "created_at": "2026-10-07T18:09:25Z",
+            "inputs": [],
+            "integrity": {
+              "sha256": "1baf7cbade5c0a87cbb88ac71cea967c91429849c02591cdf1ddd3ae50e24863"
+            },
+            "kind": "search.transfer.history",
+            "manifest_schema_version": "v3",
+            "media_type": "application/json",
+            "warnings": []
+          }
+        },
+        {
+          "sha256": "dcadb77b427d0ae55515c67ce171e13f3b63f27265ce05e33357fb0949340f81",
+          "content": {
+            "artifact_id": "sha256:1baf7cbade5c0a87cbb88ac71cea967c91429849c02591cdf1ddd3ae50e24863",
+            "byte_size": 8010,
+            "canon": {
+              "ensure_ascii": false,
+              "exclude_none": true,
+              "forbid_floats": false,
+              "forbid_nan_inf": true,
+              "max_depth": 128,
+              "name": "polisyos.canon.json",
+              "separators": [
+                ",",
+                ":"
+              ],
+              "sort_keys": true,
+              "version": "0.2.0"
+            },
+            "created_at": "2026-10-07T18:09:25Z",
+            "inputs": [],
+            "integrity": {
+              "sha256": "1baf7cbade5c0a87cbb88ac71cea967c91429849c02591cdf1ddd3ae50e24863"
+            },
+            "kind": "search.transfer.history",
+            "manifest_schema_version": "v3",
+            "media_type": "application/json",
+            "warnings": []
+          }
+        }
+      ]
+    },
+    {
+      "scope": "legacy6",
+      "test": "test_persisted_legacy_scalar_or_placeholder_has_visible_refusal_without_promotion[placeholder-maximize]",
+      "qualified_ref": {
+        "artifact_id": "sha256:0efdcef5a234d19a795fedf905762fc78a5176894002783f4e4e4b94996461cc",
+        "kind": "vector_memory.bundle",
+        "media_type": "application/json"
+      },
+      "actual_sha256": "0efdcef5a234d19a795fedf905762fc78a5176894002783f4e4e4b94996461cc",
+      "portable_content_key": "0efdcef5a234d19a795fedf905762fc78a5176894002783f4e4e4b94996461cc",
+      "bytes": 2560,
+      "manifests": [
+        {
+          "sha256": "2d9edccb61e1f1292359fdb628945494ba8a5872dd4076b16ae8d05031cc7ed8",
+          "content": {
+            "artifact_id": "sha256:0efdcef5a234d19a795fedf905762fc78a5176894002783f4e4e4b94996461cc",
+            "byte_size": 2560,
+            "canon": {
+              "ensure_ascii": false,
+              "exclude_none": true,
+              "forbid_floats": false,
+              "forbid_nan_inf": true,
+              "max_depth": 128,
+              "name": "polisyos.canon.json",
+              "separators": [
+                ",",
+                ":"
+              ],
+              "sort_keys": true,
+              "version": "0.2.0"
+            },
+            "created_at": "2026-10-07T18:09:25Z",
+            "inputs": [],
+            "integrity": {
+              "sha256": "0efdcef5a234d19a795fedf905762fc78a5176894002783f4e4e4b94996461cc"
+            },
+            "kind": "vector_memory.bundle",
+            "manifest_schema_version": "v3",
+            "media_type": "application/json",
+            "warnings": []
+          }
+        },
+        {
+          "sha256": "2d9edccb61e1f1292359fdb628945494ba8a5872dd4076b16ae8d05031cc7ed8",
+          "content": {
+            "artifact_id": "sha256:0efdcef5a234d19a795fedf905762fc78a5176894002783f4e4e4b94996461cc",
+            "byte_size": 2560,
+            "canon": {
+              "ensure_ascii": false,
+              "exclude_none": true,
+              "forbid_floats": false,
+              "forbid_nan_inf": true,
+              "max_depth": 128,
+              "name": "polisyos.canon.json",
+              "separators": [
+                ",",
+                ":"
+              ],
+              "sort_keys": true,
+              "version": "0.2.0"
+            },
+            "created_at": "2026-10-07T18:09:25Z",
+            "inputs": [],
+            "integrity": {
+              "sha256": "0efdcef5a234d19a795fedf905762fc78a5176894002783f4e4e4b94996461cc"
+            },
+            "kind": "vector_memory.bundle",
+            "manifest_schema_version": "v3",
+            "media_type": "application/json",
+            "warnings": []
+          }
+        }
+      ]
+    }
+  ],
+  "unique_utf8_producer_pool": {
+    "f0f34a9a4f2dd09afe5edc70f565b77c57b1da48404085f11c042422a641ee28": "{\"evaluations\":[{\"candidate_id\":\"sha256:a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0\",\"metadata\":{\"candidate_ref\":{\"artifact_id\":\"sha256:a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0\",\"kind\":\"search.candidate\",\"media_type\":\"application/json\"},\"evaluation_ref\":{\"artifact_id\":\"sha256:c4d1a3ca621de83530440f70d9de73f0608768bdaaa07801a2893e24f8c64ea3\",\"kind\":\"scientist.autotune.analytic.evaluation\",\"manifest_profile_sha256\":\"sha256:92344e9441aca35237374b5de9474aa8ec1c94b1b4143d947d044faf9dda560f\",\"media_type\":\"application/json\"},\"numeric_transfer_basis\":{\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"data_ref\":{\"artifact_id\":\"sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85\",\"kind\":\"fixture.numeric.data\",\"media_type\":\"application/json\"},\"direction\":\"minimize\",\"evaluator_ref\":{\"artifact_id\":\"sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c\",\"kind\":\"fixture.numeric.evaluator\",\"media_type\":\"application/json\"},\"metric\":\"score\",\"model_ref\":{\"artifact_id\":\"sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789\",\"kind\":\"fixture.numeric.model\",\"media_type\":\"application/json\"},\"origin\":\"analytic-measurement.v1\",\"owner_id\":\"fixture-owner\",\"owner_ref\":{\"artifact_id\":\"sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1\",\"kind\":\"fixture.numeric.owner\",\"media_type\":\"application/json\"},\"profile\":\"numeric_transfer_basis.v1\",\"replica_policy\":\"preserve_explicit_identity.v1\",\"scalarizer\":\"direction_normalized_single_objective.v1\",\"scalarizer_ref\":{\"artifact_id\":\"sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b\",\"kind\":\"fixture.numeric.scalarizer\",\"media_type\":\"application/json\"},\"search_space_fingerprint\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"split_ref\":{\"artifact_id\":\"sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4\",\"kind\":\"fixture.numeric.split\",\"media_type\":\"application/json\"},\"tenant_id\":\"tenant-a\",\"unit\":\"analytic-loss\"},\"params\":{\"x\":{\"_type\":\"float\",\"repr\":\"0.33333333333333331\"}},\"replica_id\":0,\"source_run_id\":\"source\"},\"objectives\":[{\"direction\":\"minimize\",\"is_satisfied\":true,\"name\":\"score\",\"raw_value\":{\"_type\":\"float\",\"repr\":\"0.011344444444444445\"},\"threshold\":null,\"weight\":{\"_type\":\"float\",\"repr\":\"1\"}}],\"params\":{\"x\":{\"_type\":\"float\",\"repr\":\"0.33333333333333331\"}},\"params_normalized\":[{\"_type\":\"float\",\"repr\":\"0.33333333333333331\"}],\"provenance_ref\":\"sha256:c4d1a3ca621de83530440f70d9de73f0608768bdaaa07801a2893e24f8c64ea3\",\"scalar_score\":{\"_type\":\"float\",\"repr\":\"0.011344444444444445\"},\"stage_a_passed\":true,\"stage_b_result\":{\"guardrails\":{\"finite\":true}},\"status\":\"success\",\"timestamp\":\"2026-01-01T00:00:00+00:00\",\"wall_time_seconds\":{\"_type\":\"float\",\"repr\":\"0.125\"}},{\"candidate_id\":\"sha256:39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a\",\"metadata\":{\"candidate_ref\":{\"artifact_id\":\"sha256:39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a\",\"kind\":\"search.candidate\",\"media_type\":\"application/json\"},\"evaluation_ref\":{\"artifact_id\":\"sha256:d170211a1ebb797480350f019068fb213acf8eb35ac2793b1c65baf043e085a0\",\"kind\":\"scientist.autotune.analytic.evaluation\",\"manifest_profile_sha256\":\"sha256:ff475bbf37de14fef1d7ed60b2b83f8693c02ea911d01ac32d4d614dacaab301\",\"media_type\":\"application/json\"},\"numeric_transfer_basis\":{\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"data_ref\":{\"artifact_id\":\"sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85\",\"kind\":\"fixture.numeric.data\",\"media_type\":\"application/json\"},\"direction\":\"minimize\",\"evaluator_ref\":{\"artifact_id\":\"sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c\",\"kind\":\"fixture.numeric.evaluator\",\"media_type\":\"application/json\"},\"metric\":\"score\",\"model_ref\":{\"artifact_id\":\"sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789\",\"kind\":\"fixture.numeric.model\",\"media_type\":\"application/json\"},\"origin\":\"analytic-measurement.v1\",\"owner_id\":\"fixture-owner\",\"owner_ref\":{\"artifact_id\":\"sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1\",\"kind\":\"fixture.numeric.owner\",\"media_type\":\"application/json\"},\"profile\":\"numeric_transfer_basis.v1\",\"replica_policy\":\"preserve_explicit_identity.v1\",\"scalarizer\":\"direction_normalized_single_objective.v1\",\"scalarizer_ref\":{\"artifact_id\":\"sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b\",\"kind\":\"fixture.numeric.scalarizer\",\"media_type\":\"application/json\"},\"search_space_fingerprint\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"split_ref\":{\"artifact_id\":\"sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4\",\"kind\":\"fixture.numeric.split\",\"media_type\":\"application/json\"},\"tenant_id\":\"tenant-a\",\"unit\":\"analytic-loss\"},\"params\":{\"x\":{\"_type\":\"float\",\"repr\":\"0.66666666666666663\"}},\"replica_id\":1,\"source_run_id\":\"source\"},\"objectives\":[{\"direction\":\"minimize\",\"is_satisfied\":true,\"name\":\"score\",\"raw_value\":{\"_type\":\"float\",\"repr\":\"0.098011111111111091\"},\"threshold\":null,\"weight\":{\"_type\":\"float\",\"repr\":\"1\"}}],\"params\":{\"x\":{\"_type\":\"float\",\"repr\":\"0.66666666666666663\"}},\"params_normalized\":[{\"_type\":\"float\",\"repr\":\"0.66666666666666663\"}],\"provenance_ref\":\"sha256:d170211a1ebb797480350f019068fb213acf8eb35ac2793b1c65baf043e085a0\",\"scalar_score\":{\"_type\":\"float\",\"repr\":\"0.098011111111111091\"},\"stage_a_passed\":true,\"stage_b_result\":{\"guardrails\":{\"finite\":true}},\"status\":\"success\",\"timestamp\":\"2026-01-01T00:00:00+00:00\",\"wall_time_seconds\":{\"_type\":\"float\",\"repr\":\"0.125\"}}],\"fingerprint\":{\"best_params\":null,\"best_score\":null,\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"num_evaluations\":0,\"numeric_basis\":{\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"data_ref\":{\"artifact_id\":\"sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85\",\"kind\":\"fixture.numeric.data\",\"media_type\":\"application/json\"},\"direction\":\"minimize\",\"evaluator_ref\":{\"artifact_id\":\"sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c\",\"kind\":\"fixture.numeric.evaluator\",\"media_type\":\"application/json\"},\"metric\":\"score\",\"model_ref\":{\"artifact_id\":\"sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789\",\"kind\":\"fixture.numeric.model\",\"media_type\":\"application/json\"},\"origin\":\"analytic-measurement.v1\",\"owner_id\":\"fixture-owner\",\"owner_ref\":{\"artifact_id\":\"sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1\",\"kind\":\"fixture.numeric.owner\",\"media_type\":\"application/json\"},\"profile\":\"numeric_transfer_basis.v1\",\"replica_policy\":\"preserve_explicit_identity.v1\",\"scalarizer\":\"direction_normalized_single_objective.v1\",\"scalarizer_ref\":{\"artifact_id\":\"sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b\",\"kind\":\"fixture.numeric.scalarizer\",\"media_type\":\"application/json\"},\"search_space_fingerprint\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"split_ref\":{\"artifact_id\":\"sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4\",\"kind\":\"fixture.numeric.split\",\"media_type\":\"application/json\"},\"tenant_id\":\"tenant-a\",\"unit\":\"analytic-loss\"},\"objective_directions\":{\"score\":\"minimize\"},\"objective_names\":[\"score\"],\"origin\":\"analytic-measurement.v1\",\"run_id\":\"source\",\"space_hash\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"tenant_id\":\"tenant-a\",\"units\":{\"score\":\"analytic-loss\"}},\"schema_version\":\"2.0\"}",
+    "469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85": "{\"profile\":\"analytic-transfer-fixture.v1\",\"role\":\"data\"}",
+    "63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789": "{\"profile\":\"analytic-transfer-fixture.v1\",\"role\":\"model\"}",
+    "98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c": "{\"profile\":\"analytic-transfer-fixture.v1\",\"role\":\"evaluator\"}",
+    "b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4": "{\"profile\":\"analytic-transfer-fixture.v1\",\"role\":\"split\"}",
+    "435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b": "{\"profile\":\"analytic-transfer-fixture.v1\",\"role\":\"scalarizer\"}",
+    "bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1": "{\"profile\":\"analytic-transfer-fixture.v1\",\"role\":\"owner\"}",
+    "a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0": "{\"x\":{\"_type\":\"float\",\"repr\":\"0.33333333333333331\"}}",
+    "c4d1a3ca621de83530440f70d9de73f0608768bdaaa07801a2893e24f8c64ea3": "{\"candidate_ref\":{\"artifact_id\":\"sha256:a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0\",\"kind\":\"search.candidate\",\"media_type\":\"application/json\"},\"guardrails\":{\"finite\":true},\"holdout_metrics\":{},\"loop_id\":\"analytic\",\"metadata\":{\"numeric_transfer_basis\":{\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"data_ref\":{\"artifact_id\":\"sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85\",\"kind\":\"fixture.numeric.data\",\"media_type\":\"application/json\"},\"direction\":\"minimize\",\"evaluator_ref\":{\"artifact_id\":\"sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c\",\"kind\":\"fixture.numeric.evaluator\",\"media_type\":\"application/json\"},\"metric\":\"score\",\"model_ref\":{\"artifact_id\":\"sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789\",\"kind\":\"fixture.numeric.model\",\"media_type\":\"application/json\"},\"origin\":\"analytic-measurement.v1\",\"owner_id\":\"fixture-owner\",\"owner_ref\":{\"artifact_id\":\"sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1\",\"kind\":\"fixture.numeric.owner\",\"media_type\":\"application/json\"},\"profile\":\"numeric_transfer_basis.v1\",\"replica_policy\":\"preserve_explicit_identity.v1\",\"scalarizer\":\"direction_normalized_single_objective.v1\",\"scalarizer_ref\":{\"artifact_id\":\"sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b\",\"kind\":\"fixture.numeric.scalarizer\",\"media_type\":\"application/json\"},\"search_space_fingerprint\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"split_ref\":{\"artifact_id\":\"sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4\",\"kind\":\"fixture.numeric.split\",\"media_type\":\"application/json\"},\"tenant_id\":\"tenant-a\",\"unit\":\"analytic-loss\"},\"params\":{\"x\":{\"_type\":\"float\",\"repr\":\"0.33333333333333331\"}},\"replica_id\":0,\"source_run_id\":\"source\"},\"notes\":[\"analytic fixture measurement\"],\"promotable\":false,\"runtime_split_type\":\"selection\",\"sample_counts\":{\"selection\":11},\"selection_metrics\":{\"score\":{\"_type\":\"float\",\"repr\":\"0.011344444444444445\"}},\"status\":\"ok\",\"suite_id\":\"measured-selection\",\"suite_version\":\"1.0\"}",
+    "39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a": "{\"x\":{\"_type\":\"float\",\"repr\":\"0.66666666666666663\"}}",
+    "d170211a1ebb797480350f019068fb213acf8eb35ac2793b1c65baf043e085a0": "{\"candidate_ref\":{\"artifact_id\":\"sha256:39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a\",\"kind\":\"search.candidate\",\"media_type\":\"application/json\"},\"guardrails\":{\"finite\":true},\"holdout_metrics\":{},\"loop_id\":\"analytic\",\"metadata\":{\"numeric_transfer_basis\":{\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"data_ref\":{\"artifact_id\":\"sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85\",\"kind\":\"fixture.numeric.data\",\"media_type\":\"application/json\"},\"direction\":\"minimize\",\"evaluator_ref\":{\"artifact_id\":\"sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c\",\"kind\":\"fixture.numeric.evaluator\",\"media_type\":\"application/json\"},\"metric\":\"score\",\"model_ref\":{\"artifact_id\":\"sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789\",\"kind\":\"fixture.numeric.model\",\"media_type\":\"application/json\"},\"origin\":\"analytic-measurement.v1\",\"owner_id\":\"fixture-owner\",\"owner_ref\":{\"artifact_id\":\"sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1\",\"kind\":\"fixture.numeric.owner\",\"media_type\":\"application/json\"},\"profile\":\"numeric_transfer_basis.v1\",\"replica_policy\":\"preserve_explicit_identity.v1\",\"scalarizer\":\"direction_normalized_single_objective.v1\",\"scalarizer_ref\":{\"artifact_id\":\"sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b\",\"kind\":\"fixture.numeric.scalarizer\",\"media_type\":\"application/json\"},\"search_space_fingerprint\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"split_ref\":{\"artifact_id\":\"sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4\",\"kind\":\"fixture.numeric.split\",\"media_type\":\"application/json\"},\"tenant_id\":\"tenant-a\",\"unit\":\"analytic-loss\"},\"params\":{\"x\":{\"_type\":\"float\",\"repr\":\"0.66666666666666663\"}},\"replica_id\":1,\"source_run_id\":\"source\"},\"notes\":[\"analytic fixture measurement\"],\"promotable\":false,\"runtime_split_type\":\"selection\",\"sample_counts\":{\"selection\":11},\"selection_metrics\":{\"score\":{\"_type\":\"float\",\"repr\":\"0.098011111111111091\"}},\"status\":\"ok\",\"suite_id\":\"measured-selection\",\"suite_version\":\"1.0\"}",
+    "615a99ce9fd2fc12b631ba769837ee26405814362f17ee5e792bf750cdd121fc": "{\"evaluations\":[{\"candidate_id\":\"sha256:a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0\",\"metadata\":{\"candidate_ref\":{\"artifact_id\":\"sha256:a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0\",\"kind\":\"search.candidate\",\"media_type\":\"application/json\"},\"evaluation_ref\":{\"artifact_id\":\"sha256:c4d1a3ca621de83530440f70d9de73f0608768bdaaa07801a2893e24f8c64ea3\",\"kind\":\"scientist.autotune.analytic.evaluation\",\"manifest_profile_sha256\":\"sha256:92344e9441aca35237374b5de9474aa8ec1c94b1b4143d947d044faf9dda560f\",\"media_type\":\"application/json\"},\"numeric_transfer_basis\":{\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"data_ref\":{\"artifact_id\":\"sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85\",\"kind\":\"fixture.numeric.data\",\"media_type\":\"application/json\"},\"direction\":\"minimize\",\"evaluator_ref\":{\"artifact_id\":\"sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c\",\"kind\":\"fixture.numeric.evaluator\",\"media_type\":\"application/json\"},\"metric\":\"score\",\"model_ref\":{\"artifact_id\":\"sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789\",\"kind\":\"fixture.numeric.model\",\"media_type\":\"application/json\"},\"origin\":\"analytic-measurement.v1\",\"owner_id\":\"fixture-owner\",\"owner_ref\":{\"artifact_id\":\"sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1\",\"kind\":\"fixture.numeric.owner\",\"media_type\":\"application/json\"},\"profile\":\"numeric_transfer_basis.v1\",\"replica_policy\":\"preserve_explicit_identity.v1\",\"scalarizer\":\"direction_normalized_single_objective.v1\",\"scalarizer_ref\":{\"artifact_id\":\"sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b\",\"kind\":\"fixture.numeric.scalarizer\",\"media_type\":\"application/json\"},\"search_space_fingerprint\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"split_ref\":{\"artifact_id\":\"sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4\",\"kind\":\"fixture.numeric.split\",\"media_type\":\"application/json\"},\"tenant_id\":\"tenant-a\",\"unit\":\"analytic-loss\"},\"params\":{\"x\":{\"_type\":\"float\",\"repr\":\"0.33333333333333331\"}},\"replica_id\":0,\"source_run_id\":\"source\"},\"objectives\":[{\"direction\":\"minimize\",\"is_satisfied\":true,\"name\":\"score\",\"raw_value\":{\"_type\":\"float\",\"repr\":\"0.011344444444444445\"},\"threshold\":null,\"weight\":{\"_type\":\"float\",\"repr\":\"1\"}}],\"params\":{\"x\":{\"_type\":\"float\",\"repr\":\"0.33333333333333331\"}},\"params_normalized\":[{\"_type\":\"float\",\"repr\":\"0.33333333333333331\"}],\"provenance_ref\":\"sha256:c4d1a3ca621de83530440f70d9de73f0608768bdaaa07801a2893e24f8c64ea3\",\"scalar_score\":{\"_type\":\"float\",\"repr\":\"0.011344444444444445\"},\"stage_a_passed\":true,\"stage_b_result\":{\"guardrails\":{\"finite\":true}},\"status\":\"success\",\"timestamp\":\"2026-01-01T00:00:00+00:00\",\"wall_time_seconds\":{\"_type\":\"float\",\"repr\":\"0.125\"}},{\"candidate_id\":\"sha256:39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a\",\"metadata\":{\"candidate_ref\":{\"artifact_id\":\"sha256:39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a\",\"kind\":\"search.candidate\",\"media_type\":\"application/json\"},\"evaluation_ref\":{\"artifact_id\":\"sha256:d170211a1ebb797480350f019068fb213acf8eb35ac2793b1c65baf043e085a0\",\"kind\":\"scientist.autotune.analytic.evaluation\",\"manifest_profile_sha256\":\"sha256:ff475bbf37de14fef1d7ed60b2b83f8693c02ea911d01ac32d4d614dacaab301\",\"media_type\":\"application/json\"},\"numeric_transfer_basis\":{\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"data_ref\":{\"artifact_id\":\"sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85\",\"kind\":\"fixture.numeric.data\",\"media_type\":\"application/json\"},\"direction\":\"minimize\",\"evaluator_ref\":{\"artifact_id\":\"sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c\",\"kind\":\"fixture.numeric.evaluator\",\"media_type\":\"application/json\"},\"metric\":\"score\",\"model_ref\":{\"artifact_id\":\"sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789\",\"kind\":\"fixture.numeric.model\",\"media_type\":\"application/json\"},\"origin\":\"analytic-measurement.v1\",\"owner_id\":\"fixture-owner\",\"owner_ref\":{\"artifact_id\":\"sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1\",\"kind\":\"fixture.numeric.owner\",\"media_type\":\"application/json\"},\"profile\":\"numeric_transfer_basis.v1\",\"replica_policy\":\"preserve_explicit_identity.v1\",\"scalarizer\":\"direction_normalized_single_objective.v1\",\"scalarizer_ref\":{\"artifact_id\":\"sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b\",\"kind\":\"fixture.numeric.scalarizer\",\"media_type\":\"application/json\"},\"search_space_fingerprint\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"split_ref\":{\"artifact_id\":\"sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4\",\"kind\":\"fixture.numeric.split\",\"media_type\":\"application/json\"},\"tenant_id\":\"tenant-a\",\"unit\":\"analytic-loss\"},\"params\":{\"x\":{\"_type\":\"float\",\"repr\":\"0.66666666666666663\"}},\"replica_id\":1,\"source_run_id\":\"source\"},\"objectives\":[{\"direction\":\"minimize\",\"is_satisfied\":true,\"name\":\"score\",\"raw_value\":{\"_type\":\"float\",\"repr\":\"0.098011111111111091\"},\"threshold\":null,\"weight\":{\"_type\":\"float\",\"repr\":\"1\"}}],\"params\":{\"x\":{\"_type\":\"float\",\"repr\":\"0.66666666666666663\"}},\"params_normalized\":[{\"_type\":\"float\",\"repr\":\"0.66666666666666663\"}],\"provenance_ref\":\"sha256:d170211a1ebb797480350f019068fb213acf8eb35ac2793b1c65baf043e085a0\",\"scalar_score\":{\"_type\":\"float\",\"repr\":\"0.098011111111111091\"},\"stage_a_passed\":true,\"stage_b_result\":{\"guardrails\":{\"finite\":true}},\"status\":\"success\",\"timestamp\":\"2026-01-01T00:00:00+00:00\",\"wall_time_seconds\":{\"_type\":\"float\",\"repr\":\"0.125\"}}],\"fingerprint\":{\"best_params\":null,\"best_score\":null,\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"num_evaluations\":0,\"numeric_basis\":{\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"data_ref\":{\"artifact_id\":\"sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85\",\"kind\":\"fixture.numeric.data\",\"media_type\":\"application/json\"},\"direction\":\"minimize\",\"evaluator_ref\":{\"artifact_id\":\"sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c\",\"kind\":\"fixture.numeric.evaluator\",\"media_type\":\"application/json\"},\"metric\":\"score\",\"model_ref\":{\"artifact_id\":\"sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789\",\"kind\":\"fixture.numeric.model\",\"media_type\":\"application/json\"},\"origin\":\"analytic-measurement.v1\",\"owner_id\":\"fixture-owner\",\"owner_ref\":{\"artifact_id\":\"sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1\",\"kind\":\"fixture.numeric.owner\",\"media_type\":\"application/json\"},\"profile\":\"numeric_transfer_basis.v1\",\"replica_policy\":\"preserve_explicit_identity.v1\",\"scalarizer\":\"direction_normalized_single_objective.v1\",\"scalarizer_ref\":{\"artifact_id\":\"sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b\",\"kind\":\"fixture.numeric.scalarizer\",\"media_type\":\"application/json\"},\"search_space_fingerprint\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"split_ref\":{\"artifact_id\":\"sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4\",\"kind\":\"fixture.numeric.split\",\"media_type\":\"application/json\"},\"tenant_id\":\"tenant-a\",\"unit\":\"analytic-loss\"},\"objective_directions\":{\"score\":\"minimize\"},\"objective_names\":[\"score\"],\"origin\":\"analytic-measurement.v1\",\"run_id\":\"source\",\"space_hash\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"tenant_id\":\"tenant-a\",\"units\":{\"score\":\"analytic-loss\"}},\"schema_version\":\"1.0\"}",
+    "5a85d9851e3de20a2e5e3b2da690d899fcf6106926c495c24919cee2b86920d4": "{\"M\":16,\"dim\":2,\"ef_construction\":200,\"index_ref\":{\"artifact_id\":\"sha256:43f81b58e17c3fc49f557f6943a4a98ffca70d5d1452c47bf9990257df2f4216\",\"kind\":\"vector_memory.index\",\"media_type\":\"application/octet-stream\"},\"keys\":[\"source\"],\"max_elements\":10,\"metadata\":[{\"best_params\":null,\"best_score\":null,\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"history_ref\":{\"artifact_id\":\"sha256:615a99ce9fd2fc12b631ba769837ee26405814362f17ee5e792bf750cdd121fc\",\"kind\":\"search.transfer.history\",\"media_type\":\"application/json\"},\"num_evaluations\":0,\"numeric_basis\":{\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"data_ref\":{\"artifact_id\":\"sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85\",\"kind\":\"fixture.numeric.data\",\"media_type\":\"application/json\"},\"direction\":\"minimize\",\"evaluator_ref\":{\"artifact_id\":\"sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c\",\"kind\":\"fixture.numeric.evaluator\",\"media_type\":\"application/json\"},\"metric\":\"score\",\"model_ref\":{\"artifact_id\":\"sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789\",\"kind\":\"fixture.numeric.model\",\"media_type\":\"application/json\"},\"origin\":\"analytic-measurement.v1\",\"owner_id\":\"fixture-owner\",\"owner_ref\":{\"artifact_id\":\"sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1\",\"kind\":\"fixture.numeric.owner\",\"media_type\":\"application/json\"},\"profile\":\"numeric_transfer_basis.v1\",\"replica_policy\":\"preserve_explicit_identity.v1\",\"scalarizer\":\"direction_normalized_single_objective.v1\",\"scalarizer_ref\":{\"artifact_id\":\"sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b\",\"kind\":\"fixture.numeric.scalarizer\",\"media_type\":\"application/json\"},\"search_space_fingerprint\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"split_ref\":{\"artifact_id\":\"sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4\",\"kind\":\"fixture.numeric.split\",\"media_type\":\"application/json\"},\"tenant_id\":\"tenant-a\",\"unit\":\"analytic-loss\"},\"objective_directions\":{\"score\":\"minimize\"},\"objective_names\":[\"score\"],\"origin\":\"analytic-measurement.v1\",\"run_id\":\"source\",\"space_hash\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"tenant_id\":\"tenant-a\",\"units\":{\"score\":\"analytic-loss\"}}],\"schema_version\":\"2.0\"}",
+    "cdd373a45081a0ed7f1e9b0b9f35f0fea3820d999cf3cda64b12947b176b7e1e": "{\"evaluations\":[{\"candidate_id\":\"sha256:a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0\",\"metadata\":{\"candidate_ref\":{\"artifact_id\":\"sha256:a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0\",\"kind\":\"search.candidate\",\"media_type\":\"application/json\"},\"evaluation_ref\":{\"artifact_id\":\"sha256:f2e90a18d4645b77b7fe1f572106eeb838e95336cff2bc8a28ba48055e7fb132\",\"kind\":\"scientist.autotune.analytic.evaluation\",\"manifest_profile_sha256\":\"sha256:92344e9441aca35237374b5de9474aa8ec1c94b1b4143d947d044faf9dda560f\",\"media_type\":\"application/json\"},\"numeric_transfer_basis\":{\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"data_ref\":{\"artifact_id\":\"sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85\",\"kind\":\"fixture.numeric.data\",\"media_type\":\"application/json\"},\"direction\":\"maximize\",\"evaluator_ref\":{\"artifact_id\":\"sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c\",\"kind\":\"fixture.numeric.evaluator\",\"media_type\":\"application/json\"},\"metric\":\"score\",\"model_ref\":{\"artifact_id\":\"sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789\",\"kind\":\"fixture.numeric.model\",\"media_type\":\"application/json\"},\"origin\":\"analytic-measurement.v1\",\"owner_id\":\"fixture-owner\",\"owner_ref\":{\"artifact_id\":\"sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1\",\"kind\":\"fixture.numeric.owner\",\"media_type\":\"application/json\"},\"profile\":\"numeric_transfer_basis.v1\",\"replica_policy\":\"preserve_explicit_identity.v1\",\"scalarizer\":\"direction_normalized_single_objective.v1\",\"scalarizer_ref\":{\"artifact_id\":\"sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b\",\"kind\":\"fixture.numeric.scalarizer\",\"media_type\":\"application/json\"},\"search_space_fingerprint\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"split_ref\":{\"artifact_id\":\"sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4\",\"kind\":\"fixture.numeric.split\",\"media_type\":\"application/json\"},\"tenant_id\":\"tenant-a\",\"unit\":\"analytic-loss\"},\"params\":{\"x\":{\"_type\":\"float\",\"repr\":\"0.33333333333333331\"}},\"replica_id\":0,\"source_run_id\":\"source\"},\"objectives\":[{\"direction\":\"maximize\",\"is_satisfied\":true,\"name\":\"score\",\"raw_value\":{\"_type\":\"float\",\"repr\":\"0.011344444444444445\"},\"threshold\":null,\"weight\":{\"_type\":\"float\",\"repr\":\"1\"}}],\"params\":{\"x\":{\"_type\":\"float\",\"repr\":\"0.33333333333333331\"}},\"params_normalized\":[{\"_type\":\"float\",\"repr\":\"0.33333333333333331\"}],\"provenance_ref\":\"sha256:f2e90a18d4645b77b7fe1f572106eeb838e95336cff2bc8a28ba48055e7fb132\",\"scalar_score\":{\"_type\":\"float\",\"repr\":\"-0.011344444444444445\"},\"stage_a_passed\":true,\"stage_b_result\":{\"guardrails\":{\"finite\":true}},\"status\":\"success\",\"timestamp\":\"2026-01-01T00:00:00+00:00\",\"wall_time_seconds\":{\"_type\":\"float\",\"repr\":\"0.125\"}},{\"candidate_id\":\"sha256:39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a\",\"metadata\":{\"candidate_ref\":{\"artifact_id\":\"sha256:39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a\",\"kind\":\"search.candidate\",\"media_type\":\"application/json\"},\"evaluation_ref\":{\"artifact_id\":\"sha256:b2103b95b237836d858e86032f56262c361255c35289d440998376883452acb9\",\"kind\":\"scientist.autotune.analytic.evaluation\",\"manifest_profile_sha256\":\"sha256:ff475bbf37de14fef1d7ed60b2b83f8693c02ea911d01ac32d4d614dacaab301\",\"media_type\":\"application/json\"},\"numeric_transfer_basis\":{\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"data_ref\":{\"artifact_id\":\"sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85\",\"kind\":\"fixture.numeric.data\",\"media_type\":\"application/json\"},\"direction\":\"maximize\",\"evaluator_ref\":{\"artifact_id\":\"sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c\",\"kind\":\"fixture.numeric.evaluator\",\"media_type\":\"application/json\"},\"metric\":\"score\",\"model_ref\":{\"artifact_id\":\"sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789\",\"kind\":\"fixture.numeric.model\",\"media_type\":\"application/json\"},\"origin\":\"analytic-measurement.v1\",\"owner_id\":\"fixture-owner\",\"owner_ref\":{\"artifact_id\":\"sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1\",\"kind\":\"fixture.numeric.owner\",\"media_type\":\"application/json\"},\"profile\":\"numeric_transfer_basis.v1\",\"replica_policy\":\"preserve_explicit_identity.v1\",\"scalarizer\":\"direction_normalized_single_objective.v1\",\"scalarizer_ref\":{\"artifact_id\":\"sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b\",\"kind\":\"fixture.numeric.scalarizer\",\"media_type\":\"application/json\"},\"search_space_fingerprint\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"split_ref\":{\"artifact_id\":\"sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4\",\"kind\":\"fixture.numeric.split\",\"media_type\":\"application/json\"},\"tenant_id\":\"tenant-a\",\"unit\":\"analytic-loss\"},\"params\":{\"x\":{\"_type\":\"float\",\"repr\":\"0.66666666666666663\"}},\"replica_id\":1,\"source_run_id\":\"source\"},\"objectives\":[{\"direction\":\"maximize\",\"is_satisfied\":true,\"name\":\"score\",\"raw_value\":{\"_type\":\"float\",\"repr\":\"0.098011111111111091\"},\"threshold\":null,\"weight\":{\"_type\":\"float\",\"repr\":\"1\"}}],\"params\":{\"x\":{\"_type\":\"float\",\"repr\":\"0.66666666666666663\"}},\"params_normalized\":[{\"_type\":\"float\",\"repr\":\"0.66666666666666663\"}],\"provenance_ref\":\"sha256:b2103b95b237836d858e86032f56262c361255c35289d440998376883452acb9\",\"scalar_score\":{\"_type\":\"float\",\"repr\":\"-0.098011111111111091\"},\"stage_a_passed\":true,\"stage_b_result\":{\"guardrails\":{\"finite\":true}},\"status\":\"success\",\"timestamp\":\"2026-01-01T00:00:00+00:00\",\"wall_time_seconds\":{\"_type\":\"float\",\"repr\":\"0.125\"}}],\"fingerprint\":{\"best_params\":null,\"best_score\":null,\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"num_evaluations\":0,\"numeric_basis\":{\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"data_ref\":{\"artifact_id\":\"sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85\",\"kind\":\"fixture.numeric.data\",\"media_type\":\"application/json\"},\"direction\":\"maximize\",\"evaluator_ref\":{\"artifact_id\":\"sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c\",\"kind\":\"fixture.numeric.evaluator\",\"media_type\":\"application/json\"},\"metric\":\"score\",\"model_ref\":{\"artifact_id\":\"sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789\",\"kind\":\"fixture.numeric.model\",\"media_type\":\"application/json\"},\"origin\":\"analytic-measurement.v1\",\"owner_id\":\"fixture-owner\",\"owner_ref\":{\"artifact_id\":\"sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1\",\"kind\":\"fixture.numeric.owner\",\"media_type\":\"application/json\"},\"profile\":\"numeric_transfer_basis.v1\",\"replica_policy\":\"preserve_explicit_identity.v1\",\"scalarizer\":\"direction_normalized_single_objective.v1\",\"scalarizer_ref\":{\"artifact_id\":\"sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b\",\"kind\":\"fixture.numeric.scalarizer\",\"media_type\":\"application/json\"},\"search_space_fingerprint\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"split_ref\":{\"artifact_id\":\"sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4\",\"kind\":\"fixture.numeric.split\",\"media_type\":\"application/json\"},\"tenant_id\":\"tenant-a\",\"unit\":\"analytic-loss\"},\"objective_directions\":{\"score\":\"maximize\"},\"objective_names\":[\"score\"],\"origin\":\"analytic-measurement.v1\",\"run_id\":\"source\",\"space_hash\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"tenant_id\":\"tenant-a\",\"units\":{\"score\":\"analytic-loss\"}},\"schema_version\":\"1.0\"}",
+    "2c53724ed6f6c261f1ee2ebf3032e831071ef16212d35fd1c0903bf253daf738": "{\"M\":16,\"dim\":2,\"ef_construction\":200,\"index_ref\":{\"artifact_id\":\"sha256:43f81b58e17c3fc49f557f6943a4a98ffca70d5d1452c47bf9990257df2f4216\",\"kind\":\"vector_memory.index\",\"media_type\":\"application/octet-stream\"},\"keys\":[\"source\"],\"max_elements\":10,\"metadata\":[{\"best_params\":null,\"best_score\":null,\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"history_ref\":{\"artifact_id\":\"sha256:cdd373a45081a0ed7f1e9b0b9f35f0fea3820d999cf3cda64b12947b176b7e1e\",\"kind\":\"search.transfer.history\",\"media_type\":\"application/json\"},\"num_evaluations\":0,\"numeric_basis\":{\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"data_ref\":{\"artifact_id\":\"sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85\",\"kind\":\"fixture.numeric.data\",\"media_type\":\"application/json\"},\"direction\":\"maximize\",\"evaluator_ref\":{\"artifact_id\":\"sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c\",\"kind\":\"fixture.numeric.evaluator\",\"media_type\":\"application/json\"},\"metric\":\"score\",\"model_ref\":{\"artifact_id\":\"sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789\",\"kind\":\"fixture.numeric.model\",\"media_type\":\"application/json\"},\"origin\":\"analytic-measurement.v1\",\"owner_id\":\"fixture-owner\",\"owner_ref\":{\"artifact_id\":\"sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1\",\"kind\":\"fixture.numeric.owner\",\"media_type\":\"application/json\"},\"profile\":\"numeric_transfer_basis.v1\",\"replica_policy\":\"preserve_explicit_identity.v1\",\"scalarizer\":\"direction_normalized_single_objective.v1\",\"scalarizer_ref\":{\"artifact_id\":\"sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b\",\"kind\":\"fixture.numeric.scalarizer\",\"media_type\":\"application/json\"},\"search_space_fingerprint\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"split_ref\":{\"artifact_id\":\"sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4\",\"kind\":\"fixture.numeric.split\",\"media_type\":\"application/json\"},\"tenant_id\":\"tenant-a\",\"unit\":\"analytic-loss\"},\"objective_directions\":{\"score\":\"maximize\"},\"objective_names\":[\"score\"],\"origin\":\"analytic-measurement.v1\",\"run_id\":\"source\",\"space_hash\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"tenant_id\":\"tenant-a\",\"units\":{\"score\":\"analytic-loss\"}}],\"schema_version\":\"2.0\"}",
+    "4dbae50d1c2490657c172f508d2139dd9fad0e7b8e8cdc0c82627575712c3325": "{\"evaluations\":[{\"candidate_id\":\"sha256:a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0\",\"metadata\":{\"candidate_ref\":{\"artifact_id\":\"sha256:a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0\",\"kind\":\"search.candidate\",\"media_type\":\"application/json\"},\"evaluation_ref\":{\"artifact_id\":\"sha256:c4d1a3ca621de83530440f70d9de73f0608768bdaaa07801a2893e24f8c64ea3\",\"kind\":\"scientist.autotune.analytic.evaluation\",\"manifest_profile_sha256\":\"sha256:92344e9441aca35237374b5de9474aa8ec1c94b1b4143d947d044faf9dda560f\",\"media_type\":\"application/json\"},\"numeric_transfer_basis\":{\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"data_ref\":{\"artifact_id\":\"sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85\",\"kind\":\"fixture.numeric.data\",\"media_type\":\"application/json\"},\"direction\":\"minimize\",\"evaluator_ref\":{\"artifact_id\":\"sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c\",\"kind\":\"fixture.numeric.evaluator\",\"media_type\":\"application/json\"},\"metric\":\"score\",\"model_ref\":{\"artifact_id\":\"sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789\",\"kind\":\"fixture.numeric.model\",\"media_type\":\"application/json\"},\"origin\":\"analytic-measurement.v1\",\"owner_id\":\"fixture-owner\",\"owner_ref\":{\"artifact_id\":\"sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1\",\"kind\":\"fixture.numeric.owner\",\"media_type\":\"application/json\"},\"profile\":\"numeric_transfer_basis.v1\",\"replica_policy\":\"preserve_explicit_identity.v1\",\"scalarizer\":\"direction_normalized_single_objective.v1\",\"scalarizer_ref\":{\"artifact_id\":\"sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b\",\"kind\":\"fixture.numeric.scalarizer\",\"media_type\":\"application/json\"},\"search_space_fingerprint\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"split_ref\":{\"artifact_id\":\"sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4\",\"kind\":\"fixture.numeric.split\",\"media_type\":\"application/json\"},\"tenant_id\":\"tenant-a\",\"unit\":\"analytic-loss\"},\"params\":{\"x\":{\"_type\":\"float\",\"repr\":\"0.33333333333333331\"}},\"replica_id\":0,\"source_run_id\":\"source\"},\"objectives\":[{\"direction\":\"minimize\",\"is_satisfied\":true,\"name\":\"score\",\"raw_value\":{\"_type\":\"float\",\"repr\":\"0.011344444444444445\"},\"threshold\":null,\"weight\":{\"_type\":\"float\",\"repr\":\"1\"}}],\"params\":{\"x\":{\"_type\":\"float\",\"repr\":\"0.33333333333333331\"}},\"params_normalized\":[{\"_type\":\"float\",\"repr\":\"0.33333333333333331\"}],\"provenance_ref\":\"sha256:c4d1a3ca621de83530440f70d9de73f0608768bdaaa07801a2893e24f8c64ea3\",\"scalar_score\":{\"_type\":\"float\",\"repr\":\"0.011344444444444445\"},\"stage_a_passed\":true,\"stage_b_result\":{\"guardrails\":{\"finite\":true}},\"status\":\"success\",\"timestamp\":\"2026-01-01T00:00:00+00:00\",\"wall_time_seconds\":{\"_type\":\"float\",\"repr\":\"0.125\"}},{\"candidate_id\":\"sha256:39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a\",\"metadata\":{\"candidate_ref\":{\"artifact_id\":\"sha256:39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a\",\"kind\":\"search.candidate\",\"media_type\":\"application/json\"},\"evaluation_ref\":{\"artifact_id\":\"sha256:d170211a1ebb797480350f019068fb213acf8eb35ac2793b1c65baf043e085a0\",\"kind\":\"scientist.autotune.analytic.evaluation\",\"manifest_profile_sha256\":\"sha256:ff475bbf37de14fef1d7ed60b2b83f8693c02ea911d01ac32d4d614dacaab301\",\"media_type\":\"application/json\"},\"numeric_transfer_basis\":{\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"data_ref\":{\"artifact_id\":\"sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85\",\"kind\":\"fixture.numeric.data\",\"media_type\":\"application/json\"},\"direction\":\"minimize\",\"evaluator_ref\":{\"artifact_id\":\"sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c\",\"kind\":\"fixture.numeric.evaluator\",\"media_type\":\"application/json\"},\"metric\":\"score\",\"model_ref\":{\"artifact_id\":\"sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789\",\"kind\":\"fixture.numeric.model\",\"media_type\":\"application/json\"},\"origin\":\"analytic-measurement.v1\",\"owner_id\":\"fixture-owner\",\"owner_ref\":{\"artifact_id\":\"sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1\",\"kind\":\"fixture.numeric.owner\",\"media_type\":\"application/json\"},\"profile\":\"numeric_transfer_basis.v1\",\"replica_policy\":\"preserve_explicit_identity.v1\",\"scalarizer\":\"direction_normalized_single_objective.v1\",\"scalarizer_ref\":{\"artifact_id\":\"sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b\",\"kind\":\"fixture.numeric.scalarizer\",\"media_type\":\"application/json\"},\"search_space_fingerprint\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"split_ref\":{\"artifact_id\":\"sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4\",\"kind\":\"fixture.numeric.split\",\"media_type\":\"application/json\"},\"tenant_id\":\"tenant-a\",\"unit\":\"analytic-loss\"},\"params\":{\"x\":{\"_type\":\"float\",\"repr\":\"0.66666666666666663\"}},\"replica_id\":1,\"source_run_id\":\"source\"},\"objectives\":[{\"direction\":\"minimize\",\"is_satisfied\":true,\"name\":\"score\",\"raw_value\":{\"_type\":\"float\",\"repr\":\"0.098011111111111091\"},\"threshold\":null,\"weight\":{\"_type\":\"float\",\"repr\":\"1\"}}],\"params\":{\"x\":{\"_type\":\"float\",\"repr\":\"0.66666666666666663\"}},\"params_normalized\":[{\"_type\":\"float\",\"repr\":\"0.66666666666666663\"}],\"provenance_ref\":\"sha256:d170211a1ebb797480350f019068fb213acf8eb35ac2793b1c65baf043e085a0\",\"scalar_score\":{\"_type\":\"float\",\"repr\":\"0.098011111111111091\"},\"stage_a_passed\":true,\"stage_b_result\":{\"guardrails\":{\"finite\":true}},\"status\":\"success\",\"timestamp\":\"2026-01-01T00:00:00+00:00\",\"wall_time_seconds\":{\"_type\":\"float\",\"repr\":\"0.125\"}}],\"fingerprint\":{\"best_params\":null,\"best_score\":null,\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"num_evaluations\":0,\"numeric_basis\":{\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"data_ref\":{\"artifact_id\":\"sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85\",\"kind\":\"fixture.numeric.data\",\"media_type\":\"application/json\"},\"direction\":\"minimize\",\"evaluator_ref\":{\"artifact_id\":\"sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c\",\"kind\":\"fixture.numeric.evaluator\",\"media_type\":\"application/json\"},\"metric\":\"score\",\"model_ref\":{\"artifact_id\":\"sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789\",\"kind\":\"fixture.numeric.model\",\"media_type\":\"application/json\"},\"origin\":\"analytic-measurement.v1\",\"owner_id\":\"fixture-owner\",\"owner_ref\":{\"artifact_id\":\"sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1\",\"kind\":\"fixture.numeric.owner\",\"media_type\":\"application/json\"},\"profile\":\"numeric_transfer_basis.v1\",\"replica_policy\":\"preserve_explicit_identity.v1\",\"scalarizer\":\"direction_normalized_single_objective.v1\",\"scalarizer_ref\":{\"artifact_id\":\"sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b\",\"kind\":\"fixture.numeric.scalarizer\",\"media_type\":\"application/json\"},\"search_space_fingerprint\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"split_ref\":{\"artifact_id\":\"sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4\",\"kind\":\"fixture.numeric.split\",\"media_type\":\"application/json\"},\"tenant_id\":\"tenant-a\",\"unit\":\"analytic-loss\"},\"objective_directions\":{\"score\":\"minimize\"},\"objective_names\":[\"score\"],\"origin\":\"analytic-measurement.v1\",\"run_id\":\"source\",\"space_hash\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"tenant_id\":\"tenant-a\",\"units\":{\"score\":\"analytic-loss\"}}}",
+    "1bd042c1b96a7e505927877e82182ee1d80a1285bed968d382524c4e18984fab": "{\"M\":16,\"dim\":2,\"ef_construction\":200,\"index_ref\":{\"artifact_id\":\"sha256:43f81b58e17c3fc49f557f6943a4a98ffca70d5d1452c47bf9990257df2f4216\",\"kind\":\"vector_memory.index\",\"media_type\":\"application/octet-stream\"},\"keys\":[\"source\"],\"max_elements\":10,\"metadata\":[{\"best_params\":null,\"best_score\":null,\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"history_ref\":{\"artifact_id\":\"sha256:4dbae50d1c2490657c172f508d2139dd9fad0e7b8e8cdc0c82627575712c3325\",\"kind\":\"search.transfer.history\",\"media_type\":\"application/json\"},\"num_evaluations\":0,\"numeric_basis\":{\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"data_ref\":{\"artifact_id\":\"sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85\",\"kind\":\"fixture.numeric.data\",\"media_type\":\"application/json\"},\"direction\":\"minimize\",\"evaluator_ref\":{\"artifact_id\":\"sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c\",\"kind\":\"fixture.numeric.evaluator\",\"media_type\":\"application/json\"},\"metric\":\"score\",\"model_ref\":{\"artifact_id\":\"sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789\",\"kind\":\"fixture.numeric.model\",\"media_type\":\"application/json\"},\"origin\":\"analytic-measurement.v1\",\"owner_id\":\"fixture-owner\",\"owner_ref\":{\"artifact_id\":\"sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1\",\"kind\":\"fixture.numeric.owner\",\"media_type\":\"application/json\"},\"profile\":\"numeric_transfer_basis.v1\",\"replica_policy\":\"preserve_explicit_identity.v1\",\"scalarizer\":\"direction_normalized_single_objective.v1\",\"scalarizer_ref\":{\"artifact_id\":\"sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b\",\"kind\":\"fixture.numeric.scalarizer\",\"media_type\":\"application/json\"},\"search_space_fingerprint\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"split_ref\":{\"artifact_id\":\"sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4\",\"kind\":\"fixture.numeric.split\",\"media_type\":\"application/json\"},\"tenant_id\":\"tenant-a\",\"unit\":\"analytic-loss\"},\"objective_directions\":{\"score\":\"minimize\"},\"objective_names\":[\"score\"],\"origin\":\"analytic-measurement.v1\",\"run_id\":\"source\",\"space_hash\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"tenant_id\":\"tenant-a\",\"units\":{\"score\":\"analytic-loss\"}}],\"schema_version\":\"2.0\"}",
+    "4e1111a7a70ac185fedc66288129a57ec8c2c8870fc4dfa971725ca06640bda6": "{\"evaluations\":[{\"candidate_id\":\"sha256:a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0\",\"metadata\":{\"candidate_ref\":{\"artifact_id\":\"sha256:a6703044ef9a2d30bad17ab67d17900c3f1f6afe55d5560c04b02f468cba66a0\",\"kind\":\"search.candidate\",\"media_type\":\"application/json\"},\"evaluation_ref\":{\"artifact_id\":\"sha256:f2e90a18d4645b77b7fe1f572106eeb838e95336cff2bc8a28ba48055e7fb132\",\"kind\":\"scientist.autotune.analytic.evaluation\",\"manifest_profile_sha256\":\"sha256:92344e9441aca35237374b5de9474aa8ec1c94b1b4143d947d044faf9dda560f\",\"media_type\":\"application/json\"},\"numeric_transfer_basis\":{\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"data_ref\":{\"artifact_id\":\"sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85\",\"kind\":\"fixture.numeric.data\",\"media_type\":\"application/json\"},\"direction\":\"maximize\",\"evaluator_ref\":{\"artifact_id\":\"sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c\",\"kind\":\"fixture.numeric.evaluator\",\"media_type\":\"application/json\"},\"metric\":\"score\",\"model_ref\":{\"artifact_id\":\"sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789\",\"kind\":\"fixture.numeric.model\",\"media_type\":\"application/json\"},\"origin\":\"analytic-measurement.v1\",\"owner_id\":\"fixture-owner\",\"owner_ref\":{\"artifact_id\":\"sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1\",\"kind\":\"fixture.numeric.owner\",\"media_type\":\"application/json\"},\"profile\":\"numeric_transfer_basis.v1\",\"replica_policy\":\"preserve_explicit_identity.v1\",\"scalarizer\":\"direction_normalized_single_objective.v1\",\"scalarizer_ref\":{\"artifact_id\":\"sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b\",\"kind\":\"fixture.numeric.scalarizer\",\"media_type\":\"application/json\"},\"search_space_fingerprint\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"split_ref\":{\"artifact_id\":\"sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4\",\"kind\":\"fixture.numeric.split\",\"media_type\":\"application/json\"},\"tenant_id\":\"tenant-a\",\"unit\":\"analytic-loss\"},\"params\":{\"x\":{\"_type\":\"float\",\"repr\":\"0.33333333333333331\"}},\"replica_id\":0,\"source_run_id\":\"source\"},\"objectives\":[{\"direction\":\"maximize\",\"is_satisfied\":true,\"name\":\"score\",\"raw_value\":{\"_type\":\"float\",\"repr\":\"0.011344444444444445\"},\"threshold\":null,\"weight\":{\"_type\":\"float\",\"repr\":\"1\"}}],\"params\":{\"x\":{\"_type\":\"float\",\"repr\":\"0.33333333333333331\"}},\"params_normalized\":[{\"_type\":\"float\",\"repr\":\"0.33333333333333331\"}],\"provenance_ref\":\"sha256:f2e90a18d4645b77b7fe1f572106eeb838e95336cff2bc8a28ba48055e7fb132\",\"scalar_score\":{\"_type\":\"float\",\"repr\":\"-0.011344444444444445\"},\"stage_a_passed\":true,\"stage_b_result\":{\"guardrails\":{\"finite\":true}},\"status\":\"success\",\"timestamp\":\"2026-01-01T00:00:00+00:00\",\"wall_time_seconds\":{\"_type\":\"float\",\"repr\":\"0.125\"}},{\"candidate_id\":\"sha256:39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a\",\"metadata\":{\"candidate_ref\":{\"artifact_id\":\"sha256:39cbe6431e49a9bf78ea5103fc09919afb52528afcb5deafa3d424e409fa031a\",\"kind\":\"search.candidate\",\"media_type\":\"application/json\"},\"evaluation_ref\":{\"artifact_id\":\"sha256:b2103b95b237836d858e86032f56262c361255c35289d440998376883452acb9\",\"kind\":\"scientist.autotune.analytic.evaluation\",\"manifest_profile_sha256\":\"sha256:ff475bbf37de14fef1d7ed60b2b83f8693c02ea911d01ac32d4d614dacaab301\",\"media_type\":\"application/json\"},\"numeric_transfer_basis\":{\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"data_ref\":{\"artifact_id\":\"sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85\",\"kind\":\"fixture.numeric.data\",\"media_type\":\"application/json\"},\"direction\":\"maximize\",\"evaluator_ref\":{\"artifact_id\":\"sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c\",\"kind\":\"fixture.numeric.evaluator\",\"media_type\":\"application/json\"},\"metric\":\"score\",\"model_ref\":{\"artifact_id\":\"sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789\",\"kind\":\"fixture.numeric.model\",\"media_type\":\"application/json\"},\"origin\":\"analytic-measurement.v1\",\"owner_id\":\"fixture-owner\",\"owner_ref\":{\"artifact_id\":\"sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1\",\"kind\":\"fixture.numeric.owner\",\"media_type\":\"application/json\"},\"profile\":\"numeric_transfer_basis.v1\",\"replica_policy\":\"preserve_explicit_identity.v1\",\"scalarizer\":\"direction_normalized_single_objective.v1\",\"scalarizer_ref\":{\"artifact_id\":\"sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b\",\"kind\":\"fixture.numeric.scalarizer\",\"media_type\":\"application/json\"},\"search_space_fingerprint\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"split_ref\":{\"artifact_id\":\"sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4\",\"kind\":\"fixture.numeric.split\",\"media_type\":\"application/json\"},\"tenant_id\":\"tenant-a\",\"unit\":\"analytic-loss\"},\"params\":{\"x\":{\"_type\":\"float\",\"repr\":\"0.66666666666666663\"}},\"replica_id\":1,\"source_run_id\":\"source\"},\"objectives\":[{\"direction\":\"maximize\",\"is_satisfied\":true,\"name\":\"score\",\"raw_value\":{\"_type\":\"float\",\"repr\":\"0.098011111111111091\"},\"threshold\":null,\"weight\":{\"_type\":\"float\",\"repr\":\"1\"}}],\"params\":{\"x\":{\"_type\":\"float\",\"repr\":\"0.66666666666666663\"}},\"params_normalized\":[{\"_type\":\"float\",\"repr\":\"0.66666666666666663\"}],\"provenance_ref\":\"sha256:b2103b95b237836d858e86032f56262c361255c35289d440998376883452acb9\",\"scalar_score\":{\"_type\":\"float\",\"repr\":\"-0.098011111111111091\"},\"stage_a_passed\":true,\"stage_b_result\":{\"guardrails\":{\"finite\":true}},\"status\":\"success\",\"timestamp\":\"2026-01-01T00:00:00+00:00\",\"wall_time_seconds\":{\"_type\":\"float\",\"repr\":\"0.125\"}}],\"fingerprint\":{\"best_params\":null,\"best_score\":null,\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"num_evaluations\":0,\"numeric_basis\":{\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"data_ref\":{\"artifact_id\":\"sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85\",\"kind\":\"fixture.numeric.data\",\"media_type\":\"application/json\"},\"direction\":\"maximize\",\"evaluator_ref\":{\"artifact_id\":\"sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c\",\"kind\":\"fixture.numeric.evaluator\",\"media_type\":\"application/json\"},\"metric\":\"score\",\"model_ref\":{\"artifact_id\":\"sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789\",\"kind\":\"fixture.numeric.model\",\"media_type\":\"application/json\"},\"origin\":\"analytic-measurement.v1\",\"owner_id\":\"fixture-owner\",\"owner_ref\":{\"artifact_id\":\"sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1\",\"kind\":\"fixture.numeric.owner\",\"media_type\":\"application/json\"},\"profile\":\"numeric_transfer_basis.v1\",\"replica_policy\":\"preserve_explicit_identity.v1\",\"scalarizer\":\"direction_normalized_single_objective.v1\",\"scalarizer_ref\":{\"artifact_id\":\"sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b\",\"kind\":\"fixture.numeric.scalarizer\",\"media_type\":\"application/json\"},\"search_space_fingerprint\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"split_ref\":{\"artifact_id\":\"sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4\",\"kind\":\"fixture.numeric.split\",\"media_type\":\"application/json\"},\"tenant_id\":\"tenant-a\",\"unit\":\"analytic-loss\"},\"objective_directions\":{\"score\":\"maximize\"},\"objective_names\":[\"score\"],\"origin\":\"analytic-measurement.v1\",\"run_id\":\"source\",\"space_hash\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"tenant_id\":\"tenant-a\",\"units\":{\"score\":\"analytic-loss\"}}}",
+    "cedb90cd3b025d5e794a783034d9998aa1cd047fbd3750e0dae892a6ab0c9640": "{\"M\":16,\"dim\":2,\"ef_construction\":200,\"index_ref\":{\"artifact_id\":\"sha256:43f81b58e17c3fc49f557f6943a4a98ffca70d5d1452c47bf9990257df2f4216\",\"kind\":\"vector_memory.index\",\"media_type\":\"application/octet-stream\"},\"keys\":[\"source\"],\"max_elements\":10,\"metadata\":[{\"best_params\":null,\"best_score\":null,\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"history_ref\":{\"artifact_id\":\"sha256:4e1111a7a70ac185fedc66288129a57ec8c2c8870fc4dfa971725ca06640bda6\",\"kind\":\"search.transfer.history\",\"media_type\":\"application/json\"},\"num_evaluations\":0,\"numeric_basis\":{\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"data_ref\":{\"artifact_id\":\"sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85\",\"kind\":\"fixture.numeric.data\",\"media_type\":\"application/json\"},\"direction\":\"maximize\",\"evaluator_ref\":{\"artifact_id\":\"sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c\",\"kind\":\"fixture.numeric.evaluator\",\"media_type\":\"application/json\"},\"metric\":\"score\",\"model_ref\":{\"artifact_id\":\"sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789\",\"kind\":\"fixture.numeric.model\",\"media_type\":\"application/json\"},\"origin\":\"analytic-measurement.v1\",\"owner_id\":\"fixture-owner\",\"owner_ref\":{\"artifact_id\":\"sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1\",\"kind\":\"fixture.numeric.owner\",\"media_type\":\"application/json\"},\"profile\":\"numeric_transfer_basis.v1\",\"replica_policy\":\"preserve_explicit_identity.v1\",\"scalarizer\":\"direction_normalized_single_objective.v1\",\"scalarizer_ref\":{\"artifact_id\":\"sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b\",\"kind\":\"fixture.numeric.scalarizer\",\"media_type\":\"application/json\"},\"search_space_fingerprint\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"split_ref\":{\"artifact_id\":\"sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4\",\"kind\":\"fixture.numeric.split\",\"media_type\":\"application/json\"},\"tenant_id\":\"tenant-a\",\"unit\":\"analytic-loss\"},\"objective_directions\":{\"score\":\"maximize\"},\"objective_names\":[\"score\"],\"origin\":\"analytic-measurement.v1\",\"run_id\":\"source\",\"space_hash\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"tenant_id\":\"tenant-a\",\"units\":{\"score\":\"analytic-loss\"}}],\"schema_version\":\"2.0\"}",
+    "a08cda8bdc2c41f11a046afe7241d364d0db502871465e1e854206d4d5933882": "{\"evaluations\":[{\"candidate_id\":\"sha256:0000000000000000000000000000000000000000000000000000000000000000\",\"metadata\":{\"candidate_ref\":{\"artifact_id\":\"sha256:0000000000000000000000000000000000000000000000000000000000000000\",\"kind\":\"search.candidate\",\"media_type\":\"application/json\"},\"evaluation_ref\":{\"artifact_id\":\"sha256:953d5942c312eae8633fc06e370c7e7e237b737cee046abeffec07f08f56959d\",\"kind\":\"scientist.autotune.analytic.evaluation\",\"manifest_profile_sha256\":\"sha256:79c391a183bbcf0f04d9675d9b586a55e058db83b3e02ba1b9f5c5081f7f2abe\",\"media_type\":\"application/json\"},\"numeric_transfer_basis\":{\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"data_ref\":{\"artifact_id\":\"sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85\",\"kind\":\"fixture.numeric.data\",\"media_type\":\"application/json\"},\"direction\":\"minimize\",\"evaluator_ref\":{\"artifact_id\":\"sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c\",\"kind\":\"fixture.numeric.evaluator\",\"media_type\":\"application/json\"},\"metric\":\"score\",\"model_ref\":{\"artifact_id\":\"sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789\",\"kind\":\"fixture.numeric.model\",\"media_type\":\"application/json\"},\"origin\":\"analytic-measurement.v1\",\"owner_id\":\"fixture-owner\",\"owner_ref\":{\"artifact_id\":\"sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1\",\"kind\":\"fixture.numeric.owner\",\"media_type\":\"application/json\"},\"profile\":\"numeric_transfer_basis.v1\",\"replica_policy\":\"preserve_explicit_identity.v1\",\"scalarizer\":\"direction_normalized_single_objective.v1\",\"scalarizer_ref\":{\"artifact_id\":\"sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b\",\"kind\":\"fixture.numeric.scalarizer\",\"media_type\":\"application/json\"},\"search_space_fingerprint\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"split_ref\":{\"artifact_id\":\"sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4\",\"kind\":\"fixture.numeric.split\",\"media_type\":\"application/json\"},\"tenant_id\":\"tenant-a\",\"unit\":\"analytic-loss\"},\"params\":{\"x\":{\"_type\":\"float\",\"repr\":\"0.33333333333333331\"}},\"replica_id\":0,\"source_run_id\":\"source\"},\"objectives\":[{\"direction\":\"minimize\",\"is_satisfied\":true,\"name\":\"score\",\"raw_value\":{\"_type\":\"float\",\"repr\":\"0.011344444444444445\"},\"threshold\":null,\"weight\":{\"_type\":\"float\",\"repr\":\"1\"}}],\"params\":{\"x\":{\"_type\":\"float\",\"repr\":\"0.33333333333333331\"}},\"params_normalized\":[{\"_type\":\"float\",\"repr\":\"0.33333333333333331\"}],\"provenance_ref\":\"sha256:953d5942c312eae8633fc06e370c7e7e237b737cee046abeffec07f08f56959d\",\"scalar_score\":{\"_type\":\"float\",\"repr\":\"0.011344444444444445\"},\"stage_a_passed\":true,\"stage_b_result\":{\"guardrails\":{\"finite\":true}},\"status\":\"success\",\"timestamp\":\"2026-01-01T00:00:00+00:00\",\"wall_time_seconds\":{\"_type\":\"float\",\"repr\":\"0.125\"}},{\"candidate_id\":\"sha256:0000000000000000000000000000000000000000000000000000000000000000\",\"metadata\":{\"candidate_ref\":{\"artifact_id\":\"sha256:0000000000000000000000000000000000000000000000000000000000000000\",\"kind\":\"search.candidate\",\"media_type\":\"application/json\"},\"evaluation_ref\":{\"artifact_id\":\"sha256:461398e528f5fdd465047e9ced6d667c531c357fa34dd9ddca4aa05fbee51963\",\"kind\":\"scientist.autotune.analytic.evaluation\",\"manifest_profile_sha256\":\"sha256:79c391a183bbcf0f04d9675d9b586a55e058db83b3e02ba1b9f5c5081f7f2abe\",\"media_type\":\"application/json\"},\"numeric_transfer_basis\":{\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"data_ref\":{\"artifact_id\":\"sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85\",\"kind\":\"fixture.numeric.data\",\"media_type\":\"application/json\"},\"direction\":\"minimize\",\"evaluator_ref\":{\"artifact_id\":\"sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c\",\"kind\":\"fixture.numeric.evaluator\",\"media_type\":\"application/json\"},\"metric\":\"score\",\"model_ref\":{\"artifact_id\":\"sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789\",\"kind\":\"fixture.numeric.model\",\"media_type\":\"application/json\"},\"origin\":\"analytic-measurement.v1\",\"owner_id\":\"fixture-owner\",\"owner_ref\":{\"artifact_id\":\"sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1\",\"kind\":\"fixture.numeric.owner\",\"media_type\":\"application/json\"},\"profile\":\"numeric_transfer_basis.v1\",\"replica_policy\":\"preserve_explicit_identity.v1\",\"scalarizer\":\"direction_normalized_single_objective.v1\",\"scalarizer_ref\":{\"artifact_id\":\"sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b\",\"kind\":\"fixture.numeric.scalarizer\",\"media_type\":\"application/json\"},\"search_space_fingerprint\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"split_ref\":{\"artifact_id\":\"sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4\",\"kind\":\"fixture.numeric.split\",\"media_type\":\"application/json\"},\"tenant_id\":\"tenant-a\",\"unit\":\"analytic-loss\"},\"params\":{\"x\":{\"_type\":\"float\",\"repr\":\"0.66666666666666663\"}},\"replica_id\":1,\"source_run_id\":\"source\"},\"objectives\":[{\"direction\":\"minimize\",\"is_satisfied\":true,\"name\":\"score\",\"raw_value\":{\"_type\":\"float\",\"repr\":\"0.098011111111111091\"},\"threshold\":null,\"weight\":{\"_type\":\"float\",\"repr\":\"1\"}}],\"params\":{\"x\":{\"_type\":\"float\",\"repr\":\"0.66666666666666663\"}},\"params_normalized\":[{\"_type\":\"float\",\"repr\":\"0.66666666666666663\"}],\"provenance_ref\":\"sha256:461398e528f5fdd465047e9ced6d667c531c357fa34dd9ddca4aa05fbee51963\",\"scalar_score\":{\"_type\":\"float\",\"repr\":\"0.098011111111111091\"},\"stage_a_passed\":true,\"stage_b_result\":{\"guardrails\":{\"finite\":true}},\"status\":\"success\",\"timestamp\":\"2026-01-01T00:00:00+00:00\",\"wall_time_seconds\":{\"_type\":\"float\",\"repr\":\"0.125\"}}],\"fingerprint\":{\"best_params\":null,\"best_score\":null,\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"num_evaluations\":0,\"numeric_basis\":{\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"data_ref\":{\"artifact_id\":\"sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85\",\"kind\":\"fixture.numeric.data\",\"media_type\":\"application/json\"},\"direction\":\"minimize\",\"evaluator_ref\":{\"artifact_id\":\"sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c\",\"kind\":\"fixture.numeric.evaluator\",\"media_type\":\"application/json\"},\"metric\":\"score\",\"model_ref\":{\"artifact_id\":\"sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789\",\"kind\":\"fixture.numeric.model\",\"media_type\":\"application/json\"},\"origin\":\"analytic-measurement.v1\",\"owner_id\":\"fixture-owner\",\"owner_ref\":{\"artifact_id\":\"sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1\",\"kind\":\"fixture.numeric.owner\",\"media_type\":\"application/json\"},\"profile\":\"numeric_transfer_basis.v1\",\"replica_policy\":\"preserve_explicit_identity.v1\",\"scalarizer\":\"direction_normalized_single_objective.v1\",\"scalarizer_ref\":{\"artifact_id\":\"sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b\",\"kind\":\"fixture.numeric.scalarizer\",\"media_type\":\"application/json\"},\"search_space_fingerprint\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"split_ref\":{\"artifact_id\":\"sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4\",\"kind\":\"fixture.numeric.split\",\"media_type\":\"application/json\"},\"tenant_id\":\"tenant-a\",\"unit\":\"analytic-loss\"},\"objective_directions\":{\"score\":\"minimize\"},\"objective_names\":[\"score\"],\"origin\":\"analytic-measurement.v1\",\"run_id\":\"source\",\"space_hash\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"tenant_id\":\"tenant-a\",\"units\":{\"score\":\"analytic-loss\"}},\"schema_version\":\"2.0\"}",
+    "8a5fbe5a651891889777b87c12fdb5ac2ca1c6be4f241c157e9ec9b45c92be34": "{\"M\":16,\"dim\":2,\"ef_construction\":200,\"index_ref\":{\"artifact_id\":\"sha256:43f81b58e17c3fc49f557f6943a4a98ffca70d5d1452c47bf9990257df2f4216\",\"kind\":\"vector_memory.index\",\"media_type\":\"application/octet-stream\"},\"keys\":[\"source\"],\"max_elements\":10,\"metadata\":[{\"best_params\":null,\"best_score\":null,\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"history_ref\":{\"artifact_id\":\"sha256:a08cda8bdc2c41f11a046afe7241d364d0db502871465e1e854206d4d5933882\",\"kind\":\"search.transfer.history\",\"media_type\":\"application/json\"},\"num_evaluations\":0,\"numeric_basis\":{\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"data_ref\":{\"artifact_id\":\"sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85\",\"kind\":\"fixture.numeric.data\",\"media_type\":\"application/json\"},\"direction\":\"minimize\",\"evaluator_ref\":{\"artifact_id\":\"sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c\",\"kind\":\"fixture.numeric.evaluator\",\"media_type\":\"application/json\"},\"metric\":\"score\",\"model_ref\":{\"artifact_id\":\"sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789\",\"kind\":\"fixture.numeric.model\",\"media_type\":\"application/json\"},\"origin\":\"analytic-measurement.v1\",\"owner_id\":\"fixture-owner\",\"owner_ref\":{\"artifact_id\":\"sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1\",\"kind\":\"fixture.numeric.owner\",\"media_type\":\"application/json\"},\"profile\":\"numeric_transfer_basis.v1\",\"replica_policy\":\"preserve_explicit_identity.v1\",\"scalarizer\":\"direction_normalized_single_objective.v1\",\"scalarizer_ref\":{\"artifact_id\":\"sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b\",\"kind\":\"fixture.numeric.scalarizer\",\"media_type\":\"application/json\"},\"search_space_fingerprint\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"split_ref\":{\"artifact_id\":\"sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4\",\"kind\":\"fixture.numeric.split\",\"media_type\":\"application/json\"},\"tenant_id\":\"tenant-a\",\"unit\":\"analytic-loss\"},\"objective_directions\":{\"score\":\"minimize\"},\"objective_names\":[\"score\"],\"origin\":\"analytic-measurement.v1\",\"run_id\":\"source\",\"space_hash\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"tenant_id\":\"tenant-a\",\"units\":{\"score\":\"analytic-loss\"}}],\"schema_version\":\"2.0\"}",
+    "1baf7cbade5c0a87cbb88ac71cea967c91429849c02591cdf1ddd3ae50e24863": "{\"evaluations\":[{\"candidate_id\":\"sha256:0000000000000000000000000000000000000000000000000000000000000000\",\"metadata\":{\"candidate_ref\":{\"artifact_id\":\"sha256:0000000000000000000000000000000000000000000000000000000000000000\",\"kind\":\"search.candidate\",\"media_type\":\"application/json\"},\"evaluation_ref\":{\"artifact_id\":\"sha256:7864841b51a5c902cbd0c5eb82a393ad707edbf5fc64cf789413f113c0dba569\",\"kind\":\"scientist.autotune.analytic.evaluation\",\"manifest_profile_sha256\":\"sha256:79c391a183bbcf0f04d9675d9b586a55e058db83b3e02ba1b9f5c5081f7f2abe\",\"media_type\":\"application/json\"},\"numeric_transfer_basis\":{\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"data_ref\":{\"artifact_id\":\"sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85\",\"kind\":\"fixture.numeric.data\",\"media_type\":\"application/json\"},\"direction\":\"maximize\",\"evaluator_ref\":{\"artifact_id\":\"sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c\",\"kind\":\"fixture.numeric.evaluator\",\"media_type\":\"application/json\"},\"metric\":\"score\",\"model_ref\":{\"artifact_id\":\"sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789\",\"kind\":\"fixture.numeric.model\",\"media_type\":\"application/json\"},\"origin\":\"analytic-measurement.v1\",\"owner_id\":\"fixture-owner\",\"owner_ref\":{\"artifact_id\":\"sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1\",\"kind\":\"fixture.numeric.owner\",\"media_type\":\"application/json\"},\"profile\":\"numeric_transfer_basis.v1\",\"replica_policy\":\"preserve_explicit_identity.v1\",\"scalarizer\":\"direction_normalized_single_objective.v1\",\"scalarizer_ref\":{\"artifact_id\":\"sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b\",\"kind\":\"fixture.numeric.scalarizer\",\"media_type\":\"application/json\"},\"search_space_fingerprint\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"split_ref\":{\"artifact_id\":\"sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4\",\"kind\":\"fixture.numeric.split\",\"media_type\":\"application/json\"},\"tenant_id\":\"tenant-a\",\"unit\":\"analytic-loss\"},\"params\":{\"x\":{\"_type\":\"float\",\"repr\":\"0.33333333333333331\"}},\"replica_id\":0,\"source_run_id\":\"source\"},\"objectives\":[{\"direction\":\"maximize\",\"is_satisfied\":true,\"name\":\"score\",\"raw_value\":{\"_type\":\"float\",\"repr\":\"0.011344444444444445\"},\"threshold\":null,\"weight\":{\"_type\":\"float\",\"repr\":\"1\"}}],\"params\":{\"x\":{\"_type\":\"float\",\"repr\":\"0.33333333333333331\"}},\"params_normalized\":[{\"_type\":\"float\",\"repr\":\"0.33333333333333331\"}],\"provenance_ref\":\"sha256:7864841b51a5c902cbd0c5eb82a393ad707edbf5fc64cf789413f113c0dba569\",\"scalar_score\":{\"_type\":\"float\",\"repr\":\"-0.011344444444444445\"},\"stage_a_passed\":true,\"stage_b_result\":{\"guardrails\":{\"finite\":true}},\"status\":\"success\",\"timestamp\":\"2026-01-01T00:00:00+00:00\",\"wall_time_seconds\":{\"_type\":\"float\",\"repr\":\"0.125\"}},{\"candidate_id\":\"sha256:0000000000000000000000000000000000000000000000000000000000000000\",\"metadata\":{\"candidate_ref\":{\"artifact_id\":\"sha256:0000000000000000000000000000000000000000000000000000000000000000\",\"kind\":\"search.candidate\",\"media_type\":\"application/json\"},\"evaluation_ref\":{\"artifact_id\":\"sha256:1b1ac81554efc948c28b1579a47ee6bfd873db66cd837e51568509a4605ef508\",\"kind\":\"scientist.autotune.analytic.evaluation\",\"manifest_profile_sha256\":\"sha256:79c391a183bbcf0f04d9675d9b586a55e058db83b3e02ba1b9f5c5081f7f2abe\",\"media_type\":\"application/json\"},\"numeric_transfer_basis\":{\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"data_ref\":{\"artifact_id\":\"sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85\",\"kind\":\"fixture.numeric.data\",\"media_type\":\"application/json\"},\"direction\":\"maximize\",\"evaluator_ref\":{\"artifact_id\":\"sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c\",\"kind\":\"fixture.numeric.evaluator\",\"media_type\":\"application/json\"},\"metric\":\"score\",\"model_ref\":{\"artifact_id\":\"sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789\",\"kind\":\"fixture.numeric.model\",\"media_type\":\"application/json\"},\"origin\":\"analytic-measurement.v1\",\"owner_id\":\"fixture-owner\",\"owner_ref\":{\"artifact_id\":\"sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1\",\"kind\":\"fixture.numeric.owner\",\"media_type\":\"application/json\"},\"profile\":\"numeric_transfer_basis.v1\",\"replica_policy\":\"preserve_explicit_identity.v1\",\"scalarizer\":\"direction_normalized_single_objective.v1\",\"scalarizer_ref\":{\"artifact_id\":\"sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b\",\"kind\":\"fixture.numeric.scalarizer\",\"media_type\":\"application/json\"},\"search_space_fingerprint\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"split_ref\":{\"artifact_id\":\"sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4\",\"kind\":\"fixture.numeric.split\",\"media_type\":\"application/json\"},\"tenant_id\":\"tenant-a\",\"unit\":\"analytic-loss\"},\"params\":{\"x\":{\"_type\":\"float\",\"repr\":\"0.66666666666666663\"}},\"replica_id\":1,\"source_run_id\":\"source\"},\"objectives\":[{\"direction\":\"maximize\",\"is_satisfied\":true,\"name\":\"score\",\"raw_value\":{\"_type\":\"float\",\"repr\":\"0.098011111111111091\"},\"threshold\":null,\"weight\":{\"_type\":\"float\",\"repr\":\"1\"}}],\"params\":{\"x\":{\"_type\":\"float\",\"repr\":\"0.66666666666666663\"}},\"params_normalized\":[{\"_type\":\"float\",\"repr\":\"0.66666666666666663\"}],\"provenance_ref\":\"sha256:1b1ac81554efc948c28b1579a47ee6bfd873db66cd837e51568509a4605ef508\",\"scalar_score\":{\"_type\":\"float\",\"repr\":\"-0.098011111111111091\"},\"stage_a_passed\":true,\"stage_b_result\":{\"guardrails\":{\"finite\":true}},\"status\":\"success\",\"timestamp\":\"2026-01-01T00:00:00+00:00\",\"wall_time_seconds\":{\"_type\":\"float\",\"repr\":\"0.125\"}}],\"fingerprint\":{\"best_params\":null,\"best_score\":null,\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"num_evaluations\":0,\"numeric_basis\":{\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"data_ref\":{\"artifact_id\":\"sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85\",\"kind\":\"fixture.numeric.data\",\"media_type\":\"application/json\"},\"direction\":\"maximize\",\"evaluator_ref\":{\"artifact_id\":\"sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c\",\"kind\":\"fixture.numeric.evaluator\",\"media_type\":\"application/json\"},\"metric\":\"score\",\"model_ref\":{\"artifact_id\":\"sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789\",\"kind\":\"fixture.numeric.model\",\"media_type\":\"application/json\"},\"origin\":\"analytic-measurement.v1\",\"owner_id\":\"fixture-owner\",\"owner_ref\":{\"artifact_id\":\"sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1\",\"kind\":\"fixture.numeric.owner\",\"media_type\":\"application/json\"},\"profile\":\"numeric_transfer_basis.v1\",\"replica_policy\":\"preserve_explicit_identity.v1\",\"scalarizer\":\"direction_normalized_single_objective.v1\",\"scalarizer_ref\":{\"artifact_id\":\"sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b\",\"kind\":\"fixture.numeric.scalarizer\",\"media_type\":\"application/json\"},\"search_space_fingerprint\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"split_ref\":{\"artifact_id\":\"sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4\",\"kind\":\"fixture.numeric.split\",\"media_type\":\"application/json\"},\"tenant_id\":\"tenant-a\",\"unit\":\"analytic-loss\"},\"objective_directions\":{\"score\":\"maximize\"},\"objective_names\":[\"score\"],\"origin\":\"analytic-measurement.v1\",\"run_id\":\"source\",\"space_hash\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"tenant_id\":\"tenant-a\",\"units\":{\"score\":\"analytic-loss\"}},\"schema_version\":\"2.0\"}",
+    "0efdcef5a234d19a795fedf905762fc78a5176894002783f4e4e4b94996461cc": "{\"M\":16,\"dim\":2,\"ef_construction\":200,\"index_ref\":{\"artifact_id\":\"sha256:43f81b58e17c3fc49f557f6943a4a98ffca70d5d1452c47bf9990257df2f4216\",\"kind\":\"vector_memory.index\",\"media_type\":\"application/octet-stream\"},\"keys\":[\"source\"],\"max_elements\":10,\"metadata\":[{\"best_params\":null,\"best_score\":null,\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"history_ref\":{\"artifact_id\":\"sha256:1baf7cbade5c0a87cbb88ac71cea967c91429849c02591cdf1ddd3ae50e24863\",\"kind\":\"search.transfer.history\",\"media_type\":\"application/json\"},\"num_evaluations\":0,\"numeric_basis\":{\"bounds\":{\"parameters\":[{\"categories\":null,\"dtype\":\"continuous\",\"log_scale\":false,\"lower\":{\"_type\":\"float\",\"repr\":\"0\"},\"name\":\"x\",\"upper\":{\"_type\":\"float\",\"repr\":\"1\"}}]},\"data_ref\":{\"artifact_id\":\"sha256:469c54b585ea9f1a2deb9b2a731ca126e185071c661f47fc041cde1825064b85\",\"kind\":\"fixture.numeric.data\",\"media_type\":\"application/json\"},\"direction\":\"maximize\",\"evaluator_ref\":{\"artifact_id\":\"sha256:98c25d633c8446cff1e2a5b041e458e558aa800a83731dc81e77beedb7cbac8c\",\"kind\":\"fixture.numeric.evaluator\",\"media_type\":\"application/json\"},\"metric\":\"score\",\"model_ref\":{\"artifact_id\":\"sha256:63b87c6a9389a1cf565bf472099d18259d692288347d69996339f2b9e7a74789\",\"kind\":\"fixture.numeric.model\",\"media_type\":\"application/json\"},\"origin\":\"analytic-measurement.v1\",\"owner_id\":\"fixture-owner\",\"owner_ref\":{\"artifact_id\":\"sha256:bea3de60c83bc5e4a05e014fcfd0f14b406938ca16dcf2a612404e9380d9dab1\",\"kind\":\"fixture.numeric.owner\",\"media_type\":\"application/json\"},\"profile\":\"numeric_transfer_basis.v1\",\"replica_policy\":\"preserve_explicit_identity.v1\",\"scalarizer\":\"direction_normalized_single_objective.v1\",\"scalarizer_ref\":{\"artifact_id\":\"sha256:435d672ad6b197e35236cda70966a91da755f44817b645f8aeb429aba629571b\",\"kind\":\"fixture.numeric.scalarizer\",\"media_type\":\"application/json\"},\"search_space_fingerprint\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"split_ref\":{\"artifact_id\":\"sha256:b31e4574b492b97b3f7b9e7c341186aed4ca52fdc9c952386d3ab56616e4eba4\",\"kind\":\"fixture.numeric.split\",\"media_type\":\"application/json\"},\"tenant_id\":\"tenant-a\",\"unit\":\"analytic-loss\"},\"objective_directions\":{\"score\":\"maximize\"},\"objective_names\":[\"score\"],\"origin\":\"analytic-measurement.v1\",\"run_id\":\"source\",\"space_hash\":\"f6c20b903997b3cb230d53ae61601de7fc0ababb7bb8631f62cdbd9579aca504\",\"split\":\"selection\",\"tenant_id\":\"tenant-a\",\"units\":{\"score\":\"analytic-loss\"}}],\"schema_version\":\"2.0\"}"
+  },
+  "raw_large_native_bundle_bytes": "1002 composite ~2.3MB and native index omitted explicitly. Freshchild26 actualread receipts and ordinary reproducible testrecipe retained. Samebundle-ref altered AFTER positive readback, current posttestbytes intentionally differ; not fabricated positive replacement.",
+  "scientific_quality": "two controlled persisted observations reused in1001donor snapshots;1002actualindexedregistrations, not1001independentscientificexecutions"
+}

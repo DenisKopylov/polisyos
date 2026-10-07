@@ -1,0 +1,78 @@
+{
+  "schema": "D.e02.B111-native-primary-owned-baseline-independent-review.v1",
+  "reviewer": "/root/census_oct07",
+  "created_utc": "2026-10-07T10:27:40.799061+00:00",
+  "source": "b652b77eeec25f8ff1bd744d84ed20bd1b6cb21e",
+  "tree": "e677b5e24493a7083287c3bea31bca1892c3be29",
+  "observation_path": "/dev/shm/e02-D-native-primary-b652-yb2hhvkq/observations.json",
+  "observation_sha256": "1382cff0b44632ddc1f1a26a253489967d0a024088d3e2e8cc7d5429c2f7526d",
+  "review": "CONFIRMED_ACTUAL_B111_OWNED_NATIVE_MISSING_PRIMARY_FAIL_WITH_REAL_ZERO_AND_ONE_CONTROLS",
+  "records": [
+    {
+      "case": "missing_primary",
+      "result": "FAIL",
+      "source_metric": {},
+      "history_objective": 0.0,
+      "checkpoint_ref": {
+        "artifact_id": "sha256:5ef8405c0a247b986a9eace8102d993678764532c682a37f0616b3e9e543a7de",
+        "kind": "scientist.search.service_checkpoint",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a"
+      },
+      "evaluation_ref": {
+        "artifact_id": "sha256:28539cceccafd27b6398ccac6bd95e6a051334df3430867c25a45b2ede7db0ef",
+        "kind": "scientist.autotune.dedup.evaluation",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:9751b526eb9778ccf3c644fb7224027c584c89d4a4d8307ef8c259ab16ede49e"
+      },
+      "raw_content_hash_verified": true
+    },
+    {
+      "case": "genuine_zero",
+      "result": "PASS",
+      "source_metric": {
+        "score": 0.0
+      },
+      "history_objective": 0.0,
+      "checkpoint_ref": {
+        "artifact_id": "sha256:5b0e359e32bd5e68061783db75c0b2ee0881da127af0db2208492af9c1efa0e6",
+        "kind": "scientist.search.service_checkpoint",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a"
+      },
+      "evaluation_ref": {
+        "artifact_id": "sha256:976ee3ed9f7e87c60c58aabea25d338a95cf517109f4a9a568394bf63ba24b04",
+        "kind": "scientist.autotune.dedup.evaluation",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:a4bcdd31236962e4b2aabf9d15b0700068e5082569e5b99dbab17991433e489d"
+      },
+      "raw_content_hash_verified": true
+    },
+    {
+      "case": "ordinary_one",
+      "result": "PASS",
+      "source_metric": {
+        "score": 1.0
+      },
+      "history_objective": -1.0,
+      "checkpoint_ref": {
+        "artifact_id": "sha256:2880564cb68134f7a2e39e862845333c6dd96229c01c6c556cc14c4a955623f9",
+        "kind": "scientist.search.service_checkpoint",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a"
+      },
+      "evaluation_ref": {
+        "artifact_id": "sha256:cb6577dabcf5bbdb9beb90e68beeb946d0ec75979430749e63abbcfd33f6d0de",
+        "kind": "scientist.autotune.dedup.evaluation",
+        "media_type": "application/json",
+        "manifest_profile_sha256": "sha256:9751b526eb9778ccf3c644fb7224027c584c89d4a4d8307ef8c259ab16ede49e"
+      },
+      "raw_content_hash_verified": true
+    }
+  ],
+  "P37": "Actual source typedBenchmarkEvaluation metricpresence,response→nativeobjective/history/best/front→freshownedCASread; six exactsourcehashes and completeper-caseoutputhashes checked, six referenced CAS rawcontentdigests independently recomputed; explicit existing canonical tagged-float JSON decoded for primitive comparison.",
+  "P38": "Missing holdout metric{} and genuine measured0 currently both native finite objective0 yielding best/front0; absence is not measuredzero. True0/ordinary1 positive retained; no scientific authority needed for this primitive boundary.",
+  "new_candidate": "Draft fixes and actual markerTrue/status/promising controls runtimeUNRUN; final proposal staysopenuntil actualreadback/removal verified. Numerical154+MO27 unaffected scopedcomponent receipts remainvalid.",
+  "formal_closed": false,
+  "accepted_in_G": false
+}

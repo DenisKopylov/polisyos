@@ -1,0 +1,28 @@
+{
+  "198076863e143dea9f89f02734b13d50dae3eed5": {
+    "denominator": "all tracked .py/.pyi blobs in exact Git tree",
+    "file_count": 6444,
+    "matches": [
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/adversarial.py",
+        "sha256": "7ffbd3c4fc885d73f702bed615fbc5bb64296e304157fbef5bb5a0ba38483a63",
+        "lines": [
+          {
+            "line": 675,
+            "text": "    unique_vulnerabilities = _deduplicate_vulnerabilities(observed_vulnerabilities)"
+          },
+          {
+            "line": 767,
+            "text": "def _deduplicate_vulnerabilities(vulnerabilities: list[Vulnerability]) -> list[Vulnerability]:"
+          }
+        ],
+        "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5"
+      }
+    ]
+  },
+  "b85a17e0ebc53b4d151ab51f8196b8fe121717a0": {
+    "denominator": "all tracked .py/.pyi blobs in exact Git tree",
+    "file_count": 6449,
+    "matches": []
+  }
+}

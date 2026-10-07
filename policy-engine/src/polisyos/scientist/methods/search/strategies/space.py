@@ -9,11 +9,13 @@ import random
 from dataclasses import dataclass, field
 from typing import Any
 
+from polisyos.common.serialization import finite_real_scalar
 from polisyos.scientist.methods.search.strategies._deps import require_torch, torch
 from polisyos.scientist.methods.search.strategies.types import (
     NormalizedVector,
     ParameterBounds,
     ParameterType,
+    PolicyCandidate,
 )
 
 
@@ -46,6 +48,8 @@ class SearchSpace:
         if not self.bounds:
             raise ValueError("SearchSpace must contain at least one parameter")
         self._expanded.clear()
+        if len({bound.name for bound in self.bounds}) != len(self.bounds):
+            raise ValueError("SearchSpace parameter names must be unique")
         for bound in self.bounds:
             if bound.dtype == ParameterType.CATEGORICAL:
                 assert bound.categories is not None
@@ -74,14 +78,25 @@ class SearchSpace:
             if bound.dtype == ParameterType.CATEGORICAL:
                 assert bound.categories is not None
                 raw = params.get(bound.name)
-                if raw not in bound.categories:
+                matches = [
+                    type(raw) is type(candidate) and raw == candidate
+                    for candidate in bound.categories
+                ]
+                if sum(matches) != 1:
                     raise ValueError(
                         f"Unknown category '{raw}' for parameter '{bound.name}'. "
                         f"Allowed: {bound.categories}"
                     )
-                values.extend(1.0 if raw == candidate else 0.0 for candidate in bound.categories)
+                values.extend(1.0 if match else 0.0 for match in matches)
                 continue
-            raw = float(params.get(bound.name, bound.lower))
+            value = params.get(bound.name)
+            raw = finite_real_scalar(value) if isinstance(value, (int, float)) else None
+            if raw is None:
+                raise ValueError(f"Finite physical parameter required for '{bound.name}'")
+            if not bound.lower <= raw <= bound.upper:
+                raise ValueError(f"Physical parameter '{bound.name}' is outside bounds")
+            if bound.dtype == ParameterType.INTEGER and raw != int(raw):
+                raise ValueError(f"Integer parameter required for '{bound.name}'")
             if bound.log_scale or bound.dtype == ParameterType.LOG_CONTINUOUS:
                 log_lower = math.log(bound.lower)
                 log_upper = math.log(bound.upper)
@@ -96,6 +111,13 @@ class SearchSpace:
     def denormalize(self, vector: NormalizedVector) -> dict[str, Any]:
         if len(vector) != self.dim:
             raise ValueError(f"Expected vector length {self.dim}, got {len(vector)}")
+        converted = tuple(
+            finite_real_scalar(value) if isinstance(value, (int, float)) else None
+            for value in vector
+        )
+        if any(value is None for value in converted):
+            raise ValueError("Normalized coordinates must be finite numbers")
+        vector = tuple(float(value) for value in converted if value is not None)
 
         params: dict[str, Any] = {}
         cursor = 0
@@ -114,15 +136,37 @@ class SearchSpace:
             if bound.log_scale or bound.dtype == ParameterType.LOG_CONTINUOUS:
                 log_lower = math.log(bound.lower)
                 log_upper = math.log(bound.upper)
-                value = math.exp(log_lower + normalized * (log_upper - log_lower))
+                value = (
+                    bound.lower
+                    if normalized == 0.0
+                    else bound.upper
+                    if normalized == 1.0
+                    else min(
+                        bound.upper,
+                        max(
+                            bound.lower, math.exp(log_lower + normalized * (log_upper - log_lower))
+                        ),
+                    )
+                )
             else:
                 value = bound.lower + normalized * (bound.upper - bound.lower)
             if bound.dtype == ParameterType.INTEGER:
-                params[bound.name] = int(round(value))
+                params[bound.name] = min(
+                    math.floor(bound.upper), max(math.ceil(bound.lower), int(round(value)))
+                )
             else:
                 params[bound.name] = float(value)
             cursor += 1
         return params
+
+    def candidate_from_vector(self, vector: NormalizedVector, **fields: Any) -> PolicyCandidate:
+        """Bind the surrogate point to the action actually executed."""
+        params = self.denormalize(vector)
+        metadata = dict(fields.pop("metadata", {}))
+        metadata["relaxed_proposal"] = list(vector)
+        return PolicyCandidate(
+            params=params, params_normalized=self.normalize(params), metadata=metadata, **fields
+        )
 
     def sobol_backend(self) -> str:
         """Return the import-time backend preference for diagnostics only.
@@ -134,7 +178,7 @@ class SearchSpace:
         if torch is not None:  # pragma: no cover - environment dependent
             return "torch"
         try:
-            from scipy.stats.qmc import Sobol  # type: ignore[import-not-found]  # noqa: F401
+            from scipy.stats.qmc import Sobol  # type: ignore[import-not-found]
         except Exception:
             return "python"
         return "scipy"
@@ -153,7 +197,16 @@ class SearchSpace:
             )
             for bound in self.bounds
         )
-        return hashlib.sha256(repr(signature).encode("utf-8")).hexdigest()
+        return hashlib.sha256(
+            repr(("attainable_projection.v1", signature)).encode("utf-8")
+        ).hexdigest()
+
+    def same_execution(self, left: dict[str, Any], right: dict[str, Any]) -> bool:
+        """Compare executed actions in their canonical typed coordinate domain."""
+        try:
+            return self.normalize(left) == self.normalize(right)
+        except (TypeError, ValueError):
+            return False
 
     @property
     def last_sobol_sampler_identity(self) -> str | None:
@@ -183,17 +236,14 @@ class SearchSpace:
         every cached point reflect the implementation that actually executed.
         """
 
-        generated = self.sample_sobol(n_samples=len(expected_prefix), seed=seed)
-        actual_identity = self.last_sobol_sampler_identity
-        actual_version = self.last_sobol_sampler_version
+        probe = SearchSpace(list(self.bounds))
+        generated = probe.sample_sobol(n_samples=len(expected_prefix), seed=seed)
+        actual_identity = probe.last_sobol_sampler_identity
+        actual_version = probe.last_sobol_sampler_version
         if actual_identity != expected_identity or actual_version != expected_version:
-            raise ValueError(
-                "Sobol checkpoint is incompatible: effective sampler identity changed"
-            )
+            raise ValueError("Sobol checkpoint is incompatible: effective sampler identity changed")
         if generated != expected_prefix:
-            raise ValueError(
-                "Sobol checkpoint is incompatible: cached prefix diverges"
-            )
+            raise ValueError("Sobol checkpoint is incompatible: cached prefix diverges")
 
     def sample_sobol(self, n_samples: int, seed: int = 42) -> list[NormalizedVector]:
         if n_samples <= 0:

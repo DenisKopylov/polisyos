@@ -1,0 +1,11 @@
+id = "2026-10-06-e02-lesson-partial-answer"
+title = "Fill partial lesson answers with distinct admitted evidence"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-runtime"
+summary = "Transfer discovery suppresses original lesson evidence already returned locally, and duplicate copies across namespaces, before applying its result quota. Re-reading an existing transferred card no longer materializes another occurrence or hides a distinct eligible card."
+surface_classification = "internal: internal-only"
+evidence = ["tests/unit/scientist/search/test_lesson_partial_consumer.py"]
+compatibility = "Existing source-run, confidence, trust and evidence-time admission predicates remain active on both routes. The optional internal exclude_cards argument identifies already returned cards; distinct newer persisted evidence remains eligible."
+migration = "No persisted format migration is required. Existing CAS cards and namespace indexes retain their original evidence timestamps and references."
+limitations = "This is CAS-backed lesson discovery and partial-answer admission. It does not provide tenant authorization or legitimate authorized evidence revalidation."

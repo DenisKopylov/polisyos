@@ -1,0 +1,39 @@
+{
+  "schema_version": "D.e02.independent-champion-numeric-review.v1",
+  "author": "/root/service_oct07",
+  "reviewer": "/root/math_oct07",
+  "source": "46933aa2d97e236a949c490650a483c9a2838d98",
+  "tree": "91cd2360ef82a45b2cb069bfb2a15f74c6812c1d",
+  "check_result": "PASS",
+  "binding": "B111 original genesis/change-champion finite publication predicate; existing native producer guard plus real malformed-present CAS primitive admission/cold pointer consumers",
+  "current_native_pytest": {
+    "PASS": 21,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0
+  },
+  "external_witness_exit": 0,
+  "external_proof_rows": {
+    "genesis_or_successor": 12,
+    "fresh_pointer_refusal": 3
+  },
+  "inspected": "Full witness source; complete output JSON; exact source/fixture origins; immutable original suite/candidate/evaluation basis and manifest-input comparisons; genuine valid genesis and same-basis score2 successor readback in each witness before invalid refusal; NaN/\u00b1Inf malformed raw CAS refs bind actual bytes; refusal leaves empty pointer absent or incumbent score1 pointer byte-identical; three corrupted persisted pointer fresh readers refuse without mutation.",
+  "original_acceptance_not_shortened": true,
+  "complete_outputs": {
+    "benchmark_nonfinite_cas_witness.py": "32f4351c46f3d5b2f926795d20f56c2a86d2f16d1b46f4e52ff8900322d60d89",
+    "benchmark-nonfinite-cas.command.json": "cd83c9f5694dec69bf97f27baa73d778ee737709ead1398c2e28c23f795ad56b",
+    "benchmark-nonfinite-cas.stdout.txt": "4364f19e340c2a641f9f9db12ca2497a831bd52801d77a86327a446f93c13c0a",
+    "benchmark-nonfinite-cas.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "benchmark-primitive-module.command.json": "b0766de9341f9b94b150c384ff16d7c978d65d9026e5187c388aeb22586f2d8d",
+    "benchmark-primitive-module.stdout.txt": "69c7159659c68b668a5a018b30db311c00d9b0fb3ca85a642465d3d768d2684d",
+    "benchmark-primitive-module.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "benchmark-primitive-module.junit.xml": "8aff344b715f3be4e8a833527b537ea5852fe304b2f9fb6099f2a7c9e990cd6e",
+    "benchmark46933-result-summary.json": "2fa31bf4c989b8450dd0bd910545106ce1439469c05f09353a8b9342d1703130"
+  },
+  "limitations": [
+    "Synthetic but actual native FileSystemCAS/ChampionRegistry primitive boundary; does not appoint evaluator/data/split rights, certify scientific score law, distributed consistency or power-loss behavior.",
+    "Malformed-present NaN/Infinity bytes are deliberately stored via real put_bytes to test refusal; canonical valid producer never emitted these nonstandard numeric tokens.",
+    "External witness is script output with15 proof rows, not15 pytest testcases; keep21 PASS distinct from script exit0.",
+    "Formal finding closure/integration acceptance remains root/G."
+  ]
+}

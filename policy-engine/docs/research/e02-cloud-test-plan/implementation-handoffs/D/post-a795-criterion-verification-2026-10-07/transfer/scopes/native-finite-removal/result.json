@@ -1,0 +1,40 @@
+{
+  "P41": "not_established; no slice-base inherited-red claim",
+  "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "assessed_product_tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668",
+  "backend": {
+    "botorch": "0.16.1",
+    "gpytorch": "1.15.1",
+    "hnswlib": "0.8.0",
+    "numpy": "2.3.5",
+    "pytest": "9.0.2",
+    "scipy": "1.16.3",
+    "torch": "2.10.0"
+  },
+  "complete_declared_executable_inputs": 6861,
+  "deciding_sha256": {
+    "after.json": "4fb71240c1d7b7384ada0bad3c5a4e422d78b850adfbf71b128265cf80f83aee",
+    "assessed-source-equivalence.json": "cfb8b0b7e836a46621ec7ab719b19ca8bbc3264f0a6bb92a7c2fe5bfc490c28a",
+    "before.json": "4fb71240c1d7b7384ada0bad3c5a4e422d78b850adfbf71b128265cf80f83aee",
+    "command.json": "c9d1b3cfe8378715981a5206d5a03d61409481a44af0d47e86121d058bf5b7fe",
+    "events.jsonl": "31ec1ec9aa192f99d7a3118fccd4fb14861ff215453fe988f86d709956670fb0",
+    "junit.xml": "74cca5baf5d45b551d122785ec9c033426bb07b7c0de045c8c38f8bc6439ee95",
+    "origins.json": "b5cc9d200a22b073c00f306f96634241726f7281c18d3829dc22582b848bd2cc"
+  },
+  "elapsed_seconds": 1.3558245220046956,
+  "exitcode": 1,
+  "mode": "native-finite-removal",
+  "outer_complete_stdout_stderr": "Captured by caller; hash only after process ends",
+  "property": "Remove only private native get_items finite admission; genuineCAS/nativeheader/schema/digest remain: oldgeneration must not publish actual storedNaN (expectedassertionFAIL).",
+  "resource_posix": {
+    "children_maxrss_kib": 124952,
+    "children_system_seconds": 0.066134,
+    "children_user_seconds": 0.062669,
+    "self_maxrss_kib": 124952,
+    "self_system_seconds": 0.156736,
+    "self_user_seconds": 0.8218069999999998
+  },
+  "source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "source_and_executable_inputs_unchanged": true,
+  "tree": "3e05fcf727bf660a5570225b9600ca410a7082be"
+}

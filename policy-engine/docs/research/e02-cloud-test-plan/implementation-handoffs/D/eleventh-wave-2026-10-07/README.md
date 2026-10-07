@@ -1,0 +1,13 @@
+# D continuation after stopped PR68
+
+Reviewed source candidate: `a795967a80818a61fbc939a8d1b1ec8b0fca6477`, tree `2cd7e7058eeb0431b0571b30af3ad80b9a3c2668`. Production code froze at `3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2`; the final candidate adds only the complete owned batch checkpoint test fixture. This receipt commit is evidence only.
+
+The ordinary merge preserves D history and canonical B1.2. Complete consumed history is admitted before restore mutation; borrowed checkpoint profiles cannot inherit proof. Estimated-only failures retain their estimate with no synthetic reported zero. The static `_SPEC` diagnostic refuses ambiguous writes and remains a bounded AST diagnostic.
+
+Actual a795 service results are 31 PASS and 22 PASS, with one expected assertion failure under guard removal. Separately executed at3b and independently qualified for the disjoint final fixture delta: requested three dedup/contract files50 PASS, funnel17 PASS with3 expected legacy-projection failures, actual SingleTaskGP12 PASS with3 real fits and0 resume fits, AST44 PASS/canonical63-input diagnostic, and adopted CAS/async7 PASS. These scopes are separate, not a whole-D total. The exact680 G budget-factory10 PASS receipt is preserved and was not rerun or relabeled.
+
+[Final handoff](final-closeout.json) links commands, literal stdout/stderr, JUnit, complete phase outputs, source/input/module-origin receipts, actual artifacts, independent reviews and removal controls. Large raw inventories remain local path/hash provenance; compact packages explicitly identify their preserved and omitted bytes. [Publication manifest](publication-manifest.json) covers all delivered files.
+
+[Original criterion ledger](final-accounting-a795/ledger-overlay.json) preserves all17 bundles/45 IDs/46 original acceptance bindings.39 bounded proposals await G; B131/B137/B157/B161/B164 remain held, B108 limited. Formal closure0, G acceptance0. The38 whole-property current-verification gaps are separate from completed bounded contributions. [Sixteen owner-input packets](final-accounting-a795/owner-inputs.json) request only minimum refs/decisions; read the [B164 current authority clarification](final-accounting-a795/current-capability-label-clarification.json) with the sealed accounting.
+
+The general production-invocation diagnostic is UNRUN after signal9 with unknown cause and no canonical output; this is not product FAIL or an assigned OOM. Global generated companions and additional optional backend properties remain UNRUN/SKIP. [Pattern pass](pattern-pass.json) keeps P41 not_established for all46 occurrences. G alone decides integration acceptance and publishes the shared integration checkpoint; main was not written.

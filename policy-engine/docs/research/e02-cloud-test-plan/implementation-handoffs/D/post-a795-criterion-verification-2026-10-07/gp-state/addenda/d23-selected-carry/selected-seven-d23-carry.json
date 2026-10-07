@@ -1,0 +1,65 @@
+{
+  "schema": "D.E02.selected-GP-state-5b-to-d23-carry.v1",
+  "author": "/root/gp_oct07",
+  "created_utc": "2026-10-07T18:35:23.045189+00:00",
+  "actual_executed_source": "cbc46a0bc87761bc2267a0daa84da489d6702e89",
+  "actual_executed_tree": "3e05fcf727bf660a5570225b9600ca410a7082be",
+  "assessed_product_source": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+  "prior_candidate": "5b5f7ca6bff7294d046fed39d97dbf6d38a27e61",
+  "prior_candidate_tree": "5738498b09aadca51e0bb73fa6d104e3354dc603",
+  "candidate": "d23b603f31bef9a2038bae8933402eda75f6c3a2",
+  "candidate_tree": "788863c0431841308aef451fcd94df2ba74d1dc6",
+  "current_execution_on_candidate": false,
+  "complete_changed_path_denominator": [
+    {
+      "name_status": "M",
+      "path": "policy-engine/tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py",
+      "source_5b_sha256": "4fab42e2dbf6ada128f738aef4f1eb59ea39f83606dd2b3c06d9397bd4f6c844",
+      "source_d23_sha256": "54348a0c810cd8e5646ab97cbcc83069b8e21c4d9f0f0d895c42f3015ad64128",
+      "numstat": "16\t3\tpolicy-engine/tests/integration/scientist/methods/search/funnel/test_native_node_resource_consumer.py",
+      "classification": "modified unentered Node resource-consumer test; none of nine GP/state selectors or captured repository modules use this file"
+    }
+  ],
+  "observed_repository_binding_count": 318,
+  "changed_path_observed_module_overlap": [],
+  "all_nine_selected_test_arguments_unchanged": true,
+  "observed_bindings": {
+    "path": "observed-318-current-Git-bindings.json",
+    "sha256": "599a101b252a244a835fe1b5fd32740f952d74120a96a7b5953814736bc6a992",
+    "bytes": 150499
+  },
+  "scopes_preserved_at_actual_CBC": [
+    "gp-defining",
+    "state-effective",
+    "mo-supported",
+    "effective-public4",
+    "transfer-public3",
+    "public-history2",
+    "mo-refusal19",
+    "optional-minimal",
+    "gp-warm-dedup1"
+  ],
+  "sealed_original_packet": {
+    "path": "/dev/shm/e02-D-post-a795-88ghpj7t/gp/publication-current-CBC46-gp-state/final-output-manifest.json",
+    "sha256": "e2fda27ce9cf951fceeac54b0b35da16eb6edd9646711e689d0b6c92e99f8672",
+    "members_verified_unchanged": 128,
+    "normative_status": "seven bounded original closure proposals independently reviewed d0c0; no formal closure or G acceptance"
+  },
+  "prior_qualified_carry": {
+    "path": "candidate-5b-selected-closure-carry.json",
+    "sha256": "b167ebbb6f878a55c6c5395e8478ff67a4767d724aefa90bab44336c77e26f79"
+  },
+  "source_directory_catalog": "The captured broad CBC catalog remains6861 and includes docs; qualified5b catalog6863 differs by one unreadREADME plus two new tests. d23 modifies one of those new testfiles, leaves pathcount6863, and does not restore whole catalog/tree equality. Selected source/module static qualification only, not syscall/nonmodule file-access trace.",
+  "selected_external_backend": "unchanged actual CBC captures; no new backend execution or outputs inferred from Git",
+  "B127_service_receipt": "Actual a795 affected22 remains separately source-qualified; not re-executed. Node-test-only delta outside its selected test modules.",
+  "tracked_source_and_index_clean": true,
+  "untracked_root_receipt_publication_copy_status": "?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/post-a795-criterion-verification-2026-10-07/\n",
+  "metadata_precheck": "initial-full-clean-precheck.json",
+  "P37_basis": "recomputed static source/module closure on complete one-path delta; original property evidence remains named actual CBC scopes",
+  "P38": "source qualification is not new numerical runtime PASS",
+  "P41": "not_established; no inherited-red waiver",
+  "formal_closed": false,
+  "accepted_in_G": false,
+  "independent_review": "pending external metadata review",
+  "no_root_source_or_index_writes": true
+}

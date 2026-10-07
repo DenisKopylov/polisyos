@@ -1,0 +1,36 @@
+{
+  "schema": "D.census.estimated-origin-native-controls-capture-independent-review.v1",
+  "reviewer": "/root/census_oct07",
+  "author": "/root/funnel_oct07",
+  "result": "STATIC_GO_BOUNDED_RUNTIME_PENDING",
+  "source": "4645738aee05809552e95aecb14d365793fc6bb2",
+  "reviewed_files": [
+    {
+      "path": "/dev/shm/e02-D-funnel-oct07/estimated_origin_legacy_projection.py",
+      "sha256": "c7d30ecd6d457a02a3eac62b89b0e54a6b38b7a639ffc8571bf0ad7e91b405a8",
+      "bytes": 2775
+    },
+    {
+      "path": "/dev/shm/e02-D-funnel-oct07/run_frozen_input_origins.py",
+      "sha256": "44cf4daab24c2561845ca8e587409c80502a8457e98d01add6fe122b1fda3af5",
+      "bytes": 9196
+    }
+  ],
+  "removal": "Interpreter-only actual FunnelOrchestrator.advance function reconstructed from current source; only reported amount/status nonempty-subset predicates widened to old not-unknown rule. Exacteachone source-string occurrence verified independently at464. Estimated fields/status, real event payload digest/keys, pending/unknownACK/readback and canonical ledger producer/consumer unchanged. Markers survive synthetic reportedzero divergence. No tracked source/helper/B parser/ledger mutations.",
+  "runtime_denominators": {
+    "positive_selected": 17,
+    "negative_selected": 11,
+    "negative_expected_scope": "Three estimated-only reportedzero assertions should fail; actual results required, unrelated eight checks retain actual outcomes."
+  },
+  "capture": "Existing in-process native pytest capture records actual phase outputs/JUnit, sameHEAD/status/before-after full src/tests/lock/manifest/resourceasset bytes, canonical ledger and CAS blobs/manifests lossless gzip, actual source module origins and shared cgroup states. No thread/process limits; original tokenasset SHA verified.",
+  "admission_review_boundary": "This capture does not itself enforce candidateGit equality for every initial available input/module byte or expectedcasecount. Independent runtime review must compare available input and actuallyloaded module hashes against exactcandidateGit, reconcile actual17/11 phases/JUnit and named sparse/unread boundaries before accepting any property. same-before/after alone cannot establish initialcandidatebyteidentity.",
+  "P37": "Specific two predicates independently inspected; actual typed native event/receipt/CAS outcomes stillUNRUN until immutable rootfreeze.",
+  "P38": "Reportedemptyalgebraic0 is not observedreportedzero; removal preserves estimates and durable pending/contextmarkers so actual financial-origin assertion must discriminate. Trace/estimate never stands for persistedcharge.",
+  "limitations": [
+    "New11 serializer-helper→ExperimentState/CAS profile does not claim entire Node.run or natural failedL3→L4 execution.",
+    "Provider/pricing fixtures do not appoint invoice/scientific/nativeauthority.",
+    "Shared cgroup counts record observations and do not assign historicalkillcause.",
+    "Source/PASS/Gacceptance not inferred from staticGO."
+  ],
+  "leaf_changes": "Only external reviewJSON; no source/index/Git/test execution."
+}

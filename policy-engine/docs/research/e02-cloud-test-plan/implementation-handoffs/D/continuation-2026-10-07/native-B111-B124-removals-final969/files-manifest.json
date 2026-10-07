@@ -1,0 +1,260 @@
+{
+  "schema": "e02.D.portable_complete_file_manifest.v1",
+  "source_sha": "96905636726483fdea3a98d9313871d825b54a9e",
+  "source_tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "entry_count": 50,
+  "total_bytes": 914850,
+  "files": {
+    "four-removals/remove_run_scope.command.json": {
+      "bytes": 6260,
+      "sha256": "e6f71a5097ec73b68263bd7356e304410bfb132a7317f0dced4ee05fbc0fc61b",
+      "source_path": "/dev/shm/e02-D-B124-removal-four-exxj42mi/remove_run_scope.command.json"
+    },
+    "four-removals/remove_run_scope.junit.xml": {
+      "bytes": 5069,
+      "sha256": "c0ec7ee422a4d3e40358300c5ff0db9b43906e8558cb08d0dfdf2e113ebbd884",
+      "source_path": "/dev/shm/e02-D-B124-removal-four-exxj42mi/remove_run_scope.junit.xml"
+    },
+    "four-removals/remove_run_scope.receipt-marker-prefix-corrected.json": {
+      "bytes": 72973,
+      "sha256": "35164a80b9c92e4b85f6c7083c21b3275e64a77267f5bc524b096d6eda886b5c",
+      "source_path": "/dev/shm/e02-D-B124-removal-four-exxj42mi/remove_run_scope.receipt-marker-prefix-corrected.json"
+    },
+    "four-removals/remove_run_scope.receipt.json": {
+      "bytes": 47774,
+      "sha256": "75484c97b0f01aad9ea681eb644d51b479cbb3b6981c43362de18c617d2acddb",
+      "source_path": "/dev/shm/e02-D-B124-removal-four-exxj42mi/remove_run_scope.receipt.json"
+    },
+    "four-removals/remove_run_scope.stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source_path": "/dev/shm/e02-D-B124-removal-four-exxj42mi/remove_run_scope.stderr.txt"
+    },
+    "four-removals/remove_run_scope.stdout.txt": {
+      "bytes": 44840,
+      "sha256": "ca34c39f1a2a8185e86efe965014a572aa4a6038e87228d06d9424133b6e9e42",
+      "source_path": "/dev/shm/e02-D-B124-removal-four-exxj42mi/remove_run_scope.stdout.txt"
+    },
+    "four-removals/remove_trial_lookup.command.json": {
+      "bytes": 6132,
+      "sha256": "076ac9b28ee6165f52601e33dd595971ef6a0b89917df1aca26f8375a834ce80",
+      "source_path": "/dev/shm/e02-D-B124-removal-four-exxj42mi/remove_trial_lookup.command.json"
+    },
+    "four-removals/remove_trial_lookup.junit.xml": {
+      "bytes": 1914,
+      "sha256": "3e7a72ae4daf8321471c3d4d9bf09f50dc51f134dfcaeb1051507ca4364862be",
+      "source_path": "/dev/shm/e02-D-B124-removal-four-exxj42mi/remove_trial_lookup.junit.xml"
+    },
+    "four-removals/remove_trial_lookup.receipt-marker-prefix-corrected.json": {
+      "bytes": 54128,
+      "sha256": "aff6a4c74d448d46124d77920e9a3a98df6e1465886c51cf9fd3cbcbe1e11dfd",
+      "source_path": "/dev/shm/e02-D-B124-removal-four-exxj42mi/remove_trial_lookup.receipt-marker-prefix-corrected.json"
+    },
+    "four-removals/remove_trial_lookup.receipt.json": {
+      "bytes": 10430,
+      "sha256": "44c46cea3a03a73443f64da79f3980d21a69c23130483b3a516c7c6a628bbe85",
+      "source_path": "/dev/shm/e02-D-B124-removal-four-exxj42mi/remove_trial_lookup.receipt.json"
+    },
+    "four-removals/remove_trial_lookup.stderr.txt": {
+      "bytes": 210,
+      "sha256": "1f9be6331bc24f3770ac26393514b17425a20f3a5dbb9940de1a90b1801ae0eb",
+      "source_path": "/dev/shm/e02-D-B124-removal-four-exxj42mi/remove_trial_lookup.stderr.txt"
+    },
+    "four-removals/remove_trial_lookup.stdout.txt": {
+      "bytes": 31099,
+      "sha256": "b25ce2c224b3a6e3a4a57a886cd9f1b17dd10d2dae5977e2c11ce67aa46f387d",
+      "source_path": "/dev/shm/e02-D-B124-removal-four-exxj42mi/remove_trial_lookup.stdout.txt"
+    },
+    "four-removals/replace_nullable_primary_zero.command.json": {
+      "bytes": 6293,
+      "sha256": "f5f1ed0dfbb7d36e83ffbf5a7470a7352e895abf72035af51563521e0ab9b7f3",
+      "source_path": "/dev/shm/e02-D-B124-removal-four-exxj42mi/replace_nullable_primary_zero.command.json"
+    },
+    "four-removals/replace_nullable_primary_zero.junit.xml": {
+      "bytes": 3814,
+      "sha256": "6521822dac5f850c51c17ec54740a7eee28b147398463044e39cb7536c87c9a8",
+      "source_path": "/dev/shm/e02-D-B124-removal-four-exxj42mi/replace_nullable_primary_zero.junit.xml"
+    },
+    "four-removals/replace_nullable_primary_zero.receipt-marker-prefix-corrected.json": {
+      "bytes": 24891,
+      "sha256": "92fd3e156935d6a556a5e179d944b2556422e51bf394ce768b85b9d46ba2b428",
+      "source_path": "/dev/shm/e02-D-B124-removal-four-exxj42mi/replace_nullable_primary_zero.receipt-marker-prefix-corrected.json"
+    },
+    "four-removals/replace_nullable_primary_zero.receipt.json": {
+      "bytes": 10622,
+      "sha256": "9df0279f968857eafec5318308aa1f9396e62e9ea9284bc74779b152f2c41d20",
+      "source_path": "/dev/shm/e02-D-B124-removal-four-exxj42mi/replace_nullable_primary_zero.receipt.json"
+    },
+    "four-removals/replace_nullable_primary_zero.stderr.txt": {
+      "bytes": 210,
+      "sha256": "d77792a6ffe7e95345515094180be6ef1a6c0d8c04d3331ef6de33f3537db0c7",
+      "source_path": "/dev/shm/e02-D-B124-removal-four-exxj42mi/replace_nullable_primary_zero.stderr.txt"
+    },
+    "four-removals/replace_nullable_primary_zero.stdout.txt": {
+      "bytes": 13852,
+      "sha256": "2343f019ba4f2a7ca3480e8891c2bc6bf59902418db55d0d77d9c648936f1f97",
+      "source_path": "/dev/shm/e02-D-B124-removal-four-exxj42mi/replace_nullable_primary_zero.stdout.txt"
+    },
+    "four-removals/restore_marker_override.command.json": {
+      "bytes": 6198,
+      "sha256": "5cdafdb667e9c112c840d9a97357cfff24fe9339bddda3cb3f95d7f2dcd168c7",
+      "source_path": "/dev/shm/e02-D-B124-removal-four-exxj42mi/restore_marker_override.command.json"
+    },
+    "four-removals/restore_marker_override.junit.xml": {
+      "bytes": 4499,
+      "sha256": "f0d2d3178343fa7330a9c5e5c23464265c59bd9abfe6e39bd1070a956aa40ccf",
+      "source_path": "/dev/shm/e02-D-B124-removal-four-exxj42mi/restore_marker_override.junit.xml"
+    },
+    "four-removals/restore_marker_override.receipt-marker-prefix-corrected.json": {
+      "bytes": 27731,
+      "sha256": "54f6a5c3244bcdf55220d9fd0dc53d22f051c25f03b408bc99cae59ce8a1fe31",
+      "source_path": "/dev/shm/e02-D-B124-removal-four-exxj42mi/restore_marker_override.receipt-marker-prefix-corrected.json"
+    },
+    "four-removals/restore_marker_override.receipt.json": {
+      "bytes": 10509,
+      "sha256": "0db008c3ef3055d3fa1a1b1b6b2cec243b21444cfc4392646fafdf43011ae9c3",
+      "source_path": "/dev/shm/e02-D-B124-removal-four-exxj42mi/restore_marker_override.receipt.json"
+    },
+    "four-removals/restore_marker_override.stderr.txt": {
+      "bytes": 210,
+      "sha256": "aa092cb10ecaedcfe6d43e6c330c5e186f16814997a0cda3b3a07210688f0764",
+      "source_path": "/dev/shm/e02-D-B124-removal-four-exxj42mi/restore_marker_override.stderr.txt"
+    },
+    "four-removals/restore_marker_override.stdout.txt": {
+      "bytes": 14643,
+      "sha256": "33a813fb8a7c59fc095becba175cea852413b5e3e1b4f722bdaf0124013e14b0",
+      "source_path": "/dev/shm/e02-D-B124-removal-four-exxj42mi/restore_marker_override.stdout.txt"
+    },
+    "four-removals/summary-marker-prefix-corrected.json": {
+      "bytes": 3402,
+      "sha256": "edaaf154d8630be2986bd39550019734a7da0d189ec70a44d5d9cde464ed30b7",
+      "source_path": "/dev/shm/e02-D-B124-removal-four-exxj42mi/summary-marker-prefix-corrected.json"
+    },
+    "four-removals/summary.json": {
+      "bytes": 1228,
+      "sha256": "a56c561fa843dfa8e75e85c1b0b43882ad90190066aabe085d66d882e8fccc65",
+      "source_path": "/dev/shm/e02-D-B124-removal-four-exxj42mi/summary.json"
+    },
+    "negative-controls/removal_observation.py": {
+      "bytes": 2818,
+      "sha256": "8c34b5ab2ca4e24371962e3629771f0af125ee2390f8c46ea969946483c02c59",
+      "source_path": "/dev/shm/e02-D-B124-removal-plugins/removal_observation.py"
+    },
+    "negative-controls/remove_trial_lookup.py": {
+      "bytes": 404,
+      "sha256": "1cac097268db9671890dfa6b856ec0ca02c8c7813b4b5f694695a4769765c73f",
+      "source_path": "/dev/shm/e02-D-B124-removal-plugins/remove_trial_lookup.py"
+    },
+    "negative-controls/restore_marker_override.py": {
+      "bytes": 667,
+      "sha256": "babb9c9b9d58f5e567e85d67f79116cd97efa2e054803051235ef52011b156ee",
+      "source_path": "/dev/shm/e02-D-B124-removal-plugins/restore_marker_override.py"
+    },
+    "negative-controls/replace_nullable_primary_zero.py": {
+      "bytes": 868,
+      "sha256": "a425bab7fd56efb15063597cfdc37ac272886cca5fbc3bfac24e4d44356d0290",
+      "source_path": "/dev/shm/e02-D-B124-removal-plugins/replace_nullable_primary_zero.py"
+    },
+    "negative-controls/remove_run_scope.py": {
+      "bytes": 1772,
+      "sha256": "3714f3d51f3c6314a5dfc7e16c0a92df203a043fd290134943eef3e01e09e13a",
+      "source_path": "/dev/shm/e02-D-B124-removal-plugins/remove_run_scope.py"
+    },
+    "negative-controls/run_removal_controls.py": {
+      "bytes": 8301,
+      "sha256": "fac2e1e8c81089b62214d13e86be8685ffd61a07a4845df264b15bfae499e144",
+      "source_path": "/dev/shm/e02-D-B124-removal-plugins/run_removal_controls.py"
+    },
+    "negative-controls/control-manifest.json": {
+      "bytes": 3372,
+      "sha256": "95ee9d29d8104999d6ac7adcb5eca780a5d4e69ddc6121aa87721db1d35e6870",
+      "source_path": "/dev/shm/e02-D-B124-removal-plugins/control-manifest.json"
+    },
+    "negative-controls/control-manifest-v2.json": {
+      "bytes": 4660,
+      "sha256": "97951a52714a42f8d1597dc3c568063f156dbd45c7bddf3439555d7dc5378403",
+      "source_path": "/dev/shm/e02-D-B124-removal-plugins/control-manifest-v2.json"
+    },
+    "baseline-b652/observations.json": {
+      "bytes": 21673,
+      "sha256": "1382cff0b44632ddc1f1a26a253489967d0a024088d3e2e8cc7d5429c2f7526d",
+      "source_path": "/dev/shm/e02-D-native-primary-b652-yb2hhvkq/observations.json"
+    },
+    "baseline-b652/stderr.txt": {
+      "bytes": 630,
+      "sha256": "a9a52906e1485afb0e90148c74424e6a458ed78312311bc668725e4f34903131",
+      "source_path": "/dev/shm/e02-D-native-primary-b652-yb2hhvkq/stderr.txt"
+    },
+    "baseline-b652/stdout.txt": {
+      "bytes": 275,
+      "sha256": "d03aaca0ff6bffb09f0f864ef918829f7ee00898d5028c7b19ba422f2ebd8648",
+      "source_path": "/dev/shm/e02-D-native-primary-b652-yb2hhvkq/stdout.txt"
+    },
+    "baseline-b652/probe.py": {
+      "bytes": 5203,
+      "sha256": "54332ffc5695315e9998913786a2273fed5277445ca87ac6509579ff8f9f77cd",
+      "source_path": "/dev/shm/e02-D-native-primary-b652-yb2hhvkq/probe.py"
+    },
+    "baseline-b652/source-custodied-untracked-fixture/test_service_trial_deduplication.py": {
+      "bytes": 22716,
+      "sha256": "7c95a5a59dbc4c2a0be704d9b9bbe31eaffa2765b04c501ba5b3f1f82ad9fb9e",
+      "source_path": "/dev/shm/e02-D-B124-independent-tests/v2/test_service_trial_deduplication.py"
+    },
+    "production-runtime-review/B124-B111-v5-final-production-independent-review.json": {
+      "bytes": 8215,
+      "sha256": "50bdf89eb635ca0e62961eff78fffed87d53ce1a69b3174247bedd2ea7c6a8a9",
+      "source_path": "/dev/shm/e02-D-B124-independent-tests/B124-B111-v5-final-production-independent-review.json"
+    },
+    "production-runtime-review/B124-current969-scope-source-delta-review.json": {
+      "bytes": 1505,
+      "sha256": "aa989f6b52d6bd019a2c75ae937bf52a2ddb8e84f94613ccd04be63828022c17",
+      "source_path": "/dev/shm/e02-D-B124-independent-tests/B124-current969-scope-source-delta-review.json"
+    },
+    "production-runtime-review/native969-readback-review.json": {
+      "bytes": 180525,
+      "sha256": "71e27364bea2e1b6c191d6bf1e27d9c686b573b87910096577646e0f7023d55e",
+      "source_path": "/dev/shm/e02-D-B124-independent-tests/native969-readback-review.json"
+    },
+    "production-runtime-review/review_native969_readback.py": {
+      "bytes": 8648,
+      "sha256": "5f0f9bf155f6510f9c5d43685b0de13709943cbd830a164ec2f17ea41b4a7ab1",
+      "source_path": "/dev/shm/e02-D-B124-independent-tests/review_native969_readback.py"
+    },
+    "production-runtime-review/review_native969_readback-first-ambiguous-fixture.py": {
+      "bytes": 8069,
+      "sha256": "2189ecc7f6c082bbb3d2a0bf5b93d5505b6dd5c64e89806fc2d93152ff71738a",
+      "source_path": "/dev/shm/e02-D-B124-independent-tests/review_native969_readback-first-ambiguous-fixture.py"
+    },
+    "production-runtime-review/native969-readback-review-initial-python-nan-spelling.json": {
+      "bytes": 180248,
+      "sha256": "86d6d3760cae6b1b6027dd566f84959043109154f165a163e10f02bb0c0cc112",
+      "source_path": "/dev/shm/e02-D-B124-independent-tests/native969-readback-review-initial-python-nan-spelling.json"
+    },
+    "independent-reviews/B124-B111-three-removal-plugins-independent-static-review.json": {
+      "bytes": 5054,
+      "sha256": "d4379acd29fae429848a0075135a479506c0758d368c0c7cefea94b4887dc7ab",
+      "source_path": "/dev/shm/e02-D-census-review-oct07/B124-B111-three-removal-plugins-independent-static-review.json"
+    },
+    "independent-reviews/B124-run-scope-fourth-removal-independent-static-review.json": {
+      "bytes": 1841,
+      "sha256": "61884153556d24c8f95eefc3f09b087cd8e65a67c511068ecc6a0896e625eb78",
+      "source_path": "/dev/shm/e02-D-census-review-oct07/B124-run-scope-fourth-removal-independent-static-review.json"
+    },
+    "independent-reviews/B124-final40-shared-run-barrier-and-companion-independent-review.json": {
+      "bytes": 2842,
+      "sha256": "9dd40248f878983370cf75e7468ff0d094d081dfbafbb755f4fceb5a4c846600",
+      "source_path": "/dev/shm/e02-D-census-review-oct07/B124-final40-shared-run-barrier-and-companion-independent-review.json"
+    },
+    "independent-reviews/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json": {
+      "bytes": 29365,
+      "sha256": "20730fd36c305a2db46467f4f9e15c3a5612b6ccf20ab627ec1a0182d02bbb77",
+      "source_path": "/dev/shm/e02-D-census-review-oct07/B111-B124-final969-actual-runtime-and-four-removals-independent-review.json"
+    },
+    "HANDOFF.json": {
+      "bytes": 6248,
+      "sha256": "09a072192d339dedbe29c6b98a45a0fd4a871a5e73a5e872566d7ca50949bf9e",
+      "source_path": "generated from actual receipts"
+    }
+  },
+  "scope": "Full deciding outputs/reviewedcontrols/historicalbaseline/minimumcontrolledrefs; no raw repeatable fixture directories or trackedimplementation copies."
+}

@@ -1,0 +1,393 @@
+[
+  {
+    "ERROR": 0,
+    "FAIL": 0,
+    "SKIP": 0,
+    "actual_MLL_returns": [
+      1,
+      2,
+      3
+    ],
+    "actual_MLL_starts": [
+      {
+        "identity": 1,
+        "model": "SingleTaskGP",
+        "rows": 8
+      },
+      {
+        "identity": 2,
+        "model": "SingleTaskGP",
+        "rows": 4
+      },
+      {
+        "identity": 3,
+        "model": "SingleTaskGP",
+        "rows": 4
+      }
+    ],
+    "actual_complete_source_before_after_identical": true,
+    "actual_materialized_inputs": 6861,
+    "backend": {
+      "botorch": "0.16.1",
+      "gpytorch": "1.15.1",
+      "hnswlib": "0.8.0",
+      "numpy": "2.3.5",
+      "pytest": "9.0.2",
+      "scipy": "1.16.3",
+      "torch": "2.10.0"
+    },
+    "call_outcomes": {
+      "passed": 12
+    },
+    "command": {
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/run_gp_wrapper_frozen.py",
+        "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-positive12",
+        "positive12"
+      ],
+      "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+      "env_overrides": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine"
+      },
+      "numerical_caps": "none introduced; inherited ownerprofile observed separately",
+      "script_sha256": "4685c4a8184b800235919cf631625df60be21475639c94db49723a3aea66aa6c",
+      "stderr": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-positive12.wrapper.stderr.txt",
+      "stdout": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-positive12.wrapper.stdout.txt"
+    },
+    "complete_executable_input_denominator": 6861,
+    "conditional_declared_seeds": {
+      "mixed_history_and_sobol": 31,
+      "warm_eight": 19
+    },
+    "exitcode": 0,
+    "missing_inputs": [],
+    "numerical_caps": "none introduced; observed inherited ownerprofile in command/result",
+    "raw_input_snapshot_receipt_sha256": {
+      "after": "dd61f18a913267fc430ccfbbf3c83d1a780d1cd0991dcf6cc81efa96fd1e5932",
+      "before": "dd61f18a913267fc430ccfbbf3c83d1a780d1cd0991dcf6cc81efa96fd1e5932"
+    },
+    "role": "positive",
+    "scope": "GP-positive12",
+    "source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+    "testcase_nodeids": [
+      "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_public_wrapper_consumption_count_cannot_be_erased_with_paired_history[empty-set_state]",
+      "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_public_wrapper_consumption_count_cannot_be_erased_with_paired_history[empty-validate_checkpoint_history]",
+      "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_public_wrapper_consumption_count_cannot_be_erased_with_paired_history[truncated-set_state]",
+      "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_public_wrapper_consumption_count_cannot_be_erased_with_paired_history[truncated-validate_checkpoint_history]",
+      "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_public_wrapper_consumption_count_cannot_be_erased_with_paired_history[empty_count-set_state]",
+      "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_public_wrapper_consumption_count_cannot_be_erased_with_paired_history[empty_count-validate_checkpoint_history]",
+      "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_public_wrapper_consumption_count_cannot_be_erased_with_paired_history[truncated_count-set_state]",
+      "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_public_wrapper_consumption_count_cannot_be_erased_with_paired_history[truncated_count-validate_checkpoint_history]",
+      "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_public_wrapper_count_covers_unavailable_converted_rows_and_skips_unusable_params",
+      "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_public_wrapper_warm_eight_cas_rows_and_zero_current_history_restore_without_refit",
+      "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_mixed_history_formats_reach_public_generate_and_fresh_cas_next_proposal[minimize]",
+      "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_mixed_history_formats_reach_public_generate_and_fresh_cas_next_proposal[maximize]"
+    ],
+    "testcases": 12,
+    "torch_interop_threads_before": 5,
+    "torch_threads_before": 5,
+    "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+    "wall_s": 12.42521402798593,
+    "whole_old_posterior_oracle": "not replayed; remains exact original c0/969/680 scope and sourcequalified"
+  },
+  {
+    "ERROR": 0,
+    "FAIL": 8,
+    "SKIP": 0,
+    "actual_complete_source_before_after_identical": true,
+    "actual_materialized_inputs": 6861,
+    "backend": {
+      "botorch": "0.16.1",
+      "gpytorch": "1.15.1",
+      "hnswlib": "0.8.0",
+      "numpy": "2.3.5",
+      "pytest": "9.0.2",
+      "scipy": "1.16.3",
+      "torch": "2.10.0"
+    },
+    "call_outcomes": {
+      "failed": 8
+    },
+    "command": {
+      "argv": [
+        "/workspace/e02-D-locked-env/bin/python",
+        "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/run_gp_wrapper_frozen.py",
+        "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-remove8",
+        "remove8"
+      ],
+      "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+      "env_overrides": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine"
+      },
+      "numerical_caps": "none introduced; inherited ownerprofile observed separately",
+      "script_sha256": "4685c4a8184b800235919cf631625df60be21475639c94db49723a3aea66aa6c",
+      "stderr": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-remove8.wrapper.stderr.txt",
+      "stdout": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/GP-remove8.wrapper.stdout.txt"
+    },
+    "complete_executable_input_denominator": 6861,
+    "conditional_declared_seeds": {
+      "mixed_history_and_sobol": 31,
+      "warm_eight": 19
+    },
+    "exitcode": 1,
+    "missing_inputs": [],
+    "numerical_caps": "none introduced; observed inherited ownerprofile in command/result",
+    "raw_input_snapshot_receipt_sha256": {
+      "after": "dd61f18a913267fc430ccfbbf3c83d1a780d1cd0991dcf6cc81efa96fd1e5932",
+      "before": "dd61f18a913267fc430ccfbbf3c83d1a780d1cd0991dcf6cc81efa96fd1e5932"
+    },
+    "role": "expected_negative_counterfactual",
+    "scope": "GP-remove8",
+    "source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+    "testcase_nodeids": [
+      "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_public_wrapper_consumption_count_cannot_be_erased_with_paired_history[empty-set_state]",
+      "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_public_wrapper_consumption_count_cannot_be_erased_with_paired_history[empty-validate_checkpoint_history]",
+      "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_public_wrapper_consumption_count_cannot_be_erased_with_paired_history[truncated-set_state]",
+      "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_public_wrapper_consumption_count_cannot_be_erased_with_paired_history[truncated-validate_checkpoint_history]",
+      "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_public_wrapper_consumption_count_cannot_be_erased_with_paired_history[empty_count-set_state]",
+      "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_public_wrapper_consumption_count_cannot_be_erased_with_paired_history[empty_count-validate_checkpoint_history]",
+      "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_public_wrapper_consumption_count_cannot_be_erased_with_paired_history[truncated_count-set_state]",
+      "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py::test_public_wrapper_consumption_count_cannot_be_erased_with_paired_history[truncated_count-validate_checkpoint_history]"
+    ],
+    "testcases": 8,
+    "torch_interop_threads_before": 5,
+    "torch_threads_before": 5,
+    "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+    "wall_s": 7.257019768992905,
+    "whole_old_posterior_oracle": "not replayed; remains exact original c0/969/680 scope and sourcequalified"
+  },
+  {
+    "actual_complete_source_before_after_identical": true,
+    "actual_materialized_inputs": 6861,
+    "canonical_selected_AST_inputs": 63,
+    "check": "one PASS diagnostic over63 actual tracked AST files, not63 pytestPASS or runtime state-read authority",
+    "command": {
+      "argv": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/run_final_ast_scope.py",
+        "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-canonical63",
+        "canonical"
+      ],
+      "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+      "env_overrides": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine"
+      },
+      "numerical_caps": "none introduced; inherited ownerprofile observed separately",
+      "script_sha256": "ef70a32a7f41d558d3631e3599fbc4e8326307cdd1fc009d615ff7b098a2894e",
+      "stderr": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-canonical63.wrapper.stderr.txt",
+      "stdout": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-canonical63.wrapper.stdout.txt"
+    },
+    "complete_executable_input_denominator": 6861,
+    "exitcode": 0,
+    "missing_inputs": [],
+    "numerical_caps": "none introduced; observed inherited ownerprofile in command/result",
+    "raw_input_snapshot_receipt_sha256": {
+      "after": "ce44d8657b9aedf5d7b60829b2d049dc16123f34457202e570c2a38b53004bcc",
+      "before": "ce44d8657b9aedf5d7b60829b2d049dc16123f34457202e570c2a38b53004bcc"
+    },
+    "role": "positive",
+    "scope": "AST-canonical63",
+    "source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+    "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+    "wall_s": 2.2152699540019967,
+    "whole_old_posterior_oracle": "not replayed; remains exact original c0/969/680 scope and sourcequalified"
+  },
+  {
+    "ERROR": 0,
+    "FAIL": 0,
+    "SKIP": 0,
+    "actual_complete_source_before_after_identical": true,
+    "actual_materialized_inputs": 6861,
+    "call_outcomes": {
+      "passed": 44
+    },
+    "command": {
+      "argv": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/run_final_ast_scope.py",
+        "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-positive44",
+        "targeted44"
+      ],
+      "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+      "env_overrides": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine"
+      },
+      "numerical_caps": "none introduced; inherited ownerprofile observed separately",
+      "script_sha256": "ef70a32a7f41d558d3631e3599fbc4e8326307cdd1fc009d615ff7b098a2894e",
+      "stderr": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-positive44.wrapper.stderr.txt",
+      "stdout": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-positive44.wrapper.stdout.txt"
+    },
+    "complete_executable_input_denominator": 6861,
+    "exitcode": 0,
+    "missing_inputs": [],
+    "numerical_caps": "none introduced; observed inherited ownerprofile in command/result",
+    "raw_input_snapshot_receipt_sha256": {
+      "after": "ce44d8657b9aedf5d7b60829b2d049dc16123f34457202e570c2a38b53004bcc",
+      "before": "ce44d8657b9aedf5d7b60829b2d049dc16123f34457202e570c2a38b53004bcc"
+    },
+    "role": "positive",
+    "scope": "AST-positive44",
+    "source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+    "testcase_nodeids": [
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_admits_existing_declared_spec_constructor[NodeSpec]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_admits_existing_declared_spec_constructor[OutputAwareNodeSpec]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_preserves_missing_read_failure[NodeSpec]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_preserves_missing_read_failure[OutputAwareNodeSpec]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_outside_selector_evidence_cannot_supply_selected_read[NodeSpec]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_outside_selector_evidence_cannot_supply_selected_read[OutputAwareNodeSpec]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_unreadable_selected_utf8_remains_unrun",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_missing_enumerated_member_remains_unrun",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_unknown_case_constructor_remains_undecided[nodespec]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_unknown_case_constructor_remains_undecided[OUTPUTAWARENODESPEC]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_invalid_selected_python_remains_unrun",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_changed_declared_reads_changes_actual_failure_and_receipt[NodeSpec]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_changed_declared_reads_changes_actual_failure_and_receipt[OutputAwareNodeSpec]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_annotated_spec_assignment_remains_explicitly_unresolved",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_annotated_existing_spec_preserves_declared_read_admission",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_async_execute_missing_read_preserves_original_failure",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_nonliteral_reads_remain_undecided[KNOWN_READS-unsupported_state_reads_expression]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_nonliteral_reads_remain_undecided[[known_input]-unsupported_state_reads_entry]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[direct_overwrite-_SPEC = NodeSpec(state_reads=['inputs.required'])\\n_SPEC = NodeSpec(state_reads=[])\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[annotated_overwrite-_SPEC = NodeSpec(state_reads=['inputs.required'])\\n_SPEC: NodeSpec = OutputAwareNodeSpec(state_reads=[])\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[reverse_overwrite-_SPEC = NodeSpec(state_reads=[])\\n_SPEC = NodeSpec(state_reads=['inputs.required'])\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[dead_if_supplies_read-_SPEC = NodeSpec(state_reads=[])\\nif False:\\n    _SPEC = NodeSpec(state_reads=['inputs.required'])\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[conditional_supplies_read-_SPEC = NodeSpec(state_reads=[])\\nif flag:\\n    _SPEC = NodeSpec(state_reads=['inputs.required'])\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[function_local_supplies_read-_SPEC = NodeSpec(state_reads=[])\\ndef helper():\\n    _SPEC = NodeSpec(state_reads=['inputs.required'])\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[class_local_supplies_read-_SPEC = NodeSpec(state_reads=[])\\nclass Helper:\\n    _SPEC = NodeSpec(state_reads=['inputs.required'])\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[nested_only_supplies_read-def helper():\\n    _SPEC = NodeSpec(state_reads=['inputs.required'])\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-unsupported_spec_binding_scope]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[sole_dead_supplies_read-if False:\\n    _SPEC = NodeSpec(state_reads=['inputs.required'])\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-unsupported_spec_binding_scope]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[delete_after_valid-_SPEC = NodeSpec(state_reads=['inputs.required'])\\ndel _SPEC\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[walrus_overwrite-_SPEC = NodeSpec(state_reads=['inputs.required'])\\n(_SPEC := NodeSpec(state_reads=[]))\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[for_target_overwrite-_SPEC = NodeSpec(state_reads=['inputs.required'])\\nfor _SPEC in [NodeSpec(state_reads=[])]:\\n    pass\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[tuple_overwrite-_SPEC = NodeSpec(state_reads=['inputs.required'])\\n_SPEC, other = NodeSpec(state_reads=[]), None\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[augmented_overwrite-_SPEC = NodeSpec(state_reads=['inputs.required'])\\n_SPEC += replacement\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[definition-_SPEC = NodeSpec(state_reads=['inputs.required'])\\ndef _SPEC():\\n    pass\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[async_definition-_SPEC = NodeSpec(state_reads=['inputs.required'])\\nasync def _SPEC():\\n    pass\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[class_definition-_SPEC = NodeSpec(state_reads=['inputs.required'])\\nclass _SPEC:\\n    pass\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[import_alias-_SPEC = NodeSpec(state_reads=['inputs.required'])\\nimport module as _SPEC\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[from_import-_SPEC = NodeSpec(state_reads=['inputs.required'])\\nfrom module import _SPEC\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[parameter_binding-_SPEC = NodeSpec(state_reads=['inputs.required'])\\ndef helper(_SPEC):\\n    pass\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[exception_binding-_SPEC = NodeSpec(state_reads=['inputs.required'])\\ntry:\\n    pass\\nexcept Exception as _SPEC:\\n    pass\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[match_capture-_SPEC = NodeSpec(state_reads=['inputs.required'])\\nmatch value:\\n    case _SPEC:\\n        pass\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[match_rest-_SPEC = NodeSpec(state_reads=['inputs.required'])\\nmatch value:\\n    case {\"key\": value, **_SPEC}:\\n        pass\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[with_binding-_SPEC = NodeSpec(state_reads=['inputs.required'])\\nwith context as _SPEC:\\n    pass\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[type_parameter_binding-_SPEC = NodeSpec(state_reads=['inputs.required'])\\ndef helper[_SPEC]():\\n    pass\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_imported_source_name_does_not_create_a_local_spec_binding"
+    ],
+    "testcases": 44,
+    "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+    "wall_s": 2.8660039659880567,
+    "whole_old_posterior_oracle": "not replayed; remains exact original c0/969/680 scope and sourcequalified"
+  },
+  {
+    "ERROR": 0,
+    "FAIL": 25,
+    "SKIP": 0,
+    "actual_complete_source_before_after_identical": true,
+    "actual_materialized_inputs": 6861,
+    "call_outcomes": {
+      "failed": 25
+    },
+    "command": {
+      "argv": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/run_final_ast_scope.py",
+        "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-remove25",
+        "remove25"
+      ],
+      "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+      "env_overrides": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine"
+      },
+      "numerical_caps": "none introduced; inherited ownerprofile observed separately",
+      "script_sha256": "ef70a32a7f41d558d3631e3599fbc4e8326307cdd1fc009d615ff7b098a2894e",
+      "stderr": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-remove25.wrapper.stderr.txt",
+      "stdout": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/AST-remove25.wrapper.stdout.txt"
+    },
+    "complete_executable_input_denominator": 6861,
+    "exitcode": 1,
+    "missing_inputs": [],
+    "numerical_caps": "none introduced; observed inherited ownerprofile in command/result",
+    "raw_input_snapshot_receipt_sha256": {
+      "after": "ce44d8657b9aedf5d7b60829b2d049dc16123f34457202e570c2a38b53004bcc",
+      "before": "ce44d8657b9aedf5d7b60829b2d049dc16123f34457202e570c2a38b53004bcc"
+    },
+    "role": "expected_negative_counterfactual",
+    "scope": "AST-remove25",
+    "source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+    "testcase_nodeids": [
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[direct_overwrite-_SPEC = NodeSpec(state_reads=['inputs.required'])\\n_SPEC = NodeSpec(state_reads=[])\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[annotated_overwrite-_SPEC = NodeSpec(state_reads=['inputs.required'])\\n_SPEC: NodeSpec = OutputAwareNodeSpec(state_reads=[])\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[reverse_overwrite-_SPEC = NodeSpec(state_reads=[])\\n_SPEC = NodeSpec(state_reads=['inputs.required'])\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[dead_if_supplies_read-_SPEC = NodeSpec(state_reads=[])\\nif False:\\n    _SPEC = NodeSpec(state_reads=['inputs.required'])\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[conditional_supplies_read-_SPEC = NodeSpec(state_reads=[])\\nif flag:\\n    _SPEC = NodeSpec(state_reads=['inputs.required'])\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[function_local_supplies_read-_SPEC = NodeSpec(state_reads=[])\\ndef helper():\\n    _SPEC = NodeSpec(state_reads=['inputs.required'])\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[class_local_supplies_read-_SPEC = NodeSpec(state_reads=[])\\nclass Helper:\\n    _SPEC = NodeSpec(state_reads=['inputs.required'])\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[nested_only_supplies_read-def helper():\\n    _SPEC = NodeSpec(state_reads=['inputs.required'])\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-unsupported_spec_binding_scope]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[sole_dead_supplies_read-if False:\\n    _SPEC = NodeSpec(state_reads=['inputs.required'])\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-unsupported_spec_binding_scope]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[delete_after_valid-_SPEC = NodeSpec(state_reads=['inputs.required'])\\ndel _SPEC\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[walrus_overwrite-_SPEC = NodeSpec(state_reads=['inputs.required'])\\n(_SPEC := NodeSpec(state_reads=[]))\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[for_target_overwrite-_SPEC = NodeSpec(state_reads=['inputs.required'])\\nfor _SPEC in [NodeSpec(state_reads=[])]:\\n    pass\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[tuple_overwrite-_SPEC = NodeSpec(state_reads=['inputs.required'])\\n_SPEC, other = NodeSpec(state_reads=[]), None\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[augmented_overwrite-_SPEC = NodeSpec(state_reads=['inputs.required'])\\n_SPEC += replacement\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[definition-_SPEC = NodeSpec(state_reads=['inputs.required'])\\ndef _SPEC():\\n    pass\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[async_definition-_SPEC = NodeSpec(state_reads=['inputs.required'])\\nasync def _SPEC():\\n    pass\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[class_definition-_SPEC = NodeSpec(state_reads=['inputs.required'])\\nclass _SPEC:\\n    pass\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[import_alias-_SPEC = NodeSpec(state_reads=['inputs.required'])\\nimport module as _SPEC\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[from_import-_SPEC = NodeSpec(state_reads=['inputs.required'])\\nfrom module import _SPEC\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[parameter_binding-_SPEC = NodeSpec(state_reads=['inputs.required'])\\ndef helper(_SPEC):\\n    pass\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[exception_binding-_SPEC = NodeSpec(state_reads=['inputs.required'])\\ntry:\\n    pass\\nexcept Exception as _SPEC:\\n    pass\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[match_capture-_SPEC = NodeSpec(state_reads=['inputs.required'])\\nmatch value:\\n    case _SPEC:\\n        pass\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[match_rest-_SPEC = NodeSpec(state_reads=['inputs.required'])\\nmatch value:\\n    case {\"key\": value, **_SPEC}:\\n        pass\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[with_binding-_SPEC = NodeSpec(state_reads=['inputs.required'])\\nwith context as _SPEC:\\n    pass\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]",
+      "tests/repo_quality/tools/test_state_reads_constructor_admission.py::test_actual_checker_refuses_ambiguous_or_unscoped_spec_binding[type_parameter_binding-_SPEC = NodeSpec(state_reads=['inputs.required'])\\ndef helper[_SPEC]():\\n    pass\\ndef execute(state, context):\\n    return state.inputs.get('required')\\n-ambiguous_spec_binding]"
+    ],
+    "testcases": 25,
+    "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+    "wall_s": 3.1023438119736966,
+    "whole_old_posterior_oracle": "not replayed; remains exact original c0/969/680 scope and sourcequalified"
+  },
+  {
+    "check": "PASS selected3 existing canonical metadata functions; global compatibility/architecture/schema/frontend/release gates UNRUN",
+    "command": {
+      "argv": [
+        "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+        "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/validate_selected_resume_fragments.py",
+        "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+        "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/fragments3"
+      ],
+      "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+      "env_overrides": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src:/dev/shm/e02-D-oct07-continuation/policy-engine"
+      },
+      "numerical_caps": "none introduced; inherited ownerprofile observed separately",
+      "script_sha256": "b53784a3d37dbe149cb74f0be38810a5f761eb9f695f210d6a0868dbad22f3a7",
+      "stderr": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/fragments3.wrapper.stderr.txt",
+      "stdout": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/final-3b31e-wave/fragments3.wrapper.stdout.txt"
+    },
+    "exitcode": 0,
+    "numerical_caps": "none introduced; observed inherited ownerprofile in command/result",
+    "raw_input_snapshot_receipt_sha256": {
+      "after": "0d1b2a8f2f8ed7bc68b7858ab30dd480970bcb05c154069bb28fc9e1566ce772",
+      "before": "f6dc12a623c3f96ba1b94831c123528d5cf08d0ceb1e6ae6b9b19542ac31f583"
+    },
+    "role": "positive",
+    "scope": "fragments3",
+    "source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+    "tree": "d5c3a5a797a4f74b5da4c30fdd0a03cf2b3135c4",
+    "wall_s": 0.5224476600124035,
+    "whole_old_posterior_oracle": "not replayed; remains exact original c0/969/680 scope and sourcequalified"
+  }
+]

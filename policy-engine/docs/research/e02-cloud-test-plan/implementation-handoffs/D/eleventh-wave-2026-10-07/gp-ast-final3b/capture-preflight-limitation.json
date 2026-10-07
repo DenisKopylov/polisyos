@@ -1,0 +1,7 @@
+{
+  "command_setup_before_scopes": "ERROR /usr/bin/time absent, zero product/testcase execution",
+  "action": "preserved scratchdir; existing standard POSIX resource module subprocess capture, no installation or limits",
+  "source": "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2",
+  "new_capture_wrapper": "/dev/shm/e02-D-spec-binding-diagnostic-qp_uh8dk/run_captured_scope.py",
+  "wrapper_sha256": "db812ce167e5798af77a4f19dd56083b9f2d302f35c7167b44cb68c09a25c524"
+}

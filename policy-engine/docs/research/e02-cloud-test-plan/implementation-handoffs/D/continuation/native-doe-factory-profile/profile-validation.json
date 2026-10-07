@@ -1,0 +1,294 @@
+{
+  "schema": "D.native-doe-optional-profile.v1",
+  "source_sha": "9de48387c01e7437f31093829610bb461fa3defe",
+  "source_tree": "2147a817db5e70d960bf8ba8ffe611a5eabb9bf7",
+  "production_delta_from_6fe": [],
+  "defining_test": {
+    "source_sha": "9de48387c01e7437f31093829610bb461fa3defe",
+    "path": "policy-engine/tests/unit/scientist/methods/autotune/test_native_doe_factory.py",
+    "blob": "654c155d77751c37b95c1d9ceb37baa406751b7e",
+    "bytes": 14864,
+    "sha256": "2e1657c5813db4e73aace701525506bd35e373ac3011d166f713b422801db05a"
+  },
+  "all_five_test_function_AST_unchanged": true,
+  "test_function_ast_sha256": {
+    "test_ordinary_spec_metadata_changes_actual_proposal_and_typed_persisted_consumer": "7977ed05fde855906421c89461ab0c36ae5d847c9ae88a3e256fe42446f42c0a",
+    "test_fresh_configured_public_factory_preserves_next_proposal_and_exact_analysis": "e71edf62c9dd7aeb4788ddd6f984a1a08d67a83d7f2ff1173ab58d565081a913",
+    "test_invalid_factory_analysis_configuration_refuses_before_native_activity": "cc0a8bb9c6d1d3c5855f728ecc13b7af2e55332b4a4b3e1222aaf6b6b40eef7d",
+    "test_meaningful_or_forged_native_payload_is_not_dropped_by_typed_projection": "628f7247be47b50e3086e4a26f16d780a1e8f2abb03a9c81890dd452c4ca8e8f",
+    "test_changed_native_subject_in_actual_checkpoint_refuses_before_live_effect": "dd5a59b37e8874603353bf5eba1ce11d8b50a70e0034ba2a91d8e78f56ed2607"
+  },
+  "test_only_change": "four module-level importorskip(SALib,torch,botorch,gpytorch) and meaningful backend availability assertion message; scientific test bodies unchanged",
+  "runs": [
+    {
+      "key": "positive",
+      "outcome": "1PASS",
+      "metadata": {
+        "source": "9de48387c01e7437f31093829610bb461fa3defe",
+        "tree": "2147a817db5e70d960bf8ba8ffe611a5eabb9bf7",
+        "argv": [
+          "tests/unit/scientist/methods/autotune/test_native_doe_factory.py::test_ordinary_spec_metadata_changes_actual_proposal_and_typed_persisted_consumer",
+          "-s",
+          "--basetemp=/tmp/e02-D-native-doe-9de-positive-7e2a8701ca434a3a9342c05320aeb1ac",
+          "--junitxml=/tmp/e02-D-native-doe-9de-positive-junit.xml"
+        ],
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "executable": "/workspace/e02-D-doe-env/bin/python"
+      },
+      "junit_summary": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "1",
+        "time": "3.448",
+        "timestamp": "2026-10-06T18:27:16.791702+00:00",
+        "hostname": "565838a1e059"
+      },
+      "cases": [
+        {
+          "class": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "name": "test_ordinary_spec_metadata_changes_actual_proposal_and_typed_persisted_consumer",
+          "status": "PASS"
+        }
+      ],
+      "complete_log": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory-profile/e02-D-native-doe-9de-positive-complete.txt.gz",
+        "actual_raw_path": "/tmp/e02-D-native-doe-9de-positive-complete.txt",
+        "encoding": "gzip",
+        "raw_bytes": 7360,
+        "raw_sha256": "bf61b3778518fc4cf3238a9656b613f23846caf3d791094d0472da6e65c3883f",
+        "encoded_bytes": 2458,
+        "encoded_sha256": "7724f90eddd7dcc154b8de66fdf7f824cb7024cbf8acbaecd58b73cf9e173a22"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory-profile/e02-D-native-doe-9de-positive-junit.xml.gz",
+        "actual_raw_path": "/tmp/e02-D-native-doe-9de-positive-junit.xml",
+        "encoding": "gzip",
+        "raw_bytes": 435,
+        "raw_sha256": "e5d3b19902d1417e47f61c1ad714e27b856d6ebf9c9cb6f3a01b7952b15d5646",
+        "encoded_bytes": 289,
+        "encoded_sha256": "61ccd437c2272d234b265286297284fe80d5299abfdfe4e3c49baa2eb7888ab8"
+      },
+      "pytest_exit": 0,
+      "runtime_origins": {
+        "versions": {
+          "pytest": "9.0.2",
+          "torch": "2.10.0+cu128",
+          "botorch": "0.16.1",
+          "gpytorch": "1.15.1",
+          "SALib": "1.5.2"
+        },
+        "origins": {
+          "polisyos.scientist.methods.autotune.models": {
+            "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/autotune/models.py",
+            "sha256": "75205f0519b23a9df94affa45de27d137ae4deee969663c388190873269db8c5"
+          },
+          "polisyos.scientist.methods.autotune.runtime": {
+            "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+            "sha256": "168431c4d10c9f9fb9c13242676a5a062299a10f45b19965f1f6d8fd1ac3e528"
+          },
+          "polisyos.scientist.methods.autotune.bayesian_generator": {
+            "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+            "sha256": "6bce4613f561b26128b8ba5af2d8697edfbfdcb8b8cfbdeaffa58d8cc8e66f5a"
+          },
+          "polisyos.scientist.methods.autotune.sensitivity_bridge": {
+            "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+            "sha256": "93d9e4a24dd8ac9c53411d1220b75612c56d2eb2c5e3580bb898f770e0239e98"
+          },
+          "polisyos.scientist.methods.search.sensitivity_adapter": {
+            "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+            "sha256": "af3d6c12ae461e550897eb5a32b3a6f5c2ba930e41533e99f7bd8b9ac42b0a46"
+          },
+          "polisyos.scientist.methods.search.service": {
+            "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/service.py",
+            "sha256": "44e3d754ff360641c3921f5c99d77592960ead0a3c04e9ffc7b7674ef1bf2f06"
+          },
+          "polisyos.scientist.methods.search.controller": {
+            "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/controller.py",
+            "sha256": "7a147ecee0e17528f2e4e16e464d64834e43232f344c51ffe3af94eecfb2a2b2"
+          },
+          "polisyos.scientist.methods.search.run_state": {
+            "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/run_state.py",
+            "sha256": "e69cf716b8849620f31b79b5cdf2b05aa9e2b4298a6728b0b04a0afc9ef06610"
+          },
+          "polisyos.scientist.methods.search.strategies.base": {
+            "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/strategies/base.py",
+            "sha256": "43d01b637130e11f1efbdb6a73f3270872ed97c58c4726e73709e441816d834b"
+          },
+          "polisyos.scientist.methods.search.strategies.bayesian": {
+            "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+            "sha256": "26753a5ed92c04c5187c0e122ab106f91a2f57c5f05c0987cffce96b27e40066"
+          },
+          "polisyos.scientist.methods.search.strategies.space": {
+            "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/strategies/space.py",
+            "sha256": "d34f10e53935ef10265bb798b00b73173ebbb797e97e762f4d912c91bffad6ca"
+          },
+          "polisyos.scientist.methods.search.strategies.types": {
+            "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/search/strategies/types.py",
+            "sha256": "200926d11295db42a5b24ebab1d0f85d1e17757af9bf9d81a7d468fb66e19b1e"
+          },
+          "polisyos.scientist.methods.doe._receipt": {
+            "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+            "sha256": "d067cd402809c5a7dcf8d33ddda2b5414b4d67f27021751becfd99556b4e565b"
+          },
+          "polisyos.scientist.methods.doe.analysis": {
+            "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+            "sha256": "db87129797adc4c8c882655a95edd789b44381c47af85cff658e91e1f658e81c"
+          },
+          "polisyos.scientist.methods.doe.designs": {
+            "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+            "sha256": "dd692e325fa59e218d06ec3dd41f2c5fd933f956b91432e2b8d243cacebed8a8"
+          },
+          "polisyos.scientist.methods.doe.sampling": {
+            "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/scientist/methods/doe/sampling.py",
+            "sha256": "c27f8163d614b86bfd694560cdd7650a2736362763dfb404fb51d7d508601993"
+          },
+          "polisyos.core.artifacts.store": {
+            "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/core/artifacts/store.py",
+            "sha256": "e240986676396830dff78c9b3506be5a099c4d8320670a2fce56c3a509e1f165"
+          },
+          "polisyos.core.artifacts._integrity_ops": {
+            "path": "/workspace/e02-D-published-champion/policy-engine/src/polisyos/core/artifacts/_integrity_ops.py",
+            "sha256": "15ac3abb420f16c24cb222822dbecc324d41d5251f1acce36a04c34dc0ddeb4b"
+          }
+        },
+        "backend_paths": {
+          "torch": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/__init__.py",
+          "botorch": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/botorch/__init__.py",
+          "gpytorch": "/workspace/e02-D-locked-env/lib/python3.14/site-packages/gpytorch/__init__.py"
+        }
+      }
+    },
+    {
+      "key": "missing-profile",
+      "outcome": "SKIP_UNRUN_EXPECTED_MISSING_PROFILE",
+      "metadata": {
+        "source": "9de48387c01e7437f31093829610bb461fa3defe",
+        "tree": "2147a817db5e70d960bf8ba8ffe611a5eabb9bf7",
+        "executable": "/workspace/e02-D-doe-env/bin/python",
+        "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+        "argv": [
+          "tests/unit/scientist/methods/autotune/test_native_doe_factory.py",
+          "--collect-only",
+          "-rs",
+          "--basetemp=/tmp/e02-D-native-doe-9de-missing-profile-53820e229a9f43d1b982a4af187dda33",
+          "--junitxml=/tmp/e02-D-native-doe-9de-missing-profile-junit.xml"
+        ],
+        "control": "actual import machinery rejects BoTorch; no mock backend or numerical execution"
+      },
+      "junit_summary": {
+        "name": "pytest",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "1",
+        "tests": "1",
+        "time": "2.315",
+        "timestamp": "2026-10-06T18:27:29.549695+00:00",
+        "hostname": "565838a1e059"
+      },
+      "cases": [
+        {
+          "class": "",
+          "name": "tests.unit.scientist.methods.autotune.test_native_doe_factory",
+          "status": "SKIP"
+        }
+      ],
+      "complete_log": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory-profile/e02-D-native-doe-9de-missing-profile-complete.txt.gz",
+        "actual_raw_path": "/tmp/e02-D-native-doe-9de-missing-profile-complete.txt",
+        "encoding": "gzip",
+        "raw_bytes": 934,
+        "raw_sha256": "e59cfca88b56ccd58dd443cf26d6a3697bb7f360621bebb6e3fd206eeaf53063",
+        "encoded_bytes": 555,
+        "encoded_sha256": "555761fa995a19ac8c425ee2b8fa6c0c0f87f33aa16e09250a69a4fe9679bd45"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory-profile/e02-D-native-doe-9de-missing-profile-junit.xml.gz",
+        "actual_raw_path": "/tmp/e02-D-native-doe-9de-missing-profile-junit.xml",
+        "encoding": "gzip",
+        "raw_bytes": 577,
+        "raw_sha256": "a39ffa28763ecd31248c1b4893a8b19ab981bb44b17c6ab1a37c3a30a603d1c8",
+        "encoded_bytes": 359,
+        "encoded_sha256": "20a8ecb06fd3f41f1b83f5066fb22f21afa9ef2a735cc634c02bcd18d4fe4882"
+      },
+      "pytest_exit": 5
+    }
+  ],
+  "actual_inputs": {
+    "regular_files": 31,
+    "raw_bytes": 126058,
+    "full_content": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory-profile/e02-D-native-doe-9de-profile-actual-inputs.json.gz",
+      "actual_raw_path": "/tmp/e02-D-native-doe-9de-profile-actual-inputs.json",
+      "encoding": "gzip",
+      "raw_bytes": 184599,
+      "raw_sha256": "7ddb1e46a776d1223ab243be22fd51f1d99afa97d0a768ec0288e8bac89e5d7a",
+      "encoded_bytes": 57795,
+      "encoded_sha256": "107ce130d1367970bd50e692c55224d127a75a02babb10a0e3c351369e190dd8"
+    }
+  },
+  "scripts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory-profile/e02-D-native-doe-9de-verify.py.gz",
+      "actual_raw_path": "/tmp/e02-D-native-doe-9de-verify.py",
+      "encoding": "gzip",
+      "raw_bytes": 2562,
+      "raw_sha256": "ef1c57526dbedbf615ea7ec0e360a5b816627a4d65683b1a707fa51b71bb23e6",
+      "encoded_bytes": 1010,
+      "encoded_sha256": "74f234b9853b6884200c9c5811a8a931c93bec53223ed09543107bc9a46907c5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory-profile/e02-D-native-doe-9de-missing-profile.py.gz",
+      "actual_raw_path": "/tmp/e02-D-native-doe-9de-missing-profile.py",
+      "encoding": "gzip",
+      "raw_bytes": 1276,
+      "raw_sha256": "0c6d870457baa02e459c352d0ee42d68260db6008cd04228216b7cfb6e475b87",
+      "encoded_bytes": 727,
+      "encoded_sha256": "4e19e688d32e3a2a73d563496fe3de0a7a7080e2b9b09afab7766b6ae127103a"
+    }
+  ],
+  "inventory_review_companion": {
+    "source_sha": "29836061dc86b95d574bb71b3adf15ac10a194ce",
+    "fragment": {
+      "source_sha": "9de48387c01e7437f31093829610bb461fa3defe",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-native-search-resume.toml",
+      "blob": "298bf0a45804bd34ed17e2390d6e333fd02a933b",
+      "bytes": 8200,
+      "sha256": "da8d05bb94e0a505a10d306fa1dae5234118baa8e1585329a4f686d7e233bc1e"
+    },
+    "actual_canonical_validation": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory-profile/e02-D-native-doe-9de-release-review.json.gz",
+      "actual_raw_path": "/tmp/e02-D-native-doe-9de-release-review.json",
+      "encoding": "gzip",
+      "raw_bytes": 1762,
+      "raw_sha256": "e97dc9f6ac831a7ad0ac57beb7de6ef6b042043ce705036c9b8c6474d9750c80",
+      "encoded_bytes": 751,
+      "encoded_sha256": "c6aa6f054246ec46732945730fb3fffa69994febddbe9a43982297925f01931b"
+    },
+    "independent_review": {
+      "source_sha": "4a4475c78938883b45a59133fc7d4cfea410b064",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/public-inventory-independent-review.json",
+      "blob": "6a63df99257f6637d02eb3e2fb1ee04848918e7d",
+      "bytes": 5058,
+      "sha256": "83a38a2bd02ab96e765d592ffe6fa09e11cf2239a856eb016b108566b19e883b"
+    },
+    "scope": "exactlyfive records in this own fragment; actual native three aliases public_stable and default search/autotune children internal; no B ledger classification/fullreleasePASS"
+  },
+  "native_shared_index_preservation": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/native-doe-factory-profile/applied.json.gz",
+    "actual_raw_path": "/tmp/e02-D-gp-sharedindex-preservation-850s7r4_/applied.json",
+    "encoding": "gzip",
+    "raw_bytes": 1158,
+    "raw_sha256": "56a726a8e7f352ec22fa5e9044972830d59bf8f565c21166846250597eedee83",
+    "encoded_bytes": 645,
+    "encoded_sha256": "2a77891f2bce67a73813907f1620cc20e5880cf17f40092e57e5b1a8bde83e43"
+  },
+  "limits": [
+    "15case numerical/consumer result remains exact6fe source; latest9de ran one affected positive only, final composed fullselector remains root task",
+    "missing profile collection is SKIP/UNRUN and exit5, never numericalPASS",
+    "no GP modelfit or GP23/26 replay",
+    "no added numeric thread/process/worker caps; effective library threading was not measured",
+    "fresh unique basetemps retained, no manual source/fixture/output cleanup"
+  ]
+}

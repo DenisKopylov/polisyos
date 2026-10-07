@@ -1,0 +1,195 @@
+{
+  "schema": "polisyos.e02.independent-subnormal-reindex-baseline.v1",
+  "reviewer": "numerical_oracle",
+  "verdict": "FAIL",
+  "closure_ids": [],
+  "scope": "Independent unchanged rational quantity, current coordinate identity, omission identity, actual CAS reader and native finite-input reference preparation controls; no source-universe or scientific unit appointment.",
+  "admitted_lane": {
+    "path": "/workspace/e02-D-published-oracle",
+    "branch": "codex/e02-D-published-oracle",
+    "base_sha": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203"
+  },
+  "proof": {
+    "source_sha": "8a57c1e9df9e586529133487c8dec9f2bdb7288e",
+    "tree_sha": "15d0dbe4fd6d60ff22fc9e81ec48e48509725879",
+    "path": "policy-engine/tests/unit/scientist/methods/autotune/test_pareto_subnormal_reindex_independent_oracle.py",
+    "sha256": "4560cc120a34afac3818b7584c8aba013363d845fd1416bf83a705cd31aedd6f",
+    "unchanged_for_candidate": true
+  },
+  "runtime_source": {
+    "sha": "bf84b0ab4375528e807a0fbc92dc1310735a787c",
+    "tree": "9086e8320a4ceba632107d47fd2cc78e262d05b7",
+    "path": "/workspace/e02-D-published-root",
+    "all_244_reported_product_origins_match_pinned_git": true,
+    "source_and_test_before_after_clean": true
+  },
+  "original_criteria": [
+    {
+      "id": "B110@OPT-01",
+      "finding_id": "B110",
+      "criterion_card": "OPT-01",
+      "canonical_content": {
+        "text": "**Приёмка и предел.** Фронт, его сериализация/round-trip и `is_dominated` дают одно отношение. Смена display-label не меняет решение; смена split не исчезает. Это локальная потеря семантики, а не доказательство, что все производственные policies сейчас имеют такие повторения.",
+        "byte_offset": 658592,
+        "bytes": 455,
+        "sha256": "199ef2ac1ae718655b08fbb78829e6ed0768b46df5d1b99fad56aa69181c1184"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B110@OPT-01",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-01.md",
+          "bytes": 20853,
+          "sha256": "3c7df5d39ca7a6351ebf5fb21adee73462df7e7063adbaec6514c004feb7ce0e"
+        }
+      }
+    },
+    {
+      "id": "B111@OPT-01",
+      "finding_id": "B111",
+      "criterion_card": "OPT-01",
+      "canonical_content": {
+        "text": "**Приёмка.** Перестановки не меняют конечный фронт; invalid сохраняет причину; reference point и hypervolume конечны или явно недоступны; генезис и смена чемпиона не публикуют неопределённое число. Проверить реальный CAS и существующие upstream guards, не дублируя их несовместимыми кодами.",
+        "byte_offset": 662708,
+        "bytes": 484,
+        "sha256": "4d1c7ff7de3b274c2aa4e16230b323102adacd871d551f30616d9d8f3b2eec65"
+      },
+      "original_acceptance_binding": {
+        "accounting_source_sha": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-final-criterion-accounting.json",
+        "criterion_occurrence_id": "B111@OPT-01",
+        "canonical_card": {
+          "source_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+          "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/OPT-01.md",
+          "bytes": 20853,
+          "sha256": "3c7df5d39ca7a6351ebf5fb21adee73462df7e7063adbaec6514c004feb7ce0e"
+        }
+      }
+    }
+  ],
+  "supplied_G_action": {
+    "sha": "127dc7ab8365d29eb656fe32c0c894f6cc971286",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/D-delta-owner-actions-2026-10-06.md",
+    "item": 2,
+    "classification": "Code-only action draft explicitly declares no tests; this independent baseline supplies actual runtime evidence."
+  },
+  "deciding_cell": {
+    "member_prefix": "canonical-baseline/",
+    "counts": {
+      "tests": 13,
+      "passed": 6,
+      "failed": 7,
+      "errors": 0,
+      "skipped": 0
+    },
+    "returncode": 1,
+    "wall_seconds": 9.485296856990317,
+    "pytest_seconds": 5.79,
+    "maxrss_kb": 677888,
+    "complete_sha256": "97ec0e9200c785745214d8cb515a85ab34acda6c42c1ade89635a257c1dc4a93",
+    "failed_properties": [
+      "positive rational single and overlapping union underflows to falsely available zero (2 cases)",
+      "native full-membership front computes falsely available zero in maximize/minimize (2 cases)",
+      "stale missing or non-finite omission coordinate ID survives new-schema actual CAS readback (2 cases)",
+      "native finite-input overflowing intermediate axis span assigns non-finite reference instead of controlled refusal (1 case)"
+    ],
+    "passed_properties": [
+      "tiny representable positive quantities (2)",
+      "genuine degenerate zero",
+      "paired policy/name/version/axis/value/reference/omission reindex preserves union16 and identity",
+      "unpaired unit and definition version fail closed (2)"
+    ]
+  },
+  "oracle_math": {
+    "expected": "Exact Fraction.from_float box union by independent inclusion-exclusion; positive >0 with float(expected)==0 requires typed unavailable instead of false zero. Genuine zero remains available. No BoTorch/posterior/kernel expected calculation.",
+    "typed_underflow_reason": "nonzero_derived_hypervolume_underflow",
+    "reference_nuance": "The exact rational final -1.2e308 reference is finite; rejection declares the supported float64 intermediate-span arithmetic boundary, not mathematical impossibility.",
+    "units": "Fixture-declared metres/seconds, split, direction and definition versions only; no independent institutional unit law."
+  },
+  "actual_consumer": {
+    "calls": {
+      "compute_hypervolume_assessed": 17,
+      "ParetoPromoter.compute_front": 12,
+      "FileSystemCAS.put_json": 11,
+      "load_model_artifact": 11,
+      "FileSystemCAS.get_verified_snapshot": 11,
+      "MOBayesianOptimizer._update_ref_point": 1
+    },
+    "fit_model_list": 0,
+    "fit_gpytorch_mll": 0,
+    "boundary": "actual typed quantity/front CAS write, new FileSystemCAS read, canonical model validation; candidate refs are conditional synthetic fixture inputs"
+  },
+  "prior_preparation_error": {
+    "member_prefix": "startup-wrong-origin/",
+    "returncode": 2,
+    "counts": {
+      "tests": 0,
+      "passed": 0,
+      "failed": 0,
+      "collection_errors": 1,
+      "skipped": 0
+    },
+    "verdict": "ERROR/UNRUN; no geometry result",
+    "explanation": "Own conftest inserted old own src ahead of root; HypervolumeResult unavailable there. All 217 reported product hashes match own8a, not the declared root source. Corrected PYTHONPATH root first / own src last prevents reinsertion and enforces product origin at collection.",
+    "complete_sha256": "14092666912697363419369bb870a7a2c6164f7fb4af9bacd88e116ab40619f8"
+  },
+  "environment": {
+    "python": "/workspace/e02-D-locked-env/bin/python",
+    "versions": {
+      "Python": "3.14.7",
+      "Torch": "2.10.0",
+      "BoTorch": "0.16.1",
+      "GPyTorch": "1.15.1"
+    },
+    "actual_optional_imports": [
+      "torch",
+      "botorch",
+      "gpytorch"
+    ],
+    "three_reported_backend_file_hashes_match_locked_files": true,
+    "no_added_cpu_thread_process_or_test_worker_caps": true,
+    "inherited_runtime_limit_environment": {},
+    "parent_stdlib_only_no_torch": true,
+    "full_native_pytest_ini_and_strict_markers": true,
+    "missing_backend": "UNRUN, never numerical PASS"
+  },
+  "payload": {
+    "directory": "subnormal-reindex-independent-baseline",
+    "header": "deciding-outputs.header.json",
+    "binding": "binding.json",
+    "bundle": "deciding-outputs.json.gz",
+    "compressed_sha256": "84596939ac4b3c0eb8eff0b0a255650ca4f99877577ebbb6ccbb9c5bf026941a",
+    "members": 14,
+    "raw_bytes": 171556,
+    "all_member_bytes_verified": true,
+    "locator_rule": "bundle!/member; JSON member uses #/json/pointer",
+    "original_roots": {
+      "startup-wrong-origin": "/dev/shm/e02-oracle-subnormal-baseline-fc4ff48284894935b8c14f041de5c9c1",
+      "canonical-baseline": "/dev/shm/e02-oracle-subnormal-canonical-baseline-a5e0e71e0b224a9fa96cd028ba81f72e",
+      "instruments": "/dev/shm/e02-oracle-subnormal-capture.py and /dev/shm/e02-oracle-subnormal-capture-fixed.py"
+    }
+  },
+  "temporary_state": {
+    "cleanup_candidates_only_no_deletion": [
+      "/dev/shm/e02-oracle-subnormal-baseline-fc4ff48284894935b8c14f041de5c9c1",
+      "/dev/shm/e02-oracle-subnormal-canonical-baseline-a5e0e71e0b224a9fa96cd028ba81f72e",
+      "/dev/shm/e02-oracle-subnormal-publication",
+      "/dev/shm/e02-oracle-subnormal-capture.py",
+      "/dev/shm/e02-oracle-subnormal-capture-fixed.py",
+      "/tmp/e02-oracle-subnormal-canonical-baseline-6907e45e62cd4bbcb87a171454e8999d",
+      "/tmp/e02-D-index-split-preservation-6il5szvl"
+    ],
+    "startup_basetemp_absent": "May never have been created; no deletion inference.",
+    "canonical_basetemp": "Initially nonexistent, exists after natural test completion; retained.",
+    "root_administrative_preservation": "Root-authorized native thin split index metadata only, old/shared bytes retained; applied.json reports full stage/debug/tree/HEAD/status unchanged. No source/tests/hooks/refs changed."
+  },
+  "limitations": [
+    "This is a deciding baseline FAIL. Corrective source has not yet been independently replayed by this receipt.",
+    "Existing full GP analytic/CAS proofs are preserved; no GP numerical fit or broad quality/backend rerun is claimed.",
+    "Actual CAS front/quantity reader is measured; this fixture does not prove registry.update, ordinary A supplier/export, source universe, or candidate-body authority.",
+    "All 244 reported product bindings and three top-level backend module files cover this execution, not a full installed environment integrity census.",
+    "Full B04/B19/B23/mypy quality limits and root/G closure acceptance remain separate; no waiver or automatic finding closure."
+  ]
+}

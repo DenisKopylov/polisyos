@@ -1,0 +1,19 @@
+{
+  "source_sha": "ee6d0024cc9dd7e1c27381f6fdfe112c465b6581",
+  "command": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "/workspace/e02-D3-receipts/stress/challenge_runtime_runner.py",
+    "-q",
+    "tests/unit/scientist/search/test_blueprint_resource_projection.py",
+    "tests/unit/scientist/search/test_challenge_scenario_projection.py::test_empty_component_stays_incomplete_beside_a_complete_case_set",
+    "--basetemp",
+    "/dev/shm/e02-D-projection-green-e947c334f9b243ef8692a3186b3fa5a8",
+    "--junitxml",
+    "/workspace/e02-D3-receipts/stress/projection-green-junit.xml"
+  ],
+  "exit_code": -9,
+  "wall_seconds": 26.688943525994546,
+  "peak_rss_kib": 795252,
+  "source_sha_after": "ee6d0024cc9dd7e1c27381f6fdfe112c465b6581",
+  "git_status": "?? docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/complete-result-pack-census.json\n"
+}

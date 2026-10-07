@@ -1,0 +1,92 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.0.2, pluggy-1.6.0 -- /workspace/e02-D-locked-env/bin/python
+cachedir: _cache/pytest
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-D-published-funnel/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-D-published-funnel/policy-engine
+configfile: pytest.ini
+plugins: jaxtyping-0.3.4, benchmark-5.2.3, hypothesis-6.151.2, langsmith-0.6.0, asyncio-1.3.0, xdist-3.8.0, anyio-4.12.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 4 items
+
+tests/integration/core/llm/test_native_gateway_cost_range.py::test_native_raw_nonzero_amount_cannot_settle_underflowed_zero[-1e-1000] FAILED [ 25%]
+tests/integration/core/llm/test_native_gateway_cost_range.py::test_native_raw_nonzero_amount_cannot_settle_underflowed_zero[1e-1000] FAILED [ 50%]
+tests/integration/core/llm/test_native_gateway_cost_range.py::test_native_raw_nonzero_amount_cannot_settle_underflowed_zero[amount2] FAILED [ 75%]
+tests/integration/core/llm/test_native_gateway_cost_range.py::test_native_raw_nonzero_amount_cannot_settle_underflowed_zero[amount3] FAILED [100%]
+
+=================================== FAILURES ===================================
+___ test_native_raw_nonzero_amount_cannot_settle_underflowed_zero[-1e-1000] ____
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-cost-range-red-63f3a6cdb011446a9c179d0726fc67a7/test_native_raw_nonzero_amount0')
+amount = '-1e-1000'
+
+    @pytest.mark.parametrize(
+        "amount", ["-1e-1000", "1e-1000", Decimal("-1e-1000"), Decimal("1e-1000")]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_nonzero_amount_cannot_settle_underflowed_zero(tmp_path, amount):
+        gateway = RawGateway(raw_payload({"cost_usd": amount}))
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_range.py:24: Failed
+____ test_native_raw_nonzero_amount_cannot_settle_underflowed_zero[1e-1000] ____
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-cost-range-red-63f3a6cdb011446a9c179d0726fc67a7/test_native_raw_nonzero_amount1')
+amount = '1e-1000'
+
+    @pytest.mark.parametrize(
+        "amount", ["-1e-1000", "1e-1000", Decimal("-1e-1000"), Decimal("1e-1000")]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_nonzero_amount_cannot_settle_underflowed_zero(tmp_path, amount):
+        gateway = RawGateway(raw_payload({"cost_usd": amount}))
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_range.py:24: Failed
+____ test_native_raw_nonzero_amount_cannot_settle_underflowed_zero[amount2] ____
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-cost-range-red-63f3a6cdb011446a9c179d0726fc67a7/test_native_raw_nonzero_amount2')
+amount = Decimal('-1E-1000')
+
+    @pytest.mark.parametrize(
+        "amount", ["-1e-1000", "1e-1000", Decimal("-1e-1000"), Decimal("1e-1000")]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_nonzero_amount_cannot_settle_underflowed_zero(tmp_path, amount):
+        gateway = RawGateway(raw_payload({"cost_usd": amount}))
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_range.py:24: Failed
+____ test_native_raw_nonzero_amount_cannot_settle_underflowed_zero[amount3] ____
+
+tmp_path = PosixPath('/dev/shm/e02-D-native-cost-range-red-63f3a6cdb011446a9c179d0726fc67a7/test_native_raw_nonzero_amount3')
+amount = Decimal('1E-1000')
+
+    @pytest.mark.parametrize(
+        "amount", ["-1e-1000", "1e-1000", Decimal("-1e-1000"), Decimal("1e-1000")]
+    )
+    @pytest.mark.asyncio
+    async def test_native_raw_nonzero_amount_cannot_settle_underflowed_zero(tmp_path, amount):
+        gateway = RawGateway(raw_payload({"cost_usd": amount}))
+        path, enforcer = build(tmp_path, gateway)
+>       with pytest.raises(ValueError, match="provider cost"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/integration/core/llm/test_native_gateway_cost_range.py:24: Failed
+=========================== short test summary info ============================
+FAILED tests/integration/core/llm/test_native_gateway_cost_range.py::test_native_raw_nonzero_amount_cannot_settle_underflowed_zero[-1e-1000]
+FAILED tests/integration/core/llm/test_native_gateway_cost_range.py::test_native_raw_nonzero_amount_cannot_settle_underflowed_zero[1e-1000]
+FAILED tests/integration/core/llm/test_native_gateway_cost_range.py::test_native_raw_nonzero_amount_cannot_settle_underflowed_zero[amount2]
+FAILED tests/integration/core/llm/test_native_gateway_cost_range.py::test_native_raw_nonzero_amount_cannot_settle_underflowed_zero[amount3]
+============================== 4 failed in 0.17s ===============================

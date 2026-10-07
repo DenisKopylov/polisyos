@@ -1,0 +1,59 @@
+{
+  "schema": "D.e02.B124.B111.three-removal-static-independent-review.v1",
+  "reviewer": "/root/census_oct07",
+  "created_utc": "2026-10-07T10:35:26.660013+00:00",
+  "decision": "GO_THREE_BOUNDED_ACTUAL_CONSUMER_REMOVAL_CONTROLS_FOR_FROZEN_EXECUTION",
+  "manifest_sha256": "95ee9d29d8104999d6ac7adcb5eca780a5d4e69ddc6121aa87721db1d35e6870",
+  "files": {
+    "removal_observation.py": {
+      "bytes": 2818,
+      "sha256": "8c34b5ab2ca4e24371962e3629771f0af125ee2390f8c46ea969946483c02c59"
+    },
+    "remove_trial_lookup.py": {
+      "bytes": 404,
+      "sha256": "1cac097268db9671890dfa6b856ec0ca02c8c7813b4b5f694695a4769765c73f"
+    },
+    "replace_nullable_primary_zero.py": {
+      "bytes": 868,
+      "sha256": "a425bab7fd56efb15063597cfdc37ac272886cca5fbc3bfac24e4d44356d0290"
+    },
+    "restore_marker_override.py": {
+      "bytes": 667,
+      "sha256": "babb9c9b9d58f5e567e85d67f79116cd97efa2e054803051235ef52011b156ee"
+    }
+  },
+  "controls": [
+    {
+      "plugin": "remove_trial_lookup",
+      "selector": "tests/unit/scientist/methods/search/test_service_trial_deduplication.py::test_native_dedup_uses_actual_semantic_content_and_retains_explicit_replicas[run]",
+      "removed_property": "actual TrialDeduplicator.is_duplicate only",
+      "preserved": "actual canonical type/fingerprint/source profile, real corpus/replicas/CAS/artifacts/evaluator/history",
+      "expected_result": "one assertion FAIL with actual physical trace not equal to [1,2,1,2,2,2,2], no setup or collection error"
+    },
+    {
+      "plugin": "restore_marker_override",
+      "selector": "tests/unit/scientist/methods/search/test_service_trial_deduplication.py::test_returned_hash_marker_cannot_collapse_actual_native_dates_cas_and_fresh_registry",
+      "removed_property": "actual canonical payload identity at frontier/controller supplied-marker seam",
+      "preserved": "valid sha256:a64 marker, real measured native history3, semantic Jan/Feb, CAScheckpoint/ParetoRegistry/fresh reader",
+      "expected_result": "one assertion FAIL with actual registry subjects1 versus required2, no setup or collection error"
+    },
+    {
+      "plugin": "replace_nullable_primary_zero",
+      "selector": "tests/unit/scientist/methods/search/test_service_trial_deduplication.py::test_actual_native_primary_quantity_preserves_unavailable_zero_and_fresh_cas_basis[missing-False-ok-1]",
+      "removed_property": "only actual Runner primary None→0 after native actual producer/evaluation/persistence",
+      "preserved": "actual owner holdout_metrics{}, statusok, promotableTrue, qualified refs, unavailable primary assessment/reason, feedbackREJECT",
+      "expected_result": "one assertion FAIL with actual returned/persisted primary0/best/front0, no setup or collection error"
+    }
+  ],
+  "independent_source_review": [
+    "Trial lookup: only actual is_duplicate false; canonical type/fingerprint, generated proposal identity, native current basis and real CAS/evaluator/history remain. Ordinary selector independently expects physical 7 calls and four measured records, so extra duplicate actual calls discriminate.",
+    "Marker override: actual controller alias plus frontier function allow retained syntactically valid returned marker to replace real payload; dated producer and real three history/fullIDs retained. Real fresh ParetoRegistry subject cardinality1 versus2 discriminates semantic date identity, not marker presence.",
+    "Nullable primary zero: wrapper delegates actual Runner physical producer and persistence first, then replaces only actual None quantity0. Qualified measured artifact remains empty metrics and original unavailable assessment/REJECT/promotable True retained. Actual native objective/history/best/front/zero consumer state must diverge; test starts from actual returned quantity relation and saved fresh state. No synthetic success or new authority.",
+    "Shared observation: delegates actual native run, then fresh verified FileSystemCAS snapshot, actual SearchRunState decode and fresh ParetoRegistry. Emits protected-state evidence before deciding assertions; inspection is read-only and uses original native spec actual evaluator calls."
+  ],
+  "P37": "Predicates: pre-evaluator exclusion of admitted equivalent subject; full content-bound semantic identity despite returned marker; honest unavailable actual scalar through native objective/persisted consumer. PASS original producer markers alone would not prove these.",
+  "P38": "Explicit divergent proxies: dedup flag/type vs actual extra physical evaluation; same returned marker vs distinct real dated subject; unavailable assessment/promotable/REJECT markers vs numeric zero consumed as best/front.",
+  "runtime": "UNRUN; setup/collection exception does not satisfy negative, require actual protected-effect assertion failure plus full stdout/JUnit/printed fresh observation on frozen source. Plugins intentionally alter runtime methods under unchanged tracked source markers; not an unchanged-product FAIL.",
+  "formal_closed": false,
+  "accepted_in_G": false
+}

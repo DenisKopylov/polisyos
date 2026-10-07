@@ -1,0 +1,38 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+__ test_valid_cas_legacy_native_nonfinite_refuses_before_pointer_publication ___
+
+tmp_path = PosixPath('/dev/shm/e02-D-transfer-frozen469-06qbulta/remove_private_finite-tmp/test_valid_cas_legacy_native_n0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7fa0a1d20180>
+record_property = <function record_property.<locals>.append_property at 0x7fa0a1e6eda0>
+
+    def test_valid_cas_legacy_native_nonfinite_refuses_before_pointer_publication(
+        tmp_path, monkeypatch, record_property
+    ):
+        pytest.importorskip("hnswlib")
+        store = FileSystemCAS(tmp_path / "cas")
+        legacy = VectorMemoryStore(dim=2, max_elements=2)
+        # Reproduce the old native narrowing with real HNSW, retaining a valid
+        # composite schema, native header, labels, CAS digest and manifest.
+        monkeypatch.setattr(legacy, "_embedding", lambda embedding, dim: list(embedding))
+        with pytest.warns(RuntimeWarning, match="overflow encountered in cast"):
+            legacy.add("historical-nonfinite", [1e300, 1.0], {"origin": "legacy"})
+        ref = legacy.save_to_artifact(store)
+        assert store.get_verified_snapshot(ref).manifest.kind == "vector_memory.bundle"
+        reader = VectorMemoryStore(dim=2, max_elements=2)
+        reader.add("prior", [1.0, 0.0], {"generation": "prior"})
+        before = reader._generation
+>       with pytest.raises(ValueError, match="Native embedding row 0 coordinate 0 must be finite"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE <class 'ValueError'>
+
+tests/unit/scientist/agent/test_vector_generation_consumer.py:154: Failed
+=============================== warnings summary ===============================
+../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/agent/test_vector_generation_consumer.py::test_valid_cas_legacy_native_nonfinite_refuses_before_pointer_publication

@@ -1,0 +1,5 @@
+{"timestamp": "2026-10-07T17:45:55.050926+00:00", "event": "collection_finish", "nodeids": ["tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_warm_start_reaches_gp_training_before_initial_threshold"]}
+{"timestamp": "2026-10-07T17:45:55.056462+00:00", "event": "report", "nodeid": "tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_warm_start_reaches_gp_training_before_initial_threshold", "phase": "setup", "outcome": "passed", "duration": 0.004968056018697098}
+{"timestamp": "2026-10-07T17:45:57.107517+00:00", "event": "report", "nodeid": "tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_warm_start_reaches_gp_training_before_initial_threshold", "phase": "call", "outcome": "passed", "duration": 2.0467587180028204}
+{"timestamp": "2026-10-07T17:45:57.108101+00:00", "event": "report", "nodeid": "tests/unit/scientist/search/strategies/test_bayesian.py::test_bayesian_warm_start_reaches_gp_training_before_initial_threshold", "phase": "teardown", "outcome": "passed", "duration": 0.00026054499903693795}
+{"timestamp": "2026-10-07T17:45:57.109119+00:00", "event": "session_finish", "exitstatus": 0}

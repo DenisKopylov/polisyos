@@ -1,0 +1,9 @@
+{
+  "attempts": [
+    "torch",
+    "torch"
+  ],
+  "loaded_optional_modules": [],
+  "exitstatus": 2,
+  "scope": "controlled import-denial profile, not an actually uninstalled environment or numeric execution"
+}

@@ -1,0 +1,48 @@
+{
+  "schema": "e02.D.cloud_cleanup_candidates.v1",
+  "observed_utc": "2026-10-06T22:52:38.947664+00:00",
+  "native_trash_available": false,
+  "action_taken": "None; no move/delete/prune/Trash empty",
+  "observed_live_test_command_rows": [],
+  "observation_limit": "Process census is bounded current command observation, not a user-owner inactive authorization. Recheck before any future Trash move.",
+  "exact_conditional_candidates": [
+    {
+      "path": "/tmp/e02-D-root-affected44-09a8ad37f06a4165a1ff719f1568a00a/pytest-cache",
+      "classification": "Reproducible pytest cache only",
+      "complete_output_git_ref": "04218ee864ffcae2cdec19d6b22379351eceeed7",
+      "eligibility": "Conditional after publication/readback, owner inactive check and confirming no unique inputs within subtree.",
+      "exists_at_observation": true
+    },
+    {
+      "path": "/tmp/e02-D-root-affected44-09a8ad37f06a4165a1ff719f1568a00a/fresh-fixtures",
+      "classification": "Repeated44-test native fixtures; all retained regular fixture bytes bound in447-member carrier",
+      "complete_output_git_ref": "04218ee864ffcae2cdec19d6b22379351eceeed7",
+      "eligibility": "Conditional after publication/readback and owner inactive check; first preserve any new unique file added after captured walk.",
+      "exists_at_observation": true
+    },
+    {
+      "path": "/tmp/e02-D-final-root-wave-c17db434-20261006/pytest-basetemp-72b0acfb059341d4b99f803192c70dd2",
+      "classification": "Historical reproducible broad-wave fixtures; regular files preserved in682-member carrier,56 nonregular descriptors require target review",
+      "complete_output_git_ref": "f5642cca00f084ddbc195c98541a30df058612db",
+      "eligibility": "Conditional regular reproducible files only; exclude unique/nonregular targets pending identity/ownership check. Do not remove whole subtree blindly.",
+      "exists_at_observation": true
+    }
+  ],
+  "excluded_always_or_while_active": [
+    "/workspace/e02-D-published-root and all registered topic worktrees",
+    "All tracked code/documentation and unique inputs",
+    "All original deciding output folders outside listed conditional fixture subtrees",
+    "/tmp/e02-D-runtime-minimal-20261006 and its linked installed package targets",
+    "/tmp/e02-D-git-pack-preservation-ts_yo5wj",
+    "/tmp/e02-D-native-pack-preservation-followup-czgq4wlo",
+    "/tmp/dp3-xucfg22g",
+    "/tmp/e02-D-native-git-storage4-2jad1gal",
+    "/tmp/d4-53_iuxqr",
+    "/tmp/e02-D-native-loose-storage-68vq5cga",
+    "/tmp/o4-r0zecq9r",
+    "/tmp/o5-3w45wygb",
+    "/dev/shm/e02-D-E-doe-profile-3i1gxyjg/policy-engine (historical retained source-copy deviation; not a task input)",
+    "Production data and all unique authority/evaluator inputs"
+  ],
+  "policy": "Cloud has no native Trash; this exact list is the handoff. Permanent deletion and registration pruning are forbidden."
+}

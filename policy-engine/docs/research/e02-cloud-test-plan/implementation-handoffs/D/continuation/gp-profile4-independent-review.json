@@ -1,0 +1,164 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "D",
+  "closure_ids": [],
+  "base_sha": "96eb9b9fb7f2acfa872dc741cbfdd96949c5d203",
+  "source_sha": "d38f94c8a8095abb00052b8e78f7b8a470453ed4",
+  "source_tree": "d4e217a2b4e620e22bc0f2fa1a8bf2fcdb6fe3e0",
+  "verdict": "PASS within the unchanged 23-case analytic continuation scope; no scientific source-authority or complete finding closure",
+  "runtime": {
+    "junit": {
+      "tests": 23,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "exit_code": 0,
+    "wall_seconds": 22.456018726006732,
+    "command_record": "gp-profile4-independent/candidate-command.json",
+    "origin_binding": {
+      "loaded_product_origins": 857,
+      "independently_rechecked_git_bytes": 857,
+      "errors": []
+    },
+    "backend_versions": {
+      "torch": "2.10.0+cu128",
+      "botorch": "0.16.1",
+      "gpytorch": "1.15.1"
+    },
+    "checkpoint_guard": {
+      "supported_fixture_version": 4,
+      "unsupported_checkpoint_version": 3,
+      "rejected": true,
+      "atomic": true,
+      "reason": "GP checkpoint lacks a supported complete state basis",
+      "scope": "additional native checkpoint guard during first unchanged analytic test; not another pytest case"
+    }
+  },
+  "oracle": {
+    "test_source": "18699ce536fca6ce174ff1caf1435a79912f0920",
+    "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_gp_analytic_continuation.py",
+    "sha256": "95bb5e2137d807bd3d005c27b240c8b1d86d7ccffc65a3da045721fc55d79265",
+    "expected_values": "Independent NumPy C=K(X,X)+noise*I; persisted learned RBF/mean/noise and Normalize/Standardize values explicitly applied in original objective units. No posterior/kernel/transform method supplies an expectation.",
+    "scope": "10 unique analytic rows and shifted append row 11; predictive mean and full covariance including off-diagonals; actual conditioning and MLL call counts; unchanged-marker parameter/transform/warm-row/local-RNG/checkpoint-kind controls.",
+    "later_collection_guard_only": "Three importorskip UNRUN guards and integration marker added after the deciding run; no numerical expectation/body alteration.",
+    "function_and_class_ast_unchanged": true,
+    "collection_guard_commit": "df778090a68aa91c5e6780721edd96ec7688affd"
+  },
+  "code_review": [
+    "Version4 persists original fitted Evaluation payloads in the corpus digest, re-admits source-bound rows with the configured reader, and recomputes ordered IDs and raw X/Y before model construction. Duplicate aliases and distinct ID permutations cannot supply numeric row association.",
+    "Probe restoration replaces copied collections before live native state mutation; persisted learned model, transforms, full-refit basis and local RNG are retained. No replacement MLL fit supplies restore equivalence.",
+    "Former dfe wrapper membership-only acceptance was falsified by an actual coherent fitted-ID alias; the historical 14-case positive does not cover that wider property.",
+    "672 retains former JSON scalar int/float domain before the finite-real predicate; only one product line changes. Fraction remains unsupported by the native JSON codec."
+  ],
+  "successor_source_equivalence": {
+    "core_blobs": [
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/bayesian.py",
+        "sha256": "26753a5ed92c04c5187c0e122ab106f91a2f57c5f05c0987cffce96b27e40066",
+        "same_672": true,
+        "same_350": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/common/serialization.py",
+        "sha256": "46010b962ef21b1967a5743d9d76627eb1c36b0bf68f7a01fd3cd85d16731852",
+        "same_672": true,
+        "same_350": true
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/autotune/pareto.py",
+        "sha256": "1bb22dbeb57ad0311955dd755da3d0bd0726d55caf968980f4c9d57af83afeac",
+        "same_672": true,
+        "same_350": true
+      }
+    ],
+    "d38_to_672_product_diff": " policy-engine/src/polisyos/scientist/methods/search/strategies/types.py | 1 +\n 1 file changed, 1 insertion(+)\n",
+    "672_to_350_product_diff_empty": true
+  },
+  "held_execution": {
+    "source": "350519adde62860982fba8e14e72ce83ef421d65",
+    "scope": "new test-only direct-native original CAS same-ref corruption assertion",
+    "status": "ERROR/UNRUN",
+    "reported_exit_code": -9,
+    "wall_seconds": 47.356,
+    "output": "empty",
+    "junit": "absent",
+    "owner_message_basis": "Search author explicitly reported natural SIGKILL and released cache/backend; no inherited 34-case or independent 23-case PASS for this new assertion."
+  },
+  "historical_evidence": {
+    "dfe_alias": "dfe296816c95bee372ffea66d972826e5eb126a5 actual 1FAIL, complete.txt sha256 d626c390c907efcfc7f15667f84b7521c1eae5ce5193b161774fb26a0f65bfa4; author receipt transport pending",
+    "initial_profile3": "Earlier unchanged GP26 and profile3 records remain historical. Current profile4 execution is this fresh 23-case run.",
+    "preparation_failure": "gp-profile4-independent/startup01-result.json is UNRUN startup before pytest/backend. Original helper and deciding error retained; startup01-complete.txt is not claimed to be full subprocess-stream capture."
+  },
+  "compatibility_record": {
+    "commit": "7f9ab55fa77f3a2dcd1b9416fe7e4e67a9bf38ba",
+    "fragment": "policy-engine/release-fragments/unreleased/2026-10-06-search-gp-profile4-compatibility.toml",
+    "exact_fragment_validation": {
+      "errors": [],
+      "findings": []
+    },
+    "full_gate": "UNRUN"
+  },
+  "preservation": {
+    "agent_added_caps": false,
+    "manual_deletion": false,
+    "cleanup_candidates": [
+      "/tmp/gp-profile4-d38-0741ba555eb14d6886d88b7b9a9ef8ea",
+      "/dev/shm/gp-profile4-d38-20518be3192d49a0b96c7c3514fdb2ce",
+      "/tmp/gp-profile4-d38-85b0bef50b0b44ebbb121540c2c45b2a"
+    ],
+    "basetemp_observed_after": true
+  },
+  "limitations": [
+    "No receiver-scoped real CAS transfer workflow repetition in this synthetic 23-case run; author actual 34-case evidence is separate.",
+    "No cross-backend/GPU/profile migration, institutional source authority, empirical optimization-quality or complete B114/B115/B122 closure claim.",
+    "Only supplied exact tracked inputs were exercised; omitted test/data inputs are not declared green."
+  ],
+  "payload_manifest": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/gp-profile4-independent/candidate-command.json",
+      "bytes": 2577,
+      "sha256": "9b9056cc79f74cb3f845e2b508f0fcbf2bcfe0965f1e7c5e75f2c8e782055972"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/gp-profile4-independent/candidate-complete.txt",
+      "bytes": 1217,
+      "sha256": "fd58e617727521d74cf5bc402b8eca638e3f32a8c3de7bb91c657de184f74e30"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/gp-profile4-independent/candidate-junit.xml",
+      "bytes": 4779,
+      "sha256": "6c41c735d380ab4aaeffd30b440179e91f0582b8157fd9b8e1b1f1c359904d09"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/gp-profile4-independent/candidate-origins.json",
+      "bytes": 341284,
+      "sha256": "484ce65eb676f4023e4ed8a62b3ad3de3790eec927530006df9ce0031297b893"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/gp-profile4-independent/fragment-validation.json",
+      "bytes": 128,
+      "sha256": "c6e6b237d2eef6898d9b05e581498c62391a9e423b4a191a955f7a5467f85f8a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/gp-profile4-independent/run_gp_successor-startup01.py.txt",
+      "bytes": 6455,
+      "sha256": "59d5c4d342971cc82ddfadec3178c28020a66f2969693999667bf4845c6fc888"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/gp-profile4-independent/run_gp_successor.py.txt",
+      "bytes": 6456,
+      "sha256": "868b5ece6007468bdecb0574c3cd84b627583886ce931e7582ccc8d90689f06f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/gp-profile4-independent/startup01-complete.txt",
+      "bytes": 341,
+      "sha256": "cb96fc2a3230df83d666008dfc5ef5722c2c81170103b28a16d7bad18eabdba1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/gp-profile4-independent/startup01-result.json",
+      "bytes": 548,
+      "sha256": "c13b2da34275bad67aab18943838efa8e015567098c9a368b7f042ce624bfeb7"
+    }
+  ]
+}

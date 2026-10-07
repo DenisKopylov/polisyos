@@ -1,0 +1,104 @@
+{
+  "source_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "source_base_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "anchor_ancestor_exit": 0,
+  "old_D_candidate_ancestor_exit": 1,
+  "status_before_root_record": "## codex/e02-D-published-root\n?? policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/published-base/\n",
+  "receipt_inputs": [
+    {
+      "path": "base.json",
+      "sha256": "4108d13b58c1dc3d534fff96b6abe96bdc428fe68c00f9428907112461564157",
+      "bytes": 416
+    },
+    {
+      "path": "taskboard.json",
+      "sha256": "a6191987441a22d9109695cd3e42c9cc9523998da901ff46d4383922a0287173",
+      "bytes": 4329
+    },
+    {
+      "path": "root-create-final.json",
+      "sha256": "3ba2cd2e933a9605386e37554b916ff38f3b508016630d27497f783d41941ea2",
+      "bytes": 64147
+    },
+    {
+      "path": "root-resume.json",
+      "sha256": "09f9f0eb0a6e23bbea9ddae6e795239faebd7a9eb456ae117640874de32a38c3",
+      "bytes": 70135
+    },
+    {
+      "path": "import-check.txt",
+      "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4",
+      "bytes": 112
+    },
+    {
+      "path": "admission/champion-create.json",
+      "sha256": "9731b7345b96309c3724a2ab037fd4342c972283f87be95baefe25bed93f6c15",
+      "bytes": 82108
+    },
+    {
+      "path": "admission/champion-resume.json",
+      "sha256": "e5fc032ed9cc3f4fe18908f792cf51bb48c5e66c496e1a613266cde44cce4dcf",
+      "bytes": 88252
+    },
+    {
+      "path": "admission/funnel-create.json",
+      "sha256": "6043247aa1e569efdd8086207458588cefe2d06d87db29f165ca7b2304ba9cc5",
+      "bytes": 88143
+    },
+    {
+      "path": "admission/funnel-resume.json",
+      "sha256": "7bfb6eb630e52538e0555773d2a0409d87c3ff6aba3cef3a047c97d519ebfb56",
+      "bytes": 94209
+    },
+    {
+      "path": "admission/oracle-create.json",
+      "sha256": "2d72ff4515fe68bdad1eb53dee8e68c6466c5f20c7f4e5647a17a1f43eb9ab76",
+      "bytes": 100093
+    },
+    {
+      "path": "admission/oracle-resume.json",
+      "sha256": "0de34bb12ad092d67f8f7a9453d1f5bc01fc4050a811aec5e86a9da5ee2df358",
+      "bytes": 106159
+    },
+    {
+      "path": "admission/search-create.json",
+      "sha256": "a12264fe816aaae46aaffba5aab69b738dea5b1040cc16f7488d7947473806c6",
+      "bytes": 70062
+    },
+    {
+      "path": "admission/search-resume.json",
+      "sha256": "360cf96916341e4ddb7d2c44fd40974fada4ce4b26d156940791491dd0cde2d1",
+      "bytes": 76128
+    },
+    {
+      "path": "admission/stress-create.json",
+      "sha256": "e104f221fc96e02c33b71a8c2450fe899558c4cfef3dc0bc02f1819dd96a7910",
+      "bytes": 94118
+    },
+    {
+      "path": "admission/stress-resume.json",
+      "sha256": "63453ac74defc5a0b0b2a146d3182b3770fe8f752b1e80bf447c750d89871627",
+      "bytes": 100184
+    },
+    {
+      "path": "admission/transfer-create.json",
+      "sha256": "f9960f1660b9359b5764aa9b0d6bbc8870e01d2f9b8acfa84c04ee4b4e125823",
+      "bytes": 76055
+    },
+    {
+      "path": "admission/transfer-resume.json",
+      "sha256": "4b80ea9ee28719736fe69acf95d228ffdc89bbca80304a1305f532c5d070bf34",
+      "bytes": 82199
+    }
+  ],
+  "scope": "admission and exact published-base custody only; no code or finding closure",
+  "closure_ids": [],
+  "historical_inputs": "tracked closure-decisions and committed source refs; no previous ignored outputs",
+  "baseline_status": "navigation only; raw VM archives absent",
+  "review_rules": [
+    "authors do not review own mechanism",
+    "new head needs delta review",
+    "G sole integration publisher; no main push/rebase/force/prune"
+  ],
+  "cleanup": "native Trash absent/unverified; do not permanently delete; list exact candidates at final handoff"
+}

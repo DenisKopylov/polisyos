@@ -1,0 +1,480 @@
+{
+  "schema": "policyos.e02.D.source_qualified_fragment.v1",
+  "original_actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+  "original_actual_tree": "91cd2360ef82a45b2cb069bfb2a15f74c6812c1d",
+  "candidate": "d610095905262a9b5b05b60c894018a681119367",
+  "candidate_tree": "f5a8262d01929bcc96399ad9492e8aaf7489a8a1",
+  "complete_old_to_candidate_changed_paths": [
+    "policy-engine/tests/unit/scientist/agent/test_vector_generation_consumer.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_service_factory_fault_resume.py"
+  ],
+  "native_input_blobs": [
+    {
+      "path": "policy-engine/src/polisyos/scientist/agent/vector_memory.py",
+      "old_blob": "3e68ab919b915427300869d6b378d12f585d1f00",
+      "candidate_blob": "3e68ab919b915427300869d6b378d12f585d1f00",
+      "byte_identical": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/agent/test_vector_generation_consumer.py",
+      "old_blob": "5961b7e7b14fe28c2aa81608925f7a0a4f094001",
+      "candidate_blob": "3c9199aa4e7eaf5baa0b21ecd56bd33aa7fb8cfc",
+      "byte_identical": false
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/agent/vector_generation_reader.py",
+      "old_blob": "02a9e2074bdbfea3f57bcd950c6953a387cb6408",
+      "candidate_blob": "02a9e2074bdbfea3f57bcd950c6953a387cb6408",
+      "byte_identical": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/agent/test_vector_memory.py",
+      "old_blob": "88753b5536a0cc4dc8121e4b016d29102745861b",
+      "candidate_blob": "88753b5536a0cc4dc8121e4b016d29102745861b",
+      "byte_identical": true
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_trn_02.py",
+      "old_blob": "fdd17afd4ea92030d599b4947d35c03caaf36d48",
+      "candidate_blob": "fdd17afd4ea92030d599b4947d35c03caaf36d48",
+      "byte_identical": true
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/search/strategies/test_transfer.py",
+      "old_blob": "1a7e97f9b558f1a27c6977661b6797fcbbb38278",
+      "candidate_blob": "1a7e97f9b558f1a27c6977661b6797fcbbb38278",
+      "byte_identical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py",
+      "old_blob": "078d61b349147d0542e6012c49fcf205d09c0c0f",
+      "candidate_blob": "078d61b349147d0542e6012c49fcf205d09c0c0f",
+      "byte_identical": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "old_blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+      "candidate_blob": "092ffebacd3623539e8cb097e46a2ce9300bb606",
+      "byte_identical": true
+    }
+  ],
+  "testcase_count": 59,
+  "testcases": [
+    {
+      "classname": "tests.unit.scientist.agent.test_vector_memory",
+      "name": "test_query_captures_one_generation_during_native_publication[load]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.agent.test_vector_memory",
+      "name": "test_query_captures_one_generation_during_native_publication[update]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.agent.test_vector_memory",
+      "name": "test_metadata_copies_and_failed_native_mutation_preserve_generation",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.agent.test_vector_memory",
+      "name": "test_same_ref_altered_bytes_refuses_load_without_publishing",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.agent.test_vector_memory",
+      "name": "test_real_bundle_envelope_refuses_disagreement_before_publication[outer-kind]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.agent.test_vector_memory",
+      "name": "test_real_bundle_envelope_refuses_disagreement_before_publication[outer-media]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.agent.test_vector_memory",
+      "name": "test_real_bundle_envelope_refuses_disagreement_before_publication[schema]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.agent.test_vector_memory",
+      "name": "test_real_bundle_envelope_refuses_disagreement_before_publication[missing-schema]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.agent.test_vector_memory",
+      "name": "test_real_bundle_envelope_refuses_disagreement_before_publication[dimension]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.agent.test_vector_memory",
+      "name": "test_real_bundle_envelope_refuses_disagreement_before_publication[count]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.agent.test_vector_memory",
+      "name": "test_real_bundle_envelope_refuses_disagreement_before_publication[capacity]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.agent.test_vector_memory",
+      "name": "test_real_bundle_envelope_refuses_disagreement_before_publication[index-kind]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.agent.test_vector_memory",
+      "name": "test_real_bundle_envelope_refuses_disagreement_before_publication[truncated-index]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.agent.test_vector_memory",
+      "name": "test_explicit_schema_absent_legacy_bundle_uses_default_native_view",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.agent.test_vector_memory",
+      "name": "test_same_native_ref_changed_bytes_preserves_published_generation",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.remediation.test_trn_02",
+      "name": "test_discovery_preserves_history_ref_and_reads_cas_without_second_ann",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.remediation.test_trn_02",
+      "name": "test_history_cache_is_bound_to_snapshot_and_consumer_sort_is_non_mutating",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.remediation.test_trn_02",
+      "name": "test_failed_native_add_does_not_publish_a_second_python_record",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.remediation.test_trn_02",
+      "name": "test_failed_native_load_does_not_publish_partial_bundle",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.remediation.test_trn_02",
+      "name": "test_native_roundtrip_preserves_one_small_generation",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_exact_history_faithfully_rehydrates_and_ranks_direction_normalized_minima[minimize]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_exact_history_faithfully_rehydrates_and_ranks_direction_normalized_minima[maximize]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_each_complete_target_basis_identity_is_required[data_ref]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_each_complete_target_basis_identity_is_required[model_ref]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_each_complete_target_basis_identity_is_required[evaluator_ref]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_each_complete_target_basis_identity_is_required[split_ref]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_each_complete_target_basis_identity_is_required[scalarizer_ref]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_each_complete_target_basis_identity_is_required[owner_ref]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_each_complete_target_basis_identity_is_required[unit]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_each_complete_target_basis_identity_is_required[direction]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_each_complete_target_basis_identity_is_required[origin]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_each_complete_target_basis_identity_is_required[owner_id]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_each_complete_target_basis_identity_is_required[tenant_id]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_each_complete_target_basis_identity_is_required[metric]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_malformed_declared_types_are_visible_refusals[stage_a_passed-false]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_malformed_declared_types_are_visible_refusals[scalar_score-0.1]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_malformed_declared_types_are_visible_refusals[params_normalized-value2]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_malformed_declared_types_are_visible_refusals[timestamp-0]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_malformed_declared_types_are_visible_refusals[status-True]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_malformed_declared_types_are_visible_refusals[wall_time_seconds-False]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_candidate_content_not_ref_markers_binds_the_physical_input",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_checkpoint_replay_re_resolves_original_artifacts_on_cache_hit",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_cache_full_identity_copy_lru_budget_and_exact_alias_lookup",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_missing_basis_never_uses_first_source_as_target",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_original_benchmark_outcome_is_admitted_without_dto_coercion[promotable-false]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_original_benchmark_outcome_is_admitted_without_dto_coercion[guardrails-value1]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_original_benchmark_outcome_is_admitted_without_dto_coercion[guardrails-value2]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_original_benchmark_outcome_is_admitted_without_dto_coercion[selection_metrics-value3]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_original_benchmark_outcome_is_admitted_without_dto_coercion[sample_counts-value4]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_original_benchmark_outcome_is_admitted_without_dto_coercion[runtime_split_type-holdout]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_every_role_ref_is_resolved_again_on_checkpoint_restore[data_ref]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_every_role_ref_is_resolved_again_on_checkpoint_restore[model_ref]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_every_role_ref_is_resolved_again_on_checkpoint_restore[evaluator_ref]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_every_role_ref_is_resolved_again_on_checkpoint_restore[split_ref]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_every_role_ref_is_resolved_again_on_checkpoint_restore[scalarizer_ref]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_every_role_ref_is_resolved_again_on_checkpoint_restore[owner_ref]",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_physical_out_of_bounds_cannot_hide_behind_clipped_normalization",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_unknown_history_codec_refuses_before_caching_or_training",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    },
+    {
+      "classname": "tests.unit.scientist.methods.search.strategies.test_transfer",
+      "name": "test_original_benchmark_physical_input_cannot_coerce_boolean_to_number",
+      "source_check": "PASS",
+      "actual_source": "46933aa2d97e236a949c490650a483c9a2838d98",
+      "current_state": "not_rerun; exact unchanged product/helper/test59 input blobs; independent delta review requested"
+    }
+  ],
+  "review_state": "pending independent current output/delta reconciliation",
+  "predicate_basis": "source identity recomputed, verdict carry independently_reconciled only after reviewer confirms",
+  "P41": "not_established; not inherited-red waiver, no new execution claim"
+}

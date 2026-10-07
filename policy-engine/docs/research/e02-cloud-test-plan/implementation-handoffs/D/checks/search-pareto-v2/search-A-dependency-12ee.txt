@@ -1,0 +1,66 @@
+candidate_sha=12ee3c730f6ac9b6cff292e70eef4437f8c37b22
+archive_product=/dev/shm/search-pareto-12ee-ddxucvpe/policy-engine
+argv=['/workspace/e02-D-locked-env/bin/python', '-m', 'pytest', '-o', 'addopts=', '-q', 'docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/test_a_frontier_dependency.py']
+PYTHONPATH=src:.
+3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]
+2.10.0+cu128 0.16.1 1.15.1
+/dev/shm/search-pareto-12ee-ddxucvpe/policy-engine/src/polisyos/scientist/methods/autotune/pareto.py
+/dev/shm/search-pareto-12ee-ddxucvpe/policy-engine/src/polisyos/scientist/policy_design/output.py
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_____ test_actual_builder_cas_reader_retains_unavailable_indicator_reason ______
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-227/test_actual_builder_cas_reader0')
+
+    def test_actual_builder_cas_reader_retains_unavailable_indicator_reason(tmp_path: Path) -> None:
+        report = produced_report(tmp_path, (-1e308, 1e308))
+        store = FileSystemCAS(tmp_path / "CAS")
+        ref = _persist_model(
+            store,
+            report,
+            kind="fixture.policy.frontier_report",
+            schema_name="PolicyFrontierReport",
+            ref_cls=PolicyFrontierReportRef,
+            inputs=[],
+        )
+        reopened = load_policy_frontier_report(store, ref)
+        assert reopened.metadata["hypervolume_by_view"]["global_feasible"] is None
+        assert (
+>           reopened.metadata["hypervolume_assessments"]["global_feasible"]["reason"]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            == "non_finite_derived_hypervolume"
+        )
+E       KeyError: 'hypervolume_assessments'
+
+docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/test_a_frontier_dependency.py:65: KeyError
+___ test_registry_declaration_does_not_supply_independent_source_denominator ___
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-227/test_registry_declaration_does0')
+
+    def test_registry_declaration_does_not_supply_independent_source_denominator(
+        tmp_path: Path,
+    ) -> None:
+        report = produced_report(tmp_path, (1, 2))
+        # The producer supplied no independently reconciled run/tenant/cell universe.
+>       assert report.global_frontier == [], (
+            "registry-derived source_feasible is the same denominator, not independent input"
+        )
+E       AssertionError: registry-derived source_feasible is the same denominator, not independent input
+E       assert [PolicyFronti... metadata={})] == []
+E         
+E         Left contains one more item: PolicyFrontierEntry(candidate_hash='sha256:0000000000000000000000000000000000000000000000000000000000000002', candidat...primary_objectives={'policy_value': 2.0, 'employment': 2.0}, constraint_statuses={}, readiness_level=None, metadata={})
+E         Use -v to get more diff
+
+docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/test_a_frontier_dependency.py:75: AssertionError
+=============================== warnings summary ===============================
+../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+../../../../workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474
+  /workspace/e02-D-locked-env/lib/python3.14/site-packages/torch/jit/_script.py:1474: DeprecationWarning: `torch.jit.script` is not supported in Python 3.14+ and may break. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/test_a_frontier_dependency.py::test_actual_builder_cas_reader_retains_unavailable_indicator_reason
+FAILED docs/research/e02-cloud-test-plan/implementation-handoffs/D/checks/search-pareto-v2/test_a_frontier_dependency.py::test_registry_declaration_does_not_supply_independent_source_denominator
+2 failed, 2 warnings in 9.65s
+EXIT_CODE=1

@@ -1,0 +1,586 @@
+{
+  "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+  "captured_records": 34,
+  "refs": [
+    {
+      "fresh_reader_file": "positive5/test_actual_owner_lock_blocks_child_publication_then_current_basis_commits.fresh.json",
+      "json_pointer": "/actual_verified_reads/0",
+      "selector": "::test_actual_owner_lock_blocks_child_publication_then_current_basis_commits",
+      "role": "candidate",
+      "ref": {
+        "artifact_id": "sha256:23f3440acecd2af7d21081de477bda075ba4627be242e404a99e3f3e2e3b0d6b",
+        "kind": "scientist.autotune.verified.candidate",
+        "manifest_profile_sha256": "sha256:4bc1b5ed8f81b6f0b6c799a791f0323b74799163d1c0dd79a22036ca7197898f",
+        "media_type": "application/json"
+      },
+      "data_sha256": "23f3440acecd2af7d21081de477bda075ba4627be242e404a99e3f3e2e3b0d6b",
+      "manifest_sha256": "9de6bd95bd916084d8dc0e5c32dd87125f942aee0db646373c6ed41efd7f9667",
+      "actual_B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "actual_D_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": "Captured actual public verified snapshot record; not all CAS reads or a population denominator"
+    },
+    {
+      "fresh_reader_file": "positive5/test_actual_owner_lock_blocks_child_publication_then_current_basis_commits.fresh.json",
+      "json_pointer": "/actual_verified_reads/1",
+      "selector": "::test_actual_owner_lock_blocks_child_publication_then_current_basis_commits",
+      "role": "evaluation",
+      "ref": {
+        "artifact_id": "sha256:dbaae0f5718cf8f2050670d4dabeee3c3b2ffcd5d6b0da1f2b2d9974a97ef32b",
+        "kind": "scientist.autotune.verified.evaluation",
+        "manifest_profile_sha256": "sha256:39a5bd110529c8248d4eabba2da2422b0e5cba621426815b52222123cf4513f8",
+        "media_type": "application/json"
+      },
+      "data_sha256": "dbaae0f5718cf8f2050670d4dabeee3c3b2ffcd5d6b0da1f2b2d9974a97ef32b",
+      "manifest_sha256": "5264134b0fc23eb72c171292132cf1160c24fe7998ca2e572bf0796f6bbbdec3",
+      "actual_B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "actual_D_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": "Captured actual public verified snapshot record; not all CAS reads or a population denominator"
+    },
+    {
+      "fresh_reader_file": "positive5/test_actual_owner_lock_blocks_child_publication_then_current_basis_commits.fresh.json",
+      "json_pointer": "/actual_verified_reads/2",
+      "selector": "::test_actual_owner_lock_blocks_child_publication_then_current_basis_commits",
+      "role": "suite",
+      "ref": {
+        "artifact_id": "sha256:11f17ad0ae1da4f9ab38825fd08c04ba1deb65b75a292ec3f5678e6413ad50b9",
+        "kind": "scientist.autotune.generic.suite",
+        "manifest_profile_sha256": "sha256:c47d7ac17b0cc99acc3a72de212d331a0bd3d0bf76952d2a0f225bb9da382263",
+        "media_type": "application/json"
+      },
+      "data_sha256": "11f17ad0ae1da4f9ab38825fd08c04ba1deb65b75a292ec3f5678e6413ad50b9",
+      "manifest_sha256": "0676bed80ff3b3a8a21db8519e4f79f89f701d0196d072dacc295fbc844007a3",
+      "actual_B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "actual_D_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": "Captured actual public verified snapshot record; not all CAS reads or a population denominator"
+    },
+    {
+      "fresh_reader_file": "positive5/test_actual_owner_lock_blocks_child_publication_then_current_basis_commits.fresh.json",
+      "json_pointer": "/actual_verified_reads/3",
+      "selector": "::test_actual_owner_lock_blocks_child_publication_then_current_basis_commits",
+      "role": "dataset",
+      "ref": {
+        "artifact_id": "sha256:2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8",
+        "kind": "scientist.autotune.benchmark_dataset",
+        "manifest_profile_sha256": "sha256:577b5a791ddb47faa64e712288497167136063625cf9505d5d97f2c6cb742f29",
+        "media_type": "application/x-ndjson"
+      },
+      "data_sha256": "2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8",
+      "manifest_sha256": "262760aa8819d473f3e68e7f5e1a8bf119b0885382c26c98d542f2d2dc7aae18",
+      "actual_B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "actual_D_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": "Captured actual public verified snapshot record; not all CAS reads or a population denominator"
+    },
+    {
+      "fresh_reader_file": "positive5/test_actual_owner_lock_blocks_child_publication_then_current_basis_commits.fresh.json",
+      "json_pointer": "/actual_verified_reads/4",
+      "selector": "::test_actual_owner_lock_blocks_child_publication_then_current_basis_commits",
+      "role": "split",
+      "ref": {
+        "artifact_id": "sha256:f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf",
+        "kind": "scientist.autotune.split_manifest",
+        "manifest_profile_sha256": "sha256:5b35c3ab73cf3301229f18893f3c8d6ad68e3fc345e440d6c438b03855ac1f24",
+        "media_type": "application/json"
+      },
+      "data_sha256": "f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf",
+      "manifest_sha256": "d774ceb3eb09746dafedf56fa4f28738962293b6307ab6663ce0dbfba227eded",
+      "actual_B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "actual_D_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": "Captured actual public verified snapshot record; not all CAS reads or a population denominator"
+    },
+    {
+      "fresh_reader_file": "positive5/test_actual_owner_lock_blocks_child_publication_then_current_basis_commits.fresh.json",
+      "json_pointer": "/actual_verified_reads/5",
+      "selector": "::test_actual_owner_lock_blocks_child_publication_then_current_basis_commits",
+      "role": "incumbent_evaluation",
+      "ref": {
+        "artifact_id": "sha256:eb44ab67e22ed148cf986813f1d65cda6089a25aed8dd63b33b1a7092a52c49e",
+        "kind": "scientist.autotune.verified.evaluation",
+        "manifest_profile_sha256": "sha256:1a2c6e5dbfda9f3119e888aac98df828e2c2215e456754b5ad5000217cf818db",
+        "media_type": "application/json"
+      },
+      "data_sha256": "eb44ab67e22ed148cf986813f1d65cda6089a25aed8dd63b33b1a7092a52c49e",
+      "manifest_sha256": "90d3697663a2961beca0711bf343b80ade8b545b24de4eb2cc57d887cc955577",
+      "actual_B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "actual_D_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": "Captured actual public verified snapshot record; not all CAS reads or a population denominator"
+    },
+    {
+      "fresh_reader_file": "positive5/test_actual_owner_lock_blocks_child_publication_then_current_basis_commits.fresh.json",
+      "json_pointer": "/actual_verified_reads/6",
+      "selector": "::test_actual_owner_lock_blocks_child_publication_then_current_basis_commits",
+      "role": "predecessor_candidate",
+      "ref": {
+        "artifact_id": "sha256:4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1",
+        "kind": "scientist.autotune.verified.candidate",
+        "manifest_profile_sha256": "sha256:4bc1b5ed8f81b6f0b6c799a791f0323b74799163d1c0dd79a22036ca7197898f",
+        "media_type": "application/json"
+      },
+      "data_sha256": "4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1",
+      "manifest_sha256": "02bb7bf766a367c05cf991ee770bf12c2dc0e56f16dc070f186a1b0f956c511b",
+      "actual_B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "actual_D_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": "Captured actual public verified snapshot record; not all CAS reads or a population denominator"
+    },
+    {
+      "fresh_reader_file": "positive5/test_actual_owner_lock_blocks_child_publication_then_current_basis_commits.fresh.json",
+      "json_pointer": "/actual_verified_reads/7",
+      "selector": "::test_actual_owner_lock_blocks_child_publication_then_current_basis_commits",
+      "role": "predecessor_evaluation",
+      "ref": {
+        "artifact_id": "sha256:b05fde93878f5d3d3a3ea3e0184bca20152ed88e1f650e071897066107169338",
+        "kind": "scientist.autotune.verified.evaluation",
+        "manifest_profile_sha256": "sha256:92a2f3cba0cd3a0ffee1ff517d86e3d4d18876f703a9e087b28d8570db8885a3",
+        "media_type": "application/json"
+      },
+      "data_sha256": "b05fde93878f5d3d3a3ea3e0184bca20152ed88e1f650e071897066107169338",
+      "manifest_sha256": "aebb0aa93a2d329f28bb51e953ff450a35fc40706bc6152c8fb4c30b2036331e",
+      "actual_B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "actual_D_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": "Captured actual public verified snapshot record; not all CAS reads or a population denominator"
+    },
+    {
+      "fresh_reader_file": "positive5/test_actual_reused_content_keeps_old_qualified_view_and_refuses_wrong_candidate_profile.fresh.json",
+      "json_pointer": "/actual_verified_reads/0",
+      "selector": "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py::test_actual_reused_content_keeps_old_qualified_view_and_refuses_wrong_candidate_profile",
+      "role": "candidate",
+      "ref": {
+        "artifact_id": "sha256:4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1",
+        "kind": "scientist.autotune.verified.candidate",
+        "manifest_profile_sha256": "sha256:a5c1d04a6261e9d7c132e8a3a0af59a7ec274cd29281246f11a1587a6a32f4b7",
+        "media_type": "application/json"
+      },
+      "data_sha256": "4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1",
+      "manifest_sha256": "270947d9e24c1304dbf9a69f816640f11f6e397aac5d8f10e53ffa646ab66f15",
+      "actual_B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "actual_D_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": "Captured actual public verified snapshot record; not all CAS reads or a population denominator"
+    },
+    {
+      "fresh_reader_file": "positive5/test_actual_reused_content_keeps_old_qualified_view_and_refuses_wrong_candidate_profile.fresh.json",
+      "json_pointer": "/actual_verified_reads/1",
+      "selector": "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py::test_actual_reused_content_keeps_old_qualified_view_and_refuses_wrong_candidate_profile",
+      "role": "evaluation",
+      "ref": {
+        "artifact_id": "sha256:8deea518ca957dc955265e6cf36d3d51d19c5fc85e67966b64f6d8f9b4840432",
+        "kind": "scientist.autotune.verified.evaluation",
+        "manifest_profile_sha256": "sha256:53ca4abb6161a02c438437bd6eb54cb26d0765f5fa6d42fb7adf3b81e995cf54",
+        "media_type": "application/json"
+      },
+      "data_sha256": "8deea518ca957dc955265e6cf36d3d51d19c5fc85e67966b64f6d8f9b4840432",
+      "manifest_sha256": "594081cf5ff412c0cef289dcda9b289ae94a079ff5e4462cdc084052481d9e41",
+      "actual_B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "actual_D_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": "Captured actual public verified snapshot record; not all CAS reads or a population denominator"
+    },
+    {
+      "fresh_reader_file": "positive5/test_actual_reused_content_keeps_old_qualified_view_and_refuses_wrong_candidate_profile.fresh.json",
+      "json_pointer": "/actual_verified_reads/2",
+      "selector": "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py::test_actual_reused_content_keeps_old_qualified_view_and_refuses_wrong_candidate_profile",
+      "role": "suite",
+      "ref": {
+        "artifact_id": "sha256:9573e9e258a185ec3e1d1a3a8b764fc313b52d6806b90d9d04d6b13c30f1b85a",
+        "kind": "scientist.autotune.generic.suite",
+        "manifest_profile_sha256": "sha256:c47d7ac17b0cc99acc3a72de212d331a0bd3d0bf76952d2a0f225bb9da382263",
+        "media_type": "application/json"
+      },
+      "data_sha256": "9573e9e258a185ec3e1d1a3a8b764fc313b52d6806b90d9d04d6b13c30f1b85a",
+      "manifest_sha256": "14d22fb9471487b049f57acf7ee0da16d8a32606cf68df8420bae830dfa7f038",
+      "actual_B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "actual_D_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": "Captured actual public verified snapshot record; not all CAS reads or a population denominator"
+    },
+    {
+      "fresh_reader_file": "positive5/test_actual_reused_content_keeps_old_qualified_view_and_refuses_wrong_candidate_profile.fresh.json",
+      "json_pointer": "/actual_verified_reads/3",
+      "selector": "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py::test_actual_reused_content_keeps_old_qualified_view_and_refuses_wrong_candidate_profile",
+      "role": "dataset",
+      "ref": {
+        "artifact_id": "sha256:2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8",
+        "kind": "scientist.autotune.benchmark_dataset",
+        "manifest_profile_sha256": "sha256:577b5a791ddb47faa64e712288497167136063625cf9505d5d97f2c6cb742f29",
+        "media_type": "application/x-ndjson"
+      },
+      "data_sha256": "2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8",
+      "manifest_sha256": "29e1736ed8bf885054ca8e60754998e7d72b29fdc57562503f9dd995070f3c4f",
+      "actual_B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "actual_D_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": "Captured actual public verified snapshot record; not all CAS reads or a population denominator"
+    },
+    {
+      "fresh_reader_file": "positive5/test_actual_reused_content_keeps_old_qualified_view_and_refuses_wrong_candidate_profile.fresh.json",
+      "json_pointer": "/actual_verified_reads/4",
+      "selector": "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py::test_actual_reused_content_keeps_old_qualified_view_and_refuses_wrong_candidate_profile",
+      "role": "split",
+      "ref": {
+        "artifact_id": "sha256:f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf",
+        "kind": "scientist.autotune.split_manifest",
+        "manifest_profile_sha256": "sha256:5b35c3ab73cf3301229f18893f3c8d6ad68e3fc345e440d6c438b03855ac1f24",
+        "media_type": "application/json"
+      },
+      "data_sha256": "f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf",
+      "manifest_sha256": "4554534a58f644eb72fc3b121862772b247c4da27f385162d20df0dbdfd54e4a",
+      "actual_B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "actual_D_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": "Captured actual public verified snapshot record; not all CAS reads or a population denominator"
+    },
+    {
+      "fresh_reader_file": "positive5/test_competing_native_writer_refuses_actual_stale_pair_after_lock_held_reread.fresh.json",
+      "json_pointer": "/actual_verified_reads/0",
+      "selector": "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py::test_competing_native_writer_refuses_actual_stale_pair_after_lock_held_reread",
+      "role": "candidate",
+      "ref": {
+        "artifact_id": "sha256:23f3440acecd2af7d21081de477bda075ba4627be242e404a99e3f3e2e3b0d6b",
+        "kind": "scientist.autotune.verified.candidate",
+        "manifest_profile_sha256": "sha256:11e0716457bcf2baec75b85c555a5ade2f08dee9c5c60a47b6ab3ffba52d2460",
+        "media_type": "application/json"
+      },
+      "data_sha256": "23f3440acecd2af7d21081de477bda075ba4627be242e404a99e3f3e2e3b0d6b",
+      "manifest_sha256": "c4501a93b1a33b8a745613d8af5c0d4be86a4ccf76f69ad4bf2a1905d05a9e87",
+      "actual_B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "actual_D_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": "Captured actual public verified snapshot record; not all CAS reads or a population denominator"
+    },
+    {
+      "fresh_reader_file": "positive5/test_competing_native_writer_refuses_actual_stale_pair_after_lock_held_reread.fresh.json",
+      "json_pointer": "/actual_verified_reads/1",
+      "selector": "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py::test_competing_native_writer_refuses_actual_stale_pair_after_lock_held_reread",
+      "role": "evaluation",
+      "ref": {
+        "artifact_id": "sha256:c65919cf4d2c19a2a7b7f9c6ff98282eb18c3439db8e45e38336fe21312f5bf2",
+        "kind": "scientist.autotune.verified.evaluation",
+        "manifest_profile_sha256": "sha256:0ea9506694750443812813328902bbb6c261a33ab5297cad3dc44398f64ffa31",
+        "media_type": "application/json"
+      },
+      "data_sha256": "c65919cf4d2c19a2a7b7f9c6ff98282eb18c3439db8e45e38336fe21312f5bf2",
+      "manifest_sha256": "8fc2e54706e1ea7c059f5586a80dc57844cd70422a5f97192e88c9a8467a7c24",
+      "actual_B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "actual_D_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": "Captured actual public verified snapshot record; not all CAS reads or a population denominator"
+    },
+    {
+      "fresh_reader_file": "positive5/test_competing_native_writer_refuses_actual_stale_pair_after_lock_held_reread.fresh.json",
+      "json_pointer": "/actual_verified_reads/2",
+      "selector": "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py::test_competing_native_writer_refuses_actual_stale_pair_after_lock_held_reread",
+      "role": "suite",
+      "ref": {
+        "artifact_id": "sha256:ac26205efb74595a8f7bda8b92dcea6345eb9dbe7f5821f79c091e304182fe7d",
+        "kind": "scientist.autotune.generic.suite",
+        "manifest_profile_sha256": "sha256:c47d7ac17b0cc99acc3a72de212d331a0bd3d0bf76952d2a0f225bb9da382263",
+        "media_type": "application/json"
+      },
+      "data_sha256": "ac26205efb74595a8f7bda8b92dcea6345eb9dbe7f5821f79c091e304182fe7d",
+      "manifest_sha256": "02ac0b22718f6e7a2be1f7ebe8f5b904ef229323e0d40791d6bf84a17c759ca5",
+      "actual_B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "actual_D_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": "Captured actual public verified snapshot record; not all CAS reads or a population denominator"
+    },
+    {
+      "fresh_reader_file": "positive5/test_competing_native_writer_refuses_actual_stale_pair_after_lock_held_reread.fresh.json",
+      "json_pointer": "/actual_verified_reads/3",
+      "selector": "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py::test_competing_native_writer_refuses_actual_stale_pair_after_lock_held_reread",
+      "role": "dataset",
+      "ref": {
+        "artifact_id": "sha256:2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8",
+        "kind": "scientist.autotune.benchmark_dataset",
+        "manifest_profile_sha256": "sha256:577b5a791ddb47faa64e712288497167136063625cf9505d5d97f2c6cb742f29",
+        "media_type": "application/x-ndjson"
+      },
+      "data_sha256": "2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8",
+      "manifest_sha256": "fcb087c3fe181b77b5706ff43df63eefc40e45a756588ac363025797f8619e25",
+      "actual_B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "actual_D_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": "Captured actual public verified snapshot record; not all CAS reads or a population denominator"
+    },
+    {
+      "fresh_reader_file": "positive5/test_competing_native_writer_refuses_actual_stale_pair_after_lock_held_reread.fresh.json",
+      "json_pointer": "/actual_verified_reads/4",
+      "selector": "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py::test_competing_native_writer_refuses_actual_stale_pair_after_lock_held_reread",
+      "role": "split",
+      "ref": {
+        "artifact_id": "sha256:f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf",
+        "kind": "scientist.autotune.split_manifest",
+        "manifest_profile_sha256": "sha256:5b35c3ab73cf3301229f18893f3c8d6ad68e3fc345e440d6c438b03855ac1f24",
+        "media_type": "application/json"
+      },
+      "data_sha256": "f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf",
+      "manifest_sha256": "33cdd629c9610eab2cb4eaaf4e134be3fdac54bb4d9ec43e1faecb6e0f9c52a8",
+      "actual_B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "actual_D_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": "Captured actual public verified snapshot record; not all CAS reads or a population denominator"
+    },
+    {
+      "fresh_reader_file": "positive5/test_competing_native_writer_refuses_actual_stale_pair_after_lock_held_reread.fresh.json",
+      "json_pointer": "/actual_verified_reads/5",
+      "selector": "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py::test_competing_native_writer_refuses_actual_stale_pair_after_lock_held_reread",
+      "role": "incumbent_evaluation",
+      "ref": {
+        "artifact_id": "sha256:ae7d5194bbdec1dc24bf88e45ddd98fdd850ad41dbc41e0f54ef781958f1530a",
+        "kind": "scientist.autotune.verified.evaluation",
+        "manifest_profile_sha256": "sha256:db0cae7337c1aeef3a80d2c2135c21b296012fc7c9bde2bbfdfcc98b5eabfd6d",
+        "media_type": "application/json"
+      },
+      "data_sha256": "ae7d5194bbdec1dc24bf88e45ddd98fdd850ad41dbc41e0f54ef781958f1530a",
+      "manifest_sha256": "d3a4bbd376b5d0de7364fc23d4f128721d2c030afd4b3c6304b645c10687a6a2",
+      "actual_B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "actual_D_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": "Captured actual public verified snapshot record; not all CAS reads or a population denominator"
+    },
+    {
+      "fresh_reader_file": "positive5/test_competing_native_writer_refuses_actual_stale_pair_after_lock_held_reread.fresh.json",
+      "json_pointer": "/actual_verified_reads/6",
+      "selector": "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py::test_competing_native_writer_refuses_actual_stale_pair_after_lock_held_reread",
+      "role": "predecessor_candidate",
+      "ref": {
+        "artifact_id": "sha256:4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1",
+        "kind": "scientist.autotune.verified.candidate",
+        "manifest_profile_sha256": "sha256:11e0716457bcf2baec75b85c555a5ade2f08dee9c5c60a47b6ab3ffba52d2460",
+        "media_type": "application/json"
+      },
+      "data_sha256": "4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1",
+      "manifest_sha256": "dd3ac808a16f6aa06889abc4a7008303e9e30b6bd9663bfaf646da66da69feb5",
+      "actual_B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "actual_D_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": "Captured actual public verified snapshot record; not all CAS reads or a population denominator"
+    },
+    {
+      "fresh_reader_file": "positive5/test_competing_native_writer_refuses_actual_stale_pair_after_lock_held_reread.fresh.json",
+      "json_pointer": "/actual_verified_reads/7",
+      "selector": "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py::test_competing_native_writer_refuses_actual_stale_pair_after_lock_held_reread",
+      "role": "predecessor_evaluation",
+      "ref": {
+        "artifact_id": "sha256:398cae392fe94e413269e60d84ed25ec00facfe480d4c47d23c36d7923dad618",
+        "kind": "scientist.autotune.verified.evaluation",
+        "manifest_profile_sha256": "sha256:5b250d7bfc3df1a0282e1eb768068b9c7a8ab7e7683052d2557e26eb04a1c5f8",
+        "media_type": "application/json"
+      },
+      "data_sha256": "398cae392fe94e413269e60d84ed25ec00facfe480d4c47d23c36d7923dad618",
+      "manifest_sha256": "60e475bcbdd64dec476ba0d8022591e27c62972b858739d541e99d6093b59254",
+      "actual_B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "actual_D_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": "Captured actual public verified snapshot record; not all CAS reads or a population denominator"
+    },
+    {
+      "fresh_reader_file": "positive5/test_native_evaluator_registry_and_fresh_process_read_exact_profiles_and_immutable_inputs.fresh.json",
+      "json_pointer": "/actual_verified_reads/0",
+      "selector": "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py::test_native_evaluator_registry_and_fresh_process_read_exact_profiles_and_immutable_inputs",
+      "role": "candidate",
+      "ref": {
+        "artifact_id": "sha256:23f3440acecd2af7d21081de477bda075ba4627be242e404a99e3f3e2e3b0d6b",
+        "kind": "scientist.autotune.verified.candidate",
+        "manifest_profile_sha256": "sha256:e9b40ec7fc05c3f93c9178be639ee66315014a07f2efd86044fd6d66813fb68c",
+        "media_type": "application/json"
+      },
+      "data_sha256": "23f3440acecd2af7d21081de477bda075ba4627be242e404a99e3f3e2e3b0d6b",
+      "manifest_sha256": "f31a7cd15bfe7a9282bd942378636c5436d5fb23781c86459bed8709a6731cc7",
+      "actual_B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "actual_D_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": "Captured actual public verified snapshot record; not all CAS reads or a population denominator"
+    },
+    {
+      "fresh_reader_file": "positive5/test_native_evaluator_registry_and_fresh_process_read_exact_profiles_and_immutable_inputs.fresh.json",
+      "json_pointer": "/actual_verified_reads/1",
+      "selector": "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py::test_native_evaluator_registry_and_fresh_process_read_exact_profiles_and_immutable_inputs",
+      "role": "evaluation",
+      "ref": {
+        "artifact_id": "sha256:cd89c607b7b2e6489755abfff31ced9002b6cf67e4682b9938331949755716b9",
+        "kind": "scientist.autotune.verified.evaluation",
+        "manifest_profile_sha256": "sha256:f779d6fc90ae05174bdc60a5853d36d7cf28c1a6778446c9a9af74ce9f66d8f7",
+        "media_type": "application/json"
+      },
+      "data_sha256": "cd89c607b7b2e6489755abfff31ced9002b6cf67e4682b9938331949755716b9",
+      "manifest_sha256": "0f9106a7da8b197b26d429ba43c9bb39678c02304c6e60104bc93c2588ee0c37",
+      "actual_B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "actual_D_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": "Captured actual public verified snapshot record; not all CAS reads or a population denominator"
+    },
+    {
+      "fresh_reader_file": "positive5/test_native_evaluator_registry_and_fresh_process_read_exact_profiles_and_immutable_inputs.fresh.json",
+      "json_pointer": "/actual_verified_reads/2",
+      "selector": "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py::test_native_evaluator_registry_and_fresh_process_read_exact_profiles_and_immutable_inputs",
+      "role": "suite",
+      "ref": {
+        "artifact_id": "sha256:86276feb1cf8f8aeac46087624c04b897332f1dbe03e83815fe69b50d76396b3",
+        "kind": "scientist.autotune.generic.suite",
+        "manifest_profile_sha256": "sha256:c47d7ac17b0cc99acc3a72de212d331a0bd3d0bf76952d2a0f225bb9da382263",
+        "media_type": "application/json"
+      },
+      "data_sha256": "86276feb1cf8f8aeac46087624c04b897332f1dbe03e83815fe69b50d76396b3",
+      "manifest_sha256": "8305e9951a328c4d24af4526bc78f5b57a257857218ca14b7917c8653e8c0846",
+      "actual_B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "actual_D_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": "Captured actual public verified snapshot record; not all CAS reads or a population denominator"
+    },
+    {
+      "fresh_reader_file": "positive5/test_native_evaluator_registry_and_fresh_process_read_exact_profiles_and_immutable_inputs.fresh.json",
+      "json_pointer": "/actual_verified_reads/3",
+      "selector": "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py::test_native_evaluator_registry_and_fresh_process_read_exact_profiles_and_immutable_inputs",
+      "role": "dataset",
+      "ref": {
+        "artifact_id": "sha256:2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8",
+        "kind": "scientist.autotune.benchmark_dataset",
+        "manifest_profile_sha256": "sha256:577b5a791ddb47faa64e712288497167136063625cf9505d5d97f2c6cb742f29",
+        "media_type": "application/x-ndjson"
+      },
+      "data_sha256": "2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8",
+      "manifest_sha256": "885648ab3415c867aae789db0fc3c31a495b924798664ed477cab83226193923",
+      "actual_B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "actual_D_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": "Captured actual public verified snapshot record; not all CAS reads or a population denominator"
+    },
+    {
+      "fresh_reader_file": "positive5/test_native_evaluator_registry_and_fresh_process_read_exact_profiles_and_immutable_inputs.fresh.json",
+      "json_pointer": "/actual_verified_reads/4",
+      "selector": "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py::test_native_evaluator_registry_and_fresh_process_read_exact_profiles_and_immutable_inputs",
+      "role": "split",
+      "ref": {
+        "artifact_id": "sha256:f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf",
+        "kind": "scientist.autotune.split_manifest",
+        "manifest_profile_sha256": "sha256:5b35c3ab73cf3301229f18893f3c8d6ad68e3fc345e440d6c438b03855ac1f24",
+        "media_type": "application/json"
+      },
+      "data_sha256": "f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf",
+      "manifest_sha256": "e8033bb62fe6b0e1eac2b3438dcfefd5d5a542a6fa836e77254b84a062f80f64",
+      "actual_B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "actual_D_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": "Captured actual public verified snapshot record; not all CAS reads or a population denominator"
+    },
+    {
+      "fresh_reader_file": "positive5/test_native_evaluator_registry_and_fresh_process_read_exact_profiles_and_immutable_inputs.fresh.json",
+      "json_pointer": "/actual_verified_reads/5",
+      "selector": "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py::test_native_evaluator_registry_and_fresh_process_read_exact_profiles_and_immutable_inputs",
+      "role": "incumbent_evaluation",
+      "ref": {
+        "artifact_id": "sha256:b4edfae6b18fc1f1718dabdd3ec1cfbfb4602c52e8ea494d1054fba1f0185119",
+        "kind": "scientist.autotune.verified.evaluation",
+        "manifest_profile_sha256": "sha256:b453dcc75f0fa43382442489c6ca630adce6e13a0bd25327941dd30e3f96f09f",
+        "media_type": "application/json"
+      },
+      "data_sha256": "b4edfae6b18fc1f1718dabdd3ec1cfbfb4602c52e8ea494d1054fba1f0185119",
+      "manifest_sha256": "d58cf28a6da8b81a1ded80bb4624849e3ffba3b5fab4840ed08bfcb87b9ebdba",
+      "actual_B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "actual_D_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": "Captured actual public verified snapshot record; not all CAS reads or a population denominator"
+    },
+    {
+      "fresh_reader_file": "positive5/test_native_evaluator_registry_and_fresh_process_read_exact_profiles_and_immutable_inputs.fresh.json",
+      "json_pointer": "/actual_verified_reads/6",
+      "selector": "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py::test_native_evaluator_registry_and_fresh_process_read_exact_profiles_and_immutable_inputs",
+      "role": "predecessor_candidate",
+      "ref": {
+        "artifact_id": "sha256:4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1",
+        "kind": "scientist.autotune.verified.candidate",
+        "manifest_profile_sha256": "sha256:e9b40ec7fc05c3f93c9178be639ee66315014a07f2efd86044fd6d66813fb68c",
+        "media_type": "application/json"
+      },
+      "data_sha256": "4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1",
+      "manifest_sha256": "9afc9a5dd181d0f9cd66146bd0387964a5e2336fb0beb04dfd0987a468e8041b",
+      "actual_B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "actual_D_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": "Captured actual public verified snapshot record; not all CAS reads or a population denominator"
+    },
+    {
+      "fresh_reader_file": "positive5/test_native_evaluator_registry_and_fresh_process_read_exact_profiles_and_immutable_inputs.fresh.json",
+      "json_pointer": "/actual_verified_reads/7",
+      "selector": "tests/unit/scientist/methods/autotune/test_champion_verified_snapshot.py::test_native_evaluator_registry_and_fresh_process_read_exact_profiles_and_immutable_inputs",
+      "role": "predecessor_evaluation",
+      "ref": {
+        "artifact_id": "sha256:b82dfe9f710523c4f1f0ac9a4e06b3ebaf53d2ee2f0df974c43d3cf55fd45539",
+        "kind": "scientist.autotune.verified.evaluation",
+        "manifest_profile_sha256": "sha256:b3e4c0abeb8a1cd58519928a827033fa8d479abd0f334e1221f95ca5a15a0161",
+        "media_type": "application/json"
+      },
+      "data_sha256": "b82dfe9f710523c4f1f0ac9a4e06b3ebaf53d2ee2f0df974c43d3cf55fd45539",
+      "manifest_sha256": "ff23723d97d39b66ec176cd713ec30dd5d3d98cd4d655d8feb13c56418fe8062",
+      "actual_B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "actual_D_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": "Captured actual public verified snapshot record; not all CAS reads or a population denominator"
+    },
+    {
+      "fresh_reader_file": "positive5/test_same_exact_evaluation_ref_changed_bytes_refuses_without_pointer_effect.fresh.json",
+      "json_pointer": "/actual_verified_reads/0",
+      "selector": "::test_same_exact_evaluation_ref_changed_bytes_refuses_without_pointer_effect",
+      "role": "candidate",
+      "ref": {
+        "artifact_id": "sha256:4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1",
+        "kind": "scientist.autotune.verified.candidate",
+        "manifest_profile_sha256": "sha256:f06aade784252d43a768554b2cb529546f11335e7ae19e99c20e0a3a8417467a",
+        "media_type": "application/json"
+      },
+      "data_sha256": "4856e949e34ec98ea1e74c2ec4873f3f00a5cfb7115b6f632a785d592bc415f1",
+      "manifest_sha256": "862399bb18bfa54dfa99daf998281bbb378352f8c99783118d24e6c6325942cb",
+      "actual_B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "actual_D_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": "Captured actual public verified snapshot record; not all CAS reads or a population denominator"
+    },
+    {
+      "fresh_reader_file": "positive5/test_same_exact_evaluation_ref_changed_bytes_refuses_without_pointer_effect.fresh.json",
+      "json_pointer": "/actual_verified_reads/1",
+      "selector": "::test_same_exact_evaluation_ref_changed_bytes_refuses_without_pointer_effect",
+      "role": "evaluation",
+      "ref": {
+        "artifact_id": "sha256:bc6c40cf587cf43808584a39d1c9f7f8d5c3de1b80db6063f61c14a21b7914bc",
+        "kind": "scientist.autotune.verified.evaluation",
+        "manifest_profile_sha256": "sha256:f108b29c980f3be8c82969fd80c73dfc3b116121eceb1ae92e1483259c85e302",
+        "media_type": "application/json"
+      },
+      "data_sha256": "bc6c40cf587cf43808584a39d1c9f7f8d5c3de1b80db6063f61c14a21b7914bc",
+      "manifest_sha256": "a0477806020c08b417f85d1b28055d6a5a29145db9a702e015851186926d010d",
+      "actual_B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "actual_D_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": "Captured actual public verified snapshot record; not all CAS reads or a population denominator"
+    },
+    {
+      "fresh_reader_file": "positive5/test_same_exact_evaluation_ref_changed_bytes_refuses_without_pointer_effect.fresh.json",
+      "json_pointer": "/actual_verified_reads/2",
+      "selector": "::test_same_exact_evaluation_ref_changed_bytes_refuses_without_pointer_effect",
+      "role": "suite",
+      "ref": {
+        "artifact_id": "sha256:67b9f5b7bc58432bcd733cd83f9a6cfa2f294cc60e38c809409adac6c3a36426",
+        "kind": "scientist.autotune.generic.suite",
+        "manifest_profile_sha256": "sha256:c47d7ac17b0cc99acc3a72de212d331a0bd3d0bf76952d2a0f225bb9da382263",
+        "media_type": "application/json"
+      },
+      "data_sha256": "67b9f5b7bc58432bcd733cd83f9a6cfa2f294cc60e38c809409adac6c3a36426",
+      "manifest_sha256": "c56c9366ea793625060f82597a22c4c44d741d758403dfd1af67b832eea5597c",
+      "actual_B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "actual_D_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": "Captured actual public verified snapshot record; not all CAS reads or a population denominator"
+    },
+    {
+      "fresh_reader_file": "positive5/test_same_exact_evaluation_ref_changed_bytes_refuses_without_pointer_effect.fresh.json",
+      "json_pointer": "/actual_verified_reads/3",
+      "selector": "::test_same_exact_evaluation_ref_changed_bytes_refuses_without_pointer_effect",
+      "role": "dataset",
+      "ref": {
+        "artifact_id": "sha256:2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8",
+        "kind": "scientist.autotune.benchmark_dataset",
+        "manifest_profile_sha256": "sha256:577b5a791ddb47faa64e712288497167136063625cf9505d5d97f2c6cb742f29",
+        "media_type": "application/x-ndjson"
+      },
+      "data_sha256": "2839fd78205c97ffa2e1cab2803743206143ea3ee30cc9a4a1297d2a97bce4a8",
+      "manifest_sha256": "7273c68e58a49cbe586b2e4f9c503e081828b6c923ba55ca9393e0a6a3193419",
+      "actual_B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "actual_D_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": "Captured actual public verified snapshot record; not all CAS reads or a population denominator"
+    },
+    {
+      "fresh_reader_file": "positive5/test_same_exact_evaluation_ref_changed_bytes_refuses_without_pointer_effect.fresh.json",
+      "json_pointer": "/actual_verified_reads/4",
+      "selector": "::test_same_exact_evaluation_ref_changed_bytes_refuses_without_pointer_effect",
+      "role": "split",
+      "ref": {
+        "artifact_id": "sha256:f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf",
+        "kind": "scientist.autotune.split_manifest",
+        "manifest_profile_sha256": "sha256:5b35c3ab73cf3301229f18893f3c8d6ad68e3fc345e440d6c438b03855ac1f24",
+        "media_type": "application/json"
+      },
+      "data_sha256": "f4af803ca40cecaa2e0c3850f6acc89e623e1c69e437fff518b18f63f6c63ddf",
+      "manifest_sha256": "cf32201152a88b7e9a7d83cd438a269c10ffe67d021da82700eb8d7169d0c2ee",
+      "actual_B_source": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "actual_D_source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "scope": "Captured actual public verified snapshot record; not all CAS reads or a population denominator"
+    }
+  ],
+  "full_data_and_manifest_bytes": "Each referenced fresh_reader_file holds retained original UTF8data/manifest; independent SHA checked. Controlled fixtures only, no production data."
+}

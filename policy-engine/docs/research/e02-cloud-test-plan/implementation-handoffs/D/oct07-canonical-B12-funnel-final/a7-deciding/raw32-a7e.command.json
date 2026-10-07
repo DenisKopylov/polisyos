@@ -1,0 +1,131 @@
+{
+  "source": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "tree": "e809693afe3b84e02d473b5744142d026afbe509",
+  "head_after": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+  "status_after": "",
+  "cwd": "/dev/shm/e02-D-oct07-continuation/policy-engine",
+  "actual_command": [
+    "/tmp/e02-D-runtime-minimal-20261006/bin/python",
+    "/dev/shm/e02-D-funnel-oct07/run_frozen_B12_final_cohort.py",
+    "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+    "raw32-a7e",
+    "tests/integration/core/llm/test_gateway_response_text_cost.py"
+  ],
+  "pytest_argv": [
+    "-o",
+    "addopts=",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp=/dev/shm/e02-D-funnel-oct07/raw32-a7e-fixtures",
+    "--junitxml=/dev/shm/e02-D-funnel-oct07/raw32-a7e.junit.xml",
+    "-vv",
+    "-rA",
+    "tests/integration/core/llm/test_gateway_response_text_cost.py"
+  ],
+  "env_overrides": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONNOUSERSITE": "1",
+    "PYTHONPATH": "/dev/shm/e02-D-oct07-continuation/policy-engine/src",
+    "TMPDIR": "/dev/shm/e02-D-funnel-oct07",
+    "HYPOTHESIS_STORAGE_DIRECTORY": "/dev/shm/e02-D-funnel-oct07/hypothesis",
+    "TIKTOKEN_CACHE_DIR": "/workspace/e02-D2-receipts/tokenizer",
+    "E02_B66_TARGET_ROOT": "/dev/shm/e02-D-oct07-continuation",
+    "E02_B66_TARGET_SHA": "a7efe4b431986c3d79f490879cf49dbdedb1349e"
+  },
+  "exit": 0,
+  "wall_seconds": 4.686646461486816,
+  "phase_counts": {
+    "call:passed": 32,
+    "setup:passed": 32,
+    "teardown:passed": 32
+  },
+  "outputs": {
+    "raw32-a7e.stdout.txt": {
+      "path": "/dev/shm/e02-D-funnel-oct07/raw32-a7e.stdout.txt",
+      "bytes": 12163,
+      "sha256": "753bdd55cff21979ae4f2bf6bb6b46ccd736ebfe44cc7ff763614a486be98f32"
+    },
+    "raw32-a7e.stderr.txt": {
+      "path": "/dev/shm/e02-D-funnel-oct07/raw32-a7e.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "raw32-a7e.junit.xml": {
+      "path": "/dev/shm/e02-D-funnel-oct07/raw32-a7e.junit.xml",
+      "bytes": 6535,
+      "sha256": "c719fa18ab37816f589433907b7f9cafd7d77a973d5813b399b60bbecb7c3e4d"
+    },
+    "raw32-a7e.phases.json": {
+      "path": "/dev/shm/e02-D-funnel-oct07/raw32-a7e.phases.json",
+      "bytes": 27435,
+      "sha256": "713c2ea2819adf146e65a8c0bb79384dcee1f317147fbcb3ab13955d21a816b5"
+    },
+    "raw32-a7e.inputs.json": {
+      "path": "/dev/shm/e02-D-funnel-oct07/raw32-a7e.inputs.json",
+      "bytes": 1200164,
+      "sha256": "fc79fc95fffb82abd392967aa04720dec6c70d5c7426bbc95b446d1023c886a1"
+    },
+    "raw32-a7e.modules.json": {
+      "path": "/dev/shm/e02-D-funnel-oct07/raw32-a7e.modules.json",
+      "bytes": 37552,
+      "sha256": "d81e0b922c02c6adc966376ae27e80a4b58100d236e1f2b32a30a1c3ae14afed"
+    },
+    "raw32-a7e.environment.json": {
+      "path": "/dev/shm/e02-D-funnel-oct07/raw32-a7e.environment.json",
+      "bytes": 10503,
+      "sha256": "1f413a8ecc6b7d5ed75ccd3de1209dc63bdce508facc922107d1fd5b7104e738"
+    },
+    "raw32-a7e.cgroup-before.json": {
+      "path": "/dev/shm/e02-D-funnel-oct07/raw32-a7e.cgroup-before.json",
+      "bytes": 507,
+      "sha256": "916f45861fc1b421eae1c3b1329803b4bc25d1b023d7e9f454ca34619c07f2bf"
+    },
+    "raw32-a7e.cgroup-after.json": {
+      "path": "/dev/shm/e02-D-funnel-oct07/raw32-a7e.cgroup-after.json",
+      "bytes": 507,
+      "sha256": "79ef864431cc4a04bda2b8f4945f33105047fa3a2d91093bd852ef53b637caf0"
+    },
+    "raw32-a7e.deciding-ledgers.json": {
+      "path": "/dev/shm/e02-D-funnel-oct07/raw32-a7e.deciding-ledgers.json",
+      "bytes": 4998,
+      "sha256": "4a6204232ae08159bbf1c216b4e589d69879005477568ca698d62d7633cdd7a9"
+    }
+  },
+  "input_denominator": 6313,
+  "input_available": 6313,
+  "input_digest": "44e6bfda7153bbaeeb3b3bcddb8f55d43ba426dd0894465d3f79a86f91e845f8",
+  "changed_paths": [],
+  "same_source_and_inputs": true,
+  "standard_asset_before_sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7",
+  "standard_asset_after_sha256": "223921b76ee99bde995b7ff738513eef100fb51d18c93597a113bcffe865b2a7",
+  "standard_asset_unchanged": true,
+  "runtime_profile": "Actual canonical B adopted local filesystem ledger/Decimal decoder/real configured native worker factory and D bounded consumer profile; no invoice/native estimand/promotion authority",
+  "P41": "no inherited-red attribution; source/input stability only",
+  "cgroup_before": {
+    "unix_time": 1791366329.7626123,
+    "files": {
+      "memory.current": "15466270720\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 38150438\noom 300\noom_kill 57\noom_group_kill 0\n",
+      "memory.events.local": "low 0\nhigh 0\nmax 38150438\noom 300\noom_kill 0\noom_group_kill 0\n",
+      "memory.peak": "17183465472\n",
+      "pids.current": "1018\n",
+      "pids.max": "max\n"
+    },
+    "scope": "shared cgroup observation; event deltas do not attribute a kill to this process"
+  },
+  "cgroup_after": {
+    "unix_time": 1791366334.4544437,
+    "files": {
+      "memory.current": "16302313472\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 38150438\noom 300\noom_kill 57\noom_group_kill 0\n",
+      "memory.events.local": "low 0\nhigh 0\nmax 38150438\noom 300\noom_kill 0\noom_group_kill 0\n",
+      "memory.peak": "17183465472\n",
+      "pids.current": "1057\n",
+      "pids.max": "max\n"
+    },
+    "scope": "shared cgroup observation; event deltas do not attribute a kill to this process"
+  },
+  "deciding_ledger_count": 12
+}

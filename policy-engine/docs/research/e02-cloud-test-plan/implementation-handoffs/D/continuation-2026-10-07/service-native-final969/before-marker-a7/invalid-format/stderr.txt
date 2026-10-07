@@ -1,0 +1,87 @@
+Traceback (most recent call last):
+  File "/dev/shm/e02-D-B124-marker-binding-a7-c20y84s7/probe.py", line 16, in <module>
+    result=service.run_search(initial_context={});fresh=source['ParetoRegistry'](case/'registry').get_snapshot(result.search_id)
+  File "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/search/service.py", line 848, in run_search
+    return self._run_locked(
+           ~~~~~~~~~~~~~~~~^
+        initial_context=initial_context,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        initial_candidate=initial_candidate,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/search/service.py", line 869, in _run_locked
+    return self._drive_locked(
+           ~~~~~~~~~~~~~~~~~~^
+        initial_context=initial_context,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        resume=resume,
+        ^^^^^^^^^^^^^^
+    )
+    ^
+  File "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/search/service.py", line 942, in _drive_locked
+    stopping_reason = self._evaluate_batch(
+        batch=batch,
+        generated=generated,
+        initial_context=initial_context,
+    )
+  File "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/search/service.py", line 1024, in _evaluate_batch
+    self.tell(proposal.candidate_id, evaluation)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/search/service.py", line 779, in tell
+    self.controller._accept_tell(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        candidate=candidate,
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        duration_seconds=float(evaluation.duration_seconds),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/search/controller.py", line 472, in _accept_tell
+    self._update_policy_or_legacy_frontier(
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        candidate=candidate,
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        stage_b_result=stage_b_result,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/search/controller.py", line 1240, in _update_policy_or_legacy_frontier
+    registry.update(
+    ~~~~~~~~~~~~~~~^
+        self._search_id,
+        ^^^^^^^^^^^^^^^^
+    ...<14 lines>...
+        transfer_context=transfer_context,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py", line 314, in update
+    updated = self._recompute(snapshot)
+  File "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py", line 605, in _recompute
+    ) = self._frontier_hashes(
+        ~~~~~~~~~~~~~~~~~~~~~^
+        subset, objective_view, snapshot.objective_basis_by_view.get(view_key)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py", line 723, in _frontier_hashes
+    evaluation = _benchmark_eval(entry, objective_maps[entry.candidate_hash])
+  File "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py", line 856, in _benchmark_eval
+    candidate_ref=entry.candidate_ref or _placeholder_ref(entry.candidate_hash),
+                                         ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/dev/shm/e02-D-oct07-continuation/policy-engine/src/polisyos/scientist/methods/search/pareto_registry.py", line 865, in _placeholder_ref
+    return ArtifactRef(
+        artifact_id=f"sha256:{digest}",
+        kind="scientist.policy.placeholder",
+        media_type="application/json",
+    )
+  File "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/pydantic/main.py", line 250, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+pydantic_core._pydantic_core.ValidationError: 1 validation error for ArtifactRef
+artifact_id
+  Value error, sha256 hex must be 64 lowercase characters [0-9a-f] [type=value_error, input_value='sha256:unchanged-upstrea...00000000000000000000000', input_type=str]
+    For further information visit https://errors.pydantic.dev/2.12/v/value_error

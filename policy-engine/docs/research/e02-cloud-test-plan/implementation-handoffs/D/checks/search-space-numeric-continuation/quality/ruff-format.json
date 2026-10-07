@@ -1,0 +1,20 @@
+{
+  "source_sha": "656c7f614ecfd404af1fed912a8e02194551bfb4",
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "-m",
+    "ruff",
+    "format",
+    "--check",
+    "src/polisyos/scientist/methods/search/strategies/space.py",
+    "src/polisyos/scientist/methods/search/strategies/types.py",
+    "tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py"
+  ],
+  "returncode": 0,
+  "source_paths": [
+    "src/polisyos/scientist/methods/search/strategies/space.py",
+    "src/polisyos/scientist/methods/search/strategies/types.py",
+    "tests/unit/scientist/methods/search/strategies/test_space_numeric_admission.py"
+  ]
+}

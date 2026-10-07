@@ -1,0 +1,71 @@
+{
+  "schema": "policyos.e02.D.independent-review.v1",
+  "reviewer": "numerical_oracle",
+  "slice": "ordinary E-to-D DOE stress composition",
+  "verdict": "PASS within the executed finite-sample and per-round admission probe; separate no-prior-report consumer remains UNRUN",
+  "closure_ids": [],
+  "source": "eb826b57fd9ea98550b93f840aca6d54e6454a27",
+  "tree": "9403c960ce5b7ccf229ee85a87cbaa824498a155",
+  "transport": "c0a40bd6745eb3e5a4d5ccdc31171e349255f6b5",
+  "supplier": {
+    "root_adoption": "a843d963cf5f245035f32a6abd74f72206302c46",
+    "E_source": "041db8182e043037ff676ac968b9f74b86a867ad",
+    "purpose": "Existing actual SALib producer and reproducible receipt reader. The bounded D composition is separate from E's complete original DOE acceptance and known mutable-plan materialization residual.",
+    "producer_reader_review": "Canonical analysis/receipt law, row-order and reproduced-content rules read in the sensitivity-port review; actual adaptive and sampling modules and this entire unchanged native probe read here. No D numerical formula or scientific source-law changes are inferred from dependency adoption."
+  },
+  "original_criteria": {
+    "B106_STR01": {
+      "acceptance_sha256": "1d212bb12a7346fc8c2480723fddd43da874e2e1daa2d2070a6233ab75795d43",
+      "companion": "Changing retained example cap preserves same-series attempted/finite/violated counts and observed fraction, with population-law status explicitly unestablished."
+    },
+    "B107_STR01": {
+      "acceptance_sha256": "83e4adcea92922a6991dbd16937e9dc47cca02d83f0beccf2eb7e2f43623e0a3",
+      "companion": "The executed minimize-cost threshold and worst observed value agree with independently recounted violations. Other directions, invalid inputs and unknown/empty cases retain their separately reviewed source-bound tests."
+    },
+    "criteria_binding": "Original full cards and fragments remain bound in stress82-independent-review.json; this additive producer-consumer witness does not replace them."
+  },
+  "runtime": {
+    "owner": "baseline_census",
+    "reviewer_backend_runs": 0,
+    "command": [
+      "/workspace/e02-D-doe-env/bin/python",
+      "tests/integration/scientist/methods/search/stress_doe_bridge_probe.py"
+    ],
+    "exit_code": 0,
+    "wall_seconds": 89.74578591099998,
+    "peak_rss_kib": 815156,
+    "environment": "Root-provisioned CPython3.14.7 DOE overlay with actual SALib1.5.2, multiprocess0.70.19 and dill0.4.1; read-only locked stack reused. The committed provisioning capture includes actual SALib Sobol samples. The review does not perform a new dependency install or infer a GP fit.",
+    "main_chain": "Actual SensitivityBridge Morris producer -> persisted original E receipt -> fresh FileSystemCAS -> existing metadata-only sensitivity adapter -> actual run_stress_test -> blueprint recomputation -> persisted StressTestReport -> fresh FileSystemCAS readback.",
+    "analytic_input": "Two explicitly dimensionless [0,1] parameters p/q, local evaluator 2*p + 0.5*q, seed7. Actual six Morris evaluations yield ranking p,q and mu_star 2.0,0.5.",
+    "finite_stress": "Both top_k1 and20 use the identical 38 executed objective values. Independent recount from the complete committed arrays gives 15 values >=1.75, 23 passing values, fraction23/38, attempted=finite=planned38, unknown0, and max observed2.5. Retained examples differ1 vs10 while counts and fraction match.",
+    "adaptive": "Actual evaluated round sizes6 then12 total18. With per-round max_estimated_runs9, only first6 rows are sampled/evaluated and next round refuses before sampling; stop reason max_estimated_runs_exceeded. The15 cap in the two-round case is per proposed round, not an aggregate18-evaluation budget.",
+    "oversize": "Actual construction with six estimated Morris evaluations and cap5 refuses before counted sampler/evaluator work; both counters0. This does not establish safety for arbitrary later mutation of a plan.",
+    "grid": "Actual product iterator instrumented:12-dimensional4096-corner domain with declared prefix3 enumerates only3, emits owned3x12 data and does not claim whole-space coverage.",
+    "execution_limits": "The probe defines scenario and per-round scientific sample bounds. It adds no CPU/thread/process/test-worker limits and performs no cleanup."
+  },
+  "binding_review": {
+    "all_committed_payload_members_verified": 15,
+    "ordinary_Git_input_file_hash_size_blob_bindings_verified": 15,
+    "actual_loaded_product_origins_verified_against_source": 10,
+    "source_tree_src_architecture_tree_verified": true,
+    "input_profile_hash_and_output_byte_count_verified": true,
+    "source_before_after_SHA_verified": true,
+    "full_complete_output_and_entire_native_probe_read": true,
+    "independent_verifier": "build-stress-doe-independent.py.txt",
+    "deciding_output": "stress-doe-independent-binding-output.json"
+  },
+  "retained_unrun": [
+    {"scope": "original no-prior-report test", "source": "b6d6910c35035e33d977201737bef31b4985ce06", "exit_code": -9, "wall_seconds": 106.01788733400463, "stdout_bytes": 0},
+    {"scope": "corrective full challenge projection", "source": "c3a074b5d865815d8c1fa8227afcf967792109c1", "exit_code": -9, "wall_seconds": 166.74240684098913, "stdout_bytes": 0},
+    {"scope": "ordinary DOE environment challenge projection", "source": "eb826b57fd9ea98550b93f840aca6d54e6454a27", "exit_code": -9, "wall_seconds": 166.00261650899483, "stdout_bytes": 0}
+  ],
+  "limitations": [
+    "The actual BaseGenerator has no native ordering port. Its fixed p=q=1 proposals receive sensitivity metadata; this stress composition does not demonstrate the separately implemented native Bayesian coordinate-order effect or default search-loop activation.",
+    "The script calls the blueprint recomputation helper and explicitly persists its returned report. It does not execute the entire phase-D4 node in this run; full-node evidence remains separately scoped.",
+    "Observed finite-sample fraction and operational adaptive convergence do not establish a population probability, confidence interval, institutional unit appointment, evaluator truth, deployed default adoption or external billing authority.",
+    "The assembled-source profile result in the same payload is separate diagnostic evidence. This acceptance uses the ordinary admitted Git source eb826 and all10 independently rehashed loaded product origins.",
+    "Three killed no-prior/full-report invocations have empty complete outputs and no verdict. The passing composition does not substitute for those consumer checks or create a fallback PASS.",
+    "The resource capture binds source before/after and the input profile but does not include a final git-status value. No clean-status capture is invented.",
+    "Prior E startup/collection and killed composition attempts, whole B04/B19/B23 failures and quality errors remain in their original receipts. This is not a new whole-repository green result."
+  ]
+}

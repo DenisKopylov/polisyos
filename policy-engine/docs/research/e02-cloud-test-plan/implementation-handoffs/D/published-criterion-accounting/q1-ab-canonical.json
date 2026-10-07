@@ -1,0 +1,33 @@
+{
+  "source_sha": "ab7577cc807050735d1cd57c751299095ee899aa",
+  "cwd": "/dev/shm/e02-D-q1-canonical-review-ab7577cc/policy-engine",
+  "argv": [
+    "/workspace/e02-D-locked-env/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "--basetemp=/dev/shm/e02-D-q1-ab-positive-temp-20261006-1126",
+    "-q",
+    "tests/unit/scientist/methods/search/strategies/test_strategy_state.py",
+    "tests/unit/scientist/methods/search/strategies/test_effective_actions.py",
+    "tests/unit/scientist/methods/search/strategies/test_gp_resume_witness.py",
+    "tests/unit/scientist/methods/search/strategies/test_gp_resource_resume.py",
+    "tests/unit/scientist/methods/search/strategies/test_rl_checkpoint_numerical_oracle.py",
+    "tests/unit/scientist/methods/search/strategies/test_mo_objective_admission.py",
+    "tests/unit/scientist/methods/search/test_hypervolume_limitations.py",
+    "tests/unit/scientist/methods/autotune/test_pareto_numerical_oracle.py",
+    "tests/unit/scientist/methods/autotune/test_bayesian_numerical_oracle.py",
+    "tests/unit/scientist/methods/search/test_fiscal_scalar_intake.py"
+  ],
+  "env": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "src:."
+  },
+  "basetemp": "/dev/shm/e02-D-q1-ab-positive-temp-20261006-1126",
+  "basetemp_precondition": "explicit nonexistent path checked for pytest invocations",
+  "exit_code": 0,
+  "wall_seconds": 22.964092499008984,
+  "max_rss_kib": 1252456,
+  "rss_scope": "completed-child cumulative high-water in this capture process",
+  "log_sha256": "dd33b84ce9fdbcb01ac718492adf60a2c2e2bd8592161403c5b9552fcc9d9d07"
+}

@@ -1,0 +1,400 @@
+{
+  "schema": "e02.D.exact_root_consumer_receipt.v1",
+  "source_sha": "f2d5401c9cd8a02a74579e4c47b836042a12eb99",
+  "source_tree": "ff727db3e7dec74b3b82e3a67b3fd013382c74bb",
+  "original_slice_base": "cae5589aa7080b628e93d594eeb4ff7c2fc2414d",
+  "payload_implementation_sha": "04218ee864ffcae2cdec19d6b22379351eceeed7",
+  "payload_tree": "571709450a2bb46ac19d85261c8d103a7b33b068",
+  "payload_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/root-composed-affected44/complete-output.json.xz",
+  "payload_bytes": 1060752,
+  "payload_sha256": "32be0055d49cb4d63d504c668e5f8038af65f71194286acd3150ae9ec97172f8",
+  "complete_original_members": 447,
+  "result": {
+    "source": {
+      "head": "f2d5401c9cd8a02a74579e4c47b836042a12eb99",
+      "tree": "ff727db3e7dec74b3b82e3a67b3fd013382c74bb",
+      "branch": "codex/e02-D-published-root",
+      "status_porcelain": ""
+    },
+    "after": {
+      "head": "f2d5401c9cd8a02a74579e4c47b836042a12eb99",
+      "tree": "ff727db3e7dec74b3b82e3a67b3fd013382c74bb",
+      "branch": "codex/e02-D-published-root",
+      "status_porcelain": ""
+    },
+    "exit": 0,
+    "wall_seconds": 27.450049844992463,
+    "maxrss_KiB": 578452,
+    "input_snapshot_equal": true,
+    "state_equal": true,
+    "junit": {
+      "status": "COMPLETE_PARSE",
+      "testsuites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "44",
+          "time": "18.619",
+          "timestamp": "2026-10-06T21:55:22.867733+00:00",
+          "hostname": "565838a1e059"
+        }
+      ],
+      "case_count": 44,
+      "outcomes": {
+        "PASS": 44,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "cases": [
+        {
+          "class": "tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge",
+          "name": "test_configured_registry_reaches_every_coordinator_port[instantiate]",
+          "seconds": "0.010",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge",
+          "name": "test_configured_registry_reaches_every_coordinator_port[validate]",
+          "seconds": "0.002",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge",
+          "name": "test_configured_registry_reaches_every_coordinator_port[run]",
+          "seconds": "0.088",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge",
+          "name": "test_configured_registry_refuses_noncanonical_object[invalid0]",
+          "seconds": "0.001",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge",
+          "name": "test_configured_registry_refuses_noncanonical_object[registry]",
+          "seconds": "0.001",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge",
+          "name": "test_configured_registry_refuses_noncanonical_object[invalid2]",
+          "seconds": "0.000",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge",
+          "name": "test_actual_typed_rows_reach_disk_and_fresh_projection[False-3]",
+          "seconds": "0.070",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge",
+          "name": "test_actual_typed_rows_reach_disk_and_fresh_projection[True-1]",
+          "seconds": "0.041",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge",
+          "name": "test_parameterless_missing_axes_and_true_empty_history_are_unavailable",
+          "seconds": "0.009",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge",
+          "name": "test_tenant_scope_covers_real_seed_reads_late_input_change_and_resets",
+          "seconds": "0.023",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge",
+          "name": "test_mismatched_tenant_context_refuses_before_observation",
+          "seconds": "0.004",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge",
+          "name": "test_tenant_scope_resets_when_actual_evaluator_refuses",
+          "seconds": "0.006",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge",
+          "name": "test_actual_node_forwards_owner_run_context_and_persists_report",
+          "seconds": "0.051",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge",
+          "name": "test_real_source_denominator_cannot_be_replaced_by_partial_registry",
+          "seconds": "0.060",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge",
+          "name": "test_parameterless_malformed_present_vector_refuses_without_publication",
+          "seconds": "0.004",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge",
+          "name": "test_tenant_scope_resets_after_registry_publication_fault",
+          "seconds": "0.005",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge",
+          "name": "test_actual_report_refuses_nonprojectable_candidate_envelopes[extra0]",
+          "seconds": "0.040",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge",
+          "name": "test_actual_report_refuses_nonprojectable_candidate_envelopes[extra1]",
+          "seconds": "0.034",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge",
+          "name": "test_actual_report_refuses_nonprojectable_candidate_envelopes[extra2]",
+          "seconds": "0.041",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge",
+          "name": "test_parameterless_wrong_subject_refuses_without_registry_effect[candidate_id]",
+          "seconds": "0.004",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge",
+          "name": "test_parameterless_wrong_subject_refuses_without_registry_effect[candidate_hash]",
+          "seconds": "0.004",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge",
+          "name": "test_parameterless_wrong_subject_refuses_without_registry_effect[unbound]",
+          "seconds": "0.004",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge",
+          "name": "test_parameterless_callback_accepts_one_matching_subject_binding[id_only]",
+          "seconds": "0.008",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge",
+          "name": "test_parameterless_callback_accepts_one_matching_subject_binding[hash_only]",
+          "seconds": "0.008",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge",
+          "name": "test_declared_money_json_transport_preserves_hash_units_and_unrelated_objects",
+          "seconds": "0.003",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge",
+          "name": "test_money_json_conflicts_refuse_before_native_observation[min_value]",
+          "seconds": "0.002",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge",
+          "name": "test_money_json_conflicts_refuse_before_native_observation[current]",
+          "seconds": "0.002",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge",
+          "name": "test_money_json_conflicts_refuse_before_native_observation[schedule]",
+          "seconds": "0.002",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge",
+          "name": "test_money_json_conflicts_refuse_before_native_observation[malformed]",
+          "seconds": "0.001",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge",
+          "name": "test_actual_node_money_intake_failure_preserves_source_and_never_observes",
+          "seconds": "0.029",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge",
+          "name": "test_money_parameter_wire_presence_preserves_current_values_and_identity[absent]",
+          "seconds": "0.005",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge",
+          "name": "test_money_parameter_wire_presence_preserves_current_values_and_identity[explicit_null]",
+          "seconds": "0.002",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge",
+          "name": "test_money_parameter_wire_presence_preserves_current_values_and_identity[explicit_year]",
+          "seconds": "0.002",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge",
+          "name": "test_actual_canonical_candidate_cas_readback_reaches_node_and_fresh_report",
+          "seconds": "0.055",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.nodes.builtins.planning.test_hierarchical_configured_registry_bridge",
+          "name": "test_direct_canonical_candidate_readback_reaches_adapter_without_json_conversion",
+          "seconds": "0.060",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.orchestration.engine.test_budget_ledger",
+          "name": "test_measured_charge_reopens_and_duplicate_survives_journal_eviction",
+          "seconds": "0.009",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.orchestration.engine.test_budget_ledger",
+          "name": "test_actual_above_estimate_and_unlimited_key_are_fully_charged[run]",
+          "seconds": "0.004",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.orchestration.engine.test_budget_ledger",
+          "name": "test_actual_above_estimate_and_unlimited_key_are_fully_charged[unlimited]",
+          "seconds": "0.003",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.orchestration.engine.test_budget_ledger",
+          "name": "test_receipt_retry_does_not_release_aggregate_reserved_capacity",
+          "seconds": "0.006",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.orchestration.engine.test_budget_ledger",
+          "name": "test_same_provider_receipt_delivery_with_new_reservation_does_not_double_charge",
+          "seconds": "0.005",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.orchestration.engine.test_budget_ledger",
+          "name": "test_unknown_ack_retains_capacity_until_fresh_receipt_resolution[False]",
+          "seconds": "0.006",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.unit.scientist.orchestration.engine.test_budget_ledger",
+          "name": "test_unknown_ack_retains_capacity_until_fresh_receipt_resolution[True]",
+          "seconds": "0.006",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.integration.scientist.methods.search.funnel.test_orchestrator",
+          "name": "test_native_policy_callers_full_split_actual_events_and_fresh_reopen",
+          "seconds": "3.129",
+          "outcome": "PASS"
+        },
+        {
+          "class": "tests.integration.scientist.methods.search.funnel.test_orchestrator",
+          "name": "test_actual_spend_does_not_resume_but_released_owned_capacity_rechecks_remaining_work",
+          "seconds": "0.285",
+          "outcome": "PASS"
+        }
+      ]
+    },
+    "output": "/tmp/e02-D-root-affected44-09a8ad37f06a4165a1ff719f1568a00a"
+  },
+  "actual_backend": {
+    "torch": {
+      "installed_version": null,
+      "actually_loaded_in_main_process": false
+    },
+    "botorch": {
+      "installed_version": null,
+      "actually_loaded_in_main_process": false
+    },
+    "gpytorch": {
+      "installed_version": null,
+      "actually_loaded_in_main_process": false
+    },
+    "hnswlib": {
+      "installed_version": null,
+      "actually_loaded_in_main_process": false
+    },
+    "SALib": {
+      "installed_version": null,
+      "actually_loaded_in_main_process": false
+    },
+    "numpy": {
+      "installed_version": "2.3.5",
+      "actually_loaded_in_main_process": true,
+      "module_path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/numpy/__init__.py",
+      "module_version": "2.3.5",
+      "module_file_sha256": "93924ac4b793328947dfd9eb9355e54eccdfd26a92c8dd52188aed2e52c7eb38",
+      "module_file_bytes": 25919
+    },
+    "scipy": {
+      "installed_version": "1.16.3",
+      "actually_loaded_in_main_process": true,
+      "module_path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/scipy/__init__.py",
+      "module_version": "1.16.3",
+      "module_file_sha256": "a72412a5c62442876e073a01da1910c84b7214d1382380b71a873b470420dd68",
+      "module_file_bytes": 4063
+    },
+    "pytest": {
+      "installed_version": "9.0.2",
+      "actually_loaded_in_main_process": true,
+      "module_path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/pytest/__init__.py",
+      "module_version": "9.0.2",
+      "module_file_sha256": "7be7a1e2218dc59a19d1ad131e4abe21172a295087efc72898938248782e8766",
+      "module_file_bytes": 5582
+    },
+    "numpy._core._multiarray_umath:binary": {
+      "path": "/tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/numpy/_core/_multiarray_umath.cpython-314-x86_64-linux-gnu.so",
+      "bytes": 10800697,
+      "sha256": "61052ef771d926665ca135b1840662516f058d5c98843aa429ef2abdd7f46a04"
+    }
+  },
+  "declared_inputs": {
+    "count": 2760,
+    "scope": "all product Python; selected test files, all conftest and tests/_helpers, named config/lock/quarantine plus declared external originals",
+    "equal_before_after": true,
+    "frozen_blob_mismatches": 0,
+    "limitation": "Actual imported _bundle helper test_run_hierarchical_policy_search.py was not individually captured historically; independently bound to frozen Git after run. Clean global root state was recorded. Do not claim all actual test helper bytes observed."
+  },
+  "observed_product_modules": 1335,
+  "observed_exec_records": 1335,
+  "observed_source_mismatches": [],
+  "observer_errors": [],
+  "historical_startup": {
+    "path_prefix": "startup-error/",
+    "status": "ERROR_HARNESS_STARTUP",
+    "exit": 1,
+    "phases": 0,
+    "property": "UNRUN",
+    "cause": "V1 snapshot nested files under inputs; observer requires top-level files. V2 solely flattened envelope; no product/test changes."
+  },
+  "predicate_basis": "44 observed complete JUnit and call cases 35 configured hierarchical registry +7 canonical B1.1 ledger +2 existing actual funnel callers; 132 observed phase PASS; no deselection/skip.",
+  "formal_finding_closures": 0,
+  "G_accepted": false,
+  "limitations": [
+    "Missing Torch/BoTorch/GPyTorch/HNSW/SALib in minimal profile means numerical properties UNRUN.",
+    "Provider fixtures do not establish invoice/scientific truth; B raw decoder and A stage context dependencies remain exact owner packets.",
+    "Explicit supported Money/scalar transport is bounded; no universal ParamValue or authority claim."
+  ],
+  "independent_review": "pending committed numerical_oracle receipt; raw outputs already independently reconciled",
+  "cleanup": "No permanent deletion. Active profile/Git targets preserved. Reproducible inactive fixtures are cleanup candidates only."
+}

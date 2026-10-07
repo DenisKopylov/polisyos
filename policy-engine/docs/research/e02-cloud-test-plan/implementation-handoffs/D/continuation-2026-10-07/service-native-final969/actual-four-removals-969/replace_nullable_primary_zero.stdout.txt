@@ -1,0 +1,89 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.7, pytest-9.0.2, pluggy-1.6.0
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+rootdir: /dev/shm/e02-D-oct07-continuation/policy-engine
+configfile: pytest.ini
+plugins: xdist-3.8.0, benchmark-5.2.3, asyncio-1.3.0, langsmith-0.6.0, jaxtyping-0.3.4, hypothesis-6.151.2, anyio-4.12.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 1 item
+
+tests/unit/scientist/methods/search/test_service_trial_deduplication.py REMOVAL_PERSISTED_OBSERVATION:{"best_candidate": {"artifact_version": "1.0", "created_at": "2026-04-01", "loop_id": "dedup", "metadata": {"loaded_at": "2026-04-01", "trace_id": "trace-first"}, "notes": ["first observation"], "replicate_id": null, "search_space_version": "1.0", "seed": null, "semantic": {"metadata": {"effective_date": "2026-01-15", "starts_at": "2026-01-01"}}, "value": 1}, "best_objective": 0.0, "checkpoint_ref": {"artifact_id": "sha256:d0a7f25b5714f3f5a4cfd6f0aba7d0b116711ebe953ea5b289ae47e41ea4ba01", "kind": "scientist.search.service_checkpoint", "manifest_profile_sha256": "sha256:d5bce1bacf98e60094b28f1e0471c115aeaf55d2c23f1cb11afcc966ed37a54a", "media_type": "application/json"}, "checkpoint_sha256": "d0a7f25b5714f3f5a4cfd6f0aba7d0b116711ebe953ea5b289ae47e41ea4ba01", "configuration": {"basis": {"analysis_configuration": null, "evaluator_profile": {"name": "test_service_trial_deduplication._Evaluator", "version": "608942a8f9195491c846225050d030b47a6733d1d8602f31960afd852421a6b5"}, "loop_id": "dedup", "promotion_policy": {"compare_split": "holdout", "direction": "maximize", "loop_id": "dedup", "min_improvement": 0.0, "min_sample_count": 0, "primary_metric": "score", "required_guardrails": [], "unit": "points"}, "suite_ref": {"artifact_id": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7", "kind": "scientist.autotune.generic.suite", "manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47", "media_type": "application/json"}}, "batch_size": 1, "budget_cost_key": "cumulative_cost_usd", "budget_key": "run", "budget_owner_identity": null, "diversity_enabled": false, "generator": "polisyos.scientist.methods.autotune.runtime.SequenceCandidateGenerator", "hard_limit": 100, "initial_evaluations": [], "max_empty_generation_attempts": 3, "objectives": [{"direction": "minimize", "name": "score", "parameters": {"_policy": {"compare_split": "holdout", "direction": "maximize", "loop_id": "dedup", "min_improvement": 0.0, "min_sample_count": 0, "primary_metric": "score", "required_guardrails": [], "unit": "points"}, "_threshold": null, "_weight": 1.0}, "type": "polisyos.scientist.methods.autotune.runtime._AutotuneObjective"}], "pareto_registry_supported": true, "policy_objective_stack": null, "replay_profile": {"data_inputs": [], "evaluation_context": {}, "evaluator_configuration": {"configuration": {"include_metric": false, "profile": "b124-controlled-physical-call.v1", "promotable": true, "scale": 1, "status": "ok"}, "implementation_sha256": "608942a8f9195491c846225050d030b47a6733d1d8602f31960afd852421a6b5", "type": "test_service_trial_deduplication._Evaluator"}, "factory_build": "4bcddcf8b7ef4696fe26a3daa3394053672eb8a43007e0bf0b993c5bf87e17eb", "mutation_model_build": "608942a8f9195491c846225050d030b47a6733d1d8602f31960afd852421a6b5", "mutation_model_type": "test_service_trial_deduplication._DatedMutation", "mutation_schema": {"additionalProperties": false, "properties": {"artifact_version": {"default": "1.0", "pattern": "^\\d+\\.\\d+$", "title": "Artifact Version", "type": "string"}, "created_at": {"default": "2026-04-01", "title": "Created At", "type": "string"}, "loop_id": {"maxLength": 128, "minLength": 1, "title": "Loop Id", "type": "string"}, "metadata": {"additionalProperties": true, "title": "Metadata", "type": "object"}, "notes": {"items": {"type": "string"}, "title": "Notes", "type": "array"}, "replicate_id": {"anyOf": [{"type": "string"}, {"type": "null"}], "default": null, "title": "Replicate Id"}, "search_space_version": {"default": "1.0", "pattern": "^\\d+\\.\\d+$", "title": "Search Space Version", "type": "string"}, "seed": {"anyOf": [{"type": "integer"}, {"type": "null"}], "default": null, "title": "Seed"}, "semantic": {"additionalProperties": true, "title": "Semantic", "type": "object"}, "value": {"title": "Value", "type": "integer"}}, "required": ["loop_id", "value", "semantic"], "title": "_DatedMutation", "type": "object"}, "policy": {"compare_split": "holdout", "direction": "maximize", "loop_id": "dedup", "min_improvement": 0.0, "min_sample_count": 0, "primary_metric": "score", "required_guardrails": [], "unit": "points"}, "suite_configuration": {"data_basis": "candidate_only", "dataset_path": null, "dataset_ref": null, "kind": "generic", "metadata": {}, "split_manifest_path": null, "split_manifest_ref": null, "suite_id": "dedup", "suite_version": "1.0"}, "suite_content_sha256": "648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7", "suite_manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47", "suite_ref": {"artifact_id": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7", "kind": "scientist.autotune.generic.suite", "manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47", "media_type": "application/json"}, "version": "native-autotune-replay.v2"}, "resource_arbiter_supported": true, "stage_a_enabled": false, "stopping": {"children": [], "configuration": {"_max_iter": 1}, "criterion": "MaxIterations", "started_at": null, "version": "search-stopping.v1"}, "transfer_fingerprint": null}, "history": [{"candidate": {"artifact_version": "1.0", "created_at": "2026-04-01", "loop_id": "dedup", "metadata": {"loaded_at": "2026-04-01", "trace_id": "trace-first"}, "notes": ["first observation"], "replicate_id": null, "search_space_version": "1.0", "seed": null, "semantic": {"metadata": {"effective_date": "2026-01-15", "starts_at": "2026-01-01"}}, "value": 1}, "duration_seconds": 0.01899, "is_promising": false, "iteration": 0, "objective_details": [{"direction": "minimize", "is_satisfied": true, "name": "score", "raw_value": 0.0, "threshold": null, "weight": 1.0}], "objective_value": 0.0, "policy_evaluation": null, "policy_evaluation_error": null, "policy_evaluation_status": "missing", "stage_a_passed": true, "stage_b_result": {"feedback": {"guardrails": {}, "promotion_decision": {"champion": null, "loop_id": "dedup", "previous_champion": null, "promoted": false, "reason": "missing_primary_metric:score"}, "status": "ok", "verdict": "REJECT"}, "simulation_results": {"candidate_artifact_ref": {"artifact_id": "sha256:00596c0d572d20bcfac51bdc1a96439e9f32dc4e7c7512767093a8e899b53b1e", "kind": "scientist.autotune.dedup.candidate", "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e", "media_type": "application/json"}, "candidate_ref": "sha256:00596c0d572d20bcfac51bdc1a96439e9f32dc4e7c7512767093a8e899b53b1e", "evaluation_artifact_ref": {"artifact_id": "sha256:aaa59eccfc7d17306c3649e3d6df3551a656b46279600994247239b6654731e3", "kind": "scientist.autotune.dedup.evaluation", "manifest_profile_sha256": "sha256:9751b526eb9778ccf3c644fb7224027c584c89d4a4d8307ef8c259ab16ede49e", "media_type": "application/json"}, "evaluation_ref": "sha256:aaa59eccfc7d17306c3649e3d6df3551a656b46279600994247239b6654731e3", "primary_metric_assessment": {"direction": "maximize", "metric": "score", "reason": "primary_metric_missing", "split": "holdout", "status": "unavailable", "unit": "points"}, "score": 0.0, "suite_artifact_ref": {"artifact_id": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7", "kind": "scientist.autotune.generic.suite", "manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47", "media_type": "application/json"}}}, "timestamp": "2026-10-07T10:41:30.771383+00:00"}], "pareto_points": [{"candidate": {"artifact_version": "1.0", "created_at": "2026-04-01", "loop_id": "dedup", "metadata": {"loaded_at": "2026-04-01", "trace_id": "trace-first"}, "notes": ["first observation"], "replicate_id": null, "search_space_version": "1.0", "seed": null, "semantic": {"metadata": {"effective_date": "2026-01-15", "starts_at": "2026-01-01"}}, "value": 1}, "candidate_hash": "sha256:03b79a508c29713293d8b17b0cbe8106e0a167090a96e1e40523ef464581a8ee", "objectives": [{"direction": "minimize", "name": "score", "raw_value": 0.0}]}], "physical_calls": [{"candidate_ref": {"artifact_id": "sha256:00596c0d572d20bcfac51bdc1a96439e9f32dc4e7c7512767093a8e899b53b1e", "kind": "scientist.autotune.dedup.candidate", "manifest_profile_sha256": "sha256:bfe899527f5620979a8fac1a09f88ba10ae6ec460bcfccaea77704fb548dd48e", "media_type": "application/json"}, "replicate_id": null, "seed": null, "starts_at": "2026-01-01", "suite_ref": {"artifact_id": "sha256:648c7ca42c6ec607978078d728b6bd3168d0821f6ddc4d625d670d6967c1dbb7", "kind": "scientist.autotune.generic.suite", "manifest_profile_sha256": "sha256:9a2edbebc86c54e563793633b1b8a8127b742ac0d108a428d614c34ec2ec9f47", "media_type": "application/json"}, "value": 1}], "probe": "replace_nullable_primary_zero", "registry_entries": null}
+F
+
+=================================== FAILURES ===================================
+_ test_actual_native_primary_quantity_preserves_unavailable_zero_and_fresh_cas_basis[missing-False-ok-1] _
+
+tmp_path = PosixPath('/dev/shm/e02-D-B124-removal-four-exxj42mi/replace_nullable_primary_zero-fixtures/test_actual_native_primary_qua0')
+profile = 'missing', present = False, status = 'ok', value = 1
+
+    @pytest.mark.parametrize(
+        ("profile", "present", "status", "value"),
+        [
+            ("missing", False, "ok", 1),
+            ("status_not_ok", True, "error", 1),
+            ("genuine_zero", True, "ok", 0),
+            ("ordinary_one", True, "ok", 1),
+        ],
+    )
+    def test_actual_native_primary_quantity_preserves_unavailable_zero_and_fresh_cas_basis(
+        tmp_path, profile, present, status, value
+    ):
+        corpus = _corpus()[:1]
+        corpus[0]["value"] = value
+        runner, store, _, suite, evaluator, spec = _runner(
+            tmp_path, corpus, status=status, include_metric=present, promotable=True
+        )
+        result = runner.run(spec, suite_ref=suite, max_iterations=1)
+        assert _values(evaluator) == [value]
+        assert len(result.history) == result.stage_b_evaluations == 1
+        row = result.history[0]
+        simulation = row.stage_b_result["simulation_results"]
+        assessment = simulation["primary_metric_assessment"]
+        assert assessment["metric"] == "score"
+        assert assessment["split"] == "holdout"
+        assert assessment["direction"] == "maximize"
+        assert assessment["unit"] == "points"
+        evaluation_ref = ArtifactRef.model_validate(simulation["evaluation_artifact_ref"])
+        candidate_ref = ArtifactRef.model_validate(simulation["candidate_artifact_ref"])
+        fresh_store = FileSystemCAS(tmp_path / "cas")
+        actual = load_model_artifact(fresh_store, evaluation_ref, BenchmarkEvaluation)
+        candidate = load_model_artifact(fresh_store, candidate_ref, _DatedMutation)
+        assert actual.candidate_ref == candidate_ref
+        assert actual.status == status
+        assert (
+            actual.promotable is True
+        )  # Retain the positive producer marker on unavailable outcomes.
+        assert actual.holdout_metrics == ({"score": float(value)} if present else {})
+        assert candidate.value == value
+        checkpoint_ref = ArtifactRef.model_validate(result.telemetry["checkpoint_ref"])
+        saved_snapshot = fresh_store.get_verified_snapshot(checkpoint_ref)
+        saved = SearchRunState.from_checkpoint(
+            _decode_checkpoint(saved_snapshot.data)["run_state"]
+        )
+        fresh_pointer = ChampionRegistry(
+            root=tmp_path / "champions", store=fresh_store
+        ).get("dedup")
+        # This is an observed quantity/state relation, not a declaration flag probe:
+        # genuine zero has finite history, best and frontier; absence/error has none.
+        if profile in {"missing", "status_not_ok"}:
+            assert assessment["status"] == "unavailable"
+            assert assessment["reason"] == (
+                "primary_metric_missing"
+                if profile == "missing"
+                else "evaluation_status_not_comparable"
+            )
+>           assert simulation["score"] is None
+E           assert 0.0 is None
+
+tests/unit/scientist/methods/search/test_service_trial_deduplication.py:694: AssertionError
+=============================== warnings summary ===============================
+../../../../tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /tmp/e02-D-runtime-minimal-20261006/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+- generated xml file: /dev/shm/e02-D-B124-removal-four-exxj42mi/replace_nullable_primary_zero.junit.xml -
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/search/test_service_trial_deduplication.py::test_actual_native_primary_quantity_preserves_unavailable_zero_and_fresh_cas_basis[missing-False-ok-1]
+========================= 1 failed, 1 warning in 5.17s =========================

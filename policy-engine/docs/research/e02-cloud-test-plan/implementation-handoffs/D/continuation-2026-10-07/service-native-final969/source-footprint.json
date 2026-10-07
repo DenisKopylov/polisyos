@@ -1,0 +1,58 @@
+{
+  "slice_base": "237c3427266e0849ebfa36b41f89c51572b44814",
+  "candidate_sha": "96905636726483fdea3a98d9313871d825b54a9e",
+  "candidate_tree": "8a48f3c03ce75c263f466cd4c2dfa0f87bc99e60",
+  "full_changed_path_set": [
+    "policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md",
+    "policy-engine/release-fragments/unreleased/2026-10-07-native-trial-deduplication-and-primary-availability.toml",
+    "policy-engine/src/polisyos/scientist/methods/autotune/dedup.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+    "policy-engine/src/polisyos/scientist/methods/search/frontier.py",
+    "policy-engine/src/polisyos/scientist/methods/search/service.py",
+    "policy-engine/tests/unit/scientist/methods/autotune/test_dedup.py",
+    "policy-engine/tests/unit/scientist/methods/search/test_service_trial_deduplication.py"
+  ],
+  "source_bindings": {
+    "policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md": {
+      "git_blob": "4d68c66c263220594fe142490d51451ed3e5a50c",
+      "sha256": "a68286479384fe7762897461220a3899b318f6b2e014851e4c03a58bf7b73652"
+    },
+    "policy-engine/release-fragments/unreleased/2026-10-07-native-trial-deduplication-and-primary-availability.toml": {
+      "git_blob": "f9bc99f21c913fc846971fd659347099a90cec64",
+      "sha256": "c9a2674c11f7b89c8c5253269799f0ca599d325d281cee63b143c5e0f896d710"
+    },
+    "policy-engine/src/polisyos/scientist/methods/autotune/dedup.py": {
+      "git_blob": "38eb98f6cc5999e7c889c3f79433cdfd2eb7730e",
+      "sha256": "7c05548d3539ed98b20da6c11fe033af789e0b75672164654b97c68a28f0f5dc"
+    },
+    "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py": {
+      "git_blob": "c38f771300030cd9c84dff5de676c3b023fced68",
+      "sha256": "4bcddcf8b7ef4696fe26a3daa3394053672eb8a43007e0bf0b993c5bf87e17eb"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/frontier.py": {
+      "git_blob": "2604b8369d6b5e98747ba27f2df4e52cf540ca3e",
+      "sha256": "2feffebeee19cec71afa4f7dbd89d3f6880c14cc4368f1d9dd4cc5e3fb27505b"
+    },
+    "policy-engine/src/polisyos/scientist/methods/search/service.py": {
+      "git_blob": "0e5d75cb492bf97dd61ceec2d6a94b9b6d8f13e5",
+      "sha256": "b73158016ef2a6e9324159b7de3d34206ef5a866bcdc1a675adb9281c815e127"
+    },
+    "policy-engine/tests/unit/scientist/methods/autotune/test_dedup.py": {
+      "git_blob": "f49dc1bd0caba18d97539886e3e554678db79540",
+      "sha256": "e8bfa6a4a8b2c3dc5ae3115402bb532487f27e437dd5af87ee4fdfa8d55213d9"
+    },
+    "policy-engine/tests/unit/scientist/methods/search/test_service_trial_deduplication.py": {
+      "git_blob": "6b06edb7490579e73464b438480cc0c7c010d6af",
+      "sha256": "608942a8f9195491c846225050d030b47a6733d1d8602f31960afd852421a6b5"
+    }
+  },
+  "base_tree": "5f55100211942afdc9bae31ae10514894bafdb29",
+  "delta_review_basis": "Actual committed parent237\u2192969 Git diff/full eight-path footprint. Independent full-source and formatted-AST delta reviews retained; original source drafts are not overriding Git authority.",
+  "external_8455_clarification": {
+    "artifact_name": "native-trial-deduplication-v4-to-v5.run-scope-final.patch",
+    "sha256": "8455a3d048881dfed0ad209988d0feef891193878cfc7cb3751e1560f7f7f165",
+    "bytes": 2040,
+    "actual_baseline_sha256": "c3c5684d1be054e914aad4ad1539652d8980b78865703ac83188fbbef6b134d5",
+    "meaning": "Name described as combined-v4 was inaccurate: root had already applied/formatted de8 before the readonly baseline read. The unchanged 8455 artifact covers scope/layout against normalized de8; aa75 is the separately reviewed semantic run-scope delta. No accepted artifact was overwritten."
+  }
+}

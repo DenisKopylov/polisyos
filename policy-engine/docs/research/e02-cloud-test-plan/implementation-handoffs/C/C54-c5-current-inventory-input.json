@@ -1,0 +1,232 @@
+{
+  "schema": "policyos.e02.c54.c5.current-root-adjudication-input.v2",
+  "c4_source": {
+    "commit": "847929e3e0cac30fb49ff61a47ecaf46d41ac94d",
+    "tree": "c4c392e8ecad5f1fb33297d8cbaa28597b22357c",
+    "report": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-c4-v4.json",
+      "git_blob": "466f4035d8634776b76cf4c6106b6bb99e003077",
+      "sha256": "4c15e33ea012250934a28d80392fa8483674a5e04b5f3072b4bfc49d087faa84",
+      "bytes": 671142
+    },
+    "markdown": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-c4-v4.md",
+      "git_blob": "1f9a567ad3341117d1629063f38599366d6b1f95",
+      "sha256": "21dc4f7d4c579b6e2a8cff1e85e8ad917e77d1ace631cc504fd13bf561167bad",
+      "bytes": 457947
+    },
+    "input": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-c4-current-root-adjudication-input.json",
+      "git_blob": "ec9067386657d7d36c808c80c810b74b9c6b7797",
+      "sha256": "2a28e729aeb7ef02740745a3a73c4dbbcf7af4464c567a98547f1b6ca23ac93d",
+      "bytes": 83777
+    }
+  },
+  "g_snapshot": {
+    "commit": "9806442ddb47d624a2940bac75d9d6248e934c48",
+    "tree": "4a1caafc331990e0ebf0130a9051c08ae1ffcbd4"
+  },
+  "g_inputs": {
+    "coverage": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "git_blob": "8c0a7af03fbebb3e57475bc3b2fcf0d3eb6104bf",
+      "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01",
+      "bytes": 550854
+    },
+    "allocation": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/allocation.json",
+      "git_blob": "dbf94aec21acbccf5429bb7a1d6cafd6451025c7",
+      "sha256": "a1fe5cad509e32606df9710e5cbf942313a243341f58ccb0708692204d15c253",
+      "bytes": 6607
+    },
+    "finding_owners": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+      "git_blob": "515c70d29f59f3175521642e72d04f1aaffc72d7",
+      "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722",
+      "bytes": 9504
+    },
+    "bundle_owners": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+      "git_blob": "78b4385b8a9a3752d84d3389c8c4a972dd65f16b",
+      "sha256": "f587df5256ebef909b4060a588c2f947f31b173adf8d44b32e7f4eea5abd1f75",
+      "bytes": 12413
+    },
+    "closure_c": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/C.md",
+      "git_blob": "eb335a62bc1f8bce2cddfcf59f649980a08e88c4",
+      "sha256": "8a2697280ff17913847806fa09cfa932a6260ce5053a2d293c5f6878ccf3b990",
+      "bytes": 96417
+    },
+    "decisions": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/C54-decisions.json",
+      "git_blob": "dd9cdf341a798ed1e23deb31a26beb05a4ca6173",
+      "sha256": "4f4e0d91670455e474df18e9368b6ee797af62f9c4297e1c912d92b5ee7553f9",
+      "bytes": 56092
+    },
+    "actions": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-CD-C4-a795/C54-actions.md",
+      "git_blob": "4ad2ac1af30a775b4db8a49300b831759e188fa0",
+      "sha256": "a6435384cd27f8b30a23bade1c7f9267e9531c9cfd12a4a7c317010fd004d742",
+      "bytes": 15378
+    }
+  },
+  "scope": "C5 root-disposition input; C4 recommendations/history and G formal status remain separate",
+  "root_adjudication": {
+    "authority": "root",
+    "status": "final_root_adjudication",
+    "carry_forward_basis": "unchanged_finite_scope_preserved",
+    "carry_forward_reason": "Root retains the exact 31 IDs in the pinned unchanged_finite_scope_ids list at their C4 criterion-bounded recommendations. These carry-forwards preserve prior criterion evidence; they are not fresh runtime passes, historical-status changes, or G closure.",
+    "carry_forward_source": {
+      "source_id": "c5_owner_inputs",
+      "json_pointer": "/unchanged_finite_scope_ids"
+    },
+    "sources": {
+      "c5_owner_inputs": {
+        "commit": "2a702c26c047ccafde68523afcd7fc356f2edfb9",
+        "tree": "950e05b6cad1e5f7381627db488b1638b10eb5d6",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-owner-inputs/C5-owner-inputs-20261007.json",
+        "git_blob": "5549b337ecaf567c222f970977f636ed386b2aed",
+        "sha256": "95dfff35eadcd55895b643af217ddaac3a6f176038e6d1b651662c4165b4c385",
+        "bytes": 42442
+      },
+      "c4_final_cut": {
+        "commit": "847929e3e0cac30fb49ff61a47ecaf46d41ac94d",
+        "tree": "c4c392e8ecad5f1fb33297d8cbaa28597b22357c",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-c4-v4.json",
+        "git_blob": "466f4035d8634776b76cf4c6106b6bb99e003077",
+        "sha256": "4c15e33ea012250934a28d80392fa8483674a5e04b5f3072b4bfc49d087faa84",
+        "bytes": 671142
+      },
+      "current_c5_dfk": {
+        "commit": "4576f67b1ff1f8d09b6a4223779b53fff9b369ae",
+        "tree": "e541dbed27ed1f64e0a096cc632f720b78ba0745",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfk-c5-lifecycle-source-handoff.json",
+        "git_blob": "160e129aef4802b471876f307be42afcff703736",
+        "sha256": "7b3ea1ef9a3bc3d8e5b4e2915efe15fd9440e628a15548df2868dfe0e7e64310",
+        "bytes": 66971
+      },
+      "dfk_c5_review": {
+        "commit": "341f92fb2b18e163778ab28db13b6b67a90e7d44",
+        "tree": "7d3bcc2e63209645b89913e51d7f8e180c84468b",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/dfk-independent-review-20261007/review.json",
+        "git_blob": "682b7d0b241115afedeacd22d6ebb53c396c34f1",
+        "sha256": "cb60c122917c16b52aeb1fe50844e51c4391949d1c87f684518208222d84805b",
+        "bytes": 19775
+      },
+      "current_c5_legal": {
+        "commit": "51609922447716115c22287ac79c218d13cd9067",
+        "tree": "bc8b7ac5989b71aba55d1b4cc646589e85daf0a2",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/legal-query-profile-20261007.json",
+        "git_blob": "677801f5f2979495e0c15493434a0ccd90b1a881",
+        "sha256": "c76f1e1f70957438ed9abd6e6f12efbe5ef29cb5a792ad779e442ad0119fd01e",
+        "bytes": 18983
+      },
+      "legal_c5_review": {
+        "commit": "77c5cd319c92e52932b1bf15c342b24a41e7b051",
+        "tree": "751a1a854e2c4332ae68c545c739b4d8046c7149",
+        "path": "policy-engine/docs/system-design-decisions/reviews/2026-10-07-legal-query-profile-binding/review.json",
+        "git_blob": "15a8e7048497421dab22cfa7269c043539929420",
+        "sha256": "51556950e90935042dddfe6830b593862c89eefb54ab54fc2665bbe1427b1aa2",
+        "bytes": 5841
+      }
+    },
+    "overrides": {
+      "B79": {
+        "source_id": "c5_owner_inputs",
+        "json_pointer": "/rows/0"
+      },
+      "B80": {
+        "source_id": "c5_owner_inputs",
+        "json_pointer": "/rows/1"
+      },
+      "B83": {
+        "source_id": "c5_owner_inputs",
+        "json_pointer": "/rows/2"
+      },
+      "LA-005": {
+        "source_id": "c5_owner_inputs",
+        "json_pointer": "/rows/3"
+      },
+      "LA-006": {
+        "source_id": "c5_owner_inputs",
+        "json_pointer": "/rows/4"
+      },
+      "LA-018": {
+        "source_id": "c5_owner_inputs",
+        "json_pointer": "/rows/5"
+      },
+      "LA-021": {
+        "source_id": "c5_owner_inputs",
+        "json_pointer": "/rows/6"
+      },
+      "LA-023": {
+        "source_id": "c5_owner_inputs",
+        "json_pointer": "/rows/7"
+      },
+      "LA-024": {
+        "source_id": "c5_owner_inputs",
+        "json_pointer": "/rows/8"
+      },
+      "LA-025": {
+        "source_id": "c5_owner_inputs",
+        "json_pointer": "/rows/9"
+      },
+      "LA-026": {
+        "source_id": "c5_owner_inputs",
+        "json_pointer": "/rows/10"
+      },
+      "LA-027": {
+        "source_id": "c5_owner_inputs",
+        "json_pointer": "/rows/11"
+      },
+      "LA-028": {
+        "source_id": "c5_owner_inputs",
+        "json_pointer": "/rows/12"
+      },
+      "LA-029": {
+        "source_id": "c5_owner_inputs",
+        "json_pointer": "/rows/13"
+      },
+      "LA-032": {
+        "source_id": "c5_owner_inputs",
+        "json_pointer": "/rows/14"
+      },
+      "LA-034": {
+        "source_id": "c5_owner_inputs",
+        "json_pointer": "/rows/15"
+      },
+      "LA-036": {
+        "source_id": "c5_owner_inputs",
+        "json_pointer": "/rows/16"
+      },
+      "LA-038": {
+        "source_id": "c5_owner_inputs",
+        "json_pointer": "/rows/17"
+      },
+      "LA-039": {
+        "source_id": "c5_owner_inputs",
+        "json_pointer": "/rows/18"
+      },
+      "LA-040": {
+        "source_id": "c5_owner_inputs",
+        "json_pointer": "/rows/19"
+      },
+      "LA-041": {
+        "source_id": "c5_owner_inputs",
+        "json_pointer": "/rows/20"
+      },
+      "LA-042": {
+        "source_id": "c5_owner_inputs",
+        "json_pointer": "/rows/21"
+      },
+      "LA-050": {
+        "source_id": "c5_owner_inputs",
+        "json_pointer": "/rows/22"
+      }
+    },
+    "decision_scope_source": {
+      "source_id": "c5_owner_inputs",
+      "json_pointer": "/rows"
+    }
+  }
+}

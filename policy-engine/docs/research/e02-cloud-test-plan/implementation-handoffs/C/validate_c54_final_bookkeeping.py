@@ -37,6 +37,8 @@ C3_FINAL_CUT_SCHEMA = "policyos.e02.c54.c3.current-root-adjudication.v1"
 C3_FINAL_INPUT_SCHEMA = "policyos.e02.c54.c3.current-root-adjudication-input.v1"
 C4_FINAL_CUT_SCHEMA = "policyos.e02.c54.c4.current-root-adjudication.v2"
 C4_FINAL_INPUT_SCHEMA = "policyos.e02.c54.c4.current-root-adjudication-input.v2"
+C5_FINAL_CUT_SCHEMA = "policyos.e02.c54.c5.current-root-adjudication.v2"
+C5_FINAL_INPUT_SCHEMA = "policyos.e02.c54.c5.current-root-adjudication-input.v2"
 C3_INPUT_PATH = (
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/"
     "C54-c3-current-evaluation-input.json"
@@ -66,6 +68,41 @@ C3_FINAL_EXPECTED_G_COMMIT = "ebae80eaa25482d84bc6ad2e78721bc318bc0228"
 C3_FINAL_EXPECTED_G_TREE = "4bc0ca606eaf5145e23769da3968a673d99a9abf"
 C4_FINAL_EXPECTED_G_COMMIT = "83e7c0e934d0b40644dec8a24264a0602ef013e7"
 C4_FINAL_EXPECTED_G_TREE = "dc1a7697f506b23f2db0f1c80bf929fd2d6a2e0d"
+C5_EXPECTED_C4_COMMIT = "847929e3e0cac30fb49ff61a47ecaf46d41ac94d"
+C5_EXPECTED_C4_TREE = "c4c392e8ecad5f1fb33297d8cbaa28597b22357c"
+C5_EXPECTED_G_COMMIT = "9806442ddb47d624a2940bac75d9d6248e934c48"
+C5_EXPECTED_G_TREE = "4a1caafc331990e0ebf0130a9051c08ae1ffcbd4"
+C5_C4_REPORT_PATH = (
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/"
+    "C54-current-root-20261007-c4-v4.json"
+)
+C5_C4_MARKDOWN_PATH = (
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/"
+    "C54-current-root-20261007-c4-v4.md"
+)
+C5_C4_INPUT_PATH = (
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/"
+    "C54-c4-current-root-adjudication-input.json"
+)
+C5_COVERAGE_PATH = "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json"
+C5_ALLOCATION_PATH = (
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/allocation.json"
+)
+C5_FINDING_OWNERS_PATH = (
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv"
+)
+C5_BUNDLE_OWNERS_PATH = (
+    "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv"
+)
+C5_CLOSURE_C_PATH = "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/C.md"
+C5_DECISIONS_PATH = (
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/"
+    "2026-10-07-CD-C4-a795/C54-decisions.json"
+)
+C5_ACTIONS_PATH = (
+    "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/"
+    "2026-10-07-CD-C4-a795/C54-actions.md"
+)
 
 
 def git(*args: str) -> str:
@@ -2684,6 +2721,838 @@ def run_c3(
     }
 
 
+def load_c5_root_decisions(root_record: dict, finding_ids: set[str]) -> dict:
+    """Verify C5 root decisions and all evidence pointers against immutable Git blobs."""
+    if root_record.get("authority") != "root":
+        raise AssertionError("C5 decision authority must be root")
+    status = root_record.get("status")
+    if status not in {"draft", "final_root_adjudication"}:
+        raise AssertionError("C5 root decision status is invalid")
+    raw_sources = root_record.get("sources", {})
+    raw_overrides = root_record.get("overrides", {})
+    if not isinstance(raw_sources, dict) or not isinstance(raw_overrides, dict):
+        raise AssertionError("C5 root sources and overrides must be mappings")
+    if not set(raw_overrides).issubset(finding_ids):
+        raise AssertionError("C5 root override is outside the complete C finding set")
+    if status == "final_root_adjudication" and not all(
+        isinstance(root_record.get(field), str) and root_record[field].strip()
+        for field in ("carry_forward_basis", "carry_forward_reason")
+    ):
+        raise AssertionError("final C5 root input lacks its carry-forward basis or reason")
+    carry_binding = root_record.get("carry_forward_source")
+    decision_scope_binding = root_record.get("decision_scope_source")
+    if status == "final_root_adjudication" and (
+        not isinstance(carry_binding, dict)
+        or set(carry_binding) != {"source_id", "json_pointer"}
+        or carry_binding.get("source_id") not in raw_sources
+    ):
+        raise AssertionError("final C5 root input lacks a pinned carry-forward source")
+    if status == "final_root_adjudication" and (
+        not isinstance(decision_scope_binding, dict)
+        or set(decision_scope_binding) != {"source_id", "json_pointer"}
+        or decision_scope_binding.get("source_id") not in raw_sources
+    ):
+        raise AssertionError("final C5 root input lacks a pinned decision-scope source")
+
+    source_docs: dict[str, object] = {}
+    source_refs: dict[str, dict] = {}
+    for source_id, source_ref in raw_sources.items():
+        if not isinstance(source_ref, dict) or set(source_ref) != {
+            "commit",
+            "tree",
+            "path",
+            "git_blob",
+            "sha256",
+            "bytes",
+        }:
+            raise AssertionError((source_id, "C5 root source locator fields differ from schema"))
+        raw, blob = git_source_file(
+            source_ref["commit"],
+            source_ref["tree"],
+            source_ref["path"],
+            expected_sha256=source_ref["sha256"],
+            expected_blob=source_ref["git_blob"],
+            expected_size=source_ref["bytes"],
+        )
+        try:
+            source_docs[source_id] = json.loads(raw)
+        except json.JSONDecodeError as error:
+            raise AssertionError((source_id, "C5 root source is not JSON")) from error
+        source_refs[source_id] = {**source_ref, "git_blob": blob}
+
+    required_fields = {
+        "value",
+        "basis",
+        "reason",
+        "code_outcome",
+        "scoped_proven_part",
+        "missing_input",
+        "remaining_verification",
+        "next_action",
+        "next_owner",
+        "evidence_refs",
+    }
+    overrides = {}
+    for finding_id, binding in raw_overrides.items():
+        if not isinstance(binding, dict) or set(binding) != {"source_id", "json_pointer"}:
+            raise AssertionError((finding_id, "C5 root override binding is malformed"))
+        source_id = binding["source_id"]
+        if source_id not in source_docs:
+            raise AssertionError((finding_id, "C5 root override names an unbound source"))
+        pointer = binding["json_pointer"]
+        decision = resolve_pointer(source_docs[source_id], pointer)
+        if not isinstance(decision, dict) or not required_fields.issubset(decision):
+            raise AssertionError((finding_id, "C5 root decision object is incomplete"))
+        source_finding_id = decision.get("finding_id", decision.get("id"))
+        pointer_key = pointer.rsplit("/", 1)[-1]
+        if source_finding_id is not None:
+            if source_finding_id != finding_id:
+                raise AssertionError((finding_id, "C5 root decision source identifies another row"))
+        elif pointer_key != finding_id:
+            raise AssertionError((finding_id, "C5 root decision pointer does not bind its row ID"))
+        if decision["value"] not in {"closed", "limited", "held"}:
+            raise AssertionError((finding_id, "C5 root decision value is invalid"))
+        for field in required_fields - {"value", "evidence_refs"}:
+            if not isinstance(decision[field], str) or not decision[field].strip():
+                raise AssertionError((finding_id, field, "C5 root decision field is empty"))
+        if not isinstance(decision["evidence_refs"], list) or not decision["evidence_refs"]:
+            raise AssertionError((finding_id, "C5 root decision lacks evidence pointers"))
+        evidence_refs = []
+        for evidence_ref in decision["evidence_refs"]:
+            if (
+                not isinstance(evidence_ref, dict)
+                or set(evidence_ref) != {"source_id", "json_pointer"}
+                or evidence_ref["source_id"] not in source_docs
+            ):
+                raise AssertionError((finding_id, "C5 evidence reference is malformed"))
+            evidence_source_id = evidence_ref["source_id"]
+            evidence_pointer = evidence_ref["json_pointer"]
+            evidence_value = resolve_pointer(source_docs[evidence_source_id], evidence_pointer)
+            if evidence_value in (None, "", [], {}):
+                raise AssertionError((finding_id, "C5 evidence pointer resolves empty"))
+            evidence_refs.append(
+                {
+                    "source_id": evidence_source_id,
+                    **source_refs[evidence_source_id],
+                    "json_pointer": evidence_pointer,
+                }
+            )
+        overrides[finding_id] = {
+            **decision,
+            "source_binding": {
+                "source_id": source_id,
+                **source_refs[source_id],
+                "json_pointer": pointer,
+            },
+            "evidence_refs": evidence_refs,
+        }
+    carry_forward_source = None
+    carry_forward_finding_ids: list[str] = []
+    decision_scope_source = None
+    decision_scope_finding_ids: list[str] = []
+    if status == "final_root_adjudication":
+        scope_source_id = decision_scope_binding["source_id"]
+        scope_pointer = decision_scope_binding["json_pointer"]
+        scope_value = resolve_pointer(source_docs[scope_source_id], scope_pointer)
+        if not isinstance(scope_value, list) or any(
+            not isinstance(item, dict) for item in scope_value
+        ):
+            raise AssertionError("C5 decision-scope source must resolve to decision rows")
+        for index, decision_row in enumerate(scope_value):
+            scope_finding_id = decision_row.get("finding_id", decision_row.get("id"))
+            if not isinstance(scope_finding_id, str) or not scope_finding_id:
+                raise AssertionError("C5 decision-scope row has no finding identity")
+            if scope_finding_id in decision_scope_finding_ids:
+                raise AssertionError("C5 decision-scope source has duplicate finding IDs")
+            decision_scope_finding_ids.append(scope_finding_id)
+            expected_binding = {
+                "source_id": scope_source_id,
+                "json_pointer": f"{scope_pointer.rstrip('/')}/{index}",
+            }
+            if raw_overrides.get(scope_finding_id) != expected_binding:
+                raise AssertionError(
+                    (scope_finding_id, "C5 root override does not bind its decision-scope row")
+                )
+        decision_scope_finding_ids.sort()
+        if set(decision_scope_finding_ids) != set(overrides):
+            raise AssertionError("C5 root overrides do not cover the pinned decision scope")
+        decision_scope_source = {
+            "source_id": scope_source_id,
+            **source_refs[scope_source_id],
+            "json_pointer": scope_pointer,
+        }
+        carry_source_id = carry_binding["source_id"]
+        carry_pointer = carry_binding["json_pointer"]
+        carry_value = resolve_pointer(source_docs[carry_source_id], carry_pointer)
+        if (
+            not isinstance(carry_value, list)
+            or any(not isinstance(item, str) for item in carry_value)
+            or len(carry_value) != len(set(carry_value))
+        ):
+            raise AssertionError("C5 carry-forward source must resolve to unique finding IDs")
+        carry_forward_finding_ids = sorted(carry_value)
+        if set(carry_forward_finding_ids) != finding_ids - set(overrides):
+            raise AssertionError("C5 carry-forward source does not bind exact unoverridden IDs")
+        carry_forward_source = {
+            "source_id": carry_source_id,
+            **source_refs[carry_source_id],
+            "json_pointer": carry_pointer,
+        }
+    if status == "draft" and overrides:
+        raise AssertionError("draft C5 input cannot assign root finding dispositions")
+    return {
+        "authority": "root",
+        "status": status,
+        "carry_forward_basis": root_record.get("carry_forward_basis"),
+        "carry_forward_reason": root_record.get("carry_forward_reason"),
+        "carry_forward_source": carry_forward_source,
+        "carry_forward_finding_ids": carry_forward_finding_ids,
+        "decision_scope_source": decision_scope_source,
+        "decision_scope_finding_ids": decision_scope_finding_ids,
+        "source_refs": source_refs,
+        "overrides": overrides,
+    }
+
+
+def run_c5(
+    cut_path: Path,
+    markdown_path: Path,
+    input_path: Path,
+    expected_cut_sha: str | None,
+    expected_markdown_sha: str | None,
+) -> dict:
+    """Validate C5 projections against pinned C4, G, and original criterion sources."""
+    cut_raw = cut_path.read_bytes()
+    if expected_cut_sha and sha(cut_raw) != expected_cut_sha:
+        raise AssertionError(("unexpected C5 cut hash", sha(cut_raw), expected_cut_sha))
+    cut = json.loads(cut_raw)
+    if cut.get("schema") != C5_FINAL_CUT_SCHEMA:
+        raise AssertionError("C5 output schema mismatch")
+
+    input_raw = input_path.read_bytes()
+    input_doc = json.loads(input_raw)
+    input_sha = sha(input_raw)
+    if input_doc.get("schema") != C5_FINAL_INPUT_SCHEMA:
+        raise AssertionError("C5 typed input schema mismatch")
+    expected_input_locator = {
+        "path": str(input_path.relative_to(ROOT)),
+        "sha256": input_sha,
+        "bytes": len(input_raw),
+        "schema": C5_FINAL_INPUT_SCHEMA,
+    }
+    if cut.get("input") != expected_input_locator:
+        raise AssertionError("C5 output does not bind its exact typed input")
+
+    c4_source = input_doc.get("c4_source", {})
+    g_snapshot = input_doc.get("g_snapshot", {})
+    if (c4_source.get("commit"), c4_source.get("tree")) != (
+        C5_EXPECTED_C4_COMMIT,
+        C5_EXPECTED_C4_TREE,
+    ):
+        raise AssertionError("C5 input is not pinned to the frozen C4 source")
+    if (g_snapshot.get("commit"), g_snapshot.get("tree")) != (
+        C5_EXPECTED_G_COMMIT,
+        C5_EXPECTED_G_TREE,
+    ):
+        raise AssertionError("C5 input is not pinned to the G980 source snapshot")
+    for revision, expected_tree, label in (
+        (c4_source["commit"], c4_source["tree"], "C4"),
+        (g_snapshot["commit"], g_snapshot["tree"], "G"),
+    ):
+        if git("rev-parse", f"{revision}^{{tree}}") != expected_tree:
+            raise AssertionError((label, "pinned tree mismatch"))
+
+    c4_report_ref = c4_source["report"]
+    if c4_report_ref.get("path") != C5_C4_REPORT_PATH:
+        raise AssertionError("C5 input C4 report path differs from the canonical source")
+    c4_raw = git_blob_bytes(c4_source["commit"], c4_report_ref["path"])
+    c4_blob = git("rev-parse", f"{c4_source['commit']}:{c4_report_ref['path']}")
+    if (
+        sha(c4_raw) != c4_report_ref.get("sha256")
+        or len(c4_raw) != c4_report_ref.get("bytes")
+        or c4_blob != c4_report_ref.get("git_blob")
+    ):
+        raise AssertionError("C5 C4 source report bytes/blob differ from the typed input")
+    c4_cut = json.loads(c4_raw)
+    if cut.get("c4_source", {}).get("report") != {
+        **c4_report_ref,
+        "git_blob": c4_blob,
+    }:
+        raise AssertionError("C5 report does not retain the exact C4 source report locator")
+    expected_c4_source = {
+        "commit": c4_source["commit"],
+        "tree": c4_source["tree"],
+        "report": {**c4_report_ref, "git_blob": c4_blob},
+        "markdown": c4_source["markdown"],
+        "input": c4_source["input"],
+    }
+    if cut.get("c4_source") != expected_c4_source:
+        raise AssertionError("C5 C4 source locator set differs from the typed input")
+
+    for artifact_key, canonical_path in (
+        ("markdown", C5_C4_MARKDOWN_PATH),
+        ("input", C5_C4_INPUT_PATH),
+    ):
+        ref = c4_source[artifact_key]
+        if ref.get("path") != canonical_path:
+            raise AssertionError((artifact_key, "C4 source path is not canonical"))
+        raw = git_blob_bytes(c4_source["commit"], ref["path"])
+        blob = git("rev-parse", f"{c4_source['commit']}:{ref['path']}")
+        if (
+            sha(raw) != ref.get("sha256")
+            or len(raw) != ref.get("bytes")
+            or blob != ref.get("git_blob")
+        ):
+            raise AssertionError((artifact_key, "C4 source bytes/blob mismatch"))
+        working_path = ROOT / ref["path"]
+        if not working_path.exists() or working_path.read_bytes() != raw:
+            raise AssertionError((artifact_key, "C4 validation companion differs from pinned Git"))
+
+    c4_report_path = ROOT / c4_report_ref["path"]
+    if not c4_report_path.exists() or c4_report_path.read_bytes() != c4_raw:
+        raise AssertionError("C4 source report is not available byte-identically for validation")
+    c4_validation = run_c3(
+        c4_report_path,
+        ROOT / C5_C4_MARKDOWN_PATH,
+        ROOT / C5_C4_INPUT_PATH,
+        c4_report_ref["sha256"],
+        c4_source["markdown"]["sha256"],
+        final_mode=True,
+        cycle_label="C4",
+    )
+
+    expected_g_paths = {
+        "coverage": C5_COVERAGE_PATH,
+        "allocation": C5_ALLOCATION_PATH,
+        "finding_owners": C5_FINDING_OWNERS_PATH,
+        "bundle_owners": C5_BUNDLE_OWNERS_PATH,
+        "closure_c": C5_CLOSURE_C_PATH,
+        "decisions": C5_DECISIONS_PATH,
+        "actions": C5_ACTIONS_PATH,
+    }
+    if set(input_doc.get("g_inputs", {})) != set(expected_g_paths):
+        raise AssertionError("C5 G input names do not match the required complete source set")
+    g_raw: dict[str, bytes] = {}
+    g_docs: dict[str, object] = {}
+    expected_g_refs = {}
+    for name, canonical_path in expected_g_paths.items():
+        ref = input_doc["g_inputs"][name]
+        if ref.get("path") != canonical_path:
+            raise AssertionError((name, "G source path is not canonical"))
+        raw = git_blob_bytes(g_snapshot["commit"], ref["path"])
+        blob = git("rev-parse", f"{g_snapshot['commit']}:{ref['path']}")
+        if (
+            sha(raw) != ref.get("sha256")
+            or len(raw) != ref.get("bytes")
+            or blob != ref.get("git_blob")
+        ):
+            raise AssertionError((name, "G source bytes/blob mismatch"))
+        expected_g_refs[name] = {**ref, "source_commit": g_snapshot["commit"]}
+        g_raw[name] = raw
+        if name in {"coverage", "allocation", "decisions"}:
+            g_docs[name] = json.loads(raw)
+    if cut.get("g_snapshot") != g_snapshot or cut.get("g_input_refs") != expected_g_refs:
+        raise AssertionError("C5 G source snapshot/reference index differs from typed inputs")
+
+    coverage = g_docs["coverage"]
+    allocation = g_docs["allocation"]
+    decisions = g_docs["decisions"]
+    findings = {item["id"]: item for item in coverage["findings"] if item["unit"] == "C"}
+    c4_rows = {row["id"]: (index, row) for index, row in enumerate(c4_cut["rows"])}
+    decision_rows = {row["id"]: (index, row) for index, row in enumerate(decisions["rows"])}
+    owners = {row["finding_id"]: row for row in parse_tsv_bytes(g_raw["finding_owners"])}
+    bundle_owners = {row["bundle_id"]: row for row in parse_tsv_bytes(g_raw["bundle_owners"])}
+    labels = parse_c_md(g_raw["closure_c"])
+    if not (len(findings) == len(c4_rows) == len(decision_rows) == 54):
+        raise AssertionError("C5 source joins do not contain exactly 54 C findings")
+    if set(findings) != set(c4_rows) or set(findings) != set(decision_rows):
+        raise AssertionError("C5 source joins have different C finding identities")
+    root_decisions = load_c5_root_decisions(input_doc.get("root_adjudication", {}), set(c4_rows))
+    if cut.get("root_adjudication") != root_decisions:
+        raise AssertionError("C5 output root decisions/evidence differ from typed input")
+    final_root_adjudication = root_decisions["status"] == "final_root_adjudication"
+    expected_status = (
+        "c5_current_root_adjudicated"
+        if final_root_adjudication
+        else "c5_current_root_adjudication_draft"
+    )
+    if (
+        cut.get("status") != expected_status
+        or cut.get("c5_verdicts_assigned") is not final_root_adjudication
+    ):
+        raise AssertionError("C5 current-root-adjudication status disagrees with the input")
+
+    expected_denominator = {
+        "all_bundles": len(coverage["bundles"]),
+        "all_findings": len(coverage["findings"]),
+        "canonical_criterion_occurrences": coverage["denominator"][
+            "canonical_source_block_occurrences"
+        ],
+        "C_bundles": len({item["id"] for item in coverage["bundles"] if item["unit"] == "C"}),
+        "C_findings": len(findings),
+        "C_hash_bound_criteria": sum(
+            len(item.get("criterion_refs", [])) for item in findings.values()
+        ),
+    }
+    if (
+        expected_denominator != EXPECTED_COVERAGE
+        or cut.get("coverage_denominator") != expected_denominator
+    ):
+        raise AssertionError("C5 denominator is not derived from the complete pinned G coverage")
+    if allocation.get("schema") is None:
+        raise AssertionError("C5 allocation source has no schema")
+    if set(owners) != {item["id"] for item in coverage["findings"]}:
+        raise AssertionError("C5 finding-owner source denominator mismatch")
+
+    base_coverage = json.loads(git_blob_bytes(BASE, COVERAGE_PATH))
+    base_findings = {item["id"]: item for item in base_coverage["findings"] if item["unit"] == "C"}
+    if len(cut.get("rows", [])) != 54:
+        raise AssertionError("C5 output row count is not exactly 54")
+    output_rows = {row["id"]: row for row in cut["rows"]}
+    if len(output_rows) != 54 or set(output_rows) != set(findings):
+        raise AssertionError("C5 output IDs differ from the full C finding set")
+
+    doc_index = cut.get("criterion_document_index", {})
+    for doc_ref, source in c4_cut["criterion_document_index"].items():
+        expected_doc = {
+            "path": source["path"],
+            "git_blob": source["git_blob"],
+            "source_commit": BASE,
+            "source_tree": git("rev-parse", f"{BASE}^{{tree}}"),
+            "source_sha256": source["source_sha256"],
+            "source_bytes": source["source_bytes"],
+        }
+        if doc_index.get(doc_ref) != expected_doc:
+            raise AssertionError((doc_ref, "C5 criterion document source binding mismatch"))
+    if set(doc_index) != set(c4_cut["criterion_document_index"]):
+        raise AssertionError("C5 criterion document index has missing or extra aliases")
+
+    c2_source = c4_cut["c2_source"]
+    c2_raw = git_blob_bytes(c2_source["commit"], c2_source["path"])
+    if sha(c2_raw) != c2_source["sha256"]:
+        raise AssertionError("C5 C2 evidence source hash mismatch")
+    c2_cut = json.loads(c2_raw)
+    c4_recommendation_counts = Counter()
+    current_recommendation_counts = Counter()
+    g_status_counts = Counter()
+    criterion_count = 0
+    for finding_id, row in output_rows.items():
+        c4_index, c4_row = c4_rows[finding_id]
+        g_row = findings[finding_id]
+        base_row = base_findings[finding_id]
+        decision_index, decision = decision_rows[finding_id]
+        owner = owners[finding_id]
+        c4_eval = c4_row["current_evaluation"]
+        c4_verdict = c4_row["current_root_verdict"]
+        if (
+            row["bundles"] != c4_row["bundles"]
+            or set(row["bundles"]) != set(g_row["companion_bundles"])
+            or set(row["bundles"]) != set(base_row["companion_bundles"])
+        ):
+            raise AssertionError((finding_id, "C5 bundle row mismatch"))
+        if row["source_family"] != c4_row["source_family"]:
+            raise AssertionError((finding_id, "C5 source-family row mismatch"))
+        expected_history = {
+            **c4_row["historical_status"],
+            "G_coverage_ledger_status_historical": g_row.get("ledger_status_historical"),
+            "G_coverage_appendix_C_status_separate": g_row.get("appendix_c_status_separate"),
+        }
+        if row["historical_status"] != expected_history:
+            raise AssertionError((finding_id, "C5 historical statuses are not kept distinct"))
+        criteria = row["original_criteria"]
+        if (
+            len(criteria) != len(c4_row["criterion_refs"])
+            or len(criteria) != len(base_row["criterion_refs"])
+            or len(criteria) != len(decision.get("original_criteria", []))
+        ):
+            raise AssertionError((finding_id, "C5 criterion reference count mismatch"))
+        for criterion_index, (actual, source_criterion, g_criterion) in enumerate(
+            zip(criteria, c4_row["criterion_refs"], g_row["criterion_refs"], strict=True)
+        ):
+            base_criterion = base_row["criterion_refs"][criterion_index]
+            decision_criterion = decision["original_criteria"][criterion_index]
+            doc = doc_index[source_criterion["document_ref"]]
+            if (
+                actual["criterion_id"] != source_criterion["criterion_id"]
+                or actual["document_ref"] != source_criterion["document_ref"]
+                or actual["line_span"] != source_criterion["line_span"]
+                or actual["criterion_sha256"] != source_criterion["criterion_sha256"]
+                or source_criterion["criterion_id"] != g_criterion["criterion_id"]
+                or source_criterion["criterion_sha256"] != g_criterion["sha256"]
+                or source_criterion["document_ref"]
+                != {"B_r19": "CD01", "LA_r09": "CD02"}[g_criterion["document"]]
+                or source_criterion["line_span"]
+                != f"{g_criterion['lines'][0]}-{g_criterion['lines'][1]}"
+                or base_criterion["criterion_id"] != source_criterion["criterion_id"]
+                or base_criterion["document"] != g_criterion["document"]
+                or base_criterion["lines"] != g_criterion["lines"]
+                or base_criterion["sha256"] != g_criterion["sha256"]
+                or decision_criterion["criterion_id"] != source_criterion["criterion_id"]
+                or decision_criterion["document_ref"] != source_criterion["document_ref"]
+                or decision_criterion["line_span"] != source_criterion["line_span"]
+                or decision_criterion["sha256"] != source_criterion["criterion_sha256"]
+                or actual["source_document"]
+                != {
+                    "commit": BASE,
+                    "tree": doc["source_tree"],
+                    "path": doc["path"],
+                    "git_blob": doc["git_blob"],
+                }
+            ):
+                raise AssertionError((finding_id, "C5 criterion tuple/source mismatch"))
+            expected_wording_pointer = (
+                f"/rows/{c4_index}/criterion_refs/{criterion_index}/original_wording"
+            )
+            expected_wording_source = {
+                "commit": C5_EXPECTED_C4_COMMIT,
+                "tree": C5_EXPECTED_C4_TREE,
+                "path": C5_C4_REPORT_PATH,
+                "git_blob": c4_report_ref["git_blob"],
+                "sha256": c4_report_ref["sha256"],
+                "bytes": c4_report_ref["bytes"],
+                "json_pointer": expected_wording_pointer,
+            }
+            if actual["wording_source"] != expected_wording_source:
+                raise AssertionError((finding_id, "C5 criterion wording pointer mismatch"))
+            source_wording = resolve_pointer(c4_cut, expected_wording_pointer)
+            doc_raw = git_blob_bytes(BASE, doc["path"])
+            source_lines = doc_raw.splitlines(keepends=True)
+            start, end = (int(part) for part in source_criterion["line_span"].split("-"))
+            exact_text = b"".join(source_lines[start - 1 : end]).decode("utf-8")
+            if source_wording != exact_text:
+                raise AssertionError((finding_id, "C4 wording pointer does not match source span"))
+            criterion_count += 1
+        expected_recommendation = {
+            "value": c4_verdict["value"],
+            "status": "carried_forward_from_c4_not_a_new_c5_verdict",
+            "basis": c4_verdict["basis"],
+            "reason": c4_verdict["reason"],
+            "source_pointer": f"/rows/{c4_index}/current_root_verdict",
+        }
+        if row["c_recommendation"] != expected_recommendation:
+            raise AssertionError((finding_id, "C5 recommendation differs from C4 source"))
+        expected_eval = {
+            "state": c4_eval["state"],
+            "code_outcome": c4_eval["code_outcome"],
+            "evidence_basis": c4_eval["evidence_basis"],
+            "scoped_proven_part": c4_eval["scoped_proven_part"],
+            "missing_input": c4_eval["missing_input_or_skipped_backend"],
+            "remaining_verification": c4_eval["remaining_verification"],
+            "next_action": c4_eval["next_action"],
+            "next_owner": c4_eval["next_owner"],
+            "source_pointer": f"/rows/{c4_index}/current_evaluation",
+        }
+        if row["carried_c4_evaluation"] != expected_eval:
+            raise AssertionError((finding_id, "C5 current C evaluation differs from C4 source"))
+        if resolve_pointer(c4_cut, expected_eval["source_pointer"]) != c4_eval:
+            raise AssertionError((finding_id, "C5 C evaluation pointer does not resolve"))
+
+        root_override = root_decisions["overrides"].get(finding_id)
+        if root_override:
+            expected_verdict = {
+                "value": root_override["value"],
+                "status": "root_c5_adjudication_override",
+                "basis": root_override["basis"],
+                "reason": root_override["reason"],
+                "source_pointer": f"/root_adjudication/overrides/{finding_id}/json_pointer",
+                "root_review_source_pointer": f"/root_adjudication/overrides/{finding_id}",
+                "root_review_note": root_override["reason"],
+                "decision_source": root_override["source_binding"],
+                "evidence_refs": root_override["evidence_refs"],
+            }
+            expected_current_eval = {
+                "status": "root_c5_adjudication_override",
+                "code_outcome": root_override["code_outcome"],
+                "evidence_basis": root_override["basis"],
+                "scoped_proven_part": root_override["scoped_proven_part"],
+                "missing_input": root_override["missing_input"],
+                "remaining_verification": root_override["remaining_verification"],
+                "next_action": root_override["next_action"],
+                "next_owner": root_override["next_owner"],
+                "source_pointer": expected_verdict["source_pointer"],
+            }
+            for evidence_ref in expected_verdict["evidence_refs"]:
+                source_raw, _source_blob = git_source_file(
+                    evidence_ref["commit"],
+                    evidence_ref["tree"],
+                    evidence_ref["path"],
+                    expected_sha256=evidence_ref["sha256"],
+                    expected_blob=evidence_ref["git_blob"],
+                    expected_size=evidence_ref["bytes"],
+                )
+                resolve_pointer(json.loads(source_raw), evidence_ref["json_pointer"])
+        else:
+            if (
+                final_root_adjudication
+                and finding_id not in root_decisions["carry_forward_finding_ids"]
+            ):
+                raise AssertionError((finding_id, "C5 root did not bind carry-forward finding"))
+            expected_verdict = {
+                "value": c4_verdict["value"],
+                "status": (
+                    "retained_from_c4_under_c5_root_adjudication"
+                    if final_root_adjudication
+                    else "carried_forward_from_c4_pending_c5_root_adjudication"
+                ),
+                "basis": (
+                    root_decisions["carry_forward_basis"]
+                    if final_root_adjudication
+                    else c4_verdict["basis"]
+                ),
+                "reason": c4_verdict["reason"],
+                "source_pointer": f"/rows/{c4_index}/current_root_verdict",
+                "root_review_source_pointer": (
+                    "/root_adjudication/carry_forward_source" if final_root_adjudication else None
+                ),
+                "root_review_note": root_decisions["carry_forward_reason"],
+                "decision_source": None,
+                "evidence_refs": [],
+            }
+            expected_current_eval = {
+                "status": "retained_from_c4_evaluation",
+                "code_outcome": c4_eval["code_outcome"],
+                "evidence_basis": c4_eval["evidence_basis"],
+                "scoped_proven_part": c4_eval["scoped_proven_part"],
+                "missing_input": c4_eval["missing_input_or_skipped_backend"],
+                "remaining_verification": c4_eval["remaining_verification"],
+                "next_action": c4_eval["next_action"],
+                "next_owner": c4_eval["next_owner"],
+                "source_pointer": f"/rows/{c4_index}/current_evaluation",
+            }
+        if row.get("current_root_verdict") != expected_verdict:
+            raise AssertionError(
+                (finding_id, "C5 current root verdict differs from decision source")
+            )
+        if row.get("current_c_evaluation") != expected_current_eval:
+            raise AssertionError((finding_id, "C5 current evaluation differs from decision source"))
+        if expected_verdict["root_review_source_pointer"] is not None:
+            root_review_value = resolve_pointer(
+                input_doc, expected_verdict["root_review_source_pointer"]
+            )
+            if (
+                root_override
+                and root_review_value != input_doc["root_adjudication"]["overrides"][finding_id]
+            ):
+                raise AssertionError(
+                    (finding_id, "C5 root review binding pointer does not resolve")
+                )
+            if (
+                not root_override
+                and root_review_value != input_doc["root_adjudication"]["carry_forward_source"]
+            ):
+                raise AssertionError(
+                    (finding_id, "C5 carry-forward review pointer does not resolve")
+                )
+        source_document = input_doc if root_override else c4_cut
+        if resolve_pointer(source_document, expected_verdict["source_pointer"]) is None:
+            raise AssertionError((finding_id, "C5 root verdict source pointer resolves null"))
+        expected_assessment = {
+            "state": expected_verdict["status"],
+            "note": (
+                "C4 criterion evidence and recommendation remain visible separately; "
+                "this row assigns no G formal closure or product-level acceptance."
+            ),
+        }
+        if row.get("c5_assessment") != expected_assessment:
+            raise AssertionError((finding_id, "C5 row assessment differs from root disposition"))
+
+        label_status, label_capability = labels[finding_id]
+        expected_g = {
+            "formal_status": g_row["closure_now"],
+            "coverage_capability_label": g_row.get("capability_label"),
+            "c_md_status_label": label_status,
+            "c_md_capability_label": label_capability,
+            "capability_label_source_state": (
+                "historical_source_label_empty"
+                if g_row.get("capability_label") in (None, "") and label_capability == ""
+                else "pinned_source_label_disagreement"
+                if g_row.get("capability_label") != label_capability
+                else "pinned_source_labels_match"
+            ),
+            "canonical_source_owner": owner["source_closure_owner"],
+            "source_owner_bundle_ids": owner["source_bundle_ids"].split(";"),
+            "primary_bundle": g_row["primary_bundle"],
+            "companion_bundles": list(g_row["companion_bundles"]),
+            "task_refs": list(g_row.get("task_refs", [])),
+            "source_pointer": f"/findings/{list(coverage['findings']).index(g_row)}",
+            "source_owner_ref": {
+                "input_ref_name": "finding_owners",
+                "path": expected_g_refs["finding_owners"]["path"],
+                "sha256": expected_g_refs["finding_owners"]["sha256"],
+                "lookup_key": finding_id,
+            },
+            "c_md_source_ref": {
+                "input_ref_name": "closure_c",
+                "path": expected_g_refs["closure_c"]["path"],
+                "sha256": expected_g_refs["closure_c"]["sha256"],
+                "task_refs": list(g_row.get("task_refs", [])),
+            },
+        }
+        if row["g_current"] != expected_g or expected_g["formal_status"] != "not_adjudicated":
+            raise AssertionError((finding_id, "C5 G current source projection mismatch"))
+        expected_action = {
+            "next_owner": decision["next_owner"],
+            "execution_action": decision["G_execution_action"],
+            "basis": decision["basis"],
+            "source_pointer": f"/rows/{decision_index}",
+        }
+        if row["g_action"] != expected_action:
+            raise AssertionError((finding_id, "C5 G action or owner differs from source"))
+        if resolve_pointer(decisions, expected_action["source_pointer"]) != decision:
+            raise AssertionError((finding_id, "C5 G action pointer does not resolve"))
+
+        c4_source_family_pointer = row["source_refs"]["c4_source_family_pointer"]
+        if c4_row["source_family"] in c4_cut.get("current_source_family_refs", {}):
+            expected_family_pointer = f"/current_source_family_refs/{c4_row['source_family']}"
+        else:
+            expected_family_pointer = f"/topic_source_refs/{c4_row['source_family']}"
+        if c4_source_family_pointer != expected_family_pointer:
+            raise AssertionError((finding_id, "C5 source-family context pointer mismatch"))
+        resolve_pointer(c4_cut, expected_family_pointer)
+
+        expected_c2_receipts_pointer = c4_row["c2_snapshot"]["deciding_receipts_source_pointer"]
+        if row["source_refs"]["c2_receipts_pointer"] != expected_c2_receipts_pointer:
+            raise AssertionError((finding_id, "C5 C2 deciding receipt pointer mismatch"))
+        c2_row_pointer = expected_c2_receipts_pointer
+        c2_deciding_receipts = resolve_pointer(c2_cut, c2_row_pointer)
+        if not isinstance(c2_deciding_receipts, list):
+            raise AssertionError((finding_id, "C5 C2 receipt pointer is not a list"))
+        expected_source_refs = {
+            "c4_evaluation_pointer": f"/rows/{c4_index}/current_evaluation",
+            "c4_recommendation_pointer": f"/rows/{c4_index}/current_root_verdict",
+            "c4_historical_status_pointer": f"/rows/{c4_index}/historical_status",
+            "c4_source_family_pointer": expected_family_pointer,
+            "c2_receipts_pointer": expected_c2_receipts_pointer,
+            "c2_source": c2_source,
+            "c4_source_row_index": c4_index,
+            "g_coverage_pointer": expected_g["source_pointer"],
+            "g_decision_pointer": expected_action["source_pointer"],
+        }
+        if row["source_refs"] != expected_source_refs:
+            raise AssertionError((finding_id, "C5 evidence source refs differ from pinned sources"))
+        if row.get("p37_property_basis") != {
+            "criterion_source_binding": "recomputed",
+            "c4_candidate_evidence_basis": c4_eval["evidence_basis"],
+            "new_c5_runtime_property": "not_established",
+        }:
+            raise AssertionError((finding_id, "C5 P37 evidence basis is not source-derived"))
+        c4_recommendation_counts[row["c_recommendation"]["value"]] += 1
+        current_recommendation_counts[row["current_root_verdict"]["value"]] += 1
+        g_status_counts[expected_g["formal_status"]] += 1
+
+    if criterion_count != 59:
+        raise AssertionError(("C5 criterion denominator mismatch", criterion_count))
+    expected_bundle_crosswalk = []
+    c_bundles = {item["id"]: item for item in coverage["bundles"] if item["unit"] == "C"}
+    for bundle_id in sorted(c_bundles):
+        members = [row for row in cut["rows"] if bundle_id in row["bundles"]]
+        bundle_owner = bundle_owners.get(bundle_id)
+        if bundle_owner is None:
+            raise AssertionError(("missing current G bundle owner", bundle_id))
+        expected_bundle_crosswalk.append(
+            {
+                "bundle_id": bundle_id,
+                "initial_writer_family": bundle_owner["initial_writer_family"],
+                "c_finding_ids": [row["id"] for row in members],
+                "c_source_families": sorted({row["source_family"] for row in members}),
+                "g_source_closure_owners": sorted(
+                    {row["g_current"]["canonical_source_owner"] for row in members}
+                ),
+            }
+        )
+    if (
+        len(expected_bundle_crosswalk) != 33
+        or cut.get("bundle_crosswalk") != expected_bundle_crosswalk
+    ):
+        raise AssertionError("C5 complete 33-bundle crosswalk mismatch")
+    if dict(sorted(c4_recommendation_counts.items())) != {
+        "closed": 31,
+        "held": 14,
+        "limited": 9,
+    }:
+        raise AssertionError("C5 C recommendation totals differ from the complete row set")
+    if cut.get("c4_recommendation_counts_derived_from_all_54_rows") != dict(
+        sorted(c4_recommendation_counts.items())
+    ):
+        raise AssertionError("C4 recommendation count summary does not match the rows")
+    if sum(current_recommendation_counts.values()) != 54:
+        raise AssertionError("C5 current recommendation count does not cover all 54 rows")
+    if final_root_adjudication and dict(sorted(current_recommendation_counts.items())) != {
+        "closed": 31,
+        "limited": 12,
+        "held": 11,
+    }:
+        raise AssertionError(
+            "C5 root disposition counts do not match the authorized 31/12/11 distribution"
+        )
+    if final_root_adjudication and any(
+        c4_rows[finding_id][1]["current_root_verdict"]["value"] != "closed"
+        for finding_id in root_decisions["carry_forward_finding_ids"]
+    ):
+        raise AssertionError("C5 unchanged finite scopes are not all closed in the C4 source")
+    if cut.get("current_root_verdict_counts_derived_from_all_54_rows") != dict(
+        sorted(current_recommendation_counts.items())
+    ):
+        raise AssertionError("C5 current recommendation count summary does not match the rows")
+    if dict(sorted(g_status_counts.items())) != {"not_adjudicated": 54}:
+        raise AssertionError("C5 G formal statuses differ from the complete row set")
+    if cut.get("g_formal_status_counts_derived_from_all_54_rows") != dict(
+        sorted(g_status_counts.items())
+    ):
+        raise AssertionError("C5 G status count summary does not match the rows")
+
+    md_raw = markdown_path.read_bytes()
+    if expected_markdown_sha and sha(md_raw) != expected_markdown_sha:
+        raise AssertionError(("C5 Markdown SHA mismatch", sha(md_raw), expected_markdown_sha))
+    md_text = md_raw.decode("utf-8")
+    if final_root_adjudication and root_decisions["carry_forward_reason"] not in md_text:
+        raise AssertionError("C5 Markdown omits the root carry-forward decision")
+    if final_root_adjudication and root_decisions["carry_forward_source"]["path"] not in md_text:
+        raise AssertionError("C5 Markdown omits the pinned carry-forward source")
+    table_rows = [
+        line for line in md_text.splitlines() if re.match(r"^\|\s*(?:B\d+|LA-\d+)\s*\|", line)
+    ]
+    if len(table_rows) != 54:
+        raise AssertionError(("C5 Markdown row denominator mismatch", len(table_rows)))
+    for row in cut["rows"]:
+        row_line = next((line for line in table_rows if line.startswith(f"| {row['id']} |")), None)
+        if row_line is None:
+            raise AssertionError((row["id"], "C5 Markdown row missing"))
+        if (
+            row["c_recommendation"]["value"].upper() not in row_line
+            or row["current_root_verdict"]["value"].upper() not in row_line
+            or row["g_current"]["formal_status"] not in row_line
+            or row["source_refs"]["c4_evaluation_pointer"] not in row_line
+            or row["source_refs"]["c4_historical_status_pointer"] not in row_line
+            or row["source_refs"]["c2_receipts_pointer"] not in row_line
+            or row["source_refs"]["g_coverage_pointer"] not in row_line
+            or row["source_refs"]["g_decision_pointer"] not in row_line
+            or any(
+                criterion["criterion_id"] not in row_line for criterion in row["original_criteria"]
+            )
+            or any(
+                evidence_ref["path"] not in row_line or evidence_ref["json_pointer"] not in row_line
+                for evidence_ref in row["current_root_verdict"]["evidence_refs"]
+            )
+        ):
+            raise AssertionError(
+                (row["id"], "C5 Markdown omits current row evidence or source refs")
+            )
+
+    return {
+        "schema": C5_FINAL_CUT_SCHEMA,
+        "rows": len(output_rows),
+        "bundles": len(expected_bundle_crosswalk),
+        "criterion_occurrences_with_source_span_hash": criterion_count,
+        "c4_recommendation_counts": dict(sorted(c4_recommendation_counts.items())),
+        "current_root_verdict_counts": dict(sorted(current_recommendation_counts.items())),
+        "g_formal_status_counts": dict(sorted(g_status_counts.items())),
+        "markdown_rows": len(table_rows),
+        "C4_full_validator": c4_validation,
+        "new_C5_verdicts_assigned": final_root_adjudication,
+    }
+
+
 def main() -> None:
     global \
         ROOT, \
@@ -2697,7 +3566,9 @@ def main() -> None:
         LOCAL_EVIDENCE_ROOT
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo-root", required=True, type=Path)
-    parser.add_argument("--mode", choices=("c2", "c3", "c3-final", "c4-final"), default="c2")
+    parser.add_argument(
+        "--mode", choices=("c2", "c3", "c3-final", "c4-final", "c5-final"), default="c2"
+    )
     parser.add_argument("--cut", required=True, type=Path)
     parser.add_argument("--markdown", required=True, type=Path)
     parser.add_argument("--inventory", type=Path)
@@ -2711,6 +3582,27 @@ def main() -> None:
     args = parser.parse_args()
     ROOT = args.repo_root.resolve()
     LOCAL_EVIDENCE_ROOT = args.local_evidence_root.resolve() if args.local_evidence_root else None
+    if args.mode == "c5-final":
+        if args.input is None:
+            raise SystemExit("--input is required with --mode c5-final")
+        if not args.expected_cut_sha or not args.expected_markdown_sha:
+            raise SystemExit(
+                "--expected-cut-sha and --expected-markdown-sha are required with --mode c5-final"
+            )
+        cut_path = args.cut if args.cut.is_absolute() else ROOT / args.cut
+        markdown_path = args.markdown if args.markdown.is_absolute() else ROOT / args.markdown
+        input_path = args.input if args.input.is_absolute() else ROOT / args.input
+        result = run_c5(
+            cut_path,
+            markdown_path,
+            input_path,
+            args.expected_cut_sha,
+            args.expected_markdown_sha,
+        )
+        print(  # noqa: T201 - CLI emits the machine-readable validation receipt on stdout.
+            json.dumps(result, ensure_ascii=False, indent=2)
+        )
+        return
     if args.mode in {"c3", "c3-final", "c4-final"}:
         c4_mode = args.mode == "c4-final"
         cycle_label = "C4" if c4_mode else "C3"

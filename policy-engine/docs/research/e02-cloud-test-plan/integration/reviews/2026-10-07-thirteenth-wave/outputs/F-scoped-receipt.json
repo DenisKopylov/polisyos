@@ -1,0 +1,162 @@
+{
+  "did_check": {
+    "command": [
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "benchmarks.natural_experiments.policy_natural_experiments",
+      "--mode",
+      "smoke",
+      "--quiet",
+      "--json",
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/did-pretrend-smoke.json"
+    ],
+    "limitation": "A synthetic checker smoke confirms bounded diagnostics only; it is not identification evidence and does not validate optional comparator backends or production-data behavior.",
+    "logs": {
+      "benchmark_json": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/did-pretrend-smoke.json",
+        "sha256": "63514d5c02e88e9ebab75228f00fae314956f080abef168355ea518256ff2088"
+      },
+      "execution_receipt": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/did-only-receipt.json",
+        "sha256": "bb9a9852ef51d2861c9a3d5f33c0fd74bdad3b4c74834953694e250fb68a3f1e"
+      },
+      "stderr": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/did.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/did.stdout",
+        "sha256": "be38f4db17055ee0fe392ea270b5bccb9e4ef68fad59e03740aa558e37dea13d"
+      }
+    },
+    "origin_audit": {
+      "errors": [],
+      "module_count": 773,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/did-origin-audit.json",
+      "sha256": "13c31e3adfebb6b98c00fed4db0dee37ce503a938e88639c49161294dc0c47fc"
+    },
+    "peak_sampled_rss_kib": 536048,
+    "returncode": 0,
+    "semantic_result": {
+      "clean_rollout_estimand": "ATT",
+      "clean_rollout_pre_periods": 2,
+      "n_errors": 0,
+      "n_failed": 0,
+      "n_passed": 3,
+      "n_skipped": 0,
+      "n_total": 3,
+      "pretrend": "not_testable / insufficient_pre_periods; statistic=null; p_value=null; passed=false; identification_authority=false"
+    },
+    "semantic_verification_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/did-semantic-verification.json",
+    "semantic_verification_sha256": "cd273a0cd91fcc7a37af02c7eee5fec83d7170235746aaba91bef8cd19545c27",
+    "timed_out": false,
+    "timeout_seconds": 120,
+    "wall_seconds": 7.097
+  },
+  "environment": {
+    "numeric_threads": 1,
+    "optional_comparator_backends": "benchmark reported all optional comparator versions null; these were not exercised or claimed passing",
+    "platform": "macOS 27.0.1 arm64",
+    "production_data": "not used; benchmark source synthetic_policy_natural_experiments",
+    "pytest": "9.0.2",
+    "python": "3.14.3",
+    "venv": "existing G .venv, read-only; no installs"
+  },
+  "graph_check": {
+    "command": [
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-o",
+      "addopts=",
+      "-q",
+      "-p",
+      "no:cacheprovider",
+      "--import-mode=importlib",
+      "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/graph-current-content.junit.xml",
+      "tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+      "-k",
+      "mgraph_producer_and_node_refuse_without_retyping_or_publishing or same_admg_shape_has_real_producer_node_and_fresh_reader or other_semantic_profiles_refuse_direct_and_supplied_result or supplied_mgraph_result_and_selected_cache_apply_same_profile_boundary"
+    ],
+    "deselected_reported_by_pytest": 38,
+    "junit_counts": {
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "tests": 9
+    },
+    "logs": {
+      "execution_receipt": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/graph.receipt.json",
+        "sha256": "78ba2716943ec1667a82435a5de402e5f3f98242195fad9d7d7ad5cbb8bcf4a4"
+      },
+      "junit": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/graph-current-content.junit.xml",
+        "sha256": "640cbc2f3198ac758eb051472666e912007679c54b663fe225059f6652717fa1"
+      },
+      "stderr": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/graph.stderr",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/graph.stdout",
+        "sha256": "51f57e440d69026e270082a68063d592ccb9842c58df0773285dd046d2e3f431"
+      }
+    },
+    "origin_audit": {
+      "errors": [],
+      "module_count": 970,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/graph-origin-audit.json",
+      "sha256": "cea737bce5e4695358f98c1ff57b8a98b1c2653983e505318edc69f938d59e73"
+    },
+    "peak_sampled_rss_kib": 620560,
+    "returncode": 0,
+    "scope": "9 existing selected cases through real build_mgraph synthetic profile, registered ReconcileCausalGraph method, MethodJob, Node, CAS, and reopened FileSystemCAS. MGraph/CPDAG/PAG refusal and ADMG positive; supplied-result/cache bypass controls. Fresh reader is a distinct FileSystemCAS instance in the same process, not a separate PID.",
+    "timed_out": false,
+    "timeout_seconds": 90,
+    "wall_seconds": 13.105,
+    "warning": "Pytest emitted one PytestConfigWarning for cache_dir because cacheprovider was disabled by the command; all 9 selected tests passed."
+  },
+  "input": {
+    "candidate_sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+    "candidate_tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+    "export_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/candidate",
+    "g_branch": "codex/e02-integration",
+    "g_head": "9806442ddb47d624a2940bac75d9d6248e934c48",
+    "g_tree": "4a1caafc331990e0ebf0130a9051c08ae1ffcbd4",
+    "source_manifest_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/source-manifest.json",
+    "source_manifest_sha256": "10e138869e00af15ec39bb1b059b96aa6f6dd7c7fde9280a3a6f238eba979f18",
+    "tracked_files_and_modes_verified": 2942
+  },
+  "raw_outputs_dir": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results",
+  "resource_and_checkout": {
+    "disk_available_bytes_after": 21442465792,
+    "disk_available_bytes_before": 21467516928,
+    "g_state_after": {
+      "branch": "codex/e02-integration",
+      "head": "9806442ddb47d624a2940bac75d9d6248e934c48",
+      "status": "## codex/e02-integration...origin/codex/e02-integration",
+      "tree": "4a1caafc331990e0ebf0130a9051c08ae1ffcbd4"
+    },
+    "g_state_before": {
+      "branch": "codex/e02-integration",
+      "head": "9806442ddb47d624a2940bac75d9d6248e934c48",
+      "status": "## codex/e02-integration...origin/codex/e02-integration",
+      "tree": "4a1caafc331990e0ebf0130a9051c08ae1ffcbd4"
+    }
+  },
+  "schema": "policyos.e02.g-local-f-check.v1",
+  "source_integrity": {
+    "all_2942_manifested_blobs_and_modes_match": true,
+    "one_generated_nonmanifested_output": {
+      "bytes": 8475,
+      "created_by": "graph test runtime output; preserved, outside tracked source manifest; hash unchanged before/after DiD",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/candidate/policy-engine/src/_build/benchmark-results/foundry/selection_history/executions.jsonl",
+      "sha256": "62cec7214e5fc59b92facaf7bf56b67048cf2205aec084b793d68e842e441a62"
+    },
+    "runner_inventory_abort": {
+      "classification": "harness inventory check stopped between graph and DiD, not product failure; the only extra was the known graph runtime output; exact tracked files were rechecked and passed before the separate DiD run."
+    }
+  },
+  "verdict": "PASS_SCOPED_CHECKS"
+}

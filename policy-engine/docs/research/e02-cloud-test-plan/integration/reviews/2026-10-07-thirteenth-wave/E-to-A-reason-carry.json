@@ -1,0 +1,111 @@
+{
+  "schema": "policyos.e02.E_to_A_reason_carry.v1",
+  "review_mode": "read_only_delta_review",
+  "tests_run": false,
+  "production_data_read": false,
+  "source_or_ref_writes": false,
+  "historical_evidence": {
+    "source_commit": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+    "source_tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+    "evidence_carrier": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+    "measured_junit_multiset": {
+      "cases": 1465,
+      "pass": 1457,
+      "fail": 8,
+      "error": 0,
+      "skip": 0
+    },
+    "interpretation": "These are measured E b2 results only, not current A results."
+  },
+  "candidate": {
+    "commit": "2605d13916f4dd38f216419562c04718ba4c2028",
+    "tree": "9d47203aa2c631f0613d496925e1108438be0183",
+    "common_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "status": "changed_candidate_unrun_for_these_reason_selectors",
+    "exact_candidate_test_receipt_found": false
+  },
+  "source_blobs": {
+    "policy-engine/src/polisyos/runtime/quality/generation_cycle.py": {
+      "b2": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+      "a2605": "2c0dc500c055624687b3b6f9ab74ebba5b3f6881",
+      "functions": [
+        "RealValueOwnerGateway.produce_forecast_inputs",
+        "_resolve_s10_empirical_evidence",
+        "_s10_empirical_projection",
+        "_build_s10_forecast_inputs",
+        "_s10_limitation_refs"
+      ],
+      "relevant_a_hunks": [
+        "resolver at lines 12139-12160",
+        "_build_s10_forecast_inputs at lines 12208-12364",
+        "_s10_limitation_refs at lines 12637-12659"
+      ]
+    },
+    "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py": {
+      "b2": "29459ff167cad1e011a2de626a627b30d0336a01",
+      "a2605": "ea382413f735bd9f9af3dbd000bff08242626b8d",
+      "relevance": "Changed wrapper, no S10-specific reason mapping."
+    },
+    "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py": {
+      "b2": "85d24cf2c2233a570ccf1274c6436df7c5aaa218",
+      "a2605": "b6da993dd1d922e19135f4f78f12775ed5505754",
+      "relevance": "Generic compiled-run artifact transport/persistence; no S10-specific reason mapping. Distinct from P20 normative disposition."
+    },
+    "policy-engine/tests/unit/remediation/test_frc_01.py": {
+      "b2": "2e70c6bfc908ad4d15096eec9cf5bb0b2b091a80",
+      "a2605": "90c70911e6b7e7be78e09d52542f2c52e05b8c10",
+      "relevance": "Substantially replaced test source; b2 failures are not A2605 execution outcomes."
+    }
+  },
+  "failure_crosswalk": [
+    {
+      "b2_cases": [
+        1,
+        2
+      ],
+      "prior_observed_issue": "S6 refs empty for direct inputs with limited calibration but no evidence refs/status; b2 packet also expected the exact missing-ref code to be shared by tier and S6.",
+      "a2605_source_delta": "_s10_limitation_refs now receives top-level calibration_status and emits fail-closed/insufficient-history when unbound evidence has an explicit status. The actual gateway resolver still has a distinct empirical_evidence_ref_missing code.",
+      "a2605_test_source": "test_missing_calibration_evidence_refs_stays_typed_blocked expects generic fail-closed/insufficient-history on direct helper input.",
+      "disposition": "Do not carry the b2 empty-S6 result as a current A measured red. A source changed and new test source expects generic direct-helper reason. Exact current gateway behavior is UNRUN; convergence of direct-helper and resolver messages is not tested.",
+      "status": "changed_source_unrun"
+    },
+    {
+      "b2_cases": [
+        3
+      ],
+      "prior_observed_issue": "Resolved limited evidence emitted generic insufficient-history instead of calibration_floor_not_met.",
+      "a2605_source_delta": "_s10_limitation_refs emits every projected failure_code for bound non-pass evidence; _s10_empirical_projection includes evidence failure codes in the projected reason.",
+      "a2605_test_source": "Current FRC tests cover missing versus observed zero and blocked evidence, but do not provide an exact positive-denominator floor-failure assertion with exact S6 code.",
+      "disposition": "Do not carry the b2 measured red. Static code indicates the specific floor code can survive; exact current discriminator remains UNRUN.",
+      "status": "changed_source_unrun"
+    },
+    {
+      "b2_cases": [
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "prior_observed_issue": "Tier is blocked and S6 carries a specific resolver reason, but forecast authority disposition collapses to a generic report-missing reason.",
+      "a2605_source_delta": "The S6 resolver-error mapping remains specific. In _build_s10_forecast_inputs the existing evidence forecast_authority_disposition_reason takes precedence over the fallback; the fallback is the only branch that appends empirical_evidence_error. Report-derived evidence already contains a generic reason, so source inspection indicates the resolver code is still omitted from disposition.",
+      "a2605_test_source": "test_gateway_rejects_temporal_roles_that_disagree_with_loaded_evidence checks S6 only. test_gateway_preserves_missing_calibration_metric_as_distinct_from_observed_zero checks loaded failure reason, not resolver-error disposition.",
+      "disposition": "Not a measured A failure, but a current source-level reason-propagation gap. Preserve resolver error through ForecastSupport disposition at the canonical A writer. A2605 exact behavior is UNRUN.",
+      "status": "source_gap_unrun"
+    }
+  ],
+  "consumer_boundary": {
+    "producer_owner": "RealValueOwnerGateway / quality generation_cycle.py",
+    "transport_owner": "HTTP control generation_cycle.py plus run_lifecycle.py",
+    "transport_finding": "The HTTP path generically compiles/persists typed output; these files contain no S10-specific reason mapping. Do not assign the reason-collapse fix to run_lifecycle.",
+    "missing_proof": "No current A2605 test or receipt demonstrates S10 resolver reason through the ordinary HTTP consumer and fresh readback.",
+    "labels": "verification_missing or semantic_test_missing for the reason-preservation slice; not consumer_missing for the entire capability."
+  },
+  "exact_candidate_selectors_for_later_admitted_run": [
+    "tests/unit/remediation/test_frc_01.py::test_missing_calibration_evidence_refs_stays_typed_blocked",
+    "tests/unit/remediation/test_frc_01.py::test_gateway_rejects_temporal_roles_that_disagree_with_loaded_evidence",
+    "tests/unit/remediation/test_frc_01.py::test_gateway_preserves_missing_calibration_metric_as_distinct_from_observed_zero"
+  ],
+  "needed_discriminator": "Add an A-owned exact assertion that a resolver error appears in both S6 and ForecastSupport forecast_authority_disposition_reason, and a reason-changing negative; use the ordinary consumer path. Do not claim five-case resolver matrix from the existing three selectors.",
+  "carry_rule": "All eight b2 outcomes remain historical evidence only. Cases 1-3 are source-changed and current A UNRUN. Cases 4-8 retain a source-level gap in disposition reason propagation, but are not A2605 measured failures."
+}

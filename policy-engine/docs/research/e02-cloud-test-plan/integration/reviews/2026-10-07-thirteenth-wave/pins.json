@@ -1,0 +1,117 @@
+{
+  "G_review_base": {
+    "sha": "9806442ddb47d624a2940bac75d9d6248e934c48",
+    "tree": "4a1caafc331990e0ebf0130a9051c08ae1ffcbd4"
+  },
+  "main": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "A_candidate": {
+    "sha": "2605d13916f4dd38f216419562c04718ba4c2028",
+    "tree": "9d47203aa2c631f0613d496925e1108438be0183"
+  },
+  "E_source": {
+    "sha": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+    "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7"
+  },
+  "E_PR38": {
+    "sha": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+    "tree": "7bec40f1926422c363a3cf3fa623089d85a68139"
+  },
+  "F_source": {
+    "sha": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+    "tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281"
+  },
+  "F_PR65": {
+    "sha": "3d43eb459eec1f346571306647e5dbc68f32f076",
+    "tree": "18a07f2d4de206cdd7c0b85532b2201d8ae279e8"
+  },
+  "rows": [
+    {
+      "ref": "origin/codex/e02-A-delivery-attached",
+      "old": "579788751baefe065fd5b94c446ab665eb65861a",
+      "head": "1590f35b6817c46af484de818ba227517c5a8d1b",
+      "tree": "1ba0de8ff3363431781c69923de7cb13e9fa892f",
+      "full_delta_path_count": 158,
+      "product_path_count": 46,
+      "decision": "independently reviewed metadata/source boundaries; source admission separate"
+    },
+    {
+      "ref": "origin/codex/e02-E-cal-20261006",
+      "old": "491562fab29f61efda7eaa57d09791740a7d53cc",
+      "head": "c40b2f5767bb5810bc8ac4c2ead9510f8c01430b",
+      "tree": "b596c99e8edc0e6735c942f0415fb50ecccfa331",
+      "full_delta_path_count": 7071,
+      "product_path_count": 105,
+      "decision": "independently reviewed metadata/source boundaries; source admission separate"
+    },
+    {
+      "ref": "origin/codex/e02-E-continuation-20261006",
+      "old": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "head": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+      "full_delta_path_count": 5025,
+      "product_path_count": 34,
+      "decision": "independently reviewed metadata/source boundaries; source admission separate"
+    },
+    {
+      "ref": "origin/codex/e02-E-doe-20261006",
+      "old": "7537ef95beed07d02a3b72343b082ff3b7fd14e2",
+      "head": "9eaac38588d547c63f60dabb9e1b7fa9fc1a2ac4",
+      "tree": "f0bc2940a2eb5a140c42e0dfd97457f580344798",
+      "full_delta_path_count": 2969,
+      "product_path_count": 27,
+      "decision": "independently reviewed metadata/source boundaries; source admission separate"
+    },
+    {
+      "ref": "origin/codex/e02-E-frc-20261006",
+      "old": "66a4f8fc1398ed72b3ee9d38b07d88a4d2d5c3cd",
+      "head": "a30eb1a82345fe3139bf2c5dc77ac664eb6f98ea",
+      "tree": "b18eec585cd689da3715458dc6beec256756b18b",
+      "full_delta_path_count": 1462,
+      "product_path_count": 0,
+      "decision": "independently reviewed metadata/source boundaries; source admission separate"
+    },
+    {
+      "ref": "origin/codex/e02-E-mc-20261006",
+      "old": "717cea243ebac00d41560f90327269a8daec9ef4",
+      "head": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+      "tree": "0cb448febf461d0bbdf31645712ad774f5425b72",
+      "full_delta_path_count": 1693,
+      "product_path_count": 0,
+      "decision": "independently reviewed metadata/source boundaries; source admission separate"
+    },
+    {
+      "ref": "origin/codex/e02-F-cau-20261006",
+      "old": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "head": "a7204961ac1028965c58224fe40e6bb3a397d8a8",
+      "tree": "936d0e79ae4fea92dfb082a98296037bdc965452",
+      "full_delta_path_count": 6382,
+      "product_path_count": 190,
+      "decision": "independently reviewed metadata/source boundaries; source admission separate"
+    },
+    {
+      "ref": "origin/codex/e02-F-closeout-20261006",
+      "old": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+      "head": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+      "tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281",
+      "full_delta_path_count": 10,
+      "product_path_count": 8,
+      "decision": "independently reviewed metadata/source boundaries; source admission separate"
+    },
+    {
+      "ref": "origin/codex/e02-F-fry-20261006",
+      "old": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "head": "defa506dfbe226fbbdbdf7722ae84c03828e181b",
+      "tree": "5e6aa2bd1fa5a47eef1fd76198a2fde916346325",
+      "full_delta_path_count": 2722,
+      "product_path_count": 30,
+      "decision": "independently reviewed metadata/source boundaries; source admission separate"
+    }
+  ],
+  "F_late_metadata": {
+    "sha": "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d",
+    "tree": "c9dcc58e520cb2c161c85a74e8a2161c32a7276f",
+    "parent": "3d43eb459eec1f346571306647e5dbc68f32f076",
+    "product_source": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+    "source_test_delta": false
+  }
+}

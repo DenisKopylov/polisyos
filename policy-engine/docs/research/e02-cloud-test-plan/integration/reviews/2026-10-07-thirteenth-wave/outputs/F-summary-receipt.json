@@ -1,0 +1,187 @@
+{
+  "artifacts": {
+    "clean-admg-attempt4-receipt.json": {
+      "bytes": 2809,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/mgraph-extraction-diagnostic/clean-admg-attempt4-receipt.json",
+      "sha256": "323833e0ffc33231532443656d245f84bdfc7c70a67a89d19e8a6d7f9c366ffb"
+    },
+    "clean-admg-attempt4.stderr": {
+      "bytes": 0,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/mgraph-extraction-diagnostic/clean-admg-attempt4.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "clean-admg-attempt4.stdout": {
+      "bytes": 3588,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/mgraph-extraction-diagnostic/clean-admg-attempt4.stdout",
+      "sha256": "d832edf08c4634be83a7af32cb84d1f1aeb9e1b70e5b69bf345fef4e8defeca5"
+    },
+    "clean-admg-control-attempt4.json": {
+      "bytes": 2900,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/mgraph-extraction-diagnostic/clean-admg-control-attempt4.json",
+      "sha256": "7b1703c3edd9515efcf35ea07b3389e76daad0368eed8cd59c8cdef6815c8291"
+    },
+    "clean-admg-origin-attempt4.json": {
+      "bytes": 445737,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/mgraph-extraction-diagnostic/clean-admg-origin-attempt4.json",
+      "sha256": "cea737bce5e4695358f98c1ff57b8a98b1c2653983e505318edc69f938d59e73"
+    },
+    "direct-attempt3-receipt.json": {
+      "bytes": 5779,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/mgraph-extraction-diagnostic/direct-attempt3-receipt.json",
+      "sha256": "f04008a17ff78923b4f90b518abed7fed3f87f248f79df2097d54d9af38e5df0"
+    },
+    "direct-attempt3.stderr": {
+      "bytes": 0,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/mgraph-extraction-diagnostic/direct-attempt3.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "direct-attempt3.stdout": {
+      "bytes": 4329,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/mgraph-extraction-diagnostic/direct-attempt3.stdout",
+      "sha256": "588d29ccf509462a313a7dc236e7da57080473d65ce8c780310d5ac8479449c0"
+    },
+    "direct-origin-audit-attempt3.json": {
+      "bytes": 445737,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/mgraph-extraction-diagnostic/direct-origin-audit-attempt3.json",
+      "sha256": "cea737bce5e4695358f98c1ff57b8a98b1c2653983e505318edc69f938d59e73"
+    },
+    "direct-result-attempt3.json": {
+      "bytes": 3209,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/mgraph-extraction-diagnostic/direct-result-attempt3.json",
+      "sha256": "cf49cacd939f90fc0a8ea8198e71b4a543988f17e7b1db9cc9cc46ae7d965749"
+    },
+    "existing-positive.junit.xml": {
+      "bytes": 530,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/mgraph-extraction-diagnostic/existing-positive.junit.xml",
+      "sha256": "41fc2185eb707a0c85438035e5137fcd363dab44845f5145a4b954b3acf30fb7"
+    },
+    "existing-positive.stderr": {
+      "bytes": 0,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/mgraph-extraction-diagnostic/existing-positive.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "existing-positive.stdout": {
+      "bytes": 627,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/mgraph-extraction-diagnostic/existing-positive.stdout",
+      "sha256": "ca9a5e768e1eb85f85baf6b5296ceca78309e82c7d17aec1ec71fbe9d3353bc7"
+    }
+  },
+  "candidate": {
+    "commit": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+    "loaded_product_module_count": 970,
+    "manifest_path": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/mgraph-extraction-diagnostic/context-before.json",
+    "manifest_sha256": "10e138869e00af15ec39bb1b059b96aa6f6dd7c7fde9280a3a6f238eba979f18",
+    "origin_errors": [],
+    "tracked_files_modes_match": true,
+    "tracked_paths_verified": 2942,
+    "tree": "551d4e760dc1168f6ad8182c9b176f00e94a2281"
+  },
+  "clean_admg_control": {
+    "bidirected_edge": true,
+    "canonical_extract": {
+      "exception_type": "ValueError",
+      "message": "extract_mgraph_metadata requires graph_type=MGRAPH, got GraphType.ADMG",
+      "result": "raised"
+    },
+    "cas_artifact_id": "sha256:9d2c83f1ebf6efbac5e3bec04a4d38f2555628665a41aac471438ff46d653619",
+    "input_graph_type": "admg",
+    "input_metadata": {},
+    "mgraph_metadata_key_present": false,
+    "node_artifact_count": 1,
+    "node_status": "ok",
+    "reopened_edges": [
+      {
+        "combined_confidence": 0.9,
+        "data_confidence": 0.9,
+        "dst": "Y",
+        "evidence_refs": [],
+        "expert_confidence": null,
+        "lag": null,
+        "literature_confidence": null,
+        "llm_confidence": null,
+        "mark_dst": "arrow",
+        "mark_src": "arrow",
+        "metadata": {},
+        "p_value": null,
+        "simulation_confidence": null,
+        "sources": [
+          "data"
+        ],
+        "src": "X",
+        "unsupported_by_evidence": false
+      }
+    ],
+    "reopened_graph_type": "admg",
+    "returncode": 0,
+    "wall_seconds": 7.336
+  },
+  "existing_positive_selector": {
+    "junit": {
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0,
+      "tests": 1
+    },
+    "name": "test_same_admg_shape_has_real_producer_node_and_fresh_reader",
+    "returncode": 0,
+    "stderr": {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/mgraph-extraction-diagnostic/existing-positive.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stdout": {
+      "bytes": 627,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/results/mgraph-extraction-diagnostic/existing-positive.stdout",
+      "sha256": "ca9a5e768e1eb85f85baf6b5296ceca78309e82c7d17aec1ec71fbe9d3353bc7"
+    },
+    "wall_seconds": 11.139
+  },
+  "limits": "Synthetic graph metadata/type consistency only; not a causal identification, real-world missingness, or authority/classifier claim. The earlier embedded clean control normalized to DAG and is not counted; corrected bidirected ADMG is the separate attempt4 control.",
+  "retagged_admg": {
+    "canonical_extract": {
+      "exception_type": "ValueError",
+      "message": "extract_mgraph_metadata requires graph_type=MGRAPH, got GraphType.ADMG",
+      "result": "raised"
+    },
+    "cas_artifact_id": "sha256:dbb7233ea3ab79fbf52c3abe9f29c41827134fd7e3e2d47066cb5cd603139302",
+    "input_operation": "build_mgraph_then_only_retag_admg",
+    "input_original_mgraph_metadata": {
+      "fully_observed_vars": [
+        "Y"
+      ],
+      "proxy_nodes": [
+        {
+          "proxy_name": "X_star",
+          "target_variable": "X"
+        }
+      ],
+      "r_nodes": [
+        {
+          "description": "",
+          "missingness_kind": "mcar",
+          "target_variable": "X"
+        }
+      ],
+      "schema_version": "1.0",
+      "substantive_vars": [
+        "X",
+        "Y"
+      ]
+    },
+    "method_result_ref_present": true,
+    "mgraph_metadata_key_present": true,
+    "node_artifact_count": 1,
+    "node_status": "ok",
+    "operation": "real producer/MethodJob\u2192Node/CAS/fresh reader; graph_type changed to admg on fixture input only",
+    "persisted_mgraph_metadata_valid": true,
+    "reopened_graph_type": "admg"
+  },
+  "runtime_generated_extra": [
+    {
+      "bytes": 12048,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/candidate/policy-engine/src/_build/benchmark-results/foundry/selection_history/executions.jsonl",
+      "sha256": "0e19dbdcfac7bab73e5135b0eed7407142a0fc0e44e58183d31dd52c6cb40d20"
+    }
+  ],
+  "schema": "policyos.e02.g_local_mgraph_metadata_diagnostic.v1"
+}

@@ -1,0 +1,58 @@
+{
+  "schema": "policyos.e02.G.final_semantic_delta.v1",
+  "review_scope": {
+    "G_branch": "codex/e02-integration",
+    "G_head": "9806442ddb47d624a2940bac75d9d6248e934c48",
+    "reviewed_changes": "delta-only verification of the three corrections from prior final-semantic-review",
+    "tests_run": false,
+    "tracked_source_or_ref_changes_by_reviewer": false
+  },
+  "disposition": "GO for the documentation-only checkpoint, subject to root final diff/commit verification; code acceptance remains 0 and formal finding closures remain 0.",
+  "confirmed_corrections": [
+    {
+      "id": "A-gap-baseline",
+      "result": "PASS",
+      "evidence": "A-resume-after-2605-delta.md now labels 16 as measured at 1590 and directs reconciliation of current gaps. A-handoff-gaps.json is included in the tracked pack, pins 1590 and 2605, names the two paths covered by the ancestor 65926 handoff with unchanged blobs, and explicitly claims no current remaining count."
+    },
+    {
+      "id": "A-http-evidence-and-cost-discriminators",
+      "result": "PASS",
+      "evidence": "The A prompt requires trajectory-bound fresh-GET assertions for conditional_interaction_evidence fields and exact raw 1e-1000 / negative-provider-cost discriminators through the canonical typed path, with conditional reuse of the B decoder only when present in the composed source."
+    },
+    {
+      "id": "E-broken-review-link",
+      "result": "PASS",
+      "evidence": "E-gates-A-consumers.md and .json now exist in the pack and the README/E prompt links resolve."
+    }
+  ],
+  "semantic_delta_checks": {
+    "E_current_exact_junit": {
+      "candidate": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+      "evidence_commit": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+      "xml_files_parsed_read_only": 7,
+      "cases": 1465,
+      "pass": 1457,
+      "fail": 8,
+      "errors": 0,
+      "skips": 0,
+      "meaning": "A-consumer reason propagation/precision defects remain; this is not source acceptance or finding closure."
+    },
+    "E_old_typecheck": "The old optional-member error is at 3932 blob 3830f8f65cc4ea4428b1ca7b145f2867b5bc7d92. Current b2/ecde blob 48eb8c09bd2470977fb7f86258d739a80738362c has guarded carrier access; current scoped typecheck remains UNRUN.",
+    "E_statuses": "43/9/2 remain E proposals; formal G acceptance is 0/54, formal ledger changes 0; the prior B201/B202 appointment and decisions remain the owner basis.",
+    "F_boundary": "Known MGraph metadata surviving ADMG retag remains the held consistency case. The separate clean bidirected ADMG control is a supported positive whose MGraph extractor refusal is expected. PAG work is a surfaced limitation, not a new identification engine.",
+    "F_E_scope": "No all35 F or all54 E suite rerun is requested; prompts reuse exact unchanged receipts and constrain replays to affected source/property deltas.",
+    "outputs_manifest": {
+      "files": 29,
+      "size_sha256_mismatches": 0
+    },
+    "relative_markdown_links": {
+      "broken": 0
+    },
+    "A_gap_copy": "Tracked A-handoff-gaps.json matches the reviewer historical-baseline copy."
+  },
+  "remaining_blockers": [],
+  "limitations": [
+    "This was a read-only document/evidence delta review; no product tests or source acceptance were performed.",
+    "Final delivery still requires the root publisher to inspect the final staged/committed branch state."
+  ]
+}

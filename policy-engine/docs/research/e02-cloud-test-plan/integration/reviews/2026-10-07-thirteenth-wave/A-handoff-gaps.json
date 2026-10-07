@@ -1,0 +1,68 @@
+{
+  "schema": "policyos.e02.G.A_handoff_gap_baseline.v1",
+  "interpretation": "Historical gap set only. This is not a current count of unmapped paths at 2605.",
+  "baseline": {
+    "G_sha": "9806442ddb47d624a2940bac75d9d6248e934c48",
+    "A_candidate_sha": "1590f35b6817c46af484de818ba227517c5a8d1b",
+    "A_candidate_tree": "1ba0de8ff3363431781c69923de7cb13e9fa892f",
+    "product_test_denominator": 46,
+    "handoff_candidate_union": 30,
+    "unmapped_at_baseline_count": 16,
+    "source_count": 7,
+    "test_count": 9,
+    "prior_audit": "policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/owners-companions.json#/A/unmapped_product_test_paths"
+  },
+  "baseline_unmapped_paths": [
+    "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+    "policy-engine/src/polisyos/runtime/http/services/control/response_shapes.py",
+    "policy-engine/src/polisyos/runtime/quality/capability_discovery.py",
+    "policy-engine/src/polisyos/runtime/quality/data_state_substrate.py",
+    "policy-engine/src/polisyos/runtime/quality/design_axes/coupling_composition.py",
+    "policy-engine/src/polisyos/scientist/orchestration/llm/provider_quality.py",
+    "policy-engine/src/polisyos/scientist/policy_design/search.py",
+    "policy-engine/tests/_helpers/controlled_candidate_profile.py",
+    "policy-engine/tests/unit/runtime/http/services/control/test_e02_monetary_usage_projection.py",
+    "policy-engine/tests/unit/runtime/http/services/test_e02_monetary_usage_projection.py",
+    "policy-engine/tests/unit/runtime/quality/recursive_generation_cycle_fixtures.py",
+    "policy-engine/tests/unit/runtime/quality/test_depth_n_universality.py",
+    "policy-engine/tests/unit/runtime/quality/test_design_axes_coupling_composition.py",
+    "policy-engine/tests/unit/runtime/quality/test_e02_configured_n7_resolver.py",
+    "policy-engine/tests/unit/scientist/policy_design/test_structure_context_bridge.py",
+    "policy-engine/tests/unit/scientist/search/test_voi_scheduler.py"
+  ],
+  "current_candidate_comparison": {
+    "A_candidate_sha": "2605d13916f4dd38f216419562c04718ba4c2028",
+    "A_candidate_tree": "9d47203aa2c631f0613d496925e1108438be0183",
+    "diff_base_sha": "1590f35b6817c46af484de818ba227517c5a8d1b",
+    "product_test_delta_count": 8,
+    "source_delta_count": 1,
+    "test_delta_count": 7,
+    "paths": [
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_informative_voi_execution.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_recursive_partial_readback.py",
+      "policy-engine/tests/integration/core_runtime/test_e02_revision_context_reentry.py",
+      "policy-engine/tests/unit/remediation/test_emp_01.py",
+      "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+      "policy-engine/tests/unit/runtime/quality/recursive_generation_cycle_fixtures.py",
+      "policy-engine/tests/unit/runtime/quality/test_e02_estimator_numeric_shapes.py"
+    ]
+  },
+  "known_later_coverage": {
+    "handoff": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/partial-recursive-checkpoint.json@2605d13916f4dd38f216419562c04718ba4c2028",
+    "handoff_candidate_sha": "65926cb5aa5364ff0e54741ea6689a16e9ed14b0",
+    "handoff_candidate_is_ancestor_of_2605": true,
+    "same_candidate_and_2605_blobs": [
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/recursive_generation_cycle_fixtures.py",
+        "blob": "019f06a2edde6057f13cfdf5d81595d6ab3eda59"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_depth_n_universality.py",
+        "blob": "86ffa297da3c994498f029d72e8b66ad37a1c6f6"
+      }
+    ],
+    "qualification": "These two paths were in the 1590 unmatched set but are included by the later 65926 handoff and are unchanged at 2605. This review did not recompute the complete 2605 handoff union; do not claim 14 or 16 remain unmapped."
+  },
+  "next_action": "Recompute full source/test candidate-to-handoff coverage at exact current A head 2605; reconcile each baseline path with later handoffs before assigning new work."
+}

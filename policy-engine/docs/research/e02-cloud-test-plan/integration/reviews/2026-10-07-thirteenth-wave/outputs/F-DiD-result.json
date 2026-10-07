@@ -1,0 +1,760 @@
+{
+  "suite_id": "policy_natural_experiments",
+  "run_id": null,
+  "mode": "smoke",
+  "benchmark_tier": "local_evidence",
+  "validation_contour": "legacy",
+  "visibility": "public",
+  "core_circuits": [
+    "estimation"
+  ],
+  "sub_circuit": "policy_natural_experiments",
+  "data_source": "synthetic_policy_natural_experiments",
+  "estimator_profile": "default",
+  "dependency_status": {},
+  "comparator_status": {},
+  "degraded_reasons": [],
+  "dataset_family": null,
+  "batch_id": null,
+  "n_total": 3,
+  "n_passed": 3,
+  "n_failed": 0,
+  "n_errors": 0,
+  "n_skipped": 0,
+  "n_over_budget": 0,
+  "pass_rate": 1.0,
+  "overall_status": "passed",
+  "scores": {
+    "estimation": {
+      "circuit_name": "estimation",
+      "n_cases": 3,
+      "n_passed": 3,
+      "accuracy": null,
+      "timing": {
+        "n": 3,
+        "mean_s": 0.002336096988680462,
+        "std_s": 0.002198473619114222,
+        "min_s": 0.0003357499954290688,
+        "max_s": 0.0046898750006221235,
+        "p50_s": 0.001982665969990194,
+        "p95_s": 0.00441915409755893
+      },
+      "memory": {
+        "n": 3,
+        "mean_mb": 0.057291666666666664,
+        "peak_mb": 0.125,
+        "std_mb": 0.06314768569261532
+      },
+      "proof_steps": null
+    }
+  },
+  "cases": [
+    {
+      "case_id": "policy_natural::did::clean_rollout",
+      "name": "policy_natural::did::clean_rollout",
+      "status": "passed",
+      "circuit": "estimation",
+      "verdict": "PASS",
+      "elapsed_s": 0.0046898750006221235,
+      "memory_delta_mb": 0.046875,
+      "error_msg": null,
+      "proof_step_count": 0,
+      "is_identifiable_gt": null,
+      "is_identifiable_pred": null,
+      "formula_correct": null,
+      "runtime": {
+        "elapsed_s": 0.0046898750006221235,
+        "memory_delta_mb": 0.046875,
+        "proof_step_count": 0,
+        "budget_s": 10.0,
+        "budget_exceeded": false,
+        "budget_ratio": 0.00046898750006221237,
+        "budget_note": null
+      },
+      "runtime_budget_s": 10.0,
+      "runtime_budget_exceeded": false,
+      "runtime_budget_ratio": 0.00046898750006221237,
+      "runtime_budget_note": null,
+      "result_payload": {
+        "report": {
+          "schema_version": "1.0",
+          "method": "difference_in_differences",
+          "status": "success",
+          "status_reason": null,
+          "estimand": "ATT",
+          "identified_estimand": null,
+          "estimand_type": null,
+          "graph_ref": null,
+          "point_estimate": 1.9972170388636796,
+          "standard_error": 0.23702858551598452,
+          "confidence_interval": [
+            1.5326495479458777,
+            2.4617845297814815
+          ],
+          "confidence_level": 0.95,
+          "p_value": 3.5749949006829856e-17,
+          "inference_method": "asymptotic",
+          "n_bootstrap_samples": null,
+          "effect_size_cohen_d": 14.252177207784126,
+          "pre_treatment_fit": {},
+          "diagnostics": [
+            {
+              "test_name": "pre_trend_parallelism",
+              "statistic": null,
+              "p_value": null,
+              "passed": false,
+              "details": {
+                "identification_authority": false,
+                "limitation": "Non-rejection cannot establish untreated potential-outcome parallel trends.",
+                "status": "not_testable",
+                "reason": "insufficient_pre_periods"
+              }
+            },
+            {
+              "test_name": "parallel_trends_warning",
+              "statistic": null,
+              "p_value": null,
+              "passed": false,
+              "details": {
+                "message": "Pretrend evidence is limited; it does not establish identification.",
+                "status": "not_testable",
+                "identification_authority": false
+              }
+            }
+          ],
+          "refutation_results": [],
+          "placebo_results": [],
+          "placebo_p_value": null,
+          "time_effects": {},
+          "method_params": {
+            "staggered": false,
+            "cov_type": "HC1",
+            "covariance_procedure": "hc1",
+            "confidence_procedure": "normal_two_sided",
+            "critical_value": 1.9599639845400534,
+            "delta_hat": 1.9972170388636796,
+            "inference_scope": "iid_rows",
+            "finite_cluster_guarantee": false,
+            "parallel_trends_identified": false,
+            "pretrend_status": "not_testable",
+            "diagnostic_contract": {
+              "profile": "pretrend_group_mean_linear_hc1_normal_v1",
+              "method_mode": "standard",
+              "input_fields": [
+                "outcome",
+                "treatment",
+                "time_treatment"
+              ],
+              "input_sha256": "5f65466e268ada2f84d6a35e35872286481579aeee4d0d908ec11d38e26cfc31",
+              "time_treatment": 2,
+              "diagnostics": [
+                {
+                  "test_name": "pre_trend_parallelism",
+                  "statistic": null,
+                  "p_value": null,
+                  "passed": false,
+                  "details": {
+                    "identification_authority": false,
+                    "limitation": "Non-rejection cannot establish untreated potential-outcome parallel trends.",
+                    "status": "not_testable",
+                    "reason": "insufficient_pre_periods"
+                  }
+                },
+                {
+                  "test_name": "parallel_trends_warning",
+                  "statistic": null,
+                  "p_value": null,
+                  "passed": false,
+                  "details": {
+                    "message": "Pretrend evidence is limited; it does not establish identification.",
+                    "status": "not_testable",
+                    "identification_authority": false
+                  }
+                }
+              ],
+              "result_sha256": "0a45b4696cf53a0caca48c48f3e121c83caa1e9907b4d6350e80f34d12560ff6",
+              "identification_authority": false
+            },
+            "diagnostic_binding": "1ca115ab387ac644798ecee1e108a0108f127824364666be74f4f3b4dd26557b"
+          },
+          "assumptions": {
+            "parallel_trends": "Untreated potential outcomes follow parallel trends.",
+            "no_anticipation": "No treatment effect before treatment start (unless explicitly modeled).",
+            "stable_composition": "Group composition is stable over analysis horizon."
+          },
+          "sutva_assumed": true,
+          "sutva_violation_risk": null,
+          "transport_result": null,
+          "metadata": {},
+          "sample_size": 24,
+          "n_treated": 3,
+          "n_control": 3,
+          "pre_periods": 2,
+          "post_periods": 2
+        },
+        "warnings": [],
+        "expected_point_estimate": 2.0,
+        "design": "clean_rollout",
+        "method": "difference_in_differences"
+      }
+    },
+    {
+      "case_id": "policy_natural::did::placebo_null",
+      "name": "policy_natural::did::placebo_null",
+      "status": "passed",
+      "circuit": "estimation",
+      "verdict": "PASS",
+      "elapsed_s": 0.0003357499954290688,
+      "memory_delta_mb": 0.0,
+      "error_msg": null,
+      "proof_step_count": 0,
+      "is_identifiable_gt": null,
+      "is_identifiable_pred": null,
+      "formula_correct": null,
+      "runtime": {
+        "elapsed_s": 0.0003357499954290688,
+        "memory_delta_mb": 0.0,
+        "proof_step_count": 0,
+        "budget_s": 10.0,
+        "budget_exceeded": false,
+        "budget_ratio": 3.357499954290688e-05,
+        "budget_note": null
+      },
+      "runtime_budget_s": 10.0,
+      "runtime_budget_exceeded": false,
+      "runtime_budget_ratio": 3.357499954290688e-05,
+      "runtime_budget_note": null,
+      "result_payload": {
+        "report": {
+          "schema_version": "1.0",
+          "method": "difference_in_differences",
+          "status": "success",
+          "status_reason": null,
+          "estimand": "ATT",
+          "identified_estimand": null,
+          "estimand_type": null,
+          "graph_ref": null,
+          "point_estimate": -0.00027833042847580456,
+          "standard_error": 0.24163044254968152,
+          "confidence_interval": [
+            -0.47386529539432604,
+            0.47330863453737443
+          ],
+          "confidence_level": 0.95,
+          "p_value": 0.9990809291237088,
+          "inference_method": "asymptotic",
+          "n_bootstrap_samples": null,
+          "effect_size_cohen_d": -0.001961129795628401,
+          "pre_treatment_fit": {},
+          "diagnostics": [
+            {
+              "test_name": "pre_trend_parallelism",
+              "statistic": null,
+              "p_value": null,
+              "passed": false,
+              "details": {
+                "identification_authority": false,
+                "limitation": "Non-rejection cannot establish untreated potential-outcome parallel trends.",
+                "status": "not_testable",
+                "reason": "insufficient_pre_periods"
+              }
+            },
+            {
+              "test_name": "parallel_trends_warning",
+              "statistic": null,
+              "p_value": null,
+              "passed": false,
+              "details": {
+                "message": "Pretrend evidence is limited; it does not establish identification.",
+                "status": "not_testable",
+                "identification_authority": false
+              }
+            }
+          ],
+          "refutation_results": [],
+          "placebo_results": [],
+          "placebo_p_value": null,
+          "time_effects": {},
+          "method_params": {
+            "staggered": false,
+            "cov_type": "HC1",
+            "covariance_procedure": "hc1",
+            "confidence_procedure": "normal_two_sided",
+            "critical_value": 1.9599639845400534,
+            "delta_hat": -0.00027833042847580456,
+            "inference_scope": "iid_rows",
+            "finite_cluster_guarantee": false,
+            "parallel_trends_identified": false,
+            "pretrend_status": "not_testable",
+            "diagnostic_contract": {
+              "profile": "pretrend_group_mean_linear_hc1_normal_v1",
+              "method_mode": "standard",
+              "input_fields": [
+                "outcome",
+                "treatment",
+                "time_treatment"
+              ],
+              "input_sha256": "bfa07c11578173c839857bb0fc6fdc72ce63e06fe7b19c142d5c6126c550bddf",
+              "time_treatment": 2,
+              "diagnostics": [
+                {
+                  "test_name": "pre_trend_parallelism",
+                  "statistic": null,
+                  "p_value": null,
+                  "passed": false,
+                  "details": {
+                    "identification_authority": false,
+                    "limitation": "Non-rejection cannot establish untreated potential-outcome parallel trends.",
+                    "status": "not_testable",
+                    "reason": "insufficient_pre_periods"
+                  }
+                },
+                {
+                  "test_name": "parallel_trends_warning",
+                  "statistic": null,
+                  "p_value": null,
+                  "passed": false,
+                  "details": {
+                    "message": "Pretrend evidence is limited; it does not establish identification.",
+                    "status": "not_testable",
+                    "identification_authority": false
+                  }
+                }
+              ],
+              "result_sha256": "0a45b4696cf53a0caca48c48f3e121c83caa1e9907b4d6350e80f34d12560ff6",
+              "identification_authority": false
+            },
+            "diagnostic_binding": "17429bf61112eb09b13221217f3132aaff6d58309aabddd494a608a2cc5f47e1"
+          },
+          "assumptions": {
+            "parallel_trends": "Untreated potential outcomes follow parallel trends.",
+            "no_anticipation": "No treatment effect before treatment start (unless explicitly modeled).",
+            "stable_composition": "Group composition is stable over analysis horizon."
+          },
+          "sutva_assumed": true,
+          "sutva_violation_risk": null,
+          "transport_result": null,
+          "metadata": {},
+          "sample_size": 24,
+          "n_treated": 3,
+          "n_control": 3,
+          "pre_periods": 2,
+          "post_periods": 2
+        },
+        "warnings": [],
+        "expected_point_estimate": 0.0,
+        "design": "placebo_null",
+        "method": "difference_in_differences"
+      }
+    },
+    {
+      "case_id": "policy_natural::did::staggered_adoption",
+      "name": "policy_natural::did::staggered_adoption",
+      "status": "passed",
+      "circuit": "estimation",
+      "verdict": "PASS",
+      "elapsed_s": 0.001982665969990194,
+      "memory_delta_mb": 0.125,
+      "error_msg": null,
+      "proof_step_count": 0,
+      "is_identifiable_gt": null,
+      "is_identifiable_pred": null,
+      "formula_correct": null,
+      "runtime": {
+        "elapsed_s": 0.001982665969990194,
+        "memory_delta_mb": 0.125,
+        "proof_step_count": 0,
+        "budget_s": 10.0,
+        "budget_exceeded": false,
+        "budget_ratio": 0.0001982665969990194,
+        "budget_note": null
+      },
+      "runtime_budget_s": 10.0,
+      "runtime_budget_exceeded": false,
+      "runtime_budget_ratio": 0.0001982665969990194,
+      "runtime_budget_note": null,
+      "result_payload": {
+        "report": {
+          "schema_version": "1.0",
+          "method": "difference_in_differences",
+          "status": "success",
+          "status_reason": null,
+          "estimand": "theta_sel",
+          "identified_estimand": null,
+          "estimand_type": null,
+          "graph_ref": null,
+          "point_estimate": 0.3703666160249485,
+          "standard_error": 0.32157950707884675,
+          "confidence_interval": [
+            -0.2524395064215937,
+            0.9931727384714908
+          ],
+          "confidence_level": 0.95,
+          "p_value": 0.43410852713178294,
+          "inference_method": "bootstrap",
+          "n_bootstrap_samples": 128,
+          "effect_size_cohen_d": null,
+          "pre_treatment_fit": {},
+          "diagnostics": [
+            {
+              "test_name": "pre_trend_parallelism",
+              "statistic": null,
+              "p_value": null,
+              "passed": false,
+              "details": {
+                "identification_authority": false,
+                "limitation": "Non-rejection cannot establish untreated potential-outcome parallel trends.",
+                "status": "not_testable",
+                "reason": "insufficient_pre_periods"
+              }
+            }
+          ],
+          "refutation_results": [],
+          "placebo_results": [],
+          "placebo_p_value": null,
+          "time_effects": {},
+          "method_params": {
+            "staggered": true,
+            "target_contract": {
+              "estimand": "theta_sel",
+              "sampling_unit": "independent_panel_unit",
+              "unit_identity": "unit_ids",
+              "n_units": 8,
+              "study_horizon": 6,
+              "eligible_periods": {
+                "2": [
+                  2,
+                  3,
+                  4,
+                  5
+                ],
+                "3": [
+                  3,
+                  4,
+                  5
+                ],
+                "4": [
+                  4,
+                  5
+                ]
+              },
+              "cohort_counts": {
+                "2": 1,
+                "3": 2,
+                "4": 1
+              },
+              "cohort_shares": {
+                "2": 0.25,
+                "3": 0.5,
+                "4": 0.25
+              },
+              "control_group": "never_treated",
+              "anticipation": 0,
+              "data_sha256": "e62b78a9b51dc3225ae1f87a7bf2aed1de5a6312166fe39ab2c4da2dac0c5fda"
+            },
+            "target_binding": "5c0cf572f14498bf806b011daa668cca01044ab13d3af20fa147ee4f9de0c346",
+            "diagnostic_contract": {
+              "profile": "pretrend_group_mean_linear_hc1_normal_v1",
+              "method_mode": "staggered",
+              "input_fields": [
+                "outcome",
+                "treatment",
+                "time_treatment"
+              ],
+              "input_sha256": "bcf05ce30ccb3be5a713131ee38696ee947a785ffce71c834a89c533912b2d76",
+              "time_treatment": 2,
+              "diagnostics": [
+                {
+                  "test_name": "pre_trend_parallelism",
+                  "statistic": null,
+                  "p_value": null,
+                  "passed": false,
+                  "details": {
+                    "identification_authority": false,
+                    "limitation": "Non-rejection cannot establish untreated potential-outcome parallel trends.",
+                    "status": "not_testable",
+                    "reason": "insufficient_pre_periods"
+                  }
+                }
+              ],
+              "result_sha256": "020378641445191780aafee50a02e070db498dfa88216e91dd202075c730ccc4",
+              "identification_authority": false
+            },
+            "diagnostic_binding": "a896928e978f850dd53b5e0f51057500a5c2e69cc3c51b9635eb982efddec758",
+            "control_group": "never_treated",
+            "anticipation": 0,
+            "n_cells": 9,
+            "cell_estimates": [
+              {
+                "cohort": 2,
+                "period": 2,
+                "baseline": 1,
+                "n_treated": 1,
+                "n_control": 4,
+                "att": 1.476237244512634
+              },
+              {
+                "cohort": 2,
+                "period": 3,
+                "baseline": 1,
+                "n_treated": 1,
+                "n_control": 4,
+                "att": 1.490565345134983
+              },
+              {
+                "cohort": 2,
+                "period": 4,
+                "baseline": 1,
+                "n_treated": 1,
+                "n_control": 4,
+                "att": 1.4784509447969945
+              },
+              {
+                "cohort": 2,
+                "period": 5,
+                "baseline": 1,
+                "n_treated": 1,
+                "n_control": 4,
+                "att": 1.4914822745032028
+              },
+              {
+                "cohort": 3,
+                "period": 3,
+                "baseline": 2,
+                "n_treated": 2,
+                "n_control": 4,
+                "att": 9.808977707548294e-05
+              },
+              {
+                "cohort": 3,
+                "period": 4,
+                "baseline": 2,
+                "n_treated": 2,
+                "n_control": 4,
+                "att": -0.004755331289003628
+              },
+              {
+                "cohort": 3,
+                "period": 5,
+                "baseline": 2,
+                "n_treated": 2,
+                "n_control": 4,
+                "att": 0.02404834861775429
+              },
+              {
+                "cohort": 4,
+                "period": 4,
+                "baseline": 3,
+                "n_treated": 1,
+                "n_control": 4,
+                "att": -0.004868718018280926
+              },
+              {
+                "cohort": 4,
+                "period": 5,
+                "baseline": 3,
+                "n_treated": 1,
+                "n_control": 4,
+                "att": -0.026421067730472814
+              }
+            ],
+            "bootstrap_independence": "panel_unit",
+            "bootstrap_shared_draw": true,
+            "bootstrap_unit_identity": "unit_ids",
+            "cohort_share_influence": true,
+            "multiplier_distribution": "iid_mammen",
+            "null_statistic": "centered_studentized_scalar",
+            "null_effect": 0.0,
+            "inference_scope": "large_independent_units_pointwise_scalar",
+            "finite_cluster_guarantee": false,
+            "simultaneous_bands": false,
+            "parallel_trends_identified": false,
+            "confidence_procedure": "finite_B_plus_one_scalar_test_inversion",
+            "confidence_level": 0.95,
+            "critical_value": 1.9367096122012493,
+            "critical_order_index_zero_based": 122,
+            "test_rejection_rule": "null_tail_count < minimum_accepted_tail_count",
+            "significance_level": 0.05,
+            "null_tail_count": 55,
+            "minimum_accepted_tail_count": 6,
+            "null_rejected": false
+          },
+          "assumptions": {
+            "parallel_trends": "Untreated potential outcomes follow parallel trends.",
+            "no_anticipation": "No treatment effect before treatment start (unless explicitly modeled).",
+            "stable_composition": "Group composition is stable over analysis horizon."
+          },
+          "sutva_assumed": true,
+          "sutva_violation_risk": null,
+          "transport_result": null,
+          "metadata": {},
+          "sample_size": 48,
+          "n_treated": 4,
+          "n_control": 4,
+          "pre_periods": 2,
+          "post_periods": 4
+        },
+        "warnings": [],
+        "expected_point_estimate": null,
+        "design": "staggered_adoption_weighted_att",
+        "method": "staggered_difference_in_differences"
+      }
+    }
+  ],
+  "blockers": [],
+  "preflight": {
+    "run_id": null,
+    "mode": "smoke",
+    "benchmark_tier": "local_evidence",
+    "validation_contour": "legacy",
+    "visibility": "public",
+    "data_source": "synthetic_policy_natural_experiments",
+    "dataset_family": null,
+    "batch_id": null,
+    "estimator_profile": "default",
+    "comparator_profile": null,
+    "required_comparators": [],
+    "dependency_status": {},
+    "comparator_status": {},
+    "degraded_reasons": [],
+    "environment": {
+      "python_version": "3.14.3",
+      "python_executable": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+      "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+      "machine": "arm64",
+      "processor": "arm"
+    },
+    "benchmark_env_spec": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/candidate/policy-engine/benchmarks/comparators/research_acceptance_environment.yml",
+    "installed_comparator_versions": {
+      "econml": null,
+      "zepid": null,
+      "stochtree": null,
+      "dowhy": null,
+      "y0": null,
+      "lightgbm": null,
+      "causallib": null,
+      "causalml": null,
+      "pgmpy": null,
+      "ananke": null,
+      "causal-learn": null,
+      "tigramite": null,
+      "pygformula": null,
+      "pot": null,
+      "openspiel": null,
+      "nashpy": null,
+      "pywhy-graphs": null,
+      "bartpy": null,
+      "pymc_bart": null
+    },
+    "data_manifest_path": null,
+    "data_manifest_hash": null,
+    "run_config_hash": "0575cec9d3bbfa25933daa2117d598a7a75d4bf6d959c7b2f6a2f9de7565ac3a"
+  },
+  "aggregate_metrics": {
+    "case_rows": [
+      {
+        "case": "policy_natural::did::clean_rollout",
+        "design": "clean_rollout",
+        "method": "difference_in_differences",
+        "point_estimate": 1.9972170388636796,
+        "expected_point_estimate": 2.0,
+        "status": "success",
+        "warning_count": 0
+      },
+      {
+        "case": "policy_natural::did::placebo_null",
+        "design": "placebo_null",
+        "method": "difference_in_differences",
+        "point_estimate": -0.00027833042847580456,
+        "expected_point_estimate": 0.0,
+        "status": "success",
+        "warning_count": 0
+      },
+      {
+        "case": "policy_natural::did::staggered_adoption",
+        "design": "staggered_adoption_weighted_att",
+        "method": "staggered_difference_in_differences",
+        "point_estimate": 0.3703666160249485,
+        "expected_point_estimate": null,
+        "status": "success",
+        "warning_count": 0
+      }
+    ],
+    "mean_abs_att_error": 0.0015306457823980883,
+    "max_abs_att_error": 0.002782961136320372,
+    "n_successful_cases": 3,
+    "ranking_summary": {
+      "aggregate": {
+        "policy_os_modern_did": {
+          "mean_rank": 1.0,
+          "worst_case_rank": 1.0,
+          "max_deviation_from_best": 0.0,
+          "top_quartile_failures": 0
+        }
+      }
+    },
+    "case_groups": {
+      "clean_rollout": {
+        "policy_os_modern_did": {
+          "abs_att_error_mean": 0.002782961136320372,
+          "point_estimate_mean": 1.9972170388636796
+        }
+      },
+      "placebo_null": {
+        "policy_os_modern_did": {
+          "abs_att_error_mean": 0.00027833042847580456,
+          "point_estimate_mean": -0.00027833042847580456
+        }
+      }
+    },
+    "flagship_scorecard": {
+      "flagship_method": "policy_os_modern_did",
+      "checks": {
+        "mean_abs_att_error": true,
+        "all_cases_green": true
+      },
+      "passes_all": true
+    }
+  },
+  "standardized_metrics": {},
+  "method_groups": {},
+  "method_manifest": {},
+  "gate_method_set": [],
+  "flagship_presence": {},
+  "exploratory_methods": [],
+  "selection_manifest": {},
+  "overlap_diagnostics": {},
+  "calibration_metrics": {},
+  "prioritization_metrics": {},
+  "dataset_group_summaries": {},
+  "epistemic_metrics": {},
+  "governance_metrics": {},
+  "certificate_metrics": {},
+  "lineage_metrics": {},
+  "comparator_matrix": {},
+  "comparator_runs": {},
+  "ablation_matrix": {},
+  "leaderboard_tables": {},
+  "release_gate_results": {},
+  "benchmark_family": "policy",
+  "proof_class": "publication_benchmark",
+  "claim_profile_targets": [
+    "full_stack_publication_claim"
+  ],
+  "workflow_levels": [],
+  "competitor_gap": {},
+  "literature_anchor": [
+    "Angrist & Pischke (2009): Mostly Harmless Econometrics",
+    "Callaway & Sant'Anna (2021): Difference-in-Differences with Multiple Time Periods"
+  ],
+  "evidence_bundle_complete": null,
+  "public_claim_eligible": null,
+  "dataset_regime": "synthetic_canonical_panel",
+  "baseline_snapshot_ref": "policy_natural_experiments@synthetic-v1",
+  "regression_guard": {
+    "max_abs_att_error": 0.2,
+    "clean_case_required": true,
+    "placebo_case_required": true,
+    "staggered_case_required": true
+  }
+}

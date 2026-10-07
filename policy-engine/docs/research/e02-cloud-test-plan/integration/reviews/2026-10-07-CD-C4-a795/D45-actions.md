@@ -57,7 +57,7 @@ Exact source a795/tree2cd7; receipt CBC46/tree3e05. Полные binding/owner/a
 
 ## Численный метод
 
-Для существующего Pareto/HV core есть bounded154-case evidence с independent all-pairs strict dominance и Fraction box-union, direction/ties/permutations/subnormal/range и persisted consumers. `pareto.py`, `pareto_registry.py` и core oracle/consumer tests совпадают с exact numerical execution source, опубликованным через `current-numerical-handoff.json@617988f7cfb8e5cb74b6beba41704eb117b0e033`. `frontier.py`, runtime/call plumbing и reached shared dependency изменились: проверить текущий consumer seam. Нет основания объявлять весь handwritten math неверным либо менять библиотеку только из-за38 missing labels. GP уже использует BoTorch; пределы dimensions/backends/representability сохраняются typed unavailable.
+Для существующего Pareto/HV core есть bounded154-case evidence с independent all-pairs strict dominance и Fraction box-union, direction/ties/permutations/subnormal/range и persisted consumers. `pareto.py`, `pareto_registry.py` и core oracle/consumer tests совпадают с exact numerical execution source, опубликованным через `policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/math-adapter-final969/numerical/current-numerical-handoff.json@617988f7cfb8e5cb74b6beba41704eb117b0e033`. `frontier.py`, runtime/call plumbing и reached shared dependency изменились: проверить текущий consumer seam. Нет основания объявлять весь handwritten math неверным либо менять библиотеку только из-за38 missing labels. GP уже использует BoTorch; пределы dimensions/backends/representability сохраняются typed unavailable.
 
 ## Пять настоящих held и один limited
 

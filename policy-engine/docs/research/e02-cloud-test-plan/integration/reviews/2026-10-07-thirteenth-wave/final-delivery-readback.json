@@ -1,0 +1,48 @@
+{
+  "schema": "policyos.e02.final_delivery_readback.v1",
+  "status": "GO_DOCUMENTATION_LINK_DELTA",
+  "checkout": {
+    "branch": "codex/e02-integration",
+    "head": "9806442ddb47d624a2940bac75d9d6248e934c48",
+    "tree": "4a1caafc331990e0ebf0130a9051c08ae1ffcbd4"
+  },
+  "read_only": true,
+  "tests_run": false,
+  "source_or_ref_changes": false,
+  "markdown_links": {
+    "scoped_files": 41,
+    "local_links": 138,
+    "missing": 0
+  },
+  "E_gates": {
+    "markdown_and_json_present": true,
+    "carrier": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+    "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+    "junit_xml_files": 7,
+    "case_total": 1465,
+    "passed": 1457,
+    "failed": 8,
+    "errors": 0,
+    "skipped": 0,
+    "all_xml_bytes_read_from_git_object": true
+  },
+  "output_manifest": {
+    "files": 29,
+    "missing_or_size_hash_mismatch": 0,
+    "includes_semantic_verification": true
+  },
+  "D_numerical_handoff": {
+    "citation": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation-2026-10-07/math-adapter-final969/numerical/current-numerical-handoff.json@617988f7cfb8e5cb74b6beba41704eb117b0e033",
+    "blob": "a54c01af2d151e39194f4e88bc4756bb9d2bf87f",
+    "ambiguous": false
+  },
+  "F_late_metadata_pin": {
+    "sha": "2c09571eb9e9efdb91c09b3b4871a49f4c013c1d",
+    "tree": "c9dcc58e520cb2c161c85a74e8a2161c32a7276f",
+    "parent": "3d43eb459eec1f346571306647e5dbc68f32f076",
+    "product_source": "4ee2f2a4f1d9c4d42c6e5ec7f85f973e07358f0d",
+    "source_test_delta": false
+  },
+  "limitation": "E gate queues remain FAIL/UNRUN as reported; documentation readback is not code acceptance or finding closure.",
+  "report": "policy-engine/_build/e02-g-continuation-20261006/R/final-delivery-readback.md"
+}

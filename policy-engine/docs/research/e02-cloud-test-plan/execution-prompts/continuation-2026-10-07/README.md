@@ -4,12 +4,12 @@
 
 | Агент | Промпт | Первый полезный результат продолжения |
 | --- | --- | --- |
-| A — локально | [A.md](A.md) | Исправленные исходные criterion bindings; настоящие N5/N8, unknown-cost/context consumers и отдельные served/predictive bridges. |
+| A — локально | [A-resume-after-2605-delta.md](A-resume-after-2605-delta.md) | Исправленные исходные criterion bindings; настоящие N5/N8, unknown-cost/context consumers и отдельные served/predictive bridges. |
 | B — облако | [B-resume-after-53b-all60.md](B-resume-after-53b-all60.md) | Restore accepted G/V11 content, repair actual62/17producer failures; finish actionable cache/import criteria and preserve all60 dispositions. |
 | C — локально | [C-resume-after-C4-all54.md](C-resume-after-C4-all54.md) | Exact CAN/NET residuals и все54 scoped actions без нового production-permission/global census gate. |
 | D — облако | [D-resume-after-a795-all45.md](D-resume-after-a795-all45.md) | Все45/46 original properties: qualified carry, affected consumer checks, пять owner positives и B108 profile. |
-| E — облако | [E.md](E.md) | E-owned import/lint repairs, настоящий FRC producer/resolver и Morris analysis-input admission; выполнение доступных gate successors. |
-| F — облако | [F-resume-after-25c-focused.md](F-resume-after-25c-focused.md) | Canonical MGraph profile repair, focused companions; B214/B56 broad cross-owner decisions deferred with concrete triggers. |
+| E — облако | [E-resume-after-b2-public-boundaries.md](E-resume-after-b2-public-boundaries.md) | E-owned import/lint repairs, настоящий FRC producer/resolver и Morris analysis-input admission; выполнение доступных gate successors. |
+| F — облако | [F-resume-after-4ee-profile-consistency.md](F-resume-after-4ee-profile-consistency.md) | Canonical MGraph profile repair, focused companions; B214/B56 broad cross-owner decisions deferred with concrete triggers. |
 
 Это публикация документации в `codex/e02-integration`. Она не означает слияние всех incoming PR, закрытие 282 findings или новую публикацию `main`. Самостоятельные source slices сохраняют свои original histories и проходят отдельную приёмку G. Исходные статусы research ledger не переписываются по числу PASS.
 
@@ -44,3 +44,7 @@ Pattern pass: P01/P02 — реальная цепочка; P14/P29 — неза�
 - [D: all45/46, consumed-history/estimated-only и38qualified verification entries](D-resume-after-a795-all45.md).
 
 [Независимый полный разбор](../../integration/reviews/2026-10-07-CD-C4-a795/README.md) не объявляет все code histories принятыми. Новые prompts supersede operative next-actions прежних C/D captions; original receipts/критерии сохраняются.
+
+## Текущий A2605 / E b2-df525 / F4ee intake
+
+[Независимый разбор и deciding outputs](../../integration/reviews/2026-10-07-thirteenth-wave/README.md). Новые operative supplements: [A](A-resume-after-2605-delta.md), [E](E-resume-after-b2-public-boundaries.md), [F](F-resume-after-4ee-profile-consistency.md). Они supersede только изменившиеся source/actions; полный scope старых A/E/F заданий сохраняется. D API comparator исправлен отдельно в текущем C/D report/prompt. Ни source intake, ни author disposition не означают formal G closure.

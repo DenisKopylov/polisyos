@@ -1,0 +1,82 @@
+{
+  "schema": "e02.D.public_api_compatibility_erratum.v1",
+  "review": "read_only_static_surface_and_compatibility_comparison",
+  "reviewer_actions": {
+    "tests_run": false,
+    "source_writes": false,
+    "git_ref_changes": false,
+    "checkout_changes": false
+  },
+  "pins": {
+    "candidate": {
+      "sha": "a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+      "tree": "2cd7e7058eeb0431b0571b30af3ad80b9a3c2668"
+    },
+    "current_G": "9806442ddb47d624a2940bac75d9d6248e934c48",
+    "main": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "D_product_commits": [
+      "6c1729a7bc86cf90d443d73515d98dd4ebfa2894",
+      "4645738aee05809552e95aecb14d365793fc6bb2",
+      "9def216eda8aa02c61ec5a89e603627d47633a75",
+      "3b31e136e5ccf9ee17ecb112e1f902cb0f95b0d2"
+    ]
+  },
+  "correction": {
+    "latest_D_surface_delta_to_candidate": "none across package facade, inventory, public-surface reference, public-surface contract, generated-artifacts reference",
+    "prior_42_name_inventory_reconciliation": "GO; static full ordered facade __all__ equals candidate inventory exports",
+    "candidate_count": 42,
+    "G_count": 39,
+    "main_count": 39,
+    "new_fqns_vs_G_and_main": [
+      "polisyos.scientist.NativeSearchService",
+      "polisyos.scientist.SearchServiceCheckpoint",
+      "polisyos.scientist.SearchLoopRunner"
+    ],
+    "implementation_commit": "5bd73d8d61f652e8628528bb9b49ef49c8e03a2a",
+    "inventory_doc_commit": "5eca5d0df09f3296aefe20a0797aa14837da01ff",
+    "both_earlier_commits_are_ancestors_of_D_product_commits_and_candidate": true,
+    "neither_earlier_commit_is_ancestor_of_current_G_or_main": true,
+    "comparison_scope": [
+      "policy-engine/src/polisyos/scientist/__init__.py",
+      "policy-engine/architecture/public_surface/inventory.json",
+      "policy-engine/docs/reference/public-surface.md",
+      "policy-engine/architecture/public_surface/contract.toml",
+      "policy-engine/docs/reference/generated-artifacts.md"
+    ],
+    "whole_G_or_main_to_candidate_surface_paths": [
+      "policy-engine/src/polisyos/scientist/__init__.py",
+      "policy-engine/architecture/public_surface/inventory.json",
+      "policy-engine/docs/reference/public-surface.md"
+    ],
+    "whole_G_or_main_to_candidate_surface_paths_scope": "Only the five listed surface-companion paths were compared; this is not a complete repository footprint statement."
+  },
+  "public_abi": {
+    "http_openapi_or_generated_client_change_in_scoped_commits": false,
+    "public_dto_signature_change_found": false,
+    "client_regeneration_required": false,
+    "qualification": "Python root-package exports are additive relative to current G/main; no HTTP wire/client schema change was found in these scoped commits."
+  },
+  "persisted_compatibility": {
+    "fragment": "policy-engine/release-fragments/unreleased/2026-10-07-search-complete-history-resume.toml@a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+    "structured_row": {
+      "id": "service-required-history-admission",
+      "change_class": "runtime-state-format",
+      "impact": "breaking",
+      "surface": "stable public NativeSearchService alias; internal checkpoint profiles",
+      "generated_client_compatibility": "not_applicable"
+    },
+    "source_field_pointers": {
+      "service_checkpoint": "policy-engine/src/polisyos/scientist/methods/search/contracts.py:SearchServiceCheckpoint.schema_version = Literal[\"search-service.v2\"]",
+      "adapter_checkpoint": "policy-engine/src/polisyos/scientist/methods/search/strategies/adapter.py: version=\"strategy_adapter.v2\", history_digests, consumed_history_count",
+      "bayesian_generator_checkpoint": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py: schema_version=\"bayesian_candidate_generator.v3\", history_digests, consumed_history_count",
+      "restore_admission": "policy-engine/src/polisyos/scientist/methods/search/service.py requires validate_checkpoint_history before persisted restore admission"
+    },
+    "migration": "Old/unsupported checkpoint profiles are refused; use the original compatible reader or start an explicitly new run; no automatic migration."
+  },
+  "evidence": {
+    "independent_static_inventory_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/D/continuation/public-inventory-independent-review.json@4a4475c78938883b45a59133fc7d4cfea410b064",
+    "candidate_release_additive_api": "policy-engine/release-fragments/unreleased/2026-10-06-native-search-resume.toml@a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+    "candidate_release_persisted_change": "policy-engine/release-fragments/unreleased/2026-10-07-search-complete-history-resume.toml@a795967a80818a61fbc939a8d1b1ec8b0fca6477",
+    "compatibility_guide": "policy-engine/docs/how-to/search-checkpoint-profile-compatibility.md@a795967a80818a61fbc939a8d1b1ec8b0fca6477"
+  }
+}

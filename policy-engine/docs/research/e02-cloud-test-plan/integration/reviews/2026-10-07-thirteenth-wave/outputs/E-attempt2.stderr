@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/results/e_profile_diagnostics.py", line 95, in <module>
+    raw_cases=[raw_type_case('raw-bool',True),raw_type_case('raw-numeric-string','1.0')]
+               ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/results/e_profile_diagnostics.py", line 52, in raw_type_case
+    input_path.write_text(json.dumps(raw,indent=2,sort_keys=True,default=str)+'\n')
+    ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/pathlib/__init__.py", line 809, in write_text
+    with self.open(mode='w', encoding=encoding, errors=errors, newline=newline) as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-E/results/closure-repair1/inputs/raw-bool-raw-cas.json'

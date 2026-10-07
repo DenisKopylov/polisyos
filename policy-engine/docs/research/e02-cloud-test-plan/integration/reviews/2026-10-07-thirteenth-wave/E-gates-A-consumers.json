@@ -1,0 +1,188 @@
+{
+  "review": "E b2 gates and A consumer cases",
+  "reviewer_result": "eight current failures confirmed by parsing committed b2 JUnit XML; no tests rerun",
+  "candidate": {
+    "source": "b2f2f65ea8884a6e2ffa3fc444cdf4bbb9157641",
+    "tree": "4cbbed1d9392832729cab92c6615f9a1d03a41c7",
+    "evidence_commit": "df5258b7ddfade5b952e3b21ef28116ced40fa68",
+    "source_tests_changed_by_evidence_carrier": false
+  },
+  "junit": {
+    "total": 1465,
+    "pass": 1457,
+    "fail": 8,
+    "errors": 0,
+    "skips": 0,
+    "native": {
+      "total": 1458,
+      "pass": 1457,
+      "fail": 1
+    },
+    "A_packet": {
+      "total": 7,
+      "pass": 0,
+      "fail": 7
+    },
+    "failure_junit_path": "implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2/final-numeric/canonical-collection/checks/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml@df5258b7ddfade5b952e3b21ef28116ced40fa68",
+    "failure_junit_sha256": "8db2d72ed457f3db32c29d4b6731ef35e8560f2ac9bbe661cb8dc9d8cb5798d8",
+    "basis_path": "implementation-handoffs/E/continuation-20261007/final-publication-r5-b2f2/final54-current-and-independent-joins/109/actual1465-JUnit-multiset-basis.json@df5258b7ddfade5b952e3b21ef28116ced40fa68",
+    "basis_git_blob": "4430cfb08dcd114fd4bbaa95b511b05c21afa39f"
+  },
+  "failures": [
+    {
+      "n": 1,
+      "owner": "E native",
+      "case": "tests.unit.remediation.test_frc_01::test_missing_calibration_evidence_refs_stays_typed_blocked",
+      "observed": "blocked/no record but S6 refs empty; expected empirical_evidence_ref_missing"
+    },
+    {
+      "n": 2,
+      "owner": "A packet",
+      "case": "test_missing_ref_tier_and_s6_share_named_missing_ref_reason",
+      "observed": "blocked tier; S6 reason list empty"
+    },
+    {
+      "n": 3,
+      "owner": "A packet",
+      "case": "test_resolved_limited_evidence_keeps_floor_failure_reason",
+      "observed": "0/4 floor failure emits generic insufficient-history instead of calibration_floor_not_met"
+    },
+    {
+      "n": "4-8",
+      "owner": "A packet",
+      "case_family": "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[missing_ref|unresolved_ref|wrong_kind|wrong_time|wrong_rule]",
+      "observed": "blocked tier and specific S6 reason, but generic Foundry-report-missing disposition"
+    }
+  ],
+  "case_linking": {
+    "B32_LA051_shared_cases": 3,
+    "unlinked_parameterized_cases": 5,
+    "unique_failures": 8
+  },
+  "global_gates": [
+    {
+      "name": "architecture",
+      "status": "FAIL",
+      "attribution": "P41 not_established"
+    },
+    {
+      "name": "generated runtime API/OpenAPI",
+      "status": "FAIL",
+      "attribution": "P41 not_established"
+    },
+    {
+      "name": "static invocation",
+      "status": "FAIL",
+      "regressions": 24,
+      "newly_unresolved": 95,
+      "rows": 119,
+      "candidate_inputs": 5942,
+      "base_inputs": 5904,
+      "source_files": 2703,
+      "attribution": "P41 not_established"
+    },
+    {
+      "name": "Ruff",
+      "status": "FAIL",
+      "diagnostics": 292,
+      "paths": 14,
+      "changed_python_denominator": 378,
+      "E_owned_paths": 349,
+      "E_diagnostics": 0,
+      "diagnostic_owner_counts": {
+        "G": 256,
+        "B": 35,
+        "A": 1
+      },
+      "attribution": "P41 not_established"
+    },
+    {
+      "name": "format",
+      "status": "FAIL",
+      "would_reformat": 14,
+      "already_formatted": 364,
+      "changed_python_denominator": 378,
+      "E_owned_paths": 349,
+      "E_changes": 0,
+      "attribution": "P41 not_established"
+    },
+    {
+      "name": "workspace verify",
+      "status": "FAIL",
+      "doctor": "PASS",
+      "import_lint": "FAIL (21 unadjudicated rows)",
+      "unrun_successors": 13,
+      "stages": [
+        "package import gates",
+        "Foundry lint",
+        "state reads",
+        "Scholar imports",
+        "connector contracts",
+        "schema freshness",
+        "runtime API contract",
+        "last-mile inventory baseline",
+        "honest-diagnostics dashboard",
+        "honest-diagnostics substrate drift",
+        "extension example coverage",
+        "pure-data schema closure",
+        "fast backend pytest"
+      ],
+      "attribution": "P41 not_established"
+    },
+    {
+      "name": "CI parity",
+      "status": "FAIL",
+      "doctor": "FAIL (generated schema/API contracts)",
+      "unrun_successors": 23,
+      "stages": [
+        "backend fast gate",
+        "runtime/HTTP pytest",
+        "directory-health ratchet",
+        "test-ratchet/helper topology",
+        "phase6-1 architecture contracts",
+        "validator-size budget",
+        "debt-ledger reconciliation",
+        "extension installability",
+        "ADR index freshness",
+        "docs accuracy",
+        "strict docs build",
+        "semantic docstring quality",
+        "npm typecheck",
+        "npm lint",
+        "npm format",
+        "npm architecture",
+        "npm contract fixtures",
+        "npm coverage",
+        "npm build",
+        "Storybook build",
+        "browser install",
+        "Storybook interactions",
+        "accessibility"
+      ],
+      "attribution": "P41 not_established"
+    }
+  ],
+  "parent_stage_total": {
+    "stages": 39,
+    "pass": 1,
+    "fail": 2,
+    "unrun": 36
+  },
+  "E54": {
+    "proposed_closed": 43,
+    "limited": 9,
+    "held": 2,
+    "formal_G_acceptance": "0/54",
+    "formal_ledger_changes": 0,
+    "historical": {
+      "partial": 49,
+      "held": 4,
+      "closed": 1
+    }
+  },
+  "limitations": [
+    "Default/HTTP success path not established; the existing canonical consumer instead shows reason propagation defects.",
+    "No production data is required for these repo gate repairs; B194/B197 factual inputs remain separate.",
+    "Global red attribution is P41 not_established without exact slice-base command and full denominator intersection replay."
+  ]
+}

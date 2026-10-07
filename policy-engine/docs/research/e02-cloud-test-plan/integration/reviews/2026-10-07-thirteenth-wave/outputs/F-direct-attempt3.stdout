@@ -1,0 +1,104 @@
+2026-10-07 21:09:51 [info     ] method_registered              backend=numpy fqn=causal.prior.reconcile_causal_graph@1.0.0 lazy=False namespace=causal.prior override=True tags=['causal', 'estimation', 'prior', 'reconciliation', 'structural'] version=1.0.0
+2026-10-07 21:09:51 [debug    ] method_dispatch_start          backend=numpy fqn=causal.prior.reconcile_causal_graph@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-07 21:09:51 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=8.93 fqn=causal.prior.reconcile_causal_graph@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-07 21:09:51 [debug    ] method_dispatch_start          backend=numpy fqn=causal.prior.reconcile_causal_graph@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-07 21:09:51 [info     ] method_dispatch_complete       attempts=[('numpy', 'success')] backend=numpy elapsed_ms=7.09 fqn=causal.prior.reconcile_causal_graph@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+{
+  "classification": {
+    "both_node_paths_succeeded": true,
+    "canonical_extractor_refuses_clean_admg_by_declared_type": true,
+    "canonical_extractor_refuses_retagged_admg": true,
+    "clean_admg_has_no_mgraph_metadata": true,
+    "retagged_payload_preserves_valid_mgraph_metadata": true,
+    "scope": "synthetic profile/metadata consistency diagnostic only; no real-world missingness, classifier, authority, or identification claim"
+  },
+  "clean_admg_control": {
+    "canonical_extract": {
+      "exception_type": "ValueError",
+      "message": "extract_mgraph_metadata requires graph_type=MGRAPH, got GraphType.DAG",
+      "result": "raised"
+    },
+    "cas_artifact_id": "sha256:bef7aca66bc54a8b631fa79660a59bfa4c6d8818bb74cbf844650843521f433f",
+    "input_graph_type": "admg",
+    "job_issues": [],
+    "label": "clean_admg_without_mgraph_metadata",
+    "method_result_ref_present": true,
+    "mgraph_metadata": null,
+    "mgraph_metadata_key_present": false,
+    "node_artifacts_count": 1,
+    "node_status": "ok",
+    "persisted_mgraph_metadata_valid": false,
+    "reopened_graph_type": "dag",
+    "same_as_input": false
+  },
+  "fixture_git_blob": "5bfcc1b7fc4241422cd1eb4b69cc6a36693fd13c",
+  "fixture_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/integration-1722-20261007/native-F/candidate/policy-engine/tests/unit/scientist/methods/causal/test_graph_intake_current_content.py",
+  "input_profile": {
+    "known_mgraph_graph_type": "mgraph",
+    "known_mgraph_metadata_extracted": {
+      "fully_observed_vars": [
+        "Y"
+      ],
+      "proxy_nodes": [
+        {
+          "proxy_name": "X_star",
+          "target_variable": "X"
+        }
+      ],
+      "r_nodes": [
+        {
+          "description": "",
+          "missingness_kind": "mcar",
+          "target_variable": "X"
+        }
+      ],
+      "schema_version": "1.0",
+      "substantive_vars": [
+        "X",
+        "Y"
+      ]
+    },
+    "retag_operation": "the existing positive fixture model_dump followed by graph_type=\"admg\" only"
+  },
+  "retagged_admg": {
+    "canonical_extract": {
+      "exception_type": "ValueError",
+      "message": "extract_mgraph_metadata requires graph_type=MGRAPH, got GraphType.ADMG",
+      "result": "raised"
+    },
+    "cas_artifact_id": "sha256:dbb7233ea3ab79fbf52c3abe9f29c41827134fd7e3e2d47066cb5cd603139302",
+    "input_graph_type": "admg",
+    "job_issues": [],
+    "label": "build_mgraph_then_only_retag_admg",
+    "method_result_ref_present": true,
+    "mgraph_metadata": {
+      "fully_observed_vars": [
+        "Y"
+      ],
+      "proxy_nodes": [
+        {
+          "proxy_name": "X_star",
+          "target_variable": "X"
+        }
+      ],
+      "r_nodes": [
+        {
+          "description": "",
+          "missingness_kind": "mcar",
+          "target_variable": "X"
+        }
+      ],
+      "schema_version": "1.0",
+      "substantive_vars": [
+        "X",
+        "Y"
+      ]
+    },
+    "mgraph_metadata_key_present": true,
+    "node_artifacts_count": 1,
+    "node_status": "ok",
+    "persisted_mgraph_metadata_valid": true,
+    "reopened_graph_type": "admg",
+    "same_as_input": false
+  }
+}

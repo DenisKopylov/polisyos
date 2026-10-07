@@ -77,6 +77,7 @@ def test_same_candidate_model_revision_reenters_only_for_changed_semantics(
         load_ncm_spec,
         load_ncm_spec_selected_view,
     )
+    from polisyos.pdc import gy_content_hash
     from polisyos.runtime.http.app import create_runtime_api_app
     from polisyos.runtime.http.container import RuntimeContainerOverrides
     from polisyos.runtime.http.dependencies import build_runtime_api_context
@@ -87,6 +88,9 @@ def test_same_candidate_model_revision_reenters_only_for_changed_semantics(
     from polisyos.runtime.quality.candidate_simulation import (
         CandidateSimulationContextHandoff,
         CandidateSimulationContextOffer,
+        CandidateSimulationScenarioProfile,
+        CandidateSimulationSyntheticModelDeclarationV1,
+        candidate_simulation_profile_ref,
     )
     from polisyos.runtime.quality.cycle_substrate import (
         ConfiguredCandidateSimulationContextAdmissionOwner,
@@ -100,6 +104,7 @@ def test_same_candidate_model_revision_reenters_only_for_changed_semantics(
         GenerationCycleController,
         GenerationCycleError,
         JointSimulationPort,
+        _candidate_model_semantic_inputs,
         load_joint_simulation_result,
         reconcile_candidate_model_revision,
     )
@@ -356,6 +361,175 @@ def test_same_candidate_model_revision_reenters_only_for_changed_semantics(
             assert unchanged.value.code == "candidate_model_revision_basis_unchanged"
         finally:
             controller._run_cycle = saved_run_cycle  # type: ignore[method-assign]
+        assert len(n5_calls) == source_calls_before_reentry
+
+        # Reissue the same configured model under a fresh profile identifier.
+        # The owner must accept and persist the new occurrence, while the N5
+        # semantic projection still refuses to treat changed locators/hashes as
+        # a new model basis.
+        assert handoff.model_declaration is not None
+        locator_profile_payload = handoff.profile.model_dump(mode="json", exclude={"content_hash"})
+        locator_profile_payload["profile_id"] = (
+            f"{handoff.profile.profile_id}.same-model-occurrence"
+        )
+        locator_profile_payload["content_hash"] = gy_content_hash(locator_profile_payload)
+        locator_profile = CandidateSimulationScenarioProfile.model_validate(locator_profile_payload)
+        locator_declaration_payload = handoff.model_declaration.model_dump(
+            mode="json", exclude={"content_hash"}
+        )
+        locator_declaration_payload.update(
+            {
+                "profile_config_ref": candidate_simulation_profile_ref(locator_profile),
+                "profile_content_hash": locator_profile.content_hash,
+            }
+        )
+        locator_declaration_payload["content_hash"] = gy_content_hash(locator_declaration_payload)
+        locator_declaration = CandidateSimulationSyntheticModelDeclarationV1.model_validate(
+            locator_declaration_payload
+        )
+        assert locator_profile.profile_id != handoff.profile.profile_id
+        assert locator_profile.profile_selection_ref == handoff.profile.profile_selection_ref
+        assert locator_profile.content_hash != handoff.profile.content_hash
+        assert candidate_simulation_profile_ref(locator_profile) != (handoff.profile_config_ref)
+        assert locator_declaration.content_hash != handoff.model_declaration.content_hash
+        assert _candidate_model_semantic_inputs(locator_declaration) == (
+            _candidate_model_semantic_inputs(handoff.model_declaration)
+        )
+        assert handoff.model_declaration_ref is not None
+        assert handoff.ncm_ref is not None
+        locator_owner = ConfiguredCandidateSimulationContextAdmissionOwner(
+            profiles=(locator_profile,),
+            model_declarations=(locator_declaration,),
+            store=context_owner._store,
+        )
+        with tenant_scope(
+            None,
+            tenant_id=verified_scope.tenant_id,
+            cell_id=verified_scope.cell_id,
+        ):
+            locator_offer = locator_owner.admit_context(
+                problem=problem,
+                job_id=verified_scope.job_id,
+                run_id=verified_scope.run_id,
+                tenant_id=verified_scope.tenant_id,
+                cell_id=verified_scope.cell_id,
+            )
+        assert type(locator_offer) is CandidateSimulationContextOffer
+        assert locator_offer.profile == locator_profile
+        assert locator_offer.model_declaration == locator_declaration
+        assert locator_offer.model_declaration_ref is not None
+        assert locator_offer.ncm_ref is not None
+        assert artifact_ref_identity_key(locator_offer.model_declaration_ref) != (
+            artifact_ref_identity_key(handoff.model_declaration_ref)
+        )
+        assert artifact_ref_identity_key(locator_offer.ncm_ref) != (
+            artifact_ref_identity_key(handoff.ncm_ref)
+        )
+        with tenant_scope(
+            None,
+            tenant_id=verified_scope.tenant_id,
+            cell_id=verified_scope.cell_id,
+        ):
+            locator_context_ref = context_owner.persist_for_current_job(
+                locator_offer.context,
+                problem=problem,
+                verified_nl_job_scope=verified_scope,
+            )
+            locator_context = context_owner.resolve_for_current_job(
+                locator_context_ref,
+                problem=problem,
+                verified_nl_job_scope=verified_scope,
+            )
+        assert locator_context.context == locator_offer.context
+        assert artifact_ref_identity_key(locator_context_ref) != (
+            artifact_ref_identity_key(handoff.context_job_ref)
+        )
+        locator_handoff = CandidateSimulationContextHandoff(
+            context=locator_context.context,
+            context_job_ref=locator_context_ref,
+            profile=locator_offer.profile,
+            profile_config_ref=locator_offer.profile_config_ref,
+            job_id=verified_scope.job_id,
+            run_id=verified_scope.run_id,
+            tenant_id=verified_scope.tenant_id,
+            cell_id=verified_scope.cell_id,
+            model_declaration=locator_offer.model_declaration,
+            model_declaration_ref=locator_offer.model_declaration_ref,
+            ncm_ref=locator_offer.ncm_ref,
+        )
+
+        def resolve_locator_currentness() -> bool:
+            if not verified_scope._was_issued_by_verified_nl_execution_owner:
+                return False
+            try:
+                selected_context = context_owner.resolve_for_current_job(
+                    locator_context_ref,
+                    problem=problem,
+                    verified_nl_job_scope=verified_scope,
+                )
+                current_offer = locator_owner.admit_context(
+                    problem=problem,
+                    job_id=verified_scope.job_id,
+                    run_id=verified_scope.run_id,
+                    tenant_id=verified_scope.tenant_id,
+                    cell_id=verified_scope.cell_id,
+                )
+            except Exception:
+                return False
+            return (
+                type(current_offer) is CandidateSimulationContextOffer
+                and selected_context.problem == problem
+                and selected_context.context == current_offer.context == locator_handoff.context
+                and current_offer.profile == locator_handoff.profile
+                and current_offer.profile_config_ref == locator_handoff.profile_config_ref
+                and current_offer.model_declaration == locator_handoff.model_declaration
+                and current_offer.model_declaration_ref == locator_handoff.model_declaration_ref
+                and current_offer.ncm_ref == locator_handoff.ncm_ref
+                and artifact_ref_identity_key(locator_context_ref)
+                == artifact_ref_identity_key(locator_handoff.context_job_ref)
+            )
+
+        locator_controller = GenerationCycleController(
+            model_id=controller._generation_port._model_id,
+            repo_root=controller._repo_root,
+            cycle_substrate_context=locator_handoff.context,
+            promotion_runtime=controller._promotion_runtime,
+            candidate_simulation_handoff=locator_handoff,
+            candidate_simulation_currentness_resolver=resolve_locator_currentness,
+        )
+        with tenant_scope(
+            None,
+            tenant_id=verified_scope.tenant_id,
+            cell_id=verified_scope.cell_id,
+        ):
+            assert resolve_locator_currentness()
+        locator_run_cycle = locator_controller._run_cycle
+
+        async def forbid_locator_only_n5(*_args: Any, **_kwargs: Any) -> Any:
+            raise AssertionError("locator_only_candidate_model_must_stop_before_n5")
+
+        locator_controller._run_cycle = forbid_locator_only_n5  # type: ignore[method-assign]
+        try:
+            with (
+                tenant_scope(
+                    None,
+                    tenant_id=verified_scope.tenant_id,
+                    cell_id=verified_scope.cell_id,
+                ),
+                pytest.raises(GenerationCycleError) as locator_only,
+            ):
+                await locator_controller.reenter_after_candidate_model_revision(
+                    original_run=original_run_result,
+                    source_cycle=source_cycle,
+                    problem=problem,
+                    admission_owner=locator_owner,
+                    context_owner=context_owner,
+                    verified_nl_job_scope=verified_scope,
+                    budget_state=budget_state,
+                )
+            assert locator_only.value.code == "candidate_model_revision_basis_unchanged"
+        finally:
+            locator_controller._run_cycle = locator_run_cycle  # type: ignore[method-assign]
         assert len(n5_calls) == source_calls_before_reentry
 
         # The positive control changes the declared structural coefficient.

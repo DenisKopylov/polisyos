@@ -6,7 +6,6 @@ from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 
 import pytest
-
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.scientist.methods.autotune.models import (
@@ -37,6 +36,7 @@ from polisyos.scientist.methods.search.objective import (
     ObjectiveValue,
     OptimizationDirection,
 )
+from polisyos.scientist.methods.search.run_state import checkpoint_json
 from polisyos.scientist.methods.search.service import NativeSearchService
 from polisyos.scientist.methods.search.stopping import (
     CostBudgetStopping,
@@ -392,8 +392,35 @@ def test_generator_without_checkpoint_contract_refuses_public_resume(tmp_path):
 
 
 class _CheckpointBatch(SequenceCandidateGenerator):
+    """Owned bounded batch fixture; its scalar body consumes no history."""
+
     def generate_batch(self, history, current_best, context, batch_size):
         return [self.generate(history, current_best, context) for _ in range(batch_size)]
+
+    def get_state(self):
+        return {
+            "version": "fixture-sequence-batch.v1",
+            "candidates": checkpoint_json(self._candidates),
+            "index": self._index,
+        }
+
+    def validate_checkpoint_history(self, history, value):
+        # The actual batch calls the canonical history-independent scalar body;
+        # every physical proposal is determined by this whole corpus and cursor.
+        del history
+        if (
+            type(value) is not dict
+            or set(value) != {"version", "candidates", "index"}
+            or value["version"] != "fixture-sequence-batch.v1"
+            or value["candidates"] != checkpoint_json(self._candidates)
+            or type(value["index"]) is not int
+            or not 0 <= value["index"] <= len(self._candidates)
+        ):
+            raise ValueError("fixture_batch_checkpoint_corpus_or_cursor_invalid")
+
+    def set_state(self, value):
+        _CheckpointBatch.validate_checkpoint_history(self, [], value)
+        self._index = value["index"]
 
 
 def test_actual_pending_batch_order_survives_canonical_json_key_sorting(tmp_path):

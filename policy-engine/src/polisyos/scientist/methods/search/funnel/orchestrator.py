@@ -948,46 +948,89 @@ class FunnelOrchestrator:
             and self._has_new_continuation_basis(ticket, routing_mode=routing_mode)
         )
 
-    def _reconcile_stage_settlement(self, settlement: Any, observed: dict[str, Any]) -> None:
-        """Read back actual B receipts for a response produced inside this stage.
+    def _reconcile_stage_settlement(self, response: Any, observed: dict[str, Any]) -> None:
+        """Reconcile real receipts and cache proof at this stage's consumer boundary.
 
-        This establishes bounded local accounting, not external billing or a
-        permission grant. Each producer event contributes once even when its
-        declared budget scope has multiple accounting keys.
+        The existing cache receiver verifies its runtime issuer and original paid
+        content/context before its context closes. Later delivery of the same
+        response may repeat that verified event, but cannot issue new reuse.
+        This is local accounting, not external billing or permission authority.
         """
-        from polisyos.core.llm.settlement import LLMProducerSettlement
+        from polisyos.core.llm.response import extract_llm_response_data
+        from polisyos.core.llm.settlement import LLMSettledResponse, producer_settlement
         from polisyos.scientist.orchestration.engine.budget_ledger import BudgetLedgerSpendReceipt
 
-        if isinstance(settlement, FunnelResourceAccountingFailure):
-            previous = observed.get(settlement.event.event_id)
-            if previous is not None and previous != settlement:
+        if isinstance(response, FunnelResourceAccountingFailure):
+            previous = observed.get(response.event.event_id)
+            if previous is not None and previous != response:
                 raise ValueError("funnel resource producer ID conflicts within stage")
-            observed[settlement.event.event_id] = settlement
+            observed[response.event.event_id] = response
             return
-        if not isinstance(settlement, LLMProducerSettlement):
+        settlement = producer_settlement(response)
+        if settlement is None:
             raise ValueError("funnel resource settlement must be producer typed")
         event, ack = settlement.event, settlement.ack
         if ack.status != "committed" or ack.durability != "ledger":
             raise ValueError("funnel resource settlement lacks durable acknowledgment")
-        assert self._budget_middleware is not None
-        if event.kind == "provider" and not ack.receipts:
-            raise ValueError("provider settlement has no persisted receipt")
-        for receipt in ack.receipts:
-            if not isinstance(receipt, BudgetLedgerSpendReceipt):
-                raise ValueError("provider settlement contains a malformed ledger receipt")
-            event_id = f"{event.event_id}:budget:{hashlib.sha256(receipt.key.encode()).hexdigest()}"
-            digest = hashlib.sha256(f"{event.payload_digest}:{receipt.key}".encode()).hexdigest()
-            if (
-                receipt.event_id != event_id
-                or receipt.payload_digest != digest
-                or receipt.amount != event.amount
-                or receipt.provider != event.provider
-                or self._budget_middleware.resolve_spend_safe(event_id) != receipt
-            ):
-                raise ValueError("funnel resource settlement does not bind reopened local receipt")
         previous = observed.get(event.event_id)
         if previous is not None and previous != settlement:
             raise ValueError("funnel resource producer ID conflicts within stage")
+        assert self._budget_middleware is not None
+        receipt_event, receipts = event, ack.receipts
+        if event.kind == "reuse":
+            content = getattr(response, "content", None)
+            if (
+                event.amount != 0
+                or event.cost_origin != "reuse"
+                or ack.receipts
+                or not isinstance(content, str)
+                or event.response_digest != "sha256:" + hashlib.sha256(content.encode()).hexdigest()
+                or event.model != getattr(response, "model", None)
+                or event.provider != getattr(response, "provider", None)
+            ):
+                raise ValueError(
+                    "funnel cache reuse conflicts with actual response and zero charge"
+                )
+            raw = response.response if isinstance(response, LLMSettledResponse) else response
+            origin = producer_settlement(raw)
+            if (
+                origin is None
+                or origin.event.kind != "provider"
+                or origin.ack.status != "committed"
+                or origin.ack.durability != "ledger"
+                or not origin.ack.receipts
+                or origin.event.event_id != event.origin_event_id
+                or origin.event.request_digest != event.request_digest
+                or origin.event.response_digest != event.response_digest
+                or origin.event.model != event.model
+                or origin.event.provider != event.provider
+            ):
+                raise ValueError("funnel cache reuse conflicts with original paid lineage")
+            receipt_event, receipts = origin.event, origin.ack.receipts
+            if previous is None:
+                # This runs inside the actual traced receiver's cache context.
+                # The core intake independently checks its issuer seal, exact
+                # request/content and every original paid receipt via readback.
+                data = extract_llm_response_data(response)
+                if not data.cache_hit or data.reuse_event_id != event.event_id:
+                    raise ValueError("funnel cache reuse lacks current owner-bound paid lineage")
+        elif not ack.receipts:
+            raise ValueError("provider settlement has no persisted receipt")
+        for receipt in receipts:
+            if not isinstance(receipt, BudgetLedgerSpendReceipt):
+                raise ValueError("provider settlement contains a malformed ledger receipt")
+            event_id = f"{receipt_event.event_id}:budget:{hashlib.sha256(receipt.key.encode()).hexdigest()}"
+            digest = hashlib.sha256(
+                f"{receipt_event.payload_digest}:{receipt.key}".encode()
+            ).hexdigest()
+            if (
+                receipt.event_id != event_id
+                or receipt.payload_digest != digest
+                or receipt.amount != receipt_event.amount
+                or receipt.provider != receipt_event.provider
+                or self._budget_middleware.resolve_spend_safe(event_id) != receipt
+            ):
+                raise ValueError("funnel resource settlement does not bind reopened local receipt")
         observed[event.event_id] = settlement
 
     def _resolve_failed_resource_event(self, failure: FunnelResourceAccountingFailure) -> bool:

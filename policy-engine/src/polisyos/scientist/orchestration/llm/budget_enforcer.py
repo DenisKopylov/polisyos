@@ -15,6 +15,8 @@ from polisyos.common.serialization import stable_json_dumps, to_python_data
 from polisyos.core.llm.response import extract_llm_response_data
 from polisyos.core.llm.settlement import (
     LLMProducerEvent,
+    LLMProducerSettlement,
+    LLMSettledResponse,
     LLMSettlementAck,
     _new_producer_id,
     _request_digest,
@@ -496,13 +498,26 @@ class LLMBudgetEnforcer:
                 self._emit_cost_metrics(event.amount, extract_llm_response_data(response))
             except Exception:
                 logger.warning("Optional LLM budget metrics sink failed")
-        return LLMSettlementAck(
+        acknowledgment = LLMSettlementAck(
             event.event_id,
             event.payload_digest,
             "committed",
             tuple(receipts),
             "ledger" if self._budget_middleware is not None else "memory",
         )
+        if event.kind == "reuse":
+            # The traced receiver still binds the actual cache issuer here.
+            # After generate returns, its sealed provenance is deliberately no
+            # longer usable for new admission. The funnel observes it now and
+            # reconciles the returned response again at the native caller.
+            from polisyos.scientist.methods.search.funnel.types import (
+                observe_funnel_resource_response,
+            )
+
+            observe_funnel_resource_response(
+                LLMSettledResponse(response, LLMProducerSettlement(event, acknowledgment))
+            )
+        return acknowledgment
 
     @staticmethod
     def _validate_receipt(

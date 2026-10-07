@@ -69,7 +69,11 @@ def funnel_resource_response_observer(
 
 
 def observe_funnel_resource_response(response: Any) -> None:
-    """Forward a native returned settlement before any fallible payload parsing."""
+    """Forward the actual response before any fallible payload parsing.
+
+    Cache reuse must be observed while its trusted receiver context is live;
+    the returned response is reconciled again after that context has closed.
+    """
     observer = _RESOURCE_RESPONSE_OBSERVER.get()
     if observer is not None:
         from polisyos.core.llm.settlement import producer_settlement
@@ -79,7 +83,7 @@ def observe_funnel_resource_response(response: Any) -> None:
         try:
             if settlement is None:
                 raise ValueError("configured funnel resource producer returned no typed settlement")
-            observer(settlement)
+            observer(response)
         except (ValueError, OSError) as exc:
             raise LLMAccountingError(
                 response=response,

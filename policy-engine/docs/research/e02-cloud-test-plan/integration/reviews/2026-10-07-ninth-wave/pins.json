@@ -1,0 +1,168 @@
+{
+  "review_base_sha": "ebae80eaa25482d84bc6ad2e78721bc318bc0228",
+  "review_base_tree_sha": "4bc0ca606eaf5145e23769da3968a673d99a9abf",
+  "transport_capture_utc": "2026-10-07T08:37:37.003854Z",
+  "refs": [
+    {
+      "remote_ref": "origin/codex/e02-B-current-adapters",
+      "candidate_head_sha": "f0111fefcb6fa48e8ccb4aab213a14694dc206ad",
+      "candidate_tree_sha": "4b42f231f2a322d78b59f640aae672e944b49239",
+      "previously_seen_sha": "7af0b486f8434185204abf98863e54cac16fe431",
+      "local_tracking_head_at_doc_preparation": "4d523e51ccdc9d1a16d5ff81316f44898827ee78",
+      "capture_is_ancestor_of_local_tracking_head": true
+    },
+    {
+      "remote_ref": "origin/codex/e02-B-current-cas-generation",
+      "candidate_head_sha": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "candidate_tree_sha": "7e906f0176c19fd587b098097d4bf3916a9df6d0",
+      "previously_seen_sha": "e6f947151a4837578e5263aca5ab2fd2dab2876d",
+      "local_tracking_head_at_doc_preparation": "91e343e0fa79ff77ff08fa0fae6fd3f035633190",
+      "capture_is_ancestor_of_local_tracking_head": true
+    },
+    {
+      "remote_ref": "origin/codex/e02-B-current-composition",
+      "candidate_head_sha": "e82ac5834ee481051f905edfe0bd68ba19dcc6ad",
+      "candidate_tree_sha": "aa8ac79b65490ca876f09a6c197186dc896d702e",
+      "previously_seen_sha": "df945de549d9d31ca56c5b3b7fab6a1e29d09361",
+      "local_tracking_head_at_doc_preparation": "8aa69009572bdec3b4906257208c601bed4fd9a6",
+      "capture_is_ancestor_of_local_tracking_head": true
+    },
+    {
+      "remote_ref": "origin/codex/e02-B-current-coordination",
+      "candidate_head_sha": "fae38a6b8ceceabec2967aebe02df9fdccd67509",
+      "candidate_tree_sha": "1dbb7308076cc28b8b40cfa17bd324954ae068b2",
+      "previously_seen_sha": "c683ab749f470249565ecaf377e5a24cd74e47bc",
+      "local_tracking_head_at_doc_preparation": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+      "capture_is_ancestor_of_local_tracking_head": true
+    },
+    {
+      "remote_ref": "origin/codex/e02-B-current-durability",
+      "candidate_head_sha": "7ea3e5b4c9799e8c1bad62ea26a84a4fb9eb1894",
+      "candidate_tree_sha": "9c9c3e2302734129d16a980688a07a723d0b4714",
+      "previously_seen_sha": "b6c4d27a23d78feb8c081be9e9024051805a647b",
+      "local_tracking_head_at_doc_preparation": "637b821971f8d9a6413c5f8e93a7d416a30dbc65",
+      "capture_is_ancestor_of_local_tracking_head": true
+    },
+    {
+      "remote_ref": "origin/codex/e02-B-current-execution-state",
+      "candidate_head_sha": "c383c91007d8ae4438304392cc133f6fffbda5ac",
+      "candidate_tree_sha": "0f2e9cdc17655723a08b09f3714c7d44f6c2569d",
+      "previously_seen_sha": "45f53b44de7683f3f000f1f805100b3ce3e50929",
+      "local_tracking_head_at_doc_preparation": "61070b6533387c05497b25295860194ca378b2cc",
+      "capture_is_ancestor_of_local_tracking_head": true
+    },
+    {
+      "remote_ref": "origin/codex/e02-B-current-runtime",
+      "candidate_head_sha": "21dbeabe539f8154c30e5b2e1745d8d34224fe34",
+      "candidate_tree_sha": "233dfbf35dfe593ffd3524c633a3b20415f329d6",
+      "previously_seen_sha": "c61ec2652c06b1e404c76379bf994dff1a789f11",
+      "local_tracking_head_at_doc_preparation": "9b57328d57cce174da8a2953e6db0e77c1ad1fee",
+      "capture_is_ancestor_of_local_tracking_head": true
+    },
+    {
+      "remote_ref": "origin/codex/e02-D-oct07-continuation",
+      "candidate_head_sha": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "candidate_tree_sha": "855ae45bd271d207ad3121276a5281454d1d38de",
+      "previously_seen_sha": null,
+      "local_tracking_head_at_doc_preparation": "c0e03e084460b97475d13ec393069ff59ca4d5ee",
+      "capture_is_ancestor_of_local_tracking_head": true
+    },
+    {
+      "remote_ref": "origin/codex/e02-E-cal-review-20261006",
+      "candidate_head_sha": "c07f1be62be41577c860b2af81e8f00ce1d6c382",
+      "candidate_tree_sha": "59795c1ac06dff369e364741d7f5fc453892ba0f",
+      "previously_seen_sha": null,
+      "local_tracking_head_at_doc_preparation": "c07f1be62be41577c860b2af81e8f00ce1d6c382",
+      "capture_is_ancestor_of_local_tracking_head": true
+    },
+    {
+      "remote_ref": "origin/codex/e02-E-cal05-20261006",
+      "candidate_head_sha": "450d2344d405126997c4878b252689685a6dcdd2",
+      "candidate_tree_sha": "829fb46848e6107e15e44ba5506e83f88239bed7",
+      "previously_seen_sha": "2643672263971584dcdcf347c6a93c3122d7e7ae",
+      "local_tracking_head_at_doc_preparation": "56417347a6967a29cb07c9300c7208fedbff85d7",
+      "capture_is_ancestor_of_local_tracking_head": true
+    },
+    {
+      "remote_ref": "origin/codex/e02-E-continuation-20261006",
+      "candidate_head_sha": "d86ed53b82c4d31555e0c49698a44aa5c093286e",
+      "candidate_tree_sha": "561837c96731267e1790dccf557be6e66bf11738",
+      "previously_seen_sha": "8e7e6cc28ac336fa9275ed456ac19a74d0e55553",
+      "local_tracking_head_at_doc_preparation": "050ac746f8206b63071908ee83a52e5fd4d491d3",
+      "capture_is_ancestor_of_local_tracking_head": true
+    },
+    {
+      "remote_ref": "origin/codex/e02-E-doe-20261006",
+      "candidate_head_sha": "0a56a41b8ef41487f1caf4354554c703fd8a15bb",
+      "candidate_tree_sha": "a86419514a2e4e3daac6f3c7ba03c1255ceff7ea",
+      "previously_seen_sha": "a1ef819e69c71bf01d3e4d1427a5b90f7322b3b6",
+      "local_tracking_head_at_doc_preparation": "0a56a41b8ef41487f1caf4354554c703fd8a15bb",
+      "capture_is_ancestor_of_local_tracking_head": true
+    },
+    {
+      "remote_ref": "origin/codex/e02-F-api-20261006",
+      "candidate_head_sha": "605dadeb76499c3f6eadd95e16a8df1bbb2cb89f",
+      "candidate_tree_sha": "c7c71a12bc04238dce414455a06849a9f49a824f",
+      "previously_seen_sha": "90c72b51155321684c788cd5a03fbb70fc001d53",
+      "local_tracking_head_at_doc_preparation": "605dadeb76499c3f6eadd95e16a8df1bbb2cb89f",
+      "capture_is_ancestor_of_local_tracking_head": true
+    },
+    {
+      "remote_ref": "origin/codex/e02-F-cau-20261006",
+      "candidate_head_sha": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "candidate_tree_sha": "d24808dc3eeed4881256f2a70cdeb02357c425c7",
+      "previously_seen_sha": "f88c98a190c336ef414361a236276ed7ea6d3d62",
+      "local_tracking_head_at_doc_preparation": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+      "capture_is_ancestor_of_local_tracking_head": true
+    },
+    {
+      "remote_ref": "origin/codex/e02-F-closeout-20261006",
+      "candidate_head_sha": "56e4513787773e6860b55163cd792062abe66a94",
+      "candidate_tree_sha": "35f35af7333d5894e90fd9fc02e457729b1c88af",
+      "previously_seen_sha": "072d45a56d1119fe3e7665cec2cbbdca015d2934",
+      "local_tracking_head_at_doc_preparation": "56e4513787773e6860b55163cd792062abe66a94",
+      "capture_is_ancestor_of_local_tracking_head": true
+    },
+    {
+      "remote_ref": "origin/codex/e02-F-economics-20261006",
+      "candidate_head_sha": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+      "candidate_tree_sha": "334f80bc471c2a686ab4f7a5101c44d0cb4c6b90",
+      "previously_seen_sha": "3912782bfd55cc87f76757310c32603ecbe58cc3",
+      "local_tracking_head_at_doc_preparation": "fa53da2812eaa8578f79ec914b3b2abe4c491f3d",
+      "capture_is_ancestor_of_local_tracking_head": true
+    },
+    {
+      "remote_ref": "origin/codex/e02-F-fry-20261006",
+      "candidate_head_sha": "0552bd338dad23b2eabb0d22a1c7c4eb4bcd61d6",
+      "candidate_tree_sha": "ce0da4f7d0fb7d313bf98547571a2c2a0487df35",
+      "previously_seen_sha": "a2d55a1942e1f56f35cf2b9772ae56b0b46de95d",
+      "local_tracking_head_at_doc_preparation": "c22786dfce8308bb7d48a177ccb1b109843262b5",
+      "capture_is_ancestor_of_local_tracking_head": true
+    },
+    {
+      "remote_ref": "origin/codex/e02-F-graph-20261006",
+      "candidate_head_sha": "370cac5c342bbc5b206331f93776505e0cffe3a6",
+      "candidate_tree_sha": "014203f04f72a477407df231372775f403e0cefb",
+      "previously_seen_sha": "46bbfa53adc8da775a08b66b80d02109cc5b2db8",
+      "local_tracking_head_at_doc_preparation": "370cac5c342bbc5b206331f93776505e0cffe3a6",
+      "capture_is_ancestor_of_local_tracking_head": true
+    },
+    {
+      "remote_ref": "origin/codex/e02-F-tmle-20261006",
+      "candidate_head_sha": "e04ddf884071b17ffb1d021c9a6b23f826d76774",
+      "candidate_tree_sha": "13736344f761ab911a1607fc2ebb9d722395ec68",
+      "previously_seen_sha": "d13e83bba7ac9ae02f68ff23ddf7ed8a24ea424a",
+      "local_tracking_head_at_doc_preparation": "e04ddf884071b17ffb1d021c9a6b23f826d76774",
+      "capture_is_ancestor_of_local_tracking_head": true
+    }
+  ],
+  "new_source_accepted": [],
+  "new_findings_closed": [],
+  "predicate_basis": "independently_reconciled",
+  "limitations": [
+    "Source admission, current candidate tests and full merge dependency reconciliation remain separate.",
+    "Later remote commits are outside this immutable review.",
+    "Local tracking refs may advance during other roots' fetches; only captured immutable candidate heads and trees are reviewed here."
+  ],
+  "doc_preparation_utc": "2026-10-07T09:37:14.604465+00:00"
+}

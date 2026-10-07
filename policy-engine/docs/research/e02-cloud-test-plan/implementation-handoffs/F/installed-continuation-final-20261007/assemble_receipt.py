@@ -48,8 +48,8 @@ for path in selected:
    stored=raw;relative=prefix/name;encoding='gzip'
   elif len(raw)>65536:
    stored=gzip.compress(raw,mtime=0);relative=prefix/(name+'.gz');encoding='gzip'
-  elif path.suffix in ('.txt','.xml') or '.stdout.' in path.name or '.stderr.' in path.name:
-   stored=(json.dumps({'schema':'policyos.e02.lossless_utf8_text.v1','decoded_bytes':len(raw),'decoded_sha256':decoded_sha,'text':raw.decode('utf-8')},ensure_ascii=False,indent=2)+'\n').encode();relative=prefix/(name+'.text.json');encoding='lossless_utf8_json'
+  elif path.suffix in ('.txt','.xml','.diff') or '.stdout.' in path.name or '.stderr.' in path.name:
+   stored=(json.dumps({'schema':'policyos.e02.lossless_utf8_text.v1','decoded_bytes':len(raw),'decoded_sha256':decoded_sha,'text':raw.decode('utf-8')},ensure_ascii=False,indent=2)+'\n').encode();relative=prefix/(name if path.suffix=='.diff' else name+'.text.json');encoding='lossless_utf8_json'
   else:
    stored=raw;relative=prefix/name;encoding='identity'
   target=own/relative;target.parent.mkdir(parents=True,exist_ok=True);assert not target.exists();target.write_bytes(stored)

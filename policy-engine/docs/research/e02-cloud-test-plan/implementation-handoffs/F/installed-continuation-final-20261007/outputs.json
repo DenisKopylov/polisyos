@@ -164,9 +164,9 @@
       "original_stored_bytes": 38787,
       "original_stored_sha256": "f9ce33229480285d99859f17032cae3fecb9b94d8cebe6b48069ec760ed43f21",
       "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-continuation-final-20261007/independent/full-product-delta.diff",
-      "stored_bytes": 38787,
-      "stored_sha256": "f9ce33229480285d99859f17032cae3fecb9b94d8cebe6b48069ec760ed43f21",
-      "encoding": "identity"
+      "stored_bytes": 40197,
+      "stored_sha256": "b8d82ad5cf26561a5abd75329c6fa67decbf80e800405aff92e43d16a70774bb",
+      "encoding": "lossless_utf8_json"
     },
     {
       "original_path": "/tmp/e02-F-continuation-20261007/api/installed-final-independent/g-a0-resource-boundary-baseline.json",
@@ -301,15 +301,17 @@
       "encoding": "gzip"
     },
     {
-      "original_path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/assemble_receipt.py",
-      "decoded_bytes": 13776,
-      "decoded_sha256": "e6da92116ebd4f43b7cb4ac56a2a2b5d272829d851cdd6c36d02eb1a101f9acf",
-      "original_stored_bytes": 13776,
-      "original_stored_sha256": "e6da92116ebd4f43b7cb4ac56a2a2b5d272829d851cdd6c36d02eb1a101f9acf",
+      "decoded_bytes": 13818,
+      "decoded_sha256": "44a90e63618f2d1fcd98675cdc8affaedd4900ec45c1affeb34ac6ca2d880336",
+      "original_stored_bytes": 13818,
+      "original_stored_sha256": "44a90e63618f2d1fcd98675cdc8affaedd4900ec45c1affeb34ac6ca2d880336",
       "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-continuation-final-20261007/assemble_receipt.py",
-      "stored_bytes": 13776,
-      "stored_sha256": "e6da92116ebd4f43b7cb4ac56a2a2b5d272829d851cdd6c36d02eb1a101f9acf",
-      "encoding": "identity"
+      "stored_bytes": 13818,
+      "stored_sha256": "44a90e63618f2d1fcd98675cdc8affaedd4900ec45c1affeb34ac6ca2d880336",
+      "encoding": "identity",
+      "corrected_observer_input": "Losslessdiffencoding correction only; original exact input retained at thispath@40e58209f34921d20218c6c5af3a2820db732d22",
+      "original_path_at_capture": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/assemble_receipt.py",
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/assemble_receipt_encoding_corrected.py"
     },
     {
       "original_path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/auxiliary-diagnostic-classification.json",
@@ -1311,8 +1313,41 @@
       "stored_bytes": 269,
       "stored_sha256": "f6c3d7fc969bb5518446b369b1f07bb6459b46431746959267adc8ac108fcafd",
       "encoding": "lossless_utf8_json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/receipt-diff-storage-correction.json",
+      "decoded_bytes": 1499,
+      "decoded_sha256": "2d051a788e8f5e113188f2442b3c8aa41e1b3b6ebff998922951a41da49c2476",
+      "original_stored_bytes": 1499,
+      "original_stored_sha256": "2d051a788e8f5e113188f2442b3c8aa41e1b3b6ebff998922951a41da49c2476",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-continuation-final-20261007/receipt-diff-storage-correction.json",
+      "stored_bytes": 1499,
+      "stored_sha256": "2d051a788e8f5e113188f2442b3c8aa41e1b3b6ebff998922951a41da49c2476",
+      "encoding": "identity"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/initial-receipt-diff-check.stdout.txt",
+      "decoded_bytes": 8135,
+      "decoded_sha256": "d6fbbd010f16a0028146c72655c87bd540f84216423db45cde52fe1603a34fc5",
+      "original_stored_bytes": 8135,
+      "original_stored_sha256": "d6fbbd010f16a0028146c72655c87bd540f84216423db45cde52fe1603a34fc5",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-continuation-final-20261007/initial-receipt-diff-check.stdout.txt.text.json",
+      "stored_bytes": 8407,
+      "stored_sha256": "569c260c1d43c83111c488d2f96ec2c110c7c426c25c04e73931adc335d415e7",
+      "encoding": "lossless_utf8_json"
+    },
+    {
+      "original_path": "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/initial-receipt-diff-check.stderr.txt",
+      "decoded_bytes": 0,
+      "decoded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_stored_bytes": 0,
+      "original_stored_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "committed_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-continuation-final-20261007/independent/b5-first-observer-error.stdout.txt.text.json",
+      "stored_bytes": 177,
+      "stored_sha256": "81af3dc40c43207f1415b492a7bf8fa7eb5e3e1ddaa6e4ad116768d89766f2de",
+      "encoding": "lossless_utf8_json"
     }
   ],
-  "unique_stored_files": 89,
+  "unique_stored_files": 91,
   "source_body_policy": "Tracked product/test/source bodies are cited as path@b5 and Git blob in carrier/source manifests; not copied into this receipt. Full unique deciding logs/observer inputs and expected errors are transported."
 }

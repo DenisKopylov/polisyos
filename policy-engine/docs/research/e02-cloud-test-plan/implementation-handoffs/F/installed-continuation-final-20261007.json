@@ -119,7 +119,9 @@
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-continuation-final-20261007/wheel-reader-origin-proofs/8d14f6ae749038bc141ffe1188a7e57f1a4f665db4369e4abc15d6951a9df40b.json.gz",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-continuation-final-20261007/wheel-resources-v2.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-continuation-final-20261007/worker-python-version.stdout.txt.text.json",
-    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-continuation-final-20261007/outputs.json"
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-continuation-final-20261007/outputs.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-continuation-final-20261007/receipt-diff-storage-correction.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-continuation-final-20261007/initial-receipt-diff-check.stdout.txt.text.json"
   ],
   "evidence_only": true,
   "tested_source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
@@ -201,6 +203,22 @@
       "input_closure": "Exact b5 Gitarchive17843files/550021601B;8 selected Git-bound modules/41 fixtures;3452product+7forcedresource declaredfiles; synthetic actualTMLE600binary2fold1repeat once/profile, genuine Graph/CAS and signed economics producer-route fixtures.",
       "outcome": "FAIL",
       "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-continuation-final-20261007/independent/b5-independent-review.json"
+    },
+    {
+      "command": "git diff --check HEAD^ HEAD at40e58209f34921d20218c6c5af3a2820db732d22; preservedinitialcompleteoutput",
+      "target_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "environment": "Git on admitted ownattachedFrybranch; receipt-onlypathcheck, no nativeexecution",
+      "input_closure": "Complete newhandoff/outputs footprint over0552; originalrawcaptureddiff context whitespace",
+      "outcome": "FAIL",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-continuation-final-20261007/receipt-diff-storage-correction.json"
+    },
+    {
+      "command": "git diff --cached --check; complete staged Git blob/original/decoded output reconciliation",
+      "target_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+      "environment": "Git on admitted own attached Fry branch; Python3 stdlib gzip/json/hashlib; receipt storage only, no numerical replay",
+      "input_closure": "122 complete retained input/output records, 91 unique stored bodies and outputs.json, all original/decoded lengths and hashes; old40e receipt retained",
+      "outcome": "PASS",
+      "output": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-continuation-final-20261007/receipt-diff-storage-correction.json"
     }
   ],
   "complete_outputs_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-continuation-final-20261007/outputs.json",
@@ -272,5 +290,13 @@
     "Earlier historical15=14runtime+1instrumentation→0 and90optionalLightGBM are exact prior8236profile proof only, not fresh current162counts. No warning suppression introduced.",
     "Genuine operational Runtime seal/current fullcontext+challenge+verifier, statisticalidentification admission, nativevaluecontractpositive andB56admittedcompeting-studybudget remain institutionally missing/UNRUN. No new gate/issuer/authority facade.",
     "No global architecture/schema/invocation closure, codeacceptance/main/Gintegration claim. ROOT current35ledger remains solewriter."
-  ]
+  ],
+  "receipt_storage_correction": {
+    "initial_immutable_receipt_commit": "40e58209f34921d20218c6c5af3a2820db732d22",
+    "outcome": "FAIL initialdiffcheck; append-onlylosslessencodingfix",
+    "details": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/F/installed-continuation-final-20261007/receipt-diff-storage-correction.json",
+    "original_deciding_raw_diff_unchanged": true,
+    "runtime_science_unchanged": true,
+    "native_repeated": false
+  }
 }

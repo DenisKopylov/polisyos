@@ -187,7 +187,7 @@ def _analysis_identity(
     plan: SensitivityPlan, samples: np.ndarray, outputs: np.ndarray
 ) -> dict[str, object]:
     """Record actual ordered design, outcomes and estimator identity."""
-    plan = _admit_sensitivity_plan(plan)
+    plan = _admit_sensitivity_plan(plan, actual_run_count=int(samples.shape[0]))
     if plan.method == SensitivityMethod.SOBOL:
         if plan.seed is None:
             raise ValueError("Sobol analysis requires a seed to reconcile its ordered design")
@@ -283,6 +283,8 @@ def _prepare_analysis_inputs(
         raise ValueError("outputs must be 1-D or 2-D")
     if samples.ndim != 2 or samples.shape[0] != outputs.shape[0]:
         raise ValueError("samples and outputs must have the same row count")
+
+    plan = _admit_sensitivity_plan(plan, actual_run_count=int(outputs.shape[0]))
 
     sample_valid = np.all(np.isfinite(samples), axis=1)
     if outputs.ndim == 1:

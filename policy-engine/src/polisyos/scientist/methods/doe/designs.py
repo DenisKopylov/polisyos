@@ -227,7 +227,11 @@ class SensitivityPlan(BaseModel):
         return self
 
 
-def _admit_sensitivity_plan(plan: SensitivityPlan) -> SensitivityPlan:
+def _admit_sensitivity_plan(
+    plan: SensitivityPlan,
+    *,
+    actual_run_count: int | None = None,
+) -> SensitivityPlan:
     """Re-admit a defensive snapshot before materializing a mutable plan.
 
     Construction, assignment and ``model_copy(update=...)`` are separate
@@ -235,8 +239,24 @@ def _admit_sensitivity_plan(plan: SensitivityPlan) -> SensitivityPlan:
     consumer uses the existing structural and estimated-run predicate rather
     than trusting admission of an earlier state. The caller's mutable object
     remains unchanged and cannot change this operation's effective plan.
+
+    Morris analysis also binds its original row denominator to this snapshot's
+    trajectory count. A larger estimated-run cap or ``allow_large_run`` admits
+    an explicitly larger plan, never additional undeclared trajectories.
+    Failure filtering cannot erase the original work before this check.
     """
-    return SensitivityPlan.model_validate(plan.model_dump(mode="python"))
+    admitted = SensitivityPlan.model_validate(plan.model_dump(mode="python"))
+    if (
+        admitted.method == SensitivityMethod.MORRIS
+        and actual_run_count is not None
+        and actual_run_count > admitted.estimated_runs
+    ):
+        raise ValueError(
+            "actual Morris analysis rows exceed admitted plan "
+            f"({actual_run_count} > {admitted.estimated_runs}); "
+            "declare the actual trajectory count in SensitivityPlan"
+        )
+    return admitted
 
 
 def _derive_backend_seed(seed: int | None, stream: str) -> int | None:

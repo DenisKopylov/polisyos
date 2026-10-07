@@ -1,0 +1,11 @@
+id = "2026-10-07-doe-morris-analysis-work"
+title = "Bind actual Morris analysis rows to the admitted trajectory plan"
+type = "fixed"
+component = "scientist-doe"
+owner = "team-scientist"
+summary = "Morris analysis, PCA, stability and persisted readback reject undeclared extra trajectories before native work or failure filtering. Whole-trajectory failure accounting and explicit larger plans remain supported."
+evidence = ["tests/unit/scientist/methods/doe/test_morris_analysis_admission.py"]
+compatibility = "Previously accepted excess analysis rows now raise ValueError even when allow_large_run is true. Supported designs and declared large-run overrides retain their behavior."
+surface_classification = "internal: polisyos.scientist.methods.doe; supported entrypoint signatures unchanged"
+migration = "Set n_trajectories to the actual original trajectory count and admit that explicit plan before analysis. max_estimated_runs and allow_large_run do not enlarge the trajectory count implicitly."
+limitations = "This per-analysis input admission establishes neither cumulative evaluator budget, authenticated trajectory provenance, sampling-law authority nor inferential sufficiency."

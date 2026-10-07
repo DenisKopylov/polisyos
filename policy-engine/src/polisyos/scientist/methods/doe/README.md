@@ -52,6 +52,16 @@ mutates process-global NumPy state.
 
 ## Morris trajectory admission
 
+Actual Morris input rows must fit the admitted plan's explicit trajectory count:
+at most `n_trajectories * (num_parameters + 1)` original rows. Analysis,
+preparation, PCA, stability, geometry and persisted experiment identity apply
+this shared plan predicate before filtering failures, native analysis or
+resampling. A larger `max_estimated_runs` or `allow_large_run=true` does not
+admit undeclared extra trajectories; declare a larger plan explicitly. Whole
+trajectory subsets produced by an admitted failure policy remain usable with
+their original denominator and selection limitation. This is an analysis-input
+contract, separate from adaptive child-plan admission or a cumulative budget.
+
 Point analysis, PCA component analysis, and elementary-effect uncertainty admit
 only complete ungrouped trajectories: every step changes one parameter, every
 parameter changes once, and the step and coordinates match the declared grid.

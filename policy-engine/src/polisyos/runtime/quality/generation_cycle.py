@@ -1286,6 +1286,20 @@ class ValueGateReceipt(_StrictModel):
     k_world_ref_before: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
     k_world_ref_after: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
 
+    @classmethod
+    def from_persisted_payload(cls, payload: Mapping[str, Any]) -> ValueGateReceipt:
+        """Load the owner's serialized width checksum without relaxing live input."""
+
+        if not isinstance(payload, Mapping):
+            raise ValueError("value_receipt_persisted_payload_not_mapping")
+        validation_payload = dict(payload)
+        outer_set = validation_payload.get("value_outer_set")
+        if isinstance(outer_set, Mapping):
+            validation_payload["value_outer_set"] = ValueOuterSet.from_persisted_payload(
+                outer_set
+            )
+        return cls.model_validate(validation_payload)
+
     def decisive_consistency_predicates(
         self,
     ) -> tuple[ValueReceiptConsistencyPredicate, ...]:
@@ -2057,6 +2071,44 @@ class GenerationCycleRun(_StrictModel):
     )
     deployment_identity_reason: str | None = None
 
+    @classmethod
+    def from_persisted_payload(cls, payload: Mapping[str, Any]) -> GenerationCycleRun:
+        """Rehydrate persisted value receipts while preserving their exact wire shape.
+
+        The outer artifact reader owns byte identity and scope admission. This
+        method checks intrinsic contracts, including the owner's derived width
+        checksum; it does not establish currentness or value authority.
+        """
+
+        if not isinstance(payload, Mapping):
+            raise ValueError("generation_cycle_persisted_payload_not_mapping")
+
+        def load_value_port(value: object) -> object:
+            if not isinstance(value, Mapping):
+                return value
+            receipt = value.get("value_receipt")
+            if not isinstance(receipt, Mapping):
+                return value
+            normalized = dict(value)
+            normalized["value_receipt"] = ValueGateReceipt.from_persisted_payload(receipt)
+            return normalized
+
+        validation_payload = dict(payload)
+        if "value_port" in validation_payload:
+            validation_payload["value_port"] = load_value_port(validation_payload["value_port"])
+        cycles = validation_payload.get("cycles")
+        if isinstance(cycles, (list, tuple)):
+            loaded_cycles: list[object] = []
+            for cycle in cycles:
+                if isinstance(cycle, Mapping) and "value_port" in cycle:
+                    loaded_cycle = dict(cycle)
+                    loaded_cycle["value_port"] = load_value_port(cycle["value_port"])
+                    loaded_cycles.append(loaded_cycle)
+                else:
+                    loaded_cycles.append(cycle)
+            validation_payload["cycles"] = loaded_cycles
+        return cls.model_validate(validation_payload)
+
     @model_validator(mode="before")
     @classmethod
     def _default_unprovided_deployment_identity_reason(cls, value: object) -> object:
@@ -2164,7 +2216,7 @@ class GenerationCycleRun(_StrictModel):
                 raise TypeError("generation_cycle_limited_v4_projection_invalid")
             v3_payload = dict(payload)
             v3_payload["schema_version"] = GENERATION_CYCLE_SCHEMA_VERSION
-            v3_run = GenerationCycleRun.model_validate(v3_payload)
+            v3_run = GenerationCycleRun.from_persisted_payload(v3_payload)
             supplied = _historical_generation_cycle_field_tree(
                 v3_run, v3_payload, version="v3"
             )
@@ -9605,7 +9657,7 @@ def currentness_for_generation_cycle_run(
         parsed = (
             run
             if isinstance(run, GenerationCycleRun)
-            else GenerationCycleRun.model_validate(run)
+            else GenerationCycleRun.from_persisted_payload(run)
         )
     except ValueError:
         return observe_n6_deployment_currentness(
@@ -9633,7 +9685,7 @@ def validate_generation_cycle_run_history(
     if not isinstance(run, Mapping):
         return ({"code": "generation_cycle_history_requires_persisted_mapping"},)
     try:
-        parsed = GenerationCycleRun.model_validate(run)
+        parsed = GenerationCycleRun.from_persisted_payload(run)
         spec = CanonSpec(forbid_floats=False)
         persisted_projection_bytes = to_canonical_bytes(dict(run), spec)
         replayed_projection_bytes = to_canonical_bytes(
@@ -9679,7 +9731,7 @@ def _validate_generation_cycle_run(
 
     if not isinstance(run, GenerationCycleRun):
         try:
-            run = GenerationCycleRun.model_validate(run)
+            run = GenerationCycleRun.from_persisted_payload(run)
         except ValueError as exc:
             return ({"code": "generation_cycle_run_invalid", "error": str(exc)},)
     issues: list[dict[str, Any]] = []

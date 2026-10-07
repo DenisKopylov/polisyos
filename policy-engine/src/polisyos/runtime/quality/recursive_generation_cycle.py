@@ -15,6 +15,7 @@ from pydantic import (
     ModelWrapValidatorHandler,
     PrivateAttr,
     SerializerFunctionWrapHandler,
+    field_validator,
     model_serializer,
     model_validator,
 )
@@ -230,6 +231,15 @@ class RecursiveCycleNode(_StrictModel):
     composition_certificate: CompositionCertificate | None = None
     terminal: SearchTerminalState
     _legacy_v1_missing_joint_simulation_ref: bool = PrivateAttr(default=False)
+
+    @field_validator("cycle_run", mode="before")
+    @classmethod
+    def _load_persisted_leaf_run(cls, value: object) -> object:
+        """Route a serialized leaf through the canonical persisted N6 reader."""
+
+        if isinstance(value, Mapping):
+            return GenerationCycleRun.from_persisted_payload(value)
+        return value
 
     @model_validator(mode="after")
     def _only_leaves_run_n6(self) -> RecursiveCycleNode:

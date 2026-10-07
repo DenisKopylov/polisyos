@@ -49,6 +49,33 @@ PYTHONPATH=src:. uv run python tools/quality/diagnostics/verify_scm_v3.py --prof
 PYTHONPATH=src:. uv run python tools/quality/diagnostics/verify_scm_v3_fullspec.py --output-dir docs/reports
 ```
 
+## State-read diagnostic output
+
+`check_state_reads.py` accepts the existing `NodeSpec` and `OutputAwareNodeSpec`
+constructors in direct `_SPEC` assignments, including annotated assignments.
+It checks direct `state` reads in synchronous or asynchronous `execute` functions.
+No node declarations or runtime authority are changed by this AST check.
+
+The command emits a `state_reads measurement: ` JSON record before the existing
+human-readable result. Preserve this record with deciding output: it lists the
+selected paths, actual successful or failed reads and content hashes, exclusions,
+denominator and boundaries that static interpretation does not resolve.
+
+Exit `0` means the original read-declaration predicate passed on the disclosed
+inputs. Exit `1` means a measured required read is missing. Exit `2` means the
+check is incomplete (`UNRUN`): an enumerated file could not be read or parsed, or
+its spec constructor or read expression is unsupported. Do not treat `2` as an
+empty set or success. Literal list/tuple reads and the existing static f-string
+prefix interpretation are supported; dynamic constructors, unpacked arguments,
+nonliteral read expressions, aliases and indirect runtime reads remain undecided.
+
+Git runs enumerate tracked files under the two declared builtin roots, retaining
+missing members as failed read attempts. Non-Git fixtures enumerate their complete
+filesystem set. Files outside those roots and `__init__.py`, `errors.py` and
+`state_keys.py` are excluded. Import, Git/subprocess and service reads are outside
+the explicit file-read collector. This output is a bounded repository diagnostic,
+not a runtime execution, scientific correctness or permission verdict.
+
 ## Известные ограничения
 
 - В кодовой базе отсутствуют `polisyos.fabric.udf.*` и `polisyos.fabric.io.graph_store`; поэтому `check_udf_perf.py` сейчас не соответствует текущей структуре `src/polisyos`.

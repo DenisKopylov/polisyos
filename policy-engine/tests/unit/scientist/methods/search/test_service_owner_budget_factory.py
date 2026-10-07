@@ -7,6 +7,7 @@ from pathlib import Path
 from runpy import run_path
 
 import pytest
+from test_service_persistence import _runner as _fixture_runner
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.llm.settlement import producer_settlement
@@ -20,7 +21,6 @@ from polisyos.scientist.orchestration.engine.budget_ledger import (
 from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 from polisyos.scientist.orchestration.llm.budget_enforcer import LLMBudgetEnforcer
 
-_service = run_path(str(Path(__file__).with_name("test_service_persistence.py")))
 _text = run_path(
     str(
         Path(__file__).resolve().parents[5]
@@ -52,7 +52,7 @@ def _fresh_owner(path):
 
 
 def _runner(tmp_path, path, *, key="run", limit=100):
-    _, store, registry, suite, evaluator, spec = _service["_runner"](tmp_path)
+    _, store, registry, suite, evaluator, spec = _fixture_runner(tmp_path)
     runner = SearchLoopRunner(
         store=store,
         registry=registry,

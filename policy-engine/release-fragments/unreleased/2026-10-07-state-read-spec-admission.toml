@@ -1,0 +1,31 @@
+id = "2026-10-07-state-read-spec-admission"
+title = "Recognize governed node specs in state-read diagnostics"
+type = "fixed"
+component = "quality-diagnostics"
+owner = "team-architecture"
+summary = "The existing state-read checker recognizes OutputAwareNodeSpec as well as NodeSpec, preserves required-read failures and reports measured inputs and unresolved syntax."
+change_class = "tooling"
+surface_classification = "internal_tooling"
+api = "Existing check_state_reads.py command and main entrypoint. Direct/annotated _SPEC assignments to the two existing unqualified constructors and sync/async execute functions use the original direct-state AST predicate."
+compatibility = "The command retains its human-readable success/failure lines and adds a prefixed JSON measurement record. Unreadable, unparsable or unsupported selected inputs return exit 2 (UNRUN), distinct from a measured missing-read exit 1 and bounded success exit 0."
+migration = "Consumers must preserve the measurement record and treat exit 2 as incomplete. Resolve the disclosed input or syntax through the existing owner, then rerun the identical canonical command; do not waive or reinterpret a missing-read failure."
+limitations = "This AST diagnostic does not establish runtime execution, alias/dynamic dispatch, scientific truth, permission or closure of the similarly named A finding B04. Files outside the named selector and indirect reads remain unresolved."
+evidence = ["tests/repo_quality/tools/test_state_reads_constructor_admission.py"]
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["tools/quality/diagnostics/README.md"]
+runbook_docs = ["tools/quality/diagnostics/README.md"]
+
+[[compatibility_change]]
+id = "state-read-diagnostic-disclosed-incomplete-result"
+change_class = "tooling"
+impact = "breaking"
+surface = "internal_tooling: tools/quality/diagnostics/check_state_reads.py"
+owner = "team-architecture"
+version_owner = "team-architecture"
+deprecation_window = "not_applicable"
+release_note = "Read consumers must distinguish exit 2 incomplete from exit 1 measured failure; successful output includes the actual input measurement."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["tools/quality/diagnostics/README.md"]
+runbook_docs = ["tools/quality/diagnostics/README.md"]

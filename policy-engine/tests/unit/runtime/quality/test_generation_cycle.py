@@ -4194,11 +4194,47 @@ async def test_generation_cycle_serves_persisted_n5_into_default_n8_value_port(
         store.close()
 
 
+@pytest.mark.parametrize(
+    (
+        "horizon_end",
+        "first_rejection_reason",
+        "baseline_firm_survival",
+        "expected_unrequested_points",
+        "oracle_n_steps",
+        "oracle_point_index",
+    ),
+    [
+        pytest.param(
+            1,
+            "static_engine_cannot_ground_dynamic_horizon",
+            0.0,
+            0,
+            1,
+            -1,
+            id="B06-static-first-rejects-multi-point-horizon",
+        ),
+        pytest.param(
+            0,
+            "coupling_composition_gate_unsupported",
+            10.0,
+            1,
+            0,
+            0,
+            id="B07-one-point-request-reaches-coupling-gate",
+        ),
+    ],
+)
 @pytest.mark.asyncio
-async def test_generation_cycle_persists_coupling_fallback_for_default_n8(
+async def test_generation_cycle_persists_registered_fallback_for_default_n8(
     tmp_path: Path,
+    horizon_end: int,
+    first_rejection_reason: str,
+    baseline_firm_survival: float,
+    expected_unrequested_points: int,
+    oracle_n_steps: int,
+    oracle_point_index: int,
 ) -> None:
-    """B06/B07: the real compatible fallback executes, persists, and remains K_sim at N8."""
+    """A real registered fallback persists through N8 under a bounded horizon."""
 
     from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.foundry.methods.catalog.simulation.dynamics import (
@@ -4215,8 +4251,8 @@ async def test_generation_cycle_persists_coupling_fallback_for_default_n8(
 
     store, _expected_ncm, ncm_ref = _runtime_ncm_fixture_store(tmp_path)
     hints = {
-        "joint_simulation_horizon": {"start": 0, "end": 1, "step": 1},
-        "joint_simulation_baseline_state": {"firm_survival": 0.0},
+        "joint_simulation_horizon": {"start": 0, "end": horizon_end, "step": 1},
+        "joint_simulation_baseline_state": {"firm_survival": baseline_firm_survival},
     }
     problem, context, candidate = _owner_n5_case_with_selected_ncm_ref(
         ncm_ref,
@@ -4252,7 +4288,7 @@ async def test_generation_cycle_persists_coupling_fallback_for_default_n8(
         update={
             "coupling_graph": n5_contract._coupling_graph("shared_resource"),
             "engine_plan": (*owner_request.engine_plan, stock_flow_plan),
-            "baseline_state": {"firm_survival": 0.0},
+            "baseline_state": {"firm_survival": baseline_firm_survival},
         }
     )
     problem = problem.model_copy(
@@ -4381,7 +4417,7 @@ async def test_generation_cycle_persists_coupling_fallback_for_default_n8(
             (
                 "ncm_parallel_worlds",
                 "unsupported",
-                "coupling_composition_gate_unsupported",
+                first_rejection_reason,
             ),
             ("system_dynamics", "selected", "engine_eligibility_satisfied"),
         ]
@@ -4394,6 +4430,16 @@ async def test_generation_cycle_persists_coupling_fallback_for_default_n8(
         assert all(trajectory.diagnostics.get("physical_run_ref") for trajectory in physical)
         joint = next(trajectory for trajectory in physical if trajectory.run_level == "joint")
         assert joint.diagnostics["physical_run_ref"]
+        assert tuple(point.step for point in joint.points) == tuple(range(horizon_end + 1))
+        assert joint.diagnostics["unrequested_output_points"] == expected_unrequested_points
+        if horizon_end == 0:
+            # The producer forces at least one internal step, but the one-point
+            # consumer projection exposes only t=0. Its stock value equals the
+            # declared baseline, so this is not evidence of a dynamic coupling
+            # effect or a grounded producer time grid.
+            assert joint.points[0].outcomes["firm_survival"] == pytest.approx(10.0)
+            assert joint.points[0].effect["firm_survival"] == pytest.approx(0.0)
+            assert joint.diagnostics["producer_time_grid_binding"] == "not_established"
 
         # Call the registered engine implementation directly, outside N5's
         # selection/controller code, using the two actual do() values.
@@ -4403,12 +4449,21 @@ async def test_generation_cycle_persists_coupling_fallback_for_default_n8(
         }
         oracle = StockFlowSystemDynamicsEstimator.pure_step(
             oracle_state,
-            {**stock_flow_plan.system_dynamics_params, "n_steps": 1},
+            {**stock_flow_plan.system_dynamics_params, "n_steps": oracle_n_steps},
         )
-        assert joint.points[-1].step == 1
+        assert joint.points[-1].step == horizon_end
         assert joint.points[-1].outcomes["firm_survival"] == pytest.approx(
-            oracle["result"]["trajectory"][-1][0]
+            oracle["result"]["trajectory"][oracle_point_index][0]
         )
+        if horizon_end == 0:
+            # n_steps=0 is clamped to one by the registered producer. The
+            # runtime exposes only the requested t=0 point; the extra computed
+            # state remains outside this request's horizon and is not a basis
+            # for a dynamic effect claim.
+            assert len(oracle["result"]["trajectory"]) == 2
+            assert oracle["result"]["trajectory"][1][0] != pytest.approx(
+                joint.points[0].outcomes["firm_survival"]
+            )
 
         with (
             tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"),

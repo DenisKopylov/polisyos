@@ -297,18 +297,31 @@ def lexical_scope_index(
             pending.extend(reversed(list(ast.iter_child_nodes(node))))
         return result
 
-    def add_binding(scope: dict[str, Any], name: str, imported_target: str | None) -> None:
-        if name in scope["global_names"] or name in scope["nonlocal_names"]:
-            return
+    def add_binding(
+        scope_id: int,
+        name: str,
+        imported_target: str | None,
+        *,
+        redirected: bool = False,
+    ) -> None:
+        scope = scopes[scope_id]
         binding = scope["bindings"].setdefault(
-            name, {"import_targets": set(), "other_binding": False}
+            name,
+            {
+                "import_targets": set(),
+                "other_binding": False,
+                "redirected_write": False,
+            },
         )
         if imported_target is None:
             binding["other_binding"] = True
         else:
             binding["import_targets"].add(imported_target)
+        if redirected:
+            binding["redirected_write"] = True
 
-    for scope in scopes.values():
+    direct_nodes_by_scope: dict[int, list[ast.AST]] = {}
+    for scope_id, scope in scopes.items():
         node = scope["node"]
         if isinstance(node, (ast.Module, ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)):
             roots = list(node.body)
@@ -332,6 +345,23 @@ def lexical_scope_index(
         scope["nonlocal_names"].update(
             name for item in nodes if isinstance(item, ast.Nonlocal) for name in item.names
         )
+        direct_nodes_by_scope[scope_id] = nodes
+
+    global_events: list[tuple[str, str | None]] = []
+    nonlocal_events: list[tuple[int, str, str | None]] = []
+
+    def add_scope_binding(scope_id: int, name: str, imported_target: str | None) -> None:
+        scope = scopes[scope_id]
+        if scope_id != root_id and name in scope["global_names"]:
+            global_events.append((name, imported_target))
+        elif scope_id != root_id and name in scope["nonlocal_names"]:
+            nonlocal_events.append((scope_id, name, imported_target))
+        else:
+            add_binding(scope_id, name, imported_target)
+
+    for scope_id, scope in scopes.items():
+        node = scope["node"]
+        nodes = direct_nodes_by_scope.get(scope_id, [])
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)):
             arguments = node.args
             for argument in (
@@ -339,33 +369,41 @@ def lexical_scope_index(
                 *arguments.args,
                 *arguments.kwonlyargs,
             ):
-                add_binding(scope, argument.arg, None)
+                add_scope_binding(scope_id, argument.arg, None)
             if arguments.vararg:
-                add_binding(scope, arguments.vararg.arg, None)
+                add_scope_binding(scope_id, arguments.vararg.arg, None)
             if arguments.kwarg:
-                add_binding(scope, arguments.kwarg.arg, None)
+                add_scope_binding(scope_id, arguments.kwarg.arg, None)
 
         for item in nodes:
             if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
-                add_binding(scope, item.name, None)
+                add_scope_binding(scope_id, item.name, None)
             elif isinstance(item, ast.Name) and isinstance(item.ctx, (ast.Store, ast.Del)):
-                add_binding(scope, item.id, None)
+                add_scope_binding(scope_id, item.id, None)
             elif isinstance(item, ast.Import):
                 for alias in item.names:
                     local_name = alias.asname or alias.name.split(".", 1)[0]
                     imported_target = alias.name if alias.asname else local_name
-                    add_binding(scope, local_name, imported_target)
+                    add_scope_binding(scope_id, local_name, imported_target)
             elif isinstance(item, ast.ImportFrom):
                 module = resolved_import(item, package)
                 for alias in item.names:
                     if alias.name != "*":
                         local_name = alias.asname or alias.name
                         target = f"{module}.{alias.name}" if module else alias.name
-                        add_binding(scope, local_name, target)
+                        add_scope_binding(scope_id, local_name, target)
             elif isinstance(item, (ast.ExceptHandler, ast.MatchAs, ast.MatchStar)) and item.name:
-                add_binding(scope, item.name, None)
+                add_scope_binding(scope_id, item.name, None)
             elif isinstance(item, ast.MatchMapping) and item.rest:
-                add_binding(scope, item.rest, None)
+                add_scope_binding(scope_id, item.rest, None)
+
+    for name, imported_target in global_events:
+        add_binding(root_id, name, imported_target, redirected=True)
+    for source_scope_id, name, imported_target in nonlocal_events:
+        owner_scope_id = nonlocal_binding_owner(name, source_scope_id, scopes)
+        if owner_scope_id is None:
+            continue
+        add_binding(owner_scope_id, name, imported_target, redirected=True)
 
     return node_scopes, scopes, root_id
 
@@ -379,6 +417,22 @@ def lexical_parent(scope_id: int, scopes: dict[int, dict[str, Any]]) -> int | No
     return parent_id
 
 
+def nonlocal_binding_owner(
+    name: str, scope_id: int, scopes: dict[int, dict[str, Any]]
+) -> int | None:
+    """Find the nearest enclosing function scope that owns a nonlocal name."""
+
+    current_id = lexical_parent(scope_id, scopes)
+    while current_id is not None:
+        scope = scopes[current_id]
+        if scope["kind"] == "module" or name in scope["global_names"]:
+            return None
+        if name not in scope["nonlocal_names"] and name in scope["bindings"]:
+            return current_id
+        current_id = lexical_parent(current_id, scopes)
+    return None
+
+
 def lookup_import_binding(
     name: str, scope_id: int, scopes: dict[int, dict[str, Any]], root_id: int
 ) -> tuple[str | None, str, set[str]]:
@@ -388,8 +442,10 @@ def lookup_import_binding(
     if name in initial["global_names"]:
         scope_id = root_id
     elif name in initial["nonlocal_names"]:
-        parent_id = lexical_parent(scope_id, scopes)
-        scope_id = parent_id if parent_id is not None else scope_id
+        owner_scope_id = nonlocal_binding_owner(name, scope_id, scopes)
+        if owner_scope_id is None:
+            return None, "UNRESOLVED", set()
+        scope_id = owner_scope_id
     current_id: int | None = scope_id
     while current_id is not None:
         scope = scopes[current_id]
@@ -400,6 +456,8 @@ def lookup_import_binding(
                 return next(iter(targets)), "resolved", targets
             if targets:
                 return None, "ambiguous", targets
+            if binding["redirected_write"]:
+                return None, "UNRESOLVED", targets
             return None, "shadowed", targets
         current_id = lexical_parent(current_id, scopes)
     return None, "absent", set()
@@ -413,6 +471,11 @@ def possible_import_targets(
     initial = scopes[scope_id]
     if name in initial["global_names"]:
         scope_id = root_id
+    elif name in initial["nonlocal_names"]:
+        owner_scope_id = nonlocal_binding_owner(name, scope_id, scopes)
+        if owner_scope_id is None:
+            return set()
+        scope_id = owner_scope_id
     current_id: int | None = scope_id
     candidates: set[str] = set()
     while current_id is not None:
@@ -443,7 +506,7 @@ def resolve_dotted_expression(
     suffix = ".".join(parts[1:])
     if state == "resolved" and imported is not None:
         return (f"{imported}.{suffix}" if suffix else imported), state, local_targets
-    if state in {"ambiguous", "shadowed"}:
+    if state in {"ambiguous", "shadowed", "UNRESOLVED"}:
         candidates = local_targets | possible_import_targets(
             parts[0], scope_id, scopes, root_id
         )
@@ -452,6 +515,8 @@ def resolve_dotted_expression(
         }
         if resolved_candidates:
             return None, "UNRESOLVED", resolved_candidates
+        if state == "UNRESOLVED":
+            return None, "UNRESOLVED", set()
         return None, state, set()
     if allow_target_path and (
         raw in TARGET_MODULES
@@ -470,10 +535,12 @@ def resolve_reflective_api(
     """Resolve reflective call aliases, returning UNRESOLVED for shadowed imports."""
 
     candidates: set[str] = set()
+    unresolved_binding = False
     if isinstance(node, ast.Name):
         imported, state, local_targets = lookup_import_binding(
             node.id, scope_id, scopes, root_id
         )
+        unresolved_binding = state == "UNRESOLVED"
         if state == "resolved" and imported is not None:
             api = _REFLECTIVE_APIS.get(imported)
             return ((api,), "resolved") if api else ((), "not_api")
@@ -488,6 +555,7 @@ def resolve_reflective_api(
         imported, state, local_targets = resolve_dotted_expression(
             node, scope_id, scopes, root_id
         )
+        unresolved_binding = state == "UNRESOLVED"
         if state == "resolved" and imported is not None:
             api = _REFLECTIVE_APIS.get(imported)
             return ((api,), "resolved") if api else ((), "not_api")
@@ -503,7 +571,7 @@ def resolve_reflective_api(
     possible_apis = tuple(
         sorted({_REFLECTIVE_APIS[target] for target in candidates if target in _REFLECTIVE_APIS})
     )
-    return (possible_apis, "UNRESOLVED") if possible_apis else ((), "not_api")
+    return (possible_apis, "UNRESOLVED") if possible_apis or unresolved_binding else ((), "not_api")
 
 
 def source_findings(
@@ -610,6 +678,7 @@ def source_findings(
         if api_state == "UNRESOLVED":
             unresolved_target: str | None = None
             unresolved_name: str | None = None
+            unresolved_reason = "lexical import alias is shadowed or rebound"
             relevant = False
             if "getattr" in api_candidates and len(node.args) >= 2:
                 target, target_state, target_candidates = resolve_dotted_expression(
@@ -645,6 +714,46 @@ def source_findings(
                 )
                 relevant = relevant or import_candidate
                 unresolved_target = unresolved_target or static_module
+            if not api_candidates and node.args:
+                module_arg = node.args[0]
+                static_module = (
+                    module_arg.value
+                    if isinstance(module_arg, ast.Constant)
+                    and isinstance(module_arg.value, str)
+                    else None
+                )
+                if static_module in TARGET_MODULES or (
+                    static_module is not None
+                    and static_module.startswith(f"{COMPILER_MODULE}.")
+                ):
+                    relevant = True
+                    unresolved_target = static_module
+                elif len(node.args) >= 2:
+                    target, _, target_candidates = resolve_dotted_expression(
+                        module_arg,
+                        scope_id,
+                        scopes,
+                        root_scope,
+                        allow_target_path=True,
+                    )
+                    name_node = node.args[1]
+                    unresolved_name = (
+                        name_node.value
+                        if isinstance(name_node, ast.Constant)
+                        and isinstance(name_node.value, str)
+                        and name_node.value in RETIRED_NAMES
+                        else None
+                    )
+                    target_options = target_candidates | ({target} if target else set())
+                    if unresolved_name is not None and (
+                        target in TARGET_MODULES or target_options & TARGET_MODULES
+                    ):
+                        relevant = True
+                        unresolved_target = target or ",".join(sorted(target_options))
+                if relevant:
+                    unresolved_reason = (
+                        "redirected callee binding is dynamic with compiler target evidence"
+                    )
             if relevant:
                 findings["unresolved_reflective_calls"].append(
                     {
@@ -655,7 +764,7 @@ def source_findings(
                         "classification": "UNRESOLVED",
                         "target": unresolved_target,
                         "retired_name": unresolved_name,
-                        "reason": "lexical import alias is shadowed or rebound",
+                        "reason": unresolved_reason,
                     }
                 )
             continue
@@ -693,7 +802,14 @@ def source_findings(
                             "reason": "reflective attribute name is computed",
                         }
                     )
-            elif target_state == "UNRESOLVED" and target_options & TARGET_MODULES:
+            elif target_state in {"UNRESOLVED", "computed", "shadowed"} and (
+                target_options & TARGET_MODULES
+                or (
+                    isinstance(name_node, ast.Constant)
+                    and isinstance(name_node.value, str)
+                    and name_node.value in RETIRED_NAMES
+                )
+            ):
                 findings["unresolved_reflective_calls"].append(
                     {
                         "path": path,
@@ -701,8 +817,19 @@ def source_findings(
                         "call": dotted_name(node.func),
                         "possible_apis": [called],
                         "classification": "UNRESOLVED",
-                        "target": ",".join(sorted(target_options)),
-                        "reason": "reflective receiver alias is shadowed or rebound",
+                        "target": ",".join(sorted(target_options)) if target_options else None,
+                        "retired_name": (
+                            name_node.value
+                            if isinstance(name_node, ast.Constant)
+                            and isinstance(name_node.value, str)
+                            and name_node.value in RETIRED_NAMES
+                            else None
+                        ),
+                        "reason": (
+                            "reflective receiver alias is shadowed or rebound"
+                            if target_options
+                            else "reflective receiver binding may be dynamic"
+                        ),
                     }
                 )
 
@@ -778,7 +905,7 @@ def source_findings(
 
 
 def self_check() -> None:
-    """Prove aliased reflective APIs resolve and lexical shadows stay unresolved."""
+    """Prove reflective aliases resolve and lexical/global/nonlocal shadows are unresolved."""
 
     probe = """\
 from polisyos.data_requirement.compiler import _digest as old_digest
@@ -811,6 +938,21 @@ def import_then_rebind():
     from builtins import getattr as local_getattr
     local_getattr = object()
     local_getattr(compiler, "_slug_family")
+
+def use_global_loader():
+    global load_module
+    load_module("polisyos.data_requirement.compiler")
+
+def import_global_loader():
+    global function_loader
+    from importlib import import_module as function_loader
+    function_loader("polisyos.data_requirement.compiler")
+
+def outer_loader():
+    from importlib import import_module as enclosing_loader
+    def use_nonlocal_loader():
+        nonlocal enclosing_loader
+        enclosing_loader("polisyos.data_requirement.compiler")
 """
     findings = source_findings(
         "synthetic-positive-control.py",
@@ -821,7 +963,7 @@ def import_then_rebind():
         not findings["imports"]
         or not findings["reflection_literals"]
         or len(findings["reflection_literals"]) < 4
-        or len(findings["dynamic_import_literals"]) < 2
+        or len(findings["dynamic_import_literals"]) < 6
         or len(findings["unresolved_reflective_calls"]) < 6
         or any(
             row["classification"] != "UNRESOLVED"
@@ -829,6 +971,78 @@ def import_then_rebind():
         )
     ):
         raise RuntimeError("alias resolution or lexical shadow control did not behave as expected")
+
+    rebound_probe = """\
+from importlib import import_module as global_loader
+import polisyos.data_requirement.compiler as global_receiver
+
+def rebind_global_loader():
+    global global_loader
+    global_loader = lambda name: None
+    return global_loader("polisyos.data_requirement.compiler")
+
+def sibling_global_loader():
+    return global_loader("polisyos.data_requirement.compiler")
+
+def rebind_global_loader_with_dynamic_argument(module_name):
+    global global_loader
+    global_loader = lambda name: None
+    return global_loader(module_name)
+
+def rebind_global_receiver():
+    global global_receiver
+    global_receiver = object()
+    return getattr(global_receiver, "_digest")
+
+def unrelated_global_callback(value, receiver):
+    global generic_callback
+    generic_callback = lambda *args: None
+    generic_callback(value)
+    generic_callback(receiver, "_digest")
+
+def outer():
+    from importlib import import_module as enclosing_loader
+    import polisyos.data_requirement.compiler as enclosing_receiver
+    generic_callback = lambda *args: None
+    def rebind_nonlocal_loader():
+        nonlocal enclosing_loader
+        enclosing_loader = lambda name: None
+        return enclosing_loader("polisyos.data_requirement.compiler")
+    def rebind_nonlocal_receiver():
+        nonlocal enclosing_receiver
+        enclosing_receiver = object()
+        return getattr(enclosing_receiver, "_digest")
+    def unrelated_nonlocal_callback(value, receiver):
+        nonlocal generic_callback
+        generic_callback = lambda *args: None
+        generic_callback(value)
+        generic_callback(receiver, "_digest")
+"""
+    rebound_findings = source_findings(
+        "synthetic-global-nonlocal-rebinding.py",
+        rebound_probe,
+        {"polisyos/__init__.py", "polisyos/data_requirement/__init__.py"},
+    )
+    if (
+        rebound_findings["dynamic_import_literals"]
+        or rebound_findings["reflection_literals"]
+        or len(rebound_findings["unresolved_reflective_calls"]) < 6
+        or any(
+            row["classification"] != "UNRESOLVED"
+            for row in rebound_findings["unresolved_reflective_calls"]
+        )
+        or not any(
+            row["call"] == "global_loader"
+            and row["target"] is None
+            and "import_module" in row["possible_apis"]
+            for row in rebound_findings["unresolved_reflective_calls"]
+        )
+        or any(
+            row["call"] == "generic_callback"
+            for row in rebound_findings["unresolved_reflective_calls"]
+        )
+    ):
+        raise RuntimeError("global_nonlocal_binding_shadow_control_did_not_behave_as_expected")
 
 
 def main() -> int:
@@ -956,7 +1170,7 @@ def main() -> int:
         self_check()
         result["positive_control"] = (
             "passed: direct and aliased reflection/import APIs plus parameter, assignment, and "
-            "import-rebind shadow controls"
+            "import-rebind shadows and clean/rebound global/nonlocal binding controls"
         )
         if parse_errors:
             result["absence_result"] = "partial_coverage; unreadable or unparsable selected member"

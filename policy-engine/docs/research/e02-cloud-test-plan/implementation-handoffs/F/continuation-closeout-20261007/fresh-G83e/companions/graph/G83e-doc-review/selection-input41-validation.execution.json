@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "python3",
+    "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/validate_transfer_selection.py",
+    "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/transfer-selection-input41.json"
+  ],
+  "cwd": "/workspace/e02-F-closeout-20261006",
+  "returncode": 0,
+  "elapsed_s": 0.06663036346435547,
+  "selection_input": {
+    "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/transfer-selection-input41.json",
+    "bytes": 14739,
+    "sha256": "55d6724e236782e61aa305a39fb2fc9e1296cd65b87b70b86e4a010d9ed27c4d"
+  },
+  "stdout": {
+    "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/selection-input41-validation.stdout",
+    "bytes": 7412,
+    "sha256": "5c2b4ef4fc4ccf9e0f531d9371efb3c03d8e3a4b5aa29cd9a951f5dd0afa9b32"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-continuation-20261007/graph/G83e-doc-review/selection-input41-validation.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

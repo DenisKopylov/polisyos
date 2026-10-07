@@ -104,6 +104,7 @@ def test_same_candidate_model_revision_reenters_only_for_changed_semantics(
         GenerationCycleController,
         GenerationCycleError,
         JointSimulationPort,
+        _candidate_model_revision_selected_ref,
         _candidate_model_semantic_inputs,
         load_joint_simulation_result,
         reconcile_candidate_model_revision,
@@ -111,6 +112,7 @@ def test_same_candidate_model_revision_reenters_only_for_changed_semantics(
     from polisyos.runtime.quality.generation_source import (
         GenerationSourceRepository,
         N4CandidateScenarioSourceRecordV3,
+        candidate_scenario_semantic_identity_hash,
     )
     from polisyos.scientist.orchestration.llm import factory as llm_factory
     from tests._helpers.control_worker import dispatch_one_control_job
@@ -363,10 +365,11 @@ def test_same_candidate_model_revision_reenters_only_for_changed_semantics(
             controller._run_cycle = saved_run_cycle  # type: ignore[method-assign]
         assert len(n5_calls) == source_calls_before_reentry
 
-        # Reissue the same configured model under a fresh profile identifier.
-        # The owner must accept and persist the new occurrence, while the N5
-        # semantic projection still refuses to treat changed locators/hashes as
-        # a new model basis.
+        # Reissue the same declared model under a fresh profile identifier.
+        # Its model-semantic declaration projection is unchanged, but profile
+        # identity is part of this candidate's typed identity contract. The
+        # consumer must reject this before N5; this does not make profile-ID
+        # churn a model-basis change.
         assert handoff.model_declaration is not None
         locator_profile_payload = handoff.profile.model_dump(mode="json", exclude={"content_hash"})
         locator_profile_payload["profile_id"] = (
@@ -397,6 +400,39 @@ def test_same_candidate_model_revision_reenters_only_for_changed_semantics(
         )
         assert handoff.model_declaration_ref is not None
         assert handoff.ncm_ref is not None
+        source_ref = _candidate_model_revision_selected_ref(
+            source_cycle, "candidate_simulation_n4_source_selected_ref"
+        )
+        source_scope = {
+            "expected_run_id": verified_scope.run_id,
+            "expected_job_id": verified_scope.job_id,
+            "expected_tenant_id": verified_scope.tenant_id,
+            "expected_cell_id": verified_scope.cell_id,
+        }
+        with tenant_scope(
+            None,
+            tenant_id=verified_scope.tenant_id,
+            cell_id=verified_scope.cell_id,
+        ):
+            source_record = GenerationSourceRepository(
+                context_owner._store
+            ).load_candidate_scenario_source_for_n5(source_ref, **source_scope)
+        assert type(source_record) is N4CandidateScenarioSourceRecordV3
+        assert source_record.profile == handoff.profile
+        original_candidate_identity = candidate_scenario_semantic_identity_hash(
+            stable_subject_ref=source_record.stable_subject_ref,
+            proposal=source_record.proposal,
+            candidate=source_record.candidate,
+            profile=handoff.profile,
+        )
+        locator_candidate_identity = candidate_scenario_semantic_identity_hash(
+            stable_subject_ref=source_record.stable_subject_ref,
+            proposal=source_record.proposal,
+            candidate=source_record.candidate,
+            profile=locator_profile,
+        )
+        assert original_candidate_identity == source_record.semantic_identity_hash
+        assert locator_candidate_identity != original_candidate_identity
         locator_owner = ConfiguredCandidateSimulationContextAdmissionOwner(
             profiles=(locator_profile,),
             model_declarations=(locator_declaration,),
@@ -516,7 +552,7 @@ def test_same_candidate_model_revision_reenters_only_for_changed_semantics(
                     tenant_id=verified_scope.tenant_id,
                     cell_id=verified_scope.cell_id,
                 ),
-                pytest.raises(GenerationCycleError) as locator_only,
+                pytest.raises(GenerationCycleError) as candidate_identity_changed,
             ):
                 await locator_controller.reenter_after_candidate_model_revision(
                     original_run=original_run_result,
@@ -527,7 +563,9 @@ def test_same_candidate_model_revision_reenters_only_for_changed_semantics(
                     verified_nl_job_scope=verified_scope,
                     budget_state=budget_state,
                 )
-            assert locator_only.value.code == "candidate_model_revision_basis_unchanged"
+            assert candidate_identity_changed.value.code == (
+                "candidate_model_revision_candidate_changed"
+            )
         finally:
             locator_controller._run_cycle = locator_run_cycle  # type: ignore[method-assign]
         assert len(n5_calls) == source_calls_before_reentry

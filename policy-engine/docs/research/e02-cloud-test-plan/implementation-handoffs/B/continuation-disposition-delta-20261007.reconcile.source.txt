@@ -1,0 +1,142 @@
+# Data-only navigation reconciliation. No product imports, pytest, service, build or gate.
+import hashlib
+import json
+import re
+import subprocess
+import sys
+import xml.etree.ElementTree as ET
+from collections import Counter
+from pathlib import Path
+
+B = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/'
+PACKET = B + 'continuation-disposition-delta-20261007.json'
+checked = set()
+
+def git_bytes(sha, path):
+    return subprocess.check_output(['git', 'show', sha + ':' + path])
+
+def reference_bytes(ref):
+    sha = ref.get('git_sha') or ref.get('commit') or ref.get('source_sha')
+    assert sha and ref.get('path'), ref
+    data = git_bytes(sha, ref['path'])
+    if 'sha256' in ref:
+        assert hashlib.sha256(data).hexdigest() == ref['sha256'], ref
+    if 'bytes' in ref:
+        assert len(data) == ref['bytes'], ref
+    checked.add((sha, ref['path']))
+    return data
+
+def refs_in(value):
+    if isinstance(value, dict):
+        sha = value.get('git_sha') or value.get('commit') or value.get('source_sha')
+        if sha and value.get('path') and value.get('sha256'):
+            reference_bytes(value)
+        for child in value.values():
+            refs_in(child)
+    elif isinstance(value, list):
+        for child in value:
+            refs_in(child)
+
+def decode_text(data):
+    if data.lstrip().startswith(b'{'):
+        wrapper = json.loads(data)
+        if isinstance(wrapper.get('text'), str):
+            return wrapper['text']
+    return data.decode()
+
+def xml_counts(ref):
+    root = ET.fromstring(decode_text(reference_bytes(ref)))
+    counts = Counter()
+    for case in root.iter('testcase'):
+        state = ('ERROR' if case.find('error') is not None else
+                 'FAIL' if case.find('failure') is not None else
+                 'SKIP' if case.find('skipped') is not None else 'PASS')
+        counts[state] += 1
+    return dict(counts)
+
+packet = json.loads(Path(PACKET).read_bytes())
+assert packet['closure_ids'] == []
+assert packet['formal_closure'] is False and packet['closure_authority'] is False
+old = json.loads(reference_bytes(packet['evidence_index']['old_all60']))
+old_rows = old['all60_manual_rows']
+assert len(old_rows) == 60 and len({r['finding_id'] for r in old_rows}) == 60
+assert len({r['bundle_id'] for r in old_rows}) == 25
+assert all(r['formal_closure'] is False for r in old_rows)
+expected = {'B37','B65','B66','B74','B87','B89','B13','B154',
+            'B61','B67','B68','B148','B14','B24','B78'}
+assert {r['finding_id'] for r in packet['delta_rows']} == expected
+assert len(packet['delta_rows']) == 15
+for row in packet['delta_rows']:
+    index = int(row['original_row_pointer'].rsplit('/', 1)[1])
+    original = old_rows[index]
+    assert row['finding_id'] == original['finding_id']
+    assert row['bundle_id'] == original['bundle_id']
+    assert row['technical_disposition'] == original['proposed_status']
+    card = old['canonical_source']['card_path_template'].format(bundle_id=row['bundle_id'])
+    text = git_bytes(old['canonical_source']['git_sha'], card).decode()
+    fid = row['finding_id']
+    body = re.search(r'<!-- SOURCE_BEGIN B:' + fid + r' -->(.*?)<!-- SOURCE_END B:'
+                     + fid + r' -->', text, re.S).group(1)
+    assert hashlib.sha256(body.encode()).hexdigest() == original['canonical_criterion']['source_block_sha256']
+receipts = {key: json.loads(reference_bytes(ref))
+            for key, ref in packet['evidence_index'].items()}
+# Only new deciding check output references; no unchanged whole-B review or copied inventory.
+for key, indices in {'process':[0,1], 'process_foreign':[0], 'http_numeric':[0,1,2],
+                     'imported_consumer':[2,3], 'imported_source':[12,13],
+                     'B_A_consumer':[0]}.items():
+    for index in indices:
+        refs_in(receipts[key]['checks'][index]['output'])
+        refs_in(receipts[key]['checks'][index]['input_closure'])
+
+proc = receipts['process']
+proc_sha = 'e246c3028d0ae19086db975c8a937cd411fe20ca'
+actual = {}
+for index, expected_count in [(0, {'PASS':3}), (1, {'FAIL':1})]:
+    ref = dict(proc['checks'][index]['junit'], git_sha=proc_sha)
+    actual['process_' + str(index)] = xml_counts(ref)
+    assert actual['process_' + str(index)] == expected_count
+for index, expected_count in [(0, {'PASS':10,'FAIL':20}), (1, {'PASS':30}),
+                              (2, {'PASS':10,'FAIL':20})]:
+    ref = receipts['http_numeric']['checks'][index]['output']['junit_lossless_wrapper_decode_text']
+    actual['http_numeric_' + str(index)] = xml_counts(ref)
+    assert actual['http_numeric_' + str(index)] == expected_count
+for index, expected_count in [(2, {'PASS':4}), (3, {'FAIL':1})]:
+    actual['imported_consumer_' + str(index)] = xml_counts(receipts['imported_consumer']['checks'][index]['output']['junit'])
+    assert actual['imported_consumer_' + str(index)] == expected_count
+for index in [12, 13]:
+    check = receipts['imported_source']['checks'][index]
+    actual['frame_namespace_' + str(index)] = xml_counts(check['output']['native_xml'])
+    assert actual['frame_namespace_' + str(index)] == {'FAIL':1}
+    obs = check['output']['observed']
+    assert obs['original'] == obs['unchanged_resume'] == 7
+    assert obs['changed_resume'] == 107 and obs['refusal'] is None
+    assert obs['pointer_unchanged'] is True and obs['history_complete'] is True
+    assert obs['actual_effects'][-1] == 'replacement'
+actual['B_A_consumer'] = xml_counts(receipts['B_A_consumer']['checks'][0]['junit'])
+assert actual['B_A_consumer'] == {'PASS':3,'FAIL':1}
+quantities = json.loads(git_bytes('00e12b9a20c6c74dda9051bd016b501e4e7a8de8',
+                       B + 'continuation-b-a-cost-consumer-20261007/actual-four-case-quantities.json'))
+unknown = next(row for row in quantities if row['kind'] == 'unknown')
+assert unknown['optional_actual_observer_event']['cost_usd'] is None
+assert unknown['actual_A_projection']['cost_usd'] == 0.0
+assert unknown['mandatory_event']['amount'] is None
+assert unknown['mandatory_ack'] is None
+assert {v['phase'] for v in unknown['fresh_ledger_snapshot']['completion_obligations'].values()} == {'cost_unknown'}
+source = json.loads(git_bytes(proc_sha, B + 'continuation-llm-process-recovery-evidence/source-inputs.json'))
+assert len(source['seven_child_guarded_production_inputs']) == 7
+for item in source['seven_child_guarded_production_inputs']:
+    original = git_bytes('1862c021df74a5c5815bc5cd21a20e61b30132b6', item['path'])
+    executed = git_bytes('f4e8422232ce3b61ef28c5c1928a65df5038a3fe', item['path'])
+    assert original == executed and hashlib.sha256(executed).hexdigest() == item['sha256']
+assert packet['external_D_B120']['unit_owner'] == 'D'
+assert packet['external_D_B120']['formal_closure'] is False
+print(json.dumps({'outcome':'PASS','execution_kind':'Git/JSON/XML/hash metadata only',
+ 'interpreter':{'executable':sys.executable,'version':sys.version},
+ 'packet_sha256':hashlib.sha256(Path(PACKET).read_bytes()).hexdigest(),
+ 'inherited_findings':60,'inherited_bundles':25,'explicit_delta_rows':15,
+ 'canonical_raw_hashes_matched':15,'immutable_deciding_refs_verified':len(checked),
+ 'actual_original_XML_counts':actual,
+ 'source_cut_qualification':'seven f4e vs1862 production blobs only; no root/fae or future-source runtime restamp',
+ 'B74_actual_frame_residual':'7->107/physical replacement with no refusal; two actual nativeFAILs retained',
+ 'B66_actual_A_residual':'observerNone->A0.0, separate mandatorycost_unknown/noACK',
+ 'formal_closure':False,'closure_authority':False,'closure_ids':[]},ensure_ascii=False,indent=2))

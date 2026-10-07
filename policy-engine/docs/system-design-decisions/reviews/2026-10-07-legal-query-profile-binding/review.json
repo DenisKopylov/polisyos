@@ -1,0 +1,80 @@
+{
+  "review": "independent Legal query-profile binding review",
+  "decision": "GO",
+  "candidate": {
+    "commit": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+    "tree": "8c9eb49a9a7096ed564f74e91b6f7f1bc1f2b714",
+    "branch": "codex/e02-C-legal-review-20261007",
+    "base": "f428b114f4afb5c9cdde93a8e9bf036abe5ac329"
+  },
+  "class_bucket": "same P37/P38 query-vector binding class",
+  "source_scope": "bounded query-binding implementation; no production LA-040 closure",
+  "findings": [
+    {
+      "id": "review-go",
+      "status": "GO",
+      "property": "A vector query is admitted only after selected generation rule/device/dimension and live encoder identity match; text is encoded by the gate and identity is checked again before HNSW.",
+      "implementation_paths": [
+        "policy-engine/src/polisyos/lex/knowledge/store.py:953-1004",
+        "policy-engine/src/polisyos/lex/knowledge/store.py:1100-1194",
+        "policy-engine/src/polisyos/lex/knowledge/store.py:1253-1370",
+        "policy-engine/src/polisyos/lex/knowledge/search.py:101-184",
+        "policy-engine/src/polisyos/lex/knowledge/search.py:326-384"
+      ],
+      "negative_control": "Bypassing the query gate with a same-dimensional wrong vector selects the decoy; admitted text query selects the target."
+    },
+    {
+      "id": "LA-040-held",
+      "status": "held",
+      "capability_label": "bridge_missing",
+      "limitation": "No current serving caller injects the matching local query encoder; production paired model assets/profile and actual Legal corpus membership remain unestablished.",
+      "callers": [
+        "policy-engine/src/polisyos/runtime/http/services/control/lex_pipeline.py:290",
+        "policy-engine/src/polisyos/scientist/validation/policy_verified/service.py:630",
+        "policy-engine/src/polisyos/lex/knowledge/benchmark.py:930"
+      ],
+      "note": "Current paths therefore use text search/fallback or have no vector profile. The candidate does not claim LA-040 production closure."
+    }
+  ],
+  "test_run": {
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine",
+    "shell": "zsh -o pipefail -c 'env OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1 PYTHONPATH=src:. /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m pytest -q tests/unit/remediation/test_emb_03.py::test_legal_entity_fact_and_provision_readers_follow_selected_membership tests/unit/remediation/test_emb_03.py::test_legacy_entrypoint_uses_supported_encoder_and_legal_reader tests/unit/remediation/test_emb_03.py::test_graph_query_encoder_reads_all_three_selected_legal_generations tests/unit/remediation/test_emb_03.py::test_live_query_encoder_must_match_selected_generation_before_knn tests/unit/remediation/test_emb_03.py::test_encoder_asset_change_during_query_encode_is_rejected_before_knn tests/unit/remediation/test_emb_03.py::test_raw_vector_cannot_bypass_query_profile_gate_and_control_is_discriminating tests/unit/remediation/test_emb_03.py::test_wrong_selected_generation_rejects_previous_query_encoder tests/unit/remediation/test_emb_03.py::test_concurrent_selector_replacement_keeps_query_on_one_generation tests/unit/remediation/test_emb_03.py::test_previous_rule_generation_is_unsupported_even_with_same_encoder tests/unit/remediation/test_emb_03.py::test_openai_label_does_not_authorize_query_vectors_and_hybrid_falls_back 2>&1 | tee ../.tmp/e02-C5/raw/legal-review/focused-tests.stdout.txt'",
+    "argv": [
+      "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/unit/remediation/test_emb_03.py::test_legal_entity_fact_and_provision_readers_follow_selected_membership",
+      "tests/unit/remediation/test_emb_03.py::test_legacy_entrypoint_uses_supported_encoder_and_legal_reader",
+      "tests/unit/remediation/test_emb_03.py::test_graph_query_encoder_reads_all_three_selected_legal_generations",
+      "tests/unit/remediation/test_emb_03.py::test_live_query_encoder_must_match_selected_generation_before_knn",
+      "tests/unit/remediation/test_emb_03.py::test_encoder_asset_change_during_query_encode_is_rejected_before_knn",
+      "tests/unit/remediation/test_emb_03.py::test_raw_vector_cannot_bypass_query_profile_gate_and_control_is_discriminating",
+      "tests/unit/remediation/test_emb_03.py::test_wrong_selected_generation_rejects_previous_query_encoder",
+      "tests/unit/remediation/test_emb_03.py::test_concurrent_selector_replacement_keeps_query_on_one_generation",
+      "tests/unit/remediation/test_emb_03.py::test_previous_rule_generation_is_unsupported_even_with_same_encoder",
+      "tests/unit/remediation/test_emb_03.py::test_openai_label_does_not_authorize_query_vectors_and_hybrid_falls_back"
+    ],
+    "environment": {
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "PYTHONPATH": "src:."
+    },
+    "exit_code": 0,
+    "tool_wall_time_seconds": 2.216,
+    "result": "10 passed",
+    "captured_output": "focused-tests.stdout-stderr.txt",
+    "capture_mode": "stderr redirected to stdout via 2>&1; combined output",
+    "captured_output_sha256": "7040371af15613c02e821ec0eecc1d1330f691ace4cef93a41bfa358822c4103"
+  },
+  "environment_and_origins_file": "environment-and-source-origins.json",
+  "environment_and_origins_sha256": "704731e9eb5972dfb862ec4e6e002a084bfddb5128551d12905ced38dac9df42",
+  "author_supplied_readonly_db_probe": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-query-20261007/polisyos/.tmp/e02-C5/raw/dfi-emb-prep/read-only-db-probe/db_readonly_probe.stdout.txt",
+    "sha256": "b84d95fdc6a9dc7f3edcf07a1bae2b1c85823953ded0d3c045bc3f0bb420ad0c"
+  },
+  "candidate_clean_after_review": true,
+  "reviewer_source_changes": false
+}

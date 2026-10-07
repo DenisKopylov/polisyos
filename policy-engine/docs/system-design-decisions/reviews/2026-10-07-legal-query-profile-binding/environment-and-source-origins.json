@@ -1,0 +1,41 @@
+{
+  "python": "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+  "version": "3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]",
+  "numpy_version": "2.3.5",
+  "numpy_origin": "/Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/numpy/__init__.py",
+  "hnswlib_version": "0.8.0",
+  "hnswlib_origin": "/Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages/hnswlib.cpython-314-darwin.so",
+  "hnswlib_sha256": "1995d684a31ecce3f0b2f817e283c7ba0d3bd77c961c0f47f2adb552f8cddf4a",
+  "source_modules": [
+    {
+      "module": "polisyos.data_forge.domains.legal.embedding_projection",
+      "origin": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/src/polisyos/data_forge/domains/legal/embedding_projection.py",
+      "sha256": "de61daaa01231282185e8947d6848b94bf6c9c6473ae709397eea138c510efa9"
+    },
+    {
+      "module": "polisyos.data_forge.domains.legal.batch.embedder",
+      "origin": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/src/polisyos/data_forge/domains/legal/batch/embedder.py",
+      "sha256": "c131c2ccc6351d23d88807bdb89f443e211c7932f63fea374c91ec1c308233e3"
+    },
+    {
+      "module": "polisyos.data_forge.kernel.embeddings",
+      "origin": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/src/polisyos/data_forge/kernel/embeddings.py",
+      "sha256": "b774a86cb9b7741aed97297670781653d97d7fe65a7a53ae8f718281bdeaf86f"
+    },
+    {
+      "module": "polisyos.data_forge.kernel.io.generation_basis",
+      "origin": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/src/polisyos/data_forge/kernel/io/generation_basis.py",
+      "sha256": "86ba6f9022c385ae8f031a7d7d2e67eabe348a074c7d8ddaf712e3d381270412"
+    },
+    {
+      "module": "polisyos.lex.knowledge.store",
+      "origin": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/src/polisyos/lex/knowledge/store.py",
+      "sha256": "b2b6057aa40bda9c0b9db983d4a91d0110ce3913e7bcf3f3c82364f3bee1a05e"
+    },
+    {
+      "module": "polisyos.lex.knowledge.search",
+      "origin": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/src/polisyos/lex/knowledge/search.py",
+      "sha256": "ad8ec70a8be151a7c3e72fe13c39b2081a437024233652385087de7ace7e4c37"
+    }
+  ]
+}

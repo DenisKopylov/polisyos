@@ -1,0 +1,15 @@
+# Independent Legal query-profile binding review
+
+Decision: GO for the bounded query-binding implementation at candidate c60e37e7833b2dbb22af1868e31dc3f519d6a4f2 (tree 8c9eb49a9a7096ed564f74e91b6f7f1bc1f2b714), based on base f428b114f4afb5c9cdde93a8e9bf036abe5ac329. This is a same-class P37/P38 repair of unbound query-vector admission, not a production LA-040 closure.
+
+The store rejects a raw vector unless its input is a LegalQueryInput, validates the selected generation’s rule, device, dimension and encoder identity, encodes the query text itself, checks for encoder identity change after encoding, then sends the normalized result to HNSW. Generation loading also reconciles actual table membership/projected text and checks that the HNSW vectors match the selected matrix. The three vector readers call the shared gate.
+
+The removal control is discriminating: with the gate bypassed, the same-dimensional wrong vector retrieves the decoy; with the gate enabled, the query text retrieves the target. Tests also cover all three readers, mismatch before HNSW, mutation during encode, selected-generation replacement during a query, previous-rule rejection, withdrawal, and text fallback. No additional same-class escape was found.
+
+Ten focused tests passed in the original Python 3.14 environment with NumPy 2.3.5 and hnswlib 0.8.0. The exact selectors, environment, module origins and source hashes are recorded in review.json and environment-and-source-origins.json; the complete captured pytest output is in focused-tests.stdout-stderr.txt. The command redirected stderr into stdout (2>&1); no separate stderr lines were observed. The output file SHA-256 is 7040371af15613c02e821ec0eecc1d1330f691ace4cef93a41bfa358822c4103.
+
+LA-040 remains held. Current production callsites do not inject the local query encoder: the Lex control path performs text search, the policy-verified service supplies an OpenAI key only, and the benchmark constructs the graph without a query encoder. The code therefore fails closed to text or empty vector results unless a caller explicitly supplies a compatible encoder. This is an honest limitation, but the serving-profile bridge and production paired assets/profile remain unestablished (bridge_missing). The release fragment and docs describe this behavior and the need to rebuild v1 generations.
+
+The supplied read-only DuckDB probe output is at /Users/deniskopylov/.codex/worktrees/e02-c-legal-query-20261007/polisyos/.tmp/e02-C5/raw/dfi-emb-prep/read-only-db-probe/db_readonly_probe.stdout.txt, SHA-256 b84d95fdc6a9dc7f3edcf07a1bae2b1c85823953ded0d3c045bc3f0bb420ad0c. It records a warm reader, refusal of a separate differently configured writer, and successful selector publication by the supported embedding builder.
+
+Reviewed source: policy-engine/src/polisyos/lex/knowledge/store.py lines 953-1004 and 1100-1194; vector consumers at 1253-1370; graph behavior in policy-engine/src/polisyos/lex/knowledge/search.py lines 101-184 and 326-384. Candidate source remained unchanged and clean after review.

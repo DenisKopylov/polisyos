@@ -1,0 +1,278 @@
+"""Bounded preparation and tiny retention protocol controls; never run a real wave."""
+
+from __future__ import annotations
+
+import argparse
+import ast
+import copy
+import hashlib
+import importlib.util
+import json
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+BASE = Path(__file__).resolve().parent
+REPO = Path('/workspace/e02-E-continuation-20261006')
+PYTHON = REPO / 'policy-engine/.venv/bin/python'
+COMPARISON = '198076863e143dea9f89f02734b13d50dae3eed5'
+OUT = BASE / 'bounded-controls-v1'
+OUT.mkdir(exist_ok=False)
+
+
+def digest(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def load(path: Path, name: str):
+    spec = importlib.util.spec_from_file_location(name, path)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def git(*arguments: str) -> str:
+    return subprocess.check_output(['git', '-C', str(REPO), *arguments], text=True).strip()
+
+
+def asset(path: Path) -> dict:
+    data = path.read_bytes()
+    return {'path': str(path), 'bytes': len(data), 'sha256': digest(data)}
+
+
+wrapper = load(BASE / 'prepare_current_owner_wave.py', 'current_packet_wrapper')
+head = git('rev-parse', 'HEAD')
+tree = git('rev-parse', 'HEAD^{tree}')
+status = git('status', '--porcelain')
+assert not status
+args = argparse.Namespace(repo=REPO, candidate=head, comparison_base=COMPARISON,
+                          output_root=OUT / 'wave-never-created', no_owner_packets=False)
+planner = wrapper.load_planner(args)
+baseline_args = argparse.Namespace(**vars(args))
+baseline_args.no_owner_packets = True
+baseline = planner.prepare(baseline_args)
+plan = wrapper.prepare_current(args, planner)
+(OUT / 'original-no-owner-plan.json').write_text(json.dumps(baseline, indent=2) + '\n')
+(OUT / 'current-owner-prepared-plan.json').write_text(json.dumps(plan, indent=2) + '\n')
+assert not args.output_root.exists()
+
+packet_data = planner.git_bytes(REPO, 'show', head + ':' + wrapper.OWNER_PACKET_PATH)
+packet_hash = digest(packet_data)
+packet_test_tree = ast.parse(packet_data)
+packet_functions = [node.name for node in ast.walk(packet_test_tree)
+                    if isinstance(node, ast.FunctionDef) and node.name.startswith('test_')]
+results = []
+
+
+def check(name: str, predicate: bool, **details) -> None:
+    results.append({'name': name, 'status': 'PASS' if predicate else 'FAIL', **details})
+    if not predicate:
+        raise AssertionError(name)
+
+
+def packet_selected(candidate: dict) -> bool:
+    packets = candidate['owner_packet_extra_inputs']
+    if len(packets) != 1:
+        return False
+    item = packets[0]
+    if (item['source'] != wrapper.OWNER_PACKET_PATH or item['sha256'] != packet_hash
+            or item['bytes'] != len(packet_data)):
+        return False
+    jobs = [row for row in candidate['jobs'] if row.get('group') == wrapper.FRC_GROUP]
+    return len(jobs) == 1 and jobs[0]['argv'].count(item['destination']) == 1
+
+
+check('actual_current_native_selector_denominator_unchanged',
+      all(plan[key] == baseline[key] for key in
+          ('groups', 'native_test_path_count', 'source_test_assets', 'group_static_ast_test_function_count')),
+      native_paths=plan['native_test_path_count'])
+check('single_git_bound_current_packet_selected', packet_selected(plan),
+      bytes=len(packet_data), sha256=packet_hash, packet_function_names=packet_functions,
+      expected_case_count=7, actual_test_cases='UNRUN; preparation only')
+check('retired_packets_absent', all('frc-source-measurement-r2' not in item['source']
+                                   for item in plan['owner_packet_extra_inputs']))
+old_jobs = {job['name']: job for job in baseline['jobs']}
+new_jobs = {job['name']: job for job in plan['jobs']}
+check('importer_and_six_non_runtime_gates_unchanged',
+      all(job == old_jobs[name] for name, job in new_jobs.items()
+          if job['kind'] in ('gate', 'importer') and name != 'runtime-api-contract'))
+check('same_seven_global_gate_names_and_order',
+      [row['name'] for row in baseline['jobs'] if row['kind'] == 'gate'] ==
+      [row['name'] for row in plan['jobs'] if row['kind'] == 'gate'])
+for name, job in new_jobs.items():
+    if job['kind'] != 'numerical':
+        continue
+    old = old_jobs[name]
+    expected = copy.deepcopy(old)
+    if job.get('group') == wrapper.FRC_GROUP:
+        expected['argv'].append(plan['owner_packet_extra_inputs'][0]['destination'])
+    check('complete_numeric_job_preserved:' + name, job == expected)
+check('numeric_ephemeral_metric_ports_only',
+      all((job['environment'].get('POLISYOS_METRICS_PORT') == '0') ==
+          (job['kind'] == 'numerical') for job in plan['jobs']))
+check('no_artificial_cap_environment',
+      all(not any(name in job['environment'] for name in planner.CAP_VARIABLES)
+          for job in plan['jobs']))
+check('fresh_scratch_root_remains_absent', not args.output_root.exists())
+for control, change in [
+    ('remove_actual_consumer_selector_keep_fields', 'selector'),
+    ('substitute_wrong_digest_keep_source_destination', 'digest'),
+    ('include_retired_owner_extra_keep_current_binding', 'retired'),
+]:
+    altered = copy.deepcopy(plan)
+    if change == 'selector':
+        selected = next(row for row in altered['jobs'] if row.get('group') == wrapper.FRC_GROUP)
+        selected['argv'].remove(altered['owner_packet_extra_inputs'][0]['destination'])
+    elif change == 'digest':
+        altered['owner_packet_extra_inputs'][0]['sha256'] = '0' * 64
+    else:
+        altered['owner_packet_extra_inputs'].append({'source': 'frc-source-measurement-r2/old.py.txt'})
+    check(control, not packet_selected(altered), altered_property_verdict='FAIL',
+          producer_binding_markers_preserved=True)
+original_prepare = planner.prepare
+
+
+def obsolete_prepare(request):
+    result = original_prepare(request)
+    result['owner_packet_extra_inputs'] = [{'source': 'frc-source-measurement-r2/old.py.txt'}]
+    return result
+
+
+planner.prepare = obsolete_prepare
+try:
+    wrapper.prepare_current(args, planner)
+except RuntimeError as exc:
+    check('present_retired_packets_typed_refusal', 'retired packets' in str(exc), error=str(exc))
+else:
+    check('present_retired_packets_typed_refusal', False)
+finally:
+    planner.prepare = original_prepare
+
+runtime = new_jobs['runtime-api-contract']
+metadata = plan['operational_runtime_capture']
+check('operational_runtime_source_binding',
+      metadata['source_sha256'] == digest(planner.git_bytes(REPO, 'show', head + ':' + metadata['source']))
+      and metadata['effective_cwd'] == runtime['environment']['TMPDIR']
+      and '--project' in runtime['argv'] and '--repo-root' not in runtime['argv']
+      and '--skip-client-drift' not in runtime['argv'])
+check('canonical_execute_delegated_not_reimplemented',
+      'asyncio.run(planner.execute(plan))' in (BASE / 'prepare_current_owner_wave.py').read_text())
+
+FAKE = '''"""Synthetic protocol checker, never a product/global check."""\nimport json,sys,tempfile\nfrom pathlib import Path\ndef _canonical_json(payload):\n    return json.dumps(payload,sort_keys=True)+"\\n"\ndef main():\n    rendered=_canonical_json({"value":3})\n    assert rendered == '{"value": 3}\\n', "comparison return corrupted"\n    Path("callback.marker").write_text("actual synthetic main invoked\\n")\n    with tempfile.TemporaryDirectory(prefix="runtime_client_contract_") as name:\n        root=Path(name)\n        for suffix in ("types.ts","client.ts","client.js"):\n            (root/suffix).write_text("generated:"+suffix+"\\n")\n    print("synthetic-checker-exit="+sys.argv[1])\n    return int(sys.argv[1])\n'''
+expected_raw = b'{"value": 3}\n'
+hook = BASE / 'retained_runtime_api_cli.py'
+
+
+def run_fake(name: str, *, code: int = 0, source: str = FAKE,
+             hook_path: Path = hook, wrong_hash: bool = False,
+             driver: Path | None = None) -> dict:
+    stage = OUT / name
+    stage.mkdir(exist_ok=False)
+    checker = stage / 'synthetic_checker.py'
+    checker.write_text(source)
+    temp = stage / 'stage-tmp'
+    temp.mkdir(exist_ok=False)
+    catalog = stage / 'catalog.json'
+    argv = [str(PYTHON)]
+    if driver:
+        argv.extend([str(driver), str(hook_path)])
+    else:
+        argv.append(str(hook_path))
+    argv.extend(['--checker', str(checker), '--expected-checker-sha256',
+                 ('0' * 64 if wrong_hash else digest(checker.read_bytes())),
+                 '--catalog', str(catalog), '--', str(code)])
+    environment = {**os.environ, 'TMPDIR': str(temp), 'PYTHONDONTWRITEBYTECODE': '1'}
+    run = subprocess.run(argv, cwd=stage, env=environment, capture_output=True, check=False)
+    (stage / 'stdout.txt').write_bytes(run.stdout)
+    (stage / 'stderr.txt').write_bytes(run.stderr)
+    record = {'argv': argv, 'cwd': str(stage), 'environment': {'TMPDIR': str(temp),
+              'PYTHONDONTWRITEBYTECODE': '1'}, 'exit_code': run.returncode,
+              'input': asset(checker), 'hook': asset(hook_path),
+              'stdout': asset(stage / 'stdout.txt'), 'stderr': asset(stage / 'stderr.txt'),
+              'callback_invoked': (stage / 'callback.marker').exists(),
+              'catalog': json.loads(catalog.read_text()) if catalog.exists() else None}
+    (stage / 'execution.json').write_text(json.dumps(record, indent=2) + '\n')
+    return record
+
+
+for return_code in (0, 7):
+    observed = run_fake('retention-exit-' + str(return_code), code=return_code)
+    catalog = observed['catalog']
+    outputs = catalog['complete_generated_client_outputs_raw_only']
+    raw_info = catalog['openapi_captures_raw_only']
+    check('same_synthetic_main_exit_retained:' + str(return_code),
+          observed['exit_code'] == return_code == catalog['actual_checker_exit_code'])
+    check('same_single_canonical_bytes_retained:' + str(return_code),
+          catalog['canonical_json_capture_count'] == 1 and len(raw_info) == 1
+          and Path(raw_info[0]['path']).read_bytes() == expected_raw)
+    check('all_three_generated_outputs_survive_context_exit:' + str(return_code),
+          len(outputs) == 3 and all(Path(row['path']).is_file() for row in outputs))
+observed = run_fake('wrong-source-hash', wrong_hash=True)
+check('wrong_checker_hash_refused_before_main', observed['exit_code'] != 0
+      and not observed['callback_invoked'] and observed['catalog'] is None)
+observed = run_fake('temporary_escape_refused_before_allocation',
+                    source=FAKE.replace('prefix="runtime_client_contract_"',
+                                        'prefix="runtime_client_contract_",dir="/workspace"'))
+check('temporary_escape_refused_before_allocation', observed['exit_code'] != 0
+      and observed['catalog']['temporary_directories_retained'] == []
+      and 'request escapes' in Path(observed['stderr']['path']).read_text())
+mutated = OUT / 'removed_capture_return_equivalence.py'
+text = hook.read_text()
+assert text.count('        return rendered\n') == 1
+mutated.write_text(text.replace('        return rendered\n', '        return rendered + "\\n"\n'))
+observed = run_fake('remove_return_equivalence_keep_capture_markers', hook_path=mutated)
+check('effective_canonical_return_removal_detected', observed['exit_code'] != 0
+      and not observed['callback_invoked']
+      and observed['catalog']['canonical_json_capture_count'] == 1
+      and Path(observed['catalog']['openapi_captures_raw_only'][0]['path']).read_bytes() == expected_raw,
+      altered_property_verdict='FAIL', unchanged_capture_markers=True)
+
+# Safe cleanup-removal: a real factory is never invoked for delete=True/default.
+# The sentinel refuses before allocating anything, so no permanent deletion occurs.
+retention_driver = OUT / 'safe_cleanup_sentinel_driver.py'
+retention_driver.write_text('''import runpy,sys,tempfile\noriginal=tempfile.TemporaryDirectory\ndef only_retained(*a,**k):\n    if k.get("delete",True) is not False:\n        raise RuntimeError("cleanup-enabled temporary request refused before allocation")\n    return original(*a,**k)\ntempfile.TemporaryDirectory=only_retained\nscript=sys.argv.pop(1)\nrunpy.run_path(script,run_name="__main__")\n''')
+mutated = OUT / 'removed_delete_false_property.py'
+text = hook.read_text()
+assert text.count('        keywords["delete"] = False\n') == 1
+mutated.write_text(text.replace('        keywords["delete"] = False\n', ''))
+observed = run_fake('safe_cleanup_sentinel_healthy', driver=retention_driver)
+check('safe_retention_sentinel_healthy', observed['exit_code'] == 0
+      and len(observed['catalog']['complete_generated_client_outputs_raw_only']) == 3)
+observed = run_fake('remove_retention_keep_catalog_fields', hook_path=mutated,
+                    driver=retention_driver)
+check('effective_retention_removal_detected_before_destructive_allocation',
+      observed['exit_code'] != 0 and observed['catalog']['temporary_directories_retained'] == []
+      and 'refused before allocation' in Path(observed['stderr']['path']).read_text(),
+      altered_property_verdict='FAIL', catalog_markers_preserved=True,
+      permanent_deletion=False)
+check('root_candidate_unchanged_during_preparation', git('rev-parse', 'HEAD') == head
+      and git('rev-parse', 'HEAD^{tree}') == tree and git('status', '--porcelain') == status)
+inputs = []
+for name in ('plan_wave.py', 'run_check.py', 'collect_wave.py', 'uncapped_umbrella.py',
+             'proposal.json', 'original-wave-groups.json'):
+    path = REPO / wrapper.PLANNER_PATH
+    path = path.with_name(name)
+    data = planner.git_bytes(REPO, 'show', head + ':' + path.relative_to(REPO).as_posix())
+    inputs.append({'source': path.relative_to(REPO).as_posix(), 'bytes': len(data),
+                   'sha256': digest(data), 'git_blob': git('rev-parse', head + ':' +
+                                                        path.relative_to(REPO).as_posix())})
+report = {'schema': 'policyos.e02.current_owner_wave_preparation_review.v1',
+          'candidate': head, 'tree': tree, 'git_status_before_and_after': status,
+          'source_inputs': inputs, 'wrapper': asset(BASE / 'prepare_current_owner_wave.py'),
+          'retention_hook': asset(hook), 'current_packet_binding': plan['current_A_owner_packet_binding'],
+          'controls': results, 'count': len(results),
+          'source_test_input_count': plan['native_test_path_count'],
+          'global_gate_count': sum(job['kind'] == 'gate' for job in plan['jobs']),
+          'wave_execute_called': False, 'real_runtime_api_main_called': False,
+          'tiny_protocol_results_not_product_evidence': True,
+          'remaining': ['Root source and all independent reviews must freeze before execute.',
+                        'Fresh prepare on frozen candidate must admit actual IR selector and all companions.',
+                        'Nested workflow runtime API commands require separate operational retention when reached.',
+                        'Direct checker main variant does not separately remeasure registered CLI preflight.',
+                        'Canonical workflow UNRUN stays separate from observed standalone constituent outcomes.']}
+(OUT / 'bounded-wrapper-preparation-review.json').write_text(json.dumps(report, indent=2) + '\n')
+print(json.dumps({'review': str(OUT / 'bounded-wrapper-preparation-review.json'),
+                  'candidate': head, 'count': len(results), 'status': 'PASS',
+                  'wave_execute_called': False, 'real_runtime_api_main_called': False}))

@@ -24,3 +24,15 @@ traced completion, enforcer, funnel and fresh file-ledger readback. Controls ret
 typed markers while removing receiver observation or paid-origin readback, and
 mutate returned content after issuance. The provider HTTP exchange is controlled;
 no production billing, native draws or promotion authority is claimed.
+
+A supplied `CorrelationTracker` also persists its existing `1.0` snapshot in the
+calibration report metadata consumed by the native runtime resolver. Report/CAS
+readback keeps the original paired observations, record metadata, thresholds and
+routing state. An absent tracker keeps the legacy read-only projection; an
+explicit empty tracker remains `not_established` with no measured drift. Removing
+the snapshot while retaining normal/sample-count labels cannot reconstruct it.
+Empty report rate/correlation values and corresponding acceptance criteria remain
+null and unassessed in JSON/CAS and display `n/a`/`GAP` in Markdown. An observed
+zero correlation remains a numerical zero and keeps its actual verdict. This
+transports supplied state; it does not appoint evidence, tenant scope or promotion
+authority.

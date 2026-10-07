@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
 from types import SimpleNamespace
 from typing import Any
 from unittest.mock import MagicMock
@@ -13,6 +14,7 @@ from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.ir import UncertaintyType
 from polisyos.scientist.methods.search.calibration_report import (
     FunnelCalibrationReport,
+    build_calibration_report,
     load_funnel_calibration_report,
     persist_funnel_calibration_report,
 )
@@ -703,3 +705,123 @@ def test_run_policy_blueprint_execute_refuses_bool_admission_after_real_l4_work(
     assert level6["feedback"]["promotion_required_contract"] == (
         "owner_issued_promotion_permit_and_revoke_serialized_commit"
     )
+
+
+def _runtime_paired_calibration_tracker(*, reverse: bool = False) -> CorrelationTracker:
+    tracker = CorrelationTracker(drift_window_size=5)
+    for number in range(5):
+        cheap = float(number + 1)
+        full = float(5 - number if reverse else number + 1)
+        tracker.record(
+            replace(
+                _stage_result(2, _envelope(statistical=0.3, model=0.4)),
+                objective_value=cheap,
+                predicted_score=cheap,
+            ),
+            replace(
+                _stage_result(4, _envelope(statistical=0.3, model=0.4)),
+                objective_value=full,
+                actual_score=full,
+            ),
+            f"native-paired-{number}",
+            metadata={"fixture_profile": "native-persisted-paired-corpus"},
+        )
+    return tracker
+
+
+def _execute_actual_node_with_persisted_calibration_report(monkeypatch, tmp_path, report):
+    canonical = {
+        name: getattr(runtime, name)
+        for name in [
+            "_ensure_calibration_report",
+            "load_funnel_calibration_report",
+            "_resolve_degradation_mode",
+            "_resolve_runtime_correlation_metrics",
+            "_resolve_runtime_correlation_tracker",
+        ]
+    }
+    actual_orchestrator = runtime.FunnelOrchestrator
+    harness = _install_actual_runtime_node_dependencies(
+        monkeypatch, tmp_path, mode=report.current_mode
+    )
+    calibration_ref = persist_funnel_calibration_report(harness["store"], report)
+    # The ordinary input/ref seam and a fresh CAS instance are real. Only the
+    # existing harness's unrelated evaluator/permission boundaries stay controlled.
+    harness["state"].inputs[runtime.INPUT_CALIBRATION_REPORT_REF] = calibration_ref
+    harness["ctx"].store = FileSystemCAS(harness["store"].root)
+    for name, function in canonical.items():
+        monkeypatch.setattr(runtime, name, function)
+    observed = {"submit_calls": 0, "advance_calls": 0}
+
+    class _ObservedOrchestrator(actual_orchestrator):
+        def submit(self, candidate, context=None):
+            observed["submit_calls"] += 1
+            observed["supplied_report"] = context["calibration_report"]
+            observed["supplied_metrics"] = dict(context["correlation_metrics"])
+            observed["initial_tracker"] = self._correlation_tracker
+            observed["initial_snapshot"] = (
+                None
+                if self._correlation_tracker is None
+                else self._correlation_tracker.to_snapshot().model_dump(mode="json")
+            )
+            return super().submit(candidate, context)
+
+        def advance(self, ticket, **kwargs):
+            observed["advance_calls"] += 1
+            outcome = super().advance(ticket, **kwargs)
+            observed["final_tracker"] = self._correlation_tracker
+            return outcome
+
+    monkeypatch.setattr(runtime, "FunnelOrchestrator", _ObservedOrchestrator)
+    outcome = runtime.RunPolicyBlueprintRuntimeNode().execute(harness["ctx"], harness["state"])
+    return harness, observed, outcome
+
+
+@pytest.mark.parametrize("reverse", [False, True])
+def test_native_execute_restores_report_corpus_into_actual_funnel_then_preserves_guards(
+    monkeypatch, tmp_path, reverse
+):
+    tracker = _runtime_paired_calibration_tracker(reverse=reverse)
+    expected = tracker.to_snapshot().model_dump(mode="json")
+    report = build_calibration_report(correlation_tracker=tracker)
+    harness, observed, outcome = _execute_actual_node_with_persisted_calibration_report(
+        monkeypatch, tmp_path, report
+    )
+    assert outcome.status == "ok"
+    assert observed["submit_calls"] == observed["advance_calls"] == 1
+    assert observed["initial_tracker"] is not None, "native ordinary consumer lost supplied corpus"
+    assert observed["initial_tracker"] is not tracker
+    assert observed["initial_snapshot"] == expected
+    assert observed["supplied_report"].metadata["correlation_tracker_snapshot"] == expected
+    assert observed["supplied_report"].current_mode == ("no_promotion" if reverse else "normal")
+    assert observed["supplied_metrics"]["sample_count"] == 5
+    assert observed["supplied_metrics"]["calibration_state"] == "observed"
+    assert observed["final_tracker"].record_count == 6
+    assert (
+        observed["final_tracker"].to_snapshot().model_dump(mode="json")["records"][:5]
+        == expected["records"]
+    )
+    assert harness["backend_calls"] == ["full"]
+    assert "4" in outcome.state.params["_funnel_outcome"]["stage_results"]
+    assert harness["runner_calls"] == harness["promotion_writes"] == []
+    assert outcome.state.params["_funnel_outcome"]["final_action"] == "defer_to_human"
+
+
+def test_native_execute_snapshot_removal_keeps_labels_but_does_not_invent_tracker(
+    monkeypatch, tmp_path
+):
+    report = build_calibration_report(correlation_tracker=_runtime_paired_calibration_tracker())
+    altered = report.model_copy(update={"metadata": {}})
+    assert altered.current_mode == report.current_mode == "normal"
+    assert altered.routing_health == report.routing_health
+    harness, observed, outcome = _execute_actual_node_with_persisted_calibration_report(
+        monkeypatch, tmp_path, altered
+    )
+    assert outcome.status == "ok"
+    assert observed["submit_calls"] == observed["advance_calls"] == 1
+    assert observed["supplied_report"].current_mode == "normal"
+    assert observed["supplied_metrics"]["sample_count"] == 5
+    assert observed["initial_tracker"] is observed["final_tracker"] is None
+    assert observed["initial_snapshot"] is None
+    assert harness["backend_calls"] == ["full"]
+    assert harness["runner_calls"] == harness["promotion_writes"] == []

@@ -1,0 +1,120 @@
+{
+  "schema": "policyos.e02.cloud_cleanup_execution.v1",
+  "human_authorization": "2026-10-07 user: cloud may delete already unneeded test results/created environments; Trash directive local-only",
+  "deleted_path": "/tmp/e02-B-architecture-runtime-ml-cache-warm-1862c021df74/environment",
+  "deleted_kind": "reproducible unused historical cloud environment",
+  "independent_admission_identity": {
+    "path": "/tmp/e02-B-cleanup-candidate-delta-20261007/verified-tmp-environment.json",
+    "sha256": "8d3c9ededf068ab8bebca9f2b69762e28deead2d4cf377948e11c898038c020e"
+  },
+  "active_guard_matches": [],
+  "proc_entries_inspected": 1711,
+  "before": {
+    "tmp_available_bytes": 1755992064,
+    "memory_current_bytes": 17178365952,
+    "overlay_available_bytes": 0
+  },
+  "after": {
+    "tmp_available_bytes": 2879500288,
+    "memory_current_bytes": 16036487168,
+    "overlay_available_bytes": 0
+  },
+  "wall_s": 0.14399075508117676,
+  "retained_parent": "/tmp/e02-B-architecture-runtime-ml-cache-warm-1862c021df74",
+  "retained_full_evidence": [
+    {
+      "live_path": "/tmp/e02-B-architecture-runtime-ml-cache-warm-1862c021df74/profile.json",
+      "commit": "def52c48c9bc715f4126db05549c0831a67e83da",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/runtime-ml-profile.json",
+      "bytes": 8870,
+      "sha256": "61ec072ef1515b4bea90d3bbfd59769c1e9238a4eee02793ba1cfa7de5cada69",
+      "git_blob_sha1": "afddbd2eabc4f61d866278322b5a09aff4e02b97",
+      "full_byte_equal": true
+    },
+    {
+      "live_path": "/tmp/e02-B-architecture-runtime-ml-cache-warm-1862c021df74/venv.json",
+      "commit": "def52c48c9bc715f4126db05549c0831a67e83da",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/runtime-ml-venv.json",
+      "bytes": 790,
+      "sha256": "40f1cfb413ba412777e3eacd1929798d8e58952a776c2af6bb5875fd6fb6b895",
+      "git_blob_sha1": "de38ae8f23bc442bb9898f2c90ccbd5b9915c863",
+      "full_byte_equal": true
+    },
+    {
+      "live_path": "/tmp/e02-B-architecture-runtime-ml-cache-warm-1862c021df74/venv.txt",
+      "commit": "def52c48c9bc715f4126db05549c0831a67e83da",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/runtime-ml-venv.txt",
+      "bytes": 332,
+      "sha256": "cb3601dce81390b7599d1c271512222db1cee469053c4febc7bc045516839ff2",
+      "git_blob_sha1": "f8c76b44c54e0d0043c595862101c36f39e49d97",
+      "full_byte_equal": true
+    },
+    {
+      "live_path": "/tmp/e02-B-architecture-runtime-ml-cache-warm-1862c021df74/sync.json",
+      "commit": "def52c48c9bc715f4126db05549c0831a67e83da",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/runtime-ml-sync.json",
+      "bytes": 673,
+      "sha256": "b3b371742ba93ae2d053f3e4989d2c39fd62bcd67ae9c5dfefc789a66ed491b9",
+      "git_blob_sha1": "7f31e43b462c287f4a23bb292b03127d130598af",
+      "full_byte_equal": true
+    },
+    {
+      "live_path": "/tmp/e02-B-architecture-runtime-ml-cache-warm-1862c021df74/sync.txt",
+      "commit": "def52c48c9bc715f4126db05549c0831a67e83da",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/runtime-ml-sync.txt",
+      "bytes": 4116,
+      "sha256": "e526eb8c56335d507e2e7406146d1f72be574ea82f32af3a4955ff1b7d2c5b9a",
+      "git_blob_sha1": "1bf4a96ab463bb8261c779a7c6654173b86a43f9",
+      "full_byte_equal": true
+    },
+    {
+      "live_path": "/tmp/e02-B-architecture-runtime-ml-cache-warm-1862c021df74/private-imports-and-packages.json",
+      "commit": "def52c48c9bc715f4126db05549c0831a67e83da",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/runtime-ml-private-imports-and-packages.json",
+      "bytes": 10793,
+      "sha256": "7d2a4604a91ee91ceea112f3e085c1abdaf7f514fd2066766fa67740eeb9cc1a",
+      "git_blob_sha1": "d17cca860123aa5d3f2ef5ab52564e1f6436499a",
+      "full_byte_equal": true
+    },
+    {
+      "live_path": "/tmp/e02-B-architecture-runtime-ml-cache-warm-1862c021df74/prepare.source.txt",
+      "commit": "def52c48c9bc715f4126db05549c0831a67e83da",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-completed-architecture-prerequisite-evidence/runtime-ml-prepare.source.txt",
+      "bytes": 4715,
+      "sha256": "ee7df5a10c4b249626d01a8638d491bd0ee09934dba8bf22abcefd54b8d46e2e",
+      "git_blob_sha1": "d3099b5399ceb55b89553937bd3d14920310bd5d",
+      "full_byte_equal": true
+    }
+  ],
+  "reproduction": {
+    "venv_argv": [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+      "venv",
+      "--python",
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+      "/tmp/e02-B-architecture-runtime-ml-cache-warm-1862c021df74/environment"
+    ],
+    "sync_argv": [
+      "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/tools/uv-0.9.21/bin/uv",
+      "sync",
+      "--frozen",
+      "--extra",
+      "runtime",
+      "--extra",
+      "ml"
+    ],
+    "cwd": "/dev/shm/e02-B-architecture-cache-warm-1862c021df74/source",
+    "explicit_UV_PROJECT_ENVIRONMENT": "/tmp/e02-B-architecture-runtime-ml-cache-warm-1862c021df74/environment",
+    "environment_private_scope": "Exact old1862 runtime+ml profile, recreatable from frozen lock/package observation; existing sharedcache preserved, offline/network availability is not guaranteed by this metadata."
+  },
+  "lock": {
+    "path": "/dev/shm/e02-B-architecture-cache-warm-1862c021df74/source/uv.lock",
+    "bytes": 779204,
+    "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+    "git_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "git_path": "policy-engine/uv.lock",
+    "byte_equal": true
+  },
+  "qualification": "tmpfs release only; overlay free space not inferred; no cleanup of deciding outputs/code/active environments/PG/data",
+  "root_checkout_source_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d"
+}

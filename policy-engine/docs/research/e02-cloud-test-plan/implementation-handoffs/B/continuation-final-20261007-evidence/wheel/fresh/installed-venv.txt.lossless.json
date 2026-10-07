@@ -1,0 +1,10 @@
+{
+  "schema": "policyos.e02.lossless_text.v1",
+  "source": {
+    "cloud_path": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/installed-venv.txt",
+    "bytes": 220,
+    "sha256": "88031c3313150199540d7e5f695abbb2896d91c384410f8741c1be1053bf7620"
+  },
+  "encoding": "utf-8",
+  "text": "Using CPython 3.14.2 interpreter at: /workspace/.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/bin/python3.14\nCreating virtual environment at: installed-env\nActivate with: source installed-env/bin/activate\n"
+}

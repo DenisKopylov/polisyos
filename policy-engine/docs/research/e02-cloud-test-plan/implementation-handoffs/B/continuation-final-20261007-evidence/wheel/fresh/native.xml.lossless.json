@@ -1,0 +1,10 @@
+{
+  "schema": "policyos.e02.lossless_text.v1",
+  "source": {
+    "cloud_path": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/native.xml",
+    "bytes": 342,
+    "sha256": "2560a26b6b871855a24c5011021fe17fcc2e37e069cb8000908b6f5231318fec"
+  },
+  "encoding": "utf-8",
+  "text": "<?xml version=\"1.0\" encoding=\"utf-8\"?><testsuites name=\"pytest tests\"><testsuite name=\"pytest\" errors=\"0\" failures=\"0\" skipped=\"0\" tests=\"1\" time=\"0.883\" timestamp=\"2026-10-07T08:37:46.121449+00:00\" hostname=\"b878f4efbdfc\"><testcase classname=\"\" name=\"test_installed_wheel_consumers_in_isolated_child\" time=\"0.844\" /></testsuite></testsuites>"
+}

@@ -1,0 +1,10 @@
+{
+  "schema": "policyos.e02.lossless_text.v1",
+  "source": {
+    "cloud_path": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/wheel-install.txt",
+    "bytes": 256,
+    "sha256": "fbb7a5f5983691a7b0f2f899b682fc1a90c4a80faaefae5322b5bd318c27325b"
+  },
+  "encoding": "utf-8",
+  "text": "Using Python 3.14.2 environment at: installed-env\nResolved 1 package in 6ms\nPrepared 1 package in 61ms\nInstalled 1 package in 20ms\n + policy-engine==0.1.0 (from file:///tmp/e02-B-continuation-wheel-6fa9b7142ba5/wheels/policy_engine-0.1.0-py3-none-any.whl)\n"
+}

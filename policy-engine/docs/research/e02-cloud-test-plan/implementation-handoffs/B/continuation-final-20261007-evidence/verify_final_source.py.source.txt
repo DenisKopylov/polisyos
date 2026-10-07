@@ -1,0 +1,50 @@
+"""Reconcile actual immutable source and complete owned merge footprint."""
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+
+root='/workspace/e02-B-current-coordination'
+task=Path('/tmp/e02-B-continuation-external-6fa9b7142ba5')
+custody=json.loads((task/'metadata-merge-custody.json').read_text())
+parent=custody['cursor']
+source='7c05686dbd8427fa2e8bf217827046acef097058'
+prefix='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/'
+
+def git(*a):return subprocess.check_output(['git',*a],cwd=root)
+def sg(*a):return git(*a).decode().strip()
+production='policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py'
+gateway='policy-engine/src/polisyos/scientist/orchestration/llm/gateway_client.py'
+assert git('show',parent+':'+production)==git('show',source+':'+production)
+assert git('show',parent+':'+gateway)==git('show',custody['original_source']+':'+gateway)
+changed=sg('diff','--name-only',custody['original_source'],parent).splitlines()
+sourcepaths=[path for path in changed if '/implementation-handoffs/' not in path]
+expected={'policy-engine/release-fragments/unreleased/2026-10-07-foundry-imported-module-identity.toml',
+          'policy-engine/src/polisyos/foundry/methods/artifacts/README.md',production,
+          'policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py'}
+assert set(sourcepaths)==expected
+for path in expected:
+    assert git('show',parent+':'+path)==git('show',source+':'+path)
+receipt_checks=[]
+for ref,path,expected_sha,size in [
+    ('71afa5796b7a1b89cc94d9b6d4a0394d6117aab0',prefix+'current-jit-data-field-identity.json','74134a34cd17782e4aab525d306f44b8ea32711ae722c3455ffeed37fcdeb672',248144),
+    ('8c292c4904462a1ecd57d250f06fdfd7ff293c95',prefix+'continuation-getter-source-independent-review.json','15774698b68eb2b03f4004e96df83ce35e1b21ce82bfc1ce707b10f2343517fb',34319),
+    ('0bf268e7860831241e3fd193b3da46086d5893cc',prefix+'continuation-jit-getter-independent-lexical-final.json','99815bffc0311d3fe0f68cbb82ec64c89cc05b661ec39fdc17178e20fa031846',11396)]:
+    data=git('show',ref+':'+path)
+    assert len(data)==size and hashlib.sha256(data).hexdigest()==expected_sha
+    assert git('show',parent+':'+path)==data
+    receipt_checks.append({'sha':ref,'path':path,'bytes':size,'sha256':expected_sha,'merged_byte_equal':True})
+r={'status':'SOURCE_AND_OWNED_FOOTPRINT_VERIFIED','parent':parent,'parent_tree':sg('rev-parse',parent+'^{tree}'),
+   'frozen_native_source':custody['original_source'],'production_delta_paths':sourcepaths,
+   'getter_source':{'sha':source,'tree':sg('rev-parse',source+'^{tree}'),'blob_sha1':sg('rev-parse',parent+':'+production),'blob_sha256':hashlib.sha256(git('show',parent+':'+production)).hexdigest()},
+   'getter_foreign':{'sha':'0bf268e7860831241e3fd193b3da46086d5893cc','path':prefix+'continuation-jit-getter-independent-lexical-final.json'},
+   'getter_review':{'sha':'8c292c4904462a1ecd57d250f06fdfd7ff293c95','path':prefix+'continuation-getter-source-independent-review.json'},
+   'getter_canonical':receipt_checks[0],
+   'gateway':{'source_sha':custody['original_source'],'blob_sha1':sg('rev-parse',parent+':'+gateway),'blob_sha256':hashlib.sha256(git('show',parent+':'+gateway)).hexdigest(),'cut':'same as actual frozen decoder30PASS and original E7 direct/fresh consumer controls'},
+   'final_targeted_controls':{'whole_files':5,'collected':128,'PASS':127,'FAIL':1,'FAIL_identity':'known returned-frame namespace escape B74 LIMITED','canonical_JIT_PASS':9,'independent_real_JAX_PASS':3,'property_removal_FAIL':1,'Ruff':'PASS','format':'PASS','mypy_normal_imports':'PASS'},
+   'canonical_receipt_checks':receipt_checks,
+   'protected_source_A_C_changes':[],'local_root_checkout_unchanged':sg('rev-parse','HEAD'),'formal_closure':False,
+   'initial_root_footprint_admission':{'outcome':'ERROR','exit':1,'provenance':'tool stdout/stderr observation, not a runtime test','cause':'Root initially selected nonexistent RELEASE_NOTES.toml instead of actual tracked release fragment; no source mismatch or mutation.',
+                                    'literal_output':'AssertionError: [README.md, _implementation_identity.py, test_module_source_identity.py]; root corrected actual full non-handoff diff rather than inferring filename.'}}
+(task/'final-source-readback.json').write_text(json.dumps(r,indent=2)+'\n')
+print(json.dumps({'cursor':parent,'tree':r['parent_tree'],'source_companions':sourcepaths,'receipt_checks':len(receipt_checks),'status':r['status']}))

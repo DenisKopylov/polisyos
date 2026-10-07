@@ -1,0 +1,10 @@
+{
+  "schema": "policyos.e02.lossless_text.v1",
+  "source": {
+    "cloud_path": "/tmp/e02-B-continuation-wheel-6fa9b7142ba5/build-dependencies.txt",
+    "bytes": 243,
+    "sha256": "339f26e7a23d9815c47965081bd8a02863b3e7ef17978b3ffff285bc385e175d"
+  },
+  "encoding": "utf-8",
+  "text": "Using Python 3.14.2 environment at: build-env\nResolved 5 packages in 2.07s\nPrepared 5 packages in 648ms\nInstalled 5 packages in 3ms\n + hatchling==1.27.0\n + packaging==26.3\n + pathspec==1.1.1\n + pluggy==1.6.0\n + trove-classifiers==2026.9.21.13\n"
+}

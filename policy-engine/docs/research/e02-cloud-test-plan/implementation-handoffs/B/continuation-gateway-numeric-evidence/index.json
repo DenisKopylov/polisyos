@@ -283,10 +283,22 @@
       "sha256": "dbf1dd7ff5bf7418f9e1dd4fdab2aa124241e8a5b0c6bcd9252f5843bf765bbd",
       "bytes": 2933,
       "representation": "exact_bytes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/representation-forward.json",
+      "sha256": "ee3dd08f9162c6b81012c0a5c3115af951e7a7a28f1bdb367c288c90019e0546",
+      "bytes": 1597,
+      "representation": "exact_bytes"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-gateway-numeric-evidence/foreign-packet-readback.json",
+      "sha256": "08786130fdd78cf77c9533992f58e5962c4d3e640cb5f9376b1c9e4dab045dd8",
+      "bytes": 11086,
+      "representation": "exact_bytes"
     }
   ],
-  "payload_count": 31,
-  "stored_payload_bytes": 3502451,
+  "payload_count": 33,
+  "stored_payload_bytes": 3515134,
   "source_custody_boundary": "Observed module census at end of pytest.main; no arbitrary live resource/child external readset claim",
   "representation_note": "Native XML filenames are payload locators; representation=lossless_utf8_wrapper requires decoding JSON.text to recover exact native XML before XML parsing. Original raw and Git7447 bytes preserved. No output bytes normalized or discarded."
 }

@@ -1,0 +1,228 @@
+{
+  "schema": "e02.gateway_numeric.foreign_packet_readback/v1",
+  "receipt_sha": "29024b9537b46376957350c9e12f648c0bfb2d63",
+  "receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent.json",
+  "receipt_sha256": "e228737f65b0578b32d9a5a0261149549f1f4fa9bd6b56da37a39df32eeaae38",
+  "evidence_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+  "artifact_count": 274,
+  "payload_bytes": 9336474,
+  "hash_mismatch_count": 0,
+  "required_check_fields_match": true,
+  "fresh_FETCH_HEAD": "29024b9537b46376957350c9e12f648c0bfb2d63",
+  "test_input_sha": "595a2595316e3bd2aa791f2769b12f1180beba62",
+  "candidate_execution_source": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+  "checks": [
+    {
+      "name": "baseline-original",
+      "target_sha": "384f238491d21f76b8691d34371db631025fb003",
+      "outcome": "FAIL",
+      "counts": {
+        "PASS": 5,
+        "FAIL": 10,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "qualification": "Original wrong PendingError class assertion preserved (actual RequiredError fence worked); does not attribute those class mismatches to product.",
+      "output": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/native.txt",
+        "bytes": 459460,
+        "sha256": "0fe286e91faf755e3dbcbe99d541375f424755ac5641d1e12c74228897302690"
+      },
+      "junit": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/native.xml",
+        "bytes": 23450,
+        "sha256": "f01116f55b30dfa2011e7fa771197ed328bfed0c07ff153a61328fe3a5144bc8"
+      },
+      "wrapper": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline-original/wrapper.json",
+        "bytes": 2179,
+        "sha256": "70b6dfbb0cbde9ab11d2f23849673c92e5ad0667903c8ed0a5df1d7b96a557dc"
+      }
+    },
+    {
+      "name": "candidate-parent-absent",
+      "target_sha": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+      "outcome": "ERROR",
+      "counts": {
+        "PASS": 0,
+        "FAIL": 0,
+        "ERROR": 15,
+        "SKIP": 0
+      },
+      "qualification": "All15 setup errors before HTTP/property due missing parent fixture directory; actual executed pytest retained, runtime property UNRUN.",
+      "output": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-parent-absent/native.txt",
+        "bytes": 27614,
+        "sha256": "8059c7dbedf75a9a32d88ba46ff3f47eae314a4ca2ad33e5e0b04cd304483b87"
+      },
+      "junit": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-parent-absent/native.xml",
+        "bytes": 28983,
+        "sha256": "80cfa1da0412b6486c209d750366d6d33363adb54032d70059b09aac279e5baa"
+      },
+      "wrapper": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-parent-absent/wrapper.json",
+        "bytes": 2153,
+        "sha256": "a1a280c5b61586592d37e1d4ced791b4e567b3a2bc3d0d37410c2e2c984dfd50"
+      }
+    },
+    {
+      "name": "candidate-original",
+      "target_sha": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+      "outcome": "FAIL",
+      "counts": {
+        "PASS": 5,
+        "FAIL": 10,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "qualification": "Original wrong PendingError class assertion preserved (actual RequiredError fence worked); does not attribute those class mismatches to product.",
+      "output": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/native.txt",
+        "bytes": 449015,
+        "sha256": "dc188b58f537b988d05ffb88714234cbc055a5e4e5f9fd3a8f74c6edea065a10"
+      },
+      "junit": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/native.xml",
+        "bytes": 25452,
+        "sha256": "bb61df9559a95a4db4b2f02aba69107082e7e04b33d692f8a8c0932fedb9a639"
+      },
+      "wrapper": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate-original/wrapper.json",
+        "bytes": 2184,
+        "sha256": "65965d1afe2a537b6fa781dd1ba760de162e3c61f3982a2cabd9b9478ad96853"
+      }
+    },
+    {
+      "name": "baseline",
+      "target_sha": "595a2595316e3bd2aa791f2769b12f1180beba62",
+      "outcome": "FAIL",
+      "counts": {
+        "PASS": 13,
+        "FAIL": 2,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "qualification": "Same corrected native test input, source-bound actual physical artifacts and D reader.",
+      "output": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/native.txt",
+        "bytes": 3720260,
+        "sha256": "f5ce589095c5c2ee4cdf11773feaaf94e8dc08e6b6dd8d930f28045f78ea5bac"
+      },
+      "junit": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/native.xml",
+        "bytes": 6047,
+        "sha256": "40e0e90dfb233eee8a35e15ddc10542321d298b7deb9a4fb24fffc8aea933a68"
+      },
+      "wrapper": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/baseline/wrapper.json",
+        "bytes": 2207,
+        "sha256": "a5a280cd1cb45d9fd91975af7dbc8eb77f91d53eda395e3e30a0250689d9ae9e"
+      }
+    },
+    {
+      "name": "candidate",
+      "target_sha": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+      "outcome": "PASS",
+      "counts": {
+        "PASS": 15,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "qualification": "Same corrected native test input, source-bound actual physical artifacts and D reader.",
+      "output": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/native.txt",
+        "bytes": 3613492,
+        "sha256": "a08b0354ac1428026cf0ee223b0dbb69ff874891a7d1f16a1b8b5fadaceab124"
+      },
+      "junit": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/native.xml",
+        "bytes": 3063,
+        "sha256": "c067e68fd69e289594aad0aca96eb1b132044e899befed5ffb89a0d1e1982707"
+      },
+      "wrapper": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/candidate/wrapper.json",
+        "bytes": 2176,
+        "sha256": "be1050e19813f47f662d2178c597ca61143068236fbea4eb0739da402e9e9f90"
+      }
+    },
+    {
+      "name": "removal",
+      "target_sha": "e7c5182bf9d37f62a87e1effd003ee9732c20c32",
+      "outcome": "FAIL",
+      "counts": {
+        "PASS": 0,
+        "FAIL": 2,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "qualification": "Same corrected native test input, source-bound actual physical artifacts and D reader.",
+      "output": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/native.txt",
+        "bytes": 490994,
+        "sha256": "ca80d2df9bde5388102086a8acabb989e5d6a703b214262ae13f1de58a96603a"
+      },
+      "junit": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/native.xml",
+        "bytes": 3706,
+        "sha256": "b0c166b0af9aa552ec362bccf62aa8c74a18622942eb6257392fdb1a111c825d"
+      },
+      "wrapper": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/removal/wrapper.json",
+        "bytes": 2261,
+        "sha256": "a2c548afe2a3ab5730aeaac7e802166c79eec134b4e7f369ed30aa0f64c6128a"
+      }
+    },
+    {
+      "name": null,
+      "target_sha": "595a2595316e3bd2aa791f2769b12f1180beba62",
+      "outcome": "PASS",
+      "counts": null,
+      "qualification": null,
+      "output": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/style.json",
+        "bytes": 943,
+        "sha256": "b9de58213c6ab5424bf6081ece95c8ee249db8298873002a74cdd77157e7adf5"
+      },
+      "junit": null,
+      "wrapper": null
+    },
+    {
+      "name": null,
+      "target_sha": "595a2595316e3bd2aa791f2769b12f1180beba62",
+      "outcome": "PASS",
+      "counts": null,
+      "qualification": null,
+      "output": {
+        "source_sha": "b82cc8b89fbf5c7cf836826aaff002c5b3e5bdfc",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-gateway-money-independent-evidence/style.json",
+        "bytes": 943,
+        "sha256": "b9de58213c6ab5424bf6081ece95c8ee249db8298873002a74cdd77157e7adf5"
+      },
+      "junit": null,
+      "wrapper": null
+    }
+  ],
+  "reviewer_runtime": "UNRUN; own author re-read full321L foreign oracle and finite source/profile, recomputed all274 Git byte hashes; independent EXE runtime remains separate from author native",
+  "bounded_contract": "Actual fresh B middleware pre_check gates external D reader; no default D controller/factory coverage. D/G defaultprojection probe is separate; no full B120 closure."
+}

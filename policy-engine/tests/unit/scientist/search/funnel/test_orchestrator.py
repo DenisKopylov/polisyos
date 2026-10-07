@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from copy import deepcopy
 from decimal import Decimal
 from unittest.mock import MagicMock
 
@@ -265,7 +266,11 @@ class TestFunnelOrchestrator:
             dataset_scores = {"dataset-v1": 1.0, "dataset-v2": 2.0}
             return FunnelStageResult(
                 policy_candidate=dict(candidate),
-                objective_value=dataset_scores[context["dataset_version"]],
+                objective_value=(
+                    3.0
+                    if context["evaluation_role"] == "independent_control"
+                    else dataset_scores[context["dataset_version"]]
+                ),
                 is_promising=True,
                 stage_name="L0",
                 uncertainty_envelope=UncertaintyEnvelope.deterministic(),
@@ -302,6 +307,22 @@ class TestFunnelOrchestrator:
         assert cached_ticket is ticket_v1
         assert cached_ticket.submitted_via_cache is True
         assert stage.evaluate.call_count == 2
+
+        # An independent control on the same input/model is a new evaluation,
+        # while its ordinary predecessor retains the original result/history.
+        ordinary_history = deepcopy((ticket_v1.stage_results, ticket_v1.trace))
+        control_context = {**context_v1, "evaluation_role": "independent_control"}
+        control_ticket = orch.submit(candidate, control_context)
+        control_outcome = orch.advance(control_ticket, policy="full")
+        assert stage.evaluate.call_count == 3
+        assert control_ticket is not ticket_v1
+        assert stage.evaluate.call_args.args[1]["evaluation_role"] == "independent_control"
+        assert control_outcome.final_result is not None
+        assert control_outcome.final_result.objective_value == 3.0
+        assert outcome_v1.final_result.objective_value == 1.0
+        assert (ticket_v1.stage_results, ticket_v1.trace) == ordinary_history
+        assert orch.submit(candidate, context_v1) is ticket_v1
+        assert stage.evaluate.call_count == 3
 
     def test_freeze_mode_continuation_preserves_partial_progress(self):
         class _Tracker:

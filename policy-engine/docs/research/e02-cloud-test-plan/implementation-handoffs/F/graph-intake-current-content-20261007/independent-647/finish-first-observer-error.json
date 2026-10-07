@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "python3",
+    "/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/finish_review.py"
+  ],
+  "cwd": "/workspace",
+  "exit_code": 1,
+  "seconds": 0.05746413400629535,
+  "scope": "Observer-only metadata matcher rejects legitimate typed refusal diagnostics containing word failed; no test/source rerun",
+  "source_snapshot": "/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/finish_review_first_observer_error.py",
+  "source_sha256": "0f4164832a4194d1a9324004428a2106baa99e8dcbeccb1ded307711159cb00c",
+  "original_uncaptured_same_error": "Earlier direct same argv/cwd attempt returned same AssertionError; this captured attempt preserves full deciding observer bytes"
+}

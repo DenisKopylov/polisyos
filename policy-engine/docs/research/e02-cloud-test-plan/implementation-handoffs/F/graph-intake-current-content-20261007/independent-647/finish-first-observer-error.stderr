@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/e02-F-continuation-20261007/api/graph-intake-review-647/finish_review.py", line 18, in <module>
+    s=(out/(name+'.stdout')).read_text();assert f'{count} passed' in s and 'failed' not in s
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

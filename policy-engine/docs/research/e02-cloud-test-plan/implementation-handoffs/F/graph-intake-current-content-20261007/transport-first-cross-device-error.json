@@ -1,0 +1,10 @@
+{
+  "outcome": "ERROR",
+  "exit": 1,
+  "command": "python3 /tmp/e02-F-continuation-20261007/graph/encode_artifact_transport.py",
+  "scope": "transport-only first harness cross-device rename; no runtime/source changes; no raw file moved",
+  "stdout_bytes": 0,
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_bytes": 941,
+  "stderr_sha256": "9dd75c27454238cd6ad162372c631e685500e25e3123993870aaf7139e912058"
+}

@@ -1,0 +1,419 @@
+{
+  "check": "PASS",
+  "candidate_sha": "647f5d35362c2a5d7ad32283b804a5b03ea56e83",
+  "total_cases": 79,
+  "counts": {
+    "tests.unit.scientist.methods.causal.test_graph_intake_current_content": 38,
+    "tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node": 9,
+    "tests.unit.scientist.nodes.builtins.causal.test_reconcile_causal_graph": 8,
+    "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation": 24
+  },
+  "cases": {
+    "tests.unit.scientist.methods.causal.test_graph_intake_current_content": [
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph0-expected0]",
+        "time": "0.108"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph1-expected1]",
+        "time": "0.093"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph2-expected2]",
+        "time": "0.098"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_genuine_producer_to_fresh_reader_preserves_known_relations[source_graph3-expected3]",
+        "time": "0.094"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_current_real_producer_direction_supersedes_cache",
+        "time": "0.136"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_current_parameters_recompute_full_content",
+        "time": "0.096"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_supplied_bad_data_is_not_absence_or_producer_fallback[None]",
+        "time": "0.081"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_supplied_bad_data_is_not_absence_or_producer_fallback[malformed1]",
+        "time": "0.081"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_supplied_bad_data_is_not_absence_or_producer_fallback[malformed2]",
+        "time": "0.080"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_supplied_data_and_actual_producer_must_agree",
+        "time": "0.080"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_unsupported_static_profile_refuses_before_real_producer_and_node[marks0-None-pag]",
+        "time": "0.064"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_unsupported_static_profile_refuses_before_real_producer_and_node[marks1-None-pag]",
+        "time": "0.053"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_unsupported_static_profile_refuses_before_real_producer_and_node[marks2-None-pag]",
+        "time": "0.052"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_unsupported_static_profile_refuses_before_real_producer_and_node[marks3-None-cpdag]",
+        "time": "0.051"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_unsupported_static_profile_refuses_before_real_producer_and_node[marks4-1-dag]",
+        "time": "0.055"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_unsupported_static_profile_refuses_before_real_producer_and_node[marks5-2-dag]",
+        "time": "0.054"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_missing_cache_is_not_admitted_even_with_valid_current_source",
+        "time": "0.081"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_graph_shaped_wrong_actual_kind_is_not_admitted",
+        "time": "0.047"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_real_cache_without_current_basis_is_not_source_authority",
+        "time": "0.087"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_actual_cache_blob_corruption_is_refused",
+        "time": "0.091"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_supplied_malformed_sources_refuse_before_graph_admission[scm_fragment_refs-value0]",
+        "time": "0.042"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_supplied_malformed_sources_refuse_before_graph_admission[scm_fragment_refs-None]",
+        "time": "0.041"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_supplied_malformed_sources_refuse_before_graph_admission[scm_fragments-value2]",
+        "time": "0.046"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_supplied_malformed_sources_refuse_before_graph_admission[scm_fragments-None]",
+        "time": "0.041"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_supplied_malformed_sources_refuse_before_graph_admission[llm_structural_hints-None]",
+        "time": "0.041"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_supplied_malformed_sources_refuse_before_graph_admission[llm_structural_hints-value5]",
+        "time": "0.041"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_cached_graph_schema_is_actual_not_ref_label",
+        "time": "0.044"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_graph_body_version_must_match_actual_schema",
+        "time": "0.045"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_query_only_replay_recomputes_operational_cache",
+        "time": "0.115"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_query_only_replay_reconciles_current_alignment_result",
+        "time": "0.095"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_query_only_replay_reconciles_complete_certificate_projection[update0]",
+        "time": "0.094"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_query_only_replay_reconciles_complete_certificate_projection[update1]",
+        "time": "0.093"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_query_only_replay_reconciles_complete_certificate_projection[update2]",
+        "time": "0.095"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_query_only_replay_reconciles_complete_certificate_projection[update3]",
+        "time": "0.097"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_query_only_replay_reconciles_complete_certificate_projection[update4]",
+        "time": "0.094"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_query_only_replay_reconciles_complete_certificate_projection[update5]",
+        "time": "0.096"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_query_only_replay_resolves_selected_source_view",
+        "time": "0.085"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_graph_intake_current_content",
+        "name": "test_query_only_replay_reconciles_persisted_failure_card_body",
+        "time": "0.102"
+      }
+    ],
+    "tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node": [
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node",
+        "name": "test_reconcile_causal_graph_node_persists_graph_and_params",
+        "time": "0.038"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node",
+        "name": "test_reconcile_causal_graph_node_skips_without_data_graph",
+        "time": "0.028"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node",
+        "name": "test_reconcile_causal_graph_node_composes_fragments_and_persists_artifacts",
+        "time": "0.070"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node",
+        "name": "test_reconcile_causal_graph_node_recomputes_content_mismatched_precomputed_alignment",
+        "time": "0.079"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node",
+        "name": "test_reconcile_causal_graph_node_updates_query_preservation_cache_without_recomposing",
+        "time": "0.085"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node",
+        "name": "test_reconcile_causal_graph_node_persists_latent_projection_certificate_artifacts",
+        "time": "0.090"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node",
+        "name": "test_reconcile_causal_graph_node_persists_negative_certificate_for_latent_hedge",
+        "time": "0.092"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node",
+        "name": "test_reconcile_causal_graph_node_persists_failure_card_bundle_for_broken_composition",
+        "time": "0.067"
+      },
+      {
+        "classname": "tests.unit.scientist.methods.causal.test_reconcile_causal_graph_node",
+        "name": "test_reconcile_causal_graph_node_rejects_disconnected_fragment_topology",
+        "time": "0.084"
+      }
+    ],
+    "tests.unit.scientist.nodes.builtins.causal.test_reconcile_causal_graph": [
+      {
+        "classname": "tests.unit.scientist.nodes.builtins.causal.test_reconcile_causal_graph",
+        "name": "test_skip_when_no_data_causal_graph",
+        "time": "0.029"
+      },
+      {
+        "classname": "tests.unit.scientist.nodes.builtins.causal.test_reconcile_causal_graph",
+        "name": "test_already_reconciled_returns_ok",
+        "time": "0.033"
+      },
+      {
+        "classname": "tests.unit.scientist.nodes.builtins.causal.test_reconcile_causal_graph",
+        "name": "test_fail_when_reconcile_pure_step_returns_incomplete",
+        "time": "0.032"
+      },
+      {
+        "classname": "tests.unit.scientist.nodes.builtins.causal.test_reconcile_causal_graph",
+        "name": "test_fail_when_pure_step_raises",
+        "time": "0.028"
+      },
+      {
+        "classname": "tests.unit.scientist.nodes.builtins.causal.test_reconcile_causal_graph",
+        "name": "test_fail_when_pure_step_returns_graph_but_no_diagnostics",
+        "time": "0.028"
+      },
+      {
+        "classname": "tests.unit.scientist.nodes.builtins.causal.test_reconcile_causal_graph",
+        "name": "test_reconcile_fragment_load_assertion_is_not_swallowed",
+        "time": "0.031"
+      },
+      {
+        "classname": "tests.unit.scientist.nodes.builtins.causal.test_reconcile_causal_graph",
+        "name": "test_reconcile_literature_prior_assertion_is_not_swallowed",
+        "time": "0.031"
+      },
+      {
+        "classname": "tests.unit.scientist.nodes.builtins.causal.test_reconcile_causal_graph",
+        "name": "test_reconcile_causal_graph_uses_branch_state_for_declared_outputs",
+        "time": "0.032"
+      }
+    ],
+    "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation": [
+      {
+        "classname": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+        "name": "test_literature_and_data_agreement_increases_combined_confidence",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+        "name": "test_data_wins_when_direction_conflicts_with_literature",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+        "name": "test_llm_only_hint_is_marked_unsupported_and_capped",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+        "name": "test_simple_cycle_converts_min_confidence_edge_to_lagged_edge",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+        "name": "test_more_than_eight_cycles_triggers_fallback_removal_warning",
+        "time": "0.004"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+        "name": "test_cycle_edge_with_lag_depth_limit_is_removed",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+        "name": "test_triangle_conflict_produces_positive_cyclic_inconsistency_norm",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+        "name": "test_irreducible_conflict_triggers_expert_review_flag",
+        "time": "0.001"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+        "name": "test_diagnostics_truncated_when_hard_limits_exceeded",
+        "time": "12.302"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+        "name": "test_compose_scm_fragments_preserves_exact_observed_interface",
+        "time": "0.004"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+        "name": "test_compose_scm_fragments_defers_when_cycle_contract_requires_review",
+        "time": "0.004"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+        "name": "test_compose_scm_fragments_blocks_research_only_cycle_contracts",
+        "time": "0.004"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+        "name": "test_compose_scm_fragments_allows_supported_internal_cyclic_scc",
+        "time": "0.004"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+        "name": "test_compose_scm_fragments_blocks_cross_fragment_cyclic_scc",
+        "time": "0.003"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+        "name": "test_compose_scm_fragments_promotes_output_to_admg_when_any_fragment_is_admg",
+        "time": "0.004"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+        "name": "test_compose_scm_fragments_allows_asymmetric_output_input_stitch",
+        "time": "0.004"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+        "name": "test_compose_scm_fragments_allows_chain_topology",
+        "time": "0.004"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+        "name": "test_compose_scm_fragments_rejects_disconnected_fragment_topology",
+        "time": "0.004"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+        "name": "test_compose_scm_fragments_rejects_unobserved_or_latent_pending_interfaces",
+        "time": "0.003"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+        "name": "test_compose_scm_fragments_allows_proxy_but_marks_deferred",
+        "time": "0.004"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+        "name": "test_compose_scm_fragments_promotes_human_verified_proxy_to_preserved",
+        "time": "0.007"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+        "name": "test_compose_scm_fragments_blocks_explicit_incompatible_pair_labels",
+        "time": "0.006"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+        "name": "test_compose_scm_fragments_defers_pending_latent_bridge_and_rejects_cycles",
+        "time": "0.025"
+      },
+      {
+        "classname": "tests.unit.foundry.methods.catalog.causal.test_graph_reconciliation",
+        "name": "test_compose_scm_fragments_allows_human_verified_latent_bridge",
+        "time": "0.019"
+      }
+    ]
+  },
+  "scope": "complete exact4module selector",
+  "warnings": 1,
+  "warning_kind": "Unknown cache_dir pytest configuration withcacheproviderdisabled"
+}

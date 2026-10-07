@@ -8,6 +8,7 @@ import asyncio
 import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -48,8 +49,38 @@ def runtime_environment(repo: Path) -> dict[str, str]:
     return env
 
 
+def _admit_git_object_arguments(arguments: tuple[str, ...]) -> None:
+    """Keep object reads from interpreting record refs as Git options.
+
+    Named/abbreviated refs remain available to retired source-pinned replay
+    scripts; live packet admissions separately require full immutable SHAs.
+    """
+    if not arguments or arguments[0] not in {"show", "rev-parse"}:
+        return
+    safe_information_flags = {"--show-toplevel", "--git-dir", "--git-common-dir"}
+    for value in arguments[1:]:
+        if not isinstance(value, str) or not value or "\0" in value:
+            raise ValueError("Git object argument must be a nonempty string")
+        if value.startswith("-"):
+            if arguments[0] == "rev-parse" and value in safe_information_flags:
+                continue
+            raise ValueError("Git object reference must never be an option")
+        if ":" in value:
+            _, relative = value.split(":", 1)
+            path = Path(relative)
+            if (
+                not path.parts
+                or path.is_absolute()
+                or ".." in path.parts
+                or path.as_posix() != relative
+                or "\0" in relative
+            ):
+                raise ValueError("Git object path must be repository relative")
+
+
 def git_result(repo: Path, *argv: str) -> subprocess.CompletedProcess[bytes]:
     """Run a resolved Git binary with structured repository-owned arguments."""
+    _admit_git_object_arguments(argv)
     executable = shutil.which("git")
     if executable is None:
         raise FileNotFoundError("Git executable unavailable")
@@ -138,7 +169,18 @@ def family_for(path: str) -> str | None:
     return None
 
 
+def admit_plan_refs(args: argparse.Namespace) -> None:
+    """Require immutable CLI source identities before any plan Git callback."""
+    references = [args.comparison_base]
+    if args.candidate is not None:
+        references.append(args.candidate)
+    for reference in references:
+        if not isinstance(reference, str) or re.fullmatch(r"[0-9a-f]{40}", reference) is None:
+            raise ValueError("Wave source references require exact immutable commit SHAs")
+
+
 def prepare(args: argparse.Namespace) -> dict[str, object]:
+    admit_plan_refs(args)
     proposal = json.loads((PREPARATION / "proposal.json").read_text())
     original = json.loads((PREPARATION / "original-wave-groups.json").read_text())
     repo = args.repo.resolve()
@@ -274,7 +316,10 @@ def prepare(args: argparse.Namespace) -> dict[str, object]:
                 "cwd": str(product),
                 "output": str(job_output),
                 "junit": str(junit),
-                "environment": {"TMPDIR": str(output / "tmp-env" / slug)},
+                "environment": {
+                    "TMPDIR": str(output / "tmp-env" / slug),
+                    "POLISYOS_METRICS_PORT": "0",
+                },
             }
         )
     code_paths = git(

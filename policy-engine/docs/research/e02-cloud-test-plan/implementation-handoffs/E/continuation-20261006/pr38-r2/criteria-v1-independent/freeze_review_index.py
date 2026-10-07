@@ -1,25 +1,43 @@
 #!/usr/bin/env python3
-"""Index moderate review outputs and check immutable Git inputs, read-only."""
+"Index moderate review outputs and check immutable Git inputs, read-only."
 
 import argparse
 import copy
 import hashlib
 import json
 import pathlib
+import shutil
 import subprocess
+import sys
+from pathlib import Path
 
 
-def digest(payload):
+def _resolve_executable(name: str) -> str:
+    "Resolve an admitted executable and refuse an unavailable program before invocation."
+    resolved = shutil.which(name)
+    if resolved is None:
+        raise RuntimeError(f"required utility executable unavailable: {name}")
+    return str(Path(resolved).resolve())
+
+
+def _write_stdout(*values: object, flush: bool = False) -> None:
+    "Emit the existing CLI text and optionally flush without logging side effects."
+    sys.stdout.write(" ".join(str(value) for value in values) + "\n")
+    if flush:
+        sys.stdout.flush()
+
+
+def digest(payload: object) -> dict[str, object]:
     return {"bytes": len(payload), "sha256": hashlib.sha256(payload).hexdigest()}
 
 
-def verify(record, root):
+def verify(record: object, root: object) -> None:
     actual = digest((root / record["relative_path"]).read_bytes())
     if actual != {"bytes": record["bytes"], "sha256": record["sha256"]}:
         raise ValueError("Indexed review payload differs: " + record["relative_path"])
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo", type=pathlib.Path, required=True)
     parser.add_argument("--review-root", type=pathlib.Path, required=True)
@@ -39,13 +57,11 @@ def main():
             }
             verify(record, args.review_root)
             records.append(record)
-    snapshots = json.loads(
-        (args.review_root / "git-input-snapshot-index.json").read_text()
-    )
+    snapshots = json.loads((args.review_root / "git-input-snapshot-index.json").read_text())
     for record in snapshots["records"]:
-        payload = subprocess.check_output(
+        payload = subprocess.check_output(  # noqa: S603 - admitted utility argv uses no shell; executable/source refs are explicit
             [
-                "git",
+                _resolve_executable("git"),
                 "-C",
                 str(args.repo),
                 "show",
@@ -95,12 +111,9 @@ def main():
         "cleanup_candidates": [],
     }
     args.output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
-    print(
+    _write_stdout(
         json.dumps(
-            {
-                k: result[k]
-                for k in ["state", "file_count", "total_bytes", "negative_controls"]
-            },
+            {k: result[k] for k in ["state", "file_count", "total_bytes", "negative_controls"]},
             indent=2,
         )
     )

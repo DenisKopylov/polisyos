@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read exact Git evidence and recompute final closeout joins; no product execution."""
+"Read exact Git evidence and recompute final closeout joins; no product execution."
 
 import copy
 import csv
@@ -7,12 +7,23 @@ import hashlib
 import io
 import json
 import re
+import shutil
 import subprocess
 import sys
 from collections import Counter
 from functools import cache
 from pathlib import Path
-from xml.etree import ElementTree
+
+from defusedxml.ElementTree import fromstring as _safe_xml_fromstring
+
+
+def _resolve_executable(name: str) -> str:
+    "Resolve an admitted executable and refuse an unavailable program before invocation."
+    resolved = shutil.which(name)
+    if resolved is None:
+        raise RuntimeError(f"required utility executable unavailable: {name}")
+    return str(Path(resolved).resolve())
+
 
 REPO = Path("/workspace/e02-E-continuation-20261006")
 HERE = Path(__file__).resolve().parent
@@ -25,33 +36,63 @@ PR38 = E02 + "implementation-handoffs/E/continuation-20261006/pr38-r2/"
 PREFIX = PR38 + "criteria-frozen-a9-v2/"
 
 
-def require(condition, reason):
+def require(condition: bool, reason: str) -> None:
     if not condition:
         raise ValueError(reason)
 
 
 @cache
-def git(*argv):
-    return subprocess.check_output(["git", "-C", str(REPO), *argv])
+def _admit_git_object_arguments(arguments: tuple[str, ...]) -> None:
+    """Keep object reads from interpreting record refs as Git options.
+
+    Named/abbreviated refs remain available to retired source-pinned replay
+    scripts; live packet admissions separately require full immutable SHAs.
+    """
+    if not arguments or arguments[0] not in {"show", "rev-parse"}:
+        return
+    safe_information_flags = {"--show-toplevel", "--git-dir", "--git-common-dir"}
+    for value in arguments[1:]:
+        if not isinstance(value, str) or not value or "\0" in value:
+            raise ValueError("Git object argument must be a nonempty string")
+        if value.startswith("-"):
+            if arguments[0] == "rev-parse" and value in safe_information_flags:
+                continue
+            raise ValueError("Git object reference must never be an option")
+        if ":" in value:
+            _, relative = value.split(":", 1)
+            path = Path(relative)
+            if (
+                not path.parts
+                or path.is_absolute()
+                or ".." in path.parts
+                or path.as_posix() != relative
+                or "\0" in relative
+            ):
+                raise ValueError("Git object path must be repository relative")
 
 
-def blob(commit, path):
+def git(*argv: object) -> object:
+    _admit_git_object_arguments(argv)
+    return subprocess.check_output([_resolve_executable("git"), "-C", str(REPO), *argv])  # noqa: S603 - admitted utility argv uses no shell; executable/source refs are explicit
+
+
+def blob(commit: str, path: object) -> object:
     return git("show", commit + ":" + path)
 
 
-def parse(commit, path):
+def parse(commit: str, path: object) -> object:
     return json.loads(blob(commit, path))
 
 
-def identity(data):
+def identity(data: object) -> dict[str, object]:
     return {"bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}
 
 
-def load(name):
+def load(name: str) -> object:
     return json.loads((HERE / "exact-Git-inputs" / name).read_bytes())
 
 
-def check_manifest(manifest):
+def check_manifest(manifest: object) -> object:
     require(
         manifest["source_sha"] == SOURCE and manifest["source_tree"] == TREE,
         "manifest source",
@@ -79,7 +120,7 @@ def check_manifest(manifest):
     return total
 
 
-def check_wave(packet, cases):
+def check_wave(packet: object, cases: object) -> dict[str, object]:
     wave = packet["common_wave"]
     require(wave["source_sha"] == SOURCE and wave["source_tree"] == TREE, "wave source")
     actual = []
@@ -97,8 +138,7 @@ def check_wave(packet, cases):
         )
         require(job["outcome"] == receipt["outcome"], "job outcome changed")
         require(
-            receipt["candidate_sha"] == SOURCE
-            and receipt["candidate_tree_sha"] == TREE,
+            receipt["candidate_sha"] == SOURCE and receipt["candidate_tree_sha"] == TREE,
             "receipt source",
         )
         stdout = blob(EVIDENCE, job["stdout_ref"]["repository_path"])
@@ -117,7 +157,7 @@ def check_wave(packet, cases):
         )
         if "JUnit_ref" in job:
             data = blob(EVIDENCE, job["JUnit_ref"]["repository_path"])
-            for case in ElementTree.fromstring(data).iter("testcase"):
+            for case in _safe_xml_fromstring(data).iter("testcase"):
                 tags = {n.tag for n in case}
                 outcome = (
                     "ERROR"
@@ -137,10 +177,7 @@ def check_wave(packet, cases):
                     )
                 )
     require(
-        actual
-        == [
-            (r["job"], r["classname"], r["name"], r["outcome"]) for r in cases["cases"]
-        ],
+        actual == [(r["job"], r["classname"], r["name"], r["outcome"]) for r in cases["cases"]],
         "XML actual denominator",
     )
     counts = Counter(x[3] for x in actual)
@@ -154,17 +191,12 @@ def check_wave(packet, cases):
         "wave numeric declared denominator",
     )
     require(
-        sum(
-            j["kind"] != "numerical" and j["outcome"] == "FAIL" for j in actual_job_rows
-        )
-        == 7,
+        sum(j["kind"] != "numerical" and j["outcome"] == "FAIL" for j in actual_job_rows) == 7,
         "seven actual failed gates",
     )
     stages = {}
     for name in ["workspace-verify", "ci-parity"]:
-        stage_data = parse(
-            EVIDENCE, wave["umbrella_stages"][name]["ref"]["repository_path"]
-        )
+        stage_data = parse(EVIDENCE, wave["umbrella_stages"][name]["ref"]["repository_path"])
         scopes = stage_data if isinstance(stage_data, list) else stage_data["scopes"]
         outcomes = Counter(s["outcome"] for scope in scopes for s in scope["steps"])
         require(
@@ -173,8 +205,7 @@ def check_wave(packet, cases):
         )
         stages[name] = dict(outcomes)
     require(
-        stages["workspace-verify"]["UNRUN"] == 13
-        and stages["ci-parity"]["UNRUN"] == 23,
+        stages["workspace-verify"]["UNRUN"] == 13 and stages["ci-parity"]["UNRUN"] == 23,
         "actual fail-fast stages",
     )
     return {
@@ -185,7 +216,7 @@ def check_wave(packet, cases):
     }
 
 
-def check_semantics(packet, recipes, empirical):
+def check_semantics(packet: object, recipes: object, empirical: object) -> dict[str, object]:
     rows = {r["id"]: r for r in packet["rows"]}
     require(
         {i for i, r in rows.items() if r["proposed_verdict"] == "held"}
@@ -198,28 +229,24 @@ def check_semantics(packet, recipes, empirical):
     )
     require(
         rows["B198"]["ledger_status_preserved"] == "closed"
-        and "only a new defining-property falsifier"
-        in rows["B198"]["next_verifiable_result"],
+        and "only a new defining-property falsifier" in rows["B198"]["next_verifiable_result"],
         "B198 historical regression",
     )
     require(
         sum(
-            r["historical_bounded_proposal"]
-            and r["ledger_status_preserved"] == "partial"
+            r["historical_bounded_proposal"] and r["ledger_status_preserved"] == "partial"
             for r in rows.values()
         )
         == 32,
         "32 original partial proposals",
     )
     require(
-        sum(r["historical_bucket"] == "partial_active_residual" for r in rows.values())
-        == 17,
+        sum(r["historical_bucket"] == "partial_active_residual" for r in rows.values()) == 17,
         "17 historical active denominator",
     )
     for fid in ["B186", "B188", "B192"]:
         require(
-            rows[fid]["criterion_evidence"]["state"]
-            == "satisfied_declared_native_generic_scope",
+            rows[fid]["criterion_evidence"]["state"] == "satisfied_declared_native_generic_scope",
             "generic criterion hidden behind external authority",
         )
         require(
@@ -262,8 +289,7 @@ def check_semantics(packet, recipes, empirical):
     ddm = next(r for r in recipes["recipes"] if r["family"] == "ddm")
     require(
         "schema_version=2 automatically" in ddm["actual_api_sequence"][0]
-        and "build_model_registry_record(schema_version="
-        not in ddm["actual_api_sequence"][0],
+        and "build_model_registry_record(schema_version=" not in ddm["actual_api_sequence"][0],
         "unsupported DDM API",
     )
     for recipe in recipes["recipes"]:
@@ -273,9 +299,7 @@ def check_semantics(packet, recipes, empirical):
             "local recipe old source",
         )
         require(
-            recipe["minimal_inputs"]
-            and recipe["next_owner"]
-            and recipe["deciding_controls"],
+            recipe["minimal_inputs"] and recipe["next_owner"] and recipe["deciding_controls"],
             "recipe input/owner/negative absent",
         )
     receipt = empirical["artifacts"]["receipt_ref"]["content"]
@@ -315,7 +339,7 @@ def check_semantics(packet, recipes, empirical):
     }
 
 
-def check_current_debt_and_history(packet):
+def check_current_debt_and_history(packet: object) -> dict[str, object]:
     jobs = {r["name"]: r for r in packet["common_wave"]["jobs"]}
     lint = load("current-lint-publication-debt.json")
     stdout = blob(EVIDENCE, jobs["ruff"]["stdout_ref"]["repository_path"]).decode()
@@ -344,17 +368,13 @@ def check_current_debt_and_history(packet):
         set(paths) == {r["path"] for r in lint["path_rows"]},
         "saved actual lint path distribution",
     )
-    format_stdout = blob(
-        EVIDENCE, jobs["ruff-format"]["stdout_ref"]["repository_path"]
-    ).decode()
+    format_stdout = blob(EVIDENCE, jobs["ruff-format"]["stdout_ref"]["repository_path"]).decode()
     require(
         len(re.findall(r"^Would reformat: ", format_stdout, re.M)) == 156
         and "161 files already formatted" in format_stdout,
         "actual full format denominator",
     )
-    static = json.loads(
-        blob(EVIDENCE, jobs["static-invocation"]["stdout_ref"]["repository_path"])
-    )
+    static = json.loads(blob(EVIDENCE, jobs["static-invocation"]["stdout_ref"]["repository_path"]))
     require(
         len(static["regressions"]) == 10
         and len(static["new_unresolved_by_construction"]) == 89
@@ -362,37 +382,25 @@ def check_current_debt_and_history(packet):
         "actual 10/89/9238 static proxy",
     )
     require(
-        static["runtime_invocation_established"] is False
-        and static["coverage"] == "partial",
+        static["runtime_invocation_established"] is False and static["coverage"] == "partial",
         "static proxy became runtime proof",
     )
     target = "test_resolved_limited_evidence_keeps_floor_failure_reason"
     old_xml = blob(
         SOURCE,
-        PR38
-        + "failed-wave-5e/checks/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml",
+        PR38 + ("failed-wave-5e/checks/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml"),
     )
-    old = [
-        c
-        for c in ElementTree.fromstring(old_xml).iter("testcase")
-        if c.get("name") == target
-    ]
+    old = [c for c in _safe_xml_fromstring(old_xml).iter("testcase") if c.get("name") == target]
     require(
-        len(old) == 1
-        and old[0].find("error") is not None
-        and old[0].find("failure") is None,
+        len(old) == 1 and old[0].find("error") is not None and old[0].find("failure") is None,
         "old resolved-limited was not setup ERROR",
     )
-    current = [
-        c for c in load("current-case-index.json")["cases"] if c["name"] == target
-    ]
+    current = [c for c in load("current-case-index.json")["cases"] if c["name"] == target]
     require(
         len(current) == 1 and current[0]["outcome"] == "FAIL",
         "new resolved-limited was not actual assertion FAIL",
     )
-    require(
-        "not_established" in packet["P41_basis"], "P41 source-path attribution invented"
-    )
+    require("not_established" in packet["P41_basis"], "P41 source-path attribution invented")
     return {
         "Ruff": {
             "diagnostics": len(diagnostics),
@@ -416,7 +424,7 @@ def check_current_debt_and_history(packet):
     }
 
 
-def main():
+def main() -> None:
     manifest = load("publication-index.json")
     packet = load("all-54-update.json")
     recipes = load("current-local-G-recipes.json")
@@ -439,16 +447,14 @@ def main():
     for family in ["finding", "bundle"]:
         rows = csv.DictReader(
             io.StringIO(
-                blob(
-                    SOURCE, E02 + "execution-organization/" + family + "-owners.tsv"
-                ).decode()
+                blob(SOURCE, E02 + "execution-organization/" + family + "-owners.tsv").decode()
             ),
             delimiter="\t",
         )
         owners[family] = {r[family + "_id"]: r for r in rows if r["unit"] == "E"}
     ledger = parse(
         SOURCE,
-        "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json",
+        ("policy-engine/docs/plans/active/agent-packages/PolicyOS_E02R2/residual_ledger.json"),
     )
     ledger_rows = {r["id"]: r for r in ledger["rows"] if r["id"] in findings}
     require(
@@ -499,10 +505,7 @@ def main():
             "owner adjudication invented",
         )
         require(
-            all(
-                row[k]
-                for k in ["next_owner", "minimal_inputs", "next_verifiable_result"]
-            ),
+            all(row[k] for k in ["next_owner", "minimal_inputs", "next_verifiable_result"]),
             "owner/input/result absent",
         )
         require(
@@ -510,8 +513,7 @@ def main():
             "predicate replaced by family proxy",
         )
         unique_refs = {
-            json.dumps(r, sort_keys=True): r
-            for r in row["original_source_criterion_refs"]
+            json.dumps(r, sort_keys=True): r for r in row["original_source_criterion_refs"]
         }
         for ref in unique_refs.values():
             data = blob(SOURCE, ref["path"]).decode().splitlines()
@@ -539,8 +541,7 @@ def main():
                     "original card full body join",
                 )
                 require(
-                    row["bundle_writers"][bid]
-                    == owners["bundle"][bid]["initial_writer_family"],
+                    row["bundle_writers"][bid] == owners["bundle"][bid]["initial_writer_family"],
                     "canonical bundle writer",
                 )
                 all_joins.append(
@@ -550,9 +551,7 @@ def main():
                         "source": ref["path"],
                         "lines": ref["lines"],
                         "fragment_sha256": ref["sha256"],
-                        "card_blob": git("rev-parse", SOURCE + ":" + card)
-                        .decode()
-                        .strip(),
+                        "card_blob": git("rev-parse", SOURCE + ":" + card).decode().strip(),
                     }
                 )
         chosen = [
@@ -576,16 +575,12 @@ def main():
             "Git full input bytes",
         )
         require(
-            git("rev-parse", record["source_sha"] + ":" + record["path"])
-            .decode()
-            .strip()
+            git("rev-parse", record["source_sha"] + ":" + record["path"]).decode().strip()
             == record["git_blob"],
             "Git actual input blob",
         )
     for record in index["portable_inputs"]:
-        require(
-            record["evidence_git_commit"] == EVIDENCE, "portable evidence checkpoint"
-        )
+        require(record["evidence_git_commit"] == EVIDENCE, "portable evidence checkpoint")
         require(
             identity(blob(EVIDENCE, record["repository_path"]))
             == {k: record[k] for k in ["bytes", "sha256"]},
@@ -623,9 +618,7 @@ def main():
     )
     wave = check_wave(packet, cases)
     current_debt = check_current_debt_and_history(packet)
-    empirical = parse(
-        SOURCE, PR38 + "independent-welfare/native-ge-deciding-artifacts.json"
-    )
+    empirical = parse(SOURCE, PR38 + "independent-welfare/native-ge-deciding-artifacts.json")
     semantics = check_semantics(packet, recipes, empirical)
     ir = parse(SOURCE, PR38 + "ir-semantic-owner-decision.json")
     require(
@@ -645,11 +638,7 @@ def main():
         "policy-engine/src/polisyos/ddm",
         "policy-engine/tests/unit/ddm/test_registry_schema_compatibility.py",
     ]:
-        old = (
-            git("rev-parse", "4c5afb1dc10b4e3f4dbc10b50ca6066de9b08ccb:" + path)
-            .decode()
-            .strip()
-        )
+        old = git("rev-parse", "4c5afb1dc10b4e3f4dbc10b50ca6066de9b08ccb:" + path).decode().strip()
         current = git("rev-parse", SOURCE + ":" + path).decode().strip()
         require(old == current, "DDM independently reviewed source changed")
         ddm_reuse.append(
@@ -705,9 +694,7 @@ def main():
         (
             "Welfare_failed_support_suppressed",
             "empirical",
-            lambda x: x["artifacts"]["receipt_ref"]["content"].update(
-                failed_draw_count=0
-            ),
+            lambda x: x["artifacts"]["receipt_ref"]["content"].update(failed_draw_count=0),
         ),
         (
             "DDM_boolean_institutional_authority",
@@ -719,9 +706,9 @@ def main():
         (
             "hash_valid_conditional_as_unconditional",
             "empirical",
-            lambda x: x["artifacts"]["propagation_report_ref"]["content"][
-                "draw_summary"
-            ].update(welfare_mean=2.0),
+            lambda x: x["artifacts"]["propagation_report_ref"]["content"]["draw_summary"].update(
+                welfare_mean=2.0
+            ),
         ),
     ]
     for name, target, edit in edits:
@@ -740,9 +727,7 @@ def main():
             elif name == "wave_source_historical58":
                 check_wave(changed["packet"], cases)
             else:
-                check_semantics(
-                    changed["packet"], changed["recipes"], changed["empirical"]
-                )
+                check_semantics(changed["packet"], changed["recipes"], changed["empirical"])
         except ValueError as error:
             controls.append({"name": name, "outcome": "REFUSED", "reason": str(error)})
         else:

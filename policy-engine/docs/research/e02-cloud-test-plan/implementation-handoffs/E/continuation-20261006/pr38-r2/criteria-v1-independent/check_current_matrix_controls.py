@@ -7,9 +7,17 @@ import hashlib
 import json
 import pathlib
 import runpy
+import sys
 
 
-def main():
+def _write_stdout(*values: object, flush: bool = False) -> None:
+    """Emit the existing CLI text and optionally flush without logging side effects."""
+    sys.stdout.write(" ".join(str(value) for value in values) + "\n")
+    if flush:
+        sys.stdout.flush()
+
+
+def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo", type=pathlib.Path, required=True)
     parser.add_argument("--packet-dir", type=pathlib.Path, required=True)
@@ -47,13 +55,11 @@ def main():
                 "implementation_residual_or_external_boundary"
             ] = "Only external source authority hold; no code work"
         elif name == "closed_B198_relabel_proposal":
-            next(r for r in modified["rows"] if r["id"] == "B198")[
-                "next_verifiable_result"
-            ] = "Submit new closure proposal for owner acceptance"
-        else:
-            modified_recipes["implementation_sha"] = (
-                "58e2d97965c0826c44843a78dcb2f8698d9950a3"
+            next(r for r in modified["rows"] if r["id"] == "B198")["next_verifiable_result"] = (
+                "Submit new closure proposal for owner acceptance"
             )
+        else:
+            modified_recipes["implementation_sha"] = "58e2d97965c0826c44843a78dcb2f8698d9950a3"
         try:
             check(modified, inputs, args.repo)
             recipe_gate(modified, modified_recipes)
@@ -62,7 +68,8 @@ def main():
         else:
             raise AssertionError("Corrupt matrix control accepted: " + name)
     after = {str(p): hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
-    assert before == after, "Ready files changed during read-only review"
+    if not (before == after):
+        raise AssertionError("Ready files changed during read-only review")
     result = {
         "schema": "policyos.e02.independent-current-matrix-controls.v1",
         "source_sha": packet["assembled_source_sha"],
@@ -72,7 +79,7 @@ def main():
         "classification": "Matrix/provenance controls only; no runtime wave evidence",
     }
     args.output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
-    print(json.dumps(result, ensure_ascii=False, indent=2))
+    _write_stdout(json.dumps(result, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-"""Pin all loaded PolicyOS modules to the immutable frozen-source archive for the probe."""
+"Pin all loaded PolicyOS modules to the immutable frozen-source archive for the probe."
 
 from __future__ import annotations
 
@@ -29,8 +29,11 @@ def main() -> None:
             "-q",
             "tests/unit/scientist/methods/doe/test_analysis_receipt.py"
             "::test_sobol_whole_paired_block_replay_keeps_estimands_and_rebinds_content",
-            "tests/unit/scientist/methods/doe/test_analysis_enhanced.py"
-            "::TestS2InteractionRanking::test_native_interaction_matches_independent_anova_oracle",
+            (
+                "tests/unit/scientist/methods/doe/test_analysis_enhanced.py::"
+                "TestS2InteractionRanking::test_native_interaction_matches_in"
+                "dependent_anova_oracle"
+            ),
         ]
     )
     loaded = {

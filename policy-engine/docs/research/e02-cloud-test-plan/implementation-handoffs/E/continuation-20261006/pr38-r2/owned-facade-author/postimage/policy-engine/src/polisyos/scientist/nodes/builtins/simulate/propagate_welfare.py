@@ -7,11 +7,9 @@ import math
 from collections.abc import Mapping
 from dataclasses import dataclass
 from statistics import NormalDist
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
-from pydantic import ValidationError
-
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import PutOptions
@@ -85,24 +83,29 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_CALIBRATION_REPORT_REF,
     INPUT_DATA_SNAPSHOT_REF,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.protocol import (
     NodeError,
     NodeEvent,
     NodeOutcome,
     NodeSpec,
 )
-from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.policy_design.phase3 import ensure_social_weight_manifest_artifact
+from pydantic import ValidationError
+
+if TYPE_CHECKING:
+    from polisyos.scientist.orchestration.engine.context import ExecutionContext
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 logger = get_logger(__name__)
 
 _WELFARE_DRAW_METRICS = ["welfare", "welfare_pe", "welfare_ge"]
 
 
-def _load_welfare_draw_outcomes(store: Any, ref: ArtifactRef | ArtifactRefModel) -> dict[str, Any]:
-    """Reconcile content-bound terminal records, sampled inputs, and outputs."""
+def _load_welfare_draw_outcomes(
+    store: object, ref: ArtifactRef | ArtifactRefModel
+) -> dict[str, Any]:
+    "Reconcile content-bound terminal records, sampled inputs, and outputs."
     exact_ref = ArtifactRef.model_validate(ref.model_dump())
     manifest = store.get_manifest(exact_ref)
     if (
@@ -195,7 +198,7 @@ def _load_welfare_draw_outcomes(store: Any, ref: ArtifactRef | ArtifactRefModel)
 
 
 def _reconcile_welfare_empirical_rows(
-    store: Any, manifest: Any, receipt: Mapping[str, Any]
+    store: object, manifest: object, receipt: Mapping[str, Any]
 ) -> None:
     """Resolve original carriers and recompute the admitted row/value joins."""
     declarations = receipt.get("empirical_input_laws", {})
@@ -257,12 +260,14 @@ def _reconcile_welfare_empirical_rows(
                 or inputs[draw_index] != {name: float(law.samples[index])}
             ):
                 raise ValueError("welfare empirical row/value identity does not reconcile")
-    except (KeyError, TypeError, ValidationError, _WelfareNodeFailure) as exc:
+    except (KeyError, TypeError, ValidationError, _WelfareNodeFailureError) as exc:
         raise ValueError("welfare empirical law receipt is incomplete or unsupported") from exc
 
 
-def _load_verified_welfare_samples(store: Any, ref: WelfareSampleBundleRef) -> WelfareSampleBundle:
-    """Read sample arrays only after reconciling their complete outcome lineage."""
+def _load_verified_welfare_samples(
+    store: object, ref: WelfareSampleBundleRef
+) -> WelfareSampleBundle:
+    "Read sample arrays only after reconciling their complete outcome lineage."
     exact_ref = ArtifactRef.model_validate(ref.model_dump())
     manifest = store.get_manifest(exact_ref)
     if (
@@ -560,7 +565,7 @@ class _FiniteEmpiricalLaw:
     carrier_sha256: str
 
 
-class _WelfareNodeFailure(Exception):
+class _WelfareNodeFailureError(Exception):
     def __init__(self, error: NodeError) -> None:
         super().__init__(error.message)
         self.error = error
@@ -568,7 +573,7 @@ class _WelfareNodeFailure(Exception):
 
 @dataclass(frozen=True)
 class PropagateWelfareNode:
-    """Propagate welfare under PE/GE uncertainty into a typed top-level bundle."""
+    "Propagate welfare under PE/GE uncertainty into a typed top-level bundle."
 
     @property
     def spec(self) -> NodeSpec:
@@ -839,7 +844,7 @@ class PropagateWelfareNode:
             updated_simulation_result_ref = SimulationResultRef(
                 artifact_id=updated_simulation_result_payload.artifact_id
             )
-        except _WelfareNodeFailure as exc:
+        except _WelfareNodeFailureError as exc:
             return NodeOutcome(
                 status="fail",
                 state=state,
@@ -887,7 +892,7 @@ class PropagateWelfareNode:
         )
 
 
-def _load_model(ctx: ExecutionContext, ref: ArtifactRef, model_cls):
+def _load_model(ctx: ExecutionContext, ref: ArtifactRef, model_cls: object) -> object:
     payload = from_canonical_bytes(ctx.store.get_bytes(ref.artifact_id))
     return model_cls.model_validate(payload)
 
@@ -1317,7 +1322,10 @@ def _resolve_base_response(
         if missing:
             raise _fail_error(
                 _ERROR_WELFARE_DIMENSION_MISMATCH,
-                "welfare_weights keys must align with numeric simulation metrics when pe_response is omitted",
+                (
+                    "welfare_weights keys must align with numeric simulation metr"
+                    "ics when pe_response is omitted"
+                ),
                 details={"missing_metrics": missing},
             )
         return tuple(labels), np.asarray(
@@ -1351,7 +1359,11 @@ def _resolve_weights(
         if len(labels) != 1:
             raise _fail_error(
                 _ERROR_WELFARE_DIMENSION_MISMATCH,
-                "welfare_weights must be provided when aggregating more than one response component",
+                (
+                    "welfare_weights must be provided when ag"
+                    "gregating more than one response compone"
+                    "nt"
+                ),
                 details={"labels": list(labels)},
             )
         return np.asarray([1.0], dtype=np.float64), None
@@ -1754,7 +1766,7 @@ def _resolve_ge_context(
         and lower_multiplier is not None
         and upper_multiplier is not None
     ):
-        for param_name, (row_idx, col_idx) in ge_entry_map.items():
+        for _param_name, (row_idx, col_idx) in ge_entry_map.items():
             lower_multiplier[row_idx, col_idx] = lower_multiplier[row_idx, col_idx]
             upper_multiplier[row_idx, col_idx] = upper_multiplier[row_idx, col_idx]
 
@@ -1848,7 +1860,7 @@ def _build_simulation_fn(
         used_envelopes[param_name] = env
         nominal_params[param_name] = float(env.point_estimate)
 
-    for param_name, ref in list(pe_refs.items()):
+    for param_name, _ref in list(pe_refs.items()):
         if param_name not in used_envelopes:
             pe_refs.pop(param_name)
 
@@ -1880,7 +1892,7 @@ def _build_simulation_fn(
     sensitivity = context.pe_sensitivity
     ge_entry_map = context.ge_context.ge_entry_map
 
-    def _fn(**params: Any) -> dict[str, Any]:
+    def _fn(**params: object) -> dict[str, Any]:
         response = np.array(base_response, copy=True)
         for idx, label in enumerate(context.labels):
             per_label = sensitivity.get(label, {})
@@ -1941,7 +1953,7 @@ def _propagate_credible_interval(
     *,
     welfare_params: Mapping[str, Any],
     context: _ResolvedWelfareContext,
-    simulation_fn: Any,
+    simulation_fn: object,
     nominal_params: Mapping[str, float],
     input_envelopes: Mapping[str, UncertaintyEnvelope],
     calibration_source: _CalibrationCovarianceSource | None = None,
@@ -2141,7 +2153,8 @@ def _propagate_credible_interval(
         )
         calibration_coordinate_sampler = None
     else:
-        assert calibration_resolution.matrix is not None
+        if not (calibration_resolution.matrix is not None):
+            raise AssertionError
         (
             dependence_sampler,
             calibration_coordinate_sampler,
@@ -2320,7 +2333,7 @@ def _propagate_credible_interval(
     if len(draws_welfare) < int(config.mc_min_valid_samples):
         raise _fail_error(
             _ERROR_MONTE_CARLO_NOT_CONVERGED,
-            "Welfare Monte Carlo propagation did not reach the minimum valid sample budget",
+            ("Welfare Monte Carlo propagation did not reach the minimum valid sample budget"),
             details={
                 "valid_samples": len(draws_welfare),
                 "required": int(config.mc_min_valid_samples),
@@ -2537,7 +2550,7 @@ def _propagate_delta_interval(
     config: PropagationConfig,
     config_ref: ArtifactRefModel,
     context: _ResolvedWelfareContext,
-    simulation_fn: Any,
+    simulation_fn: object,
     nominal_params: Mapping[str, float],
     input_envelopes: Mapping[str, UncertaintyEnvelope],
     calibration_source: _CalibrationCovarianceSource | None,
@@ -2594,7 +2607,8 @@ def _propagate_delta_interval(
             input_envelopes=input_envelopes,
         )
     else:
-        assert calibration_resolution.matrix is not None
+        if not (calibration_resolution.matrix is not None):
+            raise AssertionError
         covariance = calibration_resolution.matrix
         dependence_applied = calibration_resolution.dependence_applied
         dependence_note = calibration_resolution.note
@@ -2849,7 +2863,7 @@ def _resolve_calibration_covariance(
     )
 
     def mixed_marginal_limitation(covariance: np.ndarray) -> _CovarianceResolution | None:
-        """Withhold joint intervals when a non-Normal marginal carries Pearson covariance."""
+        "Withhold joint intervals when a non-Normal marginal carries Pearson covariance."
         matrix = np.asarray(covariance, dtype=np.float64)
         if matrix.shape != (len(param_names), len(param_names)) or not np.all(np.isfinite(matrix)):
             code = "calibration_covariance_invalid"
@@ -3182,7 +3196,7 @@ def _calibration_dependence_sampler(
     param_names: list[str],
     input_envelopes: Mapping[str, UncertaintyEnvelope],
 ) -> tuple[dict[str, Any], _CalibrationCoordinateSampler | None, str | None]:
-    """Build a sampler that materializes calibration fields through their persisted projection."""
+    "Build a sampler that materializes calibration fields through their persisted projection."
     if resolution.matrix is None:
         raise ValueError("calibration covariance resolution is missing its matrix")
 
@@ -3302,7 +3316,7 @@ def _calibration_projection_report_metadata(
     covariance_note: Mapping[str, Any],
     uncertainty_status: str,
 ) -> dict[str, Any]:
-    """Describe the candidate covariance source and its explicit limitations."""
+    "Describe the candidate covariance source and its explicit limitations."
     if calibration_source is None:
         return {}
     return {
@@ -3326,7 +3340,7 @@ def _limited_covariance_outcome(
     ctx: ExecutionContext,
     *,
     config_ref: ArtifactRefModel,
-    simulation_fn: Any,
+    simulation_fn: object,
     nominal_params: Mapping[str, float],
     input_envelopes: Mapping[str, UncertaintyEnvelope],
     calibration_source: _CalibrationCovarianceSource | None,
@@ -3337,7 +3351,7 @@ def _limited_covariance_outcome(
     draw_outcomes_ref: ArtifactRef | None = None,
     evaluate_nominal: bool = True,
 ) -> _PropagationOutcome:
-    """Withhold an unsupported joint interval and keep declared inputs separate."""
+    "Withhold an unsupported joint interval and keep declared inputs separate."
     if limitation_code in {"calibration_covariance_invalid", "calibration_projection_invalid"}:
         evaluate_nominal = False
     point_value = float(simulation_fn(**nominal_params)["welfare"]) if evaluate_nominal else None
@@ -3458,7 +3472,8 @@ def _sample_param_draw(
                 check_valid="raise",
                 tol=1e-10,
             )
-            assert sampler.projection_pseudoinverse is not None
+            if not (sampler.projection_pseudoinverse is not None):
+                raise AssertionError
             sampled_calibration_fields = joint_draw[list(sampler.calibration_indices)]
             coordinate_draw = sampler.projection_pseudoinverse @ sampled_calibration_fields
             calibration_delta = sampler.projection_matrix @ coordinate_draw
@@ -3555,7 +3570,7 @@ def _build_parameter_covariance(
 
 def _finite_difference_gradient(
     *,
-    simulation_fn: Any,
+    simulation_fn: object,
     nominal_params: Mapping[str, float],
     input_envelopes: Mapping[str, UncertaintyEnvelope],
 ) -> tuple[dict[str, float], float]:
@@ -3829,7 +3844,7 @@ def _point_total_vector(
 def _persist_sensitivity_diagnostics(
     ctx: ExecutionContext,
     *,
-    simulation_fn: Any,
+    simulation_fn: object,
     nominal_params: Mapping[str, float],
     input_envelopes: Mapping[str, UncertaintyEnvelope],
     robust_interval: tuple[float, float] | None,
@@ -3985,7 +4000,11 @@ def _maybe_build_channel_decomposition_ref(
             missing.append("mechanical_inputs_ref")
         raise _fail_error(
             _ERROR_CHANNEL_DECOMPOSITION_CONFIG_INVALID,
-            "welfare channel decomposition requires baseline, policy basis, and mechanical inputs",
+            (
+                "welfare channel decomposition requires b"
+                "aseline, policy basis, and mechanical in"
+                "puts"
+            ),
             details={"missing_fields": missing},
         )
 
@@ -4112,7 +4131,7 @@ def _resolve_channel_artifact_ref(
     )
 
 
-def _coerce_artifact_ref(value: Any) -> ArtifactRefModel | None:
+def _coerce_artifact_ref(value: object) -> ArtifactRefModel | None:
     if value is None:
         return None
     if isinstance(value, ArtifactRefModel):
@@ -4122,7 +4141,7 @@ def _coerce_artifact_ref(value: Any) -> ArtifactRefModel | None:
     return None
 
 
-def _coerce_ge_uncertainty_ref(value: Any) -> GEUncertaintyBundleRef | None:
+def _coerce_ge_uncertainty_ref(value: object) -> GEUncertaintyBundleRef | None:
     if value is None:
         return None
     try:
@@ -4135,7 +4154,7 @@ def _coerce_ge_uncertainty_ref(value: Any) -> GEUncertaintyBundleRef | None:
         ) from exc
 
 
-def _coerce_str_list(value: Any) -> list[str] | None:
+def _coerce_str_list(value: object) -> list[str] | None:
     if value is None:
         return None
     if not isinstance(value, (list, tuple)):
@@ -4148,7 +4167,7 @@ def _coerce_str_list(value: Any) -> list[str] | None:
     return out or None
 
 
-def _coerce_numeric_sequence(value: Any, *, field_name: str) -> list[float] | None:
+def _coerce_numeric_sequence(value: object, *, field_name: str) -> list[float] | None:
     if value is None:
         return None
     if not isinstance(value, (list, tuple)):
@@ -4172,7 +4191,7 @@ def _coerce_numeric_sequence(value: Any, *, field_name: str) -> list[float] | No
     return numeric
 
 
-def _coerce_bool(value: Any) -> bool:
+def _coerce_bool(value: object) -> bool:
     if isinstance(value, bool):
         return value
     if value is None:
@@ -4186,7 +4205,7 @@ def _coerce_bool(value: Any) -> bool:
     return bool(value)
 
 
-def _coerce_matrix(value: Any) -> np.ndarray | None:
+def _coerce_matrix(value: object) -> np.ndarray | None:
     if value is None:
         return None
     matrix = np.asarray(value, dtype=np.float64)
@@ -4198,7 +4217,7 @@ def _coerce_matrix(value: Any) -> np.ndarray | None:
     return matrix
 
 
-def _coerce_dependence_matrix(value: Any) -> np.ndarray | None:
+def _coerce_dependence_matrix(value: object) -> np.ndarray | None:
     if value is None:
         return None
     matrix = np.asarray(value, dtype=np.float64)
@@ -4234,7 +4253,7 @@ def _stabilize_correlation_matrix(matrix: np.ndarray) -> np.ndarray:
     return correlation
 
 
-def _coerce_entry_map(value: Any) -> dict[str, tuple[int, int]]:
+def _coerce_entry_map(value: object) -> dict[str, tuple[int, int]]:
     if not isinstance(value, dict):
         return {}
     out: dict[str, tuple[int, int]] = {}
@@ -4434,7 +4453,9 @@ def _derive_multiplier_interval_from_coefficients(
     condition_threshold: float,
     max_varying_entries: int,
 ) -> tuple[np.ndarray | None, np.ndarray | None, dict[str, Any]]:
-    varying = list(zip(*np.where(np.abs(lower_coefficients - upper_coefficients) > 0.0)))
+    varying = list(
+        zip(*np.where(np.abs(lower_coefficients - upper_coefficients) > 0.0), strict=False)
+    )
     if len(varying) > max_varying_entries:
         return None, None, {"varying_entries": len(varying), "status": "skipped"}
 
@@ -4536,7 +4557,7 @@ def _sample_from_envelope(rng: np.random.Generator, env: UncertaintyEnvelope) ->
     raise _unsupported_welfare_law("input", "unsupported random transform")
 
 
-def _unsupported_welfare_law(name: str, reason: str) -> _WelfareNodeFailure:
+def _unsupported_welfare_law(name: str, reason: str) -> _WelfareNodeFailureError:
     return _fail_error(
         _ERROR_WELFARE_INPUT_LAW_UNSUPPORTED,
         "Welfare input law cannot be preserved by the configured transform",
@@ -4556,7 +4577,7 @@ def _admit_welfare_sampling_laws(
     calibration_source: _CalibrationCovarianceSource | None = None,
     requested_method: str = "monte_carlo",
 ) -> dict[str, _FiniteEmpiricalLaw]:
-    """Resolve supported laws before any nominal/stochastic evaluator callback."""
+    "Resolve supported laws before any nominal/stochastic evaluator callback."
     if requested_method in {"interval_outer", "robust_set", "none", "deterministic"}:
         return {}
     laws = {}
@@ -4704,8 +4725,10 @@ def _fail_error(
     message: str,
     *,
     details: Mapping[str, Any] | None = None,
-) -> _WelfareNodeFailure:
-    return _WelfareNodeFailure(NodeError(code=code, message=message, details=dict(details or {})))
+) -> _WelfareNodeFailureError:
+    return _WelfareNodeFailureError(
+        NodeError(code=code, message=message, details=dict(details or {}))
+    )
 
 
 __all__ = ["PropagateWelfareNode"]

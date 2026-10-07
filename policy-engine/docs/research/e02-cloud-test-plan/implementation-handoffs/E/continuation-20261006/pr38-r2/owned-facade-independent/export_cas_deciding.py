@@ -3,19 +3,27 @@
 
 import hashlib
 import json
+import sys
 from pathlib import Path
 
 import numpy as np
-
 from polisyos.core.artifacts import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.scientist.nodes.builtins.simulate import propagate_welfare as module
+
+
+def _write_stdout(*values: object, flush: bool = False) -> None:
+    """Emit the existing CLI text and optionally flush without logging side effects."""
+    sys.stdout.write(" ".join(str(value) for value in values) + "\n")
+    if flush:
+        sys.stdout.flush()
+
 
 OUT = Path(__file__).parent
 CASE = OUT / "native-basetemp/test_native_ge_preserves_empir0"
 
 
-def main():
+def main() -> None:
     store = FileSystemCAS(CASE)
     selected = {}
     refs = []
@@ -33,7 +41,8 @@ def main():
         }:
             continue
         payload = store.get_bytes(manifest["artifact_id"])
-        assert store.verify(manifest["artifact_id"]).ok
+        if not (store.verify(manifest["artifact_id"]).ok):
+            raise AssertionError
         selected[kind] = from_canonical_bytes(payload)
         refs.append(
             {
@@ -59,29 +68,30 @@ def main():
         ),
     )
     source = selected["ir.uncertainty_envelope"]["distribution_payload"]
-    expected_row = (
-        (np.random.default_rng(31415).random(128) >= 0.75).astype(int).tolist()
-    )
+    expected_row = (np.random.default_rng(31415).random(128) >= 0.75).astype(int).tolist()
     actual_row = [row["row_index"] for row in outcome["empirical_rows"]]
-    assert actual_row == expected_row
-    assert source["samples"] == [0.0, 1.0]
-    assert source["weights"] == [3.0, 1.0]
-    failed = [
-        row["draw_index"] for row in outcome["draw_records"] if row["failed_outputs"]
-    ]
-    succeeded = [
-        row["draw_index"]
-        for row in outcome["draw_records"]
-        if row["successful_outputs"]
-    ]
-    assert failed == [i for i, row in enumerate(expected_row) if row == 1]
-    assert len(succeeded) == 92 and len(failed) == 36
-    assert sorted(failed + succeeded) == list(range(128))
+    if not (actual_row == expected_row):
+        raise AssertionError
+    if not (source["samples"] == [0.0, 1.0]):
+        raise AssertionError
+    if not (source["weights"] == [3.0, 1.0]):
+        raise AssertionError
+    failed = [row["draw_index"] for row in outcome["draw_records"] if row["failed_outputs"]]
+    succeeded = [row["draw_index"] for row in outcome["draw_records"] if row["successful_outputs"]]
+    if not (failed == [i for i, row in enumerate(expected_row) if row == 1]):
+        raise AssertionError
+    if not (len(succeeded) == 92 and len(failed) == 36):
+        raise AssertionError
+    if not (sorted(failed + succeeded) == list(range(128))):
+        raise AssertionError
     samples = selected["ir.welfare_sample_bundle"]
-    assert samples["welfare_draws"] == [2.0] * 92
+    if not (samples["welfare_draws"] == [2.0] * 92):
+        raise AssertionError
     bundle = selected["ir.welfare_bundle"]
-    assert bundle["credible_interval"] is None and bundle["robust_interval"] is None
-    assert outcome["support_complete"] is False and outcome["gate_eligible"] is False
+    if not (bundle["credible_interval"] is None and bundle["robust_interval"] is None):
+        raise AssertionError
+    if not (outcome["support_complete"] is False and outcome["gate_eligible"] is False):
+        raise AssertionError
     result = {
         "schema": "policyos.e02.independent-facade-fresh-CAS-summary.v1",
         "base_sha": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
@@ -113,12 +123,16 @@ def main():
         "support_complete": outcome["support_complete"],
         "gate_eligible": outcome["gate_eligible"],
         "source_artifact_refs": refs,
-        "evidence_scope": "Fresh readback of our actual9PASS native frame; synthetic mathematical input, no production/source-law authority or finding closure",
+        "evidence_scope": (
+            "Fresh readback of our actual9PASS native frame; synthetic ma"
+            "thematical input, no production/source-law authority or find"
+            "ing closure"
+        ),
     }
     (OUT / "native-CAS-deciding.json").write_text(
         json.dumps(result, ensure_ascii=False, indent=2) + "\n"
     )
-    print(json.dumps(result["recomputed_counts"], indent=2))
+    _write_stdout(json.dumps(result["recomputed_counts"], indent=2))
 
 
 if __name__ == "__main__":

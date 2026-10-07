@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Independent Git-publication and unchanged-output controls; no source edits."""
+"Independent Git-publication and unchanged-output controls; no source edits."
 
 import argparse
 import copy
@@ -8,24 +8,71 @@ import json
 import pathlib
 import platform
 import runpy
+import shutil
 import subprocess
 import sys
+from pathlib import Path
 
 
-def git(repo, *args):
-    return subprocess.check_output(["git", "-C", str(repo), *args])
+def _resolve_executable(name: str) -> str:
+    "Resolve an admitted executable and refuse an unavailable program before invocation."
+    resolved = shutil.which(name)
+    if resolved is None:
+        raise RuntimeError(f"required utility executable unavailable: {name}")
+    return str(Path(resolved).resolve())
 
 
-def require(ok, reason):
+def _write_stdout(*values: object, flush: bool = False) -> None:
+    "Emit the existing CLI text and optionally flush without logging side effects."
+    sys.stdout.write(" ".join(str(value) for value in values) + "\n")
+    if flush:
+        sys.stdout.flush()
+
+
+def _admit_git_object_arguments(arguments: tuple[str, ...]) -> None:
+    """Keep object reads from interpreting record refs as Git options.
+
+    Named/abbreviated refs remain available to retired source-pinned replay
+    scripts; live packet admissions separately require full immutable SHAs.
+    """
+    if not arguments or arguments[0] not in {"show", "rev-parse"}:
+        return
+    safe_information_flags = {"--show-toplevel", "--git-dir", "--git-common-dir"}
+    for value in arguments[1:]:
+        if not isinstance(value, str) or not value or "\0" in value:
+            raise ValueError("Git object argument must be a nonempty string")
+        if value.startswith("-"):
+            if arguments[0] == "rev-parse" and value in safe_information_flags:
+                continue
+            raise ValueError("Git object reference must never be an option")
+        if ":" in value:
+            _, relative = value.split(":", 1)
+            path = Path(relative)
+            if (
+                not path.parts
+                or path.is_absolute()
+                or ".." in path.parts
+                or path.as_posix() != relative
+                or "\0" in relative
+            ):
+                raise ValueError("Git object path must be repository relative")
+
+
+def git(repo: object, *args: object) -> object:
+    _admit_git_object_arguments(args)
+    return subprocess.check_output([_resolve_executable("git"), "-C", str(repo), *args])  # noqa: S603 - admitted utility argv uses no shell; executable/source refs are explicit
+
+
+def require(ok: bool, reason: str) -> None:
     if not ok:
         raise ValueError(reason)
 
 
-def digest(payload):
+def digest(payload: object) -> dict[str, object]:
     return {"bytes": len(payload), "sha256": hashlib.sha256(payload).hexdigest()}
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo", type=pathlib.Path, required=True)
     parser.add_argument("--snapshot", type=pathlib.Path, required=True)
@@ -35,7 +82,10 @@ def main():
     correction_sha = git(args.repo, "rev-parse", "6994b1f4a").decode().strip()
     prior_sha = git(args.repo, "rev-parse", "6994b1f4a^").decode().strip()
     main_sha = git(args.repo, "rev-parse", "origin/main").decode().strip()
-    base = "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/"
+    base = (
+        "policy-engine/docs/research/e02-cloud-test-plan/implementati"
+        "on-handoffs/E/continuation-20261006/pr38-r2/"
+    )
     validator = args.snapshot / "validate_review_copies.py"
     records_path = args.snapshot / "independent-reviews/copy-index.json"
     validator_data = validator.read_bytes()
@@ -92,9 +142,7 @@ def main():
         args.repo, "show", revision + ":" + base + "output-publication-correction.json"
     )
     correction = json.loads(correction_data)
-    require(
-        len(correction["current_copies"]) == 15, "corrective output denominator drift"
-    )
+    require(len(correction["current_copies"]) == 15, "corrective output denominator drift")
     old_index = json.loads(
         git(
             args.repo,
@@ -107,9 +155,7 @@ def main():
     details = []
     old_subset = []
     for record in correction["current_copies"]:
-        published = git(
-            args.repo, "show", correction_sha + ":" + record["published_path"]
-        )
+        published = git(args.repo, "show", correction_sha + ":" + record["published_path"])
         old_local = (args.repo / record["old_path"]).read_bytes()
         require(
             published == old_local,
@@ -133,13 +179,12 @@ def main():
             "historical ignored path identity lost",
         )
         require(
-            digest(published)
-            == {"bytes": current_row["bytes"], "sha256": current_row["sha256"]},
+            digest(published) == {"bytes": current_row["bytes"], "sha256": current_row["sha256"]},
             "current copy index differs from corrective publication",
         )
-        old_object = subprocess.run(
+        old_object = subprocess.run(  # noqa: S603 - admitted utility argv uses no shell; executable/source refs are explicit
             [
-                "git",
+                _resolve_executable("git"),
                 "-C",
                 str(args.repo),
                 "cat-file",
@@ -167,10 +212,8 @@ def main():
         args.repo, "show", revision + "^:" + base + "validate_review_copies.py"
     )
     old_namespace = {"__name__": "old_exact_validator_read_only"}
-    exec(
-        compile(
-            old_validator_data, "exact_b5_parent_validate_review_copies.py", "exec"
-        ),
+    exec(  # noqa: S102 - isolated removal control executes exact Git/AST fixture, never external input
+        compile(old_validator_data, "exact_b5_parent_validate_review_copies.py", "exec"),
         old_namespace,
     )
     old_namespace["validate"](args.repo, old_subset)
@@ -195,11 +238,12 @@ def main():
     output = {
         "schema": "policyos.e02.independent-review-publication.v1",
         "reviewer": "root/ddm_r2",
-        "scope": "Exact b5 copy validator and699 stdout publication correction; no product/numerical changes or new wave inferred",
+        "scope": (
+            "Exact b5 copy validator and699 stdout publication correction"
+            "; no product/numerical changes or new wave inferred"
+        ),
         "source_revision": revision,
-        "source_tree": git(args.repo, "rev-parse", revision + "^{tree}")
-        .decode()
-        .strip(),
+        "source_tree": git(args.repo, "rev-parse", revision + "^{tree}").decode().strip(),
         "validator_snapshot": {"path": str(validator), **digest(validator_data)},
         "copy_index_snapshot": {"path": str(records_path), **digest(records_data)},
         "actual_Git_bound_copy_count": len(records),
@@ -222,10 +266,13 @@ def main():
             "executable": sys.executable,
             "no_process_thread_CPU_caps_added": True,
         },
-        "cleanup": "All original ignored stdout files preserved; no source edits, no deletion, no new environment.",
+        "cleanup": (
+            "All original ignored stdout files preserved; no source edits"
+            ", no deletion, no new environment."
+        ),
     }
     args.output.write_text(json.dumps(output, indent=2) + "\n")
-    print(
+    _write_stdout(
         json.dumps(
             {
                 "copies": len(records),

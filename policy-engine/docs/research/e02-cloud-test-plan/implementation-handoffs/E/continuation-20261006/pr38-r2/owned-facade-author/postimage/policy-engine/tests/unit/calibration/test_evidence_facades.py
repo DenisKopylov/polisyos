@@ -3,14 +3,16 @@
 from __future__ import annotations
 
 import importlib
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pytest
-
 from polisyos import calibration
 from polisyos.core.artifacts import FileSystemCAS, PutOptions
 from polisyos.foundry import uncertainty
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 def test_foundry_report_reader_is_canonical_and_refuses_funnel_kind(tmp_path: Path) -> None:
@@ -18,10 +20,14 @@ def test_foundry_report_reader_is_canonical_and_refuses_funnel_kind(tmp_path: Pa
     node = importlib.import_module(
         "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty"
     )
-    assert uncertainty.load_foundry_calibration_report is owner.load_calibration_report
-    assert node.load_foundry_calibration_report is owner.load_calibration_report
-    assert "load_foundry_calibration_report" in uncertainty.__all__
-    assert "load_foundry_calibration_report" not in calibration.__all__
+    if uncertainty.load_foundry_calibration_report is not owner.load_calibration_report:
+        raise AssertionError
+    if node.load_foundry_calibration_report is not owner.load_calibration_report:
+        raise AssertionError
+    if "load_foundry_calibration_report" not in uncertainty.__all__:
+        raise AssertionError
+    if not ("load_foundry_calibration_report" not in calibration.__all__):
+        raise AssertionError
     with pytest.raises(AttributeError):
         _ = calibration.load_foundry_calibration_report
     store = FileSystemCAS(tmp_path / "foundry-report-cas")
@@ -54,10 +60,12 @@ def test_forecast_exports_preserve_canonical_types_and_refuse_authority(tmp_path
         "produce_empirical_calibration_evidence",
         "resolve_forecast_measurement_binding",
     ):
-        assert getattr(calibration, name) is getattr(owner, name)
+        if getattr(calibration, name) is not getattr(owner, name):
+            raise AssertionError
     with pytest.raises(AttributeError):
         _ = calibration.nonexistent_evidence_authority
-    assert "ForecastCalibrationProfile" in dir(calibration)
+    if "ForecastCalibrationProfile" not in dir(calibration):
+        raise AssertionError
     store = FileSystemCAS(tmp_path / "cas")
 
     def ref(kind: str) -> dict[str, object]:
@@ -75,7 +83,8 @@ def test_forecast_exports_preserve_canonical_types_and_refuse_authority(tmp_path
         request_ref=ref("ir.forecast_owner_request"),
         empirical_evidence_ref=ref("ir.empirical_calibration_evidence"),
     )
-    assert receipt.verifier_provenance == "not_established"
+    if not (receipt.verifier_provenance == "not_established"):
+        raise AssertionError
     forged = receipt.model_dump(mode="json") | {"verifier_provenance": "verified"}
     with pytest.raises(ValueError, match="verifier_provenance"):
         calibration.ForecastCandidateReceipt.model_validate(forged)
@@ -89,10 +98,13 @@ def test_public_sampling_entrypoint_recomputes_terminal_denominator() -> None:
         "sampling_content_digest",
         "verify_mean_certificate",
     ):
-        assert getattr(uncertainty, name) is getattr(owner, name)
+        if getattr(uncertainty, name) is not getattr(owner, name):
+            raise AssertionError
     response = uncertainty.BoundedIndicatorResponse("x", "y", 0.25)
-    assert response(x=0.0) == {"y": 1.0}
-    assert response(x=0.5) == {"y": 0.0}
+    if not (response(x=0.0) == {"y": 1.0}):
+        raise AssertionError
+    if not (response(x=0.5) == {"y": 0.0}):
+        raise AssertionError
     receipt = {
         "requested_draw_count": 1,
         "attempted_draw_count": 1,
@@ -109,7 +121,8 @@ def test_public_sampling_entrypoint_recomputes_terminal_denominator() -> None:
         ],
         "failure_records": [],
     }
-    assert uncertainty.reconcile_draw_outcomes(receipt, ["y"]) == set()
+    if not (uncertainty.reconcile_draw_outcomes(receipt, ["y"]) == set()):
+        raise AssertionError
     forged = dict(receipt, requested_draw_count=2)
     with pytest.raises(ValueError, match="denominator"):
         uncertainty.reconcile_draw_outcomes(forged, ["y"])
@@ -118,7 +131,8 @@ def test_public_sampling_entrypoint_recomputes_terminal_denominator() -> None:
 def test_public_finite_law_admission_preserves_atoms_and_domain() -> None:
     owner = importlib.import_module("polisyos.foundry.uncertainty.sampling_admission")
     for name in ("admit_empirical_weights", "admit_unit_uniform", "empirical_cdf"):
-        assert getattr(uncertainty, name) is getattr(owner, name)
+        if getattr(uncertainty, name) is not getattr(owner, name):
+            raise AssertionError
     probabilities = uncertainty.admit_empirical_weights([1, 1, 2], 3)
     cumulative = uncertainty.empirical_cdf(probabilities)
     np.testing.assert_array_equal(cumulative, [0.25, 0.5, 1.0])

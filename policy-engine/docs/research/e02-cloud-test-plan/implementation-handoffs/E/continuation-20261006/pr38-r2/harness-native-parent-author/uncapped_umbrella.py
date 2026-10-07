@@ -1,4 +1,4 @@
-"""Keep canonical umbrella steps, uncapped numerical threads, and exact fail-fast receipts."""
+"Keep canonical umbrella steps, uncapped numerical threads, and exact fail-fast receipts."
 
 from __future__ import annotations
 

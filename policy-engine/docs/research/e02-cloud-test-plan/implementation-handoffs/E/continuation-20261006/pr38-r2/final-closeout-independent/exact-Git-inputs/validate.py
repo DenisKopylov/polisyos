@@ -34,12 +34,93 @@ def require(condition: bool, reason: str) -> None:
         raise ValueError(reason)
 
 
+_NO_PATH = object()
+
+
+def admit_source(sha: object, path: object = _NO_PATH) -> None:
+    """Refuse unbound or option-like Git objects before any child process."""
+    require(
+        isinstance(sha, str) and re.fullmatch(r"[0-9a-f]{40}", sha) is not None,
+        "source requires an exact commit SHA",
+    )
+    if path is not _NO_PATH:
+        require(isinstance(path, str) and bool(path), "source path requires a string")
+        require(
+            not any(character.isspace() or character == "\0" for character in path),
+            "source path contains ambiguous characters",
+        )
+        relative = Path(path)
+        require(
+            not relative.is_absolute()
+            and bool(relative.parts)
+            and relative.as_posix() == path
+            and ".." not in relative.parts,
+            "source path must be repository relative",
+        )
+        require(not path.startswith("-") and ":" not in path, "source path is ambiguous")
+
+
+def admit_index(index: dict[str, object], packet: dict[str, object]) -> None:
+    """Admit the whole object-reference set before the first Git callback."""
+    for record in index["inputs"]:
+        admit_source(record["source_sha"], record["path"])
+    for record in index["portable_inputs"]:
+        admit_source(record["evidence_git_commit"], record["repository_path"])
+        require(record["evidence_git_commit"] == EVIDENCE, "wrong evidence input checkpoint")
+        admit_source(record["source_sha"])
+        admit_source(record["source_tree"])
+    for row in packet["rows"]:
+        for fragment in row["original_source_criterion_refs"]:
+            admit_source(SOURCE, fragment["path"])
+
+
 @cache
+def _admit_git_object_arguments(arguments: tuple[str, ...]) -> None:
+    """Keep object reads from interpreting record refs as Git options.
+
+    Named/abbreviated refs remain available to retired source-pinned replay
+    scripts; live packet admissions separately require full immutable SHAs.
+    """
+    if not arguments or arguments[0] not in {"show", "rev-parse"}:
+        return
+    safe_information_flags = {"--show-toplevel", "--git-dir", "--git-common-dir"}
+    for value in arguments[1:]:
+        if not isinstance(value, str) or not value or "\0" in value:
+            raise ValueError("Git object argument must be a nonempty string")
+        if value.startswith("-"):
+            if arguments[0] == "rev-parse" and value in safe_information_flags:
+                continue
+            raise ValueError("Git object reference must never be an option")
+        if ":" in value:
+            _, relative = value.split(":", 1)
+            path = Path(relative)
+            if (
+                not path.parts
+                or path.is_absolute()
+                or ".." in path.parts
+                or path.as_posix() != relative
+                or "\0" in relative
+            ):
+                raise ValueError("Git object path must be repository relative")
+
+
 def git(repo: str, *args: str) -> bytes:
+    _admit_git_object_arguments(args)
+    require(
+        len(args) == 2 and args[0] in {"show", "rev-parse"},
+        "only read-only object Git commands admitted",
+    )
+    object_name = args[1]
+    if ":" in object_name:
+        sha, path = object_name.split(":", 1)
+        admit_source(sha, path)
+    else:
+        sha = object_name.removesuffix("^{tree}")
+        admit_source(sha)
     git_executable = shutil.which("git")
     if git_executable is None:
         raise RuntimeError("Git executable unavailable")
-    return subprocess.check_output([git_executable, "-C", str(repo), *args])  # noqa: S603 - fixed read-only Git operations, argv without shell
+    return subprocess.check_output([git_executable, "-C", str(repo), *args])  # noqa: S603 - admitted exact Git objects, argv without shell
 
 
 @cache
@@ -101,6 +182,7 @@ def check(
     lint: dict[str, object],
     repo: Path,
 ) -> dict[str, object]:
+    admit_index(index, packet)
     require(
         packet["assembled_source_sha"] == SOURCE and packet["final_frozen_source_sha"] == SOURCE,
         "wrong final source SHA",

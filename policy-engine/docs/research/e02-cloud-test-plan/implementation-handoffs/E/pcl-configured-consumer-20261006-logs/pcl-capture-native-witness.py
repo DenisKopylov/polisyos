@@ -1,4 +1,7 @@
-"""Capture refs and an independent fresh-pair oracle from existing native tests."""
+(
+    "Capture refs and an independent fresh-pa"  # Exact value.
+    "ir oracle from existing native tests."  # Exact value.
+)
 
 from __future__ import annotations
 
@@ -14,11 +17,22 @@ from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 
 
+def _write_stdout(*values: object, flush: bool = False) -> None:
+    (
+        "Emit the existing CLI text and optionall"  # Exact value.
+        "y flush without logging side effects."  # Exact value.
+    )
+    sys.stdout.write(" ".join(str(value) for value in values) + "\n")
+    if flush:
+        sys.stdout.flush()
+
+
 test_path = Path(sys.argv[1])
 output_path = Path(sys.argv[2])
 fixture_root = Path(sys.argv[3])
 spec = importlib.util.spec_from_file_location("pcl_native_tests", test_path)
-assert spec is not None and spec.loader is not None
+if not (spec is not None and spec.loader is not None):
+    raise AssertionError
 native = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(native)
 original_oracle = native._assert_fresh_source_and_pairs
@@ -105,7 +119,10 @@ output_path.write_text(
                 "production_history": False,
             },
             "native_checks": 3,
-            "source_row_checks": "all 100 ordered rows per artifact checked by tracked native oracle",
+            "source_row_checks": (
+                "all 100 ordered rows per artifact checke"  # Exact value.
+                "d by tracked native oracle"  # Exact value.
+            ),
             "artifacts": records,
             "missing_store": {"persistence_status": "store_missing", "gate_eligible": False},
         },
@@ -113,4 +130,4 @@ output_path.write_text(
     )
     + "\n"
 )
-print(json.dumps({"checks": 3, "artifacts": len(records), "output": str(output_path)}))
+_write_stdout(json.dumps({"checks": 3, "artifacts": len(records), "output": str(output_path)}))

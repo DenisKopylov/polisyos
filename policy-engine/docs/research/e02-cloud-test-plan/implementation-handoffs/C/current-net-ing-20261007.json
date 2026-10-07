@@ -1,0 +1,785 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "C",
+  "slice": "current-net-ing-20261007",
+  "branch": "codex/e02-C-net-ing-20261007",
+  "worktree_root": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos",
+  "slice_base_sha": "c694daaf888657ec261988fa2066df792fd77110",
+  "slice_base_tree_sha": "bf1e231b53c1f68f7fce176792ea0011636a83f8",
+  "criterion_base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "criterion_base_tree_sha": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+  "required_anchor": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+  "analysis_sources": [
+    {
+      "role": "fresh criterion base",
+      "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8"
+    },
+    {
+      "role": "required C root anchor",
+      "sha": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+      "tree": "498ff43267dfceaacdeb8de92b1e79cb38a44316"
+    },
+    {
+      "role": "C current ING cleanup implementation parent",
+      "sha": "07bbb61ffa6d53709942bcda87c37daef1a04651",
+      "tree": "4bb3d7ef227f7745ab22a23f41f4618766e8b350",
+      "path_ref": {
+        "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+        "commit": "c694daaf888657ec261988fa2066df792fd77110",
+        "git_blob": "80af60d90e2eb6aeed0d335c4dbe5d80c8c24c7c",
+        "sha256": "6137d75c6cf07c97077546da0ef6b60712090ec66839eb8dc9b9fee8524dd119",
+        "bytes": 119041
+      }
+    },
+    {
+      "role": "B provider source parent; this handoff makes no B source acceptance claim",
+      "sha": "121fcf450757086ffcc506dabca33fbe28dcd661",
+      "tree": "630ca6416fe2276e6bd1794edb4ee1f5ac1c80df"
+    },
+    {
+      "role": "composed B+C wheel/source tree",
+      "sha": "c694daaf888657ec261988fa2066df792fd77110",
+      "tree": "bf1e231b53c1f68f7fce176792ea0011636a83f8",
+      "parents": [
+        "07bbb61ffa6d53709942bcda87c37daef1a04651",
+        "121fcf450757086ffcc506dabca33fbe28dcd661"
+      ]
+    },
+    {
+      "role": "test-only candidate",
+      "sha": "0979fae4edaea61f3ae602241423d5cd96b091de",
+      "tree": "0ae7f83ad99321e0b83343a3eb3e02f7454d8bc4",
+      "path_ref": {
+        "path": "policy-engine/tests/unit/fabric/data_plane/test_net_ing_current_frontier.py",
+        "commit": "0979fae4edaea61f3ae602241423d5cd96b091de",
+        "git_blob": "3b3dea7cbb99b28cece5ba01e9da52bad6c6ded1",
+        "sha256": "b99737efb81cc5c332f125ae0b04261940cb8a3768fa213c1d7e828e3af9b894",
+        "bytes": 16856
+      }
+    },
+    {
+      "role": "pinned C54 adjudication, unchanged by this slice",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-final-20261006-v10.json",
+      "commit": "c694daaf888657ec261988fa2066df792fd77110",
+      "git_blob": "61e1abe90ae5f81e37077e2dc8e92f7e4de0cb76",
+      "sha256": "38db6cac4195f210425502bd4c7fdf2884ccdb5ae42ef87170d17020a6358dcc"
+    },
+    {
+      "role": "independent read-only composition and test-delta review",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/review/independent-composition-and-test-delta.md",
+      "sha256": "339d9b0669da04e8a3f4c3465358c4c8d5e521f5f05b95f5943bf3c1051c0c73",
+      "reviewer": "/root/c2_dependencies",
+      "result": "bounded_GO; composition integrity and test-delta only"
+    },
+    {
+      "role": "author synthesis map; not independent review",
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/net-ing-final-review-map.json",
+      "sha256": "486a24818a438920ca547a15f090775f78149e6f45c7ea890b11f29c2f3a8b66"
+    },
+    {
+      "role": "installed package audit packet copied from ignored raw evidence",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/final-receipt.json",
+      "sha256": "9c08a48b58483c85426b59f5f42ce888d501586d8034719d4177d0a6c394bc3d",
+      "raw_source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/final-receipt.json",
+      "raw_source_sha256": "9c08a48b58483c85426b59f5f42ce888d501586d8034719d4177d0a6c394bc3d"
+    }
+  ],
+  "candidate_sha": "0979fae4edaea61f3ae602241423d5cd96b091de",
+  "candidate_tree_sha": "0ae7f83ad99321e0b83343a3eb3e02f7454d8bc4",
+  "implementation_commits": [
+    "0979fae4edaea61f3ae602241423d5cd96b091de"
+  ],
+  "implementation_commits_product_only": [],
+  "full_slice_changed_paths": [
+    "policy-engine/tests/unit/fabric/data_plane/test_net_ing_current_frontier.py"
+  ],
+  "mechanism_paths": [],
+  "test_paths": [
+    "policy-engine/tests/unit/fabric/data_plane/test_net_ing_current_frontier.py"
+  ],
+  "changed_paths": [
+    "policy-engine/tests/unit/fabric/data_plane/test_net_ing_current_frontier.py"
+  ],
+  "source_freeze": {
+    "test": {
+      "path": "policy-engine/tests/unit/fabric/data_plane/test_net_ing_current_frontier.py",
+      "commit": "0979fae4edaea61f3ae602241423d5cd96b091de",
+      "git_blob": "3b3dea7cbb99b28cece5ba01e9da52bad6c6ded1",
+      "sha256": "b99737efb81cc5c332f125ae0b04261940cb8a3768fa213c1d7e828e3af9b894",
+      "lines": 440
+    },
+    "product_source": {
+      "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+      "commit": "c694daaf888657ec261988fa2066df792fd77110",
+      "git_blob": "80af60d90e2eb6aeed0d335c4dbe5d80c8c24c7c",
+      "sha256": "6137d75c6cf07c97077546da0ef6b60712090ec66839eb8dc9b9fee8524dd119"
+    },
+    "composition": {
+      "commit": "c694daaf888657ec261988fa2066df792fd77110",
+      "tree": "bf1e231b53c1f68f7fce176792ea0011636a83f8",
+      "parents": [
+        "07bbb61ffa6d53709942bcda87c37daef1a04651",
+        "121fcf450757086ffcc506dabca33fbe28dcd661"
+      ]
+    },
+    "parent": "c694daaf888657ec261988fa2066df792fd77110",
+    "tree": "0ae7f83ad99321e0b83343a3eb3e02f7454d8bc4",
+    "branch_clean_at_candidate": true,
+    "product_build_inputs_unchanged_in_test_commit": true
+  },
+  "criterion_ids": [
+    "B81",
+    "B82",
+    "B84",
+    "B85"
+  ],
+  "closure_ids": [],
+  "bundle_ids": [
+    "ING-02",
+    "ING-03"
+  ],
+  "findings": [],
+  "baseline_cells": [],
+  "finding_disposition_boundary": {
+    "C54_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-final-20261006-v10.json",
+      "commit": "c694daaf888657ec261988fa2066df792fd77110",
+      "git_blob": "61e1abe90ae5f81e37077e2dc8e92f7e4de0cb76",
+      "sha256": "38db6cac4195f210425502bd4c7fdf2884ccdb5ae42ef87170d17020a6358dcc"
+    },
+    "prior_pinned_statuses": [
+      {
+        "id": "B79",
+        "root_verdict": "limited",
+        "capability_label": "bridge_missing",
+        "changed_by_this_slice": false
+      },
+      {
+        "id": "B80",
+        "root_verdict": "held",
+        "capability_label": "semantic_test_missing",
+        "changed_by_this_slice": false
+      },
+      {
+        "id": "B81",
+        "root_verdict": "closed",
+        "capability_label": "semantic_test_missing",
+        "changed_by_this_slice": false
+      },
+      {
+        "id": "B82",
+        "root_verdict": "closed",
+        "capability_label": "semantic_test_missing",
+        "changed_by_this_slice": false
+      },
+      {
+        "id": "B83",
+        "root_verdict": "held",
+        "capability_label": "semantic_test_missing",
+        "changed_by_this_slice": false
+      },
+      {
+        "id": "B84",
+        "root_verdict": "closed",
+        "capability_label": "bridge_missing",
+        "changed_by_this_slice": false
+      },
+      {
+        "id": "B85",
+        "root_verdict": "closed",
+        "capability_label": "semantic_test_missing",
+        "changed_by_this_slice": false
+      },
+      {
+        "id": "B86",
+        "root_verdict": "closed",
+        "capability_label": "bridge_missing",
+        "changed_by_this_slice": false
+      },
+      {
+        "id": "B88",
+        "root_verdict": "closed",
+        "capability_label": "",
+        "changed_by_this_slice": false
+      }
+    ],
+    "changed_by_this_slice": false,
+    "note": "The test-only evidence supplements bounded ING-02/ING-03 behavior. It makes no finding closure or verdict promotion, and is not acceptance of B source behavior or G admission."
+  },
+  "baseline_replay": {
+    "source_base": "c694daaf888657ec261988fa2066df792fd77110",
+    "composed_suite": {
+      "result": "16 collected, 14 passed, 2 setup failures",
+      "target_assertions_reached": false,
+      "failure_classification": "B budget oracle expects string `_message_id:event-N`; C persists canonical JSON key pairs. The B tests fail before cap/recovery assertions.",
+      "command": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/composed-16/command.json",
+        "sha256": "c438b6c87fca205d974c934f8757d07f9b2b8006612f2d178444bdbbd38606e5"
+      },
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/composed-16/native.txt",
+        "sha256": "507ed15c57b0aac8b357aceefca06cf765467a22675442fdbd70cead00a1d693"
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/composed-16/native.xml",
+        "sha256": "41885910d734f9e77fd009dba4bf9371271ed2bd00e872825fbb66af7b0da61c"
+      }
+    },
+    "exact_command_captured": true,
+    "P41_attribution": "not_applicable as an inherited/product red; this is an oracle representation mismatch with target assertions not reached."
+  },
+  "property": {
+    "statement": "A current-cap restore refusal happens before source polling, flush, frontier commit, or CAS write and leaves the predecessor checkpoint/cursor, indexes, pending chunk/manifest, artifact IDs, and leases intact. Compatible process restart recovers source rows once with verified ordered chunk/window lineage and committed cursor; a repeated call emits no rows or new chunk/window refs.",
+    "runtime_path": [
+      "exact c694 wheel under Python -I",
+      "real EventStreamConnector file:// JSONL source",
+      "process_stream_dataset and session checkpoint restore",
+      "registry/current StreamCapacityError gate",
+      "FileSystemCAS chunk/window/checkpoint/cursor artifacts",
+      "separate interpreter processes with persisted source/checkpoint state"
+    ],
+    "negative_controls": [
+      "No-op restored-state admission while test markers remain causes two real source polls and fails the zero-poll assertion."
+    ],
+    "bounded_replay_observation": "The zero-output replay still changes checkpoint/cursor metadata and index bytes and creates three non-data CAS artifact IDs; no full byte-idempotency or cumulative-counter claim is made."
+  },
+  "predicate_basis": "recomputed",
+  "p37": {
+    "predicate": "The gate must reject a pending two-row state under cap 1 before any poll/flush/commit/CAS write, and successful recovery must agree with actual source rows, chunk/window artifacts, persisted checkpoint and cursor.",
+    "basis": "recomputed from observed runtime calls, persisted artifacts, raw source decode, and separate-process readback; not field-name or marker presence."
+  },
+  "p38": {
+    "property": "current-cap restore is refused before it can consume/advance/write; compatible recovery produces the correct rows and lineage without duplicate row output.",
+    "implementation_measures": "actual poll/flush/frontier/CAS calls, capacity error values, exact persisted state/indexes, artifact IDs, decoded rows, chunk/window refs, and pool acquisitions/releases.",
+    "divergent_case": "A no-output replay has rows_emitted=0 but still rewrites checkpoint/cursor metadata/indexes and creates three non-data artifact IDs. A zero-row assertion alone would be a proxy for stronger full-state idempotency; this receipt explicitly does not claim that stronger property."
+  },
+  "p40": {
+    "class": "bounded stream-state restoration and committed frontier/recovery",
+    "classification": "same existing ING current-cap/restore and frontier class; this slice adds a behavioral test only, not a new runtime mechanism.",
+    "evidence": "current-cap typed refusal and compatible restart recovery plus actual marker-preserving admission removal control."
+  },
+  "checks": [
+    {
+      "id": "composed-B-plus-C-native-suite",
+      "target_sha": "c694daaf888657ec261988fa2066df792fd77110",
+      "command": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/composed-16/command.json",
+        "sha256": "c438b6c87fca205d974c934f8757d07f9b2b8006612f2d178444bdbbd38606e5"
+      },
+      "outcome": "FAIL",
+      "summary": "16 collected, 14 passed, 2 B budget-oracle setup failures. B expects `_message_id:event-N`; C persists canonical JSON key pairs. Cap/recovery assertions were not reached; this is not a product failure or a P41 inherited-red disposition.",
+      "classification": "dependency_oracle_representation_mismatch_before_target_assertions",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/composed-16/exit-status.txt",
+          "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/composed-16/native.txt",
+          "sha256": "507ed15c57b0aac8b357aceefca06cf765467a22675442fdbd70cead00a1d693"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/composed-16/native.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/composed-16/native.xml",
+          "sha256": "41885910d734f9e77fd009dba4bf9371271ed2bd00e872825fbb66af7b0da61c"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/composed-16/import-manifest.json",
+          "sha256": "a4bfdec707b348f6c25a1b50caa98a2fa0494f8f664775534002e6a2f3254e4f"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/composed-16/import-manifest.stdout",
+          "sha256": "267b5f68e4ab532f61aa1d5d1d0cbc688b02f03cc7dab1a061adc62f83138fa8"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/composed-16/import-manifest.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "id": "C-owned-current-frontier-oracle",
+      "target_sha": "0979fae4edaea61f3ae602241423d5cd96b091de",
+      "command": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/c-oracle-2/command.json",
+        "sha256": "d8da3be742812684ca4a2e38e8f7e30fbb068f759737bb41b957aa474cf69733"
+      },
+      "outcome": "PASS",
+      "summary": "2 passed; checks actual poll/flush/frontier/CAS calls, persisted state, decoded source keys, chunk/window lineage, and reopen behavior.",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/c-oracle-2/exit-status.txt",
+          "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/c-oracle-2/native.txt",
+          "sha256": "6f011a1ee84e0d0b34a25072eb03c2a0484600d2fc29ab0aa7bf32507c5ee656"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/c-oracle-2/native.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/c-oracle-2/native.xml",
+          "sha256": "d8b586016d363531ce6c52ae58b72adc64d04d0e3fc4762b6ac49a05e61d73fa"
+        }
+      ]
+    },
+    {
+      "id": "admission-property-removal-control",
+      "target_sha": "0979fae4edaea61f3ae602241423d5cd96b091de",
+      "command": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/admission-removal/command.json",
+        "sha256": "e6b8113f07d01b778f458e6804e6de41322b347f8bf4709267e3d6d7c4ed5a0c"
+      },
+      "outcome": "FAIL",
+      "expected_failure": true,
+      "summary": "No-op restored-state admission with markers left intact causes two real source polls; the test fails at `poll_events == []`.",
+      "classification": "behavioral_remove_property_keep_markers_control",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/admission-removal/exit-status.txt",
+          "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/admission-removal/native.txt",
+          "sha256": "56ca37baf8a749db32f9b8f7feaf14ec802ed48130004663314f0b6cfd59ffc6"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/admission-removal/native.stderr",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/admission-removal/native.xml",
+          "sha256": "23125f42c5453becc6969af68bab70ef10f25d39858c6e6efa3cb7e18070b0fd"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/admission-removal/remove_restored_admission.py",
+          "sha256": "e30fdfc09cfa295a457b33ef35272aed1e9bfaf7fd54c4fad04d7f45f015226e"
+        }
+      ]
+    },
+    {
+      "id": "ruff-format-and-source-diff-check",
+      "target_sha": "0979fae4edaea61f3ae602241423d5cd96b091de",
+      "outcome": "PASS",
+      "summary": "Ruff check, Ruff format check, and source commit diff check passed.",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/tooling/commands.json",
+          "sha256": "0ede2248cc1efc27a8b1292b90dcc59ec830cad6e68ded3d1d9e1a49b24ff844"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/tooling/output.txt",
+          "sha256": "41f13a735cfc775a7fa914c38d5a3966ab750ff504c23741e45dc557bb33c5fc"
+        }
+      ]
+    },
+    {
+      "id": "exact-c694-archive-wheel-build-and-normal-install",
+      "target_sha": "c694daaf888657ec261988fa2066df792fd77110",
+      "outcome": "PASS",
+      "summary": "Offline wheel built from exact c694 archive and installed with the normal offline dependency resolver. Wheel SHA-256 d964e236daf429924ebbd7dc5b68208fc3e8aaad5ca9f04d94834a6709f3f3e1 (15120393 bytes); no sdist was built. Fresh base profile has 127 distributions; pytest and hnswlib are absent.",
+      "command_specs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/archive-command/spec.json",
+          "sha256": "d14ef2d9c4561ba491e134418cbec48fc63adb539781fe44c1b073c2cec7a4b6"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/extract-command/spec.json",
+          "sha256": "67f3625bab487bf5131784fa618adce8ba1e18f2ba9d829898d946efed2628dd"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/wheel-build/spec.json",
+          "sha256": "8a4ac5c6a0c8b45306b0ae566e60f0d6ad11af16b25464b9a7568ef016757399"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/base-sync/spec.json",
+          "sha256": "8c272f44ba12bdb1239f09d2dba67cf398c6be97febbda4efbe2033561981266"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/wheel-install/spec.json",
+          "sha256": "933f4f877db95a70392aeef832d00c9a937d6d14d2b282de5dc0e3b5887daa27"
+        }
+      ],
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/archive-command/result.json",
+          "sha256": "0901dbfbb1a6e14d93c118e112461c871c9965b6ef63ff54675a202a5dc33c1a"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/archive-command/stdout.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/archive-command/stderr.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/extract-command/result.json",
+          "sha256": "e8b8231b052f2108b45abf35e86c1ca54717ef3ab362de97e189e910d9eedb73"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/extract-command/stdout.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/extract-command/stderr.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/wheel-build/result.json",
+          "sha256": "8837fea3e8e6a5ea2d3070d59eec0ff5e519d503f4e8a7d257b89533ea1e88d6"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/wheel-build/stdout.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/wheel-build/stderr.bin",
+          "sha256": "0c2ae993acfc1dcaf5029258f6822187cc478cc4294615afcb70ba36bdfdb6f5"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/base-sync/result.json",
+          "sha256": "d1423c92287840f029deb2937ba9b29127e944f9f96b35abecaf41e6771386ff"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/base-sync/stdout.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/base-sync/stderr.bin",
+          "sha256": "1bba3154f630c449fbc5d503e7416dd835f940f5a0de0a97b1c0a3dd434e09fa"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/wheel-install/result.json",
+          "sha256": "7e34b9466c6bcc142caba24451ce8f0514ebc198a06ce9c36d25e3af4ae8ecd1"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/wheel-install/stdout.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/wheel-install/stderr.bin",
+          "sha256": "fd396b10ef07e11d425a313bcfc5dd9dd14aed6bbe51c7c56496bb0a36efdb57"
+        }
+      ]
+    },
+    {
+      "id": "wheel-source-member-byte-census",
+      "target_sha": "c694daaf888657ec261988fa2066df792fd77110",
+      "outcome": "PASS",
+      "summary": "3,457 configured source members match exact archive bytes; zero mismatches, missing members, or unmapped non-metadata wheel members. Four generated dist-info records are separate.",
+      "command": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/artifact-census-final-command/spec.json",
+        "sha256": "1531e914ee48cf3a0a61902a2f6afb2f6edd715d03889d54814f05b8bb78780a"
+      },
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/artifact-census-final-command/result.json",
+          "sha256": "7ca42bf00a8e89e911ef04459b7e1a3e2b608469961b6eecbb314171ef2a3397"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/artifact-census-final-command/stdout.bin",
+          "sha256": "902c562fccdd4c4cc1eb2d7d65f9833fb3d5b5a48ec43aea9ad3f044534fc451"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/artifact-census-final-command/stderr.bin",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "id": "installed-base-profile-and-module-provenance",
+      "target_sha": "c694daaf888657ec261988fa2066df792fd77110",
+      "outcome": "PASS",
+      "summary": "Fresh base-only Python 3.14 environment, isolated `-I`, PYTHONPATH unset, pytest/hnswlib absent; imported modules originate in installed site-packages and byte-match their wheel members.",
+      "command": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/profile-probe-run/spec.json",
+        "sha256": "c3a752c4a866eac7089863542114f1489eb36fb9fc3d21515a09bc37571b71d9"
+      },
+      "probe": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/probes/profile-probe.py",
+        "sha256": "4620456ec4abed38b2b2d6a65cc13de0330c70d8c52b1ecf4c19642186788088"
+      },
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/profile-probe-run/result.json",
+          "sha256": "cfb9682e9996217d9d841e8f1f685fe2d1e57a83c775f2831cb5bdc972b1adce"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/profile-probe-run/stdout.bin",
+          "sha256": "45921a865b43b527e11538f54242a99b06f3e4ba4e28f605ce9c73b4f8eeba8e"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/profile-probe-run/stderr.bin",
+          "sha256": "eaa1b30e14190cb90d73ab7f49537b0b672e1c40ba65d922ac880b69731ac963"
+        }
+      ]
+    },
+    {
+      "id": "installed-root07-stream-consumer",
+      "target_sha": "c694daaf888657ec261988fa2066df792fd77110",
+      "outcome": "PASS",
+      "summary": "On exact c694 wheel: cleanup retry after failure, cancellation cleanup retry, and actual commit/reopen readback pass.",
+      "command": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/stream-consumer-run/spec.json",
+        "sha256": "b406e6984d8b39e2e11fbe39bf1958650e694120a15dde83638292297350d5a7"
+      },
+      "probe": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/probes/stream-consumer-probe.py",
+        "sha256": "1a41e2c4c5b96fcf87c586b861773d2abf764151ff50a5f481251c3ead702def"
+      },
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/stream-consumer-run/result.json",
+          "sha256": "e5b3ad207f535caf845aa26054bcf31abfcc9c0ef5118248e2c7c3d76d5e4dda"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/stream-consumer-run/stdout.bin",
+          "sha256": "efff43ff57231835b3d7f393bf416a1a95ae441cf74845dd97dfec1da5643543"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/stream-consumer-run/stderr.bin",
+          "sha256": "3c00cd64dbf8cad7dfed17200371eac698d32fe20313d99d55f759b33aafb2bf"
+        }
+      ]
+    },
+    {
+      "id": "installed-four-process-frontier-sequence",
+      "target_sha": "c694daaf888657ec261988fa2066df792fd77110",
+      "outcome": "PASS",
+      "summary": "Four independent Python processes prepare a two-row checkpoint, refuse cap 3→1 before poll/flush/frontier/CAS writes while preserving predecessor state and leases, resume at cap 3 with exactly three rows and verified ordered chunk/window lineage, then replay with zero rows and no new chunk/window refs. The replay still changes checkpoint/cursor metadata/indexes and creates three non-data CAS IDs; this is not full byte-idempotency.",
+      "probe": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/probes/multiprocess-probe-v2.py",
+        "sha256": "2322af029ab8a3bac2ee692a486d093b7b8a7e3e249661980e13abafeaba32c9"
+      },
+      "process_ids": [
+        528,
+        599,
+        611,
+        653
+      ],
+      "processes": [
+        {
+          "phase": "prepare",
+          "command": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/multiprocess-v2-prepare/spec.json",
+            "sha256": "770f32c83bac5e59700a2b35fd3567d2fcc44e48c63275e39a98d5eddb515a46"
+          },
+          "output": [
+            {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/multiprocess-v2-prepare/result.json",
+              "sha256": "1e3cf631d06f2559993de819840f99f84c651b7481079c792decd45d1ba5ff73"
+            },
+            {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/multiprocess-v2-prepare/stdout.bin",
+              "sha256": "05230a6a8d9ce2d6dc7d53d2f185b11c06d2e5e6c0dce22ab85323329a57678f"
+            },
+            {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/multiprocess-v2-prepare/stderr.bin",
+              "sha256": "f8273a42822e95b4b1cd59ea04a6f42bfbe3d50e2ef964daddadeff62225ad13"
+            }
+          ]
+        },
+        {
+          "phase": "lower-cap-refusal",
+          "command": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/multiprocess-v2-reject/spec.json",
+            "sha256": "f3d488111a8e769fd116a04e5bc55cb48f2a6214800227196b638933f83ba309"
+          },
+          "output": [
+            {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/multiprocess-v2-reject/result.json",
+              "sha256": "ba58a5d126ca5a7834e695c2dc0f715b0e70d2b3bb179becb535ddec60b1aee7"
+            },
+            {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/multiprocess-v2-reject/stdout.bin",
+              "sha256": "a9f897cf9f802127d3d4b8096d1da1d9e8a742c15d863428390acf3f2a8c135b"
+            },
+            {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/multiprocess-v2-reject/stderr.bin",
+              "sha256": "b59295f08cf306ac8a8e65d83915b5999334e61c14305f2aee54f072953b995e"
+            }
+          ]
+        },
+        {
+          "phase": "compatible-resume",
+          "command": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/multiprocess-v2-resume/spec.json",
+            "sha256": "00aa3e5df87d19989147eae44304f88559095aeb8f38bb3aa60c56076f513fdb"
+          },
+          "output": [
+            {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/multiprocess-v2-resume/result.json",
+              "sha256": "92d3b617820fff9559a75c32cdb2798542c9caca70932ab0024f29dbe1dda427"
+            },
+            {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/multiprocess-v2-resume/stdout.bin",
+              "sha256": "78987a24bcf23357e07e00c864e1ba88f66a538d47c5b937fd72aefaef3f4ab9"
+            },
+            {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/multiprocess-v2-resume/stderr.bin",
+              "sha256": "42eceebd174fa1f0555869768db2d179262a9acf8a821b93b52967dd3b22352b"
+            }
+          ]
+        },
+        {
+          "phase": "zero-output-replay",
+          "command": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/multiprocess-v2-replay/spec.json",
+            "sha256": "cb2cb1fedc06927171707f4ba7b8519337961082ab0ba03eab02abd0758f1e0d"
+          },
+          "output": [
+            {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/multiprocess-v2-replay/result.json",
+              "sha256": "cf397396c5475ddc3082561d4e62c4fe1c6554689e0c2d0c4f0c2c14651de219"
+            },
+            {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/multiprocess-v2-replay/stdout.bin",
+              "sha256": "8129c0e0021430a8e5eebd7c6e1a998459480e21d17cfae83abefbeadc03b4fa"
+            },
+            {
+              "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/multiprocess-v2-replay/stderr.bin",
+              "sha256": "13c51346e847c8b1702e9d6ab8a9181308ed93397a8ddf1f23297cccb8a2cac8"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "frontend-hooks",
+      "target_sha": "0979fae4edaea61f3ae602241423d5cd96b091de",
+      "outcome": "UNRUN",
+      "summary": "Only a mirrored backend test file changed; Lefthook was unavailable at composition. Tooling nonreceipt, not a frontend pass.",
+      "output": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/review/hook-nonreceipt.json",
+          "sha256": "f5d767fbeefd692db2e415fa3da7d1794ac44dc0a7f1d7672472c47755fde2cb"
+        }
+      ]
+    },
+    {
+      "id": "documentation-commit-hooks",
+      "target_sha": "0979fae4edaea61f3ae602241423d5cd96b091de",
+      "outcome": "UNRUN",
+      "summary": "Coordinator directed this receipt-only commit to use task-scoped `core.hooksPath=/dev/null`; no product inputs changed."
+    }
+  ],
+  "predicate_basis_by_check": [
+    {
+      "check": "C-owned-current-frontier-oracle",
+      "property": "restore preflight and recovered outputs/lineage",
+      "basis": "recomputed"
+    },
+    {
+      "check": "admission-property-removal-control",
+      "property": "missing admission cannot be hidden by markers",
+      "basis": "recomputed"
+    },
+    {
+      "check": "installed-four-process-frontier-sequence",
+      "property": "reopen/restore/replay effects across process boundaries",
+      "basis": "recomputed"
+    },
+    {
+      "check": "B source acceptance or G admission",
+      "property": "authority/closure of external B/G source findings",
+      "basis": "not_established"
+    }
+  ],
+  "capability_state_or_finding_state": "Behavioral evidence supplement for existing bounded ING-02/ING-03 status. No production code changed, no new capability claim, and pinned C54 verdicts remain unchanged.",
+  "admission_receipts": {
+    "worktree_snapshot": {
+      "branch": "codex/e02-C-net-ing-20261007",
+      "head": "0979fae4edaea61f3ae602241423d5cd96b091de",
+      "tree": "0ae7f83ad99321e0b83343a3eb3e02f7454d8bc4",
+      "status": "clean at frozen candidate before receipt authoring"
+    },
+    "separate_admission_event": "none captured by this documentation-only handoff"
+  },
+  "procedure_deviation": {
+    "state": "No source/test change beyond the frozen one-file test commit. The composed suite has two captured B oracle setup mismatches; they are not product/P41 findings.",
+    "hook_nonreceipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/review/hook-nonreceipt.json",
+      "sha256": "f5d767fbeefd692db2e415fa3da7d1794ac44dc0a7f1d7672472c47755fde2cb"
+    },
+    "documentation_commit": "Coordinator directed task-scoped core.hooksPath=/dev/null for this receipt-only commit; hooks will be UNRUN, not PASS."
+  },
+  "storage_context": {
+    "installed_packet": {
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/final-receipt.json",
+        "sha256": "9c08a48b58483c85426b59f5f42ce888d501586d8034719d4177d0a6c394bc3d"
+      },
+      "wheel": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/dist/policy_engine-0.1.0-py3-none-any.whl",
+        "bytes": 15120393,
+        "sha256": "d964e236daf429924ebbd7dc5b68208fc3e8aaad5ca9f04d94834a6709f3f3e1"
+      },
+      "source_archive": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/source.tar",
+        "bytes": 576071680,
+        "sha256": "d5acc9ec57e55452099869a1275c5afc1f9fc2331d726c802e3644b061755bc8"
+      },
+      "artifact_census_map": {
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/artifact-census-final.json",
+        "bytes": 1435616,
+        "sha256": "e6cc544f95b945e9f0076d0fb0a398e75ccf162d745933a61a7d556d65c59a97"
+      },
+      "sdist_built": false
+    },
+    "base_profile": {
+      "profile": "fresh base-only dependency closure from exact archive lock; uv sync --frozen --no-dev --no-install-project, then exact wheel install through normal resolver; no extras selected",
+      "python": "3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]",
+      "installed_distributions": 127,
+      "pytest_present": false,
+      "hnswlib_present": false,
+      "PYTHONPATH": null,
+      "isolated_python_safe_path": true
+    },
+    "raw_scratch": "Large source archive, wheel, environment, CAS files, and derived maps remain in ignored scratch; the handoff records exact source paths and hashes."
+  },
+  "independent_review": {
+    "reviewer": "/root/c2_dependencies",
+    "type": "independent read-only composition integrity and test-delta review",
+    "result": "bounded_GO",
+    "review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/review/independent-composition-and-test-delta.md",
+      "sha256": "339d9b0669da04e8a3f4c3465358c4c8d5e521f5f05b95f5943bf3c1051c0c73"
+    },
+    "metadata": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/review/independent-composition-and-test-delta.json",
+      "sha256": "2e31f652e2ab04d64f10e8fd54125f34f1c95943c34dae051808cd719ded045f"
+    },
+    "scope_limit": "No B source acceptance, no G admission, no finding promotion/closure."
+  },
+  "limitations": [
+    "The two B composed budget-oracle setup failures did not reach target assertions; representation mismatch is not a product verdict or P41 inherited-red finding.",
+    "The test commit adds one test file only. The wheel is from exact parent c694 and does not contain that test; product/build-input bytes are unchanged by 0979.",
+    "Replay after compatible recovery emits no rows or new chunk/window refs but changes checkpoint/cursor metadata and index bytes and adds three non-data CAS artifact IDs. No full checkpoint-byte or cumulative-metadata idempotency claim.",
+    "No sdist, pytest suite in installed environment, external service, production data, model weights, live backend, full numerical workload, throughput, or RSS claim.",
+    "Wheel member census map and archive/wheel/environment/CAS artifacts are ignored and cited by hash; they are not committed.",
+    "No B supplier source acceptance, B87 closure, G admission, or C54 finding closure/status change."
+  ],
+  "next_owner": "C root and G root for separate ING evidence/C54 adjudication. Preserve original row states unless a separate authorized adjudication changes them.",
+  "receipt": {
+    "evidence_index": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/evidence-index.json",
+      "sha256": "9f36852f0df8d3ed5f6cc77b0191e0b3094898ace8cedf269ed2873213697153"
+    },
+    "README": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/README.md",
+      "sha256": "ef8198b78b0ca9a8d9ead00d3d7ddb76e5424c124f1dd237ba792cca17347cd9"
+    },
+    "receipt_root": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3",
+    "tracked_raw_outputs_byte_exact": true
+  },
+  "publication_scope": "Own C topic branch; no push, main publication, G write, B source acceptance, or other-chat message.",
+  "test_owner": "C NET-to-ING topic author owns the one-file test delta; independent reviewer owns bounded read-only review only.",
+  "pull_request": null
+}

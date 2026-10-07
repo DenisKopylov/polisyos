@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/venv-base/bin/python",
+    "-I",
+    "-B",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/stream-consumer-probe.py"
+  ],
+  "cwd": "/private/tmp",
+  "environment": {
+    "PYTHONHOME": null,
+    "PYTHONPATH": null,
+    "UV_CACHE_DIR": null,
+    "UV_PROJECT_ENVIRONMENT": null,
+    "VIRTUAL_ENV": null
+  },
+  "exit_code": 0,
+  "finished_unix_ns": 1791365381944507000,
+  "finished_utc": "2026-10-07T09:29:41.944512+00:00",
+  "started_unix_ns": 1791365373840552000,
+  "started_utc": "2026-10-07T09:29:33.840555+00:00",
+  "stderr_bytes": 4355,
+  "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/stream-consumer-run/stderr.bin",
+  "stderr_sha256": "3c00cd64dbf8cad7dfed17200371eac698d32fe20313d99d55f759b33aafb2bf",
+  "stdout_bytes": 6797,
+  "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/stream-consumer-run/stdout.bin",
+  "stdout_sha256": "efff43ff57231835b3d7f393bf416a1a95ae441cf74845dd97dfec1da5643543",
+  "step": "installed-root07-stream-probe-on-exact-c694-wheel",
+  "timed_out": false,
+  "timeout_error": null,
+  "timeout_seconds": 180
+}

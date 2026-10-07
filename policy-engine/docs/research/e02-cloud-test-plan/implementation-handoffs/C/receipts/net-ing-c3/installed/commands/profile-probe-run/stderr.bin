@@ -1,0 +1,2 @@
+/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/profile-probe.py:21: DeprecationWarning: Accessing jsonschema.__version__ is deprecated and will be removed in a future release. Use importlib.metadata directly to query for jsonschema's version.
+  'jsonschema':{'version':jsonschema.__version__,'origin':str(Path(jsonschema.__file__).resolve()),'distribution_version':metadata.version('jsonschema')},

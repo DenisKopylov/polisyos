@@ -1,0 +1,40 @@
+{
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-vv",
+    "-s",
+    "-c",
+    "pytest.ini",
+    "-p",
+    "remove_restored_admission",
+    "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/removal-final-20261007T092326Z-742cc0dd/pytest-basetemp",
+    "-o",
+    "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/removal-final-20261007T092326Z-742cc0dd/pytest-cache",
+    "--junitxml",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/removal-final-20261007T092326Z-742cc0dd/native.xml",
+    "tests/unit/fabric/data_plane/test_net_ing_current_frontier.py::test_lower_restored_cap_refuses_before_poll_or_frontier_effects"
+  ],
+  "candidate_commit_before_commit": "c694daaf888657ec261988fa2066df792fd77110",
+  "candidate_tree_before_commit": "bf1e231b53c1f68f7fce176792ea0011636a83f8",
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/policy-engine",
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/removal-final-20261007T092326Z-742cc0dd:/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/policy-engine/src",
+    "TEMP": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/removal-final-20261007T092326Z-742cc0dd/tmp",
+    "TMP": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/removal-final-20261007T092326Z-742cc0dd/tmp",
+    "TMPDIR": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/removal-final-20261007T092326Z-742cc0dd/tmp"
+  },
+  "exit_code": 1,
+  "expected_control_result": "pytest failure at poll_events assertion after restored-admission removal",
+  "finished_utc": "2026-10-07T09:23:30.409429+00:00",
+  "plugin": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/removal-final-20261007T092326Z-742cc0dd/remove_restored_admission.py",
+  "plugin_sha256": "e30fdfc09cfa295a457b33ef35272aed1e9bfaf7fd54c4fad04d7f45f015226e",
+  "started_utc": "2026-10-07T09:23:26.512959+00:00",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout_sha256": "56ca37baf8a749db32f9b8f7feaf14ec802ed48130004663314f0b6cfd59ffc6",
+  "wall_seconds": 3.896455,
+  "xml_sha256": "23125f42c5453becc6969af68bab70ef10f25d39858c6e6efa3cb7e18070b0fd"
+}

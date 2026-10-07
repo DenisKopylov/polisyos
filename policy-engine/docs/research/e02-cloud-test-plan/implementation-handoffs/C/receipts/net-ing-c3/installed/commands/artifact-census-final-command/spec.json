@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "/opt/homebrew/bin/python3.14",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/artifact-census-final.py",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf"
+  ],
+  "cwd": "/private/tmp",
+  "output_dir": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/artifact-census-final-command",
+  "record_env": [
+    "PYTHONPATH",
+    "VIRTUAL_ENV"
+  ],
+  "step": "final-exact-wheel-to-c694-source-member-byte-census-including-forced-resource-and-license"
+}

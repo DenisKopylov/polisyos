@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "/opt/homebrew/bin/python3.14",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/artifact-census-final.py",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf"
+  ],
+  "cwd": "/private/tmp",
+  "environment": {
+    "PYTHONPATH": null,
+    "VIRTUAL_ENV": null
+  },
+  "exit_code": 0,
+  "finished_unix_ns": 1791365283409220000,
+  "finished_utc": "2026-10-07T09:28:03.409223+00:00",
+  "started_unix_ns": 1791365282955091000,
+  "started_utc": "2026-10-07T09:28:02.955094+00:00",
+  "stderr_bytes": 0,
+  "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/artifact-census-final-command/stderr.bin",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout_bytes": 12381,
+  "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/artifact-census-final-command/stdout.bin",
+  "stdout_sha256": "902c562fccdd4c4cc1eb2d7d65f9833fb3d5b5a48ec43aea9ad3f044534fc451",
+  "step": "final-exact-wheel-to-c694-source-member-byte-census-including-forced-resource-and-license"
+}

@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "/opt/homebrew/bin/uv",
+    "sync",
+    "--offline",
+    "--frozen",
+    "--no-dev",
+    "--no-install-project",
+    "--python",
+    "/opt/homebrew/bin/python3.14"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/source/policy-engine",
+  "output_dir": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/base-sync",
+  "record_env": [
+    "UV_CACHE_DIR",
+    "UV_PROJECT_ENVIRONMENT",
+    "UV_OFFLINE",
+    "PYTHONPATH",
+    "VIRTUAL_ENV"
+  ],
+  "set_env": {
+    "UV_CACHE_DIR": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/_cache/uv",
+    "UV_OFFLINE": "1",
+    "UV_PROJECT_ENVIRONMENT": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/venv-base"
+  },
+  "step": "fresh-base-profile-sync-from-exact-c694-lock-no-dev-no-project",
+  "unset_env": [
+    "PYTHONPATH",
+    "VIRTUAL_ENV"
+  ]
+}

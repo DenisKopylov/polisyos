@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "/opt/homebrew/bin/uv",
+    "sync",
+    "--offline",
+    "--frozen",
+    "--no-dev",
+    "--no-install-project",
+    "--python",
+    "/opt/homebrew/bin/python3.14"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/source/policy-engine",
+  "environment": {
+    "PYTHONPATH": null,
+    "UV_CACHE_DIR": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/_cache/uv",
+    "UV_OFFLINE": "1",
+    "UV_PROJECT_ENVIRONMENT": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/venv-base",
+    "VIRTUAL_ENV": null
+  },
+  "exit_code": 0,
+  "finished_unix_ns": 1791365200028161000,
+  "finished_utc": "2026-10-07T09:26:40.028165+00:00",
+  "started_unix_ns": 1791365199590901000,
+  "started_utc": "2026-10-07T09:26:39.590903+00:00",
+  "stderr_bytes": 3220,
+  "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/base-sync/stderr.bin",
+  "stderr_sha256": "1bba3154f630c449fbc5d503e7416dd835f940f5a0de0a97b1c0a3dd434e09fa",
+  "stdout_bytes": 0,
+  "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/base-sync/stdout.bin",
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "step": "fresh-base-profile-sync-from-exact-c694-lock-no-dev-no-project"
+}

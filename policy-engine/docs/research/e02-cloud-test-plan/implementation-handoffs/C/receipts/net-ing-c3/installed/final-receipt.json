@@ -1,0 +1,816 @@
+{
+  "command_records": [
+    {
+      "argv": [
+        "git",
+        "-C",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos",
+        "archive",
+        "--format=tar",
+        "--output",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/source.tar",
+        "c694daaf888657ec261988fa2066df792fd77110"
+      ],
+      "cwd": "/private/tmp",
+      "environment": {
+        "PYTHONPATH": null,
+        "VIRTUAL_ENV": null
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-07T09:25:34.378656+00:00",
+      "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/archive-command/result.json",
+      "result_sha256": "0901dbfbb1a6e14d93c118e112461c871c9965b6ef63ff54675a202a5dc33c1a",
+      "started_utc": "2026-10-07T09:25:31.920261+00:00",
+      "stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/archive-command/stderr.bin",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/archive-command/stdout.bin",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "step": "git-archive-exact-c694-commit",
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "tar",
+        "-xf",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/source.tar",
+        "-C",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/source"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf",
+      "environment": {
+        "PYTHONPATH": null,
+        "VIRTUAL_ENV": null
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-07T09:25:50.956001+00:00",
+      "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/extract-command/result.json",
+      "result_sha256": "e8b8231b052f2108b45abf35e86c1ca54717ef3ab362de97e189e910d9eedb73",
+      "started_utc": "2026-10-07T09:25:47.678853+00:00",
+      "stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/extract-command/stderr.bin",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/extract-command/stdout.bin",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "step": "extract-exact-c694-git-archive",
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "/opt/homebrew/bin/uv",
+        "build",
+        "--offline",
+        "--python",
+        "/opt/homebrew/bin/python3.14",
+        "--wheel",
+        "--out-dir",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/dist",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/source/policy-engine"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf",
+      "environment": {
+        "PYTHONPATH": null,
+        "UV_CACHE_DIR": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/_cache/uv",
+        "UV_OFFLINE": "1",
+        "UV_PROJECT_ENVIRONMENT": null,
+        "VIRTUAL_ENV": null
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-07T09:26:04.846040+00:00",
+      "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/wheel-build/result.json",
+      "result_sha256": "8837fea3e8e6a5ea2d3070d59eec0ff5e519d503f4e8a7d257b89533ea1e88d6",
+      "started_utc": "2026-10-07T09:26:03.131300+00:00",
+      "stderr": {
+        "bytes": 79,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/wheel-build/stderr.bin",
+        "sha256": "0c2ae993acfc1dcaf5029258f6822187cc478cc4294615afcb70ba36bdfdb6f5"
+      },
+      "stdout": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/wheel-build/stdout.bin",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "step": "canonical-offline-wheel-build-from-exact-c694-git-archive",
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "/opt/homebrew/bin/uv",
+        "sync",
+        "--offline",
+        "--frozen",
+        "--no-dev",
+        "--no-install-project",
+        "--python",
+        "/opt/homebrew/bin/python3.14"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/source/policy-engine",
+      "environment": {
+        "PYTHONPATH": null,
+        "UV_CACHE_DIR": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/_cache/uv",
+        "UV_OFFLINE": "1",
+        "UV_PROJECT_ENVIRONMENT": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/venv-base",
+        "VIRTUAL_ENV": null
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-07T09:26:40.028165+00:00",
+      "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/base-sync/result.json",
+      "result_sha256": "d1423c92287840f029deb2937ba9b29127e944f9f96b35abecaf41e6771386ff",
+      "started_utc": "2026-10-07T09:26:39.590903+00:00",
+      "stderr": {
+        "bytes": 3220,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/base-sync/stderr.bin",
+        "sha256": "1bba3154f630c449fbc5d503e7416dd835f940f5a0de0a97b1c0a3dd434e09fa"
+      },
+      "stdout": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/base-sync/stdout.bin",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "step": "fresh-base-profile-sync-from-exact-c694-lock-no-dev-no-project",
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "/opt/homebrew/bin/uv",
+        "pip",
+        "install",
+        "--offline",
+        "--python",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/venv-base/bin/python",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/dist/policy_engine-0.1.0-py3-none-any.whl"
+      ],
+      "cwd": "/private/tmp",
+      "environment": {
+        "PYTHONPATH": null,
+        "UV_CACHE_DIR": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/_cache/uv",
+        "UV_OFFLINE": "1",
+        "UV_PROJECT_ENVIRONMENT": null,
+        "VIRTUAL_ENV": null
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-07T09:26:44.317623+00:00",
+      "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/wheel-install/result.json",
+      "result_sha256": "7e34b9466c6bcc142caba24451ce8f0514ebc198a06ce9c36d25e3af4ae8ecd1",
+      "started_utc": "2026-10-07T09:26:43.652822+00:00",
+      "stderr": {
+        "bytes": 446,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/wheel-install/stderr.bin",
+        "sha256": "fd396b10ef07e11d425a313bcfc5dd9dd14aed6bbe51c7c56496bb0a36efdb57"
+      },
+      "stdout": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/wheel-install/stdout.bin",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "step": "install-exact-c694-wheel-with-normal-offline-dependency-resolution",
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "/opt/homebrew/bin/python3.14",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/artifact-census-final.py",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf"
+      ],
+      "cwd": "/private/tmp",
+      "environment": {
+        "PYTHONPATH": null,
+        "VIRTUAL_ENV": null
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-07T09:28:03.409223+00:00",
+      "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/artifact-census-final-command/result.json",
+      "result_sha256": "7ca42bf00a8e89e911ef04459b7e1a3e2b608469961b6eecbb314171ef2a3397",
+      "started_utc": "2026-10-07T09:28:02.955094+00:00",
+      "stderr": {
+        "bytes": 0,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/artifact-census-final-command/stderr.bin",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 12381,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/artifact-census-final-command/stdout.bin",
+        "sha256": "902c562fccdd4c4cc1eb2d7d65f9833fb3d5b5a48ec43aea9ad3f044534fc451"
+      },
+      "step": "final-exact-wheel-to-c694-source-member-byte-census-including-forced-resource-and-license",
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/venv-base/bin/python",
+        "-I",
+        "-B",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/profile-probe.py"
+      ],
+      "cwd": "/private/tmp",
+      "environment": {
+        "PYTHONHOME": null,
+        "PYTHONPATH": null,
+        "UV_CACHE_DIR": null,
+        "UV_PROJECT_ENVIRONMENT": null,
+        "VIRTUAL_ENV": null
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-07T09:31:51.000338+00:00",
+      "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/profile-probe-run/result.json",
+      "result_sha256": "cfb9682e9996217d9d841e8f1f685fe2d1e57a83c775f2831cb5bdc972b1adce",
+      "started_utc": "2026-10-07T09:31:49.769315+00:00",
+      "stderr": {
+        "bytes": 468,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/profile-probe-run/stderr.bin",
+        "sha256": "eaa1b30e14190cb90d73ab7f49537b0b672e1c40ba65d922ac880b69731ac963"
+      },
+      "stdout": {
+        "bytes": 15153,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/profile-probe-run/stdout.bin",
+        "sha256": "45921a865b43b527e11538f54242a99b06f3e4ba4e28f605ce9c73b4f8eeba8e"
+      },
+      "step": "installed-base-dependency-profile-and-jsonschema-origin",
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/venv-base/bin/python",
+        "-I",
+        "-B",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/stream-consumer-probe.py"
+      ],
+      "cwd": "/private/tmp",
+      "environment": {
+        "PYTHONHOME": null,
+        "PYTHONPATH": null,
+        "UV_CACHE_DIR": null,
+        "UV_PROJECT_ENVIRONMENT": null,
+        "VIRTUAL_ENV": null
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-07T09:29:41.944512+00:00",
+      "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/stream-consumer-run/result.json",
+      "result_sha256": "e5b3ad207f535caf845aa26054bcf31abfcc9c0ef5118248e2c7c3d76d5e4dda",
+      "started_utc": "2026-10-07T09:29:33.840555+00:00",
+      "stderr": {
+        "bytes": 4355,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/stream-consumer-run/stderr.bin",
+        "sha256": "3c00cd64dbf8cad7dfed17200371eac698d32fe20313d99d55f759b33aafb2bf"
+      },
+      "stdout": {
+        "bytes": 6797,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/stream-consumer-run/stdout.bin",
+        "sha256": "efff43ff57231835b3d7f393bf416a1a95ae441cf74845dd97dfec1da5643543"
+      },
+      "step": "installed-root07-stream-probe-on-exact-c694-wheel",
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/venv-base/bin/python",
+        "-I",
+        "-B",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-probe-v2.py",
+        "prepare"
+      ],
+      "cwd": "/private/tmp",
+      "environment": {
+        "PYTHONHOME": null,
+        "PYTHONPATH": null,
+        "UV_CACHE_DIR": null,
+        "UV_PROJECT_ENVIRONMENT": null,
+        "VIRTUAL_ENV": null
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-07T09:33:45.530586+00:00",
+      "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-prepare/result.json",
+      "result_sha256": "1e3cf631d06f2559993de819840f99f84c651b7481079c792decd45d1ba5ff73",
+      "started_utc": "2026-10-07T09:33:43.478470+00:00",
+      "stderr": {
+        "bytes": 1035,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-prepare/stderr.bin",
+        "sha256": "f8273a42822e95b4b1cd59ea04a6f42bfbe3d50e2ef964daddadeff62225ad13"
+      },
+      "stdout": {
+        "bytes": 5661,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-prepare/stdout.bin",
+        "sha256": "05230a6a8d9ce2d6dc7d53d2f185b11c06d2e5e6c0dce22ab85323329a57678f"
+      },
+      "step": "installed-c694-process-restart-v2-prepare",
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/venv-base/bin/python",
+        "-I",
+        "-B",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-probe-v2.py",
+        "reject"
+      ],
+      "cwd": "/private/tmp",
+      "environment": {
+        "PYTHONHOME": null,
+        "PYTHONPATH": null,
+        "UV_CACHE_DIR": null,
+        "UV_PROJECT_ENVIRONMENT": null,
+        "VIRTUAL_ENV": null
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-07T09:33:51.317900+00:00",
+      "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-reject/result.json",
+      "result_sha256": "ba58a5d126ca5a7834e695c2dc0f715b0e70d2b3bb179becb535ddec60b1aee7",
+      "started_utc": "2026-10-07T09:33:49.363687+00:00",
+      "stderr": {
+        "bytes": 1035,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-reject/stderr.bin",
+        "sha256": "b59295f08cf306ac8a8e65d83915b5999334e61c14305f2aee54f072953b995e"
+      },
+      "stdout": {
+        "bytes": 5333,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-reject/stdout.bin",
+        "sha256": "a9f897cf9f802127d3d4b8096d1da1d9e8a742c15d863428390acf3f2a8c135b"
+      },
+      "step": "installed-c694-process-restart-v2-reject",
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/venv-base/bin/python",
+        "-I",
+        "-B",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-probe-v2.py",
+        "resume"
+      ],
+      "cwd": "/private/tmp",
+      "environment": {
+        "PYTHONHOME": null,
+        "PYTHONPATH": null,
+        "UV_CACHE_DIR": null,
+        "UV_PROJECT_ENVIRONMENT": null,
+        "VIRTUAL_ENV": null
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-07T09:33:56.158284+00:00",
+      "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-resume/result.json",
+      "result_sha256": "92d3b617820fff9559a75c32cdb2798542c9caca70932ab0024f29dbe1dda427",
+      "started_utc": "2026-10-07T09:33:54.077279+00:00",
+      "stderr": {
+        "bytes": 1227,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-resume/stderr.bin",
+        "sha256": "42eceebd174fa1f0555869768db2d179262a9acf8a821b93b52967dd3b22352b"
+      },
+      "stdout": {
+        "bytes": 6044,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-resume/stdout.bin",
+        "sha256": "78987a24bcf23357e07e00c864e1ba88f66a538d47c5b937fd72aefaef3f4ab9"
+      },
+      "step": "installed-c694-process-restart-v2-resume",
+      "timed_out": false
+    },
+    {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/venv-base/bin/python",
+        "-I",
+        "-B",
+        "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-probe-v2.py",
+        "replay"
+      ],
+      "cwd": "/private/tmp",
+      "environment": {
+        "PYTHONHOME": null,
+        "PYTHONPATH": null,
+        "UV_CACHE_DIR": null,
+        "UV_PROJECT_ENVIRONMENT": null,
+        "VIRTUAL_ENV": null
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-07T09:34:01.057553+00:00",
+      "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-replay/result.json",
+      "result_sha256": "cf397396c5475ddc3082561d4e62c4fe1c6554689e0c2d0c4f0c2c14651de219",
+      "started_utc": "2026-10-07T09:33:58.811853+00:00",
+      "stderr": {
+        "bytes": 1227,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-replay/stderr.bin",
+        "sha256": "13c51346e847c8b1702e9d6ab8a9181308ed93397a8ddf1f23297cccb8a2cac8"
+      },
+      "stdout": {
+        "bytes": 6033,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-replay/stdout.bin",
+        "sha256": "8129c0e0021430a8e5eebd7c6e1a998459480e21d17cfae83abefbeadc03b4fa"
+      },
+      "step": "installed-c694-process-restart-v2-replay",
+      "timed_out": false
+    }
+  ],
+  "generated_utc": "2026-10-07T09:35:00Z",
+  "installed_module_provenance": {
+    "all_imported_module_byte_matches": true,
+    "evidence": "The stream and lower-cap runtime stdout contain origins, site-packages paths, wheel member identities, and installed/wheel byte SHA for polisyos, streaming, connector registry, event-stream connector, cursor store, connector pool, FileSystemCAS, connector base, canonical serialization, cursor contract, and watermark modules.",
+    "origins_are_installed_site_packages": true,
+    "output_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/stream-consumer-run/stdout.bin",
+    "output_sha256": "efff43ff57231835b3d7f393bf416a1a95ae441cf74845dd97dfec1da5643543",
+    "representative_module_set_count": 11
+  },
+  "installed_profile": {
+    "PYTHONPATH": null,
+    "hnswlib_distribution_present": false,
+    "installed_distribution_count": 127,
+    "isolated": true,
+    "jsonschema": {
+      "distribution_version": "4.25.1",
+      "origin": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/venv-base/lib/python3.14/site-packages/jsonschema/__init__.py",
+      "version": "4.25.1"
+    },
+    "profile": "fresh base-only dependency closure from exact archive lock; uv sync --frozen --no-dev --no-install-project, then exact wheel install through normal resolver; no extras selected",
+    "profile_probe_output": {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/profile-probe-run/stdout.bin",
+      "sha256": "45921a865b43b527e11538f54242a99b06f3e4ba4e28f605ce9c73b4f8eeba8e"
+    },
+    "pytest_distribution_present": false,
+    "python": "3.14.0 (main, Oct  7 2025, 09:34:52) [Clang 17.0.0 (clang-1700.0.13.3)]",
+    "safe_path": true
+  },
+  "not_run": [
+    "No sdist for this narrow c694 composition follow-up.",
+    "No pytest or suite execution; installed behavior was run directly from the candidate wheel under python -I.",
+    "No external connector/network source, production data, weights, full dataset, throughput, RSS, or live backend claims."
+  ],
+  "runtime_scope": {
+    "input": "Local 3-row JSONL fixture served by the real EventStreamConnector from file://; no external service, production data, model weights, or broad numerical work.",
+    "root07_stream_probe": {
+      "adapted_probe_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/stream-consumer-probe.py",
+      "adapted_probe_sha256": "1a41e2c4c5b96fcf87c586b861773d2abf764151ff50a5f481251c3ead702def",
+      "command_result": {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/venv-base/bin/python",
+          "-I",
+          "-B",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/stream-consumer-probe.py"
+        ],
+        "cwd": "/private/tmp",
+        "environment": {
+          "PYTHONHOME": null,
+          "PYTHONPATH": null,
+          "UV_CACHE_DIR": null,
+          "UV_PROJECT_ENVIRONMENT": null,
+          "VIRTUAL_ENV": null
+        },
+        "exit_code": 0,
+        "finished_utc": "2026-10-07T09:29:41.944512+00:00",
+        "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/stream-consumer-run/result.json",
+        "result_sha256": "e5b3ad207f535caf845aa26054bcf31abfcc9c0ef5118248e2c7c3d76d5e4dda",
+        "started_utc": "2026-10-07T09:29:33.840555+00:00",
+        "stderr": {
+          "bytes": 4355,
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/stream-consumer-run/stderr.bin",
+          "sha256": "3c00cd64dbf8cad7dfed17200371eac698d32fe20313d99d55f759b33aafb2bf"
+        },
+        "stdout": {
+          "bytes": 6797,
+          "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/stream-consumer-run/stdout.bin",
+          "sha256": "efff43ff57231835b3d7f393bf416a1a95ae441cf74845dd97dfec1da5643543"
+        },
+        "step": "installed-root07-stream-probe-on-exact-c694-wheel",
+        "timed_out": false
+      },
+      "outcome": {
+        "actual_commit_and_reopen_readback": "pass",
+        "cancellation_cleanup_same_handle_retry": "pass",
+        "failure_cleanup_same_handle_retry": "pass"
+      },
+      "template_sha256": "2a789e2c39e8a9676f7106ee320740310e7359f0cb4cd0bdca2a66669f705d4b"
+    },
+    "separate_process_frontier_sequence": {
+      "compatible_resume": {
+        "checkpoint": {
+          "cursor_watermark": "1",
+          "frontier": "committed",
+          "offset": 1,
+          "state": "closed"
+        },
+        "chunk_refs": [
+          "sha256:69399aaa72f01f60e866b0b6d5a978e6840ee2d3074b50b94ab4bb2a8c98a847",
+          "sha256:05d492121626e14007f26d3b478a4e7e29d553108558e70c69d5b5149fe5373b"
+        ],
+        "chunks_verified": true,
+        "command_result": {
+          "argv": [
+            "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/venv-base/bin/python",
+            "-I",
+            "-B",
+            "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-probe-v2.py",
+            "resume"
+          ],
+          "cwd": "/private/tmp",
+          "environment": {
+            "PYTHONHOME": null,
+            "PYTHONPATH": null,
+            "UV_CACHE_DIR": null,
+            "UV_PROJECT_ENVIRONMENT": null,
+            "VIRTUAL_ENV": null
+          },
+          "exit_code": 0,
+          "finished_utc": "2026-10-07T09:33:56.158284+00:00",
+          "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-resume/result.json",
+          "result_sha256": "92d3b617820fff9559a75c32cdb2798542c9caca70932ab0024f29dbe1dda427",
+          "started_utc": "2026-10-07T09:33:54.077279+00:00",
+          "stderr": {
+            "bytes": 1227,
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-resume/stderr.bin",
+            "sha256": "42eceebd174fa1f0555869768db2d179262a9acf8a821b93b52967dd3b22352b"
+          },
+          "stdout": {
+            "bytes": 6044,
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-resume/stdout.bin",
+            "sha256": "78987a24bcf23357e07e00c864e1ba88f66a538d47c5b937fd72aefaef3f4ab9"
+          },
+          "step": "installed-c694-process-restart-v2-resume",
+          "timed_out": false
+        },
+        "message_ids": [
+          "event-1",
+          "event-2",
+          "event-3"
+        ],
+        "persisted_rows": 3,
+        "source_reads": 1,
+        "window_memberships": [
+          [
+            "event-1",
+            "event-2"
+          ],
+          [
+            "event-3"
+          ]
+        ],
+        "window_refs": [
+          "sha256:4dbb98b0c2bc252ecab37aaaf80960b010a585dc2a890c4d0605e2d6670a49f8",
+          "sha256:b47e9992a38827a321bb8ea9e6d4ef00d6c9ef341656c4ac8ed602e6529f2f3d"
+        ]
+      },
+      "distinct_process_ids": [
+        528,
+        599,
+        611,
+        653
+      ],
+      "lower_cap_refusal": {
+        "cas_writes": [],
+        "checkpoint_cursor_indexes_chunks_manifests_input_unchanged": true,
+        "command_result": {
+          "argv": [
+            "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/venv-base/bin/python",
+            "-I",
+            "-B",
+            "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-probe-v2.py",
+            "reject"
+          ],
+          "cwd": "/private/tmp",
+          "environment": {
+            "PYTHONHOME": null,
+            "PYTHONPATH": null,
+            "UV_CACHE_DIR": null,
+            "UV_PROJECT_ENVIRONMENT": null,
+            "VIRTUAL_ENV": null
+          },
+          "exit_code": 0,
+          "finished_utc": "2026-10-07T09:33:51.317900+00:00",
+          "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-reject/result.json",
+          "result_sha256": "ba58a5d126ca5a7834e695c2dc0f715b0e70d2b3bb179becb535ddec60b1aee7",
+          "started_utc": "2026-10-07T09:33:49.363687+00:00",
+          "stderr": {
+            "bytes": 1035,
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-reject/stderr.bin",
+            "sha256": "b59295f08cf306ac8a8e65d83915b5999334e61c14305f2aee54f072953b995e"
+          },
+          "stdout": {
+            "bytes": 5333,
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-reject/stdout.bin",
+            "sha256": "a9f897cf9f802127d3d4b8096d1da1d9e8a742c15d863428390acf3f2a8c135b"
+          },
+          "step": "installed-c694-process-restart-v2-reject",
+          "timed_out": false
+        },
+        "flushes": [],
+        "frontier_commits": [],
+        "no_source_reads": true,
+        "polls": [],
+        "pool_handles_balanced": true,
+        "typed_error": {
+          "error": "StreamCapacityError",
+          "max_rows": 1,
+          "rows": 2,
+          "stage": "restore"
+        }
+      },
+      "prepare": {
+        "command_result": {
+          "argv": [
+            "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/venv-base/bin/python",
+            "-I",
+            "-B",
+            "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-probe-v2.py",
+            "prepare"
+          ],
+          "cwd": "/private/tmp",
+          "environment": {
+            "PYTHONHOME": null,
+            "PYTHONPATH": null,
+            "UV_CACHE_DIR": null,
+            "UV_PROJECT_ENVIRONMENT": null,
+            "VIRTUAL_ENV": null
+          },
+          "exit_code": 0,
+          "finished_utc": "2026-10-07T09:33:45.530586+00:00",
+          "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-prepare/result.json",
+          "result_sha256": "1e3cf631d06f2559993de819840f99f84c651b7481079c792decd45d1ba5ff73",
+          "started_utc": "2026-10-07T09:33:43.478470+00:00",
+          "stderr": {
+            "bytes": 1035,
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-prepare/stderr.bin",
+            "sha256": "f8273a42822e95b4b1cd59ea04a6f42bfbe3d50e2ef964daddadeff62225ad13"
+          },
+          "stdout": {
+            "bytes": 5661,
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-prepare/stdout.bin",
+            "sha256": "05230a6a8d9ce2d6dc7d53d2f185b11c06d2e5e6c0dce22ab85323329a57678f"
+          },
+          "step": "installed-c694-process-restart-v2-prepare",
+          "timed_out": false
+        },
+        "controlled_interruption_after_two_row_checkpoint": true,
+        "cursor_watermark": "0",
+        "decoded_keys": [
+          [
+            [
+              "_message_id",
+              "event-1"
+            ]
+          ],
+          [
+            [
+              "_message_id",
+              "event-2"
+            ]
+          ]
+        ],
+        "pending_rows": 2,
+        "source_sha256": "3530c0c7109e6121a4a5c4d916b627188c1dc903da9af26461c85a9435f61101"
+      },
+      "probe_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-probe-v2.py",
+      "probe_sha256": "2322af029ab8a3bac2ee692a486d093b7b8a7e3e249661980e13abafeaba32c9",
+      "replay_after_process_restart": {
+        "chunk_and_window_refs_unchanged": true,
+        "closed_offset_watermark_unchanged": true,
+        "command_result": {
+          "argv": [
+            "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/venv-base/bin/python",
+            "-I",
+            "-B",
+            "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-probe-v2.py",
+            "replay"
+          ],
+          "cwd": "/private/tmp",
+          "environment": {
+            "PYTHONHOME": null,
+            "PYTHONPATH": null,
+            "UV_CACHE_DIR": null,
+            "UV_PROJECT_ENVIRONMENT": null,
+            "VIRTUAL_ENV": null
+          },
+          "exit_code": 0,
+          "finished_utc": "2026-10-07T09:34:01.057553+00:00",
+          "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-replay/result.json",
+          "result_sha256": "cf397396c5475ddc3082561d4e62c4fe1c6554689e0c2d0c4f0c2c14651de219",
+          "started_utc": "2026-10-07T09:33:58.811853+00:00",
+          "stderr": {
+            "bytes": 1227,
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-replay/stderr.bin",
+            "sha256": "13c51346e847c8b1702e9d6ab8a9181308ed93397a8ddf1f23297cccb8a2cac8"
+          },
+          "stdout": {
+            "bytes": 6033,
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-replay/stdout.bin",
+            "sha256": "8129c0e0021430a8e5eebd7c6e1a998459480e21d17cfae83abefbeadc03b4fa"
+          },
+          "step": "installed-c694-process-restart-v2-replay",
+          "timed_out": false
+        },
+        "cursor_index_changed": true,
+        "new_chunk_refs": [],
+        "new_non_data_artifact_ids": [
+          "sha256:6e91421d5601f65e74aecb4dfc6efc6095690db7cc6387a7bc1129f753ad4903",
+          "sha256:d773022b164d362ca8fe6344e2b1de6e7508f2b8411230a0af287ae22464e3b0",
+          "sha256:efe9b2b6110fde71e326f071fb118d0828354d46df197e0163a089f3ce523b7d"
+        ],
+        "new_window_refs": [],
+        "observed_checkpoint_fields_changed": [
+          "committed_at",
+          "created_at",
+          "metadata.frontier_intent.intent_id",
+          "metadata.frontier_intent.prior_digest",
+          "metadata.frontier_intent.target_digest",
+          "metadata.rows_emitted",
+          "metadata.window_count"
+        ],
+        "observed_cursor_fields_changed": [
+          "created_at",
+          "metadata.rows_emitted",
+          "metadata.window_count"
+        ],
+        "persisted_rows_unchanged": true,
+        "rows_emitted": 0,
+        "rows_emitted_metadata_before_after": [
+          1,
+          0
+        ],
+        "stream_index_changed": true,
+        "window_count_metadata_before_after": [
+          2,
+          0
+        ]
+      }
+    }
+  },
+  "schema": "policyos.c3.installed_net_ing_audit.v1",
+  "scratch_bytes_human": "1.9G at measurement; df -h reported 29GiB available before this scratch and 28GiB at closeout (rounded, other workspace activity may contribute).",
+  "scratch_root": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf",
+  "source_pin": {
+    "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "branch_at_run": "codex/e02-C-net-ing-20261007",
+    "built_commit": "c694daaf888657ec261988fa2066df792fd77110",
+    "built_tree": "bf1e231b53c1f68f7fce176792ea0011636a83f8",
+    "checkout_at_closeout": {
+      "head": "0979fae4edaea61f3ae602241423d5cd96b091de",
+      "head_after_built_pin_changes": [
+        "A\tpolicy-engine/tests/unit/fabric/data_plane/test_net_ing_current_frontier.py"
+      ],
+      "product_input_changes_after_built_pin": [],
+      "status": "## codex/e02-C-net-ing-20261007",
+      "tree": "0ae7f83ad99321e0b83343a3eb3e02f7454d8bc4"
+    },
+    "git_archive": {
+      "bytes_uncompressed": 560588428,
+      "files": 18061,
+      "members_total": 20594,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/source.tar",
+      "sha256": "d5acc9ec57e55452099869a1275c5afc1f9fc2331d726c802e3644b061755bc8",
+      "untracked_test_in_extraction": false
+    },
+    "source_identity_interpretation": "The wheel was built from the exact c694 Git archive. The worktree later advanced to 0979fae4; that commit added only the test file shown in head_after_built_pin_changes, and the product/build-input diff is empty. No claim is made that the test file was present in the c694 wheel."
+  },
+  "superseded_harness_attempts": [
+    {
+      "classification": "Wrong source mapping order counted configured Hatch force-include resource as missing; corrected census maps Hatch force-include and LICENSE explicitly.",
+      "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/artifact-census-command/result.json"
+    },
+    {
+      "classification": "Same mapping-order issue; superseded by final passing artifact census.",
+      "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/artifact-census-corrected-command/result.json"
+    },
+    {
+      "classification": "Probe reached lower-cap refusal/resume but added stronger full checkpoint equality after replay than source criteria; later observation captured exact changed paths.",
+      "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/lower-cap-run/result.json"
+    },
+    {
+      "classification": "Same strict checkpoint assertion removed; subsequent cursor full-equality assertion was also stronger than the intended watermark invariant.",
+      "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/lower-cap-run-v2/result.json"
+    },
+    {
+      "classification": "Readback assertions sorted chunk artifacts by persisted index; first pass only failed because the standalone oracle concatenated unsorted CAS iteration. Final v2 run sorts by chunk_index.",
+      "result_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-replay/result.json"
+    }
+  ],
+  "wheel": {
+    "build_profile": "canonical uv build --offline --wheel from extracted exact c694 Git archive; Hatchling backend; Python 3.14",
+    "bytes": 15120393,
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/dist/policy_engine-0.1.0-py3-none-any.whl",
+    "sha256": "d964e236daf429924ebbd7dc5b68208fc3e8aaad5ca9f04d94834a6709f3f3e1",
+    "source_byte_census": {
+      "exact_archive_source_members": 3457,
+      "forced_resource_contract": "The one configured Hatch force-include resource and LICENSE were mapped to their archive owner paths; no source mismatches or unmapped wheel payloads.",
+      "generated_dist_info_members": [
+        "policy_engine-0.1.0.dist-info/METADATA",
+        "policy_engine-0.1.0.dist-info/WHEEL",
+        "policy_engine-0.1.0.dist-info/entry_points.txt",
+        "policy_engine-0.1.0.dist-info/RECORD"
+      ],
+      "mismatches": 0,
+      "missing_configured_source_members": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/artifact-census-final.json",
+      "readmes_in_source_package_roots": 168,
+      "readmes_present": 168,
+      "sha256": "e6cc544f95b945e9f0076d0fb0a398e75ccf162d745933a61a7d556d65c59a97",
+      "source_polysos_files": 2915,
+      "source_tools_files": 540,
+      "unmapped_non_metadata_members": 0,
+      "wheel_files": 3461
+    }
+  }
+}

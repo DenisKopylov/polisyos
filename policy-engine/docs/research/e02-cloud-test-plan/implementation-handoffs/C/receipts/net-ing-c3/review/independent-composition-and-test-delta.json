@@ -1,0 +1,92 @@
+{
+  "reviewer": "/root/c2_dependencies",
+  "review_type": "independent read-only composition and test-delta review",
+  "composition": {
+    "commit": "c694daaf888657ec261988fa2066df792fd77110",
+    "tree": "bf1e231b53c1f68f7fce176792ea0011636a83f8",
+    "parents": {
+      "C": "07bbb61ffa6d53709942bcda87c37daef1a04651",
+      "B": "121fcf450757086ffcc506dabca33fbe28dcd661"
+    },
+    "path_union_count": 4488,
+    "B": {"path_count": 4302, "source_test_count": 156},
+    "C": {"path_count": 186, "source_test_count": 8},
+    "path_sets_disjoint": true,
+    "tree_is_exact_parent_union": true,
+    "changed_blobs_match_owner_parent": true,
+    "B_supplier_dependency_paths": 36,
+    "all_36_B_supplier_blobs_match_B_parent": true,
+    "scope_limit": "composition integrity only; no B-source acceptance and no B87/G admission",
+    "evidence": {
+      "path_inventory": {
+        "path": ".tmp/e02-C3/raw/composition/staged-full-paths.txt",
+        "sha256": "05530730c9151be7539dc043628b19768bf74ad6c8305831bad8cd5f13c21714"
+      },
+      "source_test_comparison": {
+        "path": ".tmp/e02-C3/raw/composition/staged-source-test-diff.txt",
+        "sha256": "e80bd9bf63f05003c2addf32fd6261c73de6fc30d82c74999c122a07a2e3be1b"
+      },
+      "hook_nonreceipt": {
+        "path": ".tmp/e02-C3/raw/composition/hook-nonreceipt.json",
+        "sha256": "f5d767fbeefd692db2e415fa3da7d1794ac44dc0a7f1d7672472c47755fde2cb",
+        "classification": "UNRUN, not pass; merge command used core.hooksPath=/dev/null"
+      }
+    }
+  },
+  "test_delta": {
+    "commit": "0979fae4edaea61f3ae602241423d5cd96b091de",
+    "tree": "0ae7f83ad99321e0b83343a3eb3e02f7454d8bc4",
+    "parent": "c694daaf888657ec261988fa2066df792fd77110",
+    "result": "bounded_GO",
+    "changed_paths": ["policy-engine/tests/unit/fabric/data_plane/test_net_ing_current_frontier.py"],
+    "source_test": {
+      "lines": 440,
+      "git_blob": "3b3dea7cbb99b28cece5ba01e9da52bad6c6ded1",
+      "sha256": "b99737efb81cc5c332f125ae0b04261940cb8a3768fa213c1d7e828e3af9b894"
+    },
+    "streaming_product_blob_unchanged": "80af60d90e2eb6aeed0d335c4dbe5d80c8c24c7c",
+    "native_run": {
+      "stdout": ".tmp/e02-net-ing-20261007/raw/verification/oracle-final-20261007T092259Z-3ca6d2ee/native.txt",
+      "stdout_sha256": "6f011a1ee84e0d0b34a25072eb03c2a0484600d2fc29ab0aa7bf32507c5ee656",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "xml": ".tmp/e02-net-ing-20261007/raw/verification/oracle-final-20261007T092259Z-3ca6d2ee/native.xml",
+      "xml_sha256": "d8b586016d363531ce6c52ae58b72adc64d04d0e3fc4762b6ac49a05e61d73fa",
+      "result": "2 passed"
+    },
+    "admission_removal": {
+      "result": "expected single-test failure after two real polls",
+      "stdout": ".tmp/e02-net-ing-20261007/raw/verification/removal-final-20261007T092326Z-742cc0dd/native.txt",
+      "stdout_sha256": "56ca37baf8a749db32f9b8f7feaf14ec802ed48130004663314f0b6cfd59ffc6",
+      "xml": ".tmp/e02-net-ing-20261007/raw/verification/removal-final-20261007T092326Z-742cc0dd/native.xml",
+      "xml_sha256": "23125f42c5453becc6969af68bab70ef10f25d39858c6e6efa3cb7e18070b0fd",
+      "plugin_sha256": "e30fdfc09cfa295a457b33ef35272aed1e9bfaf7fd54c4fad04d7f45f015226e",
+      "classification": "real behavioral removal probe: no-op admission with markers retained causes poll_events assertion failure"
+    },
+    "oracle_assertions": [
+      "independent stdlib JSON decoding of persisted source-key fields and raw rows",
+      "3-to-1 restore refusal before poll, flush, frontier commit, or public CAS writes",
+      "balanced pool acquire/release; unchanged checkpoint/cursor models, raw index bytes, full CAS artifact IDs, pending chunk payload bytes, and pending manifest model",
+      "ordered recovered windows with exact contributor refs derived from actual chunk artifacts and no duplicate source rows",
+      "reopened repeated call yields no rows/refs or new chunk/window artifact IDs"
+    ],
+    "bounded_assertion_note": "checkpoint/cursor and pending-manifest comparisons are model dumps rather than raw artifact bytes; direct index snapshots are bytes, public CAS write calls are observed absent, and artifact IDs/pending chunk bytes remain unchanged"
+  },
+  "composed_B_oracle_failures": {
+    "count": 2,
+    "classification": "B test setup/oracle representation drift, not C product failure and not P41 inherited-red",
+    "reason": "shared B helper expects _message_id:event-N while C persists canonical JSON pair strings; cap/recovery assertions do not run",
+    "stdout_sha256": "507ed15c57b0aac8b357aceefca06cf765467a22675442fdbd70cead00a1d693",
+    "xml_sha256": "41885910d734f9e77fd009dba4bf9371271ed2bd00e872825fbb66af7b0da61c"
+  },
+  "historical_B_native": {
+    "source_commit": "1862c021df74a5c5815bc5cd21a20e61b30132b6",
+    "result": "8 passed, 2 failed",
+    "xml_sha256": "b4b60fd6c986cbd3a2d454cbdfd5ac5d0a2294941b27583f4faec17cb0fc7958",
+    "scope_note": "historical B implementation evidence, not a result of the 0979 test-only delta"
+  },
+  "author_map_separate_not_independent": {
+    "path": ".tmp/e02-net-ing-20261007/raw/verification/net-ing-final-review-map.json",
+    "sha256": "486a24818a438920ca547a15f090775f78149e6f45c7ea890b11f29c2f3a8b66"
+  },
+  "execution_note": "No tests, builds, product writes, or source edits were performed for this persisted note."
+}

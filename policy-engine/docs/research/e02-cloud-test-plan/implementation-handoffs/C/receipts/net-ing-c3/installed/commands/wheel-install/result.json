@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "/opt/homebrew/bin/uv",
+    "pip",
+    "install",
+    "--offline",
+    "--python",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/venv-base/bin/python",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/dist/policy_engine-0.1.0-py3-none-any.whl"
+  ],
+  "cwd": "/private/tmp",
+  "environment": {
+    "PYTHONPATH": null,
+    "UV_CACHE_DIR": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/_cache/uv",
+    "UV_OFFLINE": "1",
+    "UV_PROJECT_ENVIRONMENT": null,
+    "VIRTUAL_ENV": null
+  },
+  "exit_code": 0,
+  "finished_unix_ns": 1791365204317618000,
+  "finished_utc": "2026-10-07T09:26:44.317623+00:00",
+  "started_unix_ns": 1791365203652819000,
+  "started_utc": "2026-10-07T09:26:43.652822+00:00",
+  "stderr_bytes": 446,
+  "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/wheel-install/stderr.bin",
+  "stderr_sha256": "fd396b10ef07e11d425a313bcfc5dd9dd14aed6bbe51c7c56496bb0a36efdb57",
+  "stdout_bytes": 0,
+  "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/wheel-install/stdout.bin",
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "step": "install-exact-c694-wheel-with-normal-offline-dependency-resolution"
+}

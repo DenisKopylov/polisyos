@@ -1,0 +1,46 @@
+2026-10-07 12:29:41.568 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-07 12:29:41.569 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-07 12:29:41.569 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-07 12:29:41.569 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-07 12:29:41.569 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-07 12:29:41.571 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-07 12:29:41.573 | INFO     | polisyos.common.logger:_call:120 - Connection pool initialized
+2026-10-07 12:29:41.573 | DEBUG    | polisyos.common.logger:_call:120 - New connection created
+2026-10-07 12:29:41.573 | DEBUG    | polisyos.common.logger:_call:120 - Connection acquired
+2026-10-07 12:29:41.582 | DEBUG    | polisyos.common.logger:_call:120 - Connection released to pool
+2026-10-07 12:29:41.582 | WARNING  | polisyos.common.logger:_call:120 - Error closing connection
+2026-10-07 12:29:41.582 | INFO     | polisyos.common.logger:_call:120 - Connection pool closed
+2026-10-07 12:29:41.582 | WARNING  | polisyos.common.logger:_call:120 - Error closing connection
+2026-10-07 12:29:41.582 | INFO     | polisyos.common.logger:_call:120 - Connection pool closed
+2026-10-07 12:29:41.582 | INFO     | polisyos.common.logger:_call:120 - Connection pool closed
+2026-10-07 12:29:41.582 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-07 12:29:41.583 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-07 12:29:41.583 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-07 12:29:41.583 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-07 12:29:41.583 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-07 12:29:41.585 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-07 12:29:41.587 | INFO     | polisyos.common.logger:_call:120 - Connection pool initialized
+2026-10-07 12:29:41.587 | DEBUG    | polisyos.common.logger:_call:120 - New connection created
+2026-10-07 12:29:41.587 | DEBUG    | polisyos.common.logger:_call:120 - Connection acquired
+2026-10-07 12:29:41.587 | DEBUG    | polisyos.common.logger:_call:120 - Connection released to pool
+2026-10-07 12:29:41.587 | WARNING  | polisyos.common.logger:_call:120 - Error closing connection
+2026-10-07 12:29:41.587 | INFO     | polisyos.common.logger:_call:120 - Connection pool closed
+2026-10-07 12:29:41.587 | INFO     | polisyos.common.logger:_call:120 - Connection pool closed
+2026-10-07 12:29:41.588 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-07 12:29:41.588 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-07 12:29:41.588 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-07 12:29:41.588 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-07 12:29:41.588 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-07 12:29:41.590 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-07 12:29:41.591 | INFO     | polisyos.common.logger:_call:120 - Connection pool initialized
+2026-10-07 12:29:41.591 | DEBUG    | polisyos.common.logger:_call:120 - New connection created
+2026-10-07 12:29:41.592 | DEBUG    | polisyos.common.logger:_call:120 - Connection acquired
+2026-10-07 12:29:41.625 | DEBUG    | polisyos.common.logger:_call:120 - Connection released to pool
+2026-10-07 12:29:41.625 | INFO     | polisyos.common.logger:_call:120 - Connection pool closed
+2026-10-07 12:29:41.639 | INFO     | polisyos.common.logger:_call:120 - Connection pool initialized
+2026-10-07 12:29:41.639 | DEBUG    | polisyos.common.logger:_call:120 - New connection created
+2026-10-07 12:29:41.639 | DEBUG    | polisyos.common.logger:_call:120 - Connection acquired
+2026-10-07 12:29:41.641 | DEBUG    | polisyos.common.logger:_call:120 - Connection released to pool
+2026-10-07 12:29:41.641 | DEBUG    | polisyos.common.logger:_call:120 - Connection acquired
+2026-10-07 12:29:41.743 | DEBUG    | polisyos.common.logger:_call:120 - Connection released to pool
+2026-10-07 12:29:41.743 | INFO     | polisyos.common.logger:_call:120 - Connection pool closed

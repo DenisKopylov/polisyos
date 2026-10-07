@@ -1,0 +1,11 @@
+2026-10-07 12:33:51.180 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-07 12:33:51.180 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-07 12:33:51.180 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-07 12:33:51.181 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-07 12:33:51.181 | INFO     | polisyos.common.logger:_call:120 - Contract registered
+2026-10-07 12:33:51.183 | INFO     | polisyos.common.logger:_call:120 - Registered connector
+2026-10-07 12:33:51.183 | INFO     | polisyos.common.logger:_call:120 - Connection pool initialized
+2026-10-07 12:33:51.183 | DEBUG    | polisyos.common.logger:_call:120 - New connection created
+2026-10-07 12:33:51.183 | DEBUG    | polisyos.common.logger:_call:120 - Connection acquired
+2026-10-07 12:33:51.185 | DEBUG    | polisyos.common.logger:_call:120 - Connection released to pool
+2026-10-07 12:33:51.186 | INFO     | polisyos.common.logger:_call:120 - Connection pool closed

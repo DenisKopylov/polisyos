@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/venv-base/bin/python",
+    "-I",
+    "-B",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/profile-probe.py"
+  ],
+  "cwd": "/private/tmp",
+  "output_dir": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/profile-probe-run",
+  "record_env": [
+    "PYTHONPATH",
+    "PYTHONHOME",
+    "VIRTUAL_ENV",
+    "UV_PROJECT_ENVIRONMENT",
+    "UV_CACHE_DIR"
+  ],
+  "step": "installed-base-dependency-profile-and-jsonschema-origin",
+  "timeout_seconds": 30,
+  "unset_env": [
+    "PYTHONPATH",
+    "PYTHONHOME",
+    "VIRTUAL_ENV",
+    "UV_PROJECT_ENVIRONMENT",
+    "UV_CACHE_DIR"
+  ]
+}

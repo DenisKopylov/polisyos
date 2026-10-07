@@ -1,0 +1,713 @@
+{
+  "schema": "policyos.c3.receipt-evidence-index.v1",
+  "candidate_commit": "0979fae4edaea61f3ae602241423d5cd96b091de",
+  "candidate_tree": "0ae7f83ad99321e0b83343a3eb3e02f7454d8bc4",
+  "composition_commit": "c694daaf888657ec261988fa2066df792fd77110",
+  "composition_tree": "bf1e231b53c1f68f7fce176792ea0011636a83f8",
+  "entries": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/README.md",
+      "bytes": 3560,
+      "sha256": "ef8198b78b0ca9a8d9ead00d3d7ddb76e5424c124f1dd237ba792cca17347cd9",
+      "source": "authored in this handoff receipt",
+      "role": "compact evidence guide"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/.gitattributes",
+      "bytes": 13,
+      "sha256": "06ba2d5db36c4f5334da5d4234d3a5034b1d926b17d2c517cd134ce4d9ce5235",
+      "source": "authored in this handoff receipt",
+      "role": "preserve all evidence bytes across Git checkout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/admission-removal/command.json",
+      "bytes": 2842,
+      "sha256": "e6b8113f07d01b778f458e6804e6de41322b347f8bf4709267e3d6d7c4ed5a0c",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/removal-final-20261007T092326Z-742cc0dd/command.json",
+      "role": "complete marker-preserving runtime-property removal control"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/admission-removal/exit-status.txt",
+      "bytes": 2,
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/removal-final-20261007T092326Z-742cc0dd/exit-status.txt",
+      "role": "complete marker-preserving runtime-property removal control"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/admission-removal/native.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/removal-final-20261007T092326Z-742cc0dd/native.stderr",
+      "role": "complete marker-preserving runtime-property removal control"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/admission-removal/native.txt",
+      "bytes": 7446,
+      "sha256": "56ca37baf8a749db32f9b8f7feaf14ec802ed48130004663314f0b6cfd59ffc6",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/removal-final-20261007T092326Z-742cc0dd/native.txt",
+      "role": "complete marker-preserving runtime-property removal control"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/admission-removal/native.xml",
+      "bytes": 6053,
+      "sha256": "23125f42c5453becc6969af68bab70ef10f25d39858c6e6efa3cb7e18070b0fd",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/removal-final-20261007T092326Z-742cc0dd/native.xml",
+      "role": "complete marker-preserving runtime-property removal control"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/admission-removal/remove_restored_admission.py",
+      "bytes": 488,
+      "sha256": "e30fdfc09cfa295a457b33ef35272aed1e9bfaf7fd54c4fad04d7f45f015226e",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/removal-final-20261007T092326Z-742cc0dd/remove_restored_admission.py",
+      "role": "complete marker-preserving runtime-property removal control"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/c-oracle-2/command.json",
+      "bytes": 2188,
+      "sha256": "d8da3be742812684ca4a2e38e8f7e30fbb068f759737bb41b957aa474cf69733",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/oracle-final-20261007T092259Z-3ca6d2ee/command.json",
+      "role": "complete C-owned oracle command/result evidence"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/c-oracle-2/exit-status.txt",
+      "bytes": 2,
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/oracle-final-20261007T092259Z-3ca6d2ee/exit-status.txt",
+      "role": "complete C-owned oracle command/result evidence"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/c-oracle-2/native.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/oracle-final-20261007T092259Z-3ca6d2ee/native.stderr",
+      "role": "complete C-owned oracle command/result evidence"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/c-oracle-2/native.txt",
+      "bytes": 1772,
+      "sha256": "6f011a1ee84e0d0b34a25072eb03c2a0484600d2fc29ab0aa7bf32507c5ee656",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/oracle-final-20261007T092259Z-3ca6d2ee/native.txt",
+      "role": "complete C-owned oracle command/result evidence"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/c-oracle-2/native.xml",
+      "bytes": 600,
+      "sha256": "d8b586016d363531ce6c52ae58b72adc64d04d0e3fc4762b6ac49a05e61d73fa",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/oracle-final-20261007T092259Z-3ca6d2ee/native.xml",
+      "role": "complete C-owned oracle command/result evidence"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/composed-16/command.json",
+      "bytes": 4472,
+      "sha256": "c438b6c87fca205d974c934f8757d07f9b2b8006612f2d178444bdbbd38606e5",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/composed-20261007T090758Z-efe6f0d5/command.json",
+      "role": "complete composed-run command/result evidence"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/composed-16/exit-status.txt",
+      "bytes": 2,
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/composed-20261007T090758Z-efe6f0d5/exit-status.txt",
+      "role": "complete composed-run command/result evidence"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/composed-16/import-manifest.json",
+      "bytes": 2026,
+      "sha256": "a4bfdec707b348f6c25a1b50caa98a2fa0494f8f664775534002e6a2f3254e4f",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/composed-20261007T090758Z-efe6f0d5/import-manifest.json",
+      "role": "complete composed-run command/result evidence"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/composed-16/import-manifest.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/composed-20261007T090758Z-efe6f0d5/import-manifest.stderr",
+      "role": "complete composed-run command/result evidence"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/composed-16/import-manifest.stdout",
+      "bytes": 1329,
+      "sha256": "267b5f68e4ab532f61aa1d5d1d0cbc688b02f03cc7dab1a061adc62f83138fa8",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/composed-20261007T090758Z-efe6f0d5/import-manifest.stdout",
+      "role": "complete composed-run command/result evidence"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/composed-16/native.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/composed-20261007T090758Z-efe6f0d5/native.stderr",
+      "role": "complete composed-run command/result evidence"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/composed-16/native.txt",
+      "bytes": 43179,
+      "sha256": "507ed15c57b0aac8b357aceefca06cf765467a22675442fdbd70cead00a1d693",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/composed-20261007T090758Z-efe6f0d5/native.txt",
+      "role": "complete composed-run command/result evidence"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/composed-16/native.xml",
+      "bytes": 11931,
+      "sha256": "41885910d734f9e77fd009dba4bf9371271ed2bd00e872825fbb66af7b0da61c",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/composed-20261007T090758Z-efe6f0d5/native.xml",
+      "role": "complete composed-run command/result evidence"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/tooling/commands.json",
+      "bytes": 1542,
+      "sha256": "0ede2248cc1efc27a8b1292b90dcc59ec830cad6e68ded3d1d9e1a49b24ff844",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/tooling-20261007T092453Z-cd18862b/commands.json",
+      "role": "complete lint/format/diff tooling output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/checks/tooling/output.txt",
+      "bytes": 397,
+      "sha256": "41f13a735cfc775a7fa914c38d5a3966ab750ff504c23741e45dc557bb33c5fc",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/tooling-20261007T092453Z-cd18862b/output.txt",
+      "role": "complete lint/format/diff tooling output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/archive-command/result.json",
+      "bytes": 1244,
+      "sha256": "0901dbfbb1a6e14d93c118e112461c871c9965b6ef63ff54675a202a5dc33c1a",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/archive-command/result.json",
+      "role": "reproduce exact source archive pin captured output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/archive-command/spec.json",
+      "bytes": 629,
+      "sha256": "d14ef2d9c4561ba491e134418cbec48fc63adb539781fe44c1b073c2cec7a4b6",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/archive-command-spec.json",
+      "role": "reproduce exact source archive pin input"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/archive-command/stderr.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/archive-command/stderr.bin",
+      "role": "reproduce exact source archive pin captured output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/archive-command/stdout.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/archive-command/stdout.bin",
+      "role": "reproduce exact source archive pin captured output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/artifact-census-final-command/result.json",
+      "bytes": 1314,
+      "sha256": "7ca42bf00a8e89e911ef04459b7e1a3e2b608469961b6eecbb314171ef2a3397",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/artifact-census-final-command/result.json",
+      "role": "complete wheel/source byte census command output captured output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/artifact-census-final-command/spec.json",
+      "bytes": 681,
+      "sha256": "1531e914ee48cf3a0a61902a2f6afb2f6edd715d03889d54814f05b8bb78780a",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/artifact-census-final-command-spec.json",
+      "role": "complete wheel/source byte census command output input"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/artifact-census-final-command/stderr.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/artifact-census-final-command/stderr.bin",
+      "role": "complete wheel/source byte census command output captured output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/artifact-census-final-command/stdout.bin",
+      "bytes": 12381,
+      "sha256": "902c562fccdd4c4cc1eb2d7d65f9833fb3d5b5a48ec43aea9ad3f044534fc451",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/artifact-census-final-command/stdout.bin",
+      "role": "complete wheel/source byte census command output captured output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/base-sync/result.json",
+      "bytes": 1535,
+      "sha256": "d1423c92287840f029deb2937ba9b29127e944f9f96b35abecaf41e6771386ff",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/base-sync/result.json",
+      "role": "fresh base dependency profile setup captured output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/base-sync/spec.json",
+      "bytes": 1068,
+      "sha256": "8c272f44ba12bdb1239f09d2dba67cf398c6be97febbda4efbe2033561981266",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/base-sync-spec.json",
+      "role": "fresh base dependency profile setup input"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/base-sync/stderr.bin",
+      "bytes": 3220,
+      "sha256": "1bba3154f630c449fbc5d503e7416dd835f940f5a0de0a97b1c0a3dd434e09fa",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/base-sync/stderr.bin",
+      "role": "fresh base dependency profile setup captured output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/base-sync/stdout.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/base-sync/stdout.bin",
+      "role": "fresh base dependency profile setup captured output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/extract-command/result.json",
+      "bytes": 1316,
+      "sha256": "e8b8231b052f2108b45abf35e86c1ca54717ef3ab362de97e189e910d9eedb73",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/extract-command/result.json",
+      "role": "extract exact source archive captured output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/extract-command/spec.json",
+      "bytes": 701,
+      "sha256": "67f3625bab487bf5131784fa618adce8ba1e18f2ba9d829898d946efed2628dd",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/extract-command-spec.json",
+      "role": "extract exact source archive input"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/extract-command/stderr.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/extract-command/stderr.bin",
+      "role": "extract exact source archive captured output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/extract-command/stdout.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/extract-command/stdout.bin",
+      "role": "extract exact source archive captured output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/multiprocess-v2-prepare/result.json",
+      "bytes": 1435,
+      "sha256": "1e3cf631d06f2559993de819840f99f84c651b7481079c792decd45d1ba5ff73",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-prepare/result.json",
+      "role": "fresh-process prepare checkpoint captured output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/multiprocess-v2-prepare/spec.json",
+      "bytes": 867,
+      "sha256": "770f32c83bac5e59700a2b35fd3567d2fcc44e48c63275e39a98d5eddb515a46",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-prepare-spec.json",
+      "role": "fresh-process prepare checkpoint input"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/multiprocess-v2-prepare/stderr.bin",
+      "bytes": 1035,
+      "sha256": "f8273a42822e95b4b1cd59ea04a6f42bfbe3d50e2ef964daddadeff62225ad13",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-prepare/stderr.bin",
+      "role": "fresh-process prepare checkpoint captured output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/multiprocess-v2-prepare/stdout.bin",
+      "bytes": 5661,
+      "sha256": "05230a6a8d9ce2d6dc7d53d2f185b11c06d2e5e6c0dce22ab85323329a57678f",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-prepare/stdout.bin",
+      "role": "fresh-process prepare checkpoint captured output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/multiprocess-v2-reject/result.json",
+      "bytes": 1431,
+      "sha256": "ba58a5d126ca5a7834e695c2dc0f715b0e70d2b3bb179becb535ddec60b1aee7",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-reject/result.json",
+      "role": "fresh-process lower-cap refusal captured output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/multiprocess-v2-reject/spec.json",
+      "bytes": 864,
+      "sha256": "f3d488111a8e769fd116a04e5bc55cb48f2a6214800227196b638933f83ba309",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-reject-spec.json",
+      "role": "fresh-process lower-cap refusal input"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/multiprocess-v2-reject/stderr.bin",
+      "bytes": 1035,
+      "sha256": "b59295f08cf306ac8a8e65d83915b5999334e61c14305f2aee54f072953b995e",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-reject/stderr.bin",
+      "role": "fresh-process lower-cap refusal captured output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/multiprocess-v2-reject/stdout.bin",
+      "bytes": 5333,
+      "sha256": "a9f897cf9f802127d3d4b8096d1da1d9e8a742c15d863428390acf3f2a8c135b",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-reject/stdout.bin",
+      "role": "fresh-process lower-cap refusal captured output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/multiprocess-v2-replay/result.json",
+      "bytes": 1431,
+      "sha256": "cf397396c5475ddc3082561d4e62c4fe1c6554689e0c2d0c4f0c2c14651de219",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-replay/result.json",
+      "role": "fresh-process no-output replay observation captured output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/multiprocess-v2-replay/spec.json",
+      "bytes": 864,
+      "sha256": "cb2cb1fedc06927171707f4ba7b8519337961082ab0ba03eab02abd0758f1e0d",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-replay-spec.json",
+      "role": "fresh-process no-output replay observation input"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/multiprocess-v2-replay/stderr.bin",
+      "bytes": 1227,
+      "sha256": "13c51346e847c8b1702e9d6ab8a9181308ed93397a8ddf1f23297cccb8a2cac8",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-replay/stderr.bin",
+      "role": "fresh-process no-output replay observation captured output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/multiprocess-v2-replay/stdout.bin",
+      "bytes": 6033,
+      "sha256": "8129c0e0021430a8e5eebd7c6e1a998459480e21d17cfae83abefbeadc03b4fa",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-replay/stdout.bin",
+      "role": "fresh-process no-output replay observation captured output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/multiprocess-v2-resume/result.json",
+      "bytes": 1431,
+      "sha256": "92d3b617820fff9559a75c32cdb2798542c9caca70932ab0024f29dbe1dda427",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-resume/result.json",
+      "role": "fresh-process compatible recovery captured output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/multiprocess-v2-resume/spec.json",
+      "bytes": 864,
+      "sha256": "00aa3e5df87d19989147eae44304f88559095aeb8f38bb3aa60c56076f513fdb",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-resume-spec.json",
+      "role": "fresh-process compatible recovery input"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/multiprocess-v2-resume/stderr.bin",
+      "bytes": 1227,
+      "sha256": "42eceebd174fa1f0555869768db2d179262a9acf8a821b93b52967dd3b22352b",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-resume/stderr.bin",
+      "role": "fresh-process compatible recovery captured output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/multiprocess-v2-resume/stdout.bin",
+      "bytes": 6044,
+      "sha256": "78987a24bcf23357e07e00c864e1ba88f66a538d47c5b937fd72aefaef3f4ab9",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-resume/stdout.bin",
+      "role": "fresh-process compatible recovery captured output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/profile-probe-run/result.json",
+      "bytes": 1413,
+      "sha256": "cfb9682e9996217d9d841e8f1f685fe2d1e57a83c775f2831cb5bdc972b1adce",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/profile-probe-run/result.json",
+      "role": "installed module/profile probe command output captured output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/profile-probe-run/spec.json",
+      "bytes": 851,
+      "sha256": "c3a752c4a866eac7089863542114f1489eb36fb9fc3d21515a09bc37571b71d9",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/profile-probe-run-spec.json",
+      "role": "installed module/profile probe command output input"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/profile-probe-run/stderr.bin",
+      "bytes": 468,
+      "sha256": "eaa1b30e14190cb90d73ab7f49537b0b672e1c40ba65d922ac880b69731ac963",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/profile-probe-run/stderr.bin",
+      "role": "installed module/profile probe command output captured output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/profile-probe-run/stdout.bin",
+      "bytes": 15153,
+      "sha256": "45921a865b43b527e11538f54242a99b06f3e4ba4e28f605ce9c73b4f8eeba8e",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/profile-probe-run/stdout.bin",
+      "role": "installed module/profile probe command output captured output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/stream-consumer-run/result.json",
+      "bytes": 1420,
+      "sha256": "e5b3ad207f535caf845aa26054bcf31abfcc9c0ef5118248e2c7c3d76d5e4dda",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/stream-consumer-run/result.json",
+      "role": "installed root07 stream consumer command output captured output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/stream-consumer-run/spec.json",
+      "bytes": 856,
+      "sha256": "b406e6984d8b39e2e11fbe39bf1958650e694120a15dde83638292297350d5a7",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/stream-consumer-run-spec.json",
+      "role": "installed root07 stream consumer command output input"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/stream-consumer-run/stderr.bin",
+      "bytes": 4355,
+      "sha256": "3c00cd64dbf8cad7dfed17200371eac698d32fe20313d99d55f759b33aafb2bf",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/stream-consumer-run/stderr.bin",
+      "role": "installed root07 stream consumer command output captured output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/stream-consumer-run/stdout.bin",
+      "bytes": 6797,
+      "sha256": "efff43ff57231835b3d7f393bf416a1a95ae441cf74845dd97dfec1da5643543",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/stream-consumer-run/stdout.bin",
+      "role": "installed root07 stream consumer command output captured output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/wheel-build/result.json",
+      "bytes": 1634,
+      "sha256": "8837fea3e8e6a5ea2d3070d59eec0ff5e519d503f4e8a7d257b89533ea1e88d6",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/wheel-build/result.json",
+      "role": "canonical offline wheel build captured output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/wheel-build/spec.json",
+      "bytes": 1161,
+      "sha256": "8a4ac5c6a0c8b45306b0ae566e60f0d6ad11af16b25464b9a7568ef016757399",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/wheel-build-spec.json",
+      "role": "canonical offline wheel build input"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/wheel-build/stderr.bin",
+      "bytes": 79,
+      "sha256": "0c2ae993acfc1dcaf5029258f6822187cc478cc4294615afcb70ba36bdfdb6f5",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/wheel-build/stderr.bin",
+      "role": "canonical offline wheel build captured output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/wheel-build/stdout.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/wheel-build/stdout.bin",
+      "role": "canonical offline wheel build captured output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/wheel-install/result.json",
+      "bytes": 1526,
+      "sha256": "7e34b9466c6bcc142caba24451ce8f0514ebc198a06ce9c36d25e3af4ae8ecd1",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/wheel-install/result.json",
+      "role": "normal resolver wheel install captured output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/wheel-install/spec.json",
+      "bytes": 1050,
+      "sha256": "933f4f877db95a70392aeef832d00c9a937d6d14d2b282de5dc0e3b5887daa27",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/wheel-install-spec.json",
+      "role": "normal resolver wheel install input"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/wheel-install/stderr.bin",
+      "bytes": 446,
+      "sha256": "fd396b10ef07e11d425a313bcfc5dd9dd14aed6bbe51c7c56496bb0a36efdb57",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/wheel-install/stderr.bin",
+      "role": "normal resolver wheel install captured output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/commands/wheel-install/stdout.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/wheel-install/stdout.bin",
+      "role": "normal resolver wheel install captured output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/final-receipt.json",
+      "bytes": 41536,
+      "sha256": "9c08a48b58483c85426b59f5f42ce888d501586d8034719d4177d0a6c394bc3d",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/final-receipt.json",
+      "role": "complete installed-package audit packet"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/fixtures/actual-task-cancel.jsonl",
+      "bytes": 36,
+      "sha256": "b6bd10495126fe51ebd3986f22c9de07b54050b183216cee904cf94f7469efa3",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/stream-fixtures/actual-task-cancel.jsonl",
+      "role": "installed EventStream input fixture"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/fixtures/cleanup-recovery.jsonl",
+      "bytes": 36,
+      "sha256": "b6bd10495126fe51ebd3986f22c9de07b54050b183216cee904cf94f7469efa3",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/stream-fixtures/cleanup-recovery.jsonl",
+      "role": "installed EventStream input fixture"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/fixtures/frontier-crash-after-commit.jsonl",
+      "bytes": 165,
+      "sha256": "fe513c0444b11d2521ea98f9f730a7277e149b2361d6160d5c228fac029e6425",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/stream-fixtures/frontier-crash-after-commit.jsonl",
+      "role": "installed EventStream input fixture"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/probes/artifact-census-final.py",
+      "bytes": 3070,
+      "sha256": "d9bc26066218c114582366e5ce7ce389f216558291d9dc2120ee0b0b8075d6a6",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/artifact-census-final.py",
+      "role": "exact installed audit probe/tool source"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/probes/multiprocess-probe-v2.py",
+      "bytes": 21628,
+      "sha256": "2322af029ab8a3bac2ee692a486d093b7b8a7e3e249661980e13abafeaba32c9",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-probe-v2.py",
+      "role": "exact installed audit probe/tool source"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/probes/profile-probe.py",
+      "bytes": 1297,
+      "sha256": "4620456ec4abed38b2b2d6a65cc13de0330c70d8c52b1ecf4c19642186788088",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/profile-probe.py",
+      "role": "exact installed audit probe/tool source"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/probes/stream-consumer-probe.py",
+      "bytes": 16214,
+      "sha256": "1a41e2c4c5b96fcf87c586b861773d2abf764151ff50a5f481251c3ead702def",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/stream-consumer-probe.py",
+      "role": "exact installed audit probe/tool source"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/review/hook-nonreceipt.json",
+      "bytes": 656,
+      "sha256": "f5d767fbeefd692db2e415fa3da7d1794ac44dc0a7f1d7672472c47755fde2cb",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-C3/raw/composition/hook-nonreceipt.json",
+      "role": "Lefthook unavailable; UNRUN nonreceipt"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/review/independent-composition-and-test-delta.json",
+      "bytes": 5395,
+      "sha256": "2e31f652e2ab04d64f10e8fd54125f34f1c95943c34dae051808cd719ded045f",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-C3/raw/composition/independent-review/review.json",
+      "role": "independent read-only review"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/review/independent-composition-and-test-delta.md",
+      "bytes": 5370,
+      "sha256": "339d9b0669da04e8a3f4c3465358c4c8d5e521f5f05b95f5943bf3c1051c0c73",
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-C3/raw/composition/independent-review/review.md",
+      "role": "independent read-only review"
+    }
+  ],
+  "excluded_ignored_artifacts": [
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/source.tar",
+      "bytes": 576071680,
+      "sha256": "d5acc9ec57e55452099869a1275c5afc1f9fc2331d726c802e3644b061755bc8",
+      "reason": "exact Git archive, reproducible from pinned c694; too large to store in receipt"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/dist/policy_engine-0.1.0-py3-none-any.whl",
+      "bytes": 15120393,
+      "sha256": "d964e236daf429924ebbd7dc5b68208fc3e8aaad5ca9f04d94834a6709f3f3e1",
+      "reason": "binary distribution; full command packet and installed outputs are preserved"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/artifact-census-final.json",
+      "bytes": 1435616,
+      "sha256": "e6cc544f95b945e9f0076d0fb0a398e75ccf162d745933a61a7d556d65c59a97",
+      "reason": "large derived wheel/source map; complete gate stdout and source script are preserved"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/venv-base",
+      "measured_human": "part of 1.9G scratch at measurement",
+      "reason": "isolated environment; reconstructable from exact archive lock and command specs"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-C3/raw/composition/staged-full-paths.txt",
+      "sha256": "05530730c9151be7539dc043628b19768bf74ad6c8305831bad8cd5f13c21714",
+      "reason": "large derived complete path inventory cited by independent review"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-C3/raw/composition/staged-source-test-diff.txt",
+      "sha256": "e80bd9bf63f05003c2addf32fd6261c73de6fc30d82c74999c122a07a2e3be1b",
+      "reason": "large derived source/test comparison cited by independent review"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/net-ing-final-review-map.json",
+      "bytes": 8766,
+      "sha256": "486a24818a438920ca547a15f090775f78149e6f45c7ea890b11f29c2f3a8b66",
+      "reason": "author-generated synthesis map; not independent review"
+    }
+  ],
+  "source_and_gate_refs": {
+    "governance_docs": {
+      "root_agents": {
+        "path": "AGENTS.md",
+        "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob": "94173d77ab34173f12883ee6575db4a461f6df98",
+        "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50",
+        "bytes": 22656
+      },
+      "contributing": {
+        "path": "policy-engine/CONTRIBUTING.md",
+        "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob": "ac70f96fa6a0c0bd6b810e10f33b409dea2a78bf",
+        "sha256": "1c9ea84e5fa0d8f05517287523d47d71128742ad02a5d20ce326163d21754783",
+        "bytes": 10553
+      },
+      "failure_register": {
+        "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+        "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob": "7f4cc9ab9541a44c26e4648a2c08326e53743492",
+        "sha256": "64f9fa40453980d9128443ee34a4bf3298b71c157a5ebcc3bd6cb786abeb090a",
+        "bytes": 61268
+      },
+      "execution_handoff_protocol": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md",
+        "commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+        "git_blob": "b9f1a717049d9e30f68bf291e3f8321013abf83e",
+        "sha256": "8519f95eb0ff2ec2c64caa4497eb58b957fe7cd47a0a6955bad98a2c20795d3b",
+        "bytes": 20260
+      }
+    },
+    "C_adjudication_and_prior_evidence": {
+      "closure_decisions_C": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/C.md",
+        "commit": "c694daaf888657ec261988fa2066df792fd77110",
+        "git_blob": "a59c77310081e620a12113c9fb16a157a6a7ce5c",
+        "sha256": "83c987d9a26807f4e5947677b384643b505b83b510f58add5053f0dbb3399eca",
+        "bytes": 96423
+      },
+      "C54_final_adjudication": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-final-20261006-v10.json",
+        "commit": "c694daaf888657ec261988fa2066df792fd77110",
+        "git_blob": "61e1abe90ae5f81e37077e2dc8e92f7e4de0cb76",
+        "sha256": "38db6cac4195f210425502bd4c7fdf2884ccdb5ae42ef87170d17020a6358dcc",
+        "bytes": 322414
+      },
+      "prior_ing_streaming_handoff": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/ing-streaming-c2.json",
+        "commit": "c694daaf888657ec261988fa2066df792fd77110",
+        "git_blob": "02dd791e0679ea57e739c7a850853f3c3ac5f8e9",
+        "sha256": "82eae00e0d3a3615a0adef5696526838ed4ea69f5f4ca8b1d4de76e7a466a5a0",
+        "bytes": 42557
+      }
+    },
+    "source_and_test": {
+      "C_streaming_implementation": {
+        "path": "policy-engine/src/polisyos/fabric/data_plane/streaming.py",
+        "commit": "c694daaf888657ec261988fa2066df792fd77110",
+        "git_blob": "80af60d90e2eb6aeed0d335c4dbe5d80c8c24c7c",
+        "sha256": "6137d75c6cf07c97077546da0ef6b60712090ec66839eb8dc9b9fee8524dd119",
+        "bytes": 119041
+      },
+      "C_test_delta": {
+        "path": "policy-engine/tests/unit/fabric/data_plane/test_net_ing_current_frontier.py",
+        "commit": "0979fae4edaea61f3ae602241423d5cd96b091de",
+        "git_blob": "3b3dea7cbb99b28cece5ba01e9da52bad6c6ded1",
+        "sha256": "b99737efb81cc5c332f125ae0b04261940cb8a3768fa213c1d7e828e3af9b894",
+        "bytes": 16856
+      }
+    },
+    "composition": {
+      "commit": "c694daaf888657ec261988fa2066df792fd77110",
+      "tree": "bf1e231b53c1f68f7fce176792ea0011636a83f8",
+      "parents": [
+        "07bbb61ffa6d53709942bcda87c37daef1a04651",
+        "121fcf450757086ffcc506dabca33fbe28dcd661"
+      ],
+      "independent_path_union_count": 4488,
+      "path_sets_disjoint": true,
+      "review": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/review/independent-composition-and-test-delta.md",
+        "sha256": "339d9b0669da04e8a3f4c3465358c4c8d5e521f5f05b95f5943bf3c1051c0c73"
+      }
+    },
+    "installed_packet": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/net-ing-c3/installed/final-receipt.json",
+      "sha256": "9c08a48b58483c85426b59f5f42ce888d501586d8034719d4177d0a6c394bc3d"
+    }
+  }
+}

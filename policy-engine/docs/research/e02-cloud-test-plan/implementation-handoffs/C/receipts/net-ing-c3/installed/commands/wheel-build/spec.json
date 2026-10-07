@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "/opt/homebrew/bin/uv",
+    "build",
+    "--offline",
+    "--python",
+    "/opt/homebrew/bin/python3.14",
+    "--wheel",
+    "--out-dir",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/dist",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/source/policy-engine"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf",
+  "output_dir": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/wheel-build",
+  "record_env": [
+    "UV_CACHE_DIR",
+    "UV_OFFLINE",
+    "PYTHONPATH",
+    "VIRTUAL_ENV",
+    "UV_PROJECT_ENVIRONMENT"
+  ],
+  "set_env": {
+    "UV_CACHE_DIR": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/_cache/uv",
+    "UV_OFFLINE": "1"
+  },
+  "step": "canonical-offline-wheel-build-from-exact-c694-git-archive",
+  "unset_env": [
+    "PYTHONPATH",
+    "VIRTUAL_ENV",
+    "UV_PROJECT_ENVIRONMENT"
+  ]
+}

@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="16" time="2.495" timestamp="2026-10-07T12:08:04.724374+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.fabric.data_plane.test_pool_stream_budget_oracle" name="test_restored_frontier_above_new_cap_refuses_before_consumer_effects" time="0.110"><failure message="assert ('[[&quot;_message...,&quot;event-2&quot;]]') == ('_message_id...e_id:event-2')&#10;  &#10;  At index 0 diff: '[[&quot;_message_id&quot;,&quot;event-1&quot;]]' != '_message_id:event-1'&#10;  &#10;  Full diff:&#10;    (&#10;  -     '_message_id:event-1',&#10;  ?                 ^...&#10;  &#10;  ...Full output truncated (7 lines hidden), use '-vv' to show">tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/composed-20261007T090758Z-efe6f0d5/pytest-basetemp/test_restored_frontier_above_n0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x1125556e0&gt;
+
+    @pytest.mark.asyncio
+    async def test_restored_frontier_above_new_cap_refuses_before_consumer_effects(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -&gt; None:
+&gt;       registry, store, checkpoint = await _pending_checkpoint(tmp_path, monkeypatch)
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py:115: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/composed-20261007T090758Z-efe6f0d5/pytest-basetemp/test_restored_frontier_above_n0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x1125556e0&gt;
+
+    async def _pending_checkpoint(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+        source = tmp_path / "events.jsonl"
+        source.write_text(
+            "".join(
+                json.dumps(
+                    {
+                        "_message_id": f"event-{value}",
+                        "value": value,
+                        "event_time": f"2024-01-01T00:00:0{second}+00:00",
+                    }
+                )
+                + "\n"
+                for value, second in ((1, 0), (2, 1), (3, 5))
+            ),
+            encoding="utf-8",
+        )
+        ConnectorRegistry.reset_instance()
+        registry = ConnectorRegistry.get_instance()
+        registry.set_default_config(
+            "stream.jsonl",
+            ConnectionConfig(url=source.as_uri(), headers={"X-Stream-ChunkSize": "2"}),
+        )
+        store = FileSystemCAS(tmp_path / "cas")
+        cursor = CursorStore(store)
+        poll = streaming.StreamingSourceSession.poll
+        polls = 0
+    
+        async def stop_after_checkpoint(session):
+            nonlocal polls
+            if polls == 1:
+                raise RuntimeError("oracle stop after actual two-row checkpoint")
+            chunk = await poll(session)
+            if chunk is not None:
+                polls += 1
+            return chunk
+    
+        monkeypatch.setattr(streaming.StreamingSourceSession, "poll", stop_after_checkpoint)
+        with pytest.raises(RuntimeError, match="actual two-row checkpoint"):
+            await streaming.process_stream_dataset(
+                connector_id="stream.jsonl",
+                dataset_id="budget-oracle",
+                store=store,
+                cursor_store=cursor,
+                sanitize_rows=_rows,
+                runtime_options=_options(3),
+                registry=registry,
+            )
+        monkeypatch.setattr(streaming.StreamingSourceSession, "poll", poll)
+        checkpoint = cursor.find_latest_stream_checkpoint("stream.jsonl", "budget-oracle")
+        assert checkpoint is not None
+        accumulator = streaming.StreamWindowAccumulator(_options(3).window_policy)
+        streaming._restore_stream_operator_state(
+            checkpoint.metadata["operator_state"],
+            accumulator=accumulator,
+            ordering_state=streaming._StreamOrderingState(),
+        )
+        assert accumulator.buffered_rows() == 2
+&gt;       assert checkpoint.dedupe_keys == ("_message_id:event-1", "_message_id:event-2")
+E       assert ('[["_message...,"event-2"]]') == ('_message_id...e_id:event-2')
+E         
+E         At index 0 diff: '[["_message_id","event-1"]]' != '_message_id:event-1'
+E         
+E         Full diff:
+E           (
+E         -     '_message_id:event-1',
+E         ?                 ^...
+E         
+E         ...Full output truncated (7 lines hidden), use '-vv' to show
+
+tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py:96: AssertionError</failure></testcase><testcase classname="tests.unit.fabric.data_plane.test_pool_stream_budget_oracle" name="test_admitted_recovery_emits_two_sessions_once_with_original_lineage" time="0.109"><failure message="assert ('[[&quot;_message...,&quot;event-2&quot;]]') == ('_message_id...e_id:event-2')&#10;  &#10;  At index 0 diff: '[[&quot;_message_id&quot;,&quot;event-1&quot;]]' != '_message_id:event-1'&#10;  &#10;  Full diff:&#10;    (&#10;  -     '_message_id:event-1',&#10;  ?                 ^...&#10;  &#10;  ...Full output truncated (7 lines hidden), use '-vv' to show">tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/composed-20261007T090758Z-efe6f0d5/pytest-basetemp/test_admitted_recovery_emits_t0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x11269c710&gt;
+
+    @pytest.mark.asyncio
+    async def test_admitted_recovery_emits_two_sessions_once_with_original_lineage(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -&gt; None:
+&gt;       registry, store, _ = await _pending_checkpoint(tmp_path, monkeypatch)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py:182: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/composed-20261007T090758Z-efe6f0d5/pytest-basetemp/test_admitted_recovery_emits_t0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x11269c710&gt;
+
+    async def _pending_checkpoint(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+        source = tmp_path / "events.jsonl"
+        source.write_text(
+            "".join(
+                json.dumps(
+                    {
+                        "_message_id": f"event-{value}",
+                        "value": value,
+                        "event_time": f"2024-01-01T00:00:0{second}+00:00",
+                    }
+                )
+                + "\n"
+                for value, second in ((1, 0), (2, 1), (3, 5))
+            ),
+            encoding="utf-8",
+        )
+        ConnectorRegistry.reset_instance()
+        registry = ConnectorRegistry.get_instance()
+        registry.set_default_config(
+            "stream.jsonl",
+            ConnectionConfig(url=source.as_uri(), headers={"X-Stream-ChunkSize": "2"}),
+        )
+        store = FileSystemCAS(tmp_path / "cas")
+        cursor = CursorStore(store)
+        poll = streaming.StreamingSourceSession.poll
+        polls = 0
+    
+        async def stop_after_checkpoint(session):
+            nonlocal polls
+            if polls == 1:
+                raise RuntimeError("oracle stop after actual two-row checkpoint")
+            chunk = await poll(session)
+            if chunk is not None:
+                polls += 1
+            return chunk
+    
+        monkeypatch.setattr(streaming.StreamingSourceSession, "poll", stop_after_checkpoint)
+        with pytest.raises(RuntimeError, match="actual two-row checkpoint"):
+            await streaming.process_stream_dataset(
+                connector_id="stream.jsonl",
+                dataset_id="budget-oracle",
+                store=store,
+                cursor_store=cursor,
+                sanitize_rows=_rows,
+                runtime_options=_options(3),
+                registry=registry,
+            )
+        monkeypatch.setattr(streaming.StreamingSourceSession, "poll", poll)
+        checkpoint = cursor.find_latest_stream_checkpoint("stream.jsonl", "budget-oracle")
+        assert checkpoint is not None
+        accumulator = streaming.StreamWindowAccumulator(_options(3).window_policy)
+        streaming._restore_stream_operator_state(
+            checkpoint.metadata["operator_state"],
+            accumulator=accumulator,
+            ordering_state=streaming._StreamOrderingState(),
+        )
+        assert accumulator.buffered_rows() == 2
+&gt;       assert checkpoint.dedupe_keys == ("_message_id:event-1", "_message_id:event-2")
+E       assert ('[["_message...,"event-2"]]') == ('_message_id...e_id:event-2')
+E         
+E         At index 0 diff: '[["_message_id","event-1"]]' != '_message_id:event-1'
+E         
+E         Full diff:
+E           (
+E         -     '_message_id:event-1',
+E         ?                 ^...
+E         
+E         ...Full output truncated (7 lines hidden), use '-vv' to show
+
+tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py:96: AssertionError</failure></testcase><testcase classname="tests.unit.fabric.data_plane.test_stream_pool_cleanup_oracle" name="test_process_file_stream_cleanup_ownership[healthy]" time="0.087" /><testcase classname="tests.unit.fabric.data_plane.test_stream_pool_cleanup_oracle" name="test_process_file_stream_cleanup_ownership[subscribe-failure]" time="0.007" /><testcase classname="tests.unit.fabric.data_plane.test_stream_pool_cleanup_oracle" name="test_process_file_stream_cleanup_ownership[checkpoint-read-failure]" time="0.007" /><testcase classname="tests.unit.fabric.data_plane.test_stream_pool_cleanup_oracle" name="test_process_file_stream_cleanup_ownership[rewind-failure]" time="0.015" /><testcase classname="tests.unit.fabric.data_plane.test_stream_pool_cleanup_oracle" name="test_process_file_stream_cleanup_ownership[caller-cancel]" time="0.008" /><testcase classname="tests.unit.fabric.data_plane.test_stream_pool_cleanup_oracle" name="test_process_file_stream_cleanup_ownership[startup-owner-retry]" time="0.006" /><testcase classname="tests.unit.fabric.data_plane.test_stream_pool_cleanup_oracle" name="test_process_file_stream_cleanup_ownership[process-disconnect-failure]" time="0.089" /><testcase classname="tests.unit.fabric.data_plane.test_stream_pool_cleanup_oracle" name="test_direct_file_session_second_close_finishes_pending_cleanup" time="0.001" /><testcase classname="tests.unit.fabric.data_plane.test_stream_cleanup_recovery" name="test_process_failure_keeps_real_private_pool_reachable_for_same_handle_retry[RuntimeError-primary sanitizer failure]" time="0.014" /><testcase classname="tests.unit.fabric.data_plane.test_stream_cleanup_recovery" name="test_process_failure_keeps_real_private_pool_reachable_for_same_handle_retry[CancelledError-primary stream cancellation]" time="0.007" /><testcase classname="tests.unit.fabric.data_plane.test_stream_cleanup_recovery" name="test_successful_stream_surfaces_final_cleanup_failure_and_registry_retries" time="0.098" /><testcase classname="tests.unit.fabric.data_plane.test_stream_cleanup_recovery" name="test_actual_task_cancellation_after_real_source_yield_retains_cleanup_owner" time="0.007" /><testcase classname="tests.unit.fabric.data_plane.test_stream_cleanup_recovery" name="test_frontier_crash_reopen_matches_raw_rows_and_ordered_window_lineage[before_commit]" time="0.052" /><testcase classname="tests.unit.fabric.data_plane.test_stream_cleanup_recovery" name="test_frontier_crash_reopen_matches_raw_rows_and_ordered_window_lineage[after_commit]" time="0.278" /></testsuite></testsuites>

@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "git",
+    "-C",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos",
+    "archive",
+    "--format=tar",
+    "--output",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/source.tar",
+    "c694daaf888657ec261988fa2066df792fd77110"
+  ],
+  "cwd": "/private/tmp",
+  "output_dir": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/archive-command",
+  "record_env": [
+    "PYTHONPATH",
+    "VIRTUAL_ENV"
+  ],
+  "step": "git-archive-exact-c694-commit"
+}

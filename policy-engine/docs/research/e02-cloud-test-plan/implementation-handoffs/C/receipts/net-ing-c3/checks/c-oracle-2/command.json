@@ -1,0 +1,35 @@
+{
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv/bin/python",
+    "-B",
+    "-m",
+    "pytest",
+    "-vv",
+    "-s",
+    "-c",
+    "pytest.ini",
+    "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/oracle-final-20261007T092259Z-3ca6d2ee/pytest-basetemp",
+    "-o",
+    "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/oracle-final-20261007T092259Z-3ca6d2ee/pytest-cache",
+    "--junitxml",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/oracle-final-20261007T092259Z-3ca6d2ee/native.xml",
+    "tests/unit/fabric/data_plane/test_net_ing_current_frontier.py"
+  ],
+  "candidate_commit_before_commit": "c694daaf888657ec261988fa2066df792fd77110",
+  "candidate_tree_before_commit": "bf1e231b53c1f68f7fce176792ea0011636a83f8",
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/policy-engine",
+  "environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/policy-engine/src",
+    "TEMP": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/oracle-final-20261007T092259Z-3ca6d2ee/tmp",
+    "TMP": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/oracle-final-20261007T092259Z-3ca6d2ee/tmp",
+    "TMPDIR": "/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/oracle-final-20261007T092259Z-3ca6d2ee/tmp"
+  },
+  "exit_code": 0,
+  "finished_utc": "2026-10-07T09:23:04.386072+00:00",
+  "started_utc": "2026-10-07T09:22:59.764210+00:00",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout_sha256": "6f011a1ee84e0d0b34a25072eb03c2a0484600d2fc29ab0aa7bf32507c5ee656",
+  "wall_seconds": 4.621847,
+  "xml_sha256": "d8b586016d363531ce6c52ae58b72adc64d04d0e3fc4762b6ac49a05e61d73fa"
+}

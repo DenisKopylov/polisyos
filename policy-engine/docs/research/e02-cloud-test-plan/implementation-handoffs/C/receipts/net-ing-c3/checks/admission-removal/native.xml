@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="1.578" timestamp="2026-10-07T12:23:28.314102+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.fabric.data_plane.test_net_ing_current_frontier" name="test_lower_restored_cap_refuses_before_poll_or_frontier_effects" time="0.119"><failure message="AssertionError: assert ['poll', 'poll'] == []&#10;  &#10;  Left contains 2 more items, first extra item: 'poll'&#10;  &#10;  Full diff:&#10;  - []&#10;  + [&#10;  +     'poll',&#10;  +     'poll',&#10;  + ]">tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/removal-final-20261007T092326Z-742cc0dd/pytest-basetemp/test_lower_restored_cap_refuse0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x10e4a5480&gt;
+
+    @pytest.mark.asyncio
+    async def test_lower_restored_cap_refuses_before_poll_or_frontier_effects(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        """A two-row predecessor cannot resume under a one-row cap or advance state."""
+        (
+            registry,
+            store,
+            _cursors,
+            checkpoint,
+            source_bytes,
+            _expected_rows,
+            _raw_lines,
+        ) = await _prepare_two_row_frontier(tmp_path, monkeypatch)
+        dataset_id = "net-ing-frontier"
+        reopened = FileSystemCAS(store.root)
+        reopened_cursors = CursorStore(reopened)
+        latest_before = reopened_cursors.find_latest_stream_checkpoint(
+            "stream.jsonl",
+            dataset_id,
+        )
+        assert latest_before is not None
+        assert latest_before.model_dump(mode="json") == checkpoint.model_dump(mode="json")
+    
+        pending_refs = tuple(
+            dict.fromkeys(
+                str(ref)
+                for entry in checkpoint.metadata["operator_state"]["accumulator"]["session_rows"]
+                for ref in entry["refs"]
+            )
+        )
+        assert len(pending_refs) == 1
+        predecessor_bytes = {ref: reopened.get_bytes(ref) for ref in pending_refs}
+        predecessor_manifests = {
+            ref: reopened.get_manifest(ref).model_dump(mode="json") for ref in pending_refs
+        }
+        predecessor_artifact_ids = {str(ref) for ref in reopened.iter_artifact_ids()}
+        stream_index_before = _read_optional(reopened_cursors._stream_index_path)
+        cursor_index_before = _read_optional(reopened_cursors._index_path)
+        cursor_before = reopened_cursors.find_latest_cursor("stream.jsonl", dataset_id)
+        assert cursor_before is not None
+    
+        poll_events: list[str] = []
+        flush_events: list[str] = []
+        commit_events: list[str] = []
+        cas_writes: list[str] = []
+        acquisitions: list[tuple[int, str]] = []
+        releases: list[tuple[int, str]] = []
+        real_poll = streaming.StreamingSourceSession.poll
+        real_flush = streaming.StreamWindowAccumulator.flush_with_refs
+        real_commit = streaming._commit_stream_frontier
+        real_acquire = ConnectionPool.acquire_with_connector
+        real_release = ConnectionPool.release
+        real_put_json = reopened.put_json
+        real_put_bytes = reopened.put_bytes
+    
+        async def record_poll(session: streaming.StreamingSourceSession):
+            poll_events.append("poll")
+            return await real_poll(session)
+    
+        def record_flush(accumulator: streaming.StreamWindowAccumulator):
+            flush_events.append("flush")
+            return real_flush(accumulator)
+    
+        async def record_commit(**kwargs: Any):
+            commit_events.append("commit")
+            return await real_commit(**kwargs)
+    
+        async def record_acquire(pool: ConnectionPool[Any]):
+            result = await real_acquire(pool)
+            acquisitions.append((id(pool), result[1].session_id))
+            return result
+    
+        async def record_release(pool: ConnectionPool[Any], handle: Any):
+            result = await real_release(pool, handle)
+            releases.append((id(pool), handle.session_id))
+            return result
+    
+        def record_put_json(*args: Any, **kwargs: Any):
+            cas_writes.append("put_json")
+            return real_put_json(*args, **kwargs)
+    
+        def record_put_bytes(*args: Any, **kwargs: Any):
+            cas_writes.append("put_bytes")
+            return real_put_bytes(*args, **kwargs)
+    
+        monkeypatch.setattr(streaming.StreamingSourceSession, "poll", record_poll)
+        monkeypatch.setattr(streaming.StreamWindowAccumulator, "flush_with_refs", record_flush)
+        monkeypatch.setattr(streaming, "_commit_stream_frontier", record_commit)
+        monkeypatch.setattr(ConnectionPool, "acquire_with_connector", record_acquire)
+        monkeypatch.setattr(ConnectionPool, "release", record_release)
+        monkeypatch.setattr(reopened, "put_json", record_put_json)
+        monkeypatch.setattr(reopened, "put_bytes", record_put_bytes)
+    
+        try:
+            with pytest.raises(streaming.StreamCapacityError) as caught:
+                await streaming.process_stream_dataset(
+                    connector_id="stream.jsonl",
+                    dataset_id=dataset_id,
+                    store=reopened,
+                    cursor_store=reopened_cursors,
+                    sanitize_rows=_clean_rows,
+                    runtime_options=_runtime_options(1),
+                    registry=registry,
+                )
+    
+&gt;           assert poll_events == []
+E           AssertionError: assert ['poll', 'poll'] == []
+E             
+E             Left contains 2 more items, first extra item: 'poll'
+E             
+E             Full diff:
+E             - []
+E             + [
+E             +     'poll',
+E             +     'poll',
+E             + ]
+
+tests/unit/fabric/data_plane/test_net_ing_current_frontier.py:278: AssertionError</failure></testcase></testsuite></testsuites>

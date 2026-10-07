@@ -1,0 +1,5 @@
+{
+  "first_merge_exit": 1,
+  "stderr": "PolicyOS hook: missing binary: /Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/policy-engine/apps/runtime-dashboard/node_modules/.bin/lefthook; run corepack pnpm install --frozen-lockfile in policy-engine.\nNot committing merge; use git commit to complete the merge.",
+  "basis": "Pure verification composition of unchanged committed B supplier/C consumer; do not allow frontend autofixer to rewrite supplier docs/generated evidence. Frontend hooks UNRUN, not PASS. Targeted backend consumer tests run separately. Single command hooksPath=/dev/null override; no persisted hook configuration."
+}

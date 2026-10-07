@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/venv-base/bin/python",
+    "-I",
+    "-B",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-probe-v2.py",
+    "replay"
+  ],
+  "cwd": "/private/tmp",
+  "environment": {
+    "PYTHONHOME": null,
+    "PYTHONPATH": null,
+    "UV_CACHE_DIR": null,
+    "UV_PROJECT_ENVIRONMENT": null,
+    "VIRTUAL_ENV": null
+  },
+  "exit_code": 0,
+  "finished_unix_ns": 1791365641057549000,
+  "finished_utc": "2026-10-07T09:34:01.057553+00:00",
+  "started_unix_ns": 1791365638811850000,
+  "started_utc": "2026-10-07T09:33:58.811853+00:00",
+  "stderr_bytes": 1227,
+  "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-replay/stderr.bin",
+  "stderr_sha256": "13c51346e847c8b1702e9d6ab8a9181308ed93397a8ddf1f23297cccb8a2cac8",
+  "stdout_bytes": 6033,
+  "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/multiprocess-v2-replay/stdout.bin",
+  "stdout_sha256": "8129c0e0021430a8e5eebd7c6e1a998459480e21d17cfae83abefbeadc03b4fa",
+  "step": "installed-c694-process-restart-v2-replay",
+  "timed_out": false,
+  "timeout_error": null,
+  "timeout_seconds": 120
+}

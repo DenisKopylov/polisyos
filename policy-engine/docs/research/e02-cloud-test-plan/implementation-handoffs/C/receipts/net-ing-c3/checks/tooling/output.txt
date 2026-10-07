@@ -1,0 +1,8 @@
+$ /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff check policy-engine/tests/unit/fabric/data_plane/test_net_ing_current_frontier.py
+All checks passed!
+EXIT 0
+$ /Users/deniskopylov/polisyos/policy-engine/.venv/bin/python -m ruff format --check policy-engine/tests/unit/fabric/data_plane/test_net_ing_current_frontier.py
+1 file already formatted
+EXIT 0
+$ git diff --check
+EXIT 0

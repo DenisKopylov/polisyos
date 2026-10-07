@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/venv-base/bin/python",
+    "-I",
+    "-B",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/profile-probe.py"
+  ],
+  "cwd": "/private/tmp",
+  "environment": {
+    "PYTHONHOME": null,
+    "PYTHONPATH": null,
+    "UV_CACHE_DIR": null,
+    "UV_PROJECT_ENVIRONMENT": null,
+    "VIRTUAL_ENV": null
+  },
+  "exit_code": 0,
+  "finished_unix_ns": 1791365511000334000,
+  "finished_utc": "2026-10-07T09:31:51.000338+00:00",
+  "started_unix_ns": 1791365509769313000,
+  "started_utc": "2026-10-07T09:31:49.769315+00:00",
+  "stderr_bytes": 468,
+  "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/profile-probe-run/stderr.bin",
+  "stderr_sha256": "eaa1b30e14190cb90d73ab7f49537b0b672e1c40ba65d922ac880b69731ac963",
+  "stdout_bytes": 15153,
+  "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C3/raw/installed-net-ing/c694daaf/profile-probe-run/stdout.bin",
+  "stdout_sha256": "45921a865b43b527e11538f54242a99b06f3e4ba4e28f605ce9c73b4f8eeba8e",
+  "step": "installed-base-dependency-profile-and-jsonschema-origin",
+  "timed_out": false,
+  "timeout_error": null,
+  "timeout_seconds": 30
+}

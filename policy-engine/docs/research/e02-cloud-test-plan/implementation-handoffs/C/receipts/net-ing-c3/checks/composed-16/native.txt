@@ -1,0 +1,219 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.0, pytest-9.0.2, pluggy-1.6.0 -- /Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv/bin/python
+cachedir: /Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/composed-20261007T090758Z-efe6f0d5/pytest-cache
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/policy-engine/_cache/hypothesis'))
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/policy-engine
+configfile: pytest.ini
+plugins: benchmark-5.2.3, anyio-4.12.0, xdist-3.8.0, jaxtyping-0.3.4, asyncio-1.3.0, hypothesis-6.151.2, langsmith-0.6.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 16 items
+
+tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py::test_restored_frontier_above_new_cap_refuses_before_consumer_effects FAILED
+tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py::test_admitted_recovery_emits_two_sessions_once_with_original_lineage FAILED
+tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[healthy] STREAM_CLEANUP_OBSERVATION {"after_fresh": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["5854d5a8-c6ac-4a8c-9b3c-19ed721cdf83", "2f35fbe2-c9b5-421f-9f97-cda118a77ea7"], "disconnect_calls": ["5854d5a8-c6ac-4a8c-9b3c-19ed721cdf83", "2f35fbe2-c9b5-421f-9f97-cda118a77ea7"], "jsonl_fd_observation": "UNRUN: procfs unavailable", "jsonl_open_fds": null, "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.127, "created_at": "2026-10-07 09:08:06.544663+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "after_registry_retry": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["5854d5a8-c6ac-4a8c-9b3c-19ed721cdf83"], "disconnect_calls": ["5854d5a8-c6ac-4a8c-9b3c-19ed721cdf83"], "jsonl_fd_observation": "UNRUN: procfs unavailable", "jsonl_open_fds": null, "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.127, "created_at": "2026-10-07 09:08:06.544663+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "before_retry": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["5854d5a8-c6ac-4a8c-9b3c-19ed721cdf83"], "disconnect_calls": ["5854d5a8-c6ac-4a8c-9b3c-19ed721cdf83"], "jsonl_fd_observation": "UNRUN: procfs unavailable", "jsonl_open_fds": null, "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.127, "created_at": "2026-10-07 09:08:06.544663+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "during_fresh": {"actual_handles_without_disconnect_confirmation": ["2f35fbe2-c9b5-421f-9f97-cda118a77ea7"], "available_permits": 1, "confirmed_disconnects": ["5854d5a8-c6ac-4a8c-9b3c-19ed721cdf83"], "disconnect_calls": ["5854d5a8-c6ac-4a8c-9b3c-19ed721cdf83"], "jsonl_fd_observation": "UNRUN: procfs unavailable", "jsonl_open_fds": null, "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.127, "created_at": "2026-10-07 09:08:06.544663+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "fresh_real_file_rows": 2, "initial_rows": 2, "observer_final_cleanup": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["5854d5a8-c6ac-4a8c-9b3c-19ed721cdf83", "2f35fbe2-c9b5-421f-9f97-cda118a77ea7"], "disconnect_calls": ["5854d5a8-c6ac-4a8c-9b3c-19ed721cdf83", "2f35fbe2-c9b5-421f-9f97-cda118a77ea7"], "jsonl_fd_observation": "UNRUN: procfs unavailable", "jsonl_open_fds": null, "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.127, "created_at": "2026-10-07 09:08:06.544663+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "primary_exception_is_injected": false, "primary_exception_type": null, "primary_notes": [], "same_pool_acquire": "PoolClosedError", "stage": "healthy"}
+PASSED
+tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[subscribe-failure] STREAM_CLEANUP_OBSERVATION {"after_fresh": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["7aecdfd5-dd07-425c-8677-21949f716e70", "4bd8f43c-242b-4410-ac38-079435a89f2c"], "disconnect_calls": ["7aecdfd5-dd07-425c-8677-21949f716e70", "4bd8f43c-242b-4410-ac38-079435a89f2c"], "jsonl_fd_observation": "UNRUN: procfs unavailable", "jsonl_open_fds": null, "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.133, "created_at": "2026-10-07 09:08:06.632160+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 0}}, "after_registry_retry": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["7aecdfd5-dd07-425c-8677-21949f716e70"], "disconnect_calls": ["7aecdfd5-dd07-425c-8677-21949f716e70"], "jsonl_fd_observation": "UNRUN: procfs unavailable", "jsonl_open_fds": null, "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.133, "created_at": "2026-10-07 09:08:06.632160+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 0}}, "before_retry": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["7aecdfd5-dd07-425c-8677-21949f716e70"], "disconnect_calls": ["7aecdfd5-dd07-425c-8677-21949f716e70"], "jsonl_fd_observation": "UNRUN: procfs unavailable", "jsonl_open_fds": null, "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.133, "created_at": "2026-10-07 09:08:06.632160+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 0}}, "during_fresh": {"actual_handles_without_disconnect_confirmation": ["4bd8f43c-242b-4410-ac38-079435a89f2c"], "available_permits": 1, "confirmed_disconnects": ["7aecdfd5-dd07-425c-8677-21949f716e70"], "disconnect_calls": ["7aecdfd5-dd07-425c-8677-21949f716e70"], "jsonl_fd_observation": "UNRUN: procfs unavailable", "jsonl_open_fds": null, "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.133, "created_at": "2026-10-07 09:08:06.632160+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 0}}, "fresh_real_file_rows": 2, "initial_rows": null, "observer_final_cleanup": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["7aecdfd5-dd07-425c-8677-21949f716e70", "4bd8f43c-242b-4410-ac38-079435a89f2c"], "disconnect_calls": ["7aecdfd5-dd07-425c-8677-21949f716e70", "4bd8f43c-242b-4410-ac38-079435a89f2c"], "jsonl_fd_observation": "UNRUN: procfs unavailable", "jsonl_open_fds": null, "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.133, "created_at": "2026-10-07 09:08:06.632160+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 0}}, "primary_exception_is_injected": true, "primary_exception_type": "ConnectorStageError", "primary_notes": [], "same_pool_acquire": "PoolClosedError", "stage": "subscribe-failure"}
+PASSED
+tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[checkpoint-read-failure] STREAM_CLEANUP_OBSERVATION {"after_fresh": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["644f58ea-93fd-4e0f-a16b-f8eaede0a55d", "a857b0a3-93ba-4008-9df4-ab4b18e483cc"], "disconnect_calls": ["644f58ea-93fd-4e0f-a16b-f8eaede0a55d", "a857b0a3-93ba-4008-9df4-ab4b18e483cc"], "jsonl_fd_observation": "UNRUN: procfs unavailable", "jsonl_open_fds": null, "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.108, "created_at": "2026-10-07 09:08:06.638978+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "after_registry_retry": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["644f58ea-93fd-4e0f-a16b-f8eaede0a55d"], "disconnect_calls": ["644f58ea-93fd-4e0f-a16b-f8eaede0a55d"], "jsonl_fd_observation": "UNRUN: procfs unavailable", "jsonl_open_fds": null, "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.108, "created_at": "2026-10-07 09:08:06.638978+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "before_retry": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["644f58ea-93fd-4e0f-a16b-f8eaede0a55d"], "disconnect_calls": ["644f58ea-93fd-4e0f-a16b-f8eaede0a55d"], "jsonl_fd_observation": "UNRUN: procfs unavailable", "jsonl_open_fds": null, "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.108, "created_at": "2026-10-07 09:08:06.638978+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "during_fresh": {"actual_handles_without_disconnect_confirmation": ["a857b0a3-93ba-4008-9df4-ab4b18e483cc"], "available_permits": 1, "confirmed_disconnects": ["644f58ea-93fd-4e0f-a16b-f8eaede0a55d"], "disconnect_calls": ["644f58ea-93fd-4e0f-a16b-f8eaede0a55d"], "jsonl_fd_observation": "UNRUN: procfs unavailable", "jsonl_open_fds": null, "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.108, "created_at": "2026-10-07 09:08:06.638978+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "fresh_real_file_rows": 2, "initial_rows": null, "observer_final_cleanup": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["644f58ea-93fd-4e0f-a16b-f8eaede0a55d", "a857b0a3-93ba-4008-9df4-ab4b18e483cc"], "disconnect_calls": ["644f58ea-93fd-4e0f-a16b-f8eaede0a55d", "a857b0a3-93ba-4008-9df4-ab4b18e483cc"], "jsonl_fd_observation": "UNRUN: procfs unavailable", "jsonl_open_fds": null, "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.108, "created_at": "2026-10-07 09:08:06.638978+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "primary_exception_is_injected": false, "primary_exception_type": "CursorStoreError", "primary_notes": [], "same_pool_acquire": "PoolClosedError", "stage": "checkpoint-read-failure"}
+PASSED
+tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[rewind-failure] STREAM_CLEANUP_OBSERVATION {"after_fresh": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["a4ae04d4-78aa-4f68-a6cb-87f5e25730ff", "2df8376c-bdab-449d-b656-e488d231e563"], "disconnect_calls": ["a4ae04d4-78aa-4f68-a6cb-87f5e25730ff", "2df8376c-bdab-449d-b656-e488d231e563"], "jsonl_fd_observation": "UNRUN: procfs unavailable", "jsonl_open_fds": null, "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.125, "created_at": "2026-10-07 09:08:06.654101+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 2, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "after_registry_retry": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["a4ae04d4-78aa-4f68-a6cb-87f5e25730ff"], "disconnect_calls": ["a4ae04d4-78aa-4f68-a6cb-87f5e25730ff"], "jsonl_fd_observation": "UNRUN: procfs unavailable", "jsonl_open_fds": null, "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.125, "created_at": "2026-10-07 09:08:06.654101+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 2, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "before_retry": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["a4ae04d4-78aa-4f68-a6cb-87f5e25730ff"], "disconnect_calls": ["a4ae04d4-78aa-4f68-a6cb-87f5e25730ff"], "jsonl_fd_observation": "UNRUN: procfs unavailable", "jsonl_open_fds": null, "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.125, "created_at": "2026-10-07 09:08:06.654101+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 2, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "during_fresh": {"actual_handles_without_disconnect_confirmation": ["2df8376c-bdab-449d-b656-e488d231e563"], "available_permits": 1, "confirmed_disconnects": ["a4ae04d4-78aa-4f68-a6cb-87f5e25730ff"], "disconnect_calls": ["a4ae04d4-78aa-4f68-a6cb-87f5e25730ff"], "jsonl_fd_observation": "UNRUN: procfs unavailable", "jsonl_open_fds": null, "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.125, "created_at": "2026-10-07 09:08:06.654101+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 2, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "fresh_real_file_rows": 2, "initial_rows": null, "observer_final_cleanup": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["a4ae04d4-78aa-4f68-a6cb-87f5e25730ff", "2df8376c-bdab-449d-b656-e488d231e563"], "disconnect_calls": ["a4ae04d4-78aa-4f68-a6cb-87f5e25730ff", "2df8376c-bdab-449d-b656-e488d231e563"], "jsonl_fd_observation": "UNRUN: procfs unavailable", "jsonl_open_fds": null, "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.125, "created_at": "2026-10-07 09:08:06.654101+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 2, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "primary_exception_is_injected": true, "primary_exception_type": "ConnectorStageError", "primary_notes": [], "same_pool_acquire": "PoolClosedError", "stage": "rewind-failure"}
+PASSED
+tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[caller-cancel] STREAM_CLEANUP_OBSERVATION {"after_fresh": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["8da11a99-94c4-4c33-8e7f-50489693da8f", "07fc44d2-ce7e-408c-9c31-f88ec255f680"], "disconnect_calls": ["8da11a99-94c4-4c33-8e7f-50489693da8f", "07fc44d2-ce7e-408c-9c31-f88ec255f680"], "jsonl_fd_observation": "UNRUN: procfs unavailable", "jsonl_open_fds": null, "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.135, "created_at": "2026-10-07 09:08:06.662570+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "after_registry_retry": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["8da11a99-94c4-4c33-8e7f-50489693da8f"], "disconnect_calls": ["8da11a99-94c4-4c33-8e7f-50489693da8f"], "jsonl_fd_observation": "UNRUN: procfs unavailable", "jsonl_open_fds": null, "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.135, "created_at": "2026-10-07 09:08:06.662570+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "before_retry": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["8da11a99-94c4-4c33-8e7f-50489693da8f"], "disconnect_calls": ["8da11a99-94c4-4c33-8e7f-50489693da8f"], "jsonl_fd_observation": "UNRUN: procfs unavailable", "jsonl_open_fds": null, "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.135, "created_at": "2026-10-07 09:08:06.662570+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "during_fresh": {"actual_handles_without_disconnect_confirmation": ["07fc44d2-ce7e-408c-9c31-f88ec255f680"], "available_permits": 1, "confirmed_disconnects": ["8da11a99-94c4-4c33-8e7f-50489693da8f"], "disconnect_calls": ["8da11a99-94c4-4c33-8e7f-50489693da8f"], "jsonl_fd_observation": "UNRUN: procfs unavailable", "jsonl_open_fds": null, "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.135, "created_at": "2026-10-07 09:08:06.662570+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "fresh_real_file_rows": 2, "initial_rows": null, "observer_final_cleanup": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["8da11a99-94c4-4c33-8e7f-50489693da8f", "07fc44d2-ce7e-408c-9c31-f88ec255f680"], "disconnect_calls": ["8da11a99-94c4-4c33-8e7f-50489693da8f", "07fc44d2-ce7e-408c-9c31-f88ec255f680"], "jsonl_fd_observation": "UNRUN: procfs unavailable", "jsonl_open_fds": null, "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.135, "created_at": "2026-10-07 09:08:06.662570+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "primary_exception_is_injected": false, "primary_exception_type": "CancelledError", "primary_notes": [], "same_pool_acquire": "PoolClosedError", "stage": "caller-cancel"}
+PASSED
+tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[startup-owner-retry] STREAM_CLEANUP_OBSERVATION {"after_fresh": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["e65cf27a-2069-4a6c-a74a-073124531533", "7eb03c38-cce7-403e-9f6c-5d351f36a6a3"], "disconnect_calls": ["e65cf27a-2069-4a6c-a74a-073124531533", "e65cf27a-2069-4a6c-a74a-073124531533", "e65cf27a-2069-4a6c-a74a-073124531533", "e65cf27a-2069-4a6c-a74a-073124531533", "7eb03c38-cce7-403e-9f6c-5d351f36a6a3"], "jsonl_fd_observation": "UNRUN: procfs unavailable", "jsonl_open_fds": null, "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.103, "created_at": "2026-10-07 09:08:06.669634+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 0}}, "after_registry_retry": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["e65cf27a-2069-4a6c-a74a-073124531533"], "disconnect_calls": ["e65cf27a-2069-4a6c-a74a-073124531533", "e65cf27a-2069-4a6c-a74a-073124531533", "e65cf27a-2069-4a6c-a74a-073124531533", "e65cf27a-2069-4a6c-a74a-073124531533"], "jsonl_fd_observation": "UNRUN: procfs unavailable", "jsonl_open_fds": null, "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.103, "created_at": "2026-10-07 09:08:06.669634+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 0}}, "before_retry": {"actual_handles_without_disconnect_confirmation": ["e65cf27a-2069-4a6c-a74a-073124531533"], "available_permits": 0, "confirmed_disconnects": [], "disconnect_calls": ["e65cf27a-2069-4a6c-a74a-073124531533", "e65cf27a-2069-4a6c-a74a-073124531533", "e65cf27a-2069-4a6c-a74a-073124531533"], "jsonl_fd_observation": "UNRUN: procfs unavailable", "jsonl_open_fds": null, "pending_cleanup": {"e65cf27a-2069-4a6c-a74a-073124531533": {"closed": false, "pending_permit": true, "task_done": null}}, "pool_closed": true, "registry_pending_owner_count": 1, "stats": {"acquire_wait_time_total_ms": 0.103, "created_at": "2026-10-07 09:08:06.669634+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 0, "total_connections": 1, "total_creates": 1, "total_health_checks": 1, "total_releases": 0}}, "during_fresh": {"actual_handles_without_disconnect_confirmation": ["7eb03c38-cce7-403e-9f6c-5d351f36a6a3"], "available_permits": 1, "confirmed_disconnects": ["e65cf27a-2069-4a6c-a74a-073124531533"], "disconnect_calls": ["e65cf27a-2069-4a6c-a74a-073124531533", "e65cf27a-2069-4a6c-a74a-073124531533", "e65cf27a-2069-4a6c-a74a-073124531533", "e65cf27a-2069-4a6c-a74a-073124531533"], "jsonl_fd_observation": "UNRUN: procfs unavailable", "jsonl_open_fds": null, "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.103, "created_at": "2026-10-07 09:08:06.669634+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 0}}, "fresh_real_file_rows": 2, "initial_rows": null, "observer_final_cleanup": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["e65cf27a-2069-4a6c-a74a-073124531533", "7eb03c38-cce7-403e-9f6c-5d351f36a6a3"], "disconnect_calls": ["e65cf27a-2069-4a6c-a74a-073124531533", "e65cf27a-2069-4a6c-a74a-073124531533", "e65cf27a-2069-4a6c-a74a-073124531533", "e65cf27a-2069-4a6c-a74a-073124531533", "7eb03c38-cce7-403e-9f6c-5d351f36a6a3"], "jsonl_fd_observation": "UNRUN: procfs unavailable", "jsonl_open_fds": null, "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.103, "created_at": "2026-10-07 09:08:06.669634+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 0}}, "primary_exception_is_injected": true, "primary_exception_type": "ConnectorStageError", "primary_notes": ["stream subscription pool close failed: RuntimeError('Connection cleanup remains pending for the closed pool')", "stream subscription release failed: RuntimeError('Connection cleanup is pending for the released owner')", "stream session startup cleanup remains pending after retry: RuntimeError('Connection cleanup is pending for the released owner')"], "same_pool_acquire": "PoolClosedError", "stage": "startup-owner-retry"}
+PASSED
+tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_process_file_stream_cleanup_ownership[process-disconnect-failure] STREAM_CLEANUP_OBSERVATION {"after_fresh": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["4f0fe966-6c2d-4e14-9c42-ad9fae8cc9ac", "1475fec8-caa5-489f-a419-488acfb60805"], "disconnect_calls": ["4f0fe966-6c2d-4e14-9c42-ad9fae8cc9ac", "4f0fe966-6c2d-4e14-9c42-ad9fae8cc9ac", "1475fec8-caa5-489f-a419-488acfb60805"], "jsonl_fd_observation": "UNRUN: procfs unavailable", "jsonl_open_fds": null, "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.10500000000000001, "created_at": "2026-10-07 09:08:06.676552+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "after_registry_retry": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["4f0fe966-6c2d-4e14-9c42-ad9fae8cc9ac"], "disconnect_calls": ["4f0fe966-6c2d-4e14-9c42-ad9fae8cc9ac", "4f0fe966-6c2d-4e14-9c42-ad9fae8cc9ac"], "jsonl_fd_observation": "UNRUN: procfs unavailable", "jsonl_open_fds": null, "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.10500000000000001, "created_at": "2026-10-07 09:08:06.676552+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "before_retry": {"actual_handles_without_disconnect_confirmation": ["4f0fe966-6c2d-4e14-9c42-ad9fae8cc9ac"], "available_permits": 1, "confirmed_disconnects": [], "disconnect_calls": ["4f0fe966-6c2d-4e14-9c42-ad9fae8cc9ac"], "jsonl_fd_observation": "UNRUN: procfs unavailable", "jsonl_open_fds": null, "pending_cleanup": {"4f0fe966-6c2d-4e14-9c42-ad9fae8cc9ac": {"closed": false, "pending_permit": false, "task_done": null}}, "pool_closed": true, "registry_pending_owner_count": 1, "stats": {"acquire_wait_time_total_ms": 0.10500000000000001, "created_at": "2026-10-07 09:08:06.676552+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 0, "total_connections": 1, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "during_fresh": {"actual_handles_without_disconnect_confirmation": ["1475fec8-caa5-489f-a419-488acfb60805"], "available_permits": 1, "confirmed_disconnects": ["4f0fe966-6c2d-4e14-9c42-ad9fae8cc9ac"], "disconnect_calls": ["4f0fe966-6c2d-4e14-9c42-ad9fae8cc9ac", "4f0fe966-6c2d-4e14-9c42-ad9fae8cc9ac"], "jsonl_fd_observation": "UNRUN: procfs unavailable", "jsonl_open_fds": null, "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.10500000000000001, "created_at": "2026-10-07 09:08:06.676552+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "fresh_real_file_rows": 2, "initial_rows": null, "observer_final_cleanup": {"actual_handles_without_disconnect_confirmation": [], "available_permits": 1, "confirmed_disconnects": ["4f0fe966-6c2d-4e14-9c42-ad9fae8cc9ac", "1475fec8-caa5-489f-a419-488acfb60805"], "disconnect_calls": ["4f0fe966-6c2d-4e14-9c42-ad9fae8cc9ac", "4f0fe966-6c2d-4e14-9c42-ad9fae8cc9ac", "1475fec8-caa5-489f-a419-488acfb60805"], "jsonl_fd_observation": "UNRUN: procfs unavailable", "jsonl_open_fds": null, "pending_cleanup": {}, "pool_closed": true, "registry_pending_owner_count": 0, "stats": {"acquire_wait_time_total_ms": 0.10500000000000001, "created_at": "2026-10-07 09:08:06.676552+00:00", "failed_health_checks": 0, "idle_connections": 0, "in_use_connections": 0, "max_size": 1, "pool_id": "stream-stream.jsonl-events", "total_acquires": 1, "total_closes": 1, "total_connections": 0, "total_creates": 1, "total_health_checks": 1, "total_releases": 1}}, "primary_exception_is_injected": false, "primary_exception_type": "RuntimeError", "primary_notes": [], "same_pool_acquire": "PoolClosedError", "stage": "process-disconnect-failure"}
+PASSED
+tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py::test_direct_file_session_second_close_finishes_pending_cleanup STREAM_DIRECT_RETRY {"after": {"active": [], "pending": [], "permits": 1, "session_closed": true}, "before": {"active": ["1c0d77eb-b1dd-43bb-872b-b5744166081b"], "pending": ["1c0d77eb-b1dd-43bb-872b-b5744166081b"], "session_closed": false}}
+PASSED
+tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py::test_process_failure_keeps_real_private_pool_reachable_for_same_handle_retry[RuntimeError-primary sanitizer failure] PASSED
+tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py::test_process_failure_keeps_real_private_pool_reachable_for_same_handle_retry[CancelledError-primary stream cancellation] PASSED
+tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py::test_successful_stream_surfaces_final_cleanup_failure_and_registry_retries PASSED
+tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py::test_actual_task_cancellation_after_real_source_yield_retains_cleanup_owner PASSED
+tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py::test_frontier_crash_reopen_matches_raw_rows_and_ordered_window_lineage[before_commit] PASSED
+tests/unit/fabric/data_plane/test_stream_cleanup_recovery.py::test_frontier_crash_reopen_matches_raw_rows_and_ordered_window_lineage[after_commit] PASSED
+
+=================================== FAILURES ===================================
+_____ test_restored_frontier_above_new_cap_refuses_before_consumer_effects _____
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/composed-20261007T090758Z-efe6f0d5/pytest-basetemp/test_restored_frontier_above_n0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x1125556e0>
+
+    @pytest.mark.asyncio
+    async def test_restored_frontier_above_new_cap_refuses_before_consumer_effects(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+>       registry, store, checkpoint = await _pending_checkpoint(tmp_path, monkeypatch)
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py:115: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/composed-20261007T090758Z-efe6f0d5/pytest-basetemp/test_restored_frontier_above_n0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x1125556e0>
+
+    async def _pending_checkpoint(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+        source = tmp_path / "events.jsonl"
+        source.write_text(
+            "".join(
+                json.dumps(
+                    {
+                        "_message_id": f"event-{value}",
+                        "value": value,
+                        "event_time": f"2024-01-01T00:00:0{second}+00:00",
+                    }
+                )
+                + "\n"
+                for value, second in ((1, 0), (2, 1), (3, 5))
+            ),
+            encoding="utf-8",
+        )
+        ConnectorRegistry.reset_instance()
+        registry = ConnectorRegistry.get_instance()
+        registry.set_default_config(
+            "stream.jsonl",
+            ConnectionConfig(url=source.as_uri(), headers={"X-Stream-ChunkSize": "2"}),
+        )
+        store = FileSystemCAS(tmp_path / "cas")
+        cursor = CursorStore(store)
+        poll = streaming.StreamingSourceSession.poll
+        polls = 0
+    
+        async def stop_after_checkpoint(session):
+            nonlocal polls
+            if polls == 1:
+                raise RuntimeError("oracle stop after actual two-row checkpoint")
+            chunk = await poll(session)
+            if chunk is not None:
+                polls += 1
+            return chunk
+    
+        monkeypatch.setattr(streaming.StreamingSourceSession, "poll", stop_after_checkpoint)
+        with pytest.raises(RuntimeError, match="actual two-row checkpoint"):
+            await streaming.process_stream_dataset(
+                connector_id="stream.jsonl",
+                dataset_id="budget-oracle",
+                store=store,
+                cursor_store=cursor,
+                sanitize_rows=_rows,
+                runtime_options=_options(3),
+                registry=registry,
+            )
+        monkeypatch.setattr(streaming.StreamingSourceSession, "poll", poll)
+        checkpoint = cursor.find_latest_stream_checkpoint("stream.jsonl", "budget-oracle")
+        assert checkpoint is not None
+        accumulator = streaming.StreamWindowAccumulator(_options(3).window_policy)
+        streaming._restore_stream_operator_state(
+            checkpoint.metadata["operator_state"],
+            accumulator=accumulator,
+            ordering_state=streaming._StreamOrderingState(),
+        )
+        assert accumulator.buffered_rows() == 2
+>       assert checkpoint.dedupe_keys == ("_message_id:event-1", "_message_id:event-2")
+E       assert ('[["_message...,"event-2"]]') == ('_message_id...e_id:event-2')
+E         
+E         At index 0 diff: '[["_message_id","event-1"]]' != '_message_id:event-1'
+E         
+E         Full diff:
+E           (
+E         -     '_message_id:event-1',
+E         ?                 ^...
+E         
+E         ...Full output truncated (7 lines hidden), use '-vv' to show
+
+tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py:96: AssertionError
+_____ test_admitted_recovery_emits_two_sessions_once_with_original_lineage _____
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/composed-20261007T090758Z-efe6f0d5/pytest-basetemp/test_admitted_recovery_emits_t0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x11269c710>
+
+    @pytest.mark.asyncio
+    async def test_admitted_recovery_emits_two_sessions_once_with_original_lineage(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+>       registry, store, _ = await _pending_checkpoint(tmp_path, monkeypatch)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py:182: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/composed-20261007T090758Z-efe6f0d5/pytest-basetemp/test_admitted_recovery_emits_t0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x11269c710>
+
+    async def _pending_checkpoint(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+        source = tmp_path / "events.jsonl"
+        source.write_text(
+            "".join(
+                json.dumps(
+                    {
+                        "_message_id": f"event-{value}",
+                        "value": value,
+                        "event_time": f"2024-01-01T00:00:0{second}+00:00",
+                    }
+                )
+                + "\n"
+                for value, second in ((1, 0), (2, 1), (3, 5))
+            ),
+            encoding="utf-8",
+        )
+        ConnectorRegistry.reset_instance()
+        registry = ConnectorRegistry.get_instance()
+        registry.set_default_config(
+            "stream.jsonl",
+            ConnectionConfig(url=source.as_uri(), headers={"X-Stream-ChunkSize": "2"}),
+        )
+        store = FileSystemCAS(tmp_path / "cas")
+        cursor = CursorStore(store)
+        poll = streaming.StreamingSourceSession.poll
+        polls = 0
+    
+        async def stop_after_checkpoint(session):
+            nonlocal polls
+            if polls == 1:
+                raise RuntimeError("oracle stop after actual two-row checkpoint")
+            chunk = await poll(session)
+            if chunk is not None:
+                polls += 1
+            return chunk
+    
+        monkeypatch.setattr(streaming.StreamingSourceSession, "poll", stop_after_checkpoint)
+        with pytest.raises(RuntimeError, match="actual two-row checkpoint"):
+            await streaming.process_stream_dataset(
+                connector_id="stream.jsonl",
+                dataset_id="budget-oracle",
+                store=store,
+                cursor_store=cursor,
+                sanitize_rows=_rows,
+                runtime_options=_options(3),
+                registry=registry,
+            )
+        monkeypatch.setattr(streaming.StreamingSourceSession, "poll", poll)
+        checkpoint = cursor.find_latest_stream_checkpoint("stream.jsonl", "budget-oracle")
+        assert checkpoint is not None
+        accumulator = streaming.StreamWindowAccumulator(_options(3).window_policy)
+        streaming._restore_stream_operator_state(
+            checkpoint.metadata["operator_state"],
+            accumulator=accumulator,
+            ordering_state=streaming._StreamOrderingState(),
+        )
+        assert accumulator.buffered_rows() == 2
+>       assert checkpoint.dedupe_keys == ("_message_id:event-1", "_message_id:event-2")
+E       assert ('[["_message...,"event-2"]]') == ('_message_id...e_id:event-2')
+E         
+E         At index 0 diff: '[["_message_id","event-1"]]' != '_message_id:event-1'
+E         
+E         Full diff:
+E           (
+E         -     '_message_id:event-1',
+E         ?                 ^...
+E         
+E         ...Full output truncated (7 lines hidden), use '-vv' to show
+
+tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py:96: AssertionError
+- generated xml file: /Users/deniskopylov/.codex/worktrees/e02-c-net-ing-20261007/polisyos/.tmp/e02-net-ing-20261007/raw/verification/composed-20261007T090758Z-efe6f0d5/native.xml -
+=========================== short test summary info ============================
+FAILED tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py::test_restored_frontier_above_new_cap_refuses_before_consumer_effects
+FAILED tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py::test_admitted_recovery_emits_two_sessions_once_with_original_lineage
+========================= 2 failed, 14 passed in 2.49s =========================

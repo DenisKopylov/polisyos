@@ -2468,6 +2468,11 @@ class GenerationCycleRun(_StrictModel):
             raise ValueError("generation_cycle_interaction_evidence_missing")
         if (
             self.schema_version in _GENERATION_CYCLE_INTERACTION_SCHEMA_VERSIONS
+            and not self.cycles
+        ):
+            raise ValueError("generation_cycle_interaction_evidence_cycle_missing")
+        if (
+            self.schema_version in _GENERATION_CYCLE_INTERACTION_SCHEMA_VERSIONS
             and self.cycles
             and self.value_port.conditional_interaction_evidence
             != self.cycles[-1].value_port.conditional_interaction_evidence

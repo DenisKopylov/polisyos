@@ -10,6 +10,7 @@ from types import SimpleNamespace
 from typing import Any
 
 import pytest
+from pydantic import ValidationError
 
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.runtime.quality import generation_cycle as generation
@@ -219,6 +220,19 @@ async def test_actual_default_n5_n8_interaction_history_is_versioned_and_replaya
         ):
             generation.GenerationCycleRun.from_persisted_payload(missing_both)
 
+        missing_cycles = copy.deepcopy(persisted)
+        missing_cycles["cycles"] = []
+        assert missing_cycles["value_port"]["conditional_interaction_evidence"] == expected_wire
+        with pytest.raises(
+            ValueError,
+            match="generation_cycle_interaction_evidence_cycle_missing",
+        ):
+            generation.GenerationCycleRun.from_persisted_payload(missing_cycles)
+        _assert_history_parse_error(
+            missing_cycles,
+            "generation_cycle_interaction_evidence_cycle_missing",
+        )
+
         # Removing either duplicate projection is refused by the production
         # reader; it cannot silently lose the actual owner-issued result.
         for owner in ("root", "last_cycle"):
@@ -241,7 +255,29 @@ async def test_actual_default_n5_n8_interaction_history_is_versioned_and_replaya
         fake_evidence["value_port"]["conditional_interaction_evidence"]["predicate_provenance"] = (
             "declared"
         )
-        with pytest.raises(ValueError):
+        fake_evidence["cycles"][-1]["value_port"]["conditional_interaction_evidence"][
+            "predicate_provenance"
+        ] = "declared"
+        with pytest.raises(ValidationError) as invalid_evidence:
             generation.GenerationCycleRun.from_persisted_payload(fake_evidence)
+        errors = {
+            error["loc"]: error["type"]
+            for error in invalid_evidence.value.errors()
+            if error["type"] == "literal_error"
+        }
+        assert set(errors) == {
+            (
+                "value_port",
+                "conditional_interaction_evidence",
+                "predicate_provenance",
+            ),
+            (
+                "cycles",
+                len(fake_evidence["cycles"]) - 1,
+                "value_port",
+                "conditional_interaction_evidence",
+                "predicate_provenance",
+            ),
+        }
     finally:
         witness.store.close()

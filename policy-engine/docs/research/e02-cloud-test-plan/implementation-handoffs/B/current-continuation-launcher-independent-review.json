@@ -20,9 +20,10 @@
   "checks": [
     {
       "command": [
-        "sha256sum",
-        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-frozen-wave.py",
-        "; source-only read of launcher and exact canonical run_successor/capture/observer/gate-factory consumers; no import/planner/runtime execution"
+        "sed",
+        "-n",
+        "1,300p",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-frozen-wave.py"
       ],
       "target_sha": "f422bb5113dc3e95ef4efe481d6fee02973c16cb",
       "environment": {
@@ -99,7 +100,12 @@
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-launcher-independent-review-evidence/source-review.json",
         "sha256": "ba149d5208407cf62c4f3a1c50a06875b2d9cf3deb66780b722d7106a2d91718",
         "bytes": 6660,
-        "verdict": "NONBLOCKING after source-level correction of verification-input binding/selector-observer bytes/full quality-union profile; runtime unrun."
+        "verdict": "NONBLOCKING after source-level correction of verification-input binding/selector-observer bytes/full quality-union profile; runtime unrun.",
+        "complete_command_stdout": {
+          "git_sha": "8bc952f48b385b8a7f726d29d945c0902b56611f",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-continuation-launcher-independent-review-evidence/reviewed-launcher.py.txt",
+          "sha256": "6d1722088bb4c3d63dfb6aa63d30606b2687b5dc991107c2eae5b7eaf33281a6"
+        }
       },
       "qualification": "PASS here means independent source/custody inspection completed; never future launcher/native/gate execution PASS."
     }
@@ -145,5 +151,9 @@
     "sha256": "9e7fb85d4d385aef9a34e3a54c8ceb4ea49ee043b8ba25e67811e8d3eddd75b6",
     "objects": 2,
     "payload_bytes": 17380
+  },
+  "forward_metadata_correction": {
+    "prior_receipt_sha": "9ed1f6ec6f725bcb9e946533cb9c21b6e7f22161",
+    "change": "Replace composite narrative argv with exact executed full-source sed argv and its literal complete stdout custody; source bytes/review/outcomes/implementation unchanged. No rerun."
   }
 }

@@ -1,0 +1,76 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "/tmp/e02-B-jit-data-getattr-20261007/pytest-child.py",
+    "/workspace/e02-B-current-composition",
+    "0903e31d1b9090560280c2e15aea0575da97ec20",
+    "/tmp/e02-B-jit-data-getattr-20261007/completed-contour/module-origins.json",
+    "tests/unit/foundry/methods/backends/test_module_source_identity.py",
+    "tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+    "tests/unit/foundry/methods/test_compiler_e02.py",
+    "tests/unit/foundry/methods/test_compiler.py",
+    "-vv",
+    "--tb=short",
+    "--import-mode=importlib",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp",
+    "/tmp/e02-B-module-completed-contour-774615",
+    "--junitxml",
+    "/tmp/e02-B-jit-data-getattr-20261007/completed-contour/native.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-composition/policy-engine",
+  "source_before": {
+    "sha": "0903e31d1b9090560280c2e15aea0575da97ec20",
+    "tree": "67f0998c3da674ab0a3836b22336016b82b348ed",
+    "status": ""
+  },
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-composition/policy-engine/src:/workspace/e02-B-current-composition/policy-engine/product",
+    "POLISYOS_METRICS_PORT": "0",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "GIT_OBJECT_DIRECTORY": "/tmp/e02-B-jit-data-getattr-20261007/git-objects",
+    "GIT_ALTERNATE_OBJECT_DIRECTORIES": "/workspace/polisyos/.git/objects",
+    "GIT_INDEX_FILE": "/tmp/e02-B-jit-data-getattr-20261007/index",
+    "XLA_FLAGS": null,
+    "JAX_NUM_THREADS": null,
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "BLIS_NUM_THREADS": null,
+    "VECLIB_MAXIMUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null,
+    "RAYON_NUM_THREADS": null,
+    "TF_NUM_INTEROP_THREADS": null,
+    "TF_NUM_INTRAOP_THREADS": null,
+    "NUMBA_NUM_THREADS": null,
+    "LOKY_MAX_CPU_COUNT": null,
+    "PYTEST_XDIST_AUTO_NUM_WORKERS": null
+  },
+  "python_version": "Python 3.14.2",
+  "fixture": "/tmp/e02-B-module-completed-contour-774615",
+  "fixtures_preserved": true,
+  "no_caps_added": true,
+  "test_input_bytes": [
+    {
+      "path": "tests/unit/foundry/methods/backends/test_module_source_identity.py",
+      "bytes": 18035,
+      "sha256": "2d0968aa5c4adb65c735e5b69e4b85d635587fc8ac214330f529d79379deb77c"
+    },
+    {
+      "path": "tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+      "bytes": 33264,
+      "sha256": "23f3a815adb38d2b18ef9f68b320300788941a45e4d32bac2e9e2cfe734d13fd"
+    },
+    {
+      "path": "tests/unit/foundry/methods/test_compiler_e02.py",
+      "bytes": 11608,
+      "sha256": "75673416c70a2f82ca72194c015a8a1c1e5d0372ffeeb103c4658667121ba462"
+    },
+    {
+      "path": "tests/unit/foundry/methods/test_compiler.py",
+      "bytes": 34246,
+      "sha256": "a015d14b41eb7bce0ab0b9ed96e79663be29e71aebd1f19f1f7801e646a5805f"
+    }
+  ]
+}

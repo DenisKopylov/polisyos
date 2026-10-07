@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "/workspace/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "mypy",
+    "--follow-imports=normal",
+    "--cache-dir",
+    "/tmp/e02-B-jit-data-getattr-20261007/mypy-warm-cache",
+    "src/polisyos/foundry/methods/artifacts/_implementation_identity.py"
+  ],
+  "cwd": "/workspace/e02-B-current-composition/policy-engine",
+  "source_sha": "0903e31d1b9090560280c2e15aea0575da97ec20",
+  "source_after": "0903e31d1b9090560280c2e15aea0575da97ec20",
+  "source_status": "",
+  "wall_seconds": 3.5441719650116283,
+  "max_rss_kib": 405952,
+  "actual_exit_code": 0,
+  "output": {
+    "bytes": 42,
+    "sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e"
+  },
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-B-current-composition/policy-engine/src:/workspace/e02-B-current-composition/policy-engine/product",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "GIT_OBJECT_DIRECTORY": "/tmp/e02-B-jit-data-getattr-20261007/git-objects",
+    "GIT_ALTERNATE_OBJECT_DIRECTORIES": "/workspace/polisyos/.git/objects",
+    "GIT_INDEX_FILE": "/tmp/e02-B-jit-data-getattr-20261007/index"
+  }
+}

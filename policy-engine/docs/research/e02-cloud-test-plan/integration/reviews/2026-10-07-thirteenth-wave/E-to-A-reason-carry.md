@@ -43,4 +43,3 @@ A2605's new FRC tests include test_gateway_rejects_temporal_roles_that_disagree_
 3. tests/unit/remediation/test_frc_01.py::test_gateway_preserves_missing_calibration_metric_as_distinct_from_observed_zero
 
 Those existing selectors do not cover all five resolver-error/disposition combinations. Extend the narrow test owned by A to assert exact ForecastSupport disposition reason for one source/consumer pair and its reason-changing negative; then enumerate the five fixed resolver variants only if the generic mapping is not constructed from one canonical code path. Do not replay E's 1,465 cases or label the three existing selectors as proof of the five-case matrix. No test was run for this delta review.
-

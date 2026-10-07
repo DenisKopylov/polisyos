@@ -35,6 +35,8 @@ C3_CUT_SCHEMA = "policyos.e02.c54.c3.current-evidence-census.v2"
 C3_INPUT_SCHEMA = "policyos.e02.c54.c3.current-evaluation-input.v2"
 C3_FINAL_CUT_SCHEMA = "policyos.e02.c54.c3.current-root-adjudication.v1"
 C3_FINAL_INPUT_SCHEMA = "policyos.e02.c54.c3.current-root-adjudication-input.v1"
+C4_FINAL_CUT_SCHEMA = "policyos.e02.c54.c4.current-root-adjudication.v1"
+C4_FINAL_INPUT_SCHEMA = "policyos.e02.c54.c4.current-root-adjudication-input.v1"
 C3_INPUT_PATH = (
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/"
     "C54-c3-current-evaluation-input.json"
@@ -62,6 +64,8 @@ C3_EXPECTED_G_COMMIT = "a0ac10fc11975c345312034d0e568b4cfc330d76"
 C3_EXPECTED_G_TREE = "ae067d9bcd96ff123b76d3b6eebef27a1736079c"
 C3_FINAL_EXPECTED_G_COMMIT = "ebae80eaa25482d84bc6ad2e78721bc318bc0228"
 C3_FINAL_EXPECTED_G_TREE = "4bc0ca606eaf5145e23769da3968a673d99a9abf"
+C4_FINAL_EXPECTED_G_COMMIT = "83e7c0e934d0b40644dec8a24264a0602ef013e7"
+C4_FINAL_EXPECTED_G_TREE = "dc1a7697f506b23f2db0f1c80bf929fd2d6a2e0d"
 
 
 def git(*args: str) -> str:
@@ -917,27 +921,38 @@ def derive_c3_state(
     c3_input: dict,
     verified: dict,
     supplemental_by_finding: dict,
+    cycle_label: str = "C3",
+    *,
+    criterion_scoped: bool = False,
+    row_criterion_ids: list[str] | None = None,
 ) -> str:
     """Derive current state from scope membership and bound evidence, not labels."""
     override = c3_input.get("row_overrides", {}).get(finding_id, {})
     current_ref = verified.get(source_family, {})
-    if finding_id in current_ref.get(
-        "declared_finding_scope_ids", []
-    ) or supplemental_by_finding.get(finding_id):
+    family_scope_matches = finding_id in current_ref.get("declared_finding_scope_ids", [])
+    if criterion_scoped:
+        family_scope_matches = bool(row_criterion_ids) and set(row_criterion_ids).issubset(
+            set(current_ref.get("declared_criterion_scope_ids", []))
+        )
+    if family_scope_matches or supplemental_by_finding.get(finding_id):
         return "fresh_criterion_evidence_reviewed"
     if (
         source_family in c3_input.get("family_refresh_states", {})
         and source_family != "default"
         and not current_ref
     ):
-        return "c3_source_refresh_pending"
+        return f"{cycle_label.lower()}_source_refresh_pending"
     if override.get("code_outcome") and override.get("evidence_refs"):
         return "criterion_binding_corrected"
     return "c2_frozen_evidence_carried_forward"
 
 
 def c3_state_note(
-    state: str, source_family: str, scope_source: str | None, current_family_verified: bool
+    state: str,
+    source_family: str,
+    scope_source: str | None,
+    current_family_verified: bool,
+    cycle_label: str = "C3",
 ) -> str:
     if state == "fresh_criterion_evidence_reviewed":
         if scope_source == "supplemental":
@@ -949,9 +964,10 @@ def c3_state_note(
             f"The verified {source_family} handoff explicitly declares this finding's "
             "criterion scope."
         )
-    if state == "c3_source_refresh_pending":
+    if state == f"{cycle_label.lower()}_source_refresh_pending":
         return (
-            f"A C3 source refresh is in scope for {source_family}, but no current source-family "
+            f"A {cycle_label} source refresh is in scope for {source_family}, but no current "
+            "source-family "
             "handoff is bound."
         )
     if state == "criterion_binding_corrected":
@@ -959,21 +975,37 @@ def c3_state_note(
             "The row-specific criterion and evidence binding is corrected by the listed receipts."
         )
     if current_family_verified:
+        if cycle_label == "C4":
+            return (
+                f"The current {source_family} source-family version is verified, but its "
+                "handoff does not declare this row's original criterion; the reviewed C2 "
+                "criterion evidence is carried forward."
+            )
         return (
             f"The current {source_family} source-family version is verified, but its declared "
             "finding scope does not include this row; frozen C2 criterion evidence is carried "
             "forward."
         )
     return (
-        "No C3 source refresh or row correction is bound; "
+        f"No {cycle_label} source refresh or row correction is bound; "
         "the frozen C2 evidence is carried forward."
     )
 
 
 def c3_evidence_scope_source(
-    finding_id: str, source_family: str, verified: dict, supplemental_by_finding: dict
+    finding_id: str,
+    source_family: str,
+    verified: dict,
+    supplemental_by_finding: dict,
+    row_criterion_ids: list[str] | None = None,
+    *,
+    criterion_scoped: bool = False,
 ) -> str | None:
     current_ref = verified.get(source_family, {})
+    if criterion_scoped:
+        declared = set(current_ref.get("declared_criterion_scope_ids", []))
+        if row_criterion_ids and set(row_criterion_ids).issubset(declared):
+            return "current_family"
     if finding_id in current_ref.get("declared_finding_scope_ids", []):
         return "current_family"
     if supplemental_by_finding.get(finding_id):
@@ -989,9 +1021,17 @@ def c3_state_source_pointer(
     c3_input: dict,
     verified: dict,
     supplemental_by_finding: dict,
+    row_criterion_ids: list[str] | None = None,
+    *,
+    criterion_scoped: bool = False,
 ) -> str:
     scope_source = c3_evidence_scope_source(
-        finding_id, source_family, verified, supplemental_by_finding
+        finding_id,
+        source_family,
+        verified,
+        supplemental_by_finding,
+        row_criterion_ids,
+        criterion_scoped=criterion_scoped,
     )
     if scope_source == "current_family":
         return f"/current_source_family_refs/{source_family}"
@@ -1008,7 +1048,14 @@ def c3_state_source_pointer(
     return f"/family_refresh_states/{family_state_key}"
 
 
-def source_family_version_binding(finding_id: str, source_family: str, verified: dict) -> dict:
+def source_family_version_binding(
+    finding_id: str,
+    source_family: str,
+    verified: dict,
+    row_criterion_ids: list[str] | None = None,
+    *,
+    criterion_scoped: bool = False,
+) -> dict:
     current_ref = verified.get(source_family)
     if current_ref is None:
         return {
@@ -1017,6 +1064,23 @@ def source_family_version_binding(finding_id: str, source_family: str, verified:
             "family_handoff_criterion_scope_includes_finding": None,
         }
     declared_ids = current_ref["declared_finding_scope_ids"]
+    if criterion_scoped:
+        declared_criterion_ids = current_ref["declared_criterion_scope_ids"]
+        return {
+            "status": "current_source_family_version_verified",
+            "source_family_ref_key": source_family,
+            "candidate_commit": current_ref["candidate_commit"],
+            "candidate_tree": current_ref["candidate_tree"],
+            "handoff_path_at_sha256": current_ref["handoff_path_at_sha256"],
+            "declared_finding_scope_ids": declared_ids,
+            "finding_scope_pointers": current_ref["finding_scope_pointers"],
+            "declared_criterion_scope_ids": declared_criterion_ids,
+            "criterion_scope_pointers": current_ref["criterion_scope_pointers"],
+            "family_handoff_criterion_scope_includes_finding": (
+                bool(row_criterion_ids)
+                and set(row_criterion_ids).issubset(set(declared_criterion_ids))
+            ),
+        }
     return {
         "status": "current_source_family_version_verified",
         "source_family_ref_key": source_family,
@@ -1064,7 +1128,9 @@ def declared_finding_scope(
     return sorted(finding_ids)
 
 
-def verify_current_source_family_refs(c2_cut: dict, c3_input: dict) -> dict:
+def verify_current_source_family_refs(
+    c2_cut: dict, c3_input: dict, *, criterion_scoped: bool = False
+) -> dict:
     """Verify current handoff claims against candidate and handoff Git objects."""
     raw_refs = c3_input.get("current_source_family_refs", {})
     if not isinstance(raw_refs, dict):
@@ -1087,6 +1153,8 @@ def verify_current_source_family_refs(c2_cut: dict, c3_input: dict) -> dict:
         "evidence_pointers",
         "finding_scope_pointers",
     }
+    if criterion_scoped:
+        required_fields.add("criterion_scope_pointers")
     for family, ref in raw_refs.items():
         if family not in prior_families or not isinstance(ref, dict):
             raise AssertionError((family, "unknown or malformed current source-family ref"))
@@ -1177,10 +1245,45 @@ def verify_current_source_family_refs(c2_cut: dict, c3_input: dict) -> dict:
             if selected is None or selected == "" or selected == [] or selected == {}:
                 raise AssertionError((family, "empty selected handoff evidence", pointer))
         c2_rows = {row["id"]: row for row in c2_cut["rows"]}
-        finding_scope_ids = declared_finding_scope(
-            handoff_doc, ref["finding_scope_pointers"], family, c2_rows
-        )
-        verified[family] = {
+        finding_scope_pointers = ref["finding_scope_pointers"]
+        if criterion_scoped and finding_scope_pointers == []:
+            finding_scope_ids = []
+        else:
+            finding_scope_ids = declared_finding_scope(
+                handoff_doc, finding_scope_pointers, family, c2_rows
+            )
+        criterion_scope_pointers = ref.get("criterion_scope_pointers", [])
+        declared_criterion_scope_ids: list[str] = []
+        if criterion_scoped:
+            if (
+                not isinstance(criterion_scope_pointers, list)
+                or not criterion_scope_pointers
+                or any(
+                    not isinstance(pointer, str) or not pointer.startswith("/")
+                    for pointer in criterion_scope_pointers
+                )
+                or len(criterion_scope_pointers) != len(set(criterion_scope_pointers))
+            ):
+                raise AssertionError((family, "invalid criterion-scope pointers"))
+            family_criterion_ids = {
+                item["criterion_id"]
+                for row in c2_rows.values()
+                if row["source_family"] == family
+                for item in row["criterion_refs"]
+            }
+            for pointer in criterion_scope_pointers:
+                selected = resolve_pointer(handoff_doc, pointer)
+                if (
+                    not isinstance(selected, list)
+                    or any(not isinstance(item, str) for item in selected)
+                    or len(selected) != len(set(selected))
+                    or any(item not in family_criterion_ids for item in selected)
+                ):
+                    raise AssertionError((family, pointer, "invalid criterion-ID scope"))
+                declared_criterion_scope_ids.extend(selected)
+            if len(declared_criterion_scope_ids) != len(set(declared_criterion_scope_ids)):
+                raise AssertionError((family, "overlapping criterion scopes"))
+        verified_ref = {
             "candidate_commit": candidate_commit,
             "candidate_tree": candidate_tree,
             "handoff_commit": handoff_commit,
@@ -1198,6 +1301,10 @@ def verify_current_source_family_refs(c2_cut: dict, c3_input: dict) -> dict:
             "finding_scope_pointers": list(ref["finding_scope_pointers"]),
             "declared_finding_scope_ids": finding_scope_ids,
         }
+        if criterion_scoped:
+            verified_ref["criterion_scope_pointers"] = list(criterion_scope_pointers)
+            verified_ref["declared_criterion_scope_ids"] = sorted(declared_criterion_scope_ids)
+        verified[family] = verified_ref
     return verified
 
 
@@ -1491,6 +1598,7 @@ def run_c3(
     expected_cut_sha: str | None,
     expected_markdown_sha: str | None,
     final_mode: bool = False,
+    cycle_label: str = "C3",
 ) -> dict:
     global \
         ROOT, \
@@ -1505,32 +1613,47 @@ def run_c3(
     if expected_cut_sha and sha(cut_raw) != expected_cut_sha:
         raise AssertionError(("unexpected C3 input cut hash", sha(cut_raw), expected_cut_sha))
     cut = json.loads(cut_raw)
-    expected_cut_schema = C3_FINAL_CUT_SCHEMA if final_mode else C3_CUT_SCHEMA
+    c4_mode = cycle_label == "C4"
+    expected_cut_schema = (
+        C4_FINAL_CUT_SCHEMA if c4_mode else C3_FINAL_CUT_SCHEMA if final_mode else C3_CUT_SCHEMA
+    )
     expected_cut_status = (
-        "c3_current_root_adjudicated"
+        f"{cycle_label.lower()}_current_root_adjudicated"
         if final_mode
         else "c3_current_evidence_crosswalk_not_adjudication"
     )
     if cut.get("schema") != expected_cut_schema or cut.get("status") != expected_cut_status:
         raise AssertionError(
-            ("C3 artifact schema/status mismatch", cut.get("schema"), cut.get("status"))
+            (f"{cycle_label} artifact schema/status mismatch", cut.get("schema"), cut.get("status"))
         )
     if cut.get("final_verdicts_assigned") is not final_mode:
-        raise AssertionError("C3 final-verdict assignment flag differs from validation mode")
+        raise AssertionError(
+            f"{cycle_label} final-verdict assignment flag differs from validation mode"
+        )
 
     input_raw = input_path.read_bytes()
     input_sha = sha(input_raw)
-    expected_input_schema = C3_FINAL_INPUT_SCHEMA if final_mode else C3_INPUT_SCHEMA
-    if cut.get("c3_input") != {
+    expected_input_schema = (
+        C4_FINAL_INPUT_SCHEMA
+        if c4_mode
+        else C3_FINAL_INPUT_SCHEMA
+        if final_mode
+        else C3_INPUT_SCHEMA
+    )
+    input_key = f"{cycle_label.lower()}_input"
+    expected_input_locator = {
         "path": str(input_path.relative_to(ROOT)),
         "sha256": input_sha,
         "bytes": len(input_raw),
         "schema": expected_input_schema,
-    }:
-        raise AssertionError(("C3 typed input locator/hash/schema mismatch", cut.get("c3_input")))
+    }
+    if cut.get(input_key) != expected_input_locator or (c4_mode and "c3_input" in cut):
+        raise AssertionError(
+            (f"{cycle_label} typed input locator/hash/schema mismatch", cut.get(input_key))
+        )
     c3_input = json.loads(input_raw)
     if c3_input.get("schema") != expected_input_schema:
-        raise AssertionError("C3 typed input schema mismatch")
+        raise AssertionError(f"{cycle_label} typed input schema mismatch")
 
     c2_source = c3_input["c2_source"]
     if (
@@ -1543,7 +1666,9 @@ def run_c3(
         raise AssertionError("C3 typed input is not bound to the exact frozen C2 report")
     g_snapshot = c3_input.get("g_snapshot")
     expected_g_snapshot = (
-        (C3_FINAL_EXPECTED_G_COMMIT, C3_FINAL_EXPECTED_G_TREE)
+        (C4_FINAL_EXPECTED_G_COMMIT, C4_FINAL_EXPECTED_G_TREE)
+        if c4_mode
+        else (C3_FINAL_EXPECTED_G_COMMIT, C3_FINAL_EXPECTED_G_TREE)
         if final_mode
         else (C3_EXPECTED_G_COMMIT, C3_EXPECTED_G_TREE)
     )
@@ -1551,7 +1676,7 @@ def run_c3(
         g_snapshot.get("commit") != expected_g_snapshot[0]
         or g_snapshot.get("tree") != expected_g_snapshot[1]
     ):
-        raise AssertionError("C3 typed input is not bound to the pinned G review snapshot")
+        raise AssertionError(f"{cycle_label} typed input is not bound to the pinned G snapshot")
     c2_raw = git_blob_bytes(c2_source["commit"], c2_source["path"])
     if (
         sha(c2_raw) != c2_source["sha256"]
@@ -1560,7 +1685,9 @@ def run_c3(
     ):
         raise AssertionError("C2 source cut byte/blob binding mismatch")
     c2_cut = json.loads(c2_raw)
-    verified_current_families = verify_current_source_family_refs(c2_cut, c3_input)
+    verified_current_families = verify_current_source_family_refs(
+        c2_cut, c3_input, criterion_scoped=c4_mode
+    )
     verified_supplemental_handoffs, supplemental_by_finding = verify_supplemental_source_handoffs(
         c2_cut, c3_input
     )
@@ -1614,6 +1741,11 @@ def run_c3(
         }
         for family, source_ref in c2_cut["topic_source_refs"].items()
     }
+    if c4_mode:
+        for _family, source_ref in source_families.items():
+            handoff = c2_cut["receipt_index"].get(source_ref["handoff_receipt_id"], {})
+            source_ref["prior_handoff_path_at_sha256"] = handoff.get("path_at_sha256")
+            source_ref["prior_handoff_sha256"] = handoff.get("sha256")
     if cut.get("topic_source_refs") != source_families:
         raise AssertionError("C3 family refs differ from the compact exact C2 source pins")
     if cut.get("current_source_family_refs") != verified_current_families:
@@ -1668,6 +1800,7 @@ def run_c3(
         g_raw_by_name[name] = raw
     if cut.get("g_input_refs") != g_input_refs:
         raise AssertionError("C3 rendered G input refs differ from typed input bindings")
+    c_md_labels = parse_c_md(g_raw_by_name["closure_c"]) if c4_mode else {}
 
     coverage = json.loads(git_blob_bytes(g_snapshot["commit"], C3_COVERAGE_PATH))
     allocation = json.loads(
@@ -1696,6 +1829,8 @@ def run_c3(
     }
     if set(finding_owners) != {row["id"] for row in coverage["findings"]}:
         raise AssertionError("full G finding-owner TSV denominator mismatch")
+    if c4_mode and set(c_md_labels) != set(g_findings):
+        raise AssertionError("pinned G C.md labels do not cover the complete C finding set")
 
     c_bundle_rows = {row["id"]: row for row in coverage["bundles"] if row["unit"] == "C"}
     derived_coverage = {
@@ -1781,17 +1916,48 @@ def run_c3(
         ):
             resolve_pointer(c2_cut, row["c2_snapshot"][pointer_key])
             resolved_c3 += 1
-        if row["g_current"] != {
+        expected_g_current = {
             "unit": g["unit"],
             "formal_status": g["closure_now"],
-            "capability_label": g.get("capability_label") or "",
+            "capability_label": (
+                g.get("capability_label") if c4_mode else g.get("capability_label") or ""
+            ),
             "canonical_source_owner": owner["source_closure_owner"],
             "source_owner_bundle_ids": [
                 part.strip() for part in owner["source_bundle_ids"].split(";")
             ],
             "primary_bundle": g["primary_bundle"],
             "companion_bundles": list(g["companion_bundles"]),
-        }:
+        }
+        if c4_mode:
+            c_md_status, c_md_capability = c_md_labels[finding_id]
+            coverage_capability = g.get("capability_label")
+            if coverage_capability in (None, "") and c_md_capability == "":
+                label_state = "historical_source_label_empty"
+                label_note = (
+                    "Both pinned G source views leave the capability label empty. The C4 row "
+                    "preserves those raw values and does not infer a replacement label."
+                )
+            elif coverage_capability != c_md_capability:
+                label_state = "pinned_source_label_disagreement"
+                label_note = (
+                    "Pinned coverage.json and C.md provide different capability labels; both "
+                    "source values are retained without choosing one as authoritative."
+                )
+            else:
+                label_state = "pinned_source_labels_match"
+                label_note = None
+            expected_g_current.update(
+                {
+                    "task_refs": list(g.get("task_refs", [])),
+                    "coverage_capability_label": coverage_capability,
+                    "c_md_status_label": c_md_status,
+                    "c_md_capability_label": c_md_capability,
+                    "capability_label_source_state": label_state,
+                    "capability_label_source_note": label_note,
+                }
+            )
+        if row["g_current"] != expected_g_current:
             raise AssertionError(
                 (finding_id, "G formal state/canonical owner/capability/bundle mismatch")
             )
@@ -1842,11 +2008,18 @@ def run_c3(
                 )
             if sha(b"".join(source_lines[start - 1 : end])) != criterion["criterion_sha256"]:
                 raise AssertionError((finding_id, "criterion inclusive source-span SHA mismatch"))
+            if c4_mode:
+                original_wording = b"".join(source_lines[start - 1 : end]).decode("utf-8")
+                if criterion.get("original_wording") != original_wording:
+                    raise AssertionError(
+                        (finding_id, "original criterion wording differs from pinned source span")
+                    )
             criterion_occurrences += 1
 
         current = row["current_evaluation"]
         override = override_map.get(finding_id, {})
         final_decision = root_adjudications.get(finding_id, {}) if final_mode else {}
+        row_criterion_ids = [item["criterion_id"] for item in row["criterion_refs"]]
         source_state_key = (
             row["source_family"] if row["source_family"] in family_states else "default"
         )
@@ -1856,6 +2029,9 @@ def run_c3(
             c3_input,
             verified_current_families,
             supplemental_by_finding,
+            cycle_label,
+            criterion_scoped=c4_mode,
+            row_criterion_ids=row_criterion_ids,
         )
         if current["state"] != expected_state:
             raise AssertionError(
@@ -1866,12 +2042,15 @@ def run_c3(
             row["source_family"],
             verified_current_families,
             supplemental_by_finding,
+            row_criterion_ids,
+            criterion_scoped=c4_mode,
         )
         if current.get("state_note") != c3_state_note(
             expected_state,
             row["source_family"],
             scope_source,
             row["source_family"] in verified_current_families,
+            cycle_label,
         ):
             raise AssertionError((finding_id, "C3 state explanation is not evidence-derived"))
         expected_state_pointer = c3_state_source_pointer(
@@ -1882,6 +2061,8 @@ def run_c3(
             c3_input,
             verified_current_families,
             supplemental_by_finding,
+            row_criterion_ids,
+            criterion_scoped=c4_mode,
         )
         if current["state_note_source_pointer"] != expected_state_pointer:
             raise AssertionError((finding_id, "current-evaluation state note pointer mismatch"))
@@ -1889,7 +2070,11 @@ def run_c3(
         if not isinstance(state_note, dict):
             raise AssertionError((finding_id, "state note pointer does not reach an input object"))
         expected_family_version = source_family_version_binding(
-            finding_id, row["source_family"], verified_current_families
+            finding_id,
+            row["source_family"],
+            verified_current_families,
+            row_criterion_ids,
+            criterion_scoped=c4_mode,
         )
         if current.get("source_family_version_binding") != expected_family_version:
             raise AssertionError(
@@ -1916,7 +2101,52 @@ def run_c3(
                 raise AssertionError((finding_id, "tree-path evidence differs from typed input"))
             expected_remaining = override.get("remaining_work")
             if expected_remaining is None:
-                expected_remaining = {
+                expected_remaining = (
+                    {}
+                    if c4_mode and final_mode
+                    else {
+                        "mechanism": {
+                            "status": "not_reassessed_in_C3",
+                            "note_ref": "status_semantics/c3_current_evaluation",
+                        },
+                        "verification": {
+                            "status": "source_refresh_pending"
+                            if expected_state == "c3_source_refresh_pending"
+                            else "carried_from_C2_handoff",
+                            "source_pointer": f"/rows/{index}/remaining_verification",
+                        },
+                        "input": {
+                            "status": "carried_from_C2_handoff",
+                            "source_pointer": f"/rows/{index}/missing_inputs_or_skipped_backend",
+                        },
+                        "decision": {
+                            "status": "carried_from_C2_handoff",
+                            "source_pointer": f"/rows/{index}/next_owner",
+                        },
+                    }
+                )
+        else:
+            expected_code_outcome = c2["code_outcome"] if final_mode else None
+            if (
+                current["code_outcome"] != expected_code_outcome
+                or current["code_outcome_source_pointer"] != f"/rows/{index}/code_outcome"
+            ):
+                raise AssertionError(
+                    (finding_id, "carried code outcome must resolve through the pinned C2 source")
+                )
+            if (
+                current["evidence_refs"]
+                or current["evidence_ref_source_pointer"] != f"/rows/{index}/deciding_receipts"
+            ):
+                raise AssertionError(
+                    (finding_id, "carried evidence refs must resolve through the pinned C2 source")
+                )
+            if current["tree_path_checks"]:
+                raise AssertionError((finding_id, "unexpected C3 tree-path claim"))
+            expected_remaining = (
+                {}
+                if c4_mode and final_mode
+                else {
                     "mechanism": {
                         "status": "not_reassessed_in_C3",
                         "note_ref": "status_semantics/c3_current_evaluation",
@@ -1936,44 +2166,7 @@ def run_c3(
                         "source_pointer": f"/rows/{index}/next_owner",
                     },
                 }
-        else:
-            expected_code_outcome = c2["code_outcome"] if final_mode else None
-            if (
-                current["code_outcome"] != expected_code_outcome
-                or current["code_outcome_source_pointer"] != f"/rows/{index}/code_outcome"
-            ):
-                raise AssertionError(
-                    (finding_id, "carried code outcome must resolve through the pinned C2 source")
-                )
-            if (
-                current["evidence_refs"]
-                or current["evidence_ref_source_pointer"] != f"/rows/{index}/deciding_receipts"
-            ):
-                raise AssertionError(
-                    (finding_id, "carried evidence refs must resolve through the pinned C2 source")
-                )
-            if current["tree_path_checks"]:
-                raise AssertionError((finding_id, "unexpected C3 tree-path claim"))
-            expected_remaining = {
-                "mechanism": {
-                    "status": "not_reassessed_in_C3",
-                    "note_ref": "status_semantics/c3_current_evaluation",
-                },
-                "verification": {
-                    "status": "source_refresh_pending"
-                    if expected_state == "c3_source_refresh_pending"
-                    else "carried_from_C2_handoff",
-                    "source_pointer": f"/rows/{index}/remaining_verification",
-                },
-                "input": {
-                    "status": "carried_from_C2_handoff",
-                    "source_pointer": f"/rows/{index}/missing_inputs_or_skipped_backend",
-                },
-                "decision": {
-                    "status": "carried_from_C2_handoff",
-                    "source_pointer": f"/rows/{index}/next_owner",
-                },
-            }
+            )
         if current["remaining_work"] != expected_remaining:
             raise AssertionError(
                 (finding_id, "remaining mechanism/verification/input/decision fields differ")
@@ -2020,13 +2213,47 @@ def run_c3(
                 expected_reason = resolve_pointer(c2_cut, expected_reason_pointer)
             expected_verdict_object = {
                 "value": verdict,
-                "status": "final_root_adjudication",
+                "status": (
+                    "c4_current_root_adjudication" if c4_mode else "final_root_adjudication"
+                ),
                 "basis": expected_basis,
                 "reason": expected_reason,
                 "reason_source_pointer": expected_reason_pointer,
             }
             if row.get("current_root_verdict") != expected_verdict_object:
                 raise AssertionError((finding_id, "current root verdict differs from typed input"))
+            if c4_mode:
+                if current.get("current_status") != "current_root_adjudicated":
+                    raise AssertionError((finding_id, "C4 current status is missing"))
+                if current.get("scoped_proven_part") != expected_code_outcome:
+                    raise AssertionError((finding_id, "C4 scoped proven part differs"))
+                if current.get("missing_input_or_skipped_backend") != expected_missing:
+                    raise AssertionError((finding_id, "C4 missing-input alias differs"))
+                if current.get("next_action") != expected_remaining_text:
+                    raise AssertionError((finding_id, "C4 next-action alias differs"))
+                if current.get("evidence_classification") != expected_basis:
+                    raise AssertionError((finding_id, "C4 evidence classification differs"))
+                if current.get("criterion_ids") != row_criterion_ids:
+                    raise AssertionError((finding_id, "C4 criterion ID list differs"))
+                if label_state == "historical_source_label_empty":
+                    expected_label_assessment = {
+                        "status": "whole_capability_label_not_inferred",
+                        "source_state": label_state,
+                        "reason": (
+                            "The C4 disposition applies to the cited finite criterion. Neither G "
+                            "source view supplies a whole-capability label, so this "
+                            "criterion result "
+                            "does not synthesize one."
+                        ),
+                    }
+                    if current.get("capability_label_assessment") != expected_label_assessment:
+                        raise AssertionError(
+                            (finding_id, "empty capability label was not qualified")
+                        )
+                elif "capability_label_assessment" in current:
+                    raise AssertionError(
+                        (finding_id, "whole-capability assessment was added without empty labels")
+                    )
             if not isinstance(expected_reason, str) or not expected_reason.strip():
                 raise AssertionError((finding_id, "final root reason is empty"))
         for pointer in (
@@ -2077,6 +2304,19 @@ def run_c3(
 
     if criterion_occurrences != 59:
         raise AssertionError(("criterion occurrence denominator mismatch", criterion_occurrences))
+    if c4_mode:
+        expected_document_index = {}
+        for document_ref, document in c2_doc_index.items():
+            raw = git_blob_bytes(base["commit"], document["path"])
+            expected_document_index[document_ref] = {
+                **document,
+                "source_commit": base["commit"],
+                "source_tree": base["tree"],
+                "source_sha256": sha(raw),
+                "source_bytes": len(raw),
+            }
+        if cut.get("criterion_document_index") != expected_document_index:
+            raise AssertionError("C4 criterion-document index is not bound to the pinned source")
     if {bundle for row in cut["rows"] for bundle in row["bundles"]} != set(c_bundle_rows):
         raise AssertionError("C bundle union is not the complete 33-bundle set")
     expected_bundle_crosswalk = []
@@ -2133,10 +2373,18 @@ def run_c3(
             raise AssertionError("current root verdict summary is not derived from all rows")
         if cut.get("root_adjudication_authority") != "root":
             raise AssertionError("current root verdict authority is not identified")
-        if cut.get("root_adjudication_scope") != (
-            "All 54 allocated C findings evaluated against their original hash-bound criteria. "
+        expected_scope = (
+            "All 54 allocated C findings have an explicit current C root disposition against "
+            "their original hash-bound criteria. Evidence classification distinguishes current "
+            "criterion-scoped handoffs, corrected bindings, and unchanged prior criterion "
+            "evidence. "
             "Historical status and G formal status remain separate."
-        ):
+            if c4_mode
+            else "All 54 allocated C findings evaluated against their original hash-bound "
+            "criteria. "
+            "Historical status and G formal status remain separate."
+        )
+        if cut.get("root_adjudication_scope") != expected_scope:
             raise AssertionError("current root adjudication scope is missing or changed")
     if cut.get("status_semantics") != c3_input["status_semantics"]:
         raise AssertionError("C3 interpretation semantics differ from typed input")
@@ -2145,7 +2393,10 @@ def run_c3(
         != c2_validation["RFC_6901_pointers_resolved"]
     ):
         raise AssertionError("C2 pointer-validation summary does not match source validator")
-    if cut.get("pointer_validation", {}).get("C3_explicit_receipt_pointer_count") != sum(
+    pointer_count_key = (
+        "C4_explicit_receipt_pointer_count" if c4_mode else "C3_explicit_receipt_pointer_count"
+    )
+    if cut.get("pointer_validation", {}).get(pointer_count_key) != sum(
         len(ref["json_pointers"])
         for row in cut["rows"]
         for ref in row["current_evaluation"]["evidence_refs"]
@@ -2220,18 +2471,16 @@ def run_c3(
         "bundles": len(expected_bundle_crosswalk),
         "C2_root_verdict_context_counts": c2_verdict_counts,
         "G_formal_status_counts": g_status_counts,
-        "C3_evaluation_state_counts": state_counts,
+        f"{cycle_label}_evaluation_state_counts": state_counts,
         "current_root_verdict_counts": current_root_counts,
-        "C3_resolved_source_references": resolved_c3,
-        "C3_explicit_receipt_pointers": cut["pointer_validation"][
-            "C3_explicit_receipt_pointer_count"
-        ],
+        f"{cycle_label}_resolved_source_references": resolved_c3,
+        f"{cycle_label}_explicit_receipt_pointers": cut["pointer_validation"][pointer_count_key],
         **expected_supplemental_counts,
         "tree_path_presence_checks": sum(
             len(row["current_evaluation"]["tree_path_checks"]) for row in cut["rows"]
         ),
         "markdown_rows": len(table_rows),
-        "new_C3_verdicts_assigned": final_mode,
+        f"new_{cycle_label}_verdicts_assigned": final_mode,
     }
 
 
@@ -2248,7 +2497,7 @@ def main() -> None:
         LOCAL_EVIDENCE_ROOT
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo-root", required=True, type=Path)
-    parser.add_argument("--mode", choices=("c2", "c3", "c3-final"), default="c2")
+    parser.add_argument("--mode", choices=("c2", "c3", "c3-final", "c4-final"), default="c2")
     parser.add_argument("--cut", required=True, type=Path)
     parser.add_argument("--markdown", required=True, type=Path)
     parser.add_argument("--inventory", type=Path)
@@ -2262,9 +2511,11 @@ def main() -> None:
     args = parser.parse_args()
     ROOT = args.repo_root.resolve()
     LOCAL_EVIDENCE_ROOT = args.local_evidence_root.resolve() if args.local_evidence_root else None
-    if args.mode in {"c3", "c3-final"}:
+    if args.mode in {"c3", "c3-final", "c4-final"}:
+        c4_mode = args.mode == "c4-final"
+        cycle_label = "C4" if c4_mode else "C3"
         if args.input is None:
-            raise SystemExit("--input is required with --mode c3 or c3-final")
+            raise SystemExit("--input is required with a C3 or C4 mode")
         if not args.expected_cut_sha or not args.expected_markdown_sha:
             raise SystemExit(
                 "--expected-cut-sha and --expected-markdown-sha are required with --mode c3"
@@ -2278,7 +2529,8 @@ def main() -> None:
             input_path,
             args.expected_cut_sha,
             args.expected_markdown_sha,
-            final_mode=args.mode == "c3-final",
+            final_mode=args.mode in {"c3-final", "c4-final"},
+            cycle_label=cycle_label,
         )
         print(  # noqa: T201 - CLI emits the machine-readable validation receipt on stdout.
             json.dumps(result, ensure_ascii=False, indent=2)

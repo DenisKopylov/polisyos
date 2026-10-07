@@ -1,0 +1,263 @@
+{
+  "schema": "e02.g.immutable-delta-intake.v1",
+  "captured_utc": "2026-10-07T10:10:36.296926+00:00",
+  "integration_base_sha": "76746fececd1a183a516c48f07ce2835baa8a2d1",
+  "integration_base_tree": "51929dd44a3650c7842bf77aedcdeba6ecd1a755",
+  "fetched_e02_ref_denominator": 126,
+  "changed_ref_count": 17,
+  "rows": [
+    {
+      "ref": "origin/codex/e02-B-current-adapters",
+      "old": "f0111fefcb6fa48e8ccb4aab213a14694dc206ad",
+      "new": "4d523e51ccdc9d1a16d5ff81316f44898827ee78",
+      "tree": "f9a7aaec8179c786ca3b6310ece37007f197ce49",
+      "comparison_base": "f0111fefcb6fa48e8ccb4aab213a14694dc206ad",
+      "path_count": 4,
+      "bucket_counts": {
+        "policy-engine/src/": 0,
+        "policy-engine/tests/": 0,
+        "policy-engine/release-fragments/": 0,
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/": 4
+      }
+    },
+    {
+      "ref": "origin/codex/e02-B-current-cas-generation",
+      "old": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "new": "74be8fa50a7814ca7c3b6a8dce8f4ed2b318056f",
+      "tree": "d86abbbf0f37650db6f66cac524ac1bea86243d2",
+      "comparison_base": "b33330a0b443cc07bfff873a08022eddade6f52e",
+      "path_count": 29,
+      "bucket_counts": {
+        "policy-engine/src/": 0,
+        "policy-engine/tests/": 0,
+        "policy-engine/release-fragments/": 0,
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/": 29
+      }
+    },
+    {
+      "ref": "origin/codex/e02-B-current-composition",
+      "old": "e82ac5834ee481051f905edfe0bd68ba19dcc6ad",
+      "new": "5cd7d962f2bf87bc872e01365778858adf52ba9f",
+      "tree": "79444947f48872f7743002a796d8307dcc2cab81",
+      "comparison_base": "e82ac5834ee481051f905edfe0bd68ba19dcc6ad",
+      "path_count": 80,
+      "bucket_counts": {
+        "policy-engine/src/": 2,
+        "policy-engine/tests/": 1,
+        "policy-engine/release-fragments/": 1,
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/": 76
+      }
+    },
+    {
+      "ref": "origin/codex/e02-B-current-coordination",
+      "old": "fae38a6b8ceceabec2967aebe02df9fdccd67509",
+      "new": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+      "tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+      "comparison_base": "fae38a6b8ceceabec2967aebe02df9fdccd67509",
+      "path_count": 66,
+      "bucket_counts": {
+        "policy-engine/src/": 1,
+        "policy-engine/tests/": 1,
+        "policy-engine/release-fragments/": 1,
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/": 63
+      }
+    },
+    {
+      "ref": "origin/codex/e02-B-current-durability",
+      "old": "7ea3e5b4c9799e8c1bad62ea26a84a4fb9eb1894",
+      "new": "e3e8cab05a24ee00341a43b5f99588e48bd5bc52",
+      "tree": "9b0a39c197ca26ae298855533c6498425ab18cf5",
+      "comparison_base": "7ea3e5b4c9799e8c1bad62ea26a84a4fb9eb1894",
+      "path_count": 47,
+      "bucket_counts": {
+        "policy-engine/src/": 0,
+        "policy-engine/tests/": 0,
+        "policy-engine/release-fragments/": 0,
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/": 47
+      }
+    },
+    {
+      "ref": "origin/codex/e02-B-current-execution-state",
+      "old": "c383c91007d8ae4438304392cc133f6fffbda5ac",
+      "new": "61070b6533387c05497b25295860194ca378b2cc",
+      "tree": "34d3bc3dbbb78ed2afaa2e84ca828ae97cc92be8",
+      "comparison_base": "c383c91007d8ae4438304392cc133f6fffbda5ac",
+      "path_count": 12,
+      "bucket_counts": {
+        "policy-engine/src/": 0,
+        "policy-engine/tests/": 0,
+        "policy-engine/release-fragments/": 0,
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/": 12
+      }
+    },
+    {
+      "ref": "origin/codex/e02-B-current-runtime",
+      "old": "21dbeabe539f8154c30e5b2e1745d8d34224fe34",
+      "new": "9b57328d57cce174da8a2953e6db0e77c1ad1fee",
+      "tree": "f276df7107e2adbf5dd90cbfb9c4d866f7989bf5",
+      "comparison_base": "21dbeabe539f8154c30e5b2e1745d8d34224fe34",
+      "path_count": 20,
+      "bucket_counts": {
+        "policy-engine/src/": 0,
+        "policy-engine/tests/": 0,
+        "policy-engine/release-fragments/": 0,
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/": 20
+      }
+    },
+    {
+      "ref": "origin/codex/e02-C-canon-20261006",
+      "old": "9f84276408fc6b776e35050afece5c4e74ed413d",
+      "new": "79cbb05c90026973a32022ca02c63877b2cde1a5",
+      "tree": "e494bbace790b9e5d15e253ac4a4834479774318",
+      "comparison_base": "9f84276408fc6b776e35050afece5c4e74ed413d",
+      "path_count": 35,
+      "bucket_counts": {
+        "policy-engine/src/": 3,
+        "policy-engine/tests/": 2,
+        "policy-engine/release-fragments/": 0,
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/": 30
+      }
+    },
+    {
+      "ref": "origin/codex/e02-C-continuation-20261006",
+      "old": "c158689d692d47b6300609ac2ba5e7dac28650dc",
+      "new": "cf13c8db5e70a51ce5cedb35d0ad0b17ca71ed3e",
+      "tree": "72351cf7ad14a135c2d5856ec5661a06da5cb4c6",
+      "comparison_base": "c158689d692d47b6300609ac2ba5e7dac28650dc",
+      "path_count": 121,
+      "bucket_counts": {
+        "policy-engine/src/": 1,
+        "policy-engine/tests/": 1,
+        "policy-engine/release-fragments/": 0,
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/": 119
+      }
+    },
+    {
+      "ref": "origin/codex/e02-C-net-ing-20261007",
+      "old": null,
+      "new": "13c0cde6bd8275d5b8d0deb73affa198325aa7c0",
+      "tree": "1ced36ad643f4e59e20e5fad9892c1aafc683f97",
+      "comparison_base": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+      "path_count": 4155,
+      "bucket_counts": {
+        "policy-engine/src/": 72,
+        "policy-engine/tests/": 80,
+        "policy-engine/release-fragments/": 32,
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/": 3962
+      }
+    },
+    {
+      "ref": "origin/codex/e02-D-oct07-continuation",
+      "old": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "new": "a7efe4b431986c3d79f490879cf49dbdedb1349e",
+      "tree": "e809693afe3b84e02d473b5744142d026afbe509",
+      "comparison_base": "b5cdb56ad3a67cef451157e816d9dc246d307681",
+      "path_count": 89,
+      "bucket_counts": {
+        "policy-engine/src/": 22,
+        "policy-engine/tests/": 30,
+        "policy-engine/release-fragments/": 9,
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/": 27
+      }
+    },
+    {
+      "ref": "origin/codex/e02-E-cal05-20261006",
+      "old": "450d2344d405126997c4878b252689685a6dcdd2",
+      "new": "56417347a6967a29cb07c9300c7208fedbff85d7",
+      "tree": "0adc887d0b9e4b9002f7ee1db93490d04245eb6f",
+      "comparison_base": "450d2344d405126997c4878b252689685a6dcdd2",
+      "path_count": 312,
+      "bucket_counts": {
+        "policy-engine/src/": 12,
+        "policy-engine/tests/": 5,
+        "policy-engine/release-fragments/": 1,
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/": 288
+      }
+    },
+    {
+      "ref": "origin/codex/e02-E-continuation-20261006",
+      "old": "d86ed53b82c4d31555e0c49698a44aa5c093286e",
+      "new": "050ac746f8206b63071908ee83a52e5fd4d491d3",
+      "tree": "5399ef7667aca1243b9867d21439c635d3122120",
+      "comparison_base": "d86ed53b82c4d31555e0c49698a44aa5c093286e",
+      "path_count": 184,
+      "bucket_counts": {
+        "policy-engine/src/": 0,
+        "policy-engine/tests/": 0,
+        "policy-engine/release-fragments/": 0,
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/": 172
+      }
+    },
+    {
+      "ref": "origin/codex/e02-E-doe-20261006",
+      "old": "0a56a41b8ef41487f1caf4354554c703fd8a15bb",
+      "new": "43f6bb54e316ce1308d53ba75c6e27e40171e364",
+      "tree": "78983d363c509ef418889a1e155123aca315ed5d",
+      "comparison_base": "0a56a41b8ef41487f1caf4354554c703fd8a15bb",
+      "path_count": 933,
+      "bucket_counts": {
+        "policy-engine/src/": 18,
+        "policy-engine/tests/": 8,
+        "policy-engine/release-fragments/": 1,
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/": 888
+      }
+    },
+    {
+      "ref": "origin/codex/e02-E-frc-20261006",
+      "old": "875a6a0b3bfe4479f823f539be998f0e928baa6e",
+      "new": "781acab7a66ac7bbbd40d5a007fae22379e32e85",
+      "tree": "6462ed91d8f8ed99b7c1252f7d7c040eade70044",
+      "comparison_base": "875a6a0b3bfe4479f823f539be998f0e928baa6e",
+      "path_count": 2364,
+      "bucket_counts": {
+        "policy-engine/src/": 34,
+        "policy-engine/tests/": 17,
+        "policy-engine/release-fragments/": 14,
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/": 1976
+      }
+    },
+    {
+      "ref": "origin/codex/e02-F-fry-20261006",
+      "old": "0552bd338dad23b2eabb0d22a1c7c4eb4bcd61d6",
+      "new": "c22786dfce8308bb7d48a177ccb1b109843262b5",
+      "tree": "2a13485d2b198b51643f78929a15d920b58e8e86",
+      "comparison_base": "0552bd338dad23b2eabb0d22a1c7c4eb4bcd61d6",
+      "path_count": 93,
+      "bucket_counts": {
+        "policy-engine/src/": 0,
+        "policy-engine/tests/": 0,
+        "policy-engine/release-fragments/": 0,
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/": 93
+      }
+    },
+    {
+      "ref": "origin/codex/e02-F-graph-20261006",
+      "old": "370cac5c342bbc5b206331f93776505e0cffe3a6",
+      "new": "ffae9fa4b45c23c3d2dca5c1bbf78d18418a7634",
+      "tree": "aa83a73a8b27785adc761898aa23d3ec85e83078",
+      "comparison_base": "370cac5c342bbc5b206331f93776505e0cffe3a6",
+      "path_count": 190,
+      "bucket_counts": {
+        "policy-engine/src/": 9,
+        "policy-engine/tests/": 2,
+        "policy-engine/release-fragments/": 1,
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/": 176
+      }
+    }
+  ],
+  "supplemental_B_PR55": {
+    "head": "d030d82baed3b1c9d83c63a0ea26011a8247f47e",
+    "tree": "dc4ebd99afba72d13c60a46e77cd8fc99a002e60",
+    "implementation_sha": "af03a9d9693ed73b5dd1fd5b8fe8ad06dcb19cc8",
+    "implementation_tree": "bd77335cf86ea2f1c65714cd54d3b5e9540d2a83"
+  },
+  "F_PR65": {
+    "head": "56e4513787773e6860b55163cd792062abe66a94",
+    "known_not_fetched_source": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "source_reported_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d"
+  },
+  "baseline_import_check": "PASS",
+  "verification_sha256": "26fcc44ff5094586402edf421cb04faf944578be3f628edd2577f5ed589d2c17",
+  "new_source_accepted": [],
+  "findings_closed": []
+}

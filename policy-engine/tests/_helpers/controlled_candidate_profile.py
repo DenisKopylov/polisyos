@@ -87,6 +87,7 @@ def _configured_procurement_profile(
     artifact_store: ArtifactStore,
     tenant_id: str,
     cell_id: str,
+    outcome_per_target_unit: float = 0.5,
 ):
     """Return a configured candidate profile and its explicit synthetic SCM."""
 
@@ -154,7 +155,9 @@ def _configured_procurement_profile(
                 equation_type="linear",
                 equation_params={
                     "intercept": 0.0,
-                    "coefficients": {"cells.distress_score": 0.5},
+                    "coefficients": {
+                        "cells.distress_score": outcome_per_target_unit
+                    },
                 },
             ),
         ],
@@ -276,7 +279,7 @@ def _configured_procurement_profile(
         "outcome_unit_id": rule.unit_id,
         "target_baseline": 0.0,
         "outcome_baseline": 0.0,
-        "outcome_per_target_unit": 0.5,
+        "outcome_per_target_unit": outcome_per_target_unit,
         "outcome_noise_stddev": 0.01,
         "assumption": "declared_candidate_scm_not_empirically_grounded",
     }

@@ -1006,7 +1006,7 @@ def c3_evidence_scope_source(
         declared = set(current_ref.get("declared_criterion_scope_ids", []))
         if row_criterion_ids and set(row_criterion_ids).issubset(declared):
             return "current_family"
-    if finding_id in current_ref.get("declared_finding_scope_ids", []):
+    elif finding_id in current_ref.get("declared_finding_scope_ids", []):
         return "current_family"
     if supplemental_by_finding.get(finding_id):
         return "supplemental"
@@ -1321,6 +1321,132 @@ def nested_git_file_refs(value: object) -> list[dict]:
         for child in value:
             found.extend(nested_git_file_refs(child))
     return found
+
+
+def verify_c4_current_context_updates(c2_cut: dict, c4_input: dict) -> tuple[dict, dict]:
+    """Recompute current availability context from exact Git-bound source bytes."""
+    raw_sources = c4_input.get("current_context_sources", {})
+    raw_updates = c4_input.get("current_context_updates", {})
+    if not isinstance(raw_sources, dict) or not isinstance(raw_updates, dict):
+        raise AssertionError("C4 context sources and updates must be objects")
+    if not raw_sources or not raw_updates:
+        raise AssertionError("C4 final input requires bound current-context source updates")
+
+    source_fields = {
+        "source_commit",
+        "source_tree",
+        "path",
+        "sha256",
+        "git_blob",
+        "size_bytes",
+        "format",
+        "role",
+    }
+    verified_sources = {}
+    source_documents = {}
+    for ref_id, source in raw_sources.items():
+        if (
+            not isinstance(ref_id, str)
+            or not ref_id
+            or not isinstance(source, dict)
+            or set(source) != source_fields
+        ):
+            raise AssertionError((ref_id, "malformed C4 context source declaration"))
+        path = Path(source["path"])
+        if path.is_absolute() or ".." in path.parts:
+            raise AssertionError((ref_id, "C4 context source is not repository-relative"))
+        if source["format"] not in {"json", "text"}:
+            raise AssertionError((ref_id, "unsupported C4 context source format"))
+        raw, blob = git_source_file(
+            source["source_commit"],
+            source["source_tree"],
+            path.as_posix(),
+            expected_sha256=source["sha256"],
+            expected_blob=source["git_blob"],
+            expected_size=source["size_bytes"],
+        )
+        if source["format"] == "json":
+            document = json.loads(raw)
+            if not isinstance(document, dict):
+                raise AssertionError((ref_id, "C4 context JSON source is not an object"))
+            source_documents[ref_id] = document
+        else:
+            raw.decode("utf-8")
+        verified_sources[ref_id] = {
+            "path_at_sha256": f"{path.as_posix()}@sha256:{source['sha256']}",
+            "source_commit": source["source_commit"],
+            "source_tree": source["source_tree"],
+            "git_blob": blob,
+            "size_bytes": len(raw),
+            "format": source["format"],
+            "role": source["role"],
+            "status": "verified_from_pinned_git_tree",
+        }
+
+    c2_rows = {row["id"]: row for row in c2_cut["rows"]}
+    update_fields = {
+        "source_ref_id",
+        "availability_pointer",
+        "missing_input_pointer",
+        "remaining_verification_pointer",
+        "next_owner_pointer",
+        "supporting_source_ref_ids",
+    }
+    verified_updates = {}
+    referenced_sources = set()
+    for finding_id, update in raw_updates.items():
+        if finding_id not in c2_rows or not isinstance(update, dict):
+            raise AssertionError((finding_id, "unknown or malformed C4 context update"))
+        if set(update) != update_fields:
+            raise AssertionError((finding_id, "C4 context update fields differ from schema"))
+        ref_id = update["source_ref_id"]
+        document = source_documents.get(ref_id)
+        if document is None:
+            raise AssertionError((finding_id, "C4 context update lacks a pinned JSON source"))
+        pointers = {
+            "availability": update["availability_pointer"],
+            "missing_input": update["missing_input_pointer"],
+            "remaining_verification": update["remaining_verification_pointer"],
+            "next_owner": update["next_owner_pointer"],
+        }
+        base_pointer = f"/finding_notes/{finding_id.replace('~', '~0').replace('/', '~1')}"
+        expected_pointers = {
+            "availability": f"{base_pointer}/availability",
+            "missing_input": f"{base_pointer}/missing_input",
+            "remaining_verification": f"{base_pointer}/code_outcome",
+            "next_owner": f"{base_pointer}/next_owner",
+        }
+        if pointers != expected_pointers:
+            raise AssertionError(
+                (finding_id, "C4 context field pointers do not bind the selected row")
+            )
+        resolved = {}
+        for name, pointer in pointers.items():
+            value = resolve_pointer(document, pointer)
+            if not isinstance(value, str) or not value.strip():
+                raise AssertionError((finding_id, pointer, "C4 context value is empty or untyped"))
+            resolved[name] = value
+        support_ids = update["supporting_source_ref_ids"]
+        if (
+            not isinstance(support_ids, list)
+            or any(not isinstance(ref, str) for ref in support_ids)
+            or len(support_ids) != len(set(support_ids))
+            or any(ref not in verified_sources for ref in support_ids)
+        ):
+            raise AssertionError((finding_id, "C4 context support refs are invalid"))
+        referenced_sources.add(ref_id)
+        referenced_sources.update(support_ids)
+        verified_updates[finding_id] = {
+            "source_ref_id": ref_id,
+            "source": verified_sources[ref_id],
+            "source_pointer": base_pointer,
+            "field_pointers": pointers,
+            "supporting_source_ref_ids": list(support_ids),
+            **resolved,
+        }
+    if referenced_sources != set(verified_sources):
+        raise AssertionError("C4 context source index has an unreferenced or missing source")
+    return verified_sources, verified_updates
 
 
 def verify_supplemental_source_handoffs(
@@ -1688,6 +1814,9 @@ def run_c3(
     verified_current_families = verify_current_source_family_refs(
         c2_cut, c3_input, criterion_scoped=c4_mode
     )
+    verified_context_sources, verified_context_updates = (
+        verify_c4_current_context_updates(c2_cut, c3_input) if c4_mode else ({}, {})
+    )
     verified_supplemental_handoffs, supplemental_by_finding = verify_supplemental_source_handoffs(
         c2_cut, c3_input
     )
@@ -1705,6 +1834,8 @@ def run_c3(
         raise AssertionError("C3 C2 source binding differs from typed input")
     if cut.get("c2_adjudication_snapshot", {}).get("snapshot") != c2_cut["snapshot"]:
         raise AssertionError("C3 frozen C2 snapshot differs from C2 source")
+    if c4_mode and cut.get("current_context_sources") != verified_context_sources:
+        raise AssertionError("C4 current-context source index differs from pinned Git inputs")
     if cut.get("baseline_use_limit") != c2_cut["baseline_use_limit"]:
         raise AssertionError("C3 baseline-use boundary differs from C2 source")
 
@@ -2019,6 +2150,11 @@ def run_c3(
         current = row["current_evaluation"]
         override = override_map.get(finding_id, {})
         final_decision = root_adjudications.get(finding_id, {}) if final_mode else {}
+        expected_context_update = verified_context_updates.get(finding_id) if c4_mode else None
+        if c4_mode and current.get("current_context_update") != expected_context_update:
+            raise AssertionError(
+                (finding_id, "C4 current-context binding differs from pinned sources")
+            )
         row_criterion_ids = [item["criterion_id"] for item in row["criterion_refs"]]
         source_state_key = (
             row["source_family"] if row["source_family"] in family_states else "default"
@@ -2174,13 +2310,23 @@ def run_c3(
         if final_mode:
             expected_code_outcome = override.get("code_outcome", c2["code_outcome"])
             expected_capability = override.get("capability_label", c2["capability_label"])
-            expected_missing = override.get(
-                "missing_inputs_or_skipped_backend", c2["missing_inputs_or_skipped_backend"]
+            expected_missing = (
+                expected_context_update["missing_input"]
+                if expected_context_update
+                else override.get(
+                    "missing_inputs_or_skipped_backend", c2["missing_inputs_or_skipped_backend"]
+                )
             )
-            expected_remaining_text = override.get(
-                "remaining_verification", c2["remaining_verification"]
+            expected_remaining_text = (
+                expected_context_update["remaining_verification"]
+                if expected_context_update
+                else override.get("remaining_verification", c2["remaining_verification"])
             )
-            expected_next_owner = override.get("next_owner", c2["next_owner"])
+            expected_next_owner = (
+                expected_context_update["next_owner"]
+                if expected_context_update
+                else override.get("next_owner", c2["next_owner"])
+            )
             if current.get("code_outcome") != expected_code_outcome:
                 raise AssertionError((finding_id, "final current code outcome differs from source"))
             if current.get("current_capability_label") != expected_capability:
@@ -2430,6 +2576,27 @@ def run_c3(
     for row in cut["rows"]:
         if f"| {row['id']} |" not in md_text:
             raise AssertionError(("C3 Markdown omits row", row["id"]))
+        if c4_mode:
+            context_update = row["current_evaluation"].get("current_context_update")
+            if context_update:
+                row_line = next(
+                    line for line in md_text.splitlines() if line.startswith(f"| {row['id']} |")
+                )
+                expected_context_ref = (
+                    f"context={context_update['source']['path_at_sha256']}"
+                    f"#{context_update['source_pointer']}"
+                )
+                if expected_context_ref not in row_line:
+                    raise AssertionError(
+                        (row["id"], "Markdown omits current-context source pointer")
+                    )
+                for ref_id in context_update["supporting_source_ref_ids"]:
+                    expected_support_ref = (
+                        "context-support="
+                        f"{cut['current_context_sources'][ref_id]['path_at_sha256']}"
+                    )
+                    if expected_support_ref not in row_line:
+                        raise AssertionError((row["id"], ref_id, "Markdown omits support source"))
     for handoff in verified_supplemental_handoffs:
         if (
             f"| {handoff['ref_id']} |" not in md_text
@@ -2453,6 +2620,17 @@ def run_c3(
         )
         if expected_row not in md_text:
             raise AssertionError((receipt["receipt_id"], "C3 Markdown omits portable receipt row"))
+    if c4_mode:
+        if "## Current availability context sources" not in md_text:
+            raise AssertionError("C4 Markdown omits its current availability source index")
+        for ref_id, source in verified_context_sources.items():
+            expected_source_row = (
+                f"| {ref_id} | `{source['path_at_sha256']}` | "
+                f"`{source['source_commit']}` / tree `{source['source_tree']}` / "
+                f"blob `{source['git_blob']}` | {source['role']} |"
+            )
+            if expected_source_row not in md_text:
+                raise AssertionError((ref_id, "C4 Markdown omits the pinned context source row"))
 
     return {
         "result": "PASS",

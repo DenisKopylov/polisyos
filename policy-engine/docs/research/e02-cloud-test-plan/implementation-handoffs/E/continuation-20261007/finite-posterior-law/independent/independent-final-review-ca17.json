@@ -1,0 +1,1364 @@
+{
+  "schema": "policyos.e02.independent_finite_posterior_law_review.v2",
+  "reviewer": "oracle_r4; read-only, independent of imports_r4 source authorship",
+  "candidate": "ca17a489559eb574285bb1c7291cc3c56a9e29da",
+  "tree": "f2ce9f70a02fa7184a5caac3faaeddd95f6e1d3e",
+  "numeric_candidate": "2c0fb5e26172129ab3ae032c24b35ed2ced6c80f",
+  "numeric_tree": "237320d4c5db41330b3d61ff6611f0de8e64549f",
+  "source_base": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "source_base_tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "precode_decision": "55422d4f179f56d796794938be66bcb0741b13ed",
+  "precode_tracked_decision": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/technical-decision.json",
+    "sha256": "dfa1a25edc38517533ae04dd7c9affb81177092172ca8d6db0e20de029c15bb3",
+    "read_in_full": true
+  },
+  "G_review": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+  "source_acceptance": "GO bounded exact finite-law / actual fresh E consumer mechanisms and companion delta",
+  "finding_closure": "Separate accountable-owner original-criterion decision; no closure inferred from tests or this source GO.",
+  "global_gate_or_broad_wave_claim": false,
+  "source_guard": {
+    "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/final-source-bracket-ca17.json",
+    "bytes": 12357,
+    "sha256": "23528c0bcbabc861516cafb40307c01e960d5f40a5942699110d995886f6d6f8"
+  },
+  "execution_observations": [
+    {
+      "receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+        "bytes": 29453,
+        "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+      },
+      "source": "2c0fb5e26172129ab3ae032c24b35ed2ced6c80f",
+      "complete_literal_counts": {
+        "PASS": 30,
+        "FAIL": 2
+      },
+      "historical_observer_errors_preserved": true
+    },
+    {
+      "receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-candidate-delta-results.json",
+        "bytes": 10329,
+        "sha256": "f15fb2a9b18e67a6ba6ab63c3ed932d2f46c2d1a98af83409656bba29757d068"
+      },
+      "source": "2c0fb5e26172129ab3ae032c24b35ed2ced6c80f",
+      "complete_literal_counts": {
+        "PASS": 3
+      },
+      "scope": "Only two corrected observer cases and one distinct sorted-tail refusal; no passing 30-case repeat."
+    },
+    {
+      "receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/ca17-companion-delta-review.json",
+        "bytes": 998,
+        "sha256": "e777637b3f525a9ef55b5dd7e98ac0aaf096c612e7cc7fd2e38af976d02276bf"
+      },
+      "source": "ca17a489559eb574285bb1c7291cc3c56a9e29da",
+      "scope": "Actual canonical facade identity and public helper output plus release-class/7-product-byte equality only; no family numerical repeat."
+    }
+  ],
+  "reconciled_unique_controls": 33,
+  "reconciled_current_control_outcomes": {
+    "PASS": 33
+  },
+  "count_scope": "Thirty retained passing observations plus three corrected/current delta observations, under exact product-byte equality. This is not a newly executed 33-case wave on ca17.",
+  "observer_corrections": [
+    {
+      "id": "exact_boundary_sorted_quantile_[1e-20, 0.5, 0.5]",
+      "historical_outcome": "FAIL observer expectation",
+      "cause": "Reviewer reversed values, moving the rare atom to an unsupported sorted last tail. The actual typed refusal was correct.",
+      "current_delta": "Use supported permutation (0,-1,1) and separately preserve sorted-tail typed-refusal witness.",
+      "source_changed": false
+    },
+    {
+      "id": "fresh_CAS_forged_alignment_shared_admission_removal",
+      "historical_outcome": "FAIL observer API misuse",
+      "cause": "Reviewer called ArtifactStore.verify(UncertaintyEnvelopeRef); canonical API requires ref.artifact_id.",
+      "current_delta": "Actual canonical verify(ref.artifact_id) succeeds; strict fresh profile reader and shared inlet refuse integrity-valid positional-basis forgery before callbacks.",
+      "source_changed": false
+    }
+  ],
+  "current_controls": [
+    {
+      "id": "actual_E_raw_before_builder_inline_bool",
+      "outcome": "PASS",
+      "detail": {
+        "mutation": "inline_bool",
+        "actual_refusal": "posterior summary raw carrier requires finite real non-bool values",
+        "builder_count": 0,
+        "callback_count": 0
+      },
+      "observation_receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+        "bytes": 29453,
+        "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+      }
+    },
+    {
+      "id": "actual_E_raw_before_builder_inline_string",
+      "outcome": "PASS",
+      "detail": {
+        "mutation": "inline_string",
+        "actual_refusal": "posterior summary raw carrier requires finite real non-bool values",
+        "builder_count": 0,
+        "callback_count": 0
+      },
+      "observation_receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+        "bytes": 29453,
+        "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+      }
+    },
+    {
+      "id": "actual_E_raw_before_builder_raw_bool",
+      "outcome": "PASS",
+      "detail": {
+        "mutation": "raw_bool",
+        "actual_refusal": "posterior summary raw carrier requires finite real non-bool values",
+        "builder_count": 0,
+        "callback_count": 0
+      },
+      "observation_receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+        "bytes": 29453,
+        "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+      }
+    },
+    {
+      "id": "actual_E_raw_before_builder_raw_string",
+      "outcome": "PASS",
+      "detail": {
+        "mutation": "raw_string",
+        "actual_refusal": "posterior summary raw carrier requires finite real non-bool values",
+        "builder_count": 0,
+        "callback_count": 0
+      },
+      "observation_receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+        "bytes": 29453,
+        "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+      }
+    },
+    {
+      "id": "actual_all_backend_paired_law_halton",
+      "outcome": "PASS",
+      "detail": {
+        "callback_count": 257,
+        "actual_rows": [
+          {
+            "row": [
+              0.0,
+              0.0
+            ],
+            "count": 64
+          },
+          {
+            "row": [
+              1.0,
+              2.0
+            ],
+            "count": 64
+          },
+          {
+            "row": [
+              4.0,
+              5.0
+            ],
+            "count": 128
+          }
+        ],
+        "fresh_refs": {
+          "a": {
+            "artifact_id": "sha256:0f6a6c9293ed6529623fdcc081c4c89c743b58778e887d0069f066f80ac9b094",
+            "kind": "ir.uncertainty_envelope",
+            "media_type": "application/json"
+          },
+          "b": {
+            "artifact_id": "sha256:3b71650b1dd452ad6043a5e56d0b44321ac1ee1987b319da157a9ba0baacaded",
+            "kind": "ir.uncertainty_envelope",
+            "media_type": "application/json"
+          }
+        },
+        "independent_y_mean": "21/4",
+        "independent_y_variance": "243/16",
+        "gate_eligible": false
+      },
+      "observation_receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+        "bytes": 29453,
+        "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+      }
+    },
+    {
+      "id": "actual_all_backend_paired_law_random",
+      "outcome": "PASS",
+      "detail": {
+        "callback_count": 257,
+        "actual_rows": [
+          {
+            "row": [
+              0.0,
+              0.0
+            ],
+            "count": 66
+          },
+          {
+            "row": [
+              1.0,
+              2.0
+            ],
+            "count": 64
+          },
+          {
+            "row": [
+              4.0,
+              5.0
+            ],
+            "count": 126
+          }
+        ],
+        "fresh_refs": {
+          "a": {
+            "artifact_id": "sha256:0f6a6c9293ed6529623fdcc081c4c89c743b58778e887d0069f066f80ac9b094",
+            "kind": "ir.uncertainty_envelope",
+            "media_type": "application/json"
+          },
+          "b": {
+            "artifact_id": "sha256:3b71650b1dd452ad6043a5e56d0b44321ac1ee1987b319da157a9ba0baacaded",
+            "kind": "ir.uncertainty_envelope",
+            "media_type": "application/json"
+          }
+        },
+        "independent_y_mean": "21/4",
+        "independent_y_variance": "243/16",
+        "gate_eligible": false
+      },
+      "observation_receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+        "bytes": 29453,
+        "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+      }
+    },
+    {
+      "id": "actual_all_backend_paired_law_sobol",
+      "outcome": "PASS",
+      "detail": {
+        "callback_count": 257,
+        "actual_rows": [
+          {
+            "row": [
+              0.0,
+              0.0
+            ],
+            "count": 64
+          },
+          {
+            "row": [
+              1.0,
+              2.0
+            ],
+            "count": 64
+          },
+          {
+            "row": [
+              4.0,
+              5.0
+            ],
+            "count": 128
+          }
+        ],
+        "fresh_refs": {
+          "a": {
+            "artifact_id": "sha256:0f6a6c9293ed6529623fdcc081c4c89c743b58778e887d0069f066f80ac9b094",
+            "kind": "ir.uncertainty_envelope",
+            "media_type": "application/json"
+          },
+          "b": {
+            "artifact_id": "sha256:3b71650b1dd452ad6043a5e56d0b44321ac1ee1987b319da157a9ba0baacaded",
+            "kind": "ir.uncertainty_envelope",
+            "media_type": "application/json"
+          }
+        },
+        "independent_y_mean": "21/4",
+        "independent_y_variance": "243/16",
+        "gate_eligible": false
+      },
+      "observation_receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+        "bytes": 29453,
+        "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+      }
+    },
+    {
+      "id": "actual_native_fresh_E_named_mean_consumer",
+      "outcome": "PASS",
+      "detail": {
+        "actual_nominal_params": [
+          {
+            "x": 1.0
+          }
+        ],
+        "actual_callback_count": 257,
+        "persisted_fresh_output_ref": {
+          "artifact_id": "sha256:25662562c26e5fad201d39a02d336fee42b9b314b4bbad9e93db6c412c79681f",
+          "kind": "ir.uncertainty_envelope",
+          "media_type": "application/json"
+        },
+        "centered_output_support": [
+          -1.0,
+          99.0
+        ],
+        "gate_eligible": false
+      },
+      "observation_receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+        "bytes": 29453,
+        "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+      }
+    },
+    {
+      "id": "actual_public_facade_ABI_inventory_and_large_finite_spread",
+      "outcome": "PASS",
+      "detail": {
+        "actual_IR_model_inventory_count": 101,
+        "base_actual_count": 100,
+        "delta": 1,
+        "registered_new_key": "posterior_summary_profile_v2",
+        "old_root_type_identity": true,
+        "new_root_type_identity": true,
+        "std_for_0_1e200": 5e+199,
+        "std_for_0_2": 1.0,
+        "generated_schema_publication": "Owner packet still pending; no generated-file edits or global-gate PASS claimed."
+      },
+      "observation_receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+        "bytes": 29453,
+        "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+      }
+    },
+    {
+      "id": "exact_boundary_sorted_quantile_[0.5, 0.49999999995, 5e-11]",
+      "outcome": "PASS",
+      "detail": {
+        "raw_weights": [
+          0.5,
+          0.49999999995,
+          5e-11
+        ],
+        "canonical_weights": [
+          0.5,
+          0.49999999995,
+          5e-11
+        ],
+        "exact_ratios": [
+          "77371252455336267181195264/154742504910672533722217915",
+          "77371252447599141295489024/154742504910672533722217915",
+          "7737125245533627/154742504910672533722217915"
+        ],
+        "finite_U_probes": [
+          0.0,
+          0.49999999999999994,
+          0.5,
+          0.5000000000000001,
+          0.9999999999499999,
+          0.99999999995,
+          0.9999999999500001,
+          0.9999999999999999
+        ],
+        "actual_buckets": [
+          0,
+          0,
+          0,
+          1,
+          1,
+          1,
+          2,
+          2
+        ],
+        "mean": 1.49999999995,
+        "median": 2.0,
+        "interval": [
+          1.0,
+          2.0
+        ]
+      },
+      "observation_receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+        "bytes": 29453,
+        "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+      }
+    },
+    {
+      "id": "exact_boundary_sorted_quantile_[0.5, 1e-20, 0.5]",
+      "outcome": "PASS",
+      "detail": {
+        "raw_weights": [
+          0.5,
+          1e-20,
+          0.5
+        ],
+        "canonical_weights": [
+          0.5,
+          1e-20,
+          0.5
+        ],
+        "exact_ratios": [
+          "332306998946228968225951765070086144/664613997892457936458549670119096867",
+          "6646139978924579/664613997892457936458549670119096867",
+          "332306998946228968225951765070086144/664613997892457936458549670119096867"
+        ],
+        "finite_U_probes": [
+          0.0,
+          0.49999999999999994,
+          0.5,
+          0.5000000000000001,
+          0.9999999999999999
+        ],
+        "actual_buckets": [
+          0,
+          0,
+          1,
+          2,
+          2
+        ],
+        "mean": 1.0,
+        "median": 1.0,
+        "interval": [
+          0.0,
+          2.0
+        ]
+      },
+      "observation_receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+        "bytes": 29453,
+        "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+      }
+    },
+    {
+      "id": "exact_boundary_sorted_quantile_[0.5, 5e-11, 0.49999999995]",
+      "outcome": "PASS",
+      "detail": {
+        "raw_weights": [
+          0.5,
+          5e-11,
+          0.49999999995
+        ],
+        "canonical_weights": [
+          0.5,
+          5e-11,
+          0.49999999995
+        ],
+        "exact_ratios": [
+          "77371252455336267181195264/154742504910672533722217915",
+          "7737125245533627/154742504910672533722217915",
+          "77371252447599141295489024/154742504910672533722217915"
+        ],
+        "finite_U_probes": [
+          0.0,
+          0.49999999999999994,
+          0.5,
+          0.5000000000000001,
+          0.5000000000499999,
+          0.50000000005,
+          0.5000000000500001,
+          0.9999999999999999
+        ],
+        "actual_buckets": [
+          0,
+          0,
+          0,
+          1,
+          1,
+          2,
+          2,
+          2
+        ],
+        "mean": 1.00000000005,
+        "median": 2.0,
+        "interval": [
+          0.0,
+          2.0
+        ]
+      },
+      "observation_receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+        "bytes": 29453,
+        "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+      }
+    },
+    {
+      "id": "exact_boundary_sorted_quantile_[1, 0, 3]",
+      "outcome": "PASS",
+      "detail": {
+        "raw_weights": [
+          1,
+          0,
+          3
+        ],
+        "canonical_weights": [
+          0.25,
+          0.0,
+          0.75
+        ],
+        "exact_ratios": [
+          "1/4",
+          "0",
+          "3/4"
+        ],
+        "finite_U_probes": [
+          0.0,
+          0.24999999999999997,
+          0.25,
+          0.25000000000000006,
+          0.9999999999999999
+        ],
+        "actual_buckets": [
+          0,
+          0,
+          2,
+          2,
+          2
+        ],
+        "mean": 0.5,
+        "median": 0.0,
+        "interval": [
+          0.0,
+          2.0
+        ]
+      },
+      "observation_receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+        "bytes": 29453,
+        "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+      }
+    },
+    {
+      "id": "exact_boundary_sorted_quantile_[1, 2]",
+      "outcome": "PASS",
+      "detail": {
+        "raw_weights": [
+          1,
+          2
+        ],
+        "canonical_weights": [
+          0.25,
+          0.5
+        ],
+        "exact_ratios": [
+          "1/3",
+          "2/3"
+        ],
+        "finite_U_probes": [
+          0.0,
+          0.33333333333333326,
+          0.3333333333333333,
+          0.33333333333333337,
+          0.9999999999999999
+        ],
+        "actual_buckets": [
+          0,
+          0,
+          0,
+          1,
+          1
+        ],
+        "mean": 0.3333333333333333,
+        "median": 0.0,
+        "interval": [
+          0.0,
+          1.0
+        ]
+      },
+      "observation_receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+        "bytes": 29453,
+        "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+      }
+    },
+    {
+      "id": "exact_boundary_sorted_quantile_[1e-20, 0.5, 0.5]",
+      "outcome": "PASS",
+      "detail": {
+        "raw_weights": [
+          1e-20,
+          0.5,
+          0.5
+        ],
+        "canonical_weights": [
+          1e-20,
+          0.5,
+          0.5
+        ],
+        "exact_ratios": [
+          "6646139978924579/664613997892457936458549670119096867",
+          "332306998946228968225951765070086144/664613997892457936458549670119096867",
+          "332306998946228968225951765070086144/664613997892457936458549670119096867"
+        ],
+        "finite_U_probes": [
+          0.0,
+          9.999999999999998e-21,
+          1e-20,
+          1.0000000000000001e-20,
+          0.49999999999999994,
+          0.5,
+          0.5000000000000001,
+          0.9999999999999999
+        ],
+        "actual_buckets": [
+          0,
+          0,
+          1,
+          1,
+          1,
+          1,
+          2,
+          2
+        ],
+        "mean": 0.0,
+        "median": 0.0,
+        "interval": [
+          -1.0,
+          1.0
+        ]
+      },
+      "observation_receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-candidate-delta-results.json",
+        "bytes": 10329,
+        "sha256": "f15fb2a9b18e67a6ba6ab63c3ed932d2f46c2d1a98af83409656bba29757d068"
+      }
+    },
+    {
+      "id": "exact_boundary_sorted_quantile_[5e-11, 0.5, 0.49999999995]",
+      "outcome": "PASS",
+      "detail": {
+        "raw_weights": [
+          5e-11,
+          0.5,
+          0.49999999995
+        ],
+        "canonical_weights": [
+          5e-11,
+          0.5,
+          0.49999999995
+        ],
+        "exact_ratios": [
+          "7737125245533627/154742504910672533722217915",
+          "77371252455336267181195264/154742504910672533722217915",
+          "77371252447599141295489024/154742504910672533722217915"
+        ],
+        "finite_U_probes": [
+          0.0,
+          4.9999999999999995e-11,
+          5e-11,
+          5.000000000000001e-11,
+          0.5000000000499999,
+          0.50000000005,
+          0.5000000000500001,
+          0.9999999999999999
+        ],
+        "actual_buckets": [
+          0,
+          0,
+          0,
+          1,
+          1,
+          2,
+          2,
+          2
+        ],
+        "mean": 0.5000000001,
+        "median": 1.0,
+        "interval": [
+          0.0,
+          1.0
+        ]
+      },
+      "observation_receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+        "bytes": 29453,
+        "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+      }
+    },
+    {
+      "id": "fresh_CAS_forged_alignment_shared_admission_removal",
+      "outcome": "PASS",
+      "detail": {
+        "fresh_integrity_valid_refs": {
+          "a": {
+            "artifact_id": "sha256:da1afd70dab35203ff11830402dcc90a8fa180bf02b9a44ea966ea0e58f84be2",
+            "kind": "ir.uncertainty_envelope",
+            "media_type": "application/json"
+          },
+          "b": {
+            "artifact_id": "sha256:464367b2243cf10017446dbdb95b9f79c0a1bf80a15f8da0cfc172839ffda1b0",
+            "kind": "ir.uncertainty_envelope",
+            "media_type": "application/json"
+          }
+        },
+        "strict_fresh_reader_rejections": [
+          "1 validation error for PosteriorSummaryProfileV2\n  Value error, posterior ratio profile identity/paired premise is invalid [type=value_error, input_value={'binding': None, 'carrie...on', 'thinning': 'none'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error",
+          "1 validation error for PosteriorSummaryProfileV2\n  Value error, posterior ratio profile identity/paired premise is invalid [type=value_error, input_value={'binding': None, 'carrie...on', 'thinning': 'none'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error"
+        ],
+        "current_callback_count": 0,
+        "removed_actual_callback_count": 257,
+        "required_callback0_control_after_removal": "FAIL",
+        "effective_removal_discriminator": "PASS",
+        "all_markers_and_digest_fields_retained": true
+      },
+      "observation_receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-candidate-delta-results.json",
+        "bytes": 10329,
+        "sha256": "f15fb2a9b18e67a6ba6ab63c3ed932d2f46c2d1a98af83409656bba29757d068"
+      }
+    },
+    {
+      "id": "hundred_atoms_fresh_CAS_exact_law_not_old_residual",
+      "outcome": "PASS",
+      "detail": {
+        "mean": 10000000000000.0,
+        "median": 0.0,
+        "interval": [
+          0.0,
+          0.0
+        ],
+        "exact_ratio": "1/100",
+        "all100_boundary_neighbor_comparisons": 298,
+        "stored_weight_sum": 50.0,
+        "fresh_ref": {
+          "artifact_id": "sha256:c6e0d88384f91436c36d290a3bfd75ab3a94c5725a1311de63711290c475fa00",
+          "kind": "ir.uncertainty_envelope",
+          "media_type": "application/json"
+        },
+        "explicit_grid_approximation": "finite_uniform_mesh_discretization",
+        "gate_eligible": false
+      },
+      "observation_receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+        "bytes": 29453,
+        "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+      }
+    },
+    {
+      "id": "nearest_float_proxy_diverges_effective_rounding_removal",
+      "outcome": "PASS",
+      "detail": {
+        "finite_U": 0.3333333333333333,
+        "same_input_canonical_weights": [
+          0.25,
+          0.5
+        ],
+        "exact_expected_bucket": 0,
+        "actual_with_rounding_removed": 1,
+        "required_boundary_control_after_removal": "FAIL",
+        "effective_removal_discriminator": "PASS",
+        "numeric_values_and_helper_presence_retained": true
+      },
+      "observation_receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+        "bytes": 29453,
+        "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+      }
+    },
+    {
+      "id": "producer_missing_joint_premise_refused",
+      "outcome": "PASS",
+      "detail": {
+        "actual_refusal": "posterior joint law requires explicit producer-supplied aligned draw IDs",
+        "nominal_or_evaluator_callbacks": 0,
+        "scope": "producer has no callback/store arguments; no emitter/consumer is invoked"
+      },
+      "observation_receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+        "bytes": 29453,
+        "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+      }
+    },
+    {
+      "id": "seven_literal_old700_profile1_mean_ABI_bytes_replay",
+      "outcome": "PASS",
+      "detail": {
+        "actual_seven_old700_payloads": [
+          {
+            "sha256": "6bb6dcc0e57c9bae2a12eccd64b2f212d77f1d5afc277b16e706b2b54592ea01",
+            "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+            "named_mean": 0.0,
+            "median": -1.0,
+            "same_raw_CAS_bytes": true
+          },
+          {
+            "sha256": "b1cb47300150f7bc69d379d2ef15703bab83ef5bd3ebea5b27c2011221aadc67",
+            "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+            "named_mean": 0.0,
+            "median": -1.0,
+            "same_raw_CAS_bytes": true
+          },
+          {
+            "sha256": "a446b56443f4ec5c3a4090227c46cf9fcda1b7b3f52229a513c78730323e55ed",
+            "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+            "named_mean": 0.0,
+            "median": -1.0,
+            "same_raw_CAS_bytes": true
+          },
+          {
+            "sha256": "f6fb5f18767393517c00379eca41f69502b821ee15c5b15c2c5cdfcb9e3daf48",
+            "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+            "named_mean": 0.0,
+            "median": -1.0,
+            "same_raw_CAS_bytes": true
+          },
+          {
+            "sha256": "062af073068907c37495e43f204f32b8e743a3c70e6c1d68e66a5e699d1fe112",
+            "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+            "named_mean": 0.0,
+            "median": -1.0,
+            "same_raw_CAS_bytes": true
+          },
+          {
+            "sha256": "aefdbc77c4a25fa2c8c05d5a9b83ad4d882612b7233d32c0185464a1031d6704",
+            "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+            "named_mean": 0.0,
+            "median": -1.0,
+            "same_raw_CAS_bytes": true
+          },
+          {
+            "sha256": "9ee56651abefd7cfb475a1d3b3401eb6f06fbad53cc5d2c9bf080e1eae7857f5",
+            "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+            "named_mean": 10000000000000.0,
+            "median": 0.0,
+            "same_raw_CAS_bytes": true
+          }
+        ],
+        "old_generated_multigroup_law": "Group admission now independently refuses positional identity, without changing individual legacy decode/display/replay."
+      },
+      "observation_receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+        "bytes": 29453,
+        "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+      }
+    },
+    {
+      "id": "unreachable_positive_atom_before_callback_halton",
+      "outcome": "PASS",
+      "detail": {
+        "actual_callback_count": 0,
+        "failure": "unsupported_finite_empirical_law",
+        "gate_eligible": false
+      },
+      "observation_receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+        "bytes": 29453,
+        "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+      }
+    },
+    {
+      "id": "unreachable_positive_atom_before_callback_random",
+      "outcome": "PASS",
+      "detail": {
+        "actual_callback_count": 0,
+        "failure": "unsupported_finite_empirical_law",
+        "gate_eligible": false
+      },
+      "observation_receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+        "bytes": 29453,
+        "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+      }
+    },
+    {
+      "id": "unreachable_positive_atom_before_callback_sobol",
+      "outcome": "PASS",
+      "detail": {
+        "actual_callback_count": 0,
+        "failure": "unsupported_finite_empirical_law",
+        "gate_eligible": false
+      },
+      "observation_receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+        "bytes": 29453,
+        "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+      }
+    },
+    {
+      "id": "value_sorted_tiny_tail_refused",
+      "outcome": "PASS",
+      "detail": {
+        "draw_order_reachable_first_rare_atom": true,
+        "sorted_positive_tail_unreachable_on_finite_U": true,
+        "actual_refusal": "positive posterior category has no finite-U bucket",
+        "supported_original_inverse_buckets": [
+          0,
+          1
+        ]
+      },
+      "observation_receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-candidate-delta-results.json",
+        "bytes": 10329,
+        "sha256": "f15fb2a9b18e67a6ba6ab63c3ed932d2f46c2d1a98af83409656bba29757d068"
+      }
+    },
+    {
+      "id": "weights_or_bucket_refusal_['1', 1]",
+      "outcome": "PASS",
+      "detail": {
+        "raw_weights": "['1', 1]",
+        "actual_refusal": "posterior weights require real numeric values (finite non-bool)"
+      },
+      "observation_receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+        "bytes": 29453,
+        "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+      }
+    },
+    {
+      "id": "weights_or_bucket_refusal_[-1, 1]",
+      "outcome": "PASS",
+      "detail": {
+        "raw_weights": "[-1, 1]",
+        "actual_refusal": "posterior weights exceed positive finite float64 support"
+      },
+      "observation_receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+        "bytes": 29453,
+        "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+      }
+    },
+    {
+      "id": "weights_or_bucket_refusal_[0, 0]",
+      "outcome": "PASS",
+      "detail": {
+        "raw_weights": "[0, 0]",
+        "actual_refusal": "posterior weights exceed positive finite float64 support"
+      },
+      "observation_receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+        "bytes": 29453,
+        "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+      }
+    },
+    {
+      "id": "weights_or_bucket_refusal_[0.5, 0.5, 1e-20]",
+      "outcome": "PASS",
+      "detail": {
+        "raw_weights": "[0.5, 0.5, 1e-20]",
+        "actual_refusal": "positive posterior category has no finite-U bucket"
+      },
+      "observation_receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+        "bytes": 29453,
+        "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+      }
+    },
+    {
+      "id": "weights_or_bucket_refusal_[1, 1e-20]",
+      "outcome": "PASS",
+      "detail": {
+        "raw_weights": "[1, 1e-20]",
+        "actual_refusal": "positive posterior category has no finite-U bucket"
+      },
+      "observation_receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+        "bytes": 29453,
+        "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+      }
+    },
+    {
+      "id": "weights_or_bucket_refusal_[True, 1]",
+      "outcome": "PASS",
+      "detail": {
+        "raw_weights": "[True, 1]",
+        "actual_refusal": "posterior weights require real numeric values (finite non-bool)"
+      },
+      "observation_receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+        "bytes": 29453,
+        "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+      }
+    },
+    {
+      "id": "weights_or_bucket_refusal_[inf, 1]",
+      "outcome": "PASS",
+      "detail": {
+        "raw_weights": "[inf, 1]",
+        "actual_refusal": "posterior weights exceed positive finite float64 support"
+      },
+      "observation_receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+        "bytes": 29453,
+        "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+      }
+    },
+    {
+      "id": "weights_or_bucket_refusal_[np.float64(1.7976931348623157e+308), np.float64(5e-324)]",
+      "outcome": "PASS",
+      "detail": {
+        "raw_weights": "[np.float64(1.7976931348623157e+308), np.float64(5e-324)]",
+        "actual_refusal": "power-of-two weight scaling changes the exact input law"
+      },
+      "observation_receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+        "bytes": 29453,
+        "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+      }
+    }
+  ],
+  "independent_oracle": {
+    "gold_derived_before_candidate": {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/exact-finite-oracle.json",
+      "bytes": 6369,
+      "sha256": "9ecfbdb387d63e1db764bd6cec49b26edcddb38c3ffeac4e82cbd586b682bfdc"
+    },
+    "source_mass_definition": "Exact Fraction(float(input_weight))/sum exact finite binary input weights.",
+    "bucket_definition": "For supplied finite U in [0,1), first exact rational cumulative mass greater than Fraction(U).",
+    "quantile_definition": "For supplied finite q, first positive value-sorted atom with exact cumulative mass >= Fraction(q).",
+    "expected_values_do_not_call_candidate_helpers": true,
+    "dyadic_fixture": {
+      "rows": [
+        [
+          0,
+          0
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          4,
+          5
+        ]
+      ],
+      "masses": [
+        1,
+        1,
+        2
+      ],
+      "y_mean": "21/4",
+      "y_variance": "243/16",
+      "complete_256_Sobol_row_counts": [
+        64,
+        64,
+        128
+      ]
+    }
+  },
+  "G_conditions": [
+    {
+      "condition": "Equal-length arrays alone do not establish aligned source rows.",
+      "old_actual_counterexample": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/actual-conditions-counterexamples.json",
+        "bytes": 18774,
+        "sha256": "d4827c252f4da22f69be8fb920dde6e6a5737553df43a199f886e115637b8042"
+      },
+      "new_producer": "New multi-coordinate producer refuses missing explicit producer-supplied draw IDs. Exact matching shared IDs/order/weights/context/carrier digest are bound across coordinate profiles.",
+      "new_strict_reader_and_callback_witness": {
+        "id": "fresh_CAS_forged_alignment_shared_admission_removal",
+        "outcome": "PASS",
+        "detail": {
+          "fresh_integrity_valid_refs": {
+            "a": {
+              "artifact_id": "sha256:da1afd70dab35203ff11830402dcc90a8fa180bf02b9a44ea966ea0e58f84be2",
+              "kind": "ir.uncertainty_envelope",
+              "media_type": "application/json"
+            },
+            "b": {
+              "artifact_id": "sha256:464367b2243cf10017446dbdb95b9f79c0a1bf80a15f8da0cfc172839ffda1b0",
+              "kind": "ir.uncertainty_envelope",
+              "media_type": "application/json"
+            }
+          },
+          "strict_fresh_reader_rejections": [
+            "1 validation error for PosteriorSummaryProfileV2\n  Value error, posterior ratio profile identity/paired premise is invalid [type=value_error, input_value={'binding': None, 'carrie...on', 'thinning': 'none'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error",
+            "1 validation error for PosteriorSummaryProfileV2\n  Value error, posterior ratio profile identity/paired premise is invalid [type=value_error, input_value={'binding': None, 'carrie...on', 'thinning': 'none'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error"
+          ],
+          "current_callback_count": 0,
+          "removed_actual_callback_count": 257,
+          "required_callback0_control_after_removal": "FAIL",
+          "effective_removal_discriminator": "PASS",
+          "all_markers_and_digest_fields_retained": true
+        },
+        "observation_receipt": {
+          "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-candidate-delta-results.json",
+          "bytes": 10329,
+          "sha256": "f15fb2a9b18e67a6ba6ab63c3ed932d2f46c2d1a98af83409656bba29757d068"
+        }
+      },
+      "effective_property_removal": "Remove only common profile/group admission in memory, retaining valid CAS hashes/all identity markers: original callback0 predicate fails with 257 actual callbacks.",
+      "predicate_basis": "recomputed",
+      "alignment_scientific_premise": "consumer_asserted; caller-supplied IDs are not independent scientific proof of source alignment/fit quality"
+    },
+    {
+      "condition": "Mean and CDF/quantiles must use the same admitted finite probabilities.",
+      "old_actual_counterexample": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/actual-conditions-counterexamples.json",
+        "bytes": 18774,
+        "sha256": "d4827c252f4da22f69be8fb920dde6e6a5737553df43a199f886e115637b8042"
+      },
+      "new_contract": "Distinct Profile2 stores exact binary ratio weights; mean and finite-U/finite-q classifiers derive from the same exact normalized rational masses. Ceil/right and floor/left cuts preserve exact rational classification for supplied finite values.",
+      "mesh_scope": "finite_uniform_mesh_discretization explicitly declared; sampler frequencies approximate the continuous ratio law. No arbitrary-real or continuous RNG exact-mean promise.",
+      "actual_fresh_CAS_witness": {
+        "id": "hundred_atoms_fresh_CAS_exact_law_not_old_residual",
+        "outcome": "PASS",
+        "detail": {
+          "mean": 10000000000000.0,
+          "median": 0.0,
+          "interval": [
+            0.0,
+            0.0
+          ],
+          "exact_ratio": "1/100",
+          "all100_boundary_neighbor_comparisons": 298,
+          "stored_weight_sum": 50.0,
+          "fresh_ref": {
+            "artifact_id": "sha256:c6e0d88384f91436c36d290a3bfd75ab3a94c5725a1311de63711290c475fa00",
+            "kind": "ir.uncertainty_envelope",
+            "media_type": "application/json"
+          },
+          "explicit_grid_approximation": "finite_uniform_mesh_discretization",
+          "gate_eligible": false
+        },
+        "observation_receipt": {
+          "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+          "bytes": 29453,
+          "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+        }
+      },
+      "effective_property_removal": {
+        "id": "nearest_float_proxy_diverges_effective_rounding_removal",
+        "outcome": "PASS",
+        "detail": {
+          "finite_U": 0.3333333333333333,
+          "same_input_canonical_weights": [
+            0.25,
+            0.5
+          ],
+          "exact_expected_bucket": 0,
+          "actual_with_rounding_removed": 1,
+          "required_boundary_control_after_removal": "FAIL",
+          "effective_removal_discriminator": "PASS",
+          "numeric_values_and_helper_presence_retained": true
+        },
+        "observation_receipt": {
+          "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+          "bytes": 29453,
+          "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+        }
+      },
+      "predicate_basis": "independently_reconciled"
+    }
+  ],
+  "compatibility": {
+    "Envelope_v1_1_model_and_codec_unchanged": true,
+    "Profile1_class_and_legacy_functionals_unchanged_AST": [
+      {
+        "symbol": "PosteriorSummaryProfile",
+        "AST_sha256": "9f825de628057bc0545c8b9d494bb971df195d12fbd45373a00ced5c80845fa4",
+        "source_base_equals_final": true
+      },
+      {
+        "symbol": "posterior_summary_functionals",
+        "AST_sha256": "4ffa60494ed1833e8980975ea4f734d4b27b56187f968bf8740ecc3a1992bf4b",
+        "source_base_equals_final": true
+      },
+      {
+        "symbol": "_posterior_cdf",
+        "AST_sha256": "4736b04517a296eaf408cf80b36ca6408e242f1171e9bf5121064cc066f487f4",
+        "source_base_equals_final": true
+      }
+    ],
+    "genuine_old_CAS_replay": {
+      "id": "seven_literal_old700_profile1_mean_ABI_bytes_replay",
+      "outcome": "PASS",
+      "detail": {
+        "actual_seven_old700_payloads": [
+          {
+            "sha256": "6bb6dcc0e57c9bae2a12eccd64b2f212d77f1d5afc277b16e706b2b54592ea01",
+            "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+            "named_mean": 0.0,
+            "median": -1.0,
+            "same_raw_CAS_bytes": true
+          },
+          {
+            "sha256": "b1cb47300150f7bc69d379d2ef15703bab83ef5bd3ebea5b27c2011221aadc67",
+            "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+            "named_mean": 0.0,
+            "median": -1.0,
+            "same_raw_CAS_bytes": true
+          },
+          {
+            "sha256": "a446b56443f4ec5c3a4090227c46cf9fcda1b7b3f52229a513c78730323e55ed",
+            "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+            "named_mean": 0.0,
+            "median": -1.0,
+            "same_raw_CAS_bytes": true
+          },
+          {
+            "sha256": "f6fb5f18767393517c00379eca41f69502b821ee15c5b15c2c5cdfcb9e3daf48",
+            "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+            "named_mean": 0.0,
+            "median": -1.0,
+            "same_raw_CAS_bytes": true
+          },
+          {
+            "sha256": "062af073068907c37495e43f204f32b8e743a3c70e6c1d68e66a5e699d1fe112",
+            "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+            "named_mean": 0.0,
+            "median": -1.0,
+            "same_raw_CAS_bytes": true
+          },
+          {
+            "sha256": "aefdbc77c4a25fa2c8c05d5a9b83ad4d882612b7233d32c0185464a1031d6704",
+            "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+            "named_mean": 0.0,
+            "median": -1.0,
+            "same_raw_CAS_bytes": true
+          },
+          {
+            "sha256": "9ee56651abefd7cfb475a1d3b3401eb6f06fbad53cc5d2c9bf080e1eae7857f5",
+            "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+            "named_mean": 10000000000000.0,
+            "median": 0.0,
+            "same_raw_CAS_bytes": true
+          }
+        ],
+        "old_generated_multigroup_law": "Group admission now independently refuses positional identity, without changing individual legacy decode/display/replay."
+      },
+      "observation_receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+        "bytes": 29453,
+        "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+      }
+    },
+    "Profile2_distinct_id_version": "urn:policyos:ir:bayesian-posterior-summary-profile:2 / 2.0",
+    "old_generated_multigroup": "Decode/display/replay preserved; law-dependent stochastic use now independently refuses unestablished positional joint premise.",
+    "new_mean_in_E_consumer": {
+      "id": "actual_native_fresh_E_named_mean_consumer",
+      "outcome": "PASS",
+      "detail": {
+        "actual_nominal_params": [
+          {
+            "x": 1.0
+          }
+        ],
+        "actual_callback_count": 257,
+        "persisted_fresh_output_ref": {
+          "artifact_id": "sha256:25662562c26e5fad201d39a02d336fee42b9b314b4bbad9e93db6c412c79681f",
+          "kind": "ir.uncertainty_envelope",
+          "media_type": "application/json"
+        },
+        "centered_output_support": [
+          -1.0,
+          99.0
+        ],
+        "gate_eligible": false
+      },
+      "observation_receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+        "bytes": 29453,
+        "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+      }
+    },
+    "public_model_inventory": {
+      "id": "actual_public_facade_ABI_inventory_and_large_finite_spread",
+      "outcome": "PASS",
+      "detail": {
+        "actual_IR_model_inventory_count": 101,
+        "base_actual_count": 100,
+        "delta": 1,
+        "registered_new_key": "posterior_summary_profile_v2",
+        "old_root_type_identity": true,
+        "new_root_type_identity": true,
+        "std_for_0_1e200": 5e+199,
+        "std_for_0_2": 1.0,
+        "generated_schema_publication": "Owner packet still pending; no generated-file edits or global-gate PASS claimed."
+      },
+      "observation_receipt": {
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+        "bytes": 29453,
+        "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+      }
+    },
+    "source_review_says_nothing_about_unmeasured_C_or_F_consumers": true
+  },
+  "environment": {
+    "executable": "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+    "prefix": "/workspace/e02-E-doe-20261006/policy-engine/.venv",
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "pydantic": "2.12.5",
+    "jax": "0.8.2",
+    "pytest": "9.0.2"
+  },
+  "execution_commands": {
+    "first": [
+      "PYTHONPATH=/workspace/e02-E-mc-20261006/policy-engine/src",
+      "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+      "-B",
+      "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.py.txt"
+    ],
+    "delta": [
+      "REVIEW_ONLY=exact_boundary_sorted_quantile_[1e-20, 0.5, 0.5]|fresh_CAS_forged_alignment_shared_admission_removal|value_sorted_tiny_tail_refused",
+      "PYTHONPATH=/workspace/e02-E-mc-20261006/policy-engine/src",
+      "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+      "-B",
+      "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent_candidate_review.py"
+    ],
+    "note": "Archived first script is literal original observer source. Script source guard intentionally pins immutable2c; ca reuse is justified by complete seven-product byte equality, not an unrecorded replay on ca."
+  },
+  "predicate_basis": {
+    "exact_weight_ratios_mean_quantile_and_dyadic_callback_rows": "independently_reconciled",
+    "CAS_kind_schema_content_profile_context_joint_digest_and_callback0_admission": "recomputed",
+    "producer_supplied_alignmentIDs_units_estimands_lineage_premise": "consumer_asserted",
+    "posterior_fit_quality_coverage_causal_policy_authority_and_actual_production_history": "not_established"
+  },
+  "limitations_and_next_owner": [
+    "All observed outputs remain gate_eligible=false; IDs/context digests do not confer posterior-quality, covariance, coverage or causal authority.",
+    "Canonical generator/public-surface owner must publish distinct Profile2 schemas/inventory/runtime API companions and validate their consumers; generated files were not edited by E here.",
+    "G accepts source separately from finding closure; E accountable owner must decide original B201/B202 criteria using these bounded receipts, not aggregate PASS counts.",
+    "C/F compatibility decisions belong to their canonical owners; this review measures real E producer/CAS/reader/sampler/node and genuine old payload replay only.",
+    "ROOT source/interpreter/package/backend are untouched; existing DOE helper interpreter only reads immutable MC source. No new environment, child agent or broad wave.",
+    "No cleanup performed. Repeatable CAS fixture directories are candidates after deciding receipts and no-users check; original source, scripts, receipts and unique data are retained."
+  ],
+  "historical_original_refs": [
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/actual-conditions-counterexamples.json",
+      "bytes": 18774,
+      "sha256": "d4827c252f4da22f69be8fb920dde6e6a5737553df43a199f886e115637b8042"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/independent-owner-response.json",
+      "bytes": 11390,
+      "sha256": "f3878619073bf02ed4b66f89525958d0cb5c5d929cd1f860a9535a438e1ae5ca"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/exact-finite-oracle.json",
+      "bytes": 6369,
+      "sha256": "9ecfbdb387d63e1db764bd6cec49b26edcddb38c3ffeac4e82cbd586b682bfdc"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/literal-legacy-profile700-fixture-index.json",
+      "bytes": 8473,
+      "sha256": "2ca74a333bf836d2fbbbbfc0712bc38625a2241008c633b39104ab82351fb3fc"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/preliminary-companion-independent-review.json",
+      "bytes": 27554,
+      "sha256": "467a2bdda1d93e337ad94d80e449c99d77ecdd8bf2f24aff3e85b35fd5a5dff0"
+    }
+  ],
+  "cleanup_candidates": [
+    "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/forged-cas",
+    "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/forged-cas-delta",
+    "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/hundred-cas",
+    "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/native-None-cas",
+    "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/native-inline_bool-cas",
+    "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/native-inline_string-cas",
+    "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/native-raw_bool-cas",
+    "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/native-raw_string-cas",
+    "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/old-replay-cas",
+    "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/paired-halton-cas",
+    "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/paired-random-cas",
+    "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/paired-sobol-cas"
+  ]
+}

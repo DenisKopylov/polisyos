@@ -1,0 +1,19 @@
+{
+  "base_candidate": "ca17a489559eb574285bb1c7291cc3c56a9e29da",
+  "changed_path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+  "old_sha256": "d5bc3c3351a53ce5da3f8c561bc44362108b8667f115bab5d1531eab6ebc3373",
+  "new_sha256": "737af1672db198c1465da8fcf009cd470f479ac342327e4699fb831b91dd0b24",
+  "all_functions_and_methods_AST_equal": true,
+  "legacy_Profile1_class_AST_equal": true,
+  "actual_all103_model_schemas_equal": true,
+  "ABI_count_before": 103,
+  "ABI_count_after": 103,
+  "actual_native_DTO_CAS_XML": {
+    "cases": 13,
+    "failure": 0,
+    "error": 0,
+    "skip": 0
+  },
+  "runtime_OpenAPI_dependency_hash": "May change because canonical source_dependency_hash binds actual file bytes; owner will recompute only runtime projection delta on final immutable source.",
+  "finding_closure": "No automatic finding disposition or global gate PASS from this DTO delta."
+}

@@ -1,0 +1,11 @@
+{
+  "candidate": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+  "expected_tree": "2e692d5a5dfa4cfbff78d0079c6fed3e4ba1a73f",
+  "actual_HEAD_tree": [
+    "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+    "2e692d5a5dfa4cfbff78d0079c6fed3e4ba1a73f"
+  ],
+  "clean": true,
+  "complete_status_output": "",
+  "all_deciding_commands_complete": true
+}

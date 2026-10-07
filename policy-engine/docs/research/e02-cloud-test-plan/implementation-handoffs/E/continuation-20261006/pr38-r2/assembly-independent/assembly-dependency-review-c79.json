@@ -1,0 +1,902 @@
+{
+  "schema": "e02.E.independent.assembly_dependency_review.v1",
+  "reviewer": "root/cal_uq_r3; independent assembly joins, no own CAL mechanism self-review",
+  "mode": "read-only Git/source/AST/document receipts; no numerical wave/global guard/new environment/worktree",
+  "base": "028829629a9c30454e44d25e7bea7be3ea05b561",
+  "candidate": "c79de1a8779482cf485317039fe12e3570ae2273",
+  "tree": "a2c9076c618a241d7a7a02e666f8b3648c94b3cd",
+  "last_product_source": "bf3b54c3a894d2d9d9bfb0cd13edb13177405f33",
+  "metadata_companion": "7dc540d08d30bad8cf23744172c253c934dfc77e",
+  "flag_companion": "7bc65f73d333bc4a526c55d8a959d2b7dea7e472",
+  "observed_head_start": "c79de1a8779482cf485317039fe12e3570ae2273",
+  "observed_head_end": "c79de1a8779482cf485317039fe12e3570ae2273",
+  "working_tree_start": "M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/README.md\n M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+  "working_tree_end": "M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/README.md\n M policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+  "product_source_working_delta": "empty",
+  "working_tree_limit": "uncommitted wave-controls browser path/README and pending three harness Ruff changes excluded; separate independent DoE review required before freeze",
+  "source_identity": {
+    "tracked_source_count": 2915,
+    "aggregate_sha256": "e042b3c5e738ac0f8fb8116c50d9d3d63f86041d94c30513da2bb7b39de22e13",
+    "actual_working_source_all_matches_pinned_Git": true,
+    "before_after_equal": true
+  },
+  "footprint": {
+    "full_paths": 929,
+    "full_footprint": "full-committed-footprint.tsv",
+    "full_footprint_sha256": "7f6805a5ed0f5336552e67c95c40d35fc3fe5c77253e130d4f47394cee4c49db",
+    "source_paths": 32,
+    "operational_paths": 63,
+    "operational_coverage_complete": true,
+    "no_omitted_mechanism_or_companions": true,
+    "coverage": {
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-finite-sampling-law.toml": "MC",
+      "policy-engine/src/polisyos/foundry/uncertainty/dispatcher.py": "MC",
+      "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py": "MC",
+      "policy-engine/tests/unit/foundry/uncertainty/test_finite_empirical_law.py": "MC",
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-gaussian-noise-preflight-r2.toml": "CAL",
+      "policy-engine/src/polisyos/foundry/calibration/README.md": "CAL",
+      "policy-engine/src/polisyos/foundry/calibration/calibrator.py": "CAL",
+      "policy-engine/src/polisyos/foundry/calibration/preflight.py": "CAL",
+      "policy-engine/tests/unit/foundry/calibration/test_gaussian_noise_preflight.py": "CAL",
+      "policy-engine/release-fragments/unreleased/2026-10-06-doe-block-replay.toml": "DOE",
+      "policy-engine/src/polisyos/scientist/methods/doe/README.md": "DOE",
+      "policy-engine/src/polisyos/scientist/methods/doe/analysis.py": "DOE",
+      "policy-engine/tests/unit/scientist/methods/doe/test_analysis_enhanced.py": "DOE",
+      "policy-engine/tests/unit/scientist/methods/doe/test_analysis_receipt.py": "DOE",
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-ddm-source-binding.toml": "DDM",
+      "policy-engine/src/polisyos/ddm/README.md": "DDM",
+      "policy-engine/src/polisyos/ddm/integration/model_registry.py": "DDM",
+      "policy-engine/src/polisyos/ddm/integration/model_registry_gate.md": "DDM",
+      "policy-engine/src/polisyos/ddm/integration/model_registry_record.schema.json": "DDM",
+      "policy-engine/src/polisyos/ddm/integration/model_registry_record.v1.schema.json": "DDM",
+      "policy-engine/tests/unit/ddm/test_registry_schema_compatibility.py": "DDM",
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-pcl-configured-consumer.toml": "PCL",
+      "policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py": "PCL",
+      "policy-engine/src/polisyos/foundry/methods/README.md": "PCL",
+      "policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py": "PCL",
+      "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py": "PCL",
+      "policy-engine/tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py": "PCL",
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-backtest-native-trajectory.toml": "BKT",
+      "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py": "BKT",
+      "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py": "BKT",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py": "BKT",
+      "policy-engine/tests/unit/scientist/methods/backtesting/test_native_replay.py": "BKT",
+      "policy-engine/src/polisyos/scientist/methods/backtesting/README.md": "BKT publication README",
+      "policy-engine/src/polisyos/calibration/forecast_bridge.py": "FRC",
+      "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py": "FRC",
+      "policy-engine/tests/unit/remediation/test_frc_02_owner.py": "FRC",
+      "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py": "FRC",
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-forecast-source-measurement.toml": "FRC",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py": "Welfare",
+      "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py": "Welfare",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/README.md": "Welfare",
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-welfare-empirical-law.toml": "Welfare",
+      "policy-engine/src/polisyos/scientist/nodes/README.md": "Legacy B197 immutable companions",
+      "policy-engine/tests/unit/scientist/nodes/test_calibration_report_consumer.py": "Legacy B197 immutable companions",
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-legacy-consumer.toml": "Legacy B197 immutable companions",
+      "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py": "Common law guard",
+      "policy-engine/tests/unit/foundry/uncertainty/test_sampling_real_domain.py": "Common law guard",
+      "policy-engine/src/polisyos/calibration/__init__.py": "Canonical routing",
+      "policy-engine/src/polisyos/foundry/uncertainty/__init__.py": "Canonical routing",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py": "Canonical routing",
+      "policy-engine/tests/unit/calibration/test_evidence_facades.py": "Canonical routing",
+      "policy-engine/architecture/public_surface/inventory.json": "Canonical generated metadata",
+      "policy-engine/docs/reference/public-surface.md": "Canonical generated metadata",
+      "policy-engine/src/polisyos/foundry/uncertainty/README.md": "Canonical generated metadata",
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-foundry-calibration-reader.toml": "Stable reader review flag",
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml": "root/family documentation companion",
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-current-handler-publication.toml": "root/family documentation companion",
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-evidence-facades.toml": "root/family documentation companion",
+      "policy-engine/release-fragments/unreleased/2026-10-06-e02-finite-law-admission-facade.toml": "root/family documentation companion",
+      "policy-engine/src/polisyos/calibration/README.md": "root/family documentation companion",
+      "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py": "Foreign G-accepted B runtime",
+      "policy-engine/tests/unit/remediation/test_dur_02_process.py": "Foreign G-accepted B runtime",
+      "policy-engine/tests/unit/runtime/http/test_control_plane_store.py": "Foreign G-accepted B runtime"
+    }
+  },
+  "families": [
+    {
+      "family": "MC",
+      "source": "d69d2fad34de9923209fde3e20439e46f36f6750",
+      "tree": "e7891ec257a0487b1be5ae39adca5ea05d28f251",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/mc/review.json",
+      "review_sha256": "6addb4521bd2d637a8075d416a363e993780fdeedf8778d8e50c08cc8ac8e7e3",
+      "reuse_basis": "byte-identical accepted mechanism and companions",
+      "checks": [
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-finite-sampling-law.toml",
+          "reviewed_blob": "64e4843cbff602df22d87cad76654a7dcb9217fb",
+          "assembled_blob": "64e4843cbff602df22d87cad76654a7dcb9217fb",
+          "sha256": "dec7fc8990cddb249eea39eea26dc7c13c980e72f1f051489ba561e612ab2dc0",
+          "bytes": 1634,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/uncertainty/dispatcher.py",
+          "reviewed_blob": "fff6eab6ca8c42e6c4eae9c91a6adda38bd82d31",
+          "assembled_blob": "fff6eab6ca8c42e6c4eae9c91a6adda38bd82d31",
+          "sha256": "6127d211f01dd89b762a49a3f537a8374131661f363ef06ce64c19285266ec4e",
+          "bytes": 12271,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+          "reviewed_blob": "7531a2ab9fd824e05f74e33f49a3d9f9386c57c9",
+          "assembled_blob": "7531a2ab9fd824e05f74e33f49a3d9f9386c57c9",
+          "sha256": "bb84f24451cd90a51d59f1593f7798ad46caf1cbddb5c7b3bacd47edffd893c7",
+          "bytes": 70840,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/uncertainty/test_finite_empirical_law.py",
+          "reviewed_blob": "64bc7fd577e919580aab990138947cd8d6b9c830",
+          "assembled_blob": "64bc7fd577e919580aab990138947cd8d6b9c830",
+          "sha256": "de4f5feed308eaf622977b78a50ad35031c594f11eeea13a1b64eee513c107a2",
+          "bytes": 8458,
+          "equal": true
+        }
+      ]
+    },
+    {
+      "family": "CAL",
+      "source": "45b834534958c262a8146e6c4d847cf8d53846bc",
+      "tree": "f9abc4e615bc81c8f8a8060338d35c560af71374",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/review.json",
+      "review_sha256": "032c1beef8ba54e2042926439852a13895c83d569c41dce7f5f2064edea314ec",
+      "reuse_basis": "byte-identical accepted mechanism and companions",
+      "checks": [
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-gaussian-noise-preflight-r2.toml",
+          "reviewed_blob": "028667a624665b21a97d4c465362087ce7528587",
+          "assembled_blob": "028667a624665b21a97d4c465362087ce7528587",
+          "sha256": "939af05d4f18e97613d1691840361cf2ed624eaf08d7318bceb79e0a47288ab6",
+          "bytes": 1402,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/calibration/README.md",
+          "reviewed_blob": "64666489a64c671d65c0aecfd18089581bd905e0",
+          "assembled_blob": "64666489a64c671d65c0aecfd18089581bd905e0",
+          "sha256": "545b5ebb10ad22e400ef2315ff7c9e4eca898d67a14a00d4a5e50b7c138171d4",
+          "bytes": 8884,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/calibration/calibrator.py",
+          "reviewed_blob": "c0811821f814a05eaa001450beee9aba3e73bb7e",
+          "assembled_blob": "c0811821f814a05eaa001450beee9aba3e73bb7e",
+          "sha256": "6ca715f13ca9ee0cd825ebea359d4cdaca0cbe67090e930d56fb224f7dbb8aca",
+          "bytes": 92721,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/calibration/preflight.py",
+          "reviewed_blob": "458f6f508e11a5e297abd3cefcd255ceb91aa2c7",
+          "assembled_blob": "458f6f508e11a5e297abd3cefcd255ceb91aa2c7",
+          "sha256": "d6644d1c49efc82a7aaa4436b7c413251f54196867d80405a100dfa0c0203c28",
+          "bytes": 14265,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/calibration/test_gaussian_noise_preflight.py",
+          "reviewed_blob": "e637c2c06523497a3992c9739c9600cb2bb3812f",
+          "assembled_blob": "e637c2c06523497a3992c9739c9600cb2bb3812f",
+          "sha256": "7af89a525a5e011567a8fd60c66e6c814ac7c934caa3f13e5c374906ca5116fc",
+          "bytes": 7789,
+          "equal": true
+        }
+      ]
+    },
+    {
+      "family": "DOE",
+      "source": "f07b7d485531b96a206ae9b2aad7acf5f2755324",
+      "tree": "8dcd5c26a4868e1b055a54a6cd53365e9d5890f3",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe-independent-review-f07.json",
+      "review_sha256": "5efd1bbc2f423a33918aa8c74dd905c3577ff562314ced7a93ca75cb9f467ba5",
+      "reuse_basis": "byte-identical accepted mechanism and companions",
+      "checks": [
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-06-doe-block-replay.toml",
+          "reviewed_blob": "595c6431fa25a23437fe55aaabb91b785ca28c7c",
+          "assembled_blob": "595c6431fa25a23437fe55aaabb91b785ca28c7c",
+          "sha256": "e197a9245b43a638c8350d40ff06ce49fdd5b976f1525588085fcc6d19bb464c",
+          "bytes": 1211,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/README.md",
+          "reviewed_blob": "2e36f3eed57f5f20e6221d685b168e0819f148a5",
+          "assembled_blob": "2e36f3eed57f5f20e6221d685b168e0819f148a5",
+          "sha256": "def483b2be73f87f912c8d75fb2805ce9d6d0dc5c6447753ba1160775bff3b00",
+          "bytes": 7496,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+          "reviewed_blob": "fe40ae4af8191165733294d5f227164c2d64fe5e",
+          "assembled_blob": "fe40ae4af8191165733294d5f227164c2d64fe5e",
+          "sha256": "db87129797adc4c8c882655a95edd789b44381c47af85cff658e91e1f658e81c",
+          "bytes": 19279,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/doe/test_analysis_enhanced.py",
+          "reviewed_blob": "af15f454e4dddac5bd51b362b1656bc97243f7a5",
+          "assembled_blob": "af15f454e4dddac5bd51b362b1656bc97243f7a5",
+          "sha256": "eb2ab3f3a1b72402685bb5d386be57b4f42de5e64a3eeb679d320fc9cc277a28",
+          "bytes": 6731,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/doe/test_analysis_receipt.py",
+          "reviewed_blob": "efe66bc736ce77927165a468fef12be63bf4e4e8",
+          "assembled_blob": "efe66bc736ce77927165a468fef12be63bf4e4e8",
+          "sha256": "66a3482c1f54f768287a907f0809e5e061d204de2db80cd4467be840908fdf98",
+          "bytes": 12547,
+          "equal": true
+        }
+      ]
+    },
+    {
+      "family": "DDM",
+      "source": "4c5afb1dc10b4e3f4dbc10b50ca6066de9b08ccb",
+      "tree": "1a029606997d55eef14cd5e2f29a12daa300b2f1",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/review.json",
+      "review_sha256": "032c1beef8ba54e2042926439852a13895c83d569c41dce7f5f2064edea314ec",
+      "reuse_basis": "byte-identical accepted mechanism and companions",
+      "checks": [
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-ddm-source-binding.toml",
+          "reviewed_blob": "7090821f0d11bdb1252d5f3f9a995ce1ef7b25d5",
+          "assembled_blob": "7090821f0d11bdb1252d5f3f9a995ce1ef7b25d5",
+          "sha256": "807fcc8d0348a1867ecd21851169113bd33f4f3971307cd4da2e06e0fae5e1d7",
+          "bytes": 1667,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/ddm/README.md",
+          "reviewed_blob": "d523b4b733da5023e8add28885c10b8b7b4be2a5",
+          "assembled_blob": "d523b4b733da5023e8add28885c10b8b7b4be2a5",
+          "sha256": "dcc60dbd5a8d631619e8e326f8b9d24d5edef56a1c4f1a0f7a41424333bf5760",
+          "bytes": 2646,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/ddm/integration/model_registry.py",
+          "reviewed_blob": "2e6796867c4811868e291bc526a9c3c5999f7183",
+          "assembled_blob": "2e6796867c4811868e291bc526a9c3c5999f7183",
+          "sha256": "a735a52e743f835f5ff6251d82a8f55fb23affed19ae1b8d0ec5ebc2a5d66f10",
+          "bytes": 31931,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/ddm/integration/model_registry_gate.md",
+          "reviewed_blob": "1b84e782c8f889e30d7f569e437070bc2a9d7b1c",
+          "assembled_blob": "1b84e782c8f889e30d7f569e437070bc2a9d7b1c",
+          "sha256": "8365b630a97557f3483e7265145ac4b8b2306b6b438cf4257b3e7b72d9f79939",
+          "bytes": 7873,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/ddm/integration/model_registry_record.schema.json",
+          "reviewed_blob": "0277bc66c1587a1ea4918de94cb79eac419d4956",
+          "assembled_blob": "0277bc66c1587a1ea4918de94cb79eac419d4956",
+          "sha256": "f67350d1606ccc754a446790db635a812f78bba3d492f7ffc123063a666b3c84",
+          "bytes": 4485,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/ddm/integration/model_registry_record.v1.schema.json",
+          "reviewed_blob": "25fd9d2faad3585e2ba87c72c41f63270687d1cb",
+          "assembled_blob": "25fd9d2faad3585e2ba87c72c41f63270687d1cb",
+          "sha256": "92a594ac542a59e1d4dab4d867b11d9430ecd6f56ee2e6f3fea7c9b0b51089a7",
+          "bytes": 4074,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/tests/unit/ddm/test_registry_schema_compatibility.py",
+          "reviewed_blob": "570b29004553f80d63086804a8a782b9bb3d9b8b",
+          "assembled_blob": "570b29004553f80d63086804a8a782b9bb3d9b8b",
+          "sha256": "33ad1986cac616c0bf4fc4b5c67954310717ec6c5048c8002464fe4e21dc1504",
+          "bytes": 8495,
+          "equal": true
+        }
+      ]
+    },
+    {
+      "family": "PCL",
+      "source": "ffd23ae3a3e71a4d2cf1fa305ec2015f513269e9",
+      "tree": "bc60af14857dc90ce9317f3cd826a3455a9eb691",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/review.json",
+      "review_sha256": "0b9341bb2fdd27d0568b7557390dc553f65447e7127949e97c61134e5517a805",
+      "reuse_basis": "byte-identical accepted mechanism and companions",
+      "checks": [
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-pcl-configured-consumer.toml",
+          "reviewed_blob": "36d32874fc68496d690c110ad6411e47a5ed6977",
+          "assembled_blob": "36d32874fc68496d690c110ad6411e47a5ed6977",
+          "sha256": "ef2c4f2d03b4bd2dcdf983739f1ae8d60ef890ad4218e0b310cce8dbb17501c9",
+          "bytes": 1364,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py",
+          "reviewed_blob": "8d22828e23a0a26817be0943022b5b99e7bf03a4",
+          "assembled_blob": "8d22828e23a0a26817be0943022b5b99e7bf03a4",
+          "sha256": "93f563291d569fbb22c36ca47cf9abb2b6478565bd81b390cb9c44d6521a76b8",
+          "bytes": 42347,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/methods/README.md",
+          "reviewed_blob": "9801f945bb9cf91d39f1766bb77ba6bc8597b3ec",
+          "assembled_blob": "9801f945bb9cf91d39f1766bb77ba6bc8597b3ec",
+          "sha256": "fb0d14b9c3908fb37094f60d5de38399628d2674bd4b0aac6d45fba3d302aa50",
+          "bytes": 9119,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py",
+          "reviewed_blob": "dc9c56e70e15b8c3b09329c0df23059a4b6501ab",
+          "assembled_blob": "dc9c56e70e15b8c3b09329c0df23059a4b6501ab",
+          "sha256": "e7fdf9ed774330ab9d89290370d1bb93ab604eeec3d69592c9906f1ac78f7e8e",
+          "bytes": 5418,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+          "reviewed_blob": "7ca3d5b6637a7677fc54a4e178262dd0fcf0e081",
+          "assembled_blob": "7ca3d5b6637a7677fc54a4e178262dd0fcf0e081",
+          "sha256": "66fc76228ba02f1469cae40b33f64ac504845d72451ad6d0668c27a3cdadf9c3",
+          "bytes": 90744,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py",
+          "reviewed_blob": "81c11583e308041d9e026db275a0436a7a521eec",
+          "assembled_blob": "81c11583e308041d9e026db275a0436a7a521eec",
+          "sha256": "ad4c0101b0529b05011cde97a7b23d8d40ee2ffe443aa991556357ced0d4d3ea",
+          "bytes": 9343,
+          "equal": true
+        }
+      ]
+    },
+    {
+      "family": "BKT",
+      "source": "0983d064df3c3e21f8b1accff4ee90484d78973b",
+      "tree": "438277e00ae3cdaf6c7729c509d40fa09464e88f",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-chain-admission-r2-checks/independent-review-go-0983.json",
+      "review_sha256": "1eae3da73b365a740e90f8b565b9667d55a545726c3ed8ec441d0e8868b3a5f9",
+      "reuse_basis": "byte-identical accepted mechanism and companions",
+      "checks": [
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-backtest-native-trajectory.toml",
+          "reviewed_blob": "56270953b3173a37cd77fa39b82d3420c7db7933",
+          "assembled_blob": "56270953b3173a37cd77fa39b82d3420c7db7933",
+          "sha256": "bb2fa1003d92bb8e84bec43a91bb467dd6fd5fd115120718f986b32e58a89793",
+          "bytes": 1843,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+          "reviewed_blob": "c633f081a4ea6b5b242e670aca831bf46213c5bc",
+          "assembled_blob": "c633f081a4ea6b5b242e670aca831bf46213c5bc",
+          "sha256": "c334d79aa079f0fc61fde33554e12ae24849495860a74134630fcafe360c24e9",
+          "bytes": 26958,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+          "reviewed_blob": "ff4d436808dee6e56a79a15abda5c6c6cd49c444",
+          "assembled_blob": "ff4d436808dee6e56a79a15abda5c6c6cd49c444",
+          "sha256": "8969a05db324abd9b65d58f58333a221f171f1074b027ce3ab01eeb0399675e2",
+          "bytes": 57679,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/run_simulation.py",
+          "reviewed_blob": "79367fe7a9d8cc1ae0a5199318691915de113d6b",
+          "assembled_blob": "79367fe7a9d8cc1ae0a5199318691915de113d6b",
+          "sha256": "f8e601bc9a8aedd148c910712afa4658043c8e1f00178fa46c8c68bef112994b",
+          "bytes": 29327,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_native_replay.py",
+          "reviewed_blob": "b3d55a28f1345e7d7286883345aa98bf03ac76f1",
+          "assembled_blob": "b3d55a28f1345e7d7286883345aa98bf03ac76f1",
+          "sha256": "f5d87f82e6008cb3956445c6ec506519091559db8d10f7f626449fdaab40bc5c",
+          "bytes": 17648,
+          "equal": true
+        }
+      ]
+    },
+    {
+      "family": "BKT publication README",
+      "source": "07fca57f9c7c2a3576796650e88f321b2f9e26be",
+      "tree": "f59bf6e11f99afe04f2a12feb67d6093e80dbc8b",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-chain-admission-r2-checks/independent-review-go-0983.json",
+      "review_sha256": "1eae3da73b365a740e90f8b565b9667d55a545726c3ed8ec441d0e8868b3a5f9",
+      "reuse_basis": "documentation-only companion; technical source checked separately",
+      "checks": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/backtesting/README.md",
+          "reviewed_blob": "46dca4dc8b5f9fd623b089d8f92d7db668adde57",
+          "assembled_blob": "46dca4dc8b5f9fd623b089d8f92d7db668adde57",
+          "sha256": "7c2dd084efa3059ef75dda874b8bd3a90e0b2bdc6fceb0144df9e49e93f26a36",
+          "bytes": 6971,
+          "equal": true
+        }
+      ]
+    },
+    {
+      "family": "FRC",
+      "source": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+      "tree": "3be4935b1bfa426a71f8581bc376fa322145fe31",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/frc-independent-review-8486.json",
+      "review_sha256": "639ea31dbd960c6985e87056d360763e54d78db8f07299df7c91fdca771cd12b",
+      "reuse_basis": "FRC producer/writer/loader/neutral adapter unchanged; overlapping root facade exports separately reviewed at bf3",
+      "checks": [
+        {
+          "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+          "reviewed_blob": "b3bce8ce42df233d434196fafdca31225e949c18",
+          "assembled_blob": "b3bce8ce42df233d434196fafdca31225e949c18",
+          "sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6",
+          "bytes": 81721,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+          "reviewed_blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+          "assembled_blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+          "sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3",
+          "bytes": 59611,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_frc_02_owner.py",
+          "reviewed_blob": "db9cf3bf3b79473c0bbf71e2a622f8b10b044795",
+          "assembled_blob": "db9cf3bf3b79473c0bbf71e2a622f8b10b044795",
+          "sha256": "a8696d011c3d56f6b03117c7eb897a8d867ae5cec99a13c2cb262de5fe2676a1",
+          "bytes": 20531,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+          "reviewed_blob": "7f71808fa8c56e861c9ed359c22c5297d2b3613d",
+          "assembled_blob": "7f71808fa8c56e861c9ed359c22c5297d2b3613d",
+          "sha256": "0d0127d5784ea5a265fcf20fb7a0551bc773f748f84b1e01de6c27eeb09eaef1",
+          "bytes": 17995,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-forecast-source-measurement.toml",
+          "reviewed_blob": "eb1ee71487f4bfa114d499a8314dd3d256dec3a6",
+          "assembled_blob": "eb1ee71487f4bfa114d499a8314dd3d256dec3a6",
+          "sha256": "ac26be1a6cbecc2a629b89d7fc247a1be4a7493d4a27fc364828f2d76bbbd844",
+          "bytes": 2157,
+          "equal": true
+        }
+      ]
+    },
+    {
+      "family": "Welfare",
+      "source": "884681db485b7466b183a206f83bbe0635f86ca3",
+      "tree": "b9cdce22cd8af3bee3cda176207242a8381cbe1b",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/welfare-independent-review-884681.json",
+      "review_sha256": "fbc90699b4135f4fb6df07e2bfdcf06e5cb163755fe97ae739b9fd52d1ec25c9",
+      "reuse_basis": "own independent884 review reused only for identical Welfare body; common helpers upgraded via separate independent5cd native review",
+      "checks": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "reviewed_blob": "6d55aad4d5b25d1851fd626d863718ee7fefc9b7",
+          "assembled_blob": "6d55aad4d5b25d1851fd626d863718ee7fefc9b7",
+          "sha256": "457623e5b861c3bf8089d1460fe22f15b7175e8be72088f6673b5584d153225f",
+          "bytes": 192675,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py",
+          "reviewed_blob": "4898ce5f70c3ba917983550b218d68d0d5da49cc",
+          "assembled_blob": "4898ce5f70c3ba917983550b218d68d0d5da49cc",
+          "sha256": "e906049b7a50cfb7d11f89f8edce0dbf35ad5dc08799573df033a0758d566152",
+          "bytes": 11774,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/README.md",
+          "reviewed_blob": "704355fada8f62da6f71d3f2049370b5ea30b461",
+          "assembled_blob": "704355fada8f62da6f71d3f2049370b5ea30b461",
+          "sha256": "913a97bf924a20bbe8f083abbeb5ccdd236354911a537760a9970f0672f7c95e",
+          "bytes": 1773,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-welfare-empirical-law.toml",
+          "reviewed_blob": "0ef411ffdcd7a4e2887277d8a52728feac6432cc",
+          "assembled_blob": "0ef411ffdcd7a4e2887277d8a52728feac6432cc",
+          "sha256": "38582daad7bcbda3cac7ba084a6e2a9625dab3897e43fa7c4dc5600252c66cbc",
+          "bytes": 1053,
+          "equal": true
+        }
+      ]
+    },
+    {
+      "family": "Legacy B197 immutable companions",
+      "source": "1e942ff624ae7cb6c71227d48eef760687e17d2b",
+      "tree": "5ca96536971c4e96bea84d83690d28a14a44c36e",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/legacy-consumer-independent-review-1e942.json",
+      "review_sha256": "b38e81902342c3f88edfff0c319bf1938f45ce1b8354e7a7888da10378fed401",
+      "reuse_basis": "byte-identical accepted mechanism and companions",
+      "checks": [
+        {
+          "path": "policy-engine/src/polisyos/scientist/nodes/README.md",
+          "reviewed_blob": "85c8915809fbf8734e4fff0664dfe627449f2c69",
+          "assembled_blob": "85c8915809fbf8734e4fff0664dfe627449f2c69",
+          "sha256": "97af4f97c3217bfb04a23ce07dab8c58dd7585312f0d46e5c9855c3b7d95464e",
+          "bytes": 7093,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/tests/unit/scientist/nodes/test_calibration_report_consumer.py",
+          "reviewed_blob": "7c687ca9119a7fbdce0e45ec57dfd4c61067d466",
+          "assembled_blob": "7c687ca9119a7fbdce0e45ec57dfd4c61067d466",
+          "sha256": "26d7aa24cfb613bdd412ee6517a395a812b961acb8c54082f74f99215926dc03",
+          "bytes": 10105,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-legacy-consumer.toml",
+          "reviewed_blob": "93f6304146f639edfb8c6c2f0ca99489ccf6cc36",
+          "assembled_blob": "93f6304146f639edfb8c6c2f0ca99489ccf6cc36",
+          "sha256": "5692fc8edfd82295cfcf59b4b6cc1f21a9a2164152734ea874df6c039b510576",
+          "bytes": 1290,
+          "equal": true
+        }
+      ]
+    },
+    {
+      "family": "Common law guard",
+      "source": "5cdfe613bf91fffbd578848c9e2f8275edc21ee7",
+      "tree": "bcbc3b280756b652e8996a15570a4a9b64352839",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/review.json",
+      "review_sha256": "d913dba4d01866a46dc414c568128465ea3d1fce283621c766a19248ca1f45c7",
+      "reuse_basis": "new real/nonzero float64 pre-cast quantity is separately reviewed; old MC numeric PASS is not reused for changed helper body",
+      "checks": [
+        {
+          "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+          "reviewed_blob": "93bd20d9482a4cdec252911a38e0c840cbc23d1a",
+          "assembled_blob": "93bd20d9482a4cdec252911a38e0c840cbc23d1a",
+          "sha256": "ade05f35771490de221dd2c270370d3bd9c8946eb2be9db6091baa1b69c2566f",
+          "bytes": 24137,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/tests/unit/foundry/uncertainty/test_sampling_real_domain.py",
+          "reviewed_blob": "52389e9eb467d2322f60e5dde11a55abe35ec90a",
+          "assembled_blob": "52389e9eb467d2322f60e5dde11a55abe35ec90a",
+          "sha256": "3e5229e3e6d9767c4d43eb65a1ffc369a6fe85dfff5b1244d2740b8f9b1245b2",
+          "bytes": 3286,
+          "equal": true
+        }
+      ]
+    },
+    {
+      "family": "Canonical routing",
+      "source": "bf3b54c3a894d2d9d9bfb0cd13edb13177405f33",
+      "tree": "0a414803650c9646b597ba24c93afbea0632dcd1",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r5/review-r5.json",
+      "review_sha256": "2b79be60d9624114937ee4436b81ae3ffd09ab9d81937339b6d016c9d3495399",
+      "reuse_basis": "DoE independent cold canonical identity/actual strict CAS consumer/collector review; own CAL author is not reviewed here",
+      "checks": [
+        {
+          "path": "policy-engine/src/polisyos/calibration/__init__.py",
+          "reviewed_blob": "941e326c19c3823a82756fb9053746b8aed05510",
+          "assembled_blob": "941e326c19c3823a82756fb9053746b8aed05510",
+          "sha256": "90956911642839c4e79dc6ef30d4d581de88ccb02aa60894eaef0fe68d71a8b6",
+          "bytes": 2329,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+          "reviewed_blob": "5a122baf833cf6e12c45aa5333e682ff35bfd5cf",
+          "assembled_blob": "5a122baf833cf6e12c45aa5333e682ff35bfd5cf",
+          "sha256": "339831fa41ff9e46842184fa01bbf2530db7317522bc2139c59343332f94d1ea",
+          "bytes": 2176,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "reviewed_blob": "d2f5007480c55186ac8293da659ebcda69b35966",
+          "assembled_blob": "d2f5007480c55186ac8293da659ebcda69b35966",
+          "sha256": "7a6d17749a9012e8b470a87310615c526453e5b7a7eb17628838a55810e86d98",
+          "bytes": 20644,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+          "reviewed_blob": "e9ee6f8cbb1b155c370f0c9d5841795f1341c1dd",
+          "assembled_blob": "e9ee6f8cbb1b155c370f0c9d5841795f1341c1dd",
+          "sha256": "2c1adc93937312772e66ae86662393a531cb779ce657caa1bf5c075445b57f14",
+          "bytes": 5431,
+          "equal": true
+        }
+      ]
+    },
+    {
+      "family": "Canonical generated metadata",
+      "source": "7dc540d08d30bad8cf23744172c253c934dfc77e",
+      "tree": "d423da4821085f521463d6d5d60673f163c0d47e",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r5/review-r5.json",
+      "review_sha256": "2b79be60d9624114937ee4436b81ae3ffd09ab9d81937339b6d016c9d3495399",
+      "reuse_basis": "exact canonical20 companion bytes and full generator output already independently reviewed; no new generator or global guard run",
+      "checks": [
+        {
+          "path": "policy-engine/architecture/public_surface/inventory.json",
+          "reviewed_blob": "2750df9fbf0e5b483ad7678aa59198aa1b9c2b54",
+          "assembled_blob": "2750df9fbf0e5b483ad7678aa59198aa1b9c2b54",
+          "sha256": "21ab22cf9431660fd6318bca0ba8aa768ee01be9a5ca6ced1ae3b718211b26fe",
+          "bytes": 222690,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/docs/reference/public-surface.md",
+          "reviewed_blob": "2f7c1139a076177051d5214031a3747bb3548a6b",
+          "assembled_blob": "2f7c1139a076177051d5214031a3747bb3548a6b",
+          "sha256": "e8d56d319be16d52227050263451ef523fdbe4b9a2e0e0c7c69fc08f4283528e",
+          "bytes": 154051,
+          "equal": true
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+          "reviewed_blob": "25cb4c4885e00fb80c8703b24febc4cea8c3cea9",
+          "assembled_blob": "25cb4c4885e00fb80c8703b24febc4cea8c3cea9",
+          "sha256": "8300a2ef7d851900a36a5615ab082ae41ceea9e3cf38a96a294200cf9b9c5c5f",
+          "bytes": 4800,
+          "equal": true
+        }
+      ]
+    },
+    {
+      "family": "Stable reader review flag",
+      "source": "7bc65f73d333bc4a526c55d8a959d2b7dea7e472",
+      "tree": "2c1b3fd02d751a6a8bd3053954ace7be4fce65ad",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r5/review-r5.json",
+      "review_sha256": "2b79be60d9624114937ee4436b81ae3ffd09ab9d81937339b6d016c9d3495399",
+      "reuse_basis": "byte-identical accepted mechanism and companions",
+      "checks": [
+        {
+          "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-foundry-calibration-reader.toml",
+          "reviewed_blob": "b5758112fe0092dd66395896d63df241b5dc83df",
+          "assembled_blob": "b5758112fe0092dd66395896d63df241b5dc83df",
+          "sha256": "3c07068b2cf80201a5dde2b8632dcc9c4b1bd19d767e1db82533c002d83d8559",
+          "bytes": 1004,
+          "equal": true
+        }
+      ]
+    },
+    {
+      "family": "documentation/release companion",
+      "source": "bf3b54c3a894d2d9d9bfb0cd13edb13177405f33",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml",
+      "assembled_blob": "ae39421ed6d59cee375f99b81bb78bc2541d48ba",
+      "sha256": "b2f77ed8d2c05e86e342a2b5ca674d0c058d107c80f125357c384004ecce4dd0",
+      "no_product_python_change": true,
+      "review_basis": "classification/purpose/limitations by existing independent family/facade reviews; full footprint retained"
+    },
+    {
+      "family": "documentation/release companion",
+      "source": "acdc3536f93f085d665a7b53460935525373d015",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-current-handler-publication.toml",
+      "assembled_blob": "206e3a53397eef556e878c008a63cab9a5bc3cf3",
+      "sha256": "8438e6ab76cd3939f456599c7c82dbf9f0bcefeb87e8faac130110152a058f85",
+      "no_product_python_change": true,
+      "review_basis": "classification/purpose/limitations by existing independent family/facade reviews; full footprint retained"
+    },
+    {
+      "family": "documentation/release companion",
+      "source": "14d6dd4c4f8e61857bc2216a270090aafb0cd72e",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-evidence-facades.toml",
+      "assembled_blob": "b9b1971a5c58d0bbbd77c25b114d938f1c001f95",
+      "sha256": "37e0342de0bffbc8280e121bee988c471d2b674b1ff9d270d526377ef6e38917",
+      "no_product_python_change": true,
+      "review_basis": "classification/purpose/limitations by existing independent family/facade reviews; full footprint retained"
+    },
+    {
+      "family": "documentation/release companion",
+      "source": "2c275dc69a5b544704256ee0ccd37649ae7e8ea4",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-finite-law-admission-facade.toml",
+      "assembled_blob": "befd839ed6187bf14b828b194b0ba2bcf379c85a",
+      "sha256": "dc6a918461eba46872cf296289deb74f76425d820e3fa14cdecfd44a878a0c81",
+      "no_product_python_change": true,
+      "review_basis": "classification/purpose/limitations by existing independent family/facade reviews; full footprint retained"
+    },
+    {
+      "family": "documentation/release companion",
+      "source": "43c443b6f1015d57cf624598531ef99c22a296e6",
+      "path": "policy-engine/src/polisyos/calibration/README.md",
+      "assembled_blob": "f0fc340c5f85ac92bb1cbe178a5aa9455edb8cce",
+      "sha256": "1a15a4d19123aee3706d27a37b77d36dcd5dee80f2c3d34256e7a34af3d53a18",
+      "no_product_python_change": true,
+      "review_basis": "classification/purpose/limitations by existing independent family/facade reviews; full footprint retained"
+    },
+    {
+      "family": "Foreign G-accepted B runtime",
+      "source": "6f869f39d04deaff7eda9b9047848912605beca5",
+      "tree": "6f7d5e42c694fe384a3fa349c5811f432268731a",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/integration/checkpoint-10.json",
+      "review_sha256": "658fa56d6e4c096e297adfcdd64d84bd458983472825f138d34e9789763f3b6d",
+      "reuse_basis": "foreign B/runtime checkpoint ancestry only; no E numerical dependence or re-review of runtime transaction mechanism",
+      "checks": [
+        {
+          "path": "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+          "reviewed_blob": "e78a69642d69c21827bd73d688533ad40ca18295",
+          "assembled_blob": "e78a69642d69c21827bd73d688533ad40ca18295",
+          "sha256": "af813a2b87c0500bc2c0499813c9170a6a8033d92f860fe5556b72088e6721f6",
+          "bytes": 209996,
+          "equal": true
+        }
+      ]
+    },
+    {
+      "family": "Foreign G-accepted B runtime",
+      "source": "6f869f39d04deaff7eda9b9047848912605beca5",
+      "tree": "6f7d5e42c694fe384a3fa349c5811f432268731a",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/integration/checkpoint-10.json",
+      "review_sha256": "658fa56d6e4c096e297adfcdd64d84bd458983472825f138d34e9789763f3b6d",
+      "reuse_basis": "foreign B/runtime checkpoint ancestry only; no E numerical dependence or re-review of runtime transaction mechanism",
+      "checks": [
+        {
+          "path": "policy-engine/tests/unit/remediation/test_dur_02_process.py",
+          "reviewed_blob": "74c4e396a1732ccc1524a7ea47498a46ab536272",
+          "assembled_blob": "74c4e396a1732ccc1524a7ea47498a46ab536272",
+          "sha256": "35f48eb3182363408dbb02e4c57b4cdb01b37b6f6df4391f3753bdf975426b48",
+          "bytes": 27256,
+          "equal": true
+        }
+      ]
+    },
+    {
+      "family": "Foreign G-accepted B runtime",
+      "source": "6f869f39d04deaff7eda9b9047848912605beca5",
+      "tree": "6f7d5e42c694fe384a3fa349c5811f432268731a",
+      "review": "policy-engine/docs/research/e02-cloud-test-plan/integration/checkpoint-10.json",
+      "review_sha256": "658fa56d6e4c096e297adfcdd64d84bd458983472825f138d34e9789763f3b6d",
+      "reuse_basis": "foreign B/runtime checkpoint ancestry only; no E numerical dependence or re-review of runtime transaction mechanism",
+      "checks": [
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_control_plane_store.py",
+          "reviewed_blob": "29ffd7803891e5df9e6b2e97fc8f0776e40c4334",
+          "assembled_blob": "29ffd7803891e5df9e6b2e97fc8f0776e40c4334",
+          "sha256": "a21c740a7c4c038e3fbc1af90a45dd69d09710461a5c4ecb2cef601afb79cdb0",
+          "bytes": 81515,
+          "equal": true
+        }
+      ]
+    }
+  ],
+  "reviews": {
+    "CAL/DDM": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/review.json",
+      "sha256": "032c1beef8ba54e2042926439852a13895c83d569c41dce7f5f2064edea314ec",
+      "bytes": 20105
+    },
+    "DoE": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe-independent-review-f07.json",
+      "sha256": "5efd1bbc2f423a33918aa8c74dd905c3577ff562314ced7a93ca75cb9f467ba5",
+      "bytes": 16838
+    },
+    "MC": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/mc/review.json",
+      "sha256": "6addb4521bd2d637a8075d416a363e993780fdeedf8778d8e50c08cc8ac8e7e3",
+      "bytes": 6948
+    },
+    "PCL": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/review.json",
+      "sha256": "0b9341bb2fdd27d0568b7557390dc553f65447e7127949e97c61134e5517a805",
+      "bytes": 47288
+    },
+    "BKT": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-chain-admission-r2-checks/independent-review-go-0983.json",
+      "sha256": "1eae3da73b365a740e90f8b565b9667d55a545726c3ed8ec441d0e8868b3a5f9",
+      "bytes": 50351
+    },
+    "FRC": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/frc-independent-review-8486.json",
+      "sha256": "639ea31dbd960c6985e87056d360763e54d78db8f07299df7c91fdca771cd12b",
+      "bytes": 14831
+    },
+    "Welfare": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/welfare-independent-review-884681.json",
+      "sha256": "fbc90699b4135f4fb6df07e2bfdcf06e5cb163755fe97ae739b9fd52d1ec25c9",
+      "bytes": 17274
+    },
+    "Legacy B197": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2/independent-review/legacy-consumer-independent-review-1e942.json",
+      "sha256": "b38e81902342c3f88edfff0c319bf1938f45ce1b8354e7a7888da10378fed401",
+      "bytes": 13984
+    },
+    "Common law guard": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/review.json",
+      "sha256": "d913dba4d01866a46dc414c568128465ea3d1fce283621c766a19248ca1f45c7",
+      "bytes": 7290
+    },
+    "Canonical routing/metadata": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r5/review-r5.json",
+      "sha256": "2b79be60d9624114937ee4436b81ae3ffd09ab9d81937339b6d016c9d3495399",
+      "bytes": 5732
+    }
+  },
+  "dependency_joins": {
+    "Welfare_3_law_helpers": "Welfare source884 imports existing admitted Foundry uncertainty aliases from same sampling_admission owner; common body5cd has separate DoE independent native review and is exact",
+    "BKT_README": "Original BKT paragraph bytes preserved as exact prefix; Welfare independently reviewed append is recorded, not claimed old byte equality",
+    "Legacy_reader": "Actual Node\u2192Calibration\u2192admitted Foundry uncertainty\u2192unchanged Foundry calibration report strict reader; normalized _collect_input_envelopes AST equals1e942",
+    "canonical_counts": {
+      "Calibration": 29,
+      "Foundry_uncertainty": 20
+    },
+    "no_parallel_CAS_reader_or_sampler": "import/reexport route only",
+    "G_Runtime": "ControlPlaneStore/test/dur02 bytes exact6f ancestry; B-owned transaction mechanisms not an E numerical dependency or E-authored change",
+    "IR_Core_A_D": "all listed source/contract/guard/results/closure-decision boundaries unchanged"
+  },
+  "P37_basis": {
+    "reuse": "exact property source blobs and required companions, consumer delta gets own independent review; export names alone insufficient",
+    "numeric_scope": "true native laws/Hessians/full covariance/null axes/failed support retained per mechanism review; input source law/served consumer/authority remain separately held",
+    "Welfare_unknown_joint": "one nominal, one gradient base, four existing deterministic sensitivity probes recorded; zero stochastic/unattempted support/noCI/non-gating; no count0 claim",
+    "authority": "predictive only; candidate/empirical evidence distinct, CAS content/hash/schema not institutional provenance; gatefalse and terminal causal refusal retained"
+  },
+  "P40_class_repairs": {
+    "common_precast": "real-domain and nonzero support loss fixed at common inlet5cd; changed helper body is not assigned old MC PASS",
+    "failed_support": "Welfare native GE law/support plus conditional moments at884 independently checked including present-but-fake/source-row/readback/removal",
+    "objective_and_covariance": "no new adjudication of own CAL code; independent CAL review owns scalar preflight and previous guards; mathematical/inference authority distinct",
+    "canonical_architecture_route": "transient private Cal\u2192Foundry report edge superseded by bf3 canonical existing facade; oldnew collector+object+actualCAS controls reviewed by DoE"
+  },
+  "P41": "No numerical/global PASS on new c79 candidate is inferred. Exact family native sources reused by immutable byte joins only; root expensive wave UNRUN here and must run once after final freeze; historic old red without exact replay stays not_established.",
+  "initial_harness_scope_error": "First static join required byte-equal shared simulation README; actual delta only appends Welfare paragraph and preserves full BKT prefix. Scope corrected to BKT original prefix plus separately reviewed Welfare full file; original failed assertion retained. No product or companion loss.",
+  "scope_decision": "GO_source_assembly_and_dependency_joins; ready for freeze after separate pending harness review; no committed product-source blocker found",
+  "blocking_product_findings": [],
+  "unratified_held_boundaries": {
+    "B194": "held; real served evaluator/consumer input owner required",
+    "B197": "held; technical configured producer/CAS/strict consumer covered, source/authority decision separate",
+    "B201/B202": "held; appointed IR semantic owner and four finite carrier/functionals decisions absent; no IRwire edits",
+    "B198": "closed historical regression retained; no new falsifier",
+    "Core_IR_execute": "owner packets not_ratified/unapplied; API alternatives not silently admitted",
+    "A_default": "defaultFRC trusted verifier/statusreason/HTTP checks remain A packet, no E edits generation_cycle",
+    "D_Search": "typed sensitivity codec actual _sensitivity extra_forbidden owner-ready packet; default consumer remains D residual"
+  },
+  "remaining_checks": {
+    "root": "separate pending harness review then freeze exact aggregate and execute one common wave; no authorization question required for already owned work",
+    "G": "fetch exact E candidate and recipes, integration acceptance separate; strictly required production history/source law local read-only",
+    "owners": "Core/IR/execute public admission, A served/default verifier, D Search codec, IR semantic appointment/ratification, DDM served validity/signoff profiles"
+  },
+  "ledger": "unchanged source/results/closure decisions; no status reclassification or finding closure by assembly GO",
+  "negative_controls": [
+    {
+      "property": "mechanism byte substitution",
+      "outcome": "REJECTED"
+    },
+    {
+      "property": "required companion removal",
+      "outcome": "REJECTED"
+    }
+  ],
+  "cleanup": "No environments or native numeric fixtures created by this assembly review. Preserve scripts/evidence. No permanent deletion.",
+  "elapsed_seconds": 9.02106450300198,
+  "effective_product_source_proof": {
+    "source_checkpoint": "bf3b54c3a894d2d9d9bfb0cd13edb13177405f33",
+    "all_product_Python_and_schemas_unchanged": true,
+    "entire_src_delta_to_candidate": [
+      "policy-engine/src/polisyos/foundry/uncertainty/README.md"
+    ],
+    "README_companion_exact7dc": true
+  },
+  "static_environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "backend": "not invoked; Git blobs and Python AST audit only",
+    "new_cpu_caps": false,
+    "timestamp_utc": "2026-10-06T15:41:43Z"
+  },
+  "accepted_prior_slices": "Prior accepted numerical source not changed in this continuation is preserved; assembly scope does not rerun or newly adjudicate historical properties or imply a new-candidate numerical PASS."
+}

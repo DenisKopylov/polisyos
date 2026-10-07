@@ -1,0 +1,68 @@
+"""Moderate closed-source/native-output selection; no active profiles or private inputs."""
+from __future__ import annotations
+
+import hashlib
+import json
+from pathlib import Path
+
+OUT = Path('/tmp/e02-E-frontend-retry-analysis-64d')
+PREP = Path('/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007')
+SCRIPTS = Path('/workspace/e02-E-pr38-r3-receipts/frontend-stage-readonly-r4')
+A11Y = Path('/tmp/e02-E-a11y-full-native-retry-64d-20261007-r2/a11y')
+entries = []
+
+def add(path, portable, role):
+    if not path.is_file():
+        raise ValueError('Required complete output/source missing: ' + str(path))
+    if path.suffix in {'.py', '.mjs'}:
+        portable += '.txt'
+    body = path.read_bytes()
+    entries.append({'source_path': str(path), 'portable_path': portable, 'role': role, 'bytes': len(body), 'sha256': hashlib.sha256(body).hexdigest()})
+
+for path in sorted(OUT.iterdir()):
+    if path.is_file() and path.name != 'publication-selection.json' and not path.name.startswith('select-publication.'):
+        role = 'current-observer/source-or-output'
+        if path.name.startswith('close-required-') and '-v2.' not in path.name:
+            role = 'historical-observer-ERROR-ps-empty-exit1-handling'
+        if 'attempt1-ERROR' in path.name:
+            role = 'historical-observer-ERROR-literal-source'
+        add(path, 'review/' + path.name, role)
+for name in ['prepare_required_frontend_retries.py', 'prepare-required-retries.stdout.txt', 'prepare-required-retries.stderr.txt', 'required-retry-native-support-observer.mjs.txt', 'required-retry-native-support.stdout.txt', 'required-retry-native-support.stderr.txt', 'execute_required_frontend_retry.py']:
+    add(SCRIPTS / name, 'preparation/' + name, 'prepared-native-support/source-or-output')
+add(PREP / 'required-retry-preparation.json', 'preparation/required-retry-preparation.json', 'complete-preparation')
+for label, root, job in [('storybook', PREP / 'storybook', 'storybook-full-native-retry'), ('a11y-attempt2', A11Y, 'a11y-full-native-retry')]:
+    for name in ['launch.json', 'completion.json', 'launcher.stdout.txt', 'launcher.stderr.txt', 'capture.stdout.txt', 'capture.stderr.txt']:
+        add(root / name, label + '/' + name, 'current-complete-native-capture')
+    for suffix in ['.json', '.stdout.txt']:
+        add(root / 'checks' / job / (job + suffix), label + '/checks/' + job + suffix, 'complete-native-receipt-or-stdout')
+add(PREP / 'storybook/storybook.junit.xml', 'storybook/storybook.junit.xml', 'complete-native-JUnit')
+for path in sorted((A11Y / 'read-only-state').iterdir()):
+    if path.is_file():
+        add(path, 'a11y-attempt2/read-only-state/' + path.name, 'historical-phase-transition-probe: component controller already closed; not a native stage failure')
+for name in ['launch.json', 'completion.json', 'launcher.stdout.txt', 'launcher.stderr.txt', 'capture.stdout.txt', 'capture.stderr.txt']:
+    add(PREP / 'a11y' / name, 'a11y-attempt1-ENOSPC/' + name, 'observer-ERROR-native-command-UNRUN-before-Popen')
+old = Path('/workspace/e02-E-pr38-r3-receipts/storybook-stalled-interruption-64d')
+for name in ['before-signal.json', 'signal-sent.json']:
+    add(old / name, 'original-storybook-interruption/' + name, 'historical-owned-root-SIGINT-provenance')
+old_stage = Path('/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-22/checks/standalone-ci-22')
+for suffix in ['.json', '.stdout.txt']:
+    add(old_stage / ('standalone-ci-22' + suffix), 'original-storybook-interruption/standalone-ci-22' + suffix, 'historical-nativeFAIL130-casecounts-null')
+assets = []
+aliases = []
+known = {}
+for row in entries:
+    key = (row['bytes'], row['sha256'])
+    if key in known:
+        aliases.append({**row, 'same_bytes_as': known[key]})
+    else:
+        assets.append(row)
+        known[key] = row['portable_path']
+for row in entries:
+    body = Path(row['source_path']).read_bytes()
+    if len(body) != row['bytes'] or hashlib.sha256(body).hexdigest() != row['sha256']:
+        raise ValueError('Output changed during final selection: ' + row['source_path'])
+report = {'schema': 'policyos.e02.E.required_native_frontend_retry_publication_selection.v1', 'candidate_sha': '64d7444a18c55df7b88b71b7699a2f1b25ca24bd', 'candidate_tree_sha': 'aef23574d3162abb19bf5a1c67d02624ff9d4d1d', 'assets': assets, 'identical_byte_aliases': aliases, 'unique_assets': len(assets), 'logical_assets': len(entries), 'unique_bytes': sum(row['bytes'] for row in assets), 'logical_bytes': sum(row['bytes'] for row in entries), 'closed_complete_output_rehash': True, 'source_reference_policy': 'Native source/config/library inputs pinned by exactGit64d/blob/hash and literal scoped excerpts; no node_modules/environment/profile copies.', 'scope': {'original_storybook': 'RootSIGINT nativeFAIL130/countsnull/sourceimmutable; no authored-case failures inferred', 'storybook_required_retry': 'NativeFAIL1;37 authored casesPASS/1 import-failure synthetic row;45suites29empty;separateunhandlediframe/CORS error', 'a11y_attempt1': 'ObserverERROR ENOSPC before nativePopen; nativecommandUNRUN', 'a11y_required_retry': 'NativeFAIL1;3designPASS/components87files161casesPASS/pagesattempted webServerFAIL catalog_fetch_source_unreadable before case execution', 'phase_probe_race': 'Read-only confidence-browser probe raced completed components and attemptedpages; controller absence/ECONNREFUSED do not establish a bootstrap failure', 'canonical_owner': 'Frontend/runtime fixture producer with DataForge reader throughG; preserve source identity refusal, supply admitted generic fixture input', 'P41': 'not_established; no inherited/environmental causal waiver', 'finding_closure': False, 'ROOT_environment_changes_by_this_leaf': False}, 'private_or_repeatable_exclusions': ['Complete private Gitconfig snapshots hash-only in native receipts', 'Active/repeatable browser profiles/TMPDIR/cache excluded', 'No source-code or production datasets deleted/copied', 'Own current builder stdout is excluded until its capture closes'], 'cleanup_candidates': ['Only terminal isolated browser profiles/TMPDIR and compiled repeatable outputs after no active users; native deciding outputs/source kept']}
+output = OUT / 'publication-selection.json'
+output.write_text(json.dumps(report, indent=2) + '\n')
+body = output.read_bytes()
+print(json.dumps({'selection': str(output), 'bytes': len(body), 'sha256': hashlib.sha256(body).hexdigest(), 'unique_assets': len(assets), 'logical_assets': len(entries), 'unique_bytes': report['unique_bytes'], 'all_closed_rehash': True}))

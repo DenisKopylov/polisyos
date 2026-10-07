@@ -1,0 +1,123 @@
+{
+  "candidate_sha": "74d0452848a7461d82ea7f150f126631d9fc8399",
+  "candidate_tree": "a4e4793be4d1aec6adea623b930a65304ab42d64",
+  "cases": [
+    {
+      "case": "exact_posterior_test_maps_to_MC_and_is_in_actual_prepared_input",
+      "outcome": "FAIL",
+      "error_type": "AssertionError",
+      "reason": ""
+    },
+    {
+      "case": "remove_selector_keeps_markers_but_actual_test_omitted",
+      "outcome": "PASS",
+      "observed": {
+        "negative_gate_outcome": "FAIL",
+        "posterior_omitted": true,
+        "family_for_present": true,
+        "native_file_count": 122
+      }
+    },
+    {
+      "case": "prepare_current_full_denominator_and_numeric_only_PORT0",
+      "outcome": "PASS",
+      "observed": {
+        "native_files": 122,
+        "owner_packets": 2,
+        "python_paths": 340,
+        "missing": []
+      }
+    },
+    {
+      "case": "all_five_runner_and_five_collector_siblings_same_real_predicate",
+      "outcome": "PASS",
+      "observed": {
+        "runner_count": 5,
+        "collector_count": 5,
+        "identical_AST_guards": true,
+        "truth_table_rows": 60
+      }
+    },
+    {
+      "case": "actual_healthy_exit0_all_skip_remains_SKIP",
+      "outcome": "PASS",
+      "observed": true
+    },
+    {
+      "case": "actual_exit7_after_all_skip_is_FAIL_with_individual_skips_retained",
+      "outcome": "PASS",
+      "observed": true
+    },
+    {
+      "case": "remove_runner_status_guard_keeps_markers_but_wrong_SKIP_restored",
+      "outcome": "PASS",
+      "observed": {
+        "negative_gate_outcome": "FAIL",
+        "observed_check_outcome": "SKIP",
+        "observed_exit": 7,
+        "all_individual_cases_skip": true
+      }
+    },
+    {
+      "case": "all_native_corrective_receipts_exact_source_and_numeric_PORT0",
+      "outcome": "PASS",
+      "observed": true
+    },
+    {
+      "case": "current_collector_retains_SKIP_and_process_FAIL_as_distinct_outcomes",
+      "outcome": "PASS",
+      "observed": true
+    },
+    {
+      "case": "current_collector_refuses_forged_SKIP_nonzero_before_authority",
+      "outcome": "PASS",
+      "observed": {
+        "collection_state": "CONTROL_LIMITED_INCOMPLETE_OR_INCONSISTENT",
+        "issues": [
+          {
+            "job": "numeric-skip-exit7",
+            "reason": "SKIP conflicts with command failure"
+          }
+        ]
+      }
+    },
+    {
+      "case": "remove_collector_status_predicate_keeps_markers_but_accepts_contradictory_SKIP",
+      "outcome": "PASS",
+      "observed": {
+        "negative_gate_outcome": "FAIL",
+        "state": "CONTROL_COMPLETE_BOUND",
+        "numeric_outcomes": {
+          "SKIP": 2
+        }
+      }
+    },
+    {
+      "case": "final_candidate_HEAD_and_tracked_source_immutable",
+      "outcome": "PASS",
+      "observed": true
+    }
+  ],
+  "case_count": 12,
+  "fail_count": 1,
+  "actual_prepare_only": true,
+  "full_common_wave_executed": false,
+  "all_native_commands_tiny_control": true,
+  "source_and_control_bindings": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/probe_current_outcomes.py",
+      "bytes": 13960,
+      "sha256": "5397d9a16f676f04cfcddc1a1d6f973e76a898eddb83c04fb53f31fde59f6084"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/run_check-status-property-removed.py.txt",
+      "bytes": 12582,
+      "sha256": "03d6494617ec52f9cf9d1582634f1ab44494e4f36a57bcc052e156923cd77b9b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/delta-74d04528/collect_wave-status-property-removed.py.txt",
+      "bytes": 41295,
+      "sha256": "32480e2382f397d1422df35854ffbabb3eef73300bfc2aeaa9714e60e74efdbc"
+    }
+  ]
+}

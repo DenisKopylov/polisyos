@@ -1,0 +1,32 @@
+{
+  "candidate": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "plan_sha256": "f0f00bef93befbca83a1bdbb59c1d895ac0a43cc50db602de18629ef0ccb86e6",
+  "source_input_admitted": true,
+  "assigned": [
+    "workspace-01",
+    "workspace-02",
+    "workspace-03",
+    "workspace-04",
+    "workspace-05",
+    "workspace-06",
+    "workspace-07",
+    "workspace-09",
+    "workspace-10",
+    "workspace-11",
+    "workspace-12",
+    "workspace-13",
+    "ci-03",
+    "ci-04",
+    "ci-05",
+    "ci-06",
+    "ci-07",
+    "ci-09",
+    "ci-10",
+    "ci-11",
+    "ci-12"
+  ],
+  "started_unix": 1791364327.0958078,
+  "limits": "No process/thread/CPU caps; all21 ready selectors launch concurrently.",
+  "common_workflow_outcomes": "Remain separately reported; no UNRUN overwritten."
+}

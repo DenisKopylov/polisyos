@@ -1,0 +1,44 @@
+import sys
+from pathlib import Path
+import importlib.util,json,hashlib,subprocess,tempfile,inspect
+from unittest.mock import patch
+ROOT=Path('/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/denominator-controls-replay')
+spec=importlib.util.spec_from_file_location('recorder',ROOT/'record_denominator.py');module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+blob={'mode':'100644','kind':'blob','object_id':'1'*40}
+raw=b'A\0policy-engine/tests/new.py\0M\0policy-engine/src/existing.py\0D\0policy-engine/src/deleted.py\0A\0policy-engine/docs/evidence.py.txt\0'
+changes=module.parse_changes(raw);selected,deleted,other=module.select_python(changes,{'policy-engine/tests/new.py':blob,'policy-engine/src/existing.py':blob})
+if [row['path'] for row in selected]!=['policy-engine/tests/new.py','policy-engine/src/existing.py'] or deleted!=[{'status':'D','path':'policy-engine/src/deleted.py'}] or len(other)!=1:raise RuntimeError('Denominator classes differ')
+controls={'new_regular_python':'included','existing_regular_python':'included','deleted_python':'excluded_with_explicit_deleted_receipt','text_archive_py_txt':'non_python'}
+for name,tree in [('absent_candidate',{}),('symlink_candidate',{'policy-engine/tests/new.py':{**blob,'mode':'120000'}}),('deleted_still_in_tree',{'policy-engine/src/deleted.py':blob})]:
+ sample=[changes[0]] if name!='deleted_still_in_tree' else [changes[2]]
+ try:module.select_python(sample,tree)
+ except ValueError:controls[name]='refused'
+ else:raise RuntimeError(name+' accepted')
+fixture=ROOT/'live-path-fixture';fixture.mkdir(exist_ok=True)
+healthy=fixture/'new.py';healthy.write_bytes(b'value=1\n')
+if not module.live_snapshot(healthy,fixture,b'value=1\n')['live_equals_candidate']:raise RuntimeError('new file live identity failed')
+missing=module.live_snapshot(fixture/'never-created.py',fixture,b'value=1\n')
+if missing['live_exists'] or missing['live_equals_candidate']:raise RuntimeError('absent live input admitted')
+divergent=module.live_snapshot(healthy,fixture,b'value=2\n')
+if divergent['live_equals_candidate']:raise RuntimeError('divergent live input admitted')
+controls.update({'new_live_python':'exact_candidate_hash','absent_live_candidate':'not_ready_and_not_a_command_input','divergent_live_candidate':'not_ready'})
+counters=[]
+for value in ['--output=outside','HEAD',True,None,'0'*39,'0'*41]:
+ with patch.object(module.subprocess,'run') as child:
+  try:module.record(Path('/workspace/e02-E-continuation-20261006'),module.BASE,value,Path('/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python'))
+  except ValueError:pass
+  else:raise RuntimeError('malformed source ref admitted')
+  if child.call_count:raise RuntimeError('malformed source ref reached child')
+  counters.append({'value':value,'callback_count':child.call_count,'outcome':'refused'})
+# Execute the actual selector after removing its deleted-path early continue.
+original=inspect.getsource(module.select_python)
+needle="deleted.append(record)\n            continue"
+if original.count(needle)!=1:raise RuntimeError('Exact removal predicate differs')
+mutated=original.replace(needle,"deleted.append(record)",1)
+namespace=dict(module.__dict__)
+exec(compile(mutated,'actual-selector-removal','exec'),namespace)
+try:namespace['select_python'](changes,{'policy-engine/tests/new.py':blob,'policy-engine/src/existing.py':blob})
+except ValueError:removal='Actual early-continue removal refuses the healthy deleted-path fixture instead of returning the required denominator/explicit deletion receipt'
+else:raise RuntimeError('Removal did not fail the healthy defining control')
+result={'schema':'policyos.e02.lint_denominator_controls.v1','source_sha256':hashlib.sha256((ROOT/'record_denominator.py').read_bytes()).hexdigest(),'controls':controls,'source_ref_negative_controls':counters,'property_removal':removal,'normal_or_optimized':'identical always-on controls; assertions are not used','new_checkout_or_worktree_created':False,'global_Ruff_or_format_executed':False}
+(ROOT/('controls-'+str(sys.flags.optimize)+'.json')).write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))

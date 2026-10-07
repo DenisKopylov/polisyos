@@ -1,0 +1,36 @@
+{
+  "reviewer": "/root",
+  "implementation_sha": "5bd27323ecb0935a38908d2b09fa652762c5e4ea",
+  "head": "5bd27323ecb0935a38908d2b09fa652762c5e4ea",
+  "command": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-o",
+    "addopts=",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+    "tests/unit/remediation/test_frc_01.py",
+    "tests/unit/remediation/test_frc_02.py"
+  ],
+  "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+  "PYTHONPATH": "/workspace/e02-E-frc-20261006/policy-engine/src",
+  "exit_code": 1,
+  "wall_seconds": 31.83445183299773,
+  "output": "/workspace/e02-E-20261006-receipts/root-frc-review.log",
+  "output_sha256": "bb4516dc9e3d233bda6f93a299666250840cf2335224cb6cf7b52aa9c23bb453",
+  "prior_attempt": {
+    "command_interpreter": "/workspace/e02-E-frc-20261006/policy-engine/.venv/bin/python",
+    "outcome": "ERROR",
+    "reason": "FileNotFoundError: lane interpreter absent; no test executed"
+  },
+  "thread_controls": {
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null,
+    "XLA_FLAGS": null
+  }
+}

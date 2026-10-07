@@ -1,0 +1,120 @@
+{
+  "candidate_sha": "1eba9f9e47a82cca1db341314a748b4980e015fc",
+  "candidate_tree": "0b79095f9293a04ca263356b24d22478b46e6688",
+  "argv": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "a_packet_overlay",
+    "/workspace/e02-E-pr38-r3-receipts/frc-r4/test_a_status_reason_core_route.py",
+    "--basetemp=/workspace/e02-E-pr38-r3-receipts/frc-r4/a-property-removal-tmp",
+    "--junitxml=/workspace/e02-E-pr38-r3-receipts/frc-r4/a-property-removal.xml"
+  ],
+  "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+  "exit_code": 1,
+  "wall_s": 65.85220789909363,
+  "child_peak_rss_kib": 848172,
+  "input_files": {
+    "policy-engine/tests/_helpers/forecast.py": {
+      "sha256": "3cecf5c250f701cbc04f2bc1165eefab275958ddeb8b1c92bf6461cf98ff028c",
+      "bytes": 4547
+    },
+    "policy-engine/tests/unit/remediation/test_frc_01.py": {
+      "sha256": "26339b905dd7cf1e00e13469644818fe8a25e602bfb30b803d073350bc0bb0a9",
+      "bytes": 16018
+    },
+    "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py": {
+      "sha256": "272ed2a9220769af6bbf79a13a9221da3926254284755cde5188ec59e0227dec",
+      "bytes": 14611
+    },
+    "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py": {
+      "sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3",
+      "bytes": 59611
+    },
+    "policy-engine/src/polisyos/calibration/forecast_bridge.py": {
+      "sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6",
+      "bytes": 81721
+    },
+    "policy-engine/src/polisyos/runtime/quality/generation_cycle.py": {
+      "sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44",
+      "bytes": 578822
+    },
+    "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py": {
+      "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9",
+      "bytes": 347497
+    },
+    "policy-engine/pyproject.toml": {
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "bytes": 11007
+    },
+    "policy-engine/uv.lock": {
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "bytes": 779204
+    }
+  },
+  "auxiliary_inputs": {
+    "/workspace/e02-E-pr38-r3-receipts/frc-r4/run_frc_check_v2.py": {
+      "sha256": "0a57c7e17462822963051bb91c8f0b54b3e97f47478732c8d4c3ae660cdc22b1",
+      "bytes": 3751
+    },
+    "/workspace/e02-E-pr38-r3-receipts/frc-r4/test_a_status_reason_core_route.py": {
+      "sha256": "293110a89223941ae3a772ea59226831aef2a459ca9b17bcefc8157ef574455c",
+      "bytes": 5982
+    },
+    "/workspace/e02-E-pr38-r3-receipts/frc-r4/a-removal-overlay/a_packet_overlay.py": {
+      "sha256": "321aae4607c74be6b089fb133d8e969963fdd7a98eadda28a38c4d0dd28132f9",
+      "bytes": 663
+    },
+    "/workspace/e02-E-pr38-r3-receipts/frc-r4/a-removal-overlay/generation_cycle.py": {
+      "sha256": "d01ca465c2301c45163b0cd7de1d2453234359167840eaded3ca61374e796e39",
+      "bytes": 579104
+    }
+  },
+  "A_overlay_active": true,
+  "source_unchanged": true,
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "packages": {
+      "numpy": "2.3.5",
+      "scipy": "1.16.3",
+      "jax": "0.8.2",
+      "jaxlib": "0.8.2",
+      "SALib": "1.5.2",
+      "statsmodels": "0.14.6",
+      "pytest": "9.0.2",
+      "pydantic": "2.12.5",
+      "ruff": "0.14.10"
+    },
+    "interpreter": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "PYTHONPATH": "/workspace/e02-E-frc-20261006/policy-engine/src:/workspace/e02-E-frc-20261006/policy-engine:/workspace/e02-E-pr38-r3-receipts/frc-r4/a-removal-overlay",
+    "numerical_env": {
+      "JAX_PLATFORMS": null,
+      "JAX_ENABLE_X64": null,
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "NUMEXPR_NUM_THREADS": null
+    },
+    "orchestrator_caps_added": false
+  },
+  "output_files": {
+    "stdout": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frc-r4/a-property-removal.stdout",
+      "sha256": "5cfa22fbf3961b662ee94d64ecee856f1761854d956bed5478f49d4e7f6468da",
+      "bytes": 20297
+    },
+    "stderr": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frc-r4/a-property-removal.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "xml": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frc-r4/a-property-removal.xml",
+      "sha256": "972e86ceb0a6a46084c557ceafe9b23556255f6c78f67c79d6d2bcd02cfcbb21",
+      "bytes": 20151
+    }
+  }
+}

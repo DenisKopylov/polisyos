@@ -1,0 +1,17 @@
+{
+  "candidate": "c8616e2babe1f0674799c12f07faffa5d6bd266d",
+  "input_samples": [
+    -0.0,
+    1.0
+  ],
+  "source_sample_zero_sign": -1.0,
+  "fresh_sample_zero_sign": 1.0,
+  "ref": {
+    "artifact_id": "sha256:b4901de27c745f81c6d4255dd7699513b0059092e1b8c85b05830a8290f6c13d",
+    "kind": "ir.uncertainty_envelope",
+    "media_type": "application/json"
+  },
+  "scratch": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/signed-zero-c861-raifdz17",
+  "exception_type": "ValueError",
+  "exception": "posterior summary joint content digest does not reconcile"
+}

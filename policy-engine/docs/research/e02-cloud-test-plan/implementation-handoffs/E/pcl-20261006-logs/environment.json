@@ -1,0 +1,34 @@
+{
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "packages": {
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "pydantic": "2.12.5",
+    "pytest": "9.0.2",
+    "ruff": "0.14.10",
+    "arch": "8.0.0",
+    "ruptures": "1.1.10"
+  },
+  "module_origins": {
+    "polisyos.calibration.continuous": "/workspace/e02-E-pcl-20261006/policy-engine/src/polisyos/calibration/continuous.py",
+    "polisyos.calibration.curve": "/workspace/e02-E-pcl-20261006/policy-engine/src/polisyos/calibration/curve.py",
+    "polisyos.ir.analytics.calibration_diagnostics": "/workspace/e02-E-pcl-20261006/policy-engine/src/polisyos/ir/analytics/calibration_diagnostics.py",
+    "polisyos.foundry.methods.catalog.econometrics.advanced": "/workspace/e02-E-pcl-20261006/policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py"
+  },
+  "thread_controls": {
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null,
+    "XLA_FLAGS": null,
+    "JAX_PLATFORMS": null
+  },
+  "backend": "NumPy finite float64 interval comparisons / NumPy bootstrap; native Foundry advanced imports arch",
+  "source_candidate": "f96d964062697d2077be2e59b8e1ce7d27b1f0dd",
+  "candidate_tree": "75f0e438e3db6722b407ebb5af817a99a1e9cf7b",
+  "node": "v22.23.3",
+  "uv": "uv 0.12.19 (x86_64-unknown-linux-gnu)",
+  "borrowed_environment_owner": "E root; no leaf mutation of root .venv"
+}

@@ -1,0 +1,39 @@
+import base64,hashlib,json,pathlib,shutil
+from collections import Counter
+from fractions import Fraction
+import numpy as np
+from polisyos.core import canon
+out=pathlib.Path('/tmp/e02-E-bayesian-fit-bridge-r6'); dest=out/'closed-inputs'; dest.mkdir(exist_ok=True)
+rows=[]; summaries=[]
+for i,method in enumerate(('hmc','nuts')):
+ root=out/'pytest-base-source'/f'real-bayesian-fit{i}'
+ manifests=[]
+ for p in sorted(root.glob('artifacts/sha256/*/*/*.manifest.json')):
+  if '.view.' in p.name: continue
+  d=json.loads(p.read_text()); kind=d['kind']
+  if kind in {'test.bayesian_source','scientist.method_result.bayesian.sampling','scientist.method_evidence','foundry.propagation_report','ir.uncertainty_envelope'}:
+   manifests.append((p,d))
+ records={}; decoded={}
+ for p,m in manifests:
+  blob=p.with_name(p.name.removesuffix('.manifest.json')+'.blob'); raw=blob.read_bytes(); payload=canon.from_canonical_bytes(raw)
+  digest=hashlib.sha256(raw).hexdigest()
+  if m['artifact_id']!='sha256:'+digest: raise ValueError('CAS content mismatch')
+  files=[blob,*sorted(p.parent.glob(p.name.removesuffix('.manifest.json')+'*.manifest.json'))]
+  for source in files:
+   target=dest/method/source.name; target.parent.mkdir(exist_ok=True); shutil.copyfile(source,target)
+   b=target.read_bytes(); rows.append({'actual_source':str(source),'stored_at':str(target.relative_to(out)),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest(),'kind':m['kind'],'artifact_id':m['artifact_id']})
+  records.setdefault(m['kind'],[]).append(m['artifact_id']); decoded[m['artifact_id']]=payload
+ result=decoded[records['scientist.method_result.bayesian.sampling'][0]]
+ evidence=decoded[records['scientist.method_evidence'][0]]
+ corpus=evidence['artifacts']['posterior_draws']; payload=corpus['payload']; values={}
+ for name,record in payload['parameters'].items():
+  arr=np.frombuffer(base64.b64decode(record['data_base64']),dtype='<f8').reshape(record['shape'])
+  if arr.shape[2:] and arr.shape[2:]!=(1,): raise ValueError('fixture scalar width unexpected')
+  values[name]=[Fraction.from_float(float(x)) for x in arr.reshape(-1)]
+ n=len(values['intercept']); pairs=[a-b for a,b in zip(values['intercept'],values['coefficients'],strict=True)]; mean=sum(pairs,Fraction())/n; var=sum(((v-mean)**2 for v in pairs),Fraction())/n
+ ordered=sorted(values); multiplicities=Counter(tuple(float(values[k][j]) for k in ordered) for j in range(n))
+ reports=records.get('foundry.propagation_report',[])
+ summary={'method':method,'backend':evidence['backend'],'source_refs':{edge['role']:edge['artifact_id'] for p,m in manifests if m['kind']=='scientist.method_result.bayesian.sampling' for edge in m['inputs']},'result_ref':records['scientist.method_result.bayesian.sampling'][0],'evidence_ref':records['scientist.method_evidence'][0],'corpus_hash':corpus['artifact_hash'],'chain_draw_dimensions':[2,32],'actual_rows':n,'source_parameter_names':ordered,'finite_parameter_mean_fraction':{name:str(sum(v,Fraction())/n) for name,v in values.items()},'pair_mean_fraction':str(mean),'pair_variance_fraction':str(var),'complete_256net_expected_callback_count':sum(v*4 for v in multiplicities.values()),'distinct_value_rows':len(multiplicities),'report_refs':reports,'reports':{ref:decoded[ref] for ref in reports},'scientific_authority':'not_established','law':'finite retained corpus only; repeated values preserve row multiplicity'}
+ summaries.append(summary)
+(dest/'index.json').write_text(json.dumps({'inputs':rows,'summary':summaries,'numeric_backend_rerun':False,'scope':'read-only extraction and exact Fraction oracle from closed native fixture CAS; no HMC/NUTS run repeated'},indent=2)+'\n')
+print(json.dumps({'inputs':len(rows),'bytes':sum(r['bytes'] for r in rows),'methods':[{'method':s['method'],'rows':s['actual_rows'],'corpus_hash':s['corpus_hash'],'expected_callbacks':s['complete_256net_expected_callback_count']} for s in summaries]}))

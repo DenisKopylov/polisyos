@@ -1,0 +1,106 @@
+
+import importlib
+import json
+import pickle
+from datetime import UTC, datetime
+from enum import Enum
+from pathlib import Path
+from pydantic import BaseModel, ValidationError
+from jsonschema import Draft202012Validator, FormatChecker
+
+canonical = importlib.import_module("polisyos.ddm.contracts.events")
+legacy = importlib.import_module("polisyos.ddm.integration.events")
+root = importlib.import_module("polisyos.ddm")
+integration = importlib.import_module("polisyos.ddm.integration")
+budget = importlib.import_module("polisyos.ddm.contracts.metric_budget")
+mapper = importlib.import_module("polisyos.ddm.readiness.readiness_mapper")
+assert mapper.MetricBudgetPolicy is budget.MetricBudgetPolicy
+classes = {name: value for name, value in vars(canonical).items() if isinstance(value, type) and value.__module__ == canonical.__name__}
+assert set(classes) == set(legacy.__all__), (set(classes), legacy.__all__)
+for name, cls in classes.items():
+    assert getattr(legacy, name) is cls
+    assert getattr(integration, name) is cls
+    if name in root.__all__:
+        assert getattr(root, name) is cls
+    assert pickle.loads(pickle.dumps(cls)) is cls
+    historical = ("c" + legacy.__name__ + "\n" + name + "\n.").encode()
+    assert pickle.loads(historical) is cls
+    if issubclass(cls, Enum):
+        for member in cls:
+            assert pickle.loads(pickle.dumps(member)) is member
+            assert cls(member.value) is member
+for module in ("polisyos.ddm.readiness.readiness_mapper", "polisyos.ddm.contracts.metric_budget"):
+    historical = ("c" + module + "\nMetricBudgetPolicy\n.").encode()
+    assert pickle.loads(historical) is budget.MetricBudgetPolicy
+
+now = "2026-04-10T00:00:00Z"
+window = {"start": "2026-04-01T00:00:00Z", "end": "2026-04-02T00:00:00Z", "n": 10}
+subject = {"model_id": "model", "model_version": "v1", "timestamp": now}
+feature = {"feature": "age", "score": .3, "direction": "up"}
+slice_ = {"slice": "north", "score": .2}
+shift = dict(subject, event_id="shift", detector_id="detector", detector_family="mmd", signal="input_shift", representation="raw", reference_window=window, current_window=window, stationarity_regime_id="regime", calibration_id="calibration", test_statistic=.4, p_value=.01, empirical_fp_rate=.01, shift_severity=.3, affected_features=[feature], affected_slices=[slice_], diagnostic_only=False)
+samples = {
+    "MonitoringWindow": window,
+    "AffectedFeature": feature,
+    "AffectedSlice": slice_,
+    "ShiftDetectedEvent": shift,
+    "ShiftRiskEvent": dict(subject, event_id="risk", shift_event_id="shift", detector_id="detector", signal="input_shift", stationarity_regime_id="regime", calibration_id="calibration", evidence_kind="p_value", risk_score=.3, risk_level="watch", affected_features=[feature], affected_slices=[slice_]),
+    "PerformanceDegradationEvent": dict(subject, event_id="degradation", metric="accuracy", metric_direction="higher_is_better", source="realized_performance", estimator="heldout", reference_value=.9, minimum_acceptable_value=.8, current_estimate=.88, confidence_interval_95=[.85,.91], budget_used=.2, label_delay_days_p50=1, label_delay_days_p90=2, corroborating_shift_event_ids=["shift"], readiness_state="R3", recommended_action="watch", calibration_id="calibration"),
+    "DataQualitySignal": dict(subject, signal_id="quality", risk_score=.1, violations=["missing"], affected_features=["age"]),
+    "ReadinessStateEvent": dict(subject, event_id="ready", readiness_state="R3", readiness_score=85, primary_reason="watch", active_signals=["shift"], affected_slices=["north"], required_actions=["watch"], expires_at="2026-04-11T00:00:00Z", promotion_allowed=True),
+    "CalibrationValidityProjection": dict(calibration_id="calibration", detector_id="detector", stationarity_regime_id="regime", report_digest="a"*64, verifier_id="bounded", verifier_version="1", effective_at=now, valid_until="2026-05-01T00:00:00Z", configured_invalidation_triggers=["model_version_change"], observed_invalidation_triggers=[], observation_status="observed", status="valid", reasons=[]),
+    "CalibrationAudit": dict(model_id="model", model_version="v1", calibration_id="calibration", detector_id="detector", stationarity_regime_id="regime", horizon="30d", alpha=.05, ert=10000, empirical_fp_rate=.01, empirical_fp_upper_95=.02, **{"pass": True}),
+    "RootCauseBundle": dict(subject, event_id="root-cause", shift_event_ids=["shift"], degradation_event_ids=["degradation"], affected_features=[feature], affected_slices=["north"], upstream_versions={"source":"1"}, data_quality_violations=["missing"], stationarity_regime_ids=["regime"], calibration_ids=["calibration"]),
+    "IncidentPayload": dict(subject, event_id="incident", readiness_event_id="ready", readiness_state="R3", severity="watch", root_cause_bundle_id="root-cause", required_actions=["watch"], attach_event_ids=["shift"], notify_owner=True),
+}
+assert set(samples) == {name for name, cls in classes.items() if issubclass(cls, BaseModel)}
+for name, payload in samples.items():
+    cls = classes[name]
+    instance = cls.model_validate(payload)
+    wire = instance.model_dump_json(by_alias=True)
+    assert cls.model_validate_json(wire) == instance
+    assert pickle.loads(pickle.dumps(instance)) == instance
+    old_pickle = pickle.dumps(instance, protocol=0).replace(canonical.__name__.encode(), legacy.__name__.encode())
+    assert pickle.loads(old_pickle) == instance
+    Draft202012Validator(cls.model_json_schema(by_alias=True), format_checker=FormatChecker()).validate(json.loads(wire))
+audit = canonical.CalibrationAudit.model_validate(samples["CalibrationAudit"])
+assert audit.pass_ is True
+assert audit.model_dump(mode="json", by_alias=True)["pass"] is True
+assert canonical.CalibrationAudit.model_validate(dict(samples["CalibrationAudit"], pass_=True)).pass_ is True
+
+manual_schema = json.loads(Path("src/polisyos/ddm/integration/shift_event.schema.json").read_text())
+manual = Draft202012Validator(manual_schema, format_checker=FormatChecker())
+generated = Draft202012Validator(canonical.ShiftDetectedEvent.model_json_schema(), format_checker=FormatChecker())
+full_shift = canonical.ShiftDetectedEvent.model_validate(shift).model_dump(mode="json")
+manual.validate(full_shift)
+for channel, value in (("p_value",.01),("e_value",2.0),("ert",1000.0)):
+    single = {key:value_ for key,value_ in full_shift.items() if key not in ("p_value","e_value","ert")}
+    single[channel] = value
+    canonical.ShiftDetectedEvent.model_validate(single)
+    manual.validate(single)
+missing = {key:value for key,value in full_shift.items() if key not in ("p_value","e_value","ert")}
+try:
+    canonical.ShiftDetectedEvent.model_validate(missing)
+except ValidationError:
+    pass
+else:
+    raise AssertionError("runtime admitted missing numerical evidence")
+assert not manual.is_valid(missing)
+assert generated.is_valid(missing), "documented differential unexpectedly disappeared"
+reverse = json.loads(json.dumps(full_shift))
+reverse["current_window"]["start"], reverse["current_window"]["end"] = reverse["current_window"]["end"], reverse["current_window"]["start"]
+try:
+    canonical.ShiftDetectedEvent.model_validate(reverse)
+except ValidationError:
+    pass
+else:
+    raise AssertionError("runtime admitted reversed window")
+assert manual.is_valid(reverse)
+assert generated.is_valid(reverse)
+assert root.DriftAndDegradationMonitor is integration.DriftAndDegradationMonitor
+monitor = root.DriftAndDegradationMonitor()
+result = monitor.evaluate_window(model_id="model", model_version="v1", timestamp=datetime(2026,4,10,tzinfo=UTC))
+assert type(result.readiness_event) is canonical.ReadinessStateEvent
+assert type(result.root_cause_bundle) is canonical.RootCauseBundle
+assert type(result.incident_payload) is canonical.IncidentPayload
+print(json.dumps({"outcome":"PASS","canonical_class_count":len(classes),"native_json_pickle_models":len(samples),"enum_values": {name:[member.value for member in cls] for name,cls in classes.items() if issubclass(cls,Enum)},"budget_forward_identity":True,"legacy_pickle_fqn":True,"channel_negative":{"runtime":"REJECT","manual_schema":"REJECT","generated_schema":"ACCEPT"},"reversed_window":{"runtime":"REJECT","manual_schema":"ACCEPT","generated_schema":"ACCEPT"},"public_root_monitor_consumer":True},sort_keys=True))

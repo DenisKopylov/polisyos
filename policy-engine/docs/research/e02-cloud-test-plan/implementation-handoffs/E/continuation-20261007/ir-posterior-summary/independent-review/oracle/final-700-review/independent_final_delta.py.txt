@@ -1,0 +1,105 @@
+from __future__ import annotations
+from collections import Counter
+from copy import deepcopy
+from fractions import Fraction
+import hashlib,importlib,importlib.metadata,importlib.util,json,os,subprocess,sys,tempfile,traceback
+from pathlib import Path
+import numpy as np
+from polisyos.core import artifacts as ca,canon as cc
+from polisyos.core.contracts import SimulationResult
+from polisyos.foundry.calibration.uncertainty_adapter import summarize_bayesian_calibration_posterior as produce
+from polisyos.foundry.uncertainty.sampling_admission import joint_carrier_digest
+from polisyos.ir.analytics import PosteriorParameterBinding,PosteriorSummaryContext,load_posterior_summary_envelope,posterior_nominal_mean,read_posterior_summary_profile
+from polisyos.ir.analytics.uncertainty import UncertaintyEnvelope,persist_uncertainty_envelope,load_uncertainty_envelope
+from polisyos.ir.registry.refs import UncertaintyEnvelopeRef
+from polisyos.scientist.nodes.builtins.simulate import propagate_uncertainty as node
+from polisyos.scientist.nodes.builtins.state_keys import ARTIFACT_SIMULATION_RESULT_REF
+ps=importlib.import_module('polisyos.ir.analytics.posterior_summary')
+ROOT=Path('/workspace/e02-E-frc-20261006'); OUT=Path('/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/final-700-review'); CAND='700f9d5a5e2167787d7042ca11e1ef3bf80ced74'; BASE='cdaea067935c8062a6a13fab8d7ffb53ae5fd401'
+paths=subprocess.check_output(['git','-C',str(ROOT),'diff','--name-only',BASE,CAND]).decode().splitlines()
+def identity():
+ d={}
+ for path in paths:
+  original=subprocess.check_output(['git','-C',str(ROOT),'show',CAND+':'+path]);actual=(ROOT/path).read_bytes();assert actual==original,path
+  d[path]={'sha256':hashlib.sha256(actual).hexdigest(),'bytes':len(actual)}
+ return d
+before=identity();cases=[];scratch=[]
+def directory(name):
+ p=Path(tempfile.mkdtemp(prefix=name+'-',dir=OUT));scratch.append(str(p));return p
+def save_fresh(env,root):
+ ref=persist_uncertainty_envelope(ca.FileSystemCAS(root),env);fresh=load_posterior_summary_envelope(ca.FileSystemCAS(root),ref);return ref,fresh
+spec=importlib.util.spec_from_file_location('native_fixture',ROOT/'policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py');fixture=importlib.util.module_from_spec(spec);spec.loader.exec_module(fixture)
+def run_node(draws,*,mutation=None,weights=None):
+ ctx,state,refs=fixture._posterior_node_fixture(directory('node'),draws,mutation=mutation,weights=weights)
+ calls=[];builders=[];original=node._build_propagation_fn
+ def observe(*a,**kw):
+  builders.append(dict(kw['nominal_params']));fn,mapped=original(*a,**kw)
+  def measured(**params):calls.append({k:float(v) for k,v in params.items()});return fn(**params)
+  measured._sensitivity_map=fn._sensitivity_map
+  return measured,mapped
+ node._build_propagation_fn=observe
+ try:
+  outcome=node.PropagateUncertaintyNode().execute(ctx,state)
+  if outcome.status!='ok':return {'status':outcome.status,'error':str(outcome.error),'calls':calls,'builders':builders}
+  fresh=ca.FileSystemCAS(ctx.store.root if hasattr(ctx.store,'root') else directory('unused')) if False else ctx.store
+  sim=SimulationResult.model_validate(cc.from_canonical_bytes(fresh.get_bytes(outcome.state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF].artifact_id)))
+  result=load_uncertainty_envelope(fresh,sim.uncertainty_envelopes['y'])
+  return {'status':outcome.status,'calls':calls,'builders':builders,'output':result,'refs':refs}
+ except Exception as exc:return {'exception_type':type(exc).__name__,'is_value_error':isinstance(exc,ValueError),'exception':str(exc),'calls':calls,'builders':builders}
+ finally:node._build_propagation_fn=original
+import math
+from polisyos.scientist.nodes.builtins.state_keys import INPUT_CALIBRATION_REPORT_REF
+from polisyos.ir.analytics.uncertainty import DistributionFamily,IntervalSemantics,PosteriorSamplesCarrier,UncertaintySource
+
+def case(name,fn):
+ try:detail=fn();cases.append({'id':name,'check_status':'PASS','detail':detail})
+ except Exception as exc:cases.append({'id':name,'check_status':'FAIL','error':repr(exc),'traceback':traceback.format_exc()})
+for weights,expected in [(None,.5),([-0.,1.],1.)]:
+ def signed(weights=weights,expected=expected):
+  summary=produce({'x':[-0.,1.]},weights=weights);env=summary.parameter_envelopes['x'];ref,fresh=save_fresh(env,directory('signedzero'))
+  assert all(math.copysign(1,x)==1 for x in env.distribution_payload.samples if x==0) and all(math.copysign(1,p)==1 for p in env.distribution_payload.weights if p==0)
+  assert env==fresh and posterior_nominal_mean(fresh,parameter_name='x')==expected
+  assert fresh.metadata['joint_law_sha256']==joint_carrier_digest(['x'],{'x':fresh},fresh.metadata['joint_draw_ids'])
+  result=run_node({'x':[-0.,1.]},weights=weights);assert result['status']=='ok' and len(result['calls'])==257 and result['builders']==[{'x':expected}]
+  expected_counts={0.:128,1.:128} if weights is None else {1.:256};counts=dict(Counter(row['x'] for row in result['calls'][1:]));assert counts==expected_counts
+  assert not result['output'].gate_eligible
+  return {'input_weights':weights,'fresh_mean':expected,'source_and_fresh_zero_signs_canonical_positive':True,'fresh_CAS_ref':ref.model_dump(mode='json'),'actual_native_callback_count':len(result['calls']),'actual_sample_counts':counts,'zero_mass_category_callback_count':0 if weights is not None else None,'gate_eligible':result['output'].gate_eligible}
+ case('signedzero_freshCAS_native_'+str(weights),signed)
+
+def legacy_labels():
+ env=UncertaintyEnvelope(point_estimate=0,confidence_interval=(0,0),confidence_level=.9,distribution_family=DistributionFamily.BAYESIAN,source=UncertaintySource.CALIBRATION,interval_semantics=IntervalSemantics.CREDIBLE_INTERVAL,distribution_payload=PosteriorSamplesCarrier(samples=(0.,)*99+(100.,)),gate_eligible=False,metadata={'point_functional':'median','interval_functional':'equal_tail_inverse_cdf','posterior_mean':1.,'joint_sample_id':'legacy-generic'})
+ root=directory('legacy-labels');ref,fresh=save_fresh(env,root);raw=ca.FileSystemCAS(root).get_bytes(ref.artifact_id);repeated=persist_uncertainty_envelope(ca.FileSystemCAS(root),fresh)
+ assert fresh==env and read_posterior_summary_profile(fresh) is None and posterior_nominal_mean(fresh)==0 and repeated==ref and ca.FileSystemCAS(root).get_bytes(repeated.artifact_id)==raw
+ return {'legacy_generic_point':0,'separate_legacy_mean_metadata':1,'new_profile_interpretation':None,'same_replayed_CAS_ref':ref.model_dump(mode='json'),'old_wire_bytes_reused':True,'gate_eligible':False}
+case('old_generic_labels_v1_1_replay',legacy_labels)
+
+def marker_node(remove=False,mutation='remove_profile'):
+ ctx,state,refs=fixture._posterior_node_fixture(directory('new-marker'),{'x':[0]*99+[100]});env=load_posterior_summary_envelope(ctx.store,refs['x']);raw=env.model_dump(mode='json');md=raw['metadata']
+ if mutation=='remove_profile':del md['posterior_summary_profile'];del md['posterior_summary_profile_required']
+ elif mutation=='wrong_id':md['posterior_summary_profile_id']='unknown_profile'
+ else:md['posterior_summary_profile_version']='999'
+ assert 'posterior_summary_profile_id' in md and 'posterior_summary_profile_version' in md
+ ref=persist_uncertainty_envelope(ctx.store,UncertaintyEnvelope.model_validate(raw));old=state.inputs[INPUT_CALIBRATION_REPORT_REF];manifest=ctx.store.get_manifest(old.artifact_id);r=cc.from_canonical_bytes(ctx.store.get_bytes(old.artifact_id));r['uncertainty_envelope_refs']['x']=ref.model_dump(mode='json');state.inputs[INPUT_CALIBRATION_REPORT_REF]=ctx.store.put_json(r,ca.PutOptions(kind=manifest.kind,media_type=manifest.media_type,schema=manifest.artifact_schema,inputs=manifest.inputs),canon_spec=cc.CanonSpec(forbid_floats=False,exclude_none=False))
+ calls=[];builders=[];original=node._build_propagation_fn;declare=ps._profile_declared
+ def observe(*a,**kw):
+  builders.append(kw);fn,mapped=original(*a,**kw)
+  def counted(**p):calls.append(p);return fn(**p)
+  counted._sensitivity_map=fn._sensitivity_map;return counted,mapped
+ node._build_propagation_fn=observe
+ if remove:ps._profile_declared=lambda md:False
+ try:
+  try:outcome=node.PropagateUncertaintyNode().execute(ctx,state)
+  except ValueError as exc:
+   assert not remove and calls==[] and builders==[]
+   return {'actual_refusal':str(exc),'actual_callbacks':0,'actual_builders':0,'explicit_NEW_profile_ID_version_markers_retained':True,'fresh_integrity_valid':True}
+  assert remove and outcome.status=='ok' and len(calls)==257
+  try:assert calls==[]
+  except AssertionError:return {'effective_property_removal':True,'required_negative_assertion_outcome':'FAIL','actual_callbacks':len(calls),'actual_builders':len(builders),'explicit_NEW_markers_retained':True,'generic_point_fallback':builders[0]['nominal_params']}
+  raise AssertionError('property removal did not falsify callback0')
+ finally:node._build_propagation_fn=original;ps._profile_declared=declare
+for mutation in ['remove_profile','wrong_id','wrong_version']:
+ case('explicit_NEW_marker_'+mutation,lambda mutation=mutation:marker_node(False,mutation))
+case('effective_NEW_marker_guard_removal',lambda:marker_node(True))
+assert identity()==before
+record={'schema':'policyos.e02.independent_final_ir_delta.v1','candidate':CAND,'tree':'2e692d5a5dfa4cfbff78d0079c6fed3e4ba1a73f','base':BASE,'parent_candidate':'c8616e2babe1f0674799c12f07faffa5d6bd266d','source_unchanged':True,'footprint':before,'environment':{'python':sys.version,**{p:importlib.metadata.version(p) for p in ['numpy','scipy','pydantic','jax','pytest']}},'cases':cases,'counts':dict(Counter(x['check_status'] for x in cases)),'cleanup_candidates':scratch,'limits':['Seven narrow finaldelta controls; previous c87/c861 observations reused under exactsource and dependency delta review, not re-executed or represented as a broadwave.','Preserves logical real-zero canonical representation already used by IR CAS; no IEEE sign-bit identity promise.','Source acceptance separate from original finding closure, scientific posterior-quality authority and default production fit/served law.']}
+(OUT/'independent-final-delta-results.json').write_text(json.dumps(record,indent=2)+'\n');print(json.dumps(record,indent=2));sys.exit(bool(record['counts'].get('FAIL')))

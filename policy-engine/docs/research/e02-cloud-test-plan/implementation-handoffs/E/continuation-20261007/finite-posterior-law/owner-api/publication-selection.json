@@ -1,0 +1,265 @@
+{
+  "schema": "policyos.e02.moderate_publication_selection.v1",
+  "candidate": "3932cded22a29254a7dfced99723e147d6fea7cb",
+  "tree": "8d19c30199666cf97dd3934f60d772baa3071f7e",
+  "outcome": "bounded independent GO; scoped typing FAIL1; global gates UNRUN",
+  "files": [
+    {
+      "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/review_dto_append.py",
+      "bytes": 10509,
+      "sha256": "5840c40c0533a67e2a68506354b0cea3ffbbc9cd4ba03b8236e7b062172548e0",
+      "role": "independent bounded review, complete observation or preserved historical input",
+      "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/review_dto_append.py",
+      "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/review_dto_append.py",
+      "format": "python_source_archive"
+    },
+    {
+      "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/dto-append-independent-review.json",
+      "bytes": 34502,
+      "sha256": "f295adf3fae520a0f31022c15f2e8f4f4000092a5124c2a9864524fdf50c388c",
+      "role": "independent bounded review, complete observation or preserved historical input",
+      "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/dto-append-independent-review.json",
+      "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/dto-append-independent-review.json",
+      "format": "literal_bytes"
+    },
+    {
+      "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/dto-review.stdout.json",
+      "bytes": 393,
+      "sha256": "18cfec7c96b214b2c3074f4157a500db62ee827e901bf436db13e3733330e147",
+      "role": "independent bounded review, complete observation or preserved historical input",
+      "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/dto-review.stdout.json",
+      "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/dto-review.stdout.json",
+      "format": "literal_bytes"
+    },
+    {
+      "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/dto-review.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent bounded review, complete observation or preserved historical input",
+      "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/dto-review.stderr.txt",
+      "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/dto-review.stderr.txt",
+      "format": "literal_bytes"
+    },
+    {
+      "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/source-qualification-3932.json",
+      "bytes": 8793,
+      "sha256": "e9be8494cbf87f77f6c737fc5f2eebd58c6481b2893d4dfd76891b854409f418",
+      "role": "independent bounded review, complete observation or preserved historical input",
+      "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/source-qualification-3932.json",
+      "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/source-qualification-3932.json",
+      "format": "literal_bytes"
+    },
+    {
+      "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/source-qualification-ca17.json",
+      "bytes": 12621,
+      "sha256": "c88264a0f7feb577414166f67d0ab868eadd8a33f544219056403b600d608812",
+      "role": "independent bounded review, complete observation or preserved historical input",
+      "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/source-qualification-ca17.json",
+      "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/source-qualification-ca17.json",
+      "format": "literal_bytes"
+    },
+    {
+      "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/forecast-import-edge-scope-correction.json",
+      "bytes": 3378,
+      "sha256": "635cf79a6a1bf081bb28c710ed1d24c2fcbf31a2a1956f1e71996404cfad046c",
+      "role": "independent bounded review, complete observation or preserved historical input",
+      "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/forecast-import-edge-scope-correction.json",
+      "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/forecast-import-edge-scope-correction.json",
+      "format": "literal_bytes"
+    },
+    {
+      "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/check_architecture.py",
+      "bytes": 7878,
+      "sha256": "5b800af34a12014790d7b20a1adb08a24bcd87c56abf98c61aeec00f61ae1890",
+      "role": "independent bounded review, complete observation or preserved historical input",
+      "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/check_architecture.py",
+      "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/check_architecture.py",
+      "format": "python_source_archive"
+    },
+    {
+      "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/architecture-review.json",
+      "bytes": 64959,
+      "sha256": "3a57aec4e9eacb329cd9273829900690e0c474502c628dabe98382960480420e",
+      "role": "independent bounded review, complete observation or preserved historical input",
+      "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/architecture-review.json",
+      "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/architecture-review.json",
+      "format": "literal_bytes"
+    },
+    {
+      "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/architecture.stdout.json",
+      "bytes": 157,
+      "sha256": "630775188ac754d04e058adc14fd3860e2707e46ed3ecdaf0b9177e3a2105321",
+      "role": "independent bounded review, complete observation or preserved historical input",
+      "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/architecture.stdout.json",
+      "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/architecture.stdout.json",
+      "format": "literal_bytes"
+    },
+    {
+      "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/architecture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent bounded review, complete observation or preserved historical input",
+      "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/architecture.stderr.txt",
+      "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/architecture.stderr.txt",
+      "format": "literal_bytes"
+    },
+    {
+      "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/scoped-type-execution.json",
+      "bytes": 3538,
+      "sha256": "9c53fad5f9f6dd3e8dd243aeb5f0b33e8aea167d39a5e0f7124b5dfc90e2817d",
+      "role": "independent bounded review, complete observation or preserved historical input",
+      "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/scoped-type-execution.json",
+      "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/scoped-type-execution.json",
+      "format": "literal_bytes"
+    },
+    {
+      "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/scoped-type-correction.json",
+      "bytes": 3936,
+      "sha256": "89a8a0c02a444f74bc4d2a7d97ef552d88617eb8ba9a9e38426850d56f5c58d2",
+      "role": "independent bounded review, complete observation or preserved historical input",
+      "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/scoped-type-correction.json",
+      "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/scoped-type-correction.json",
+      "format": "literal_bytes"
+    },
+    {
+      "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-type.stdout.json",
+      "bytes": 780,
+      "sha256": "fce40e22f3df0902cd4754cafbc3b05216e111c03a54da23c59f6bff1e6ad0ff",
+      "role": "independent bounded review, complete observation or preserved historical input",
+      "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-type.stdout.json",
+      "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-type.stdout.json",
+      "format": "literal_bytes"
+    },
+    {
+      "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-type.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent bounded review, complete observation or preserved historical input",
+      "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-type.stderr.txt",
+      "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-type.stderr.txt",
+      "format": "literal_bytes"
+    },
+    {
+      "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-resolved-type.stdout.json",
+      "bytes": 844,
+      "sha256": "3c2e733201331a4923c9175f5c6e4dc749165a3751300b829bf8dbc01fd2edba",
+      "role": "independent bounded review, complete observation or preserved historical input",
+      "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-resolved-type.stdout.json",
+      "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-resolved-type.stdout.json",
+      "format": "literal_bytes"
+    },
+    {
+      "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-resolved-type.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent bounded review, complete observation or preserved historical input",
+      "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-resolved-type.stderr.txt",
+      "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-resolved-type.stderr.txt",
+      "format": "literal_bytes"
+    },
+    {
+      "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/candidate-type.stdout.json",
+      "bytes": 2390,
+      "sha256": "c123df6c3dd55ded5ff7e567faf4bc1c9758afc3cc50c468c67b52c8f9a3c153",
+      "role": "independent bounded review, complete observation or preserved historical input",
+      "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/candidate-type.stdout.json",
+      "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/candidate-type.stdout.json",
+      "format": "literal_bytes"
+    },
+    {
+      "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/candidate-type.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent bounded review, complete observation or preserved historical input",
+      "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/candidate-type.stderr.txt",
+      "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/candidate-type.stderr.txt",
+      "format": "literal_bytes"
+    },
+    {
+      "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/typed3932-execution.json",
+      "bytes": 1487,
+      "sha256": "f954f176d9f348a85d8472ad0344cf222f39487265bbe7e9469d8f4460234efd",
+      "role": "independent bounded review, complete observation or preserved historical input",
+      "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/typed3932-execution.json",
+      "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/typed3932-execution.json",
+      "format": "literal_bytes"
+    },
+    {
+      "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/typed3932.stdout.json",
+      "bytes": 813,
+      "sha256": "60ea4dc121833cefbdb72dc76c73798aa5302660b57f29ebdd6e27c8d1b03acc",
+      "role": "independent bounded review, complete observation or preserved historical input",
+      "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/typed3932.stdout.json",
+      "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/typed3932.stdout.json",
+      "format": "literal_bytes"
+    },
+    {
+      "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/typed3932.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "independent bounded review, complete observation or preserved historical input",
+      "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/typed3932.stderr.txt",
+      "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/typed3932.stderr.txt",
+      "format": "literal_bytes"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-delta-author-proof.json",
+      "bytes": 901,
+      "sha256": "5096f5331c6471b50c4976fc88ecc9f7c68a3b9d8765a98420f39fc23b07fcb1",
+      "role": "existing author complete input, not repeated native observation",
+      "logical_at": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-delta-author-proof.json",
+      "stored_at": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-delta-author-proof.json",
+      "format": "literal_bytes"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-schemas-before.json",
+      "bytes": 1301234,
+      "sha256": "ac9598f27e7e8b3ccfe8092bbe9e0aad1619c55b455e8d256ae928bd095699fd",
+      "role": "existing author complete input, not repeated native observation",
+      "logical_at": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-schemas-before.json",
+      "stored_at": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-schemas-before.json",
+      "format": "literal_bytes"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-schemas-after.json",
+      "bytes": 1301234,
+      "sha256": "ac9598f27e7e8b3ccfe8092bbe9e0aad1619c55b455e8d256ae928bd095699fd",
+      "role": "existing author complete input, not repeated native observation",
+      "logical_at": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-schemas-after.json",
+      "stored_at": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-schemas-after.json",
+      "format": "literal_bytes"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-native-delta.xml",
+      "bytes": 2333,
+      "sha256": "46a70c6b02b7c6ee1f7ae8685c1430478376dec309d71c79a32853c0d725c83b",
+      "role": "existing author complete input, not repeated native observation",
+      "logical_at": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-native-delta.xml",
+      "stored_at": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-native-delta.xml",
+      "format": "literal_bytes"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-native-delta.stdout.txt",
+      "bytes": 80,
+      "sha256": "cfc14fd2dc11c362cccf5421245ca5ab0e9d286b54a604a80bd2dd5522f6feb9",
+      "role": "existing author complete input, not repeated native observation",
+      "logical_at": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-native-delta.stdout.txt",
+      "stored_at": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-native-delta.stdout.txt",
+      "format": "literal_bytes"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-native-delta.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "existing author complete input, not repeated native observation",
+      "logical_at": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-native-delta.stderr.txt",
+      "stored_at": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-native-delta.stderr.txt",
+      "format": "literal_bytes"
+    }
+  ],
+  "logical_count": 28,
+  "content_unique_count": 21,
+  "content_unique_bytes": 1461526,
+  "portable_rule": "Archive executable observers as .py.txt; archive zero-byte *.json stdout as .txt while retaining original path/hash alias. Preserve duplicate logical inputs even when bytes deduplicated.",
+  "source_immutable": true
+}

@@ -1,0 +1,106 @@
+{
+  "schema": "policyos.e02.historical12_exact_source_reconciliation.v1",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "historical12_definition": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/import-census.json",
+    "sha256": "bae0116b4b8585e4d89ee757aa8680e1aadd6e4e30c7d743730982e073741f6c",
+    "implementation_source": "539ee6d6aad7f9db4c03dc520fc515dabef8d799"
+  },
+  "denominator": 12,
+  "removed": 11,
+  "remaining": 1,
+  "rows": [
+    {
+      "source_path": "policy-engine/src/polisyos/calibration/continuous.py",
+      "target_module": "polisyos.core.artifacts",
+      "source_sha256": "4aac5f3164d0f137d7b2a54c2302bdb7df85f05d71a57d8e1fa7b920c3525a97",
+      "present": false,
+      "actual_matching_AST_statements": []
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/calibration/continuous.py",
+      "target_module": "polisyos.core.canon",
+      "source_sha256": "4aac5f3164d0f137d7b2a54c2302bdb7df85f05d71a57d8e1fa7b920c3525a97",
+      "present": false,
+      "actual_matching_AST_statements": []
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "target_module": "polisyos.ir.analytics.forecasting_uncertainty",
+      "source_sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6",
+      "present": true,
+      "actual_matching_AST_statements": [
+        {
+          "line": 995,
+          "statement": "from polisyos.ir.analytics.forecasting_uncertainty import (\n        load_forecasting_uncertainty_bundle,\n    )"
+        }
+      ]
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+      "target_module": "polisyos.core.artifacts",
+      "source_sha256": "b80774434a4680f8b10fd880644754958c68d233f4a38e69858ab53ab826f745",
+      "present": false,
+      "actual_matching_AST_statements": []
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "target_module": "polisyos.ir.analytics.uncertainty",
+      "source_sha256": "692481d93c0c95471897a5b8fd8a3b955bff25e0409dd3088abaeb09a920bd44",
+      "present": false,
+      "actual_matching_AST_statements": []
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+      "target_module": "polisyos.core.artifacts",
+      "source_sha256": "80e10adb3a793a63f7126fd9983e8a262cb458913efcfdbdc97a016f5e6fe172",
+      "present": false,
+      "actual_matching_AST_statements": []
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "target_module": "polisyos.calibration.forecast_bridge",
+      "source_sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3",
+      "present": false,
+      "actual_matching_AST_statements": []
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "target_module": "polisyos.core.artifacts",
+      "source_sha256": "f719fb79cd644059f9249b11af74a19f6911bcb2163259c07dbf9a2fa3d16d61",
+      "present": false,
+      "actual_matching_AST_statements": []
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "target_module": "polisyos.core.canon",
+      "source_sha256": "f719fb79cd644059f9249b11af74a19f6911bcb2163259c07dbf9a2fa3d16d61",
+      "present": false,
+      "actual_matching_AST_statements": []
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+      "target_module": "polisyos.core.artifacts",
+      "source_sha256": "098fc2c23c5316e59a4c7c62d9304c58142244810d539dc204781af1fb96bd27",
+      "present": false,
+      "actual_matching_AST_statements": []
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "target_module": "polisyos.foundry.uncertainty.sampling_admission",
+      "source_sha256": "a77d35527d03e3c8d25ef33678ecd988c547941353d810460055f1a3eb043e41",
+      "present": false,
+      "actual_matching_AST_statements": []
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "target_module": "polisyos.foundry.uncertainty.sampling_admission",
+      "source_sha256": "3e0690590297b52e1fc69b3e52812eba8d3c3c2e73469bc498bba0deca52be23",
+      "present": false,
+      "actual_matching_AST_statements": []
+    }
+  ],
+  "correction": "Previous helper message used wrong forecast loader name. Actual historical12 remaining module row is forecasting_uncertainty; real imported symbol is load_forecasting_uncertainty_bundle. CanonSpec is a separate existing bridge edge outside this historical12 list.",
+  "limits": "Read-only exact AST membership over the twelve pinned source-module edges; no architecture gate execution or global import-debt PASS, no inherited P41 attribution."
+}

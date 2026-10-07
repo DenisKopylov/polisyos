@@ -1,0 +1,2234 @@
+{
+  "candidate": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+  "changed_source_count": 215,
+  "write_capable_utility_count": 133,
+  "rows": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-chain-admission-r2-checks/independent-compiled_model_removal.py",
+      "write_calls": [
+        {
+          "line": 244,
+          "call": "(root / 'order-falsifiers-removal.json').write_text(json.dumps(records, indent=2, sort_keys=True) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-backtest-20261006",
+        "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-native-chain-admission-r2-checks/independent-order_falsifier.final.py",
+      "write_calls": [
+        {
+          "line": 259,
+          "call": "(root / 'order-falsifiers-final.json').write_text(json.dumps(records, indent=2, sort_keys=True) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-backtest-20261006",
+        "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/backtest"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-current-validator-v3/validate_controls_v3.py",
+      "write_calls": [
+        {
+          "line": 132,
+          "call": "removal_path.write_text(source_text.replace(predicate, ''))"
+        },
+        {
+          "line": 161,
+          "call": "result_path.write_text(encoded)"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-owner-independent/review_packet.py",
+      "write_calls": [
+        {
+          "line": 113,
+          "call": "p.write_text(json.dumps(value, indent=2, default=str) + '\\n')"
+        },
+        {
+          "line": 426,
+          "call": "(OUT / 'independent-patch-check.stdout.txt').write_bytes(patchcheck.stdout)"
+        },
+        {
+          "line": 427,
+          "call": "(OUT / 'independent-patch-check.stderr.txt').write_bytes(patchcheck.stderr)"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006",
+        "/workspace/e02-E-pr38-r2-receipts/a-generator-dependency-5e3e37276"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-independent/review_assembly.py",
+      "write_calls": [
+        {
+          "line": 119,
+          "call": "(OUT / 'full-committed-footprint.tsv').write_text('status\\tpath\\n' + '\\n'.join(full) + '\\n')"
+        },
+        {
+          "line": 732,
+          "call": "(OUT / 'assembly-dependency-review-c79.json').write_text(json.dumps(out, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006",
+        "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/assembly"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/historical-r4/calibration_reader_probe.py",
+      "write_calls": [
+        {
+          "line": 281,
+          "call": "(observed_o / 'calibration-reader-independent.json').write_text(json.dumps(result, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/independent-r5/edge_identity_review.py",
+      "write_calls": [
+        {
+          "line": 268,
+          "call": "(observed_o / 'edge-identity-review.json').write_text(json.dumps(result, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/cal-reader-facade-root/independent-r5/publication_review20.py",
+      "write_calls": [
+        {
+          "line": 143,
+          "call": "(observed_o / 'publication-review20.json').write_text(json.dumps(result, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v2-independent/collector_controls.py",
+      "write_calls": [
+        {
+          "line": 162,
+          "call": "(OUT / 'counts_guard_removed.py.txt').write_text(removal_source)"
+        },
+        {
+          "line": 190,
+          "call": "(OUT / 'controls.json').write_text(json.dumps(result, indent=2) + '\\n')"
+        },
+        {
+          "line": 71,
+          "call": "p.write_text(json.dumps(rewritten(json.loads(p.read_text()), wave), indent=2) + '\\n')"
+        },
+        {
+          "line": 80,
+          "call": "receipt_path.write_text(json.dumps(receipt, indent=2) + '\\n')"
+        },
+        {
+          "line": 93,
+          "call": "receipt_path.write_text(json.dumps(receipt, indent=2) + '\\n')"
+        },
+        {
+          "line": 104,
+          "call": "xml.write_text(data)"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006",
+        "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/synthetic-controls-v2/positive/wave"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v2-independent/custody_review.py",
+      "write_calls": [
+        {
+          "line": 338,
+          "call": "(OUT / 'custody-review.json').write_text(json.dumps(result, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006",
+        "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276",
+        "/workspace/e02-E-pr38-r2-receipts/source-freeze-5e3e37276.json"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v3-independent/collector_controls.py",
+      "write_calls": [
+        {
+          "line": 293,
+          "call": "(OUT / 'controls.json').write_text(json.dumps(result, indent=2) + '\\n')"
+        },
+        {
+          "line": 224,
+          "call": "(OUT / (label + '.py.txt')).write_text(ast.unparse(tree) + '\\n')"
+        },
+        {
+          "line": 56,
+          "call": "p.write_text(json.dumps(rewritten(json.loads(p.read_text()), wave), indent=2) + '\\n')"
+        },
+        {
+          "line": 65,
+          "call": "receipt_path.write_text(json.dumps(receipt, indent=2) + '\\n')"
+        },
+        {
+          "line": 90,
+          "call": "receipt_path.write_text(json.dumps(receipt, indent=2) + '\\n')"
+        },
+        {
+          "line": 128,
+          "call": "xml.write_text(data)"
+        },
+        {
+          "line": 79,
+          "call": "alternate.write_bytes(canonical.read_bytes())"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006",
+        "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collect_wave_v3_final.py",
+        "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/synthetic-controls-v2/positive/wave"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v3-independent/freeze_packet.py",
+      "write_calls": [
+        {
+          "line": 135,
+          "call": "(OUT / 'review.json').write_text(json.dumps(review, indent=2) + '\\n')"
+        },
+        {
+          "line": 157,
+          "call": "(OUT / 'copy-index.json').write_text(json.dumps(index, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/ruff.toml",
+        "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collect_wave_v3_final.py"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v3-independent/freeze_role_probe.py",
+      "write_calls": [
+        {
+          "line": 106,
+          "call": "(OUT / 'freeze-role-probe.json').write_text(json.dumps(result, indent=2) + '\\n')"
+        },
+        {
+          "line": 74,
+          "call": "freeze.write_text(json.dumps(data, indent=2) + '\\n')"
+        },
+        {
+          "line": 56,
+          "call": "path.write_text(json.dumps(rewrite(json.loads(path.read_text()), wave), indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006",
+        "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collect_wave_v3_final.py",
+        "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/synthetic-controls-v2/positive/wave"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/collector-v3-independent/reader_custody.py",
+      "write_calls": [
+        {
+          "line": 225,
+          "call": "(OUT / 'reader-custody.json').write_text(json.dumps(result, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006",
+        "/workspace/e02-E-pr38-r2-receipts/collector-v3-final-author-controls",
+        "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276",
+        "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v3",
+        "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collect_wave_v3_final.py",
+        "/workspace/e02-E-pr38-r2-receipts/source-freeze-5e3e37276.json"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/audit_inputs.py",
+      "write_calls": [
+        {
+          "line": 412,
+          "call": "target.write_text(json.dumps(result, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006",
+        "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/audit_outputs.py",
+      "write_calls": [
+        {
+          "line": 517,
+          "call": "path.write_text(json.dumps(obj, indent=2, default=str) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/audit_owner_cases.py",
+      "write_calls": [
+        {
+          "line": 177,
+          "call": "(OUT / 'actual-owner-attribution-and-scratch-a9f78817c.json').write_text(json.dumps(output, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-f445-v1/build_packet.py",
+      "write_calls": [
+        {
+          "line": 2069,
+          "call": "(OUT / 'summary.md').write_text('\\n'.join(summary))"
+        },
+        {
+          "line": 104,
+          "call": "(OUT / name).write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-f445-v1/validate.py",
+      "write_calls": [
+        {
+          "line": 473,
+          "call": "(HERE / 'validation.json').write_text(json.dumps(output, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-frozen-a9-v2/build_final.py",
+      "write_calls": [
+        {
+          "line": 104,
+          "call": "path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006",
+        "/workspace/e02-E-pr38-r2-receipts",
+        "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected",
+        "/workspace/e02-E-pr38-r2-receipts/corrected-common-wave-independent/a9f78817c/independent-wave-review-a9f78817c.json",
+        "/workspace/e02-E-pr38-r2-receipts/corrected-wave-a9f78817c-owner-results/actual-owner-results.json",
+        "/workspace/e02-E-pr38-r2-receipts/corrected-wave-a9f78817c-publication/publication-receipt.json",
+        "/workspace/e02-E-pr38-r2-receipts/criteria-all54/v2-draft-eb035",
+        "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/failed-collector.stderr.txt",
+        "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/typed-publication-freeze.json",
+        "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-v3.json",
+        "/workspace/e02-E-pr38-r2-receipts/source-freeze-a9f78817c.json"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-v1-independent/check_current_matrix_controls.py",
+      "write_calls": [
+        {
+          "line": 81,
+          "call": "args.output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-v1-independent/freeze_review_index.py",
+      "write_calls": [
+        {
+          "line": 113,
+          "call": "args.output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-v1-independent/git-inputs-b5/criteria-f445-v1/build_packet.py",
+      "write_calls": [
+        {
+          "line": 2069,
+          "call": "(OUT / 'summary.md').write_text('\\n'.join(summary))"
+        },
+        {
+          "line": 104,
+          "call": "(OUT / name).write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-v1-independent/git-inputs-b5/criteria-f445-v1/validate.py",
+      "write_calls": [
+        {
+          "line": 473,
+          "call": "(HERE / 'validation.json').write_text(json.dumps(output, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-v1-independent/review_publication.py",
+      "write_calls": [
+        {
+          "line": 274,
+          "call": "args.output.write_text(json.dumps(output, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-v1-independent/validate_independently_f445.py",
+      "write_calls": [
+        {
+          "line": 459,
+          "call": "args.output.write_text(json.dumps(output, ensure_ascii=False, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/current-consumer-trace/trace.py",
+      "write_calls": [
+        {
+          "line": 130,
+          "call": "(OUT / 'mechanism-blob-joins.json').write_text(json.dumps(joins, indent=2) + '\\n')"
+        },
+        {
+          "line": 218,
+          "call": "(OUT / 'native-k7-carried-witness.json').write_text(json.dumps(k7, indent=2) + '\\n')"
+        },
+        {
+          "line": 221,
+          "call": "(OUT / 'pcl-carried-witness.json').write_text(json.dumps({'review_input': reviews['PCL'], 'runtime_property': pcl, 'distinct_sites': 3, 'actual_calls': 5, 'distinct_diagnostics_ref"
+        },
+        {
+          "line": 244,
+          "call": "(OUT / 'frc-carried-witness.json').write_text(json.dumps({'review_input': reviews['FRC'], 'original_source': frc['reviewed_source'], 'scope': frc['scope'], 'verification': frc['ver"
+        },
+        {
+          "line": 329,
+          "call": "(OUT / 'recipe-binding-control.json').write_text(json.dumps(control, indent=2) + '\\n')"
+        },
+        {
+          "line": 691,
+          "call": "(OUT / 'consumer-traces-and-local-inputs.json').write_text(json.dumps(traces, indent=2) + '\\n')"
+        },
+        {
+          "line": 693,
+          "call": "(OUT / 'local-G-exact-source-recipe-supplement.json').write_text(json.dumps(recipe, indent=2) + '\\n')"
+        },
+        {
+          "line": 742,
+          "call": "(OUT / 'trace-receipt.json').write_text(json.dumps(summary, indent=2) + '\\n')"
+        },
+        {
+          "line": 766,
+          "call": "(OUT / 'copy-index.json').write_text(json.dumps(index, indent=2) + '\\n')"
+        },
+        {
+          "line": 778,
+          "call": "(OUT / 'READY.json').write_text(json.dumps(ready, indent=2) + '\\n')"
+        },
+        {
+          "line": 144,
+          "call": "local.write_bytes(raw)"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/baseline_falsifier.py",
+      "write_calls": [
+        {
+          "line": 205,
+          "call": "(OUT / 'baseline-a267-falsifier.json').write_text(json.dumps(result, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006",
+        "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-budget"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/finalize_review.py",
+      "write_calls": [
+        {
+          "line": 138,
+          "call": "(OUT / 'fresh-cas-deciding-artifacts.json').write_text(json.dumps(export, indent=2) + '\\n')"
+        },
+        {
+          "line": 399,
+          "call": "(OUT / 'doe-budget-independent-review-70c4.json').write_text(json.dumps(review, indent=2) + '\\n')"
+        },
+        {
+          "line": 420,
+          "call": "(OUT / 'copy-index.json').write_text(json.dumps(index, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-doe-20261006",
+        "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-budget"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/independent_budget_tests.py",
+      "write_calls": [
+        {
+          "line": 463,
+          "call": "Path(os.environ['REVIEW_OUTPUT']).write_text(json.dumps({'source': candidate, 'all_module_origins_exact': True, 'module_count': len(origins), 'module_hashes': {n: hashlib.sha256(Pa"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/run_review.py",
+      "write_calls": [
+        {
+          "line": 142,
+          "call": "(OUT / (label + '-receipt.json')).write_text(json.dumps(dictout, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-doe-20261006",
+        "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-budget"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-stress-dependency/controls.py",
+      "write_calls": [
+        {
+          "line": 189,
+          "call": "(OUT / 'controls-deciding.json').write_text(json.dumps(result, indent=2, sort_keys=True) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-backtest-20261006",
+        "/workspace/e02-E-pr38-r2-receipts/doe-stress-dependency"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-stress-dependency/trace.py",
+      "write_calls": [
+        {
+          "line": 86,
+          "call": "(OUT / name).write_text(json.dumps(payload, indent=2, sort_keys=True) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-backtest-20261006",
+        "/workspace/e02-E-pr38-r2-receipts/doe-stress-dependency"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/control_collector.py",
+      "write_calls": [
+        {
+          "line": 59,
+          "call": "path.write_text(json.dumps(value, indent=2) + '\\n')"
+        },
+        {
+          "line": 83,
+          "call": "path.write_bytes(GIT(ROOT, 'show', CANDIDATE + ':' + packet['source']))"
+        },
+        {
+          "line": 90,
+          "call": "stdout.write_text('SYNTHETIC COLLECTOR CONTROL ONLY; no product check was executed.\\n')"
+        },
+        {
+          "line": 93,
+          "call": "priv.write_bytes(private)"
+        },
+        {
+          "line": 135,
+          "call": "xml.write_text('<testsuites><testsuite>' + ''.join(('<testcase name=\"' + case['name'] + '\" classname=\"' + case['classname'] + '\">' + ('<failure>synthetic helper control</failure>' "
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006",
+        "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-collector/control_collector_v2.py",
+      "write_calls": [
+        {
+          "line": 59,
+          "call": "path.write_text(json.dumps(value, indent=2) + '\\n')"
+        },
+        {
+          "line": 83,
+          "call": "path.write_bytes(GIT(ROOT, 'show', CANDIDATE + ':' + packet['source']))"
+        },
+        {
+          "line": 90,
+          "call": "stdout.write_text('SYNTHETIC COLLECTOR CONTROL ONLY; no product check was executed.\\n')"
+        },
+        {
+          "line": 93,
+          "call": "priv.write_bytes(private)"
+        },
+        {
+          "line": 137,
+          "call": "xml.write_text('<testsuites><testsuite>' + ''.join(('<testcase name=\"' + case['name'] + '\" classname=\"' + case['classname'] + '\">' + ('<failure>synthetic helper control</failure>' "
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006",
+        "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-independent/audit_inputs.py",
+      "write_calls": [
+        {
+          "line": 395,
+          "call": "target.write_text(json.dumps(result, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006",
+        "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e-independent/audit_outputs.py",
+      "write_calls": [
+        {
+          "line": 513,
+          "call": "path.write_text(json.dumps(obj, indent=2, default=str) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-assembly-delta-independent/review_assembly.py",
+      "write_calls": [
+        {
+          "line": 125,
+          "call": "(OUT / name).write_text(json.dumps(value, indent=2, ensure_ascii=False) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/exact-Git-inputs/build_final.py",
+      "write_calls": [
+        {
+          "line": 104,
+          "call": "path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006",
+        "/workspace/e02-E-pr38-r2-receipts",
+        "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected",
+        "/workspace/e02-E-pr38-r2-receipts/corrected-common-wave-independent/a9f78817c/independent-wave-review-a9f78817c.json",
+        "/workspace/e02-E-pr38-r2-receipts/corrected-wave-a9f78817c-owner-results/actual-owner-results.json",
+        "/workspace/e02-E-pr38-r2-receipts/corrected-wave-a9f78817c-publication/publication-receipt.json",
+        "/workspace/e02-E-pr38-r2-receipts/criteria-all54/v2-draft-eb035",
+        "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/failed-collector.stderr.txt",
+        "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/typed-publication-freeze.json",
+        "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-v3.json",
+        "/workspace/e02-E-pr38-r2-receipts/source-freeze-a9f78817c.json"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/g-checkpoint11-assembly-independent/review_delta.py",
+      "write_calls": [
+        {
+          "line": 124,
+          "call": "(OUT / name).write_text(json.dumps(value, indent=2, ensure_ascii=False) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/plan_wave.py",
+      "write_calls": [
+        {
+          "line": 532,
+          "call": "(output / 'wave-started.json').write_text(json.dumps({'candidate_sha': plan['candidate_sha'], 'started_unix': time.time(), 'reviews_requirement': 'root caller asserts independent r"
+        },
+        {
+          "line": 604,
+          "call": "(output / 'execution-complete.json').write_text(json.dumps({'candidate_sha': plan['candidate_sha'], 'numerical_codes': numeric_codes, 'gate_codes': gate_codes, 'finished_unix': tim"
+        },
+        {
+          "line": 638,
+          "call": "plan_path.write_text(json.dumps(plan, indent=2) + '\\n')"
+        },
+        {
+          "line": 554,
+          "call": "target.write_bytes(data)"
+        },
+        {
+          "line": 582,
+          "call": "(output / 'not-started-after-importer.json').write_text(json.dumps({'reason': 'actual importer failure; numerical/gate stages UNRUN', 'candidate_sha': plan['candidate_sha']}, inden"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/.polisyos-environment/bin",
+        "/workspace/.polisyos-environment/cache/corepack",
+        "/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin",
+        "/workspace/.polisyos-environment/uv/bin",
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/run_check.py",
+      "write_calls": [
+        {
+          "line": 153,
+          "call": "private_config.write_bytes(git_config)"
+        },
+        {
+          "line": 313,
+          "call": "receipt_path.write_text(json.dumps(result, indent=2, default=str) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-author-v2/uncapped_umbrella.py",
+      "write_calls": [
+        {
+          "line": 178,
+          "call": "args.stages_output.write_text(json.dumps({'schema': 'policyos.e02.umbrella_stages.v1', 'gate': args.gate, 'exit_code': code, 'numerical_thread_caps': None, 'scopes': scopes, 'requi"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-independent/freeze_packet.py",
+      "write_calls": [
+        {
+          "line": 55,
+          "call": "(observed_o / 'plan-snapshot.json').write_text(json.dumps(plan, indent=2) + '\\n')"
+        },
+        {
+          "line": 248,
+          "call": "(observed_o / 'review.json').write_text(json.dumps(review, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006",
+        "/workspace/e02-E-pr38-r2-receipts/harness-configured-repair-7bc65f73-20261006/v2/wave-controls-configured-repair-v2.patch"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-independent/harness_review.py",
+      "write_calls": [
+        {
+          "line": 162,
+          "call": "sentinel.write_text('preserve unique data\\n')"
+        },
+        {
+          "line": 213,
+          "call": "data.write_text('unchanged\\n')"
+        },
+        {
+          "line": 321,
+          "call": "junit.write_text('<testsuite><testcase/><testcase><skipped/></testcase><testcase><failure/></testcase><testcase><error/></testcase></testsuite>')"
+        },
+        {
+          "line": 330,
+          "call": "dtd.write_text('<!DOCTYPE x [<!ENTITY x \"expanded\">]><testsuite><testcase name=\"&x;\"/></testsuite>')"
+        },
+        {
+          "line": 381,
+          "call": "(observed_o / 'harness-independent-review.json').write_text(json.dumps(moderate, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/old-exact/plan_wave.py",
+      "write_calls": [
+        {
+          "line": 532,
+          "call": "(output / 'wave-started.json').write_text(json.dumps({'candidate_sha': plan['candidate_sha'], 'started_unix': time.time(), 'reviews_requirement': 'root caller asserts independent r"
+        },
+        {
+          "line": 604,
+          "call": "(output / 'execution-complete.json').write_text(json.dumps({'candidate_sha': plan['candidate_sha'], 'numerical_codes': numeric_codes, 'gate_codes': gate_codes, 'finished_unix': tim"
+        },
+        {
+          "line": 638,
+          "call": "plan_path.write_text(json.dumps(plan, indent=2) + '\\n')"
+        },
+        {
+          "line": 554,
+          "call": "target.write_bytes(data)"
+        },
+        {
+          "line": 582,
+          "call": "(output / 'not-started-after-importer.json').write_text(json.dumps({'reason': 'actual importer failure; numerical/gate stages UNRUN', 'candidate_sha': plan['candidate_sha']}, inden"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/.polisyos-environment/bin",
+        "/workspace/.polisyos-environment/cache/corepack",
+        "/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin",
+        "/workspace/.polisyos-environment/uv/bin",
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/old-exact/run_check.py",
+      "write_calls": [
+        {
+          "line": 153,
+          "call": "private_config.write_bytes(git_config)"
+        },
+        {
+          "line": 313,
+          "call": "receipt_path.write_text(json.dumps(result, indent=2, default=str) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/plan_wave.py",
+      "write_calls": [
+        {
+          "line": 552,
+          "call": "(output / 'wave-started.json').write_text(json.dumps({'candidate_sha': plan['candidate_sha'], 'started_unix': time.time(), 'reviews_requirement': 'root caller asserts independent r"
+        },
+        {
+          "line": 624,
+          "call": "(output / 'execution-complete.json').write_text(json.dumps({'candidate_sha': plan['candidate_sha'], 'numerical_codes': numeric_codes, 'gate_codes': gate_codes, 'finished_unix': tim"
+        },
+        {
+          "line": 658,
+          "call": "plan_path.write_text(json.dumps(plan, indent=2) + '\\n')"
+        },
+        {
+          "line": 574,
+          "call": "target.write_bytes(data)"
+        },
+        {
+          "line": 602,
+          "call": "(output / 'not-started-after-importer.json').write_text(json.dumps({'reason': 'actual importer failure; numerical/gate stages UNRUN', 'candidate_sha': plan['candidate_sha']}, inden"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/.polisyos-environment/bin",
+        "/workspace/.polisyos-environment/cache/corepack",
+        "/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin",
+        "/workspace/.polisyos-environment/uv/bin",
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/probe_native_parent.py",
+      "write_calls": [
+        {
+          "line": 162,
+          "call": "(OUT / 'native-parent-results.json').write_text(json.dumps({'scope': 'Actual pytest tmp_path and nativeCAS IO; no calibration/backend wave repeated', 'results': results, 'all_decid"
+        },
+        {
+          "line": 54,
+          "call": "(OLD / name).write_bytes(data)"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006",
+        "/workspace/e02-E-pr38-r2-receipts/harness-native-parent-repair-5e3e37276"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/probe_native_parent_r2.py",
+      "write_calls": [
+        {
+          "line": 162,
+          "call": "(OUT / 'native-parent-results-r2.json').write_text(json.dumps({'scope': 'Actual pytest tmp_path and nativeCAS IO; no calibration/backend wave repeated', 'results': results, 'all_de"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006",
+        "/workspace/e02-E-pr38-r2-receipts/harness-native-parent-repair-5e3e37276"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/run_check.py",
+      "write_calls": [
+        {
+          "line": 153,
+          "call": "private_config.write_bytes(git_config)"
+        },
+        {
+          "line": 313,
+          "call": "receipt_path.write_text(json.dumps(result, indent=2, default=str) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/test_native_tmp_cas.py",
+      "write_calls": [
+        {
+          "line": 23,
+          "call": "callback.write_text(json.dumps({'native_callback_count': 1, 'tmp_path': str(tmp_path)}))"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/test_native_tmp_cas_r2.py",
+      "write_calls": [
+        {
+          "line": 23,
+          "call": "callback.write_text(json.dumps({'native_callback_count': 1, 'tmp_path': str(tmp_path)}))"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-author/uncapped_umbrella.py",
+      "write_calls": [
+        {
+          "line": 178,
+          "call": "args.stages_output.write_text(json.dumps({'schema': 'policyos.e02.umbrella_stages.v1', 'gate': args.gate, 'exit_code': code, 'numerical_thread_caps': None, 'scopes': scopes, 'requi"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/exact-old-git-blobs/plan_wave.py",
+      "write_calls": [
+        {
+          "line": 532,
+          "call": "(output / 'wave-started.json').write_text(json.dumps({'candidate_sha': plan['candidate_sha'], 'started_unix': time.time(), 'reviews_requirement': 'root caller asserts independent r"
+        },
+        {
+          "line": 604,
+          "call": "(output / 'execution-complete.json').write_text(json.dumps({'candidate_sha': plan['candidate_sha'], 'numerical_codes': numeric_codes, 'gate_codes': gate_codes, 'finished_unix': tim"
+        },
+        {
+          "line": 638,
+          "call": "plan_path.write_text(json.dumps(plan, indent=2) + '\\n')"
+        },
+        {
+          "line": 554,
+          "call": "target.write_bytes(data)"
+        },
+        {
+          "line": 582,
+          "call": "(output / 'not-started-after-importer.json').write_text(json.dumps({'reason': 'actual importer failure; numerical/gate stages UNRUN', 'candidate_sha': plan['candidate_sha']}, inden"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/.polisyos-environment/bin",
+        "/workspace/.polisyos-environment/cache/corepack",
+        "/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin",
+        "/workspace/.polisyos-environment/uv/bin",
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/exact-old-git-blobs/run_check.py",
+      "write_calls": [
+        {
+          "line": 153,
+          "call": "private_config.write_bytes(git_config)"
+        },
+        {
+          "line": 313,
+          "call": "receipt_path.write_text(json.dumps(result, indent=2, default=str) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/exact-old-git-blobs/uncapped_umbrella.py",
+      "write_calls": [
+        {
+          "line": 178,
+          "call": "args.stages_output.write_text(json.dumps({'schema': 'policyos.e02.umbrella_stages.v1', 'gate': args.gate, 'exit_code': code, 'numerical_thread_caps': None, 'scopes': scopes, 'requi"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/review_harness.py",
+      "write_calls": [
+        {
+          "line": 146,
+          "call": "path.write_text(json.dumps(obj, indent=2, default=str) + '\\n')"
+        },
+        {
+          "line": 236,
+          "call": "(old_dir / 'plan_wave.py').write_bytes(old_data)"
+        },
+        {
+          "line": 250,
+          "call": "(old_dir / name).write_bytes(data)"
+        },
+        {
+          "line": 432,
+          "call": "sentinel.write_text('preserve existing parent data')"
+        },
+        {
+          "line": 436,
+          "call": "sentinel.write_text('preserve existing basetemp data')"
+        },
+        {
+          "line": 443,
+          "call": "sentinel.write_text('preserve outside data')"
+        },
+        {
+          "line": 456,
+          "call": "sentinel.write_text('preserve later job data')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-native-parent-independent/test_independent_tmp_cas.py",
+      "write_calls": [
+        {
+          "line": 21,
+          "call": "callback.write_text(json.dumps({'entry_count': 1, 'tmp_path': str(tmp_path)}))"
+        },
+        {
+          "line": 76,
+          "call": "callback.write_text(json.dumps(result, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/ddm_probe.py",
+      "write_calls": [
+        {
+          "line": 132,
+          "call": "path.write_text(json.dumps(payload, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/ddm_schema_removed.py",
+      "write_calls": [
+        {
+          "line": 133,
+          "call": "path.write_text(json.dumps(payload, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/ddm_schema_removed_v2.py",
+      "write_calls": [
+        {
+          "line": 135,
+          "call": "path.write_text(json.dumps(payload, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/run_check.py",
+      "write_calls": [
+        {
+          "line": 55,
+          "call": "(out / (name + '.json')).write_text(json.dumps(receipt, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe_consumer_boundary.py",
+      "write_calls": [
+        {
+          "line": 153,
+          "call": "(OUT / 'doe-consumer-boundary-receipt.json').write_text(json.dumps(receipt, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-doe-20261006",
+        "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/doe/doe_independent.py",
+      "write_calls": [
+        {
+          "line": 466,
+          "call": "(OUT / f'doe-{mode}-receipt.json').write_text(json.dumps(receipt, indent=2) + '\\n')"
+        },
+        {
+          "line": 423,
+          "call": "(OUT / 'doe_refs.json').write_text(json.dumps(refs, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-doe-20261006",
+        "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/facades/execution-capture.py",
+      "write_calls": [
+        {
+          "line": 55,
+          "call": "(out / (name + '.json')).write_text(json.dumps(receipt, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/independent_frc_tests.bounded20.py",
+      "write_calls": [
+        {
+          "line": 464,
+          "call": "target.write_text(json.dumps({'environment': {'python': sys.version, 'executable': sys.executable, 'platform': platform.platform(), 'numpy': np.__version__, 'scipy': meta.version('"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/independent_frc_tests.py",
+      "write_calls": [
+        {
+          "line": 464,
+          "call": "target.write_text(json.dumps({'environment': {'python': sys.version, 'executable': sys.executable, 'platform': platform.platform(), 'numpy': np.__version__, 'scipy': meta.version('"
+        },
+        {
+          "line": 492,
+          "call": "path.write_bytes(b'{\"schema_version\":\"1.0\",\"property_marker\":\"candidate_present_but_corrupt\"}')"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/legacy_pipeline.py",
+      "write_calls": [
+        {
+          "line": 55,
+          "call": "probe.write_bytes((lane / 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/legacy-replay-probe.py.txt').read_bytes())"
+        },
+        {
+          "line": 119,
+          "call": "(root / 'legacy-replay-details.json').write_text(json.dumps({'producer_sha': sha, 'reader_sha': '8486baad6fdef8063cfaad80b15f6b6d8532460a', 'archived_paths': paths, 'archive_sha256"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-frc-20261006",
+        "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/legacy_probe.py",
+      "write_calls": [
+        {
+          "line": 32,
+          "call": "ref_file.write_text(json.dumps(result.candidate_receipt_ref.model_dump(mode='json')))"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/frc/run_review.py",
+      "write_calls": [
+        {
+          "line": 143,
+          "call": "(out / (label + '-receipt.json')).write_text(json.dumps(receipt, indent=2))"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-frc-20261006",
+        "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/pcl_probe.attempt1.py",
+      "write_calls": [
+        {
+          "line": 531,
+          "call": "(OUT / 'observations.json').write_text(json.dumps(OBSERVATIONS, indent=2, sort_keys=True) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-pcl-20261006",
+        "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/pcl_probe.py",
+      "write_calls": [
+        {
+          "line": 561,
+          "call": "(OUT / 'observations.json').write_text(json.dumps(OBSERVATIONS, indent=2, sort_keys=True) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-pcl-20261006",
+        "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/pcl/run_checks.py",
+      "write_calls": [
+        {
+          "line": 147,
+          "call": "(root / 'checks.json').write_text(json.dumps(base, indent=2, sort_keys=True) + '\\n')"
+        },
+        {
+          "line": 106,
+          "call": "path.write_bytes(result.stdout + result.stderr)"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pcl-20261006",
+        "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/export_deciding.py",
+      "write_calls": [
+        {
+          "line": 49,
+          "call": "(ROOT / 'native-ge-deciding-artifacts.json').write_text(json.dumps(output, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/independent_old5d.initial.py",
+      "write_calls": [
+        {
+          "line": 142,
+          "call": "(ROOT / 'independent-old5d-result.json').write_text(json.dumps(result, indent=2))"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-backtest-20261006",
+        "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/independent_old5d.py",
+      "write_calls": [
+        {
+          "line": 143,
+          "call": "(ROOT / 'independent-old5d-result.json').write_text(json.dumps(result, indent=2))"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-backtest-20261006",
+        "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/independent_welfare_tests.initial.py",
+      "write_calls": [
+        {
+          "line": 469,
+          "call": "Path(os.environ['WELFARE_REVIEW_OUTPUT']).write_text(json.dumps({'environment': {'python': sys.version, 'executable': sys.executable, 'platform': platform.platform(), 'numpy': np._"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/independent_welfare_tests.py",
+      "write_calls": [
+        {
+          "line": 488,
+          "call": "Path(os.environ['WELFARE_REVIEW_OUTPUT']).write_text(json.dumps({'environment': {'python': sys.version, 'executable': sys.executable, 'platform': platform.platform(), 'numpy': np._"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-welfare/run_review.py",
+      "write_calls": [
+        {
+          "line": 143,
+          "call": "(out / (label + '-receipt.json')).write_text(json.dumps(receipt, indent=2))"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-backtest-20261006",
+        "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/welfare"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/lint-publication-independent/classify_lint.py",
+      "write_calls": [
+        {
+          "line": 92,
+          "call": "path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-author/finalize_packet.py",
+      "write_calls": [
+        {
+          "line": 442,
+          "call": "(OUT / 'author-receipt.json').write_text(json.dumps(receipt, indent=2) + '\\n')"
+        },
+        {
+          "line": 527,
+          "call": "(OUT / 'index.json').write_text(json.dumps(index, indent=2) + '\\n')"
+        },
+        {
+          "line": 543,
+          "call": "(OUT / 'READY.json').write_text(json.dumps(ready, indent=2) + '\\n')"
+        },
+        {
+          "line": 57,
+          "call": "destination.write_bytes(raw)"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006",
+        "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-author/freeze_source.py",
+      "write_calls": [
+        {
+          "line": 86,
+          "call": "(OUT / 'owned-facade-route.patch').write_bytes(patch)"
+        },
+        {
+          "line": 96,
+          "call": "(OUT / 'postimage-manifest.json').write_text(json.dumps(manifest, indent=2) + '\\n')"
+        },
+        {
+          "line": 108,
+          "call": "(OUT / 'apply-check.json').write_text(json.dumps({'argv': run.args, 'root_HEAD': subprocess.check_output([_resolve_executable('git'), '-C', str(ROOT), 'rev-parse', 'HEAD'], text=Tr"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-author/fresh_readback.py",
+      "write_calls": [
+        {
+          "line": 151,
+          "call": "(OUT / 'fresh-cas-readback.json').write_text(json.dumps(result, indent=2) + '\\n')"
+        },
+        {
+          "line": 86,
+          "call": "target.write_bytes(payload)"
+        },
+        {
+          "line": 88,
+          "call": "(DEST / (name + '.manifest.json')).write_text(json.dumps(manifest.model_dump(mode='json', by_alias=True), indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-author/generate_and_collect.py",
+      "write_calls": [
+        {
+          "line": 344,
+          "call": "(OUT / 'collector-generator.json').write_text(json.dumps(result, indent=2) + '\\n')"
+        },
+        {
+          "line": 176,
+          "call": "(OUT / ('import-policy-' + label + '.json')).write_text(stdout)"
+        },
+        {
+          "line": 260,
+          "call": "destination.write_text(content)"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-author/hooks/origin_plugin.py",
+      "write_calls": [
+        {
+          "line": 116,
+          "call": "(OUT / 'native-origins-combined.json').write_text(json.dumps(result, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-author/release_and_refs.py",
+      "write_calls": [
+        {
+          "line": 150,
+          "call": "(OUT / 'release-parser.json').write_text(json.dumps(result, indent=2) + '\\n')"
+        },
+        {
+          "line": 169,
+          "call": "(OUT / 'tracked-reader-refs-base.stdout').write_bytes(run.stdout)"
+        },
+        {
+          "line": 243,
+          "call": "(OUT / 'tracked-reader-refs.json').write_text(json.dumps(refs, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-author/run_native.py",
+      "write_calls": [
+        {
+          "line": 126,
+          "call": "(OUT / 'native-combined-receipt.json').write_text(json.dumps(receipt, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006/policy-engine"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-author/style_checks.py",
+      "write_calls": [
+        {
+          "line": 39,
+          "call": "(OUT / 'style-receipt.json').write_text(json.dumps(results, indent=2) + '\\n')"
+        },
+        {
+          "line": 26,
+          "call": "(OUT / ('style-' + label + '.stdout')).write_bytes(run.stdout)"
+        },
+        {
+          "line": 27,
+          "call": "(OUT / ('style-' + label + '.stderr')).write_bytes(run.stderr)"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006/policy-engine"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/author-READY-inputs/finalize_packet.py",
+      "write_calls": [
+        {
+          "line": 442,
+          "call": "(OUT / 'author-receipt.json').write_text(json.dumps(receipt, indent=2) + '\\n')"
+        },
+        {
+          "line": 527,
+          "call": "(OUT / 'index.json').write_text(json.dumps(index, indent=2) + '\\n')"
+        },
+        {
+          "line": 543,
+          "call": "(OUT / 'READY.json').write_text(json.dumps(ready, indent=2) + '\\n')"
+        },
+        {
+          "line": 57,
+          "call": "destination.write_bytes(raw)"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006",
+        "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/checks"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/author-READY-inputs/freeze_source.py",
+      "write_calls": [
+        {
+          "line": 86,
+          "call": "(OUT / 'owned-facade-route.patch').write_bytes(patch)"
+        },
+        {
+          "line": 96,
+          "call": "(OUT / 'postimage-manifest.json').write_text(json.dumps(manifest, indent=2) + '\\n')"
+        },
+        {
+          "line": 108,
+          "call": "(OUT / 'apply-check.json').write_text(json.dumps({'argv': run.args, 'root_HEAD': subprocess.check_output([_resolve_executable('git'), '-C', str(ROOT), 'rev-parse', 'HEAD'], text=Tr"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/author-READY-inputs/fresh_readback.py",
+      "write_calls": [
+        {
+          "line": 151,
+          "call": "(OUT / 'fresh-cas-readback.json').write_text(json.dumps(result, indent=2) + '\\n')"
+        },
+        {
+          "line": 86,
+          "call": "target.write_bytes(payload)"
+        },
+        {
+          "line": 88,
+          "call": "(DEST / (name + '.manifest.json')).write_text(json.dumps(manifest.model_dump(mode='json', by_alias=True), indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/author-READY-inputs/generate_and_collect.py",
+      "write_calls": [
+        {
+          "line": 344,
+          "call": "(OUT / 'collector-generator.json').write_text(json.dumps(result, indent=2) + '\\n')"
+        },
+        {
+          "line": 176,
+          "call": "(OUT / ('import-policy-' + label + '.json')).write_text(stdout)"
+        },
+        {
+          "line": 260,
+          "call": "destination.write_text(content)"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/author-READY-inputs/hooks/origin_plugin.py",
+      "write_calls": [
+        {
+          "line": 116,
+          "call": "(OUT / 'native-origins-combined.json').write_text(json.dumps(result, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/author-READY-inputs/release_and_refs.py",
+      "write_calls": [
+        {
+          "line": 150,
+          "call": "(OUT / 'release-parser.json').write_text(json.dumps(result, indent=2) + '\\n')"
+        },
+        {
+          "line": 169,
+          "call": "(OUT / 'tracked-reader-refs-base.stdout').write_bytes(run.stdout)"
+        },
+        {
+          "line": 243,
+          "call": "(OUT / 'tracked-reader-refs.json').write_text(json.dumps(refs, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/author-READY-inputs/run_native.py",
+      "write_calls": [
+        {
+          "line": 126,
+          "call": "(OUT / 'native-combined-receipt.json').write_text(json.dumps(receipt, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006/policy-engine"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/author-READY-inputs/style_checks.py",
+      "write_calls": [
+        {
+          "line": 39,
+          "call": "(OUT / 'style-receipt.json').write_text(json.dumps(results, indent=2) + '\\n')"
+        },
+        {
+          "line": 26,
+          "call": "(OUT / ('style-' + label + '.stdout')).write_bytes(run.stdout)"
+        },
+        {
+          "line": 27,
+          "call": "(OUT / ('style-' + label + '.stderr')).write_bytes(run.stderr)"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006/policy-engine"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/check_selected_routes.py",
+      "write_calls": [
+        {
+          "line": 307,
+          "call": "(OUT / 'selected-routes-review.json').write_text(json.dumps(result, ensure_ascii=False, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/executed-helper-source/check_selected_routes.py",
+      "write_calls": [
+        {
+          "line": 289,
+          "call": "(OUT / 'selected-routes-review.json').write_text(json.dumps(result, ensure_ascii=False, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/executed-helper-source/export_cas_deciding.py",
+      "write_calls": [
+        {
+          "line": 133,
+          "call": "(OUT / 'native-CAS-deciding.json').write_text(json.dumps(result, ensure_ascii=False, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/executed-helper-source/run_independent_native.py",
+      "write_calls": [
+        {
+          "line": 175,
+          "call": "(OUT / 'native-receipt.json').write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006/policy-engine"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/export_cas_deciding.py",
+      "write_calls": [
+        {
+          "line": 133,
+          "call": "(OUT / 'native-CAS-deciding.json').write_text(json.dumps(result, ensure_ascii=False, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/hooks/origin_plugin.py",
+      "write_calls": [
+        {
+          "line": 116,
+          "call": "(OUT / 'independent-native-origins.json').write_text(json.dumps(result, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/immutable-inputs/generate_and_collect.py",
+      "write_calls": [
+        {
+          "line": 344,
+          "call": "(OUT / 'collector-generator.json').write_text(json.dumps(result, indent=2) + '\\n')"
+        },
+        {
+          "line": 176,
+          "call": "(OUT / ('import-policy-' + label + '.json')).write_text(stdout)"
+        },
+        {
+          "line": 260,
+          "call": "destination.write_text(content)"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-independent/run_independent_native.py",
+      "write_calls": [
+        {
+          "line": 178,
+          "call": "(OUT / 'native-receipt.json').write_text(json.dumps(receipt, ensure_ascii=False, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006/policy-engine"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/owned-facade-source-binding/bind_source_checkpoint.py",
+      "write_calls": [
+        {
+          "line": 105,
+          "call": "(OUT / 'source-checkpoint-loaded-joins.tsv').write_text(lines)"
+        },
+        {
+          "line": 158,
+          "call": "(OUT / 'source-checkpoint-binding.json').write_text(json.dumps(result, indent=2) + '\\n')"
+        },
+        {
+          "line": 177,
+          "call": "(OUT / 'source-binding-index.json').write_text(json.dumps(index, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-owner-v1/api_probe.py",
+      "write_calls": [
+        {
+          "line": 69,
+          "call": "out.write_text(json.dumps(rows, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-owner-v1/build_packet.py",
+      "write_calls": [
+        {
+          "line": 183,
+          "call": "(OUT / 'build-inputs.json').write_text(json.dumps(identities, indent=2) + '\\n')"
+        },
+        {
+          "line": 50,
+          "call": "p.write_text(result)"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-owner-v1/edge_probe.py",
+      "write_calls": [
+        {
+          "line": 272,
+          "call": "(OUT / 'edge-reconciliation.json').write_text(json.dumps(out, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-owner-v1/finalize_packet.py",
+      "write_calls": [
+        {
+          "line": 310,
+          "call": "(observed_o / 'packet.json').write_text(json.dumps(packet, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006",
+        "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/review.json"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-owner-v1/prepare_future_fixture.py",
+      "write_calls": [
+        {
+          "line": 51,
+          "call": "(F / p).write_bytes(b)"
+        },
+        {
+          "line": 61,
+          "call": "(observed_o / 'future-fixture-inputs.json').write_text(json.dumps({'is_git_candidate': False, 'fixture_base_sha': refbase, 'overlay_rows': rows, 'source_history_not_modified': True"
+        },
+        {
+          "line": 37,
+          "call": "(F / p).write_bytes(b)"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-owner-v1/review_owned_companion.py",
+      "write_calls": [
+        {
+          "line": 243,
+          "call": "(observed_o / 'owned-companion-review.json').write_text(json.dumps(result, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-owner-v1/run_generator.py",
+      "write_calls": [
+        {
+          "line": 41,
+          "call": "(D / 'sync.stdout').write_text(p.stdout + p.stderr)"
+        },
+        {
+          "line": 67,
+          "call": "(D / 'execution.json').write_text(json.dumps(result, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-owner-v1/run_native.py",
+      "write_calls": [
+        {
+          "line": 91,
+          "call": "(observed_o / 'native-execution.json').write_text(json.dumps(output, indent=2) + '\\n')"
+        },
+        {
+          "line": 56,
+          "call": "(observed_o / (label + '.stdout')).write_text(p.stdout + p.stderr)"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-owner-v1/source_fixture_identity.py",
+      "write_calls": [
+        {
+          "line": 102,
+          "call": "(observed_o / 'source-fixture-full-index.json').write_text(json.dumps(rows, indent=2) + '\\n')"
+        },
+        {
+          "line": 103,
+          "call": "(observed_o / 'source-fixture-identity.json').write_text(json.dumps(result, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-owner-v1/validate_packet.py",
+      "write_calls": [
+        {
+          "line": 175,
+          "call": "(observed_o / 'packet-validation.json').write_text(json.dumps(result, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/admission_probe.py",
+      "write_calls": [
+        {
+          "line": 212,
+          "call": "(observed_o / 'admission-probe.json').write_text(json.dumps(result, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/longdouble_support_probe.py",
+      "write_calls": [
+        {
+          "line": 94,
+          "call": "(observed_o / 'longdouble-support-probe.json').write_text(json.dumps(result, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/nonzero_support_independent_probe.py",
+      "write_calls": [
+        {
+          "line": 268,
+          "call": "(observed_o / 'nonzero-support-independent-probe.json').write_text(json.dumps(result, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/real_domain_independent_probe.py",
+      "write_calls": [
+        {
+          "line": 225,
+          "call": "(observed_o / 'real-domain-independent-probe.json').write_text(json.dumps(result, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r3/unsupported_dtype_probe.py",
+      "write_calls": [
+        {
+          "line": 55,
+          "call": "(observed_o / 'unsupported-dtype-probe.json').write_text(json.dumps(result, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r4/calibration_reader_probe.py",
+      "write_calls": [
+        {
+          "line": 299,
+          "call": "(observed_o / 'calibration-reader-independent.json').write_text(json.dumps(result, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r4/publication_review.py",
+      "write_calls": [
+        {
+          "line": 168,
+          "call": "(observed_o / 'publication-review-2c275.json').write_text(json.dumps(result, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r5/edge_identity_review.py",
+      "write_calls": [
+        {
+          "line": 277,
+          "call": "(observed_o / 'edge-identity-review.json').write_text(json.dumps(result, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r5/publication_review20.py",
+      "write_calls": [
+        {
+          "line": 143,
+          "call": "(observed_o / 'publication-review20.json').write_text(json.dumps(result, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/public-surface-r5/review_flag_companion.py",
+      "write_calls": [
+        {
+          "line": 99,
+          "call": "(observed_o / 'reviewflag-companion.json').write_text(json.dumps(review, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-author/ddm/prepare_companion.py",
+      "write_calls": [
+        {
+          "line": 157,
+          "call": "(ROOT / 'ddm-source-binding.original.toml').write_text(original)"
+        },
+        {
+          "line": 158,
+          "call": "(ROOT / 'ddm-source-binding.proposed.toml').write_text(candidate)"
+        },
+        {
+          "line": 159,
+          "call": "(ROOT / 'ddm-release-companion.patch').write_text(patch)"
+        },
+        {
+          "line": 299,
+          "call": "(ROOT / 'packet.json').write_text(json.dumps(result, ensure_ascii=False, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-independent/review.py",
+      "write_calls": [
+        {
+          "line": 524,
+          "call": "(OUT / 'review.json').write_text(json.dumps(result, indent=2, sort_keys=True) + '\\n')"
+        },
+        {
+          "line": 147,
+          "call": "(fixture / Path(path).name).write_bytes(blob(SOURCE, path))"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/e02-E-continuation-20261006",
+        "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/review.json",
+        "/workspace/e02-E-pr38-r2-receipts/release-compatibility-G53-independent"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+      "write_calls": [
+        {
+          "line": 555,
+          "call": "(output / 'wave-started.json').write_text(json.dumps({'candidate_sha': plan['candidate_sha'], 'started_unix': time.time(), 'reviews_requirement': 'root caller asserts independent r"
+        },
+        {
+          "line": 627,
+          "call": "(output / 'execution-complete.json').write_text(json.dumps({'candidate_sha': plan['candidate_sha'], 'numerical_codes': numeric_codes, 'gate_codes': gate_codes, 'finished_unix': tim"
+        },
+        {
+          "line": 661,
+          "call": "plan_path.write_text(json.dumps(plan, indent=2) + '\\n')"
+        },
+        {
+          "line": 577,
+          "call": "target.write_bytes(data)"
+        },
+        {
+          "line": 605,
+          "call": "(output / 'not-started-after-importer.json').write_text(json.dumps({'reason': 'actual importer failure; numerical/gate stages UNRUN', 'candidate_sha': plan['candidate_sha']}, inden"
+        }
+      ],
+      "fixed_workspace_strings": [
+        "/workspace/.polisyos-environment/bin",
+        "/workspace/.polisyos-environment/cache/corepack",
+        "/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin",
+        "/workspace/.polisyos-environment/uv/bin",
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "/workspace/e02-E-continuation-20261006"
+      ],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "write_calls": [
+        {
+          "line": 153,
+          "call": "private_config.write_bytes(git_config)"
+        },
+        {
+          "line": 314,
+          "call": "receipt_path.write_text(json.dumps(result, indent=2, default=str) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+      "write_calls": [
+        {
+          "line": 178,
+          "call": "args.stages_output.write_text(json.dumps({'schema': 'policyos.e02.umbrella_stages.v1', 'gate': args.gate, 'exit_code': code, 'numerical_thread_caps': None, 'scopes': scopes, 'requi"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-capture-native-witness.py",
+      "write_calls": [
+        {
+          "line": 105,
+          "call": "output_path.write_text(json.dumps({'schema': 'policyos.e02.pcl.native_witness.v1', 'fixture': {'test_path': str(test_path), 'test_sha256': hashlib.sha256(test_path.read_bytes()).he"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/verify_receipt.py",
+      "write_calls": [
+        {
+          "line": 154,
+          "call": "(folder / 'receipt-validation.json').write_text(json.dumps(result, indent=2) + '\\n')"
+        }
+      ],
+      "fixed_workspace_strings": [],
+      "role": "retired source-pinned fixture/review builder; old output identity remains historical Git observation"
+    }
+  ]
+}

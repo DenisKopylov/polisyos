@@ -1,0 +1,1114 @@
+{
+  "schema": "policyos.e02.independent-closeout-review.v2",
+  "reviewer": "root/ddm_r2",
+  "scope": "Read-only exact committedb5 packet matrix/criteria/currentrecipe provenance and outputpublication review, bound to its sourcef445 before laterWelfare/B197/finalfreeze. DDM sourceauthor; DDM independent code acceptance uses DoE receipt exclusively. No product/source/Git writes or numerical/globalwave.",
+  "publication_sha": "b5ba9b2e3af3b6702235f3320bf705b8141fda24",
+  "publication_tree": "afdd4b7b7f6784752d0bf2470303fb33c9de75aa",
+  "implementation_source_sha": "f445cbc3439b1539937e8e3f6df492bbd6c2e4a3",
+  "implementation_source_tree": "050bf6c204b419db4a5a7abbb6a5ed5443ab76ae",
+  "packet_git_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/criteria-f445-v1/",
+  "immutable_inputs": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/git-input-snapshot-index.json",
+    "bytes": 6701,
+    "sha256": "74f9531a7f79fc53adf7a8cf9430336090169469b5ae57b874976e858e21795a"
+  },
+  "input_snapshot_protocol": "Exact12Gitfilescopied before anyvalidator execution and byte/blob/hash matched again after allchecks; never modified frozen readyfiles. Eightmanifest-indexed packetfiles+manifest and3rootpublication inputs preserved independently.",
+  "packet_ref": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/git-inputs-b5/criteria-f445-v1/all-54-update.json",
+    "bytes": 455518,
+    "sha256": "1baefb19d2ffbedc1be03125d22759adcceddb984609ba120464c90ecfb21dc1"
+  },
+  "manifest_ref": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/git-inputs-b5/criteria-f445-v1/publication-index.json",
+    "bytes": 2817,
+    "sha256": "492a700aac2327864664115aca6fa71b972361ebe5fea8a37bc83b87c743d597"
+  },
+  "verdict": {
+    "matrix_and_original_criteria": "GO_bounded_sourcef445_history_owner_matrix",
+    "publication_guard_and_corrected_stdout": "GO_bounded_Git_object_availability_same_bytes",
+    "current_local_recipe_source_and_API_names": "GO_sourcebinding_6recipes_12native_functions_16availabletestpaths",
+    "literal_recipe_invocation_and_consumer_wording": "LIMITED_two_corrections_required_in_append_only_v2",
+    "final_candidate_or_numeric_wave": "UNRUN_here; nofutureGOinferred",
+    "finding_closure": "No newformal findingclosure; historicalstatuses/proposals retained"
+  },
+  "denominator": {
+    "bundles": 22,
+    "findings": 54,
+    "ID_to_bundle_links": 55
+  },
+  "ledger_preserved": {
+    "partial": 49,
+    "held": 4,
+    "closed": 1
+  },
+  "historical_buckets_preserved": {
+    "partial_bounded_owner_proposals": 32,
+    "partial_active_residuals": 17,
+    "held": 4,
+    "closed_regression": 1
+  },
+  "proposed_decisions_not_owner_acceptance": {
+    "limited": 49,
+    "held": 4,
+    "closed": 1
+  },
+  "checks": {
+    "source_index_recomputation": {
+      "state": "PASS",
+      "findings": 54,
+      "bundles": 22,
+      "links": 55,
+      "source_inputs_recomputed": 213,
+      "ledger": "49partial/4held/1closed",
+      "historical_partial_proposals": 32,
+      "historical_active_partial": 17,
+      "code_vs_closure": "separate",
+      "root_numeric_wave": "UNRUN"
+    },
+    "original_card_joins": 55,
+    "independent_corrupt_controls": 11,
+    "exact_ready_snapshot_before_after_unchanged": true,
+    "historical_evidence_correction": {
+      "state": "PASS",
+      "actual_lint_rows": 21,
+      "actual_lint_paths": 17,
+      "current_summary": {
+        "bytes": 20327,
+        "sha256": "361fbbe62b9fb0f0132bda6e47960af044f81fe34a3407e7ae9c4b6ccc97081a"
+      },
+      "historical_summary": {
+        "bytes": 20312,
+        "sha256": "0ce085869713eb80540d088ece417ef1d116c5daabe28dc95446779d4d2a772b"
+      },
+      "raw_stdout_preserved": true,
+      "indices": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/common-wave/copy-index.json",
+          "indexed_files": 41,
+          "state": "PASS"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/final-closeout-review/copy-index.json",
+          "indexed_files": 3,
+          "state": "PASS"
+        }
+      ],
+      "old_wave_source": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+      "new_candidate_wave_inferred": false
+    },
+    "publication_Git_copies": 154,
+    "stdout_corrective_count": 15,
+    "stdout_corrective_bytes": 25169,
+    "publication_corrupt_and_property_removal_controls": 4
+  },
+  "check_refs": [
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/recomputed-f445.json",
+      "bytes": 23366,
+      "sha256": "e48eeed2f9531d4cee713ffd9d3945446389f1d8fcec08fd90aeb3db07fb9a0e"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/recomputed-f445.stdout",
+      "bytes": 1218,
+      "sha256": "f9456865226bd8e63e2fb53b38c496a745c4cb10c4b71f0972e09d8bed33e5ac"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/current-matrix-negatives.json",
+      "bytes": 1058,
+      "sha256": "e0fdbc89a0204df2881d5e05c7e826c9ef05b2b225c726244e3cfd60b99edfe7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/publication-review.json",
+      "bytes": 12778,
+      "sha256": "78edc4dedda4cb88d4e0ac3080cfdfb3a54158dd0dbddcd08b55cd382f86eb66"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/publication-review.stdout",
+      "bytes": 1533,
+      "sha256": "6ab4496aff1cccabfc27b8694c7597c14e4632870eba3a27b3d149abc2f46719"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/recipe-api-review.json",
+      "bytes": 13610,
+      "sha256": "61d48f561695a8d2513a925d1cc417a852c8745e0e6731e46a93fa9f3af9c59d"
+    }
+  ],
+  "concrete_recipe_corrections_for_v2": [
+    {
+      "family": "DDM",
+      "field": "actual_api_sequence[0]",
+      "unsupported_keyword": "schema_version",
+      "signature_check": "No declared kwarg or **kwargs in build_model_registry_record; explicit(schema_version=2) is not a callable invocation",
+      "next_owner": "E all54 recipe writer in append-only v2",
+      "replacement": "build_model_registry_record(...) emits schema_version=2"
+    },
+    {
+      "family": "MC/B194",
+      "field": "actual_api_sequence[4]",
+      "statement": "The repaired configured welfare sibling",
+      "next_owner": "E all54 recipe writer in append-only v2",
+      "required_qualification": "Historical scoped counts/outcomes readback only; current welfare empirical-law/failed-support class is explicitly blocked atf445. Bind actual classfix+independent review only to later exact source."
+    }
+  ],
+  "ready_files_correction_policy": "Do not mutatecommittedf445v1 files. E all54 writer/root publishes next distinctversion with finalimplementationSHA and corrected API/wording; oldpacket/review keeps exactsource identity.",
+  "generic_vs_authority_boundaries": "No universalproduction corpus prerequisite for native numerical/control-flow/import/report-pairs properties. Actualproduction history/law, evaluator/Jacobian, information-unit lineage, trustpurpose/equivalence profile, institutional current-feed/R2 signoff and IRsemantic decisions require named specificowner input; implementable A/D/E code seams remain explicitcode work.",
+  "active_available_code_at_f445": [
+    {
+      "owner": "E BKT writer and separate native law/support reviewer",
+      "IDs": [
+        "B188",
+        "B192",
+        "B194"
+      ],
+      "state": "Confirmed actual welfare empirical->Normal/success-only support escape: native draws100/100offatoms and failedmass.5hidden. Implementable classfix underway; no sourceauthorityinput may defer it."
+    },
+    {
+      "owner": "E FRC writer + independent reviewer",
+      "IDs": [
+        "B197"
+      ],
+      "state": "Rootf445 legacy calibration reader bypass has available source1e942 repair with reported independentGO; authorreceipt/appendmerge pending. Source/noiseauthority remainsheld separately."
+    },
+    {
+      "owner": "A generation-cycle/S10/default HTTP writer",
+      "IDs": [
+        "B32",
+        "LA-051"
+      ],
+      "state": "E8486 source/schema/unit/adapter independentlyGO and merged; A default verifier/status/HTTP code remains separatelyowned"
+    },
+    {
+      "owner": "E facade/Core/IR/Foundry public-contract owners",
+      "state": "root14d narrow owned exports plus inventory/architecture dependency review; cannot broaden baseline/exceptions or public contract without owner admission"
+    }
+  ],
+  "canonical_IR_semantic_owner": "Stillunappointed/unratified as oftracked sourcef445 decision packet. Fourdecisions stay explicit; E/G code and libraryteam ownership do not ratifyv2 semantics.",
+  "DDM_independent_code_basis": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/independent-reviews/cal-ddm/review.json",
+    "source_sha": "f445cbc3439b1539937e8e3f6df492bbd6c2e4a3",
+    "bytes": 20105,
+    "sha256": "032c1beef8ba54e2042926439852a13895c83d569c41dce7f5f2064edea314ec",
+    "reviewer": "root/doe_r2 (DoE author; independent from CAL/DDM authors)",
+    "implementation_sha": "4c5afb1dc10b4e3f4dbc10b50ca6066de9b08ccb",
+    "bounded_verdict": "GO_bounded_mechanism",
+    "institutional_authority": "not_established"
+  },
+  "row_assessments": [
+    {
+      "id": "B32",
+      "bundles": [
+        "FRC-01"
+      ],
+      "source_owner_literal": "FRC-01",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_active_residual",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Six distinct temporal roles and actual empirical numerator/denominator require A default bridge/verifier/status/surface work; predictive math/native fixture does not require production corpus.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B97",
+      "bundles": [
+        "DOE-01"
+      ],
+      "source_owner_literal": "DOE-01",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_bounded_proposal_pending_owner",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Original generic GRID_EXTREME cap applies before full Cartesian materialization, and returned prefix owns only admitted rows. is bounded native/analytic/import property; no universal production corpus or institutional authority prerequisite. Historical proposal remains pending individual accountable-owner acceptance and final dependency/wave evidence.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B98",
+      "bundles": [
+        "DOE-01"
+      ],
+      "source_owner_literal": "DOE-01",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_bounded_proposal_pending_owner",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Original generic AdaptiveSampler returns the last completed round with no hidden final evaluator round. is bounded native/analytic/import property; no universal production corpus or institutional authority prerequisite. Historical proposal remains pending individual accountable-owner acceptance and final dependency/wave evidence.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B99",
+      "bundles": [
+        "DOE-01"
+      ],
+      "source_owner_literal": "DOE-01",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_bounded_proposal_pending_owner",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Original generic Child plans preserve allow_large_run and reject an oversized block before evaluator admission. is bounded native/analytic/import property; no universal production corpus or institutional authority prerequisite. Historical proposal remains pending individual accountable-owner acceptance and final dependency/wave evidence.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B100",
+      "bundles": [
+        "DOE-02"
+      ],
+      "source_owner_literal": "DOE-02",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_active_residual",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Canonical real SALib producer/reader can be verified synthetically. D default Search/ranking consumer remains implementable code with exact E packet, not missing production data.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B101",
+      "bundles": [
+        "DOE-02"
+      ],
+      "source_owner_literal": "DOE-02",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_bounded_proposal_pending_owner",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Original generic Explicit seed reaches supported local RNG and independent stages do not reset global NumPy state. is bounded native/analytic/import property; no universal production corpus or institutional authority prerequisite. Historical proposal remains pending individual accountable-owner acceptance and final dependency/wave evidence.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B102",
+      "bundles": [
+        "DOE-03"
+      ],
+      "source_owner_literal": "DOE-03",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_bounded_proposal_pending_owner",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Original generic Failed Morris rows preserve the original denominator and exclude only whole validated trajectories. is bounded native/analytic/import property; no universal production corpus or institutional authority prerequisite. Historical proposal remains pending individual accountable-owner acceptance and final dependency/wave evidence.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B103",
+      "bundles": [
+        "DOE-03"
+      ],
+      "source_owner_literal": "DOE-03",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_bounded_proposal_pending_owner",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Original generic Multi-output preprocessing/PCA honors scalar failure policy and retains original attempted/success/failed/block counts. is bounded native/analytic/import property; no universal production corpus or institutional authority prerequisite. Historical proposal remains pending individual accountable-owner acceptance and final dependency/wave evidence.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B104",
+      "bundles": [
+        "DOE-03"
+      ],
+      "source_owner_literal": "DOE-03",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_bounded_proposal_pending_owner",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Original generic PCA rank/number of components is admissible for centered wide, narrow, degenerate and zero matrices on supported backends. is bounded native/analytic/import property; no universal production corpus or institutional authority prerequisite. Historical proposal remains pending individual accountable-owner acceptance and final dependency/wave evidence.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B105",
+      "bundles": [
+        "DOE-03"
+      ],
+      "source_owner_literal": "DOE-03",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_bounded_proposal_pending_owner",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Original generic Morris point and uncertainty elementary effects use identical declared coordinates, units and scale. is bounded native/analytic/import property; no universal production corpus or institutional authority prerequisite. Historical proposal remains pending individual accountable-owner acceptance and final dependency/wave evidence.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B166",
+      "bundles": [
+        "BKT-01"
+      ],
+      "source_owner_literal": "BKT-01",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_active_residual",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Corrected0983 native masked-source/materializer/Trinity/clock/compiled-plan positive and forged-readback controls are independentlyGO and tracked/source-present atf445; actual production-history claim remains separately local read-only.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B167",
+      "bundles": [
+        "BKT-02"
+      ],
+      "source_owner_literal": "BKT-02",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_bounded_proposal_pending_owner",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Original generic Missing predictions remain in requested denominator; zero/wrong-key comparisons cannot earn positive trust grade. is bounded native/analytic/import property; no universal production corpus or institutional authority prerequisite. Historical proposal remains pending individual accountable-owner acceptance and final dependency/wave evidence.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B168",
+      "bundles": [
+        "BKT-02"
+      ],
+      "source_owner_literal": "BKT-02",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_bounded_proposal_pending_owner",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Original generic Missing interval is unknown, actual miss is false, availability is separate, and nominal level survives serialization. is bounded native/analytic/import property; no universal production corpus or institutional authority prerequisite. Historical proposal remains pending individual accountable-owner acceptance and final dependency/wave evidence.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B169",
+      "bundles": [
+        "BKT-01"
+      ],
+      "source_owner_literal": "BKT-01",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_active_residual",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Typed native target/unit/time/horizon trajectory and counter/scalar/estimand refusals are independentlyGO at0983; no fake metrics become forecast. Currentf445 packet preserves exact source/consumer boundary and original scalar/constant-profile semantics.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B170",
+      "bundles": [
+        "BKT-01"
+      ],
+      "source_owner_literal": "BKT-01",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_active_residual",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Actual author nativeK1/K7 plus independentK3 requested/attempted/completed/failed, distinct actual seeds/run IDs and plan/model joins are exacttracked0983 scoped evidence; no source-law independence or production-history inference.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B171",
+      "bundles": [
+        "BKT-02"
+      ],
+      "source_owner_literal": "BKT-02",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_bounded_proposal_pending_owner",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Original generic Technical partitioning preserves pooled micro RMSE/MAE; declared macro weights remain a separate estimand. is bounded native/analytic/import property; no universal production corpus or institutional authority prerequisite. Historical proposal remains pending individual accountable-owner acceptance and final dependency/wave evidence.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B172",
+      "bundles": [
+        "BKT-03"
+      ],
+      "source_owner_literal": "BKT-03",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_active_residual",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Descriptive residual/t-test honesty can be tested synthetically; trust GradeA neutrality/equivalence still requires owner-declared purpose/profile, applicable assumptions and meaningful-bias margin when equivalence is claimed.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B173",
+      "bundles": [
+        "BKT-03"
+      ],
+      "source_owner_literal": "BKT-03",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_active_residual",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Actual SciPy versus unavailable-SciPy degraded method control is generic; unavailable inference never establishes neutrality. Purpose/equivalence owner inputs apply to the authority claim.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B174",
+      "bundles": [
+        "BKT-04"
+      ],
+      "source_owner_literal": "BKT-04",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_bounded_proposal_pending_owner",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Original generic CV selected fold boundaries are chosen before index arrays; invalid step/train/cap rejects before looping. is bounded native/analytic/import property; no universal production corpus or institutional authority prerequisite. Historical proposal remains pending individual accountable-owner acceptance and final dependency/wave evidence.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B175",
+      "bundles": [
+        "BKT-04"
+      ],
+      "source_owner_literal": "BKT-04",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_bounded_proposal_pending_owner",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Original generic Resolve defined bootstrap statistic and finite one-dimensional data before any draw/callback; performed statistic survives readback. is bounded native/analytic/import property; no universal production corpus or institutional authority prerequisite. Historical proposal remains pending individual accountable-owner acceptance and final dependency/wave evidence.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B176",
+      "bundles": [
+        "CAL-01"
+      ],
+      "source_owner_literal": "CAL-01",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_bounded_proposal_pending_owner",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Original generic Every source/time observation survives or has explicit admissibility/refusal; technical ID rename cannot choose its value or unit. is bounded native/analytic/import property; no universal production corpus or institutional authority prerequisite. Historical proposal remains pending individual accountable-owner acceptance and final dependency/wave evidence.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B177",
+      "bundles": [
+        "CAL-01"
+      ],
+      "source_owner_literal": "CAL-01",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_bounded_proposal_pending_owner",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Original generic Calendar time is explicit and synchronized with values/masks/metadata; missing requested time column cannot become positional data. is bounded native/analytic/import property; no universal production corpus or institutional authority prerequisite. Historical proposal remains pending individual accountable-owner acceptance and final dependency/wave evidence.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B178",
+      "bundles": [
+        "CAL-01"
+      ],
+      "source_owner_literal": "CAL-01",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_bounded_proposal_pending_owner",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Original generic Fractional fill is dtype-stable; explicit empty observed support is not a measured zero row. is bounded native/analytic/import property; no universal production corpus or institutional authority prerequisite. Historical proposal remains pending individual accountable-owner acceptance and final dependency/wave evidence.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B179",
+      "bundles": [
+        "CAL-02"
+      ],
+      "source_owner_literal": "CAL-02",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_bounded_proposal_pending_owner",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Original generic Declared observation/weight axes are checked before broadcasting so N comparisons do not become N squared. is bounded native/analytic/import property; no universal production corpus or institutional authority prerequisite. Historical proposal remains pending individual accountable-owner acceptance and final dependency/wave evidence.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B180",
+      "bundles": [
+        "CAL-02"
+      ],
+      "source_owner_literal": "CAL-02",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_bounded_proposal_pending_owner",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Original generic Sample quality normalizes inside a target; target priority is applied outside that normalization and affects the exact objective. is bounded native/analytic/import property; no universal production corpus or institutional authority prerequisite. Historical proposal remains pending individual accountable-owner acceptance and final dependency/wave evidence.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B181",
+      "bundles": [
+        "CAL-02"
+      ],
+      "source_owner_literal": "CAL-02",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_bounded_proposal_pending_owner",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Original generic Zero-support inactive arithmetic has finite primal and reverse gradient without hiding active invalid model output. is bounded native/analytic/import property; no universal production corpus or institutional authority prerequisite. Historical proposal remains pending individual accountable-owner acceptance and final dependency/wave evidence.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B182",
+      "bundles": [
+        "CAL-02"
+      ],
+      "source_owner_literal": "CAL-02",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_bounded_proposal_pending_owner",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Original generic Scale uses the target's observed training support; other targets' dates/placeholders do not change it. is bounded native/analytic/import property; no universal production corpus or institutional authority prerequisite. Historical proposal remains pending individual accountable-owner acceptance and final dependency/wave evidence.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B183",
+      "bundles": [
+        "CAL-03"
+      ],
+      "source_owner_literal": "CAL-03",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_bounded_proposal_pending_owner",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Original generic Each multi-start uses a fresh telemetry span context; enabling observability does not break the second optimizer start. is bounded native/analytic/import property; no universal production corpus or institutional authority prerequisite. Historical proposal remains pending individual accountable-owner acceptance and final dependency/wave evidence.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B184",
+      "bundles": [
+        "CAL-04"
+      ],
+      "source_owner_literal": "CAL-04",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_bounded_proposal_pending_owner",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Original generic One identical final forward yields total/component loss and report traces without detached derivative input. is bounded native/analytic/import property; no universal production corpus or institutional authority prerequisite. Historical proposal remains pending individual accountable-owner acceptance and final dependency/wave evidence.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B185",
+      "bundles": [
+        "CAL-05"
+      ],
+      "source_owner_literal": "CAL-05",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_bounded_proposal_pending_owner",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Original generic Inactive per-row mechanisms have zero numerical callbacks and identity derivatives while active rows preserve real failures and independent key identity. is bounded native/analytic/import property; no universal production corpus or institutional authority prerequisite. Historical proposal remains pending individual accountable-owner acceptance and final dependency/wave evidence.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B186",
+      "bundles": [
+        "UQP-01"
+      ],
+      "source_owner_literal": "UQP-01",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_bounded_proposal_pending_owner",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Original generic Nominal, delta and MC use the same complete fixed-plus-varying effective kwargs. is bounded native/analytic/import property; no universal production corpus or institutional authority prerequisite. Historical proposal remains pending individual accountable-owner acceptance and final dependency/wave evidence.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B187",
+      "bundles": [
+        "UQP-02"
+      ],
+      "source_owner_literal": "UQP-02",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_bounded_proposal_pending_owner",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Original generic Named covariance row/column axes align before spectral checks; numerical repair cannot conceal an axis permutation. is bounded native/analytic/import property; no universal production corpus or institutional authority prerequisite. Historical proposal remains pending individual accountable-owner acceptance and final dependency/wave evidence.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B188",
+      "bundles": [
+        "UQP-02"
+      ],
+      "source_owner_literal": "UQP-02",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_active_residual",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "All-backend finite joint-law/Gaussian-nullspace mathematical preservation has d69 independent boundedGO; source law custody is not invented and cannot be inferred from absent covariance. Atf445 actual Welfare empirical-to-Normal/hidden failedmass defect is explicitly E-owned code requiring classrepair and new native oracle/removal evidence; external sourceauthority does not defer it.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B189",
+      "bundles": [
+        "UQP-01"
+      ],
+      "source_owner_literal": "UQP-01",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_bounded_proposal_pending_owner",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Original generic JAX-compatible varying values are not cast to Python float before differentiation; actual supported affine node chooses delta. is bounded native/analytic/import property; no universal production corpus or institutional authority prerequisite. Historical proposal remains pending individual accountable-owner acceptance and final dependency/wave evidence.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B190",
+      "bundles": [
+        "UQP-01"
+      ],
+      "source_owner_literal": "UQP-01",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_active_residual",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Narrow declared affine/zero-baseline control is a hypothesis/numeric fixture; real configured response/Jacobian/evaluator producer remains a named implementable seam requiring model/unit/source input.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B191",
+      "bundles": [
+        "UQP-01"
+      ],
+      "source_owner_literal": "UQP-01",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_bounded_proposal_pending_owner",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Original generic Missing output is an addressed structural gap, not an inferred zero interval; true constant zero remains allowed. is bounded native/analytic/import property; no universal production corpus or institutional authority prerequisite. Historical proposal remains pending individual accountable-owner acceptance and final dependency/wave evidence.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B192",
+      "bundles": [
+        "UQP-02"
+      ],
+      "source_owner_literal": "UQP-02",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_active_residual",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Existing exact empirical carrier consumption is distinct from B202 new-wire semantic choice; supported finite law arithmetic is generic, actual CAL posterior producer law input is independently unestablished. Atf445 actual Welfare empirical-to-Normal/hidden failedmass defect is explicitly E-owned code requiring classrepair and new native oracle/removal evidence; external sourceauthority does not defer it.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B193",
+      "bundles": [
+        "UQP-03"
+      ],
+      "source_owner_literal": "UQP-03",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_active_residual",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Independent pilot/fixedN mean certificate and RQMC complete-net replica error need their specific admitted functional/IID/range/stopping conditions; no transfer to quantile/CDF/interval or optional stopping.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B194",
+      "bundles": [
+        "UQP-03"
+      ],
+      "source_owner_literal": "UQP-03",
+      "ledger_status_preserved": "held",
+      "historical_bucket_preserved": "held",
+      "finding_verdict_preserved": "held",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Generic per-draw terminal failure outcomes/conditional-result consumer mechanism is bounded evidence. Actual served evaluator/domain/retry and source law remain a technical owner seam; held never disappears with a field. Atf445 actual Welfare empirical-to-Normal/hidden failedmass defect is explicitly E-owned code requiring classrepair and new native oracle/removal evidence; external sourceauthority does not defer it.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B195",
+      "bundles": [
+        "CAL-03"
+      ],
+      "source_owner_literal": "CAL-03",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_bounded_proposal_pending_owner",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Original generic Finite loss and satisfactory/unknown/known-bad raw Hessian are distinct selection states; NaN/inf cannot win through unknown diagnostics. is bounded native/analytic/import property; no universal production corpus or institutional authority prerequisite. Historical proposal remains pending individual accountable-owner acceptance and final dependency/wave evidence.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B196",
+      "bundles": [
+        "CAL-04"
+      ],
+      "source_owner_literal": "CAL-04",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_bounded_proposal_pending_owner",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Original generic The final produced optimizer iterate is scored under the comparable objective before best-result selection, or remains explicitly unscored. is bounded native/analytic/import property; no universal production corpus or institutional authority prerequisite. Historical proposal remains pending individual accountable-owner acceptance and final dependency/wave evidence.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B197",
+      "bundles": [
+        "CAL-06"
+      ],
+      "source_owner_literal": "CAL-06",
+      "ledger_status_preserved": "held",
+      "historical_bucket_preserved": "held",
+      "finding_verdict_preserved": "held",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Held sourcefit/noise/consumer-authority is separate from confirmed E-owned legacy CAS reader bypass. Atf445 source1e942/report-independentGO is available pendingreceipt/merge; the later3ec/875 root is outside thisv1 source review. DDM self-review does not supply this evidence.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B198",
+      "bundles": [
+        "CAL-06"
+      ],
+      "source_owner_literal": "CAL-06",
+      "ledger_status_preserved": "closed",
+      "historical_bucket_preserved": "closed_regression",
+      "finding_verdict_preserved": "closed",
+      "accountable_owner_acceptance": "existing closed regression retained",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Historical closed typed-law scale regression is retained; scalar preflight delta does not reopen or newly close this finding.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B199",
+      "bundles": [
+        "UQS-01"
+      ],
+      "source_owner_literal": "UQS-01",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_bounded_proposal_pending_owner",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Original generic Duplicate envelope references do not increase stated level or silently change credible to confidence interval. is bounded native/analytic/import property; no universal production corpus or institutional authority prerequisite. Historical proposal remains pending individual accountable-owner acceptance and final dependency/wave evidence.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B200",
+      "bundles": [
+        "UQS-01"
+      ],
+      "source_owner_literal": "UQS-01",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_active_residual",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Exact duplicate artifact/content controls are generic; distinct values/bytes/origin labels alone do not admit independent information units, prior/likelihood/posterior lineage or production relationships.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B201",
+      "bundles": [
+        "UQS-01"
+      ],
+      "source_owner_literal": "UQS-01",
+      "ledger_status_preserved": "held",
+      "historical_bucket_preserved": "held",
+      "finding_verdict_preserved": "held",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "99zeros+100 discriminator proves mean1/equal-tail[0,0] independent functionals without wire ratification. Human-appointed IR owner must choose four decisions; v1.1 replay retained, distinct v2 only after ratification.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B202",
+      "bundles": [
+        "UQS-01"
+      ],
+      "source_owner_literal": "UQS-01",
+      "ledger_status_preserved": "held",
+      "historical_bucket_preserved": "held",
+      "finding_verdict_preserved": "held",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Exact joint carrier/draw identity/axis/order/weights/unit/source lineage and appointed C/F consumers require explicit IR carrier decision; unresolved law computations refuse, display summaries do not reconstruct a law.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "B203",
+      "bundles": [
+        "CAL-04"
+      ],
+      "source_owner_literal": "CAL-04",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_bounded_proposal_pending_owner",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Original generic Hessian winner reuse requires exact parameter/objective/weight/seed/dtype/numerical-policy/model identity, otherwise recompute. is bounded native/analytic/import property; no universal production corpus or institutional authority prerequisite. Historical proposal remains pending individual accountable-owner acceptance and final dependency/wave evidence.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "LA-051",
+      "bundles": [
+        "FRC-01",
+        "FRC-02"
+      ],
+      "source_owner_literal": "FRC-02",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_active_residual",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Compatible configured predictive ForecastOwner/CAS positive unit/scale/source readback is E evidence; A independently resolves/recomputes and supplies default/HTTP verifier provenance/status. Causal/treatment/policy refusal persists.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "LA-052",
+      "bundles": [
+        "PCL-01"
+      ],
+      "source_owner_literal": "PCL-01",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_active_residual",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Actual configured native graph→runner→Advanced summaries→same CAS→fresh paired-source readback is sufficient generic wiring.95/100,0/100,zero/missing/reordered/forged counts distinguish report/receipt failures; production history is only a separate application claim.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "LA-053",
+      "bundles": [
+        "PCL-01"
+      ],
+      "source_owner_literal": "polisyos.calibration owner and Scientist backtesting alias migration/test owner",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_active_residual",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Canonical class/function/exception alias identity/native tests are generic. Joint Calibration and Scientist API owner compatibility window/caller inventory is an explicit remaining decision; alias remains supported.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "LA-054",
+      "bundles": [
+        "DDM-02"
+      ],
+      "source_owner_literal": "DDM-02",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_active_residual",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Library source/rule/time/report/quantity rebind/veto and directional v1/v2 matrix use independent DoE DDM review, not my own authorship. Actual current-feed completeness/freshness and served profile require producer/deployment owner inputs.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "LA-055",
+      "bundles": [
+        "DDM-02"
+      ],
+      "source_owner_literal": "DDM-02",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_active_residual",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Library baseline/veto/R2 policy ordering is bounded; institutional R2 signoff/deployment purpose and observed-empty versus unavailable feed are not established by bool signoff/empty synthetic triggers.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    },
+    {
+      "id": "LA-056",
+      "bundles": [
+        "DDM-01"
+      ],
+      "source_owner_literal": "DDM-01",
+      "ledger_status_preserved": "partial",
+      "historical_bucket_preserved": "partial_bounded_proposal_pending_owner",
+      "finding_verdict_preserved": "limited",
+      "accountable_owner_acceptance": "not decided; historical status unchanged",
+      "criterion_trace": "Exact full original cardSOURCE body equals declared original source inclusive-line text; ownerTSV join matches",
+      "bounded_criterion_assessment": "Original generic One neutral event/budget owner imports without orchestration while public/legacy models, aliases, runtime validators, JSON/schema and old FQN pickle remain compatible. is bounded native/analytic/import property; no universal production corpus or institutional authority prerequisite. Historical proposal remains pending individual accountable-owner acceptance and final dependency/wave evidence.",
+      "per_finding_predicate_present": true,
+      "prior_exact_selector_trace_preserved": true,
+      "formal_ledger_change": false
+    }
+  ],
+  "reviewability_notes": [
+    {
+      "field": "new_code_present",
+      "scope": "Existing family source availability marker, not a claim that every oldfinding received a newdefectfix; per-IDpredicate/prior source controls distinguishmechanisms."
+    },
+    {
+      "field": "named_historical_control_evidence",
+      "scope": "Bundle examples are explicitlynavigation, not a fullfindingdenominator; zeroexample count does not erase original nativeCV/DDMselectors retained in preserved_per_finding_extended_evidence."
+    }
+  ],
+  "P37": "Perfinding defining_property_predicate and exactold/new scope retained; source/authority declarations are consumer_asserted/not_established. Currentmatrix PASS proves no backend result or trusted servedconsumer.",
+  "P41": "Old1123PASS2FAILbelongs58e; ownership labels alone do not attributeFRC red toA. All53partial/heldprops remain scoped; wholecommonwave occurs once onfuturefrozenrootSHA after independentlyreviewed code/dependency changes.",
+  "superseded_902_history": {
+    "state": "SUPERSEDED_NON_DECIDING",
+    "exact_ready_packet_bytes_unavailable": true,
+    "preservation_correction_ref": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/draft-preservation-correction.json",
+      "bytes": 1356,
+      "sha256": "82a44d526ffdd1cf797320b7848cfd28b1964dc19ca4d41ad7f33ab0c488e9b0"
+    },
+    "repair_now_verified": "Thisv1 inputis Gitcommittedb5 and reviewer-snapshotted beforeanycommands, with fullmoderateoutputs/indices retained."
+  },
+  "remaining_final_root_review": "LaterWelfare884/B197875/rootCoreIRexecutionfacade code+composeddelta/defaultconsumer/trustpredicate reviews remain exactsource ownerreviews. Finalall54v2 and aggregatewave require new committed immutablepacket; thisreview supplies nofuturechecks.",
+  "environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "no_numerical_backend_run": true,
+    "no_process_thread_CPU_caps_added": true
+  },
+  "quality_checks": {
+    "Ruff": "PASS All checks passed!",
+    "format": "PASS 2 files alreadyformatted",
+    "refs": [
+      {
+        "path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/ruff.stdout",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      {
+        "path": "/workspace/e02-E-pr38-r2-receipts/closeout-independent/f445-v1/format.stdout",
+        "bytes": 26,
+        "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+      }
+    ]
+  },
+  "cleanup": {
+    "native_trash_available": false,
+    "permanent_deletion": false,
+    "candidates": [],
+    "preserved": "No newenvironment or repeatableCASfixture; useful moderateinput snapshots/scripts/outputs/correctionhistory and originalstdout allpreserved."
+  }
+}

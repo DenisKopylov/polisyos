@@ -1,0 +1,10 @@
+[
+  {
+    "path": "/workspace/e02-E-pr38-r3-receipts/lint-r4/current-f3-protocol-wave/umbrella-temp/workspace-verify",
+    "kind": "umbrella_temporary"
+  },
+  {
+    "path": "/workspace/e02-E-pr38-r3-receipts/lint-r4/current-f3-protocol-wave/umbrella-temp/ci-parity",
+    "kind": "umbrella_temporary"
+  }
+]

@@ -1,0 +1,37 @@
+{
+  "candidate": "94d3e6ee67b70a5ef4f71e529275aa7db0fddcde",
+  "tree": "2220bc48d1ccfd62310de0737c3be939c06d2d2f",
+  "groups": [
+    {
+      "directory": "collector-v3-author",
+      "copies": 17,
+      "exactGitBytes": "PASS",
+      "controls": {
+        "sha256": "REJECTED",
+        "bytes": "REJECTED",
+        "unpublished_main": "REJECTED"
+      }
+    },
+    {
+      "directory": "collector-v4-author",
+      "copies": 19,
+      "exactGitBytes": "PASS",
+      "controls": {
+        "sha256": "REJECTED",
+        "bytes": "REJECTED",
+        "unpublished_main": "REJECTED"
+      }
+    },
+    {
+      "directory": "collector-v4-independent",
+      "copies": 12,
+      "exactGitBytes": "PASS",
+      "controls": {
+        "sha256": "REJECTED",
+        "bytes": "REJECTED",
+        "unpublished_main": "REJECTED"
+      }
+    }
+  ],
+  "no_finding_closure": true
+}

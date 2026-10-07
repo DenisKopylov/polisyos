@@ -1,0 +1,605 @@
+{
+  "source_sha": "1e1b5028274814b7c4318671588202480390a6bc",
+  "collector_sha256": "a6399cc46cbfe25b103fa210259eff2be9483f582ae7cba773632f079f7194ec",
+  "scope": "Synthetic independent protocol controls only; no product/numerical/gate/production evidence",
+  "controls": [
+    {
+      "fixture": "independent-positive",
+      "source_reference": "d43f8d4693767637424da759ae960f7b51736449",
+      "collector_control_only": true,
+      "product_native_or_gate_commands_executed": 0,
+      "state": "CONTROL_COMPLETE_BOUND",
+      "issues": [],
+      "native_counts": {
+        "cases": 7,
+        "passed": 7,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "unattributed_counts": {
+        "cases": 0,
+        "passed": 0,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "native_attribution_complete": true,
+      "A_counts": [
+        {
+          "cases": 2,
+          "passed": 2,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "cases": 2,
+          "passed": 1,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "private_paths_published": [],
+      "stdout_only_synthetic_sentinel": true
+    },
+    {
+      "fixture": "independent-corrupt-counts",
+      "source_reference": "d43f8d4693767637424da759ae960f7b51736449",
+      "collector_control_only": true,
+      "product_native_or_gate_commands_executed": 0,
+      "state": "CONTROL_LIMITED_INCOMPLETE_OR_INCONSISTENT",
+      "issues": [
+        {
+          "job": "pcl-continuous-persistence",
+          "reason": "JUnit receipt counts mismatch"
+        }
+      ],
+      "native_counts": {
+        "cases": 7,
+        "passed": 7,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "unattributed_counts": {
+        "cases": 0,
+        "passed": 0,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "native_attribution_complete": true,
+      "A_counts": [
+        {
+          "cases": 2,
+          "passed": 2,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "cases": 2,
+          "passed": 1,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "private_paths_published": [],
+      "stdout_only_synthetic_sentinel": true
+    },
+    {
+      "fixture": "independent-private-as-stdout",
+      "source_reference": "d43f8d4693767637424da759ae960f7b51736449",
+      "collector_control_only": true,
+      "product_native_or_gate_commands_executed": 0,
+      "state": "CONTROL_LIMITED_INCOMPLETE_OR_INCONSISTENT",
+      "issues": [
+        {
+          "job": "results-importer",
+          "reason": "raw/private evidence cannot be published: /workspace/e02-E-pr38-r2-receipts/collector-v3-final-author-controls/synthetic-controls/independent-private-as-stdout/wave/raw/results-importer.git-config-private.nul",
+          "role": "stdout"
+        }
+      ],
+      "native_counts": {
+        "cases": 7,
+        "passed": 7,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "unattributed_counts": {
+        "cases": 0,
+        "passed": 0,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "native_attribution_complete": true,
+      "A_counts": [
+        {
+          "cases": 2,
+          "passed": 2,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "cases": 2,
+          "passed": 1,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "private_paths_published": [],
+      "stdout_only_synthetic_sentinel": true
+    },
+    {
+      "fixture": "independent-wrong-classname",
+      "source_reference": "d43f8d4693767637424da759ae960f7b51736449",
+      "collector_control_only": true,
+      "product_native_or_gate_commands_executed": 0,
+      "state": "CONTROL_LIMITED_INCOMPLETE_OR_INCONSISTENT",
+      "issues": [
+        {
+          "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-cas-contract-tests.py.txt",
+          "case": "test_actual_ets_cas_fresh_resolver_preserves_six_roles_and_predictive_denials",
+          "reason": "owner packet JUnit module/file identity not admitted",
+          "classname": "unrelated_test_a_cas_contract_counterfeit",
+          "file": null
+        },
+        {
+          "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-cas-contract-tests.py.txt",
+          "case": "test_actual_resolver_refuses_missing_fake_or_temporally_unbound_inputs",
+          "reason": "owner packet JUnit module/file identity not admitted",
+          "classname": "unrelated_test_a_cas_contract_counterfeit",
+          "file": null
+        },
+        {
+          "reason": "owner packet has no matching actual JUnit cases",
+          "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-cas-contract-tests.py.txt"
+        }
+      ],
+      "native_counts": {
+        "cases": 7,
+        "passed": 7,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "unattributed_counts": {
+        "cases": 2,
+        "passed": 2,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "native_attribution_complete": false,
+      "A_counts": [
+        {
+          "cases": 0,
+          "passed": 0,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "cases": 2,
+          "passed": 1,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "private_paths_published": [],
+      "stdout_only_synthetic_sentinel": true
+    },
+    {
+      "fixture": "anonymous-positive",
+      "source_reference": "d43f8d4693767637424da759ae960f7b51736449",
+      "collector_control_only": true,
+      "product_native_or_gate_commands_executed": 0,
+      "state": "CONTROL_COMPLETE_BOUND",
+      "issues": [],
+      "native_counts": {
+        "cases": 7,
+        "passed": 7,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "unattributed_counts": {
+        "cases": 0,
+        "passed": 0,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "native_attribution_complete": true,
+      "A_counts": [
+        {
+          "cases": 2,
+          "passed": 2,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "cases": 2,
+          "passed": 1,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "private_paths_published": [],
+      "stdout_only_synthetic_sentinel": true
+    },
+    {
+      "fixture": "anonymous-file-contradiction",
+      "source_reference": "d43f8d4693767637424da759ae960f7b51736449",
+      "collector_control_only": true,
+      "product_native_or_gate_commands_executed": 0,
+      "state": "CONTROL_LIMITED_INCOMPLETE_OR_INCONSISTENT",
+      "issues": [
+        {
+          "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-cas-contract-tests.py.txt",
+          "case": "test_actual_ets_cas_fresh_resolver_preserves_six_roles_and_predictive_denials",
+          "reason": "owner packet JUnit module/file identity not admitted",
+          "classname": "",
+          "file": "/workspace/e02-E-pr38-r2-receipts/collector-v3-final-author-controls/synthetic-controls/anonymous-file-contradiction/wave/owner-packets/test_a_status_reason.py"
+        },
+        {
+          "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-cas-contract-tests.py.txt",
+          "case": "test_actual_resolver_refuses_missing_fake_or_temporally_unbound_inputs",
+          "reason": "owner packet JUnit module/file identity not admitted",
+          "classname": "",
+          "file": "/workspace/e02-E-pr38-r2-receipts/collector-v3-final-author-controls/synthetic-controls/anonymous-file-contradiction/wave/owner-packets/test_a_status_reason.py"
+        },
+        {
+          "reason": "owner packet has no matching actual JUnit cases",
+          "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-cas-contract-tests.py.txt"
+        }
+      ],
+      "native_counts": {
+        "cases": 7,
+        "passed": 7,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "unattributed_counts": {
+        "cases": 2,
+        "passed": 2,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "native_attribution_complete": false,
+      "A_counts": [
+        {
+          "cases": 0,
+          "passed": 0,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "cases": 2,
+          "passed": 1,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "private_paths_published": [],
+      "stdout_only_synthetic_sentinel": true
+    },
+    {
+      "fixture": "named-file-contradiction",
+      "source_reference": "d43f8d4693767637424da759ae960f7b51736449",
+      "collector_control_only": true,
+      "product_native_or_gate_commands_executed": 0,
+      "state": "CONTROL_LIMITED_INCOMPLETE_OR_INCONSISTENT",
+      "issues": [
+        {
+          "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-cas-contract-tests.py.txt",
+          "case": "test_actual_ets_cas_fresh_resolver_preserves_six_roles_and_predictive_denials",
+          "reason": "owner packet JUnit module/file identity not admitted",
+          "classname": "test_a_cas_contract",
+          "file": "/workspace/e02-E-pr38-r2-receipts/collector-v3-final-author-controls/synthetic-controls/named-file-contradiction/wave/owner-packets/test_a_status_reason.py"
+        },
+        {
+          "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-cas-contract-tests.py.txt",
+          "case": "test_actual_resolver_refuses_missing_fake_or_temporally_unbound_inputs",
+          "reason": "owner packet JUnit module/file identity not admitted",
+          "classname": "test_a_cas_contract",
+          "file": "/workspace/e02-E-pr38-r2-receipts/collector-v3-final-author-controls/synthetic-controls/named-file-contradiction/wave/owner-packets/test_a_status_reason.py"
+        },
+        {
+          "reason": "owner packet has no matching actual JUnit cases",
+          "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-cas-contract-tests.py.txt"
+        }
+      ],
+      "native_counts": {
+        "cases": 7,
+        "passed": 7,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "unattributed_counts": {
+        "cases": 2,
+        "passed": 2,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "native_attribution_complete": false,
+      "A_counts": [
+        {
+          "cases": 0,
+          "passed": 0,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "cases": 2,
+          "passed": 1,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "private_paths_published": [],
+      "stdout_only_synthetic_sentinel": true
+    },
+    {
+      "fixture": "stdout-alias",
+      "source_reference": "d43f8d4693767637424da759ae960f7b51736449",
+      "collector_control_only": true,
+      "product_native_or_gate_commands_executed": 0,
+      "state": "CONTROL_LIMITED_INCOMPLETE_OR_INCONSISTENT",
+      "issues": [
+        {
+          "job": "results-importer",
+          "reason": "evidence path differs from canonical planned role: /workspace/e02-E-pr38-r2-receipts/collector-v3-final-author-controls/synthetic-controls/stdout-alias/wave/checks/results-importer/integrity-valid-alias.stdout.txt",
+          "role": "stdout"
+        }
+      ],
+      "native_counts": {
+        "cases": 7,
+        "passed": 7,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "unattributed_counts": {
+        "cases": 0,
+        "passed": 0,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "native_attribution_complete": true,
+      "A_counts": [
+        {
+          "cases": 2,
+          "passed": 2,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "cases": 2,
+          "passed": 1,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "private_paths_published": [],
+      "stdout_only_synthetic_sentinel": true
+    },
+    {
+      "fixture": "stdout-leaf-symlink",
+      "source_reference": "d43f8d4693767637424da759ae960f7b51736449",
+      "collector_control_only": true,
+      "product_native_or_gate_commands_executed": 0,
+      "state": "CONTROL_LIMITED_INCOMPLETE_OR_INCONSISTENT",
+      "issues": [
+        {
+          "job": "results-importer",
+          "reason": "symlink component is not admitted: /workspace/e02-E-pr38-r2-receipts/collector-v3-final-author-controls/synthetic-controls/stdout-leaf-symlink/wave/checks/results-importer/results-importer.stdout.txt",
+          "role": "stdout"
+        }
+      ],
+      "native_counts": {
+        "cases": 7,
+        "passed": 7,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "unattributed_counts": {
+        "cases": 0,
+        "passed": 0,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "native_attribution_complete": true,
+      "A_counts": [
+        {
+          "cases": 2,
+          "passed": 2,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "cases": 2,
+          "passed": 1,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "private_paths_published": [],
+      "stdout_only_synthetic_sentinel": true
+    },
+    {
+      "fixture": "stdout-parent-symlink",
+      "source_reference": "d43f8d4693767637424da759ae960f7b51736449",
+      "collector_control_only": true,
+      "product_native_or_gate_commands_executed": 0,
+      "state": "TYPED_REFUSAL",
+      "issues": [
+        {
+          "reason": "symlink component is not admitted: /workspace/e02-E-pr38-r2-receipts/collector-v3-final-author-controls/synthetic-controls/stdout-parent-symlink/wave/checks/results-importer"
+        }
+      ],
+      "native_counts": {},
+      "unattributed_counts": null,
+      "native_attribution_complete": null,
+      "A_counts": [],
+      "private_paths_published": [],
+      "stdout_only_synthetic_sentinel": true
+    },
+    {
+      "fixture": "independent-publication-role-guard-removed",
+      "source_reference": "d43f8d4693767637424da759ae960f7b51736449",
+      "collector_control_only": true,
+      "product_native_or_gate_commands_executed": 0,
+      "state": "CONTROL_COMPLETE_BOUND",
+      "issues": [],
+      "native_counts": {
+        "cases": 7,
+        "passed": 7,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "unattributed_counts": {
+        "cases": 0,
+        "passed": 0,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "native_attribution_complete": true,
+      "A_counts": [
+        {
+          "cases": 2,
+          "passed": 2,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "cases": 2,
+          "passed": 1,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "private_paths_published": [
+        "raw/results-importer.git-config-private.nul"
+      ],
+      "stdout_only_synthetic_sentinel": true,
+      "outcome": "EXPECTED_DISCRIMINATING_ESCAPE"
+    },
+    {
+      "fixture": "independent-exact-module-guard-removed",
+      "source_reference": "d43f8d4693767637424da759ae960f7b51736449",
+      "collector_control_only": true,
+      "product_native_or_gate_commands_executed": 0,
+      "state": "CONTROL_COMPLETE_BOUND",
+      "issues": [],
+      "native_counts": {
+        "cases": 7,
+        "passed": 7,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "unattributed_counts": {
+        "cases": 0,
+        "passed": 0,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "native_attribution_complete": true,
+      "A_counts": [
+        {
+          "cases": 2,
+          "passed": 2,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "cases": 2,
+          "passed": 1,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "private_paths_published": [],
+      "stdout_only_synthetic_sentinel": true,
+      "outcome": "EXPECTED_DISCRIMINATING_ESCAPE"
+    },
+    {
+      "fixture": "independent-count-guard-removed",
+      "source_reference": "d43f8d4693767637424da759ae960f7b51736449",
+      "collector_control_only": true,
+      "product_native_or_gate_commands_executed": 0,
+      "state": "CONTROL_COMPLETE_BOUND",
+      "issues": [],
+      "native_counts": {
+        "cases": 7,
+        "passed": 7,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "unattributed_counts": {
+        "cases": 0,
+        "passed": 0,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "native_attribution_complete": true,
+      "A_counts": [
+        {
+          "cases": 2,
+          "passed": 2,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "cases": 2,
+          "passed": 1,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "private_paths_published": [],
+      "stdout_only_synthetic_sentinel": true,
+      "outcome": "EXPECTED_DISCRIMINATING_ESCAPE"
+    }
+  ],
+  "original_source_and_author_fixture_unchanged": true,
+  "actual5e_publication_bytes": "Not changed; separate custody read-only verification",
+  "verdict": "Author bounded fix controls PASS; independent review still required, no selfGO"
+}

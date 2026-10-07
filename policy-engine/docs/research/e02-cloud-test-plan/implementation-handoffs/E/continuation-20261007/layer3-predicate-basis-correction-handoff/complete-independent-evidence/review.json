@@ -1,0 +1,179 @@
+{
+  "schema": "policyos.e02.independent_P37_unknown_claim_class_delta_review.v1",
+  "outcome": "GO bounded typed unknown record admission",
+  "candidate": "2824114d97d804b1894075ed8f78cb1c6a8a4076",
+  "tree": "a067361f310259449bea5dd90b86c4d96796e5b0",
+  "base": "6b6280d1e66edf26031568e8773e93726fde9928",
+  "DOC_delta": 11,
+  "passive_changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/class-correction-receipt.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/historical-6b-independent-CHANGE_REQUIRED.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/historical-6b-metadata-controls.normal.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/historical-6b-metadata-controls.normal.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/historical-6b-metadata-controls.optimized.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/historical-6b-metadata-controls.optimized.stderr.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/historical-6b-validate_predicate_basis.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/metadata-controls.normal.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/metadata-controls.optimized.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/validate_predicate_basis.py.txt"
+  ],
+  "basis_DTO_byte_equal_prior6b": true,
+  "prior111DOC_bytes_preserved": true,
+  "healthy": {
+    "predicate_count": 10,
+    "basis_counts": {
+      "consumer_asserted": 0,
+      "independently_reconciled": 3,
+      "institutionally_supplied": 0,
+      "not_established": 4,
+      "recomputed": 3
+    },
+    "native_execution": false
+  },
+  "actual_publicCLI": [
+    {
+      "mode": "normal",
+      "case": "healthy",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-DoE-basis2824-independent/immutable-validator.py.txt",
+        "--repo",
+        "/workspace/e02-E-doe-20261006",
+        "--packet",
+        "/tmp/e02-E-DoE-basis2824-independent/healthy.json"
+      ],
+      "exit_code": 0,
+      "stdout_path": "/tmp/e02-E-DoE-basis2824-independent/normal-healthy.stdout.txt",
+      "stderr_path": "/tmp/e02-E-DoE-basis2824-independent/normal-healthy.stderr.txt"
+    },
+    {
+      "mode": "normal",
+      "case": "old_escape_native_PASS",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-DoE-basis2824-independent/immutable-validator.py.txt",
+        "--repo",
+        "/workspace/e02-E-doe-20261006",
+        "--packet",
+        "/tmp/e02-E-DoE-basis2824-independent/old_escape_native_PASS.json"
+      ],
+      "exit_code": 1,
+      "stdout_path": "/tmp/e02-E-DoE-basis2824-independent/normal-old_escape_native_PASS.stdout.txt",
+      "stderr_path": "/tmp/e02-E-DoE-basis2824-independent/normal-old_escape_native_PASS.stderr.txt"
+    },
+    {
+      "mode": "optimized",
+      "case": "healthy",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-DoE-basis2824-independent/immutable-validator.py.txt",
+        "--repo",
+        "/workspace/e02-E-doe-20261006",
+        "--packet",
+        "/tmp/e02-E-DoE-basis2824-independent/healthy.json"
+      ],
+      "exit_code": 0,
+      "stdout_path": "/tmp/e02-E-DoE-basis2824-independent/optimized-healthy.stdout.txt",
+      "stderr_path": "/tmp/e02-E-DoE-basis2824-independent/optimized-healthy.stderr.txt"
+    },
+    {
+      "mode": "optimized",
+      "case": "old_escape_native_PASS",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-DoE-basis2824-independent/immutable-validator.py.txt",
+        "--repo",
+        "/workspace/e02-E-doe-20261006",
+        "--packet",
+        "/tmp/e02-E-DoE-basis2824-independent/old_escape_native_PASS.json"
+      ],
+      "exit_code": 1,
+      "stdout_path": "/tmp/e02-E-DoE-basis2824-independent/optimized-old_escape_native_PASS.stdout.txt",
+      "stderr_path": "/tmp/e02-E-DoE-basis2824-independent/optimized-old_escape_native_PASS.stderr.txt"
+    }
+  ],
+  "pure_admission_controls": [
+    {
+      "case": "full_native_fixture_outcome_false_PASS",
+      "outcome": "refused before evidence IO",
+      "input_IO_callbacks": 0,
+      "reason": "exact scoped unknown authority check status"
+    },
+    {
+      "case": "complete_input_isolation_false_PASS",
+      "outcome": "refused before evidence IO",
+      "input_IO_callbacks": 0,
+      "reason": "exact scoped unknown authority check status"
+    },
+    {
+      "case": "current_native_caller_P41_false_PASS",
+      "outcome": "refused before evidence IO",
+      "input_IO_callbacks": 0,
+      "reason": "exact scoped unknown authority check status"
+    },
+    {
+      "case": "finding_closure_or_institutional_authority_false_PASS",
+      "outcome": "refused before evidence IO",
+      "input_IO_callbacks": 0,
+      "reason": "exact scoped unknown authority check status"
+    },
+    {
+      "case": "status_bool",
+      "outcome": "refused before evidence IO",
+      "input_IO_callbacks": 0,
+      "reason": "exact scoped unknown authority check status"
+    },
+    {
+      "case": "positive_zero",
+      "outcome": "refused before evidence IO",
+      "input_IO_callbacks": 0,
+      "reason": "unknown authority cannot claim positive context"
+    },
+    {
+      "case": "extra_context",
+      "outcome": "refused before evidence IO",
+      "input_IO_callbacks": 0,
+      "reason": "exact typed unknown authority field set"
+    },
+    {
+      "case": "missing_status",
+      "outcome": "refused before evidence IO",
+      "input_IO_callbacks": 0,
+      "reason": "exact typed unknown authority field set"
+    },
+    {
+      "case": "invented_basis",
+      "outcome": "refused before evidence IO",
+      "input_IO_callbacks": 0,
+      "reason": "unknown authority basis remains unknown"
+    },
+    {
+      "case": "wrong_record_type",
+      "outcome": "refused before evidence IO",
+      "input_IO_callbacks": 0,
+      "reason": "exact typed unknown authority field set"
+    }
+  ],
+  "effective_removal": {
+    "source_predicate": "sole complete shared unknown-record inlet",
+    "preserved_markers": "all10canonical bases/positive_claimfalse/exactrefs/native_executionfalse retained",
+    "actual_bad_nativePASS_re_admitted": {
+      "predicate_count": 10,
+      "basis_counts": {
+        "consumer_asserted": 0,
+        "independently_reconciled": 3,
+        "institutionally_supplied": 0,
+        "not_established": 4,
+        "recomputed": 3
+      },
+      "native_execution": false
+    },
+    "property_outcome": "FAIL"
+  },
+  "resolved_red": "Exact prior6b normal/-O actual CLI nativeUNRUN\u2192PASS acceptance is now refused; all scoped authority fieldsets/types/status/positive context checked before evidence IO. Historical utility/control bytes retained.",
+  "source_numeric_native_global_execution": false,
+  "qualification": "Only additive P37 research metadata/typed authority claims and prior DOC byte custody; actual full G fixture/native caller/complete input isolation/finding authority remains not_established/UNRUN. Existing native/helper receipts not rerun."
+}

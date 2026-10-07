@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-cleanup-description-plan-custody-independent/final-3d/immutable-copier.py", line 117, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/tmp/e02-E-cleanup-description-plan-custody-independent/final-3d/immutable-copier.py", line 91, in main
+    p=Path(args.manifest);raw_manifest=p.read_bytes();m=strict_json(raw_manifest);validate(p,m)
+                                                                                  ^^^^^^^^^^^^^
+  File "/tmp/e02-E-cleanup-description-plan-custody-independent/final-3d/immutable-copier.py", line 76, in validate
+    if len(expected)!=237 or m['logical_count']!=len(expected) or m['logical_bytes']!=sum(r['source_bytes'] for r in expected):raise ValueError('full actual logical denominator')
+                                                                                                                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: full actual logical denominator

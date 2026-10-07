@@ -1,0 +1,17 @@
+{
+  "cwd": "/workspace",
+  "argv": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "/tmp/e02-E-facade-finite-bucket-independent-31782-20261007/probe.py"
+  ],
+  "env": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine/src"
+  },
+  "stdout": "/tmp/e02-E-facade-finite-bucket-independent-31782-20261007/stdout.txt",
+  "stderr": "/tmp/e02-E-facade-finite-bucket-independent-31782-20261007/stderr.txt",
+  "exit_code": 0,
+  "source": "31782b55f8f35556cfc581449b040c393f00c78f",
+  "tree": "746f50214f70c0fa34cd8bb6d42e72440adc9f96",
+  "no_cpu_caps": true
+}

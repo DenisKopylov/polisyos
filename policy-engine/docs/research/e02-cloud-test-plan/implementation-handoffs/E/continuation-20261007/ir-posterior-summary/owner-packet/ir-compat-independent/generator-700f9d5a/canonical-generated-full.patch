@@ -1,0 +1,759 @@
+--- a/policy-engine/architecture/public_surface/inventory.json
++++ b/policy-engine/architecture/public_surface/inventory.json
+@@ -1221,7 +1221,7 @@
+         "polisyos.ir.api"
+       ],
+       "major_subsystem": true,
+-      "export_count": 284,
++      "export_count": 287,
+       "exports": [
+         "ABMBifurcationReport",
+         "ABMIdentifiabilityCertificate",
+@@ -1254,15 +1254,15 @@
+         "CalibrationSplitWindow",
+         "CalibrationTarget",
+         "CalibrationTargetBundleManifest",
++        "CausalAttributionSpec",
+         "CausalBlockBridge",
+         "CausalBlockBridgeRef",
++        "CausalContrastRegime",
++        "CausalContrastSpec",
+         "CausalDiscoveryReport",
+         "CausalEffectReport",
+         "CausalExecutionBundle",
+         "CausalExecutionBundleRef",
+-        "CausalAttributionSpec",
+-        "CausalContrastRegime",
+-        "CausalContrastSpec",
+         "CausalInterventionSpec",
+         "CausalMethod",
+         "CausalModelEnsemble",
+@@ -1271,8 +1271,8 @@
+         "CausalQuery",
+         "CausalQueryResult",
+         "CausalQueryResultRef",
++        "CausalReadinessBundle",
+         "CausalRegime",
+-        "CausalReadinessBundle",
+         "CohortDimension",
+         "CohortImpact",
+         "CompiledLexIntervention",
+@@ -1416,6 +1416,9 @@
+         "PolicyPortfolio",
+         "PolicyRecommendation",
+         "PolicySpec",
++        "PosteriorParameterBinding",
++        "PosteriorSummaryContext",
++        "PosteriorSummaryProfile",
+         "ProblemConstraintSpec",
+         "ProblemDomain",
+         "ProblemFrame",
+@@ -1517,7 +1520,7 @@
+         {
+           "module": "polisyos.ir",
+           "facade_mode_observed": "lazy_facade",
+-          "export_count": 284,
++          "export_count": 287,
+           "exports": [
+             "ABMBifurcationReport",
+             "ABMIdentifiabilityCertificate",
+@@ -1550,15 +1553,15 @@
+             "CalibrationSplitWindow",
+             "CalibrationTarget",
+             "CalibrationTargetBundleManifest",
++            "CausalAttributionSpec",
+             "CausalBlockBridge",
+             "CausalBlockBridgeRef",
++            "CausalContrastRegime",
++            "CausalContrastSpec",
+             "CausalDiscoveryReport",
+             "CausalEffectReport",
+             "CausalExecutionBundle",
+             "CausalExecutionBundleRef",
+-            "CausalAttributionSpec",
+-            "CausalContrastRegime",
+-            "CausalContrastSpec",
+             "CausalInterventionSpec",
+             "CausalMethod",
+             "CausalModelEnsemble",
+@@ -1567,8 +1570,8 @@
+             "CausalQuery",
+             "CausalQueryResult",
+             "CausalQueryResultRef",
++            "CausalReadinessBundle",
+             "CausalRegime",
+-            "CausalReadinessBundle",
+             "CohortDimension",
+             "CohortImpact",
+             "CompiledLexIntervention",
+@@ -1712,6 +1715,9 @@
+             "PolicyPortfolio",
+             "PolicyRecommendation",
+             "PolicySpec",
++            "PosteriorParameterBinding",
++            "PosteriorSummaryContext",
++            "PosteriorSummaryProfile",
+             "ProblemConstraintSpec",
+             "ProblemDomain",
+             "ProblemFrame",
+--- a/policy-engine/docs/reference/ir/schema-catalog.md
++++ b/policy-engine/docs/reference/ir/schema-catalog.md
+@@ -12,15 +12,15 @@
+ 
+ ## Summary
+ 
+-- Total IR types: `1594`.
+-- Public/root-or-package facade types: `448`.
+-- ABI snapshot-backed types: `95`.
++- Total IR types: `1597`.
++- Public/root-or-package facade types: `452`.
++- ABI snapshot-backed types: `96`.
+ - Export enumeration covers these public packages:
+ 
+ | Package | Export count |
+ | ------- | ------------ |
+-| `polisyos.ir` | 287 |
+-| `polisyos.ir.analytics` | 278 |
++| `polisyos.ir` | 290 |
++| `polisyos.ir.analytics` | 290 |
+ | `polisyos.ir.kernel` | 52 |
+ | `polisyos.ir.world` | 54 |
+ 
+@@ -28,7 +28,7 @@
+ 
+ | Section | Type count | Public types | Snapshot-backed |
+ | ------- | ---------- | ------------ | ---------------- |
+-| `analytics` | 983 | 254 | 37 |
++| `analytics` | 986 | 258 | 38 |
+ | `artifacts` | 25 | 0 | 0 |
+ | `governance` | 99 | 21 | 8 |
+ | `kernel` | 47 | 38 | 0 |
+@@ -15448,6 +15448,77 @@
+ | `temporal_identification_certificate` | `dict[str, Any] \| NoneType` | `no` | `—` | — |
+ | `temporal_identification_certificate_ref` | `polisyos.ir.registry.refs.ArtifactRefModel \| NoneType` | `no` | `—` | `polisyos.ir.registry.refs.ArtifactRefModel` |
+ | `warnings` | `tuple[str]` | `no` | `()` | — |
++
++### `polisyos.ir.analytics.posterior_summary.PosteriorParameterBinding` { #polisyos-ir-analytics-posterior-summary-posteriorparameterbinding }
++
++- Kind: `pydantic_model`
++- Public status: `root_facade`
++- Current version: `—`
++- Exported from: `polisyos.ir.analytics:PosteriorParameterBinding`, `polisyos.ir:PosteriorParameterBinding`
++- ABI snapshot: `—` / `—`
++- Compatibility mode: `—`
++- References: —
++- Summary: Producer-declared identity; missing external lineage stays unknown.
++
++| Field | Type | Required | Default | IR refs |
++| ----- | ---- | -------- | ------- | ------- |
++| `estimand_id` | `str` | `yes` | `—` | — |
++| `scale` | `str` | `yes` | `—` | — |
++| `unit` | `str` | `yes` | `—` | — |
++
++### `polisyos.ir.analytics.posterior_summary.PosteriorSummaryContext` { #polisyos-ir-analytics-posterior-summary-posteriorsummarycontext }
++
++- Kind: `pydantic_model`
++- Public status: `root_facade`
++- Current version: `—`
++- Exported from: `polisyos.ir.analytics:PosteriorSummaryContext`, `polisyos.ir:PosteriorSummaryContext`
++- ABI snapshot: `—` / `—`
++- Compatibility mode: `—`
++- References: `polisyos.ir.analytics.posterior_summary.PosteriorParameterBinding`, `polisyos.ir.registry.refs.ArtifactRefModel`
++- Summary: Preserve supplied identity without assigning source or gate authority.
++
++| Field | Type | Required | Default | IR refs |
++| ----- | ---- | -------- | ------- | ------- |
++| `lineage_refs` | `dict[str, polisyos.ir.registry.refs.ArtifactRefModel]` | `no` | `—` | `polisyos.ir.registry.refs.ArtifactRefModel` |
++| `parameters` | `dict[str, polisyos.ir.analytics.posterior_summary.PosteriorParameterBinding]` | `no` | `—` | `polisyos.ir.analytics.posterior_summary.PosteriorParameterBinding` |
++| `purpose` | `str \| NoneType` | `no` | `—` | — |
++| `time_roles` | `dict[str, str]` | `no` | `—` | — |
++
++### `polisyos.ir.analytics.posterior_summary.PosteriorSummaryProfile` { #polisyos-ir-analytics-posterior-summary-posteriorsummaryprofile }
++
++- Kind: `pydantic_model`
++- Public status: `root_facade`
++- Current version: `1.0`
++- Exported from: `polisyos.ir.analytics:PosteriorSummaryProfile`, `polisyos.ir:PosteriorSummaryProfile`
++- ABI snapshot: `posterior_summary_profile` / `schemas/snapshots/ir/posterior_summary_profile.schema.json`
++- Compatibility mode: `—`
++- References: `polisyos.ir.analytics.posterior_summary.PosteriorParameterBinding`, `polisyos.ir.analytics.posterior_summary.PosteriorSummaryContext`
++- Summary: Named, independently readable functionals of an exact finite corpus.
++
++| Field | Type | Required | Default | IR refs |
++| ----- | ---- | -------- | ------- | ------- |
++| `binding` | `polisyos.ir.analytics.posterior_summary.PosteriorParameterBinding \| NoneType` | `no` | `—` | `polisyos.ir.analytics.posterior_summary.PosteriorParameterBinding` |
++| `carrier_content_hash` | `str` | `yes` | `—` | — |
++| `compression` | `Literal[none]` | `no` | `'none'` | — |
++| `context` | `polisyos.ir.analytics.posterior_summary.PosteriorSummaryContext` | `no` | `—` | `polisyos.ir.analytics.posterior_summary.PosteriorSummaryContext` |
++| `context_content_hash` | `str` | `yes` | `—` | — |
++| `credible_mass` | `float` | `yes` | `—` | — |
++| `draw_ids` | `tuple[str]` | `yes` | `—` | — |
++| `gate_eligible` | `Literal[False]` | `no` | `False` | — |
++| `interval_functional` | `Literal[equal_tail_inverse_cdf]` | `no` | `'equal_tail_inverse_cdf'` | — |
++| `joint_law_sha256` | `str` | `yes` | `—` | — |
++| `mean_functional` | `Literal[weighted_arithmetic_mean]` | `no` | `'weighted_arithmetic_mean'` | — |
++| `numeric_representation` | `Literal[finite_float64]` | `no` | `'finite_float64'` | — |
++| `parameter_name` | `str` | `yes` | `—` | — |
++| `parameter_order` | `tuple[str]` | `yes` | `—` | — |
++| `point_functional` | `Literal[median]` | `no` | `'median'` | — |
++| `posterior_mean` | `float` | `yes` | `—` | — |
++| `probabilities` | `tuple[float]` | `yes` | `—` | — |
++| `profile_id` | `Literal[urn:policyos:ir:bayesian-posterior-summary-profile:1]` | `no` | `'urn:policyos:ir:bayesian-posterior-summary-profile:1'` | — |
++| `profile_version` | `Literal[1.0]` | `no` | `'1.0'` | — |
++| `row_identity_basis` | `Literal[producer_input_order, producer_supplied_ids]` | `yes` | `—` | — |
++| `sample_axis` | `str` | `yes` | `—` | — |
++| `thinning` | `Literal[none]` | `no` | `'none'` | — |
+ 
+ ### `polisyos.ir.analytics.privacy_transportability.DPGraphSourceKind` { #polisyos-ir-analytics-privacy-transportability-dpgraphsourcekind }
+ 
+@@ -20425,9 +20496,9 @@
+ ### `polisyos.ir.analytics.uncertainty.PosteriorSamplesCarrier` { #polisyos-ir-analytics-uncertainty-posteriorsamplescarrier }
+ 
+ - Kind: `pydantic_model`
+-- Public status: `internal`
+-- Current version: `—`
+-- Exported from: —
++- Public status: `package_facade`
++- Current version: `—`
++- Exported from: `polisyos.ir.analytics:PosteriorSamplesCarrier`
+ - ABI snapshot: `—` / `—`
+ - Compatibility mode: `—`
+ - References: —
+--- a/policy-engine/docs/reference/public-surface.md
++++ b/policy-engine/docs/reference/public-surface.md
+@@ -88,7 +88,7 @@
+ | --- | --- | --- | ---: | --- | --- |
+ | `polisyos.common` | `public_stable` | `lazy_facade` | 7 | `team-polisyos` | `src/polisyos/common/README.md` |
+ | `polisyos.core` | `public_stable` | `lazy_facade` | 134 | `team-polisyos` | `src/polisyos/core/README.md` |
+-| `polisyos.ir` | `public_stable` | `lazy_facade` | 284 | `team-polisyos` | `src/polisyos/ir/README.md` |
++| `polisyos.ir` | `public_stable` | `lazy_facade` | 287 | `team-polisyos` | `src/polisyos/ir/README.md` |
+ | `polisyos.obligation_rules` | `internal` | `eager_exports` | 22 | `team-policyos-runtime` | `src/polisyos/obligation_rules/README.md` |
+ | `polisyos.obligation_graph` | `internal` | `eager_exports` | 20 | `team-policyos-runtime` | `src/polisyos/obligation_graph/README.md` |
+ | `polisyos.method_requirement` | `internal` | `eager_exports` | 14 | `team-policyos-runtime` | `src/polisyos/method_requirement/README.md` |
+@@ -1181,7 +1181,7 @@
+ 
+ | Entrypoint | Source | Facade | Exports |
+ | --- | --- | --- | ---: |
+-| `polisyos.ir` | `src/polisyos/ir/__init__.py` | `lazy_facade` | 284 |
++| `polisyos.ir` | `src/polisyos/ir/__init__.py` | `lazy_facade` | 287 |
+ | `polisyos.ir.analytics` | `src/polisyos/ir/analytics/__init__.py` | `module_doc_only` | 0 |
+ | `polisyos.ir.api` | `src/polisyos/ir/api.py` | `eager_exports` | 11 |
+ 
+@@ -1191,7 +1191,7 @@
+ - Facade: `lazy_facade`
+ - Summary: Expose the stable IR contract surface through a lazy package facade.
+ 
+-<details><summary>Entrypoint exports (284)</summary>
++<details><summary>Entrypoint exports (287)</summary>
+ 
+ ```text
+ ABMBifurcationReport
+@@ -1225,15 +1225,15 @@
+ CalibrationSplitWindow
+ CalibrationTarget
+ CalibrationTargetBundleManifest
++CausalAttributionSpec
+ CausalBlockBridge
+ CausalBlockBridgeRef
++CausalContrastRegime
++CausalContrastSpec
+ CausalDiscoveryReport
+ CausalEffectReport
+ CausalExecutionBundle
+ CausalExecutionBundleRef
+-CausalAttributionSpec
+-CausalContrastRegime
+-CausalContrastSpec
+ CausalInterventionSpec
+ CausalMethod
+ CausalModelEnsemble
+@@ -1242,8 +1242,8 @@
+ CausalQuery
+ CausalQueryResult
+ CausalQueryResultRef
++CausalReadinessBundle
+ CausalRegime
+-CausalReadinessBundle
+ CohortDimension
+ CohortImpact
+ CompiledLexIntervention
+@@ -1387,6 +1387,9 @@
+ PolicyPortfolio
+ PolicyRecommendation
+ PolicySpec
++PosteriorParameterBinding
++PosteriorSummaryContext
++PosteriorSummaryProfile
+ ProblemConstraintSpec
+ ProblemDomain
+ ProblemFrame
+@@ -1512,7 +1515,7 @@
+ 
+ </details>
+ 
+-<details><summary>Supported exports (284)</summary>
++<details><summary>Supported exports (287)</summary>
+ 
+ ```text
+ ABMBifurcationReport
+@@ -1546,15 +1549,15 @@
+ CalibrationSplitWindow
+ CalibrationTarget
+ CalibrationTargetBundleManifest
++CausalAttributionSpec
+ CausalBlockBridge
+ CausalBlockBridgeRef
++CausalContrastRegime
++CausalContrastSpec
+ CausalDiscoveryReport
+ CausalEffectReport
+ CausalExecutionBundle
+ CausalExecutionBundleRef
+-CausalAttributionSpec
+-CausalContrastRegime
+-CausalContrastSpec
+ CausalInterventionSpec
+ CausalMethod
+ CausalModelEnsemble
+@@ -1563,8 +1566,8 @@
+ CausalQuery
+ CausalQueryResult
+ CausalQueryResultRef
++CausalReadinessBundle
+ CausalRegime
+-CausalReadinessBundle
+ CohortDimension
+ CohortImpact
+ CompiledLexIntervention
+@@ -1708,6 +1711,9 @@
+ PolicyPortfolio
+ PolicyRecommendation
+ PolicySpec
++PosteriorParameterBinding
++PosteriorSummaryContext
++PosteriorSummaryProfile
+ ProblemConstraintSpec
+ ProblemDomain
+ ProblemFrame
+--- a/policy-engine/docs/reference/schemas.md
++++ b/policy-engine/docs/reference/schemas.md
+@@ -47,6 +47,7 @@
+ | `phase4_temporal_policy_gate_verdict` | `polisyos.ir.analytics.phase4_dynamics.Phase4TemporalPolicyGateVerdict` | `analytics` | `1.0` | `p1` | `full` | `root_facade` | [Phase4TemporalPolicyGateVerdict](ir/schema-catalog.md#polisyos-ir-analytics-phase4-dynamics-phase4temporalpolicygateverdict) | `schemas/snapshots/ir/phase4_temporal_policy_gate_verdict.schema.json` |
+ | `space_time_causal_certificate` | `polisyos.ir.analytics.phase4_dynamics.SpaceTimeCausalCertificate` | `analytics` | `1.0` | `p1` | `full` | `root_facade` | [SpaceTimeCausalCertificate](ir/schema-catalog.md#polisyos-ir-analytics-phase4-dynamics-spacetimecausalcertificate) | `schemas/snapshots/ir/space_time_causal_certificate.schema.json` |
+ | `temporal_graph_causal_certificate` | `polisyos.ir.analytics.phase4_dynamics.TemporalGraphCausalCertificate` | `analytics` | `1.0` | `p1` | `full` | `root_facade` | [TemporalGraphCausalCertificate](ir/schema-catalog.md#polisyos-ir-analytics-phase4-dynamics-temporalgraphcausalcertificate) | `schemas/snapshots/ir/temporal_graph_causal_certificate.schema.json` |
++| `posterior_summary_profile` | `polisyos.ir.analytics.posterior_summary.PosteriorSummaryProfile` | `analytics` | `1.0` | `p1` | `—` | `root_facade` | [PosteriorSummaryProfile](ir/schema-catalog.md#polisyos-ir-analytics-posterior-summary-posteriorsummaryprofile) | `schemas/snapshots/ir/posterior_summary_profile.schema.json` |
+ | `intervention_cost_manifold` | `polisyos.ir.analytics.recourse_manifold.InterventionCostManifold` | `analytics` | `1.0` | `p2` | `—` | `snapshot_only` | [InterventionCostManifold](ir/schema-catalog.md#polisyos-ir-analytics-recourse-manifold-interventioncostmanifold) | `schemas/snapshots/ir/intervention_cost_manifold.schema.json` |
+ | `optimal_recourse_intervention_bundle` | `polisyos.ir.analytics.recourse_manifold.OptimalRecourseInterventionBundle` | `analytics` | `1.0` | `p2` | `—` | `snapshot_only` | [OptimalRecourseInterventionBundle](ir/schema-catalog.md#polisyos-ir-analytics-recourse-manifold-optimalrecourseinterventionbundle) | `schemas/snapshots/ir/optimal_recourse_intervention_bundle.schema.json` |
+ | `optimal_recourse_intervention_query` | `polisyos.ir.analytics.recourse_manifold.OptimalRecourseInterventionQuery` | `analytics` | `1.0` | `p2` | `—` | `snapshot_only` | [OptimalRecourseInterventionQuery](ir/schema-catalog.md#polisyos-ir-analytics-recourse-manifold-optimalrecourseinterventionquery) | `schemas/snapshots/ir/optimal_recourse_intervention_query.schema.json` |
+--- a/policy-engine/schemas/snapshots/ir/_manifest.json
++++ b/policy-engine/schemas/snapshots/ir/_manifest.json
+@@ -6,8 +6,8 @@
+     "release_fragment_change_class": "persisted-artifact-format",
+     "version_owner": "team-ir"
+   },
+-  "content_hash": "2d2db2e781510e085cd466d1721f30d5c0989d2f36f16340fc4af039a06fc5bb",
+-  "generated_at": "2026-09-22T16:59:24+00:00",
++  "content_hash": "ad42dd325a0f91bddb9386c10c69d70ba675aaf5a31e689ca7ba0c820a68bd14",
++  "generated_at": "2026-10-07T08:59:58+00:00",
+   "generator_version": "1.0.0",
+   "models": {
+     "abm_alignment_report": {
+@@ -414,8 +414,8 @@
+       "priority": "p2",
+       "schema_file": "feedback_solve_result.schema.json",
+       "schema_version": "1.0",
+-      "sha256_full": "2eda896e68fe545c6d0d59285689d7dba9add644cb3fad8b39c3f4bb7e0cdc0a",
+-      "sha256_semantic": "609f10efec3694f01ed79e9230e6dab20a8b7eac8b531e5d61cb64262ffba55d",
++      "sha256_full": "ff7ee9d123bcd11e4f2d41c1c8c548b676b15df70eaa83e1b81103759ebd1a93",
++      "sha256_semantic": "155188bb3635d6e8e4ab2c3430223d512348924dc2c326c05fa54e37b25d42d7",
+       "version_field": "schema_version"
+     },
+     "feedback_solver_config": {
+@@ -922,6 +922,18 @@
+       "sha256_semantic": "abfe94c5c7d4c8a9eb74f141876beac27694c59045be0df2d0a0f8eb5b34d38b",
+       "version_field": "schema_version"
+     },
++    "posterior_summary_profile": {
++      "aliases": [],
++      "compat_mode": "strict",
++      "fqn": "polisyos.ir.analytics.posterior_summary.PosteriorSummaryProfile",
++      "lifecycle": "active",
++      "priority": "p1",
++      "schema_file": "posterior_summary_profile.schema.json",
++      "schema_version": "1.0",
++      "sha256_full": "d9cdfa5366135debaad284e3d3025dc3e550138588696caa19edd8056e55ac09",
++      "sha256_semantic": "b2f3e9f8423dcf4e4e10ddbcb617a8837219fa5f3041f34a087238271d8daf9f",
++      "version_field": "profile_version"
++    },
+     "problem_frame": {
+       "aliases": [],
+       "compat_mode": "strict",
+@@ -1201,5 +1213,5 @@
+   },
+   "module": "ir",
+   "pydantic_version": "2.12.5",
+-  "python_version": "3.14.3"
++  "python_version": "3.14.7"
+ }
+--- a/policy-engine/schemas/snapshots/ir/feedback_solve_result.schema.json
++++ b/policy-engine/schemas/snapshots/ir/feedback_solve_result.schema.json
+@@ -17,6 +17,19 @@
+           "title": "Kind",
+           "type": "string"
+         },
++        "manifest_profile_sha256": {
++          "anyOf": [
++            {
++              "pattern": "^sha256:[0-9a-f]{64}$",
++              "type": "string"
++            },
++            {
++              "type": "null"
++            }
++          ],
++          "default": null,
++          "title": "Manifest Profile Sha256"
++        },
+         "media_type": {
+           "default": "application/json",
+           "title": "Media Type",
+@@ -40,6 +53,19 @@
+           "default": "foundry.feedback_convergence_certificate",
+           "title": "Kind",
+           "type": "string"
++        },
++        "manifest_profile_sha256": {
++          "anyOf": [
++            {
++              "pattern": "^sha256:[0-9a-f]{64}$",
++              "type": "string"
++            },
++            {
++              "type": "null"
++            }
++          ],
++          "default": null,
++          "title": "Manifest Profile Sha256"
+         },
+         "media_type": {
+           "default": "application/json",
+@@ -102,6 +128,19 @@
+           "default": "foundry.feedback_jacobian_diagnostics",
+           "title": "Kind",
+           "type": "string"
++        },
++        "manifest_profile_sha256": {
++          "anyOf": [
++            {
++              "pattern": "^sha256:[0-9a-f]{64}$",
++              "type": "string"
++            },
++            {
++              "type": "null"
++            }
++          ],
++          "default": null,
++          "title": "Manifest Profile Sha256"
+         },
+         "media_type": {
+           "default": "application/json",
+@@ -206,6 +245,19 @@
+           "title": "Kind",
+           "type": "string"
+         },
++        "manifest_profile_sha256": {
++          "anyOf": [
++            {
++              "pattern": "^sha256:[0-9a-f]{64}$",
++              "type": "string"
++            },
++            {
++              "type": "null"
++            }
++          ],
++          "default": null,
++          "title": "Manifest Profile Sha256"
++        },
+         "media_type": {
+           "default": "application/json",
+           "title": "Media Type",
+@@ -229,6 +281,19 @@
+           "default": "foundry.parameter_override_bundle",
+           "title": "Kind",
+           "type": "string"
++        },
++        "manifest_profile_sha256": {
++          "anyOf": [
++            {
++              "pattern": "^sha256:[0-9a-f]{64}$",
++              "type": "string"
++            },
++            {
++              "type": "null"
++            }
++          ],
++          "default": null,
++          "title": "Manifest Profile Sha256"
+         },
+         "media_type": {
+           "default": "application/json",
+--- /dev/null
++++ b/policy-engine/schemas/snapshots/ir/posterior_summary_profile.schema.json
+@@ -0,0 +1,257 @@
++{
++  "$defs": {
++    "ArtifactID": {
++      "description": "IR-local artifact ID model compatible with CAS interfaces.",
++      "title": "ArtifactID",
++      "type": "string"
++    },
++    "ArtifactRefModel": {
++      "additionalProperties": false,
++      "description": "Provide the common mapping-compatible base contract for artifact refs.",
++      "properties": {
++        "artifact_id": {
++          "$ref": "#/$defs/ArtifactID"
++        },
++        "kind": {
++          "title": "Kind",
++          "type": "string"
++        },
++        "media_type": {
++          "title": "Media Type",
++          "type": "string"
++        }
++      },
++      "required": [
++        "artifact_id",
++        "kind",
++        "media_type"
++      ],
++      "title": "ArtifactRefModel",
++      "type": "object"
++    },
++    "PosteriorParameterBinding": {
++      "additionalProperties": false,
++      "description": "Producer-declared identity; missing external lineage stays unknown.",
++      "properties": {
++        "estimand_id": {
++          "minLength": 1,
++          "title": "Estimand Id",
++          "type": "string"
++        },
++        "scale": {
++          "minLength": 1,
++          "title": "Scale",
++          "type": "string"
++        },
++        "unit": {
++          "minLength": 1,
++          "title": "Unit",
++          "type": "string"
++        }
++      },
++      "required": [
++        "estimand_id",
++        "unit",
++        "scale"
++      ],
++      "title": "PosteriorParameterBinding",
++      "type": "object"
++    },
++    "PosteriorSummaryContext": {
++      "additionalProperties": false,
++      "description": "Preserve supplied identity without assigning source or gate authority.",
++      "properties": {
++        "lineage_refs": {
++          "additionalProperties": {
++            "$ref": "#/$defs/ArtifactRefModel"
++          },
++          "title": "Lineage Refs",
++          "type": "object"
++        },
++        "parameters": {
++          "additionalProperties": {
++            "$ref": "#/$defs/PosteriorParameterBinding"
++          },
++          "title": "Parameters",
++          "type": "object"
++        },
++        "purpose": {
++          "anyOf": [
++            {
++              "type": "string"
++            },
++            {
++              "type": "null"
++            }
++          ],
++          "default": null,
++          "title": "Purpose"
++        },
++        "time_roles": {
++          "additionalProperties": {
++            "type": "string"
++          },
++          "title": "Time Roles",
++          "type": "object"
++        }
++      },
++      "title": "PosteriorSummaryContext",
++      "type": "object"
++    }
++  },
++  "$id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
++  "additionalProperties": false,
++  "description": "Named, independently readable functionals of an exact finite corpus.",
++  "properties": {
++    "binding": {
++      "anyOf": [
++        {
++          "$ref": "#/$defs/PosteriorParameterBinding"
++        },
++        {
++          "type": "null"
++        }
++      ],
++      "default": null
++    },
++    "carrier_content_hash": {
++      "pattern": "^sha256:[0-9a-f]{64}$",
++      "title": "Carrier Content Hash",
++      "type": "string"
++    },
++    "compression": {
++      "const": "none",
++      "default": "none",
++      "title": "Compression",
++      "type": "string"
++    },
++    "context": {
++      "$ref": "#/$defs/PosteriorSummaryContext"
++    },
++    "context_content_hash": {
++      "pattern": "^sha256:[0-9a-f]{64}$",
++      "title": "Context Content Hash",
++      "type": "string"
++    },
++    "credible_mass": {
++      "exclusiveMaximum": 1,
++      "exclusiveMinimum": 0,
++      "title": "Credible Mass",
++      "type": "number"
++    },
++    "draw_ids": {
++      "items": {
++        "type": "string"
++      },
++      "minItems": 1,
++      "title": "Draw Ids",
++      "type": "array"
++    },
++    "gate_eligible": {
++      "const": false,
++      "default": false,
++      "title": "Gate Eligible",
++      "type": "boolean"
++    },
++    "interval_functional": {
++      "const": "equal_tail_inverse_cdf",
++      "default": "equal_tail_inverse_cdf",
++      "title": "Interval Functional",
++      "type": "string"
++    },
++    "joint_law_sha256": {
++      "pattern": "^[0-9a-f]{64}$",
++      "title": "Joint Law Sha256",
++      "type": "string"
++    },
++    "mean_functional": {
++      "const": "weighted_arithmetic_mean",
++      "default": "weighted_arithmetic_mean",
++      "title": "Mean Functional",
++      "type": "string"
++    },
++    "numeric_representation": {
++      "const": "finite_float64",
++      "default": "finite_float64",
++      "title": "Numeric Representation",
++      "type": "string"
++    },
++    "parameter_name": {
++      "minLength": 1,
++      "title": "Parameter Name",
++      "type": "string"
++    },
++    "parameter_order": {
++      "items": {
++        "type": "string"
++      },
++      "minItems": 1,
++      "title": "Parameter Order",
++      "type": "array"
++    },
++    "point_functional": {
++      "const": "median",
++      "default": "median",
++      "title": "Point Functional",
++      "type": "string"
++    },
++    "posterior_mean": {
++      "title": "Posterior Mean",
++      "type": "number"
++    },
++    "probabilities": {
++      "items": {
++        "type": "number"
++      },
++      "minItems": 1,
++      "title": "Probabilities",
++      "type": "array"
++    },
++    "profile_id": {
++      "const": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
++      "default": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
++      "title": "Profile Id",
++      "type": "string"
++    },
++    "profile_version": {
++      "const": "1.0",
++      "default": "1.0",
++      "title": "Profile Version",
++      "type": "string"
++    },
++    "row_identity_basis": {
++      "enum": [
++        "producer_input_order",
++        "producer_supplied_ids"
++      ],
++      "title": "Row Identity Basis",
++      "type": "string"
++    },
++    "sample_axis": {
++      "minLength": 1,
++      "title": "Sample Axis",
++      "type": "string"
++    },
++    "thinning": {
++      "const": "none",
++      "default": "none",
++      "title": "Thinning",
++      "type": "string"
++    }
++  },
++  "required": [
++    "parameter_name",
++    "parameter_order",
++    "draw_ids",
++    "row_identity_basis",
++    "sample_axis",
++    "probabilities",
++    "posterior_mean",
++    "credible_mass",
++    "carrier_content_hash",
++    "joint_law_sha256",
++    "context_content_hash"
++  ],
++  "title": "PosteriorSummaryProfile",
++  "type": "object"
++}

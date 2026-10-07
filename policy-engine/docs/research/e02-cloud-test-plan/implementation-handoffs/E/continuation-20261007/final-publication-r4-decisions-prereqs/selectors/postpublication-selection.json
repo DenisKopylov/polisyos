@@ -1,0 +1,138 @@
+{
+  "schema": "policyos.e02.closed_additions_postpublication_moderate_selection.v1",
+  "published_candidate": "737c9e3115abac3fefe76920b08c05e76a5bee17",
+  "published_tree": "a32e3762c3d969a4749650be7e34c8c0108a8a53",
+  "verification_source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "verification_tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-closed-additions-publication-r4-stage/resume-admission.json",
+      "portable_path": "publication-execution/resume-admission.json",
+      "bytes": 123184,
+      "sha256": "7e3da9f77de343a5b0dce6a693ae48bd2ae8b7f4305ffe70d358fb7bbf16157b",
+      "role": "literal post-commit independent/publication custody and normal hook/push/fetch/readback output; no source or numerical repeat"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-publication-r4-stage/resume-admission.stderr.txt",
+      "portable_path": "publication-execution/resume-admission.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "literal post-commit independent/publication custody and normal hook/push/fetch/readback output; no source or numerical repeat"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-publication-r4-stage/handoff-staged-footprint.json",
+      "portable_path": "publication-execution/handoff-staged-footprint.json",
+      "bytes": 24561,
+      "sha256": "62ac58561e8043d24101eb4f925a7831103f5ba344a092b84e0b22ade620d1b0",
+      "role": "literal post-commit independent/publication custody and normal hook/push/fetch/readback output; no source or numerical repeat"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-publication-r4-stage/handoff-commit.stdout.txt",
+      "portable_path": "publication-execution/handoff-commit.stdout.txt",
+      "bytes": 26190,
+      "sha256": "53a203522017f013b16c72663c5f11a209c1d9067cccdd687c9af8d97331b826",
+      "role": "literal post-commit independent/publication custody and normal hook/push/fetch/readback output; no source or numerical repeat"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-publication-r4-stage/handoff-commit.stderr.txt",
+      "portable_path": "publication-execution/handoff-commit.stderr.txt",
+      "bytes": 653,
+      "sha256": "ead5e15e37a02582a84aa890bded8fd2c0726640078ba9662704d73e24196b15",
+      "role": "literal post-commit independent/publication custody and normal hook/push/fetch/readback output; no source or numerical repeat"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-publication-r4-stage/handoff-Git-readback.json",
+      "portable_path": "publication-execution/handoff-Git-readback.json",
+      "bytes": 93510,
+      "sha256": "b9bd804048fe75ef8459053b374c3387f2f4ed2aebc14c161c5c10092c80e42c",
+      "role": "literal post-commit independent/publication custody and normal hook/push/fetch/readback output; no source or numerical repeat"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-publication-r4-stage/push.stdout.txt",
+      "portable_path": "publication-execution/push.stdout.txt",
+      "bytes": 486,
+      "sha256": "256e157fd4773b43cecbf92a3c74f04ae72af7808f62a5d33fe938eac1818bb3",
+      "role": "literal post-commit independent/publication custody and normal hook/push/fetch/readback output; no source or numerical repeat"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-publication-r4-stage/push.stderr.txt",
+      "portable_path": "publication-execution/push.stderr.txt",
+      "bytes": 106,
+      "sha256": "0ad06f333162bf3329e523e7de9e9dc38da1012c0f2bb41ac07851313127c44f",
+      "role": "literal post-commit independent/publication custody and normal hook/push/fetch/readback output; no source or numerical repeat"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-publication-r4-stage/fetch.stdout.txt",
+      "portable_path": "publication-execution/fetch.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "literal post-commit independent/publication custody and normal hook/push/fetch/readback output; no source or numerical repeat"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-publication-r4-stage/fetch.stderr.txt",
+      "portable_path": "publication-execution/fetch.stderr.txt",
+      "bytes": 131,
+      "sha256": "57cb5b7dbd02e9d88ec0104e15e8977a9992c9dc87828d99b5405d690942dec7",
+      "role": "literal post-commit independent/publication custody and normal hook/push/fetch/readback output; no source or numerical repeat"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-publication-r4-stage/ls-remote.stdout.txt",
+      "portable_path": "publication-execution/ls-remote.stdout.txt",
+      "bytes": 163,
+      "sha256": "149a3fac1a963a61975c369af677ff940f6a131ad734f0cbd15877b197902d0e",
+      "role": "literal post-commit independent/publication custody and normal hook/push/fetch/readback output; no source or numerical repeat"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-publication-r4-stage/ls-remote.stderr.txt",
+      "portable_path": "publication-execution/ls-remote.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "literal post-commit independent/publication custody and normal hook/push/fetch/readback output; no source or numerical repeat"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-publication-r4-stage/remote-commands.json",
+      "portable_path": "publication-execution/remote-commands.json",
+      "bytes": 509,
+      "sha256": "a0fa92fca4638aeae6110c07b4d6d6c5198861f54ea82ab230039950de648fc9",
+      "role": "literal post-commit independent/publication custody and normal hook/push/fetch/readback output; no source or numerical repeat"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-publication-r4-stage/correct-handoff-companions.stdout.json",
+      "portable_path": "publication-execution/correct-handoff-companions.stdout.json",
+      "bytes": 1859,
+      "sha256": "ae5914c58da22889369b64b346d258525cc9e9ca6291e3e6ed190a51a55c5b10",
+      "role": "literal post-commit independent/publication custody and normal hook/push/fetch/readback output; no source or numerical repeat"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-publication-r4-stage/correct-handoff-companions.stderr.txt",
+      "portable_path": "publication-execution/correct-handoff-companions.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "literal post-commit independent/publication custody and normal hook/push/fetch/readback output; no source or numerical repeat"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/independent-final-handoff-metadata.json",
+      "portable_path": "independent-thin/independent-final-handoff-metadata.json",
+      "bytes": 58726,
+      "sha256": "cc7c333830256c08d0c3f27fbe2f76c0568f23bf6a2eaa6f469a4d807390284e",
+      "role": "literal post-commit independent/publication custody and normal hook/push/fetch/readback output; no source or numerical repeat"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-custody-independent-doe/independent-handoff-Git-delta-737c9e31.json",
+      "portable_path": "independent-thin/independent-handoff-Git-delta-737c9e31.json",
+      "bytes": 48585,
+      "sha256": "2c9c7cddaae2d71a71108c555131e003c3ceababcbc66f44686185f7e25ac7e9",
+      "role": "literal post-commit independent/publication custody and normal hook/push/fetch/readback output; no source or numerical repeat"
+    },
+    {
+      "source_path": "/tmp/e02-E-closed-additions-publication-r4-stage/publication-receipt.json",
+      "portable_path": "publication-receipt.json",
+      "bytes": 6057,
+      "sha256": "30a0c801b7c53b5de166e4df554f36b64b48d30ec80c872fee5a3543ce1de40a",
+      "role": "completed ordinary E-topic publication receipt; no future self SHA"
+    }
+  ],
+  "asset_count": 18,
+  "bytes": 384720,
+  "scope": "External thin final independent metadata/Git delta and normal publication proof for root final supplement; no recursive edits to committed handoff. Existing283DOC bytes unchanged. No new source/native/gate/closure claim."
+}

@@ -1,0 +1,5 @@
+{
+  "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-3932cded/qualified-owner-projection-packet.json",
+  "bytes": 7773,
+  "sha256": "4e072a6c180495a39bce0341625ed7a6253403852e5c8111a08a073cdb2469d3"
+}

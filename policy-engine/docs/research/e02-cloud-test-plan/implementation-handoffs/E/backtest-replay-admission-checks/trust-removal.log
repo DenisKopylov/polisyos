@@ -1,0 +1,109 @@
+PROPERTY REMOVAL: trust; source files and result markers retained
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+________ test_real_student_t_oracle_does_not_prove_equivalence[errors0] ________
+
+errors = [-0.01, 0.0, 0.01]
+tmp_path = PosixPath('/workspace/e02-E-20261006-receipts/backtest-removal-trust-001/test_real_student_t_oracle_doe0')
+
+    @pytest.mark.parametrize("errors", [[-0.01, 0.0, 0.01], [0.5, 1.5, 2.5]])
+    def test_real_student_t_oracle_does_not_prove_equivalence(errors, tmp_path):
+        scipy_stats = pytest.importorskip("scipy.stats")
+        oracle = scipy_stats.ttest_1samp(errors, 0.0)
+        expected_t = 0.0 if errors[0] < 0 else 2.598076211353316
+        expected_p = 1.0 if errors[0] < 0 else 0.1216899343463201
+        assert oracle.statistic == pytest.approx(expected_t, abs=1e-12)
+        assert oracle.df == 2
+        assert oracle.pvalue == pytest.approx(expected_p, abs=1e-12)
+        assert BacktestOrchestrator._two_sided_ttest_pvalue(np.asarray(errors)) == pytest.approx(
+            expected_p
+        )
+        plan = _plan(tmp_path, source=PredictionSource.PROVIDED).model_copy(
+            update={
+                "ground_truth_outcomes": {"metric": [0.0] * 3},
+                "predicted_outcomes": {"metric": errors},
+            }
+        )
+        orchestrator = BacktestOrchestrator(cas_root=str(tmp_path / "cas"))
+        report = orchestrator.run(
+            [plan], metadata={"trust_admission": {"profile_ref": "present-but-fake"}}
+        )
+        for observed in (report, _reopen(orchestrator, report)):
+            assert observed.metadata["trust_admission"]["predicate_basis"] == "not_established"
+            assert observed.metadata["trust_admission"]["profile_ref"] is None
+>           assert observed.trust_eligible is False
+E           AssertionError: assert True is False
+E            +  where True = BacktestReport(schema_version='1.0', report_id='BT_5f223ae7f810', model_spec_ref=None, policy_spec_ref=None, historica...interval_requested_count': 0, 'interval_available_count': 0, 'interval_evaluated_count': 0, 'interval_hit_count': 0}]}).trust_eligible
+
+tests/unit/scientist/methods/backtesting/test_replay_admission.py:207: AssertionError
+________ test_real_student_t_oracle_does_not_prove_equivalence[errors1] ________
+
+errors = [0.5, 1.5, 2.5]
+tmp_path = PosixPath('/workspace/e02-E-20261006-receipts/backtest-removal-trust-001/test_real_student_t_oracle_doe1')
+
+    @pytest.mark.parametrize("errors", [[-0.01, 0.0, 0.01], [0.5, 1.5, 2.5]])
+    def test_real_student_t_oracle_does_not_prove_equivalence(errors, tmp_path):
+        scipy_stats = pytest.importorskip("scipy.stats")
+        oracle = scipy_stats.ttest_1samp(errors, 0.0)
+        expected_t = 0.0 if errors[0] < 0 else 2.598076211353316
+        expected_p = 1.0 if errors[0] < 0 else 0.1216899343463201
+        assert oracle.statistic == pytest.approx(expected_t, abs=1e-12)
+        assert oracle.df == 2
+        assert oracle.pvalue == pytest.approx(expected_p, abs=1e-12)
+        assert BacktestOrchestrator._two_sided_ttest_pvalue(np.asarray(errors)) == pytest.approx(
+            expected_p
+        )
+        plan = _plan(tmp_path, source=PredictionSource.PROVIDED).model_copy(
+            update={
+                "ground_truth_outcomes": {"metric": [0.0] * 3},
+                "predicted_outcomes": {"metric": errors},
+            }
+        )
+        orchestrator = BacktestOrchestrator(cas_root=str(tmp_path / "cas"))
+        report = orchestrator.run(
+            [plan], metadata={"trust_admission": {"profile_ref": "present-but-fake"}}
+        )
+        for observed in (report, _reopen(orchestrator, report)):
+            assert observed.metadata["trust_admission"]["predicate_basis"] == "not_established"
+            assert observed.metadata["trust_admission"]["profile_ref"] is None
+>           assert observed.trust_eligible is False
+E           AssertionError: assert True is False
+E            +  where True = BacktestReport(schema_version='1.0', report_id='BT_4ae5878ebd22', model_spec_ref=None, policy_spec_ref=None, historica...interval_requested_count': 0, 'interval_available_count': 0, 'interval_evaluated_count': 0, 'interval_hit_count': 0}]}).trust_eligible
+
+tests/unit/scientist/methods/backtesting/test_replay_admission.py:207: AssertionError
+_____________ test_matrix_reconciles_present_but_fake_trust_fields _____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f68e32a6c40>
+tmp_path = PosixPath('/workspace/e02-E-20261006-receipts/backtest-removal-trust-001/test_matrix_reconciles_present0')
+cas_store = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7f68e30e2ad0>
+
+    def test_matrix_reconciles_present_but_fake_trust_fields(monkeypatch, tmp_path, cas_store):
+        runner = BacktestMatrixRunner(cas_store)
+        original = runner._orchestrator._aggregate
+    
+        def forged_aggregate(**kwargs):
+            report = original(**kwargs)
+            report.trust_eligible = True
+            report.trust_score = 1.0
+            report.trust_grade = "A"
+            report.metadata["trust_admission"] = {
+                "profile_ref": "present-but-fake",
+                "predicate_basis": "recomputed",
+            }
+            return report
+    
+        monkeypatch.setattr(runner._orchestrator, "_aggregate", forged_aggregate)
+        result = runner.run({BacktestKind.MACRO: _bundle(tmp_path, BacktestKind.MACRO)})
+        report = load_backtest_report(cas_store, result.backtest_report_ref)
+        assert report.trust_eligible is True
+        assert report.trust_grade == "A"
+        assert result.kind_results[0].score is not None
+>       assert result.composite_score is None
+E       AssertionError: assert 1.0 is None
+E        +  where 1.0 = BacktestMatrixResult(report_id='BTM_25d567b06558', backtest_report_ref=BacktestReportRef(artifact_id=ArtifactID(root='..._admitted': True, 'authority_purpose': None, 'trust_predicate_basis': 'not_established', 'diagnostic_mean_score': 1.0}).composite_score
+
+tests/unit/scientist/governance/test_backtest_matrix.py:198: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/methods/backtesting/test_replay_admission.py::test_real_student_t_oracle_does_not_prove_equivalence[errors0]
+FAILED tests/unit/scientist/methods/backtesting/test_replay_admission.py::test_real_student_t_oracle_does_not_prove_equivalence[errors1]
+FAILED tests/unit/scientist/governance/test_backtest_matrix.py::test_matrix_reconciles_present_but_fake_trust_fields

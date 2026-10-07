@@ -1,0 +1,36 @@
+{
+  "report": {
+    "path": "/tmp/e02-E-publication-custody-independent-doe-20261007/independent-staging-custody-optimized.json",
+    "bytes": 3958,
+    "sha256": "8e42c7d7001d92c4d78a693ef083c27ec10df64ebab6277ccdd3db8cd8297423"
+  },
+  "healthy": {
+    "logical_sources": 123,
+    "actual_selected_originals": 118,
+    "original_selectors": 5,
+    "literal_canonical_files": 107,
+    "literal_canonical_bytes": 3112171,
+    "literal_aliases": 16,
+    "explicit_additional_owner_alias_bindings": [
+      {
+        "kind": "aliased_optimized_full_review",
+        "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/closed-wave-64d7444a/optimized-reader/closed-lint-review.json",
+        "bytes": 474146,
+        "sha256": "7ea12c7be7043c90aac8d8319de3028ee0b94c01fd436f4ca0d3dde59ee5de80",
+        "primary": "review/closed-lint-review.json"
+      },
+      {
+        "kind": "prior_preview_same_bytes",
+        "source_path": "/workspace/e02-E-pr38-r3-receipts/final-lint-recorder/preview-64d7444a.json",
+        "bytes": 414172,
+        "sha256": "adb62b866db34851294bb048d6e4468dfbb35551b09e1ce9020b9491f90e6c63",
+        "primary": "inputs/closed-64d7444a-denominator.json"
+      }
+    ],
+    "reused_published_observations": 4,
+    "historical_preflight_missing_honestly_disclosed": true,
+    "healthy": true
+  },
+  "negative_controls": 7,
+  "copier": "CHANGE_REQUIRED"
+}

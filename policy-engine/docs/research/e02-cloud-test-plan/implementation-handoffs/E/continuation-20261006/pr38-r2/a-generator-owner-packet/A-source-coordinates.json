@@ -1,0 +1,54 @@
+{
+  "source": {
+    "commit": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+    "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33",
+    "bytes": 578822,
+    "sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44"
+  },
+  "purpose": "Read-only complete relevant definitions; not standalone implementation or dummy consumer",
+  "symbols": [
+    {
+      "symbol": "RealValueOwnerGateway",
+      "start_line": 4249,
+      "end_line": 4372,
+      "source_git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33"
+    },
+    {
+      "symbol": "_s10_empirical_projection",
+      "start_line": 10746,
+      "end_line": 10849,
+      "source_git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33"
+    },
+    {
+      "symbol": "_resolve_s10_empirical_evidence",
+      "start_line": 10871,
+      "end_line": 10928,
+      "source_git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33"
+    },
+    {
+      "symbol": "_build_s10_forecast_inputs",
+      "start_line": 10931,
+      "end_line": 11105,
+      "source_git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33"
+    },
+    {
+      "symbol": "_build_real_s10_forecast_inputs",
+      "start_line": 11108,
+      "end_line": 11152,
+      "source_git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33"
+    },
+    {
+      "symbol": "_bound_s10_temporal_roles",
+      "start_line": 11302,
+      "end_line": 11332,
+      "source_git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33"
+    },
+    {
+      "symbol": "_s10_limitation_refs",
+      "start_line": 11352,
+      "end_line": 11371,
+      "source_git_blob": "6ef5c7f8b760a9d76baba446001e3f7a62e29e33"
+    }
+  ]
+}

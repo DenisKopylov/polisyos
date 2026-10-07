@@ -1,0 +1,194 @@
+{
+  "schema": "policyos.e02.cloud_capacity_cleanup_summary.v1",
+  "created_unix": 1791370708.742357,
+  "authorization": "User explicitly allows permanent deletion of unused repeatable cloud fixtures/environments after saving deciding evidence and no-active-user proof. Root assigned exact candidates; local native Trash-only rule does not apply to this cloud execution.",
+  "state": "CLOSED",
+  "source_SHA": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "source_tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "source_remote_readback_at_CI02_admission": {
+    "candidate": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+    "root_HEAD": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "remote_branch_readback": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd\trefs/heads/codex/e02-E-continuation-20261006"
+  },
+  "removed_exact_children": [
+    "/workspace/e02-E-cal-20261006/policy-engine/.venv",
+    "/workspace/e02-E-ddm-20261006/policy-engine/.venv",
+    "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/full-architecture-retained/environment",
+    "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/architecture-retained/environment",
+    "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/pytest-base"
+  ],
+  "old_environment_distributions_preserved_as_metadata": [
+    {
+      "path": "/workspace/e02-E-cal-20261006/policy-engine/.venv",
+      "packages": 174,
+      "lock_and_pyproject_refs": [
+        {
+          "path": "/workspace/e02-E-cal-20261006/policy-engine/pyproject.toml",
+          "bytes": 11007,
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "saved_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/e02-E-cal-20261006/pyproject.toml"
+        },
+        {
+          "path": "/workspace/e02-E-cal-20261006/policy-engine/uv.lock",
+          "bytes": 779204,
+          "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "saved_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/e02-E-cal-20261006/uv.lock"
+        }
+      ]
+    },
+    {
+      "path": "/workspace/e02-E-ddm-20261006/policy-engine/.venv",
+      "packages": 164,
+      "lock_and_pyproject_refs": [
+        {
+          "path": "/workspace/e02-E-ddm-20261006/policy-engine/pyproject.toml",
+          "bytes": 11007,
+          "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+          "saved_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/e02-E-ddm-20261006/pyproject.toml"
+        },
+        {
+          "path": "/workspace/e02-E-ddm-20261006/policy-engine/uv.lock",
+          "bytes": 779204,
+          "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+          "saved_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/e02-E-ddm-20261006/uv.lock"
+        }
+      ]
+    }
+  ],
+  "closed_architecture_environment_distributions_preserved_as_metadata": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/full-architecture-retained/environment",
+      "packages": 159,
+      "source_clone_preserved": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/full-architecture-retained/source",
+      "outputs_preserved": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/full-architecture-retained/outputs"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/architecture-retained/environment",
+      "packages": 159,
+      "source_clone_preserved": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/architecture-retained/source",
+      "outputs_preserved": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/architecture-retained/outputs"
+    }
+  ],
+  "full_deciding_results": [
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/cleanup-result.json",
+      "bytes": 3280,
+      "sha256": "755d26739e907bf6a0745d3534c946f733855871d71868bc79b2be846f5e6565"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture/cleanup-result.json",
+      "bytes": 2510,
+      "sha256": "13e642efcb081ca180c719d5d5fd1dd427ad6e87c1a95942eff9bcf615f28a9f"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci02-fixtures/cleanup-result.json",
+      "bytes": 1447,
+      "sha256": "13d5f920c9c6ea8d0d5adb726515d4a057bdad5dfa4bfcc7da982e1b2bcbc3d0"
+    }
+  ],
+  "large_complete_ignored_inputs_and_retained_fixture_archive": [
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/cleanup-admission.json",
+      "bytes": 20448341,
+      "sha256": "4212cf996f2133d5804ab206c66b97d721a252b4f3782151cbb1e1f7499c0e1d"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/delete-preflight.json",
+      "bytes": 606838,
+      "sha256": "b3d63e5e3388fcd058561ad6198216156eb5cbd030a5477b7b532cce4664f57a"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture/cleanup-admission.json",
+      "bytes": 11933593,
+      "sha256": "9bf8e7de76cf0cebd2df9a45d39f059191449e6b036f97c393f5cc6f02919de3"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci02-fixtures/cleanup-admission.json",
+      "bytes": 78150245,
+      "sha256": "db8a2dd371e619d29c2f24d4cf276c4c5c9f3d62dc0714ddc9f1f714f7513375"
+    },
+    {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci02-fixtures/closed-ci02-pytest-base.tar.gz",
+      "bytes": 92547993,
+      "sha256": "56b94b6379b4c08c91f458c6df6fae269c16c4503574d5567383e6d4fa702d09"
+    }
+  ],
+  "CI02": {
+    "native_outcome": "FAIL",
+    "native_exit_code": 1,
+    "independent_JUnit_counts": {
+      "cases": 1585,
+      "passed": 675,
+      "failed": 81,
+      "errors": 827,
+      "skipped": 2
+    },
+    "native_command_environment_inputs_retained_in_admission": true,
+    "three_original_deciding_outputs_preserved": [
+      {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/checks/standalone-ci-02/standalone-ci-02.json",
+        "bytes": 9044,
+        "sha256": "90d0c3c172507dfc8079522f930adcd5f238ff3ee27b4e182db7d9974d9ee2c0",
+        "saved_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci02-fixtures/standalone-ci-02.json",
+        "original_outside_basetemp_preserved": true
+      },
+      {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/checks/standalone-ci-02/standalone-ci-02.stdout.txt",
+        "bytes": 2165621,
+        "sha256": "eabc9cab8ea803353f1c7287c11bbb466f6b6a2e305adb5abfb3dc03c3a64a9e",
+        "saved_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci02-fixtures/standalone-ci-02.stdout.txt",
+        "original_outside_basetemp_preserved": true
+      },
+      {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/checks/standalone-ci-02/pytest.xml",
+        "bytes": 2421172,
+        "sha256": "b94c3b86ca8edb3b059714e68492faaf31cc2a05297006279201a62dac202c30",
+        "saved_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci02-fixtures/pytest.xml",
+        "original_outside_basetemp_preserved": true
+      }
+    ],
+    "verified_all_archive_members": 192219,
+    "archive": {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci02-fixtures/closed-ci02-pytest-base.tar.gz",
+      "bytes": 92547993,
+      "sha256": "56b94b6379b4c08c91f458c6df6fae269c16c4503574d5567383e6d4fa702d09"
+    },
+    "unique_diagnostics_policy": "All closed fixture bytes and links additionally retained in archive before original cleanup; no unique internal file discarded."
+  },
+  "actual_filesystem": {
+    "first_admission": {
+      "observed_unix": 1791370235.124678,
+      "total_bytes": 33770192896,
+      "free_bytes": 1723920384,
+      "available_bytes": 0
+    },
+    "last_closed": {
+      "observed_unix": 1791370631.7467825,
+      "total_bytes": 33770192896,
+      "free_bytes": 5687611392,
+      "available_bytes": 3952848896
+    },
+    "old_environment_observed_free_delta_bytes": 118845440,
+    "closed_architecture_observed_free_delta_bytes": 20140032,
+    "CI02_observed_free_delta_bytes": 3824709632,
+    "sum_observed_per_action_free_delta_bytes": 3963695104,
+    "last_available_bytes": 3952848896,
+    "measurement_scope": "Actual statvfs snapshots at each action; observed filesystem changes can include concurrent external writes. Apparent du/hardlink allocation is not claimed as recovered capacity."
+  },
+  "inactivity_scope": "Fresh complete live agent UID /proc cwd/cmdline/selected env/maps/FD targets; zero candidate users/zero unreadable agent processes at each deletion. Privileged root infrastructure exclusions recorded; no host-wide visibility claim.",
+  "preserved": [
+    "ROOT and DoE .venv byte-identical distribution metadata across cleanup actions (subsequent authorized installs are separate)",
+    "all code/docs/.git and worktree registrations",
+    "all production/user/unique inputs",
+    "all native deciding outputs",
+    "shared /workspace/.polisyos-environment uv/runtime cache and prefetched wheels",
+    "architecture source clones and generated outputs",
+    "current stage directories except exact closed CI02 basetemp",
+    "complete CI02 fixture archive on existing /tmp"
+  ],
+  "no_new_environment_or_checkout": true,
+  "no_source_or_dependency_or_entrypoint_change": true,
+  "no_gate_or_finding_outcome_reclassification": true,
+  "next_owner": "Root may resume authorized existing-environment backend dependency installs/browser/current publication within measured capacity; native CI02 FAIL remains independently reported."
+}

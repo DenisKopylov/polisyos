@@ -1,0 +1,144 @@
+"""Apply-ready A status/reason cases using the admitted native ETS fixture.
+
+Apply under A's tests/unit/runtime/quality after canonical-owner review. These
+cases intentionally remain FAIL while A omits the recomputed floor failure or
+missing-ref reason. They establish no trusted issuer or served HTTP authority.
+"""
+
+from datetime import UTC, datetime
+from pathlib import Path
+from types import SimpleNamespace
+from typing import Any
+
+import pytest
+
+from polisyos.calibration import load_empirical_calibration_evidence
+from polisyos.core import artifacts as core_artifacts
+from polisyos.runtime.quality.generation_cycle import (
+    RealValueOwnerGateway,
+    _build_s10_forecast_inputs,
+)
+from polisyos.scientist.methods.backtesting.forecast_owner import ForecastOwner
+from tests._helpers.forecast import configured_forecast_request
+
+
+def _inputs(*, method_result: Any, selected_method_fqn: str) -> dict[str, Any]:
+    return {
+        "candidate": SimpleNamespace(candidate_id="reason-candidate"),
+        "problem": SimpleNamespace(
+            design_problem_id="reason-problem",
+            outcome_of_interest=SimpleNamespace(target_variable="metric"),
+        ),
+        "world_record": SimpleNamespace(
+            world_model_record_id="reason-world",
+            content_hash="sha256:" + "a" * 64,
+            valid_time_scope="2026-Q1",
+            region_or_jurisdiction="UA",
+        ),
+        "method_result": method_result,
+        "selected_method_fqn": selected_method_fqn,
+    }
+
+
+def test_missing_ref_tier_and_s6_share_named_missing_ref_reason() -> None:
+    inputs = _build_s10_forecast_inputs(
+        **_inputs(
+            method_result=SimpleNamespace(output={}),
+            selected_method_fqn="forecasting.univariate.exponential_smoothing@1.0.0",
+        ),
+        forecast_tier="observable_calibrated",
+        calibration_status="limit",
+        policy_context_ref="policy-context://reason-world",
+        expected_policy_context_ref="policy-context://reason-world",
+        false_clear_counts={},
+        calibration_evidence={},
+    )
+    assert inputs["forecast_calibration_record"] is None
+    support = inputs["forecast_support"]
+    assert support.forecast_tier == "blocked"
+    assert support.s6_limitation_refs == [
+        "s10://calibration/fail-closed/empirical_evidence_ref_missing"
+    ]
+    assert (
+        "empirical_evidence_ref_missing"
+        in support.forecast_authority_disposition_reason
+    )
+
+
+def test_resolved_limited_evidence_keeps_floor_failure_reason(tmp_path: Path) -> None:
+    store = core_artifacts.FileSystemCAS(tmp_path / "cas")
+    request, profile = configured_forecast_request(store, [1000.0] * 4)
+    result = ForecastOwner(store, empirical_profile_ref=profile).run(request)
+    fresh = core_artifacts.FileSystemCAS(tmp_path / "cas")
+    fields = result.to_s10_input_fields(fresh)
+    evidence = load_empirical_calibration_evidence(fresh, result.empirical_evidence_ref)
+    assert (evidence.recomputed_numerator, evidence.recomputed_denominator) == (0, 4)
+    assert evidence.failure_codes == ("calibration_floor_not_met",)
+    inputs = RealValueOwnerGateway(
+        repo_root=fresh.root,
+        empirical_evidence_resolver=lambda ref: load_empirical_calibration_evidence(
+            fresh, ref
+        ),
+    ).produce_forecast_inputs(
+        **_inputs(
+            method_result=SimpleNamespace(output=fields),
+            selected_method_fqn=request.method_fqn,
+        )
+    )
+    record = inputs["forecast_calibration_record"]
+    assert record is not None and record.calibration_status == "limit"
+    support = inputs["forecast_support"]
+    assert support.s6_limitation_refs == ["s10://calibration/calibration_floor_not_met"]
+    assert "calibration_floor_not_met" in support.forecast_authority_disposition_reason
+
+
+@pytest.mark.parametrize(
+    ("defect", "reason"),
+    [
+        ("missing_ref", "empirical_evidence_ref_missing"),
+        ("unresolved_ref", "empirical_evidence_ref_unresolved"),
+        ("wrong_kind", "empirical_evidence_ref_kind_mismatch"),
+        ("wrong_time", "empirical_evidence_time_mismatch"),
+        ("wrong_rule", "empirical_evidence_rule_mismatch"),
+    ],
+)
+def test_native_gateway_tier_s6_and_disposition_share_resolver_reason(
+    tmp_path: Path, defect: str, reason: str
+) -> None:
+    store = core_artifacts.FileSystemCAS(tmp_path / "cas")
+    request, profile = configured_forecast_request(store, [31.0, 32.0, 33.0, 34.0])
+    result = ForecastOwner(store, empirical_profile_ref=profile).run(request)
+    fresh = core_artifacts.FileSystemCAS(tmp_path / "cas")
+    fields = result.to_s10_input_fields(fresh)
+    if defect == "missing_ref":
+        fields["empirical_calibration_evidence_ref"] = None
+    elif defect == "unresolved_ref":
+        fields["empirical_calibration_evidence_ref"] = (
+            result.empirical_evidence_ref.model_copy(
+                update={"artifact_id": "sha256:" + "f" * 64}
+            )
+        )
+    elif defect == "wrong_kind":
+        fields["empirical_calibration_evidence_ref"] = result.backtest_report_ref
+    elif defect == "wrong_time":
+        fields["temporal_roles"] = request.temporal_roles.model_copy(
+            update={"observation_time": datetime(2025, 1, 1, tzinfo=UTC)}
+        )
+    else:
+        fields["expected_rule_version_ref"] = "wrong-rule"
+    inputs = RealValueOwnerGateway(
+        repo_root=fresh.root,
+        empirical_evidence_resolver=lambda ref: load_empirical_calibration_evidence(
+            fresh, ref
+        ),
+    ).produce_forecast_inputs(
+        **_inputs(
+            method_result=SimpleNamespace(output=fields),
+            selected_method_fqn=request.method_fqn,
+        )
+    )
+    support = inputs["forecast_support"]
+    assert inputs["forecast_calibration_record"] is None
+    assert support.forecast_tier == "blocked"
+    assert support.s6_limitation_refs == [f"s10://calibration/fail-closed/{reason}"]
+    assert reason in support.forecast_authority_disposition_reason

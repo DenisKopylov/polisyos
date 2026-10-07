@@ -1,0 +1,17 @@
+id = "2026-10-06-e02-backtest-native-trajectory"
+title = "Consume native default-workflow backtest trajectories"
+type = "fixed"
+component = "scientist-backtesting"
+owner = "team-polisyos"
+summary = "Bind each configured predictive backtest replay to its immutable historical prefix and matching Trinity, execute actual Foundry seeds, and consume target state trajectories through fresh CAS readback."
+evidence = ["tests/unit/scientist/methods/backtesting/test_native_replay.py"]
+compatibility = "The internal native predictive profile is opt-in; normal RunSimulation execution retains its configured settings. Configured native forecasts now require exact source/model, target/unit/time and horizon admission."
+change_class = "persisted-artifact-format"
+surface_classification = "internal: internal-only native predictive replay request/trajectory"
+migration = "Supply the documented predictive_simulation profile and explicit prefix-only Foundry input-binding rules. Handle scientist_unavailable for failed native admission/execution; no naive fallback or inferred interval is emitted by this path."
+api = "New internal version 1.0 NativeForecastRequest and NativeForecastTrajectory CAS artifacts preserve source/model/configuration/binding/simulation/state references; global IR wire schemas remain unchanged."
+limitations = "Generic native backend wiring does not establish production history validity, an independent stochastic source law, causal authority, trust grades or finding closure. Production model/history inputs and canonical Foundry helper-boundary admission remain owner obligations."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/scientist/methods/backtesting/README.md"]
+runbook_docs = ["src/polisyos/scientist/nodes/builtins/simulate/README.md"]

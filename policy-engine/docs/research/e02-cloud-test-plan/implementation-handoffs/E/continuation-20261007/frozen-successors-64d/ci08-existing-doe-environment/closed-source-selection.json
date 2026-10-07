@@ -1,0 +1,281 @@
+{
+  "schema": "policyos.e02.closed_publication_selection.v1",
+  "candidate_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "candidate_tree_sha": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "asset_count": 37,
+  "asset_bytes": 580048,
+  "files": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/actual-smoke-xml-recompute.json",
+      "bytes": 2671,
+      "sha256": "8547e43004c2b604ae715e177a26fb2b766a79ea3cdc7b5f27de2b7ee114962b",
+      "destination": "actual-smoke-xml-recompute.json",
+      "role": "closed native CI08 plan/source/environment/JUnit/output and literal scratch observer receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "capture.stderr.txt",
+      "role": "closed native CI08 plan/source/environment/JUnit/output and literal scratch observer receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/capture.stdout.txt",
+      "bytes": 308,
+      "sha256": "5b2706f80339d033bab9fbaccb46ff4dd0991a257cc2ff4f871a96db03841fce",
+      "destination": "capture.stdout.txt",
+      "role": "closed native CI08 plan/source/environment/JUnit/output and literal scratch observer receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/capture_existing_environment.py",
+      "bytes": 2322,
+      "sha256": "560d48f67fd7362e367a39f7b01bb2746a2c98af840ea57fb30830e98b90184f",
+      "destination": "capture_existing_environment.py.txt",
+      "role": "closed native CI08 plan/source/environment/JUnit/output and literal scratch observer receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/checks/native-ci08-existing-doe-environment/native-ci08-existing-doe-environment.json",
+      "bytes": 8821,
+      "sha256": "9a5b4ad8d7a54b861f7e37ffaeb4bf90d1ed70cc4034cc3ee74b4bc8d249f409",
+      "destination": "checks/native-ci08-existing-doe-environment/native-ci08-existing-doe-environment.json",
+      "role": "closed native CI08 plan/source/environment/JUnit/output and literal scratch observer receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/checks/native-ci08-existing-doe-environment/native-ci08-existing-doe-environment.stdout.txt",
+      "bytes": 4960,
+      "sha256": "155012f0e77926fc2a9bc1b2a8ccbeda17fbcf43981f875c5693908ca40b629d",
+      "destination": "checks/native-ci08-existing-doe-environment/native-ci08-existing-doe-environment.stdout.txt",
+      "role": "closed native CI08 plan/source/environment/JUnit/output and literal scratch observer receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/checks/native-ci08-existing-doe-environment/pytest.xml",
+      "bytes": 1471,
+      "sha256": "703d04c3916e7a7ff6979f8742dbd4aa605a9192605ea61450a68106e7996ac6",
+      "destination": "checks/native-ci08-existing-doe-environment/pytest.xml",
+      "role": "closed native CI08 plan/source/environment/JUnit/output and literal scratch observer receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/completion.json",
+      "bytes": 495,
+      "sha256": "59ab9f3646565e5f7e5230276e91b32dca44951afd2db1c8a6ce34c7c0c80501",
+      "destination": "completion.json",
+      "role": "closed native CI08 plan/source/environment/JUnit/output and literal scratch observer receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/doe-environment-after.json",
+      "bytes": 96904,
+      "sha256": "7fed98071ca818829a00cab95b02ae7f6a3ea368e9c8a84552fd837edc715755",
+      "destination": "doe-environment-after.json",
+      "role": "closed native CI08 plan/source/environment/JUnit/output and literal scratch observer receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/doe-environment-after.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "doe-environment-after.stderr.txt",
+      "role": "closed native CI08 plan/source/environment/JUnit/output and literal scratch observer receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/doe-environment-after.stdout.txt",
+      "bytes": 365,
+      "sha256": "2e9ac8ec3cc782c8e10fc52936d8e52dbf9a9af2ae1fd1fcc4edd32289b4b790",
+      "destination": "doe-environment-after.stdout.txt",
+      "role": "closed native CI08 plan/source/environment/JUnit/output and literal scratch observer receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/doe-environment-before.json",
+      "bytes": 93571,
+      "sha256": "3956445d4210b69a97bb033c5667fa2232efdea2d6bc9a64802bbce7983a6dc2",
+      "destination": "doe-environment-before.json",
+      "role": "closed native CI08 plan/source/environment/JUnit/output and literal scratch observer receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/doe-environment-before.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "doe-environment-before.stderr.txt",
+      "role": "closed native CI08 plan/source/environment/JUnit/output and literal scratch observer receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/doe-environment-before.stdout.txt",
+      "bytes": 366,
+      "sha256": "a106cd194974f13e7f13696804a39dbc00499e98ddb8409aa1eec3fd9723b23e",
+      "destination": "doe-environment-before.stdout.txt",
+      "role": "closed native CI08 plan/source/environment/JUnit/output and literal scratch observer receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/environment-inactivity-before-v2.json",
+      "bytes": 11706,
+      "sha256": "1427e9edd78b2fbf1ca33798ad121bffe2a57e617c69c7af69d8ece507b455b6",
+      "destination": "environment-inactivity-before-v2.json",
+      "role": "closed native CI08 plan/source/environment/JUnit/output and literal scratch observer receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/environment-inactivity-before.json",
+      "bytes": 10640,
+      "sha256": "13d27acf0e14167bc004ee801db0f7fb1a24cce2f4a0924579872149ab488050",
+      "destination": "environment-inactivity-before.json",
+      "role": "closed native CI08 plan/source/environment/JUnit/output and literal scratch observer receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/execute_ci08.attempt1-observer-error.py.txt",
+      "bytes": 8753,
+      "sha256": "c938766763f06c0a654cf1e12cad6ad935c6c14a8ba1088e5c0f2946aa76aec5",
+      "destination": "execute_ci08.attempt1-observer-error.py.txt",
+      "role": "closed native CI08 plan/source/environment/JUnit/output and literal scratch observer receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/execute_ci08.py",
+      "bytes": 8724,
+      "sha256": "0f46493ecdb3526f7b3d3074d36d3959b6c0b64c6330c81d6f7faba2ff0889a9",
+      "destination": "execute_ci08.py.txt",
+      "role": "closed native CI08 plan/source/environment/JUnit/output and literal scratch observer receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/execution-plan.json",
+      "bytes": 23540,
+      "sha256": "af3aecf458a09dea5e89f54542b5bd11aba10678a30b7e6bedfef12a7b6964b2",
+      "destination": "execution-plan.json",
+      "role": "closed native CI08 plan/source/environment/JUnit/output and literal scratch observer receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/installed-distinfo-complete.json",
+      "bytes": 34847,
+      "sha256": "6e978748009263924854fea04b1a9a9b775d9cc7703a6dbb7fc8cbd658cac9c6",
+      "destination": "installed-distinfo-complete.json",
+      "role": "closed native CI08 plan/source/environment/JUnit/output and literal scratch observer receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/installed-entrypoint-bindings.json",
+      "bytes": 25299,
+      "sha256": "bb221e7456a1c06668a01e90ac769b2f353e0f9e80fbfa4bdb0f2c2b86eeb129",
+      "destination": "installed-entrypoint-bindings.json",
+      "role": "closed native CI08 plan/source/environment/JUnit/output and literal scratch observer receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/launcher.attempt1-observer-error.stderr.txt",
+      "bytes": 1244,
+      "sha256": "05d7383f1f9eeb24e870fe23dcd2667baa46792d4d647cb95f9f87b45695c534",
+      "destination": "launcher.attempt1-observer-error.stderr.txt",
+      "role": "closed native CI08 plan/source/environment/JUnit/output and literal scratch observer receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/launcher.attempt1-observer-error.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "launcher.attempt1-observer-error.stdout.txt",
+      "role": "closed native CI08 plan/source/environment/JUnit/output and literal scratch observer receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/launcher.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "launcher.stderr.txt",
+      "role": "closed native CI08 plan/source/environment/JUnit/output and literal scratch observer receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/launcher.stdout.txt",
+      "bytes": 1671,
+      "sha256": "0b6250821b21943c36b841be6de45834cc1566fc25bca1d63d4e6bc504c7bf90",
+      "destination": "launcher.stdout.txt",
+      "role": "closed native CI08 plan/source/environment/JUnit/output and literal scratch observer receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/native-ci08-summary.json",
+      "bytes": 9244,
+      "sha256": "42fae75c26bf03c527ce419f6674694e8e4aa2734b2868fce7719c788fd47160",
+      "destination": "native-ci08-summary.json",
+      "role": "closed native CI08 plan/source/environment/JUnit/output and literal scratch observer receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/publication-builder.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "publication-builder.stderr.txt",
+      "role": "closed native CI08 plan/source/environment/JUnit/output and literal scratch observer receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/publication-builder.stdout.txt",
+      "bytes": 648,
+      "sha256": "1aee6cefe3ec9effc0d1a654d2e59a50bb975d45541f2ca8ac5a67afdb3b75d3",
+      "destination": "publication-builder.stdout.txt",
+      "role": "closed native CI08 plan/source/environment/JUnit/output and literal scratch observer receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/root-environment-after.json",
+      "bytes": 109549,
+      "sha256": "ad0624a06d3a01e9139bc0f322a68410d5fc7b343f7171e219df6657cf3aa1c1",
+      "destination": "root-environment-after.json",
+      "role": "closed native CI08 plan/source/environment/JUnit/output and literal scratch observer receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/root-environment-after.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "root-environment-after.stderr.txt",
+      "role": "closed native CI08 plan/source/environment/JUnit/output and literal scratch observer receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/root-environment-after.stdout.txt",
+      "bytes": 366,
+      "sha256": "1e28bb3353c27228a4b0f0a024c7d6076ce5b684329e5834204ddb92eab20eaa",
+      "destination": "root-environment-after.stdout.txt",
+      "role": "closed native CI08 plan/source/environment/JUnit/output and literal scratch observer receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/root-environment-before.json",
+      "bytes": 109549,
+      "sha256": "0f09cc62cb1103c6c31d30b55a103509fac27380534344717c70102d49587f88",
+      "destination": "root-environment-before.json",
+      "role": "closed native CI08 plan/source/environment/JUnit/output and literal scratch observer receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/root-environment-before.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "destination": "root-environment-before.stderr.txt",
+      "role": "closed native CI08 plan/source/environment/JUnit/output and literal scratch observer receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/root-environment-before.stdout.txt",
+      "bytes": 367,
+      "sha256": "13cbaa624e7789612838706724ea8e9458f4890e5f399911ac257f5569a761b9",
+      "destination": "root-environment-before.stdout.txt",
+      "role": "closed native CI08 plan/source/environment/JUnit/output and literal scratch observer receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/summarize_ci08.py",
+      "bytes": 9008,
+      "sha256": "657d287f4110a8d00466797f3a87ae1255e2dce4239745c69f2c0ceb639db830",
+      "destination": "summarize_ci08.py.txt",
+      "role": "closed native CI08 plan/source/environment/JUnit/output and literal scratch observer receipt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/publication-selection-attempt1-open-capture-error.json",
+      "bytes": 877,
+      "sha256": "f81534ced46967bc0a7df831ff66c62974cb8aa6d9aabe3e3049c0a0af601009",
+      "destination": "publication-selection-attempt1-open-capture-error.json",
+      "role": "closed corrective publication observer provenance; no native/source re-execution"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/close_publication_selection.py",
+      "bytes": 1762,
+      "sha256": "a192e0307d3994b16a357589d7fb9d8966fb4d3a1e1a391405eef15ff56d4f4f",
+      "destination": "close_publication_selection.py.txt",
+      "role": "closed corrective publication observer provenance; no native/source re-execution"
+    }
+  ],
+  "exclusions": [
+    "private Git config full bytes (hash/size remain in native receipt)",
+    "build/tmp/cache catalogs",
+    "existing used environments",
+    "root-owned other selectors"
+  ],
+  "source_scope": "ROOT64d actual51 declared Git-bound inputs and canonical full source framing retained; original deferred root-env invocation not rewritten.",
+  "historical_selection_observer_error": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/publication-selection.json",
+    "bytes": 15057,
+    "sha256": "bbc14f7e57813e91ee303bdccabaea74e7cba6ef3c0747480af68ef05f2621f9",
+    "meaning": "Retained immutable prior membership record, with one then-open builder stdout hash. Full corrective record is selected below; native command/env/source/counts unchanged."
+  }
+}

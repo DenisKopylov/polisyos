@@ -1,0 +1,12 @@
+{
+  "report": {
+    "path": "/tmp/e02-E-publication-custody-independent-doe-20261007/independent-actual-copier-v2-review.json",
+    "bytes": 13735,
+    "sha256": "8a7c717d69a394fb8de4def7c811954ea4c65c04cc83b2b162b3277c85bc3ebb"
+  },
+  "native_healthy_exit": 0,
+  "actual_path_readback": 114,
+  "actual_native_refusals": 5,
+  "defining_removal": "incomplete packet admitted as expected divergence",
+  "verdict": "GO for bounded literal publication copier/custody only"
+}

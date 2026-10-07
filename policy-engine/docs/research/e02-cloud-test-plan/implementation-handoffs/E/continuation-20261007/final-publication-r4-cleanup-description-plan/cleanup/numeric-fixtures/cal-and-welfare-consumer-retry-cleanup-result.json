@@ -1,0 +1,44 @@
+{
+  "candidate": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/temporary/cal-and-welfare-consumer-retry",
+  "started_unix": 1791376313.2628596,
+  "ended_unix": 1791376313.5640533,
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "native_outcome": "PASS",
+  "native_exit_code": 0,
+  "native_counts": {
+    "cases": 324,
+    "passed": 324,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "archive": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/cal-and-welfare-consumer-retry.tar.gz",
+    "bytes": 1718810,
+    "sha256": "8f8e3dd380c7661773134600b90c635f03d2c30b72c2f731168d69b3d500ec8a"
+  },
+  "inventory": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/cal-and-welfare-consumer-retry-full-inventory.json",
+    "bytes": 3292357,
+    "sha256": "998cbb77fe9616b092493ef54aa955a99c7909541463c15e09ef4455b50ca822"
+  },
+  "archive_members": 8450,
+  "archived_file_bytes": 6957852,
+  "allocated_regular_fixture_bytes": 18108416,
+  "actual_filesystem_before": {
+    "observed_unix": 1791376313.262857,
+    "free_bytes": 3536941056,
+    "available_bytes": 1802178560
+  },
+  "actual_filesystem_after": {
+    "observed_unix": 1791376313.5628471,
+    "free_bytes": 3575906304,
+    "available_bytes": 1841143808
+  },
+  "immediate_available_delta_bytes": 38965248,
+  "absent_after": true,
+  "preserved_ALL_unique_unmatched_data": true,
+  "deciding_outputs_originals_saved_and_unchanged": true,
+  "source_env_unchanged": true
+}

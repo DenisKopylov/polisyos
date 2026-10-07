@@ -1,0 +1,119 @@
+{
+  "schema": "policyos.e02.independent-ready-current-Git-binding.v1",
+  "candidate_sha": "cfd79255aab85544082fcf24f93db894202fbfa2",
+  "candidate_tree": "8b5fea530b22e5402f3e3bf31d0c5a54e4117be7",
+  "source_patch_sha256": "ed474d8a61cc5edeff3f195044cd9d095282b72d51b56e1eb0fb74e48ef572b7",
+  "state": "PASS_exact12_Git_postimages_and104_READY_payloads",
+  "author_READY_files": 104,
+  "author_READY_bytes": 1779539,
+  "READY_index_sha256": "db188c6fabb217680c598d30d533ed3f0a2d5cf1d05069b0776cb940a5c6f1c2",
+  "READY_primary_sha256": "0de0a970c28dfae21687f80dbf1d845ca834f6682635154a962c213d3063109d",
+  "immutable_READY_snapshot_before_index_validation": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/author-READY-inputs",
+  "source_Git_bindings": [
+    {
+      "path": "policy-engine/architecture/public_surface/inventory.json",
+      "bytes": 222856,
+      "sha256": "63a4ed665331cb937ec4ec5968e72ba5659914c147ed23eb447f7183c5a37fd1",
+      "git_blob": "1d0d243ada1d27ec2656c56a5976fe6d70593ffd",
+      "equal_tested_proposed_bytes": true
+    },
+    {
+      "path": "policy-engine/docs/reference/public-surface.md",
+      "bytes": 154167,
+      "sha256": "99b655871e2e68c0577cd6f6e18358dfea9a5aac7e216bcbb3a6aed7d2fd56ed",
+      "git_blob": "bf18b5670034762c0b86d7bc5cc9ab192e949ddc",
+      "equal_tested_proposed_bytes": true
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml",
+      "bytes": 1914,
+      "sha256": "ed5f4cc351d274de679e9ee91c39f55438daf10b921b17c3924b480fbcc2eee5",
+      "git_blob": "d57aba89fb4df053e0cd03c32c863a0cf9a7b426",
+      "equal_tested_proposed_bytes": true
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-welfare-covariance-facade.toml",
+      "bytes": 2105,
+      "sha256": "9fc124328372a37e28d7e413f38312e721ac0af23dfe59ac9c101eb0430ec43e",
+      "git_blob": "56fba4ace972656f62ebc22847252846cc5b1e5f",
+      "equal_tested_proposed_bytes": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/README.md",
+      "bytes": 4536,
+      "sha256": "c09461f8058513803099d107beeb942407e7f349c87dac05d1a2a27e76d729de",
+      "git_blob": "c3c315bda7fa73a72932a4fd3dcf772338a50475",
+      "equal_tested_proposed_bytes": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/calibration/__init__.py",
+      "bytes": 2217,
+      "sha256": "42d6b4c46672c228d067b14a03f79db2b702d0325558d4cd89b615d7c025bbfc",
+      "git_blob": "cf6830efbf67557bb3530bac7d37d71b278d6c92",
+      "equal_tested_proposed_bytes": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+      "bytes": 5379,
+      "sha256": "653ec2ef3463e5d910725e2eb5b836e36cf415cad1a72bc9180a8982fa67eb2c",
+      "git_blob": "091375f9c76d80e7e6385833866fe7e507446244",
+      "equal_tested_proposed_bytes": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "bytes": 3397,
+      "sha256": "068f0f1bd0bc2fcbd59884331f98d3c89bb0e6e67567ff3d8949055f5a6d2fd4",
+      "git_blob": "06000c239bd2ec7fd8af3abf1575ed40a598dd1a",
+      "equal_tested_proposed_bytes": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "bytes": 20616,
+      "sha256": "04a95dc4d969d95ec056d789057d7384bdf3cd4b1e7fd90e3e5b919f567559bd",
+      "git_blob": "638c484b28cdb8b2cdbc45e5755a9b315943abe9",
+      "equal_tested_proposed_bytes": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "bytes": 192619,
+      "sha256": "8050f1a81d593d14363efaf91cf0e2088bc685a8e0e48b7c35cbd8f29c1f9def",
+      "git_blob": "25b30b9efa5b8672928caa9c9b2ef7bdbb5b7ce0",
+      "equal_tested_proposed_bytes": true
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+      "bytes": 5641,
+      "sha256": "b8a793867ae61d5d249d47e108fab66874951cda7644f5dd5a32b81b18de51b8",
+      "git_blob": "0c393aa965fa8bcbff4f72b97ad6e4efcf8f2d4e",
+      "equal_tested_proposed_bytes": true
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_covariance_facade.py",
+      "bytes": 5316,
+      "sha256": "463dc5b879e0edf4a6f898e50715b1902faadc9182550dff1786a37db427b938",
+      "git_blob": "b933b4911da23c15617fabeabbb7a3470f82d5f2",
+      "equal_tested_proposed_bytes": true
+    }
+  ],
+  "negative_controls": [
+    {
+      "control": "corrupt_READY_index_bytes",
+      "state": "REJECTED"
+    },
+    {
+      "control": "corrupt_READY_index_sha256",
+      "state": "REJECTED"
+    },
+    {
+      "control": "corrupt_candidate_blob_digest",
+      "state": "REJECTED"
+    },
+    {
+      "control": "source_path_absent_on_origin_main",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-06-e02-calibration-reader-facade.toml",
+      "state": "REJECTED_NOT_GIT_AVAILABLE"
+    }
+  ],
+  "source_numeric_reexecution": false,
+  "author_evidence_companion_Git_publication": "pending root committed copied packet; localREADY availability is not Git companion availability"
+}

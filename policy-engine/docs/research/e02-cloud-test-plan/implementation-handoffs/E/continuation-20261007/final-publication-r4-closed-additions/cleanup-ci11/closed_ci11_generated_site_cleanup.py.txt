@@ -1,0 +1,154 @@
+"""Admit exact CLOSED generated MkDocs site; preserve unknown copied assets first."""
+from __future__ import annotations
+import ast
+import hashlib
+import importlib.metadata as metadata
+import json
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import time
+
+OUTPUT = Path('/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci11-generated-site')
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+STAGE = Path('/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-11')
+CANDIDATES = [STAGE / 'mkdocs-site']
+SOURCE = '64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+TREE = 'aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+PUBLICATION = '7537ef95beed07d02a3b72343b082ff3b7fd14e2'
+PUB_PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/ci-11/'
+
+def require(value, reason):
+    if not value:
+        raise ValueError(reason)
+
+def identity(path):
+    digest = hashlib.sha256()
+    size = 0
+    with path.open('rb') as handle:
+        while block := handle.read(1024 * 1024):
+            size += len(block)
+            digest.update(block)
+    return {'path': str(path), 'bytes': size, 'sha256': digest.hexdigest()}
+
+def write(path, value):
+    with path.open('x') as handle:
+        handle.write(json.dumps(value, indent=2) + '\n')
+
+def filesystem():
+    stat = os.statvfs('/workspace')
+    return {'observed_unix': time.time(), 'total_bytes': stat.f_blocks * stat.f_frsize, 'free_bytes': stat.f_bfree * stat.f_frsize, 'available_bytes': stat.f_bavail * stat.f_frsize}
+
+def git(*args):
+    return subprocess.check_output(['git', '-C', str(ROOT), *args])
+
+function = next(node for node in ast.parse(Path('/tmp/e02-E-capacity-cleanup-20261007-doe/prepare_cleanup.py').read_text()).body if isinstance(node, ast.FunctionDef) and node.name == 'proc_scan')
+exec(compile(ast.Module(body=[function], type_ignores=[]), 'saved-prepare_cleanup.py:proc_scan', 'exec'), globals())
+OUTPUT.mkdir(mode=0o700, exist_ok=False)
+candidate = CANDIDATES[0]
+require(candidate.is_dir() and not candidate.is_symlink() and candidate.resolve() == candidate and candidate.parent == STAGE and candidate.name == 'mkdocs-site', 'exact actual generated site directory')
+native = STAGE / 'checks/standalone-ci-11/standalone-ci-11.json'
+receipt = json.loads(native.read_text())
+require(receipt['candidate_sha'] == SOURCE and receipt['candidate_tree_sha'] == TREE and receipt['source_immutable'] is True and receipt['outcome'] == 'FAIL' and receipt['exit_code'] == 1, 'exact immutable closed native FAIL receipt')
+argv = receipt['command']
+require(argv.count('--site-dir') == 1 and argv[argv.index('--site-dir') + 1] == str(candidate) and ['mkdocs', 'build', '--strict'] == argv[argv.index('mkdocs'):argv.index('mkdocs') + 3], 'exact native MkDocs producer/site-dir binding')
+require(receipt['source_identity_before'] == receipt['source_identity_after'], 'closed source identity unchanged')
+stdout = Path(receipt['stdout_path'])
+require(identity(stdout)['sha256'] == receipt['stdout_sha256'] and identity(stdout)['bytes'] == receipt['stdout_bytes'], 'closed stdout custody')
+saved_deciding = []
+for source in (native, stdout):
+    data = source.read_bytes()
+    require(git('show', PUBLICATION + ':' + PUB_PREFIX + source.name) == data, 'already-published immutable deciding bytes')
+    target = OUTPUT / source.name
+    target.write_bytes(data)
+    saved_deciding.append({**identity(source), 'saved_path': str(target), 'published_SHA': PUBLICATION, 'published_path': PUB_PREFIX + source.name})
+require(git('rev-parse', SOURCE + '^{tree}').decode().strip() == TREE, 'source Git tree')
+source_inventory = git('ls-tree', '-r', '--long', SOURCE)
+(OUTPUT / 'source64d-full-tracked-git-inputs.tsv').write_bytes(source_inventory)
+source_objects = {}
+for line in source_inventory.decode().splitlines():
+    metadata_fields, relative = line.split('\t', 1)
+    fields = metadata_fields.split()
+    if fields[1] == 'blob':
+        source_objects.setdefault(fields[2], []).append(relative)
+input_copies = []
+for name in ('policy-engine/pyproject.toml', 'policy-engine/uv.lock', 'policy-engine/mkdocs.yml'):
+    data = git('show', SOURCE + ':' + name)
+    target = OUTPUT / Path(name).name
+    target.write_bytes(data)
+    input_copies.append({'source_SHA': SOURCE, 'source_path': name, 'git_blob': git('rev-parse', SOURCE + ':' + name).decode().strip(), **identity(target)})
+require('docs_dir:' not in (OUTPUT / 'mkdocs.yml').read_text() or 'docs' in (OUTPUT / 'mkdocs.yml').read_text(), 'declared docs input configuration retained')
+site_packages = list((ROOT / 'policy-engine/.venv/lib').glob('python*/site-packages'))
+require(len(site_packages) == 1, 'read-only configured docs package path')
+doc_distributions = []
+for dist in metadata.distributions(path=[str(site_packages[0])]):
+    name = dist.metadata.get('Name', '').lower().replace('_', '-')
+    if name in ('mkdocs', 'mkdocs-material', 'mkdocs-material-extensions', 'mkdocstrings', 'mkdocstrings-python', 'mkdocs-autorefs', 'pymdown-extensions', 'markdown', 'pyyaml'):
+        info = Path(dist._path)
+        refs = []
+        for path in sorted(info.rglob('*')):
+            if path.is_file():
+                target = OUTPUT / 'configured-docs-package-metadata' / info.name / path.relative_to(info)
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes(path.read_bytes())
+                refs.append({**identity(path), 'saved_path': str(target)})
+        doc_distributions.append({'name': dist.metadata.get('Name'), 'version': dist.version, 'metadata': refs, 'scope': 'Read-only currently configured producer package metadata; native receipt/locked source are retained, actual historical consulted package modules untraced.'})
+inventory = []
+unknown_preserved = []
+class_totals = {}
+symlinks_preserved = []
+for path in sorted(candidate.rglob('*')):
+    stat = path.lstat()
+    row = {'relative_path': str(path.relative_to(candidate)), 'device': stat.st_dev, 'inode': stat.st_ino, 'mode': stat.st_mode, 'size': stat.st_size, 'allocated_bytes': stat.st_blocks * 512, 'hardlink_count': stat.st_nlink}
+    if path.is_symlink():
+        row['class'] = 'symlink_not_followed_target_preserved_in_inventory'
+        row['target'] = os.readlink(path)
+        symlinks_preserved.append(row)
+    elif path.is_dir():
+        row['class'] = 'generated_output_directory'
+    elif path.is_file():
+        data = path.read_bytes()
+        row.update({'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()})
+        blob = hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0' + data).hexdigest()
+        if blob in source_objects:
+            row['class'] = 'exact_duplicate_of_preserved_tracked_source_blob'
+            row['source_git_blob'] = blob
+            row['source_paths_at64d'] = source_objects[blob]
+        elif path.suffix == '.html' or row['relative_path'] == 'search/search_index.json':
+            row['class'] = 'native_repeatable_mkdocs_rendered_html_or_generated_search_index'
+        else:
+            row['class'] = 'unbound_nonrendered_asset_preserved_byte_exact_before_cleanup'
+            target = OUTPUT / 'retained-unbound-assets' / path.relative_to(candidate)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(data)
+            require(identity(target)['sha256'] == row['sha256'], 'unknown asset byte preservation')
+            unknown_preserved.append({**identity(path), 'retained_path': str(target), 'source_removed_only_after_saved': True})
+        group = class_totals.setdefault(row['class'], {'files': 0, 'bytes': 0})
+        group['files'] += 1
+        group['bytes'] += len(data)
+    else:
+        raise ValueError('Special output file requires separate preservation decision')
+    inventory.append(row)
+scan = proc_scan()
+admission = {'schema': 'policyos.e02.closed_generated_site_cleanup_admission.v1', 'authorization': 'Root explicitly authorizes only exact CLOSED ci11 mkdocs-site after independent staging review; cloud user permits unused repeatable output deletion. No numeric basetemps, source clones, shared cache, environments or ROOT/DoE source mutation.', 'candidate': str(candidate), 'native_command_environment_input_receipt': receipt, 'closed_deciding_outputs_copied_and_published': saved_deciding, 'source_SHA': SOURCE, 'source_tree': TREE, 'full_source_input_universe': identity(OUTPUT / 'source64d-full-tracked-git-inputs.tsv'), 'exact_source_config_lock_copies': input_copies, 'configured_docs_package_metadata': doc_distributions, 'runtime_input_limitation': 'Native command inputs/source identity and complete tracked source universe retained. Exact consulted MkDocs dependency module/file subset was not separately traced; this is not a new gate PASS.', 'complete_output_hash_inode_inventory': inventory, 'classification': class_totals, 'all_unbound_nonrendered_assets_preserved': unknown_preserved, 'all_symlink_targets_preserved': symlinks_preserved, 'fresh_process_proof': scan, 'filesystem_before': filesystem(), 'native_outcome_unchanged': 'FAIL', 'no_unique_inputs_or_deciding_bytes_discarded': True}
+write(OUTPUT / 'cleanup-admission.json', admission)
+require(not scan['active_users'] and not scan['unreadable_agent_processes'], 'fresh no-active/no-unknown candidate users')
+for row in unknown_preserved:
+    require(identity(Path(row['path']))['sha256'] == row['sha256'] and identity(Path(row['retained_path']))['sha256'] == row['sha256'], 'preserved unbound assets unchanged')
+for row in inventory:
+    current = (candidate / row['relative_path']).lstat()
+    require((current.st_dev, current.st_ino, current.st_size, current.st_mode) == (row['device'], row['inode'], row['size'], row['mode']), 'site file identity unchanged before deletion')
+immediate = proc_scan()
+write(OUTPUT / 'immediate-process-proof.json', immediate)
+require(not immediate['active_users'] and not immediate['unreadable_agent_processes'], 'immediate no-active/no-unknown candidate users')
+before = filesystem()
+started = time.time()
+shutil.rmtree(candidate)
+after = filesystem()
+require(not candidate.exists() and STAGE.is_dir(), 'only generated site child removed')
+for row in saved_deciding:
+    require(identity(Path(row['path']))['sha256'] == row['sha256'] and identity(Path(row['saved_path']))['sha256'] == row['sha256'], 'closed native deciding originals and copies untouched')
+result = {'schema': 'policyos.e02.closed_generated_site_cleanup_result.v1', 'admission': identity(OUTPUT / 'cleanup-admission.json'), 'exact_removed_child': str(candidate), 'started_unix': started, 'ended_unix': time.time(), 'filesystem_before': before, 'filesystem_after': after, 'observed_free_delta_bytes': after['free_bytes'] - before['free_bytes'], 'observed_available_delta_bytes': after['available_bytes'] - before['available_bytes'], 'classifications': class_totals, 'preserved_unbound_nonrendered_asset_count': len(unknown_preserved), 'preserved_unbound_nonrendered_asset_bytes': sum(row['bytes'] for row in unknown_preserved), 'full_unique_artifact_preservation_refs_in_admission': True, 'source_code_useful_docs_Git_and_registrations_untouched': True, 'ROOT_DoE_envs_cache_numeric_basetemps_untouched_by_this_action': True, 'concurrent_parent_environment_install_note': 'Authorized ROOT backend prerequisite install lease may proceed separately; this cleanup does not claim environment metadata unchanged across that independent mutation.', 'all_original_native_outputs_unchanged': True, 'native_outcome_unchanged': 'FAIL', 'source_SHA': SOURCE, 'source_tree': TREE}
+write(OUTPUT / 'cleanup-result.json', result)
+print(json.dumps({'result': identity(OUTPUT / 'cleanup-result.json'), 'exact_removed': str(candidate), 'classified': class_totals, 'preserved_unbound_asset_count': len(unknown_preserved), 'preserved_unbound_asset_bytes': result['preserved_unbound_nonrendered_asset_bytes'], 'filesystem_after': after, 'observed_free_delta_bytes': result['observed_free_delta_bytes'], 'native_outcome_unchanged': 'FAIL'}, indent=2))

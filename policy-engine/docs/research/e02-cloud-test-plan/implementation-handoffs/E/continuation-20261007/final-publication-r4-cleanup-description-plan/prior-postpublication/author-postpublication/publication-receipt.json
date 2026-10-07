@@ -1,0 +1,149 @@
+{
+  "schema": "policyos.e02.frozen_decisions_prereqs_postpublication_receipt.v1",
+  "completed_at_utc": "2026-10-07T13:06:31.704151+00:00",
+  "published_branch": "codex/e02-E-frc-20261006",
+  "publication_sha": "66a4f8fc1398ed72b3ee9d38b07d88a4d2d5c3cd",
+  "publication_tree_sha": "54ec53ea6e53a61432135e8d2728c6fa1cfd964a",
+  "publication_base_sha": "737c9e3115abac3fefe76920b08c05e76a5bee17",
+  "implementation_source_sha": "e233efcd0e5a4bb4c5b280f86a12ec7d0a264d62",
+  "implementation_source_tree_sha": "6f541e58830bb760c2885921d58d6dfae4e6b01a",
+  "handoff_first_commit": "98e913252845384f275092d86714c3d18a647218",
+  "handoff_P37_correction_commit": "66a4f8fc1398ed72b3ee9d38b07d88a4d2d5c3cd",
+  "tracked_clean_leaf": true,
+  "tracking_SHA_tree_and_remote_readback_equal": true,
+  "append_only_push_exit_code": 0,
+  "fetch_exit_code": 0,
+  "ls_remote_exit_code": 0,
+  "no_main_integration_force_or_history_rewrite": true,
+  "full_footprint": {
+    "candidate": "66a4f8fc1398ed72b3ee9d38b07d88a4d2d5c3cd",
+    "tree": "54ec53ea6e53a61432135e8d2728c6fa1cfd964a",
+    "base": "737c9e3115abac3fefe76920b08c05e76a5bee17",
+    "full_paths": 522,
+    "full_bytes": 10231561,
+    "handoff_paths": 339,
+    "handoff_bytes": 1510294,
+    "active_python": [],
+    "product_test_paths": []
+  },
+  "new_active_python_paths": [],
+  "source_test_numeric_or_gate_execution_by_this_packet": false,
+  "independent_reviews": {
+    "e233_selector": {
+      "path": "/tmp/e02-E-decisions-prereqs-custody-independent/publication-selection-final-e233.json",
+      "bytes": 61630,
+      "sha256": "f3f57fd2cdff0e241516beb31360472f71ee77ad862e52207edad4f663acc3d7"
+    },
+    "handoff_selector": {
+      "path": "/tmp/e02-E-decisions-prereqs-custody-independent/publication-selection-handoff-66a4.json",
+      "bytes": 4431,
+      "sha256": "9d7d354baebf4d4559fe18650705b3e78f1577f0297b4a3fc821d0ded14cbb35"
+    },
+    "e233": "GO exact183DOC237members/168carriers/69aliases;normal/-O2healthy+44negative,3effective removals",
+    "handoff": "GO exact339DOC335copies;normal/-O23negative per mode;effective claim inlet removal readmits false ROOTfullimmutable preserving335Counter/522footprint"
+  },
+  "literal_commands": {
+    "push": {
+      "argv": [
+        "git",
+        "push",
+        "origin",
+        "codex/e02-E-frc-20261006"
+      ],
+      "stdout": {
+        "path": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/push.stdout.txt",
+        "bytes": 486,
+        "sha256": "f38523d2d9bd78558a20b41d5dd05bd65a5c3a49f45177d8dd451709d8e9d98a"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/push.stderr.txt",
+        "bytes": 126,
+        "sha256": "150a64d2ae598d0949509efba543cbdf4a17d0813dc2fd2e14c9a3dcfb2f5330"
+      }
+    },
+    "fetch": {
+      "argv": [
+        "git",
+        "fetch",
+        "origin",
+        "refs/heads/codex/e02-E-frc-20261006:refs/remotes/origin/codex/e02-E-frc-20261006"
+      ],
+      "stdout": {
+        "path": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/fetch-readback.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/fetch-readback.stderr.txt",
+        "bytes": 131,
+        "sha256": "7e871006a60321ecd7538ed49e2aa24ff97554f9c573240779611888d8e0f3ad"
+      }
+    },
+    "readback": {
+      "argv": [
+        "git",
+        "ls-remote",
+        "--heads",
+        "origin",
+        "codex/e02-E-frc-20261006",
+        "codex/e02-E-continuation-20261006"
+      ],
+      "stdout": {
+        "path": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/ls-remote-readback.stdout.txt",
+        "bytes": 163,
+        "sha256": "38da49fdbae38ca25f20f7466c81707b7b60cb05851c161ce62c00149f399e09"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/ls-remote-readback.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  },
+  "ROOT_read_only_observation": {
+    "head": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+    "tracked_status": "M policy-engine/architecture/policy_design_case/layer3_g6_agent_run_records.json\n M policy-engine/architecture/policy_design_case/layer3_g6_design_record_candidate_handoff.json\n M policy-engine/architecture/policy_design_case/layer3_g6_hypothesis_ledger_projection.json\n M policy-engine/architecture/policy_design_case/layer3_g6_orchestration_continuity.json\n M policy-engine/architecture/policy_design_case/layer3_g6_prompt_tool_ledger_projection.json\n M policy-engine/architecture/policy_design_case/layer3_g6_public_export_projection_refs.json\n M policy-engine/architecture/policy_design_case/layer3_g6_readiness_manifest.json\n M policy-engine/architecture/policy_design_case/layer3_g6_replay_manifest.json\n M policy-engine/architecture/policy_design_case/layer3_g6_request_envelope.json\n M policy-engine/architecture/policy_design_case/layer3_g7_dependency_readiness_snapshot.json\n M policy-engine/architecture/policy_design_case/layer3_g7_g5_g6_authority_boundary_report.json\n M policy-engine/architecture/policy_design_case/layer3_g7_governed_promotion_join.json\n M policy-engine/architecture/policy_design_case/layer3_g7_orchestration_continuity.json\n M policy-engine/architecture/policy_design_case/layer3_g7_readiness_manifest.json\n M policy-engine/architecture/policy_design_case/layer3_g7_region_case_conversion_inputs.json\n M policy-engine/architecture/policy_design_case/layer3_g7_region_conversion_records.json\n M policy-engine/architecture/policy_design_case/layer3_g7_region_conversion_status_matrix.json\n M policy-engine/architecture/policy_design_case/layer3_g7_region_grounding_matrix.json\n M policy-engine/architecture/policy_design_case/layer3_g7_region_scorecard.json\n M policy-engine/architecture/policy_design_case/layer3_g7_region_widening_audit_surface.json\n M policy-engine/architecture/policy_design_case/layer3_g7_replay_manifest.json\n M policy-engine/architecture/policy_design_case/layer3_g7_s12_growth_thermometer_projection.json\n M policy-engine/architecture/policy_design_case/layer3_g7_s14_mechanism_generality_projection.json\n M policy-engine/architecture/policy_design_case/layer3_g8_cross_metric_diagnosis.json\n M policy-engine/architecture/policy_design_case/layer3_g8_domain_vs_search_ceiling_gate.json\n M policy-engine/architecture/policy_design_case/layer3_g8_metric_source_snapshot.json\n M policy-engine/architecture/policy_design_case/layer3_g8_metric_trend_report.json\n M policy-engine/architecture/policy_design_case/layer3_g8_normalized_metric_signals.json\n M policy-engine/architecture/policy_design_case/layer3_g8_open_question_answer_ledger.json",
+    "changed_paths": [
+      "policy-engine/architecture/policy_design_case/layer3_g6_agent_run_records.json",
+      "policy-engine/architecture/policy_design_case/layer3_g6_design_record_candidate_handoff.json",
+      "policy-engine/architecture/policy_design_case/layer3_g6_hypothesis_ledger_projection.json",
+      "policy-engine/architecture/policy_design_case/layer3_g6_orchestration_continuity.json",
+      "policy-engine/architecture/policy_design_case/layer3_g6_prompt_tool_ledger_projection.json",
+      "policy-engine/architecture/policy_design_case/layer3_g6_public_export_projection_refs.json",
+      "policy-engine/architecture/policy_design_case/layer3_g6_readiness_manifest.json",
+      "policy-engine/architecture/policy_design_case/layer3_g6_replay_manifest.json",
+      "policy-engine/architecture/policy_design_case/layer3_g6_request_envelope.json",
+      "policy-engine/architecture/policy_design_case/layer3_g7_dependency_readiness_snapshot.json",
+      "policy-engine/architecture/policy_design_case/layer3_g7_g5_g6_authority_boundary_report.json",
+      "policy-engine/architecture/policy_design_case/layer3_g7_governed_promotion_join.json",
+      "policy-engine/architecture/policy_design_case/layer3_g7_orchestration_continuity.json",
+      "policy-engine/architecture/policy_design_case/layer3_g7_readiness_manifest.json",
+      "policy-engine/architecture/policy_design_case/layer3_g7_region_case_conversion_inputs.json",
+      "policy-engine/architecture/policy_design_case/layer3_g7_region_conversion_records.json",
+      "policy-engine/architecture/policy_design_case/layer3_g7_region_conversion_status_matrix.json",
+      "policy-engine/architecture/policy_design_case/layer3_g7_region_grounding_matrix.json",
+      "policy-engine/architecture/policy_design_case/layer3_g7_region_scorecard.json",
+      "policy-engine/architecture/policy_design_case/layer3_g7_region_widening_audit_surface.json",
+      "policy-engine/architecture/policy_design_case/layer3_g7_replay_manifest.json",
+      "policy-engine/architecture/policy_design_case/layer3_g7_s12_growth_thermometer_projection.json",
+      "policy-engine/architecture/policy_design_case/layer3_g7_s14_mechanism_generality_projection.json",
+      "policy-engine/architecture/policy_design_case/layer3_g8_cross_metric_diagnosis.json",
+      "policy-engine/architecture/policy_design_case/layer3_g8_domain_vs_search_ceiling_gate.json",
+      "policy-engine/architecture/policy_design_case/layer3_g8_metric_source_snapshot.json",
+      "policy-engine/architecture/policy_design_case/layer3_g8_metric_trend_report.json",
+      "policy-engine/architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "policy-engine/architecture/policy_design_case/layer3_g8_open_question_answer_ledger.json"
+    ],
+    "product_test_changed_paths": []
+  },
+  "ROOT_full_backend_input_immutable": false,
+  "ROOT_whole_tracked_clean": false,
+  "ROOT_native_mutating_caller_and_P41_attribution": "not_established; concurrent generatedJSON changes are observed; no causal provenance inferred",
+  "finding_or_global_PASS": false,
+  "semantic_history_or_owner_dispositions_rewritten": false,
+  "qualification": "Frozen43proposals and pre-fix41/open2 snapshot stay historical. ca17 finite-law/CAS GO is distinct from historical typedCHANGE_REQUIRED; later3932 source/DTOGO and original-row acceptance are separate. Install/preflight boundedPASS and remaining CanonSpec type/API ownerOPEN do not establish global closure.",
+  "ROOT_source_env_locks_written_by_this_carrier": false,
+  "historical_errors": "72049 actual typed/header admission escapes and98e913 missingP37labels retained by ordinary appends. Author firstbuilder source_path/path ERROR literal retained; first ad-hoc Path-order guard ERROR is separately textual only with no fulloriginal stream artifact, corrected exact pathset and literal custody checkPASS.",
+  "cleanup": "No cleanup by this publication. Scratch destination trees are reproducible candidates after independent readers close; preserve originals/deciding outputs and unique source/data."
+}

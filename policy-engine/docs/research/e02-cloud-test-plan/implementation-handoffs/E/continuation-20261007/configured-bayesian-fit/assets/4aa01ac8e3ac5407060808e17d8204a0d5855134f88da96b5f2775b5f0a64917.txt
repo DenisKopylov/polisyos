@@ -1,0 +1,6 @@
+{
+  "candidate": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+  "logical_count": 814,
+  "unique_carrier_count": 390,
+  "unique_bytes": 9092744
+}

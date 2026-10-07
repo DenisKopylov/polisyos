@@ -1,0 +1,24 @@
+{
+  "mode": "normal",
+  "case": "extra_row_authority",
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+    "--manifest",
+    "/tmp/e02-E-decisions-prereqs-custody-independent/final-e233-v2/normal-extra_row_authority/manifest.json",
+    "--destination-root",
+    "/tmp/e02-E-decisions-prereqs-custody-independent/final-e233-v2/normal-extra_row_authority/destination"
+  ],
+  "exit_code": 1,
+  "destination_created": false,
+  "stdout": {
+    "path": "/tmp/e02-E-decisions-prereqs-custody-independent/final-e233-v2/normal-extra_row_authority/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "path": "/tmp/e02-E-decisions-prereqs-custody-independent/final-e233-v2/normal-extra_row_authority/stderr.txt",
+    "bytes": 836,
+    "sha256": "87e15e8b7b816819953d5dbcd61b195b69ec25e597770092850fbd77f1024a11"
+  }
+}

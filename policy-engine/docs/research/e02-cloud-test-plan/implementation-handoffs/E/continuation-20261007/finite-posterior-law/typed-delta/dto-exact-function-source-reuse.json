@@ -1,0 +1,99 @@
+{
+  "candidate": "3932cded22a29254a7dfced99723e147d6fea7cb",
+  "tree": "8d19c30199666cf97dd3934f60d772baa3071f7e",
+  "comparison": "ca17a489559eb574285bb1c7291cc3c56a9e29da",
+  "all_function_method_source_segments_equal": true,
+  "method_count": 22,
+  "rows": [
+    {
+      "name": "_profile_declared",
+      "sha256": "4e01d9c5993f94e73c184d410334d0b60e6795dee06b9edc8389830c51f37f27"
+    },
+    {
+      "name": "_finite_weights",
+      "sha256": "698da3f97ee6983d12090b64029e0109d44f5b789459d5e8612fd6c22eec8ec3"
+    },
+    {
+      "name": "_weight_ratios",
+      "sha256": "3098f87bf829c3b0e3c01b71b8eb2ae9a5f4ac86a844421d04ebb4e7ef66a2bf"
+    },
+    {
+      "name": "_ratio_cdf",
+      "sha256": "e80166b242c82cbd13e84dc79e3e16d77da190f53210b28ff6fd1d2ae6bae140"
+    },
+    {
+      "name": "posterior_sampling_cdf",
+      "sha256": "6d84a56e8a0e90efa3ea62bf600213bb9198ce0a822325d27893889f481139d8"
+    },
+    {
+      "name": "canonicalize_posterior_weights",
+      "sha256": "afacd6ee5c1209844cf135c898fc311f5ebbd4da61a4df0b268afb09a6f11c54"
+    },
+    {
+      "name": "posterior_summary_functionals_v2",
+      "sha256": "71bcb16bbb34add93b0b24f1270618143f0de7ac93df5ec5b5545846411c2fa3"
+    },
+    {
+      "name": "posterior_population_std_v2",
+      "sha256": "918f242b2e61d50f86788c1c2d034b143225bb798a22bebedcc9061a2ee38981"
+    },
+    {
+      "name": "_decode_profile",
+      "sha256": "9e16a0e18daaf6a743bf7c3d087b0ae52fc9f80cc316a4690abfdc6cecab9074"
+    },
+    {
+      "name": "posterior_summary_functionals",
+      "sha256": "9af694cf494e0895493951cf5d54b3282ed9054ea7a33593de052be9d0a49af8"
+    },
+    {
+      "name": "_posterior_cdf",
+      "sha256": "fa7e21612ce6026942618109d2d8e3129220b37c5a3ab4b520274827d9fc2527"
+    },
+    {
+      "name": "posterior_carrier_content_hash",
+      "sha256": "4a84069574c8b3b42496d6c1def22edda1a5ce9633b77b53d4bceb25a9af3b3c"
+    },
+    {
+      "name": "posterior_joint_carrier_digest",
+      "sha256": "0f1848b041d6890b3ff575aee4d95c4f37e7db8fd887b6420e361db7569fe016"
+    },
+    {
+      "name": "read_posterior_summary_profile",
+      "sha256": "7f4ca4148784b1bc6415c4947e454cb3fa7c6742a8f22a79f96e7ae3384cd455"
+    },
+    {
+      "name": "admit_posterior_summary_profiles",
+      "sha256": "2b3e387d50a118b07bbb6be9eaedf1ee827e1652cbc780b2bd472e9b6c5e29c2"
+    },
+    {
+      "name": "posterior_nominal_mean",
+      "sha256": "1f934619176c54cc6442ffa228a2221573d1c1188fb8dd84bc167f5d35a32b10"
+    },
+    {
+      "name": "validate_raw_posterior_summary_envelope",
+      "sha256": "8f08231d2a7aa8aacf825bdc434fbc59aac6e079436bc560318b1e728a3031e8"
+    },
+    {
+      "name": "load_posterior_summary_envelope",
+      "sha256": "4976bef4021cd5588ac4a0acaee61e8c5ea1da89ff3a562c98fe9875b90af052"
+    },
+    {
+      "name": "_validate_binding",
+      "sha256": "84bbcc2d7333195e8db1fd8d55c4116021fa7fc4a82ed97e9b85f9073facc456"
+    },
+    {
+      "name": "content_hash",
+      "sha256": "03147ac16bdf6aac1d4f719acc7cd86308860f20dff45f627efe34d8176a7846"
+    },
+    {
+      "name": "_validate_profile",
+      "sha256": "aacb65f6c5dfe8fcc4426c5dcebaa6da9b9b8e5cbb55522e15cc459ccaaa4dc6"
+    },
+    {
+      "name": "_validate_profile",
+      "sha256": "686f58683e00ad788678562832dfdd33a2cd73ad10c471ea41c80caa94781ca3"
+    }
+  ],
+  "legacy_class_source_equal": true,
+  "limits": "Only independent V2 DTO field declarations/bases change. New source needs independent typing delta acceptance; unchanged exact function bytes support reuse of qualified prior controls."
+}

@@ -1,0 +1,59 @@
+"""Capture custody metadata after the unchanged canonical runner closes."""
+import hashlib
+import importlib.util
+import json
+import os
+import time
+from pathlib import Path
+
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+OUT = Path('/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946')
+RUNNER = ROOT/'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py'
+spec = importlib.util.spec_from_file_location('canonical_run_check_receipt', RUNNER)
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+receipt = OUT/'checks/cal-and-welfare-consumer-retry/cal-and-welfare-consumer-retry.json'
+current = json.loads(receipt.read_text())
+admission = json.loads((OUT/'retry-admission.json').read_text())
+original = json.loads(Path(admission['original_receipt']['path']).read_text())
+start = json.loads((OUT/'retry-started.json').read_text())
+assert current['exit_code'] == 0 and current['outcome'] == 'PASS' and current['source_immutable']
+assert current['head_at_end'] == admission['candidate_sha']
+assert current['source_identity_before'] == current['source_identity_after'] == admission['source_identity'] == original['source_identity_before']
+assert current['command'] == admission['test_command']
+assert current['counts'] == module.junit_counts(Path(current['junit']))
+assert current['counts'] == {'cases':324,'passed':324,'failed':0,'errors':0,'skipped':0}
+assert current['environment']['packages'] == original['environment']['packages']
+assert current['actual_numeric_backend'] == original['actual_numeric_backend']
+for key, value in original['environment']['selected_variables'].items():
+    assert current['environment']['selected_variables'][key] == (admission['environment']['selected_variables'][key] if key == 'TMPDIR' else value)
+assert not module.git(ROOT,'status','--porcelain','--untracked-files=no')
+assert module.git(ROOT,'rev-parse','HEAD') == admission['candidate_sha']
+for key in ('original_receipt','original_stdout'):
+    ref = admission[key]
+    assert hashlib.sha256(Path(ref['path']).read_bytes()).hexdigest() == ref['sha256']
+
+def bound(path):
+    data = path.read_bytes()
+    return {'path':str(path),'sha256':hashlib.sha256(data).hexdigest(),'bytes':len(data)}
+
+cgroup = Path('/sys/fs/cgroup')
+resources = {'timestamp_unix':time.time(),'cgroup':{name:(cgroup/name).read_text() for name in ('memory.current','memory.max','memory.events','memory.stat')},'storage':{str(path):{'total_bytes':os.statvfs(path).f_blocks*os.statvfs(path).f_frsize,'available_bytes':os.statvfs(path).f_bavail*os.statvfs(path).f_frsize} for path in (Path('/workspace'),Path('/tmp'))}}
+completion = {
+    'schema':'policyos.e02.interruption_retry_completion.v1',
+    'scope':'One interrupted CAL_and_welfare_consumer group retry on unchanged frozen source; no second broad wave',
+    'candidate_sha':current['candidate_sha'],'candidate_tree_sha':current['candidate_tree_sha'],
+    'original_observation':{'receipt':admission['original_receipt'],'exit_code':original['exit_code'],'wrapper_outcome':original['outcome'],'counts':original['counts'],'junit_present':Path(original['junit']).exists(),'signal':'SIGKILL','per_process_oom_cause':'not_established','max_rss_kib':original['max_rss_kib'],'wall_seconds':original['wall_seconds']},
+    'retry':{'receipt':bound(receipt),'child_exit_code':current['exit_code'],'canonical_wrapper_process_exit_code':0,'check_outcome':current['outcome'],'counts':current['counts'],'wall_seconds':current['wall_seconds'],'max_rss_kib':current['max_rss_kib'],'stdout':bound(Path(current['stdout_path'])),'junit':bound(Path(current['junit'])),'source_identity_before':current['source_identity_before'],'source_identity_after':current['source_identity_after'],'source_immutable':current['source_immutable'],'git_config_stable':current['git_input_config']['stable']},
+    'admission':bound(OUT/'retry-admission.json'),'actual_start':bound(OUT/'retry-started.json'),
+    'initial_launch_resource_refusal':{'receipt':bound(OUT/'first-launch-resource-refusal.json'),'selected_check_attempt':False,'selected_check_outcome':None,'reason':'Physical launch did not occur until observed headroom≥2.4GB; operational guard refusal not a method/finding FAIL'},
+    'starting_observed_headroom_bytes':start['headroom_bytes'],'artificial_caps':admission['artificial_caps'],
+    'real_numeric_backend_preserved':True,'original_receipt_and_stdout_unchanged':True,'resources_after':resources,
+    'findings':'Check outcome does not close or reclassify any finding; historical ledger/owner decisions remain separate','finding_closure':False,
+    'review':'Independent oracle_r4 input/output review requested, not author self-review of IR/source',
+    'cleanup_candidates':[{'path':str(OUT/'checks/cal-and-welfare-consumer-retry/cache'),'role':'repeatable pytest/benchmark cache','status':'preserved; await all deciding receipt readers before cleanup'},{'path':str(OUT/'temporary/cal-and-welfare-consumer-retry'),'role':'repeatable bounded native fixtures','status':'preserved; no production data, await all deciding receipt readers before cleanup'},{'path':str(OUT/'tmp-env/cal-and-welfare-consumer-retry'),'role':'isolated temporary directory','status':'preserved; await all deciding receipt readers before cleanup'}],
+    'preserved':'Original/retry deciding evidence, source, rootenv and unique inputs remain intact; private Git config contents excluded from publication'
+}
+with (OUT/'retry-completion.json').open('x') as handle:
+    handle.write(json.dumps(completion,indent=2)+'\n')
+print(json.dumps({'completion':bound(OUT/'retry-completion.json'),'retry_receipt':bound(receipt),'counts':current['counts']},indent=2))

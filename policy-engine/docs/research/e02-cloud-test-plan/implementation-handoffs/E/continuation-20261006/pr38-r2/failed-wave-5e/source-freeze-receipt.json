@@ -1,0 +1,45 @@
+{
+  "schema": "e02.E.source-freeze.v1",
+  "frozen_sha": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+  "tree": "3b63e778d5b6d17b2e9edc3b4bf91af079b32eb0",
+  "topic": "codex/e02-E-continuation-20261006",
+  "remote_ls_readback_sha": "5e3e3727685132f270a3a07b9f63dd962a88cd96",
+  "origin_main": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "G_checkpoint": "53b309019913b938909d6dc0fc13f8edb409f368",
+  "reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-delta-independent/receipt.json",
+      "sha256": "0c0a276cf8916e46cabbc901c0f85bb87592b81079414f85e626c768071e7fe9",
+      "bytes": 4638
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/doe-budget-independent/doe-budget-independent-review-70c4.json",
+      "sha256": "f3c1fca229ff1e2ea50acef950847188c30097754b7e3c805413b9d25a04c60b",
+      "bytes": 14630
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/harness-independent/review.json",
+      "sha256": "9f3c2514c74e781f20217a65ad7e6f3cde609247750be7af8ec89afa0dea3fc2",
+      "bytes": 11010
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/release-compatibility-independent/receipt.json",
+      "sha256": "db079d0493228f65fd0cb8c42cbb05b04d502fe41b49f3e1749f5e83cfbffe89",
+      "bytes": 5441
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/assembly-independent/assembly-dependency-review-c79.json",
+      "sha256": "3c4e7a931a9fe76129f3d783106a2092e8655af3ce49ef68c00461115e28ae97",
+      "bytes": 51942
+    }
+  ],
+  "all_reviews_complete": true,
+  "source_tree_dirty": false,
+  "one_wave_output_root": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276",
+  "native_input_files": 121,
+  "A_owner_packets": 2,
+  "closure_ratified": false,
+  "frozen_at_utc": "2026-10-06T16:24:51.906034+00:00",
+  "mutation_rule": "No tracked/config/head changes until completion; scratch-only closeout/evidence preparation",
+  "cleanup": "No native Trash established; no permanent deletion"
+}

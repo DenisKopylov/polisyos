@@ -1,0 +1,20 @@
+import hashlib,json,pathlib,xml.etree.ElementTree as ET
+p=pathlib.Path('/tmp/e02-E-bayesian-fit-bridge-r6'); rows=[]
+qualifications={
+ 'pytest':'historical first actual float-tagged source materializer attempt; setup ERROR before new consumer; protected owner packet',
+ 'pytest-r2':'historical HMC-only source observation before NUTS controls',
+ 'pytest-r3':'historical HMC/NUTS source observation before expanded guards/facade route',
+ 'pytest-final':'historical affected 64-case family wave before only Core-root/Foundry-public import-route and facade-identity changes',
+ 'pytest-source':'final physical source precommit42-case observation; physical bytes now equal immutable6638; no retrospectively captured pre-run source/environment frame',
+}
+for name,scope in qualifications.items():
+ root=ET.parse(p/(name+'.junit.xml')).getroot();cases=root.findall('.//testcase'); counts={'PASS':0,'FAIL':0,'ERROR':0,'SKIP':0}
+ for case in cases:
+  outcome='ERROR' if case.find('error') is not None else 'FAIL' if case.find('failure') is not None else 'SKIP' if case.find('skipped') is not None else 'PASS';counts[outcome]+=1
+ assets=[]
+ for suffix in ('stdout.txt','stderr.txt','junit.xml'):
+  path=p/(name+'.'+suffix);b=path.read_bytes();assets.append({'path':path.name,'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()})
+ rows.append({'name':name,'scope':scope,'counts':counts,'input_selectors':sorted({case.attrib.get('classname','').replace('.','/')+'.py' for case in cases}),'actual_cases':[dict(case.attrib) for case in cases],'assets':assets,'command_line_custody':'complete original tool argv not separately saved; portable reconstructed recipe supplied; independent immutable review captures exact current argv'})
+recipe={'cwd':'/workspace/e02-E-cal-20261006/policy-engine','argv':['/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python','-m','pytest','-q','tests/unit/scientist/nodes/test_bayesian_fit_consumer.py','--basetemp','/tmp/e02-E-bayesian-fit-bridge-r6/pytest-base-source','--junitxml','/tmp/e02-E-bayesian-fit-bridge-r6/pytest-source.junit.xml'],'environment_overrides':{'PYTHONPATH':'/workspace/e02-E-cal-20261006/policy-engine/src','PYTHONDONTWRITEBYTECODE':'1','POLISYOS_METRICS_PORT':'0'},'scope':'reconstructed portable reproduction recipe; do not overwrite closed output roots during a repeat; no resource pins'}
+(p/'native-observations.json').write_text(json.dumps({'observations':rows,'final_reproduction_recipe':recipe,'backend':'actual configured MethodBackend HMC and NUTS NumPy reference sampler; current fixture integer numeric sources','global_wave':False,'source_freeze':'6638e18a3295e43a89b0ae6adba32e62952154bb'},indent=2)+'\n')
+print(json.dumps({r['name']:r['counts'] for r in rows}))

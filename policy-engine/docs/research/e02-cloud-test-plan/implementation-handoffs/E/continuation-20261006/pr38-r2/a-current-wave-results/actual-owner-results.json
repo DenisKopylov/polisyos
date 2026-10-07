@@ -1,0 +1,313 @@
+{
+  "schema": "e02.E.actual-corrected-wave-A-generator-owner-results.v1",
+  "scope": "Actualterminala9 measurements appended aftersuccessfulcanonicalv4collection. No new product/native/numeric/generator/gate execution; no source/config/Git mutation. Custody completeness is not suitePASS or findingclosure.",
+  "source_candidate": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "source_tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7",
+  "publication": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/corrected-wave-a9f78817c-publication/copy-index.json",
+    "bytes": 17569,
+    "sha256": "0c7021431958f4335057cb11e836e9c871ac7a45130dc83966c06b0829c693e8"
+  },
+  "publication_asset_count": 48,
+  "publication_bytes": 7002673,
+  "collection_state": "COMPLETE_BOUND",
+  "numeric_actual": {
+    "cases": 1445,
+    "passed": 1441,
+    "failed": 4,
+    "errors": 0,
+    "skipped": 0
+  },
+  "native_actual_excluding_A_packets": {
+    "cases": 1438,
+    "passed": 1436,
+    "failed": 2,
+    "errors": 0,
+    "skipped": 0
+  },
+  "foreign_A_actual": [
+    {
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-cas-contract-tests.py.txt",
+      "sha256": "39342a0f279a05d5787b93f817e9a5bcdab639cd044af257a57442d27fd754ac",
+      "owner": "A",
+      "matching_basis": {
+        "exact_destination_in_source_bound_job_argv": [
+          "bkt-frc-s10-and-adjacent-report-consumers"
+        ],
+        "module_policy": "Exact declared module labels; no substring matching.",
+        "file_policy": "Absent or exact canonical owner-packet destination.",
+        "anonymous_classname_policy": "Require exact test-function uniqueness across all planned candidate source inputs and matching job; refuse ambiguous identity.",
+        "function_origins": {
+          "test_actual_ets_cas_fresh_resolver_preserves_six_roles_and_predictive_denials": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-cas-contract-tests.py.txt"
+          ],
+          "test_actual_resolver_refuses_missing_fake_or_temporally_unbound_inputs": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-cas-contract-tests.py.txt"
+          ]
+        }
+      },
+      "counts": {
+        "cases": 5,
+        "passed": 5,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "cases": [
+        {
+          "name": "test_actual_ets_cas_fresh_resolver_preserves_six_roles_and_predictive_denials",
+          "classname": "",
+          "file": null,
+          "seconds": "1.274",
+          "outcome": "passed",
+          "job_name": "bkt-frc-s10-and-adjacent-report-consumers"
+        },
+        {
+          "name": "test_actual_resolver_refuses_missing_fake_or_temporally_unbound_inputs[missing_ref]",
+          "classname": "",
+          "file": null,
+          "seconds": "1.026",
+          "outcome": "passed",
+          "job_name": "bkt-frc-s10-and-adjacent-report-consumers"
+        },
+        {
+          "name": "test_actual_resolver_refuses_missing_fake_or_temporally_unbound_inputs[wrong_kind]",
+          "classname": "",
+          "file": null,
+          "seconds": "0.972",
+          "outcome": "passed",
+          "job_name": "bkt-frc-s10-and-adjacent-report-consumers"
+        },
+        {
+          "name": "test_actual_resolver_refuses_missing_fake_or_temporally_unbound_inputs[bad_time]",
+          "classname": "",
+          "file": null,
+          "seconds": "1.010",
+          "outcome": "passed",
+          "job_name": "bkt-frc-s10-and-adjacent-report-consumers"
+        },
+        {
+          "name": "test_actual_resolver_refuses_missing_fake_or_temporally_unbound_inputs[wrong_rule]",
+          "classname": "",
+          "file": null,
+          "seconds": "1.006",
+          "outcome": "passed",
+          "job_name": "bkt-frc-s10-and-adjacent-report-consumers"
+        }
+      ]
+    },
+    {
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-status-reason-tests.py.txt",
+      "sha256": "2e3a7c0a8931e66d14ec018d0392ea83c3a692210ae66271aaf0abe568ef63d4",
+      "owner": "A",
+      "matching_basis": {
+        "exact_destination_in_source_bound_job_argv": [
+          "bkt-frc-s10-and-adjacent-report-consumers"
+        ],
+        "module_policy": "Exact declared module labels; no substring matching.",
+        "file_policy": "Absent or exact canonical owner-packet destination.",
+        "anonymous_classname_policy": "Require exact test-function uniqueness across all planned candidate source inputs and matching job; refuse ambiguous identity.",
+        "function_origins": {
+          "test_missing_ref_tier_and_s6_share_named_missing_ref_reason": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-status-reason-tests.py.txt"
+          ],
+          "test_resolved_limited_evidence_keeps_floor_failure_reason": [
+            "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2/a-status-reason-tests.py.txt"
+          ]
+        }
+      },
+      "counts": {
+        "cases": 2,
+        "passed": 0,
+        "failed": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "cases": [
+        {
+          "name": "test_missing_ref_tier_and_s6_share_named_missing_ref_reason",
+          "classname": "",
+          "file": null,
+          "seconds": "0.001",
+          "outcome": "failed",
+          "job_name": "bkt-frc-s10-and-adjacent-report-consumers"
+        },
+        {
+          "name": "test_resolved_limited_evidence_keeps_floor_failure_reason",
+          "classname": "",
+          "file": null,
+          "seconds": "1.051",
+          "outcome": "failed",
+          "job_name": "bkt-frc-s10-and-adjacent-report-consumers"
+        }
+      ]
+    }
+  ],
+  "numeric_check_outcomes": {
+    "PASS": 6,
+    "FAIL": 1
+  },
+  "non_numeric_check_outcomes": {
+    "PASS": 1,
+    "FAIL": 7
+  },
+  "BKT_FRC_actual": {
+    "cases": 315,
+    "passed": 311,
+    "failed": 4,
+    "errors": 0,
+    "skipped": 0,
+    "native_only": {
+      "cases": 308,
+      "passed": 306,
+      "failed": 2,
+      "errors": 0,
+      "skipped": 0
+    },
+    "check": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/corrected-wave-a9f78817c-publication/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.json",
+      "bytes": 10720,
+      "sha256": "781e2c757db2bebc3d3b8a888b5807950a8ab10153e1e2dd0422b3a47fe96d34"
+    },
+    "full_stdout": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/corrected-wave-a9f78817c-publication/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.stdout.txt",
+      "bytes": 10316,
+      "sha256": "c47a9a9751a54f1a6f0eee2589c6621780a08ebdbd7cb6f9d0d7c9bbc2d74e85"
+    },
+    "full_XML": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/corrected-wave-a9f78817c-publication/checks/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml",
+      "bytes": 65800,
+      "sha256": "47db97d2898e824976d7cc1d001a12d15e8a1d14c2163a057f0bb69b7422163f"
+    }
+  },
+  "four_failure_assertions": "four-actual-A-FRC-failures.json",
+  "code_owner": "A generation_cycle.py/run_lifecycle.py and sharedFRC01fixture; E doesnotmodifythem",
+  "A_failure_actions": [
+    {
+      "case": "test_calibration_time_roles_are_preserved_from_bound_evidence",
+      "actual": "recordNone, AttributeError prediction_time; oldfake/unresolved evidence/time fixture staysrefused",
+      "required": "Replace positivewith genuineETS/CASpacket below; retain fake/time-invalid asnegative. Do not loosenbinding.",
+      "owner": "A"
+    },
+    {
+      "case": "test_missing_calibration_evidence_refs_stays_typed_blocked",
+      "actual": "blocked/no calibrationrecord but S6[]; originalasserts insufficient-history",
+      "required": "Normalize namedmissing-ref/loader reason; insufficient-history not blanketmandatory formissingref. A updatesoriginalfixtureassertion with validpurpose/context.",
+      "owner": "A"
+    },
+    {
+      "case": "test_missing_ref_tier_and_s6_share_named_missing_ref_reason",
+      "actual": "[] instead of s10://calibration/fail-closed/empirical_evidence_ref_missing",
+      "required": "Existingboundedpatch normalizes missing-referror once beforetier/S6; same typedreason in grade/disposition/S6.",
+      "owner": "A"
+    },
+    {
+      "case": "test_resolved_limited_evidence_keeps_floor_failure_reason",
+      "actual": "RealETS/freshCASmeasurement recordlimit exists; S6s10://calibration/insufficient-history instead of s10://calibration/calibration_floor_not_met",
+      "required": "Carry computedfailure_codes intoS10projection. CurrentfirstmeasuredFAIL; old5e was tmp_pathsetupERROR.",
+      "owner": "A",
+      "historical_provenance": "Old5e resolvedlimitedERROR remainsnotmeasured, notretroactivelyFAIL. Historical8486twoFAIL separate. P41not_established."
+    }
+  ],
+  "A_native_positive_witness": {
+    "actual": "5PASS through realETS/FreshCAS/canonicalAresolver,builder; six admittedtemporalroles/typedrefs/denominator4numerator4/predictivedenials plusmissingref,wrongkind,badtime,wrongrule negatives",
+    "test_source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-owner-packet/prior-packet/a-cas-contract-tests.py.txt",
+    "default_HTTP_scope": "Injectedgenericnative wiring, not defaultproducer/verifier/HTTP. Production profile/sourceauthority not established; terminalcausal/treatment/policydenial retained."
+  },
+  "A_patch_packet": {
+    "patch": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-owner-packet/prior-packet/a-status-reason.patch.txt",
+    "tests": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-owner-packet/prior-packet/a-status-reason-tests.py.txt",
+    "source_binding": "Existingcurrenta9 all29sourceblobs sameold5e, code/patchapplicability CALGO. Actualimplementation writerA; no patchapplied byE.",
+    "next_measured_result": "A exactchangedcandidate passesbothstatus cases andupdatedsharednativeFRC01fixture with typedCAS/timepositive andunbound negatives; thenindependent freshdefault/sharedCAS/verifier/HTTP consumer, preservingcausaldenial."
+  },
+  "runtime_API_actual": {
+    "check": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/corrected-wave-a9f78817c-publication/checks/runtime-api-contract/runtime-api-contract.json",
+      "bytes": 8150,
+      "sha256": "cae5d080d0f41d6c8edee14d179996299388609173e5376fbc62f1468e6f5a35"
+    },
+    "full_stdout": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/corrected-wave-a9f78817c-publication/checks/runtime-api-contract/runtime-api-contract.stdout.txt",
+      "bytes": 13051,
+      "sha256": "33ea1bab8d94595a8fcd13d69e20181271ef9f843edf00e3293fe1e97d29e1e8"
+    },
+    "command": [
+      "/workspace/.polisyos-environment/uv/bin/uv",
+      "run",
+      "--no-sync",
+      "polisyos-tools",
+      "runtime",
+      "check-runtime-api-contract"
+    ],
+    "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+    "outcome": "FAIL",
+    "wall_seconds": 78.5111026763916,
+    "committed_dependency_count": 1489,
+    "generated_dependency_count": 1493,
+    "generated_identity": {
+      "dependency": "6bd81d71bfca4706b33d84281730ed0b6feb3b1253660a5db2ebc2bb466cdc34",
+      "projection": "1952ed344038db2d3906aaf023fb98a39d1124aee3c4e1a85cb9f9adf59fb7f2",
+      "worker_receipt": "9116a49fd974fae2493e16931813c5108ec5757520f498a319a98474d1332c32"
+    },
+    "declared_failure": "OnlyOpenAPIdrift listed",
+    "client_scope": "Defaultcommitted-client freshness againstcommittedOpenAPI reportsnodrift. Matching newlygeneratedOpenAPI/clientbehavior/compatibility unmeasured untilcanonicalgeneratorowneracts.",
+    "unmeasured": "Endpointexecution,auth behavior,clientbehavior,deploy/hostedCI; no inferencefrombytefreshness.",
+    "historical": "Old5e1493different93bfb... dependency remainsoldmeasure; old58e1492 remainsolder. Thisa9count/identity directlymeasured here.",
+    "owner": "A/runtimeAPI+team-polisyos generatorowner; versionteam-runtime, affectedclientteam-frontend, Gcoords; canonicalgeneration only,nohandedit"
+  },
+  "generator_other_owners": {
+    "ABI": "ActualCI doctor remainsFAIL; CoreFoundryFeedbackSolveResult underIRsnapshot/manifest canonicalCore/IR/ABIowners classifycompatibility/regenerate. Originalall29trace anddeclaredfamilies ownerpacket reused, no schema/codeEratification.",
+    "trust_posture": "Actualarchitecture generatedtrustposture mismatch; teamarchitecture/Scientistowners inspectfulladmittedsourcewalk/generate/consumer. Not semanticcheckerPASS."
+  },
+  "global_boundary": {
+    "seven_global_checks": "AllactualFAIL retained; internalworkspace/CI stages retainfailfastUNRUN. Doctorbrowserreadiness isnotfullCIPASS.",
+    "P41": "not_established without exactslice-base command/fullinputdenominator replay; no inheritedred attribution bypaths/hash/count alone."
+  },
+  "source_environment_custody": {
+    "all15_source_frames_same": true,
+    "all15_Gitconfigsame": true,
+    "observer_scope": "No inference of unmeasured test-child JAX state.",
+    "tracked_paths": 15835,
+    "tracked_bytes": 490142122,
+    "actualframe_before_after": "5ead3eae7fb5c8c4addac2bdb79cdc736777c12eb306873a57570acf1a592953",
+    "private/raw": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/corrected-wave-a9f78817c-publication/raw-custody.json",
+      "bytes": 3648,
+      "sha256": "66bfa128117a7fc2b646bb35825ac59b45c2fe278596b267050a56c20f7772d5"
+    },
+    "large_raw_bytes": 171772302,
+    "large_raw_sha256": "438665b9b62b5860d17d388b0ac9466a0d628773e93059e2ada9fdf410990635",
+    "large_raw_copied": false
+  },
+  "publication_freeze_roles": {
+    "originalfreeze": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/source-freeze-a9f78817c.json",
+      "bytes": 6358,
+      "sha256": "f90129331279070984ccd9cd93da217633c9f734086c3a6213e6b4d7ca9311c4"
+    },
+    "typedcarrier": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-v3.json",
+      "bytes": 7951,
+      "sha256": "c3cfeb2a9df29d1eb5f2e73da1a8eba940d1ff93569201dfb5a6fa671eae950d"
+    },
+    "adapter_authorindex": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3/copy-index.json",
+      "bytes": 5654,
+      "sha256": "3066a842654d4f20a9666af3e2ec7d16602a3206f7563bd4d5b2e107a49750f6"
+    },
+    "adapter_independentindex": {
+      "path": "/workspace/e02-E-pr38-r2-receipts/independent-publication-freeze-adapter-v3/copy-index.json",
+      "bytes": 2311,
+      "sha256": "875be63037d48dec4d81ab5f48b044d6363d71f361343f4af4f541586ffb998f"
+    },
+    "scope": "Canonicalv4 validates6Gitrefs; explicitauthoradapter+independentDoE verifies2externalcontent/pins/original8set. Alloriginalsource/env/wave/closure/UTC preserved; representationcorrectionnotnewsourcefreeze. InitialcollectorGit128inputerrorpreserved, successfulretryonlyoutputcollection, numericexecutionsunchanged."
+  },
+  "finding_boundary": {
+    "B32_LA051": "partial/limited preserved; Aimplementationdefaultverifier plus criterion-specificlocalGhistory where required. Codeacceptance separatefindingclosure.",
+    "held": "B194/B197/B201/B202 preserved",
+    "B198": "closedhistoricalregression",
+    "globalcode/findingPASS": "notclaimed"
+  },
+  "next_owner": "Rootpublishesexactmoderateoutputs+typed/originalcarrier/adapter+CALAindepaudit; PCLupdatesall54withactualrefs, GfetchesSHA andcanonicalA/generatorownersapplypackets. Productiondata localreadonly.",
+  "cleanup": "No deletion/Trash. Exactrepeatablecandidates inpublicationcleanup-candidates; preserveactualwave/uniqueevidence/source/docs andlarge/private ignoredcustody."
+}

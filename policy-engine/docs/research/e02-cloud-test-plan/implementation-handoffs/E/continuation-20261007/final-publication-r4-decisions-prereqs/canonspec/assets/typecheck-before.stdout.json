@@ -1,0 +1,542 @@
+
+{
+    "version": "1.39.0",
+    "time": "1791375550322",
+    "generalDiagnostics": [
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Variable not allowed in type expression",
+            "range": {
+                "start": {
+                    "line": 224,
+                    "character": 18
+                },
+                "end": {
+                    "line": 224,
+                    "character": 31
+                }
+            },
+            "rule": "reportInvalidTypeForm"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Type arguments for \"Literal\" must be None, a literal value (int, bool, str, or bytes), or an enum value",
+            "range": {
+                "start": {
+                    "line": 224,
+                    "character": 18
+                },
+                "end": {
+                    "line": 224,
+                    "character": 31
+                }
+            },
+            "rule": "reportInvalidTypeForm"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "\"media_type\" overrides symbol of same name in class \"ArtifactRefModel\"\n  Variable is mutable so its type is invariant\n    Override type \"Literal['application/json']\" is not the same as base type \"str\"",
+            "range": {
+                "start": {
+                    "line": 225,
+                    "character": 4
+                },
+                "end": {
+                    "line": 225,
+                    "character": 14
+                }
+            },
+            "rule": "reportIncompatibleVariableOverride"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "\"kind\" overrides symbol of same name in class \"ArtifactRefModel\"\n  Variable is mutable so its type is invariant\n    Override type \"Literal['ir.forecast_candidate_receipt']\" is not the same as base type \"str\"",
+            "range": {
+                "start": {
+                    "line": 249,
+                    "character": 4
+                },
+                "end": {
+                    "line": 249,
+                    "character": 8
+                }
+            },
+            "rule": "reportIncompatibleVariableOverride"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "\"media_type\" overrides symbol of same name in class \"ArtifactRefModel\"\n  Variable is mutable so its type is invariant\n    Override type \"Literal['application/json']\" is not the same as base type \"str\"",
+            "range": {
+                "start": {
+                    "line": 250,
+                    "character": 4
+                },
+                "end": {
+                    "line": 250,
+                    "character": 14
+                }
+            },
+            "rule": "reportIncompatibleVariableOverride"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Argument of type \"object | None\" cannot be assigned to parameter \"schema_id\" of type \"str\" in function \"__init__\"\n  Type \"object | None\" is not assignable to type \"str\"\n    \"object\" is not assignable to \"str\"",
+            "range": {
+                "start": {
+                    "line": 364,
+                    "character": 18
+                },
+                "end": {
+                    "line": 364,
+                    "character": 41
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Argument of type \"str | object | None\" cannot be assigned to parameter \"schema_version\" of type \"str\" in function \"__init__\"\n  Type \"str | object | None\" is not assignable to type \"str\"\n    \"object\" is not assignable to \"str\"",
+            "range": {
+                "start": {
+                    "line": 365,
+                    "character": 23
+                },
+                "end": {
+                    "line": 365,
+                    "character": 30
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Variable not allowed in type expression",
+            "range": {
+                "start": {
+                    "line": 389,
+                    "character": 22
+                },
+                "end": {
+                    "line": 389,
+                    "character": 41
+                }
+            },
+            "rule": "reportInvalidTypeForm"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Type arguments for \"Literal\" must be None, a literal value (int, bool, str, or bytes), or an enum value",
+            "range": {
+                "start": {
+                    "line": 389,
+                    "character": 22
+                },
+                "end": {
+                    "line": 389,
+                    "character": 41
+                }
+            },
+            "rule": "reportInvalidTypeForm"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Variable not allowed in type expression",
+            "range": {
+                "start": {
+                    "line": 481,
+                    "character": 22
+                },
+                "end": {
+                    "line": 481,
+                    "character": 41
+                }
+            },
+            "rule": "reportInvalidTypeForm"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Type arguments for \"Literal\" must be None, a literal value (int, bool, str, or bytes), or an enum value",
+            "range": {
+                "start": {
+                    "line": 481,
+                    "character": 22
+                },
+                "end": {
+                    "line": 481,
+                    "character": 41
+                }
+            },
+            "rule": "reportInvalidTypeForm"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Argument of type \"tuple[AuthorityDenial, ...] | tuple[str, ...]\" cannot be assigned to parameter \"may_not_use_for\" of type \"tuple[AuthorityDenial, ...]\" in function \"__init__\"\n  Type \"tuple[AuthorityDenial, ...] | tuple[str, ...]\" is not assignable to type \"tuple[AuthorityDenial, ...]\"\n    \"tuple[str, ...]\" is not assignable to \"tuple[AuthorityDenial, ...]\"\n      Tuple entry 1 is incorrect type\n        Type \"str\" is not assignable to type \"AuthorityDenial\"\n          \"str\" is not assignable to type \"Literal['causal_effect_authority']\"\n          \"str\" is not assignable to type \"Literal['treatment_assignment_authority']\"\n          \"str\" is not assignable to type \"Literal['s10_authority']\"",
+            "range": {
+                "start": {
+                    "line": 609,
+                    "character": 24
+                },
+                "end": {
+                    "line": 609,
+                    "character": 94
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Argument of type \"object\" cannot be assigned to parameter \"expected_schema_version\" of type \"str | None\" in function \"_validate_json_artifact\"\n  Type \"object\" is not assignable to type \"str | None\"\n    \"object\" is not assignable to \"str\"\n    \"object\" is not assignable to \"None\"",
+            "range": {
+                "start": {
+                    "line": 760,
+                    "character": 32
+                },
+                "end": {
+                    "line": 760,
+                    "character": 47
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Cannot access attribute \"rpartition\" for class \"object\"\n  Attribute \"rpartition\" is unknown",
+            "range": {
+                "start": {
+                    "line": 841,
+                    "character": 47
+                },
+                "end": {
+                    "line": 841,
+                    "character": 57
+                }
+            },
+            "rule": "reportAttributeAccessIssue"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Argument of type \"object | None\" cannot be assigned to parameter \"target_metric\" of type \"str\" in function \"resolve_forecast_measurement_binding\"\n  Type \"object | None\" is not assignable to type \"str\"\n    \"object\" is not assignable to \"str\"",
+            "range": {
+                "start": {
+                    "line": 887,
+                    "character": 26
+                },
+                "end": {
+                    "line": 887,
+                    "character": 32
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Argument of type \"object | None\" cannot be assigned to parameter \"target_unit\" of type \"str\" in function \"resolve_forecast_measurement_binding\"\n  Type \"object | None\" is not assignable to type \"str\"\n    \"object\" is not assignable to \"str\"",
+            "range": {
+                "start": {
+                    "line": 888,
+                    "character": 24
+                },
+                "end": {
+                    "line": 888,
+                    "character": 50
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Argument of type \"object | None\" cannot be assigned to parameter \"target_scale\" of type \"str\" in function \"resolve_forecast_measurement_binding\"\n  Type \"object | None\" is not assignable to type \"str\"\n    \"object\" is not assignable to \"str\"",
+            "range": {
+                "start": {
+                    "line": 889,
+                    "character": 25
+                },
+                "end": {
+                    "line": 889,
+                    "character": 52
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Operator \"<=\" not supported for types \"Literal[0]\" and \"object | None\"\n  Operator \"<=\" not supported for types \"Literal[0]\" and \"object\"\n  Operator \"<=\" not supported for types \"Literal[0]\" and \"None\"",
+            "range": {
+                "start": {
+                    "line": 908,
+                    "character": 8
+                },
+                "end": {
+                    "line": 908,
+                    "character": 55
+                }
+            },
+            "rule": "reportOperatorIssue"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Operator \"<\" not supported for types \"object | None\" and \"object | None\"\n  Operator \"<\" not supported for types \"object\" and \"object\"\n  Operator \"<\" not supported for types \"object\" and \"None\"\n  Operator \"<\" not supported for types \"None\" and \"object\"\n  Operator \"<\" not supported for types \"None\" and \"None\"",
+            "range": {
+                "start": {
+                    "line": 908,
+                    "character": 13
+                },
+                "end": {
+                    "line": 908,
+                    "character": 55
+                }
+            },
+            "rule": "reportOperatorIssue"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Operator \"<\" not supported for types \"object | None\" and \"object | None\"\n  Operator \"<\" not supported for types \"object\" and \"object\"\n  Operator \"<\" not supported for types \"object\" and \"None\"\n  Operator \"<\" not supported for types \"None\" and \"object\"\n  Operator \"<\" not supported for types \"None\" and \"None\"",
+            "range": {
+                "start": {
+                    "line": 908,
+                    "character": 28
+                },
+                "end": {
+                    "line": 908,
+                    "character": 55
+                }
+            },
+            "rule": "reportOperatorIssue"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Operator \"-\" not supported for types \"object | None\" and \"object | None\"\n  Operator \"-\" not supported for types \"object\" and \"object\"\n  Operator \"-\" not supported for types \"object\" and \"None\"\n  Operator \"-\" not supported for types \"None\" and \"object\"\n  Operator \"-\" not supported for types \"None\" and \"None\"",
+            "range": {
+                "start": {
+                    "line": 909,
+                    "character": 23
+                },
+                "end": {
+                    "line": 909,
+                    "character": 50
+                }
+            },
+            "rule": "reportOperatorIssue"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Operator \">\" not supported for types \"object | None\" and \"int\"\n  Operator \">\" not supported for types \"object\" and \"int\"\n  Operator \">\" not supported for types \"None\" and \"int\"",
+            "range": {
+                "start": {
+                    "line": 913,
+                    "character": 39
+                },
+                "end": {
+                    "line": 913,
+                    "character": 64
+                }
+            },
+            "rule": "reportOperatorIssue"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Argument of type \"str | ArtifactID\" cannot be assigned to parameter \"artifact_id\" of type \"ArtifactID\" in function \"_manifest_input_edges\"\n  Type \"str | ArtifactID\" is not assignable to type \"ArtifactID\"\n    \"str\" is not assignable to \"ArtifactID\"",
+            "range": {
+                "start": {
+                    "line": 953,
+                    "character": 19
+                },
+                "end": {
+                    "line": 953,
+                    "character": 76
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Operator \"-\" not supported for types \"int\" and \"object | None\"\n  Operator \"-\" not supported for types \"int\" and \"object\"\n  Operator \"-\" not supported for types \"int\" and \"None\"",
+            "range": {
+                "start": {
+                    "line": 967,
+                    "character": 23
+                },
+                "end": {
+                    "line": 967,
+                    "character": 44
+                }
+            },
+            "rule": "reportOperatorIssue"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Argument of type \"object | None\" cannot be assigned to parameter \"start\" of type \"SupportsIndex\" in function \"__new__\"\n  Type \"object | None\" is not assignable to type \"SupportsIndex\"\n    \"object\" is incompatible with protocol \"SupportsIndex\"\n      \"__index__\" is not present",
+            "range": {
+                "start": {
+                    "line": 970,
+                    "character": 27
+                },
+                "end": {
+                    "line": 970,
+                    "character": 40
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Argument of type \"object | None\" cannot be assigned to parameter \"stop\" of type \"SupportsIndex\" in function \"__new__\"\n  Type \"object | None\" is not assignable to type \"SupportsIndex\"\n    \"object\" is incompatible with protocol \"SupportsIndex\"\n      \"__index__\" is not present",
+            "range": {
+                "start": {
+                    "line": 970,
+                    "character": 42
+                },
+                "end": {
+                    "line": 970,
+                    "character": 53
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Operator \"+\" not supported for types \"object | None\" and \"Literal[1]\"\n  Operator \"+\" not supported for types \"object\" and \"Literal[1]\" when expected type is \"SupportsIndex\"\n  Operator \"+\" not supported for types \"None\" and \"Literal[1]\" when expected type is \"SupportsIndex\"",
+            "range": {
+                "start": {
+                    "line": 1013,
+                    "character": 38
+                },
+                "end": {
+                    "line": 1013,
+                    "character": 49
+                }
+            },
+            "rule": "reportOperatorIssue"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Argument of type \"object | None\" cannot be assigned to parameter \"expected_schema_name\" of type \"str | None\" in function \"_validate_json_artifact\"\n  Type \"object | None\" is not assignable to type \"str | None\"\n    Type \"object\" is not assignable to type \"str | None\"\n      \"object\" is not assignable to \"str\"\n      \"object\" is not assignable to \"None\"",
+            "range": {
+                "start": {
+                    "line": 1050,
+                    "character": 29
+                },
+                "end": {
+                    "line": 1050,
+                    "character": 47
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Argument of type \"object | None\" cannot be assigned to parameter \"expected_schema_version\" of type \"str | None\" in function \"_validate_json_artifact\"\n  Type \"object | None\" is not assignable to type \"str | None\"\n    Type \"object\" is not assignable to type \"str | None\"\n      \"object\" is not assignable to \"str\"\n      \"object\" is not assignable to \"None\"",
+            "range": {
+                "start": {
+                    "line": 1051,
+                    "character": 32
+                },
+                "end": {
+                    "line": 1051,
+                    "character": 53
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Argument of type \"object\" cannot be assigned to parameter \"x\" of type \"ConvertibleToInt\" in function \"__new__\"\n  Type \"object\" is not assignable to type \"ConvertibleToInt\"\n    \"object\" is not assignable to \"str\"\n    \"object\" is incompatible with protocol \"Buffer\"\n      \"__buffer__\" is not present\n    \"object\" is incompatible with protocol \"SupportsInt\"\n      \"__int__\" is not present\n    \"object\" is incompatible with protocol \"SupportsIndex\"\n      \"__index__\" is not present",
+            "range": {
+                "start": {
+                    "line": 1278,
+                    "character": 37
+                },
+                "end": {
+                    "line": 1278,
+                    "character": 46
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Operator \"<=\" not supported for \"None\"",
+            "range": {
+                "start": {
+                    "line": 1524,
+                    "character": 29
+                },
+                "end": {
+                    "line": 1524,
+                    "character": 48
+                }
+            },
+            "rule": "reportOptionalOperand"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Operator \"<=\" not supported for types \"float\" and \"float | None\"\n  Operator \"<=\" not supported for types \"float\" and \"None\"",
+            "range": {
+                "start": {
+                    "line": 1524,
+                    "character": 52
+                },
+                "end": {
+                    "line": 1524,
+                    "character": 92
+                }
+            },
+            "rule": "reportOperatorIssue"
+        },
+        {
+            "file": "/workspace/e02-E-continuation-20261006/policy-engine/src/polisyos/calibration/forecast_bridge.py",
+            "severity": "error",
+            "message": "Argument of type \"object\" cannot be assigned to parameter \"x\" of type \"ConvertibleToInt\" in function \"__new__\"\n  Type \"object\" is not assignable to type \"ConvertibleToInt\"\n    \"object\" is not assignable to \"str\"\n    \"object\" is incompatible with protocol \"Buffer\"\n      \"__buffer__\" is not present\n    \"object\" is incompatible with protocol \"SupportsInt\"\n      \"__int__\" is not present\n    \"object\" is incompatible with protocol \"SupportsIndex\"\n      \"__index__\" is not present",
+            "range": {
+                "start": {
+                    "line": 1939,
+                    "character": 22
+                },
+                "end": {
+                    "line": 1939,
+                    "character": 27
+                }
+            },
+            "rule": "reportArgumentType"
+        }
+    ],
+    "summary": {
+        "filesAnalyzed": 1,
+        "errorCount": 33,
+        "warningCount": 0,
+        "informationCount": 0,
+        "timeInSec": 2.94
+    }
+}

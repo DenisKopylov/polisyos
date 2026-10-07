@@ -1,0 +1,15 @@
+{
+  "literal_custody": "GO",
+  "P37metadata": "CHANGE_REQUIRED onlyprose/nochosenbasislabels",
+  "source_sha": "98e913252845384f275092d86714c3d18a647218",
+  "source_tree": "4004d3a31cda811ac9a348a6e51f8a95d9092931",
+  "338DOC": 1498698,
+  "334literalcopies": 1033929,
+  "all183implementation_unchanged": true,
+  "proof": {
+    "path": "/tmp/e02-E-decisions-prereqs-custody-independent/handoff-98e913/independent-byte-custody-98e913.json",
+    "bytes": 276595,
+    "sha256": "5e29c610e0e89466a5b91bbdebc220245fa59be9c41144835b4805f461bb5af1"
+  },
+  "no_native_reexecution": true
+}

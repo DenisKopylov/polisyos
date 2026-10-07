@@ -1,0 +1,142 @@
+{
+  "schema": "policyos.e02.independent_predicate_class_controls.v1",
+  "base": "8047bfdbb1a7e8c4b031384acf6b45e302591620",
+  "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+  "class_cases": 14,
+  "results": [
+    {
+      "class": "ordered_numpy_guard",
+      "case": "healthy_nullspace",
+      "optimize": 0,
+      "old": "ACCEPTED",
+      "candidate": "ACCEPTED"
+    },
+    {
+      "class": "ordered_numpy_guard",
+      "case": "NaN_negative",
+      "optimize": 0,
+      "old": "REFUSED",
+      "candidate": "REFUSED"
+    },
+    {
+      "class": "ordered_numpy_guard",
+      "case": "finite_escape",
+      "optimize": 0,
+      "old": "REFUSED",
+      "candidate": "REFUSED"
+    },
+    {
+      "class": "ordered_numpy_guard",
+      "case": "healthy_nullspace",
+      "optimize": 1,
+      "old": "ACCEPTED",
+      "candidate": "ACCEPTED"
+    },
+    {
+      "class": "ordered_numpy_guard",
+      "case": "NaN_negative",
+      "optimize": 1,
+      "old": "ACCEPTED",
+      "candidate": "REFUSED"
+    },
+    {
+      "class": "ordered_numpy_guard",
+      "case": "finite_escape",
+      "optimize": 1,
+      "old": "ACCEPTED",
+      "candidate": "REFUSED"
+    },
+    {
+      "class": "dict_literal_and_alias",
+      "errors": 5,
+      "optimize": 0,
+      "old": "ACCEPTED",
+      "candidate": "ACCEPTED"
+    },
+    {
+      "class": "dict_literal_and_alias",
+      "errors": 4,
+      "optimize": 0,
+      "old": "REFUSED",
+      "candidate": "REFUSED"
+    },
+    {
+      "class": "dict_literal_and_alias",
+      "errors": 5,
+      "optimize": 1,
+      "old": "ACCEPTED",
+      "candidate": "ACCEPTED"
+    },
+    {
+      "class": "dict_literal_and_alias",
+      "errors": 4,
+      "optimize": 1,
+      "old": "ACCEPTED",
+      "candidate": "REFUSED"
+    },
+    {
+      "class": "identity_helper",
+      "optimize": 0,
+      "healthy": "ACCEPTED",
+      "same_value_proxy": "REFUSED",
+      "marker_value_equal": true
+    },
+    {
+      "class": "identity_helper",
+      "optimize": 1,
+      "healthy": "ACCEPTED",
+      "same_value_proxy": "REFUSED",
+      "marker_value_equal": true
+    },
+    {
+      "class": "numpy_reflected_order",
+      "values": [
+        "-inf",
+        -1,
+        0,
+        0.5,
+        1,
+        "inf",
+        "NaN"
+      ],
+      "old_bits": [
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        false
+      ],
+      "candidate_bits": [
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        false
+      ],
+      "outcome": "PASS"
+    },
+    {
+      "class": "set_generator_to_comprehension",
+      "outcome": "PASS",
+      "healthy_unique_callers": [
+        "_evaluate_panel_volatility_scenario",
+        "pure_step"
+      ]
+    }
+  ],
+  "property_removal": {
+    "required_negative_gate": "FAIL",
+    "discriminator": "PASS",
+    "reason": "required refusal absent after identity property removed",
+    "marker_name_retained": "_require_same_object"
+  },
+  "limits": [
+    "Actual guards/helpers extracted from immutable Git, with supported plain JSON/scalar/NumPy observation inputs.",
+    "Only class controls, not all historical builders or numerical production witnesses.",
+    "Rich custom equality/ordering is not promised; ordered comparisons were not inverted under a NaN total-order assumption."
+  ]
+}

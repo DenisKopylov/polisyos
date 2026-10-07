@@ -1,0 +1,5 @@
+{
+  "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current54-recomputing-validation-normal.json",
+  "bytes": 3488,
+  "sha256": "7873aab3d96cdcdecbd7a2d1facb30668780aceb7fb86ec28c8b1ceaefef3e33"
+}

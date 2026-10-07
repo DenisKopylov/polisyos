@@ -1,0 +1,25 @@
+Merge made by the 'ort' strategy.
+ ...ght-r2-20261006.candidate45b-gaussian-scale.txt |   12 +
+ ...e-preflight-r2-20261006.candidate45b-pytest.txt |    2 +
+ ...ise-preflight-r2-20261006.candidate45b-ruff.txt |    2 +
+ ...eflight-r2-20261006.frozen58-gaussian-scale.txt |   12 +
+ ...ation-gaussian-noise-preflight-r2-20261006.json |  594 +++
+ ...n-gaussian-noise-preflight-r2-20261006.probe.py |   57 +
+ ...ise-preflight-r2-20261006.resume-admission.json | 4027 ++++++++++++++++++++
+ ...-noise-preflight-r2-20261006.static-partial.txt |    5 +
+ ...2026-10-06-e02-gaussian-noise-preflight-r2.toml |   17 +
+ .../src/polisyos/foundry/calibration/README.md     |    6 +-
+ .../src/polisyos/foundry/calibration/calibrator.py |   13 +-
+ .../src/polisyos/foundry/calibration/preflight.py  |   41 +-
+ .../calibration/test_gaussian_noise_preflight.py   |  213 ++
+ 13 files changed, 4986 insertions(+), 15 deletions(-)
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-gaussian-noise-preflight-r2-20261006.candidate45b-gaussian-scale.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-gaussian-noise-preflight-r2-20261006.candidate45b-pytest.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-gaussian-noise-preflight-r2-20261006.candidate45b-ruff.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-gaussian-noise-preflight-r2-20261006.frozen58-gaussian-scale.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-gaussian-noise-preflight-r2-20261006.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-gaussian-noise-preflight-r2-20261006.probe.py
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-gaussian-noise-preflight-r2-20261006.resume-admission.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-gaussian-noise-preflight-r2-20261006.static-partial.txt
+ create mode 100644 policy-engine/release-fragments/unreleased/2026-10-06-e02-gaussian-noise-preflight-r2.toml
+ create mode 100644 policy-engine/tests/unit/foundry/calibration/test_gaussian_noise_preflight.py

@@ -1,0 +1,103 @@
+{
+  "schema": "policyos.e02.g.intake.v1",
+  "capture_utc": "2026-10-07T13:13:09.978611+00:00",
+  "integration_base": "83e7c0e934d0b40644dec8a24264a0602ef013e7",
+  "integration_tree": "dc1a7697f506b23f2db0f1c80bf929fd2d6a2e0d",
+  "ref_denominator": 127,
+  "changed_refs": [
+    {
+      "ref": "origin/codex/e02-B-current-adapters",
+      "old": "4d523e51ccdc9d1a16d5ff81316f44898827ee78",
+      "new": "2d0f65266a9b42f56bcc73264c43e0f296e10ac5",
+      "tree": "dd10d17bc2caf9ed5beb3ca25a32db5ec92e558e",
+      "comparison_base": "4d523e51ccdc9d1a16d5ff81316f44898827ee78",
+      "base_is_ancestor": true,
+      "path_count": 1073
+    },
+    {
+      "ref": "origin/codex/e02-B-current-cas-generation",
+      "old": "8c292c4904462a1ecd57d250f06fdfd7ff293c95",
+      "new": "d81e7c68a83850834bbe48c492c87975010e79ba",
+      "tree": "f5be50a6768fc7f878784d98f715074175def60c",
+      "comparison_base": "8c292c4904462a1ecd57d250f06fdfd7ff293c95",
+      "base_is_ancestor": true,
+      "path_count": 22
+    },
+    {
+      "ref": "origin/codex/e02-B-current-composition",
+      "old": "71afa5796b7a1b89cc94d9b6d4a0394d6117aab0",
+      "new": "c44a61f65c3674fc5a2eee5b6b07637ba1725286",
+      "tree": "2ce4e0edf9cd13971a97ac0598f468e546ce49e7",
+      "comparison_base": "71afa5796b7a1b89cc94d9b6d4a0394d6117aab0",
+      "base_is_ancestor": true,
+      "path_count": 1
+    },
+    {
+      "ref": "origin/codex/e02-B-current-durability",
+      "old": "0bf268e7860831241e3fd193b3da46086d5893cc",
+      "new": "3dd221a83dbfa4a9f900b4a2d9338f14ce0a1f29",
+      "tree": "526435eb211b83c6c6f0ff35ef145b199d621008",
+      "comparison_base": "0bf268e7860831241e3fd193b3da46086d5893cc",
+      "base_is_ancestor": true,
+      "path_count": 17
+    },
+    {
+      "ref": "origin/codex/e02-B-current-execution-state",
+      "old": "61070b6533387c05497b25295860194ca378b2cc",
+      "new": "d18fe09b5bc0367c966011144a5418f836b9a4b7",
+      "tree": "d4faa64e884c863bdd8c4692432bff4bbd102c54",
+      "comparison_base": "61070b6533387c05497b25295860194ca378b2cc",
+      "base_is_ancestor": true,
+      "path_count": 4
+    },
+    {
+      "ref": "origin/codex/e02-B-current-runtime",
+      "old": "9b57328d57cce174da8a2953e6db0e77c1ad1fee",
+      "new": "2c773afbcd2b84c96f482ff3d757e0ed4b18de63",
+      "tree": "9f0b2cc027562c60377d93a997971841d801f373",
+      "comparison_base": "9b57328d57cce174da8a2953e6db0e77c1ad1fee",
+      "base_is_ancestor": true,
+      "path_count": 10
+    },
+    {
+      "ref": "origin/codex/e02-E-frc-20261006",
+      "old": "2e28bed33d179d1d0f9db4b6cbb3837d809c42c0",
+      "new": "66a4f8fc1398ed72b3ee9d38b07d88a4d2d5c3cd",
+      "tree": "54ec53ea6e53a61432135e8d2728c6fa1cfd964a",
+      "comparison_base": "2e28bed33d179d1d0f9db4b6cbb3837d809c42c0",
+      "base_is_ancestor": true,
+      "path_count": 805
+    },
+    {
+      "ref": "origin/codex/e02-E-mc-20261006",
+      "old": "c4e8092d52cfff633465a8de1b8c93195388d401",
+      "new": "717cea243ebac00d41560f90327269a8daec9ef4",
+      "tree": "ccebb63e9b57f99b0bdaba329e29b0a1c32133d9",
+      "comparison_base": "c4e8092d52cfff633465a8de1b8c93195388d401",
+      "base_is_ancestor": true,
+      "path_count": 3265
+    },
+    {
+      "ref": "origin/codex/e02-F-closeout-20261006",
+      "old": "56e4513787773e6860b55163cd792062abe66a94",
+      "new": "cdf61b4500e355a27db14260e80ce673ddf8869e",
+      "tree": "a08083a193d4621a5d5c59bf31a94916e8323a0a",
+      "comparison_base": "56e4513787773e6860b55163cd792062abe66a94",
+      "base_is_ancestor": true,
+      "path_count": 1503
+    },
+    {
+      "ref": "origin/codex/e02-F-fry-20261006",
+      "old": "c22786dfce8308bb7d48a177ccb1b109843262b5",
+      "new": "c4ddc4bcbddc2a7526f541d51196b176e4311362",
+      "tree": "8bb4badcc750f47833b402c32a5879f9bb7d59d7",
+      "comparison_base": "c22786dfce8308bb7d48a177ccb1b109843262b5",
+      "base_is_ancestor": true,
+      "path_count": 131
+    }
+  ],
+  "new_source_accepted": [],
+  "findings_closed": [],
+  "import_results_check": "actualPASS then full verification read",
+  "verification_sha256": "26fcc44ff5094586402edf421cb04faf944578be3f628edd2577f5ed589d2c17"
+}

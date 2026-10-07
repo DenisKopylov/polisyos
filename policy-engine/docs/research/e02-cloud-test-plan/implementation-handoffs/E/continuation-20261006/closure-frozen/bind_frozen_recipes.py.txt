@@ -1,0 +1,51 @@
+"""Bind exact local follow-up commands to an actually admitted combined source."""
+from __future__ import annotations
+import argparse
+import hashlib
+import json
+import re
+import subprocess
+from pathlib import Path
+
+HERE=Path(__file__).resolve().parent
+
+def main() -> None:
+    parser=argparse.ArgumentParser()
+    parser.add_argument('--repository',type=Path,required=True)
+    parser.add_argument('--candidate',required=True)
+    parser.add_argument('--output',type=Path,required=True)
+    args=parser.parse_args()
+    def git(*parts: str) -> str:return subprocess.check_output(['git',*parts],cwd=args.repository,text=True).strip()
+    candidate=git('rev-parse',args.candidate);tree=git('rev-parse',candidate+'^{tree}')
+    d=json.loads((HERE/'proposal/local-G-recipes.json').read_text())
+    d['schema']='policyos.e02.frozen_local_recipe_proposal.v1'
+    d['scope']='Exact parent-declared frozen combined candidate; test outcomes retain original reviewed SHAs until actual final-wave receipt exists. Production invocation remains UNRUN absent real typed inputs.'
+    d['combined_candidate_sha']=candidate;d['combined_candidate_tree']=tree
+    d['final_wave']='pending actual deciding receipt; no PASS inferred'
+    checks=[]
+    for r in d['recipes']:
+        r['prior_author_source_recipe']={k:r[k] for k in ['implementation_commits','implementation_sha_for_this_recipe','implementation_tree','topic','tracked_receipt_ref']}
+        r['implementation_sha_for_this_recipe']=candidate;r['implementation_tree']=tree
+        r['topic']='codex/e02-E-continuation-20261006'
+        r['topic_fetch_command']='git fetch origin codex/e02-E-continuation-20261006'
+        review='cal' if r['family']=='cal' else r['family']
+        r['tracked_receipt_ref']=candidate+':policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/reviews/'+review+'.json'
+        if r['family']=='cal':
+            r['actual_api_sequence'].append('Actual producer/fresh strict adapter uses complete welfare outcome lineage; public legacy IR load_welfare_sample_bundle alone is not strict outcome admission. Runtime/IR adapter owner must supply intended real downstream enforcement seam and falsifier; no wire semantics change is authorized.')
+            r['minimal_inputs'].append('If claiming downstream sample-array enforcement, provide the actual intended legacy IR consumer/adapter callsite and an integrity-valid forged success array/outcome mismatch as its exact falsifier.')
+            r['bounded_mechanism_commands'].append('(cd policy-engine && .venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/nodes/builtins/simulate/test_welfare_draw_outcomes.py)')
+        if r['finding_ids']==['B194']:
+            r['actual_api_sequence'].append('The repaired configured welfare sibling is a separate bounded native technical witness: requested/attempted/success/failure/unattempted, exact input hashes/output partitions and sample/outcome arrays reconcile through fresh strict CAS loader. It does not supply the missing served simulator provenance or source-law authority.')
+            r['bounded_mechanism_commands'].append('(cd policy-engine && .venv/bin/python -m pytest -o addopts= -q tests/unit/scientist/nodes/builtins/simulate/test_welfare_draw_outcomes.py)')
+        for command in r['bounded_mechanism_commands']:
+            for path in re.findall(r'(?:tests|policy-engine/docs)/[A-Za-z0-9_./-]+(?:\.py)?',command):
+                path=path.split('::')[0]
+                if path.startswith('tests/'):path='policy-engine/'+path
+                raw=subprocess.check_output(['git','show',candidate+':'+path],cwd=args.repository)
+                checks.append({'candidate':candidate,'path':path,'git_blob':git('rev-parse',candidate+':'+path),'sha256':hashlib.sha256(raw).hexdigest()})
+    args.output.mkdir(exist_ok=True,parents=True)
+    (args.output/'local-G-frozen-recipes.json').write_text(json.dumps(d,ensure_ascii=False,indent=2)+'\n')
+    (args.output/'local-G-frozen-recipes-input-check.json').write_text(json.dumps({'check':'Only exact frozen source command-input identity; no numerical/production execution claimed','candidate':candidate,'tree':tree,'result':'PASS','paths':checks},indent=2)+'\n')
+    print(json.dumps({'candidate':candidate,'tree':tree,'recipes':len(d['recipes']),'command_paths_verified':len(checks),'production':'UNRUN; admitted owner inputs required','final_wave':'pending'}))
+
+if __name__=='__main__':main()

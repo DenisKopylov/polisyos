@@ -101,7 +101,7 @@ def test_duplicate_origin_is_used_once_for_narrowing(method: AggregationStrategy
     assert extract_std(result) == pytest.approx(1.0, abs=1e-9)
     assert result.metadata["source_count"] == 2
     assert result.metadata["effective_information_count"] == 1
-    assert result.sample_size == 1
+    assert result.sample_size is None
 
 
 @pytest.mark.parametrize(
@@ -117,8 +117,8 @@ def test_equal_values_with_different_origins_remain_distinct(method: Aggregation
 
     assert extract_std(result) == pytest.approx(1.0 / (2.0**0.5), abs=1e-9)
     assert result.metadata["source_count"] == 2
-    assert result.metadata["effective_information_count"] == 2
-    assert result.sample_size == 2
+    assert result.metadata["effective_information_count"] is None
+    assert result.sample_size is None
 
 
 def test_conflicting_values_for_one_origin_fail_closed() -> None:
@@ -148,7 +148,7 @@ def test_mixed_confidence_and_credible_inputs_do_not_gain_statistical_label() ->
     assert result.interval_semantics is IntervalSemantics.DETERMINISTIC_BOUNDS
     assert result.confidence_level is None
     assert result.gate_eligible is False
-    assert result.metadata["effective_information_count"] == 2
+    assert result.metadata["effective_information_count"] is None
 
 
 def test_unknown_dependency_does_not_narrow_or_remain_gate_eligible() -> None:

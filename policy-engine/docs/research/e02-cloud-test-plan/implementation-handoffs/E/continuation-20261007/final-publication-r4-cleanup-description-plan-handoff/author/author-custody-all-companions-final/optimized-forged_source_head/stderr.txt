@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt", line 115, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt", line 90, in main
+    p=Path(args.manifest);raw_manifest=p.read_bytes();m=strict_json(raw_manifest);validate(p,m)
+                                                                                  ^^^^^^^^^^^^^
+  File "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt", line 64, in validate
+    if canonical({k:m[k] for k in FIXED_HEADER})!=canonical(FIXED_HEADER):raise ValueError('typed fixed publication/source/before-after/scope claims')
+                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: typed fixed publication/source/before-after/scope claims

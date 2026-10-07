@@ -1,0 +1,67 @@
+{
+  "schema": "policyos.e02.integration_decisions.v1",
+  "date": "2026-10-06",
+  "publisher": "G",
+  "branch": "codex/e02-integration",
+  "integration_sha": "9c989f7877bd25fea38416cbd10d4c8b2511d10e",
+  "integration_tree": "12b0155a2166a932e243ad14117890c8f1e90005",
+  "previous_checkpoint": "checkpoint-10.json",
+  "published_continuation_base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "accepted_slices": [
+    {
+      "unit": "A",
+      "slice": "compiler-installed-wheel-verification",
+      "candidate_sha": "577521c6651bba048d6bdfdc13f36a383c8146c6",
+      "candidate_tree": "1e8820533c48ec88355f2a2fccba486f279c2a4b",
+      "implementation_sha": "5650b7aed7991606d62cd8510b377698a778ce39",
+      "original_commits": [
+        "5650b7aed7991606d62cd8510b377698a778ce39",
+        "43644bb6d80831890f18bd696a560f23688867ab",
+        "577521c6651bba048d6bdfdc13f36a383c8146c6"
+      ],
+      "accepted_merge": "9c989f7877bd25fea38416cbd10d4c8b2511d10e",
+      "handoff_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full.json@577521c6651bba048d6bdfdc13f36a383c8146c6",
+      "code_decision": "GO_bounded_test_and_evidence_addition_only",
+      "finding_closure": false,
+      "receipt": "checks/2026-10-06-sixth-wave/A-compiler/replay-4/run-result.json",
+      "limitations": [
+        "RecordingResolver fixture; production resolver/source admission not established",
+        "LA-045 limited/partial, LA-046 partial; no complete REQ-01 or dynamic/external census closure",
+        "Fresh wheel executes exact A candidate, not a composed G wheel",
+        "1 test and 14 handoff/evidence companions; zero production source changes"
+      ]
+    }
+  ],
+  "independent_reviewers": [
+    "ci_admission"
+  ],
+  "independent_tester": "checks_planner",
+  "checks": {
+    "A_installed_selector": {
+      "PASS": 1,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0
+    },
+    "A_canonical_test_Ruff": "PASS",
+    "A_wheel_python_bytes": {
+      "denominator": 3143,
+      "matched": 3143
+    },
+    "C_BERL_numeric_property": "FAIL_REPRODUCED decimal and binary-exact; three-module namespace isolation"
+  },
+  "finding_closures": [],
+  "review_queue": "reviews/2026-10-06-sixth-wave.md",
+  "freeze": "This is an affected verification slice checkpoint, not the overall E02 source freeze",
+  "broad_replay": "UNRUN until common source freeze and all independent reviews",
+  "unavailable_inputs": [
+    "Full baseline raw VM archives and B cohort raw inventory/JUnit/output unavailable locally",
+    "Owner-admitted production/history/evaluator/issuer/signoff/IR ratification inputs remain separately unavailable",
+    "No production source resolver admission in A fixture"
+  ],
+  "skipped_backends": [
+    "No new G Torch/BoTorch/GPyTorch, DoWhy/EconML, Ray/Temporal, PostgreSQL or live Kuzu run claimed"
+  ],
+  "main_publication": "Future push requires separate explicit user authorization",
+  "remote_readback": "Ordinary integration push and head/tree/file readback follow the record commit"
+}

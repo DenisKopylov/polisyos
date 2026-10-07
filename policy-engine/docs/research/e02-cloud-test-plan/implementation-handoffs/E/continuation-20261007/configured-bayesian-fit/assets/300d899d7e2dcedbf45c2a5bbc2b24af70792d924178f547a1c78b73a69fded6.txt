@@ -1,0 +1,135 @@
+{
+  "source": "6638e18a3295e43a89b0ae6adba32e62952154bb",
+  "summary": {
+    "candidate": "6638e18a3295e43a89b0ae6adba32e62952154bb",
+    "tree": "5bc2352671f5172a88268ec45d8dd537b4e048fe",
+    "base": "3cc20af36297493aa8ba8fdc66f3810abadf81a2",
+    "changed_paths": [
+      "policy-engine/release-fragments/unreleased/2026-10-07-configured-bayesian-fit-inlet.toml",
+      "policy-engine/src/polisyos/foundry/calibration/__init__.py",
+      "policy-engine/src/polisyos/foundry/calibration/bayesian_fit_bridge.py",
+      "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+      "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py"
+    ],
+    "python_path_count": 5,
+    "native_counts": {
+      "pytest": {
+        "PASS": 3,
+        "FAIL": 0,
+        "ERROR": 15,
+        "SKIP": 0
+      },
+      "pytest-final": {
+        "PASS": 64,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "pytest-source": {
+        "PASS": 42,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      }
+    },
+    "style_exit_codes": {
+      "ruff-immutable": 0,
+      "format-immutable": 0
+    },
+    "scoped_typing_errors": 7,
+    "distribution_count": 184,
+    "copied_cas_input_count": 54,
+    "copied_cas_bytes": 397597,
+    "global_gate_pass": false,
+    "finding_closure_decided": false
+  },
+  "controls": [
+    {
+      "name": "healthy_recomputed_summary",
+      "outcome": "PASS"
+    },
+    {
+      "name": "native_count",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch",
+      "PASS_markers_preserved_except_target": true
+    },
+    {
+      "name": "typing_count",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch",
+      "PASS_markers_preserved_except_target": true
+    },
+    {
+      "name": "copied_cas_bytes",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch",
+      "PASS_markers_preserved_except_target": true
+    },
+    {
+      "name": "extra_product_path",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch",
+      "PASS_markers_preserved_except_target": true
+    },
+    {
+      "name": "bool_int_count",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch",
+      "PASS_markers_preserved_except_target": true
+    },
+    {
+      "name": "authority_marker",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch",
+      "PASS_markers_preserved_except_target": true
+    },
+    {
+      "name": "option_like_candidate",
+      "outcome": "PASS",
+      "refusal": "invalid_source_identity",
+      "git_callback_count": 0
+    },
+    {
+      "name": "late_none_path",
+      "outcome": "PASS",
+      "refusal": "invalid_relative_path",
+      "git_callback_count": 0
+    },
+    {
+      "name": "late_dot_path",
+      "outcome": "PASS",
+      "refusal": "invalid_relative_path",
+      "git_callback_count": 0
+    },
+    {
+      "name": "late_bool_path",
+      "outcome": "PASS",
+      "refusal": "invalid_relative_path",
+      "git_callback_count": 0
+    },
+    {
+      "name": "metadata_bool_count",
+      "outcome": "PASS",
+      "refusal": "invalid_metadata_count",
+      "git_callback_count": 0
+    },
+    {
+      "name": "summary_predicate_removal",
+      "outcome": "PASS",
+      "defining_refusal_property_outcome": "FAIL",
+      "bad_summaries_re_admitted": [
+        "native_count",
+        "typing_count",
+        "copied_cas_bytes",
+        "extra_product_path"
+      ],
+      "unchanged_markers_and_raw_inputs": true
+    }
+  ],
+  "control_count": 13,
+  "optimization_mode": false,
+  "scope": "receipt claims only; no method/native/backend rerun",
+  "scientific_or_global_closure": false
+}

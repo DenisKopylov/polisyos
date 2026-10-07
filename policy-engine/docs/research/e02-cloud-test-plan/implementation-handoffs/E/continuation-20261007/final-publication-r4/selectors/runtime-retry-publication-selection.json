@@ -1,0 +1,268 @@
+{
+  "candidate_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "candidate_tree_sha": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "cwd": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation",
+  "exact_executed_finalizer": [
+    "python3",
+    "finalize_runtime_retry.py.txt"
+  ],
+  "files": [
+    {
+      "bytes": 21740,
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation/runtime-retry-closeout-v1.json",
+      "role": "moderate deciding output or literal observer/native selector source",
+      "sha256": "2bd25813d83e58dc9c3c6b7acffa70bdd977637395a47eae009468356bfb3e14"
+    },
+    {
+      "bytes": 5274,
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation/full-render-complete-delta-v1.json",
+      "role": "moderate deciding output or literal observer/native selector source",
+      "sha256": "c8d2a85a2f681c7518a20dbda2ce4fcd680ff32b126b79217da2b2e301afa292"
+    },
+    {
+      "bytes": 1047,
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation/terminal-custody-controls-v1.json",
+      "role": "moderate deciding output or literal observer/native selector source",
+      "sha256": "07023f05495b65f2edf3a552628251400631a5d37b13bbaa369d02738f0e0488"
+    },
+    {
+      "bytes": 567,
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation/exclusive-output-controls-v1.json",
+      "role": "moderate deciding output or literal observer/native selector source",
+      "sha256": "63b1c955349a0e6661f95e47071c8478741b6cf7cbb08aeed0ce64e54e33208b"
+    },
+    {
+      "bytes": 1456,
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation/exclusive-output-controls.py.txt",
+      "role": "moderate deciding output or literal observer/native selector source",
+      "sha256": "19aa4279f8924cec0be3df61f1d274e9187b787ba9863a24ead585e66a3f37a7"
+    },
+    {
+      "bytes": 567,
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation/exclusive-output-controls-v1.stdout.txt",
+      "role": "moderate deciding output or literal observer/native selector source",
+      "sha256": "ee6beac3b865939e9aaf3f7de689eb11689fbaec6d4283d3a2d5e4805b32e871"
+    },
+    {
+      "bytes": 0,
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation/exclusive-output-controls-v1.stderr.txt",
+      "role": "moderate deciding output or literal observer/native selector source",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 26773,
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation/fresh-shared-preflight-after-ci22.json",
+      "role": "moderate deciding output or literal observer/native selector source",
+      "sha256": "8dc4b1e1768f6b2bef306d42e4e55b7e1ebbb4a17657d66e7e8b2ac0bf6f88ce"
+    },
+    {
+      "bytes": 526,
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation/fresh-shared-snapshot-b-after-ci22.json",
+      "role": "moderate deciding output or literal observer/native selector source",
+      "sha256": "43961d3402c6ab2e54463317951490ebe360903069f74910eb02427a7ffefd89"
+    },
+    {
+      "bytes": 526,
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation/fresh-shared-snapshot-a.json",
+      "role": "moderate deciding output or literal observer/native selector source",
+      "sha256": "26fcb2e9a79d5b59b59ad28ad43ee91e6b99eb5b0cb7ba1f00bbca22a58cc48e"
+    },
+    {
+      "bytes": 391,
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation/shared-preflight-after-ci22.stdout.txt",
+      "role": "moderate deciding output or literal observer/native selector source",
+      "sha256": "61570f50264e9c45df4d61db27ef009a2fa90def49b32d432a180f65244f77a4"
+    },
+    {
+      "bytes": 0,
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation/shared-preflight-after-ci22.stderr.txt",
+      "role": "moderate deciding output or literal observer/native selector source",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 391,
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation/shared-preflight.stdout.txt",
+      "role": "moderate deciding output or literal observer/native selector source",
+      "sha256": "5dff14267b1f0a8c32b2e349488548c5e91c22df9cbeed0b28f2148b747dfa88"
+    },
+    {
+      "bytes": 5432,
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation/record_shared_preflight.py.txt",
+      "role": "moderate deciding output or literal observer/native selector source",
+      "sha256": "a8286632121769bf01b8b6558869514c2ebdc44d49fa26a8d6be7c133dff2139"
+    },
+    {
+      "bytes": 902,
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation/historical-preflight-recovery-search-v1.json",
+      "role": "moderate deciding output or literal observer/native selector source",
+      "sha256": "abac5f22d0654a78355d470f22cb96d0f0412f42c7b6d7afa1be5671b3696a46"
+    },
+    {
+      "bytes": 2966,
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation/retry_one_native_architecture_family.py.txt",
+      "role": "moderate deciding output or literal observer/native selector source",
+      "sha256": "5fe521eab22dd1f14445ccdb28a3e61a12a56d35f544b6bef96b94008e13d779"
+    },
+    {
+      "bytes": 16689,
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation/finalize_runtime_retry.py.txt",
+      "role": "moderate deciding output or literal observer/native selector source",
+      "sha256": "cba28919a206f0fd7d1f009fefcfc688ab5e0d08fc5ee31b64d2fe469aa3eff3"
+    },
+    {
+      "bytes": 337,
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation/narrow-capture.stdout.txt",
+      "role": "moderate deciding output or literal observer/native selector source",
+      "sha256": "da580fb0b40856304568edbaeb55287a696711616e4b03bab2bb4fe6e98ad772"
+    },
+    {
+      "bytes": 0,
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation/narrow-capture.stderr.txt",
+      "role": "moderate deciding output or literal observer/native selector source",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 479,
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation/full-architecture-capture.stdout.txt",
+      "role": "moderate deciding output or literal observer/native selector source",
+      "sha256": "1cf3f2cfc3f5c61feb515bfadba11e0c3e04987b43edf9ad0310547cb28b08c9"
+    },
+    {
+      "bytes": 0,
+      "path": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/runtime-retry-preparation/full-architecture-capture.stderr.txt",
+      "role": "moderate deciding output or literal observer/native selector source",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 7698,
+      "path": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/checks/narrow-runtime-family/narrow-runtime-family.json",
+      "role": "moderate deciding output or literal observer/native selector source",
+      "sha256": "d846247a0bde06bb466054682e8ac565f70fe8a4d270723797a4320f93e9c1dd"
+    },
+    {
+      "bytes": 774,
+      "path": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/checks/narrow-runtime-family/narrow-runtime-family.stdout.txt",
+      "role": "moderate deciding output or literal observer/native selector source",
+      "sha256": "0b38fd8de22127c76379502604b59a91236a82d9e20b30a7361a52f7ac67dc7f"
+    },
+    {
+      "bytes": 7883,
+      "path": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/checks/architecture-full-retry/architecture-full-retry.json",
+      "role": "moderate deciding output or literal observer/native selector source",
+      "sha256": "79341bd7ef4131f55ec7a9ca22f0ae4b378a4969a61a38e0047143951f3e5bba"
+    },
+    {
+      "bytes": 123571,
+      "path": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/checks/architecture-full-retry/architecture-full-retry.stdout.txt",
+      "role": "moderate deciding output or literal observer/native selector source",
+      "sha256": "8240df44dd7f4a899c3c9e25a1945e1bf15680b19fbfcbc38a378c05fb3354af"
+    }
+  ],
+  "large_generated_raw": [
+    {
+      "actual": {
+        "bytes": 2812414,
+        "path": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/full-architecture-retained/outputs/runtime-openapi-snapshot/schemas/runtime_api_v1.openapi.json",
+        "role": "complete native retained generator output; large raw remains ignored",
+        "sha256": "d60fa373d74d8af43a14b806da0d4180bed8bacb2670d10aea4b402268575c7b"
+      },
+      "declared_output": "schemas/runtime_api_v1.openapi.json",
+      "equal_bytes": false,
+      "expected": {
+        "bytes": 2812414,
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/schemas/runtime_api_v1.openapi.json",
+        "role": "unchanged committed expected output",
+        "sha256": "73d9109067c01ae2391acfb4bc3017634c96f1482f208bd47f8aa556e20c764a"
+      },
+      "family": "runtime-openapi-snapshot"
+    },
+    {
+      "actual": {
+        "bytes": 951543,
+        "path": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/full-architecture-retained/outputs/runtime-api-client/packages/runtime-api-client/types.ts",
+        "role": "complete native retained generator output; large raw remains ignored",
+        "sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4"
+      },
+      "declared_output": "packages/runtime-api-client/types.ts",
+      "equal_bytes": true,
+      "expected": {
+        "bytes": 951543,
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/packages/runtime-api-client/types.ts",
+        "role": "unchanged committed expected output",
+        "sha256": "5a4d52d41451aabf77939840914a9c4c0c9d80e67333333138156e790dc867a4"
+      },
+      "family": "runtime-api-client"
+    },
+    {
+      "actual": {
+        "bytes": 108061,
+        "path": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/full-architecture-retained/outputs/runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "role": "complete native retained generator output; large raw remains ignored",
+        "sha256": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd"
+      },
+      "declared_output": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+      "equal_bytes": true,
+      "expected": {
+        "bytes": 108061,
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "role": "unchanged committed expected output",
+        "sha256": "e0f56c8964c2c0902b62875fca8d5a245f1a1727a808a28ef80500aacb06c1cd"
+      },
+      "family": "runtime-api-client"
+    },
+    {
+      "actual": {
+        "bytes": 31276,
+        "path": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/full-architecture-retained/outputs/runtime-api-client/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+        "role": "complete native retained generator output; large raw remains ignored",
+        "sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506"
+      },
+      "declared_output": "packages/runtime-api-client/canonicalRuntimeApiClient.js",
+      "equal_bytes": true,
+      "expected": {
+        "bytes": 31276,
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.js",
+        "role": "unchanged committed expected output",
+        "sha256": "69a861c8e33251ca48fb87757c4d3000ef519c2bd110590c79e0b7f4dd5d5506"
+      },
+      "family": "runtime-api-client"
+    },
+    {
+      "actual": {
+        "bytes": 791736,
+        "path": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/full-architecture-retained/outputs/runtime-dashboard-api-types/apps/runtime-dashboard/src/api/types.ts",
+        "role": "complete native retained generator output; large raw remains ignored",
+        "sha256": "4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c"
+      },
+      "declared_output": "apps/runtime-dashboard/src/api/types.ts",
+      "equal_bytes": true,
+      "expected": {
+        "bytes": 791736,
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/src/api/types.ts",
+        "role": "unchanged committed expected output",
+        "sha256": "4b4285f496a45d697a92dffcccb4d9c998ba571d1886f99bc5e8cdc3579c466c"
+      },
+      "family": "runtime-dashboard-api-types"
+    },
+    {
+      "actual": {
+        "bytes": 2376644,
+        "path": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/full-architecture-retained/outputs/trust-claim-posture-register/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+        "role": "complete native retained generator output; large raw remains ignored",
+        "sha256": "8e0d0efe77563ce7211c1d491b19b5d2d25b8ae1ef6e58c01453e822afe6feea"
+      },
+      "declared_output": "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+      "equal_bytes": false,
+      "expected": {
+        "bytes": 2365635,
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+        "role": "unchanged committed expected output",
+        "sha256": "0482b1acd2bd254ffb47d6907d11117eb0490a2e8434eed876879d73195d17ba"
+      },
+      "family": "trust-claim-posture-register"
+    }
+  ],
+  "large_raw_publication": "hash/size/input refs only; existing ignored native outputs retained",
+  "stale_old_json_presented_as_current": false,
+  "total_bytes": 225989
+}

@@ -1,0 +1,214 @@
+{
+  "check_outcomes": {
+    "FAIL": 1,
+    "PASS": 7
+  },
+  "checks": [
+    {
+      "basis": "independently_reconciled",
+      "check_status": "PASS",
+      "four_exact_cdf": [
+        "166153499473114484112975882535043072/332306998946228968232597905049010723",
+        "1/2",
+        "166153499473114484119622022513967651/332306998946228968232597905049010723",
+        "1"
+      ],
+      "four_unadmitted_cuts": [
+        "0x1.0000000000000p-1",
+        "0x1.0000000000000p-1",
+        "0x1.0000000000001p-1",
+        "0x1.0000000000000p+0"
+      ],
+      "name": "independent_fraction_gold",
+      "semantics": "finite-U mesh approximation; no continuum/arbitrary-real exactness promise",
+      "three_exact_cdf": [
+        "332306998946228968225951765070086144/664613997892457936458549670119096867",
+        "332306998946228968232597905049010723/664613997892457936458549670119096867",
+        "1"
+      ],
+      "three_expected_cuts": [
+        "0x1.0000000000000p-1",
+        "0x1.0000000000001p-1",
+        "0x1.0000000000000p+0"
+      ],
+      "tiny_binary64_ratio": "6646139978924579/664613997892457936451903530140172288"
+    },
+    {
+      "check_status": "PASS",
+      "cut_hex": [
+        "0x1.0000000000000p-1",
+        "0x1.0000000000001p-1",
+        "0x1.0000000000000p+0"
+      ],
+      "facade_identity": true,
+      "indices": [
+        0,
+        0,
+        1,
+        2,
+        2
+      ],
+      "name": "public_three_atom_finite_bucket_positive",
+      "uniform_hex": [
+        "0x0.0p+0",
+        "0x1.fffffffffffffp-2",
+        "0x1.0000000000000p-1",
+        "0x1.0000000000001p-1",
+        "0x1.fffffffffffffp-1"
+      ]
+    },
+    {
+      "check_status": "PASS",
+      "name": "public_four_atom_no_bucket_refusal",
+      "typed_refusal": "positive posterior category has no finite-U bucket"
+    },
+    {
+      "check_status": "PASS",
+      "name": "public_unit_uniform_one_refusal",
+      "typed_refusal": "uniform transform requires finite coordinates in [0, 1)"
+    },
+    {
+      "check_status": "FAIL",
+      "error": "DID NOT RAISE <class 'ValueError'>",
+      "error_type": "Failed",
+      "interpretation": "obsolete three-atom collapse expectation; required four-atom refusal still holds",
+      "name": "unchanged317_original_facade_test"
+    },
+    {
+      "actual_sampled_rows": {
+        "0.0": 128,
+        "1.0": 1,
+        "2.0": 127
+      },
+      "callback_count": 257,
+      "check_status": "PASS",
+      "expectation_basis": "independent complete 256-net U=j/256 with cut algebra above",
+      "family": "bootstrap",
+      "gate_eligible": false,
+      "name": "real_sobol_three_atom_callback_witness",
+      "nominal_callback_count": 1,
+      "sampled_callback_count": 256
+    },
+    {
+      "callback_count": 0,
+      "check_status": "PASS",
+      "diagnostics": {
+        "unsupported_finite_empirical_law": true
+      },
+      "family": "unknown",
+      "gate_eligible": false,
+      "name": "real_sobol_four_atom_precallback_refusal"
+    },
+    {
+      "actual_callbacks": 257,
+      "actual_sampled_rows": {
+        "0.0": 128,
+        "2.0": 1,
+        "3.0": 127
+      },
+      "check_status": "PASS",
+      "defining_property_status": "FAIL",
+      "markers_retained": [
+        "public facade identities",
+        "canonical weight ratios",
+        "native Sobol sampler",
+        "DECIMAL_EXACT carrier",
+        "half-open uniform guard"
+      ],
+      "name": "sole_finite_bucket_predicate_removal",
+      "removed_source": "    if not np.array_equal(increments > 0, array > 0):\n        raise ValueError(\"positive posterior category has no finite-U bucket\")\n",
+      "requested_draw_count": 256,
+      "result_gate_eligible": false,
+      "skipped_positive_category": 1,
+      "source_mutation": "isolated process-local function bindings only"
+    }
+  ],
+  "disposition": "GO_FOR_BOUNDED_FACADE_TEST_CORRECTION",
+  "environment": {
+    "cpu_caps": null,
+    "env": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine/src"
+    },
+    "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "jax": "0.8.2",
+    "numpy": "2.3.5",
+    "pydantic": "2.12.5",
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "scipy": "1.16.3"
+  },
+  "finding_outcome": "not decided by this numeric companion probe",
+  "limitations": [
+    "No arbitrary-real exact-law claim; positive is finite-U mesh approximation.",
+    "The three-atom tiny bucket is reached by complete unscrambled 256-net at U=.5; that mesh assigns one draw to it, unlike its continuum probability.",
+    "Original current317 test FAIL is preserved; no source edits or full-wave repeats.",
+    "One callback nominal and 256 sampled are reconciled separately."
+  ],
+  "schema": "e02-independent-finite-bucket-probe:1",
+  "source": "31782b55f8f35556cfc581449b040c393f00c78f",
+  "source_guard_after": {
+    "assets": [
+      {
+        "bytes": 5641,
+        "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+        "sha256": "b8a793867ae61d5d249d47e108fab66874951cda7644f5dd5a32b81b18de51b8"
+      },
+      {
+        "bytes": 30919,
+        "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "sha256": "737af1672db198c1465da8fcf009cd470f479ac342327e4699fb831b91dd0b24"
+      },
+      {
+        "bytes": 22618,
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+        "sha256": "a29fff79a9d9d7cf47f66809f2fcfcc6188722af6f5f1617eb5a78ce5c5a0f4a"
+      },
+      {
+        "bytes": 71486,
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+        "sha256": "4860382fe26db3ad6a29c206aada4b94123b7cd4d941ee79c58beae342f5c47f"
+      },
+      {
+        "bytes": 3397,
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+        "sha256": "068f0f1bd0bc2fcbd59884331f98d3c89bb0e6e67567ff3d8949055f5a6d2fd4"
+      }
+    ],
+    "sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+    "status": "?? policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/confidenceLedgerRiskSpendTwin.browser.test.tsx/confidence-ledger-native-Chromium-visibility-proof-admits-the-baseline-through-the-native-finite-paint-grammar-1.png\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-01.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-02.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-03.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-14.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-36.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-41.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-44.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-48.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-53.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-62.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/root.lock\n",
+    "tree": "746f50214f70c0fa34cd8bb6d42e72440adc9f96"
+  },
+  "source_guard_before": {
+    "assets": [
+      {
+        "bytes": 5641,
+        "path": "policy-engine/tests/unit/calibration/test_evidence_facades.py",
+        "sha256": "b8a793867ae61d5d249d47e108fab66874951cda7644f5dd5a32b81b18de51b8"
+      },
+      {
+        "bytes": 30919,
+        "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+        "sha256": "737af1672db198c1465da8fcf009cd470f479ac342327e4699fb831b91dd0b24"
+      },
+      {
+        "bytes": 22618,
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+        "sha256": "a29fff79a9d9d7cf47f66809f2fcfcc6188722af6f5f1617eb5a78ce5c5a0f4a"
+      },
+      {
+        "bytes": 71486,
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+        "sha256": "4860382fe26db3ad6a29c206aada4b94123b7cd4d941ee79c58beae342f5c47f"
+      },
+      {
+        "bytes": 3397,
+        "path": "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+        "sha256": "068f0f1bd0bc2fcbd59884331f98d3c89bb0e6e67567ff3d8949055f5a6d2fd4"
+      }
+    ],
+    "sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+    "status": "?? policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/confidenceLedgerRiskSpendTwin.browser.test.tsx/confidence-ledger-native-Chromium-visibility-proof-admits-the-baseline-through-the-native-finite-paint-grammar-1.png\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-01.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-02.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-03.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-14.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-36.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-41.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-44.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-48.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-53.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/locks/stripe-62.lock\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/root.lock\n",
+    "tree": "746f50214f70c0fa34cd8bb6d42e72440adc9f96"
+  },
+  "tree": "746f50214f70c0fa34cd8bb6d42e72440adc9f96"
+}

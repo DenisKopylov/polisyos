@@ -1,0 +1,41 @@
+{
+  "python_executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "packages": {
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "pydantic": "2.12.5",
+    "pytest": "9.0.2",
+    "jax": "0.8.2",
+    "jaxlib": "0.8.2",
+    "SALib": "1.5.2",
+    "ruff": "0.14.10"
+  },
+  "backend": {
+    "jax_x64_enabled": false,
+    "jax_devices": [
+      {
+        "platform": "cpu",
+        "device_kind": "cpu",
+        "id": 0
+      }
+    ],
+    "numpy_float64": "float64"
+  },
+  "thread_environment": {
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "XLA_FLAGS": null
+  },
+  "production_data": "none supplied or transferred; bounded native finite-corpus fixtures only",
+  "git": {
+    "head": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+    "tree": "2e692d5a5dfa4cfbff78d0079c6fed3e4ba1a73f"
+  },
+  "reused_environment": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+  "new_environments_created": false,
+  "backend_limits": "IR finite float64 profile; shared MC retains its existing float32 pre-draw range admission",
+  "capture_note": "Backend/environment values captured at c861 and unchanged; Git identity read back separately at final700 publication. No numerical backend rerun implied."
+}

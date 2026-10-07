@@ -1,0 +1,1 @@
+{"command": ["/workspace/.polisyos-environment/uv/bin/uv", "run", "--no-sync", "polisyos-tools", "connectors", "check-contracts", "--check"], "exit_code": 0, "outcome": "PASS", "counts": null, "wall_seconds": 35.4172887802124, "source_immutable": true}

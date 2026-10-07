@@ -1,0 +1,1 @@
+Initial adhoc metadata-writer setup (not a product check) raised NameError: name json is not defined at line27. The hooks/sitecustomize.py was already written; overlay.json was not created. Corrected metadata writer imports json. No numerical/property outcome measured. Original command was an inline python3 heredoc tool call; argv was not persisted.

@@ -1,0 +1,895 @@
+{
+  "schema": "e02.E.final_all54_independent_recomputation.v1",
+  "disposition": "GO_bounded_metadata_criteria_custody",
+  "publication_commit": "9954f394b470961d9e144a557f3cefeb9e0a67b6",
+  "source_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "source_tree": "c02e043c3e1c8222c28aa71187fa8db4e2fdeea7",
+  "manifest_bytes": 3614273,
+  "original_card_joins": [
+    {
+      "id": "B32",
+      "bundle": "FRC-01",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        607,
+        620
+      ],
+      "fragment_sha256": "68a3acb0a34e8ebfce5217cdc99785a851a21368ea2d552795f68272e7140d6c",
+      "card_blob": "17c89d4bfa74dda2d20cda6a223d1b1012c0291c"
+    },
+    {
+      "id": "B97",
+      "bundle": "DOE-01",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        2630,
+        2641
+      ],
+      "fragment_sha256": "44f1e5ec026a302fe6c36444270e4b12b67cb0fe8b28b935961b1bbb0a50478b",
+      "card_blob": "12d257bab0c7037328730072e54e90f8269df1c8"
+    },
+    {
+      "id": "B98",
+      "bundle": "DOE-01",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        2642,
+        2653
+      ],
+      "fragment_sha256": "ba66b01fed8fd36fcab549cbfa051f1486779a24a0bb52594410c6246baaa995",
+      "card_blob": "12d257bab0c7037328730072e54e90f8269df1c8"
+    },
+    {
+      "id": "B99",
+      "bundle": "DOE-01",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        2654,
+        2665
+      ],
+      "fragment_sha256": "2dc54f2af8b706598329291977e522e77fe552dc9088092685dc95819d84f921",
+      "card_blob": "12d257bab0c7037328730072e54e90f8269df1c8"
+    },
+    {
+      "id": "B100",
+      "bundle": "DOE-02",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        2666,
+        2677
+      ],
+      "fragment_sha256": "34825cfe459b3861a6461797f12e9e1983399355660131e224359e5d9984fd67",
+      "card_blob": "15a7f1540e00b15b4905d9569cafa6425e185793"
+    },
+    {
+      "id": "B101",
+      "bundle": "DOE-02",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        2678,
+        2689
+      ],
+      "fragment_sha256": "1245f7e21214f8264fc2921296954e64869c1758685cccde09eebef16fda2c66",
+      "card_blob": "15a7f1540e00b15b4905d9569cafa6425e185793"
+    },
+    {
+      "id": "B102",
+      "bundle": "DOE-03",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        2690,
+        2701
+      ],
+      "fragment_sha256": "4f7c1e54bd69c1bc75c22837fcbd9b7e771def59e0db46df8e566640b37a5879",
+      "card_blob": "a3de9d8df20fa7983d53ea96f17d38b4c80b8235"
+    },
+    {
+      "id": "B103",
+      "bundle": "DOE-03",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        2702,
+        2713
+      ],
+      "fragment_sha256": "54bce3d469a69faac32d8234957b6df186fff8eae664ee2f370b3c69c6e383e3",
+      "card_blob": "a3de9d8df20fa7983d53ea96f17d38b4c80b8235"
+    },
+    {
+      "id": "B104",
+      "bundle": "DOE-03",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        2714,
+        2725
+      ],
+      "fragment_sha256": "104a9e979d5aab702f6f437382d2a3bda2e803eeaa9eb440f948cff74504e438",
+      "card_blob": "a3de9d8df20fa7983d53ea96f17d38b4c80b8235"
+    },
+    {
+      "id": "B105",
+      "bundle": "DOE-03",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        2726,
+        2737
+      ],
+      "fragment_sha256": "07915c57716c654cac474a7302eeca0bd7b73219cfe00eeb9a4449e83084b343",
+      "card_blob": "a3de9d8df20fa7983d53ea96f17d38b4c80b8235"
+    },
+    {
+      "id": "B166",
+      "bundle": "BKT-01",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4316,
+        4327
+      ],
+      "fragment_sha256": "fca923e26ad0c81b5a1097f0c5b09b3a85434faf70826001b2e5d6c676e8a541",
+      "card_blob": "0a9dbf6c94fb414af25b5db9a5e3c27087afaea3"
+    },
+    {
+      "id": "B167",
+      "bundle": "BKT-02",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4328,
+        4339
+      ],
+      "fragment_sha256": "986a6c0ed5231ea1c7722e750d6ebe11766ef43727f884ddfdc50f3cdaa622e5",
+      "card_blob": "c436b5b6e96f3fa9ab832eb33f92c6a459e69705"
+    },
+    {
+      "id": "B168",
+      "bundle": "BKT-02",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4340,
+        4351
+      ],
+      "fragment_sha256": "730ba6f2005332f11155a09f9c6267abec7833456d85b70dc944dccebd55cfb3",
+      "card_blob": "c436b5b6e96f3fa9ab832eb33f92c6a459e69705"
+    },
+    {
+      "id": "B169",
+      "bundle": "BKT-01",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4352,
+        4363
+      ],
+      "fragment_sha256": "8f7c03d7a40a2faa62a4b0c4bc41b43510c9f5c35941ca50ec1fb8dc88fae26b",
+      "card_blob": "0a9dbf6c94fb414af25b5db9a5e3c27087afaea3"
+    },
+    {
+      "id": "B170",
+      "bundle": "BKT-01",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4364,
+        4375
+      ],
+      "fragment_sha256": "ebd468778c34a525226f1631f17dbb9eb3e040a6c9a5d96d038620576528181a",
+      "card_blob": "0a9dbf6c94fb414af25b5db9a5e3c27087afaea3"
+    },
+    {
+      "id": "B171",
+      "bundle": "BKT-02",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4376,
+        4387
+      ],
+      "fragment_sha256": "e8224b95baa6a52045bc0a4dca7c1241e86570a02a061d18e6e622b6ea434dad",
+      "card_blob": "c436b5b6e96f3fa9ab832eb33f92c6a459e69705"
+    },
+    {
+      "id": "B172",
+      "bundle": "BKT-03",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4388,
+        4399
+      ],
+      "fragment_sha256": "272c388626bc25adcaf03e6f1114819ebcd5ca8a904dfb8556f64a161734b306",
+      "card_blob": "9ece85fc6001c194322e7235a5eb23b375393c09"
+    },
+    {
+      "id": "B173",
+      "bundle": "BKT-03",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4400,
+        4411
+      ],
+      "fragment_sha256": "9cc7587ea32e5a5dd582054acdd30aa10f82468d8cb9a41188c3d3a2468926f8",
+      "card_blob": "9ece85fc6001c194322e7235a5eb23b375393c09"
+    },
+    {
+      "id": "B174",
+      "bundle": "BKT-04",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4412,
+        4425
+      ],
+      "fragment_sha256": "a82f29a9dea77a5de495b6e71780394b8f5aa1df167e13ff717a079fac534664",
+      "card_blob": "d6a34981d3b2cfd76b4d3fb601a38165d4c37284"
+    },
+    {
+      "id": "B175",
+      "bundle": "BKT-04",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4426,
+        4437
+      ],
+      "fragment_sha256": "19a660b8a49a7076ae9973dca81480423bf53f26cd954cd69967bbc12131bfe4",
+      "card_blob": "d6a34981d3b2cfd76b4d3fb601a38165d4c37284"
+    },
+    {
+      "id": "B176",
+      "bundle": "CAL-01",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4525,
+        4534
+      ],
+      "fragment_sha256": "96268eb1d68c65e1c1e45e9264d75166c955a5474900b6c4f6639a857dab246a",
+      "card_blob": "fe0330dcb59d495f21c00da081d6720a4ca50308"
+    },
+    {
+      "id": "B177",
+      "bundle": "CAL-01",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4535,
+        4544
+      ],
+      "fragment_sha256": "da1d53d7bc4a80d64aa3799fd371ccbd8ccbdfd1217c636d7f722a1de5a203b9",
+      "card_blob": "fe0330dcb59d495f21c00da081d6720a4ca50308"
+    },
+    {
+      "id": "B178",
+      "bundle": "CAL-01",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4545,
+        4554
+      ],
+      "fragment_sha256": "f47d17cc309c8f24d13326f20a1dc74e6e4fb92adb59f111b40e6918e7a745f9",
+      "card_blob": "fe0330dcb59d495f21c00da081d6720a4ca50308"
+    },
+    {
+      "id": "B179",
+      "bundle": "CAL-02",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4555,
+        4564
+      ],
+      "fragment_sha256": "76883f0cc8436c9b0266ddc6ae870564a46bc98a036bc88b7e89dfda922f1508",
+      "card_blob": "85c67c206b2db65924e079c75a8daeb8ae8889c6"
+    },
+    {
+      "id": "B180",
+      "bundle": "CAL-02",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4565,
+        4574
+      ],
+      "fragment_sha256": "a5f7bb210e914b99904a1f5fec819651cb2c5db4174c44d856af48ed6471c421",
+      "card_blob": "85c67c206b2db65924e079c75a8daeb8ae8889c6"
+    },
+    {
+      "id": "B181",
+      "bundle": "CAL-02",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4575,
+        4584
+      ],
+      "fragment_sha256": "0a790655318188a0d9ca96c0e73c28e3ffdb17859f42a911e35784b021f85552",
+      "card_blob": "85c67c206b2db65924e079c75a8daeb8ae8889c6"
+    },
+    {
+      "id": "B182",
+      "bundle": "CAL-02",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4585,
+        4594
+      ],
+      "fragment_sha256": "672d5e7ad45cad5f78609268028702f80d4802c59b1dc17487622e4da9d6f07d",
+      "card_blob": "85c67c206b2db65924e079c75a8daeb8ae8889c6"
+    },
+    {
+      "id": "B183",
+      "bundle": "CAL-03",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4595,
+        4604
+      ],
+      "fragment_sha256": "036471c121686d6b68a603fde76ce9c015a1a374d090d47465b79abcbbc00c44",
+      "card_blob": "122a5d06586f95b890e9031a286585f5ae255e69"
+    },
+    {
+      "id": "B184",
+      "bundle": "CAL-04",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4605,
+        4614
+      ],
+      "fragment_sha256": "0fc68424f39da383b748d9c3b20446065ef16c39173fa8875b0a5b4852843a00",
+      "card_blob": "457cdfcf8faa88e088a369f8dc9c22252f0da660"
+    },
+    {
+      "id": "B185",
+      "bundle": "CAL-05",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4702,
+        4711
+      ],
+      "fragment_sha256": "784336950cf2e3f1d11e577a321235819c6660d9a8218210ec05620e492988bc",
+      "card_blob": "9c067bfc9968bc2915d541c7358ee2efd8d22531"
+    },
+    {
+      "id": "B186",
+      "bundle": "UQP-01",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4712,
+        4721
+      ],
+      "fragment_sha256": "9278fafc393d83f73e09a50cb1d74308961a627d63a775905c103e831bb8e6ea",
+      "card_blob": "8522630fba017eee65c6b12d96c618f0eadbdc01"
+    },
+    {
+      "id": "B187",
+      "bundle": "UQP-02",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4722,
+        4731
+      ],
+      "fragment_sha256": "2b4d8ebdce33646e0610e74f827232b75cd324432972a7957ab5896c2765275b",
+      "card_blob": "7555a17f0acea5c867d034a535ea83bd0843c03c"
+    },
+    {
+      "id": "B188",
+      "bundle": "UQP-02",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4732,
+        4741
+      ],
+      "fragment_sha256": "845944fcb63293d09ccc282370335bbe03a508973c704ac6a58175d019e86771",
+      "card_blob": "7555a17f0acea5c867d034a535ea83bd0843c03c"
+    },
+    {
+      "id": "B189",
+      "bundle": "UQP-01",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4742,
+        4751
+      ],
+      "fragment_sha256": "d4807669b03d45438519948f53992d9b71fd88351e4df7dbf91230791d002c6a",
+      "card_blob": "8522630fba017eee65c6b12d96c618f0eadbdc01"
+    },
+    {
+      "id": "B190",
+      "bundle": "UQP-01",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4752,
+        4761
+      ],
+      "fragment_sha256": "bb28f0e65d6317465c37bae99ed3a0bd89a03a3194f111e0f3faf24553724d53",
+      "card_blob": "8522630fba017eee65c6b12d96c618f0eadbdc01"
+    },
+    {
+      "id": "B191",
+      "bundle": "UQP-01",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4762,
+        4771
+      ],
+      "fragment_sha256": "91e46d98b7af41ab8bda1facccae166d7348da11389426af576e2d48293769cd",
+      "card_blob": "8522630fba017eee65c6b12d96c618f0eadbdc01"
+    },
+    {
+      "id": "B192",
+      "bundle": "UQP-02",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4772,
+        4781
+      ],
+      "fragment_sha256": "3ba8c9b9a37ba35d3d7e210af7d91ecdfaebbc6d642739172a988840a9c2ef34",
+      "card_blob": "7555a17f0acea5c867d034a535ea83bd0843c03c"
+    },
+    {
+      "id": "B193",
+      "bundle": "UQP-03",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4782,
+        4791
+      ],
+      "fragment_sha256": "ad591257998b80b71a8a6337f202dce1dad9e02c934525527c310d8e336022bf",
+      "card_blob": "1d1d1d6add4711247edf5e99cde67a62df954e6e"
+    },
+    {
+      "id": "B194",
+      "bundle": "UQP-03",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4792,
+        4801
+      ],
+      "fragment_sha256": "47058d366d7ff7e11ed2348e96b2f56659a999f1f0839a02edc92804b295711e",
+      "card_blob": "1d1d1d6add4711247edf5e99cde67a62df954e6e"
+    },
+    {
+      "id": "B195",
+      "bundle": "CAL-03",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4894,
+        4907
+      ],
+      "fragment_sha256": "69b56d13bbee8d87f83987b09b991e08cf33eff2204302a3b938acef363de747",
+      "card_blob": "122a5d06586f95b890e9031a286585f5ae255e69"
+    },
+    {
+      "id": "B196",
+      "bundle": "CAL-04",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4908,
+        4921
+      ],
+      "fragment_sha256": "e10dd58806c1c009f96344f117d7f7ecbb5f962191b966756a001fd388705fde",
+      "card_blob": "457cdfcf8faa88e088a369f8dc9c22252f0da660"
+    },
+    {
+      "id": "B197",
+      "bundle": "CAL-06",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4922,
+        4935
+      ],
+      "fragment_sha256": "2f5e64ff7238ff5a340224382fa2875b57ea9e960e0e50bfea7f349c6a83ff3d",
+      "card_blob": "20103522e2b512847eee272a8354633a2b94d650"
+    },
+    {
+      "id": "B198",
+      "bundle": "CAL-06",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4936,
+        4949
+      ],
+      "fragment_sha256": "2cbd889b85b881ae22f7f99c28e68c82200022c7dfa01cbb150ecf895a30672b",
+      "card_blob": "20103522e2b512847eee272a8354633a2b94d650"
+    },
+    {
+      "id": "B199",
+      "bundle": "UQS-01",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4950,
+        4963
+      ],
+      "fragment_sha256": "ef72002be021501dcd6755c48233dc54679f66a89fd8e363e08f5b506b018952",
+      "card_blob": "cf08b17c89b6ae300b432c18da7d01cbd9a1b51b"
+    },
+    {
+      "id": "B200",
+      "bundle": "UQS-01",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4964,
+        4977
+      ],
+      "fragment_sha256": "721775dd6bad0fdd3c7392ef5030fcba3032c7f31094b189d99dce422ecc7b2d",
+      "card_blob": "cf08b17c89b6ae300b432c18da7d01cbd9a1b51b"
+    },
+    {
+      "id": "B201",
+      "bundle": "UQS-01",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4978,
+        4991
+      ],
+      "fragment_sha256": "8069cd2dfd13bbfca1d2bbf02a7cc761d6614a5e967d7c11b1de299e64960474",
+      "card_blob": "cf08b17c89b6ae300b432c18da7d01cbd9a1b51b"
+    },
+    {
+      "id": "B202",
+      "bundle": "UQS-01",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        4992,
+        5005
+      ],
+      "fragment_sha256": "8d507abb668fd82e3a58b5b416e8d011d07927198cfae69949d218a6328a16ab",
+      "card_blob": "cf08b17c89b6ae300b432c18da7d01cbd9a1b51b"
+    },
+    {
+      "id": "B203",
+      "bundle": "CAL-04",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "lines": [
+        5006,
+        5017
+      ],
+      "fragment_sha256": "d40176b9dfa62d140dc28251f63b63be54771ac3b145dd75ceaa4e51a63761ad",
+      "card_blob": "457cdfcf8faa88e088a369f8dc9c22252f0da660"
+    },
+    {
+      "id": "LA-051",
+      "bundle": "FRC-01",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        3712,
+        3746
+      ],
+      "fragment_sha256": "5d3fe7ce8b71d77c07f35e5a68fed244c0d40e0f24925714edbf7297c37ea616",
+      "card_blob": "17c89d4bfa74dda2d20cda6a223d1b1012c0291c"
+    },
+    {
+      "id": "LA-051",
+      "bundle": "FRC-02",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        3712,
+        3746
+      ],
+      "fragment_sha256": "5d3fe7ce8b71d77c07f35e5a68fed244c0d40e0f24925714edbf7297c37ea616",
+      "card_blob": "7b7ccd45665e14e2e898182454bb1d94f5259c8d"
+    },
+    {
+      "id": "LA-052",
+      "bundle": "PCL-01",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        3747,
+        3792
+      ],
+      "fragment_sha256": "846f644e4daca7f4a4828a626a08dbf8e659d06028fc902b85878a690b3ac801",
+      "card_blob": "e723e2ac55a00b524f9f0b87db3c17319535a133"
+    },
+    {
+      "id": "LA-053",
+      "bundle": "PCL-01",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        3793,
+        3815
+      ],
+      "fragment_sha256": "b8486db456080f21e07d1949996f18748785d02672e511ea8b57c273192d63a4",
+      "card_blob": "e723e2ac55a00b524f9f0b87db3c17319535a133"
+    },
+    {
+      "id": "LA-054",
+      "bundle": "DDM-02",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        4053,
+        4107
+      ],
+      "fragment_sha256": "ffb93357b63c03313b11c4dedb3cce3153c2f14b30257aadd860ca09fda6d425",
+      "card_blob": "121df4a3b4615f72775570acfd900a54c3d07680"
+    },
+    {
+      "id": "LA-055",
+      "bundle": "DDM-02",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        4108,
+        4140
+      ],
+      "fragment_sha256": "79f9809eacc0a1dbb11ff784ecc8b073da1ca23ef0c2212437a05094423e518f",
+      "card_blob": "121df4a3b4615f72775570acfd900a54c3d07680"
+    },
+    {
+      "id": "LA-056",
+      "bundle": "DDM-01",
+      "source": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": [
+        4141,
+        4171
+      ],
+      "fragment_sha256": "bde6e712dfd4323ae0dc44fc5f89fa5f38551babd77da22e9317b806344d0481",
+      "card_blob": "996527d9d0f2e49aab587b2eecd72c2978dbe62a"
+    }
+  ],
+  "current_ledger": {
+    "partial": 49,
+    "held": 4,
+    "closed": 1
+  },
+  "Git_inputs": 562,
+  "portable_record_axis": 220,
+  "authoritative_portable_groups": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/g-checkpoint11-assembly-independent/portable-copy-index.json",
+      "records": 9,
+      "sha256": "13dccba701ae2d4234e571df3307041d4c4c8aeecced058aed356a8ad6f3ec11"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/g-checkpoint11-test-independent/portable-copy-index.json",
+      "records": 10,
+      "sha256": "878e3f449462e0bfd903dbdb8ac972a7c3d181e8eb6406b6a04655a352279869"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/current-consumer-trace/portable-copy-index.json",
+      "records": 13,
+      "sha256": "bd42d59d77c7cf4cf797e7b28b7613d1405ff5db2f71c90d649e1331e4ed4562"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/current-consumer-trace-wave-context/portable-copy-index.json",
+      "records": 3,
+      "sha256": "9db714e5a2f631bd5da7b9de1d26ec600b23a43a55b45159f17205b8cae2733e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-current-packet/portable-copy-index.json",
+      "records": 11,
+      "sha256": "c90710cc64680f61464bb075b58518711773c6b4a34fce319399608957dce9d7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-current-independent/portable-copy-index.json",
+      "records": 17,
+      "sha256": "53599971e126cb2a00cbcb42a7390508f723d1f6012d6b70f7907a5598396399"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-current-validator-v3/portable-copy-index.json",
+      "records": 17,
+      "sha256": "9aaf5a4116aea43a19d7d5deba4fcb870dee961e6e012578152e83ab602183e1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-generator-current-validator-independent-v3/portable-copy-index.json",
+      "records": 13,
+      "sha256": "e4a87397dd26fa1c41aa01036352ea0bb93a421528be5279d5eed4d32710c6ea"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/publication-freeze-adapter-v3/portable-copy-index.json",
+      "records": 24,
+      "sha256": "af716c2382e90da49a3900d6bb22c49aafcc3762b2dd6981813e397a2ddcec54"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/publication-freeze-adapter-independent-v3/portable-copy-index.json",
+      "records": 15,
+      "sha256": "e2bddd6985352a932642f8235bda30b1d72dd9287d0718593911bc7072b72a06"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-a9/portable-copy-index.json",
+      "records": 49,
+      "sha256": "d7cb59a2bc915f7ba06f7f5f0d08a744c1f744618fb256eb7e8092ec5808ad81"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/corrected-wave-independent-a9/portable-copy-index.json",
+      "records": 27,
+      "sha256": "6d777866fd71245ec76854d9c94684b87e6ad4a94a103139db7c93368106b477"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-current-wave-results/portable-copy-index.json",
+      "records": 5,
+      "sha256": "fbf10a8d8bd7d180f422fd8339bb905f603afec53e35d80957ad62b62df92618"
+    }
+  ],
+  "actual_wave": {
+    "cases": 1445,
+    "outcomes": {
+      "PASS": 1441,
+      "FAIL": 4
+    },
+    "jobs": [
+      {
+        "job": "pcl-continuous-persistence",
+        "kind": "numerical",
+        "outcome": "PASS",
+        "exit_code": 0
+      },
+      {
+        "job": "ddm-runtime-and-facade",
+        "kind": "numerical",
+        "outcome": "PASS",
+        "exit_code": 0
+      },
+      {
+        "job": "bkt-frc-s10-and-adjacent-report-consumers",
+        "kind": "numerical",
+        "outcome": "FAIL",
+        "exit_code": 1
+      },
+      {
+        "job": "cal-and-welfare-consumer",
+        "kind": "numerical",
+        "outcome": "PASS",
+        "exit_code": 0
+      },
+      {
+        "job": "mc-joint-law-support-and-scientist-consumer",
+        "kind": "numerical",
+        "outcome": "PASS",
+        "exit_code": 0
+      },
+      {
+        "job": "doe-salib-and-consumer-factory",
+        "kind": "numerical",
+        "outcome": "PASS",
+        "exit_code": 0
+      },
+      {
+        "job": "g-checkpoint10-controlplanestore-companion",
+        "kind": "numerical",
+        "outcome": "PASS",
+        "exit_code": 0
+      },
+      {
+        "job": "results-importer",
+        "kind": "importer",
+        "outcome": "PASS",
+        "exit_code": 0
+      },
+      {
+        "job": "architecture",
+        "kind": "gate",
+        "outcome": "FAIL",
+        "exit_code": 1
+      },
+      {
+        "job": "runtime-api-contract",
+        "kind": "gate",
+        "outcome": "FAIL",
+        "exit_code": 1
+      },
+      {
+        "job": "static-invocation",
+        "kind": "gate",
+        "outcome": "FAIL",
+        "exit_code": 1
+      },
+      {
+        "job": "ruff",
+        "kind": "gate",
+        "outcome": "FAIL",
+        "exit_code": 1
+      },
+      {
+        "job": "ruff-format",
+        "kind": "gate",
+        "outcome": "FAIL",
+        "exit_code": 1
+      },
+      {
+        "job": "workspace-verify",
+        "kind": "gate",
+        "outcome": "FAIL",
+        "exit_code": 1
+      },
+      {
+        "job": "ci-parity",
+        "kind": "gate",
+        "outcome": "FAIL",
+        "exit_code": 1
+      }
+    ],
+    "umbrella": {
+      "workspace-verify": {
+        "PASS": 1,
+        "FAIL": 1,
+        "UNRUN": 13
+      },
+      "ci-parity": {
+        "FAIL": 1,
+        "UNRUN": 23
+      }
+    }
+  },
+  "actual_debt_and_history": {
+    "Ruff": {
+      "diagnostics": 7951,
+      "paths": 172,
+      "codes": 49,
+      "input_paths": 317
+    },
+    "format": {
+      "would_reformat": 156,
+      "already_formatted": 161
+    },
+    "static": {
+      "regressions": 10,
+      "new_unresolved": 89,
+      "unresolved": 9238,
+      "runtime_invocation_established": false
+    },
+    "fourth_A_assertion": {
+      "name": "test_resolved_limited_evidence_keeps_floor_failure_reason",
+      "old5e": "ERROR_fixture_setup",
+      "currenta9": "FAIL_assertion",
+      "P41": "not_established"
+    }
+  },
+  "semantic_boundaries": {
+    "128draws": "92success+36failure",
+    "estimate_scope": "conditional_on_all_outputs_finite",
+    "finding_closure": "only historical B198",
+    "DDM": "library evidence distinct from institutional/current-feed authority"
+  },
+  "DDM_independent_source_reuse": [
+    {
+      "path": "policy-engine/src/polisyos/ddm",
+      "Git_object": "b66e98c596f7dc93816f23b6fbb92a97ab15e424",
+      "basis": "Independent DoE review; no author self-review"
+    },
+    {
+      "path": "policy-engine/tests/unit/ddm/test_registry_schema_compatibility.py",
+      "Git_object": "570b29004553f80d63086804a8a782b9bb3d9b8b",
+      "basis": "Independent DoE review; no author self-review"
+    }
+  ],
+  "controls": [
+    {
+      "name": "READY_hash_corrupt",
+      "outcome": "REFUSED",
+      "reason": "manifest committed bytes"
+    },
+    {
+      "name": "READY_size_corrupt",
+      "outcome": "REFUSED",
+      "reason": "manifest committed bytes"
+    },
+    {
+      "name": "wave_source_historical58",
+      "outcome": "REFUSED",
+      "reason": "wave source"
+    },
+    {
+      "name": "B202_auto_closed",
+      "outcome": "REFUSED",
+      "reason": "held authority decisions"
+    },
+    {
+      "name": "B198_new_partial_proposal",
+      "outcome": "REFUSED",
+      "reason": "B198 historical regression"
+    },
+    {
+      "name": "32_proposals_become_acceptance",
+      "outcome": "REFUSED",
+      "reason": "32 original partial proposals"
+    },
+    {
+      "name": "DDM_unsupported_keyword",
+      "outcome": "REFUSED",
+      "reason": "unsupported DDM API"
+    },
+    {
+      "name": "Welfare_failed_support_suppressed",
+      "outcome": "REFUSED",
+      "reason": "hidden failed support denominator"
+    },
+    {
+      "name": "DDM_boolean_institutional_authority",
+      "outcome": "REFUSED",
+      "reason": "DDM institutional authority invented"
+    },
+    {
+      "name": "hash_valid_conditional_as_unconditional",
+      "outcome": "REFUSED",
+      "reason": "conditional support became unconditional"
+    }
+  ],
+  "product_tests_run": false,
+  "automatic_finding_closures": false
+}

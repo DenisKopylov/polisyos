@@ -1,0 +1,27 @@
+{"fixture": "collapsed", "callback_count": 0, "family": "unknown", "gate_eligible": false, "removed_guard": false}
+{
+  "source_sha": "1e0eb2f6c589b74c6adae850b27af6d720dfa5ea",
+  "real_native_consumer": "MonteCarloPropagator\u2192configuredCAS persisted envelope\u2192fresh read\u2192257 callback dyadic positive /0 callbacks collapsed-law refusal",
+  "results": [
+    {
+      "fixture": "dyadic",
+      "callback_count": 257,
+      "nominal_count": 1,
+      "actual_draw_rows": {
+        "(0.0, 0.0)": 64,
+        "(4.0, 5.0)": 128,
+        "(1.0, 2.0)": 64
+      },
+      "mean": 5.25,
+      "variance": 15.1875,
+      "gate_eligible": false
+    },
+    {
+      "fixture": "collapsed",
+      "callback_count": 0,
+      "family": "unknown",
+      "gate_eligible": false
+    }
+  ],
+  "new_actual_Welfare_consumer": "UNRUN-pending-frozen-source"
+}

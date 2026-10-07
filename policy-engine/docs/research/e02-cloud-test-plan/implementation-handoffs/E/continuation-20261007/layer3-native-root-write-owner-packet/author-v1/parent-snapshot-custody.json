@@ -1,0 +1,18 @@
+{
+  "observation": {
+    "original_path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/observations/tracked-generated-input-drift-20261007T1259Z/observation.json",
+    "bytes": 24848,
+    "sha256": "617baab627ee4280808a27ccc5cdc7d4b82cb7acd85575e1d14c6960cd367ce0"
+  },
+  "outcome": "PASS",
+  "row_count": 29,
+  "source_identity": {
+    "commit": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d"
+  },
+  "captured58assets_byte_bound": true,
+  "individual_file_reads_stat_stable": true,
+  "whole_snapshot_atomic": false,
+  "runtime_caller_attribution": "not_established; independent read-only tracing requested",
+  "original_snapshots": "retained at original parent observation paths, full58byte refs in unchanged observation.json; not copied or reclassified here"
+}

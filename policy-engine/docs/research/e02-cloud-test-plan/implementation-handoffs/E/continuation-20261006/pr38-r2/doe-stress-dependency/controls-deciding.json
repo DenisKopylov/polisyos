@@ -1,0 +1,280 @@
+{
+  "D_overlay": "3f38e7cbdc8ba544fe4d0c69d93dbb3a4a629973",
+  "E_source": "ec042402ec91fbdcb51006852e29fe67f38d9452",
+  "authority": "generic analytic table fixtures; declared threshold in normalized composite units; no served evaluator or trust probability",
+  "direction_controls": [
+    {
+      "actual_component_direction": "maximize",
+      "case": "maximize-utility",
+      "composite_normalization": "typed components contribute weighted minimization values",
+      "input_raw_values": [
+        -5.0,
+        10.0
+      ],
+      "native_report": {
+        "adversarial_plan_ref": null,
+        "cas_artifact_id": null,
+        "coverage_empirical": null,
+        "coverage_target": null,
+        "critical_count": 0,
+        "decision_packet_ref": null,
+        "fidelity_mode": "stress_preset",
+        "frontier_knee_rho": null,
+        "high_count": 1,
+        "inflation_budget": null,
+        "inflation_mean": null,
+        "medium_count": 0,
+        "metadata": {
+          "attempted": 2,
+          "completeness": true,
+          "evaluation_status": "complete",
+          "finite_evaluated": 2,
+          "invalid_evaluation_count": 0,
+          "objective_direction": "minimize",
+          "observed_vulnerability_count": 1,
+          "planned_scenarios": 2,
+          "presented_vulnerability_count": 1,
+          "score_formula": "(finite_evaluated-violated_scenarios)/finite_evaluated",
+          "score_scope": "observed_finite_scenarios",
+          "score_status": "observed",
+          "source_objective_direction": "minimize",
+          "stop_on_first_vulnerability": false,
+          "strategy": "grid_extreme",
+          "unique_vulnerability_count": 1,
+          "unknown_or_nonfinite": 0,
+          "valid_evaluation_count": 2,
+          "violated_scenarios": 1
+        },
+        "overconservatism_vulnerability": null,
+        "report_id": "stress.report.sha256_fbf19456193052ecebfe25db2d955e0c898df0974163cda1934be1a7867d38bc",
+        "robustness_score": 0.5,
+        "schema_version": "1.0",
+        "set_adequacy_status": "complete",
+        "total_scenarios_evaluated": 2,
+        "undercoverage_vulnerability": null,
+        "vulnerabilities": [
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective 5.000000 violates threshold 0.000000 (badness 5.000000 >= 0.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": 5.0,
+            "parameter_values": {
+              "x": -5.0
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_0",
+            "vulnerability_type": "objective_collapse"
+          }
+        ],
+        "worst_case_objective": 5.0,
+        "worst_case_parameters": {
+          "x": -5.0
+        }
+      },
+      "outcome": "PASS",
+      "threshold": 0,
+      "worst_parameter_oracle": -5
+    },
+    {
+      "actual_component_direction": "minimize",
+      "case": "minimize-cost",
+      "composite_normalization": "typed components contribute weighted minimization values",
+      "input_raw_values": [
+        -5.0,
+        10.0
+      ],
+      "native_report": {
+        "adversarial_plan_ref": null,
+        "cas_artifact_id": null,
+        "coverage_empirical": null,
+        "coverage_target": null,
+        "critical_count": 0,
+        "decision_packet_ref": null,
+        "fidelity_mode": "stress_preset",
+        "frontier_knee_rho": null,
+        "high_count": 2,
+        "inflation_budget": null,
+        "inflation_mean": null,
+        "medium_count": 0,
+        "metadata": {
+          "attempted": 2,
+          "completeness": true,
+          "evaluation_status": "complete",
+          "finite_evaluated": 2,
+          "invalid_evaluation_count": 0,
+          "objective_direction": "minimize",
+          "observed_vulnerability_count": 2,
+          "planned_scenarios": 2,
+          "presented_vulnerability_count": 2,
+          "score_formula": "(finite_evaluated-violated_scenarios)/finite_evaluated",
+          "score_scope": "observed_finite_scenarios",
+          "score_status": "observed",
+          "source_objective_direction": "minimize",
+          "stop_on_first_vulnerability": false,
+          "strategy": "grid_extreme",
+          "unique_vulnerability_count": 2,
+          "unknown_or_nonfinite": 0,
+          "valid_evaluation_count": 2,
+          "violated_scenarios": 2
+        },
+        "overconservatism_vulnerability": null,
+        "report_id": "stress.report.sha256_d27a2557b502a4286e251cb1bc84dfcad816015141a63bda27b50eeea78a1587",
+        "robustness_score": 0.0,
+        "schema_version": "1.0",
+        "set_adequacy_status": "complete",
+        "total_scenarios_evaluated": 2,
+        "undercoverage_vulnerability": null,
+        "vulnerabilities": [
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective 5.000000 violates threshold 0.000000 (badness 5.000000 >= 0.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": 5.0,
+            "parameter_values": {
+              "x": -5.0
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_0",
+            "vulnerability_type": "objective_collapse"
+          },
+          {
+            "affected_kpis": [],
+            "constraint_violated": null,
+            "description": "Objective 10.000000 violates threshold 0.000000 (badness 10.000000 >= 0.000000; direction minimize)",
+            "mitigation": "",
+            "objective_value": 10.0,
+            "parameter_values": {
+              "x": 10.0
+            },
+            "severity": "high",
+            "vulnerability_id": "vuln_objective_1",
+            "vulnerability_type": "objective_collapse"
+          }
+        ],
+        "worst_case_objective": 10.0,
+        "worst_case_parameters": {
+          "x": 10.0
+        }
+      },
+      "outcome": "PASS",
+      "threshold": 0,
+      "worst_parameter_oracle": 10
+    }
+  ],
+  "materialization_control": [
+    {
+      "case": "native",
+      "defining_predicate": "PASS",
+      "old_output_shape_proxy": "PASS",
+      "output_owns_memory": true,
+      "output_shape": [
+        3,
+        12
+      ],
+      "output_values": [
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ]
+      ],
+      "product_rows_materialized": 3
+    },
+    {
+      "case": "cap-property-removed",
+      "defining_predicate": "FAIL",
+      "old_output_shape_proxy": "PASS",
+      "output_owns_memory": true,
+      "output_shape": [
+        3,
+        12
+      ],
+      "output_values": [
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ]
+      ],
+      "product_rows_materialized": 4096
+    }
+  ],
+  "negative_source_sha256": "0695c185d692e7bc2f35e30929f0d83c7240fc51530eb45246ce3e7ac93ff2fa",
+  "source_mutation": "in-memory only, move cap after full list/array then copy; shape and owned-memory proxies intentionally unchanged"
+}

@@ -1,0 +1,73 @@
+{
+  "schema": "policyos.e02.independent_ir_import_census.v2",
+  "reviewer": "imports_r4",
+  "candidate": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+  "tree": "2e692d5a5dfa4cfbff78d0079c6fed3e4ba1a73f",
+  "slice_base": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+  "predicate_basis": "recomputed",
+  "final_delta_paths": [
+    "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+    "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+    "policy-engine/tests/unit/ir/test_posterior_summary.py"
+  ],
+  "prior_observation": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/ir-import-independent/import-census-c861.json",
+    "bytes": 935312,
+    "sha256": "867f5b5b4dd398c0d91c88444c73338eff9b7aa5a044abe370650329e6dfd172",
+    "candidate": "c8616e2babe1f0674799c12f07faffa5d6bd266d"
+  },
+  "actual_input_operations": "Complete final Git path sets enumerated for all three comparisons. Only final delta/new paths reparsed at both refs; unchanged AST observations require exact candidate Git blob and SHA-256 equality. Every final Python row is retained and its denominator recomputed.",
+  "unresolved_by_construction": [
+    "Dynamic Python import dispatch not represented by Import/ImportFrom AST; actual selected public facade identities are checked separately.",
+    "Relative test/companion package context is not inferred as a product-root edge.",
+    "AST edges do not establish numerical law, persisted content authority or native consumer behavior."
+  ],
+  "limits": "Complete changed-Python syntax census including tests and companions; product-source canonical collector and public identities remain separate checks. This is not a full global architecture PASS or P41 inherited attribution."
+}
+[
+  {
+    "comparison": "slice-base",
+    "complete_changed_path_count": 16,
+    "complete_changed_python_count": 14,
+    "totals": {
+      "product_source": 10,
+      "added_polisyos_import_rows": 71,
+      "removed_polisyos_import_rows": 4,
+      "added_cross_root_rows": 38,
+      "tests": 4
+    },
+    "delta_AST_reparsed_path_count": 4,
+    "exact_unchanged_AST_reuse_count": 10
+  },
+  {
+    "comparison": "published-main-198",
+    "complete_changed_path_count": 2986,
+    "complete_changed_python_count": 360,
+    "totals": {
+      "companion": 239,
+      "added_polisyos_import_rows": 1831,
+      "removed_polisyos_import_rows": 15,
+      "added_cross_root_rows": 392,
+      "product_source": 57,
+      "tests": 64
+    },
+    "delta_AST_reparsed_path_count": 4,
+    "exact_unchanged_AST_reuse_count": 356
+  },
+  {
+    "comparison": "historical-Core-route-source-539",
+    "complete_changed_path_count": 220,
+    "complete_changed_python_count": 28,
+    "totals": {
+      "companion": 6,
+      "added_polisyos_import_rows": 101,
+      "removed_polisyos_import_rows": 14,
+      "added_cross_root_rows": 46,
+      "product_source": 14,
+      "tests": 8
+    },
+    "delta_AST_reparsed_path_count": 4,
+    "exact_unchanged_AST_reuse_count": 24
+  }
+]

@@ -1,0 +1,241 @@
+{
+  "schema": "policyos.e02.copy_index.v1",
+  "scope": "Complete moderate deciding outputs and source receipt, excluding index and generated validation result to avoid circular identity",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/README.md",
+      "bytes": 3001,
+      "sha256": "fac9c983a76a5792f4f459d2d68bc00f6edea29d3d38504a9bdc02ef672fec33"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/archive-readback.json",
+      "bytes": 406,
+      "sha256": "96ed32a912dc3445f85b185013d632326bb98b8b69aba7e9b2593f81c2912b4f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/environment.json",
+      "bytes": 870,
+      "sha256": "cd7670c11b9497a32536a8276e54071c3c5e4c59a57cd2e8f8eb3b957670baa7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/native-deciding-cas.json",
+      "bytes": 383951,
+      "sha256": "b8672a9937436290df17bcb8b62e3cc6f9568eb6022029ec394b3f2650530ba6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-74b26eb067de/format.json",
+      "bytes": 1961,
+      "sha256": "27dbfe906947bdd2fda5e8b2ee6736d5be9d2483b648bde7319e7c81ca7b842b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-74b26eb067de/format.stdout.txt",
+      "bytes": 148,
+      "sha256": "9aaf69498ba95cae29a7c7795eaf16956681150f9d45f66618dc1e104f07d1df"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-74b26eb067de/importer.json",
+      "bytes": 1651,
+      "sha256": "2832a6a342b9c60ab043aea2c4cdb1f1f70db71ea76002474736f5f91f927acf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-74b26eb067de/importer.stdout.txt",
+      "bytes": 112,
+      "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-74b26eb067de/native-witness-output.json",
+      "bytes": 26049,
+      "sha256": "174f4de5063abe0f4bac58862a8833bc8658d4ec5cede427e4a3eb9e593518dd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-74b26eb067de/native-witness.json",
+      "bytes": 2002,
+      "sha256": "9128990b156f5289cddf652e1f7071351930343ad13843081355dab189303f69"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-74b26eb067de/native-witness.stdout.txt",
+      "bytes": 1753,
+      "sha256": "b5f8d4aa2369e5391b914d6d4552170f6cf53af8d0c9c019fa689a60d93fb8f9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-74b26eb067de/native.json",
+      "bytes": 2215,
+      "sha256": "f0a4b3c5a17e7b36aee173a3904608d6c74d329324caf17ee926c37837d0aec7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-74b26eb067de/native.stdout.txt",
+      "bytes": 261,
+      "sha256": "3b30dac21d993cd7abe9b0de1eb5a629c8f5ec9f86431a28fad865534f7fbec8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-74b26eb067de/removal-focused.json",
+      "bytes": 1872,
+      "sha256": "03b51ad26ab05dfbddb4ead5268d7d9f03d967716b85aab940b4867b01885c60"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-74b26eb067de/removal-focused.stdout.txt",
+      "bytes": 6222,
+      "sha256": "93544c907d061b9cc888769883df673c08b64638180b0caa147d320b2cdb34bc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-74b26eb067de/removal.json",
+      "bytes": 1696,
+      "sha256": "c6ca3c9968d74ffb6a45a66f5a95c49402779096f47a1e7a2dd05738a619738c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-74b26eb067de/removal.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-74b26eb067de/ruff.json",
+      "bytes": 1942,
+      "sha256": "579d1a4cca98faf764435cf22b05eba9c14760cc2a1f1d09e4434a8025b16e73"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-74b26eb067de/ruff.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-8f988cf83459/architecture.json",
+      "bytes": 1697,
+      "sha256": "661e251889fa01cc653686d6615bccc68bd44bc7f06698d86247a16ebda8da4d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-8f988cf83459/architecture.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-8f988cf83459/invocation.json",
+      "bytes": 1940,
+      "sha256": "3a2d3fc461693b217f3d17d5de46cd171873afc5f93b30f4844d0012f237dabd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-8f988cf83459/invocation.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-8f988cf83459/native.json",
+      "bytes": 2218,
+      "sha256": "d2e7a67be069bb0699b5adf91995cdd5d19424e12141191e1f3c22eec0f6fb61"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-8f988cf83459/native.stdout.txt",
+      "bytes": 4458,
+      "sha256": "97078e90f5b0e37fd06c6baa6f5d70758c6355097ec0815a1bcd80a9190928b9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-8f988cf83459/removal.json",
+      "bytes": 1863,
+      "sha256": "b75f83f6625a046a7d48170ad04082e7506e2fd76f4094aaa6bec847d7298dd2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-8f988cf83459/removal.stdout.txt",
+      "bytes": 6223,
+      "sha256": "19aff0e472bdc63fde57366c999736b469b621eca739f52f900bb4bc1d079a2f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-affected.stdout.txt",
+      "bytes": 17236,
+      "sha256": "bfa9c318cedb0039e04f85e71285e4cf24c28a47a9541062a4e7a921c80d383e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-candidate-focused.stdout.txt",
+      "bytes": 7380,
+      "sha256": "ac9abffec895a72758eaf9298b4519619c89532277974642c8c3ec36cbca3d72"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-candidate-focused2.stdout.txt",
+      "bytes": 80,
+      "sha256": "cf426ab35f3b06fccef8290fde5325d90af130a79da1d1752031518df77c4236"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-capture-native-witness.py",
+      "bytes": 4643,
+      "sha256": "6263f918df38048fce2c2eddd80568b33c607121a74a6319763c132776a1c99d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-exact-source-replay.py",
+      "bytes": 1712,
+      "sha256": "f75351ccd89fd38d321ca606f75accbb1a09ca44aee9429823e654e965c72611"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-exact58e-red.stdout.txt",
+      "bytes": 609,
+      "sha256": "f4f2a23e3f161450b62f2a42baa6da93950c1d6810a4aa357cd9a61985456b0f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-exact58e-red2.stdout.txt",
+      "bytes": 6434,
+      "sha256": "d5fb64e5eac6460f6078648e0a6e1430dfe97c96f3f1914a69b987982da78f4d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-exact58e-red3.stdout.txt",
+      "bytes": 10450,
+      "sha256": "f743c37364533daec74828936b6764daad89a5a2d00bcf1d6c36bcc3f31cace9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-ffd23ae3a3e7/cosmetic-delta.json",
+      "bytes": 947,
+      "sha256": "4944df6a6d58a35c93daa9e3d2ea5db31c7dbca7f361d4a15753d26e05546c47"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-ffd23ae3a3e7/format.json",
+      "bytes": 1960,
+      "sha256": "577b86d125834b8b62ed005ea37a3bf4e3477f65ea6aa3784d0d0b721926147f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-ffd23ae3a3e7/format.stdout.txt",
+      "bytes": 26,
+      "sha256": "177f260a5645724013185e4b140c7045cc39e56c0c97b120f5cb23599f85f0de"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-ffd23ae3a3e7/native-focused.json",
+      "bytes": 1784,
+      "sha256": "54d7d4ceff34e5f7b17065f71c22c303b838139ba475514f911d1ee8420d3f5d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-ffd23ae3a3e7/native-focused.stdout.txt",
+      "bytes": 99,
+      "sha256": "1447b4d844d4299d7582c18eb04561b1bd846415b9a89f2249eb6a71e9d36dc0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-ffd23ae3a3e7/ruff.json",
+      "bytes": 1941,
+      "sha256": "76fec6ebc8b936341d55079f6c59459c2c4d389fad124ae7574ba40bd9125b42"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-ffd23ae3a3e7/ruff.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-removal-probe.py",
+      "bytes": 446,
+      "sha256": "37d64b0d2afd6fc6bf3c5d0b353ffbe2c1c899ac8dadef06b7e034fa6a4fa3ba"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/pcl-resume.json",
+      "bytes": 123184,
+      "sha256": "db7387fe25189d708356dfecfd46b5914da791064de589e212d9b7d88de7fb77"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/verify_native_archive.py",
+      "bytes": 2700,
+      "sha256": "68109b947bbe22296b28c3da6b2279e66438b3dfcdf9ffdee5d46e5f7924e9c4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006-logs/verify_receipt.py",
+      "bytes": 5129,
+      "sha256": "e4f4d88c5e9e4a95dd4aaac14c4938d17b2927bbe071801c047674f8f08981ac"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl-configured-consumer-20261006.json",
+      "bytes": 57693,
+      "sha256": "05946720b435efad569c4c383f53081cc360417496264cd251ab28f69f842abc"
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+<!DOCTYPE x [<!ENTITY x "expanded">]><testsuite><testcase name="&x;"/></testsuite>

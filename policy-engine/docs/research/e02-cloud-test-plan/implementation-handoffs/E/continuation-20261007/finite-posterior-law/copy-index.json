@@ -1,0 +1,681 @@
+{
+  "schema": "policyos.e02.E.finite_law_copy_index.v1",
+  "source_candidate": "ca17a489559eb574285bb1c7291cc3c56a9e29da",
+  "numeric_source": "2c0fb5e26172129ab3ae032c24b35ed2ced6c80f",
+  "files": [
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/source-footprint.json",
+      "portable_path": "author/source-footprint.json",
+      "bytes": 7708,
+      "sha256": "c77d8fcb7d70ac3e0919543a0ff2016e3fc0c8984b3a158bbc3890b29984bd9d",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/source-footprint-ca17.json",
+      "portable_path": "author/source-footprint-ca17.json",
+      "bytes": 7708,
+      "sha256": "f9a02ed49ebab6cc3050a92023a5670e86227b343d187c09973f31eac8b575a7",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/source-delta-ca17.json",
+      "portable_path": "author/source-delta-ca17.json",
+      "bytes": 955,
+      "sha256": "059c54a6f51b95a6ede7145c285017058e27582f7475eea218b601287e0c19a8",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/author-checks.json",
+      "portable_path": "author/author-checks.json",
+      "bytes": 10454,
+      "sha256": "d2494d20b3462061216919ffcccaf0b756ff40f25076beb4356107bd497e28b4",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/author-import-census.json",
+      "portable_path": "author/author-import-census.json",
+      "bytes": 1100289,
+      "sha256": "93afd35c910a7f03257c6cad802584989a715f1edee1007ef38ff72716c8140d",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/author-import-census.stdout.txt",
+      "portable_path": "author/author-import-census.stdout.txt",
+      "bytes": 2364,
+      "sha256": "836115666a39621ce79bbfc39222c3e9b6de4cb9808595caf6e7920dd91b2428",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/author-import-census.stderr.txt",
+      "portable_path": "author/author-import-census.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/runtime-environment-public-bindings.json",
+      "portable_path": "author/runtime-environment-public-bindings.json",
+      "bytes": 19826,
+      "sha256": "23152b9a9c46dc1d6ac1f9430c1261ec22242760ef9c0584628cc9c4f52c1f42",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/current-source-python-inputs.json",
+      "portable_path": "author/current-source-python-inputs.json",
+      "bytes": 630,
+      "sha256": "85038db3824a5e18cfebd501cd50db4575d9de86403421f9d9c6193ccd5b5e1a",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/immutable-candidate-family.xml",
+      "portable_path": "author/immutable-candidate-family.xml",
+      "bytes": 70209,
+      "sha256": "4b65b1181b54ac151196e2cbbf32379e72d1b521992a12a139ccaf6c9c0e8bcb",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/immutable-candidate-family.stdout.txt",
+      "portable_path": "author/immutable-candidate-family.stdout.txt",
+      "bytes": 1122,
+      "sha256": "b98fcd61a42842d128bf57d39719715d47fc903744939cede0b81e832dc0bbaa",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/immutable-candidate-family.stderr.txt",
+      "portable_path": "author/immutable-candidate-family.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/ruff-final.stdout.txt",
+      "portable_path": "author/ruff-final.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/ruff-final.stderr.txt",
+      "portable_path": "author/ruff-final.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/format-final.stdout.txt",
+      "portable_path": "author/format-final.stdout.txt",
+      "bytes": 27,
+      "sha256": "cfe5c6461b42a90595a492aed11f2c8e6eb98b7c4caf2cc9f47e3333185e3f33",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/format-final.stderr.txt",
+      "portable_path": "author/format-final.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/ca17-ruff.stdout.txt",
+      "portable_path": "author/ca17-ruff.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/ca17-ruff.stderr.txt",
+      "portable_path": "author/ca17-ruff.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/ca17-format.stdout.txt",
+      "portable_path": "author/ca17-format.stdout.txt",
+      "bytes": 25,
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/ca17-format.stderr.txt",
+      "portable_path": "author/ca17-format.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/ca17-companion-results.json",
+      "portable_path": "author/ca17-companion-results.json",
+      "bytes": 1590,
+      "sha256": "3bb79e168dcb8aeaa2d388787fd124b75fc9905e4d76d58de8f54526921e1a90",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/ca17-companion.stdout.txt",
+      "portable_path": "author/ca17-companion.stdout.txt",
+      "bytes": 1590,
+      "sha256": "3bb79e168dcb8aeaa2d388787fd124b75fc9905e4d76d58de8f54526921e1a90",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/ca17-companion.stderr.txt",
+      "portable_path": "author/ca17-companion.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/importer-ca17.stdout.txt",
+      "portable_path": "author/importer-ca17.stdout.txt",
+      "bytes": 112,
+      "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/importer-ca17.stderr.txt",
+      "portable_path": "author/importer-ca17.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/selected-architecture/architecture-controls.json",
+      "portable_path": "author/selected-architecture/architecture-controls.json",
+      "bytes": 10370,
+      "sha256": "94fb5e8b285f79bde0fc7776bc656f68beb638a9508fd5351ced9322b1d8a492",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/selected-architecture.stdout.txt",
+      "portable_path": "author/selected-architecture.stdout.txt",
+      "bytes": 2898,
+      "sha256": "4bc7d6b628a1e457670cbb9d87bd3ce46756ebebcef53502fd4aad01952c4fa8",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/selected-architecture.stderr.txt",
+      "portable_path": "author/selected-architecture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/admission-before-64d.stderr.txt",
+      "portable_path": "author/admission-before-64d.stderr.txt",
+      "bytes": 153,
+      "sha256": "76b893ebbe623f33034ccc71ac3ed319a125cf9bb6f5165e77dd001098194fa5",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/admission-before-64d-DOE-existing.json",
+      "portable_path": "author/admission-before-64d-DOE-existing.json",
+      "bytes": 123115,
+      "sha256": "15b57bdfe2f43b66d1a908f7a8c6e93d0a2110e4cfa2749864a9b89d50cee4ee",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/admission-before-64d-DOE-existing.stderr.txt",
+      "portable_path": "author/admission-before-64d-DOE-existing.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/admission-after-64d-DOE-existing.json",
+      "portable_path": "author/admission-after-64d-DOE-existing.json",
+      "bytes": 123115,
+      "sha256": "6bb1dc5806d4e2cd186e9a8ac17fb3cded5cbb658708a346f9154a291fa1d89e",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/admission-after-64d-DOE-existing.stderr.txt",
+      "portable_path": "author/admission-after-64d-DOE-existing.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/merge-64d.stdout.txt",
+      "portable_path": "author/merge-64d.stdout.txt",
+      "bytes": 687285,
+      "sha256": "4a377ea88ace7d7928f57204b367d835302b8cfc277046d8ab75d416ce2f54ab",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/merge-64d.stderr.txt",
+      "portable_path": "author/merge-64d.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/historical-source-footprint-short-ref.json",
+      "portable_path": "author/historical-source-footprint-short-ref.json",
+      "bytes": 7677,
+      "sha256": "af163be2c162621a0bb108df531e6c191184295277ac0dcf636c16130706187b",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/historical-author-checks-short-ref.json",
+      "portable_path": "author/historical-author-checks-short-ref.json",
+      "bytes": 10423,
+      "sha256": "145ce0069ba54623cf4be1adb06ddc8deba0f7e94e72a70eab81b861d6b3f439",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/receipt-short-ref-correction.json",
+      "portable_path": "author/receipt-short-ref-correction.json",
+      "bytes": 1312,
+      "sha256": "a59fcf8cbbc928aeb0fb5f06dc9c78f28620322f1c544f93fbe7c529b88676ba",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/assemble-author-receipt.stdout.txt",
+      "portable_path": "author/assemble-author-receipt.stdout.txt",
+      "bytes": 415,
+      "sha256": "40bae64b286b8fb6223a2c2ffdf31d539d407f64fdbded425f370743102d8f12",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/assemble-author-receipt-final.stdout.txt",
+      "portable_path": "author/assemble-author-receipt-final.stdout.txt",
+      "bytes": 415,
+      "sha256": "f4eaec5d24be0d4b41284370b95bb3744a0ff558fa42676e359f0f9099a563a9",
+      "role": "author deciding observation or explicit historical metadata correction"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/affected-first.xml",
+      "portable_path": "history/affected-first.xml",
+      "bytes": 19811,
+      "sha256": "92669adb518e1c55899a6157391b5c9a91892df8551222beeb247e0c0308e81e",
+      "role": "Unfrozen iteration; not immutable candidate PASS"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/affected-first.stdout.txt",
+      "portable_path": "history/affected-first.stdout.txt",
+      "bytes": 9679,
+      "sha256": "ebdd3f63bb1b46d9fc87c80d99105b3616c4eba3e2c30b76ba333907f714a011",
+      "role": "Unfrozen iteration; not immutable candidate PASS"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/affected-first.stderr.txt",
+      "portable_path": "history/affected-first.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "Unfrozen iteration; not immutable candidate PASS"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/affected-second.xml",
+      "portable_path": "history/affected-second.xml",
+      "bytes": 14133,
+      "sha256": "a14b271509a77fdaf3eb087d497cc2d43b83fa5fe124e4d40570780fff0ce3ec",
+      "role": "Unfrozen iteration; not immutable candidate PASS"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/affected-second.stdout.txt",
+      "portable_path": "history/affected-second.stdout.txt",
+      "bytes": 1701,
+      "sha256": "82a2e970451d144b0bebc9b35112adc51eb0fec4b4df3f5a398aa79e9717eee5",
+      "role": "Unfrozen iteration; not immutable candidate PASS"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/affected-second.stderr.txt",
+      "portable_path": "history/affected-second.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "Unfrozen iteration; not immutable candidate PASS"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/affected-third.xml",
+      "portable_path": "history/affected-third.xml",
+      "bytes": 35179,
+      "sha256": "87de382272c827b3e409175bffbc5e368c6b849c3d3bf9ae89f5c2866425b072",
+      "role": "Unfrozen iteration; not immutable candidate PASS"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/affected-third.stdout.txt",
+      "portable_path": "history/affected-third.stdout.txt",
+      "bytes": 13783,
+      "sha256": "771b5ffea2d09519cdc7b0b95cfdf1b86772ed1be7e6e4a9a5ece8afde6a4639",
+      "role": "Unfrozen iteration; not immutable candidate PASS"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/affected-third.stderr.txt",
+      "portable_path": "history/affected-third.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "Unfrozen iteration; not immutable candidate PASS"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/affected-family.xml",
+      "portable_path": "history/affected-family.xml",
+      "bytes": 123229,
+      "sha256": "47a04538a61b35d07814ab0f7db0edbf1bdd187ac81afc72915c7740144d276e",
+      "role": "Unfrozen iteration; not immutable candidate PASS"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/affected-family.stdout.txt",
+      "portable_path": "history/affected-family.stdout.txt",
+      "bytes": 54626,
+      "sha256": "313a24ac417c6c516cd9fcc827598f5ea99e7e4877e060e0564f27728c13c955",
+      "role": "Unfrozen iteration; not immutable candidate PASS"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/affected-family.stderr.txt",
+      "portable_path": "history/affected-family.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "Unfrozen iteration; not immutable candidate PASS"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/affected-family-final.xml",
+      "portable_path": "history/affected-family-final.xml",
+      "bytes": 70054,
+      "sha256": "dc561a8756556a206c764d6731826c2751459deea3d3b9ad93d1b98c89dce762",
+      "role": "Unfrozen iteration; not immutable candidate PASS"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/affected-family-final.stdout.txt",
+      "portable_path": "history/affected-family-final.stdout.txt",
+      "bytes": 1122,
+      "sha256": "92037dc053939a3cb88c6b149adbe4111961407c553c6fd204f33a1fac9d1888",
+      "role": "Unfrozen iteration; not immutable candidate PASS"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/affected-family-final.stderr.txt",
+      "portable_path": "history/affected-family-final.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "Unfrozen iteration; not immutable candidate PASS"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/final-delta.xml",
+      "portable_path": "history/final-delta.xml",
+      "bytes": 4090,
+      "sha256": "39fe03664d067118c422240ab5e41af07890ff41f5d067ef814e9b1f7a489bd8",
+      "role": "Unfrozen iteration; not immutable candidate PASS"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/final-delta.stdout.txt",
+      "portable_path": "history/final-delta.stdout.txt",
+      "bytes": 80,
+      "sha256": "c6ce8518a2cc113cc5560b3731e234ed6d559e746221ae903ce01599dfe7e797",
+      "role": "Unfrozen iteration; not immutable candidate PASS"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/final-delta.stderr.txt",
+      "portable_path": "history/final-delta.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "Unfrozen iteration; not immutable candidate PASS"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/old-source-falsifiers/actual-conditions-counterexamples.json",
+      "portable_path": "old-source/actual-conditions-counterexamples.json",
+      "bytes": 18878,
+      "sha256": "cf96bf9961e034ab2835d31e8624ba77367575d570d8a3e50d35e980cdc39856",
+      "role": "Exact old64d falsifier observation, archived literal observer"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/old-source-falsifiers/stdout.txt",
+      "portable_path": "old-source/stdout.txt",
+      "bytes": 539,
+      "sha256": "35df241a38a26641f1f0d31c09f88a7d7150b9ebef0161941fd3a358d74d51e6",
+      "role": "Exact old64d falsifier observation, archived literal observer"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/old-source-falsifiers/stderr.txt",
+      "portable_path": "old-source/stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "Exact old64d falsifier observation, archived literal observer"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/old-source-falsifiers/probe_actual_conditions_mc.py.txt",
+      "portable_path": "old-source/probe_actual_conditions_mc.py.txt",
+      "bytes": 9812,
+      "sha256": "0be171cb9f304d0a3aa8811a8667acb7fdc2f2924bf5dda2726bd19c2725028e",
+      "role": "Exact old64d falsifier observation, archived literal observer"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/author-import-census.py.txt",
+      "portable_path": "observers/author-import-census.py.txt",
+      "bytes": 8700,
+      "sha256": "f49bb5a774652a144926175dd3e48a96c680f4ac5bd7ce7d07b604e24f2d3d78",
+      "role": "Archived literal author observer; no new active utility"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/check-selected-architecture.py.txt",
+      "portable_path": "observers/check-selected-architecture.py.txt",
+      "bytes": 7657,
+      "sha256": "aec5051fbc1233b728c004894ceb8a10461592a04ebcdd50137f15536f5c3618",
+      "role": "Archived literal author observer; no new active utility"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/check-ca17-companion.py.txt",
+      "portable_path": "observers/check-ca17-companion.py.txt",
+      "bytes": 2620,
+      "sha256": "870da8e597afa90e9d56aff9dd893194a23ce3f7dce8300fc74352f499479ae7",
+      "role": "Archived literal author observer; no new active utility"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/assemble-author-receipt.py.txt",
+      "portable_path": "observers/assemble-author-receipt.py.txt",
+      "bytes": 5442,
+      "sha256": "23bfadb7eeeb6bc23b367529536eea4faf66aeff86c1c3152b38f0dc2781880f",
+      "role": "Archived literal author observer; no new active utility"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/final-source-bracket-ca17.json",
+      "portable_path": "independent/final-source-bracket-ca17.json",
+      "bytes": 12357,
+      "sha256": "23528c0bcbabc861516cafb40307c01e960d5f40a5942699110d995886f6d6f8",
+      "role": "Independent reviewer exact deciding/historical bytes; source-path mapping retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+      "portable_path": "independent/independent-final-review-ca17.json",
+      "bytes": 51924,
+      "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340",
+      "role": "Independent reviewer exact deciding/historical bytes; source-path mapping retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/ca17-companion-delta-review.json",
+      "portable_path": "independent/ca17-companion-delta-review.json",
+      "bytes": 998,
+      "sha256": "e777637b3f525a9ef55b5dd7e98ac0aaf096c612e7cc7fd2e38af976d02276bf",
+      "role": "Independent reviewer exact deciding/historical bytes; source-path mapping retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+      "portable_path": "independent/historical-two-observer-errors.results.json",
+      "bytes": 29453,
+      "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276",
+      "role": "Independent reviewer exact deciding/historical bytes; source-path mapping retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.py.txt",
+      "portable_path": "independent/historical-two-observer-errors.py.txt",
+      "bytes": 21598,
+      "sha256": "d3b086cda709ad05954c1bbe535c88c257f7e23c8ca8b98da131acaf71bba704",
+      "role": "Independent reviewer exact deciding/historical bytes; source-path mapping retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.stdout.json",
+      "portable_path": "independent/historical-two-observer-errors.stdout.json",
+      "bytes": 3633,
+      "sha256": "5fac4c8ae4b8ebb3fff34c7f0a4a28a35bd0f232bfd2ac0c6a07ee3b7139a8fc",
+      "role": "Independent reviewer exact deciding/historical bytes; source-path mapping retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.stderr.txt",
+      "portable_path": "independent/historical-two-observer-errors.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "Independent reviewer exact deciding/historical bytes; source-path mapping retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-candidate-delta-results.json",
+      "portable_path": "independent/independent-candidate-delta-results.json",
+      "bytes": 10329,
+      "sha256": "f15fb2a9b18e67a6ba6ab63c3ed932d2f46c2d1a98af83409656bba29757d068",
+      "role": "Independent reviewer exact deciding/historical bytes; source-path mapping retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent_candidate_review.py.txt",
+      "portable_path": "independent/independent_candidate_review.py.txt",
+      "bytes": 22702,
+      "sha256": "4303f36cc61601d0e9bcf1aea3283128a2fd0ec0742ea00f748657ee2aa904d6",
+      "role": "Independent reviewer exact deciding/historical bytes; source-path mapping retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-candidate-delta.stdout.json",
+      "portable_path": "independent/independent-candidate-delta.stdout.json",
+      "bytes": 501,
+      "sha256": "38b1cde0e5f5c2780fa6748ab272b1bd85afb589ba26eb8ba67e63a2cd29086e",
+      "role": "Independent reviewer exact deciding/historical bytes; source-path mapping retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-candidate-delta.stderr.txt",
+      "portable_path": "independent/independent-candidate-delta.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "Independent reviewer exact deciding/historical bytes; source-path mapping retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/assemble_independent_final_review.py.txt",
+      "portable_path": "independent/assemble_independent_final_review.py.txt",
+      "bytes": 18535,
+      "sha256": "d60953cad4fafe60a509bc4d76207327c7290e670e8ae3de4faa5793603e0ce1",
+      "role": "Independent reviewer exact deciding/historical bytes; source-path mapping retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/actual-conditions-counterexamples.json",
+      "portable_path": "independent/actual-conditions-counterexamples.json",
+      "bytes": 18774,
+      "sha256": "d4827c252f4da22f69be8fb920dde6e6a5737553df43a199f886e115637b8042",
+      "role": "Independent reviewer exact deciding/historical bytes; source-path mapping retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/independent-owner-response.json",
+      "portable_path": "independent/independent-owner-response.json",
+      "bytes": 11390,
+      "sha256": "f3878619073bf02ed4b66f89525958d0cb5c5d929cd1f860a9535a438e1ae5ca",
+      "role": "Independent reviewer exact deciding/historical bytes; source-path mapping retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/exact-finite-oracle.json",
+      "portable_path": "independent/exact-finite-oracle.json",
+      "bytes": 6369,
+      "sha256": "9ecfbdb387d63e1db764bd6cec49b26edcddb38c3ffeac4e82cbd586b682bfdc",
+      "role": "Independent reviewer exact deciding/historical bytes; source-path mapping retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/literal-legacy-profile700-fixture-index.json",
+      "portable_path": "independent/literal-legacy-profile700-fixture-index.json",
+      "bytes": 8473,
+      "sha256": "2ca74a333bf836d2fbbbbfc0712bc38625a2241008c633b39104ab82351fb3fc",
+      "role": "Independent reviewer exact deciding/historical bytes; source-path mapping retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/preliminary-companion-independent-review.json",
+      "portable_path": "independent/preliminary-companion-independent-review.json",
+      "bytes": 27554,
+      "sha256": "467a2bdda1d93e337ad94d80e449c99d77ecdd8bf2f24aff3e85b35fd5a5dff0",
+      "role": "Independent reviewer exact deciding/historical bytes; source-path mapping retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/exact_finite_oracle.py.txt",
+      "portable_path": "independent/exact_finite_oracle.py.txt",
+      "bytes": 3926,
+      "sha256": "52f814918934cb2f55faa883a3a74086d997400368968d20aec74cee7e0ab851",
+      "role": "Independent reviewer exact deciding/historical bytes; source-path mapping retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/exact-oracle.stdout.json",
+      "portable_path": "independent/exact-oracle.stdout.json",
+      "bytes": 1481,
+      "sha256": "3bf24a8573964b22b78f68e2fe8549075e53e77116260167501f3792bed25b75",
+      "role": "Independent reviewer exact deciding/historical bytes; source-path mapping retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/exact-oracle.stderr.txt",
+      "portable_path": "independent/exact-oracle.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "Independent reviewer exact deciding/historical bytes; source-path mapping retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/G855-E-IR-decision.md",
+      "portable_path": "independent/G855-E-IR-decision.md",
+      "bytes": 7381,
+      "sha256": "2f0b221653e13dbd27a44bd329af9fd56f894fba95f766ff508bffb8ed51d8ac",
+      "role": "Independent reviewer exact deciding/historical bytes; source-path mapping retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/G855-E.md",
+      "portable_path": "independent/G855-E.md",
+      "bytes": 3435,
+      "sha256": "3f60bdd90cc39bf335eea45163dc05ce26ecf8319f1fef294ce3e7b31203fdf7",
+      "role": "Independent reviewer exact deciding/historical bytes; source-path mapping retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/probe_actual_conditions.py.txt",
+      "portable_path": "independent/probe_actual_conditions.py.txt",
+      "bytes": 9796,
+      "sha256": "ee64e2e531923840ff7de62bdb56c88c9b4a8ebfab5cccd601a5276cf4cec5f0",
+      "role": "Independent reviewer exact deciding/historical bytes; source-path mapping retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/probe.stdout.json",
+      "portable_path": "independent/probe.stdout.json",
+      "bytes": 513,
+      "sha256": "d5eda9db1a0ac8df602726b75b1ebd1f9225d504ba8848240878ba0982ddc772",
+      "role": "Independent reviewer exact deciding/historical bytes; source-path mapping retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/probe.stderr.txt",
+      "portable_path": "independent/probe.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "Independent reviewer exact deciding/historical bytes; source-path mapping retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/preliminary-companion-delta.patch",
+      "portable_path": "independent/preliminary-companion-delta.patch",
+      "bytes": 2940,
+      "sha256": "f25e1a1cf6f5fa0474c8ad9ead6d641d794f501feac1b7aa9a205dd560565935",
+      "role": "Independent reviewer exact deciding/historical bytes; source-path mapping retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/preliminary-new-ratio-tests.py.txt",
+      "portable_path": "independent/preliminary-new-ratio-tests.py.txt",
+      "bytes": 10219,
+      "sha256": "500cbd6e8b495f9efa37d70b83ef30544f53c8c786dbc271eddff9d6edbe6c98",
+      "role": "Independent reviewer exact deciding/historical bytes; source-path mapping retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-selection-name-error.stdout.json",
+      "portable_path": "independent/historical-selection-name-error.stdout.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "Independent reviewer exact deciding/historical bytes; source-path mapping retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-selection-name-error.stderr.txt",
+      "portable_path": "independent/historical-selection-name-error.stderr.txt",
+      "bytes": 1014,
+      "sha256": "31f6605c87b40c3ebbe361577a42c1e213ac4a0f69e3bfb3217968e0c537f88b",
+      "role": "Independent reviewer exact deciding/historical bytes; source-path mapping retained"
+    },
+    {
+      "source_path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/publication-selection-candidate-ca17.json",
+      "portable_path": "independent/publication-selection-candidate-ca17.json",
+      "bytes": 7694,
+      "sha256": "7e83a77e9c575d1c775ddc92b6a0ef688f8095937e1e7424b74889214a1f5736",
+      "role": "Fixed independent selection"
+    }
+  ],
+  "file_count": 96,
+  "bytes": 2885949
+}

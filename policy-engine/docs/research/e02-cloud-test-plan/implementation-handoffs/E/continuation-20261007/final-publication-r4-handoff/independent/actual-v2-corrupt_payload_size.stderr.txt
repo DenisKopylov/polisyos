@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-final-publication-r4-staging/copy-proposed-publication.py.txt", line 112, in <module>
+    rows = check_manifest(manifest)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-final-publication-r4-staging/copy-proposed-publication.py.txt", line 43, in check_manifest
+    require(len(data) == row['bytes'] and hashlib.sha256(data).hexdigest() == row['sha256'], 'literal staged hash and size')
+  File "/tmp/e02-E-final-publication-r4-staging/copy-proposed-publication.py.txt", line 20, in require
+    raise ValueError(reason)
+ValueError: literal staged hash and size

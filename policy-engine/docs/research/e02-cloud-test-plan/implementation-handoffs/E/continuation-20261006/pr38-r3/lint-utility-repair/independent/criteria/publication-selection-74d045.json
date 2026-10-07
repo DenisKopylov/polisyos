@@ -1,0 +1,224 @@
+{
+  "schema": "e02-independent-review-publication-selection/1",
+  "candidate": "74d0452848a7461d82ea7f150f126631d9fc8399",
+  "tree": "a4e4793be4d1aec6adea623b930a65304ab42d64",
+  "files": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/independent-review-74d045.json",
+      "bytes": 67140,
+      "sha256": "90f569d72f81639967dd4fbbebd9f6de497852a13f8a2b79a85015f27bc40f88"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/independent-review-f3ec.json",
+      "bytes": 149255,
+      "sha256": "c1a1a28513dc9f6ae07b3d7dbb33f593f42a4c1fc977b3cc28ef0fb261181d9b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/74d045-delta-review.json",
+      "bytes": 43412,
+      "sha256": "7ba752503b196bb0bef551d51627aea0d4d327a2e99087aed629081862dc2ce5"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/candidate-f3ec-source-census.json",
+      "bytes": 641959,
+      "sha256": "004c5ea598dfe58c80ccdd5d30de63a32a7b404c43580087134df2bb8ae2e20e"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/current-229-index-74d045.json",
+      "bytes": 106412,
+      "sha256": "d35b76c74ce39482871ff37c7dd722b084e3ee8497038c4582c198da19a34a68"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/immutable-f3ec-controls.json",
+      "bytes": 5192,
+      "sha256": "a111ab890247f5c6ae30867b201e49d7ae59bd732f951dda3b50576d927dbd6d"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/current-index-74d045-receipt.json",
+      "bytes": 1616,
+      "sha256": "65873248aea9e437a2174874f15219f1f37cfb187bb34c430b102f40f341faef"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/ruff-format-pinned-f3ec-receipt.json",
+      "bytes": 91913,
+      "sha256": "27a5c9e18f44d7f02536fbc4c3cea7ae52fc5694d1db7edb41b9ddf7a2a23e4a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/f3ec-74d045-complete.diff",
+      "bytes": 15062,
+      "sha256": "529dd0474b7433081ac3f3084ee634cf70cf9de285cc92326dd668ba13e94b6a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/run_semantic_controls.py",
+      "bytes": 13078,
+      "sha256": "c079b526324a049d8115aed82fb1dfa4f01a0c4048cf2b43ec5d37202e98d639"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/current_index_control.py",
+      "bytes": 2303,
+      "sha256": "c76fe12a51035521aeb32ba0b3d88f7f1bdff712ebee016b1d52142b40a0360b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/criteria-entry.py",
+      "bytes": 290,
+      "sha256": "40735eaaa4c00068877c28bb2c2a206ae2dd9b495495278df99410dd23d2bf5d"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/metrics_port_control.py",
+      "bytes": 2218,
+      "sha256": "3f35a768d76b364497bcca3fa46d83f951360c828148adfea53c49555c9be83a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/semantic-f3ec-normal.stdout",
+      "bytes": 4356,
+      "sha256": "c7ed37a327301e03e5847b93f8cb30d8739c808d1474d9b5bc2ed5d72d84bbf6"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/semantic-f3ec-normal.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/semantic-f3ec-optimized.stdout",
+      "bytes": 4356,
+      "sha256": "ee00e1ded90c11816425e046c120a625ce54351386ac5a43a102f751fdbacb8f"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/semantic-f3ec-optimized.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/harness-f3ec-normal.stdout",
+      "bytes": 203,
+      "sha256": "a004fc5760091a35520474c610325cdb8c0f01a5805565e57261e663e2d2e2c5"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/harness-f3ec-normal.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/harness-f3ec-optimized.stdout",
+      "bytes": 203,
+      "sha256": "a004fc5760091a35520474c610325cdb8c0f01a5805565e57261e663e2d2e2c5"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/harness-f3ec-optimized.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/criteria-f3ec-normal.stdout",
+      "bytes": 3647,
+      "sha256": "d0f5aa75f0267c5fc149df279d00988edf4d6f1f0c96813150e1f4f22d567ad9"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/criteria-f3ec-normal.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/criteria-f3ec-optimized.stdout",
+      "bytes": 3647,
+      "sha256": "d0f5aa75f0267c5fc149df279d00988edf4d6f1f0c96813150e1f4f22d567ad9"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/criteria-f3ec-optimized.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/current-index-74d045-normal.stdout",
+      "bytes": 819,
+      "sha256": "854bd656731a6f5b48260d54659d2b5460745fcbc88f153fda7074fcc666f66b"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/current-index-74d045-normal.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/current-index-74d045-optimized.stdout",
+      "bytes": 819,
+      "sha256": "9fd39cc45989e0417f465c4b35bcb090b15297644f4e83613e330679cdff9740"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/current-index-74d045-optimized.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/ruff-pinned-f3ec.stdout",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/ruff-pinned-f3ec.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/format-pinned-f3ec.stdout",
+      "bytes": 28,
+      "sha256": "c1b38a9478b031b6d4bd55b5f933dd2ac57ed867adb55152d400e81451810b51"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/format-pinned-f3ec.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/ruff-74delta.stdout",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/ruff-74delta.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/format-74delta.stdout",
+      "bytes": 27,
+      "sha256": "75b7030be9d7de96bf4e76e79b1f03f14af8899d169fd8d79564d59167d1ab80"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/format-74delta.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/metrics-port-current.stdout",
+      "bytes": 563,
+      "sha256": "bc447ba29d14f409815cda0782cb023492836340f433592f301ed64a167f0c07"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/metrics-port-current.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/harness-old-e9-normal.stdout",
+      "bytes": 203,
+      "sha256": "a004fc5760091a35520474c610325cdb8c0f01a5805565e57261e663e2d2e2c5"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/harness-old-e9-normal.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/harness-old-e9-optimized.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/lint-independent/harness-old-e9-optimized.stderr",
+      "bytes": 537,
+      "sha256": "56791deb03ec568c275fbdeb4dee4dad92ea8e00048d8d81aac9a22b2d820f0c"
+    }
+  ],
+  "total_bytes": 1159262,
+  "excluded_raw": "Full archived source/input trees and3.2MB initial diff remain scratch; input/source Git refs permit exact extraction. No171MB raw dump."
+}

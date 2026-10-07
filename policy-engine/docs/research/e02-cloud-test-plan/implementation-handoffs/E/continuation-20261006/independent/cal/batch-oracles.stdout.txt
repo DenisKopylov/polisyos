@@ -1,0 +1,6 @@
+{"name": "eager", "outcome": "PASS", "actual": [[-1.0], [2.6931471824645996], [0.0]], "numerical_callback_inputs": [[2.0]]}
+{"name": "jit", "outcome": "PASS", "actual": [[-1.0], [2.6931471824645996], [0.0]], "numerical_callback_inputs": [[2.0]]}
+{"name": "gradient", "outcome": "PASS", "actual": [[1.0], [1.5], [1.0]], "numerical_callback_inputs": [[2.0]]}
+{"name": "hessian", "outcome": "PASS", "actual": [[[[0.0], [0.0], [0.0]]], [[[0.0], [-0.25], [0.0]]], [[[0.0], [0.0], [0.0]]]], "numerical_callback_inputs": [[2.0]]}
+{"name": "active_invalid_preserves_failure", "outcome": "PASS", "actual": ["nan", "2.6931472", "0.0"], "numerical_callback_inputs": [[-1.0], [2.0]]}
+{"summary": "5 PASS", "wall_seconds": 3.7006716489995597}

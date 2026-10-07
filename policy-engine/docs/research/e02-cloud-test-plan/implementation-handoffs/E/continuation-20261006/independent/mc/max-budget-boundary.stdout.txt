@@ -1,0 +1,2 @@
+{"HEAD": "f7b0ade5ce9d6c7a849c2f7445d40123eb86b7a7", "tree": "0d1692ed4496870c6c1d5b28fe035c74895fcaba", "dirty": ""}
+{"case": "adaptive_explicit_max_budget_full_net_boundary", "outcome": "FAIL", "configured_max_samples": 1000, "actual_samples": 1024, "callbacks_including_nominal": 1025, "head_at_end": "f7b0ade5ce9d6c7a849c2f7445d40123eb86b7a7", "dirty_at_end": ""}

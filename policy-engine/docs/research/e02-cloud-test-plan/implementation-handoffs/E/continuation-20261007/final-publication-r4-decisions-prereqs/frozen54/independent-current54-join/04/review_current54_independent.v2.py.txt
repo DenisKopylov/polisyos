@@ -1,0 +1,185 @@
+"""Independent metadata join review: preserve owner decisions; validate exact source navigation."""
+import copy
+import hashlib
+import json
+import subprocess
+import sys
+from collections import Counter
+from pathlib import Path
+
+ROOT=Path('/workspace/e02-E-continuation-20261006')
+OUT=Path('/workspace/e02-E-pr38-r3-receipts/final-join-independent')
+JOIN=Path('/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-all-54-source-wave-update-v2.json')
+SOURCE='64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+TREE='aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+JOIN_HASH='9ce6df09fe956cb4fc3c55021649ceb4fbc92fb89b341dc4e4a66b08f8778872'
+EXPECTED_INPUT_HASHES={'prewave':'b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8','numeric':'bb59345873fdc306c98458587354f3caaed45312694c14a51d01edfd08768bbf','case_index':'73a5974a61fe29424373bac0edfc0bbdff1840b7717dd493e8261c3dff3e7ab0','successor_index':'ed043655af120349142c669db39b4f5822ff354e7a33610690b0fab046159175','defining_case_index':'6d68193c3ff1650e5d3e32718470548b9ff1d8115110a56dfba80ef8534121b1'}
+
+def require(c, reason):
+    if not c: raise ValueError(reason)
+def git(*args):
+    return subprocess.run(['git','-C',str(ROOT),*args],check=True,capture_output=True).stdout
+def digest(raw): return hashlib.sha256(raw).hexdigest()
+def record(path):
+    raw=Path(path).read_bytes()
+    return {'path':str(path),'bytes':len(raw),'sha256':digest(raw)}
+def canonical(value):
+    return digest(json.dumps(value,sort_keys=True,ensure_ascii=False,separators=(',',':')).encode())
+def write(name,value):
+    path=OUT/name
+    with path.open('x') as stream:stream.write(json.dumps(value,indent=2,ensure_ascii=False)+'\n')
+    return record(path)
+
+require(record(JOIN)['sha256']==JOIN_HASH,'immutable join identity')
+actual=json.loads(JOIN.read_bytes())
+inputs={}
+for name,ref in actual['input_records'].items():
+    require(ref==record(ref['path']),'complete input custody '+name)
+    require(ref['sha256']==EXPECTED_INPUT_HASHES[name],'externally pinned input '+name)
+    inputs[name]=json.loads(Path(ref['path']).read_bytes())
+owner,numeric,cases,selectors,defining=(inputs[k] for k in ('prewave','numeric','case_index','successor_index','defining_case_index'))
+require(git('rev-parse',SOURCE+'^{tree}').decode().strip()==TREE,'immutable source tree')
+source_records=[]
+for ref in actual['source_inputs']+[actual['original_54_input']]+actual['current_metadata_correction']['source_refs']:
+    raw=git('show',ref['revision']+':'+ref['path'])
+    require(len(raw)==ref['bytes'] and digest(raw)==ref['sha256'],'Git source custody '+ref['path'])
+    source_records.append({'revision':ref['revision'],'path':ref['path'],'bytes':len(raw),'sha256':digest(raw)})
+original=actual['original_54_input']
+require(git('show',SOURCE+':'+original['path'])==git('show',original['revision']+':'+original['path']),'historical original54 bytes retained')
+
+# Read exact reference custody independently; do not execute the author's join function.
+content_records={}
+def custody(value):
+    if isinstance(value,dict):
+        if {'path','bytes','sha256'} <= value.keys() and str(value['path']).startswith('/'):
+            key=(value['path'],value['bytes'],value['sha256'])
+            if key not in content_records:
+                current=record(value['path'])
+                require(current['bytes']==value['bytes'] and current['sha256']==value['sha256'],'referenced content drift '+value['path'])
+                content_records[key]=current
+        for part in value.values():custody(part)
+    elif isinstance(value,list):
+        for part in value:custody(part)
+custody(actual)
+
+preserved_top=set(owner)-{'schema','rows','current_wave_rule','formal_ledger_change','source_vs_evidence_rule'}
+added_top={'input_records','numeric_independent_recomputation_ref','numeric_observation_summary','numeric_primary_jobs','bounded_retry_observations','native_case_index_ref','current_37_selector_index_ref','standalone_successor_observations','selector_observation_counts','source_vs_evidence_rule','defining_source_navigation_ref'}
+require(set(actual)==set(owner)|added_top,'complete declared top-level join footprint')
+owner_by_id={r['id']:r for r in owner['rows']}
+links={r['finding_id']:(i,r) for i,r in enumerate(numeric['finding_links'])}
+case_map={(r['job'],r['ordinal']):r for r in cases['cases']}
+require(len(case_map)==len(cases['cases']),'unique exact native case keys')
+source_counts=Counter(r['outcome'] for r in cases['cases'])
+require(len(cases['cases'])==numeric['case_denominator'] and source_counts==Counter(numeric['case_outcome_counts']),'native case denominator matches exact collector source')
+require(len(numeric['jobs'])==15 and numeric['plan_job_denominator']==numeric['job_denominator']==15,'15 complete primary jobs')
+for v in (numeric,cases,selectors,defining):
+    require(v['source']==SOURCE and v['tree']==TREE,'all input source and tree bindings')
+require({r['selector'] for r in selectors['rows']}=={f'workspace-{i:02d}' for i in range(1,15)}|{f'ci-{i:02d}' for i in range(1,24)},'37 exact selector identities')
+require(selectors['all_invocations_closed'] is True,'initial37 terminal source')
+require(Counter(r['observed_selector_check_outcome'] for r in selectors['rows'])==Counter({'FAIL':21,'PASS':15,'UNRUN':1}),'initial37 observed counts')
+require(all(r['canonical_umbrella_UNRUN_rewritten'] is False and r['finding_outcome_inferred'] is False and r['execution_running'] is False and r['receipt_not_final'] is False for r in selectors['rows']),'check/finding and canonical preservation flags')
+
+# Every actual initial37 closed receipt and its stdout is still the bound observation.
+terminal_receipts=[]
+for row in selectors['rows']:
+    for step in row['steps']:
+        ref=step.get('receipt')
+        if ref:
+            receipt=json.loads(Path(ref['path']).read_bytes())
+            require(receipt['candidate_sha']==SOURCE and receipt['candidate_tree_sha']==TREE,'native selector receipt source')
+            require(receipt['outcome']==step['outcome'] and receipt['exit_code']==step['exit_code'],'selector actual terminal outcome')
+            require(receipt['stdout_path']==step['stdout']['path'] and receipt['stdout_bytes']==step['stdout']['bytes'] and receipt['stdout_sha256']==step['stdout']['sha256'],'selector actual stdout custody')
+            require(receipt['source_immutable']==step['source_immutable'],'native selector immutable observation')
+            terminal_receipts.append({'selector':row['selector'],'outcome':step['outcome'],'receipt':ref,'stdout':step['stdout']})
+
+summary_keys={'disposition','check_findings_separate','scope','independent_source_frame','plan_job_denominator','job_denominator','native_test_path_denominator','case_denominator','case_outcome_counts','finding_denominator','bundle_denominator','id_to_bundle_links','known_A_current_binding_denominator','unexpected_current_numeric_failures','issues','limits'}
+require(set(actual['numeric_observation_summary'])==summary_keys,'complete declared numeric summary fields')
+job_keys={'name','kind','exit_code','signal','interrupted_without_JUnit','interruption_cause','recomputed_outcome','declared_outcome','counts','source_frame_equal','receipt'}
+require(all(set(j)==job_keys for j in actual['numeric_primary_jobs']),'complete numeric job field footprint')
+row_results=[]
+def validate(value):
+    require(value['schema']=='policyos.e02.E.final-individual-dispositions.v2','joined schema')
+    for key in preserved_top:require(value[key]==owner[key],'owner top field changed '+key)
+    require(value['formal_ledger_change'] is False,'formal ledger not changed')
+    require(value['current_wave_rule']=='Exact current JUnit matches are navigation observations. Individual criterion decisions retain their independent defining-property basis; family membership and aggregate PASS counts do not create finding closure.','no implicit wave criterion closure')
+    require(value['source_vs_evidence_rule']=='Execution source remains 64d7444a/tree aef23574. Later publication/evidence utilities and regenerated-JSON delta observations have separate source refs; they do not replace frozen runtime or test identities.','execution source distinct from evidence source')
+    require(value['input_records']==actual['input_records'],'pinned input records changed')
+    require(value['numeric_independent_recomputation_ref']==actual['input_records']['numeric'],'numeric exact report ref')
+    require(value['native_case_index_ref']==actual['input_records']['case_index'],'case exact report ref')
+    require(value['current_37_selector_index_ref']==actual['input_records']['successor_index'],'37 exact source ref')
+    require(value['defining_source_navigation_ref']==actual['input_records']['defining_case_index'],'defining exact source ref')
+    require(value['numeric_observation_summary']=={k:numeric[k] for k in summary_keys},'numeric summary preserved')
+    require(value['numeric_primary_jobs']==[{k:r[k] for k in job_keys} for r in numeric['jobs']],'all15 exact job observations')
+    require(value['bounded_retry_observations']==[{k:v for k,v in r.items() if k!='cases'} for r in numeric['bounded_retry_attempts']],'bounded retry separate from primary wave')
+    require(value['standalone_successor_observations']==selectors['rows'],'all37 actual source observations preserved')
+    require(value['selector_observation_counts']==selectors['observed_selector_outcome_counts'],'selector counts preserved')
+    require(len(value['rows'])==len(owner_by_id)==len(links)==54,'all54 unique original rows')
+    require([r['id'] for r in value['rows']]==[r['id'] for r in owner['rows']],'original exact row identity and order')
+    require(Counter(r['historical_ledger_status'] for r in value['rows'])==Counter({'partial':49,'held':4,'closed':1}),'historical49/4/1 retained')
+    require(Counter(r['proposed_finding_outcome'] for r in value['rows'])==Counter({'closed':43,'limited':9,'held':2}),'proposals separate43/9/2')
+    require(sum(len(r['bundle_ids']) for r in value['rows'])==55 and len(value['bundles'])==22,'22 bundles55 links')
+    relation={(b['id'],f) for b in value['bundles'] for f in b['finding_ids']}
+    require(relation=={(b,r['id']) for r in value['rows'] for b in r['bundle_ids']} and len(relation)==55,'bidirectional bundle/card relation')
+    for row in value['rows']:
+        old=owner_by_id[row['id']]
+        require(set(row)==set(old)|{'current_independent_collector_link'},'declared row footprint '+row['id'])
+        for key in set(old)-{'current_check_links','formal_ledger_change'}:
+            require(row[key]==old[key],'owner decision/criterion field changed '+row['id']+'/'+key)
+        require(row['formal_ledger_change'] is False,'row formal ledger changed')
+        unchanged={k:v for k,v in row['current_check_links'].items() if k!='frozen_wave'}
+        require(unchanged=={k:v for k,v in old['current_check_links'].items() if k!='frozen_wave'},'unchanged prior check link')
+        i,link=links[row['id']]
+        require(row['bundle_ids']==link['bundle_ids'] and row['historical_ledger_status']==link['ledger_status_historical'],'collector links original criterion row')
+        wave=row['current_check_links']['frozen_wave']
+        require(wave=={'candidate':SOURCE,'tree':TREE,'receipt_recomputation_pending':False,'current_selector_navigation':link['current_selector_navigation'],'scope':'Recomputed current selector matches, not automatic criterion PASS','criterion_check_outcome':None},'exact collector navigation only '+row['id'])
+        binding=row['current_independent_collector_link']
+        require(binding['report_ref']==actual['input_records']['numeric'] and binding['json_pointer']=='/finding_links/'+str(i) and binding['canonical_link_sha256']==canonical(link),'content-bound collector pointer '+row['id'])
+        require(set(binding)=={'report_ref','json_pointer','canonical_link_sha256','criterion_evidence_rule'},'collector binding footprint')
+        require(binding['criterion_evidence_rule']=='Verbatim collector source remains at this exact report pointer; independent original-criterion decisions are retained separately','collector does not create criterion authority')
+        for item in wave['current_selector_navigation']['exact_case_bindings']:
+            source=case_map[(item['job'],item['ordinal'])]
+            require(all(item[k]==source[k] for k in ('job','ordinal','classname','name','outcome')),'actual exact case navigation '+row['id'])
+    require(next(r for r in value['rows'] if r['id']=='B198')['historical_ledger_status']=='closed','B198 retained regression status')
+    require(next(r for r in value['rows'] if r['id']=='B200')['proposed_finding_outcome']=='limited','B200 content-bound relationship input retained')
+    require({r['id'] for r in value['rows'] if r['proposed_finding_outcome']=='held'}=={'B194','B197'},'remaining held source/evaluator inputs')
+
+validate(actual)
+controls=[]
+for label in ('same_count_owner_outcome_swap','accountable_owner','minimal_input_removed','historical_count','proposal_count','implicit_check_to_finding_PASS','pointer_shift','link_digest','case_outcome','selector_UNRUN_rewritten','selector_actual_outcome','report_custody','all54_denominator','producer_consumer_changed','criterion_evidence_rule','current_wave_rule','execution_source_rule'):
+    mutated=copy.deepcopy(actual)
+    rows=mutated['rows']
+    if label=='same_count_owner_outcome_swap':
+        a=next(r for r in rows if r['id']=='B200'); b=next(r for r in rows if r['id']=='B199')
+        a['proposed_finding_outcome'],b['proposed_finding_outcome']=b['proposed_finding_outcome'],a['proposed_finding_outcome']
+    elif label=='accountable_owner':rows[0]['accountable_owner']='E synthetic authority'
+    elif label=='minimal_input_removed':mutated['remaining_owner_inputs'][0]['minimal_inputs']=''
+    elif label=='historical_count':mutated['historical_ledger']['partial']=50
+    elif label=='proposal_count':mutated['proposed_finding_counts']['closed']=44
+    elif label=='implicit_check_to_finding_PASS':rows[0]['current_check_links']['frozen_wave']['criterion_check_outcome']='PASS'
+    elif label=='pointer_shift':rows[0]['current_independent_collector_link']['json_pointer']='/finding_links/0'
+    elif label=='link_digest':rows[0]['current_independent_collector_link']['canonical_link_sha256']='0'*64
+    elif label=='case_outcome':next(r for r in rows if r['current_check_links']['frozen_wave']['current_selector_navigation']['exact_case_bindings'])['current_check_links']['frozen_wave']['current_selector_navigation']['exact_case_bindings'][0]['outcome']='FORGED'
+    elif label=='selector_UNRUN_rewritten':mutated['standalone_successor_observations'][0]['canonical_umbrella_UNRUN_rewritten']=True
+    elif label=='selector_actual_outcome':next(r for r in mutated['standalone_successor_observations'] if r['selector']=='ci-02')['observed_selector_check_outcome']='PASS'
+    elif label=='report_custody':mutated['numeric_independent_recomputation_ref']['sha256']='0'*64
+    elif label=='all54_denominator':rows.pop()
+    elif label=='producer_consumer_changed':rows[0]['producer_artifact_bridge_consumer_surface']['consumer']='summary-only fake witness'
+    elif label=='criterion_evidence_rule':rows[0]['current_independent_collector_link']['criterion_evidence_rule']='All matched PASS automatically closes original criterion'
+    elif label=='current_wave_rule':mutated['current_wave_rule']='A large PASS count establishes closure'
+    else:mutated['source_vs_evidence_rule']='Later utility evidence retroactively replaces frozen runtime source'
+    require(mutated['schema']==actual['schema'] and mutated['frozen_source']==actual['frozen_source'],'negative preserves schema/source markers')
+    try:validate(mutated)
+    except ValueError as error:controls.append({'mutation':label,'complete_recomputation':'rejected','reason':str(error)})
+    else:raise ValueError('independent mutation admitted '+label)
+    # Actual property-removal execution: marker-only acceptance misses the changed payload.
+    def marker_only(value):return value['schema']==actual['schema'] and value['frozen_source']==actual['frozen_source']
+    try:
+        if marker_only(mutated):raise ValueError('independent negative assertion FAIL: marker-only removal admits changed content')
+    except ValueError as error:controls[-1]['property_removal_negative']={'check_outcome':'FAIL','expected':True,'reason':str(error)}
+    else:raise ValueError('removal control failed to demonstrate escape')
+
+require(record(JOIN)['sha256']==JOIN_HASH,'immutable join after review')
+for name,ref in actual['input_records'].items():require(record(ref['path'])==ref,'all join input brackets')
+result={'schema':'policyos.e02.E.independent_current54_join_review.v1','check_outcome':'PASS','disposition':'GO for immutable V2 join integrity; current supplemental publication correction still required','reviewer':'imports_r4','source':SOURCE,'tree':TREE,'joined_output':record(JOIN),'observer_source':record(Path(__file__)),'external_interpreter':{'executable':sys.executable,'version':sys.version,'optimized':bool(sys.flags.optimize),'stdlib_only':True,'ROOT_venv_used_or_imported':False},'method':'Independent field-by-field preservation, exact original54/bundle relation, native case keyed lookup and content-bound JSON pointer verification; no execution or reuse of author join() as the oracle.','input_records':actual['input_records'],'complete_git_source_records':source_records,'complete_reference_custody':list(content_records.values()),'original_owner_preserved_top_fields':sorted(preserved_top),'original_row_decision_fields':'Every owner field preserved exactly except frozen-wave navigation; no accountable-owner decision manufactured by this reviewer.','complete_denominator':actual['complete_denominator'],'historical_ledger':actual['historical_ledger'],'proposed_outcomes':actual['proposed_finding_counts'],'formal_ledger_change':False,'initial37_outcomes':actual['selector_observation_counts'],'actual_terminal_selector_receipts':terminal_receipts,'numeric_case_denominator':len(cases['cases']),'numeric_case_outcomes':dict(source_counts),'defining_source_case_navigation_ref':actual['defining_source_navigation_ref'],'healthy_complete_recomputation':'PASS','adversarial_removal_controls':controls,'known_current_publication_corrections':[{'field':'cleanup','historical_V2_text':actual['cleanup'],'current_required_correction':'Latest human authorization permits cloud repeatable fixtures/environments deletion after saved deciding evidence and no active users; local Trash-only/no emptying remains. Preserve this immutable V2 historical text, add current supplementary correction.'},{'field':'initial37_only','current_required_correction':'This immutable index observes initial37 terminal invocations21FAIL15PASS1UNRUN; later architecture/browser/backend native retry receipts must be supplemental with their own exact source/env/custody, not overwrite canonical fail-fast UNRUN or claim full CI PASS.'}],'scope_limits':['No numerical/native product/global gate repeated.','Preserved independent owner dispositions are input decisions, not a new formal G ledger acceptance.','Full102-model generated companion denominator remains unchanged; no manual/generated patch applied.','P41 not_established without exact base full command/input/environment replay.']}
+name='current54-independent-'+('optimized' if sys.flags.optimize else 'normal')+'-v2.json'
+print(json.dumps(write(name,result),indent=2))

@@ -1,0 +1,46 @@
+import copy,hashlib,json,subprocess
+from pathlib import Path
+B=Path('/tmp/e02-E-decisions-prereqs-custody-independent'); O=B/'final-e233-v2'
+R=Path('/workspace/e02-E-frc-20261006')
+PREFIX='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs'
+C='e233efcd0e5a4bb4c5b280f86a12ec7d0a264d62'
+def sha(x):return hashlib.sha256(x).hexdigest()
+def ref(p):p=Path(p);b=p.read_bytes();return {'path':str(p),'bytes':len(b),'sha256':sha(b)}
+def need(x,m):
+ if not x:raise ValueError(m)
+prior=O/'independent-final-custody-e233.json';d=json.loads(prior.read_text());r=copy.deepcopy(d)
+correction_sources={
+'correction/current-claim-counterexamples-72049.json':B/'current-claim-counterexamples-72049.json',
+'correction/ca17-typed-red/candidate-type.stdout.json':Path('/tmp/e02-E-MC-public-api-review-ca17-20261007/candidate-type.stdout.json'),
+'correction/ca17-typed-red/resolved-base.stdout.json':Path('/tmp/e02-E-MC-public-api-review-ca17-20261007/base-resolved-type.stdout.json'),
+'correction/ca17-typed-red/scoped-type-correction.json':Path('/tmp/e02-E-MC-public-api-review-ca17-20261007/scoped-type-correction.json'),
+'correction/ca17-typed-red/source-qualification-ca17.json':Path('/tmp/e02-E-MC-public-api-review-ca17-20261007/source-qualification-ca17.json')}
+checks=[]
+for rel,src in correction_sources.items():
+ blob=subprocess.check_output(['git','-C',str(R),'show',C+':'+PREFIX+'/'+rel]);need(blob==src.read_bytes(),'original corrective/provenance copy '+rel)
+ checks.append({'Git_path':PREFIX+'/'+rel,'Git_SHA':C,'original':ref(src),'literal_equal':True})
+cor=json.loads((R/PREFIX/'correction/claim-admission-correction.json').read_text())
+need(cor['historical_exact_red']['sha256']==ref(B/'current-claim-counterexamples-72049.json')['sha256'],'fixed red copied input')
+need(cor['corrected_copier']['sha256']==d['pinned_files']['copy-decisions-prereqs.py.txt']['sha256'],'actual corrected copier reference')
+need(cor['payloads_or_original_selectors_changed'] is False and cor['finding_closure'] is False,'utility delta scope')
+r['original_correction_literal_Git_checks']=checks
+r['historical_class_correction_meta_ref']=ref(R/PREFIX/'correction/claim-admission-correction.json')
+r['ROOT_narrow_guard_scope']='Observed HEAD/tree64d/aef only. Tracked-status path equality does not establish generated-input byte identity or a clean checkout.'
+r['ROOT_tracked_generated_output_status_changed']=d['source_guard_before']['tracked_status']!=d['source_guard_after']['tracked_status']
+r['ROOT_has_modified_tracked_inputs_during_review']=bool(d['source_guard_after']['tracked_status'])
+r['ROOT_generated_input_modified_path_count']=len(d['source_guard_after']['tracked_status'].splitlines())
+r['ROOT_generated_input_exact_caller_or_P41_cause']='not_established; active native backend present, precise caller attribution remains root owner task'
+r['ROOT_source_environment_packages_mutated_by_this_reviewer']=False
+r['source_input_identity_beyond_HEAD_tree']='not_established for concurrently changing ROOT generated JSON; source e233 author leaf and all183 published Git/physical DOC bytes independently fixed'
+r['historical_packet_ROOT_before_after_claims']='Literal frozen author copier/selection observations, not a statement that current concurrently active ROOT is clean'
+r['claim_basis']=[
+ {'subject':'all54 historical and frozen proposed dispositions from actual rows','basis':'independently_reconciled'},
+ {'subject':'source/tree/Git/raw hashes, full237Counter/183footprint','basis':'recomputed'},
+ {'subject':'actual closed ca17 candidate3 vsresolvedbase1 typed diagnostics','basis':'independently_reconciled'},
+ {'subject':'full ROOT generated-input identity/currentcleanliness/exactcaller','basis':'not_established'},
+ {'subject':'posterior scientific/institutional authority or Gfindingacceptance','basis':'not_established'}]
+r['limitations']=[x for x in r['limitations'] if 'ROOT native backend concurrently emits' not in x]
+r['limitations'].append('29 modified tracked layer3_g6/g7/g8 JSON names observed while HEAD/tree remain64d/aef; no complete current-root input-byte or currentclean assertion, no exact caller attribution.')
+r['receipt_reconciliation']={'prior_full_actual_CLI_and_byte_check':ref(prior),'initial_guard_abort':ref(B/'historical-final-e233-root-output-guard.stderr.txt'),'current_qualification_only':'Retain actual52 closed CLI observations; qualify HEAD/tree versus changing tracked generated inputs. No source/native or backend rerun.'}
+final=O/'independent-final-custody-e233-qualified.json';final.write_text(json.dumps(r,ensure_ascii=False,indent=2)+'\n')
+print(json.dumps({'disposition':r['disposition'],'candidate':C,'tree':r['source_tree'],'DOC_paths':r['git_file_count'],'DOC_bytes':r['git_bytes'],'member_occurrences':r['member_occurrences'],'payload_files':r['unique_carriers'],'payload_bytes':r['unique_payload_bytes'],'healthy_modes':r['healthy_modes'],'negative_count_per_mode':r['negative_count_per_mode'],'effective_removals':r['effective_predicate_removals'],'ROOT_HEAD_tree_only_unchanged':True,'ROOT_current_tracked_clean':False,'ROOT_modified_generated_path_count':r['ROOT_generated_input_modified_path_count'],'ROOT_exact_input_caller_attribution':'not_established','native_or_backend_reexecuted':False,'receipt':ref(final)},indent=2))

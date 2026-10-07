@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-closed-additions-custody-independent-doe/normal/immutable-copy-closed-additions.py.txt", line 102, in <module>
+    rows = check_manifest(manifest)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-closed-additions-custody-independent-doe/normal/immutable-copy-closed-additions.py.txt", line 25, in check_manifest
+    require(value['verification_source'] == '64d7444a18c55df7b88b71b7699a2f1b25ca24bd', 'frozen source identity')
+  File "/tmp/e02-E-closed-additions-custody-independent-doe/normal/immutable-copy-closed-additions.py.txt", line 20, in require
+    raise ValueError(reason)
+ValueError: frozen source identity

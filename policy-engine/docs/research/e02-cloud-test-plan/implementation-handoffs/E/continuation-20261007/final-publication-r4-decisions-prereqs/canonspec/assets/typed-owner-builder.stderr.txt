@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-forecast-canon-public-route-64d-20261007/build_typed_owner_packet.py", line 115, in <module>
+    patch = ''.join(difflib.unified_diff(a.splitlines(keepends=True),b.splitlines(keepends=True),fromfile='a/'+path,tofile='b/'+path) for path,a,b in [(facade,facade_old,facade_new),(FORECAST,caller_old,caller_new)])
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: sequence item 0: expected str instance, generator found

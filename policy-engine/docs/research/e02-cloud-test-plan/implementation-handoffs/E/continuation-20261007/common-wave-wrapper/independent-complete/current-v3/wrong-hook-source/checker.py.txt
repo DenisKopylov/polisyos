@@ -1,0 +1,2 @@
+from pathlib import Path
+Path('/workspace/e02-E-pr38-r3-receipts/lint-wrapper-independent/current-v3/wrong-hook-source/callback.marker').write_text("called")

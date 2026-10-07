@@ -1,0 +1,172 @@
+{
+  "schema": "policyos.e02.independent_finite_law_moderate_publication_selection.v1",
+  "candidate": "ca17a489559eb574285bb1c7291cc3c56a9e29da",
+  "tree": "f2ce9f70a02fa7184a5caac3faaeddd95f6e1d3e",
+  "numeric_candidate": "2c0fb5e26172129ab3ae032c24b35ed2ced6c80f",
+  "numeric_tree": "237320d4c5db41330b3d61ff6611f0de8e64549f",
+  "base": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "precode_decision": "55422d4f179f56d796794938be66bcb0741b13ed",
+  "source_acceptance": "GO bounded exact finite-law / actual fresh E consumer mechanisms and companion delta",
+  "selected_files": 29,
+  "selected_bytes": 285295,
+  "files": [
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/final-source-bracket-ca17.json",
+      "bytes": 12357,
+      "sha256": "23528c0bcbabc861516cafb40307c01e960d5f40a5942699110d995886f6d6f8"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+      "bytes": 51924,
+      "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/ca17-companion-delta-review.json",
+      "bytes": 998,
+      "sha256": "e777637b3f525a9ef55b5dd7e98ac0aaf096c612e7cc7fd2e38af976d02276bf"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.results.json",
+      "bytes": 29453,
+      "sha256": "53685caf061664e5889ee69bd5a769880b4a33737888074545d19f7323085276"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.py.txt",
+      "bytes": 21598,
+      "sha256": "d3b086cda709ad05954c1bbe535c88c257f7e23c8ca8b98da131acaf71bba704"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.stdout.json",
+      "bytes": 3633,
+      "sha256": "5fac4c8ae4b8ebb3fff34c7f0a4a28a35bd0f232bfd2ac0c6a07ee3b7139a8fc"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-two-observer-errors.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-candidate-delta-results.json",
+      "bytes": 10329,
+      "sha256": "f15fb2a9b18e67a6ba6ab63c3ed932d2f46c2d1a98af83409656bba29757d068"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent_candidate_review.py.txt",
+      "bytes": 22702,
+      "sha256": "4303f36cc61601d0e9bcf1aea3283128a2fd0ec0742ea00f748657ee2aa904d6"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-candidate-delta.stdout.json",
+      "bytes": 501,
+      "sha256": "38b1cde0e5f5c2780fa6748ab272b1bd85afb589ba26eb8ba67e63a2cd29086e"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-candidate-delta.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/assemble_independent_final_review.py.txt",
+      "bytes": 18535,
+      "sha256": "d60953cad4fafe60a509bc4d76207327c7290e670e8ae3de4faa5793603e0ce1"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/actual-conditions-counterexamples.json",
+      "bytes": 18774,
+      "sha256": "d4827c252f4da22f69be8fb920dde6e6a5737553df43a199f886e115637b8042"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/independent-owner-response.json",
+      "bytes": 11390,
+      "sha256": "f3878619073bf02ed4b66f89525958d0cb5c5d929cd1f860a9535a438e1ae5ca"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/exact-finite-oracle.json",
+      "bytes": 6369,
+      "sha256": "9ecfbdb387d63e1db764bd6cec49b26edcddb38c3ffeac4e82cbd586b682bfdc"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/literal-legacy-profile700-fixture-index.json",
+      "bytes": 8473,
+      "sha256": "2ca74a333bf836d2fbbbbfc0712bc38625a2241008c633b39104ab82351fb3fc"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/preliminary-companion-independent-review.json",
+      "bytes": 27554,
+      "sha256": "467a2bdda1d93e337ad94d80e449c99d77ecdd8bf2f24aff3e85b35fd5a5dff0"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/exact_finite_oracle.py.txt",
+      "bytes": 3926,
+      "sha256": "52f814918934cb2f55faa883a3a74086d997400368968d20aec74cee7e0ab851"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/exact-oracle.stdout.json",
+      "bytes": 1481,
+      "sha256": "3bf24a8573964b22b78f68e2fe8549075e53e77116260167501f3792bed25b75"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/exact-oracle.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/G855-E-IR-decision.md",
+      "bytes": 7381,
+      "sha256": "2f0b221653e13dbd27a44bd329af9fd56f894fba95f766ff508bffb8ed51d8ac"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/G855-E.md",
+      "bytes": 3435,
+      "sha256": "3f60bdd90cc39bf335eea45163dc05ce26ecf8319f1fef294ce3e7b31203fdf7"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/probe_actual_conditions.py.txt",
+      "bytes": 9796,
+      "sha256": "ee64e2e531923840ff7de62bdb56c88c9b4a8ebfab5cccd601a5276cf4cec5f0"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/probe.stdout.json",
+      "bytes": 513,
+      "sha256": "d5eda9db1a0ac8df602726b75b1ebd1f9225d504ba8848240878ba0982ddc772"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/probe.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/preliminary-companion-delta.patch",
+      "bytes": 2940,
+      "sha256": "f25e1a1cf6f5fa0474c8ad9ead6d641d794f501feac1b7aa9a205dd560565935"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/preliminary-new-ratio-tests.py.txt",
+      "bytes": 10219,
+      "sha256": "500cbd6e8b495f9efa37d70b83ef30544f53c8c786dbc271eddff9d6edbe6c98"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-selection-name-error.stdout.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/historical-selection-name-error.stderr.txt",
+      "bytes": 1014,
+      "sha256": "31f6605c87b40c3ebbe361577a42c1e213ac4a0f69e3bfb3217968e0c537f88b"
+    }
+  ],
+  "exclude": [
+    "all CAS fixture directories",
+    "large raw dumps",
+    "ROOT environment/package data"
+  ],
+  "count_scope": "Thirty retained passing observations plus three corrected/current delta observations, under exact product-byte equality. This is not a newly executed 33-case wave on ca17.",
+  "old_publication_selection": {
+    "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/publication-selection.json",
+    "bytes": 3201,
+    "sha256": "b001b5e01eebd0f23a7e51c92a95728d087bec7ae6413c2096a1fcafc31be048"
+  },
+  "history_preserved": true,
+  "no_numerical_or_gate_execution_in_this_builder": true
+}

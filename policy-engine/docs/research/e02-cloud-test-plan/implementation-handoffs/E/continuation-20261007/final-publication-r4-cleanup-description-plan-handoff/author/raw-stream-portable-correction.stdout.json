@@ -1,0 +1,39 @@
+{
+  "schema": "policyos.e02.raw_stream_portable_correction.v1",
+  "outcome": "PASS portable destination correction",
+  "changes": [
+    {
+      "source_path": "/tmp/e02-E-pr38-description-current-64d-20261007/rest-before.stdout.json",
+      "source_bytes": 100,
+      "source_sha256": "4dc259c6b598cc194255ee5bd4566fa85fcce887296d64b64a7e549522cbc108",
+      "old_portable_path": "PR-description/historical-publication/rest-before.stdout.json",
+      "new_portable_path": "PR-description/historical-publication/rest-before.stdout.txt",
+      "actual_original_selector_record": {
+        "source_path": "/tmp/e02-E-pr38-description-current-64d-20261007/rest-before.stdout.json",
+        "bytes": 100,
+        "sha256": "4dc259c6b598cc194255ee5bd4566fa85fcce887296d64b64a7e549522cbc108",
+        "portable_path": "historical-publication/rest-before.stdout.json",
+        "role": "literal-closed-author-publication-original"
+      }
+    }
+  ],
+  "original_selectors_and_source_bytes_changed": false,
+  "originals_preserved": true,
+  "historical_precommit_observation": {
+    "guard": "json.loads on every intended .json output",
+    "outcome": "ERROR",
+    "message": "historical REST error text in100-byte .stdout.json; single invalid intended JSON file",
+    "literal_full_stdout_stderr_saved": false,
+    "tool_report_only": true
+  },
+  "counts": {
+    "logical_count": 237,
+    "logical_bytes": 3596399,
+    "unique_payload_files": 196,
+    "unique_payload_bytes": 3554254,
+    "deduplicated_aliases": 41
+  },
+  "new_copier_sha256": "8be9bad8f5b6b523696b8fe913fb5afd78a6fb3d77a527c60ad2894ccd33169c",
+  "source_native_numeric_gate_execution": false,
+  "ROOT_source_env_locks_written": false
+}

@@ -1,0 +1,18 @@
+{
+  "source_sha": "1eba9f9e47a82cca1db341314a748b4980e015fc",
+  "A_canonical_source_path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+  "canonical_source_sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44",
+  "patch_sha256": "8653a775b1432c961a61c53f752196856c724b1f3509f891434c610c43b653bb",
+  "test_packet_sha256": "293110a89223941ae3a772ea59226831aef2a459ca9b17bcefc8157ef574455c",
+  "overlay_source_sha256": "5ba218ff24b37b461d0db11dc76a4e0e68fe3a500488e3249da21f51f337fcb1",
+  "patch_command": [
+    "patch",
+    "--forward",
+    "-p1",
+    "--directory=/workspace/e02-E-pr38-r3-receipts/frc-independent/A-overlay",
+    "--input=/workspace/e02-E-pr38-r3-receipts/frc-independent/A-owner-packet.patch"
+  ],
+  "patch_exit_code": 0,
+  "repository_source_unchanged": true,
+  "ownership": "A packet applied only to ignored isolated scratch; A owner review/application remains pending"
+}

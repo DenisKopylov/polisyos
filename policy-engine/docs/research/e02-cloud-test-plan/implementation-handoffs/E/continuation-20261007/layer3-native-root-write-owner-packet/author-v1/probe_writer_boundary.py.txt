@@ -1,0 +1,102 @@
+from __future__ import annotations
+import ast, hashlib, json, os, re, subprocess, sys, tempfile, types
+from collections.abc import Mapping, Sequence
+from pathlib import Path
+from typing import Any
+OUT=Path(__file__).resolve().parent
+ROOT=Path('/workspace/e02-E-continuation-20261006')
+SHA='64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+def h(b):return hashlib.sha256(b).hexdigest()
+def req(cond,message):
+ if not cond:raise ValueError(message)
+def source(p):
+ b=(OUT/'sources'/(p+'.txt')).read_bytes()
+ row=next(x for x in json.loads((OUT/'source-index.json').read_text()) if x['path']==p)
+ req(len(b)==row['bytes'] and h(b)==row['sha256'],'source bytes mismatch')
+ req(subprocess.check_output(['git','-C',str(ROOT),'show',SHA+':'+p])==b,'exact Git source mismatch')
+ return b.decode()
+def constants(text):
+ ns={'Path':Path}
+ if 'g8.EXPECTED_ARTIFACT_PATHS' in text:
+  ns['g8']=types.SimpleNamespace(EXPECTED_ARTIFACT_PATHS=constants(source('policy-engine/src/polisyos/runtime/quality/proving_ground/health_metric_governance.py'))['EXPECTED_ARTIFACT_PATHS'])
+ for n in ast.parse(text).body:
+  if not isinstance(n,(ast.Assign,ast.AnnAssign)):continue
+  names=[t.id for t in n.targets if isinstance(t,ast.Name)] if isinstance(n,ast.Assign) else [n.target.id] if isinstance(n.target,ast.Name) else []
+  if names and all(x.endswith('_PATH') or x.endswith('_DIR') or x=='EXPECTED_ARTIFACT_PATHS' for x in names):
+   try:exec(compile(ast.Module(body=[n],type_ignores=[]),'<literal-paths>','exec'),ns)
+   except NameError:continue
+ return ns
+class DummyBaseModel:pass
+class FixtureBundle(dict):
+ def __missing__(self,key):return {'fixture_content':key,'basis':'plain-payload writer control only; no native bundle semantics'}
+ def __getattr__(self,key):return self[key]
+def writer_namespace(fam):
+ p=f'policy-engine/tools/quality/validation/check_policy_design_case_layer3_g{fam}_readiness.py';text=source(p)
+ defs={n.name:n for n in ast.parse(text).body if isinstance(n,ast.FunctionDef)}
+ wanted={'_write_artifacts','_resolve_repo_path','_write_json'}
+ todo=list(wanted)
+ while todo:
+  name=todo.pop()
+  for n in ast.walk(defs[name]):
+   if isinstance(n,ast.Call) and isinstance(n.func,ast.Name) and n.func.id in defs and n.func.id not in wanted:
+    wanted.add(n.func.id);todo.append(n.func.id)
+ ns=constants(text);ns.update({'Path':Path,'Mapping':Mapping,'Sequence':Sequence,'Any':Any,'BaseModel':DummyBaseModel,'json':json,'os':os,'re':re,'tempfile':tempfile})
+ ns[f'G{fam}_SCHEMA_VERSION']=f'writer-fixture-g{fam}'
+ ns[f'G{fam}_RULE_VERSION']=f'writer-fixture-rule-g{fam}'
+ fs=source('policy-engine/tools/lib/fs.py');atomic=next(n for n in ast.parse(fs).body if isinstance(n,ast.FunctionDef) and n.name=='atomic_write_text')
+ atomic.decorator_list=[]
+ unit=ast.parse('from __future__ import annotations\n');unit.body += [atomic]+[defs[n] for n in sorted(wanted)]
+ for n in unit.body:
+  if isinstance(n,ast.FunctionDef):n.decorator_list=[]
+ exec(compile(ast.fix_missing_locations(unit),'<exact-atomic-writer-functions>','exec'),ns)
+ return ns,sorted(wanted)
+def fingerprints(root):return {p.relative_to(root).as_posix():h(p.read_bytes()) for p in sorted(root.rglob('*')) if p.is_file()}
+class MonkeyPatch:
+ def setitem(self,d,k,v):d[k]=v
+ def undo(self):pass
+checks=[]
+def check(name,cond,details):
+ req(cond,name);checks.append({'name':name,'status':'PASS','details':details})
+# Execute only AST-extracted exact write helpers and the proposed root-rebinding function.
+# All products/runtime producers are excluded; paths below are newly created /tmp controls.
+cases=[]
+for fam in (6,7,8):
+ ns,compiled=writer_namespace(fam)
+ req(all(not x.is_absolute() and '..' not in x.parts for x in ns['EXPECTED_ARTIFACT_PATHS']),'unexpected frozen output path')
+ template='policy-engine/tests/repo_quality/tools/test_policy_design_case_layer3_g'+str(fam)+'_readiness.py'
+ proposed=(OUT/'proposed-sources'/(template+'.txt')).read_text()
+ isolated=next(n for n in ast.parse(proposed).body if isinstance(n,ast.FunctionDef) and n.name=='_isolated_readiness_root');isolated.decorator_list=[]
+ for removed in (False,True):
+  mode='healthy' if not removed else 'root-binding-removal'
+  catalog=Path(tempfile.mkdtemp(prefix=f'g{fam}-{mode}-',dir=OUT))
+  source_standin=catalog/'source-standin';fixture=catalog/'fixture';source_standin.mkdir();fixture.mkdir()
+  for root in (source_standin,fixture):
+   for rel in ns['EXPECTED_ARTIFACT_PATHS']:
+    p=root/rel;p.parent.mkdir(parents=True,exist_ok=True);p.write_text('ORIGINAL\n')
+  baseline=fingerprints(source_standin)
+  bindingns={'REPO_ROOT':source_standin,'Path':Path}
+  fn=ast.parse(ast.unparse(isolated)).body[0]
+  if removed:fn.body=[ast.Pass()]
+  unit=ast.parse('from __future__ import annotations\n');unit.body.append(fn)
+  exec(compile(ast.fix_missing_locations(unit),'<proposed-binding-exact-or-removed>','exec'),bindingns)
+  bindingns['_isolated_readiness_root'](fixture,MonkeyPatch())
+  supplied=bindingns['REPO_ROOT']
+  written=ns['_write_artifacts'](supplied,FixtureBundle())
+  if fam==8:
+   # Real G8 validate writes manifest separately, outside _write_artifacts.
+   ns['_write_json'](ns['_resolve_repo_path'](supplied,ns['READINESS_MANIFEST_PATH']),{'fixture_content':'separate-readiness-write'})
+   written.append(ns['READINESS_MANIFEST_PATH'].as_posix())
+  after=fingerprints(source_standin);fixture_after=fingerprints(fixture)
+  expected={p.as_posix() for p in ns['EXPECTED_ARTIFACT_PATHS']}
+  changed_source=[p for p in baseline if after[p]!=baseline[p]]
+  changed_fixture=[p for p in baseline if fixture_after[p]!=baseline[p]]
+  check(f'g{fam}-{mode}-exact-declared-output-set',set(written)==expected and len(written)==len(expected),{'paths':len(expected),'compiled_exact_functions':compiled})
+  if not removed:
+   check(f'g{fam}-healthy-source-standin-unchanged',not changed_source,{'actual_changed_count':len(changed_source)})
+   check(f'g{fam}-healthy-fixture-all-writes',set(changed_fixture)==expected,{'actual_changed_count':len(changed_fixture)})
+  else:
+   check(f'g{fam}-removal-defining-property-diverges',set(changed_source)==expected and not changed_fixture,{'defining_source_confinement_status':'FAIL','actual_source_standin_changes':len(changed_source),'property_removed':'single proposed monkeypatch.setitem root binding','full_expected_mutations':sorted(changed_source)})
+  cases.append({'family':fam,'mode':mode,'catalog':str(catalog),'supplied_root':str(supplied),'source_standin':str(source_standin),'fixture_root':str(fixture),'source_root_changes':changed_source,'fixture_root_changes':changed_fixture,'declared_count':len(expected),'actual_written':written})
+patch=(OUT/'canonical-owner-test-isolation.patch').read_bytes()
+result={'outcome':'PASS','controls':len(checks),'checks':checks,'cases':cases,'source_commit':SHA,'source_tree':'aef23574d3162abb19bf5a1c67d02624ff9d4d1d','python':sys.version,'patch_sha256':h(patch),'product_runtime_bundle_execution':False,'actual_ROOT_writes':0,'mode':'external stdlib /tmp-only; full exact writer functions with plain fake payloads; no inference/gate authority','limitations':['Whole runtime G6/G7/G8 selectors still UNRUN; plain bundle payloads prove writer-path confinement only','No exact actual running native test/caller attribution; P41 not_established','Wider G2/G3/G4/G5/GL/GY default-root writers remain separate canonical owner scope']}
+print(json.dumps(result,indent=2))

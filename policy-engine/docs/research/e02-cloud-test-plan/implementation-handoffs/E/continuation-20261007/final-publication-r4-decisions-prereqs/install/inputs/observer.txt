@@ -1,0 +1,184 @@
+"""Observe root environment metadata and live users without importing its packages."""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import os
+import sys
+import time
+from email.parser import BytesParser
+from pathlib import Path
+from typing import Any
+
+ENVIRONMENT = Path("/workspace/e02-E-continuation-20261006/policy-engine/.venv")
+CHECKOUT = ENVIRONMENT.parent
+PATH_ENV_KEYS = {"VIRTUAL_ENV", "UV_PROJECT_ENVIRONMENT", "PYTHONPATH", "PATH"}
+PROTECTED = {"numpy", "scipy", "jax", "jaxlib", "salib"}
+
+
+def require(condition: bool, reason: str) -> None:
+    if not condition:
+        raise ValueError(reason)
+
+
+def digest(raw: bytes) -> str:
+    return hashlib.sha256(raw).hexdigest()
+
+
+def metadata() -> dict[str, Any]:
+    rows = []
+    for path in sorted((ENVIRONMENT / "lib/python3.14/site-packages").glob("*.dist-info/METADATA")):
+        raw = path.read_bytes()
+        parsed = BytesParser().parsebytes(raw)
+        name = str(parsed["Name"])
+        row = {
+            "name": name,
+            "version": str(parsed["Version"]),
+            "path": str(path),
+            "bytes": len(raw),
+            "sha256": digest(raw),
+        }
+        rows.append(row)
+    framed = json.dumps(rows, sort_keys=True, separators=(",", ":")).encode()
+    protected = [r for r in rows if r["name"].lower().replace("_", "-") in PROTECTED]
+    return {
+        "distributions": rows,
+        "count": len(rows),
+        "framed_sha256": digest(framed),
+        "protected_numerical_packages": protected,
+    }
+
+
+def ancestors() -> set[int]:
+    result = set()
+    current = os.getpid()
+    while current and current not in result:
+        result.add(current)
+        try:
+            current = int(Path(f"/proc/{current}/stat").read_text().split(") ", 1)[1].split()[1])
+        except (OSError, ValueError, IndexError):
+            break
+    return result
+
+
+def users() -> dict[str, Any]:
+    excluded = ancestors()
+    needle = str(ENVIRONMENT).encode()
+    observed = []
+    unreadable = []
+    inspected = 0
+    for proc in sorted(Path("/proc").glob("[0-9]*"), key=lambda p: int(p.name)):
+        pid = int(proc.name)
+        if pid in excluded:
+            continue
+        try:
+            stat = (proc / "stat").read_text().split(") ", 1)[1].split()
+            if stat[0] == "Z":
+                continue
+            argv_raw = (proc / "cmdline").read_bytes()
+            if not argv_raw:
+                continue
+            inspected += 1
+            matches = []
+            argv = [v.decode(errors="replace") for v in argv_raw.split(b"\0") if v]
+            if needle in argv_raw:
+                matches.append("argv_environment_path")
+            environ_raw = (proc / "environ").read_bytes()
+            selected = {}
+            for item in environ_raw.split(b"\0"):
+                key, _, val = item.partition(b"=")
+                decoded = key.decode(errors="replace")
+                if decoded in PATH_ENV_KEYS:
+                    selected[decoded] = needle in val
+            if any(selected.values()):
+                matches.append("selected_environment_path")
+            for field in ("cwd", "exe"):
+                value = os.readlink(proc / field)
+                if str(ENVIRONMENT) in value:
+                    matches.append(field)
+                if (
+                    field == "cwd"
+                    and value.startswith(str(CHECKOUT))
+                    and Path(argv[0]).name
+                    in {"python", "python3", "python3.14", "uv", "pytest", "ruff", "basedpyright"}
+                ):
+                    matches.append("checkout_tool_potential_reader")
+            if needle in (proc / "maps").read_bytes():
+                matches.append("mapped_environment_file")
+            descriptor_matches = 0
+            for fd in (proc / "fd").iterdir():
+                try:
+                    if str(ENVIRONMENT) in os.readlink(fd):
+                        descriptor_matches += 1
+                except FileNotFoundError:
+                    continue
+            if descriptor_matches:
+                matches.append("open_environment_file")
+            if matches:
+                observed.append(
+                    {
+                        "pid": pid,
+                        "start_ticks": stat[19],
+                        "program": Path(argv[0]).name,
+                        "argv_sha256": digest(argv_raw),
+                        "matches": matches,
+                        "environment_path_matches": selected,
+                        "open_environment_descriptors": descriptor_matches,
+                    }
+                )
+        except (PermissionError, OSError, ValueError, IndexError) as error:
+            if proc.exists():
+                unreadable.append({"pid": pid, "error": type(error).__name__})
+    return {
+        "inspected_processes": inspected,
+        "excluded_inspector_ancestors": sorted(excluded),
+        "observed_users": observed,
+        "unreadable_live_processes": unreadable,
+        "quiescent": not observed and not unreadable,
+    }
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+    require(not args.output.exists(), "fresh append-only observer output")
+    before = metadata()
+    usage = users()
+    after = metadata()
+    value = {
+        "schema": "policyos.e02.root_environment_quiescence_observation.v1",
+        "time_unix": time.time(),
+        "root_environment": str(ENVIRONMENT),
+        "inspector_python": sys.version,
+        "observer_sha256": digest(Path(__file__).read_bytes()),
+        "metadata": before,
+        "metadata_after_framed_sha256": after["framed_sha256"],
+        "metadata_stable_during_observation": before["framed_sha256"] == after["framed_sha256"],
+        "users": usage,
+        "environment_mutated": False,
+        "admission_rule": (
+            "Install only under root scheduler exclusive environment lease, zero readers/writers "
+            "and no unreadable live users, with a fresh stable metadata observation "
+            "immediately before mutation"
+        ),
+    }
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.output.write_text(json.dumps(value, indent=2) + "\n")
+    sys.stdout.write(
+        json.dumps(
+            {
+                "path": str(args.output),
+                "bytes": args.output.stat().st_size,
+                "sha256": digest(args.output.read_bytes()),
+            },
+            indent=2,
+        )
+        + "\n"
+    )
+
+
+if __name__ == "__main__":
+    main()

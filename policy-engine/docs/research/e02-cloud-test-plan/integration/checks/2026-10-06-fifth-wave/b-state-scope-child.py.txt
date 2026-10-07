@@ -1,0 +1,249 @@
+from __future__ import annotations
+
+import hashlib
+import importlib.metadata
+import json
+import os
+import platform
+import resource
+import subprocess
+import sys
+import traceback
+from pathlib import Path
+
+
+def git_blob_sha(data: bytes) -> str:
+    return hashlib.sha1(b'blob ' + str(len(data)).encode('ascii') + b'\0' + data).hexdigest()
+
+
+def source_blob_map(repo: Path, candidate: str) -> dict[str, tuple[str, str]]:
+    raw = subprocess.check_output(
+        ['git', '-C', str(repo), 'ls-tree', '-r', '-z', candidate, '--', 'policy-engine/src'],
+        timeout=20,
+    )
+    result: dict[str, tuple[str, str]] = {}
+    for record in raw.split(b'\0'):
+        if not record:
+            continue
+        header, path = record.split(b'\t', 1)
+        mode, kind, blob = header.decode('ascii').split()
+        if kind != 'blob':
+            raise RuntimeError(f'unexpected Git object for module source: {record!r}')
+        result[path.decode('utf-8', 'surrogateescape')] = (mode, blob)
+    return result
+
+
+def summarize_journal(journal) -> list[dict[str, object]]:
+    return [operation.model_dump(mode='json') for operation in journal.operations]
+
+
+def verify_import_origins(source_root: Path, repo: Path, candidate: str) -> list[dict[str, str]]:
+    source_root = source_root.resolve(strict=True)
+    expected = source_blob_map(repo, candidate)
+    imports: list[dict[str, str]] = []
+    for name, module in sorted(sys.modules.items()):
+        if name != 'polisyos' and not name.startswith('polisyos.'):
+            continue
+        origin = getattr(module, '__file__', None)
+        if origin is None:
+            spec = getattr(module, '__spec__', None)
+            origin = getattr(spec, 'origin', None)
+        if origin is None:
+            raise RuntimeError(f'Polisyos module has no verifiable file origin: {name}')
+        actual = Path(origin).resolve(strict=True)
+        if os.path.commonpath((str(source_root), str(actual))) != str(source_root):
+            raise RuntimeError(f'Polisyos module imported outside pinned source: {name} -> {actual}')
+        relative = actual.relative_to(source_root).as_posix()
+        git_path = f'policy-engine/src/{relative}'
+        record = expected.get(git_path)
+        if record is None:
+            raise RuntimeError(f'import source is not a candidate Git blob: {git_path}')
+        actual_blob = git_blob_sha(actual.read_bytes())
+        if actual_blob != record[1]:
+            raise RuntimeError(
+                f'imported source bytes mismatch candidate blob: {git_path} '
+                f'{actual_blob} != {record[1]}'
+            )
+        imports.append({
+            'module': name,
+            'path': str(actual),
+            'git_path': git_path,
+            'candidate_blob': record[1],
+            'actual_blob': actual_blob,
+        })
+    if not imports:
+        raise RuntimeError('probe imported no Polisyos modules')
+    return imports
+
+
+def main() -> dict[str, object]:
+    repo = Path(os.environ['POLISYOS_PROBE_REPO']).resolve(strict=True)
+    candidate = os.environ['POLISYOS_PROBE_CANDIDATE']
+    source_root = Path(os.environ['POLISYOS_PROBE_SOURCE_ROOT']).resolve(strict=True)
+
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.scientist.orchestration.engine.state import ExperimentState
+    from polisyos.scientist.orchestration.engine.state_branching import branch_state
+
+    original_kind = 'candidate.kind'
+    typed_ref = ArtifactRef(
+        artifact_id='sha256:' + 'e' * 64,
+        kind=original_kind,
+        media_type='application/json',
+    )
+    typed_base = ExperimentState(
+        run_id='R_B_ALL15_TYPED_REF_SCOPE_PROBE',
+        inputs={'ref': typed_ref},
+        params={'owned': {'value': 1}},
+    )
+    typed_branch = branch_state(
+        typed_base,
+        write_paths=['params.owned'],
+        enforce_write_scope=True,
+    )
+    alias_before = typed_branch.state.inputs['ref'] is typed_base.inputs['ref']
+    base_ref_is_constructor_object = typed_base.inputs['ref'] is typed_ref
+    typed_before = typed_base.model_dump(mode='json')
+    typed_journal_before = summarize_journal(typed_branch.journal)
+    typed_error = None
+    typed_accepted = False
+    try:
+        typed_branch.state.inputs['ref'].kind = 'mutated.kind'
+        typed_accepted = True
+    except Exception as exc:  # report actual guard behavior, including Pydantic errors
+        typed_error = {'type': type(exc).__name__, 'message': str(exc)}
+    typed_after_base = typed_base.model_dump(mode='json')
+    typed_after_branch = typed_branch.state.model_dump(mode='json')
+    typed_journal_after = summarize_journal(typed_branch.journal)
+
+    allowed_base = ExperimentState(
+        run_id='R_B_ALL15_ALLOWED_DICT_CONTROL',
+        params={'owned': {'value': 1}, 'unowned': {'value': 10}},
+    )
+    allowed_branch = branch_state(
+        allowed_base,
+        write_paths=['params.owned'],
+        enforce_write_scope=True,
+    )
+    allowed_error = None
+    try:
+        allowed_branch.state.params['owned']['value'] = 2
+    except Exception as exc:
+        allowed_error = {'type': type(exc).__name__, 'message': str(exc)}
+    allowed_journal = summarize_journal(allowed_branch.journal)
+
+    denied_base = ExperimentState(
+        run_id='R_B_ALL15_DENIED_DICT_CONTROL',
+        params={'owned': {'value': 1}, 'unowned': {'value': 10}},
+    )
+    denied_branch = branch_state(
+        denied_base,
+        write_paths=['params.owned'],
+        enforce_write_scope=True,
+    )
+    denied_before_base = denied_base.model_dump(mode='json')
+    denied_before_branch = denied_branch.state.model_dump(mode='json')
+    denied_error = None
+    try:
+        denied_branch.state.params['unowned']['value'] = 11
+    except Exception as exc:
+        denied_error = {'type': type(exc).__name__, 'message': str(exc)}
+    denied_after_base = denied_base.model_dump(mode='json')
+    denied_after_branch = denied_branch.state.model_dump(mode='json')
+    denied_journal = summarize_journal(denied_branch.journal)
+
+    imports = verify_import_origins(source_root, repo, candidate)
+    allowed_check = (
+        allowed_error is None
+        and allowed_base.params['owned']['value'] == 1
+        and allowed_branch.state.params['owned']['value'] == 2
+        and any(
+            operation['path'] == 'params.owned.value'
+            and operation['operation'] == 'set'
+            for operation in allowed_journal
+        )
+    )
+    denied_check = (
+        denied_error is not None
+        and denied_error['type'] == 'ValueError'
+        and denied_after_base == denied_before_base
+        and denied_after_branch == denied_before_branch
+        and not denied_journal
+    )
+    typed_bypass = (
+        typed_accepted
+        and typed_after_base['inputs']['ref']['kind'] == 'mutated.kind'
+        and typed_after_branch['inputs']['ref']['kind'] == 'mutated.kind'
+        and not typed_journal_after
+    )
+    typed_rejected_before_change = (
+        not typed_accepted
+        and typed_after_base == typed_before
+        and typed_after_branch == typed_before
+        and not typed_journal_after
+    )
+
+    return {
+        'status': 'PROBE_COMPLETE',
+        'python': sys.version,
+        'executable': sys.executable,
+        'platform': platform.platform(),
+        'pydantic_version': importlib.metadata.version('pydantic'),
+        'source_root': str(source_root),
+        'working_directory': str(Path.cwd()),
+        'pythonpath': os.environ.get('PYTHONPATH'),
+        'numerical_thread_limits': {
+            key: os.environ.get(key) for key in ('OMP_NUM_THREADS', 'OPENBLAS_NUM_THREADS', 'MKL_NUM_THREADS')
+        },
+        'max_rss_platform_units': resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
+        'typed_ref_case': {
+            'construction': 'ordinary ArtifactRef(...) and ExperimentState(...) constructors; no model_construct',
+            'write_paths': ['params.owned'],
+            'enforce_write_scope': True,
+            'same_ref_object_in_base_and_branch_before_write': alias_before,
+            'base_ref_is_constructor_object': base_ref_is_constructor_object,
+            'before_kind': original_kind,
+            'mutation_attempted': True,
+            'mutation_accepted': typed_accepted,
+            'exception': typed_error,
+            'base_kind_after': typed_after_base['inputs']['ref']['kind'],
+            'branch_kind_after': typed_after_branch['inputs']['ref']['kind'],
+            'base_model_dump_changed': typed_after_base != typed_before,
+            'branch_journal_before': typed_journal_before,
+            'branch_journal_after': typed_journal_after,
+            'blocked_before_any_change': typed_rejected_before_change,
+            'untracked_shared_alias_bypass_observed': typed_bypass,
+        },
+        'allowed_dict_control': {
+            'write': "branch.params['owned']['value'] = 2",
+            'exception': allowed_error,
+            'base_value_after': allowed_base.params['owned']['value'],
+            'branch_value_after': allowed_branch.state.params['owned']['value'],
+            'journal': allowed_journal,
+            'control_passed': allowed_check,
+        },
+        'denied_dict_control': {
+            'write': "branch.params['unowned']['value'] = 11",
+            'exception': denied_error,
+            'base_unchanged': denied_after_base == denied_before_base,
+            'branch_unchanged': denied_after_branch == denied_before_branch,
+            'journal': denied_journal,
+            'control_passed': denied_check,
+        },
+        'imported_polisyos_module_count': len(imports),
+        'imported_polisyos_modules': imports,
+        'all_polisyos_origins_source_blob_verified': True,
+        'control_checks_passed': allowed_check and denied_check,
+        'typed_ref_scope_bypass_found': typed_bypass,
+        'scope_property_passed': allowed_check and denied_check and typed_rejected_before_change,
+    }
+
+
+if __name__ == '__main__':
+    try:
+        result = main()
+        print(json.dumps(result, sort_keys=True, separators=(',', ':')))
+        raise SystemExit(0 if result['status'] == 'PROBE_COMPLETE' else 1)
+    except BaseException:
+        print(json.dumps({'status': 'HARNESS_FAIL', 'traceback': traceback.format_exc()}, sort_keys=True))
+        raise SystemExit(2)

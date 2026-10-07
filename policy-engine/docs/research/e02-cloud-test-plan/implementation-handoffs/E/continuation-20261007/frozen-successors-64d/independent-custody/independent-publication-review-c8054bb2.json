@@ -1,0 +1,215 @@
+{
+  "schema": "policyos.e02.E.independent_successor_publication_review.v1",
+  "candidate": "c8054bb2f055fae5f94012773ab4d2efad8cfab7",
+  "tree": "ad4563952e75e3a4ab6b094283ef8007594533df",
+  "base": "43f6bb54e316ce1308d53ba75c6e27e40171e364",
+  "runtime_source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "runtime_tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "review_outcome": "GO",
+  "scope": "Published custody/outcome/source/environment; no native gate repeat or finding closure",
+  "complete_footprint": {
+    "paths": 170,
+    "all_additions_under_owned_docs": true,
+    "active_python_added": false
+  },
+  "copy_count": 168,
+  "copy_bytes": 2501235,
+  "index": {
+    "path": "/workspace/e02-E-doe-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/portable-copy-index.json",
+    "bytes": 94712,
+    "sha256": "850e48149d8500e831e10652c01fc42a502a1c304afe3b6c5d6a6bd1cce0779e"
+  },
+  "reviewer_source": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/successors-independent-r4/review-successor-publication.py.txt",
+    "bytes": 17372,
+    "sha256": "9bcc6558c30b5eda9113978941fea2a3665f8350a6ef0700a5c3bfbc5b8aad39"
+  },
+  "canonical_validator": {
+    "path": "/workspace/e02-E-doe-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/validate_review_copies.py.txt",
+    "bytes": 5518,
+    "sha256": "23a36b48fa09682c8ce82fe2ed6ed434c997f35fc47ce022930fc5dda5a9edde"
+  },
+  "required_selections": [
+    {
+      "selection": {
+        "path": "/workspace/e02-E-doe-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/closed-source-selection.json",
+        "bytes": 51575,
+        "sha256": "75eeba4cab6dc64815fe72803160be45cba63ffe0883072445dd11b1895cb452"
+      },
+      "assets": 122
+    },
+    {
+      "selection": {
+        "path": "/workspace/e02-E-doe-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/closed-source-selection.json",
+        "bytes": 16356,
+        "sha256": "3f184a310070f4a950831598a97778362d6c14491cdcf76cec2fd64188440c84"
+      },
+      "assets": 37
+    }
+  ],
+  "21_native_outcomes": {
+    "FAIL": 14,
+    "PASS": 7
+  },
+  "source_frame": {
+    "tracked_paths": 17016,
+    "bytes": 524100024,
+    "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+  },
+  "CI07": "Actual report-only PASS preserves ledger/closure signals; no ledger authority inferred",
+  "CI08": {
+    "all_declared_sources": 51,
+    "native_examples": 7,
+    "metadata_changes": {
+      "doe": {
+        "before": 177,
+        "after": 184,
+        "added": [
+          "polisyos-data-forge-domain-example",
+          "polisyos-fabric-connector-example",
+          "polisyos-foundry-method-example",
+          "polisyos-lex-normpack-example",
+          "polisyos-runtime-middleware-example",
+          "polisyos-scientist-governance-pass-example",
+          "polisyos-scientist-node-example"
+        ],
+        "all_existing_records_equal": true
+      },
+      "root": {
+        "before": 203,
+        "after": 203,
+        "added": [],
+        "all_existing_records_equal": true
+      }
+    },
+    "actual_cases": [
+      {
+        "classname": "examples.extensions.fabric_connector.tests.test_smoke",
+        "name": "test_local_rows_connector_component_creates_offline_connector",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "examples.extensions.foundry_method.tests.test_smoke",
+        "name": "test_weighted_average_plugin_registers_and_runs",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "examples.extensions.scientist_governance_pass.tests.test_smoke",
+        "name": "test_audit_marker_pass_factory_returns_validator_pass",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "examples.extensions.scientist_governance_pass.tests.test_smoke",
+        "name": "test_audit_marker_pass_accepts_approved_context",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "examples.extensions.scientist_node.tests.test_smoke",
+        "name": "test_annotate_state_node_component_runs_node",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "examples.extensions.data_forge_domain.tests.test_smoke",
+        "name": "test_city_budget_domain_component_materializes_fixture",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "examples.extensions.lex_normpack.tests.test_smoke",
+        "name": "test_minimum_wage_normpack_component_returns_static_pack",
+        "outcome": "PASS"
+      },
+      {
+        "classname": "examples.extensions.runtime_middleware.tests.test_smoke",
+        "name": "test_response_header_middleware_component_wraps_asgi_app",
+        "outcome": "PASS"
+      }
+    ],
+    "junit": {
+      "path": "/workspace/e02-E-doe-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/ci08-existing-doe-environment/checks/native-ci08-existing-doe-environment/pytest.xml",
+      "bytes": 1471,
+      "sha256": "703d04c3916e7a7ff6979f8742dbd4aa605a9192605ea61450a68106e7996ac6"
+    },
+    "original_root_invocation": "UNRUN",
+    "equivalent_distinct_existing_environment": "PASS"
+  },
+  "limits": [
+    "Canonical fail-fast umbrella UNRUN remains separate from executed standalone selectors.",
+    "Prepared static input-domain text retains its before-execution wording; actual native outcomes above control executed observations.",
+    "Historical open-capture selection stays historical ERROR; current v2 selection controls published copies.",
+    "This custody GO is not full CI PASS, semantic source acceptance, or automatic finding closure."
+  ],
+  "normal_and_python_O_identical": true,
+  "deciding_reviews": {
+    "normal": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/successors-independent-r4/independent-publication-review-c8054bb2-normal.json",
+      "bytes": 7779,
+      "sha256": "05ba025f5325eb4f32a8d6205d1eab63ddc9d32f7d1fbe77bf343887555c3378"
+    },
+    "optimized": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/successors-independent-r4/independent-publication-review-c8054bb2-optimized.json",
+      "bytes": 7779,
+      "sha256": "05ba025f5325eb4f32a8d6205d1eab63ddc9d32f7d1fbe77bf343887555c3378"
+    }
+  },
+  "corrupt_and_effective_removal_controls": [
+    {
+      "field": "sha256",
+      "value": "0000000000000000000000000000000000000000000000000000000000000000",
+      "refused": "Review digest mismatch: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-01/standalone-workspace-01.json"
+    },
+    {
+      "field": "bytes",
+      "value": -1,
+      "refused": "Review size declaration invalid: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-01/standalone-workspace-01.json"
+    },
+    {
+      "field": "bytes",
+      "value": true,
+      "refused": "Review size declaration invalid: policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frozen-successors-64d/21-nonshared/stages/workspace-01/standalone-workspace-01.json"
+    },
+    {
+      "field": "copied_path",
+      "value": "../outside",
+      "refused": "Review copy must be repository relative"
+    },
+    {
+      "field": "copied_path",
+      "value": "--help",
+      "refused": "Review copy must be repository relative"
+    },
+    {
+      "field": "unpublished_base",
+      "value": "43f6bb54e316ce1308d53ba75c6e27e40171e364",
+      "refused": "Review revision or copy is unavailable in Git"
+    },
+    {
+      "field": "digest_property_removed",
+      "invalid_digest_admitted": true,
+      "source": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/successors-independent-r4/removed-digest-validator.py.txt",
+        "bytes": 4867,
+        "sha256": "7b2634bf5459d73f094f0badc320bfe132a0a4bd2db6c47acedf709b85b453b4"
+      },
+      "meaning": "Effective removal diverges from strict content-bound refusal"
+    }
+  ],
+  "canonical_umbrella_separation": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/successors-independent-r4/canonical-umbrella-separation.json",
+    "bytes": 3930,
+    "sha256": "88b73772478d3509783b53e46c6e98ac3a00ac1cd2272cb4403ea9e485dc97b7"
+  },
+  "canonical_umbrella_counts": {
+    "workspace-verify": {
+      "PASS": 1,
+      "FAIL": 1,
+      "UNRUN": 13
+    },
+    "ci-parity": {
+      "FAIL": 1,
+      "UNRUN": 23
+    }
+  },
+  "environment_mutated": false,
+  "native_selectors_rerun": false,
+  "remaining_next_owner": "DoE publishes separate immutable handoff; E root/G intake code and individual finding decisions separately. Root-owned remaining selectors/retries remain outside this publication-custody GO."
+}

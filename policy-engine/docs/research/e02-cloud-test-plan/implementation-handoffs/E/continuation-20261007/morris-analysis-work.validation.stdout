@@ -1,0 +1,6 @@
+Healthy handoff refs/source footprint: PASS
+Corrupt candidate_tree: rejected (candidate_tree_mismatch)
+Corrupt asset_hash: rejected (asset_hash_mismatch)
+Corrupt asset_size: rejected (asset_size_mismatch)
+Corrupt footprint: rejected (incomplete_source_footprint)
+Corrupt review_identity: rejected (review_identity_mismatch)

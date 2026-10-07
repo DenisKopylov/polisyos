@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r3-receipts/doe-r4/zero-json-candidate-b4af26cf/verify_stdout_role_cascade.py", line 212, in <module>
+    main()
+  File "/workspace/e02-E-pr38-r3-receipts/doe-r4/zero-json-candidate-b4af26cf/verify_stdout_role_cascade.py", line 174, in main
+    validate(corrupted)
+  File "/workspace/e02-E-pr38-r3-receipts/doe-r4/zero-json-candidate-b4af26cf/verify_stdout_role_cascade.py", line 118, in validate
+    require({field: row[field] for field in ["bytes", "sha256"]} == identity(current(path)), "complete current archive index identity")
+                                                                             ^^^^^^^^^^^^^
+  File "/workspace/e02-E-pr38-r3-receipts/doe-r4/zero-json-candidate-b4af26cf/verify_stdout_role_cascade.py", line 44, in current
+    data = (args.repo / path).read_bytes()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1019, in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/pathlib.py", line 1013, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-doe-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/final-closeout-independent/independent-recompute-attempt1.stdout.json'

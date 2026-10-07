@@ -1,0 +1,333 @@
+{
+  "schema": "policyos.e02.forecast_canon_public_route_type_qualification.v2",
+  "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "current_root_head_observation": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "current_root_status_sb_observation": "## codex/e02-E-continuation-20261006\n?? policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/\n",
+  "verdict": "change-required",
+  "private_edge_closed": false,
+  "runtime_witness": {
+    "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/native-public-route.json",
+    "bytes": 44283,
+    "sha256": "b62d9348bd0328bce98d1db97a38f13b0349ea7f2f4e5d35968fc71ec7f507cb"
+  },
+  "historical_runtime_only_owner_packet": {
+    "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/owner-ready-public-route.json",
+    "bytes": 6745,
+    "sha256": "53caa61cbf37d411fc5021b45f67770d55e99e4d2e82fb87eb4cc254bfeed2cc"
+  },
+  "typed_execution": {
+    "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/scoped-typecheck-execution.json",
+    "bytes": 4230,
+    "sha256": "fcbbc806766c6eeffe43ea200473d411f5ea7c46d3705b0a8e828788d7c186b9"
+  },
+  "before": {
+    "check_outcome": "FAIL",
+    "exit_code": 1,
+    "summary": {
+      "filesAnalyzed": 1,
+      "errorCount": 33,
+      "warningCount": 0,
+      "informationCount": 0,
+      "timeInSec": 2.94
+    },
+    "stdout": {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-before.stdout.json",
+      "bytes": 25576,
+      "sha256": "bdab5d19bf2bdb1366b13b4dccfa3e5b4ec16b8895b156026d815d16dd28dc15"
+    },
+    "stderr": {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-before.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "overlay": {
+    "check_outcome": "FAIL",
+    "exit_code": 1,
+    "summary": {
+      "filesAnalyzed": 1,
+      "errorCount": 35,
+      "warningCount": 0,
+      "informationCount": 0,
+      "timeInSec": 2.185
+    },
+    "stdout": {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay.stdout.json",
+      "bytes": 27952,
+      "sha256": "870496e107bba730f59e736e0c40b2541a5bbe9127df5361bfa6b0b1911f9a88"
+    },
+    "stderr": {
+      "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "delta": {
+    "matched_original_diagnostics": 33,
+    "added": [
+      {
+        "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+        "severity": "error",
+        "message": "Argument of type \"CanonSpec\" cannot be assigned to parameter \"canon_spec\" of type \"CanonSpec | None\" in function \"put_json_artifact\"\n\u00a0\u00a0Type \"CanonSpec\" is not assignable to type \"CanonSpec | None\"\n\u00a0\u00a0\u00a0\u00a0\"polisyos.core.canon.canon_json.CanonSpec\" is not assignable to \"polisyos.ir.model_layer.canon.CanonSpec\"\n\u00a0\u00a0\u00a0\u00a0\"CanonSpec\" is not assignable to \"None\"",
+        "range": {
+          "start": {
+            "line": 676,
+            "character": 19
+          },
+          "end": {
+            "line": 676,
+            "character": 60
+          }
+        },
+        "rule": "reportArgumentType"
+      },
+      {
+        "file": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/typecheck-overlay/src/polisyos/calibration/forecast_bridge.py",
+        "severity": "error",
+        "message": "Argument of type \"CanonSpec\" cannot be assigned to parameter \"canon_spec\" of type \"CanonSpec | None\" in function \"put_json_artifact\"\n\u00a0\u00a0Type \"CanonSpec\" is not assignable to type \"CanonSpec | None\"\n\u00a0\u00a0\u00a0\u00a0\"polisyos.core.canon.canon_json.CanonSpec\" is not assignable to \"polisyos.ir.model_layer.canon.CanonSpec\"\n\u00a0\u00a0\u00a0\u00a0\"CanonSpec\" is not assignable to \"None\"",
+        "range": {
+          "start": {
+            "line": 786,
+            "character": 19
+          },
+          "end": {
+            "line": 786,
+            "character": 60
+          }
+        },
+        "rule": "reportArgumentType"
+      }
+    ],
+    "removed": [],
+    "comparison": "Complete diagnostic multiset with exact unchanged-source line mapping; all severity/rule/message/range fields retained in full stdout."
+  },
+  "typecheck_version": "1.39.0",
+  "canonical_config_and_baseline_unchanged": true,
+  "scope": "Explicit actual single-file before/overlay typecheck under product canonical config. This is not a full project typecheck or global gate result. Both original and overlay remain FAIL; no inherited waiver is asserted.",
+  "codec_implementation": {
+    "actual_ForecastOwner_configured_store": {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "line": 780,
+      "contract": "Constructor accepts FileSystemCAS and retains self._store=store, without ensure_ir_artifact_store."
+    },
+    "direct_Core_CAS": {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "line": 2460,
+      "implementation": "put_json calls Core canon.to_canonical_bytes(obj, canon_spec). Both actual E writer controls used this configured concrete store."
+    },
+    "CoreToIR_adapter": {
+      "path": "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+      "line": 92,
+      "implementation": "Nominal IRCanonSpec argument. It calls ir_canon.to_canonical_bytes(obj, spec) and native store.put_bytes; it does not use Core extended tag writer."
+    },
+    "strict_IR_reader": {
+      "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+      "line": 54,
+      "implementation": "get_json_artifact calls IR from_canonical_bytes. Core float_hex support is not IR tag compatibility."
+    },
+    "bounded_claim": "Only existing finite empirical/candidate payloads were shown byte/ref/manifest equivalent through the actual configured direct Core CAS. No universal codec equivalence or protocol assignability follows."
+  },
+  "source_bindings": [
+    {
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "bytes": 81721,
+      "sha256": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6",
+      "git_blob": "b3bce8ce42df233d434196fafdca31225e949c18",
+      "physical_equal_pinned": true
+    },
+    {
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "bytes": 59611,
+      "sha256": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3",
+      "git_blob": "a9c668bfde25542e1cf788230f7229d33617dc9c",
+      "physical_equal_pinned": true
+    },
+    {
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/src/polisyos/core/__init__.py",
+      "bytes": 11696,
+      "sha256": "1de32f3c3db8f9a052975a3ffc44d9189b765748b5569f83ec20d4386677cc40",
+      "git_blob": "5964150861173fd27143d44363fda0ddd1b6f7e4",
+      "physical_equal_pinned": true
+    },
+    {
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/src/polisyos/core/canon/__init__.py",
+      "bytes": 606,
+      "sha256": "e33a7486224d5e15cd418ac4dab69bb38ac6b1593d739a4b7ac24ea4d477dfb3",
+      "git_blob": "a0b19b5ce6a9bfd9f5d4149fbdbe76429d14fe29",
+      "physical_equal_pinned": true
+    },
+    {
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+      "bytes": 1882,
+      "sha256": "c5e60f4d47bc4fc5347809545609716c0ce030dfc6c3e3deee61d8ad5a086c95",
+      "git_blob": "ca14a6bf9cec51292cf457243f38191892c5828a",
+      "physical_equal_pinned": true
+    },
+    {
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "bytes": 173575,
+      "sha256": "9401e7a4d76a849c95bd733440e24f52ea0f5957c6b62b12a71aeb829bd2a324",
+      "git_blob": "72127a25ff25d4a034d376ba1452f54e96914931",
+      "physical_equal_pinned": true
+    },
+    {
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+      "bytes": 5181,
+      "sha256": "7b4b5a674282165e7d6ec89bf345d47fd02c6682cf60c7ce8e4cc1b90f60dcc4",
+      "git_blob": "e17ac9b37fd899612eda0f80ab204b76dfe25222",
+      "physical_equal_pinned": true
+    },
+    {
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+      "bytes": 5379,
+      "sha256": "2a45894dd5f69a377248fdb80b5157ed99bffdcf2362908c5a2c6e93d68d72d2",
+      "git_blob": "418c9db4c37ea56510fe179585fc708acb8a3795",
+      "physical_equal_pinned": true
+    },
+    {
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "bytes": 39304,
+      "sha256": "15f06972034343d4a341f0a126a3f566c03b6daee0366f5350505dfaf3db155c",
+      "git_blob": "5557f1ec06a594e99ec1d00c2178c50f0fff68b9",
+      "physical_equal_pinned": true
+    },
+    {
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/src/polisyos/ir/api.py",
+      "bytes": 49444,
+      "sha256": "01a443f8e51294137cdf3a70c2eed90de570f69bd6d822742099069afd8bab8a",
+      "git_blob": "cac5101dabadb09a07a7c00c7688fa1dc2f3b105",
+      "physical_equal_pinned": true
+    },
+    {
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/src/polisyos/ir/artifacts/__init__.py",
+      "bytes": 1915,
+      "sha256": "0ed2e21568bd6e97323957da0a8970ca172b64a61a8b77e8ed6cb773bb550134",
+      "git_blob": "c96397492332b5a5d896f1c990c5bfe34513f693",
+      "physical_equal_pinned": true
+    },
+    {
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+      "bytes": 1857,
+      "sha256": "e876f8d65572ef11992a5ba7336decffea966af7e5b6df12a48ec7dae25b08f3",
+      "git_blob": "37a433addcec7453347e3a581a4e05c4b60d5f03",
+      "physical_equal_pinned": true
+    },
+    {
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/src/polisyos/ir/artifacts/contracts.py",
+      "bytes": 6659,
+      "sha256": "9caecf307c06ca3efe13b7b234d10e860e734bfd415823e3cd6650f3d0ed1c9b",
+      "git_blob": "9c7220fc3b1516ae102770078bf16d98f2d9414a",
+      "physical_equal_pinned": true
+    },
+    {
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/src/polisyos/ir/model_layer/canon.py",
+      "bytes": 2555,
+      "sha256": "4b3a32301664c15a70300ca7f99bc14467602ce38d1bfd300e57503aab57043b",
+      "git_blob": "02167bbe1c34c7b6501c37a122186a5aa0ea9d90",
+      "physical_equal_pinned": true
+    },
+    {
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/src/polisyos/common/canonical.py",
+      "bytes": 10154,
+      "sha256": "89394b9a3b39c07e56cf672329176c2dda4feff8c6c375190f4065a5da123f41",
+      "git_blob": "25fa43311ba8a04a25845a1863898399a7eed958",
+      "physical_equal_pinned": true
+    },
+    {
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/architecture/public_surface/contract.toml",
+      "bytes": 19715,
+      "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6",
+      "git_blob": "d568a925f1cf055e517f5a5e0d691d4c6390a0a5",
+      "physical_equal_pinned": true
+    },
+    {
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/basedpyright.toml",
+      "bytes": 841,
+      "sha256": "c7921e8bf04131158f84ee1b3b28f9620ba7cc8cfa36c64cabd90478e958f1b2",
+      "git_blob": "9553f452ed36859dc854fa6c04295951ad915e76",
+      "physical_equal_pinned": true
+    },
+    {
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/architecture/baselines/basedpyright/baseline.json",
+      "bytes": 1006190,
+      "sha256": "8ceca56253ec877284553b09de0ff1295a75583a6a4fc2238ef002cf9518b6af",
+      "git_blob": "c8fb66459e43d28bb64de12d4497a39f48705101",
+      "physical_equal_pinned": true
+    },
+    {
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/docs/reference/ownership.md",
+      "bytes": 11656,
+      "sha256": "fc4931abf31d46c54d01bb7b1d6ffbca0138f628cfdee1fe4975e65962b49d3f",
+      "git_blob": "23bcf339dc128c78ea9c10c850400e91f3ffed63",
+      "physical_equal_pinned": true
+    },
+    {
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": ".github/CODEOWNERS",
+      "bytes": 4869,
+      "sha256": "e491efb90f9f96c2d05d16adbc0225017650aa82781cb34736e7674edfcd0b32",
+      "git_blob": "7eea690f3943d174bd74cf727edbf7677e0edbba",
+      "physical_equal_pinned": true
+    }
+  ],
+  "factory_removal_observation": {
+    "path": "/tmp/e02-E-forecast-canon-public-route-64d-20261007/removal-observer-correction-v3.json",
+    "bytes": 3121,
+    "sha256": "9aed3919618bd430cbdcef9976ece7c11291fb9918b476a3fabd679f63d7849d"
+  },
+  "runtime_factory_removal_scope": "One genuine empirical float-bearing discriminator passes; candidate receipt is refs/text/integers and is a separate nondefining case. Both prior observer ERRORs remain historical.",
+  "owner_required": {
+    "logical": [
+      "@ir-owners",
+      "@core-owners",
+      "@architecture-owners"
+    ],
+    "enforced_reviewer": "@DenisKopylov",
+    "fallback": "@platform-owners",
+    "generic_lease_transferred_by_B201_B202_semantic_appointment": false
+  },
+  "owner_options": [
+    {
+      "choice": "Narrow export of the existing IR CanonSpec through an admitted IR facade (recommended minimal remedy)",
+      "implementation": "Reuse the exact existing IR class; admit a typed sub-facade export or narrow root export with canonical API review. E then changes only its private import. No serializer/store/codec copy or protocol widening.",
+      "minimal_source_proposal": "IR artifacts __init__ import+__all__ and E caller import are attached as an unapplied proposal. The public manifest currently lists IR root/analytics/api; owner must choose admitted sub-facade or root, with inventory/docs/release companions.",
+      "mandatory_companions": [
+        "canonical public API behavioural identity/type tests",
+        "public-surface contract/inventory review/regeneration",
+        "public-surface documentation and python-public-api release fragment"
+      ],
+      "next_checkable_result": "Same nominal IR class at the public entrypoint; scoped caller has no new reportArgumentType diagnostics; actual configuredCAS/fresh FRC readers retain finite payload/ref/manifest and malformed/NaN/kind/schema refusals."
+    },
+    {
+      "choice": "Shared configuration protocol/base or explicit Core/IR union",
+      "implementation": "Canonical owners coordinate every typed inlet: IR put_json_artifact, IR CanonInfo.from_spec, IR ArtifactStore.put_json, CoreToIRAdapter.put_json, and relevant concrete Core protocol signatures. Preserve each codec/tag law and default configuration.",
+      "next_checkable_result": "Actual affected callers and adapter satisfy the chosen typed contract with no cast/type-ignore/baseline change; independent bounded payload and unsupported-tag refusals preserve semantics."
+    }
+  ],
+  "separate_existing_forecast_bundle_API_packet": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution/forecast-api-owner/packet.json",
+  "finding_closure": false,
+  "source_implementation_committed_or_applied": false,
+  "foreign_facade_or_generated_files_edited": false,
+  "ROOT_environment_or_interpreter_used": false,
+  "global_architecture_static_or_numeric_wave_repeated": false
+}

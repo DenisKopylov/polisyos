@@ -1,0 +1,37 @@
+{
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "backend_versions": {
+    "SALib": "1.5.2",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "pytest": "9.0.2",
+    "pydantic": "2.12.5",
+    "ruff": "0.14.10"
+  },
+  "source_origins": [
+    {
+      "module": "polisyos.scientist.methods.doe.analysis",
+      "path": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+      "sha256": "98856f7f50784eb899efb807eaefd6c4f33cb3c75f9029dc252c48068afe1e1c"
+    },
+    {
+      "module": "polisyos.scientist.methods.doe.designs",
+      "path": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+      "sha256": "271ae2f0b35bc833af5f0b1c748132311d5ebb256440d394cc46fc1c402b7e73"
+    },
+    {
+      "module": "polisyos.scientist.methods.doe.morris_geometry",
+      "path": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/scientist/methods/doe/morris_geometry.py",
+      "sha256": "0c7bda166798cadc7a9769fadae79d8f435cd4572d22b2c59d8c0c3db3427f0c"
+    },
+    {
+      "module": "polisyos.scientist.methods.doe.stability",
+      "path": "/workspace/e02-E-doe-20261006/policy-engine/src/polisyos/scientist/methods/doe/stability.py",
+      "sha256": "5fba0a61d0c6f6c7fc702bda8f9034924449a1853c3319615434daf27f61607f"
+    }
+  ],
+  "source_base": "82c261b37b742fa46c83af7632cf7d5a34d66dfc",
+  "uncapped_numeric_execution": true
+}

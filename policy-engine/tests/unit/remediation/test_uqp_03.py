@@ -45,8 +45,8 @@ def _adaptive_config(*, target: float) -> PropagationConfig:
     )
 
 
-def test_adaptive_stopping_reaches_non_divisible_check_boundary() -> None:
-    """A 50-row batch must be split to evaluate the 60-row boundary."""
+def test_legacy_adaptive_peeking_is_disabled_without_bounded_mean_profile() -> None:
+    """Predictive spread cannot authorize repeated fixed-time interval peeking."""
 
     result = MonteCarloPropagator(_adaptive_config(target=0.01)).propagate(
         lambda **_: {"y": 10.0},
@@ -55,8 +55,8 @@ def test_adaptive_stopping_reaches_non_divisible_check_boundary() -> None:
         ["y"],
     )[0]
 
-    assert result.diagnostics["stopped_early"] is True
-    assert result.diagnostics["n_samples"] == 60
+    assert result.diagnostics["stopped_early"] is False
+    assert result.diagnostics["n_samples"] == 240
 
 
 def test_adaptive_distribution_width_does_not_shrink_for_stable_wide_outputs() -> None:

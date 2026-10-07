@@ -1,0 +1,1 @@
+{"command": ["/workspace/.polisyos-environment/uv/bin/uv", "run", "--no-sync", "python", "tools/quality/lint/check_scholar_imports.py"], "exit_code": 0, "outcome": "PASS", "counts": null, "wall_seconds": 13.222554206848145, "source_immutable": true}

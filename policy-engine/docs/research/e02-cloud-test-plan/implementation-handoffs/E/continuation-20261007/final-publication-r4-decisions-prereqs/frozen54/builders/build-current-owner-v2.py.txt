@@ -1,0 +1,127 @@
+"""Correct only B199/B200 current consumer metadata without altering owner decisions."""
+
+from __future__ import annotations
+
+import copy
+import hashlib
+import json
+import sys
+from collections import Counter
+from pathlib import Path
+
+OLD = Path(
+    "/workspace/e02-E-pr38-r3-receipts/criteria-r4/current-prewave-all-54-owner-dispositions.json"
+)
+OUT = Path(
+    "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json"
+)
+EXPECTED = "c618be1881cac757c1ebcfc532591e908392659deb707a51c5a68f7c4896d38d"
+SOURCE = "64d7444a18c55df7b88b71b7699a2f1b25ca24bd"
+ROOT = Path("/workspace/e02-E-continuation-20261006")
+
+
+def require(condition: bool, reason: str) -> None:
+    if not condition:
+        raise ValueError(reason)
+
+
+def record(path: Path) -> dict[str, object]:
+    raw = path.read_bytes()
+    return {
+        "path": str(path),
+        "bytes": len(raw),
+        "sha256": hashlib.sha256(raw).hexdigest(),
+    }
+
+
+require(not OUT.exists(), "append-only current owner packet")
+raw = OLD.read_bytes()
+require(hashlib.sha256(raw).hexdigest() == EXPECTED, "v1 historical packet identity")
+old = json.loads(raw)
+result = copy.deepcopy(old)
+result["schema"] = "policyos.e02.E.current-prewave-owner-dispositions.v2"
+replacements = {
+    "B199": {
+        "producer": "Existing Foundry aggregate_envelopes over admitted v1.1 uncertainty envelopes, preserving origin/provenance, declared level and credible/confidence semantics; no new posterior fit is asserted by this aggregation criterion.",
+        "artifact": "Existing v1.1 UncertaintyEnvelope/ParameterPosterior replay and provenance. The scoped B201/B202 appointment and tracked decisions have implemented a distinct versioned named-functional CAS profile in metadata; they do not require a new v2 wire producer for B199.",
+        "bridge": "Existing typed summary aggregation consumes the admitted envelopes; duplicate origins remain one information contribution and mixed statistical semantics produce an explicit non-gating bound. The bridge does not reconstruct a joint law from moments.",
+        "consumer": "Existing aggregate_envelopes caller/facade with exact test_uqs_01 and aggregation-strategy witnesses. The implemented profile readers/Node-to-MC consumers are separate B201/B202 mechanisms, and future C/F adoption is not a missing B199 criterion input.",
+        "surface": "v1.1 reader/replay retained. Current scoped named-functional profile semantics were appointed and ratified at a0ac10fc/cdaea067 and implemented at700f9d5a, merged into64d7444a. Shared generated inventory remains a separately owned global companion, not an aggregation closure predicate.",
+    },
+    "B200": {
+        "producer": "Existing uncertainty aggregator plus the still-required Foundry/Scientist information-relationship producer. That producer must bind same/different measurement or replicate, source identities, shared data/covariance and prior/likelihood/posterior lineage; equal values and origin strings alone do not establish independence.",
+        "artifact": "Existing v1.1 envelopes and provenance are available. The missing criterion-supported input is a content-bound information-unit relationship artifact with estimand/unit and admitted joint-law relationships, independently resolvable after persistence; scoped B201/B202 profile ratification does not manufacture this artifact.",
+        "bridge": "Existing aggregate_envelopes keeps origin/evidence count separate from effective independent information. Four duplicate inputs remain one uncertainty contribution; unsupported relationship claims remain non-gating or refused.",
+        "consumer": "Existing uncertainty aggregator fresh-read consumer needs the actual relationship artifact before independently admitted measurements can narrow uncertainty. Current PropagateUncertaintyNode/MC profile consumers preserve law identity for their scoped task and do not supply missing measurement independence.",
+        "surface": "v1.1 retained and the scoped named-functional CAS profile implemented at700f9d5a/current64d. B200 remains limited for the concrete relationship producer/input, with no missing broader IR appointment or future v2 wire implementation hold.",
+    },
+}
+corrections = []
+for row in result["rows"]:
+    if row["id"] in replacements:
+        prior = copy.deepcopy(row["producer_artifact_bridge_consumer_surface"])
+        row["producer_artifact_bridge_consumer_surface"] = replacements[row["id"]]
+        corrections.append(
+            {
+                "id": row["id"],
+                "changed_field": "producer_artifact_bridge_consumer_surface",
+                "previous": prior,
+                "current": replacements[row["id"]],
+            }
+        )
+old_rows = {row["id"]: row for row in old["rows"]}
+for row in result["rows"]:
+    retained = copy.deepcopy(row)
+    retained["producer_artifact_bridge_consumer_surface"] = old_rows[row["id"]][
+        "producer_artifact_bridge_consumer_surface"
+    ]
+    require(
+        retained == old_rows[row["id"]], "no criterion decision or other row change"
+    )
+require(len(corrections) == 2, "exact two neighboring metadata corrections")
+require(
+    Counter(r["historical_ledger_status"] for r in result["rows"])
+    == Counter({"partial": 49, "held": 4, "closed": 1}),
+    "historical ledger",
+)
+require(
+    Counter(r["proposed_finding_outcome"] for r in result["rows"])
+    == Counter({"closed": 43, "limited": 9, "held": 2}),
+    "bounded owner proposals",
+)
+require(
+    len(result["rows"]) == 54
+    and len(result["bundles"]) == 22
+    and sum(len(r["bundle_ids"]) for r in result["rows"]) == 55,
+    "complete original denominator",
+)
+refs = []
+for relative in [
+    "policy-engine/src/polisyos/foundry/uncertainty/aggregator.py",
+    "policy-engine/tests/unit/remediation/test_uqs_01.py",
+    "policy-engine/tests/unit/foundry/uncertainty/test_aggregation_strategies.py",
+    "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+]:
+    measured = record(ROOT / relative)
+    refs.append(
+        {
+            "revision": SOURCE,
+            "path": relative,
+            "bytes": measured["bytes"],
+            "sha256": measured["sha256"],
+        }
+    )
+result["current_metadata_correction"] = {
+    "v1_packet": record(OLD),
+    "builder_source": record(Path(__file__)),
+    "rows": corrections,
+    "source_refs": refs,
+    "semantic_appointment": "a0ac10fc11975c345312034d0e568b4cfc330d76",
+    "tracked_decisions": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+    "implementation_source": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+    "scope": "Only current neighboring aggregation producer/artifact/consumer metadata; original criteria, all independent evidence and owner decisions, next owners/minimal inputs, historical ledger and prewave observation boundaries remain unchanged.",
+    "formal_ledger_change": False,
+    "current_wave_binding_pending": True,
+}
+OUT.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
+sys.stdout.write(json.dumps(record(OUT), indent=2) + "\n")

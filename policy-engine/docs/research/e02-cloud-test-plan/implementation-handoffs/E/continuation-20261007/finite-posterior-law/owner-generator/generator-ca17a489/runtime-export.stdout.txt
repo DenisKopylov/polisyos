@@ -1,0 +1,1 @@
+/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-ca17a489/projected/schemas/runtime_api_v1.openapi.json

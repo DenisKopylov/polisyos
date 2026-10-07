@@ -1,0 +1,60 @@
+{
+  "label": "corrupt-candidate-corrected",
+  "argv": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/independent_frc_tests.py",
+    "-k",
+    "corrupt_existing_candidate"
+  ],
+  "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+  "exit_code": 0,
+  "wall_seconds": 26.37359054600529,
+  "maxrss_kib": 639348,
+  "source_base": "22998874b5f32434c462065baaca44a78e967f91",
+  "source_candidate": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+  "source_tree": "3be4935b1bfa426a71f8581bc376fa322145fe31",
+  "before": {
+    "head": "f73e554bfe567aec29aff957a2c026f1537e4834",
+    "tree": "b6646f899d535b45e9070282dd5b7189696fed72",
+    "src_file_count": 2911,
+    "src_sha256": "ed8075405990aed40912eaa1f30bf4122bc20c0ac5caf6fc85c6ed839c62d4a1",
+    "changed_source_sha256": {
+      "policy-engine/src/polisyos/calibration/README.md": "c9be5242b27a173dd5b5d846bba448071b2fd241f99c1e224b634b5adc20f070",
+      "policy-engine/src/polisyos/calibration/__init__.py": "42d6b4c46672c228d067b14a03f79db2b702d0325558d4cd89b615d7c025bbfc",
+      "policy-engine/src/polisyos/calibration/forecast_bridge.py": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6",
+      "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3"
+    },
+    "diff_from_frozen": ""
+  },
+  "after": {
+    "head": "f73e554bfe567aec29aff957a2c026f1537e4834",
+    "tree": "b6646f899d535b45e9070282dd5b7189696fed72",
+    "src_file_count": 2911,
+    "src_sha256": "ed8075405990aed40912eaa1f30bf4122bc20c0ac5caf6fc85c6ed839c62d4a1",
+    "changed_source_sha256": {
+      "policy-engine/src/polisyos/calibration/README.md": "c9be5242b27a173dd5b5d846bba448071b2fd241f99c1e224b634b5adc20f070",
+      "policy-engine/src/polisyos/calibration/__init__.py": "42d6b4c46672c228d067b14a03f79db2b702d0325558d4cd89b615d7c025bbfc",
+      "policy-engine/src/polisyos/calibration/forecast_bridge.py": "274ebed54ea54eaa1fee1d1da0355dc7df3c0abcfd27adda1b9066e7437e43c6",
+      "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py": "c99a5b3402e4da8d4030976bcd961ba1a287ab86f656e1436ae8a85c012eb0b3"
+    },
+    "diff_from_frozen": ""
+  },
+  "source_unchanged": true,
+  "environment": {
+    "PYTHONPATH": "/workspace/e02-E-frc-20261006/policy-engine/src",
+    "UV_NO_SYNC": "1",
+    "FRC_REVIEW_OUTPUT": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/frc/corrupt-candidate-corrected-origins-artifacts.json",
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "XLA_FLAGS": null
+  },
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+  "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+  "stdout_sha256": "5e4420effb17d982018e3feba47d2a223633cd5e92ed78633ebee85db665cab1"
+}

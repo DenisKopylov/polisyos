@@ -1,0 +1,12 @@
+ANN401 Dynamically typed expressions (typing.Any) are disallowed in `value`
+  --> docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/validate.py:32:27
+   |
+30 |             raise ValueError("invalid source footprint count")
+31 |
+32 |     def admit_path(value: Any) -> None:
+   |                           ^^^
+33 |         if (
+34 |             not isinstance(value, str)
+   |
+
+Found 1 error.

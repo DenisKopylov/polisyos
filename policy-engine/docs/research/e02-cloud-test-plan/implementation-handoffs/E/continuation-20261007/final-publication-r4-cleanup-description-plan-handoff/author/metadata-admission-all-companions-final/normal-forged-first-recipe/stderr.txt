@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt", line 115, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt", line 98, in main
+    if len(body)!=identity['bytes'] or sha(body)!=identity['sha256']:raise ValueError('complete mandatory metadata identity before write')
+                                                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: complete mandatory metadata identity before write

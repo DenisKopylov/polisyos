@@ -1,0 +1,51 @@
+{
+  "source_sha": "bf3b54c3a894d2d9d9bfb0cd13edb13177405f33",
+  "source_tree": "0a414803650c9646b597ba24c93afbea0632dcd1",
+  "companion_sha": "7dc540d08d30bad8cf23744172c253c934dfc77e",
+  "companion_tree": "d423da4821085f521463d6d5d60673f163c0d47e",
+  "exact_footprint": [
+    "policy-engine/architecture/public_surface/inventory.json",
+    "policy-engine/docs/reference/public-surface.md",
+    "policy-engine/src/polisyos/foundry/uncertainty/README.md"
+  ],
+  "property_paths": {
+    "policy-engine/architecture/public_surface/inventory.json": "21ab22cf9431660fd6318bca0ba8aa768ee01be9a5ca6ced1ae3b718211b26fe",
+    "policy-engine/docs/reference/public-surface.md": "e8d56d319be16d52227050263451ef523fdbe4b9a2e0e0c7c69fc08f4283528e",
+    "policy-engine/src/polisyos/foundry/uncertainty/README.md": "8300a2ef7d851900a36a5615ab082ae41ceea9e3cf38a96a294200cf9b9c5c5f"
+  },
+  "before_after_equal": true,
+  "canonical_generator_byte_equal": true,
+  "counts": {
+    "Calibration": 29,
+    "Foundry uncertainty": 20
+  },
+  "source_Python_unchanged": true,
+  "new_reader_release_classification": "public_stable",
+  "inventory_reviewed_flag_at_this_candidate": false,
+  "flag_followup": "Owner may append true companion after this independent canonical confirmation; validate that exact one-line delta separately.",
+  "controls": [
+    {
+      "case": "stale-uncertainty-count19",
+      "outcome": "REJECTED"
+    },
+    {
+      "case": "omitted-reader-export-count20-retained",
+      "outcome": "REJECTED"
+    },
+    {
+      "case": "fake-lazy-mode",
+      "outcome": "REJECTED"
+    },
+    {
+      "case": "stale-readme-count19",
+      "outcome": "REJECTED"
+    },
+    {
+      "case": "wrong-classification",
+      "outcome": "REJECTED"
+    }
+  ],
+  "publication_verdict": "GO-bounded-owned-canonical-publication",
+  "global_guard": "UNRUN by reviewer; no inherited/global PASS asserted",
+  "Core_IR_execute_decisions": "not_ratified/unapplied"
+}

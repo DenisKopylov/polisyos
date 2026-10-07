@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-fit-independent-77b4-20261007/check_public_bindings_v3.py.txt", line 5, in <module>
+    from polisyos.ir.contracts.uncertainty import UncertaintyEnvelopeRef as native_ref
+ModuleNotFoundError: No module named 'polisyos.ir.contracts'

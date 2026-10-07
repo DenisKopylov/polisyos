@@ -1,0 +1,32 @@
+{
+  "candidate_sha": "55b45d9a5c95c3b773fc3b4d8679786b3993eb1e",
+  "candidate_tree": "70ed14e004063536ff3a12d30d14d9bdd79a4916",
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "-B",
+    "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1008/C-canon-local/results/mapping-exact/probe.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1008/C-canon-local/candidate/policy-engine",
+  "environment": {
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1008/C-canon-local/candidate/policy-engine/src",
+    "PYTHONNOUSERSITE": "1",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "C_CANON_GROOT": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos"
+  },
+  "python_version": "Python 3.14.3",
+  "timeout_seconds": 60,
+  "timed_out": false,
+  "exit_code": 0,
+  "started_utc": "2026-10-07T11:25:55.303855+00:00",
+  "ended_utc": "2026-10-07T11:25:55.873091+00:00",
+  "wall_seconds": 0.5690927499672398,
+  "disk_free_bytes_before": 25255022592,
+  "disk_free_bytes_after": 25254957056,
+  "maxrss_platform_units": 71352320,
+  "stdout_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1008/C-canon-local/results/mapping-exact/stdout.txt",
+  "stderr_path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1008/C-canon-local/results/mapping-exact/stderr.txt",
+  "stdout_bytes": 43230,
+  "stderr_bytes": 0,
+  "stdout_sha256": "8c861fb629805a9bb343dafc359b8a314d9beecd2ea878866b29331dd75b7a80",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

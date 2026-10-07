@@ -1,0 +1,441 @@
+{
+  "schema": "policyos.e02.E.a11y_current_bootstrap_readonly.v1",
+  "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "source_tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "started_UTC": "2026-10-07T11:01:31.818203+00:00",
+  "finished_UTC": "2026-10-07T11:01:31.886434+00:00",
+  "reviewer": "/root/lint_r4",
+  "process_root": 532820,
+  "process_before": [],
+  "process_after": [],
+  "cpu_delta": [],
+  "socket_before": [
+    {
+      "family": "tcp6",
+      "local": {
+        "host": "::1",
+        "port": 63315
+      },
+      "remote": {
+        "host": "::1",
+        "port": 53954
+      },
+      "state_hex": "06",
+      "tx_queue_hex": "00000000",
+      "rx_queue_hex": "00000000",
+      "inode": "0",
+      "owners": []
+    },
+    {
+      "family": "tcp6",
+      "local": {
+        "host": "::1",
+        "port": 63315
+      },
+      "remote": {
+        "host": "::1",
+        "port": 53882
+      },
+      "state_hex": "06",
+      "tx_queue_hex": "00000000",
+      "rx_queue_hex": "00000000",
+      "inode": "0",
+      "owners": []
+    },
+    {
+      "family": "tcp6",
+      "local": {
+        "host": "::1",
+        "port": 63315
+      },
+      "remote": {
+        "host": "::1",
+        "port": 53930
+      },
+      "state_hex": "06",
+      "tx_queue_hex": "00000000",
+      "rx_queue_hex": "00000000",
+      "inode": "0",
+      "owners": []
+    },
+    {
+      "family": "tcp6",
+      "local": {
+        "host": "::1",
+        "port": 63315
+      },
+      "remote": {
+        "host": "::1",
+        "port": 53944
+      },
+      "state_hex": "06",
+      "tx_queue_hex": "00000000",
+      "rx_queue_hex": "00000000",
+      "inode": "0",
+      "owners": []
+    },
+    {
+      "family": "tcp6",
+      "local": {
+        "host": "::1",
+        "port": 63315
+      },
+      "remote": {
+        "host": "::1",
+        "port": 53886
+      },
+      "state_hex": "06",
+      "tx_queue_hex": "00000000",
+      "rx_queue_hex": "00000000",
+      "inode": "0",
+      "owners": []
+    },
+    {
+      "family": "tcp6",
+      "local": {
+        "host": "::1",
+        "port": 63315
+      },
+      "remote": {
+        "host": "::1",
+        "port": 53958
+      },
+      "state_hex": "06",
+      "tx_queue_hex": "00000000",
+      "rx_queue_hex": "00000000",
+      "inode": "0",
+      "owners": []
+    },
+    {
+      "family": "tcp6",
+      "local": {
+        "host": "::1",
+        "port": 63315
+      },
+      "remote": {
+        "host": "::1",
+        "port": 53966
+      },
+      "state_hex": "06",
+      "tx_queue_hex": "00000000",
+      "rx_queue_hex": "00000000",
+      "inode": "0",
+      "owners": []
+    },
+    {
+      "family": "tcp6",
+      "local": {
+        "host": "::1",
+        "port": 63315
+      },
+      "remote": {
+        "host": "::1",
+        "port": 53918
+      },
+      "state_hex": "06",
+      "tx_queue_hex": "00000000",
+      "rx_queue_hex": "00000000",
+      "inode": "0",
+      "owners": []
+    }
+  ],
+  "socket_after": [
+    {
+      "family": "tcp6",
+      "local": {
+        "host": "::1",
+        "port": 63315
+      },
+      "remote": {
+        "host": "::1",
+        "port": 53954
+      },
+      "state_hex": "06",
+      "tx_queue_hex": "00000000",
+      "rx_queue_hex": "00000000",
+      "inode": "0",
+      "owners": []
+    },
+    {
+      "family": "tcp6",
+      "local": {
+        "host": "::1",
+        "port": 63315
+      },
+      "remote": {
+        "host": "::1",
+        "port": 53882
+      },
+      "state_hex": "06",
+      "tx_queue_hex": "00000000",
+      "rx_queue_hex": "00000000",
+      "inode": "0",
+      "owners": []
+    },
+    {
+      "family": "tcp6",
+      "local": {
+        "host": "::1",
+        "port": 63315
+      },
+      "remote": {
+        "host": "::1",
+        "port": 53930
+      },
+      "state_hex": "06",
+      "tx_queue_hex": "00000000",
+      "rx_queue_hex": "00000000",
+      "inode": "0",
+      "owners": []
+    },
+    {
+      "family": "tcp6",
+      "local": {
+        "host": "::1",
+        "port": 63315
+      },
+      "remote": {
+        "host": "::1",
+        "port": 53944
+      },
+      "state_hex": "06",
+      "tx_queue_hex": "00000000",
+      "rx_queue_hex": "00000000",
+      "inode": "0",
+      "owners": []
+    },
+    {
+      "family": "tcp6",
+      "local": {
+        "host": "::1",
+        "port": 63315
+      },
+      "remote": {
+        "host": "::1",
+        "port": 53886
+      },
+      "state_hex": "06",
+      "tx_queue_hex": "00000000",
+      "rx_queue_hex": "00000000",
+      "inode": "0",
+      "owners": []
+    },
+    {
+      "family": "tcp6",
+      "local": {
+        "host": "::1",
+        "port": 63315
+      },
+      "remote": {
+        "host": "::1",
+        "port": 53958
+      },
+      "state_hex": "06",
+      "tx_queue_hex": "00000000",
+      "rx_queue_hex": "00000000",
+      "inode": "0",
+      "owners": []
+    },
+    {
+      "family": "tcp6",
+      "local": {
+        "host": "::1",
+        "port": 63315
+      },
+      "remote": {
+        "host": "::1",
+        "port": 53966
+      },
+      "state_hex": "06",
+      "tx_queue_hex": "00000000",
+      "rx_queue_hex": "00000000",
+      "inode": "0",
+      "owners": []
+    },
+    {
+      "family": "tcp6",
+      "local": {
+        "host": "::1",
+        "port": 63315
+      },
+      "remote": {
+        "host": "::1",
+        "port": 53918
+      },
+      "state_hex": "06",
+      "tx_queue_hex": "00000000",
+      "rx_queue_hex": "00000000",
+      "inode": "0",
+      "owners": []
+    }
+  ],
+  "stdout_before": {
+    "capture": {
+      "source_path": "/tmp/e02-E-a11y-full-native-retry-64d-20261007-r2/a11y/read-only-state/a11y-before.stdout.txt",
+      "bytes": 1598,
+      "sha256": "f1d734bf6c7cff0bb69ca3c5b2e5386372fe4b403b741be4750a2294843ed38d"
+    },
+    "original_path": "/tmp/e02-E-a11y-full-native-retry-64d-20261007-r2/a11y/checks/a11y-full-native-retry/a11y-full-native-retry.stdout.txt",
+    "original_mtime_ns": 1791370883589628952,
+    "seconds_since_mtime": 8.248886585235596,
+    "final_receipt_present": false
+  },
+  "stdout_after": {
+    "capture": {
+      "source_path": "/tmp/e02-E-a11y-full-native-retry-64d-20261007-r2/a11y/read-only-state/a11y-after.stdout.txt",
+      "bytes": 1598,
+      "sha256": "f1d734bf6c7cff0bb69ca3c5b2e5386372fe4b403b741be4750a2294843ed38d"
+    },
+    "original_path": "/tmp/e02-E-a11y-full-native-retry-64d-20261007-r2/a11y/checks/a11y-full-native-retry/a11y-full-native-retry.stdout.txt",
+    "original_mtime_ns": 1791370883589628952,
+    "seconds_since_mtime": 8.282489776611328,
+    "final_receipt_present": false
+  },
+  "static_http_probes": [
+    {
+      "method": "GET",
+      "host": "[::1]",
+      "port": 63315,
+      "path": "/",
+      "timeout_seconds": 10,
+      "purpose": "Native static HTTP responsiveness only, not browser navigation or test execution",
+      "error_type": "ConnectionRefusedError",
+      "error": "[Errno 111] Connection refused",
+      "limitation": "This single static request failure cannot identify the browser awaited phase",
+      "wall_seconds": 0.0021869470074307173
+    },
+    {
+      "method": "GET",
+      "host": "[::1]",
+      "port": 63315,
+      "path": "/@vite/client",
+      "timeout_seconds": 10,
+      "purpose": "Native static HTTP responsiveness only, not browser navigation or test execution",
+      "error_type": "ConnectionRefusedError",
+      "error": "[Errno 111] Connection refused",
+      "limitation": "This single static request failure cannot identify the browser awaited phase",
+      "wall_seconds": 0.00010064500384032726
+    }
+  ],
+  "config_inputs": [
+    {
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/apps/runtime-dashboard/package.json",
+      "bytes": 11599,
+      "sha256": "e8d8ad4efe1e7e2b17cdbda770ed31157b94cdea51de2ab721ef1fabadb72f6a"
+    },
+    {
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/apps/runtime-dashboard/vitest.a11y.config.ts",
+      "bytes": 243,
+      "sha256": "32522b0b53bcd76633c8429f3e6b35163aa6910e7d6939c3df05742375f9e392"
+    },
+    {
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/apps/runtime-dashboard/vitest.config.ts",
+      "bytes": 1341,
+      "sha256": "b2b27384a53b0947f961f47c6e7a24f619ff9c169bafed7ca4c7d69731da3411"
+    },
+    {
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "path": "policy-engine/apps/runtime-dashboard/vitest.confidence-ledger-browser.config.ts",
+      "bytes": 1019,
+      "sha256": "59ac1ad7a157ed0d4e545bc3b3fdd52b3cf5240f595bcd1e74ea4c7f78b92e45"
+    }
+  ],
+  "installed_native_inputs": [
+    {
+      "input": {
+        "source_path": "/workspace/e02-E-continuation-20261006/policy-engine/node_modules/.pnpm/vitest@4.1.5_@types+node@24.12.2_@vitest+browser-playwright@4.1.5_@vitest+coverage-v8@4_5a0df7f6c822d847e3d5462c0680e92f/node_modules/vitest/dist/chunks/cli-api.Cjt90eJu.js",
+        "bytes": 494843,
+        "sha256": "d991d80584acd5fc622aefce5f907feff6c531059165a05d75c66e3ed8697d79"
+      },
+      "excerpts": [
+        {
+          "first_line": 450,
+          "last_line": 481,
+          "literal_text": "class BrowserSessions {\n\tsessions = /* @__PURE__ */ new Map();\n\tsessionIds = /* @__PURE__ */ new Set();\n\tgetSession(sessionId) {\n\t\treturn this.sessions.get(sessionId);\n\t}\n\tdestroySession(sessionId) {\n\t\tthis.sessions.delete(sessionId);\n\t}\n\tcreateSession(sessionId, project, pool) {\n\t\t// this promise only waits for the WS connection with the orchestrator to be established\n\t\tconst defer = createDefer();\n\t\tconst timeout = setTimeout(() => {\n\t\t\tdefer.reject(/* @__PURE__ */ new Error(`Failed to connect to the browser session \"${sessionId}\" [${project.name}] within the timeout.`));\n\t\t}, project.vitest.config.browser.connectTimeout ?? 6e4).unref();\n\t\tthis.sessions.set(sessionId, {\n\t\t\tproject,\n\t\t\tconnected: () => {\n\t\t\t\tdefer.resolve();\n\t\t\t\tclearTimeout(timeout);\n\t\t\t},\n\t\t\tfail: (error) => {\n\t\t\t\tdefer.resolve();\n\t\t\t\tclearTimeout(timeout);\n\t\t\t\tpool.reject(error);\n\t\t\t}\n\t\t});\n\t\treturn defer;\n\t}\n}\n\nclass FilesStatsCache {"
+        },
+        {
+          "first_line": 2520,
+          "last_line": 2564,
+          "literal_text": "\tget orchestrators() {\n\t\treturn this.project.browser.state.orchestrators;\n\t}\n\tasync runTests(method, files) {\n\t\tthis._promise ??= createDefer();\n\t\tif (!files.length) {\n\t\t\tdebug?.(\"no tests found, finishing test run immediately\");\n\t\t\tthis._promise.resolve();\n\t\t\treturn this._promise;\n\t\t}\n\t\tthis._providedContext = stringify(this.project.getProvidedContext());\n\t\tthis._queue.push(...files);\n\t\tthis.readySessions.forEach((sessionId) => {\n\t\t\tif (this._queue.length) {\n\t\t\t\tthis.readySessions.delete(sessionId);\n\t\t\t\tthis.runNextTest(method, sessionId);\n\t\t\t}\n\t\t});\n\t\tif (this.orchestrators.size >= this.options.maxWorkers) {\n\t\t\tdebug?.(\"all orchestrators are ready, not creating more\");\n\t\t\treturn this._promise;\n\t\t}\n\t\t// open the minimum amount of tabs\n\t\t// if there is only 1 file running, we don't need 8 tabs running\n\t\tconst workerCount = Math.min(this.options.maxWorkers - this.orchestrators.size, files.length);\n\t\tconst promises = [];\n\t\tfor (let i = 0; i < workerCount; i++) {\n\t\t\tconst sessionId = crypto.randomUUID();\n\t\t\tthis.project.vitest._browserSessions.sessionIds.add(sessionId);\n\t\t\tconst project = this.project.name;\n\t\t\tdebug?.(\"[%s] creating session for %s\", sessionId, project);\n\t\t\tlet page = this._traces.$(`vitest.browser.open`, {\n\t\t\t\tcontext: this._otel.context,\n\t\t\t\tattributes: { \"vitest.browser.session_id\": sessionId }\n\t\t\t}, () => this.openPage(sessionId, { parallel: workerCount > 1 }));\n\t\t\tpage = page.then(() => {\n\t\t\t\t// start running tests on the page when it's ready\n\t\t\t\tthis.runNextTest(method, sessionId);\n\t\t\t});\n\t\t\tpromises.push(page);\n\t\t}\n\t\tawait Promise.all(promises);\n\t\tdebug?.(\"all sessions are created\");\n\t\treturn this._promise;\n\t}"
+        },
+        {
+          "first_line": 10944,
+          "last_line": 10958,
+          "literal_text": "\t/** @internal */\n\tasync _openBrowserPage(sessionId, pool) {\n\t\tif (!this.browser) throw new Error(`browser is not initialized`);\n\t\tconst resolvedUrls = this.browser.vite.resolvedUrls;\n\t\tconst origin = resolvedUrls?.local[0] ?? resolvedUrls?.network[0];\n\t\tif (!origin) throw new Error(`Can't find browser origin URL for project \"${this.name}\"`);\n\t\tconst url = new URL(\"/__vitest_test__/\", origin);\n\t\turl.searchParams.set(\"sessionId\", sessionId);\n\t\tconst otelCarrier = this.vitest._traces.getContextCarrier();\n\t\tif (otelCarrier) url.searchParams.set(\"otelCarrier\", JSON.stringify(otelCarrier));\n\t\tthis.vitest._browserSessions.sessionIds.add(sessionId);\n\t\tconst sessionPromise = this.vitest._browserSessions.createSession(sessionId, this, pool);\n\t\tconst pagePromise = this.browser.provider.openPage(sessionId, url.toString(), { parallel: pool.parallel ?? false });\n\t\tawait Promise.all([sessionPromise, pagePromise]);\n\t}"
+        }
+      ]
+    },
+    {
+      "input": {
+        "source_path": "/workspace/e02-E-continuation-20261006/policy-engine/node_modules/.pnpm/@vitest+browser-playwright@4.1.5_msw@2.14.2_@types+node@24.12.2_typescript@5.9.3__playw_1055c0f24e300b7d011b259b825f6c53/node_modules/@vitest/browser-playwright/dist/index.js",
+        "bytes": 35266,
+        "sha256": "40e08b79f788bc1e87c83038c08adccc13aa1dd0bcf2008774afd93802177811"
+      },
+      "excerpts": [
+        {
+          "first_line": 1138,
+          "last_line": 1145,
+          "literal_text": "\tasync openPage(sessionId, url, options) {\n\t\tdebug?.(\"[%s][%s] creating the browser page for %s\", sessionId, this.browserName, url);\n\t\tconst browserPage = await this.openBrowserPage(sessionId, options);\n\t\tdebug?.(\"[%s][%s] browser page is created, opening %s\", sessionId, this.browserName, url);\n\t\tawait browserPage.goto(url, { timeout: 0 });\n\t\tawait this._throwIfClosing(browserPage);\n\t}\n\tasync _throwIfClosing(disposable) {"
+        }
+      ]
+    },
+    {
+      "input": {
+        "source_path": "/workspace/e02-E-continuation-20261006/policy-engine/node_modules/.pnpm/@vitest+browser@4.1.5_msw@2.14.2_@types+node@24.12.2_typescript@5.9.3__vite@7.3.2_@type_f5d5d2c263159c828c572e5c254b33ed/node_modules/@vitest/browser/dist/index.js",
+        "bytes": 271042,
+        "sha256": "6ded07bd8a69f9e923fe01982ba7452d14c7aa158dad31383ffc01f4af3b3c20"
+      },
+      "excerpts": [
+        {
+          "first_line": 3008,
+          "last_line": 3037,
+          "literal_text": "\t\t}\n\t\tif (type === \"orchestrator\") {\n\t\t\tconst session = sessions.getSession(sessionId);\n\t\t\t// it's possible the session was already resolved by the preview provider\n\t\t\tsession?.connected();\n\t\t}\n\t\tconst project = vitest.getProjectByName(projectName);\n\t\tif (!project) {\n\t\t\treturn error(new Error(`[vitest] Project \"${projectName}\" not found.`));\n\t\t}\n\t\twss.handleUpgrade(request, socket, head, (ws) => {\n\t\t\twss.emit(\"connection\", ws, request);\n\t\t\tconst { rpc, offCancel } = setupClient(project, rpcId, ws);\n\t\t\tconst state = project.browser.state;\n\t\t\tconst clients = type === \"tester\" ? state.testers : state.orchestrators;\n\t\t\tclients.set(rpcId, rpc);\n\t\t\tdebug?.(\"[%s] Browser API connected to %s\", rpcId, type);\n\t\t\tws.on(\"close\", () => {\n\t\t\t\tdebug?.(\"[%s] Browser API disconnected from %s\", rpcId, type);\n\t\t\t\toffCancel();\n\t\t\t\tclients.delete(rpcId);\n\t\t\t\tglobalServer.removeCDPHandler(rpcId);\n\t\t\t\tif (type === \"orchestrator\") {\n\t\t\t\t\tsessions.destroySession(sessionId);\n\t\t\t\t}\n\t\t\t\t// this will reject any hanging methods if there are any\n\t\t\t\trpc.$close(new Error(`[vitest] Browser connection was closed while running tests. Was the page closed unexpectedly?`));\n\t\t\t});\n\t\t});\n\t});"
+        }
+      ]
+    },
+    {
+      "input": {
+        "source_path": "/workspace/e02-E-continuation-20261006/policy-engine/node_modules/.pnpm/vitest@4.1.5_@types+node@24.12.2_@vitest+browser-playwright@4.1.5_@vitest+coverage-v8@4_5a0df7f6c822d847e3d5462c0680e92f/node_modules/vitest/dist/chunks/constants.CPYnjOGj.js",
+        "bytes": 800,
+        "sha256": "3565003408971a6af9e78d211dea047fe5b5bd82bdb0aad373f75b45c434449f"
+      },
+      "excerpts": [
+        {
+          "first_line": 1,
+          "last_line": 5,
+          "literal_text": "// if changed, update also jsdocs and docs\nconst defaultPort = 51204;\nconst defaultBrowserPort = 63315;\nconst defaultInspectPort = 9229;\nconst API_PATH = \"/__vitest_api__\";"
+        }
+      ]
+    }
+  ],
+  "owner": {
+    "runtime_dashboard": "team-frontend / @frontend-owners (@UI via G)",
+    "canonical_reviewer": "@DenisKopylov"
+  },
+  "check_state": "Pending native command; no completed a11y receipt at observations if final_receipt_present is false",
+  "conclusion": {
+    "established": [
+      "Native Playwright provider passes timeout=0 to goto; navigation has no configured deadline",
+      "Native 60,000ms browser-connect timer governs orchestrator WS only and clears on connected; pool awaits BOTH session and navigation promises before runNextTest",
+      "Actual static HTTP and process/socket response observations are measured separately"
+    ],
+    "not_established": [
+      "Actual JavaScript awaited stack is not observed; neither a specific goto wait nor a transform/pool wait is conclusively identified",
+      "HTTP liveness does not prove browser render, resource load or case completion",
+      "Port fallback and CSS warnings do not establish the cause of the current stall",
+      "No causal OOM/CPU quota/cache-collision attribution or inherited PASS/FAIL waiver"
+    ]
+  },
+  "next_owner_result": "Frontend/@UI owner reads current controller/browser wait phase and native navigation contract; root retains original running stdout/final receipt and schedules any exact full-script retry only after shared writers close.",
+  "forbidden_actions_performed": {
+    "browser_launch": false,
+    "test_execution": false,
+    "websocket_or_RPC_call": false,
+    "source_patch": false,
+    "kill_or_interrupt": false,
+    "timeout_or_cap_change": false
+  }
+}

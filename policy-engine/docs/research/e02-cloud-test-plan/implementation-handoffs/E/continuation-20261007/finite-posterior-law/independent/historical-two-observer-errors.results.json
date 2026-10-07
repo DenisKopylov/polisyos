@@ -1,0 +1,828 @@
+{
+  "schema": "policyos.e02.independent_exact_finite_profile2_candidate_review.v1",
+  "candidate": "2c0fb5e26172129ab3ae032c24b35ed2ced6c80f",
+  "tree": "237320d4c5db41330b3d61ff6611f0de8e64549f",
+  "precode_decision": "55422d4f179f56d796794938be66bcb0741b13ed",
+  "source_base": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "G_review": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+  "source_unchanged": true,
+  "complete_implementation_footprint": {
+    "policy-engine/release-fragments/unreleased/2026-10-07-posterior-ratio-law-v2.toml": {
+      "bytes": 1308,
+      "sha256": "75a277dec3e8eccc026c5b2735f6fc248ad12ba4c7aa1ccb24658dd046fe1045"
+    },
+    "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py": {
+      "bytes": 17155,
+      "sha256": "0ca1f285756508e86ccfadd1ceba011a777dafd91ac2defdc843172985bf3e05"
+    },
+    "policy-engine/src/polisyos/foundry/uncertainty/README.md": {
+      "bytes": 5838,
+      "sha256": "de85beb0c0fcf5475fd56bddcb69eec0b19369455bc69401c1339e4d2740c646"
+    },
+    "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py": {
+      "bytes": 71486,
+      "sha256": "4860382fe26db3ad6a29c206aada4b94123b7cd4d941ee79c58beae342f5c47f"
+    },
+    "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py": {
+      "bytes": 22618,
+      "sha256": "a29fff79a9d9d7cf47f66809f2fcfcc6188722af6f5f1617eb5a78ce5c5a0f4a"
+    },
+    "policy-engine/src/polisyos/ir/__init__.py": {
+      "bytes": 39467,
+      "sha256": "f7ae4be784059917c8602267231896d0d53755636f04851f149f614faf68c0bc"
+    },
+    "policy-engine/src/polisyos/ir/analytics/README.md": {
+      "bytes": 8091,
+      "sha256": "f882de5d506b4c71cdd774742c5b3e6c41c4d47193f43b7afe795b8689782fe6"
+    },
+    "policy-engine/src/polisyos/ir/analytics/posterior_summary.py": {
+      "bytes": 29806,
+      "sha256": "d5bc3c3351a53ce5da3f8c561bc44362108b8667f115bab5d1531eab6ebc3373"
+    },
+    "policy-engine/src/polisyos/ir/api.py": {
+      "bytes": 50093,
+      "sha256": "44200deaa78c8abc9707ebd67f730d10287c07c51d2d3b7246c080e82d11e486"
+    },
+    "policy-engine/src/polisyos/schemas/abi_models.py": {
+      "bytes": 27715,
+      "sha256": "5d4366804bc9fa2b0e9c1193d1b9412fb5a1408064ffc35c3d72f4025d82de84"
+    },
+    "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/062af073068907c37495e43f204f32b8e743a3c70e6c1d68e66a5e699d1fe112.json": {
+      "bytes": 2633,
+      "sha256": "062af073068907c37495e43f204f32b8e743a3c70e6c1d68e66a5e699d1fe112"
+    },
+    "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/6bb6dcc0e57c9bae2a12eccd64b2f212d77f1d5afc277b16e706b2b54592ea01.json": {
+      "bytes": 2636,
+      "sha256": "6bb6dcc0e57c9bae2a12eccd64b2f212d77f1d5afc277b16e706b2b54592ea01"
+    },
+    "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/9ee56651abefd7cfb475a1d3b3401eb6f06fbad53cc5d2c9bf080e1eae7857f5.json": {
+      "bytes": 13717,
+      "sha256": "9ee56651abefd7cfb475a1d3b3401eb6f06fbad53cc5d2c9bf080e1eae7857f5"
+    },
+    "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/a446b56443f4ec5c3a4090227c46cf9fcda1b7b3f52229a513c78730323e55ed.json": {
+      "bytes": 2636,
+      "sha256": "a446b56443f4ec5c3a4090227c46cf9fcda1b7b3f52229a513c78730323e55ed"
+    },
+    "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/aefdbc77c4a25fa2c8c05d5a9b83ad4d882612b7233d32c0185464a1031d6704.json": {
+      "bytes": 2633,
+      "sha256": "aefdbc77c4a25fa2c8c05d5a9b83ad4d882612b7233d32c0185464a1031d6704"
+    },
+    "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/b1cb47300150f7bc69d379d2ef15703bab83ef5bd3ebea5b27c2011221aadc67.json": {
+      "bytes": 2636,
+      "sha256": "b1cb47300150f7bc69d379d2ef15703bab83ef5bd3ebea5b27c2011221aadc67"
+    },
+    "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/f6fb5f18767393517c00379eca41f69502b821ee15c5b15c2c5cdfcb9e3daf48.json": {
+      "bytes": 2636,
+      "sha256": "f6fb5f18767393517c00379eca41f69502b821ee15c5b15c2c5cdfcb9e3daf48"
+    },
+    "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/index.json": {
+      "bytes": 7754,
+      "sha256": "d48a6a2c4b823351bf121584d7c9ba10e2eec7d23827aa8b0fb69c28b597f23f"
+    },
+    "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py": {
+      "bytes": 9725,
+      "sha256": "f533dd8d0c7cd97bb3ffd8ef9bd8e820757f2658656a5319d9dd634e9d084fe5"
+    },
+    "policy-engine/tests/unit/foundry/uncertainty/test_finite_empirical_law.py": {
+      "bytes": 8500,
+      "sha256": "ce5988c98b2377f21b50d124c1ab1181c9e9b63b1b55d88e7a42972acf3401fc"
+    },
+    "policy-engine/tests/unit/ir/test_posterior_ratio_law.py": {
+      "bytes": 11564,
+      "sha256": "fd411d7a00282eaa85db85f17f73db3532a8ce7873673f8d3bc5bfcc5b878e70"
+    },
+    "policy-engine/tests/unit/ir/test_posterior_summary.py": {
+      "bytes": 15759,
+      "sha256": "70cb3db1833afa669859b7dbefdee06265bfd001ce80194f71110431835ace64"
+    },
+    "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py": {
+      "bytes": 17065,
+      "sha256": "9956dcdf865ac06ccbeccff7faa29c18cf0b77b07fa724b04ba96b10da0b270a"
+    }
+  },
+  "implementation_paths": 23,
+  "Python_paths": 12,
+  "environment": {
+    "executable": "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+    "prefix": "/workspace/e02-E-doe-20261006/policy-engine/.venv",
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "pydantic": "2.12.5",
+    "jax": "0.8.2",
+    "pytest": "9.0.2"
+  },
+  "counts": {
+    "PASS": 30,
+    "FAIL": 2
+  },
+  "cases": [
+    {
+      "id": "exact_boundary_sorted_quantile_[1, 2]",
+      "outcome": "PASS",
+      "detail": {
+        "raw_weights": [
+          1,
+          2
+        ],
+        "canonical_weights": [
+          0.25,
+          0.5
+        ],
+        "exact_ratios": [
+          "1/3",
+          "2/3"
+        ],
+        "finite_U_probes": [
+          0.0,
+          0.33333333333333326,
+          0.3333333333333333,
+          0.33333333333333337,
+          0.9999999999999999
+        ],
+        "actual_buckets": [
+          0,
+          0,
+          0,
+          1,
+          1
+        ],
+        "mean": 0.3333333333333333,
+        "median": 0.0,
+        "interval": [
+          0.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "id": "exact_boundary_sorted_quantile_[1, 0, 3]",
+      "outcome": "PASS",
+      "detail": {
+        "raw_weights": [
+          1,
+          0,
+          3
+        ],
+        "canonical_weights": [
+          0.25,
+          0.0,
+          0.75
+        ],
+        "exact_ratios": [
+          "1/4",
+          "0",
+          "3/4"
+        ],
+        "finite_U_probes": [
+          0.0,
+          0.24999999999999997,
+          0.25,
+          0.25000000000000006,
+          0.9999999999999999
+        ],
+        "actual_buckets": [
+          0,
+          0,
+          2,
+          2,
+          2
+        ],
+        "mean": 0.5,
+        "median": 0.0,
+        "interval": [
+          0.0,
+          2.0
+        ]
+      }
+    },
+    {
+      "id": "exact_boundary_sorted_quantile_[5e-11, 0.5, 0.49999999995]",
+      "outcome": "PASS",
+      "detail": {
+        "raw_weights": [
+          5e-11,
+          0.5,
+          0.49999999995
+        ],
+        "canonical_weights": [
+          5e-11,
+          0.5,
+          0.49999999995
+        ],
+        "exact_ratios": [
+          "7737125245533627/154742504910672533722217915",
+          "77371252455336267181195264/154742504910672533722217915",
+          "77371252447599141295489024/154742504910672533722217915"
+        ],
+        "finite_U_probes": [
+          0.0,
+          4.9999999999999995e-11,
+          5e-11,
+          5.000000000000001e-11,
+          0.5000000000499999,
+          0.50000000005,
+          0.5000000000500001,
+          0.9999999999999999
+        ],
+        "actual_buckets": [
+          0,
+          0,
+          0,
+          1,
+          1,
+          2,
+          2,
+          2
+        ],
+        "mean": 0.5000000001,
+        "median": 1.0,
+        "interval": [
+          0.0,
+          1.0
+        ]
+      }
+    },
+    {
+      "id": "exact_boundary_sorted_quantile_[0.5, 5e-11, 0.49999999995]",
+      "outcome": "PASS",
+      "detail": {
+        "raw_weights": [
+          0.5,
+          5e-11,
+          0.49999999995
+        ],
+        "canonical_weights": [
+          0.5,
+          5e-11,
+          0.49999999995
+        ],
+        "exact_ratios": [
+          "77371252455336267181195264/154742504910672533722217915",
+          "7737125245533627/154742504910672533722217915",
+          "77371252447599141295489024/154742504910672533722217915"
+        ],
+        "finite_U_probes": [
+          0.0,
+          0.49999999999999994,
+          0.5,
+          0.5000000000000001,
+          0.5000000000499999,
+          0.50000000005,
+          0.5000000000500001,
+          0.9999999999999999
+        ],
+        "actual_buckets": [
+          0,
+          0,
+          0,
+          1,
+          1,
+          2,
+          2,
+          2
+        ],
+        "mean": 1.00000000005,
+        "median": 2.0,
+        "interval": [
+          0.0,
+          2.0
+        ]
+      }
+    },
+    {
+      "id": "exact_boundary_sorted_quantile_[0.5, 0.49999999995, 5e-11]",
+      "outcome": "PASS",
+      "detail": {
+        "raw_weights": [
+          0.5,
+          0.49999999995,
+          5e-11
+        ],
+        "canonical_weights": [
+          0.5,
+          0.49999999995,
+          5e-11
+        ],
+        "exact_ratios": [
+          "77371252455336267181195264/154742504910672533722217915",
+          "77371252447599141295489024/154742504910672533722217915",
+          "7737125245533627/154742504910672533722217915"
+        ],
+        "finite_U_probes": [
+          0.0,
+          0.49999999999999994,
+          0.5,
+          0.5000000000000001,
+          0.9999999999499999,
+          0.99999999995,
+          0.9999999999500001,
+          0.9999999999999999
+        ],
+        "actual_buckets": [
+          0,
+          0,
+          0,
+          1,
+          1,
+          1,
+          2,
+          2
+        ],
+        "mean": 1.49999999995,
+        "median": 2.0,
+        "interval": [
+          1.0,
+          2.0
+        ]
+      }
+    },
+    {
+      "id": "exact_boundary_sorted_quantile_[1e-20, 0.5, 0.5]",
+      "outcome": "FAIL",
+      "error": "ValueError('positive posterior category has no finite-U bucket')",
+      "traceback": "Traceback (most recent call last):\n  File \"/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent_candidate_review.py\", line 53, in case\n    try:detail=fn();cases.append({'id':name,'outcome':'PASS','detail':detail})\n               ~~^^\n  File \"/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent_candidate_review.py\", line 96, in boundary\n    mean,median,interval=posterior_summary_functionals_v2(samples,tuple(canonical),.9)\n                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/workspace/e02-E-mc-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py\", line 301, in posterior_summary_functionals_v2\n    posterior_sampling_cdf(sorted_weights)\n    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^\n  File \"/workspace/e02-E-mc-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py\", line 224, in posterior_sampling_cdf\n    raise ValueError(\"positive posterior category has no finite-U bucket\")\nValueError: positive posterior category has no finite-U bucket\n"
+    },
+    {
+      "id": "exact_boundary_sorted_quantile_[0.5, 1e-20, 0.5]",
+      "outcome": "PASS",
+      "detail": {
+        "raw_weights": [
+          0.5,
+          1e-20,
+          0.5
+        ],
+        "canonical_weights": [
+          0.5,
+          1e-20,
+          0.5
+        ],
+        "exact_ratios": [
+          "332306998946228968225951765070086144/664613997892457936458549670119096867",
+          "6646139978924579/664613997892457936458549670119096867",
+          "332306998946228968225951765070086144/664613997892457936458549670119096867"
+        ],
+        "finite_U_probes": [
+          0.0,
+          0.49999999999999994,
+          0.5,
+          0.5000000000000001,
+          0.9999999999999999
+        ],
+        "actual_buckets": [
+          0,
+          0,
+          1,
+          2,
+          2
+        ],
+        "mean": 1.0,
+        "median": 1.0,
+        "interval": [
+          0.0,
+          2.0
+        ]
+      }
+    },
+    {
+      "id": "weights_or_bucket_refusal_[1, 1e-20]",
+      "outcome": "PASS",
+      "detail": {
+        "raw_weights": "[1, 1e-20]",
+        "actual_refusal": "positive posterior category has no finite-U bucket"
+      }
+    },
+    {
+      "id": "weights_or_bucket_refusal_[0.5, 0.5, 1e-20]",
+      "outcome": "PASS",
+      "detail": {
+        "raw_weights": "[0.5, 0.5, 1e-20]",
+        "actual_refusal": "positive posterior category has no finite-U bucket"
+      }
+    },
+    {
+      "id": "weights_or_bucket_refusal_[np.float64(1.7976931348623157e+308), np.float64(5e-324)]",
+      "outcome": "PASS",
+      "detail": {
+        "raw_weights": "[np.float64(1.7976931348623157e+308), np.float64(5e-324)]",
+        "actual_refusal": "power-of-two weight scaling changes the exact input law"
+      }
+    },
+    {
+      "id": "weights_or_bucket_refusal_[True, 1]",
+      "outcome": "PASS",
+      "detail": {
+        "raw_weights": "[True, 1]",
+        "actual_refusal": "posterior weights require real numeric values (finite non-bool)"
+      }
+    },
+    {
+      "id": "weights_or_bucket_refusal_['1', 1]",
+      "outcome": "PASS",
+      "detail": {
+        "raw_weights": "['1', 1]",
+        "actual_refusal": "posterior weights require real numeric values (finite non-bool)"
+      }
+    },
+    {
+      "id": "weights_or_bucket_refusal_[0, 0]",
+      "outcome": "PASS",
+      "detail": {
+        "raw_weights": "[0, 0]",
+        "actual_refusal": "posterior weights exceed positive finite float64 support"
+      }
+    },
+    {
+      "id": "weights_or_bucket_refusal_[-1, 1]",
+      "outcome": "PASS",
+      "detail": {
+        "raw_weights": "[-1, 1]",
+        "actual_refusal": "posterior weights exceed positive finite float64 support"
+      }
+    },
+    {
+      "id": "weights_or_bucket_refusal_[inf, 1]",
+      "outcome": "PASS",
+      "detail": {
+        "raw_weights": "[inf, 1]",
+        "actual_refusal": "posterior weights exceed positive finite float64 support"
+      }
+    },
+    {
+      "id": "hundred_atoms_fresh_CAS_exact_law_not_old_residual",
+      "outcome": "PASS",
+      "detail": {
+        "mean": 10000000000000.0,
+        "median": 0.0,
+        "interval": [
+          0.0,
+          0.0
+        ],
+        "exact_ratio": "1/100",
+        "all100_boundary_neighbor_comparisons": 298,
+        "stored_weight_sum": 50.0,
+        "fresh_ref": {
+          "artifact_id": "sha256:c6e0d88384f91436c36d290a3bfd75ab3a94c5725a1311de63711290c475fa00",
+          "kind": "ir.uncertainty_envelope",
+          "media_type": "application/json"
+        },
+        "explicit_grid_approximation": "finite_uniform_mesh_discretization",
+        "gate_eligible": false
+      }
+    },
+    {
+      "id": "producer_missing_joint_premise_refused",
+      "outcome": "PASS",
+      "detail": {
+        "actual_refusal": "posterior joint law requires explicit producer-supplied aligned draw IDs",
+        "nominal_or_evaluator_callbacks": 0,
+        "scope": "producer has no callback/store arguments; no emitter/consumer is invoked"
+      }
+    },
+    {
+      "id": "actual_all_backend_paired_law_random",
+      "outcome": "PASS",
+      "detail": {
+        "callback_count": 257,
+        "actual_rows": [
+          {
+            "row": [
+              0.0,
+              0.0
+            ],
+            "count": 66
+          },
+          {
+            "row": [
+              1.0,
+              2.0
+            ],
+            "count": 64
+          },
+          {
+            "row": [
+              4.0,
+              5.0
+            ],
+            "count": 126
+          }
+        ],
+        "fresh_refs": {
+          "a": {
+            "artifact_id": "sha256:0f6a6c9293ed6529623fdcc081c4c89c743b58778e887d0069f066f80ac9b094",
+            "kind": "ir.uncertainty_envelope",
+            "media_type": "application/json"
+          },
+          "b": {
+            "artifact_id": "sha256:3b71650b1dd452ad6043a5e56d0b44321ac1ee1987b319da157a9ba0baacaded",
+            "kind": "ir.uncertainty_envelope",
+            "media_type": "application/json"
+          }
+        },
+        "independent_y_mean": "21/4",
+        "independent_y_variance": "243/16",
+        "gate_eligible": false
+      }
+    },
+    {
+      "id": "actual_all_backend_paired_law_sobol",
+      "outcome": "PASS",
+      "detail": {
+        "callback_count": 257,
+        "actual_rows": [
+          {
+            "row": [
+              0.0,
+              0.0
+            ],
+            "count": 64
+          },
+          {
+            "row": [
+              1.0,
+              2.0
+            ],
+            "count": 64
+          },
+          {
+            "row": [
+              4.0,
+              5.0
+            ],
+            "count": 128
+          }
+        ],
+        "fresh_refs": {
+          "a": {
+            "artifact_id": "sha256:0f6a6c9293ed6529623fdcc081c4c89c743b58778e887d0069f066f80ac9b094",
+            "kind": "ir.uncertainty_envelope",
+            "media_type": "application/json"
+          },
+          "b": {
+            "artifact_id": "sha256:3b71650b1dd452ad6043a5e56d0b44321ac1ee1987b319da157a9ba0baacaded",
+            "kind": "ir.uncertainty_envelope",
+            "media_type": "application/json"
+          }
+        },
+        "independent_y_mean": "21/4",
+        "independent_y_variance": "243/16",
+        "gate_eligible": false
+      }
+    },
+    {
+      "id": "actual_all_backend_paired_law_halton",
+      "outcome": "PASS",
+      "detail": {
+        "callback_count": 257,
+        "actual_rows": [
+          {
+            "row": [
+              0.0,
+              0.0
+            ],
+            "count": 64
+          },
+          {
+            "row": [
+              1.0,
+              2.0
+            ],
+            "count": 64
+          },
+          {
+            "row": [
+              4.0,
+              5.0
+            ],
+            "count": 128
+          }
+        ],
+        "fresh_refs": {
+          "a": {
+            "artifact_id": "sha256:0f6a6c9293ed6529623fdcc081c4c89c743b58778e887d0069f066f80ac9b094",
+            "kind": "ir.uncertainty_envelope",
+            "media_type": "application/json"
+          },
+          "b": {
+            "artifact_id": "sha256:3b71650b1dd452ad6043a5e56d0b44321ac1ee1987b319da157a9ba0baacaded",
+            "kind": "ir.uncertainty_envelope",
+            "media_type": "application/json"
+          }
+        },
+        "independent_y_mean": "21/4",
+        "independent_y_variance": "243/16",
+        "gate_eligible": false
+      }
+    },
+    {
+      "id": "unreachable_positive_atom_before_callback_random",
+      "outcome": "PASS",
+      "detail": {
+        "actual_callback_count": 0,
+        "failure": "unsupported_finite_empirical_law",
+        "gate_eligible": false
+      }
+    },
+    {
+      "id": "unreachable_positive_atom_before_callback_sobol",
+      "outcome": "PASS",
+      "detail": {
+        "actual_callback_count": 0,
+        "failure": "unsupported_finite_empirical_law",
+        "gate_eligible": false
+      }
+    },
+    {
+      "id": "unreachable_positive_atom_before_callback_halton",
+      "outcome": "PASS",
+      "detail": {
+        "actual_callback_count": 0,
+        "failure": "unsupported_finite_empirical_law",
+        "gate_eligible": false
+      }
+    },
+    {
+      "id": "fresh_CAS_forged_alignment_shared_admission_removal",
+      "outcome": "FAIL",
+      "error": "AttributeError(\"'UncertaintyEnvelopeRef' object has no attribute 'hex'\")",
+      "traceback": "Traceback (most recent call last):\n  File \"/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent_candidate_review.py\", line 53, in case\n    try:detail=fn();cases.append({'id':name,'outcome':'PASS','detail':detail})\n               ~~^^\n  File \"/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent_candidate_review.py\", line 162, in fresh_forgery_and_removal\n    changed=UncertaintyEnvelope.model_validate(raw);ref=persist_uncertainty_envelope(store,changed);require(store.verify(ref).ok,'forged_CAS_not_integrity_valid')\n                                                                                                            ~~~~~~~~~~~~^^^^^\n  File \"/workspace/e02-E-mc-20261006/policy-engine/src/polisyos/core/artifacts/store.py\", line 384, in wrapped\n    with self._coordinator.artifact_lease(aid, exclusive=False):\n         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/contextlib.py\", line 141, in __enter__\n    return next(self.gen)\n  File \"/workspace/e02-E-mc-20261006/policy-engine/src/polisyos/core/artifacts/ownership.py\", line 239, in artifact_lease\n    existing = active.get(artifact_id.hex)\n                          ^^^^^^^^^^^^^^^\n  File \"/workspace/e02-E-doe-20261006/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py\", line 1026, in __getattr__\n    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')\nAttributeError: 'UncertaintyEnvelopeRef' object has no attribute 'hex'\n"
+    },
+    {
+      "id": "nearest_float_proxy_diverges_effective_rounding_removal",
+      "outcome": "PASS",
+      "detail": {
+        "finite_U": 0.3333333333333333,
+        "same_input_canonical_weights": [
+          0.25,
+          0.5
+        ],
+        "exact_expected_bucket": 0,
+        "actual_with_rounding_removed": 1,
+        "required_boundary_control_after_removal": "FAIL",
+        "effective_removal_discriminator": "PASS",
+        "numeric_values_and_helper_presence_retained": true
+      }
+    },
+    {
+      "id": "seven_literal_old700_profile1_mean_ABI_bytes_replay",
+      "outcome": "PASS",
+      "detail": {
+        "actual_seven_old700_payloads": [
+          {
+            "sha256": "6bb6dcc0e57c9bae2a12eccd64b2f212d77f1d5afc277b16e706b2b54592ea01",
+            "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+            "named_mean": 0.0,
+            "median": -1.0,
+            "same_raw_CAS_bytes": true
+          },
+          {
+            "sha256": "b1cb47300150f7bc69d379d2ef15703bab83ef5bd3ebea5b27c2011221aadc67",
+            "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+            "named_mean": 0.0,
+            "median": -1.0,
+            "same_raw_CAS_bytes": true
+          },
+          {
+            "sha256": "a446b56443f4ec5c3a4090227c46cf9fcda1b7b3f52229a513c78730323e55ed",
+            "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+            "named_mean": 0.0,
+            "median": -1.0,
+            "same_raw_CAS_bytes": true
+          },
+          {
+            "sha256": "f6fb5f18767393517c00379eca41f69502b821ee15c5b15c2c5cdfcb9e3daf48",
+            "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+            "named_mean": 0.0,
+            "median": -1.0,
+            "same_raw_CAS_bytes": true
+          },
+          {
+            "sha256": "062af073068907c37495e43f204f32b8e743a3c70e6c1d68e66a5e699d1fe112",
+            "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+            "named_mean": 0.0,
+            "median": -1.0,
+            "same_raw_CAS_bytes": true
+          },
+          {
+            "sha256": "aefdbc77c4a25fa2c8c05d5a9b83ad4d882612b7233d32c0185464a1031d6704",
+            "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+            "named_mean": 0.0,
+            "median": -1.0,
+            "same_raw_CAS_bytes": true
+          },
+          {
+            "sha256": "9ee56651abefd7cfb475a1d3b3401eb6f06fbad53cc5d2c9bf080e1eae7857f5",
+            "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+            "named_mean": 10000000000000.0,
+            "median": 0.0,
+            "same_raw_CAS_bytes": true
+          }
+        ],
+        "old_generated_multigroup_law": "Group admission now independently refuses positional identity, without changing individual legacy decode/display/replay."
+      }
+    },
+    {
+      "id": "actual_native_fresh_E_named_mean_consumer",
+      "outcome": "PASS",
+      "detail": {
+        "actual_nominal_params": [
+          {
+            "x": 1.0
+          }
+        ],
+        "actual_callback_count": 257,
+        "persisted_fresh_output_ref": {
+          "artifact_id": "sha256:25662562c26e5fad201d39a02d336fee42b9b314b4bbad9e93db6c412c79681f",
+          "kind": "ir.uncertainty_envelope",
+          "media_type": "application/json"
+        },
+        "centered_output_support": [
+          -1.0,
+          99.0
+        ],
+        "gate_eligible": false
+      }
+    },
+    {
+      "id": "actual_E_raw_before_builder_raw_bool",
+      "outcome": "PASS",
+      "detail": {
+        "mutation": "raw_bool",
+        "actual_refusal": "posterior summary raw carrier requires finite real non-bool values",
+        "builder_count": 0,
+        "callback_count": 0
+      }
+    },
+    {
+      "id": "actual_E_raw_before_builder_raw_string",
+      "outcome": "PASS",
+      "detail": {
+        "mutation": "raw_string",
+        "actual_refusal": "posterior summary raw carrier requires finite real non-bool values",
+        "builder_count": 0,
+        "callback_count": 0
+      }
+    },
+    {
+      "id": "actual_E_raw_before_builder_inline_bool",
+      "outcome": "PASS",
+      "detail": {
+        "mutation": "inline_bool",
+        "actual_refusal": "posterior summary raw carrier requires finite real non-bool values",
+        "builder_count": 0,
+        "callback_count": 0
+      }
+    },
+    {
+      "id": "actual_E_raw_before_builder_inline_string",
+      "outcome": "PASS",
+      "detail": {
+        "mutation": "inline_string",
+        "actual_refusal": "posterior summary raw carrier requires finite real non-bool values",
+        "builder_count": 0,
+        "callback_count": 0
+      }
+    },
+    {
+      "id": "actual_public_facade_ABI_inventory_and_large_finite_spread",
+      "outcome": "PASS",
+      "detail": {
+        "actual_IR_model_inventory_count": 101,
+        "base_actual_count": 100,
+        "delta": 1,
+        "registered_new_key": "posterior_summary_profile_v2",
+        "old_root_type_identity": true,
+        "new_root_type_identity": true,
+        "std_for_0_1e200": 5e+199,
+        "std_for_0_2": 1.0,
+        "generated_schema_publication": "Owner packet still pending; no generated-file edits or global-gate PASS claimed."
+      }
+    }
+  ],
+  "independent_oracle": "Fraction normalized finite raw input weights, exact < classification for supplied finite U and >= quantile for supplied finite q. Candidate ceil/floor helper never used in expected loop. Gold9ecf derived before candidate.",
+  "G_conditions": "Missing supplied multivariate premise now refuses; new mean/CDF use declared exact rational source law and finite-U mesh sampling semantics. CDF cuts are classifier boundaries, not asserted continuous effective probability masses.",
+  "legacy_replay": "Seven literal genuine old700 Profile1 payloads verified against independent old native CAS. Profile1 decoder and functionals preserved; law-dependent joint eligibility separately admitted/refused.",
+  "source_acceptance": "CHANGE_REQUIRED concrete failing cases",
+  "finding_closure": false,
+  "authority": "All observed profile/output gate flags false; source/fit quality, independence, coverage, causal authority not established by producer fields.",
+  "remaining_owner": "Canonical generator/public API inventory owner publishes Profile2 schema/inventory projections; G accepts source separately from B201/B202 original owner closure and C/F compatibility responses.",
+  "cleanup_candidates": [
+    "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/hundred-cas",
+    "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/paired-random-cas",
+    "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/paired-sobol-cas",
+    "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/paired-halton-cas",
+    "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/forged-cas",
+    "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/old-replay-cas",
+    "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/native-None-cas",
+    "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/native-raw_bool-cas",
+    "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/native-raw_string-cas",
+    "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/native-inline_bool-cas",
+    "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/native-inline_string-cas"
+  ],
+  "limits": [
+    "No broad wave repeated; only current exact-property/CAS/default-node/removal probes.",
+    "ROOT environment/source/backend untouched; existing DOE leaf interpreter reads immutable MC topic source.",
+    "Diagnostic spread does not create inferential covariance/noise law or posterior-quality authority."
+  ]
+}

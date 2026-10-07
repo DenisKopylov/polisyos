@@ -1,0 +1,10 @@
+{
+  "schema": "policyos.e02.proposed_subset_materialization.v1",
+  "destination": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4",
+  "unique_literal_payload_files": 107,
+  "unique_literal_payload_bytes": 3112171,
+  "metadata_files": 7,
+  "active_python": 0,
+  "source_tests_gate_numeric_execution": false,
+  "scope": "Ready fixed subset only; pending frontend/backend/final54 are excluded"
+}

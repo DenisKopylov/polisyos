@@ -1,0 +1,257 @@
+{
+  "fixtures": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/old_actual_planner_callback/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+      "bytes": 41358,
+      "sha256": "3e80760446ed4a6fda0f46dde07b0efbb8aa4da29a28d2779a8a6737b63450ac"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/old_actual_planner_callback/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/original-wave-groups.json",
+      "bytes": 9604,
+      "sha256": "a5578a4dd8bc8e622603e5b538a412594eafb507ca640518bf527d8c0c5168af"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/old_actual_planner_callback/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+      "bytes": 26159,
+      "sha256": "964778a26eda0c5168e02a9183979275ca55b860701092e1faf6d3c0a8491e1a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/old_actual_planner_callback/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/proposal.json",
+      "bytes": 2477,
+      "sha256": "183a0cd6b4fc8364ae086d1a5e921a7b06b09a241a1041359be855261125cf63"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/old_actual_planner_callback/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "bytes": 12609,
+      "sha256": "16caf0aecfe2c247b211f5a7611e9ce423f238dc2506e72dc99de16802ce8fec"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/old_actual_planner_callback/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+      "bytes": 7221,
+      "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/old_actual_planner_callback/source-callback.marker",
+      "bytes": 16,
+      "sha256": "d964be7744172cbb5ca9b7b16e761238d0f25ceefe583fd9669723f0efc183d9"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/removed_guard_actual_planner_callback/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+      "bytes": 41358,
+      "sha256": "3e80760446ed4a6fda0f46dde07b0efbb8aa4da29a28d2779a8a6737b63450ac"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/removed_guard_actual_planner_callback/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/original-wave-groups.json",
+      "bytes": 9604,
+      "sha256": "a5578a4dd8bc8e622603e5b538a412594eafb507ca640518bf527d8c0c5168af"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/removed_guard_actual_planner_callback/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+      "bytes": 26169,
+      "sha256": "c5b9c6cf335c22748accfe053fa461feddd6ece8b143ecf9fc9ac747bd89d8d7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/removed_guard_actual_planner_callback/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/proposal.json",
+      "bytes": 2477,
+      "sha256": "183a0cd6b4fc8364ae086d1a5e921a7b06b09a241a1041359be855261125cf63"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/removed_guard_actual_planner_callback/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "bytes": 12609,
+      "sha256": "16caf0aecfe2c247b211f5a7611e9ce423f238dc2506e72dc99de16802ce8fec"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/removed_guard_actual_planner_callback/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+      "bytes": 7221,
+      "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/removed_guard_actual_planner_callback/source-callback.marker",
+      "bytes": 16,
+      "sha256": "d964be7744172cbb5ca9b7b16e761238d0f25ceefe583fd9669723f0efc183d9"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/source_guard_collect_wave_py/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+      "bytes": 41380,
+      "sha256": "879d088444cf861ca02e2cdc9d7c3a191166334374c48287030f3acd4dfd2b14"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/source_guard_collect_wave_py/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/original-wave-groups.json",
+      "bytes": 9604,
+      "sha256": "a5578a4dd8bc8e622603e5b538a412594eafb507ca640518bf527d8c0c5168af"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/source_guard_collect_wave_py/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+      "bytes": 25922,
+      "sha256": "3e1367f35392c8334a849da655035113c543066425d2bdb67643468a5b8038e4"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/source_guard_collect_wave_py/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/proposal.json",
+      "bytes": 2477,
+      "sha256": "183a0cd6b4fc8364ae086d1a5e921a7b06b09a241a1041359be855261125cf63"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/source_guard_collect_wave_py/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "bytes": 12609,
+      "sha256": "16caf0aecfe2c247b211f5a7611e9ce423f238dc2506e72dc99de16802ce8fec"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/source_guard_collect_wave_py/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+      "bytes": 7221,
+      "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/source_guard_original-wave-groups_json/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+      "bytes": 41358,
+      "sha256": "3e80760446ed4a6fda0f46dde07b0efbb8aa4da29a28d2779a8a6737b63450ac"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/source_guard_original-wave-groups_json/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/original-wave-groups.json",
+      "bytes": 9626,
+      "sha256": "9d81de60c76cd7ddb5601f8c8eb6747cd1e98ce700d31c322cd0835b9e1846c7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/source_guard_original-wave-groups_json/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+      "bytes": 25922,
+      "sha256": "3e1367f35392c8334a849da655035113c543066425d2bdb67643468a5b8038e4"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/source_guard_original-wave-groups_json/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/proposal.json",
+      "bytes": 2477,
+      "sha256": "183a0cd6b4fc8364ae086d1a5e921a7b06b09a241a1041359be855261125cf63"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/source_guard_original-wave-groups_json/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "bytes": 12609,
+      "sha256": "16caf0aecfe2c247b211f5a7611e9ce423f238dc2506e72dc99de16802ce8fec"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/source_guard_original-wave-groups_json/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+      "bytes": 7221,
+      "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/source_guard_plan_wave_py/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+      "bytes": 41358,
+      "sha256": "3e80760446ed4a6fda0f46dde07b0efbb8aa4da29a28d2779a8a6737b63450ac"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/source_guard_plan_wave_py/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/original-wave-groups.json",
+      "bytes": 9604,
+      "sha256": "a5578a4dd8bc8e622603e5b538a412594eafb507ca640518bf527d8c0c5168af"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/source_guard_plan_wave_py/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+      "bytes": 26157,
+      "sha256": "bbd00da630a45974c5b621969144c85e5b20ac554f5f0be0945ba2e9ddc1643a"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/source_guard_plan_wave_py/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/proposal.json",
+      "bytes": 2477,
+      "sha256": "183a0cd6b4fc8364ae086d1a5e921a7b06b09a241a1041359be855261125cf63"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/source_guard_plan_wave_py/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "bytes": 12609,
+      "sha256": "16caf0aecfe2c247b211f5a7611e9ce423f238dc2506e72dc99de16802ce8fec"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/source_guard_plan_wave_py/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+      "bytes": 7221,
+      "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/source_guard_proposal_json/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+      "bytes": 41358,
+      "sha256": "3e80760446ed4a6fda0f46dde07b0efbb8aa4da29a28d2779a8a6737b63450ac"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/source_guard_proposal_json/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/original-wave-groups.json",
+      "bytes": 9604,
+      "sha256": "a5578a4dd8bc8e622603e5b538a412594eafb507ca640518bf527d8c0c5168af"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/source_guard_proposal_json/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+      "bytes": 25922,
+      "sha256": "3e1367f35392c8334a849da655035113c543066425d2bdb67643468a5b8038e4"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/source_guard_proposal_json/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/proposal.json",
+      "bytes": 2499,
+      "sha256": "dfc617f8b8dcc0923f4f360d9855ad687b48bd840c183b187fd0e404b41a01ae"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/source_guard_proposal_json/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "bytes": 12609,
+      "sha256": "16caf0aecfe2c247b211f5a7611e9ce423f238dc2506e72dc99de16802ce8fec"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/source_guard_proposal_json/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+      "bytes": 7221,
+      "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/source_guard_run_check_py/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+      "bytes": 41358,
+      "sha256": "3e80760446ed4a6fda0f46dde07b0efbb8aa4da29a28d2779a8a6737b63450ac"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/source_guard_run_check_py/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/original-wave-groups.json",
+      "bytes": 9604,
+      "sha256": "a5578a4dd8bc8e622603e5b538a412594eafb507ca640518bf527d8c0c5168af"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/source_guard_run_check_py/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+      "bytes": 25922,
+      "sha256": "3e1367f35392c8334a849da655035113c543066425d2bdb67643468a5b8038e4"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/source_guard_run_check_py/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/proposal.json",
+      "bytes": 2477,
+      "sha256": "183a0cd6b4fc8364ae086d1a5e921a7b06b09a241a1041359be855261125cf63"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/source_guard_run_check_py/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "bytes": 12631,
+      "sha256": "afb01537b19e5b781f8c146be3b102745b7d80ebfd0d7dbd9d253b25862fc183"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/source_guard_run_check_py/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+      "bytes": 7221,
+      "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/source_guard_uncapped_umbrella_py/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+      "bytes": 41358,
+      "sha256": "3e80760446ed4a6fda0f46dde07b0efbb8aa4da29a28d2779a8a6737b63450ac"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/source_guard_uncapped_umbrella_py/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/original-wave-groups.json",
+      "bytes": 9604,
+      "sha256": "a5578a4dd8bc8e622603e5b538a412594eafb507ca640518bf527d8c0c5168af"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/source_guard_uncapped_umbrella_py/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+      "bytes": 25922,
+      "sha256": "3e1367f35392c8334a849da655035113c543066425d2bdb67643468a5b8038e4"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/source_guard_uncapped_umbrella_py/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/proposal.json",
+      "bytes": 2477,
+      "sha256": "183a0cd6b4fc8364ae086d1a5e921a7b06b09a241a1041359be855261125cf63"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/source_guard_uncapped_umbrella_py/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "bytes": 12609,
+      "sha256": "16caf0aecfe2c247b211f5a7611e9ce423f238dc2506e72dc99de16802ce8fec"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/source_guard_uncapped_umbrella_py/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+      "bytes": 7243,
+      "sha256": "741767ceb207c40389cd0e9e18120657822196eac85fae773137069cb0c86a00"
+    }
+  ],
+  "recipe": "Exact candidate source bytes; append actual top-level callback to plan_wave.py or corrupt-source-control to selected companion. Scoped Git subprocess IO redirects only mirrored catalog -C to original admitted repo. No new checkout/Git mutation. Executed observer preserves complete mutation recipe.",
+  "historical_old_and_new_removal_results": "Callback_count=1: defining property FAIL despite preserved refs/Git reads/source markers.",
+  "current_wrapper_result": "All physical planner/companion corruptions refuse before loader; callback_count=0."
+}

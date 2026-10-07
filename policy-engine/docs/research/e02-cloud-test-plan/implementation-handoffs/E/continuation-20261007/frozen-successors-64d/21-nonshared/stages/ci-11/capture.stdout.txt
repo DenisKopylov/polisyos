@@ -1,0 +1,1 @@
+{"command": ["/workspace/.polisyos-environment/uv/bin/uv", "run", "--no-sync", "--extra", "docs", "python", "-m", "mkdocs", "build", "--strict", "--site-dir", "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-11/mkdocs-site"], "exit_code": 1, "outcome": "FAIL", "counts": null, "wall_seconds": 2280.9977502822876, "source_immutable": true}

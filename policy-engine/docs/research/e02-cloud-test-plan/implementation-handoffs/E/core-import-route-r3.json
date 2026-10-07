@@ -1,0 +1,839 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "core-import-route-r3",
+  "closure_ids": [
+    "B100",
+    "B166",
+    "B169",
+    "B170",
+    "LA-052"
+  ],
+  "bundle_ids": [
+    "DOE-02",
+    "BKT-01",
+    "PCL-01"
+  ],
+  "slice_base_sha": "6c80d1ac520e78a7b79d02402031c5a1673a6161",
+  "slice_base_tree_sha": "211636937e6e9c3d9fcb8480084d624c7ae746f3",
+  "implementation_commits": [
+    "539ee6d6aad7f9db4c03dc520fc515dabef8d799"
+  ],
+  "candidate_tree_sha": "cee54ddfec357aedc96a8495b4a9fff5b5cec167",
+  "branch": "codex/e02-E-cal-review-20261006",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/38",
+  "publication_commit_sha": null,
+  "canonical_writer": "E imports author imports_r4; existing Core root facade and exported artifacts/canon/registry module APIs reused without modification",
+  "changed_paths": [
+    "policy-engine/src/polisyos/calibration/continuous.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+    "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+    "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+    "policy-engine/tests/unit/calibration/test_core_artifact_routes.py"
+  ],
+  "footprint": [
+    {
+      "path": "policy-engine/src/polisyos/calibration/continuous.py",
+      "candidate_blob": "75b9a64da9de395f9a28d52e2926e3f5dee96b2b",
+      "bytes": 23112,
+      "sha256": "4aac5f3164d0f137d7b2a54c2302bdb7df85f05d71a57d8e1fa7b920c3525a97"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+      "candidate_blob": "437aeb254c9dff6c2735f9c914953553ea9f6de3",
+      "bytes": 90808,
+      "sha256": "b80774434a4680f8b10fd880644754958c68d233f4a38e69858ab53ab826f745"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+      "candidate_blob": "f2c3879f995928866f1bfa44c576b7dba994d9db",
+      "bytes": 4647,
+      "sha256": "80e10adb3a793a63f7126fd9983e8a262cb458913efcfdbdc97a016f5e6fe172"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+      "candidate_blob": "5ce80d5d2481ea86f8950fb1da1cbaebf3ebccd5",
+      "bytes": 27666,
+      "sha256": "808fc6a04d7bd74addfd7a77d6607c480b8b61a7e4a637e72177058f412dbce0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+      "candidate_blob": "22db2f26c1b72517e11367c6861b92239f00c199",
+      "bytes": 57820,
+      "sha256": "d8bf760e45ab697556d39a78219edbf8c91b2b8a7c083b68595cca95d973662a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "candidate_blob": "421108ae946d2b406638e06efe8e22262ffdb674",
+      "bytes": 3925,
+      "sha256": "f719fb79cd644059f9249b11af74a19f6911bcb2163259c07dbf9a2fa3d16d61"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+      "candidate_blob": "41b6757483cbf48443b4e0fef7638386770fa96d",
+      "bytes": 3805,
+      "sha256": "098fc2c23c5316e59a4c7c62d9304c58142244810d539dc204781af1fb96bd27"
+    },
+    {
+      "path": "policy-engine/tests/unit/calibration/test_core_artifact_routes.py",
+      "candidate_blob": "713794d9de160732e376315ffd715214dd2f4957",
+      "bytes": 3803,
+      "sha256": "7810ffa9d5e0ec31e3f9dd8df9dccb169007594a329a66ca69ff7555b6e23cb7"
+    }
+  ],
+  "mandatory_companions": [
+    "tests/unit/calibration/test_core_artifact_routes.py",
+    "this separate implementation handoff/evidence/owner packets; no public contract/schema/generated changes"
+  ],
+  "baseline_cells": [],
+  "baseline_note": "Imported VM rows are navigation only and not used to certify this import-route property; no raw VM replay claim",
+  "source_citations": {
+    "historical_exact_12": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/E-pr38-continuation-audit-2026-10-06.md@9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7:58-77",
+    "owner_manifest": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv@6c80d1ac520e78a7b79d02402031c5a1673a6161",
+    "original_criteria": "Original DOE-02/BKT-01/PCL-01 cards remain the criterion authority; this is a bounded import/API repair, not a new closure criterion"
+  },
+  "checks": [
+    {
+      "name": "affected_consumers",
+      "command": "PYTHONPATH=/workspace/e02-E-cal-review-20261006/policy-engine/src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python -m pytest tests/unit/calibration/test_core_artifact_routes.py tests/unit/calibration/test_continuous.py tests/unit/calibration/test_continuous_persistence.py tests/unit/calibration/test_evidence_facades.py tests/unit/scientist/methods/autotune/test_sensitivity_bridge.py tests/unit/scientist/methods/doe/test_analysis_receipt.py tests/unit/scientist/methods/backtesting/test_native_replay.py tests/unit/scientist/methods/backtesting/test_composition_bridge.py -q --junitxml=/workspace/e02-E-pr38-r3-receipts/imports-r4/affected-consumers.xml",
+      "cwd": "/workspace/e02-E-cal-review-20261006/policy-engine",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "cases": {
+        "total": 114,
+        "PASS": 114,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "source_binding": "Executed on precommit postimages, exactly equal to the implementation commit; complete code/test footprint hashes and independent candidate replay included"
+    },
+    {
+      "name": "independent_routes",
+      "command": "PYTHONPATH=/workspace/e02-E-cal-review-20261006/policy-engine/src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python -m pytest -o addopts= -q tests/unit/calibration/test_core_artifact_routes.py --basetemp /workspace/e02-E-pr38-r3-receipts/root-import-review-tmp --junitxml=/workspace/e02-E-pr38-r3-receipts/root-import-review.xml",
+      "cwd": "/workspace/e02-E-cal-review-20261006/policy-engine",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "cases": {
+        "total": 3,
+        "PASS": 3,
+        "FAIL": 0,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "target_sha": "539ee6d6aad7f9db4c03dc520fc515dabef8d799"
+    },
+    {
+      "name": "root_route_property_removal",
+      "command": "PYTHONPATH=/workspace/e02-E-cal-review-20261006/policy-engine/src /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python /workspace/e02-E-pr38-r3-receipts/imports-r4/core_route_removal.py",
+      "cwd": "/workspace/e02-E-cal-review-20261006/policy-engine",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "expected_failure": true,
+      "discriminator": "PASS",
+      "cases": {
+        "total": 1,
+        "PASS": 0,
+        "FAIL": 1,
+        "ERROR": 0,
+        "SKIP": 0
+      },
+      "input_identity": "continuous.py@6c80d1ac520e78a7b79d02402031c5a1673a6161; public facade/tests/store unchanged; only consumer route restored from exact old Git bytes",
+      "deciding_output": "Expected RuntimeError does not occur after removing the actual root-facade writer route; full assertion output is committed"
+    },
+    {
+      "name": "canonical_full_architecture",
+      "command": "UV_PROJECT_ENVIRONMENT=/workspace/e02-E-continuation-20261006/policy-engine/.venv UV_NO_SYNC=1 PYTHONPATH=/workspace/e02-E-cal-review-20261006/policy-engine:/workspace/e02-E-cal-review-20261006/policy-engine/src uv run --no-sync polisyos-tools architecture guardrails check",
+      "cwd": "/workspace/e02-E-cal-review-20261006/policy-engine",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "target_sha": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+      "complete_stdout": "checks/architecture-full.stdout",
+      "complete_stderr": "checks/architecture-full.stderr",
+      "limitations": "Full required gate stays red; remaining deep-import/baseline/OpenAPI/trust-posture boundaries are not waived or called inherited"
+    },
+    {
+      "name": "receipt_recompute",
+      "command": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/validate.py --repo-root /workspace/e02-E-cal-review-20261006 --receipt /workspace/e02-E-cal-review-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3.json",
+      "cwd": "/workspace/e02-E-cal-review-20261006",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "complete_stdout": "checks/validation.stdout",
+      "complete_stderr": "checks/validation.stderr",
+      "negative_controls": [
+        "candidate tree",
+        "source hash",
+        "missing footprint path",
+        "asset hash",
+        "outside-repository path"
+      ],
+      "property": "Actual Git tree/full source footprint and published output hash/size recomputed; all five corrupt-field controls refuse"
+    },
+    {
+      "name": "configured_style",
+      "outcome": "PASS",
+      "cwd": "/workspace/e02-E-cal-review-20261006",
+      "commands": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python -m ruff check policy-engine/src/polisyos/calibration/continuous.py policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py policy-engine/src/polisyos/scientist/methods/doe/_receipt.py policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py policy-engine/tests/unit/calibration/test_core_artifact_routes.py",
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python -m ruff format --check policy-engine/src/polisyos/calibration/continuous.py policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py policy-engine/src/polisyos/scientist/methods/doe/_receipt.py policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py policy-engine/tests/unit/calibration/test_core_artifact_routes.py"
+      ],
+      "exact_input_paths": [
+        "policy-engine/src/polisyos/calibration/continuous.py",
+        "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+        "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+        "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+        "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+        "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+        "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+        "policy-engine/tests/unit/calibration/test_core_artifact_routes.py"
+      ],
+      "complete_outputs": [
+        "checks/ruff.stdout",
+        "checks/format.stdout"
+      ],
+      "input_binding": "pyproject.toml@539ee6d6aad7f9db4c03dc520fc515dabef8d799"
+    },
+    {
+      "name": "publication_diff_check",
+      "outcome": "FAIL",
+      "exit_code": 2,
+      "command": "git diff --cached --check",
+      "cwd": "/workspace/e02-E-cal-review-20261006",
+      "complete_stdout": "checks/publication-diff-check.stdout",
+      "complete_stderr": "checks/publication-diff-check.stderr",
+      "input_binding": "Staged 43-file handoff before adding this corrective receipt",
+      "limitations": "Whitespace reported only in byte-preserved raw pytest stdout/XML and valid unified patch blank-context lines. Preserve original deciding bytes; run native commit hooks normally without bypass. This outcome is separate from Ruff/format and canonical architecture."
+    },
+    {
+      "name": "publication_style",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "cwd": "/workspace/e02-E-cal-review-20261006",
+      "exact_input_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/validate.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/core-route-removal.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/full-python-delta.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/deep-import-collector.py",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/public-export-probe.py"
+      ],
+      "commands": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python -m ruff check policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/validate.py policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/core-route-removal.py policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/full-python-delta.py policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/deep-import-collector.py policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/public-export-probe.py",
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python -m ruff format --check policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/validate.py policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/core-route-removal.py policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/full-python-delta.py policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/deep-import-collector.py policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/public-export-probe.py"
+      ],
+      "complete_outputs": [
+        "checks/publication-ruff.stdout",
+        "checks/publication-ruff.stderr",
+        "checks/publication-format.stdout",
+        "checks/publication-format.stderr"
+      ],
+      "source_binding": "Exact publication companion bytes included in assets; full global style gate belongs to root final denominator"
+    },
+    {
+      "name": "proposed_owner_export_overlay",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "scope": "Independent scratch overlay of final unapplied six-IR/three-Foundry exports and four callers; not public admission or current producer source change",
+      "observations": [
+        {
+          "draft_PASS": 20,
+          "reuse_basis": {
+            "unchanged_overlay_source_files": [
+              "policy-engine/src/polisyos/foundry/execute/__init__.py",
+              "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+              "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+              "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py"
+            ],
+            "IR_delta": "Two existing uncertainty envelope serializers added to same lazy map; original seven definition bindings and three caller files remain byte-identical. Final nine identity controls recheck all aliases.",
+            "new_dependency": "Welfare full uncertainty import block now uses analytics facade; native failed-support/draw-receipt fresh read/corruptions rerun."
+          }
+        },
+        {
+          "final_delta_PASS": 14
+        }
+      ],
+      "commands": {
+        "draft_overlay": [
+          "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-c",
+          "/dev/null",
+          "-o",
+          "cache_dir=/workspace/e02-E-pr38-r3-receipts/owner-export-independent/pytest-cache",
+          "-q",
+          "-p",
+          "owner_export_overlay",
+          "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/test_owner_export_routes.py",
+          "/workspace/e02-E-cal-review-20261006/policy-engine/tests/unit/scientist/methods/backtesting/test_native_replay.py::test_default_native_forecast_replays_consume_masked_rows_and_actual_seeds",
+          "/workspace/e02-E-cal-review-20261006/policy-engine/tests/unit/scientist/methods/backtesting/test_native_replay.py::test_native_replay_counters_cannot_bypass_trajectory_requirement",
+          "/workspace/e02-E-cal-review-20261006/policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py::test_adapter_returns_fresh_resolved_a_fields_without_verifier_authority",
+          "/workspace/e02-E-cal-review-20261006/policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py::test_fresh_receipt_reader_refuses_integrity_valid_measurement_forgery",
+          "/workspace/e02-E-cal-review-20261006/policy-engine/tests/unit/foundry/uncertainty/test_sampling_admission.py::test_paired_carrier_bytes_order_and_row_identity_are_content_bound",
+          "/workspace/e02-E-cal-review-20261006/policy-engine/tests/unit/foundry/uncertainty/test_finite_empirical_law.py::test_complete_dyadic_net_reads_same_persisted_joint_law",
+          "/workspace/e02-E-cal-review-20261006/policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py::test_native_ge_preserves_empirical_atoms_failed_support_and_conditional_values",
+          "--basetemp=/workspace/e02-E-pr38-r3-receipts/owner-export-independent/overlay-tmp",
+          "--junitxml=/workspace/e02-E-pr38-r3-receipts/owner-export-independent/overlay.xml"
+        ],
+        "final_delta_overlay": [
+          "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+          "-m",
+          "pytest",
+          "-c",
+          "/dev/null",
+          "-o",
+          "cache_dir=/workspace/e02-E-pr38-r3-receipts/owner-export-independent/final-pytest-cache",
+          "-q",
+          "-p",
+          "owner_export_final_overlay",
+          "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/test_owner_export_final_routes.py::test_typed_exports_are_existing_definition_objects",
+          "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/test_owner_export_final_routes.py::test_old_exports_and_callable_execute_contract_are_preserved",
+          "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/test_owner_export_final_routes.py::test_native_welfare_serializer_bindings_use_actual_facade_objects",
+          "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/test_owner_export_final_routes.py::test_removing_serializer_alias_keeps_marker_blocks_welfare_import",
+          "/workspace/e02-E-cal-review-20261006/policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py::test_native_ge_preserves_empirical_atoms_failed_support_and_conditional_values",
+          "/workspace/e02-E-cal-review-20261006/policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py::test_native_ge_receipt_binds_exact_carrier_rows_and_weights",
+          "--basetemp=/workspace/e02-E-pr38-r3-receipts/owner-export-independent/final-overlay-tmp",
+          "--junitxml=/workspace/e02-E-pr38-r3-receipts/owner-export-independent/final-overlay.xml"
+        ],
+        "environment_prefix": {
+          "PYTHONPATH": "/workspace/e02-E-cal-review-20261006/policy-engine/src:/workspace/e02-E-cal-review-20261006/policy-engine:/workspace/e02-E-pr38-r3-receipts/owner-export-independent"
+        },
+        "architecture_control": [
+          "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+          "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/probe_current_architecture_negative.py"
+        ],
+        "current_unavailable_exports": [
+          "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+          "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/probe_final_unadmitted_exports.py"
+        ]
+      },
+      "complete_receipt": "independent/owner-export/owner-packet-review.json",
+      "limitations": [
+        "Unapplied owner patch in scratch only; no canonical source/facade/inventory/baseline/schema edited. API lease, generated public-surface docs/inventory and release companions require canonical owner acceptance.",
+        "The existing approved entrypoint is reused; symbols are newly proposed curated aliases. Packet validation does not grant public contract admission.",
+        "B201/B202 retain held status; current classes/serializers are reused without v2 semantics, source-law authority or changed $id.",
+        "Architecture negative is bounded one-file actual collector/full baseline control, not full current architecture workflow PASS. Root owns full global gate denominator and final composed candidate wave.",
+        "20 draft checks and14 final delta checks overlap; counts are separately observed and not aggregated into finding closure.",
+        "Production/served evaluator/source-law/local-history and trusted default/HTTP verification not supplied by these native synthetic fixtures.",
+        "Pytest isolated /dev/null config emits unit-mark warning; all stdout/JUnit/stderr preserved, no backend SKIP or ERROR."
+      ]
+    },
+    {
+      "name": "architecture_property_control",
+      "outcome": "PASS",
+      "negative_gate_outcome": "FAIL",
+      "target_sha": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+      "scope": "One-file actual canonical AST collector with full current contract and complete baseline unchanged",
+      "complete_receipt": "independent/owner-export/architecture-current/architecture-negative-results.json",
+      "complete_stdout": "independent/owner-export/architecture-current.stdout.txt",
+      "complete_stderr": "independent/owner-export/architecture-current.stderr.txt",
+      "controls": [
+        "healthy Core-root module import",
+        "present-but-fake deep import with facade marker and alias",
+        "remove AST admission keeping source/policy/markers: independent required negative assertion FAIL"
+      ],
+      "limitations": "Bounded collector property only; full architecture remains FAIL"
+    }
+  ],
+  "environment_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/environment.json",
+  "property": {
+    "statement": "E producer/persist/readback callers consume the existing curated Core root module exports, preserving canonical class/function identity and actual numerical/persisted behavior",
+    "runtime_path": [
+      "Core root __all__/lazy exported artifacts/canon/registry module object",
+      "actual continuous diagnostics and SALib sensitivity producer; native masked Foundry replay",
+      "configured filesystem CAS artifact",
+      "fresh continuous/DoE/backtest reader",
+      "existing report/candidate metadata surface; gate_eligible remains false or population-law status not_established as applicable"
+    ],
+    "proxy_divergence": "A source import can look canonical while the real writer still uses a direct submodule binding. Removing the Core root writer capability with public names still present must stop actual persistence; the exact old direct-import consumer bypasses it and fails the new control. Integrity-valid forged count artifacts also fail fresh recomputation.",
+    "independent_oracle": "Three-of-four actual interval hits independently counted; linear Morris full-range effects 2*10=20 and 3*1=3; immutable candidate AST binding equivalence plus independent live CAS/route tests",
+    "negative_controls": [
+      "Integrity-valid forged observed count refuses on fresh CAS read",
+      "Public names present but writer removed: actual persistence raises",
+      "Restore exact old direct-import consumer bytes: required route assertion fails"
+    ]
+  },
+  "import_denominators": {
+    "historical_audit": {
+      "main_to_58e_new_cross_root_module_edges": 12,
+      "source_ref": "198076863e143dea9f89f02734b13d50dae3eed5..58e2d97965c0826c44843a78dcb2f8698d9950a3"
+    },
+    "exact_edge_census": "import-census.json",
+    "all_changed_python_blobs": "Complete source/test/companion AST walk against main, fresh G and slice-base; complete summary checks/all-python-delta.stdout and executable collector controls/full-python-delta.py",
+    "actual_deep_collector": {
+      "source_python_files": 2701,
+      "before_source_sha": "93d3b713abc5e40a0ef85d7fb86e568b36a3e124",
+      "before_tree_equal_to_slice_base": true,
+      "before_deep_edges": 3463,
+      "after_deep_edges": 3450,
+      "before_new_violations": 165,
+      "after_new_violations": 153,
+      "removed_new_violations": 12,
+      "introduced_new_violations": 0,
+      "complete_before_after_outputs": [
+        "checks/deep-import-before.stdout",
+        "checks/deep-import-after.stdout"
+      ],
+      "executor": "imports_r4; recomputed relative to this holder"
+    }
+  },
+  "predicate_basis": "recomputed",
+  "independent_review": "independent/root-review.json",
+  "independent_owner_packet_review": "independent/owner-export/owner-packet-review.json",
+  "raw_probe_source_policy": "Independent scratch probe/test input bytes are preserved under raw-source/*.py.txt as historical deciding inputs, not active publication utilities. G can materialize exact bytes to original source_path names using the asset map before reproducing recorded isolated overlay commands; do not confuse scratch overlay with admitted shared source.",
+  "capability_state_or_finding_state": "implemented",
+  "capability_scope": "Bounded Core import-route chain only; missing canonical IR/Foundry public exports are surface_missing",
+  "finding_status": "Historical ledger unchanged; individual original-criterion decisions belong to accountable owners and are not inferred from 114 PASS or the route fix",
+  "limitations_and_next_owner": [
+    {
+      "owner": "Canonical IR API and architecture inventory owners",
+      "boundary": "Six existing analytics carrier/serializer/forecasting helper names absent from curated analytics facade",
+      "packet": "owner-export-packet.json",
+      "next_result": "Accept/adjust narrow identity-preserving exports and companions; E then applies ready import patches and repeats actual joint-law/fresh ForecastOwner consumer checks; B201/B202 remain held until semantic-owner ratification"
+    },
+    {
+      "owner": "Canonical Foundry execute API and architecture inventory owners",
+      "boundary": "Three existing snapshot/state helpers absent from public execute facade",
+      "packet": "owner-export-packet.json",
+      "next_result": "Owner export commit and companions; native replay imports public execute, then real masked K3 CAS/reopen/removal controls"
+    },
+    {
+      "owner": "G and canonical remaining package/generator writers",
+      "boundary": "Full architecture output remains FAIL with other imports/baseline and generated OpenAPI/trust-posture drift",
+      "next_result": "Repair actual owner prerequisites and run available successor gates on frozen composed source; do not widen deep-import baseline/exception rules"
+    }
+  ],
+  "P41": "not_established for global red attribution; no inherited-red claim. New slice modifies architecture input denominator and full checker was actually executed on immutable candidate.",
+  "assets": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/affected-consumers.stdout",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/affected-consumers.stdout",
+      "bytes": 160,
+      "sha256": "ec055756592c1bb329da72c4e5089f85afc5e27d0c065575c1f11962c207f5b1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/affected-consumers.stderr",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/affected-consumers.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/affected-consumers.xml",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/affected-consumers.xml",
+      "bytes": 18967,
+      "sha256": "edbe26fff8e02d391912497967244002e20412dd824fd80ec1632573f219628d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/core-artifact-routes.stdout",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/core-artifact-routes.stdout",
+      "bytes": 80,
+      "sha256": "cf426ab35f3b06fccef8290fde5325d90af130a79da1d1752031518df77c4236"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/core-artifact-routes.stderr",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/core-artifact-routes.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/core-artifact-routes.xml",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/core-artifact-routes.xml",
+      "bytes": 713,
+      "sha256": "11dc827a3c86e9ca73de1f9d1babe82c63b32057bf70d4a5ea1ede7560d1fbc5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/architecture-full.stdout",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/architecture-full.stdout",
+      "bytes": 118234,
+      "sha256": "568dd17e07936c6c7171f3da7ba2daec35a6c2a69fd7649c40e2b05353ed83ba"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/architecture-full.stderr",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/architecture-full.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/deep-import-before.stdout",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/current_guardrail_edges.stdout",
+      "bytes": 43542,
+      "sha256": "b1c165c1b8f396885738ae428f03324f99b256b8735a2e21bcb066f9309e8f1a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/deep-import-after.stdout",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/after_guardrail_edges.stdout",
+      "bytes": 40491,
+      "sha256": "5963dfd1da5f4cd115329cd88b31dd10bc959d05b1664000ab3876ade7fdf92a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/all-python-delta.stdout",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/all-python-delta.stdout",
+      "bytes": 1417,
+      "sha256": "5555956da2190b0acdec1fa41ca48515adbf438afbd2832fb487d96ad28361a9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/publication-ruff.stdout",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/publication-ruff.stdout",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/publication-ruff.stderr",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/publication-ruff.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/publication-format.stdout",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/publication-format.stdout",
+      "bytes": 26,
+      "sha256": "f114d83b30c5c657ee43a847a45bafccaea255d82673feb87c26d252c61e29c1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/publication-format.stderr",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/publication-format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/publication-diff-check.stdout",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/publication-diff-check.stdout",
+      "bytes": 1576,
+      "sha256": "90bf008cfdc788d331cd29a490549cdea1a6e6a86786e337225c190f47e58520"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/publication-diff-check.stderr",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/publication-diff-check.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/validation.stdout",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/validation.stdout",
+      "bytes": 297,
+      "sha256": "618374bf4303dd0272807ddf20f12f5392905c9f7d269df21267d6940cb965e5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/validation.stderr",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/validation.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/import-census.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/import-census.json",
+      "bytes": 13797,
+      "sha256": "bae0116b4b8585e4d89ee757aa8680e1aadd6e4e30c7d743730982e073741f6c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/pnpm-install.stdout",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/pnpm-install.stdout",
+      "bytes": 2103,
+      "sha256": "60a000c8bb2bd3e6a0d88f42cb42cea7f08ed310628fff59c35335dd0b86677c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/pnpm-install.stderr",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/pnpm-install.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/ruff.stdout",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/ruff.stdout",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/ruff.stderr",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/ruff.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/format.stderr",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/format.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/checks/format.stdout",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/format.stdout",
+      "bytes": 26,
+      "sha256": "8e93d18ae56550d4eef2feac77e6630617c7e169246e56e39c75d58b46167985"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/core-route-removal.py",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/core_route_removal.py",
+      "bytes": 1146,
+      "sha256": "9293f0b5e985489839c21711a47f51aa1dae0537b534d20a1708ec53abae7ee7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/core-route-removal.stdout",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/core-route-removal.stdout",
+      "bytes": 1447,
+      "sha256": "68eceea1f6ef808cc9d5210322fb76be55a2a583df28a22a357634e7b65b455d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/core-route-removal.stderr",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/core-route-removal.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/core-route-removal.xml",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/core-route-removal.xml",
+      "bytes": 1476,
+      "sha256": "26f9759d9edef02eb809b27ded0c1ccde818150351e53c6e0a2368f672c32a75"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/full-python-delta.py",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/full_python_delta.py",
+      "bytes": 3615,
+      "sha256": "079e5c1f42befd49dbcde2f522aee124b1d5675fdbc78c4a4f2c43b169985d25"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/deep-import-collector.py",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/after_guardrail_edges.py",
+      "bytes": 1309,
+      "sha256": "3906586297575c611f02291ca1b6c9324fde1d08e710f319fac9490d9f1fe1ae"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/controls/public-export-probe.py",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/public_export_probe.py",
+      "bytes": 1639,
+      "sha256": "56fc91ac490f97fc273dae455295ac83867cb217586473d257aab16df493b8ff"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/public-export-probe.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/public-export-probe.json",
+      "bytes": 2665,
+      "sha256": "3c4cde34072c56ca1bb7211febca9965dfd89132a5e87f53ccc33785a4285390"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/owner-export-packet.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/owner-export-packet.json",
+      "bytes": 4522,
+      "sha256": "7531f33b5bf12a524a0f4d2f68b66a4b4b1864af90fcf286191300f2c13368e7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/canonical-owner-exports.patch",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/canonical-owner-exports.patch",
+      "bytes": 2029,
+      "sha256": "4fb418b33121c9b7abe38cdff6ae8083fd78f92045ec68a0a38f49cefdf0870f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/E-consumers-after-owner-exports.patch",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/imports-r4/E-consumers-after-owner-exports.patch",
+      "bytes": 2028,
+      "sha256": "91f366fec701106259e9a24c55064d633d403cd282157dc87359f4ff42472698"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/root-review.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/root-import-independent-review.json",
+      "bytes": 4395,
+      "sha256": "5b6621feca95591219efea27af8336b1854fa8414302e07098f4a547debbee79"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/root-review.stdout",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/root-import-review.stdout.txt",
+      "bytes": 98,
+      "sha256": "2254188bf92f0a45f4be39d9656ba198d6c452b697c6c844211eeeccef6da1fb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/root-review.stderr",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/root-import-review.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/root-review.xml",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/root-import-review.xml",
+      "bytes": 713,
+      "sha256": "e75a1a0b6d6239a4d49eee1227f426d7054def08cd2a53aadcc74b0fda56233e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/owner-packet-review.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/owner-packet-review.json",
+      "bytes": 32619,
+      "sha256": "ddd49dc698b98f7f4dcec22dd991d9f9cf64da807aca8796ae848c966b53ea0b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/overlay-inputs.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/overlay-inputs.json",
+      "bytes": 2214,
+      "sha256": "d898a933469d216bda04281d7e048a325a947d53152df26ae3ec3249e839b8c7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/final-overlay-inputs.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/final-overlay-inputs.json",
+      "bytes": 2792,
+      "sha256": "fbb8553643a8562ad51c574d3640bd0a4acb9be3566c31762a002bdf69e2a99c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/canonical-owner-exports.patch",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/canonical-owner-exports.patch",
+      "bytes": 1819,
+      "sha256": "5e9b9cce446cd75f9f61f920ef7f1cd91c6e60c9b542225c9d3022168c0eef99"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/E-consumers-after-owner-exports.patch",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/E-consumers-after-owner-exports.patch",
+      "bytes": 1539,
+      "sha256": "3b2dd53c3b34bad615ac362ea4982f3f7ad649ef37b58e0859a4838b3c0277a4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/final-canonical-owner-exports.patch",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/final-canonical-owner-exports.patch",
+      "bytes": 2029,
+      "sha256": "4fb418b33121c9b7abe38cdff6ae8083fd78f92045ec68a0a38f49cefdf0870f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/final-E-consumers-after-owner-exports.patch",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/final-E-consumers-after-owner-exports.patch",
+      "bytes": 2028,
+      "sha256": "91f366fec701106259e9a24c55064d633d403cd282157dc87359f4ff42472698"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/raw-source/owner_export_overlay.py.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/owner_export_overlay.py",
+      "bytes": 1023,
+      "sha256": "92395871535b2ee48786c15c74d5ea34765f59584e4b39c293c34cf15744ea8f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/raw-source/owner_export_final_overlay.py.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/owner_export_final_overlay.py",
+      "bytes": 1152,
+      "sha256": "4aab351b27f975c754a9b0047845585a443c42507d5d115d84811b26b40621e0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/raw-source/test_owner_export_routes.py.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/test_owner_export_routes.py",
+      "bytes": 4558,
+      "sha256": "dc50512b5ecd926c5123dd8c98d87632dcffc055f7bcf6febe73e57182b0422b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/raw-source/test_owner_export_final_routes.py.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/test_owner_export_final_routes.py",
+      "bytes": 5729,
+      "sha256": "c473b2e68b330644c315eeec58df31cfb92aeb7d4ce8860a4bd608e7980d0cf9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/old-analytics-exports.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/old-analytics-exports.json",
+      "bytes": 7741,
+      "sha256": "b52ac578335ed9cb70a880fae37b7e40261fcd98795823803b75075f828291f2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/overlay.xml",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/overlay.xml",
+      "bytes": 3044,
+      "sha256": "7c5d5aaeb3dadbc8afd5cc062b1ab1a59e61dde06f1b153f14fdbd32611d728d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/overlay.stdout.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/overlay.stdout.txt",
+      "bytes": 664,
+      "sha256": "4a48f263408d295d7635a4c9d7881a6cc0838a1bfe9fba7b412dbae2b8e2c208"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/overlay.stderr.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/overlay.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/final-overlay.xml",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/final-overlay.xml",
+      "bytes": 2445,
+      "sha256": "08b92b8e2582fc428c4d4d61585437b461ae33ad5da18ea3af411aac8c323b8c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/final-overlay.stdout.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/final-overlay.stdout.txt",
+      "bytes": 652,
+      "sha256": "3d3049a35a6bee6bbeca6e33b91ef9872f58a68529c800b2e66fda5dd377b197"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/final-overlay.stderr.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/final-overlay.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/final-unadmitted-exports.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/final-unadmitted-exports.json",
+      "bytes": 3691,
+      "sha256": "a7ba1eda126da5526d0055e5982cee60bb57e5b75abfd6cf46774a333f88e073"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/final-unadmitted-exports.stdout.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/final-unadmitted-exports.stdout.txt",
+      "bytes": 3691,
+      "sha256": "a7ba1eda126da5526d0055e5982cee60bb57e5b75abfd6cf46774a333f88e073"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/final-unadmitted-exports.stderr.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/final-unadmitted-exports.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/raw-source/probe_final_unadmitted_exports.py.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/probe_final_unadmitted_exports.py",
+      "bytes": 1724,
+      "sha256": "cfe289e3d44a38c39f23452695fe99c1b22462c0b54f63c0b809b159cfb41a77"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/architecture-current/architecture-negative-results.json",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/architecture-current/architecture-negative-results.json",
+      "bytes": 3805,
+      "sha256": "0d641fe7e47dd3c6c39540d9f9b7055ad623e0ca7d8616e1cc4187cf52140a8e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/architecture-current.stdout.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/architecture-current.stdout.txt",
+      "bytes": 566,
+      "sha256": "c829ea006052c425df8f7c4e18ba6e3f1c4a3092fc08239ee94e6581dbc7bea0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/architecture-current.stderr.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/architecture-current.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/raw-source/probe_current_architecture_negative.py.txt",
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent/probe_current_architecture_negative.py",
+      "bytes": 5484,
+      "sha256": "60dc40ff0f6de056273397debd3ed5c3a872f88a4cfb6d08b6b067ffafdcea88"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/environment.json",
+      "bytes": 1449,
+      "sha256": "78019b21895bb884751ebb4073cae62fd4bf9bd2e5e562442c83e8cded3c35db"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/validate.py",
+      "bytes": 3409,
+      "sha256": "8982a401b34835208600a31cea8c99257e66fd9479b262bbe685c8fe2a4badab"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/copy-index.json",
+      "bytes": 25652,
+      "sha256": "04ceecfb9c84fc7620d88de19da714998044a798d408a8a4ce68a08f87361a61"
+    }
+  ],
+  "cleanup": {
+    "native_trash_available": false,
+    "candidates": [
+      "/workspace/e02-E-pr38-r3-receipts/imports-r4",
+      "/workspace/e02-E-cal-review-20261006/policy-engine/node_modules",
+      "/workspace/e02-E-cal-review-20261006/policy-engine/apps/runtime-dashboard/node_modules"
+    ],
+    "inactivity_established": false,
+    "action": "No removal; preserve source/docs/unique deciding receipts. Root/shared interpreter is active and excluded. Only list candidates without native Trash."
+  },
+  "deciding_copy_index": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/core-import-route-r3/independent/owner-export/copy-index.json"
+}

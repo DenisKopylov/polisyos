@@ -1,0 +1,142 @@
+"""Append current IR counterexample dispositions without changing frozen E proposals."""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import sys
+from pathlib import Path
+from typing import Any
+
+ROOT = Path("/workspace/e02-E-pr38-r3-receipts")
+# Existing hash-pinned probe outputs are read only; this program creates no tmp artifact.
+PROBES = Path("/tmp") / "e02-E-ir-G855-conditions-independent-64d"  # noqa: S108
+SOURCE = "64d7444a18c55df7b88b71b7699a2f1b25ca24bd"
+TREE = "aef23574d3162abb19bf5a1c67d02624ff9d4d1d"
+PINS = {
+    "frozen54_V2": (
+        ROOT / "criteria-r4/current-all-54-source-wave-update-v2.json",
+        "9ce6df09fe956cb4fc3c55021649ceb4fbc92fb89b341dc4e4a66b08f8778872",
+    ),
+    "current_actual_counterexamples": (
+        PROBES / "actual-conditions-counterexamples.json",
+        "d4827c252f4da22f69be8fb920dde6e6a5737553df43a199f886e115637b8042",
+    ),
+    "independent_owner_response": (
+        PROBES / "independent-owner-response.json",
+        "f3878619073bf02ed4b66f89525958d0cb5c5d929cd1f860a9535a438e1ae5ca",
+    ),
+    "complete_probe_selection": (
+        PROBES / "publication-selection.json",
+        "b001b5e01eebd0f23a7e51c92a95728d087bec7ae6413c2096a1fcafc31be048",
+    ),
+}
+
+
+def require(condition: bool, reason: str) -> None:
+    if not condition:
+        raise ValueError(reason)
+
+
+def record(path: Path) -> dict[str, Any]:
+    raw = path.read_bytes()
+    return {"path": str(path), "bytes": len(raw), "sha256": hashlib.sha256(raw).hexdigest()}
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+    require(not args.output.exists(), "append-only current layer required")
+    objects = {}
+    refs = {}
+    for key, (path, digest) in PINS.items():
+        ref = record(path)
+        require(ref["sha256"] == digest, "exact current input drift")
+        value = json.loads(path.read_bytes())
+        require(isinstance(value, dict), "object input required")
+        objects[key], refs[key] = value, ref
+    evidence = objects["current_actual_counterexamples"]
+    require(evidence["source"] == SOURCE and evidence["tree"] == TREE, "probe identity drift")
+    require(evidence["source_unchanged"] is True, "probe source changed")
+    old = {row["id"]: row for row in objects["frozen54_V2"]["rows"]}
+    conditions = objects["independent_owner_response"]["condition_responses"]
+    rows = []
+    for finding in ["B201", "B202"]:
+        require(old[finding]["historical_ledger_status"] == "held", "historical held identity")
+        require(old[finding]["proposed_finding_outcome"] == "closed", "frozen proposal identity")
+        rows.append(
+            {
+                "id": finding,
+                "bundle_ids": old[finding]["bundle_ids"],
+                "historical_ledger_status": "held",
+                "frozen_previous_E_proposal": "closed",
+                "current_accountable_E_decision": "open",
+                "reason": (
+                    "Current exact700/64d source has confirmed technical counterexamples. "
+                    "The implementation requires correction and independent defining-property "
+                    "acceptance."
+                ),
+                "semantic_owner": "E scoped B201/B202 appointment a0ac10fc",
+                "four_tracked_semantic_decisions_preserved": True,
+                "missing_semantic_owner_is_not_the_blocker": True,
+                "next_owner": "E canonical producer/profile and shared MC mechanism writer",
+                "minimal_inputs": (
+                    "Already available native equal-length/no-alignment marginal fixture and "
+                    "100 positive atoms (99 zeros, last1e15). No production history needed "
+                    "for these fixes."
+                ),
+                "next_verifiable_result": (
+                    "Append-only implementation SHA/tree; healthy declared-aligned input "
+                    "through CAS "
+                    "and fresh native consumers; absent alignment refuses before callbacks; "
+                    "one admitted finite probability convention for named mean, draw CDF "
+                    "and sorted "
+                    "quantile CDF, or explicit versioned approximation/error admission; "
+                    "independent adversarial and property-removal evidence."
+                ),
+                "source_fit_noise_institutional_authority_boundary": (
+                    "Actual posterior scientific quality/source fit/noise remains B197's separate "
+                    "held criterion; it does not excuse these available mechanical defects."
+                ),
+                "formal_ledger_change": False,
+            }
+        )
+    result = {
+        "schema": "policyos.e02.E.current_IR_technical_counterexample_dispositions.v1",
+        "source": SOURCE,
+        "tree": TREE,
+        "input_refs": refs,
+        "G_review": evidence["G_review"],
+        "IR_candidate": evidence["IR_candidate"],
+        "historical_ledger_unchanged": {"partial": 49, "held": 4, "closed": 1},
+        "frozen_previous_E_proposals_unchanged": {"closed": 43, "limited": 9, "held": 2},
+        "current_E_proposals_after_exact_two_row_correction": {
+            "closed": 41,
+            "limited": 9,
+            "held": 2,
+            "open": 2,
+        },
+        "scope": (
+            "Two current technical corrections only; no duplicate54 plan or "
+            "new semantic ratification"
+        ),
+        "rows": rows,
+        "independent_exact_condition_responses": conditions,
+        "frozen54_V2_rewritten": False,
+        "original37_or_native_backend_outcomes_rewritten": False,
+        "frozen_common_wave_counts_are_not_new_counterexample_or_fix_evidence": True,
+        "formal_G_intake_separate": True,
+        "formal_ledger_change": False,
+        "native_tests_or_math_probes_repeated_by_this_recorder": False,
+        "ROOT_source_or_environment_mutated": False,
+        "recorder": record(Path(__file__)),
+        "observer_environment": {"python": sys.version, "executable": sys.executable},
+    }
+    args.output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
+    sys.stdout.write(json.dumps(record(args.output), indent=2) + "\n")
+
+
+if __name__ == "__main__":
+    main()

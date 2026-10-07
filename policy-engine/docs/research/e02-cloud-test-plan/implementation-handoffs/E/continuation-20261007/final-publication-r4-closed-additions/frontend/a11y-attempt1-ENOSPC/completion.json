@@ -1,0 +1,23 @@
+{
+  "schema": "policyos.e02.E.required_frontend_native_capture_completion.v1",
+  "job": "a11y-full-native-retry",
+  "finished_UTC": "2026-10-07T10:47:00.389727+00:00",
+  "capturer_exit": 1,
+  "capture_stdout": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/a11y/capture.stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "capture_stderr": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/a11y/capture.stderr.txt",
+    "bytes": 1591,
+    "sha256": "d27a57f4af2f4b84a2c55549fd8daf52c0cbe1ba159d01843ef0ac339e59d39b"
+  },
+  "native_receipt": null,
+  "launch": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/a11y/launch.json",
+    "bytes": 4082,
+    "sha256": "97e3370830decd6543bef13e5ee681325f4cb8746c1ef3189a5c4fee4a168aee"
+  },
+  "source_candidate": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd"
+}

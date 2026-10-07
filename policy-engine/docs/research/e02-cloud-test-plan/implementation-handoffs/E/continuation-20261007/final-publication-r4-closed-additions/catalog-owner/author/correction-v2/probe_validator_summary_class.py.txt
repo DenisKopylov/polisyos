@@ -1,0 +1,28 @@
+"""Reproduce marker-preserving summary escapes against the original closed validator."""
+from pathlib import Path
+import copy
+import hashlib
+import importlib.util
+import json
+import sys
+
+base=Path('/tmp/e02-E-native-catalog-fixture-packet-64d-20261007')
+spec=importlib.util.spec_from_file_location('original_closed_validator_for_independent_control',base/'validate_closed_catalog_packet.py')
+module=importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+packet=json.loads((base/'owner-ready-catalog-fixture-packet.json').read_text())
+module.validate(base,packet)
+mutations={
+ 'full_original_HTTP_counts_1585_to_one_PASS':lambda p:p['native_full_HTTP']['full_original_counts'].update(cases=1,passed=1,failed=0,errors=0,skipped=0),
+ 'main_catalog_observations_zero_to_hundred':lambda p:p['minimum_fixture_inputs']['actual_catalog_counts'].update(ds_observations=100),
+ 'extra_product_patch_path':lambda p:p['source_footprint']['unapplied_proposal_paths'].append('policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py'),
+}
+rows=[]
+for name,mutate in mutations.items():
+ forged=copy.deepcopy(packet)
+ mutate(forged)
+ try:module.validate(base,forged)
+ except ValueError as error:admitted=False;reason=str(error)
+ else:admitted=True;reason='Original validator accepts contradictory summary while closed receipts/markers remain intact.'
+ rows.append(dict(control=name,validator_admitted=admitted,required_refusal_observed=not admitted,check_outcome='FAIL' if admitted else 'PASS',markers_preserved=forged['finding_closure'] is False and forged['browser_cases_executed'] is False and forged['overlay_is_committed_implementation'] is False,closed_receipt_refs_unchanged=forged['receipts']==packet['receipts'],reason=reason))
+print(json.dumps(dict(original_validator_path=str(base/'validate_closed_catalog_packet.py'),original_validator_sha256=hashlib.sha256((base/'validate_closed_catalog_packet.py').read_bytes()).hexdigest(),original_packet_sha256=hashlib.sha256((base/'owner-ready-catalog-fixture-packet.json').read_bytes()).hexdigest(),optimized=sys.flags.optimize,healthy_closed_packet_admitted=True,controls=rows,no_root_interpreter_or_native_test_run=True),indent=2))

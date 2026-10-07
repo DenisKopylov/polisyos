@@ -1,0 +1,208 @@
+from __future__ import annotations
+
+import ast
+from collections import Counter
+from fractions import Fraction
+import hashlib
+import importlib.metadata
+import inspect
+import json
+import os
+from pathlib import Path
+import runpy
+import subprocess
+import sys
+from unittest.mock import patch
+
+import numpy as np
+from polisyos.foundry import uncertainty
+from polisyos.foundry.uncertainty import sampling_admission
+from polisyos.foundry.uncertainty.config import PropagationConfig
+from polisyos.foundry.uncertainty.monte_carlo import MonteCarloPropagator, _empirical_indices_from_uniform
+from polisyos.ir.analytics import posterior_summary
+from polisyos.ir.analytics.uncertainty import (
+    DistributionFamily, IntervalSemantics, NumericPolicySpec, NumericToleranceMode,
+    PosteriorSamplesCarrier, PropagationMethod, UncertaintyEnvelope, UncertaintySource,
+)
+
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+OUT = Path(__file__).parent
+expected_source = '31782b55f8f35556cfc581449b040c393f00c78f'
+expected_tree = '746f50214f70c0fa34cd8bb6d42e72440adc9f96'
+paths = [
+    'policy-engine/tests/unit/calibration/test_evidence_facades.py',
+    'policy-engine/src/polisyos/ir/analytics/posterior_summary.py',
+    'policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py',
+    'policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py',
+    'policy-engine/src/polisyos/foundry/uncertainty/__init__.py',
+]
+
+def source_guard():
+    sha = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
+    tree = subprocess.check_output(['git', 'rev-parse', 'HEAD^{tree}'], cwd=ROOT, text=True).strip()
+    assert (sha, tree) == (expected_source, expected_tree)
+    rows = []
+    for relative in paths:
+        body = (ROOT / relative).read_bytes()
+        original = subprocess.check_output(['git', 'show', f'{expected_source}:{relative}'], cwd=ROOT)
+        assert body == original
+        rows.append({'path': relative, 'bytes': len(body), 'sha256': hashlib.sha256(body).hexdigest()})
+    return {'sha': sha, 'tree': tree, 'assets': rows,
+            'status': subprocess.check_output(['git', 'status', '--porcelain=v1', '-uall'], cwd=ROOT, text=True)}
+
+before = source_guard()
+records = []
+def add(name, **record):
+    records.append({'name': name, **record})
+    print(json.dumps(records[-1], sort_keys=True), flush=True)
+
+def raises_value_error(fn):
+    try:
+        fn()
+    except ValueError as error:
+        return str(error)
+    raise AssertionError('required ValueError was absent')
+
+# Independent algebra: finite binary64 weights are exact rational ratios.
+tiny = Fraction.from_float(1e-20)
+half = Fraction(1, 2)
+next_half = float(np.nextafter(0.5, np.inf))
+pre_half = float(np.nextafter(0.5, -np.inf))
+three_ratios = (half/(1+tiny), (half+tiny)/(1+tiny), Fraction(1))
+assert Fraction.from_float(pre_half) < three_ratios[0] < half
+assert half < three_ratios[1] < Fraction.from_float(next_half)
+four_ratios = (half/(1+2*tiny), (half+tiny)/(1+2*tiny), (half+2*tiny)/(1+2*tiny), Fraction(1))
+assert Fraction.from_float(pre_half) < four_ratios[0] < half
+assert four_ratios[1] == half
+assert half < four_ratios[2] < Fraction.from_float(next_half)
+gold3 = np.asarray([0.5, next_half, 1.0])
+gold4 = np.asarray([0.5, 0.5, next_half, 1.0])
+add('independent_fraction_gold', check_status='PASS', tiny_binary64_ratio=str(tiny),
+    three_exact_cdf=[str(x) for x in three_ratios], three_expected_cuts=[x.hex() for x in gold3],
+    four_exact_cdf=[str(x) for x in four_ratios], four_unadmitted_cuts=[x.hex() for x in gold4],
+    basis='independently_reconciled', semantics='finite-U mesh approximation; no continuum/arbitrary-real exactness promise')
+
+for name in ('admit_empirical_weights', 'admit_unit_uniform', 'empirical_cdf'):
+    assert getattr(uncertainty, name) is getattr(sampling_admission, name)
+weights3 = uncertainty.admit_empirical_weights([0.5, 1e-20, 0.5], 3)
+np.testing.assert_array_equal(weights3, [0.5, 1e-20, 0.5])
+np.testing.assert_array_equal(uncertainty.empirical_cdf(weights3), gold3)
+uniforms = uncertainty.admit_unit_uniform([0, pre_half, 0.5, next_half, np.nextafter(1.0, 0.0)])
+actual_indices = _empirical_indices_from_uniform(uniforms, weights3)
+np.testing.assert_array_equal(actual_indices, [0, 0, 1, 2, 2])
+add('public_three_atom_finite_bucket_positive', check_status='PASS', cut_hex=[x.hex() for x in gold3],
+    uniform_hex=[x.hex() for x in uniforms], indices=actual_indices.tolist(), facade_identity=True)
+
+error4 = raises_value_error(lambda: uncertainty.admit_empirical_weights([0.5, 1e-20, 1e-20, 0.5], 4))
+assert 'no finite-U bucket' in error4
+add('public_four_atom_no_bucket_refusal', check_status='PASS', typed_refusal=error4)
+error_domain = raises_value_error(lambda: uncertainty.admit_unit_uniform([1.0]))
+assert '[0, 1)' in error_domain
+add('public_unit_uniform_one_refusal', check_status='PASS', typed_refusal=error_domain)
+
+# Full original facade test is a historical expectation falsifier, not a new source change.
+original_test = runpy.run_path(str(ROOT / paths[0]))['test_public_finite_law_admission_preserves_atoms_and_domain']
+try:
+    original_test()
+except BaseException as error:
+    assert 'DID NOT RAISE' in str(error)
+    add('unchanged317_original_facade_test', check_status='FAIL', error_type=type(error).__name__,
+        error=str(error), interpretation='obsolete three-atom collapse expectation; required four-atom refusal still holds')
+else:
+    raise AssertionError('historical old facade test unexpectedly passed')
+
+config = PropagationConfig(mc_n_samples=256, mc_sampling_method='sobol', mc_qmc_scramble=False,
+                           compute_sensitivity=False)
+
+def native(weights):
+    samples = tuple(float(i) for i in range(len(weights)))
+    envelope = UncertaintyEnvelope(
+        point_estimate=1.0, confidence_interval=(0.0, float(len(weights)-1)),
+        confidence_level=None, distribution_family=DistributionFamily.BOOTSTRAP,
+        source=UncertaintySource.ENSEMBLE, propagation_method=PropagationMethod.NONE,
+        interval_semantics=IntervalSemantics.DETERMINISTIC_BOUNDS, gate_eligible=False,
+        numeric_policy=NumericPolicySpec(mode=NumericToleranceMode.DECIMAL_EXACT),
+        distribution_payload=PosteriorSamplesCarrier(samples=samples, weights=tuple(weights)),
+    )
+    calls = []
+    def evaluator(**inputs):
+        calls.append(float(inputs['x']))
+        return {'y': inputs['x']}
+    result = MonteCarloPropagator(config).propagate(evaluator, {'x': 1.0}, {'x': envelope}, ['y'])[0]
+    return result, calls
+
+positive, calls = native([0.5, 1e-20, 0.5])
+assert len(calls) == 257
+assert Counter(calls[1:]) == {0.0: 128, 1.0: 1, 2.0: 127}
+assert not positive.envelope.gate_eligible
+add('real_sobol_three_atom_callback_witness', check_status='PASS', callback_count=len(calls),
+    nominal_callback_count=1, sampled_callback_count=256,
+    actual_sampled_rows=dict(sorted(Counter(calls[1:]).items())),
+    expectation_basis='independent complete 256-net U=j/256 with cut algebra above',
+    gate_eligible=positive.envelope.gate_eligible,
+    family=positive.envelope.distribution_family.value)
+negative, calls = native([0.5, 1e-20, 1e-20, 0.5])
+assert not calls
+assert negative.envelope.distribution_family is DistributionFamily.UNKNOWN
+assert not negative.envelope.gate_eligible
+add('real_sobol_four_atom_precallback_refusal', check_status='PASS', callback_count=0,
+    gate_eligible=negative.envelope.gate_eligible,
+    family=negative.envelope.distribution_family.value,
+    diagnostics=negative.diagnostics)
+
+# Effective sole property removal: compile the actual public CDF function with only
+# its positive-bucket predicate removed, then bind both genuine import aliases
+# in this scratch process. Nothing is written to any source module.
+function = inspect.getsource(posterior_summary.posterior_sampling_cdf)
+tree = ast.parse(function)
+node = next(node for node in ast.walk(tree) if isinstance(node, ast.If)
+            and isinstance(node.test, ast.UnaryOp)
+            and 'array_equal' in ast.unparse(node.test))
+lines = function.splitlines(keepends=True)
+removed_segment = ''.join(lines[node.lineno-1:node.end_lineno])
+mutant_source = ''.join(lines[:node.lineno-1] + lines[node.end_lineno:])
+assert len(removed_segment.splitlines()) == 2
+assert 'positive posterior category has no finite-U bucket' in function
+assert 'positive posterior category has no finite-U bucket' not in mutant_source
+namespace = dict(posterior_summary.__dict__)
+exec(compile(mutant_source, '<isolated-positive-bucket-predicate-removal>', 'exec'), namespace)
+mutant = namespace['posterior_sampling_cdf']
+(OUT / 'removed-function.py.txt').write_text(mutant_source)
+with patch.object(posterior_summary, 'posterior_sampling_cdf', mutant), patch.object(sampling_admission, 'posterior_sampling_cdf', mutant):
+    erased_weights = uncertainty.admit_empirical_weights([0.5, 1e-20, 1e-20, 0.5], 4)
+    erased_cdf = uncertainty.empirical_cdf(erased_weights)
+    np.testing.assert_array_equal(erased_cdf, gold4)
+    escaped, escaped_calls = native([0.5, 1e-20, 1e-20, 0.5])
+    assert len(escaped_calls) == 257
+    assert 1.0 not in escaped_calls[1:]
+    assert Counter(escaped_calls[1:]) == {0.0: 128, 2.0: 1, 3.0: 127}
+add('sole_finite_bucket_predicate_removal', check_status='PASS', defining_property_status='FAIL',
+    actual_callbacks=len(escaped_calls), requested_draw_count=256,
+    skipped_positive_category=1, actual_sampled_rows=dict(sorted(Counter(escaped_calls[1:]).items())),
+    result_gate_eligible=escaped.envelope.gate_eligible,
+    removed_source=removed_segment,
+    markers_retained=['public facade identities', 'canonical weight ratios', 'native Sobol sampler', 'DECIMAL_EXACT carrier', 'half-open uniform guard'],
+    source_mutation='isolated process-local function bindings only')
+
+after = source_guard()
+assert before == after
+result = {
+    'schema': 'e02-independent-finite-bucket-probe:1',
+    'source': expected_source, 'tree': expected_tree,
+    'source_guard_before': before, 'source_guard_after': after,
+    'disposition': 'GO_FOR_BOUNDED_FACADE_TEST_CORRECTION',
+    'environment': {'python': sys.version, 'executable': sys.executable,
+        'numpy': np.__version__, 'scipy': importlib.metadata.version('scipy'),
+        'jax': importlib.metadata.version('jax'), 'pydantic': importlib.metadata.version('pydantic'),
+        'cpu_caps': None, 'env': {key: os.environ.get(key) for key in ('PYTHONPATH', 'PYTHONDONTWRITEBYTECODE')}},
+    'checks': records,
+    'check_outcomes': {'PASS': sum(x['check_status']=='PASS' for x in records),
+                       'FAIL': sum(x['check_status']=='FAIL' for x in records)},
+    'finding_outcome': 'not decided by this numeric companion probe',
+    'limitations': ['No arbitrary-real exact-law claim; positive is finite-U mesh approximation.',
+        'The three-atom tiny bucket is reached by complete unscrambled 256-net at U=.5; that mesh assigns one draw to it, unlike its continuum probability.',
+        'Original current317 test FAIL is preserved; no source edits or full-wave repeats.',
+        'One callback nominal and 256 sampled are reconciled separately.'],
+}
+(OUT / 'review.json').write_text(json.dumps(result, indent=2, sort_keys=True)+'\n')
+print(json.dumps({'disposition': result['disposition'], 'check_outcomes': result['check_outcomes'], 'source_unchanged': True}, sort_keys=True))

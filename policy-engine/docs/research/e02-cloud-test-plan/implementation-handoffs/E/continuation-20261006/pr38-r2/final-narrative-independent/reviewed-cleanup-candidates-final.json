@@ -1,0 +1,316 @@
+{
+  "schema": "e02.E.cleanup-candidates-final.v1",
+  "source": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "native_trash": "unavailable in managed cloud",
+  "action_performed": "none; permanent deletion forbidden",
+  "deciding_receipts_commit": "ddcdfd9c220ba57e37c8abf52b976a7184c384f9",
+  "candidate_count": 46,
+  "repeatable_candidates": [
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/tmp-env/pcl-continuous-persistence",
+      "kind": "TMPDIR"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/temporary/pcl-continuous-persistence",
+      "kind": "numeric_basetemp"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/checks/pcl-continuous-persistence/cache/pytest",
+      "kind": "pytest_cache"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/checks/pcl-continuous-persistence/cache/benchmarks",
+      "kind": "benchmark_storage"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/tmp-env/ddm-runtime-and-facade",
+      "kind": "TMPDIR"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/temporary/ddm-runtime-and-facade",
+      "kind": "numeric_basetemp"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/checks/ddm-runtime-and-facade/cache/pytest",
+      "kind": "pytest_cache"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/checks/ddm-runtime-and-facade/cache/benchmarks",
+      "kind": "benchmark_storage"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/tmp-env/bkt-frc-s10-and-adjacent-report-consumers",
+      "kind": "TMPDIR"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/temporary/bkt-frc-s10-and-adjacent-report-consumers",
+      "kind": "numeric_basetemp"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/checks/bkt-frc-s10-and-adjacent-report-consumers/cache/pytest",
+      "kind": "pytest_cache"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/checks/bkt-frc-s10-and-adjacent-report-consumers/cache/benchmarks",
+      "kind": "benchmark_storage"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/tmp-env/cal-and-welfare-consumer",
+      "kind": "TMPDIR"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/temporary/cal-and-welfare-consumer",
+      "kind": "numeric_basetemp"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/checks/cal-and-welfare-consumer/cache/pytest",
+      "kind": "pytest_cache"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/checks/cal-and-welfare-consumer/cache/benchmarks",
+      "kind": "benchmark_storage"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/tmp-env/mc-joint-law-support-and-scientist-consumer",
+      "kind": "TMPDIR"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/temporary/mc-joint-law-support-and-scientist-consumer",
+      "kind": "numeric_basetemp"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/checks/mc-joint-law-support-and-scientist-consumer/cache/pytest",
+      "kind": "pytest_cache"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/checks/mc-joint-law-support-and-scientist-consumer/cache/benchmarks",
+      "kind": "benchmark_storage"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/tmp-env/doe-salib-and-consumer-factory",
+      "kind": "TMPDIR"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/temporary/doe-salib-and-consumer-factory",
+      "kind": "numeric_basetemp"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/checks/doe-salib-and-consumer-factory/cache/pytest",
+      "kind": "pytest_cache"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/checks/doe-salib-and-consumer-factory/cache/benchmarks",
+      "kind": "benchmark_storage"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/tmp-env/g-checkpoint10-controlplanestore-companion",
+      "kind": "TMPDIR"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/temporary/g-checkpoint10-controlplanestore-companion",
+      "kind": "numeric_basetemp"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/checks/g-checkpoint10-controlplanestore-companion/cache/pytest",
+      "kind": "pytest_cache"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/checks/g-checkpoint10-controlplanestore-companion/cache/benchmarks",
+      "kind": "benchmark_storage"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/tmp-env/results-importer",
+      "kind": "TMPDIR"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/cache/results-importer",
+      "kind": "RUFF_CACHE_DIR"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/tmp-env/architecture",
+      "kind": "TMPDIR"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/cache/architecture",
+      "kind": "RUFF_CACHE_DIR"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/tmp-env/runtime-api-contract",
+      "kind": "TMPDIR"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/cache/runtime-api-contract",
+      "kind": "RUFF_CACHE_DIR"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/tmp-env/static-invocation",
+      "kind": "TMPDIR"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/cache/static-invocation",
+      "kind": "RUFF_CACHE_DIR"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/tmp-env/ruff",
+      "kind": "TMPDIR"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/cache/ruff",
+      "kind": "RUFF_CACHE_DIR"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/tmp-env/ruff-format",
+      "kind": "TMPDIR"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/cache/ruff-format",
+      "kind": "RUFF_CACHE_DIR"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/tmp-env/workspace-verify",
+      "kind": "TMPDIR"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/cache/workspace-verify",
+      "kind": "RUFF_CACHE_DIR"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/tmp-env/ci-parity",
+      "kind": "TMPDIR"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/cache/ci-parity",
+      "kind": "RUFF_CACHE_DIR"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/umbrella-temp/workspace-verify",
+      "kind": "umbrella_temporary"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/umbrella-temp/ci-parity",
+      "kind": "umbrella_temporary"
+    }
+  ],
+  "used_environment_candidates": [
+    {
+      "path": "/workspace/e02-E-cal-20261006/policy-engine/.venv",
+      "eligible_now": false,
+      "identity_scope": "Exact interpreter path reported by tracked current/historical E receipts; no environment existence or inactivity inferred",
+      "receipt_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-batch-welfare-handoff.json",
+          "source_commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+          "bytes": 35014,
+          "sha256": "089e1e6272d60922f48fc21475bd3d9e2926040be713e0abc4b38319c83c3fce"
+        }
+      ],
+      "condition": "Keep until active users and unique data are independently checked; native Trash only when available. Never delete or prune checkout registrations."
+    },
+    {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+      "eligible_now": false,
+      "identity_scope": "Exact interpreter path reported by tracked current/historical E receipts; no environment existence or inactivity inferred",
+      "receipt_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/welfare-empirical-law-r2.json",
+          "source_commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+          "bytes": 21689,
+          "sha256": "2772166b55cb69afb3314cc8466e5451f3f4b893f1498d651cbb88a464c4065b"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/frc-source-measurement-r2.json",
+          "source_commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+          "bytes": 35076,
+          "sha256": "aa87cc11299d34242d84278f3482090977ca73027a634ce83bf5d76778ce6748"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/technical-held-trace-r2.json",
+          "source_commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+          "bytes": 16102,
+          "sha256": "70e7d20bbf5782f5bc10c9a41d62b42519ba4397065c757d73cebf6670bbc302"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/sampling-admission-20261006-review.json",
+          "source_commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+          "bytes": 27832,
+          "sha256": "75ed89ad195fbec7b84ed4f3cd92b5cd23418ac2b30203078ef0c95eeaa7e1ed"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-gaussian-noise-preflight-r2-20261006.json",
+          "source_commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+          "bytes": 26680,
+          "sha256": "4a09ea71ee1c7137fc00cb65ba6ba99908b8db5bafe6c73a9c30acb85b037db6"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/sampling-admission-20261006.json",
+          "source_commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+          "bytes": 17870,
+          "sha256": "46fa8dee04c2b2e56ac1de7b088167d0b5d8c55f6bd519e7be75ebac11fecba1"
+        }
+      ],
+      "condition": "Keep until active users and unique data are independently checked; native Trash only when available. Never delete or prune checkout registrations."
+    },
+    {
+      "path": "/workspace/e02-E-doe-20261006/policy-engine/.venv",
+      "eligible_now": false,
+      "identity_scope": "Exact interpreter path reported by tracked current/historical E receipts; no environment existence or inactivity inferred",
+      "receipt_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/doe-ordered-20261006-environment.json",
+          "source_commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+          "bytes": 1324,
+          "sha256": "7d3ff27a6e9702ec8b1f65c1630bf283a2157f472471c63b8c83e8586ad4fe2f"
+        }
+      ],
+      "condition": "Keep until active users and unique data are independently checked; native Trash only when available. Never delete or prune checkout registrations."
+    },
+    {
+      "path": "/workspace/e02-E-pcl/policy-engine/.venv",
+      "eligible_now": false,
+      "identity_scope": "Exact interpreter path reported by tracked current/historical E receipts; no environment existence or inactivity inferred",
+      "receipt_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/pcl.json",
+          "source_commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+          "bytes": 26341,
+          "sha256": "b718e9bf5194ac741f4d0c314173d2b0c94f427f66aa33bdb4f3cb169782ef4d"
+        }
+      ],
+      "condition": "Keep until active users and unique data are independently checked; native Trash only when available. Never delete or prune checkout registrations."
+    },
+    {
+      "path": "/workspace/polisyos/policy-engine/.venv",
+      "eligible_now": false,
+      "identity_scope": "Exact interpreter path reported by tracked current/historical E receipts; no environment existence or inactivity inferred",
+      "receipt_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/bias-statistical-support.checks.json",
+          "source_commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+          "bytes": 50867,
+          "sha256": "e7c9234e748f99f810858d0c0e5d751960eaedb0d2fc332baba4e0b9ccb17f6d"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/cal05-mapped-schedules.json",
+          "source_commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+          "bytes": 32196,
+          "sha256": "d78c6a86809fd17a6255ccf99684acbc3fa69d874dc32c1c6adc7cd7d2b77c6c"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/backtest-replay-admission.json",
+          "source_commit": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+          "bytes": 41824,
+          "sha256": "ef4f112e223935fc64b7c38c848d5deff27054c6518207a9df44bcd9570eba21"
+        }
+      ],
+      "condition": "Keep until active users and unique data are independently checked; native Trash only when available. Never delete or prune checkout registrations."
+    }
+  ],
+  "protected": [
+    "all admitted checkouts and tracked code/useful docs",
+    "production/source-law data (local G only)",
+    "unique outputs and historical deciding receipts",
+    "ignored171772302-byte static raw/stdout and private config custody until durable deciding custody accepted",
+    "native Trash contents"
+  ],
+  "rule": "Each candidate is a declaration for later native Trash, not permission for permanent deletion. Check active users and uniqueness before any move. No checkout registrations pruned."
+}

@@ -1,0 +1,112 @@
+"""Actual narrow copier CLI: healthy, corrupt custody, omission, effective removal."""
+from __future__ import annotations
+import ast
+import copy
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import sys
+
+CATALOG = Path('/tmp/e02-E-publication-custody-independent-doe-20261007')
+STAGE = Path('/tmp/e02-E-final-publication-r4-staging')
+SOURCE_SHA = 'ecbcde3ff8d6d11d8bc6bf1a4217c843b573ad9fa5f077f78d545fb625b1bd5f'
+MANIFEST_SHA = 'c1bee3b493562ebe09d25ab73a02edc53f820ecfedc8f0688b7ff2348ff29fc4'
+METADATA = ('staging-manifest.json', 'README.md', 'copy-proposed-publication.py.txt', 'build-staging.py.txt', 'build.stdout.json', 'build.stderr.txt', 'copy-proposed-publication-v1.py.txt')
+
+def require(value, reason):
+    if not value:
+        raise ValueError(reason)
+
+def ref(path):
+    data = path.read_bytes()
+    return {'path': str(path), 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+
+def run(name, manifest_path, source_path, expected_exit):
+    target = CATALOG / (name + '-written-root')
+    require(not target.exists(), 'fresh actual output target')
+    argv = [sys.executable, str(source_path), '--manifest', str(manifest_path), '--destination-root', str(target)]
+    process = subprocess.run(argv, capture_output=True, text=True)
+    stdout = CATALOG / (name + '.stdout.txt')
+    stderr = CATALOG / (name + '.stderr.txt')
+    stdout.write_text(process.stdout)
+    stderr.write_text(process.stderr)
+    require(process.returncode == expected_exit, 'unexpected literal native CLI result: ' + name)
+    if expected_exit != 0:
+        require(not target.exists(), 'refusal before any destination creation')
+    return {'name': name, 'source': ref(source_path), 'input': ref(manifest_path), 'argv': argv, 'cwd': str(Path.cwd()), 'exit_code': process.returncode, 'stdout': ref(stdout), 'stderr': ref(stderr), 'destination': str(target), 'destination_created': target.exists()}
+
+source = STAGE / 'copy-proposed-publication.py.txt'
+manifest_path = STAGE / 'staging-manifest.json'
+require(ref(source)['sha256'] == SOURCE_SHA and ref(manifest_path)['sha256'] == MANIFEST_SHA, 'immutable current V2 source and manifest')
+manifest = json.loads(manifest_path.read_text())
+healthy = run('actual-copier-v2-healthy', manifest_path, source, 0)
+written = Path(healthy['destination']) / manifest['proposed_git_prefix']
+count = 0
+for row in manifest['canonical_copies']:
+    path = written / row['portable_path']
+    require(ref(path)['bytes'] == row['bytes'] and ref(path)['sha256'] == row['sha256'], 'native payload write/readback')
+    count += 1
+for name in METADATA:
+    require((written / name).read_bytes() == (STAGE / name).read_bytes(), 'actual metadata write/readback')
+    count += 1
+require(count == len([path for path in written.rglob('*') if path.is_file()]) == 114, 'actual complete write denominator')
+healthy['readback_paths'] = count
+healthy['literal_payload_paths'] = 107
+healthy['metadata_paths'] = 7
+controls = []
+omission = None
+for name in ('corrupt_payload_digest', 'corrupt_payload_size', 'omitted_mandatory_member', 'drop_mandatory_selector', 'substitute_selector_hash'):
+    modified = copy.deepcopy(manifest)
+    if name == 'corrupt_payload_digest':
+        modified['canonical_copies'][0]['sha256'] = '0' * 64
+    elif name == 'corrupt_payload_size':
+        modified['canonical_copies'][0]['bytes'] += 1
+        modified['unique_payload_bytes'] += 1
+    elif name == 'drop_mandatory_selector':
+        modified['selection_inputs'].pop()
+    elif name == 'substitute_selector_hash':
+        modified['selection_inputs'][0]['sha256'] = '0' * 64
+    else:
+        target = next(row for row in modified['logical_sources'] if row['source_path'].endswith('/historical-preflight-recovery-search-v1.json'))
+        modified['logical_sources'] = [row for row in modified['logical_sources'] if row['source_path'] != target['source_path']]
+        modified['canonical_copies'] = [row for row in modified['canonical_copies'] if row['portable_path'] != target['canonical_destination']]
+        modified['logical_count_including_selectors'] = len(modified['logical_sources'])
+        modified['logical_bytes_including_selectors'] = sum(row['source_bytes'] for row in modified['logical_sources'])
+        modified['unique_payload_files'] = len(modified['canonical_copies'])
+        modified['unique_payload_bytes'] = sum(row['bytes'] for row in modified['canonical_copies'])
+        modified['deduplicated_logical_aliases'] = sum(row['literal_alias'] for row in modified['logical_sources'])
+        omission = modified
+    directory = CATALOG / ('v2-' + name + '-input')
+    directory.mkdir(exist_ok=False)
+    for field in METADATA:
+        if field != 'staging-manifest.json':
+            (directory / field).write_bytes((STAGE / field).read_bytes())
+    path = directory / 'staging-manifest.json'
+    path.write_text(json.dumps(modified, indent=2) + '\n')
+    controls.append(run('actual-v2-' + name, path, source, 1))
+require(omission is not None, 'effective omission fixture exists')
+tree = ast.parse(source.read_text())
+removed = 0
+class RemoveExactMemberAdmission(ast.NodeTransformer):
+    def visit_Expr(self, node):
+        global removed
+        call = node.value
+        if isinstance(call, ast.Call) and isinstance(call.func, ast.Name) and call.func.id == 'require' and len(call.args) >= 2 and isinstance(call.args[1], ast.Constant) and call.args[1].value == 'exact anchored original selected-member multiset':
+            call.args[0] = ast.Constant(value=True)
+            removed += 1
+        return node
+tree = RemoveExactMemberAdmission().visit(tree)
+require(removed == 1, 'remove exactly one defining member guard preserving its marker')
+disabled = CATALOG / 'copy-proposed-publication-v2-exactmember-removal.py.txt'
+disabled.write_text(ast.unparse(tree) + '\n')
+remove_input = CATALOG / 'v2-omitted_mandatory_member-input/staging-manifest.json'
+divergence = run('actual-v2-exactmember-removal', remove_input, disabled, 0)
+lost_path = Path(divergence['destination']) / manifest['proposed_git_prefix'] / 'runtime-retry/historical-preflight-recovery-search-v1.json'
+require(not lost_path.exists(), 'effective guard removal must admit incomplete packet')
+require(ref(source)['sha256'] == SOURCE_SHA and ref(manifest_path)['sha256'] == MANIFEST_SHA, 'unchanged current source and manifest after controls')
+report = {'schema': 'policyos.e02.independent_actual_copier_v2_review.v1', 'verdict': 'GO for bounded literal publication copier/custody only', 'original_manifest': ref(manifest_path), 'copier_source': ref(source), 'reviewer_source': ref(Path(__file__)), 'native_healthy': healthy, 'native_negative_controls': controls, 'effective_original_member_guard_removal': {**divergence, 'original_selector_set_and_payloads_unchanged': True, 'all_superficial_totals_recomputed': True, 'missing_mandatory_file_admitted_after_removal': True, 'reason_marker_preserved': True}, 'old_V1_actual_fail_witness': ref(CATALOG / 'actual-copier-omitted-mandatory-probe.json'), 'scope': 'No ROOT/leaf/env or source/gate/numeric writes; all actual copies are fresh /tmp only. Own prior DoE/cleanup semantics excluded; custody observations do not accept original findings, global gates, scientific authority or pending frontend/backend/final54.'}
+output = CATALOG / 'independent-actual-copier-v2-review.json'
+with output.open('x') as handle:
+    handle.write(json.dumps(report, indent=2) + '\n')
+print(json.dumps({'report': ref(output), 'native_healthy_exit': 0, 'actual_path_readback': count, 'actual_native_refusals': len(controls), 'defining_removal': 'incomplete packet admitted as expected divergence', 'verdict': report['verdict']}, indent=2))

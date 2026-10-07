@@ -1,0 +1,85 @@
+"""Copy already-reviewed moderate CAL retry bytes into the admitted E leaf."""
+import hashlib
+import json
+from pathlib import Path
+
+lane = Path('/workspace/e02-E-frc-20261006')
+scratch = Path('/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946')
+reviews = Path('/workspace/e02-E-pr38-r3-receipts/final-numeric-independent/cal-retry-independent')
+relative = Path('policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry')
+packet = lane/relative
+packet.mkdir(parents=True, exist_ok=False)
+selection_path = scratch/'moderate-publication-selection.json'
+assert hashlib.sha256(selection_path.read_bytes()).hexdigest() == '18336786d54225d5db45f5944f9dc6a0138008a76ea300a080f5738263eb058f'
+selection = json.loads(selection_path.read_text())
+rows = []
+
+def copy(source, destination, role, expected=None):
+    data = source.read_bytes()
+    actual = {'sha256':hashlib.sha256(data).hexdigest(),'bytes':len(data)}
+    if expected is not None:
+        assert all(actual[key] == expected[key] for key in ('sha256','bytes'))
+    path = Path(destination)
+    assert not path.is_absolute() and '..' not in path.parts and path.as_posix() == destination
+    target = packet/path
+    target.parent.mkdir(parents=True,exist_ok=True)
+    with target.open('xb') as handle:
+        handle.write(data)
+    assert target.read_bytes() == data
+    rows.append({'source_path':str(source),'portable_path':destination,'role':role,**actual})
+
+for row in selection['current_files'] + selection['external_pinned_observations']:
+    copy(Path(row['path']),row['portable_path'],'fixed author execution/input observation',row)
+assert len(rows) == 31 and sum(row['bytes'] for row in rows) == 257524
+copy(selection_path,'moderate-publication-selection.json','fixed independently reviewed author selection index')
+review_sha = {'review.json':'ca7158b7ec13ae1343ff8fdfe9058c7d40d869a774a5a1fbbc7101f26bbcbc68','publication-review.json':'f60727e1dadaf3e9225a15e0104a917dad71d6d6422bec15034edb87ada0bace'}
+for source in sorted(reviews.iterdir()):
+    if source.is_file():
+        if source.name in review_sha:
+            assert hashlib.sha256(source.read_bytes()).hexdigest() == review_sha[source.name]
+        copy(source,'independent-review/'+source.name,'independent original/current/historical observer outputs')
+for name in ('admission-resume.json','admission-resume.stderr.txt','prepublication-ancestry.json','copy-packet.py.txt'):
+    copy(scratch/'publication'/name,'publication-admission/'+name,'publication admission or literal copy command source')
+copy_index = {'schema':'policyos.e02.literal_publication_copy_index.v1','verification_candidate_sha':selection['candidate_sha'],'verification_candidate_tree_sha':selection['candidate_tree_sha'],'publication_parent_sha':'781acab7a66ac7bbbd40d5a007fae22379e32e85','fixed_author_outputs':31,'fixed_author_output_bytes':257524,'copied_files':len(rows),'copied_bytes':sum(row['bytes'] for row in rows),'copies':rows,'private_exclusion':'Private Git config contents, environments and raw fixtures excluded','literal_bytes':True}
+(packet/'copy-index.json').write_text(json.dumps(copy_index,indent=2)+'\n')
+footprint = [str(relative/'README.md'),str(relative/'implementation-handoff.json'),str(relative/'copy-index.json')] + [str(relative/row['portable_path']) for row in rows]
+handoff = {
+    'schema':'policyos.e02.verification_execution_handoff.v1',
+    'base_sha':selection['candidate_sha'],'candidate_sha':selection['candidate_sha'],'candidate_tree_sha':selection['candidate_tree_sha'],
+    'verification_source':'Root frozen64d; no source/test changes or second common wave',
+    'publication_parent_sha':'781acab7a66ac7bbbd40d5a007fae22379e32e85','publication_parent_tree_sha':'6462ed91d8f8ed99b7c1252f7d7c040eade70044',
+    'publication_future_commit_sha':'Not self-referenced; exact commit/tree provided by separate postcommit readback',
+    'canonical_writer':'E root owns source freeze/combined acceptance; frc_r4 executor only, oracle_r4 independent input/output/custody reviewer',
+    'scope':'Original CAL_and_welfare_consumer bounded group; exact29 path selector preserved; only output/cache/basetemp/JUnit args and TMPDIR remapped',
+    'original_attempt':{'check_outcome':'FAIL','exit_code':-9,'counts':None,'junit_present':False,'wall_seconds':1827.2683534622192,'signal':'SIGKILL','per_process_oom_cause':'not_established','receipt':'original-and-inputs/cal-and-welfare-consumer.json','stdout':'original-and-inputs/cal-and-welfare-consumer.stdout.txt'},
+    'retry':{'check_outcome':'PASS','exit_code':0,'counts':{'cases':324,'passed':324,'failed':0,'errors':0,'skipped':0},'wall_seconds':622.9987132549286,'max_rss_kib':2624064,'receipt':'checks/cal-and-welfare-consumer-retry/cal-and-welfare-consumer-retry.json','junit':'checks/cal-and-welfare-consumer-retry/pytest.xml','stdout':'checks/cal-and-welfare-consumer-retry/cal-and-welfare-consumer-retry.stdout.txt'},
+    'input_identity':'retry-admission.json binds all17,016 tracked inputs524,100,024B framef45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5 and29 actual test asset SHA/Git blobs; configured root .venv versions/native JAX CPU and effective Git config hash before/after identical',
+    'environment':'Real locked Python3.14.7/NumPy2.3.5/SciPy1.16.3/JAX0.8.2/SALib1.5.2; captured backend unchanged; process/thread/CPU/worker capsNone',
+    'resource_admission':'Original SIGKILL kept immutable; cloud cleanup recovered2,265,067,520 tmpfs bytes; first physical-launch guard refusal is operational only. Actual retry launched with3,039,879,168B headroom; no per-process OOM attribution.',
+    'commands':'Literal argv/env in retry-admission.json, retry-started.json and canonical receipt; operational sources archived as .py.txt; canonical run_check.py pinned on frozen64d',
+    'independent_review':{'disposition':'GO for bounded execution/input/custody evidence','review':'independent-review/review.json','publication_custody_review':'independent-review/publication-review.json','limits':'No numerical/gate repeat by reviewer; no cleanup cause/authority review or source/finding closure inference'},
+    'changed_paths':sorted(footprint),'path_count':len(footprint),'active_python_path_count':0,'source_test_delta_paths':[],
+    'copy_index':'copy-index.json','copied_files':copy_index['copied_files'],'copied_bytes':copy_index['copied_bytes'],'author_output_count':31,'author_output_bytes':257524,
+    'finding_closure':False,'finding_ledger':'Historical49partial/4held/1closed and individual owner decisions remain separate; check324PASS does not close B197, B200 or any adjacent finding',
+    'limitations':['Root64d source publication follows root controlled boundary; prepublication remote E head050ac746f8206b63071908ee83a52e5fd4d491d3 is an ancestor of64d, while this admitted leaf parent781 already preserves source700 and prior evidence.','Private Git config contents excluded; original receipt hashes retained.','Original interruption cause remainsnot_established; cumulative cgroup events cannot attribute individual SIGKILL.','No production history/source law imported or fabricated; same bounded native fixtures only.'],
+    'next_owner':'E root publishes exact frozen64d source/combined wave and merges this DOC-only leaf on its controlled boundary; G fetches both source and receipt commits and adjudicates code/finding acceptance separately.',
+    'cleanup':'Repeatable cache/basetemp/TMPDIR candidates are listed in retry-completion.json, preserved until readers finish; rootenv/source/unique evidence preserved.'
+}
+(packet/'implementation-handoff.json').write_text(json.dumps(handoff,indent=2)+'\n')
+(packet/'README.md').write_text('''# CAL interruption retry on frozen E source64d
+
+The same29-path CAL/Welfare selector completed **324/324 PASS**, exit0, in623seconds on `64d7444a18c55df7b88b71b7699a2f1b25ca24bd` / tree `aef23574d3162abb19bf5a1c67d02624ff9d4d1d`. The unchanged canonical runner verified all17,016 tracked inputs and effective Git config before and after. Real JAX CPU, locked package versions and uncapped runtime environment were preserved. Only isolated output/cache/basetemp/JUnit paths and TMPDIR changed.
+
+The original attempt remains separate: actual childexit−9/SIGKILL, wrapperFAIL, noJUnit/counts,1827seconds. Its per-process OOM cause is **not_established**. The pre-launch resource guard refused once before any test invocation; an initial metadata-only system-Python import error is also retained and distinguished from test outcomes. Actual retry launch had3.04GB measured cgroup headroom. Cleanup/source/raw-input custody is pinned in the original moderate receipts; this packet does not independently ratify cleanup attribution.
+
+`implementation-handoff.json` binds source identity, complete DOC footprint, limitations and next owners. `copy-index.json` binds literal original bytes: fixed31 author assets plus independent review/case index/historical observer correction and publication admission. `independent-review/review.json` independently parsed324JUnit cases,29 test assets,17,016 source files and exact temporary-only argv changes; `publication-review.json` independently checked the fixed31-file selection. Archived command sources use `.py.txt`; no activePython, source, tests, environments, private Git config bytes or raw fixtures were added.
+
+Reproduction uses the existing canonical `run_check.py` on the frozen source and exact test command/env in `retry-admission.json`; use fresh isolated temporary/output paths and preserve the selectors/backend. Source700 and evidence781 remain in this admitted leaf's history. Root owns publication of frozen64d and its combined wave on the E topic; G must fetch that exact source ref along with this separate receipt commit. Literal historical paths are kept as observed, while portable paths in the copy index locate their committed copies.
+
+These are check outcomes, not finding closure or a second broad wave. Historical ledger statuses and individual accountable owner dispositions remain separate. Production history/source-law checks and B197/B200 dependencies keep their scoped owner/input boundaries.
+''')
+assert set(path.relative_to(lane).as_posix() for path in packet.rglob('*') if path.is_file()) == set(footprint)
+for row in rows:
+    target = packet/row['portable_path']
+    assert len(target.read_bytes()) == row['bytes'] and hashlib.sha256(target.read_bytes()).hexdigest() == row['sha256']
+print(json.dumps({'packet':str(packet),'path_count':len(footprint),'copied_files':len(rows),'copied_bytes':copy_index['copied_bytes'],'active_python_paths':0,'source_test_delta_paths':[],'literal_copy_check':'PASS'},indent=2))

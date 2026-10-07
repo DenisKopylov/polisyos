@@ -1,0 +1,64 @@
+"""Select immutable moderate gate observations; no pending stdout self-index."""
+from pathlib import Path
+import hashlib
+import json
+import subprocess
+
+ROOT=Path('/workspace/e02-E-pr38-r3-receipts/final-lint-recorder')
+HERE=ROOT/'closed-wave-64d7444a'
+REPO=Path('/workspace/e02-E-continuation-20261006')
+WAVE=Path('/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007')
+CANDIDATE='64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+PYTHON=str(REPO/'policy-engine/.venv/bin/python')
+def binding(path):
+    body=path.read_bytes()
+    return {'source_path':str(path),'bytes':len(body),'sha256':hashlib.sha256(body).hexdigest()}
+report=json.loads((HERE/'closed-lint-review.json').read_text())
+if (HERE/'closed-lint-review.json').read_bytes()!=(HERE/'optimized-reader/closed-lint-review.json').read_bytes():raise ValueError('Optimized observer differs')
+owner_inputs=[]
+for packet in report['owner_packets']:
+    path=packet['path'];body=subprocess.check_output(['/usr/bin/git','show',CANDIDATE+':'+path],cwd=REPO)
+    if len(body)!=packet['frozen_source']['bytes'] or hashlib.sha256(body).hexdigest()!=packet['frozen_source']['sha256']:raise ValueError('Owner source bytes differ')
+    destination=HERE/'owner-source-inputs'/packet['canonical_publication_writer']/(Path(path).name+'.txt');destination.parent.mkdir(parents=True,exist_ok=True);destination.write_bytes(body)
+    owner_inputs.append({'original_repository_path':path,'candidate_sha':CANDIDATE,'literal_archive':binding(destination),'source_Git_blob':packet['frozen_source']['object_id']})
+owner_packet={'schema':'policyos.e02.E.current_non_E_lint_owner_packet.v1','candidate_sha':CANDIDATE,'candidate_tree':report['candidate_tree'],'base_sha':report['base_sha'],'actual_gate_outcomes':{'Ruff':'FAIL','format':'FAIL'},'complete_input_denominator':360,'owner_packets':report['owner_packets'],'source_inputs':owner_inputs,'original_defining_outputs':report['actual_closed_gate_observations'],'fullscope_E_diagnostics':0,'coordination_owner':'G','scope':'Current A/B publication utility corrections only; evidence acceptance and findings remain separate. G/A/B handle these three paths; E does not amend their source.','P41':'not_established: no exact complete slice-base command/input replay proves inherited red','next_result':'Each canonical owner repairs the admitted source class with independent controls, preserves historical raw evidence, publishes its own Git candidate and reruns affected selectors. G then reruns complete current gates.','postfreeze_current361':'UNRUN: separate final publication candidate must be recorded and tested after merge'}
+(HERE/'A-B-owner-packet.json').write_text(json.dumps(owner_packet,indent=2)+'\n')
+commands=[{'command':[PYTHON,str(HERE/'review_closed.py')],'cwd':str(REPO/'policy-engine'),'exit_code':0,'stdout':binding(HERE/'review.stdout.txt'),'stderr':binding(HERE/'review.stderr.txt')},{'command':[PYTHON,'-O',str(HERE/'optimized-reader/review_closed.py')],'cwd':str(REPO/'policy-engine'),'exit_code':0,'stdout':binding(HERE/'optimized-reader/review.stdout.txt'),'stderr':binding(HERE/'optimized-reader/review.stderr.txt')}]
+for optimize,label in [(False,'normal'),(True,'optimized')]:
+    commands.append({'command':[PYTHON,*(['-O'] if optimize else []),str(HERE/'denominator-controls-replay/controls.py')],'cwd':'/workspace','exit_code':0,'stdout':binding(HERE/'denominator-controls-replay'/('controls-'+label+'.stdout.txt')),'stderr':binding(HERE/'denominator-controls-replay'/('controls-'+label+'.stderr.txt'))})
+invariants={'schema':'policyos.e02.E.closed_lint_review_custody.v1','candidate_sha':CANDIDATE,'tree':report['candidate_tree'],'source_before_after':report['actual_closed_gate_observations']['ruff']['source_identity_before'],'complete360physical_Git_bytes':'PASS; full framed source receipt and every input hash bound','original229_scope':'All229 admitted74 hashes are unchanged at frozen64d, and each is included exactly once','actual_selector':'Canonical policy-engine cwd; discovered ruff.toml extends generated.toml. Actual gate output is human text; planned --output-format json argv was never executed. Explicit root --config is a separate selector.','normal_optimized_review_byte_equivalence':True,'optimized_review_body':binding(HERE/'optimized-reader/closed-lint-review.json'),'normal_optimized_denominator_controls_byte_equivalence':(HERE/'denominator-controls-replay/controls-0.json').read_bytes()==(HERE/'denominator-controls-replay/controls-1.json').read_bytes(),'reader_controls_each_mode':31,'denominator_controls_each_mode':{'classes':10,'malformed_source_refs':6,'effective_deleted_path_predicate_removal':1},'observed_factual_writer_counts':report['factual_writer_counts'],'canonical_shared_ownership':'Factual E14IR-slice attribution uses scoped appointment. Broader IR/shared public facade authority is not transferred.','commands':commands,'gate_tool_calls_by_reviewer':0,'tracked_root_writes':0,'finding_dispositions_changed':False,'source_after_review':{'HEAD':subprocess.check_output(['/usr/bin/git','rev-parse','HEAD'],cwd=REPO).decode().strip(),'status':subprocess.check_output(['/usr/bin/git','status','--short'],cwd=REPO).decode(),'interpretation':'Tracked source unchanged. Native runtime-dashboard gate created an untracked screenshot directory; this reviewer neither opened nor changed it.'},'cleanup_candidates':[str(HERE/'denominator-controls-replay/live-path-fixture'),str(HERE/'denominator-controls-replay/__pycache__')],'cleanup':'No native Trash operation by this reviewer; nothing permanently deleted','postfreeze_final_current361_Ruff_format':'UNRUN until final publication merge; no frozen360 result projects to it','global_gate_outcomes':'Both actual closed gates FAIL; no inheritance waiver or code/finding closure override'}
+if invariants['source_after_review']['HEAD']!=CANDIDATE:raise ValueError('Source moved during frozen observation')
+(HERE/'review-invariants.json').write_text(json.dumps(invariants,indent=2)+'\n')
+requested=[]
+def request(path,portable):requested.append((path,portable))
+for name in ['record_denominator.py','closed-64d7444a-denominator.json','closed-64d7444a-denominator.stdout.txt','closed-64d7444a-denominator.stderr.txt','writer-attribution-supplement-64d7444a.json','canonical-config-distinction.json','canonical-settings.stdout','canonical-settings.stderr','explicit-root-config-settings.stdout','explicit-root-config-settings.stderr','settings_probe.py']:
+    request(ROOT/name,'inputs/'+name+('.txt' if name.endswith('.py') else ''))
+request(Path('/workspace/e02-E-pr38-r3-receipts/lint-independent/current-229-index-74d045.json'),'inputs/current-229-index-74d045.json')
+for name in ['review_closed.py','review.stdout.txt','review.stderr.txt','closed-lint-review.json','A-B-owner-packet.json','review-invariants.json','build_publication.py']:
+    request(HERE/name,'review/'+name+('.txt' if name.endswith('.py') else ''))
+for name in ['review_closed.py','review.stdout.txt','review.stderr.txt']:
+    request(HERE/'optimized-reader'/name,'optimized-reader/'+name+('.txt' if name.endswith('.py') else ''))
+for name in ['controls.py','controls-0.json','controls-1.json','controls-normal.stdout.txt','controls-normal.stderr.txt','controls-optimized.stdout.txt','controls-optimized.stderr.txt']:
+    request(HERE/'denominator-controls-replay'/name,'denominator-controls/'+name+('.txt' if name.endswith('.py') else ''))
+for entry in owner_inputs:
+    q=Path(entry['literal_archive']['source_path']);request(q,q.relative_to(HERE).as_posix())
+for config in ['policy-engine/ruff.toml','policy-engine/architecture/tooling/ruff/generated.toml']:
+    q=HERE/'config-inputs'/Path(config).name;q.parent.mkdir(exist_ok=True);q.write_bytes(subprocess.check_output(['/usr/bin/git','show',CANDIDATE+':'+config],cwd=REPO));request(q,'config-inputs/'+q.name)
+for name in ['ruff','ruff-format']:
+    for suffix in ['.json','.stdout.txt']:
+        request(WAVE/'checks'/name/(name+suffix),'actual-gates/'+name+'/'+name+suffix)
+# Dedupe identical byte payloads while retaining every logical source/output alias.
+assets=[];known={}
+for path,portable in requested:
+    body=path.read_bytes();key=(len(body),hashlib.sha256(body).hexdigest())
+    if key in known:
+        prior=assets[known[key]]
+        if Path(prior['source_path']).read_bytes()!=body:raise ValueError('Byte collision')
+        prior.setdefault('identical_byte_aliases',[]).append({'source_path':str(path),'intended_portable_path':portable})
+    else:
+        known[key]=len(assets);assets.append({**binding(path),'portable_path':portable})
+for asset in assets:
+    if binding(Path(asset['source_path']))!={key:asset[key] for key in ['source_path','bytes','sha256']}:raise ValueError('Closed source changed')
+selection={'schema':'policyos.e02.E.closed_gate_review_publication_selection.v1','candidate_sha':CANDIDATE,'candidate_tree':report['candidate_tree'],'reviewer':'/root/lint_r4','assets':assets,'unique_asset_count':len(assets),'logical_asset_count':len(requested),'total_unique_bytes':sum(row['bytes'] for row in assets),'dedupe':'Identical complete bytes retain explicit logical source/output aliases; normal and optimized full review are byte-identical, so one complete body is published. All closed captures are bound.','aliased_optimized_full_review':{'primary':'review/closed-lint-review.json','original_input':binding(HERE/'optimized-reader/closed-lint-review.json')},'prior_preview_same_bytes':{'primary':'inputs/closed-64d7444a-denominator.json','original_input':binding(ROOT/'preview-64d7444a.json')},'policy':'Literal executable observer/source scripts archived .py.txt, no raw/private config, no fixtures, no large source mirrors. Builder never indexes its pending stdout or selection itself.','full_current361_status':'UNRUN; pending final candidate merge and separate full current selectors'}
+path=HERE/'publication-selection.json';path.write_text(json.dumps(selection,indent=2)+'\n')
+print(json.dumps({'selection':binding(path),'unique_asset_count':len(assets),'logical_asset_count':len(requested),'total_unique_bytes':selection['total_unique_bytes']}))

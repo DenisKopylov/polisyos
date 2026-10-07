@@ -1,0 +1,393 @@
+"""Build the read-only prewave disposition overlay from immutable inputs."""
+
+from __future__ import annotations
+
+import csv
+import hashlib
+import io
+import json
+import re
+import shutil
+import subprocess
+import sys
+from collections import Counter
+from pathlib import Path
+from typing import Any
+
+ROOT = Path("/workspace/e02-E-continuation-20261006")
+SCRATCH = Path("/workspace/e02-E-pr38-r3-receipts")
+OUT = SCRATCH / "criteria-r4"
+E02 = "policy-engine/docs/research/e02-cloud-test-plan/"
+SOURCE = "64d7444a18c55df7b88b71b7699a2f1b25ca24bd"
+TREE = "aef23574d3162abb19bf5a1c67d02624ff9d4d1d"
+HISTORY = "e9cb425e4dfe888720f93eb84f1667f24a8a92c4"
+IR_SOURCE = "700f9d5a5e2167787d7042ca11e1ef3bf80ced74"
+OLD_CLOSEOUT = E02 + (
+    "implementation-handoffs/E/continuation-20261006/pr38-r2/"
+    "criteria-frozen-a9-v2/all-54-update.json"
+)
+GIT = shutil.which("git")
+
+
+def require(condition: bool, reason: str) -> None:
+    if not condition:
+        raise ValueError(reason)
+
+
+def sha(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def git_bytes(revision: str, path: str) -> bytes:
+    require(bool(re.fullmatch(r"[0-9a-f]{40}", revision)), "exact revision required")
+    require(isinstance(path, str) and bool(path), "path required")
+    require(not path.startswith(("/", "-")), "relative canonical path required")
+    require(all(p not in ("", ".", "..") for p in path.split("/")), "unsafe path")
+    require("\x00" not in path and "\\" not in path, "unsafe path bytes")
+    require(GIT is not None and Path(GIT).is_absolute(), "resolved git required")
+    # Exact admitted Git object reads; no shell or user-supplied options.
+    return subprocess.run(  # noqa: S603
+        [GIT, "show", f"{revision}:{path}"],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+    ).stdout
+
+
+def record(path: Path) -> dict[str, Any]:
+    data = path.read_bytes()
+    return {"path": str(path), "bytes": len(data), "sha256": sha(data)}
+
+
+def load(path: Path) -> dict[str, Any]:
+    value = json.loads(path.read_bytes())
+    require(isinstance(value, dict), "JSON object required")
+    return value
+
+
+def validate(packet: dict[str, Any]) -> None:
+    rows = packet["rows"]
+    require(len(rows) == 54, "54 finding rows required")
+    require(len({r["id"] for r in rows}) == 54, "unique finding IDs required")
+    require(len(packet["bundles"]) == 22, "22 bundle rows required")
+    require(sum(len(r["bundle_ids"]) for r in rows) == 55, "55 links required")
+    require(
+        Counter(r["historical_ledger_status"] for r in rows)
+        == Counter({"partial": 49, "held": 4, "closed": 1}),
+        "historical ledger changed",
+    )
+    require(
+        Counter(r["proposed_finding_outcome"] for r in rows)
+        == Counter({"closed": 43, "limited": 9, "held": 2}),
+        "proposed outcome denominator changed",
+    )
+    require(packet["frozen_source"]["sha"] == SOURCE, "source identity changed")
+    require(packet["frozen_source"]["tree"] == TREE, "tree identity changed")
+    require(packet["formal_ledger_change"] is False, "formal ledger mutation")
+    for row in rows:
+        require(row["formal_ledger_change"] is False, "row ledger mutation")
+        require(row["owner_decision"] in {"accepted", "pending"}, "invalid decision")
+        wave = row["current_check_links"]["frozen_wave"]
+        require(wave["status"] == "UNRUN", "unmeasured wave outcome asserted")
+        require(wave["exact_case_bindings"] == [], "prewave case bindings invented")
+        require(bool(row["criterion_evidence"]["original_criterion_refs"]), "missing criterion")
+    bundle_links = {(b["id"], fid) for b in packet["bundles"] for fid in b["finding_ids"]}
+    row_links = {(bid, row["id"]) for row in rows for bid in row["bundle_ids"]}
+    require(bundle_links == row_links, "bundle/finding link mismatch")
+
+
+def build() -> dict[str, Any]:
+    mean_scope = "Ten actual affected estimator/persisted-consumer cases; not a broad wave"
+    initial_path = OUT / "individual-dispositions.json"
+    initial = load(initial_path)
+    old_bytes = git_bytes(HISTORY, OLD_CLOSEOUT)
+    old = json.loads(old_bytes)
+    current_old = git_bytes(SOURCE, OLD_CLOSEOUT)
+    require(old_bytes == current_old, "historical closeout bytes changed")
+    initial_rows = {r["id"]: r for r in initial["rows"]}
+    b193_path = OUT / "B193-independent-original-disposition.json"
+    b193_final_path = OUT / "B193-final-affected-verification-700f9d5a.json"
+    b193 = load(b193_path)
+    b193_final = load(b193_final_path)
+    ir_path = OUT / "B201-B202-independent-original-dispositions-700f9d5a.json"
+    ir = load(ir_path)
+    ir_rows = {r["id"]: r for r in ir["rows"]}
+    inputs = [record(initial_path), record(b193_path), record(b193_final_path), record(ir_path)]
+    inputs.append(record(SCRATCH / "source-freeze-64d7444a.json"))
+    source_inputs: list[dict[str, Any]] = []
+    tables: dict[str, list[dict[str, str]]] = {}
+    for name in [
+        "execution-organization/bundle-owners.tsv",
+        "execution-organization/finding-owners.tsv",
+    ]:
+        path = E02 + name
+        data = git_bytes(SOURCE, path)
+        source_inputs.append(
+            {"revision": SOURCE, "path": path, "bytes": len(data), "sha256": sha(data)}
+        )
+        tables[name] = list(csv.DictReader(io.StringIO(data.decode()), delimiter="\t"))
+    finding_owners = {
+        r["finding_id"]: r
+        for r in tables["execution-organization/finding-owners.tsv"]
+        if r["unit"] == "E"
+    }
+    bundle_owners = {
+        r["bundle_id"]: r
+        for r in tables["execution-organization/bundle-owners.tsv"]
+        if r["unit"] == "E"
+    }
+    require(set(finding_owners) == set(initial_rows), "full owner TSV mismatch")
+    coverage_path = E02 + "closure-decisions/coverage.json"
+    coverage_bytes = git_bytes(SOURCE, coverage_path)
+    coverage = json.loads(coverage_bytes)
+    source_inputs.append(
+        {
+            "revision": SOURCE,
+            "path": coverage_path,
+            "bytes": len(coverage_bytes),
+            "sha256": sha(coverage_bytes),
+        }
+    )
+    bundles = [b for b in coverage["bundles"] if b["unit"] == "E"]
+    require({b["id"] for b in bundles} == set(bundle_owners), "full bundle TSV mismatch")
+    for bundle in bundles:
+        data = git_bytes(SOURCE, bundle["criterion_card"])
+        source_inputs.append(
+            {
+                "revision": SOURCE,
+                "path": bundle["criterion_card"],
+                "bytes": len(data),
+                "sha256": sha(data),
+            }
+        )
+    rows: list[dict[str, Any]] = []
+    for index, original in enumerate(old["rows"]):
+        fid = original["id"]
+        prior = initial_rows[fid]
+        criterion = original["criterion"]
+        decision = prior["independent_criterion_disposition"]
+        outcome = prior["proposed_finding_outcome"]
+        old_row_ref = f"{OLD_CLOSEOUT}@{HISTORY}#/rows/{index}"
+        supplemental: list[dict[str, Any]] = []
+        evidence_refs = [
+            {**record(initial_path), "fragment": f"#/rows/{index}"},
+            {"revision": HISTORY, "path": OLD_CLOSEOUT, "fragment": f"#/rows/{index}"},
+        ]
+        pipeline = original["producer_artifact_bridge_consumer_surface"]
+        reason = prior.get("bounded_acceptance_reason", prior.get("individual_acceptance_scope"))
+        owner = "E root; G formal ledger/code intake remains separate"
+        next_owner = prior["next_owner"]
+        remaining = None
+        if fid == "B193":
+            decision, outcome = "accepted", "closed"
+            reason = b193["bounded_acceptance_scope"]
+            pipeline = b193["native_positive_pipeline"]
+            evidence_refs.extend([record(b193_path), record(b193_final_path)])
+            supplemental.append(
+                {
+                    "status": "PASS",
+                    "candidate": IR_SOURCE,
+                    "scope": mean_scope,
+                    "exact_cases": b193_final["exact_current_cases"],
+                    "receipt": record(b193_final_path),
+                }
+            )
+            next_owner = "G formal intake after current frozen-wave receipt reconciliation"
+        elif fid in ir_rows:
+            ir_row = ir_rows[fid]
+            decision, outcome = "accepted", "closed"
+            reason = ir_row["bounded_acceptance"]
+            pipeline = ir_row["producer_artifact_bridge_consumer"]
+            ir_index = 1 if fid == "B202" else 0
+            evidence_refs.append({**record(ir_path), "fragment": f"#/rows/{ir_index}"})
+            evidence_refs.extend(
+                [
+                    ir_row["independent_oracle_review"],
+                    ir_row["independent_compatibility_consumer_review"],
+                ]
+            )
+            supplemental.append(
+                {
+                    "status": "PASS",
+                    "candidate": IR_SOURCE,
+                    "scope": (
+                        "Independent native representation, CAS/reopen, compatibility"
+                        " and law controls"
+                    ),
+                    "defining_controls": ir_row["defining_property_and_evidence"],
+                    "receipt": record(ir_path),
+                }
+            )
+            remaining = ir_row["remaining_generated_companions"]
+            next_owner = (
+                "G/canonical IR generated/public companion writers; G formal "
+                "finding intake separately"
+            )
+        elif decision == "pending":
+            owner = next_owner
+        if fid in {"B100", "B102", "B103", "B105"}:
+            supplemental.append(
+                {
+                    "status": "PASS",
+                    "scope": (
+                        "Independent actual-work Morris admission and composed artifa"
+                        "ct reader; original criteria remain separate"
+                    ),
+                    "receipt": record(SCRATCH / "oracle-r4/doe-independent-review-5840d477.json"),
+                    "composed_receipt": record(
+                        SCRATCH / "root-composed-imports-morris/receipt.json"
+                    ),
+                }
+            )
+        if fid == "B100":
+            pipeline = dict(pipeline)
+            pipeline["original_criterion_boundary"] = (
+                "The sampler/analyzer transform, support/quantile/truncation "
+                "and persisted fingerprint/round-trip criterion is accepted. "
+                "D's additional Search analysis_ref/codec/reopen/ranking edge"
+                " is a separate owner dependency."
+            )
+        remaining_input = next(
+            (item for item in initial["external_owner_inputs"] if fid in item["ids"]), None
+        )
+        if outcome in {"limited", "held"}:
+            require(remaining_input is not None, "pending row requires concrete owner input")
+        else:
+            remaining_input = None
+        rows.append(
+            {
+                "id": fid,
+                "bundle_ids": original["bundle_ids"],
+                "canonical_ownership": finding_owners[fid],
+                "mechanism_writers": original["bundle_writers"],
+                "historical_ledger_status": original["ledger_status_preserved"],
+                "owner_decision": decision,
+                "decision_type": "retain prior closure"
+                if fid == "B198"
+                else "original bounded criterion",
+                "proposed_finding_outcome": outcome,
+                "formal_ledger_change": False,
+                "accountable_owner": owner,
+                "bounded_decision_basis": reason,
+                "producer_artifact_bridge_consumer_surface": pipeline,
+                "criterion_evidence": {
+                    "property": criterion,
+                    "original_criterion_refs": original["original_source_criterion_refs"],
+                    "original_card_refs": original["original_card_refs"],
+                    "individual_evidence_refs": evidence_refs,
+                    "predicate_basis_ref": old_row_ref + "/gate_predicate_basis",
+                    "historical_selector_rule": original["gate_predicate_basis"].get(
+                        "current_selector_rule"
+                    ),
+                    "historical_case_bindings_ref": (
+                        old_row_ref + "/current_oracle_negative/current_exact_wave_cases"
+                    ),
+                    "historical_case_rule": (
+                        "Navigation to exact prior observations, not a new candidate "
+                        "PASS or a family-count closure predicate"
+                    ),
+                },
+                "current_check_links": {
+                    "frozen_wave": {
+                        "status": "UNRUN",
+                        "candidate": SOURCE,
+                        "tree": TREE,
+                        "receipt_reconciliation_pending": True,
+                        "exact_case_bindings": [],
+                        "scope": (
+                            "Current wave is executing under root; no outcome is asserted"
+                            " before independent receipt recomputation"
+                        ),
+                    },
+                    "affected_supplemental_checks": supplemental,
+                },
+                "remaining_input_or_implementation": remaining_input,
+                "generated_public_companions": remaining,
+                "next_owner": next_owner,
+            }
+        )
+    packet = {
+        "schema": "policyos.e02.E.current-prewave-owner-dispositions.v1",
+        "reviewer": "independent criteria/public/compatibility reviewer criteria_r4",
+        "frozen_source": {"sha": SOURCE, "tree": TREE, "root_checkout": str(ROOT)},
+        "IR_scoped_source": {"sha": IR_SOURCE, "tree": "2e692d5a5dfa4cfbff78d0079c6fed3e4ba1a73f"},
+        "semantic_appointment": "a0ac10fc11975c345312034d0e568b4cfc330d76",
+        "tracked_semantic_decisions": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+        "complete_denominator": {"bundles": 22, "findings": 54, "finding_bundle_links": 55},
+        "historical_ledger": {"partial": 49, "held": 4, "closed": 1},
+        "proposed_finding_counts": {"closed": 43, "limited": 9, "held": 2, "open": 0},
+        "individual_decision_counts": {
+            "new_bounded_acceptances": 42,
+            "retained_prior_closed": 1,
+            "pending": 11,
+            "rejected": 0,
+        },
+        "formal_ledger_change": False,
+        "finding_vs_check_rule": (
+            "Independent bounded original-criterion dispositions and root"
+            " accountable decisions are separate from current check statu"
+            "s and G formal intake/code acceptance."
+        ),
+        "current_wave_rule": (
+            "All exact current common-wave bindings are pending independe"
+            "nt recomputation. Historical a9 observations remain historic"
+            "al. No broad wave is repeated by this helper."
+        ),
+        "generic_scope_rule": (
+            "Use the exact original row; do not merge B99/Morris-analysis"
+            ", B100/D Search, B193/B194, B201/B202, B172/173 non-signific"
+            "ance/equivalence or B197 source-fit authority."
+        ),
+        "source_inputs": source_inputs,
+        "prior_input_records": inputs,
+        "original_54_input": {
+            "revision": HISTORY,
+            "path": OLD_CLOSEOUT,
+            "bytes": len(old_bytes),
+            "sha256": sha(old_bytes),
+            "current_frozen_bytes_equal": True,
+        },
+        "bundles": bundles,
+        "rows": rows,
+        "remaining_owner_inputs": [
+            item
+            for item in initial["external_owner_inputs"]
+            if not set(item["ids"]) & {"B193", "B201", "B202"}
+        ],
+        "current_global_public_boundary": {
+            "capability_state": "surface_missing",
+            "owner": "G/canonical IR generator/public inventory writers",
+            "packet": record(
+                SCRATCH / ("ir-compat-independent/generator-700f9d5a/generator-packet.json")
+            ),
+            "applicable_full_patch": record(
+                SCRATCH
+                / ("ir-compat-independent/generator-700f9d5a/canonical-generated-full.patch")
+            ),
+            "next_result": (
+                "Review/reproduce/apply the full102-model, full20-package/13-"
+                "family generated companion packet and execute actual generat"
+                "ed/global gates after integration. E source GO is not curren"
+                "t global/public publication GO."
+            ),
+        },
+        "cleanup": (
+            "No permanent deletion or Trash emptying. No native cloud Tra"
+            "sh; earlier exact repeatable fixtures/overlays remain listed"
+            " in their source receipts."
+        ),
+    }
+    validate(packet)
+    return packet
+
+
+if __name__ == "__main__":
+    packet = build()
+    target = OUT / "current-prewave-all-54-owner-dispositions.json"
+    target.write_text(json.dumps(packet, ensure_ascii=False, indent=2) + "\n")
+    sys.stdout.write(
+        json.dumps(
+            {"output": record(target), "counts": packet["proposed_finding_counts"]}, indent=2
+        )
+        + "\n"
+    )

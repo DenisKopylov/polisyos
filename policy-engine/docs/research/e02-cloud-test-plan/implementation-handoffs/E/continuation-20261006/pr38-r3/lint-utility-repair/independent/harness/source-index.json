@@ -1,0 +1,183 @@
+{
+  "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+  "source_tree": "b6bd2579e39857b91e03deb333cbc8f4609e800d",
+  "baseline_sha": "8047bfdbb1a7e8c4b031384acf6b45e302591620",
+  "rows": [
+    {
+      "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+      "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+      "materialized_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/sources/plan_wave.py",
+      "git_blob": "e5d3e4f47160177912e429b8b7bd0905064f0b96",
+      "bytes": 25810,
+      "sha256": "02c5412b012f34e69e24abddb8530b25e66c1076529c9ce9630329aa1fe8024c"
+    },
+    {
+      "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+      "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "materialized_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/sources/run_check.py",
+      "git_blob": "e3a090698c812d98b09eb25cf2fa4e82d8b249e1",
+      "bytes": 12528,
+      "sha256": "c729c909ee6ec31daef9750b786e4515d38e078153031e6e08a299ae7fffa503"
+    },
+    {
+      "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+      "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+      "materialized_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/sources/collect_wave.py",
+      "git_blob": "904ac4091c6c856ba0c977c9994a0b0c36a2bb47",
+      "bytes": 41242,
+      "sha256": "c9ece35b694a91e5cbdf4d0212eaab3345689c5301c0707d566fd5d9df9e7aba"
+    },
+    {
+      "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+      "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+      "materialized_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/sources/uncapped_umbrella.py",
+      "git_blob": "06de7485b52139234316419370e899e95f29d6f2",
+      "bytes": 7221,
+      "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e"
+    },
+    {
+      "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+      "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/proposal.json",
+      "materialized_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/sources/proposal.json",
+      "git_blob": "b1b77b16de95fa677d6d3aa02cdd02fe26c70906",
+      "bytes": 2477,
+      "sha256": "183a0cd6b4fc8364ae086d1a5e921a7b06b09a241a1041359be855261125cf63"
+    },
+    {
+      "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+      "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/original-wave-groups.json",
+      "materialized_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/sources/original-wave-groups.json",
+      "git_blob": "85cb24b324e971759a87b5853f3d75eb983b1a31",
+      "bytes": 9604,
+      "sha256": "a5578a4dd8bc8e622603e5b538a412594eafb507ca640518bf527d8c0c5168af"
+    },
+    {
+      "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+      "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/README.md",
+      "materialized_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/sources/README.md",
+      "git_blob": "4c82a2b20b04511ac657b9e2d101dda649153dfa",
+      "bytes": 7038,
+      "sha256": "303e191ba53d4e5a6dd5f0b449d2146966165db62a596aeaa437cd5ef0560383"
+    },
+    {
+      "source_sha": "8047bfdbb1a7e8c4b031384acf6b45e302591620",
+      "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+      "materialized_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/base-sources/plan_wave.py",
+      "git_blob": "28a68698dd944e32408542f9272a7f1d1f217841",
+      "bytes": 23905,
+      "sha256": "7e010e09d0c11ea8c9cf68c25b698eb9862171b81f68e50744caf087a8f66b6d"
+    },
+    {
+      "source_sha": "8047bfdbb1a7e8c4b031384acf6b45e302591620",
+      "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "materialized_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/base-sources/run_check.py",
+      "git_blob": "a15b26f985d1c2c3db5016367203c67b309b4323",
+      "bytes": 11192,
+      "sha256": "9d59c0e66658bae5b8ab22ae4770335462a167af6ecd640356978f8402a2fce6"
+    },
+    {
+      "source_sha": "8047bfdbb1a7e8c4b031384acf6b45e302591620",
+      "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+      "materialized_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/base-sources/collect_wave.py",
+      "git_blob": "20331fa1cd85acd046f2a36cc5c563662ed0b9eb",
+      "bytes": 38197,
+      "sha256": "faecae68f9eecc741e12ae1469fcd57faad11a9facb747f2430762da1758f9fc"
+    },
+    {
+      "source_sha": "8047bfdbb1a7e8c4b031384acf6b45e302591620",
+      "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+      "materialized_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/base-sources/uncapped_umbrella.py",
+      "git_blob": "4a274a20b912285a2d98342d1a58e03d45dc6158",
+      "bytes": 7225,
+      "sha256": "c809e5503ba23afacb8ad0f3f4da81e7cdca0ea6184d6eb346bfc82ddeae5173"
+    },
+    {
+      "source_sha": "8047bfdbb1a7e8c4b031384acf6b45e302591620",
+      "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/proposal.json",
+      "materialized_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/base-sources/proposal.json",
+      "git_blob": "b1b77b16de95fa677d6d3aa02cdd02fe26c70906",
+      "bytes": 2477,
+      "sha256": "183a0cd6b4fc8364ae086d1a5e921a7b06b09a241a1041359be855261125cf63"
+    },
+    {
+      "source_sha": "8047bfdbb1a7e8c4b031384acf6b45e302591620",
+      "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/original-wave-groups.json",
+      "materialized_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/base-sources/original-wave-groups.json",
+      "git_blob": "85cb24b324e971759a87b5853f3d75eb983b1a31",
+      "bytes": 9604,
+      "sha256": "a5578a4dd8bc8e622603e5b538a412594eafb507ca640518bf527d8c0c5168af"
+    },
+    {
+      "source_sha": "8047bfdbb1a7e8c4b031384acf6b45e302591620",
+      "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/README.md",
+      "materialized_path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/base-sources/README.md",
+      "git_blob": "4c82a2b20b04511ac657b9e2d101dda649153dfa",
+      "bytes": 7038,
+      "sha256": "303e191ba53d4e5a6dd5f0b449d2146966165db62a596aeaa437cd5ef0560383"
+    },
+    {
+      "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+      "repo_path": "policy-engine/tools/devx/workspace/verify.py",
+      "git_blob": "c8c884f8edafdcf9f63d6572cb41a2929f3a64a9",
+      "bytes": 12277,
+      "sha256": "864ec1e4f463b63610986cd86b93a1b61687408b84e1a9c64cd6d6a65d587207",
+      "materialized": false
+    },
+    {
+      "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+      "repo_path": "policy-engine/tools/devx/workspace/ci_parity.py",
+      "git_blob": "26b66d48e7ce4d28a92389842213fd51acf53f34",
+      "bytes": 11939,
+      "sha256": "8ee3abda4668c4bbc24c58412b11eda51eaae9c046b98ad80ff5b17705e26619",
+      "materialized": false
+    },
+    {
+      "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+      "repo_path": "policy-engine/tools/devx/workspace/_common.py",
+      "git_blob": "5f99fd0e73d91ca28e3be56442679d3f7772acaa",
+      "bytes": 7324,
+      "sha256": "fadb1e8e48587a79fdeafdf7ce23216518d4f09a06c3045b0ed1f1c0133c267a",
+      "materialized": false
+    },
+    {
+      "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+      "repo_path": "AGENTS.md",
+      "git_blob": "94173d77ab34173f12883ee6575db4a461f6df98",
+      "bytes": 22656,
+      "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50",
+      "materialized": false
+    },
+    {
+      "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+      "repo_path": "policy-engine/CONTRIBUTING.md",
+      "git_blob": "ac70f96fa6a0c0bd6b810e10f33b409dea2a78bf",
+      "bytes": 10553,
+      "sha256": "1c9ea84e5fa0d8f05517287523d47d71128742ad02a5d20ce326163d21754783",
+      "materialized": false
+    },
+    {
+      "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+      "repo_path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/HANDOFF.md",
+      "git_blob": "b9f1a717049d9e30f68bf291e3f8321013abf83e",
+      "bytes": 20260,
+      "sha256": "8519f95eb0ff2ec2c64caa4497eb58b957fe7cd47a0a6955bad98a2c20795d3b",
+      "materialized": false
+    },
+    {
+      "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+      "repo_path": "policy-engine/pyproject.toml",
+      "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+      "bytes": 11007,
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "materialized": false
+    },
+    {
+      "source_sha": "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+      "repo_path": "policy-engine/uv.lock",
+      "git_blob": "85f1fb2150a4da454fee02108565381d44f56730",
+      "bytes": 779204,
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "materialized": false
+    }
+  ]
+}

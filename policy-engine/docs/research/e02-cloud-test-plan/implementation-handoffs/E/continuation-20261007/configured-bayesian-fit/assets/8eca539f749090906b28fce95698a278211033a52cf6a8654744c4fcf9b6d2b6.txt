@@ -1,0 +1,37 @@
+{
+  "rows": [
+    {
+      "name": "BayesianFitBinding",
+      "facade": "polisyos.foundry.uncertainty",
+      "identity": true,
+      "FQN": "polisyos.foundry.calibration.bayesian_fit_bridge.BayesianFitBinding"
+    },
+    {
+      "name": "PersistedBayesianFit",
+      "facade": "polisyos.foundry.uncertainty",
+      "identity": true,
+      "FQN": "polisyos.foundry.calibration.bayesian_fit_bridge.PersistedBayesianFit"
+    },
+    {
+      "name": "persist_bayesian_fit_envelopes",
+      "facade": "polisyos.foundry.uncertainty",
+      "identity": true,
+      "FQN": "polisyos.foundry.calibration.bayesian_fit_bridge.persist_bayesian_fit_envelopes"
+    },
+    {
+      "name": "CoreCanonSpec",
+      "identity": true
+    },
+    {
+      "name": "CoreCanonicalDecoder",
+      "identity": true
+    },
+    {
+      "name": "stable output ref DTO",
+      "identity": true,
+      "strict_kind": true,
+      "strict_media": true
+    }
+  ],
+  "scope": "actual current typed bindings only; existing CAS implementation not re-reviewed"
+}

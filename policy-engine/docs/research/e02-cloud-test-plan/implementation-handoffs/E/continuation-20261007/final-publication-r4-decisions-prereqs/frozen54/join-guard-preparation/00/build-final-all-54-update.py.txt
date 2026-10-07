@@ -1,0 +1,225 @@
+"""Join immutable individual E decisions with independently recomputed observations."""
+
+from __future__ import annotations
+
+import argparse
+import copy
+import hashlib
+import json
+import sys
+from collections import Counter
+from pathlib import Path
+from typing import Any
+
+SOURCE = "64d7444a18c55df7b88b71b7699a2f1b25ca24bd"
+TREE = "aef23574d3162abb19bf5a1c67d02624ff9d4d1d"
+PREWAVE_HASH = "c618be1881cac757c1ebcfc532591e908392659deb707a51c5a68f7c4896d38d"
+OUTCOMES = {"PASS", "FAIL", "ERROR", "SKIP", "UNRUN"}
+STANDALONE_SCOPE = "Standalone receipts are independent of umbrella fail-fast observations"
+
+
+def require(condition: bool, reason: str) -> None:
+    if not condition:
+        raise ValueError(reason)
+
+
+def record(path: Path) -> dict[str, Any]:
+    data = path.read_bytes()
+    return {
+        "path": str(path),
+        "bytes": len(data),
+        "sha256": hashlib.sha256(data).hexdigest(),
+    }
+
+
+def object_input(path: Path) -> dict[str, Any]:
+    result = json.loads(path.read_bytes())
+    require(isinstance(result, dict), "object input required")
+    return result
+
+
+def arg_value(argv: list[str], option: str) -> str:
+    require(argv.count(option) == 1, "unique required option")
+    index = argv.index(option)
+    require(index + 1 < len(argv), "missing option value")
+    return argv[index + 1]
+
+
+def frozen_receipt(path: Path) -> dict[str, Any]:
+    value = object_input(path)
+    require(value.get("candidate_sha") == SOURCE, "receipt source mismatch")
+    require(value.get("candidate_tree_sha") == TREE, "receipt tree mismatch")
+    require(value.get("outcome") in OUTCOMES, "invalid receipt outcome")
+    require(type(value.get("exit_code")) is int, "integer process exit required")
+    if value["outcome"] in {"PASS", "SKIP"}:
+        require(value.get("exit_code") == 0, "nonzero successful receipt")
+        require(value.get("source_immutable") is True, "successful source drift")
+    stdout = Path(value["stdout_path"])
+    require(stdout == path.with_suffix(".stdout.txt"), "stdout path outside receipt custody")
+    require(stdout.is_file(), "stdout unavailable")
+    raw = stdout.read_bytes()
+    require(len(raw) == value["stdout_bytes"], "stdout size drift")
+    require(hashlib.sha256(raw).hexdigest() == value["stdout_sha256"], "stdout digest drift")
+    return {
+        "outcome": value["outcome"],
+        "receipt": record(path),
+        "stdout": record(stdout),
+        "exit_code": value.get("exit_code"),
+        "source_immutable": value.get("source_immutable"),
+        "command": value.get("command"),
+        "counts": value.get("counts"),
+        "junit": value.get("junit"),
+    }
+
+
+def standalone_successors(plan: dict[str, Any]) -> list[dict[str, Any]]:
+    require(plan.get("prepared_against_sha") == SOURCE, "successor source mismatch")
+    require(plan.get("prepared_against_tree") == TREE, "successor tree mismatch")
+    rows = plan["rows"]
+    require(len(rows) == 37, "37 successor selectors required")
+    require(len({row["code"] for row in rows}) == 37, "duplicate successor")
+    result: list[dict[str, Any]] = []
+    for row in rows:
+        steps = []
+        for index, command in enumerate(row["capture_via_existing_run_check"]):
+            argv = command["argv"]
+            require(arg_value(argv, "--candidate") == SOURCE, "successor command drift")
+            path = Path(arg_value(argv, "--output")) / (arg_value(argv, "--name") + ".json")
+            step = {"ordinal": index, "expected_receipt_path": str(path)}
+            if path.is_file():
+                step.update(frozen_receipt(path))
+            else:
+                step.update(
+                    {
+                        "outcome": "UNRUN",
+                        "receipt": None,
+                        "reason": "No deciding receipt; absence is not PASS",
+                    }
+                )
+            steps.append(step)
+        outcomes = [step["outcome"] for step in steps]
+        if any(outcome == "FAIL" for outcome in outcomes):
+            overall = "FAIL"
+        elif any(outcome == "ERROR" for outcome in outcomes):
+            overall = "ERROR"
+        elif not outcomes or "UNRUN" in outcomes:
+            overall = "UNRUN"
+        elif "SKIP" in outcomes:
+            overall = "SKIP"
+        else:
+            overall = "PASS"
+        result.append(
+            {
+                "selector": row["code"],
+                "scope": row["scope"],
+                "label": row["label"],
+                "owner": row["planned_owner"],
+                "steps": steps,
+                "observed_outcome": overall,
+                "umbrella_UNRUN_rewritten": False,
+                "scope_rule": STANDALONE_SCOPE,
+            }
+        )
+    return result
+
+
+def join(
+    prewave: dict[str, Any],
+    numeric: dict[str, Any],
+    case_index: dict[str, Any],
+    successors: dict[str, Any],
+    input_records: dict[str, Any],
+) -> dict[str, Any]:
+    require(
+        numeric.get("schema") == "policyos.e02.independent_final_numeric_recomputation.v1",
+        "collector schema mismatch",
+    )
+    for report in (numeric, case_index):
+        require(report.get("source") == SOURCE, "collector source mismatch")
+        require(report.get("tree") == TREE, "collector tree mismatch")
+    links = numeric["finding_links"]
+    require(len(links) == 54, "54 current finding links required")
+    by_id = {link["finding_id"]: link for link in links}
+    require(len(by_id) == 54, "duplicate current finding links")
+    require(set(by_id) == {row["id"] for row in prewave["rows"]}, "finding link mismatch")
+    result = copy.deepcopy(prewave)
+    result["schema"] = "policyos.e02.E.final-individual-dispositions.v1"
+    result["input_records"] = input_records
+    result["numeric_independent_recomputation"] = numeric
+    result["native_case_index_ref"] = input_records["case_index"]
+    result["standalone_successor_observations"] = standalone_successors(successors)
+    result["current_wave_rule"] = (
+        "Exact current JUnit matches are navigation observations. Individual criterion "
+        "decisions retain their independent defining-property basis; family membership "
+        "and aggregate PASS counts do not create finding closure."
+    )
+    for row in result["rows"]:
+        link = by_id[row["id"]]
+        require(link["bundle_ids"] == row["bundle_ids"], "current bundle links changed")
+        require(
+            link["ledger_status_historical"] == row["historical_ledger_status"],
+            "current historical status changed",
+        )
+        row["current_check_links"]["frozen_wave"] = {
+            "candidate": SOURCE,
+            "tree": TREE,
+            "receipt_recomputation_pending": False,
+            "current_selector_navigation": link["current_selector_navigation"],
+            "scope": "Recomputed current selector matches, not automatic criterion PASS",
+            "criterion_check_outcome": None,
+        }
+        row["current_independent_collector_link"] = link
+        row["formal_ledger_change"] = False
+    require(
+        Counter(row["historical_ledger_status"] for row in result["rows"])
+        == Counter({"partial": 49, "held": 4, "closed": 1}),
+        "historical ledger changed",
+    )
+    require(
+        Counter(row["proposed_finding_outcome"] for row in result["rows"])
+        == Counter({"closed": 43, "limited": 9, "held": 2}),
+        "owner decisions changed",
+    )
+    require(sum(len(row["bundle_ids"]) for row in result["rows"]) == 55, "55 links changed")
+    require(len(result["bundles"]) == 22, "22 bundles changed")
+    result["source_vs_evidence_rule"] = (
+        "Execution source remains64d7444a/treeaef23574. Later publication/evidence "
+        "utilities and regenerated-JSON delta observations have separate source refs; "
+        "they do not replace frozen runtime or test identities."
+    )
+    result["formal_ledger_change"] = False
+    return result
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--prewave", type=Path, required=True)
+    parser.add_argument("--numeric-report", type=Path, required=True)
+    parser.add_argument("--case-index", type=Path, required=True)
+    parser.add_argument("--successor-plan", type=Path, required=True)
+    parser.add_argument("--evidence-delta", type=Path)
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+    require(not args.output.exists(), "append-only output required")
+    prewave_record = record(args.prewave)
+    require(prewave_record["sha256"] == PREWAVE_HASH, "prewave custody drift")
+    records = {
+        "prewave": prewave_record,
+        "numeric": record(args.numeric_report),
+        "case_index": record(args.case_index),
+        "successor_plan": record(args.successor_plan),
+    }
+    if args.evidence_delta:
+        records["evidence_delta"] = record(args.evidence_delta)
+    value = join(
+        object_input(args.prewave),
+        object_input(args.numeric_report),
+        object_input(args.case_index),
+        object_input(args.successor_plan),
+        records,
+    )
+    if args.evidence_delta:
+        value["later_evidence_delta"] = object_input(args.evidence_delta)
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    args.output.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n")
+    sys.stdout.write(json.dumps(record(args.output), indent=2) + "\n")

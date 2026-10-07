@@ -1,0 +1,22 @@
+{
+  "candidate": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+  "denominator": {
+    "manifest_bundles": 127,
+    "bundle_owner_rows": 127,
+    "finding_owner_rows": 282,
+    "ledger_rows": 282,
+    "E_bundles": 22,
+    "E_unique_findings": 54,
+    "E_bundle_links": 55
+  },
+  "ledger": {
+    "partial": 49,
+    "held": 4,
+    "closed": 1
+  },
+  "proposal": {
+    "limited": 51,
+    "closed": 1,
+    "held": 2
+  }
+}

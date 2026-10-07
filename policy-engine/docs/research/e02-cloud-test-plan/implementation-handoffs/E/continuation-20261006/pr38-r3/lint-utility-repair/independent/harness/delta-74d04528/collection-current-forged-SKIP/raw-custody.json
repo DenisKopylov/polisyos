@@ -1,0 +1,20 @@
+[
+  {
+    "path": "raw/results-importer.git-config-private.nul",
+    "bytes": 5294,
+    "sha256": "fe8952d68833f451c26733baa8c3f2dc37e1d3d91a2e3b456dc10bdcf6ae0b25",
+    "publication": "private_excluded_hash_size_only"
+  },
+  {
+    "path": "raw/numeric-skip.git-config-private.nul",
+    "bytes": 5294,
+    "sha256": "fe8952d68833f451c26733baa8c3f2dc37e1d3d91a2e3b456dc10bdcf6ae0b25",
+    "publication": "private_excluded_hash_size_only"
+  },
+  {
+    "path": "raw/numeric-skip-exit7.git-config-private.nul",
+    "bytes": 5294,
+    "sha256": "fe8952d68833f451c26733baa8c3f2dc37e1d3d91a2e3b456dc10bdcf6ae0b25",
+    "publication": "private_excluded_hash_size_only"
+  }
+]

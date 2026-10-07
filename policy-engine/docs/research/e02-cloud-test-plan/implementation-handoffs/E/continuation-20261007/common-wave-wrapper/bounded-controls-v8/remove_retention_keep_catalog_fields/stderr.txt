@@ -1,0 +1,20 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/safe_cleanup_sentinel_driver.py", line 9, in <module>
+    runpy.run_path(script,run_name="__main__")
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<frozen runpy>", line 294, in run_path
+  File "<frozen runpy>", line 98, in _run_module_code
+  File "<frozen runpy>", line 88, in _run_code
+  File "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/removed_delete_false_property.py", line 137, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/removed_delete_false_property.py", line 88, in main
+    code = module.main()
+  File "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/remove_retention_keep_catalog_fields/synthetic_checker.py", line 10, in main
+    with tempfile.TemporaryDirectory(prefix="runtime_client_contract_") as name:
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/removed_delete_false_property.py", line 50, in retained_temporary
+    directory = original_temporary(**keywords)
+  File "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/safe_cleanup_sentinel_driver.py", line 5, in only_retained
+    raise RuntimeError("cleanup-enabled temporary request refused before allocation")
+RuntimeError: cleanup-enabled temporary request refused before allocation

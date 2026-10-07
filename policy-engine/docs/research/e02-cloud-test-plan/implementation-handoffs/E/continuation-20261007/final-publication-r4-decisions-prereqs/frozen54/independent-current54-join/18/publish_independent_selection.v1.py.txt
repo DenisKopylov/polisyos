@@ -1,0 +1,34 @@
+"""Pin complete moderate read-only review outputs without self-reference or rewrites."""
+import hashlib,json,subprocess,sys
+from pathlib import Path
+BASE=Path('/workspace/e02-E-pr38-r3-receipts/final-join-independent')
+ROOT=Path('/workspace/e02-E-continuation-20261006')
+def record(p):
+    raw=p.read_bytes();return {'path':str(p),'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest()}
+def require(c,m):
+    if not c:raise ValueError(m)
+revision='a5021561c7630b8a1e721e34307d30550825b07d'
+source_path='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/publication-validation.stdout'
+raw=subprocess.check_output(['git','-C',str(ROOT),'show',revision+':'+source_path])
+copy=BASE/'FRC-a502-publication-validation.stdout.txt'
+with copy.open('xb') as f:f.write(raw)
+value=json.loads(raw)
+require(value['validation']=='PASS' and len(value['controls'])==14 and all(c['refused'] is True for c in value['controls']),'actual validator publication control output')
+selected=['review_doc_merge_prerequisites.v3.py.txt','doc-merge-prerequisites-v3.json','doc-merge-review-v3.stdout.txt','doc-merge-review-v3.stderr.txt','review_current54_independent.v2.py.txt','current54-independent-normal-v2.json','current54-independent-normal-v2.stdout.txt','current54-independent-normal-v2.stderr.txt','current54-independent-optimized-v2.json','current54-independent-optimized-v2.stdout.txt','current54-independent-optimized-v2.stderr.txt','FRC-a502-publication-validation.stdout.txt']
+records=[record(BASE/p) for p in selected]
+# Read author recomputing controls as secondary corroboration; independent review did not use them as its oracle.
+author=Path('/workspace/e02-E-pr38-r3-receipts/criteria-r4')
+for mode,expected in [('normal','7873aab3d96cdcdecbd7a2d1facb30668780aceb7fb86ec28c8b1ceaefef3e33'),('optimized','81d15325e92e1ea69833d2757e79b0f8664ed4ae3aa3cab5696d517724471043')]:
+    p=author/('current54-recomputing-validation-'+mode+'.json'); ref=record(p);require(ref['sha256']==expected,'author validator exact immutable corroboration');v=json.loads(p.read_bytes());require(v['check_outcome']=='PASS' and len(v['corrupt_controls'])==7 and all(c['outcome']=='rejected' for c in v['corrupt_controls']),'author corrupt controls preserved');records.append(ref)
+    for suffix in ('stdout.txt','stderr.txt'):
+        p=author/('current54-recomputing-validation-'+mode+'.'+suffix)
+        require(p.is_file(),'author stdout/stderr unavailable');records.append(record(p))
+records.extend([record(Path(__file__))])
+for ref in records:require(record(Path(ref['path']))==ref,'fresh hash bracket')
+history=[]
+for directory in ('failed-doc-census-rename-v1','failed-doc-census-rename-v2'):
+    history.extend(record(p) for p in sorted((BASE/directory).iterdir()))
+result={'schema':'policyos.e02.E.independent_final_join_publication_selection.v1','reviewer':'imports_r4','source':'64d7444a18c55df7b88b71b7699a2f1b25ca24bd','tree':'aef23574d3162abb19bf5a1c67d02624ff9d4d1d','disposition':'GO for docmerge prerequisite footprint and frozen current54 V2 join integrity, with explicit later-current supplemental correction','complete_deciding_assets':records,'asset_count':len(records),'asset_bytes':sum(r['bytes'] for r in records),'failed_attempts_preserved_separately':history,'excluded_successful_prior_draft':'current54 normal v1 retains earlier14 controls; final v2 adds three semantic-scope corruption controls, no original bytes rewritten','git_copy_binding':{'revision':revision,'source_path':source_path,'portable_path':str(copy),'source_sha256':hashlib.sha256(raw).hexdigest(),'source_bytes':len(raw),'copy_byte_equal':True},'commands':[{'argv':['python3','-S',str(BASE/'review_doc_merge_prerequisites.v3.py.txt')],'stdout':str(BASE/'doc-merge-review-v3.stdout.txt'),'stderr':str(BASE/'doc-merge-review-v3.stderr.txt'),'exit_code':0},{'argv':['python3','-S',str(BASE/'review_current54_independent.v2.py.txt')],'stdout':str(BASE/'current54-independent-normal-v2.stdout.txt'),'stderr':str(BASE/'current54-independent-normal-v2.stderr.txt'),'exit_code':0},{'argv':['python3','-S','-O',str(BASE/'review_current54_independent.v2.py.txt')],'stdout':str(BASE/'current54-independent-optimized-v2.stdout.txt'),'stderr':str(BASE/'current54-independent-optimized-v2.stderr.txt'),'exit_code':0}],'external_interpreter':{'executable':sys.executable,'version':sys.version,'stdlib_only':True,'ROOT_venv_used_or_imported':False},'docmerge_counts':{'G':21,'FRC':387,'DOE_full_old_new':272,'complete_union':680,'destination_only_prior_proxy':676,'R100_byte_preserved_stdout_role_renames':4,'active_Python_after_merge':361},'proof_reuse':'No product/test/source/facade/schema body deltas; exact64d numeric/native receipts retain original source identity. Parent performs ordinary append merges only after its active frozen native users close. Full361 lint/format warranted for one new executable doc validator. No new global/numeric gate by this reviewer.','owner_decisions':'Exact accountable-owner input dispositions preserved; historical49partial4held1closed distinct from proposed43closed9limited2held. This integrity review does not amend formal ledger.','current_supplement_required':['Immutable V2 cleanup instruction is superseded by latest human cloud-only delete authorization; root/criteria current layer must preserve historicalV2 and bind actual closed cleanup phases. Local Trash-only/no emptying remains.','Immutable initial37 observations21FAIL15PASS1UNRUN remain unchanged. Later architecture/browser/page/backend retries retain distinct exact receipts/current attempts; prerequisite install is not full workspace check PASS.','Full102 ABI generation packet remains authoritative; no fabricated count correction.'],'P41':'not_established without exact base/full input/environment replay','cleanup':'Only scratch observer/text receipts created; no root tracked writes, checkout/Git mutations, source/native env users, product tests, production data reads, deletion or cleanup action.'}
+out=BASE/'independent-final-join-publication-selection-v1.json'
+with out.open('x') as f:f.write(json.dumps(result,indent=2,ensure_ascii=False)+'\n')
+print(json.dumps(record(out),indent=2))

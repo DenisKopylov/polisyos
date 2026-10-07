@@ -1,0 +1,119 @@
+{
+  "review": "HTTP failure attribution + cleanup custody",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "native_counts": {
+    "cases": 1585,
+    "passed": 675,
+    "failed": 81,
+    "errors": 827,
+    "skipped": 2
+  },
+  "native_outcome": "FAIL",
+  "categories": {
+    "evaluation_safety_completed_source_fixture": {
+      "count": 1,
+      "statuses": {
+        "failed": 1
+      },
+      "literal_errno28_trace_count": 0
+    },
+    "catalog_fetch_source_unreadable": {
+      "count": 413,
+      "statuses": {
+        "errors": 347,
+        "failed": 66
+      },
+      "literal_errno28_trace_count": 0
+    },
+    "lex_completed_diagnostic_missing": {
+      "count": 1,
+      "statuses": {
+        "failed": 1
+      },
+      "literal_errno28_trace_count": 0
+    },
+    "l6_control_artifact_missing": {
+      "count": 43,
+      "statuses": {
+        "errors": 41,
+        "failed": 2
+      },
+      "literal_errno28_trace_count": 0
+    },
+    "cycle_board_ortools_preflight": {
+      "count": 1,
+      "statuses": {
+        "failed": 1
+      },
+      "literal_errno28_trace_count": 0
+    },
+    "epoch_provenance_owner_read_mismatch": {
+      "count": 1,
+      "statuses": {
+        "failed": 1
+      },
+      "literal_errno28_trace_count": 0
+    },
+    "value_gate_received_companion_unresolved": {
+      "count": 1,
+      "statuses": {
+        "failed": 1
+      },
+      "literal_errno28_trace_count": 0
+    },
+    "run_paper_manifest_negative_did_not_raise": {
+      "count": 7,
+      "statuses": {
+        "failed": 7
+      },
+      "literal_errno28_trace_count": 0
+    },
+    "literal_ENOSPC": {
+      "count": 2,
+      "statuses": {
+        "errors": 2
+      },
+      "literal_errno28_trace_count": 2
+    },
+    "numbered_dir_creation_without_underlying_errno": {
+      "count": 437,
+      "statuses": {
+        "errors": 437
+      },
+      "literal_errno28_trace_count": 0
+    },
+    "literal_mktemp_no_space": {
+      "count": 1,
+      "statuses": {
+        "failed": 1
+      },
+      "literal_errno28_trace_count": 0
+    }
+  },
+  "http_receipt": {
+    "path": "/tmp/e02-E-http-error-independent-64d/http-failure-attribution.json",
+    "bytes": 232669,
+    "sha256": "24bd1839a71410277c9b3a212f645cc2fb44ce86c9ddac40d02b5cdb72bc0fe7"
+  },
+  "cleanup_custody": {
+    "path": "/tmp/e02-E-http-error-independent-64d/cleanup-custody-review.json",
+    "bytes": 19563,
+    "sha256": "789e72ea6ccd9f058455da9a0f6fec83275db1d222902c3295002cafe40040fa"
+  },
+  "cleanup_publication_assets": 26,
+  "cleanup_publication_bytes": 77136,
+  "retained_archive": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci02-fixtures/closed-ci02-pytest-base.tar.gz",
+    "bytes": 92547993,
+    "sha256": "56b94b6379b4c08c91f458c6df6fae269c16c4503574d5567383e6d4fa702d09"
+  },
+  "actual_member_inventory_count": 192219,
+  "retained_repeatability_refs_checked": 4623,
+  "fresh_active_users": [],
+  "fresh_unreadable_agent_processes": [],
+  "all11_corrupt_summary_custody_controls_rejected": 11,
+  "source_immutable": true,
+  "P41": "not_established",
+  "finding_closure": false
+}

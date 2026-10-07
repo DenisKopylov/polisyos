@@ -1,0 +1,159 @@
+{"source": "58e2d97965c0826c44843a78dcb2f8698d9950a3", "mode": "exact_git_blob_import_overlay", "modules": {"polisyos.foundry.methods.backends.numpy_runner": {"path": "policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py", "sha256": "a36c55d2996b178e2671fbd433e56f9e5d5cde327989907ad49f6fc59297c505", "bytes": 5225}, "polisyos.foundry.methods.catalog.econometrics.advanced": {"path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py", "sha256": "0135c8acc19e8f213ae4bd5304eb0ce0272ba2232a95f9a47ec3cb6244688521", "bytes": 83910}, "polisyos.foundry.execute._internal.graph": {"path": "policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py", "sha256": "beac46a425509e47d8f0ba364e06b9b105ee056e19b859d3d2c2d20c5bdb51c5", "bytes": 41564}}}
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+___________ test_real_dispatch_reopens_all_three_summary_call_sites ____________
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-155/test_real_dispatch_reopens_all0')
+
+    def test_real_dispatch_reopens_all_three_summary_call_sites(tmp_path) -> None:
+        pytest.importorskip("arch")
+        store = FileSystemCAS(tmp_path / "cas")
+        data = _panel()
+        before = data.model_dump(mode="json")
+        params = {**_params(), "artifact_store": store}
+>       result = MethodDispatcher(enable_runtime_selection=False).dispatch(
+            method_class=NonstationaryGARCHEstimator,
+            signature=NonstationaryGARCHEstimator.signature,
+            state=data,
+            params=params,
+            seed=37,
+        )
+
+tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py:114: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/foundry/methods/backends/dispatch.py:558: in dispatch
+    raise last_exc
+src/polisyos/foundry/methods/backends/dispatch.py:510: in dispatch
+    result = self._dispatch_with_candidates(
+src/polisyos/foundry/methods/backends/dispatch.py:766: in _dispatch_with_candidates
+    result = self._execute_on_backend(
+src/polisyos/foundry/methods/backends/dispatch.py:839: in _execute_on_backend
+    return breaker.call(_execute)
+           ^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/backends/circuit_breaker.py:219: in call
+    result = fn(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/backends/dispatch.py:831: in _execute
+    return runner.execute(
+git:58e2d97965c0826c44843a78dcb2f8698d9950a3:policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py:60: in execute
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+signature = MethodSignature(name='nonstationary_garch', namespace='econometrics.panel', version='1.0.0', input_slots=frozenset({Sl...nset(), conflicts_with=frozenset(), requires=frozenset(), supports_jit=False, supports_vmap=False, supports_grad=False)
+params = {'artifact_store': <polisyos.core.artifacts.store.FileSystemCAS object at 0x7f9956c5a660>, 'break_detection_method': 'none', 'diagnostic_levels': (0.95,), 'holdout_periods': 50, ...}
+
+>   ???
+E   ValueError: Unknown parameters for econometrics.panel.nonstationary_garch@1.0.0: ['artifact_store']
+
+git:58e2d97965c0826c44843a78dcb2f8698d9950a3:policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py:35: ValueError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 13:05:06 [debug    ] method_dispatch_start          backend=numpy fqn=econometrics.panel.nonstationary_garch@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 13:05:06 [error    ] method_dispatch_error          attempts=[('numpy', 'ValueError')] backend=numpy elapsed_ms=0.1 exc=ValueError fqn=econometrics.panel.nonstationary_garch@1.0.0 requested_backend=numpy
+------------------------------ Captured log call -------------------------------
+WARNING  polisyos.core.observability._metrics_registry_base:_metrics_registry_base.py:263 Prometheus metrics exporter disabled after bootstrap failure: [Errno 98] Address already in use
+____________ test_native_graph_returns_refs_from_its_configured_cas ____________
+
+store = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7f9955034a50>
+
+>   ???
+
+git:58e2d97965c0826c44843a78dcb2f8698d9950a3:policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py:423: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/foundry/methods/backends/dispatch.py:558: in dispatch
+    raise last_exc
+src/polisyos/foundry/methods/backends/dispatch.py:510: in dispatch
+    result = self._dispatch_with_candidates(
+src/polisyos/foundry/methods/backends/dispatch.py:766: in _dispatch_with_candidates
+    result = self._execute_on_backend(
+src/polisyos/foundry/methods/backends/dispatch.py:839: in _execute_on_backend
+    return breaker.call(_execute)
+           ^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/backends/circuit_breaker.py:219: in call
+    result = fn(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/backends/dispatch.py:831: in _execute
+    return runner.execute(
+git:58e2d97965c0826c44843a78dcb2f8698d9950a3:policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py:60: in execute
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+signature = MethodSignature(name='nonstationary_garch', namespace='econometrics.panel', version='1.0.0', input_slots=frozenset({Sl...nset(), conflicts_with=frozenset(), requires=frozenset(), supports_jit=False, supports_vmap=False, supports_grad=False)
+params = {'artifact_store': 'untrusted-client-store', 'break_detection_method': 'none', 'diagnostic_levels': [0.95], 'holdout_periods': 50, ...}
+
+>   ???
+E   ValueError: Unknown parameters for econometrics.panel.nonstationary_garch@1.0.0: ['artifact_store']
+
+git:58e2d97965c0826c44843a78dcb2f8698d9950a3:policy-engine/src/polisyos/foundry/methods/backends/numpy_runner.py:35: ValueError
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-155/test_native_graph_returns_refs0')
+
+    def test_native_graph_returns_refs_from_its_configured_cas(tmp_path) -> None:
+        pytest.importorskip("arch")
+        store = FileSystemCAS(tmp_path / "configured-cas")
+        MethodRegistry.get_instance().register(NonstationaryGARCHEstimator)
+        ir_ref = ArtifactRef(
+            artifact_id="sha256:" + "a" * 64,
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+        )
+        lowered = store.put_json(
+            LoweredIR(ir_ref=ir_ref, mechanisms=[], constraints=[]),
+            ArtifactWriteOptions(kind="foundry.lowered_ir", media_type="application/json"),
+        )
+        client_params = {**_params(), "artifact_store": "untrusted-client-store"}
+        node = ProgramNode(
+            node_id="calibration",
+            node_kind="method",
+            method_fqn=NonstationaryGARCHEstimator.signature.fqn,
+            method_params=client_params,
+        )
+        graph = ProgramGraph(
+            ir_ref=ir_ref,
+            lowered_ir_ref=LoweredIRRef(artifact_id=lowered.artifact_id),
+            nodes=[node],
+            entrypoints=[node.node_id],
+        )
+        graph_ref = store.put_json(
+            graph,
+            ArtifactWriteOptions(kind="foundry.program_graph", media_type="application/json"),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        plan = ExecPlan(
+            program_ref=ProgramGraphRef(artifact_id=graph_ref.artifact_id), order=[node.node_id]
+        )
+        plan_ref = store.put_json(
+            plan, ArtifactWriteOptions(kind="foundry.exec_plan", media_type="application/json")
+        )
+        state = _PanelGraphState(_panel())
+        before = copy.deepcopy(dict(state))
+>       artifacts = execute_program_graph(
+            store,
+            program_ref=graph_ref,
+            exec_plan_ref=plan_ref,
+            base_state=state,
+            mechanism_registry=DEFAULT_MECHANISM_REGISTRY,
+            slot_registry=DEFAULT_SLOT_REGISTRY,
+            merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+            seed=43,
+        )
+
+tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py:184: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+store = <polisyos.core.artifacts.store.FileSystemCAS object at 0x7f9955034a50>
+
+>   ???
+E   polisyos.foundry.methods.exceptions.MethodExecutionAbortError: Execution aborted: econometrics.panel.nonstationary_garch@1.0.0 [fatal]: Unknown parameters for econometrics.panel.nonstationary_garch@1.0.0: ['artifact_store']
+
+git:58e2d97965c0826c44843a78dcb2f8698d9950a3:policy-engine/src/polisyos/foundry/execute/_internal/graph/__init__.py:459: MethodExecutionAbortError
+----------------------------- Captured stdout call -----------------------------
+2026-10-06 13:05:07 [info     ] method_registered              backend=numpy fqn=econometrics.panel.nonstationary_garch@1.0.0 lazy=False namespace=econometrics.panel override=False tags=['econometrics', 'estimation', 'garch', 'panel', 'policy-risk', 'structural-break', 'tabular', 'uncertainty'] version=1.0.0
+2026-10-06 13:05:07 [debug    ] method_dispatch_start          backend=numpy fqn=econometrics.panel.nonstationary_garch@1.0.0 n_obs=None requested_backend=numpy selection_reason=declared_backend
+2026-10-06 13:05:07 [error    ] method_dispatch_error          attempts=[('numpy', 'ValueError')] backend=numpy elapsed_ms=0.28 exc=ValueError fqn=econometrics.panel.nonstationary_garch@1.0.0 requested_backend=numpy
+------------------------------ Captured log call -------------------------------
+WARNING  polisyos.foundry.execute._internal.graph:__init__.py:451 Program node 'calibration' failed [fatal/validation]: Unknown parameters for econometrics.panel.nonstationary_garch@1.0.0: ['artifact_store']
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py::test_real_dispatch_reopens_all_three_summary_call_sites
+FAILED tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py::test_native_graph_returns_refs_from_its_configured_cas

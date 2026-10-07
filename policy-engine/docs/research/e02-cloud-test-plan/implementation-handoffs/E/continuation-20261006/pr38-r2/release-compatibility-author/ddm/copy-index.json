@@ -1,0 +1,43 @@
+{
+  "schema": "policyos.e02.ddm-release-companion-copy-index.v1",
+  "files": [
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/ddm-release-a267/ddm-release-companion.patch",
+      "relative_path": "ddm-release-companion.patch",
+      "bytes": 3111,
+      "sha256": "78d972e269bb1faa18ac4fedf26aee892869eec520d4e9614ed2f662c98ef397"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/ddm-release-a267/ddm-source-binding.original.toml",
+      "relative_path": "ddm-source-binding.original.toml",
+      "bytes": 1667,
+      "sha256": "807fcc8d0348a1867ecd21851169113bd33f4f3971307cd4da2e06e0fae5e1d7"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/ddm-release-a267/ddm-source-binding.proposed.toml",
+      "relative_path": "ddm-source-binding.proposed.toml",
+      "bytes": 2796,
+      "sha256": "01fc46a6268408570a2da271534187894f94797452385b9b7bfaa1d474267b32"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/ddm-release-a267/packet.json",
+      "relative_path": "packet.json",
+      "bytes": 8206,
+      "sha256": "b326fff8615e94c161ebc53eb29a2b57a155c821cd8b5a35fd19bbb83df253f9"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/ddm-release-a267/preparation.stdout",
+      "relative_path": "preparation.stdout",
+      "bytes": 8206,
+      "sha256": "b326fff8615e94c161ebc53eb29a2b57a155c821cd8b5a35fd19bbb83df253f9"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/ddm-release-a267/prepare_companion.py",
+      "relative_path": "prepare_companion.py",
+      "bytes": 9810,
+      "sha256": "8fc452c8666548a268727f897368faf09022914f584039f96f344849a1e39107"
+    }
+  ],
+  "total_bytes": 33796,
+  "scope": "scratch applicable metadata patch packet, no repository edits or independent DDM source review"
+}

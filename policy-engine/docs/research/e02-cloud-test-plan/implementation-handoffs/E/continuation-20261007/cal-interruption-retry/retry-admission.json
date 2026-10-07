@@ -1,0 +1,583 @@
+{
+  "schema": "policyos.e02.interruption_retry_admission.v1",
+  "execution_state": "ADMITTED_NOT_STARTED",
+  "scope": "Only original CAL_and_welfare_consumer group interruption retry, not another broad wave",
+  "original_receipt": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.json",
+    "bytes": 10457,
+    "sha256": "bf14aaaebfb61d9ea6e64a1f05d0e9fc0da75a856aa456855470d74eb91a30cd"
+  },
+  "original_stdout": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/cal-and-welfare-consumer/cal-and-welfare-consumer.stdout.txt",
+    "bytes": 281,
+    "sha256": "840e92795a70320c72cbedd9f1ef462e30cbd062b488ab646e23b5c93c0ea505"
+  },
+  "original_junit_present": false,
+  "original_observation": {
+    "exit_code": -9,
+    "outcome": "FAIL",
+    "wall_seconds": 1827.2683534622192,
+    "counts": null,
+    "signal": "SIGKILL",
+    "per_process_oom_cause": "not_established"
+  },
+  "candidate_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "candidate_tree_sha": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "branch": "codex/e02-E-continuation-20261006",
+  "tracked_dirty": "",
+  "untracked_status": "?? policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/",
+  "source_identity": {
+    "tracked_paths": 17016,
+    "bytes": 524100024,
+    "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+  },
+  "input_files": {
+    "AGENTS.md": {
+      "path": "/workspace/e02-E-continuation-20261006/AGENTS.md",
+      "bytes": 22656,
+      "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50",
+      "git_blob": "94173d77ab34173f12883ee6575db4a461f6df98"
+    },
+    "policy-engine/CONTRIBUTING.md": {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/CONTRIBUTING.md",
+      "bytes": 10553,
+      "sha256": "1c9ea84e5fa0d8f05517287523d47d71128742ad02a5d20ce326163d21754783",
+      "git_blob": "ac70f96fa6a0c0bd6b810e10f33b409dea2a78bf"
+    },
+    "policy-engine/pyproject.toml": {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/pyproject.toml",
+      "bytes": 11007,
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c"
+    },
+    "policy-engine/uv.lock": {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/uv.lock",
+      "bytes": 779204,
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "git_blob": "85f1fb2150a4da454fee02108565381d44f56730"
+    }
+  },
+  "selected_test_assets": {
+    "policy-engine/tests/unit/foundry/calibration/test_auxiliary.py": {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/foundry/calibration/test_auxiliary.py",
+      "bytes": 1212,
+      "sha256": "0dab1cd1d5b99c196691d5aa6b97defa9b0e629f96d996cb41189e4e52b66005",
+      "git_blob": "b811eb7adbf18d32fc90f6bdda53fd0a47af8400"
+    },
+    "policy-engine/tests/unit/foundry/calibration/test_bijectors.py": {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/foundry/calibration/test_bijectors.py",
+      "bytes": 4166,
+      "sha256": "1b82eeb5c90483460ba4c042ea5157e9360b192d0402f2cb3d6973fcd2cda911",
+      "git_blob": "4a2d8531634f97ac6a0d918d2f04835eef2011bf"
+    },
+    "policy-engine/tests/unit/foundry/calibration/test_calibration_robust_set_selector.py": {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/foundry/calibration/test_calibration_robust_set_selector.py",
+      "bytes": 4541,
+      "sha256": "af88ef3d4bba84fbc86f83da03c866b107bf621dd7c0a8e2a52ec8856f87435e",
+      "git_blob": "4d322602cfd2017c08c8b9a75f6ca62b92b48c03"
+    },
+    "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py": {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+      "bytes": 9674,
+      "sha256": "af8fa2bf5fd31ea885b14b4406dc98f281c744b73176ff8ed1e5b16df7f8992e",
+      "git_blob": "9c71d74379577609f2da636a0b8534d2483defd1"
+    },
+    "policy-engine/tests/unit/foundry/calibration/test_calibrator.py": {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/foundry/calibration/test_calibrator.py",
+      "bytes": 5071,
+      "sha256": "01492dd1c50c90f0106a4c4f186fbeaeba1647ca7bce0b8671abae860222c8de",
+      "git_blob": "13daf83bedb15b34bfc182bf24540e81a2d7a218"
+    },
+    "policy-engine/tests/unit/foundry/calibration/test_calibrator_batch.py": {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/foundry/calibration/test_calibrator_batch.py",
+      "bytes": 12917,
+      "sha256": "2b65748551ba09b77d7b9ee4c8a43e8834e6c4855d34b0f668e580be8c988e65",
+      "git_blob": "630c416e5a7220e414506297f1d8ea6f02de4b2a"
+    },
+    "policy-engine/tests/unit/foundry/calibration/test_calibrator_fidelity.py": {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/foundry/calibration/test_calibrator_fidelity.py",
+      "bytes": 6190,
+      "sha256": "442a84fe3b13e9fe89b93385651fd13bc5448fabff843ce6cae270721cc79946",
+      "git_blob": "d427b078bb56963e670918a343e83fc727ed3f39"
+    },
+    "policy-engine/tests/unit/foundry/calibration/test_calibrator_mvp.py": {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/foundry/calibration/test_calibrator_mvp.py",
+      "bytes": 15205,
+      "sha256": "02063c6088db9192b10ccf2c9152fa9e4db9caff85c36ea4d356f083426416a6",
+      "git_blob": "7319eaa6f18819fc2613e3bd1406ce9a4d83f875"
+    },
+    "policy-engine/tests/unit/foundry/calibration/test_dp_ci.py": {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/foundry/calibration/test_dp_ci.py",
+      "bytes": 4005,
+      "sha256": "fcc6f7630c877f161bbdb701a0c624ffd731b0d2aea11592938bd24ac7ddeff6",
+      "git_blob": "0e60f40b7fa9105c1ef8928a38d3e8fbc8daf68d"
+    },
+    "policy-engine/tests/unit/foundry/calibration/test_fabric_quality.py": {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/foundry/calibration/test_fabric_quality.py",
+      "bytes": 1644,
+      "sha256": "65b71b39ba1b563264e97ffa42d142f3c3e9486de5964951313b717d898cc56a",
+      "git_blob": "c2399474f2bb1a051f2235860b0133fa8dfa2a13"
+    },
+    "policy-engine/tests/unit/foundry/calibration/test_hessian.py": {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/foundry/calibration/test_hessian.py",
+      "bytes": 7670,
+      "sha256": "ba620b2729dd114582bafcf6f5e3a8a66dcec93132fb5842139cee2b624b6fb8",
+      "git_blob": "287265b1aa2116c5082bb285bcfa8a0238d06389"
+    },
+    "policy-engine/tests/unit/foundry/calibration/test_identifiability.py": {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/foundry/calibration/test_identifiability.py",
+      "bytes": 12279,
+      "sha256": "34118aae70118e6c73627c4ea7cd981a5ca7d665a0f6def3f9f1920c2c1fe445",
+      "git_blob": "f62fcab38427f2266311c0281c1195548ded1df0"
+    },
+    "policy-engine/tests/unit/foundry/calibration/test_loss.py": {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/foundry/calibration/test_loss.py",
+      "bytes": 3695,
+      "sha256": "629995047727029a1ce5f01f2d1accde55b66a796bbddc95f6a77f7d60684ac8",
+      "git_blob": "ec20c97e592f3d16c0450ecb968ddf1dde376fd3"
+    },
+    "policy-engine/tests/unit/foundry/calibration/test_measurement.py": {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/foundry/calibration/test_measurement.py",
+      "bytes": 9787,
+      "sha256": "6a5d4c5ba8881884004fc0c9552528d9537dcf233ff5614750939803e20c531b",
+      "git_blob": "0f55a4b2141dc4e44b0be17f5eee79ff3858706e"
+    },
+    "policy-engine/tests/unit/foundry/calibration/test_multi_start.py": {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/foundry/calibration/test_multi_start.py",
+      "bytes": 3756,
+      "sha256": "39070fd2af17b37a5788624a34f31d7dfbcd0b31a49be771749cc19ca52797d2",
+      "git_blob": "e095d7e24897ba08204fb6133721d01b693ebf64"
+    },
+    "policy-engine/tests/unit/foundry/calibration/test_preflight.py": {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/foundry/calibration/test_preflight.py",
+      "bytes": 2373,
+      "sha256": "dd8dc09594e64abec9401d9cd46fdb29e2af3c162b991dcecfbcba4c5766456c",
+      "git_blob": "75eb88ac5ab944639e9bf875b6cb603a94714b2e"
+    },
+    "policy-engine/tests/unit/foundry/calibration/test_pure_executor.py": {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/foundry/calibration/test_pure_executor.py",
+      "bytes": 4376,
+      "sha256": "c4877190d7fb2b2c247326ae6556139ab21815206c52e55c6e5b821a42139607",
+      "git_blob": "e0e864b0e7753e78d6ce26e796088933ad2bace5"
+    },
+    "policy-engine/tests/unit/foundry/calibration/test_pure_executor_batch.py": {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/foundry/calibration/test_pure_executor_batch.py",
+      "bytes": 8750,
+      "sha256": "541603ed43b67c6b0c78666964dc1a6a8efb66e301e05ad071cd0bcf804e49ae",
+      "git_blob": "2d36d203e7e973820f7977cddb6a618a1ba9e82e"
+    },
+    "policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py": {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+      "bytes": 26557,
+      "sha256": "3d95c04edc8c3dc2aa7dce04f68f76d91c6ed1f99d16de89884b52fa9a213ce2",
+      "git_blob": "013f2b7d85e28b723cae17a964e95f7f9789b715"
+    },
+    "policy-engine/tests/unit/foundry/calibration/test_report.py": {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/foundry/calibration/test_report.py",
+      "bytes": 4814,
+      "sha256": "7d138b068a0b0c8bae8b30eeefcbd3ce4dcd76a114fbb75068a7c9ab9c39d531",
+      "git_blob": "2a381cb5fc30e9dc408512017c2a291c5e70b494"
+    },
+    "policy-engine/tests/unit/remediation/test_cal_01.py": {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/remediation/test_cal_01.py",
+      "bytes": 10030,
+      "sha256": "a0aac263d514ab82b9e0734314b1507268fbe160033bd91712a8916df6a4f5fc",
+      "git_blob": "7d62342d0e12a716d5903f9faeb1be4f5386a789"
+    },
+    "policy-engine/tests/unit/remediation/test_cal_02.py": {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/remediation/test_cal_02.py",
+      "bytes": 5239,
+      "sha256": "2285d2379ac8c4023148ecbffbbca2feb4844be6a331ad3600cffbeff9fe7254",
+      "git_blob": "44cef10420cf99fc962c9cd0e169db57e9710458"
+    },
+    "policy-engine/tests/unit/remediation/test_cal_03.py": {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/remediation/test_cal_03.py",
+      "bytes": 6740,
+      "sha256": "189adf915ccdf055e44dad8ab3fb9717ca90a05ecece454630bcff134a73ef62",
+      "git_blob": "0731a730dffdd1c11fe34eeb7d9e5f3bac07cf13"
+    },
+    "policy-engine/tests/unit/remediation/test_cal_04.py": {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/remediation/test_cal_04.py",
+      "bytes": 17304,
+      "sha256": "0675da03cc8e3a84939e6f8bf27c816981d9cef573b885eccef168063b96c2a5",
+      "git_blob": "2f4d053bfb206494239920ab18e8deba8e983a75"
+    },
+    "policy-engine/tests/unit/remediation/test_cal_06.py": {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/remediation/test_cal_06.py",
+      "bytes": 4994,
+      "sha256": "c9afbd837ae8b3b6defed9a588492e67fb1d084c493ad6ffa8ee43a77c85aa13",
+      "git_blob": "e0b87cb27fbd551761a7f4fad843f7dbf7fb7d47"
+    },
+    "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py": {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+      "bytes": 85797,
+      "sha256": "da80465b67bdd8c021957ca60abfd509c1bf05d7f19cdd8bd5ca624efc3ea248",
+      "git_blob": "52a85d73fc710a12bff38408cc6a63d84a0bf7d0"
+    },
+    "policy-engine/tests/unit/foundry/calibration/test_gaussian_noise_preflight.py": {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/foundry/calibration/test_gaussian_noise_preflight.py",
+      "bytes": 7789,
+      "sha256": "7af89a525a5e011567a8fd60c66e6c814ac7c934caa3f13e5c374906ca5116fc",
+      "git_blob": "e637c2c06523497a3992c9739c9600cb2bb3812f"
+    },
+    "policy-engine/tests/unit/scientist/nodes/test_calibration_report_consumer.py": {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/scientist/nodes/test_calibration_report_consumer.py",
+      "bytes": 10105,
+      "sha256": "26d7aa24cfb613bdd412ee6517a395a812b961acb8c54082f74f99215926dc03",
+      "git_blob": "7c687ca9119a7fbdce0e45ec57dfd4c61067d466"
+    },
+    "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py": {
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py",
+      "bytes": 15822,
+      "sha256": "a7bd90fe23eb9c7a3b04940b41b3e92b9c5798376f177dcd04760465a8b842b1",
+      "git_blob": "ecbf6e41d8c7ad3888209e7c9928d15fa1789758"
+    }
+  },
+  "selector_count": 29,
+  "selectors": [
+    "tests/unit/foundry/calibration/test_auxiliary.py",
+    "tests/unit/foundry/calibration/test_bijectors.py",
+    "tests/unit/foundry/calibration/test_calibration_robust_set_selector.py",
+    "tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+    "tests/unit/foundry/calibration/test_calibrator.py",
+    "tests/unit/foundry/calibration/test_calibrator_batch.py",
+    "tests/unit/foundry/calibration/test_calibrator_fidelity.py",
+    "tests/unit/foundry/calibration/test_calibrator_mvp.py",
+    "tests/unit/foundry/calibration/test_dp_ci.py",
+    "tests/unit/foundry/calibration/test_fabric_quality.py",
+    "tests/unit/foundry/calibration/test_hessian.py",
+    "tests/unit/foundry/calibration/test_identifiability.py",
+    "tests/unit/foundry/calibration/test_loss.py",
+    "tests/unit/foundry/calibration/test_measurement.py",
+    "tests/unit/foundry/calibration/test_multi_start.py",
+    "tests/unit/foundry/calibration/test_preflight.py",
+    "tests/unit/foundry/calibration/test_pure_executor.py",
+    "tests/unit/foundry/calibration/test_pure_executor_batch.py",
+    "tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+    "tests/unit/foundry/calibration/test_report.py",
+    "tests/unit/remediation/test_cal_01.py",
+    "tests/unit/remediation/test_cal_02.py",
+    "tests/unit/remediation/test_cal_03.py",
+    "tests/unit/remediation/test_cal_04.py",
+    "tests/unit/remediation/test_cal_06.py",
+    "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+    "tests/unit/foundry/calibration/test_gaussian_noise_preflight.py",
+    "tests/unit/scientist/nodes/test_calibration_report_consumer.py",
+    "tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py"
+  ],
+  "original_plan": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/plan.json",
+    "bytes": 201583,
+    "sha256": "e9779679ee75c23151a7eb57aca123fe3918b78b28f3a61b082c15e7627fcd23"
+  },
+  "canonical_runner": {
+    "path": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+    "bytes": 12609,
+    "sha256": "16caf0aecfe2c247b211f5a7611e9ce423f238dc2506e72dc99de16802ce8fec",
+    "git_blob": "423b1ba6187047fd852be570dde28bd63ddcdd57"
+  },
+  "git_input_config_sha256": "3886b76efcaa4ffb9d9f76371428cf6b10e369eae3e8c892e30097d09cbd5f28",
+  "git_input_config_publication": "hash only, private config contents excluded",
+  "temporary_only_command_changed_indices": [
+    5,
+    6,
+    8,
+    10
+  ],
+  "test_command": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "cache_dir=/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/checks/cal-and-welfare-consumer-retry/cache/pytest",
+    "--benchmark-storage=file:///workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/checks/cal-and-welfare-consumer-retry/cache/benchmarks",
+    "--junitxml",
+    "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/checks/cal-and-welfare-consumer-retry/pytest.xml",
+    "--basetemp",
+    "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/temporary/cal-and-welfare-consumer-retry",
+    "tests/unit/foundry/calibration/test_auxiliary.py",
+    "tests/unit/foundry/calibration/test_bijectors.py",
+    "tests/unit/foundry/calibration/test_calibration_robust_set_selector.py",
+    "tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+    "tests/unit/foundry/calibration/test_calibrator.py",
+    "tests/unit/foundry/calibration/test_calibrator_batch.py",
+    "tests/unit/foundry/calibration/test_calibrator_fidelity.py",
+    "tests/unit/foundry/calibration/test_calibrator_mvp.py",
+    "tests/unit/foundry/calibration/test_dp_ci.py",
+    "tests/unit/foundry/calibration/test_fabric_quality.py",
+    "tests/unit/foundry/calibration/test_hessian.py",
+    "tests/unit/foundry/calibration/test_identifiability.py",
+    "tests/unit/foundry/calibration/test_loss.py",
+    "tests/unit/foundry/calibration/test_measurement.py",
+    "tests/unit/foundry/calibration/test_multi_start.py",
+    "tests/unit/foundry/calibration/test_preflight.py",
+    "tests/unit/foundry/calibration/test_pure_executor.py",
+    "tests/unit/foundry/calibration/test_pure_executor_batch.py",
+    "tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+    "tests/unit/foundry/calibration/test_report.py",
+    "tests/unit/remediation/test_cal_01.py",
+    "tests/unit/remediation/test_cal_02.py",
+    "tests/unit/remediation/test_cal_03.py",
+    "tests/unit/remediation/test_cal_04.py",
+    "tests/unit/remediation/test_cal_06.py",
+    "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+    "tests/unit/foundry/calibration/test_gaussian_noise_preflight.py",
+    "tests/unit/scientist/nodes/test_calibration_report_consumer.py",
+    "tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py"
+  ],
+  "runner_argv": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+    "--repo",
+    "/workspace/e02-E-continuation-20261006",
+    "--candidate",
+    "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "--cwd",
+    "/workspace/e02-E-continuation-20261006/policy-engine",
+    "--output",
+    "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/checks/cal-and-welfare-consumer-retry",
+    "--name",
+    "cal-and-welfare-consumer-retry",
+    "--junit",
+    "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/checks/cal-and-welfare-consumer-retry/pytest.xml",
+    "--",
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "cache_dir=/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/checks/cal-and-welfare-consumer-retry/cache/pytest",
+    "--benchmark-storage=file:///workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/checks/cal-and-welfare-consumer-retry/cache/benchmarks",
+    "--junitxml",
+    "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/checks/cal-and-welfare-consumer-retry/pytest.xml",
+    "--basetemp",
+    "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/temporary/cal-and-welfare-consumer-retry",
+    "tests/unit/foundry/calibration/test_auxiliary.py",
+    "tests/unit/foundry/calibration/test_bijectors.py",
+    "tests/unit/foundry/calibration/test_calibration_robust_set_selector.py",
+    "tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+    "tests/unit/foundry/calibration/test_calibrator.py",
+    "tests/unit/foundry/calibration/test_calibrator_batch.py",
+    "tests/unit/foundry/calibration/test_calibrator_fidelity.py",
+    "tests/unit/foundry/calibration/test_calibrator_mvp.py",
+    "tests/unit/foundry/calibration/test_dp_ci.py",
+    "tests/unit/foundry/calibration/test_fabric_quality.py",
+    "tests/unit/foundry/calibration/test_hessian.py",
+    "tests/unit/foundry/calibration/test_identifiability.py",
+    "tests/unit/foundry/calibration/test_loss.py",
+    "tests/unit/foundry/calibration/test_measurement.py",
+    "tests/unit/foundry/calibration/test_multi_start.py",
+    "tests/unit/foundry/calibration/test_preflight.py",
+    "tests/unit/foundry/calibration/test_pure_executor.py",
+    "tests/unit/foundry/calibration/test_pure_executor_batch.py",
+    "tests/unit/foundry/calibration/test_pure_executor_semantics.py",
+    "tests/unit/foundry/calibration/test_report.py",
+    "tests/unit/remediation/test_cal_01.py",
+    "tests/unit/remediation/test_cal_02.py",
+    "tests/unit/remediation/test_cal_03.py",
+    "tests/unit/remediation/test_cal_04.py",
+    "tests/unit/remediation/test_cal_06.py",
+    "tests/unit/scientist/nodes/builtins/simulate/test_propagate_welfare.py",
+    "tests/unit/foundry/calibration/test_gaussian_noise_preflight.py",
+    "tests/unit/scientist/nodes/test_calibration_report_consumer.py",
+    "tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py"
+  ],
+  "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "cpu_count": 5,
+    "packages": {
+      "numpy": "2.3.5",
+      "scipy": "1.16.3",
+      "jax": "0.8.2",
+      "SALib": "1.5.2",
+      "pydantic": "2.12.5",
+      "pytest": "9.0.2",
+      "ruff": "0.14.10",
+      "pytest-xdist": "3.8.0"
+    },
+    "selected_variables": {
+      "UV_NO_SYNC": "1",
+      "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+      "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine/src",
+      "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/tmp-env/cal-and-welfare-consumer-retry",
+      "RUFF_CACHE_DIR": null,
+      "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+      "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+      "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+      "UV_CACHE_DIR": null,
+      "PNPM_HOME": null,
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "NUMEXPR_NUM_THREADS": null,
+      "VECLIB_MAXIMUM_THREADS": null,
+      "BLIS_NUM_THREADS": null,
+      "XLA_FLAGS": null,
+      "JAX_PLATFORMS": null,
+      "JAX_ENABLE_X64": null,
+      "POLISYOS_METRICS_PORT": "0",
+      "POLISYOS_PYTEST_WORKERS": null,
+      "POLISYOS_PYTEST_DIST": null,
+      "PYTEST_ADDOPTS": null,
+      "PYTHONDONTWRITEBYTECODE": "1"
+    }
+  },
+  "numeric_backend": {
+    "jax": {
+      "default_backend": "cpu",
+      "enable_x64": false,
+      "devices": [
+        {
+          "platform": "cpu",
+          "id": 0,
+          "kind": "cpu"
+        }
+      ]
+    },
+    "numpy": {
+      "Compilers": {
+        "c": {
+          "name": "gcc",
+          "linker": "ld.bfd",
+          "version": "14.2.1",
+          "commands": "cc"
+        },
+        "cython": {
+          "name": "cython",
+          "linker": "cython",
+          "version": "3.2.1",
+          "commands": "cython"
+        },
+        "c++": {
+          "name": "gcc",
+          "linker": "ld.bfd",
+          "version": "14.2.1",
+          "commands": "c++"
+        }
+      },
+      "Machine Information": {
+        "host": {
+          "cpu": "x86_64",
+          "family": "x86_64",
+          "endian": "little",
+          "system": "linux"
+        },
+        "build": {
+          "cpu": "x86_64",
+          "family": "x86_64",
+          "endian": "little",
+          "system": "linux"
+        }
+      },
+      "Build Dependencies": {
+        "blas": {
+          "name": "scipy-openblas",
+          "found": true,
+          "version": "0.3.30",
+          "detection method": "pkgconfig",
+          "include directory": "/opt/_internal/cpython-3.14.0/lib/python3.14/site-packages/scipy_openblas64/include",
+          "lib directory": "/opt/_internal/cpython-3.14.0/lib/python3.14/site-packages/scipy_openblas64/lib",
+          "openblas configuration": "OpenBLAS 0.3.30  USE64BITINT DYNAMIC_ARCH NO_AFFINITY Haswell MAX_THREADS=64",
+          "pc file directory": "/project/.openblas"
+        },
+        "lapack": {
+          "name": "scipy-openblas",
+          "found": true,
+          "version": "0.3.30",
+          "detection method": "pkgconfig",
+          "include directory": "/opt/_internal/cpython-3.14.0/lib/python3.14/site-packages/scipy_openblas64/include",
+          "lib directory": "/opt/_internal/cpython-3.14.0/lib/python3.14/site-packages/scipy_openblas64/lib",
+          "openblas configuration": "OpenBLAS 0.3.30  USE64BITINT DYNAMIC_ARCH NO_AFFINITY Haswell MAX_THREADS=64",
+          "pc file directory": "/project/.openblas"
+        }
+      },
+      "Python Information": {
+        "path": "/tmp/build-env-r8m2wpdb/bin/python",
+        "version": "3.14"
+      },
+      "SIMD Extensions": {
+        "baseline": [
+          "SSE",
+          "SSE2",
+          "SSE3"
+        ],
+        "found": [
+          "SSSE3",
+          "SSE41",
+          "POPCNT",
+          "SSE42",
+          "AVX",
+          "F16C",
+          "FMA3",
+          "AVX2",
+          "AVX512F",
+          "AVX512CD",
+          "AVX512_SKX",
+          "AVX512_CLX",
+          "AVX512_CNL",
+          "AVX512_ICL"
+        ],
+        "not found": [
+          "AVX512_KNL",
+          "AVX512_KNM",
+          "AVX512_SPR"
+        ]
+      }
+    }
+  },
+  "artificial_caps": {
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_NUM_THREADS": null,
+    "MKL_NUM_THREADS": null,
+    "NUMEXPR_NUM_THREADS": null,
+    "VECLIB_MAXIMUM_THREADS": null,
+    "BLIS_NUM_THREADS": null,
+    "XLA_FLAGS": null,
+    "POLISYOS_PYTEST_WORKERS": null,
+    "POLISYOS_PYTEST_DIST": null,
+    "PYTEST_ADDOPTS": null
+  },
+  "resources_before": {
+    "timestamp_unix": 1791366449.7331784,
+    "meminfo": "MemTotal:       18440136 kB\nMemFree:         1734772 kB\nMemAvailable:    5936068 kB\nBuffers:          267352 kB\nCached:          4181116 kB\nSwapCached:            0 kB\nActive:          3593184 kB\nInactive:       11076320 kB\nActive(anon):     995788 kB\nInactive(anon): 10262232 kB\nActive(file):    2597396 kB\nInactive(file):   814088 kB\nUnevictable:       29920 kB\nMlocked:               0 kB\nSwapTotal:             0 kB\nSwapFree:              0 kB\nDirty:             30156 kB\nWriteback:             0 kB\nAnonPages:      10250712 kB\nMapped:           405340 kB\nShmem:           1007044 kB\nKReclaimable:    1141824 kB\nSlab:            1347320 kB\nSReclaimable:    1141824 kB\nSUnreclaim:       205496 kB\nKernelStack:        9360 kB\nPageTables:       177292 kB\nSecPageTables:         0 kB\nNFS_Unstable:          0 kB\nBounce:                0 kB\nWritebackTmp:          0 kB\nCommitLimit:     9220068 kB\nCommitted_AS:   14231380 kB\nVmallocTotal:   34359738367 kB\nVmallocUsed:       11620 kB\nVmallocChunk:          0 kB\nPercpu:             1296 kB\nAnonHugePages:     32768 kB\nShmemHugePages:        0 kB\nShmemPmdMapped:        0 kB\nFileHugePages:      6144 kB\nFilePmdMapped:         0 kB\nBalloon:               0 kB\nHugePages_Total:       0\nHugePages_Free:        0\nHugePages_Rsvd:        0\nHugePages_Surp:        0\nHugepagesize:       2048 kB\nHugetlb:               0 kB\nDirectMap4k:       36864 kB\nDirectMap2M:    10094592 kB\nDirectMap1G:    29360128 kB\n",
+    "cgroup": {
+      "memory.current": "16099033088\n",
+      "memory.max": "17179869184\n",
+      "memory.events": "low 0\nhigh 0\nmax 3331781\noom 80\noom_kill 8\noom_group_kill 0\n",
+      "memory.stat": "anon 10494914560\nfile 4516610048\nkernel 1085882368\nkernel_stack 7798784\npagetables 180494336\nsec_pagetables 0\npercpu 20552\nsock 122880\nvmalloc 8192\nshmem 1031200768\nfile_mapped 285249536\nfile_dirty 30420992\nfile_writeback 0\nswapcached 0\nanon_thp 33554432\nfile_thp 6291456\nshmem_thp 0\ninactive_anon 10506903552\nactive_anon 1019674624\ninactive_file 831356928\nactive_file 2653945856\nunevictable 0\nslab_reclaimable 847744488\nslab_unreclaimable 48759784\nslab 896504272\nworkingset_refault_anon 0\nworkingset_refault_file 139466312\nworkingset_activate_anon 0\nworkingset_activate_file 21161741\nworkingset_restore_anon 0\nworkingset_restore_file 9932611\nworkingset_nodereclaim 0\npgdemote_kswapd 0\npgdemote_direct 0\npgdemote_khugepaged 0\npgdemote_proactive 0\npgscan 6636338911\npgsteal 145511609\npswpin 0\npswpout 0\npgscan_kswapd 6101155\npgscan_direct 6630233155\npgscan_khugepaged 4601\npgscan_proactive 0\npgsteal_kswapd 5760652\npgsteal_direct 139746540\npgsteal_khugepaged 4417\npgsteal_proactive 0\npgfault 501889816\npgmajfault 197210\npgrefill 42567055\npgactivate 20708124\npgdeactivate 39590063\npglazyfree 3108\npglazyfreed 0\nswpin_zero 0\nswpout_zero 0\nthp_fault_alloc 34\nthp_collapse_alloc 37\nthp_swpout 0\nthp_swpout_fallback 0\n"
+    },
+    "storage": {
+      "/workspace": {
+        "total_bytes": 33770192896,
+        "available_bytes": 5045006336
+      },
+      "/tmp": {
+        "total_bytes": 9441349632,
+        "available_bytes": 8410148864
+      }
+    }
+  },
+  "cleanup_receipts": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/cloud-cleanup-r4/admitted-before-deletion.json",
+      "bytes": 81905,
+      "sha256": "3260e86a2c2ca9593df646b075ff814f2598bd152913738f9cad07d0ec93d835"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/cloud-cleanup-r4/cleanup-result.json",
+      "bytes": 3194,
+      "sha256": "15e2d2a58a1f733d3f744a97b80dc630a78ce8a5d8632f556b69170742cdc2a1"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/cloud-cleanup-r4/cleanup-publication-receipt.json",
+      "bytes": 5806,
+      "sha256": "254d0413a8abc3ecf4ae75d6cb903fcce4ff22e575d4d9bd78d0663019d4dfda"
+    }
+  ],
+  "output_root": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946",
+  "finding_closure": false,
+  "author_review": "executor only; oracle_r4 independently reviews inputs and receipt"
+}

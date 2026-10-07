@@ -1,0 +1,65 @@
+{
+  "argv": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/removed_capture_return_equivalence.py",
+    "--checker",
+    "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/remove_return_equivalence_keep_capture_markers/synthetic_checker.py",
+    "--expected-checker-sha256",
+    "9012ad5ebef50c0df497077a3d52eab4c71763af070224d4f4e4547e8f4f485b",
+    "--catalog",
+    "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/remove_return_equivalence_keep_capture_markers/catalog.json",
+    "--",
+    "0"
+  ],
+  "cwd": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/remove_return_equivalence_keep_capture_markers",
+  "environment": {
+    "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/remove_return_equivalence_keep_capture_markers/stage-tmp",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "exit_code": 1,
+  "input": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/remove_return_equivalence_keep_capture_markers/synthetic_checker.py",
+    "bytes": 699,
+    "sha256": "9012ad5ebef50c0df497077a3d52eab4c71763af070224d4f4e4547e8f4f485b"
+  },
+  "hook": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/removed_capture_return_equivalence.py",
+    "bytes": 5485,
+    "sha256": "6f9bc9625817ad2f7b5ba0e3875a784df8a03f3d1257df89d1fe432eba2a00de"
+  },
+  "stdout": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/remove_return_equivalence_keep_capture_markers/stdout.txt",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stderr": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/remove_return_equivalence_keep_capture_markers/stderr.txt",
+    "bytes": 792,
+    "sha256": "69b11465191b3ce1be78e8cadadc2d362e7e55066a9e635503a87d34b69d4450"
+  },
+  "callback_invoked": false,
+  "catalog": {
+    "schema": "policyos.e02.retained_runtime_api_cli.v1",
+    "checker": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/remove_return_equivalence_keep_capture_markers/synthetic_checker.py",
+    "checker_source_sha256": "9012ad5ebef50c0df497077a3d52eab4c71763af070224d4f4e4547e8f4f485b",
+    "original_cli_arguments": [
+      "0"
+    ],
+    "actual_checker_exit_code": null,
+    "cwd": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/remove_return_equivalence_keep_capture_markers",
+    "stage_TMPDIR": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/remove_return_equivalence_keep_capture_markers/stage-tmp",
+    "canonical_json_capture_count": 1,
+    "openapi_captures_raw_only": [
+      {
+        "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/bounded-controls-v8/remove_return_equivalence_keep_capture_markers/stage-tmp/retained-runtime-openapi.raw.json",
+        "bytes": 13,
+        "sha256": "d2845dc512effd246121ce91282f517c489aa5473b935b036d00f1d3bb7fc90c"
+      }
+    ],
+    "temporary_directories_retained": [],
+    "complete_generated_client_outputs_raw_only": [],
+    "temporary_directory_operational_variant": "Original tempfile.TemporaryDirectory(delete=False); comparisons and returned canonical bytes unchanged",
+    "scope": "Actual canonical CLI main; no second emitter and no source/product contract edits",
+    "finding_closure": false
+  }
+}

@@ -1,0 +1,1961 @@
+{"action": "pytest", "argv": ["-o", "addopts=", "-q", "-p", "no:cacheprovider", "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/results/selected-tests-pytest-repaired.junit.xml", "tests/unit/scientist/orchestration/engine/test_state_branching.py", "tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py"], "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate/policy-engine"}
+..........F..F..F..F..F...........................F.F.FFF.F.F.F.F.F      [100%]
+=================================== FAILURES ===================================
+_ test_real_producer_grants_reconcile_with_reopened_cache_intent[None-worker] __
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-637/test_real_producer_grants_reco2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x12cfa5ae0>
+contour = 'worker', refusal = None
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("contour", _CONTOURS)
+    @pytest.mark.parametrize("refusal", [None, *_REFUSALS])
+    async def test_real_producer_grants_reconcile_with_reopened_cache_intent(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch, contour: str, refusal: str | None
+    ) -> None:
+        producer = _ScopeProducer(refusal)
+        root = tmp_path / "cas"
+>       outcome, initial, public_state = await _run_producer(root, contour, producer, monkeypatch)
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py:264: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py:162: in _run_producer
+    outcome_bytes = await run_node_in_worker(
+src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py:131: in run_node_in_worker
+    return cast("bytes", serialize_outcome(outcome))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:592: in serialize_outcome
+    encoded_outcome = _encode_wire_value(serializable_outcome)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:253: in _encode_wire_value
+    payload = _wire_model_payload(value, depth=depth, seen=seen)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:193: in _wire_model_payload
+    payload[key] = _encode_wire_value(
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:284: in _encode_wire_value
+    return [_encode_wire_value(item, depth=depth + 1, seen=seen) for item in value]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = _JournaledArtifactRef(artifact_id=_JournaledArtifactID(root='sha256:18ceb67841f9e754224831e4b3cc93365d77448c4806b56e2c...9eefb2d401'), kind='ir.context_adaptive_parameter_bundle', media_type='application/json', manifest_profile_sha256=None)
+
+    def _encode_wire_value(
+        value: Any,
+        *,
+        depth: int = 0,
+        seen: set[int] | None = None,
+    ) -> Any:
+        """Recursively encode the bounded typed values accepted on the runner wire."""
+        _wire_depth(depth)
+        seen = seen if seen is not None else set()
+    
+        if value is None or isinstance(value, (str, bool, int)):
+            return value
+        if isinstance(value, float):
+            if not math.isfinite(value):
+                raise ValueError("Non-finite float is not supported on the runner wire")
+            return value
+        if isinstance(value, Decimal):
+            if not value.is_finite():
+                raise ValueError("Non-finite Decimal is not supported on the runner wire")
+            return {_WIRE_TYPE_KEY: _WIRE_DECIMAL, "value": str(value)}
+        if isinstance(value, (bytes, bytearray, memoryview)):
+            return {
+                _WIRE_TYPE_KEY: _WIRE_BYTES,
+                "encoding": "base64",
+                "data": base64.b64encode(bytes(value)).decode("ascii"),
+            }
+        if isinstance(value, datetime):
+            normalized = value.replace(tzinfo=UTC) if value.tzinfo is None else value.astimezone(UTC)
+            return {
+                _WIRE_TYPE_KEY: _WIRE_DATETIME,
+                "iso_utc": normalized.isoformat().replace("+00:00", "Z"),
+            }
+        if isinstance(value, date):
+            return {_WIRE_TYPE_KEY: _WIRE_DATE, "iso": value.isoformat()}
+    
+        value_id = id(value)
+        if isinstance(value, BaseModel):
+            if value_id in seen:
+                raise TypeError(f"Cycle detected while serializing {type(value).__name__}")
+            model_type = type(value)
+            fqn = f"{model_type.__module__}.{model_type.__qualname__}"
+            if _wire_model_types().get(fqn) is not model_type:
+>               raise TypeError(f"Unsupported model on runner wire: {fqn}")
+E               TypeError: Unsupported model on runner wire: polisyos.scientist.orchestration.engine.state_branching._JournaledArtifactRef
+
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:250: TypeError
+_ test_real_producer_grants_reconcile_with_reopened_cache_intent[nested_widen-worker] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-637/test_real_producer_grants_reco5')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x12d21f3f0>
+contour = 'worker', refusal = 'nested_widen'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("contour", _CONTOURS)
+    @pytest.mark.parametrize("refusal", [None, *_REFUSALS])
+    async def test_real_producer_grants_reconcile_with_reopened_cache_intent(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch, contour: str, refusal: str | None
+    ) -> None:
+        producer = _ScopeProducer(refusal)
+        root = tmp_path / "cas"
+>       outcome, initial, public_state = await _run_producer(root, contour, producer, monkeypatch)
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py:264: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py:162: in _run_producer
+    outcome_bytes = await run_node_in_worker(
+src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py:131: in run_node_in_worker
+    return cast("bytes", serialize_outcome(outcome))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:592: in serialize_outcome
+    encoded_outcome = _encode_wire_value(serializable_outcome)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:253: in _encode_wire_value
+    payload = _wire_model_payload(value, depth=depth, seen=seen)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:193: in _wire_model_payload
+    payload[key] = _encode_wire_value(
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:284: in _encode_wire_value
+    return [_encode_wire_value(item, depth=depth + 1, seen=seen) for item in value]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = _JournaledArtifactRef(artifact_id=_JournaledArtifactID(root='sha256:18ceb67841f9e754224831e4b3cc93365d77448c4806b56e2c...9eefb2d401'), kind='ir.context_adaptive_parameter_bundle', media_type='application/json', manifest_profile_sha256=None)
+
+    def _encode_wire_value(
+        value: Any,
+        *,
+        depth: int = 0,
+        seen: set[int] | None = None,
+    ) -> Any:
+        """Recursively encode the bounded typed values accepted on the runner wire."""
+        _wire_depth(depth)
+        seen = seen if seen is not None else set()
+    
+        if value is None or isinstance(value, (str, bool, int)):
+            return value
+        if isinstance(value, float):
+            if not math.isfinite(value):
+                raise ValueError("Non-finite float is not supported on the runner wire")
+            return value
+        if isinstance(value, Decimal):
+            if not value.is_finite():
+                raise ValueError("Non-finite Decimal is not supported on the runner wire")
+            return {_WIRE_TYPE_KEY: _WIRE_DECIMAL, "value": str(value)}
+        if isinstance(value, (bytes, bytearray, memoryview)):
+            return {
+                _WIRE_TYPE_KEY: _WIRE_BYTES,
+                "encoding": "base64",
+                "data": base64.b64encode(bytes(value)).decode("ascii"),
+            }
+        if isinstance(value, datetime):
+            normalized = value.replace(tzinfo=UTC) if value.tzinfo is None else value.astimezone(UTC)
+            return {
+                _WIRE_TYPE_KEY: _WIRE_DATETIME,
+                "iso_utc": normalized.isoformat().replace("+00:00", "Z"),
+            }
+        if isinstance(value, date):
+            return {_WIRE_TYPE_KEY: _WIRE_DATE, "iso": value.isoformat()}
+    
+        value_id = id(value)
+        if isinstance(value, BaseModel):
+            if value_id in seen:
+                raise TypeError(f"Cycle detected while serializing {type(value).__name__}")
+            model_type = type(value)
+            fqn = f"{model_type.__module__}.{model_type.__qualname__}"
+            if _wire_model_types().get(fqn) is not model_type:
+>               raise TypeError(f"Unsupported model on runner wire: {fqn}")
+E               TypeError: Unsupported model on runner wire: polisyos.scientist.orchestration.engine.state_branching._JournaledArtifactRef
+
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:250: TypeError
+_ test_real_producer_grants_reconcile_with_reopened_cache_intent[release_scope-worker] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-637/test_real_producer_grants_reco8')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x12d20b4d0>
+contour = 'worker', refusal = 'release_scope'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("contour", _CONTOURS)
+    @pytest.mark.parametrize("refusal", [None, *_REFUSALS])
+    async def test_real_producer_grants_reconcile_with_reopened_cache_intent(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch, contour: str, refusal: str | None
+    ) -> None:
+        producer = _ScopeProducer(refusal)
+        root = tmp_path / "cas"
+>       outcome, initial, public_state = await _run_producer(root, contour, producer, monkeypatch)
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py:264: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py:162: in _run_producer
+    outcome_bytes = await run_node_in_worker(
+src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py:131: in run_node_in_worker
+    return cast("bytes", serialize_outcome(outcome))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:592: in serialize_outcome
+    encoded_outcome = _encode_wire_value(serializable_outcome)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:253: in _encode_wire_value
+    payload = _wire_model_payload(value, depth=depth, seen=seen)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:193: in _wire_model_payload
+    payload[key] = _encode_wire_value(
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:284: in _encode_wire_value
+    return [_encode_wire_value(item, depth=depth + 1, seen=seen) for item in value]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = _JournaledArtifactRef(artifact_id=_JournaledArtifactID(root='sha256:18ceb67841f9e754224831e4b3cc93365d77448c4806b56e2c...9eefb2d401'), kind='ir.context_adaptive_parameter_bundle', media_type='application/json', manifest_profile_sha256=None)
+
+    def _encode_wire_value(
+        value: Any,
+        *,
+        depth: int = 0,
+        seen: set[int] | None = None,
+    ) -> Any:
+        """Recursively encode the bounded typed values accepted on the runner wire."""
+        _wire_depth(depth)
+        seen = seen if seen is not None else set()
+    
+        if value is None or isinstance(value, (str, bool, int)):
+            return value
+        if isinstance(value, float):
+            if not math.isfinite(value):
+                raise ValueError("Non-finite float is not supported on the runner wire")
+            return value
+        if isinstance(value, Decimal):
+            if not value.is_finite():
+                raise ValueError("Non-finite Decimal is not supported on the runner wire")
+            return {_WIRE_TYPE_KEY: _WIRE_DECIMAL, "value": str(value)}
+        if isinstance(value, (bytes, bytearray, memoryview)):
+            return {
+                _WIRE_TYPE_KEY: _WIRE_BYTES,
+                "encoding": "base64",
+                "data": base64.b64encode(bytes(value)).decode("ascii"),
+            }
+        if isinstance(value, datetime):
+            normalized = value.replace(tzinfo=UTC) if value.tzinfo is None else value.astimezone(UTC)
+            return {
+                _WIRE_TYPE_KEY: _WIRE_DATETIME,
+                "iso_utc": normalized.isoformat().replace("+00:00", "Z"),
+            }
+        if isinstance(value, date):
+            return {_WIRE_TYPE_KEY: _WIRE_DATE, "iso": value.isoformat()}
+    
+        value_id = id(value)
+        if isinstance(value, BaseModel):
+            if value_id in seen:
+                raise TypeError(f"Cycle detected while serializing {type(value).__name__}")
+            model_type = type(value)
+            fqn = f"{model_type.__module__}.{model_type.__qualname__}"
+            if _wire_model_types().get(fqn) is not model_type:
+>               raise TypeError(f"Unsupported model on runner wire: {fqn}")
+E               TypeError: Unsupported model on runner wire: polisyos.scientist.orchestration.engine.state_branching._JournaledArtifactRef
+
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:250: TypeError
+_ test_real_producer_grants_reconcile_with_reopened_cache_intent[root_replace-worker] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-637/test_real_producer_grants_reco11')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x12d442740>
+contour = 'worker', refusal = 'root_replace'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("contour", _CONTOURS)
+    @pytest.mark.parametrize("refusal", [None, *_REFUSALS])
+    async def test_real_producer_grants_reconcile_with_reopened_cache_intent(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch, contour: str, refusal: str | None
+    ) -> None:
+        producer = _ScopeProducer(refusal)
+        root = tmp_path / "cas"
+>       outcome, initial, public_state = await _run_producer(root, contour, producer, monkeypatch)
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py:264: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py:162: in _run_producer
+    outcome_bytes = await run_node_in_worker(
+src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py:131: in run_node_in_worker
+    return cast("bytes", serialize_outcome(outcome))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:592: in serialize_outcome
+    encoded_outcome = _encode_wire_value(serializable_outcome)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:253: in _encode_wire_value
+    payload = _wire_model_payload(value, depth=depth, seen=seen)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:193: in _wire_model_payload
+    payload[key] = _encode_wire_value(
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:284: in _encode_wire_value
+    return [_encode_wire_value(item, depth=depth + 1, seen=seen) for item in value]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = _JournaledArtifactRef(artifact_id=_JournaledArtifactID(root='sha256:18ceb67841f9e754224831e4b3cc93365d77448c4806b56e2c...9eefb2d401'), kind='ir.context_adaptive_parameter_bundle', media_type='application/json', manifest_profile_sha256=None)
+
+    def _encode_wire_value(
+        value: Any,
+        *,
+        depth: int = 0,
+        seen: set[int] | None = None,
+    ) -> Any:
+        """Recursively encode the bounded typed values accepted on the runner wire."""
+        _wire_depth(depth)
+        seen = seen if seen is not None else set()
+    
+        if value is None or isinstance(value, (str, bool, int)):
+            return value
+        if isinstance(value, float):
+            if not math.isfinite(value):
+                raise ValueError("Non-finite float is not supported on the runner wire")
+            return value
+        if isinstance(value, Decimal):
+            if not value.is_finite():
+                raise ValueError("Non-finite Decimal is not supported on the runner wire")
+            return {_WIRE_TYPE_KEY: _WIRE_DECIMAL, "value": str(value)}
+        if isinstance(value, (bytes, bytearray, memoryview)):
+            return {
+                _WIRE_TYPE_KEY: _WIRE_BYTES,
+                "encoding": "base64",
+                "data": base64.b64encode(bytes(value)).decode("ascii"),
+            }
+        if isinstance(value, datetime):
+            normalized = value.replace(tzinfo=UTC) if value.tzinfo is None else value.astimezone(UTC)
+            return {
+                _WIRE_TYPE_KEY: _WIRE_DATETIME,
+                "iso_utc": normalized.isoformat().replace("+00:00", "Z"),
+            }
+        if isinstance(value, date):
+            return {_WIRE_TYPE_KEY: _WIRE_DATE, "iso": value.isoformat()}
+    
+        value_id = id(value)
+        if isinstance(value, BaseModel):
+            if value_id in seen:
+                raise TypeError(f"Cycle detected while serializing {type(value).__name__}")
+            model_type = type(value)
+            fqn = f"{model_type.__module__}.{model_type.__qualname__}"
+            if _wire_model_types().get(fqn) is not model_type:
+>               raise TypeError(f"Unsupported model on runner wire: {fqn}")
+E               TypeError: Unsupported model on runner wire: polisyos.scientist.orchestration.engine.state_branching._JournaledArtifactRef
+
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:250: TypeError
+_ test_real_producer_grants_reconcile_with_reopened_cache_intent[neighbor_alias-worker] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-637/test_real_producer_grants_reco14')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x12d1531c0>
+contour = 'worker', refusal = 'neighbor_alias'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("contour", _CONTOURS)
+    @pytest.mark.parametrize("refusal", [None, *_REFUSALS])
+    async def test_real_producer_grants_reconcile_with_reopened_cache_intent(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch, contour: str, refusal: str | None
+    ) -> None:
+        producer = _ScopeProducer(refusal)
+        root = tmp_path / "cas"
+>       outcome, initial, public_state = await _run_producer(root, contour, producer, monkeypatch)
+                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py:264: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py:162: in _run_producer
+    outcome_bytes = await run_node_in_worker(
+src/polisyos/scientist/orchestration/engine/runner/_activity_worker.py:131: in run_node_in_worker
+    return cast("bytes", serialize_outcome(outcome))
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:592: in serialize_outcome
+    encoded_outcome = _encode_wire_value(serializable_outcome)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:253: in _encode_wire_value
+    payload = _wire_model_payload(value, depth=depth, seen=seen)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:193: in _wire_model_payload
+    payload[key] = _encode_wire_value(
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:284: in _encode_wire_value
+    return [_encode_wire_value(item, depth=depth + 1, seen=seen) for item in value]
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = _JournaledArtifactRef(artifact_id=_JournaledArtifactID(root='sha256:18ceb67841f9e754224831e4b3cc93365d77448c4806b56e2c...9eefb2d401'), kind='ir.context_adaptive_parameter_bundle', media_type='application/json', manifest_profile_sha256=None)
+
+    def _encode_wire_value(
+        value: Any,
+        *,
+        depth: int = 0,
+        seen: set[int] | None = None,
+    ) -> Any:
+        """Recursively encode the bounded typed values accepted on the runner wire."""
+        _wire_depth(depth)
+        seen = seen if seen is not None else set()
+    
+        if value is None or isinstance(value, (str, bool, int)):
+            return value
+        if isinstance(value, float):
+            if not math.isfinite(value):
+                raise ValueError("Non-finite float is not supported on the runner wire")
+            return value
+        if isinstance(value, Decimal):
+            if not value.is_finite():
+                raise ValueError("Non-finite Decimal is not supported on the runner wire")
+            return {_WIRE_TYPE_KEY: _WIRE_DECIMAL, "value": str(value)}
+        if isinstance(value, (bytes, bytearray, memoryview)):
+            return {
+                _WIRE_TYPE_KEY: _WIRE_BYTES,
+                "encoding": "base64",
+                "data": base64.b64encode(bytes(value)).decode("ascii"),
+            }
+        if isinstance(value, datetime):
+            normalized = value.replace(tzinfo=UTC) if value.tzinfo is None else value.astimezone(UTC)
+            return {
+                _WIRE_TYPE_KEY: _WIRE_DATETIME,
+                "iso_utc": normalized.isoformat().replace("+00:00", "Z"),
+            }
+        if isinstance(value, date):
+            return {_WIRE_TYPE_KEY: _WIRE_DATE, "iso": value.isoformat()}
+    
+        value_id = id(value)
+        if isinstance(value, BaseModel):
+            if value_id in seen:
+                raise TypeError(f"Cycle detected while serializing {type(value).__name__}")
+            model_type = type(value)
+            fqn = f"{model_type.__module__}.{model_type.__qualname__}"
+            if _wire_model_types().get(fqn) is not model_type:
+>               raise TypeError(f"Unsupported model on runner wire: {fqn}")
+E               TypeError: Unsupported model on runner wire: polisyos.scientist.orchestration.engine.state_branching._JournaledArtifactRef
+
+src/polisyos/scientist/orchestration/engine/runner/serialization.py:250: TypeError
+_ test_unsupported_model_hooks_refuse_before_real_producer_effects[__copy__-async] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-637/test_unsupported_model_hooks_r1')
+contour = 'async', hook = '__copy__'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("contour", ["sequential", "async"])
+    @pytest.mark.parametrize(
+        "hook",
+        [
+            "__copy__",
+            "model_construct",
+            "model_post_init",
+            "__new__",
+            "__init_subclass__",
+            "__pydantic_init_subclass__",
+            "__pydantic_on_complete__",
+            "__get_pydantic_core_schema__",
+            "__get_pydantic_json_schema__",
+        ],
+    )
+    async def test_unsupported_model_hooks_refuse_before_real_producer_effects(
+        tmp_path: Path, contour: str, hook: str
+    ) -> None:
+        calls: list[str] = []
+    
+        def ordinary_copy(self: BaseModel) -> BaseModel:
+            calls.append("copy")
+            return BaseModel.__copy__(self)
+    
+        def ordinary_construct(cls: type[BaseModel], **values: Any) -> BaseModel:
+            calls.append("construct")
+            return BaseModel.model_construct.__func__(cls, **values)
+    
+        def ordinary_post_init(self: BaseModel, context: Any) -> None:
+            calls.append("post_init")
+    
+        def ordinary_new(cls: type[BaseModel], *args: Any, **kwargs: Any) -> BaseModel:
+            calls.append("new")
+            return BaseModel.__new__(cls)
+    
+        def ordinary_class_hook(cls: type[BaseModel], *args: Any, **kwargs: Any) -> Any:
+            calls.append(hook)
+            if hook == "__init_subclass__":
+                return None
+            return getattr(BaseModel, hook).__func__(cls, *args, **kwargs)
+    
+        implementations = {
+            "__copy__": ordinary_copy,
+            "model_construct": classmethod(ordinary_construct),
+            "model_post_init": ordinary_post_init,
+            "__new__": ordinary_new,
+            **{
+                name: classmethod(ordinary_class_hook)
+                for name in (
+                    "__init_subclass__",
+                    "__pydantic_init_subclass__",
+                    "__pydantic_on_complete__",
+                    "__get_pydantic_core_schema__",
+                    "__get_pydantic_json_schema__",
+                )
+            },
+        }
+        model_type = type("UnsupportedRuntimeModel", (_BoundaryModel,), {hook: implementations[hook]})
+        initial = _initial_state()
+        initial.params["owned"] = model_type(count=1)
+        before = initial.model_dump(mode="json")
+        calls_before = list(calls)
+        root = tmp_path / "cas"
+        store = FileSystemCAS(root)
+        bundle = build_default_registry_bundle(store).bundle_ref
+        run = RunContext.start(store, bundle, run_id=initial.run_id)
+        ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("model-admission"))
+        producer = _BoundaryProducer("detached")
+        registry = NodeRegistry()
+        registry.register(producer)
+        workflow = WorkflowSpec(
+            workflow_id="model_hook_admission",
+            nodes=[NodeInvocation(alias="produce", node_id=producer.spec.metadata.component_id)],
+        )
+        if contour == "sequential":
+            with pytest.raises(TypeError, match="ordinary BaseModel"):
+                WorkflowExecutor(ctx, registry).execute(workflow, initial)
+        else:
+>           result = await AsyncWorkflowExecutor(ctx, registry).execute(workflow, initial)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py:578: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/orchestration/engine/async_executor.py:731: in execute
+    await execution_body()
+src/polisyos/scientist/orchestration/engine/async_executor.py:384: in _execute_tiers
+    record, state, node_failed = await self._run_single_node(
+src/polisyos/scientist/orchestration/engine/async_executor.py:1218: in _run_single_node
+    outcome, duration_ms, _cache_hit, cache_entry_ref = await self._execute_node(
+src/polisyos/scientist/orchestration/engine/async_executor.py:1665: in _execute_node
+    branch = branch_state(
+src/polisyos/scientist/orchestration/engine/state_branching.py:240: in branch_state
+    _validate_mutation_attachment(None, getattr(base_state, name))
+src/polisyos/scientist/orchestration/engine/state_branching.py:1262: in _validate_mutation_attachment
+    visit(value, frozenset())
+src/polisyos/scientist/orchestration/engine/state_branching.py:1260: in visit
+    visit(item, ancestors | {id(child)})
+src/polisyos/scientist/orchestration/engine/state_branching.py:1247: in visit
+    _ordinary_model_type(child)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = UnsupportedRuntimeModel(count=1, tag='producer')
+
+    def _ordinary_model_type(value: BaseModel) -> type[BaseModel]:
+        original = value._original_model_type if isinstance(value, _TrackedModelMixin) else type(value)
+        if type(original) is not type(BaseModel):
+            raise TypeError("state mutation journaling requires the canonical BaseModel metaclass")
+        hooks = (
+            "__new__",
+            "__init_subclass__",
+            "__pydantic_init_subclass__",
+            "__pydantic_on_complete__",
+            "__get_pydantic_core_schema__",
+            "__get_pydantic_json_schema__",
+            "__setattr__",
+            "__delattr__",
+            "__getattribute__",
+            "__copy__",
+            "__deepcopy__",
+            "model_copy",
+            "model_construct",
+            "model_post_init",
+        )
+    
+        def implementation(model: type[BaseModel], name: str) -> Any:
+            # Compare raw MRO descriptors before binding or executing custom class
+            # hooks. Builtin class-bound methods otherwise compare their receiver.
+            hook = getattr_static(model, name)
+            return hook.__func__ if isinstance(hook, (classmethod, staticmethod)) else hook
+    
+        if any(
+            not any(
+                implementation(original, name) is implementation(canonical, name)
+                for canonical in (BaseModel, RootModel)
+            )
+            for name in hooks
+        ):
+>           raise TypeError("state mutation journaling requires ordinary BaseModel mutation/copy hooks")
+E           TypeError: state mutation journaling requires ordinary BaseModel mutation/copy hooks
+
+src/polisyos/scientist/orchestration/engine/state_branching.py:1144: TypeError
+_ test_unsupported_model_hooks_refuse_before_real_producer_effects[model_construct-async] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-637/test_unsupported_model_hooks_r3')
+contour = 'async', hook = 'model_construct'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("contour", ["sequential", "async"])
+    @pytest.mark.parametrize(
+        "hook",
+        [
+            "__copy__",
+            "model_construct",
+            "model_post_init",
+            "__new__",
+            "__init_subclass__",
+            "__pydantic_init_subclass__",
+            "__pydantic_on_complete__",
+            "__get_pydantic_core_schema__",
+            "__get_pydantic_json_schema__",
+        ],
+    )
+    async def test_unsupported_model_hooks_refuse_before_real_producer_effects(
+        tmp_path: Path, contour: str, hook: str
+    ) -> None:
+        calls: list[str] = []
+    
+        def ordinary_copy(self: BaseModel) -> BaseModel:
+            calls.append("copy")
+            return BaseModel.__copy__(self)
+    
+        def ordinary_construct(cls: type[BaseModel], **values: Any) -> BaseModel:
+            calls.append("construct")
+            return BaseModel.model_construct.__func__(cls, **values)
+    
+        def ordinary_post_init(self: BaseModel, context: Any) -> None:
+            calls.append("post_init")
+    
+        def ordinary_new(cls: type[BaseModel], *args: Any, **kwargs: Any) -> BaseModel:
+            calls.append("new")
+            return BaseModel.__new__(cls)
+    
+        def ordinary_class_hook(cls: type[BaseModel], *args: Any, **kwargs: Any) -> Any:
+            calls.append(hook)
+            if hook == "__init_subclass__":
+                return None
+            return getattr(BaseModel, hook).__func__(cls, *args, **kwargs)
+    
+        implementations = {
+            "__copy__": ordinary_copy,
+            "model_construct": classmethod(ordinary_construct),
+            "model_post_init": ordinary_post_init,
+            "__new__": ordinary_new,
+            **{
+                name: classmethod(ordinary_class_hook)
+                for name in (
+                    "__init_subclass__",
+                    "__pydantic_init_subclass__",
+                    "__pydantic_on_complete__",
+                    "__get_pydantic_core_schema__",
+                    "__get_pydantic_json_schema__",
+                )
+            },
+        }
+        model_type = type("UnsupportedRuntimeModel", (_BoundaryModel,), {hook: implementations[hook]})
+        initial = _initial_state()
+        initial.params["owned"] = model_type(count=1)
+        before = initial.model_dump(mode="json")
+        calls_before = list(calls)
+        root = tmp_path / "cas"
+        store = FileSystemCAS(root)
+        bundle = build_default_registry_bundle(store).bundle_ref
+        run = RunContext.start(store, bundle, run_id=initial.run_id)
+        ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("model-admission"))
+        producer = _BoundaryProducer("detached")
+        registry = NodeRegistry()
+        registry.register(producer)
+        workflow = WorkflowSpec(
+            workflow_id="model_hook_admission",
+            nodes=[NodeInvocation(alias="produce", node_id=producer.spec.metadata.component_id)],
+        )
+        if contour == "sequential":
+            with pytest.raises(TypeError, match="ordinary BaseModel"):
+                WorkflowExecutor(ctx, registry).execute(workflow, initial)
+        else:
+>           result = await AsyncWorkflowExecutor(ctx, registry).execute(workflow, initial)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py:578: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/orchestration/engine/async_executor.py:731: in execute
+    await execution_body()
+src/polisyos/scientist/orchestration/engine/async_executor.py:384: in _execute_tiers
+    record, state, node_failed = await self._run_single_node(
+src/polisyos/scientist/orchestration/engine/async_executor.py:1218: in _run_single_node
+    outcome, duration_ms, _cache_hit, cache_entry_ref = await self._execute_node(
+src/polisyos/scientist/orchestration/engine/async_executor.py:1665: in _execute_node
+    branch = branch_state(
+src/polisyos/scientist/orchestration/engine/state_branching.py:240: in branch_state
+    _validate_mutation_attachment(None, getattr(base_state, name))
+src/polisyos/scientist/orchestration/engine/state_branching.py:1262: in _validate_mutation_attachment
+    visit(value, frozenset())
+src/polisyos/scientist/orchestration/engine/state_branching.py:1260: in visit
+    visit(item, ancestors | {id(child)})
+src/polisyos/scientist/orchestration/engine/state_branching.py:1247: in visit
+    _ordinary_model_type(child)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = UnsupportedRuntimeModel(count=1, tag='producer')
+
+    def _ordinary_model_type(value: BaseModel) -> type[BaseModel]:
+        original = value._original_model_type if isinstance(value, _TrackedModelMixin) else type(value)
+        if type(original) is not type(BaseModel):
+            raise TypeError("state mutation journaling requires the canonical BaseModel metaclass")
+        hooks = (
+            "__new__",
+            "__init_subclass__",
+            "__pydantic_init_subclass__",
+            "__pydantic_on_complete__",
+            "__get_pydantic_core_schema__",
+            "__get_pydantic_json_schema__",
+            "__setattr__",
+            "__delattr__",
+            "__getattribute__",
+            "__copy__",
+            "__deepcopy__",
+            "model_copy",
+            "model_construct",
+            "model_post_init",
+        )
+    
+        def implementation(model: type[BaseModel], name: str) -> Any:
+            # Compare raw MRO descriptors before binding or executing custom class
+            # hooks. Builtin class-bound methods otherwise compare their receiver.
+            hook = getattr_static(model, name)
+            return hook.__func__ if isinstance(hook, (classmethod, staticmethod)) else hook
+    
+        if any(
+            not any(
+                implementation(original, name) is implementation(canonical, name)
+                for canonical in (BaseModel, RootModel)
+            )
+            for name in hooks
+        ):
+>           raise TypeError("state mutation journaling requires ordinary BaseModel mutation/copy hooks")
+E           TypeError: state mutation journaling requires ordinary BaseModel mutation/copy hooks
+
+src/polisyos/scientist/orchestration/engine/state_branching.py:1144: TypeError
+_ test_unsupported_model_hooks_refuse_before_real_producer_effects[model_post_init-async] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-637/test_unsupported_model_hooks_r5')
+contour = 'async', hook = 'model_post_init'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("contour", ["sequential", "async"])
+    @pytest.mark.parametrize(
+        "hook",
+        [
+            "__copy__",
+            "model_construct",
+            "model_post_init",
+            "__new__",
+            "__init_subclass__",
+            "__pydantic_init_subclass__",
+            "__pydantic_on_complete__",
+            "__get_pydantic_core_schema__",
+            "__get_pydantic_json_schema__",
+        ],
+    )
+    async def test_unsupported_model_hooks_refuse_before_real_producer_effects(
+        tmp_path: Path, contour: str, hook: str
+    ) -> None:
+        calls: list[str] = []
+    
+        def ordinary_copy(self: BaseModel) -> BaseModel:
+            calls.append("copy")
+            return BaseModel.__copy__(self)
+    
+        def ordinary_construct(cls: type[BaseModel], **values: Any) -> BaseModel:
+            calls.append("construct")
+            return BaseModel.model_construct.__func__(cls, **values)
+    
+        def ordinary_post_init(self: BaseModel, context: Any) -> None:
+            calls.append("post_init")
+    
+        def ordinary_new(cls: type[BaseModel], *args: Any, **kwargs: Any) -> BaseModel:
+            calls.append("new")
+            return BaseModel.__new__(cls)
+    
+        def ordinary_class_hook(cls: type[BaseModel], *args: Any, **kwargs: Any) -> Any:
+            calls.append(hook)
+            if hook == "__init_subclass__":
+                return None
+            return getattr(BaseModel, hook).__func__(cls, *args, **kwargs)
+    
+        implementations = {
+            "__copy__": ordinary_copy,
+            "model_construct": classmethod(ordinary_construct),
+            "model_post_init": ordinary_post_init,
+            "__new__": ordinary_new,
+            **{
+                name: classmethod(ordinary_class_hook)
+                for name in (
+                    "__init_subclass__",
+                    "__pydantic_init_subclass__",
+                    "__pydantic_on_complete__",
+                    "__get_pydantic_core_schema__",
+                    "__get_pydantic_json_schema__",
+                )
+            },
+        }
+        model_type = type("UnsupportedRuntimeModel", (_BoundaryModel,), {hook: implementations[hook]})
+        initial = _initial_state()
+        initial.params["owned"] = model_type(count=1)
+        before = initial.model_dump(mode="json")
+        calls_before = list(calls)
+        root = tmp_path / "cas"
+        store = FileSystemCAS(root)
+        bundle = build_default_registry_bundle(store).bundle_ref
+        run = RunContext.start(store, bundle, run_id=initial.run_id)
+        ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("model-admission"))
+        producer = _BoundaryProducer("detached")
+        registry = NodeRegistry()
+        registry.register(producer)
+        workflow = WorkflowSpec(
+            workflow_id="model_hook_admission",
+            nodes=[NodeInvocation(alias="produce", node_id=producer.spec.metadata.component_id)],
+        )
+        if contour == "sequential":
+            with pytest.raises(TypeError, match="ordinary BaseModel"):
+                WorkflowExecutor(ctx, registry).execute(workflow, initial)
+        else:
+>           result = await AsyncWorkflowExecutor(ctx, registry).execute(workflow, initial)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py:578: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/orchestration/engine/async_executor.py:731: in execute
+    await execution_body()
+src/polisyos/scientist/orchestration/engine/async_executor.py:384: in _execute_tiers
+    record, state, node_failed = await self._run_single_node(
+src/polisyos/scientist/orchestration/engine/async_executor.py:1218: in _run_single_node
+    outcome, duration_ms, _cache_hit, cache_entry_ref = await self._execute_node(
+src/polisyos/scientist/orchestration/engine/async_executor.py:1665: in _execute_node
+    branch = branch_state(
+src/polisyos/scientist/orchestration/engine/state_branching.py:240: in branch_state
+    _validate_mutation_attachment(None, getattr(base_state, name))
+src/polisyos/scientist/orchestration/engine/state_branching.py:1262: in _validate_mutation_attachment
+    visit(value, frozenset())
+src/polisyos/scientist/orchestration/engine/state_branching.py:1260: in visit
+    visit(item, ancestors | {id(child)})
+src/polisyos/scientist/orchestration/engine/state_branching.py:1247: in visit
+    _ordinary_model_type(child)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = UnsupportedRuntimeModel(count=1, tag='producer')
+
+    def _ordinary_model_type(value: BaseModel) -> type[BaseModel]:
+        original = value._original_model_type if isinstance(value, _TrackedModelMixin) else type(value)
+        if type(original) is not type(BaseModel):
+            raise TypeError("state mutation journaling requires the canonical BaseModel metaclass")
+        hooks = (
+            "__new__",
+            "__init_subclass__",
+            "__pydantic_init_subclass__",
+            "__pydantic_on_complete__",
+            "__get_pydantic_core_schema__",
+            "__get_pydantic_json_schema__",
+            "__setattr__",
+            "__delattr__",
+            "__getattribute__",
+            "__copy__",
+            "__deepcopy__",
+            "model_copy",
+            "model_construct",
+            "model_post_init",
+        )
+    
+        def implementation(model: type[BaseModel], name: str) -> Any:
+            # Compare raw MRO descriptors before binding or executing custom class
+            # hooks. Builtin class-bound methods otherwise compare their receiver.
+            hook = getattr_static(model, name)
+            return hook.__func__ if isinstance(hook, (classmethod, staticmethod)) else hook
+    
+        if any(
+            not any(
+                implementation(original, name) is implementation(canonical, name)
+                for canonical in (BaseModel, RootModel)
+            )
+            for name in hooks
+        ):
+>           raise TypeError("state mutation journaling requires ordinary BaseModel mutation/copy hooks")
+E           TypeError: state mutation journaling requires ordinary BaseModel mutation/copy hooks
+
+src/polisyos/scientist/orchestration/engine/state_branching.py:1144: TypeError
+_ test_unsupported_model_hooks_refuse_before_real_producer_effects[__new__-sequential] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-637/test_unsupported_model_hooks_r6')
+contour = 'sequential', hook = '__new__'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("contour", ["sequential", "async"])
+    @pytest.mark.parametrize(
+        "hook",
+        [
+            "__copy__",
+            "model_construct",
+            "model_post_init",
+            "__new__",
+            "__init_subclass__",
+            "__pydantic_init_subclass__",
+            "__pydantic_on_complete__",
+            "__get_pydantic_core_schema__",
+            "__get_pydantic_json_schema__",
+        ],
+    )
+    async def test_unsupported_model_hooks_refuse_before_real_producer_effects(
+        tmp_path: Path, contour: str, hook: str
+    ) -> None:
+        calls: list[str] = []
+    
+        def ordinary_copy(self: BaseModel) -> BaseModel:
+            calls.append("copy")
+            return BaseModel.__copy__(self)
+    
+        def ordinary_construct(cls: type[BaseModel], **values: Any) -> BaseModel:
+            calls.append("construct")
+            return BaseModel.model_construct.__func__(cls, **values)
+    
+        def ordinary_post_init(self: BaseModel, context: Any) -> None:
+            calls.append("post_init")
+    
+        def ordinary_new(cls: type[BaseModel], *args: Any, **kwargs: Any) -> BaseModel:
+            calls.append("new")
+            return BaseModel.__new__(cls)
+    
+        def ordinary_class_hook(cls: type[BaseModel], *args: Any, **kwargs: Any) -> Any:
+            calls.append(hook)
+            if hook == "__init_subclass__":
+                return None
+            return getattr(BaseModel, hook).__func__(cls, *args, **kwargs)
+    
+        implementations = {
+            "__copy__": ordinary_copy,
+            "model_construct": classmethod(ordinary_construct),
+            "model_post_init": ordinary_post_init,
+            "__new__": ordinary_new,
+            **{
+                name: classmethod(ordinary_class_hook)
+                for name in (
+                    "__init_subclass__",
+                    "__pydantic_init_subclass__",
+                    "__pydantic_on_complete__",
+                    "__get_pydantic_core_schema__",
+                    "__get_pydantic_json_schema__",
+                )
+            },
+        }
+        model_type = type("UnsupportedRuntimeModel", (_BoundaryModel,), {hook: implementations[hook]})
+        initial = _initial_state()
+        initial.params["owned"] = model_type(count=1)
+        before = initial.model_dump(mode="json")
+        calls_before = list(calls)
+        root = tmp_path / "cas"
+        store = FileSystemCAS(root)
+        bundle = build_default_registry_bundle(store).bundle_ref
+        run = RunContext.start(store, bundle, run_id=initial.run_id)
+        ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("model-admission"))
+        producer = _BoundaryProducer("detached")
+        registry = NodeRegistry()
+        registry.register(producer)
+        workflow = WorkflowSpec(
+            workflow_id="model_hook_admission",
+            nodes=[NodeInvocation(alias="produce", node_id=producer.spec.metadata.component_id)],
+        )
+        if contour == "sequential":
+            with pytest.raises(TypeError, match="ordinary BaseModel"):
+                WorkflowExecutor(ctx, registry).execute(workflow, initial)
+        else:
+            result = await AsyncWorkflowExecutor(ctx, registry).execute(workflow, initial)
+            assert result.report.status == "fail"
+        assert producer.calls == 0
+>       assert calls == calls_before
+E       AssertionError: assert ['new', 'new'] == ['new']
+E         
+E         Left contains one more item: 'new'
+E         Use -v to get more diff
+
+tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py:581: AssertionError
+_ test_unsupported_model_hooks_refuse_before_real_producer_effects[__new__-async] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-637/test_unsupported_model_hooks_r7')
+contour = 'async', hook = '__new__'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("contour", ["sequential", "async"])
+    @pytest.mark.parametrize(
+        "hook",
+        [
+            "__copy__",
+            "model_construct",
+            "model_post_init",
+            "__new__",
+            "__init_subclass__",
+            "__pydantic_init_subclass__",
+            "__pydantic_on_complete__",
+            "__get_pydantic_core_schema__",
+            "__get_pydantic_json_schema__",
+        ],
+    )
+    async def test_unsupported_model_hooks_refuse_before_real_producer_effects(
+        tmp_path: Path, contour: str, hook: str
+    ) -> None:
+        calls: list[str] = []
+    
+        def ordinary_copy(self: BaseModel) -> BaseModel:
+            calls.append("copy")
+            return BaseModel.__copy__(self)
+    
+        def ordinary_construct(cls: type[BaseModel], **values: Any) -> BaseModel:
+            calls.append("construct")
+            return BaseModel.model_construct.__func__(cls, **values)
+    
+        def ordinary_post_init(self: BaseModel, context: Any) -> None:
+            calls.append("post_init")
+    
+        def ordinary_new(cls: type[BaseModel], *args: Any, **kwargs: Any) -> BaseModel:
+            calls.append("new")
+            return BaseModel.__new__(cls)
+    
+        def ordinary_class_hook(cls: type[BaseModel], *args: Any, **kwargs: Any) -> Any:
+            calls.append(hook)
+            if hook == "__init_subclass__":
+                return None
+            return getattr(BaseModel, hook).__func__(cls, *args, **kwargs)
+    
+        implementations = {
+            "__copy__": ordinary_copy,
+            "model_construct": classmethod(ordinary_construct),
+            "model_post_init": ordinary_post_init,
+            "__new__": ordinary_new,
+            **{
+                name: classmethod(ordinary_class_hook)
+                for name in (
+                    "__init_subclass__",
+                    "__pydantic_init_subclass__",
+                    "__pydantic_on_complete__",
+                    "__get_pydantic_core_schema__",
+                    "__get_pydantic_json_schema__",
+                )
+            },
+        }
+        model_type = type("UnsupportedRuntimeModel", (_BoundaryModel,), {hook: implementations[hook]})
+        initial = _initial_state()
+        initial.params["owned"] = model_type(count=1)
+        before = initial.model_dump(mode="json")
+        calls_before = list(calls)
+        root = tmp_path / "cas"
+        store = FileSystemCAS(root)
+        bundle = build_default_registry_bundle(store).bundle_ref
+        run = RunContext.start(store, bundle, run_id=initial.run_id)
+        ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("model-admission"))
+        producer = _BoundaryProducer("detached")
+        registry = NodeRegistry()
+        registry.register(producer)
+        workflow = WorkflowSpec(
+            workflow_id="model_hook_admission",
+            nodes=[NodeInvocation(alias="produce", node_id=producer.spec.metadata.component_id)],
+        )
+        if contour == "sequential":
+            with pytest.raises(TypeError, match="ordinary BaseModel"):
+                WorkflowExecutor(ctx, registry).execute(workflow, initial)
+        else:
+>           result = await AsyncWorkflowExecutor(ctx, registry).execute(workflow, initial)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py:578: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/orchestration/engine/async_executor.py:731: in execute
+    await execution_body()
+src/polisyos/scientist/orchestration/engine/async_executor.py:384: in _execute_tiers
+    record, state, node_failed = await self._run_single_node(
+src/polisyos/scientist/orchestration/engine/async_executor.py:1218: in _run_single_node
+    outcome, duration_ms, _cache_hit, cache_entry_ref = await self._execute_node(
+src/polisyos/scientist/orchestration/engine/async_executor.py:1665: in _execute_node
+    branch = branch_state(
+src/polisyos/scientist/orchestration/engine/state_branching.py:240: in branch_state
+    _validate_mutation_attachment(None, getattr(base_state, name))
+src/polisyos/scientist/orchestration/engine/state_branching.py:1262: in _validate_mutation_attachment
+    visit(value, frozenset())
+src/polisyos/scientist/orchestration/engine/state_branching.py:1260: in visit
+    visit(item, ancestors | {id(child)})
+src/polisyos/scientist/orchestration/engine/state_branching.py:1247: in visit
+    _ordinary_model_type(child)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = UnsupportedRuntimeModel(count=1, tag='producer')
+
+    def _ordinary_model_type(value: BaseModel) -> type[BaseModel]:
+        original = value._original_model_type if isinstance(value, _TrackedModelMixin) else type(value)
+        if type(original) is not type(BaseModel):
+            raise TypeError("state mutation journaling requires the canonical BaseModel metaclass")
+        hooks = (
+            "__new__",
+            "__init_subclass__",
+            "__pydantic_init_subclass__",
+            "__pydantic_on_complete__",
+            "__get_pydantic_core_schema__",
+            "__get_pydantic_json_schema__",
+            "__setattr__",
+            "__delattr__",
+            "__getattribute__",
+            "__copy__",
+            "__deepcopy__",
+            "model_copy",
+            "model_construct",
+            "model_post_init",
+        )
+    
+        def implementation(model: type[BaseModel], name: str) -> Any:
+            # Compare raw MRO descriptors before binding or executing custom class
+            # hooks. Builtin class-bound methods otherwise compare their receiver.
+            hook = getattr_static(model, name)
+            return hook.__func__ if isinstance(hook, (classmethod, staticmethod)) else hook
+    
+        if any(
+            not any(
+                implementation(original, name) is implementation(canonical, name)
+                for canonical in (BaseModel, RootModel)
+            )
+            for name in hooks
+        ):
+>           raise TypeError("state mutation journaling requires ordinary BaseModel mutation/copy hooks")
+E           TypeError: state mutation journaling requires ordinary BaseModel mutation/copy hooks
+
+src/polisyos/scientist/orchestration/engine/state_branching.py:1144: TypeError
+_ test_unsupported_model_hooks_refuse_before_real_producer_effects[__init_subclass__-async] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-637/test_unsupported_model_hooks_r9')
+contour = 'async', hook = '__init_subclass__'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("contour", ["sequential", "async"])
+    @pytest.mark.parametrize(
+        "hook",
+        [
+            "__copy__",
+            "model_construct",
+            "model_post_init",
+            "__new__",
+            "__init_subclass__",
+            "__pydantic_init_subclass__",
+            "__pydantic_on_complete__",
+            "__get_pydantic_core_schema__",
+            "__get_pydantic_json_schema__",
+        ],
+    )
+    async def test_unsupported_model_hooks_refuse_before_real_producer_effects(
+        tmp_path: Path, contour: str, hook: str
+    ) -> None:
+        calls: list[str] = []
+    
+        def ordinary_copy(self: BaseModel) -> BaseModel:
+            calls.append("copy")
+            return BaseModel.__copy__(self)
+    
+        def ordinary_construct(cls: type[BaseModel], **values: Any) -> BaseModel:
+            calls.append("construct")
+            return BaseModel.model_construct.__func__(cls, **values)
+    
+        def ordinary_post_init(self: BaseModel, context: Any) -> None:
+            calls.append("post_init")
+    
+        def ordinary_new(cls: type[BaseModel], *args: Any, **kwargs: Any) -> BaseModel:
+            calls.append("new")
+            return BaseModel.__new__(cls)
+    
+        def ordinary_class_hook(cls: type[BaseModel], *args: Any, **kwargs: Any) -> Any:
+            calls.append(hook)
+            if hook == "__init_subclass__":
+                return None
+            return getattr(BaseModel, hook).__func__(cls, *args, **kwargs)
+    
+        implementations = {
+            "__copy__": ordinary_copy,
+            "model_construct": classmethod(ordinary_construct),
+            "model_post_init": ordinary_post_init,
+            "__new__": ordinary_new,
+            **{
+                name: classmethod(ordinary_class_hook)
+                for name in (
+                    "__init_subclass__",
+                    "__pydantic_init_subclass__",
+                    "__pydantic_on_complete__",
+                    "__get_pydantic_core_schema__",
+                    "__get_pydantic_json_schema__",
+                )
+            },
+        }
+        model_type = type("UnsupportedRuntimeModel", (_BoundaryModel,), {hook: implementations[hook]})
+        initial = _initial_state()
+        initial.params["owned"] = model_type(count=1)
+        before = initial.model_dump(mode="json")
+        calls_before = list(calls)
+        root = tmp_path / "cas"
+        store = FileSystemCAS(root)
+        bundle = build_default_registry_bundle(store).bundle_ref
+        run = RunContext.start(store, bundle, run_id=initial.run_id)
+        ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("model-admission"))
+        producer = _BoundaryProducer("detached")
+        registry = NodeRegistry()
+        registry.register(producer)
+        workflow = WorkflowSpec(
+            workflow_id="model_hook_admission",
+            nodes=[NodeInvocation(alias="produce", node_id=producer.spec.metadata.component_id)],
+        )
+        if contour == "sequential":
+            with pytest.raises(TypeError, match="ordinary BaseModel"):
+                WorkflowExecutor(ctx, registry).execute(workflow, initial)
+        else:
+>           result = await AsyncWorkflowExecutor(ctx, registry).execute(workflow, initial)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py:578: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/orchestration/engine/async_executor.py:731: in execute
+    await execution_body()
+src/polisyos/scientist/orchestration/engine/async_executor.py:384: in _execute_tiers
+    record, state, node_failed = await self._run_single_node(
+src/polisyos/scientist/orchestration/engine/async_executor.py:1218: in _run_single_node
+    outcome, duration_ms, _cache_hit, cache_entry_ref = await self._execute_node(
+src/polisyos/scientist/orchestration/engine/async_executor.py:1665: in _execute_node
+    branch = branch_state(
+src/polisyos/scientist/orchestration/engine/state_branching.py:240: in branch_state
+    _validate_mutation_attachment(None, getattr(base_state, name))
+src/polisyos/scientist/orchestration/engine/state_branching.py:1262: in _validate_mutation_attachment
+    visit(value, frozenset())
+src/polisyos/scientist/orchestration/engine/state_branching.py:1260: in visit
+    visit(item, ancestors | {id(child)})
+src/polisyos/scientist/orchestration/engine/state_branching.py:1247: in visit
+    _ordinary_model_type(child)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = UnsupportedRuntimeModel(count=1, tag='producer')
+
+    def _ordinary_model_type(value: BaseModel) -> type[BaseModel]:
+        original = value._original_model_type if isinstance(value, _TrackedModelMixin) else type(value)
+        if type(original) is not type(BaseModel):
+            raise TypeError("state mutation journaling requires the canonical BaseModel metaclass")
+        hooks = (
+            "__new__",
+            "__init_subclass__",
+            "__pydantic_init_subclass__",
+            "__pydantic_on_complete__",
+            "__get_pydantic_core_schema__",
+            "__get_pydantic_json_schema__",
+            "__setattr__",
+            "__delattr__",
+            "__getattribute__",
+            "__copy__",
+            "__deepcopy__",
+            "model_copy",
+            "model_construct",
+            "model_post_init",
+        )
+    
+        def implementation(model: type[BaseModel], name: str) -> Any:
+            # Compare raw MRO descriptors before binding or executing custom class
+            # hooks. Builtin class-bound methods otherwise compare their receiver.
+            hook = getattr_static(model, name)
+            return hook.__func__ if isinstance(hook, (classmethod, staticmethod)) else hook
+    
+        if any(
+            not any(
+                implementation(original, name) is implementation(canonical, name)
+                for canonical in (BaseModel, RootModel)
+            )
+            for name in hooks
+        ):
+>           raise TypeError("state mutation journaling requires ordinary BaseModel mutation/copy hooks")
+E           TypeError: state mutation journaling requires ordinary BaseModel mutation/copy hooks
+
+src/polisyos/scientist/orchestration/engine/state_branching.py:1144: TypeError
+_ test_unsupported_model_hooks_refuse_before_real_producer_effects[__pydantic_init_subclass__-async] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-637/test_unsupported_model_hooks_r11')
+contour = 'async', hook = '__pydantic_init_subclass__'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("contour", ["sequential", "async"])
+    @pytest.mark.parametrize(
+        "hook",
+        [
+            "__copy__",
+            "model_construct",
+            "model_post_init",
+            "__new__",
+            "__init_subclass__",
+            "__pydantic_init_subclass__",
+            "__pydantic_on_complete__",
+            "__get_pydantic_core_schema__",
+            "__get_pydantic_json_schema__",
+        ],
+    )
+    async def test_unsupported_model_hooks_refuse_before_real_producer_effects(
+        tmp_path: Path, contour: str, hook: str
+    ) -> None:
+        calls: list[str] = []
+    
+        def ordinary_copy(self: BaseModel) -> BaseModel:
+            calls.append("copy")
+            return BaseModel.__copy__(self)
+    
+        def ordinary_construct(cls: type[BaseModel], **values: Any) -> BaseModel:
+            calls.append("construct")
+            return BaseModel.model_construct.__func__(cls, **values)
+    
+        def ordinary_post_init(self: BaseModel, context: Any) -> None:
+            calls.append("post_init")
+    
+        def ordinary_new(cls: type[BaseModel], *args: Any, **kwargs: Any) -> BaseModel:
+            calls.append("new")
+            return BaseModel.__new__(cls)
+    
+        def ordinary_class_hook(cls: type[BaseModel], *args: Any, **kwargs: Any) -> Any:
+            calls.append(hook)
+            if hook == "__init_subclass__":
+                return None
+            return getattr(BaseModel, hook).__func__(cls, *args, **kwargs)
+    
+        implementations = {
+            "__copy__": ordinary_copy,
+            "model_construct": classmethod(ordinary_construct),
+            "model_post_init": ordinary_post_init,
+            "__new__": ordinary_new,
+            **{
+                name: classmethod(ordinary_class_hook)
+                for name in (
+                    "__init_subclass__",
+                    "__pydantic_init_subclass__",
+                    "__pydantic_on_complete__",
+                    "__get_pydantic_core_schema__",
+                    "__get_pydantic_json_schema__",
+                )
+            },
+        }
+        model_type = type("UnsupportedRuntimeModel", (_BoundaryModel,), {hook: implementations[hook]})
+        initial = _initial_state()
+        initial.params["owned"] = model_type(count=1)
+        before = initial.model_dump(mode="json")
+        calls_before = list(calls)
+        root = tmp_path / "cas"
+        store = FileSystemCAS(root)
+        bundle = build_default_registry_bundle(store).bundle_ref
+        run = RunContext.start(store, bundle, run_id=initial.run_id)
+        ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("model-admission"))
+        producer = _BoundaryProducer("detached")
+        registry = NodeRegistry()
+        registry.register(producer)
+        workflow = WorkflowSpec(
+            workflow_id="model_hook_admission",
+            nodes=[NodeInvocation(alias="produce", node_id=producer.spec.metadata.component_id)],
+        )
+        if contour == "sequential":
+            with pytest.raises(TypeError, match="ordinary BaseModel"):
+                WorkflowExecutor(ctx, registry).execute(workflow, initial)
+        else:
+>           result = await AsyncWorkflowExecutor(ctx, registry).execute(workflow, initial)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py:578: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/orchestration/engine/async_executor.py:731: in execute
+    await execution_body()
+src/polisyos/scientist/orchestration/engine/async_executor.py:384: in _execute_tiers
+    record, state, node_failed = await self._run_single_node(
+src/polisyos/scientist/orchestration/engine/async_executor.py:1218: in _run_single_node
+    outcome, duration_ms, _cache_hit, cache_entry_ref = await self._execute_node(
+src/polisyos/scientist/orchestration/engine/async_executor.py:1665: in _execute_node
+    branch = branch_state(
+src/polisyos/scientist/orchestration/engine/state_branching.py:240: in branch_state
+    _validate_mutation_attachment(None, getattr(base_state, name))
+src/polisyos/scientist/orchestration/engine/state_branching.py:1262: in _validate_mutation_attachment
+    visit(value, frozenset())
+src/polisyos/scientist/orchestration/engine/state_branching.py:1260: in visit
+    visit(item, ancestors | {id(child)})
+src/polisyos/scientist/orchestration/engine/state_branching.py:1247: in visit
+    _ordinary_model_type(child)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = UnsupportedRuntimeModel(count=1, tag='producer')
+
+    def _ordinary_model_type(value: BaseModel) -> type[BaseModel]:
+        original = value._original_model_type if isinstance(value, _TrackedModelMixin) else type(value)
+        if type(original) is not type(BaseModel):
+            raise TypeError("state mutation journaling requires the canonical BaseModel metaclass")
+        hooks = (
+            "__new__",
+            "__init_subclass__",
+            "__pydantic_init_subclass__",
+            "__pydantic_on_complete__",
+            "__get_pydantic_core_schema__",
+            "__get_pydantic_json_schema__",
+            "__setattr__",
+            "__delattr__",
+            "__getattribute__",
+            "__copy__",
+            "__deepcopy__",
+            "model_copy",
+            "model_construct",
+            "model_post_init",
+        )
+    
+        def implementation(model: type[BaseModel], name: str) -> Any:
+            # Compare raw MRO descriptors before binding or executing custom class
+            # hooks. Builtin class-bound methods otherwise compare their receiver.
+            hook = getattr_static(model, name)
+            return hook.__func__ if isinstance(hook, (classmethod, staticmethod)) else hook
+    
+        if any(
+            not any(
+                implementation(original, name) is implementation(canonical, name)
+                for canonical in (BaseModel, RootModel)
+            )
+            for name in hooks
+        ):
+>           raise TypeError("state mutation journaling requires ordinary BaseModel mutation/copy hooks")
+E           TypeError: state mutation journaling requires ordinary BaseModel mutation/copy hooks
+
+src/polisyos/scientist/orchestration/engine/state_branching.py:1144: TypeError
+_ test_unsupported_model_hooks_refuse_before_real_producer_effects[__pydantic_on_complete__-async] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-637/test_unsupported_model_hooks_r13')
+contour = 'async', hook = '__pydantic_on_complete__'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("contour", ["sequential", "async"])
+    @pytest.mark.parametrize(
+        "hook",
+        [
+            "__copy__",
+            "model_construct",
+            "model_post_init",
+            "__new__",
+            "__init_subclass__",
+            "__pydantic_init_subclass__",
+            "__pydantic_on_complete__",
+            "__get_pydantic_core_schema__",
+            "__get_pydantic_json_schema__",
+        ],
+    )
+    async def test_unsupported_model_hooks_refuse_before_real_producer_effects(
+        tmp_path: Path, contour: str, hook: str
+    ) -> None:
+        calls: list[str] = []
+    
+        def ordinary_copy(self: BaseModel) -> BaseModel:
+            calls.append("copy")
+            return BaseModel.__copy__(self)
+    
+        def ordinary_construct(cls: type[BaseModel], **values: Any) -> BaseModel:
+            calls.append("construct")
+            return BaseModel.model_construct.__func__(cls, **values)
+    
+        def ordinary_post_init(self: BaseModel, context: Any) -> None:
+            calls.append("post_init")
+    
+        def ordinary_new(cls: type[BaseModel], *args: Any, **kwargs: Any) -> BaseModel:
+            calls.append("new")
+            return BaseModel.__new__(cls)
+    
+        def ordinary_class_hook(cls: type[BaseModel], *args: Any, **kwargs: Any) -> Any:
+            calls.append(hook)
+            if hook == "__init_subclass__":
+                return None
+            return getattr(BaseModel, hook).__func__(cls, *args, **kwargs)
+    
+        implementations = {
+            "__copy__": ordinary_copy,
+            "model_construct": classmethod(ordinary_construct),
+            "model_post_init": ordinary_post_init,
+            "__new__": ordinary_new,
+            **{
+                name: classmethod(ordinary_class_hook)
+                for name in (
+                    "__init_subclass__",
+                    "__pydantic_init_subclass__",
+                    "__pydantic_on_complete__",
+                    "__get_pydantic_core_schema__",
+                    "__get_pydantic_json_schema__",
+                )
+            },
+        }
+        model_type = type("UnsupportedRuntimeModel", (_BoundaryModel,), {hook: implementations[hook]})
+        initial = _initial_state()
+        initial.params["owned"] = model_type(count=1)
+        before = initial.model_dump(mode="json")
+        calls_before = list(calls)
+        root = tmp_path / "cas"
+        store = FileSystemCAS(root)
+        bundle = build_default_registry_bundle(store).bundle_ref
+        run = RunContext.start(store, bundle, run_id=initial.run_id)
+        ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("model-admission"))
+        producer = _BoundaryProducer("detached")
+        registry = NodeRegistry()
+        registry.register(producer)
+        workflow = WorkflowSpec(
+            workflow_id="model_hook_admission",
+            nodes=[NodeInvocation(alias="produce", node_id=producer.spec.metadata.component_id)],
+        )
+        if contour == "sequential":
+            with pytest.raises(TypeError, match="ordinary BaseModel"):
+                WorkflowExecutor(ctx, registry).execute(workflow, initial)
+        else:
+>           result = await AsyncWorkflowExecutor(ctx, registry).execute(workflow, initial)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py:578: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/orchestration/engine/async_executor.py:731: in execute
+    await execution_body()
+src/polisyos/scientist/orchestration/engine/async_executor.py:384: in _execute_tiers
+    record, state, node_failed = await self._run_single_node(
+src/polisyos/scientist/orchestration/engine/async_executor.py:1218: in _run_single_node
+    outcome, duration_ms, _cache_hit, cache_entry_ref = await self._execute_node(
+src/polisyos/scientist/orchestration/engine/async_executor.py:1665: in _execute_node
+    branch = branch_state(
+src/polisyos/scientist/orchestration/engine/state_branching.py:240: in branch_state
+    _validate_mutation_attachment(None, getattr(base_state, name))
+src/polisyos/scientist/orchestration/engine/state_branching.py:1262: in _validate_mutation_attachment
+    visit(value, frozenset())
+src/polisyos/scientist/orchestration/engine/state_branching.py:1260: in visit
+    visit(item, ancestors | {id(child)})
+src/polisyos/scientist/orchestration/engine/state_branching.py:1247: in visit
+    _ordinary_model_type(child)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = UnsupportedRuntimeModel(count=1, tag='producer')
+
+    def _ordinary_model_type(value: BaseModel) -> type[BaseModel]:
+        original = value._original_model_type if isinstance(value, _TrackedModelMixin) else type(value)
+        if type(original) is not type(BaseModel):
+            raise TypeError("state mutation journaling requires the canonical BaseModel metaclass")
+        hooks = (
+            "__new__",
+            "__init_subclass__",
+            "__pydantic_init_subclass__",
+            "__pydantic_on_complete__",
+            "__get_pydantic_core_schema__",
+            "__get_pydantic_json_schema__",
+            "__setattr__",
+            "__delattr__",
+            "__getattribute__",
+            "__copy__",
+            "__deepcopy__",
+            "model_copy",
+            "model_construct",
+            "model_post_init",
+        )
+    
+        def implementation(model: type[BaseModel], name: str) -> Any:
+            # Compare raw MRO descriptors before binding or executing custom class
+            # hooks. Builtin class-bound methods otherwise compare their receiver.
+            hook = getattr_static(model, name)
+            return hook.__func__ if isinstance(hook, (classmethod, staticmethod)) else hook
+    
+        if any(
+            not any(
+                implementation(original, name) is implementation(canonical, name)
+                for canonical in (BaseModel, RootModel)
+            )
+            for name in hooks
+        ):
+>           raise TypeError("state mutation journaling requires ordinary BaseModel mutation/copy hooks")
+E           TypeError: state mutation journaling requires ordinary BaseModel mutation/copy hooks
+
+src/polisyos/scientist/orchestration/engine/state_branching.py:1144: TypeError
+_ test_unsupported_model_hooks_refuse_before_real_producer_effects[__get_pydantic_core_schema__-async] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-637/test_unsupported_model_hooks_r15')
+contour = 'async', hook = '__get_pydantic_core_schema__'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("contour", ["sequential", "async"])
+    @pytest.mark.parametrize(
+        "hook",
+        [
+            "__copy__",
+            "model_construct",
+            "model_post_init",
+            "__new__",
+            "__init_subclass__",
+            "__pydantic_init_subclass__",
+            "__pydantic_on_complete__",
+            "__get_pydantic_core_schema__",
+            "__get_pydantic_json_schema__",
+        ],
+    )
+    async def test_unsupported_model_hooks_refuse_before_real_producer_effects(
+        tmp_path: Path, contour: str, hook: str
+    ) -> None:
+        calls: list[str] = []
+    
+        def ordinary_copy(self: BaseModel) -> BaseModel:
+            calls.append("copy")
+            return BaseModel.__copy__(self)
+    
+        def ordinary_construct(cls: type[BaseModel], **values: Any) -> BaseModel:
+            calls.append("construct")
+            return BaseModel.model_construct.__func__(cls, **values)
+    
+        def ordinary_post_init(self: BaseModel, context: Any) -> None:
+            calls.append("post_init")
+    
+        def ordinary_new(cls: type[BaseModel], *args: Any, **kwargs: Any) -> BaseModel:
+            calls.append("new")
+            return BaseModel.__new__(cls)
+    
+        def ordinary_class_hook(cls: type[BaseModel], *args: Any, **kwargs: Any) -> Any:
+            calls.append(hook)
+            if hook == "__init_subclass__":
+                return None
+            return getattr(BaseModel, hook).__func__(cls, *args, **kwargs)
+    
+        implementations = {
+            "__copy__": ordinary_copy,
+            "model_construct": classmethod(ordinary_construct),
+            "model_post_init": ordinary_post_init,
+            "__new__": ordinary_new,
+            **{
+                name: classmethod(ordinary_class_hook)
+                for name in (
+                    "__init_subclass__",
+                    "__pydantic_init_subclass__",
+                    "__pydantic_on_complete__",
+                    "__get_pydantic_core_schema__",
+                    "__get_pydantic_json_schema__",
+                )
+            },
+        }
+        model_type = type("UnsupportedRuntimeModel", (_BoundaryModel,), {hook: implementations[hook]})
+        initial = _initial_state()
+        initial.params["owned"] = model_type(count=1)
+        before = initial.model_dump(mode="json")
+        calls_before = list(calls)
+        root = tmp_path / "cas"
+        store = FileSystemCAS(root)
+        bundle = build_default_registry_bundle(store).bundle_ref
+        run = RunContext.start(store, bundle, run_id=initial.run_id)
+        ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("model-admission"))
+        producer = _BoundaryProducer("detached")
+        registry = NodeRegistry()
+        registry.register(producer)
+        workflow = WorkflowSpec(
+            workflow_id="model_hook_admission",
+            nodes=[NodeInvocation(alias="produce", node_id=producer.spec.metadata.component_id)],
+        )
+        if contour == "sequential":
+            with pytest.raises(TypeError, match="ordinary BaseModel"):
+                WorkflowExecutor(ctx, registry).execute(workflow, initial)
+        else:
+>           result = await AsyncWorkflowExecutor(ctx, registry).execute(workflow, initial)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py:578: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/orchestration/engine/async_executor.py:731: in execute
+    await execution_body()
+src/polisyos/scientist/orchestration/engine/async_executor.py:384: in _execute_tiers
+    record, state, node_failed = await self._run_single_node(
+src/polisyos/scientist/orchestration/engine/async_executor.py:1218: in _run_single_node
+    outcome, duration_ms, _cache_hit, cache_entry_ref = await self._execute_node(
+src/polisyos/scientist/orchestration/engine/async_executor.py:1665: in _execute_node
+    branch = branch_state(
+src/polisyos/scientist/orchestration/engine/state_branching.py:240: in branch_state
+    _validate_mutation_attachment(None, getattr(base_state, name))
+src/polisyos/scientist/orchestration/engine/state_branching.py:1262: in _validate_mutation_attachment
+    visit(value, frozenset())
+src/polisyos/scientist/orchestration/engine/state_branching.py:1260: in visit
+    visit(item, ancestors | {id(child)})
+src/polisyos/scientist/orchestration/engine/state_branching.py:1247: in visit
+    _ordinary_model_type(child)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = UnsupportedRuntimeModel(count=1, tag='producer')
+
+    def _ordinary_model_type(value: BaseModel) -> type[BaseModel]:
+        original = value._original_model_type if isinstance(value, _TrackedModelMixin) else type(value)
+        if type(original) is not type(BaseModel):
+            raise TypeError("state mutation journaling requires the canonical BaseModel metaclass")
+        hooks = (
+            "__new__",
+            "__init_subclass__",
+            "__pydantic_init_subclass__",
+            "__pydantic_on_complete__",
+            "__get_pydantic_core_schema__",
+            "__get_pydantic_json_schema__",
+            "__setattr__",
+            "__delattr__",
+            "__getattribute__",
+            "__copy__",
+            "__deepcopy__",
+            "model_copy",
+            "model_construct",
+            "model_post_init",
+        )
+    
+        def implementation(model: type[BaseModel], name: str) -> Any:
+            # Compare raw MRO descriptors before binding or executing custom class
+            # hooks. Builtin class-bound methods otherwise compare their receiver.
+            hook = getattr_static(model, name)
+            return hook.__func__ if isinstance(hook, (classmethod, staticmethod)) else hook
+    
+        if any(
+            not any(
+                implementation(original, name) is implementation(canonical, name)
+                for canonical in (BaseModel, RootModel)
+            )
+            for name in hooks
+        ):
+>           raise TypeError("state mutation journaling requires ordinary BaseModel mutation/copy hooks")
+E           TypeError: state mutation journaling requires ordinary BaseModel mutation/copy hooks
+
+src/polisyos/scientist/orchestration/engine/state_branching.py:1144: TypeError
+_ test_unsupported_model_hooks_refuse_before_real_producer_effects[__get_pydantic_json_schema__-async] _
+
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-637/test_unsupported_model_hooks_r17')
+contour = 'async', hook = '__get_pydantic_json_schema__'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("contour", ["sequential", "async"])
+    @pytest.mark.parametrize(
+        "hook",
+        [
+            "__copy__",
+            "model_construct",
+            "model_post_init",
+            "__new__",
+            "__init_subclass__",
+            "__pydantic_init_subclass__",
+            "__pydantic_on_complete__",
+            "__get_pydantic_core_schema__",
+            "__get_pydantic_json_schema__",
+        ],
+    )
+    async def test_unsupported_model_hooks_refuse_before_real_producer_effects(
+        tmp_path: Path, contour: str, hook: str
+    ) -> None:
+        calls: list[str] = []
+    
+        def ordinary_copy(self: BaseModel) -> BaseModel:
+            calls.append("copy")
+            return BaseModel.__copy__(self)
+    
+        def ordinary_construct(cls: type[BaseModel], **values: Any) -> BaseModel:
+            calls.append("construct")
+            return BaseModel.model_construct.__func__(cls, **values)
+    
+        def ordinary_post_init(self: BaseModel, context: Any) -> None:
+            calls.append("post_init")
+    
+        def ordinary_new(cls: type[BaseModel], *args: Any, **kwargs: Any) -> BaseModel:
+            calls.append("new")
+            return BaseModel.__new__(cls)
+    
+        def ordinary_class_hook(cls: type[BaseModel], *args: Any, **kwargs: Any) -> Any:
+            calls.append(hook)
+            if hook == "__init_subclass__":
+                return None
+            return getattr(BaseModel, hook).__func__(cls, *args, **kwargs)
+    
+        implementations = {
+            "__copy__": ordinary_copy,
+            "model_construct": classmethod(ordinary_construct),
+            "model_post_init": ordinary_post_init,
+            "__new__": ordinary_new,
+            **{
+                name: classmethod(ordinary_class_hook)
+                for name in (
+                    "__init_subclass__",
+                    "__pydantic_init_subclass__",
+                    "__pydantic_on_complete__",
+                    "__get_pydantic_core_schema__",
+                    "__get_pydantic_json_schema__",
+                )
+            },
+        }
+        model_type = type("UnsupportedRuntimeModel", (_BoundaryModel,), {hook: implementations[hook]})
+        initial = _initial_state()
+        initial.params["owned"] = model_type(count=1)
+        before = initial.model_dump(mode="json")
+        calls_before = list(calls)
+        root = tmp_path / "cas"
+        store = FileSystemCAS(root)
+        bundle = build_default_registry_bundle(store).bundle_ref
+        run = RunContext.start(store, bundle, run_id=initial.run_id)
+        ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("model-admission"))
+        producer = _BoundaryProducer("detached")
+        registry = NodeRegistry()
+        registry.register(producer)
+        workflow = WorkflowSpec(
+            workflow_id="model_hook_admission",
+            nodes=[NodeInvocation(alias="produce", node_id=producer.spec.metadata.component_id)],
+        )
+        if contour == "sequential":
+            with pytest.raises(TypeError, match="ordinary BaseModel"):
+                WorkflowExecutor(ctx, registry).execute(workflow, initial)
+        else:
+>           result = await AsyncWorkflowExecutor(ctx, registry).execute(workflow, initial)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py:578: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/scientist/orchestration/engine/async_executor.py:731: in execute
+    await execution_body()
+src/polisyos/scientist/orchestration/engine/async_executor.py:384: in _execute_tiers
+    record, state, node_failed = await self._run_single_node(
+src/polisyos/scientist/orchestration/engine/async_executor.py:1218: in _run_single_node
+    outcome, duration_ms, _cache_hit, cache_entry_ref = await self._execute_node(
+src/polisyos/scientist/orchestration/engine/async_executor.py:1665: in _execute_node
+    branch = branch_state(
+src/polisyos/scientist/orchestration/engine/state_branching.py:240: in branch_state
+    _validate_mutation_attachment(None, getattr(base_state, name))
+src/polisyos/scientist/orchestration/engine/state_branching.py:1262: in _validate_mutation_attachment
+    visit(value, frozenset())
+src/polisyos/scientist/orchestration/engine/state_branching.py:1260: in visit
+    visit(item, ancestors | {id(child)})
+src/polisyos/scientist/orchestration/engine/state_branching.py:1247: in visit
+    _ordinary_model_type(child)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+value = UnsupportedRuntimeModel(count=1, tag='producer')
+
+    def _ordinary_model_type(value: BaseModel) -> type[BaseModel]:
+        original = value._original_model_type if isinstance(value, _TrackedModelMixin) else type(value)
+        if type(original) is not type(BaseModel):
+            raise TypeError("state mutation journaling requires the canonical BaseModel metaclass")
+        hooks = (
+            "__new__",
+            "__init_subclass__",
+            "__pydantic_init_subclass__",
+            "__pydantic_on_complete__",
+            "__get_pydantic_core_schema__",
+            "__get_pydantic_json_schema__",
+            "__setattr__",
+            "__delattr__",
+            "__getattribute__",
+            "__copy__",
+            "__deepcopy__",
+            "model_copy",
+            "model_construct",
+            "model_post_init",
+        )
+    
+        def implementation(model: type[BaseModel], name: str) -> Any:
+            # Compare raw MRO descriptors before binding or executing custom class
+            # hooks. Builtin class-bound methods otherwise compare their receiver.
+            hook = getattr_static(model, name)
+            return hook.__func__ if isinstance(hook, (classmethod, staticmethod)) else hook
+    
+        if any(
+            not any(
+                implementation(original, name) is implementation(canonical, name)
+                for canonical in (BaseModel, RootModel)
+            )
+            for name in hooks
+        ):
+>           raise TypeError("state mutation journaling requires ordinary BaseModel mutation/copy hooks")
+E           TypeError: state mutation journaling requires ordinary BaseModel mutation/copy hooks
+
+src/polisyos/scientist/orchestration/engine/state_branching.py:1144: TypeError
+=============================== warnings summary ===============================
+../../../../../../../.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate/policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_model_boundary_reaches_real_cache_and_current_consumer[extra-sequential]
+_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate/policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_model_boundary_reaches_real_cache_and_current_consumer[extra-async]
+_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate/policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_model_boundary_reaches_real_cache_and_current_consumer[private-sequential]
+_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate/policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_model_boundary_reaches_real_cache_and_current_consumer[private-async]
+_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate/policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_model_boundary_reaches_real_cache_and_current_consumer[detached-sequential]
+_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate/policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_model_boundary_reaches_real_cache_and_current_consumer[detached-async]
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+    PydanticSerializationUnexpectedValue(Expected `str` - serialized value may not be as expected [field_name='params', input_value=_BoundaryModel(count=1, tag='producer'), input_type=_BoundaryModel])
+    PydanticSerializationUnexpectedValue(Expected `int` - serialized value may not be as expected [field_name='params', input_value=_BoundaryModel(count=1, tag='producer'), input_type=_BoundaryModel])
+    PydanticSerializationUnexpectedValue(Expected `bool` - serialized value may not be as expected [field_name='params', input_value=_BoundaryModel(count=1, tag='producer'), input_type=_BoundaryModel])
+    PydanticSerializationUnexpectedValue(Expected `decimal` - serialized value may not be as expected [field_name='params', input_value=_BoundaryModel(count=1, tag='producer'), input_type=_BoundaryModel])
+    PydanticSerializationUnexpectedValue(Expected `list[any]` - serialized value may not be as expected [field_name='params', input_value=_BoundaryModel(count=1, tag='producer'), input_type=_BoundaryModel])
+    PydanticSerializationUnexpectedValue(Expected `dict[str, any]` - serialized value may not be as expected [field_name='params', input_value=_BoundaryModel(count=1, tag='producer'), input_type=_BoundaryModel])
+    return self.__pydantic_serializer__.to_python(
+
+_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate/policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_model_boundary_reaches_real_cache_and_current_consumer[extra-sequential]
+_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate/policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_model_boundary_reaches_real_cache_and_current_consumer[extra-async]
+_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate/policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_model_boundary_reaches_real_cache_and_current_consumer[private-sequential]
+_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate/policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_model_boundary_reaches_real_cache_and_current_consumer[private-async]
+_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate/policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_model_boundary_reaches_real_cache_and_current_consumer[detached-sequential]
+_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate/policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_model_boundary_reaches_real_cache_and_current_consumer[detached-async]
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+    PydanticSerializationUnexpectedValue(Expected `str` - serialized value may not be as expected [field_name='params', input_value=_Journaled_BoundaryModel(count=1, tag='producer'), input_type=_Journaled_BoundaryModel])
+    PydanticSerializationUnexpectedValue(Expected `int` - serialized value may not be as expected [field_name='params', input_value=_Journaled_BoundaryModel(count=1, tag='producer'), input_type=_Journaled_BoundaryModel])
+    PydanticSerializationUnexpectedValue(Expected `bool` - serialized value may not be as expected [field_name='params', input_value=_Journaled_BoundaryModel(count=1, tag='producer'), input_type=_Journaled_BoundaryModel])
+    PydanticSerializationUnexpectedValue(Expected `decimal` - serialized value may not be as expected [field_name='params', input_value=_Journaled_BoundaryModel(count=1, tag='producer'), input_type=_Journaled_BoundaryModel])
+    PydanticSerializationUnexpectedValue(Expected `list[any]` - serialized value may not be as expected [field_name='params', input_value=_Journaled_BoundaryModel(count=1, tag='producer'), input_type=_Journaled_BoundaryModel])
+    PydanticSerializationUnexpectedValue(Expected `dict[str, any]` - serialized value may not be as expected [field_name='params', input_value=_Journaled_BoundaryModel(count=1, tag='producer'), input_type=_Journaled_BoundaryModel])
+    return self.__pydantic_serializer__.to_python(
+
+_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate/policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_model_boundary_reaches_real_cache_and_current_consumer[frozen-sequential]
+_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate/policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_model_boundary_reaches_real_cache_and_current_consumer[frozen-async]
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+    PydanticSerializationUnexpectedValue(Expected `str` - serialized value may not be as expected [field_name='params', input_value=_FrozenBoundaryModel(count=1, tag='producer'), input_type=_FrozenBoundaryModel])
+    PydanticSerializationUnexpectedValue(Expected `int` - serialized value may not be as expected [field_name='params', input_value=_FrozenBoundaryModel(count=1, tag='producer'), input_type=_FrozenBoundaryModel])
+    PydanticSerializationUnexpectedValue(Expected `bool` - serialized value may not be as expected [field_name='params', input_value=_FrozenBoundaryModel(count=1, tag='producer'), input_type=_FrozenBoundaryModel])
+    PydanticSerializationUnexpectedValue(Expected `decimal` - serialized value may not be as expected [field_name='params', input_value=_FrozenBoundaryModel(count=1, tag='producer'), input_type=_FrozenBoundaryModel])
+    PydanticSerializationUnexpectedValue(Expected `list[any]` - serialized value may not be as expected [field_name='params', input_value=_FrozenBoundaryModel(count=1, tag='producer'), input_type=_FrozenBoundaryModel])
+    PydanticSerializationUnexpectedValue(Expected `dict[str, any]` - serialized value may not be as expected [field_name='params', input_value=_FrozenBoundaryModel(count=1, tag='producer'), input_type=_FrozenBoundaryModel])
+    return self.__pydantic_serializer__.to_python(
+
+_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate/policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_model_boundary_reaches_real_cache_and_current_consumer[frozen-sequential]
+_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate/policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_model_boundary_reaches_real_cache_and_current_consumer[frozen-async]
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+    PydanticSerializationUnexpectedValue(Expected `str` - serialized value may not be as expected [field_name='params', input_value=_Journaled_FrozenBoundary...count=1, tag='producer'), input_type=_Journaled_FrozenBoundaryModel])
+    PydanticSerializationUnexpectedValue(Expected `int` - serialized value may not be as expected [field_name='params', input_value=_Journaled_FrozenBoundary...count=1, tag='producer'), input_type=_Journaled_FrozenBoundaryModel])
+    PydanticSerializationUnexpectedValue(Expected `bool` - serialized value may not be as expected [field_name='params', input_value=_Journaled_FrozenBoundary...count=1, tag='producer'), input_type=_Journaled_FrozenBoundaryModel])
+    PydanticSerializationUnexpectedValue(Expected `decimal` - serialized value may not be as expected [field_name='params', input_value=_Journaled_FrozenBoundary...count=1, tag='producer'), input_type=_Journaled_FrozenBoundaryModel])
+    PydanticSerializationUnexpectedValue(Expected `list[any]` - serialized value may not be as expected [field_name='params', input_value=_Journaled_FrozenBoundary...count=1, tag='producer'), input_type=_Journaled_FrozenBoundaryModel])
+    PydanticSerializationUnexpectedValue(Expected `dict[str, any]` - serialized value may not be as expected [field_name='params', input_value=_Journaled_FrozenBoundary...count=1, tag='producer'), input_type=_Journaled_FrozenBoundaryModel])
+    return self.__pydantic_serializer__.to_python(
+
+_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate/policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_model_boundary_reaches_real_cache_and_current_consumer[frozen-sequential]
+_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate/policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_model_boundary_reaches_real_cache_and_current_consumer[frozen-async]
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+    PydanticSerializationUnexpectedValue(Expected `str` - serialized value may not be as expected [field_name='params', input_value=_Journaled_FrozenBoundary...count=5, tag='producer'), input_type=_Journaled_FrozenBoundaryModel])
+    PydanticSerializationUnexpectedValue(Expected `int` - serialized value may not be as expected [field_name='params', input_value=_Journaled_FrozenBoundary...count=5, tag='producer'), input_type=_Journaled_FrozenBoundaryModel])
+    PydanticSerializationUnexpectedValue(Expected `bool` - serialized value may not be as expected [field_name='params', input_value=_Journaled_FrozenBoundary...count=5, tag='producer'), input_type=_Journaled_FrozenBoundaryModel])
+    PydanticSerializationUnexpectedValue(Expected `decimal` - serialized value may not be as expected [field_name='params', input_value=_Journaled_FrozenBoundary...count=5, tag='producer'), input_type=_Journaled_FrozenBoundaryModel])
+    PydanticSerializationUnexpectedValue(Expected `list[any]` - serialized value may not be as expected [field_name='params', input_value=_Journaled_FrozenBoundary...count=5, tag='producer'), input_type=_Journaled_FrozenBoundaryModel])
+    PydanticSerializationUnexpectedValue(Expected `dict[str, any]` - serialized value may not be as expected [field_name='params', input_value=_Journaled_FrozenBoundary...count=5, tag='producer'), input_type=_Journaled_FrozenBoundaryModel])
+    return self.__pydantic_serializer__.to_python(
+
+_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate/policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_model_boundary_reaches_real_cache_and_current_consumer[detached-sequential]
+_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate/policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_model_boundary_reaches_real_cache_and_current_consumer[detached-async]
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+    PydanticSerializationUnexpectedValue(Expected `str` - serialized value may not be as expected [field_name='params', input_value=_Journaled_BoundaryModel(count=5, tag='producer'), input_type=_Journaled_BoundaryModel])
+    PydanticSerializationUnexpectedValue(Expected `int` - serialized value may not be as expected [field_name='params', input_value=_Journaled_BoundaryModel(count=5, tag='producer'), input_type=_Journaled_BoundaryModel])
+    PydanticSerializationUnexpectedValue(Expected `bool` - serialized value may not be as expected [field_name='params', input_value=_Journaled_BoundaryModel(count=5, tag='producer'), input_type=_Journaled_BoundaryModel])
+    PydanticSerializationUnexpectedValue(Expected `decimal` - serialized value may not be as expected [field_name='params', input_value=_Journaled_BoundaryModel(count=5, tag='producer'), input_type=_Journaled_BoundaryModel])
+    PydanticSerializationUnexpectedValue(Expected `list[any]` - serialized value may not be as expected [field_name='params', input_value=_Journaled_BoundaryModel(count=5, tag='producer'), input_type=_Journaled_BoundaryModel])
+    PydanticSerializationUnexpectedValue(Expected `dict[str, any]` - serialized value may not be as expected [field_name='params', input_value=_Journaled_BoundaryModel(count=5, tag='producer'), input_type=_Journaled_BoundaryModel])
+    return self.__pydantic_serializer__.to_python(
+
+_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate/policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py: 18 warnings
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+    PydanticSerializationUnexpectedValue(Expected `str` - serialized value may not be as expected [field_name='params', input_value=UnsupportedRuntimeModel(count=1, tag='producer'), input_type=UnsupportedRuntimeModel])
+    PydanticSerializationUnexpectedValue(Expected `int` - serialized value may not be as expected [field_name='params', input_value=UnsupportedRuntimeModel(count=1, tag='producer'), input_type=UnsupportedRuntimeModel])
+    PydanticSerializationUnexpectedValue(Expected `bool` - serialized value may not be as expected [field_name='params', input_value=UnsupportedRuntimeModel(count=1, tag='producer'), input_type=UnsupportedRuntimeModel])
+    PydanticSerializationUnexpectedValue(Expected `decimal` - serialized value may not be as expected [field_name='params', input_value=UnsupportedRuntimeModel(count=1, tag='producer'), input_type=UnsupportedRuntimeModel])
+    PydanticSerializationUnexpectedValue(Expected `list[any]` - serialized value may not be as expected [field_name='params', input_value=UnsupportedRuntimeModel(count=1, tag='producer'), input_type=UnsupportedRuntimeModel])
+    PydanticSerializationUnexpectedValue(Expected `dict[str, any]` - serialized value may not be as expected [field_name='params', input_value=UnsupportedRuntimeModel(count=1, tag='producer'), input_type=UnsupportedRuntimeModel])
+    return self.__pydantic_serializer__.to_python(
+
+_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate/policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_unsupported_model_hooks_refuse_before_real_producer_effects[__get_pydantic_core_schema__-sequential]
+_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate/policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_unsupported_model_hooks_refuse_before_real_producer_effects[__get_pydantic_core_schema__-async]
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/candidate/policy-engine/tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py:539: PydanticDeprecatedSince211: The `__get_pydantic_core_schema__` method of the `BaseModel` class is deprecated. If you are calling `super().__get_pydantic_core_schema__` when overriding the method on a Pydantic model, consider using `handler(source)` instead. However, note that overriding this method on models can lead to unexpected side effects. Deprecated in Pydantic V2.11 to be removed in V3.0.
+    return getattr(BaseModel, hook).__func__(cls, *args, **kwargs)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_real_producer_grants_reconcile_with_reopened_cache_intent[None-worker]
+FAILED tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_real_producer_grants_reconcile_with_reopened_cache_intent[nested_widen-worker]
+FAILED tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_real_producer_grants_reconcile_with_reopened_cache_intent[release_scope-worker]
+FAILED tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_real_producer_grants_reconcile_with_reopened_cache_intent[root_replace-worker]
+FAILED tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_real_producer_grants_reconcile_with_reopened_cache_intent[neighbor_alias-worker]
+FAILED tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_unsupported_model_hooks_refuse_before_real_producer_effects[__copy__-async]
+FAILED tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_unsupported_model_hooks_refuse_before_real_producer_effects[model_construct-async]
+FAILED tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_unsupported_model_hooks_refuse_before_real_producer_effects[model_post_init-async]
+FAILED tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_unsupported_model_hooks_refuse_before_real_producer_effects[__new__-sequential]
+FAILED tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_unsupported_model_hooks_refuse_before_real_producer_effects[__new__-async]
+FAILED tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_unsupported_model_hooks_refuse_before_real_producer_effects[__init_subclass__-async]
+FAILED tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_unsupported_model_hooks_refuse_before_real_producer_effects[__pydantic_init_subclass__-async]
+FAILED tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_unsupported_model_hooks_refuse_before_real_producer_effects[__pydantic_on_complete__-async]
+FAILED tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_unsupported_model_hooks_refuse_before_real_producer_effects[__get_pydantic_core_schema__-async]
+FAILED tests/unit/scientist/orchestration/engine/test_producer_scope_reconciliation.py::test_unsupported_model_hooks_refuse_before_real_producer_effects[__get_pydantic_json_schema__-async]
+15 failed, 52 passed, 41 warnings in 14.39s
+import_origin_receipt=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/results/import-origins-pytest-repaired.json
+polisyos_modules=1105 origin_errors=0
+runtime_result=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/incoming-20261007-1311/B-model-local/results/runtime-result-pytest-repaired.json

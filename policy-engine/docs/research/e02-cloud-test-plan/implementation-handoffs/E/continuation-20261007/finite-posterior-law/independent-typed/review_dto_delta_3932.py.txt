@@ -1,0 +1,60 @@
+"""Independent declaration/dispatch/schema delta; reuse exact finite-law controls."""
+from __future__ import annotations
+import ast,hashlib,importlib,json,subprocess,sys,types
+from pathlib import Path
+from pydantic import BaseModel
+from polisyos.core import artifacts as ca
+from polisyos.foundry.calibration.uncertainty_adapter import summarize_bayesian_calibration_posterior
+from polisyos.ir.analytics import load_posterior_summary_envelope, posterior_nominal_mean, read_posterior_summary_profile
+from polisyos.ir.analytics.uncertainty import persist_uncertainty_envelope
+from polisyos.schemas.abi_models import ABI_MODELS, IR_ABI_MODELS
+
+ROOT=Path('/workspace/e02-E-mc-20261006')
+OUT=Path('/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e')
+BEFORE='ca17a489559eb574285bb1c7291cc3c56a9e29da'
+AFTER='3932cded22a29254a7dfced99723e147d6fea7cb'
+PATH='policy-engine/src/polisyos/ir/analytics/posterior_summary.py'
+def git(*args): return subprocess.check_output(['git','-C',str(ROOT),*args])
+def require(p,message):
+ if not p: raise ValueError(message)
+def digest(b): return hashlib.sha256(b).hexdigest()
+raw_before=git('show',BEFORE+':'+PATH).decode()
+raw_after=git('show',AFTER+':'+PATH).decode()
+require((ROOT/PATH).read_text()==raw_after,'physical source differs3932')
+require(git('diff','--name-only',BEFORE,AFTER).decode().splitlines()==[PATH],'unexpected product delta')
+def segments(raw):
+ parsed=ast.parse(raw);return [ast.get_source_segment(raw,n) for n in ast.walk(parsed) if isinstance(n,(ast.FunctionDef,ast.AsyncFunctionDef))]
+methods_before=segments(raw_before);methods_after=segments(raw_after)
+require(methods_before==methods_after and len(methods_after)==22,'math/reader/group function source changed')
+def cls(raw,name): return next(n for n in ast.parse(raw).body if isinstance(n,ast.ClassDef) and n.name==name)
+require(ast.get_source_segment(raw_before,cls(raw_before,'PosteriorSummaryProfile'))==ast.get_source_segment(raw_after,cls(raw_after,'PosteriorSummaryProfile')),'legacy class changed')
+ps=importlib.import_module('polisyos.ir.analytics.posterior_summary')
+old_module=types.ModuleType('e02_independent_old_profile2');sys.modules[old_module.__name__]=old_module
+old_module.__dict__.update({k:v for k,v in vars(ps).items() if k not in ('__name__','PosteriorSummaryProfileV2')})
+old_node=cls(raw_before,'PosteriorSummaryProfileV2')
+future=ast.ImportFrom(module='__future__',names=[ast.alias(name='annotations')],level=0)
+exec(compile(ast.fix_missing_locations(ast.Module(body=[future,old_node],type_ignores=[])),'exact-ca17-class','exec'),old_module.__dict__)
+Old=old_module.PosteriorSummaryProfileV2;New=ps.PosteriorSummaryProfileV2
+Old.model_rebuild(force=True,_types_namespace=old_module.__dict__)
+require(Old.model_json_schema()==New.model_json_schema(),'actual DTO schema differs')
+require(list(Old.model_fields)==list(New.model_fields),'field order differs')
+require(New.__bases__==(BaseModel,),'new DTO still narrows inherited incompatible Literals')
+summary=summarize_bayesian_calibration_posterior({'x':[0.]*99+[100.]})
+env=summary.parameter_envelopes['x'];profile=read_posterior_summary_profile(env)
+require(type(profile) is New,'actual producer/reader does not dispatchnewDTO')
+old_profile=Old.model_validate(profile.model_dump(mode='python'))
+require(old_profile.model_dump(mode='python')==profile.model_dump(mode='python'),'actual old/new DTO fields differ')
+path=OUT/'dto3932-cas';path.mkdir(exist_ok=False)
+store=ca.FileSystemCAS(path);ref=persist_uncertainty_envelope(store,env);reopened=load_posterior_summary_envelope(ca.FileSystemCAS(path),ref)
+require(type(read_posterior_summary_profile(reopened)) is New and posterior_nominal_mean(reopened)==1.0 and reopened.point_estimate==0 and reopened.confidence_interval==(0,0),'fresh actual DTOdispatch/mean regress')
+bad=dict(profile.model_dump(mode='python'));bad['profile_id']='urn:policyos:ir:bayesian-posterior-summary-profile:1'
+try: New.model_validate(bad)
+except ValueError: pass
+else: raise ValueError('new DTO admits old profile ID')
+fixtures=list((ROOT/'policy-engine/tests/fixtures/ir/posterior-summary-profile-v1').glob('*.json'))
+for fixture in fixtures:
+ relative=fixture.relative_to(ROOT).as_posix();require(git('show',BEFORE+':'+relative)==git('show',AFTER+':'+relative)==fixture.read_bytes(),'literal fixture changed')
+require((ROOT/PATH).read_text()==raw_after,'source changed afterDTOprobe')
+result={'schema':'policyos.e02.independent_profile2_DTO_delta_reuse.v1','candidate':AFTER,'tree':git('rev-parse',AFTER+'^{tree}').decode().strip(),'before':BEFORE,'outcome':'GO bounded DTOdelta/exactmathreuse','all22_function_method_source_segments_equal':True,'function_source_sha256':[digest(s.encode())for s in methods_after],'oldProfile1_class_byte_equal':True,'actualDTOschema_equal':True,'actual_field_order_equal':list(New.model_fields),'newDTO_base_is_BaseModel':True,'actualproducer_freshCAS_profileclass':New.__module__+'.'+New.__qualname__,'actual_nominal_mean':1.0,'median':0.0,'interval':[0,0],'gate_eligible':reopened.gate_eligible,'old_ID_on_newDTO':'refused','literalfixturefiles_equal':len(fixtures),'IR_ABI_MODELS_actual_count':len(IR_ABI_MODELS),'full_ABI_MODELS_actual_count':len(ABI_MODELS),'count_scopes_separate':True,'source_sha256_before':digest(raw_before.encode()),'source_sha256_after':digest(raw_after.encode()),'no_fullmath_backend_wave':True,'reuse':'Original independent33 qualified controls remain actual2c/ca observations; exact22 method/wholeotherproduct-byte identity qualifies bounded reuse on3932. Separate actual DTOconstructor/dispatch/freshCAS delta only.','limitations':['Source/math GO distinct from typing owner acceptance, generated schema publication and original-row finding closure.','Current lane has author untracked DOC handoff work; exact tracked3932 product bytes bracket verified, no claim of globalclean checkout.','Reviewer modifies only scratch; ROOTsource/interpreter/package/backend untouched.']}
+(OUT/'independent-DTO-delta-3932.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps({'outcome':result['outcome'],'candidate':AFTER,'actual_full_ABI_MODELS':len(ABI_MODELS),'actual_IR_subset':len(IR_ABI_MODELS),'method_segments':22,'actualDTO_schema_equal':True,'fresh_mean':1.0},indent=2))

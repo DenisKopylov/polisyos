@@ -1,0 +1,5 @@
+# Used C source/package outputs retired to native Trash
+
+28 objects (four source tar archives and24 completed dist directories) were moved and verified by native API, inode/device, unique destination and source absence. Observed file allocations:3,539,394,560 bytes; this is not physical free-space reclaimed.28 small build/census receipts and extant deciding logs were rehashed and preserved outside the moved leaves. Candidate commits/trees resolve in Git; no unique code/docs/data were found. Unmappedcanon/source and activeA/C/G roots/envs are untouched. Trash was not emptied and no permanent deletion occurred.
+
+Two archive-command stdout paths were already absent; their source-tar bytes existed in the moved archives. The archives contain reconstructible pinned Git source, not deciding test outputs. Original native package/archive bytes will require regeneration after the human empties Trash; no exact rebuild byteidentity beyond the pinned source tree is claimed. [Read-only audit](audit.md) and [complete native output](native-Trash.json) preserve the deciding state.

@@ -1,0 +1,42 @@
+[
+  {
+    "control": "G_installed_candidate_commit",
+    "outcome": "REJECTED"
+  },
+  {
+    "control": "G_installed_test_source_sha256",
+    "outcome": "REJECTED"
+  },
+  {
+    "control": "G_installed_corrupt_JUnit_bytes",
+    "outcome": "REJECTED"
+  },
+  {
+    "control": "prepared_plan_candidate_sha",
+    "outcome": "REJECTED"
+  },
+  {
+    "control": "prepared_plan_native_test_path_count",
+    "outcome": "REJECTED"
+  },
+  {
+    "control": "prepared_plan_execution_state",
+    "outcome": "REJECTED"
+  },
+  {
+    "control": "installed_native_test_omitted_from_lint",
+    "outcome": "REJECTED"
+  },
+  {
+    "control": "amended_law_evaluator_calls",
+    "outcome": "REJECTED"
+  },
+  {
+    "control": "amended_law_stochastic_attempts",
+    "outcome": "REJECTED"
+  },
+  {
+    "control": "amended_law_gate_eligible",
+    "outcome": "REJECTED"
+  }
+]

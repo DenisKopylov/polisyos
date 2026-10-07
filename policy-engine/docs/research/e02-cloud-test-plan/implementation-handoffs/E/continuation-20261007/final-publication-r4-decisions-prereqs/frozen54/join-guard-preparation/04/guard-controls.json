@@ -1,0 +1,71 @@
+{
+  "schema": "policyos.e02.final_join_receipt_guard_controls.v1",
+  "optimization": 1,
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "builder": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/build-final-all-54-update.py.txt",
+    "bytes": 9402,
+    "sha256": "2a3ce838f1b48a605ad61b5d41eb254a890f161f8f5062a11358e1df13777e40"
+  },
+  "control_source": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/check-final-builder-guards.py.txt",
+    "bytes": 3519,
+    "sha256": "4396efad1380845b48d47ecdecf4ea109151407d2591946fe58a5fed9acffc37"
+  },
+  "original_receipt": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-16/checks/standalone-ci-16/standalone-ci-16.json",
+    "bytes": 8223,
+    "sha256": "b08bb1afcfbf35cd0df70e3678556dbaaf574431e92b1e3befb9b86dc4b54592"
+  },
+  "original_stdout": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-16/checks/standalone-ci-16/standalone-ci-16.stdout.txt",
+    "bytes": 254,
+    "sha256": "5fc106646fc24cb077620399b5b27ee3af100c2641908c647b17f513a531f696"
+  },
+  "healthy_outcome": "PASS",
+  "controls": [
+    {
+      "control": "wrong_source",
+      "outcome": "PASS",
+      "refusal": "receipt source mismatch"
+    },
+    {
+      "control": "wrong_tree",
+      "outcome": "PASS",
+      "refusal": "receipt tree mismatch"
+    },
+    {
+      "control": "nonzero_exit",
+      "outcome": "PASS",
+      "refusal": "nonzero successful receipt"
+    },
+    {
+      "control": "boolean_exit",
+      "outcome": "PASS",
+      "refusal": "integer process exit required"
+    },
+    {
+      "control": "source_drift",
+      "outcome": "PASS",
+      "refusal": "successful source drift"
+    },
+    {
+      "control": "stdout_digest_drift",
+      "outcome": "PASS",
+      "refusal": "stdout digest drift"
+    },
+    {
+      "control": "stdout_size_drift",
+      "outcome": "PASS",
+      "refusal": "stdout size drift"
+    },
+    {
+      "control": "stdout_custody_escape",
+      "outcome": "PASS",
+      "refusal": "stdout path outside receipt custody"
+    }
+  ],
+  "final_join_executed": false,
+  "scope": "Actual frozen receipt custody guards; no numeric rerun or finding decision"
+}

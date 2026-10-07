@@ -1,0 +1,111 @@
+"""Independent stdlib-only closed install receipt review; no environment imports."""
+from __future__ import annotations
+import argparse, ast, copy, hashlib, importlib.util, json, subprocess, sys, types, zipfile
+from pathlib import Path
+
+ROOT=Path('/workspace/e02-E-continuation-20261006')
+BASE=Path('/tmp/e02-E-declared-prereq-custody-64d-20261007')
+OUT=Path('/tmp/e02-E-install-custody-independent-doe-20261007')
+SOURCE='64d7444a18c55df7b88b71b7699a2f1b25ca24bd';TREE='aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+EXPECTED={'hatchling':'1.27.0','immutabledict':'4.2.2','ortools':'9.15.6755','trove-classifiers':'2026.9.21.13'}
+PROTECTED={'numpy':'2.3.5','scipy':'1.16.3','jax':'0.8.2','jaxlib':'0.8.2','salib':'1.5.2'}
+ANCHORS={'validate_closed_install.py':(24184,'2bca3cb0116a30e2fdfc46e3045d3c3057b0de1627c771f16570bde12e07035e'),'closed-install-custody.json':(12804,'8b1e16abe34bdd5971e350823571194083ee156f6969a893a88d7600a96cc110'),'input-index.json':(10648,'38ff6845c0b8cc7a61bd359a2d0de8af7529090c7db9150336f2c5fe9e35877c')}
+
+def require(value,reason):
+ if not value:raise ValueError(reason)
+def sha(raw):return hashlib.sha256(raw).hexdigest()
+def ref(path):
+ raw=Path(path).read_bytes();return {'path':str(path),'bytes':len(raw),'sha256':sha(raw)}
+def git(*args):return subprocess.check_output(['git','-C',str(ROOT),*args])
+def dump(path,value):path.write_text(json.dumps(value,ensure_ascii=False,indent=2)+'\n')
+def normalize(s):return s.lower().replace('_','-').replace('.','-')
+def metadata(obs):return {normalize(r['name']):r for r in obs['metadata']['distributions']}
+parser=argparse.ArgumentParser();parser.add_argument('--mode',choices=['normal','optimized'],required=True);args=parser.parse_args();RUN=OUT/args.mode;RUN.mkdir(exist_ok=False)
+root_before={'head':git('rev-parse','HEAD').decode().strip(),'tree':git('rev-parse','HEAD^{tree}').decode().strip(),'tracked_status':git('status','--porcelain','--untracked-files=no').decode()};require(root_before['head']==SOURCE and root_before['tree']==TREE and not root_before['tracked_status'],'frozen ROOT source')
+for name,binding in ANCHORS.items():
+ raw=(BASE/name).read_bytes();require((len(raw),sha(raw))==binding,'immutable input utility '+name)
+index=json.loads((BASE/'input-index.json').read_text());packet=json.loads((BASE/'closed-install-custody.json').read_text());inputs={};literal=[]
+require(len(index['files'])==32 and len({r['key'] for r in index['files']})==32,'full32 input class')
+for row in index['files']:
+ original=Path(row['path']).read_bytes();copied=(BASE/row['stored_at']).read_bytes();require(original==copied and (len(copied),sha(copied))==(row['bytes'],row['sha256']),'original/copied literal '+row['key']);literal.append(row)
+ inputs[row['key']]=json.loads(copied) if row['stored_at'].endswith('.json') else copied.decode()
+require(sum(r['bytes'] for r in literal)==369304==index['total_bytes'],'all32 bytes')
+before=metadata(inputs['fresh-before']);after=metadata(inputs['after']);historical=metadata(inputs['historical-observation']);actual=inputs['physical-metadata']['metadata']
+require(len(before)==203 and len(after)==207 and historical==before,'203 historical before bindings')
+require(all(k in after and after[k]==v for k,v in before.items()),'all203 unchanged original metadata rows')
+added={k:v for k,v in after.items() if k not in before};require({k:v['version'] for k,v in added.items()}==EXPECTED,'exact4 additions')
+require(actual==list(inputs['after']['metadata']['distributions']),'all207 captured physical rows')
+actual_metadata=[]
+for row in actual:
+ physical=Path(row['path']).read_bytes();require((len(physical),sha(physical))==(row['bytes'],row['sha256']),'actual read-only METADATA '+row['name']);actual_metadata.append({'name':row['name'],'version':row['version'],'path':row['path'],'bytes':row['bytes'],'sha256':row['sha256']})
+require({k:after[k]['version'] for k in PROTECTED}==PROTECTED and all(before[k]==after[k] for k in PROTECTED),'exact protected version/hash axes')
+wheel_rows=[]
+for row in inputs['wheel-readback']['rows']:
+ path=Path(row['wheel']['path']);h=hashlib.sha256();count=0
+ with path.open('rb') as stream:
+  for chunk in iter(lambda:stream.read(1024*1024),b''):h.update(chunk);count+=len(chunk)
+ require((count,h.hexdigest())==(row['wheel']['bytes'],row['wheel']['sha256']),'physical ignored wheel hash/size')
+ with zipfile.ZipFile(path) as archive:
+  names=[x for x in archive.namelist() if x.endswith('.dist-info/METADATA')];require(len(names)==1,'wheel metadata class');raw=archive.read(names[0]);require((len(raw),sha(raw))==(row['metadata_bytes'],row['metadata_sha256']),'wheel/installed metadata binding')
+ wheel_rows.append({'name':row['name'],'version':row['version'],'path':str(path),'bytes':count,'sha256':h.hexdigest(),'metadata_sha256':sha(raw)})
+require(len(wheel_rows)==4 and sum(r['bytes'] for r in wheel_rows)==29938701,'four ignored payload denominator')
+source_rows=[]
+for row in inputs['source-readback']['rows']:
+ raw=git('show',SOURCE+':'+row['path']);require((len(raw),sha(raw))==(row['bytes'],row['sha256']) and raw==(ROOT/row['path']).read_bytes(),'six actual Git/physical source companions')
+ require(git('rev-parse',SOURCE+':'+row['path']).decode().strip()==row['git_blob'],'exact Git blob ID');source_rows.append(row)
+require(len(source_rows)==6,'full source companion denominator')
+# Utility module is loaded only after exact immutable byte guards. Its callbacks are limited to read-only Git.
+raw=(BASE/'validate_closed_install.py').read_bytes();mod=types.ModuleType('independent_closed_install');mod.__file__=str(BASE/'validate_closed_install.py');exec(compile(raw,mod.__file__,'exec'),mod.__dict__)
+callbacks=[]
+def git_callback(argv,**kwargs):
+ require(argv[:2] in (['git','rev-parse'],['git','show'],['git','hash-object']),'no environment/application child callback')
+ require(kwargs.get('cwd')==ROOT,'actual frozen Git cwd');callbacks.append({'argv':argv,'cwd':str(kwargs['cwd'])});return subprocess.check_output(argv,**kwargs)
+mod.subprocess=types.SimpleNamespace(check_output=git_callback)
+expected=mod.derive_claims(BASE,ROOT);require(mod.typed_equal(packet['claims'],expected),'healthy derived194 typed claims');require(mod.leaf_count(expected)==194,'actual194 claims, not270')
+healthy=mod.validate(BASE,ROOT);require(healthy['check_outcome']=='PASS' and not healthy['native_executed'] and not healthy['environment_mutated'],'literal utility healthy no native execution')
+controls=[]
+def refusal(name,value,marker='summary_mismatch'):
+ try:mod.validate(BASE,ROOT,value)
+ except ValueError as exc:require(marker in str(exc),'actual refusal reason '+name);controls.append({'name':name,'outcome':'PASS refusal','reason':str(exc),'raw_install_PASS_marker':value.get('claims',{}).get('install',{}).get('check_outcome')})
+ else:raise ValueError('utility admitted corruption '+name)
+mutants=[]
+for name,change in (
+ ('false_distribution_count',lambda p:p['claims']['metadata'].__setitem__('current_distributions',208)),
+ ('false_protected_version',lambda p:p['claims']['metadata']['protected_numerical_packages'][0].__setitem__('version','0')),
+ ('false_global_quiescence',lambda p:p['claims']['environment'].__setitem__('fresh_quiescent',True)),
+ ('false_input_denominator',lambda p:p['claims']['input_denominator'].__setitem__('files',31)),
+ ('false_original_workspace_PASS',lambda p:p['claims']['historical'].__setitem__('original_workspace14_outcome','PASS')),
+ ('typed_bool_exit_code',lambda p:p['claims']['install'].__setitem__('exit_code',False)),
+ ('false_native_global_backend',lambda p:p['claims']['scope'].__setitem__('global_backend_result_established',True)),
+ ('false_source_identity',lambda p:p['claims'].__setitem__('source','f'*40))):
+ value=copy.deepcopy(packet);change(value);require(value['claims']['install']['check_outcome']=='PASS' and value['claims']['preflight']['check_outcome']=='PASS','markers-preserving summary mutation');refusal(name,value);mutants.append((name,value))
+# Real physical copied-byte corruption + omitted required input with recomputed totals, before any Git callback.
+for label,kind in (('copied_byte_corruption','byte'),('missing_required_input_retallied','omission')):
+ case=RUN/label;case.mkdir();idx=copy.deepcopy(index)
+ for row in index['files']:
+  target=case/row['stored_at'];target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes((BASE/row['stored_at']).read_bytes())
+ if kind=='byte':
+  row=next(r for r in idx['files'] if r['key']=='recipe');path=case/row['stored_at'];raw=path.read_bytes();path.write_bytes(bytes([raw[0]^1])+raw[1:]);marker='input custody:recipe'
+ else:
+  idx['files']=[r for r in idx['files'] if r['key']!='recipe'];idx['total_bytes']=sum(r['bytes'] for r in idx['files']);marker='complete input class'
+ dump(case/'input-index.json',idx);(case/'closed-install-custody.json').write_bytes((BASE/'closed-install-custody.json').read_bytes());old=len(callbacks)
+ try:mod.validate(case,ROOT)
+ except ValueError as exc:require(marker in str(exc) and len(callbacks)==old,'actual input refusal pre-callback '+label);controls.append({'name':label,'outcome':'PASS refusal','reason':str(exc),'git_callback_count':0})
+ else:raise ValueError('copied custody escape '+label)
+# Remove exactly the summary equality predicate, keeping the schema and marker. Same mutants now admit.
+tree=ast.parse((BASE/'validate_closed_install.py').read_bytes());fn=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='admit_summary_claims');hits=[]
+for n in ast.walk(fn):
+ if isinstance(n,ast.Call) and isinstance(n.func,ast.Name) and n.func.id=='require' and len(n.args)==2 and isinstance(n.args[1],ast.Constant) and n.args[1].value=='summary_mismatch':hits.append(n)
+require(len(hits)==1,'sole summary predicate');hits[0].args[0]=ast.Constant(True);ast.fix_missing_locations(tree);removed=ast.unparse(tree)+'\n';(RUN/'summary-predicate-removal.py.txt').write_text(removed);require('summary_mismatch' in removed,'original marker preserved')
+removed_mod=types.ModuleType('independent_closed_install_removed');exec(compile(removed,'independent-removal','exec'),removed_mod.__dict__);removed_mod.subprocess=types.SimpleNamespace(check_output=git_callback)
+for name,value in mutants[:4]:
+ result=removed_mod.validate(BASE,ROOT,value);require(result['check_outcome']=='PASS','effective removal readmits same malformed typed summary');controls.append({'name':'effective_summary_removal_'+name,'observer_outcome':'PASS discriminator','defining_property_outcome':'FAIL','actual_reader_result':result,'raw_install_PASS_marker':value['claims']['install']['check_outcome']})
+# No installer/preflight/backend invoked; prior literal historical outcomes remain unchanged.
+require(expected['historical']['recipe_outcome']=='UNRUN' and expected['historical']['readiness_outcome']=='UNRUN' and expected['historical']['delta_runtime_check_outcome']=='pending','historical pending unchanged')
+require(expected['historical']['original_workspace14_outcome']=='FAIL' and expected['historical']['original_workspace14_counts']=={'cases':6,'passed':0,'failed':0,'errors':2,'skipped':4},'original fail retained')
+require(expected['preflight']['native_stdout']['ortools_native_optimal_value']==1 and not expected['scope']['global_backend_result_established'],'bounded existing preflight distinct from RUNNING backend')
+require(expected['environment']['fresh_quiescent'] is False and expected['environment']['after_quiescent'] is False and expected['environment']['fresh_unreadable_live_processes']==[{'pid':199,'error':'PermissionError'},{'pid':250,'error':'PermissionError'}],'unconditional quiescence not invented')
+for name,binding in ANCHORS.items():require((len((BASE/name).read_bytes()),sha((BASE/name).read_bytes()))==binding,'input source stable after review')
+root_after={'head':git('rev-parse','HEAD').decode().strip(),'tree':git('rev-parse','HEAD^{tree}').decode().strip(),'tracked_status':git('status','--porcelain','--untracked-files=no').decode()};require(root_after==root_before,'ROOT source unchanged')
+report={'schema':'policyos.e02.independent_closed_install_custody.v1','verdict':'GO bounded closed evidence utility/custody','mode':args.mode,'source':SOURCE,'tree':TREE,'utility':ref(BASE/'validate_closed_install.py'),'input_index':ref(BASE/'input-index.json'),'packet':ref(BASE/'closed-install-custody.json'),'copied_inputs':literal,'input_count':32,'input_bytes':369304,'structured_claims':194,'actual_closed_metadata':{'before_count':203,'after_count':207,'all_before_rows_unchanged':True,'added':list(added.values()),'actual_physical_after_207_hashes_rebound':True,'protected_versions':PROTECTED},'wheels':wheel_rows,'wheel_count':4,'wheel_bytes':29938701,'source_companions':source_rows,'healthy':healthy,'controls':controls,'read_only_git_callback_count':len(callbacks),'callback_command_kinds':sorted({c['argv'][1] for c in callbacks}),'ROOT_before':root_before,'ROOT_after':root_after,'environment_or_native_interpreter_imports':False,'installer_or_backend_or_preflight_repeated':False,'unconditional_all_process_quiescence_established':False,'native_install_and_preflight_markers_are_bounded':True,'historical_UNRUN_pending_and_workspace14_FAIL_preserved':True,'current_RUNNING_workspace14_result_inferred':False,'global_ci_or_finding_closure':False,'scope':'Independent literal saved inputs, four ignored wheel bytes, all203 unchanged METADATA→207, six source refs, typed evidence-reader and effective summary predicate removal only. No native repeat, environment/source mutation or scientific/institutional authority.'}
+path=RUN/'independent-review.json';dump(path,report);print(json.dumps({'report':ref(path),'verdict':report['verdict'],'controls':len(controls),'claims':194,'native_repeated':False},indent=2))

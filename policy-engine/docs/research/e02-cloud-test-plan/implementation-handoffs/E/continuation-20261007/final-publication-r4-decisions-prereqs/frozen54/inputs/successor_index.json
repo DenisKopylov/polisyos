@@ -1,0 +1,2732 @@
+{
+  "schema": "policyos.e02.E.current_37_selector_dispositions.v1",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "snapshot_unix": 1791370801.971791,
+  "complete_selector_denominator": 37,
+  "rows": [
+    {
+      "selector": "workspace-01",
+      "label": "lint imports",
+      "owner": "doe_r4",
+      "canonical_umbrella_observation": {
+        "label": "lint imports",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "--no-sync",
+          "python",
+          "tools/quality/lint/lint_imports.py",
+          "--policy",
+          "architecture/imports/policy.toml",
+          "--exceptions",
+          "architecture/imports/exceptions.toml"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "FAIL",
+        "env": {},
+        "started_unix": 1791367795.0018895,
+        "error_type": "CalledProcessError",
+        "reason": "Command '['/workspace/.polisyos-environment/uv/bin/uv', 'run', '--no-sync', 'python', 'tools/quality/lint/lint_imports.py', '--policy', 'architecture/imports/policy.toml', '--exceptions', 'architecture/imports/exceptions.toml']' returned non-zero exit status 1.",
+        "exit_code": 1,
+        "wall_seconds": 3.1127936840057373
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/workspace-verify/internal-stages.json",
+        "bytes": 8762,
+        "sha256": "052b2f812761d867c9011f8db3b185d2d0d6cb45d6a63231ce4534a593d8c67e"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-01/checks/standalone-workspace-01/standalone-workspace-01.json",
+          "outcome": "FAIL",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-01/checks/standalone-workspace-01/standalone-workspace-01.json",
+            "bytes": 8467,
+            "sha256": "54e6ebeb42b68f5864fe2396982ebbbdae723e6a46999b302611ac1d438fdc47"
+          },
+          "stdout": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-01/checks/standalone-workspace-01/standalone-workspace-01.stdout.txt",
+            "bytes": 6915,
+            "sha256": "957e564ef28b57ca626c3cfdb1c1a402300f5ae5f15453a7f8b5d96c32b55550"
+          },
+          "exit_code": 1,
+          "source_immutable": true,
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "python",
+            "tools/quality/lint/lint_imports.py",
+            "--policy",
+            "architecture/imports/policy.toml",
+            "--exceptions",
+            "architecture/imports/exceptions.toml"
+          ],
+          "counts": null,
+          "junit": null,
+          "execution_running": false,
+          "receipt_not_final": false
+        }
+      ],
+      "standalone_invocation_check_outcome": "FAIL",
+      "observed_selector_check_outcome": "FAIL",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    },
+    {
+      "selector": "workspace-02",
+      "label": "check package import gates (shell-package closure)",
+      "owner": "doe_r4",
+      "canonical_umbrella_observation": {
+        "label": "check package import gates (shell-package closure)",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "polisyos-tools",
+          "validation",
+          "check-package-import-gates",
+          "--fail-closed",
+          "--json-output",
+          "_build/.tmp/last-mile/package-import-gates.json"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after lint imports"
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/workspace-verify/internal-stages.json",
+        "bytes": 8762,
+        "sha256": "052b2f812761d867c9011f8db3b185d2d0d6cb45d6a63231ce4534a593d8c67e"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-02/checks/standalone-workspace-02/standalone-workspace-02.json",
+          "outcome": "FAIL",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-02/checks/standalone-workspace-02/standalone-workspace-02.json",
+            "bytes": 8517,
+            "sha256": "5bb088c3942a288522923bb60de35b9cf8a409119840e7d392e316f498af8d60"
+          },
+          "stdout": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-02/checks/standalone-workspace-02/standalone-workspace-02.stdout.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "exit_code": 1,
+          "source_immutable": true,
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "polisyos-tools",
+            "validation",
+            "check-package-import-gates",
+            "--fail-closed",
+            "--json-output",
+            "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-02/tool-output.json"
+          ],
+          "counts": null,
+          "junit": null,
+          "execution_running": false,
+          "receipt_not_final": false
+        }
+      ],
+      "standalone_invocation_check_outcome": "FAIL",
+      "observed_selector_check_outcome": "FAIL",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    },
+    {
+      "selector": "workspace-03",
+      "label": "lint foundry",
+      "owner": "doe_r4",
+      "canonical_umbrella_observation": {
+        "label": "lint foundry",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "-m",
+          "tools.quality.lint.lint_foundry",
+          "--repo-root",
+          "."
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after lint imports"
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/workspace-verify/internal-stages.json",
+        "bytes": 8762,
+        "sha256": "052b2f812761d867c9011f8db3b185d2d0d6cb45d6a63231ce4534a593d8c67e"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-03/checks/standalone-workspace-03/standalone-workspace-03.json",
+          "outcome": "FAIL",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-03/checks/standalone-workspace-03/standalone-workspace-03.json",
+            "bytes": 8371,
+            "sha256": "055cf37d284cf0fed2ddd5f2d533a091f8e0001215227e1d7cf167281d6ca256"
+          },
+          "stdout": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-03/checks/standalone-workspace-03/standalone-workspace-03.stdout.txt",
+            "bytes": 872,
+            "sha256": "bba8fb29e3f2ae59d7a7654e0198b95748e3937a58e3296a1d26ba0c2f1ed151"
+          },
+          "exit_code": 1,
+          "source_immutable": true,
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "python",
+            "-m",
+            "tools.quality.lint.lint_foundry",
+            "--repo-root",
+            "."
+          ],
+          "counts": null,
+          "junit": null,
+          "execution_running": false,
+          "receipt_not_final": false
+        }
+      ],
+      "standalone_invocation_check_outcome": "FAIL",
+      "observed_selector_check_outcome": "FAIL",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    },
+    {
+      "selector": "workspace-04",
+      "label": "check state reads",
+      "owner": "doe_r4",
+      "canonical_umbrella_observation": {
+        "label": "check state reads",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "tools/quality/diagnostics/check_state_reads.py"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after lint imports"
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/workspace-verify/internal-stages.json",
+        "bytes": 8762,
+        "sha256": "052b2f812761d867c9011f8db3b185d2d0d6cb45d6a63231ce4534a593d8c67e"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-04/checks/standalone-workspace-04/standalone-workspace-04.json",
+          "outcome": "FAIL",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-04/checks/standalone-workspace-04/standalone-workspace-04.json",
+            "bytes": 8349,
+            "sha256": "19d40e2376abfc00ee7cc143e3144d8fc8140f8e6919d2653ffb8180cc39d4f3"
+          },
+          "stdout": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-04/checks/standalone-workspace-04/standalone-workspace-04.stdout.txt",
+            "bytes": 1557,
+            "sha256": "592064763bb7fba0c143d673374f51bdf455eb6074d6cef35ee52263a5fbbbf0"
+          },
+          "exit_code": 1,
+          "source_immutable": true,
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "python",
+            "tools/quality/diagnostics/check_state_reads.py"
+          ],
+          "counts": null,
+          "junit": null,
+          "execution_running": false,
+          "receipt_not_final": false
+        }
+      ],
+      "standalone_invocation_check_outcome": "FAIL",
+      "observed_selector_check_outcome": "FAIL",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    },
+    {
+      "selector": "workspace-05",
+      "label": "check scholar imports",
+      "owner": "doe_r4",
+      "canonical_umbrella_observation": {
+        "label": "check scholar imports",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "tools/quality/lint/check_scholar_imports.py"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after lint imports"
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/workspace-verify/internal-stages.json",
+        "bytes": 8762,
+        "sha256": "052b2f812761d867c9011f8db3b185d2d0d6cb45d6a63231ce4534a593d8c67e"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-05/checks/standalone-workspace-05/standalone-workspace-05.json",
+          "outcome": "PASS",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-05/checks/standalone-workspace-05/standalone-workspace-05.json",
+            "bytes": 8344,
+            "sha256": "4afcea2ab90083646b0c5b269b68b2b60953d4c87aa808f7f8e6bd0543fd0d94"
+          },
+          "stdout": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-05/checks/standalone-workspace-05/standalone-workspace-05.stdout.txt",
+            "bytes": 24,
+            "sha256": "43f2361ccca6bc36f0477e6db72c3a0875502a3b4a1622deb4d1de713648e5ad"
+          },
+          "exit_code": 0,
+          "source_immutable": true,
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "python",
+            "tools/quality/lint/check_scholar_imports.py"
+          ],
+          "counts": null,
+          "junit": null,
+          "execution_running": false,
+          "receipt_not_final": false
+        }
+      ],
+      "standalone_invocation_check_outcome": "PASS",
+      "observed_selector_check_outcome": "PASS",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    },
+    {
+      "selector": "workspace-06",
+      "label": "check connector contracts",
+      "owner": "doe_r4",
+      "canonical_umbrella_observation": {
+        "label": "check connector contracts",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "polisyos-tools",
+          "connectors",
+          "check-contracts",
+          "--check"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after lint imports"
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/workspace-verify/internal-stages.json",
+        "bytes": 8762,
+        "sha256": "052b2f812761d867c9011f8db3b185d2d0d6cb45d6a63231ce4534a593d8c67e"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-06/checks/standalone-workspace-06/standalone-workspace-06.json",
+          "outcome": "PASS",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-06/checks/standalone-workspace-06/standalone-workspace-06.json",
+            "bytes": 8354,
+            "sha256": "e209e0a432fdf43fe064ce530f5ffd588d00142d3baf4c703c567075bf27a8c5"
+          },
+          "stdout": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-06/checks/standalone-workspace-06/standalone-workspace-06.stdout.txt",
+            "bytes": 32,
+            "sha256": "8afb1abaffac02edb4baa91bf813c45fe1ca9a346f5eac71db731d4aaba6aa57"
+          },
+          "exit_code": 0,
+          "source_immutable": true,
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "polisyos-tools",
+            "connectors",
+            "check-contracts",
+            "--check"
+          ],
+          "counts": null,
+          "junit": null,
+          "execution_running": false,
+          "receipt_not_final": false
+        }
+      ],
+      "standalone_invocation_check_outcome": "PASS",
+      "observed_selector_check_outcome": "PASS",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    },
+    {
+      "selector": "workspace-07",
+      "label": "check schema freshness",
+      "owner": "doe_r4",
+      "canonical_umbrella_observation": {
+        "label": "check schema freshness",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "--extra",
+          "ml",
+          "python",
+          "tools/quality/diagnostics/gen_schema.py",
+          "--check"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after lint imports"
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/workspace-verify/internal-stages.json",
+        "bytes": 8762,
+        "sha256": "052b2f812761d867c9011f8db3b185d2d0d6cb45d6a63231ce4534a593d8c67e"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-07/checks/standalone-workspace-07/standalone-workspace-07.json",
+          "outcome": "FAIL",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-07/checks/standalone-workspace-07/standalone-workspace-07.json",
+            "bytes": 8518,
+            "sha256": "0fca7ccf15f492081f23265c94de8ffcff913ae8c737fd61884a2bd17c942a5f"
+          },
+          "stdout": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-07/checks/standalone-workspace-07/standalone-workspace-07.stdout.txt",
+            "bytes": 649,
+            "sha256": "c6119fc370b13cb5ddb221d0855c195597f3a28c54b84b575bdcb44d0d9b2f0c"
+          },
+          "exit_code": 1,
+          "source_immutable": true,
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "--extra",
+            "ml",
+            "python",
+            "tools/quality/diagnostics/gen_schema.py",
+            "--check",
+            "--cache-dir",
+            "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-07/schema-cache"
+          ],
+          "counts": null,
+          "junit": null,
+          "execution_running": false,
+          "receipt_not_final": false
+        }
+      ],
+      "standalone_invocation_check_outcome": "FAIL",
+      "observed_selector_check_outcome": "FAIL",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    },
+    {
+      "selector": "workspace-08",
+      "label": "check runtime API contract",
+      "owner": "root/runtime API generator owner",
+      "canonical_umbrella_observation": {
+        "label": "check runtime API contract",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "--extra",
+          "runtime",
+          "--extra",
+          "ml",
+          "python",
+          "tools/ops_runners/runtime/check_runtime_api_contract.py"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after lint imports"
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/workspace-verify/internal-stages.json",
+        "bytes": 8762,
+        "sha256": "052b2f812761d867c9011f8db3b185d2d0d6cb45d6a63231ce4534a593d8c67e"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-08/checks/standalone-workspace-08/standalone-workspace-08.json",
+          "outcome": "UNRUN",
+          "execution_running": false,
+          "receipt_not_final": false,
+          "reason": "Standalone invocation not repeated; actual canonical checker observation reused separately"
+        }
+      ],
+      "reused_canonical_checker_observation": {
+        "actual": {
+          "outcome": "FAIL",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/runtime-api-contract/runtime-api-contract.json",
+            "bytes": 8748,
+            "sha256": "52721551be07b75512ff5015f53c391e5db46ac918a1f3ae91baf0d4666c6132"
+          },
+          "stdout": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/runtime-api-contract/runtime-api-contract.stdout.txt",
+            "bytes": 13147,
+            "sha256": "735d5db073ae7a4e9be3d54e01accbf1118d4aee51f95bfe733c09bef1808e49"
+          },
+          "exit_code": 1,
+          "source_immutable": true,
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--project",
+            "/workspace/e02-E-continuation-20261006/policy-engine",
+            "--no-sync",
+            "python",
+            "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/retained_runtime_api_cli.py",
+            "--checker",
+            "/workspace/e02-E-continuation-20261006/policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+            "--expected-checker-sha256",
+            "210f376a6b95310fdedcbbea3917b7e0dc8a59d176d24631772522794d6877b1",
+            "--catalog",
+            "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/runtime-api-contract/retained-runtime-catalog.json",
+            "--"
+          ],
+          "counts": null,
+          "junit": null
+        },
+        "catalog_ref": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/runtime-api-contract/retained-runtime-catalog.json",
+          "bytes": 2341,
+          "sha256": "c379560fd9f55c0c22168c7a4bf0b63d02dfac9a01ef9431b3eabd7123a5db38"
+        },
+        "checker_source": {
+          "path": "/workspace/e02-E-continuation-20261006/policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+          "bytes": 7528,
+          "sha256": "210f376a6b95310fdedcbbea3917b7e0dc8a59d176d24631772522794d6877b1"
+        },
+        "same_canonical_main": true,
+        "scope": "Actual canonical checker main with empty CLI args; retention wrapper preserves returned canonical bytes and comparisons",
+        "invocation_limits": "Common invocation has external cwd and retained temporary outputs; no separate standalone workspace08 invocation is claimed"
+      },
+      "standalone_invocation_check_outcome": "UNRUN",
+      "observed_selector_check_outcome": "FAIL",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    },
+    {
+      "selector": "workspace-09",
+      "label": "check last-mile inventory baseline",
+      "owner": "doe_r4",
+      "canonical_umbrella_observation": {
+        "label": "check last-mile inventory baseline",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/repository_last_mile_inventory.py",
+          "--json-output",
+          "_build/.tmp/last-mile/inventory.json",
+          "--check"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after lint imports"
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/workspace-verify/internal-stages.json",
+        "bytes": 8762,
+        "sha256": "052b2f812761d867c9011f8db3b185d2d0d6cb45d6a63231ce4534a593d8c67e"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-09/checks/standalone-workspace-09/standalone-workspace-09.json",
+          "outcome": "FAIL",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-09/checks/standalone-workspace-09/standalone-workspace-09.json",
+            "bytes": 8517,
+            "sha256": "ce20864b9d29335202a44966305a95fa4dc7ad48411d8d46c67fa1a28ed765e0"
+          },
+          "stdout": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-09/checks/standalone-workspace-09/standalone-workspace-09.stdout.txt",
+            "bytes": 86,
+            "sha256": "c3a4d6157f63dc1e848fd161564adc9e89ac5cf904841882c8096e9a88805a7d"
+          },
+          "exit_code": 1,
+          "source_immutable": true,
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "python",
+            "tools/quality/validation/repository_last_mile_inventory.py",
+            "--json-output",
+            "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-09/tool-output.json",
+            "--check"
+          ],
+          "counts": null,
+          "junit": null,
+          "execution_running": false,
+          "receipt_not_final": false
+        }
+      ],
+      "standalone_invocation_check_outcome": "FAIL",
+      "observed_selector_check_outcome": "FAIL",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    },
+    {
+      "selector": "workspace-10",
+      "label": "build honest diagnostics coverage dashboard",
+      "owner": "doe_r4",
+      "canonical_umbrella_observation": {
+        "label": "build honest diagnostics coverage dashboard",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/build_honest_diagnostics_coverage.py",
+          "--repo-root",
+          ".",
+          "--output-dir",
+          "_build/honest-diagnostics/coverage"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after lint imports"
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/workspace-verify/internal-stages.json",
+        "bytes": 8762,
+        "sha256": "052b2f812761d867c9011f8db3b185d2d0d6cb45d6a63231ce4534a593d8c67e"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-10/checks/standalone-workspace-10/standalone-workspace-10.json",
+          "outcome": "PASS",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-10/checks/standalone-workspace-10/standalone-workspace-10.json",
+            "bytes": 8524,
+            "sha256": "a69a91fb57e5f2ed9eecf540a46cdc9978dbfa2536c96ebffc689abd7477ebdb"
+          },
+          "stdout": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-10/checks/standalone-workspace-10/standalone-workspace-10.stdout.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "exit_code": 0,
+          "source_immutable": true,
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "python",
+            "tools/quality/validation/build_honest_diagnostics_coverage.py",
+            "--repo-root",
+            ".",
+            "--output-dir",
+            "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-10/coverage"
+          ],
+          "counts": null,
+          "junit": null,
+          "execution_running": false,
+          "receipt_not_final": false
+        }
+      ],
+      "standalone_invocation_check_outcome": "PASS",
+      "observed_selector_check_outcome": "PASS",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    },
+    {
+      "selector": "workspace-11",
+      "label": "check honest diagnostics substrate drift",
+      "owner": "doe_r4",
+      "canonical_umbrella_observation": {
+        "label": "check honest diagnostics substrate drift",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/check_substrate_drift.py",
+          "--repo-root",
+          ".",
+          "--require-passing"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after lint imports"
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/workspace-verify/internal-stages.json",
+        "bytes": 8762,
+        "sha256": "052b2f812761d867c9011f8db3b185d2d0d6cb45d6a63231ce4534a593d8c67e"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-11/checks/standalone-workspace-11/standalone-workspace-11.json",
+          "outcome": "FAIL",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-11/checks/standalone-workspace-11/standalone-workspace-11.json",
+            "bytes": 8405,
+            "sha256": "6c7701b5999a77f0842edd3dbcd8fb01aec573552a0fc2740d5f5623c46f2d48"
+          },
+          "stdout": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-11/checks/standalone-workspace-11/standalone-workspace-11.stdout.txt",
+            "bytes": 24276,
+            "sha256": "3fe62a8812679c05f8f20d5f586f7660992f01ae50fd527f10846f81d637bfce"
+          },
+          "exit_code": 1,
+          "source_immutable": true,
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "python",
+            "tools/quality/validation/check_substrate_drift.py",
+            "--repo-root",
+            ".",
+            "--require-passing"
+          ],
+          "counts": null,
+          "junit": null,
+          "execution_running": false,
+          "receipt_not_final": false
+        }
+      ],
+      "standalone_invocation_check_outcome": "FAIL",
+      "observed_selector_check_outcome": "FAIL",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    },
+    {
+      "selector": "workspace-12",
+      "label": "check extension example contract coverage",
+      "owner": "doe_r4",
+      "canonical_umbrella_observation": {
+        "label": "check extension example contract coverage",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/check_extension_examples.py",
+          "--skip-install",
+          "--skip-discovery",
+          "--skip-pytest"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after lint imports"
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/workspace-verify/internal-stages.json",
+        "bytes": 8762,
+        "sha256": "052b2f812761d867c9011f8db3b185d2d0d6cb45d6a63231ce4534a593d8c67e"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-12/checks/standalone-workspace-12/standalone-workspace-12.json",
+          "outcome": "PASS",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-12/checks/standalone-workspace-12/standalone-workspace-12.json",
+            "bytes": 8419,
+            "sha256": "a2120f6d4c72a38ef7d6a8cf1f64e51ed1297f49702085c07b3385157e5fb1ec"
+          },
+          "stdout": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-12/checks/standalone-workspace-12/standalone-workspace-12.stdout.txt",
+            "bytes": 48,
+            "sha256": "ab15a4fdd55e1f7e85de95e6f47e0468deb6dbe7ac982c230f8d773d381d8026"
+          },
+          "exit_code": 0,
+          "source_immutable": true,
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "python",
+            "tools/quality/validation/check_extension_examples.py",
+            "--skip-install",
+            "--skip-discovery",
+            "--skip-pytest"
+          ],
+          "counts": null,
+          "junit": null,
+          "execution_running": false,
+          "receipt_not_final": false
+        }
+      ],
+      "standalone_invocation_check_outcome": "PASS",
+      "observed_selector_check_outcome": "PASS",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    },
+    {
+      "selector": "workspace-13",
+      "label": "check schemas pure-data closure",
+      "owner": "doe_r4",
+      "canonical_umbrella_observation": {
+        "label": "check schemas pure-data closure",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "-c",
+          "from pathlib import Path\n\nroot = Path(\"schemas\")\noutput = Path(\"_build/.tmp/last-mile/schemas-python-residue.txt\")\noutput.parent.mkdir(parents=True, exist_ok=True)\nmatches = []\nif root.exists():\n    for path in sorted(root.rglob(\"*\")):\n        if path.name == \"__pycache__\" or path.suffix == \".py\":\n            matches.append(path.as_posix())\noutput.write_text(\"\\n\".join(matches) + (\"\\n\" if matches else \"\"), encoding=\"utf-8\")\nif matches:\n    print(\"\\n\".join(matches))\n    raise SystemExit(1)"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after lint imports"
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/workspace-verify/internal-stages.json",
+        "bytes": 8762,
+        "sha256": "052b2f812761d867c9011f8db3b185d2d0d6cb45d6a63231ce4534a593d8c67e"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-13/checks/standalone-workspace-13/standalone-workspace-13.json",
+          "outcome": "PASS",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-13/checks/standalone-workspace-13/standalone-workspace-13.json",
+            "bytes": 8914,
+            "sha256": "ba932d71239d4071addee107fcfa58af62deb3f5387390222bb21ed220e453bc"
+          },
+          "stdout": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-13/checks/standalone-workspace-13/standalone-workspace-13.stdout.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "exit_code": 0,
+          "source_immutable": true,
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "python",
+            "-c",
+            "from pathlib import Path\n\nroot = Path(\"schemas\")\noutput = Path(\"/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-13/schemas-python-residue.txt\")\noutput.parent.mkdir(parents=True, exist_ok=True)\nmatches = []\nif root.exists():\n    for path in sorted(root.rglob(\"*\")):\n        if path.name == \"__pycache__\" or path.suffix == \".py\":\n            matches.append(path.as_posix())\noutput.write_text(\"\\n\".join(matches) + (\"\\n\" if matches else \"\"), encoding=\"utf-8\")\nif matches:\n    print(\"\\n\".join(matches))\n    raise SystemExit(1)"
+          ],
+          "counts": null,
+          "junit": null,
+          "execution_running": false,
+          "receipt_not_final": false
+        }
+      ],
+      "standalone_invocation_check_outcome": "PASS",
+      "observed_selector_check_outcome": "PASS",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    },
+    {
+      "selector": "workspace-14",
+      "label": "pytest fast backend gate",
+      "owner": "root coordinates full backend pytest and HTTP/metrics-port seams",
+      "canonical_umbrella_observation": {
+        "label": "pytest fast backend gate",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "pytest",
+          "-m",
+          "not integration",
+          "--ignore=tests/unit/runtime/http"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after lint imports"
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/workspace-verify/internal-stages.json",
+        "bytes": 8762,
+        "sha256": "052b2f812761d867c9011f8db3b185d2d0d6cb45d6a63231ce4534a593d8c67e"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-14/checks/standalone-workspace-14/standalone-workspace-14.json",
+          "outcome": "FAIL",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-14/checks/standalone-workspace-14/standalone-workspace-14.json",
+            "bytes": 9171,
+            "sha256": "93a201207a8a946509bf10858b7ccfc682ec65c279f9a1e7b633576c0d2b5b5d"
+          },
+          "stdout": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-14/checks/standalone-workspace-14/standalone-workspace-14.stdout.txt",
+            "bytes": 2434,
+            "sha256": "5c8c9c03402dd36e9d4147e0f160822d72a42b098f88c1f42fc6b352bd3c7fca"
+          },
+          "exit_code": 2,
+          "source_immutable": true,
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "pytest",
+            "-m",
+            "not integration",
+            "--ignore=tests/unit/runtime/http",
+            "--basetemp",
+            "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-14/pytest-base",
+            "-o",
+            "cache_dir=/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-14/pytest-cache",
+            "--benchmark-storage=file:///workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-14/benchmarks",
+            "--junitxml=/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-14/checks/standalone-workspace-14/pytest.xml"
+          ],
+          "counts": {
+            "cases": 6,
+            "passed": 0,
+            "failed": 0,
+            "errors": 2,
+            "skipped": 4
+          },
+          "junit": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/workspace-14/checks/standalone-workspace-14/pytest.xml",
+          "execution_running": false,
+          "receipt_not_final": false
+        }
+      ],
+      "available_prerequisite_retry": {
+        "outcome": "UNRUN",
+        "scope": "Original full backend selector after minimum repo-declared missing dependencies are admitted",
+        "recipe": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/minimum-declared-dependency-admission-and-retry.json",
+          "bytes": 11894,
+          "sha256": "4098541e4753242a62d29c40758e98dea70d9406dec26ec47569d51179347f99"
+        },
+        "original_FAIL_replaced": false
+      },
+      "standalone_invocation_check_outcome": "FAIL",
+      "observed_selector_check_outcome": "FAIL",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    },
+    {
+      "selector": "ci-01",
+      "label": "verify backend fast gate",
+      "owner": "root",
+      "canonical_umbrella_observation": {
+        "label": "verify backend fast gate",
+        "command": [
+          "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+          "-m",
+          "tools.devx.workspace.verify",
+          "--backend-only",
+          "--skip-doctor"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ci-parity/internal-stages.json",
+        "bytes": 11245,
+        "sha256": "7bb007de28f922caef21994b2395f0d2a7f9b330c742742f6718838914b787c8"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-01/checks/standalone-ci-01/standalone-ci-01.json",
+          "outcome": "UNRUN",
+          "execution_running": false,
+          "receipt_not_final": false,
+          "reason": "Avoid a third umbrella repetition; preserve common actual backend member observations and separately executed constituents as context, not a fabricated CI01 invocation"
+        }
+      ],
+      "reused_backend_member_context": {
+        "common_verify": {
+          "outcome": "FAIL",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/workspace-verify/workspace-verify.json",
+            "bytes": 8640,
+            "sha256": "0a931767d9c7ce564189b1b79d9d199731e4110a9ab70609dcdbb5d3989f67e8"
+          },
+          "stdout": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/workspace-verify/workspace-verify.stdout.txt",
+            "bytes": 7454,
+            "sha256": "0d323368ef32d64a3fe0d64b44831f6152bced2aa15409c3e009ddae9f2070c5"
+          },
+          "exit_code": 1,
+          "source_immutable": true,
+          "command": [
+            "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+            "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+            "--repo",
+            "/workspace/e02-E-continuation-20261006",
+            "--gate",
+            "verify",
+            "--stages-output",
+            "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/workspace-verify/internal-stages.json",
+            "--temp-root",
+            "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/umbrella-temp/workspace-verify",
+            "--backend-only"
+          ],
+          "counts": null,
+          "junit": null
+        },
+        "actual_steps": [
+          {
+            "label": "doctor",
+            "command": [
+              "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+              "-m",
+              "tools.devx.workspace.doctor",
+              "--skip-contract-checks"
+            ],
+            "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+            "outcome": "PASS",
+            "env": {},
+            "started_unix": 1791367792.598245,
+            "exit_code": 0,
+            "wall_seconds": 2.4035491943359375
+          },
+          {
+            "label": "lint imports",
+            "command": [
+              "/workspace/.polisyos-environment/uv/bin/uv",
+              "run",
+              "--no-sync",
+              "python",
+              "tools/quality/lint/lint_imports.py",
+              "--policy",
+              "architecture/imports/policy.toml",
+              "--exceptions",
+              "architecture/imports/exceptions.toml"
+            ],
+            "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+            "outcome": "FAIL",
+            "env": {},
+            "started_unix": 1791367795.0018895,
+            "error_type": "CalledProcessError",
+            "reason": "Command '['/workspace/.polisyos-environment/uv/bin/uv', 'run', '--no-sync', 'python', 'tools/quality/lint/lint_imports.py', '--policy', 'architecture/imports/policy.toml', '--exceptions', 'architecture/imports/exceptions.toml']' returned non-zero exit status 1.",
+            "exit_code": 1,
+            "wall_seconds": 3.1127936840057373
+          },
+          {
+            "label": "check package import gates (shell-package closure)",
+            "command": [
+              "/workspace/.polisyos-environment/uv/bin/uv",
+              "run",
+              "polisyos-tools",
+              "validation",
+              "check-package-import-gates",
+              "--fail-closed",
+              "--json-output",
+              "_build/.tmp/last-mile/package-import-gates.json"
+            ],
+            "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+            "outcome": "UNRUN",
+            "reason": "actual fail-fast after lint imports"
+          },
+          {
+            "label": "lint foundry",
+            "command": [
+              "/workspace/.polisyos-environment/uv/bin/uv",
+              "run",
+              "python",
+              "-m",
+              "tools.quality.lint.lint_foundry",
+              "--repo-root",
+              "."
+            ],
+            "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+            "outcome": "UNRUN",
+            "reason": "actual fail-fast after lint imports"
+          },
+          {
+            "label": "check state reads",
+            "command": [
+              "/workspace/.polisyos-environment/uv/bin/uv",
+              "run",
+              "python",
+              "tools/quality/diagnostics/check_state_reads.py"
+            ],
+            "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+            "outcome": "UNRUN",
+            "reason": "actual fail-fast after lint imports"
+          },
+          {
+            "label": "check scholar imports",
+            "command": [
+              "/workspace/.polisyos-environment/uv/bin/uv",
+              "run",
+              "python",
+              "tools/quality/lint/check_scholar_imports.py"
+            ],
+            "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+            "outcome": "UNRUN",
+            "reason": "actual fail-fast after lint imports"
+          },
+          {
+            "label": "check connector contracts",
+            "command": [
+              "/workspace/.polisyos-environment/uv/bin/uv",
+              "run",
+              "polisyos-tools",
+              "connectors",
+              "check-contracts",
+              "--check"
+            ],
+            "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+            "outcome": "UNRUN",
+            "reason": "actual fail-fast after lint imports"
+          },
+          {
+            "label": "check schema freshness",
+            "command": [
+              "/workspace/.polisyos-environment/uv/bin/uv",
+              "run",
+              "--extra",
+              "ml",
+              "python",
+              "tools/quality/diagnostics/gen_schema.py",
+              "--check"
+            ],
+            "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+            "outcome": "UNRUN",
+            "reason": "actual fail-fast after lint imports"
+          },
+          {
+            "label": "check runtime API contract",
+            "command": [
+              "/workspace/.polisyos-environment/uv/bin/uv",
+              "run",
+              "--extra",
+              "runtime",
+              "--extra",
+              "ml",
+              "python",
+              "tools/ops_runners/runtime/check_runtime_api_contract.py"
+            ],
+            "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+            "outcome": "UNRUN",
+            "reason": "actual fail-fast after lint imports"
+          },
+          {
+            "label": "check last-mile inventory baseline",
+            "command": [
+              "/workspace/.polisyos-environment/uv/bin/uv",
+              "run",
+              "python",
+              "tools/quality/validation/repository_last_mile_inventory.py",
+              "--json-output",
+              "_build/.tmp/last-mile/inventory.json",
+              "--check"
+            ],
+            "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+            "outcome": "UNRUN",
+            "reason": "actual fail-fast after lint imports"
+          },
+          {
+            "label": "build honest diagnostics coverage dashboard",
+            "command": [
+              "/workspace/.polisyos-environment/uv/bin/uv",
+              "run",
+              "python",
+              "tools/quality/validation/build_honest_diagnostics_coverage.py",
+              "--repo-root",
+              ".",
+              "--output-dir",
+              "_build/honest-diagnostics/coverage"
+            ],
+            "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+            "outcome": "UNRUN",
+            "reason": "actual fail-fast after lint imports"
+          },
+          {
+            "label": "check honest diagnostics substrate drift",
+            "command": [
+              "/workspace/.polisyos-environment/uv/bin/uv",
+              "run",
+              "python",
+              "tools/quality/validation/check_substrate_drift.py",
+              "--repo-root",
+              ".",
+              "--require-passing"
+            ],
+            "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+            "outcome": "UNRUN",
+            "reason": "actual fail-fast after lint imports"
+          },
+          {
+            "label": "check extension example contract coverage",
+            "command": [
+              "/workspace/.polisyos-environment/uv/bin/uv",
+              "run",
+              "python",
+              "tools/quality/validation/check_extension_examples.py",
+              "--skip-install",
+              "--skip-discovery",
+              "--skip-pytest"
+            ],
+            "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+            "outcome": "UNRUN",
+            "reason": "actual fail-fast after lint imports"
+          },
+          {
+            "label": "check schemas pure-data closure",
+            "command": [
+              "/workspace/.polisyos-environment/uv/bin/uv",
+              "run",
+              "python",
+              "-c",
+              "from pathlib import Path\n\nroot = Path(\"schemas\")\noutput = Path(\"_build/.tmp/last-mile/schemas-python-residue.txt\")\noutput.parent.mkdir(parents=True, exist_ok=True)\nmatches = []\nif root.exists():\n    for path in sorted(root.rglob(\"*\")):\n        if path.name == \"__pycache__\" or path.suffix == \".py\":\n            matches.append(path.as_posix())\noutput.write_text(\"\\n\".join(matches) + (\"\\n\" if matches else \"\"), encoding=\"utf-8\")\nif matches:\n    print(\"\\n\".join(matches))\n    raise SystemExit(1)"
+            ],
+            "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+            "outcome": "UNRUN",
+            "reason": "actual fail-fast after lint imports"
+          },
+          {
+            "label": "pytest fast backend gate",
+            "command": [
+              "/workspace/.polisyos-environment/uv/bin/uv",
+              "run",
+              "pytest",
+              "-m",
+              "not integration",
+              "--ignore=tests/unit/runtime/http"
+            ],
+            "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+            "outcome": "UNRUN",
+            "reason": "actual fail-fast after lint imports"
+          }
+        ],
+        "scope": "Common --backend-only verify executed doctor then lint-imports; direct --skip-doctor CI01 invocation was not separately attempted",
+        "separate_CI01_check_outcome": "UNRUN"
+      },
+      "standalone_invocation_check_outcome": "UNRUN",
+      "observed_selector_check_outcome": "UNRUN",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    },
+    {
+      "selector": "ci-02",
+      "label": "pytest runtime/http",
+      "owner": "root coordinates full backend pytest and HTTP/metrics-port seams",
+      "canonical_umbrella_observation": {
+        "label": "pytest runtime/http",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "pytest",
+          "tests/unit/runtime/http"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ci-parity/internal-stages.json",
+        "bytes": 11245,
+        "sha256": "7bb007de28f922caef21994b2395f0d2a7f9b330c742742f6718838914b787c8"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/checks/standalone-ci-02/standalone-ci-02.json",
+          "outcome": "FAIL",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/checks/standalone-ci-02/standalone-ci-02.json",
+            "bytes": 9044,
+            "sha256": "90d0c3c172507dfc8079522f930adcd5f238ff3ee27b4e182db7d9974d9ee2c0"
+          },
+          "stdout": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/checks/standalone-ci-02/standalone-ci-02.stdout.txt",
+            "bytes": 2165621,
+            "sha256": "eabc9cab8ea803353f1c7287c11bbb466f6b6a2e305adb5abfb3dc03c3a64a9e"
+          },
+          "exit_code": 1,
+          "source_immutable": true,
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "pytest",
+            "tests/unit/runtime/http",
+            "--basetemp",
+            "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/pytest-base",
+            "-o",
+            "cache_dir=/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/pytest-cache",
+            "--benchmark-storage=file:///workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/benchmarks",
+            "--junitxml=/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/checks/standalone-ci-02/pytest.xml"
+          ],
+          "counts": {
+            "cases": 1585,
+            "passed": 675,
+            "failed": 81,
+            "errors": 827,
+            "skipped": 2
+          },
+          "junit": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/checks/standalone-ci-02/pytest.xml",
+          "execution_running": false,
+          "receipt_not_final": false
+        }
+      ],
+      "standalone_invocation_check_outcome": "FAIL",
+      "observed_selector_check_outcome": "FAIL",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    },
+    {
+      "selector": "ci-03",
+      "label": "check directory health ratchet",
+      "owner": "doe_r4",
+      "canonical_umbrella_observation": {
+        "label": "check directory health ratchet",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/directory_health.py",
+          "--repo-root",
+          ".",
+          "--json-output",
+          "_build/.tmp/last-mile/directory-health.json",
+          "--markdown-output",
+          "_build/.tmp/last-mile/directory-health.md",
+          "--fail-on-regression"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ci-parity/internal-stages.json",
+        "bytes": 11245,
+        "sha256": "7bb007de28f922caef21994b2395f0d2a7f9b330c742742f6718838914b787c8"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-03/checks/standalone-ci-03/standalone-ci-03.json",
+          "outcome": "FAIL",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-03/checks/standalone-ci-03/standalone-ci-03.json",
+            "bytes": 8629,
+            "sha256": "06a1e294768faeea521e1964b1da1f627bc1152981b20ab9c427669769e87230"
+          },
+          "stdout": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-03/checks/standalone-ci-03/standalone-ci-03.stdout.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "exit_code": 1,
+          "source_immutable": true,
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "python",
+            "tools/quality/validation/directory_health.py",
+            "--repo-root",
+            ".",
+            "--json-output",
+            "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-03/tool-output.json",
+            "--markdown-output",
+            "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-03/tool-output.md",
+            "--fail-on-regression"
+          ],
+          "counts": null,
+          "junit": null,
+          "execution_running": false,
+          "receipt_not_final": false
+        }
+      ],
+      "standalone_invocation_check_outcome": "FAIL",
+      "observed_selector_check_outcome": "FAIL",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    },
+    {
+      "selector": "ci-04",
+      "label": "check test ratchets and helper topology",
+      "owner": "doe_r4",
+      "canonical_umbrella_observation": {
+        "label": "check test ratchets and helper topology",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "tools/quality/testing/report_test_ratchets.py",
+          "--format",
+          "json",
+          "--output",
+          "_build/.tmp/last-mile/test-ratchets.json",
+          "--fail-on-regression"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ci-parity/internal-stages.json",
+        "bytes": 11245,
+        "sha256": "7bb007de28f922caef21994b2395f0d2a7f9b330c742742f6718838914b787c8"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-04/checks/standalone-ci-04/standalone-ci-04.json",
+          "outcome": "FAIL",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-04/checks/standalone-ci-04/standalone-ci-04.json",
+            "bytes": 8484,
+            "sha256": "bff76dbfa8b1c426968360dc89b4f3db75491a26fc3d3509f4779964932e4ac4"
+          },
+          "stdout": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-04/checks/standalone-ci-04/standalone-ci-04.stdout.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "exit_code": 1,
+          "source_immutable": true,
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "python",
+            "tools/quality/testing/report_test_ratchets.py",
+            "--format",
+            "json",
+            "--output",
+            "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-04/tool-output.json",
+            "--fail-on-regression"
+          ],
+          "counts": null,
+          "junit": null,
+          "execution_running": false,
+          "receipt_not_final": false
+        }
+      ],
+      "standalone_invocation_check_outcome": "FAIL",
+      "observed_selector_check_outcome": "FAIL",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    },
+    {
+      "selector": "ci-05",
+      "label": "check architecture phase6-1 report-only contracts",
+      "owner": "doe_r4",
+      "canonical_umbrella_observation": {
+        "label": "check architecture phase6-1 report-only contracts",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/architecture_report_only_contracts.py",
+          "--report",
+          "phase6-1",
+          "--json-output",
+          "_build/.tmp/last-mile/architecture-phase6-1.json",
+          "--fail-on-contract-errors"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ci-parity/internal-stages.json",
+        "bytes": 11245,
+        "sha256": "7bb007de28f922caef21994b2395f0d2a7f9b330c742742f6718838914b787c8"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-05/checks/standalone-ci-05/standalone-ci-05.json",
+          "outcome": "FAIL",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-05/checks/standalone-ci-05/standalone-ci-05.json",
+            "bytes": 8518,
+            "sha256": "820d6bf7e11fa6dcd1b01f03228f95f93f2d3193652f34481e8cd6bc1da8d346"
+          },
+          "stdout": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-05/checks/standalone-ci-05/standalone-ci-05.stdout.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "exit_code": 1,
+          "source_immutable": true,
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "python",
+            "tools/quality/validation/architecture_report_only_contracts.py",
+            "--report",
+            "phase6-1",
+            "--json-output",
+            "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-05/tool-output.json",
+            "--fail-on-contract-errors"
+          ],
+          "counts": null,
+          "junit": null,
+          "execution_running": false,
+          "receipt_not_final": false
+        }
+      ],
+      "standalone_invocation_check_outcome": "FAIL",
+      "observed_selector_check_outcome": "FAIL",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    },
+    {
+      "selector": "ci-06",
+      "label": "check validator module-size budget",
+      "owner": "doe_r4",
+      "canonical_umbrella_observation": {
+        "label": "check validator module-size budget",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/architecture_report_only_contracts.py",
+          "--report",
+          "module-size",
+          "--json-output",
+          "_build/.tmp/last-mile/module-size.json",
+          "--fail-on-contract-errors"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ci-parity/internal-stages.json",
+        "bytes": 11245,
+        "sha256": "7bb007de28f922caef21994b2395f0d2a7f9b330c742742f6718838914b787c8"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-06/checks/standalone-ci-06/standalone-ci-06.json",
+          "outcome": "FAIL",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-06/checks/standalone-ci-06/standalone-ci-06.json",
+            "bytes": 8516,
+            "sha256": "613fbe287bcbb1578f88073dcacf9a9ff2f02adaa4ec1ff31363046f73390d85"
+          },
+          "stdout": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-06/checks/standalone-ci-06/standalone-ci-06.stdout.txt",
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "exit_code": 1,
+          "source_immutable": true,
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "python",
+            "tools/quality/validation/architecture_report_only_contracts.py",
+            "--report",
+            "module-size",
+            "--json-output",
+            "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-06/tool-output.json",
+            "--fail-on-contract-errors"
+          ],
+          "counts": null,
+          "junit": null,
+          "execution_running": false,
+          "receipt_not_final": false
+        }
+      ],
+      "standalone_invocation_check_outcome": "FAIL",
+      "observed_selector_check_outcome": "FAIL",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    },
+    {
+      "selector": "ci-07",
+      "label": "report debt ledger reconciliation",
+      "owner": "doe_r4",
+      "canonical_umbrella_observation": {
+        "label": "report debt ledger reconciliation",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/check_debt_ledger.py",
+          "--check",
+          "--report-only"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ci-parity/internal-stages.json",
+        "bytes": 11245,
+        "sha256": "7bb007de28f922caef21994b2395f0d2a7f9b330c742742f6718838914b787c8"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-07/checks/standalone-ci-07/standalone-ci-07.json",
+          "outcome": "PASS",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-07/checks/standalone-ci-07/standalone-ci-07.json",
+            "bytes": 8340,
+            "sha256": "94c84364a361f40e556d672a2812cfcfae98c56840e181875e4508adf57b5957"
+          },
+          "stdout": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-07/checks/standalone-ci-07/standalone-ci-07.stdout.txt",
+            "bytes": 83604,
+            "sha256": "1254b865726c3d70a26eb1a78e63dad16330b35a93d709d3c063b6d02727b8a9"
+          },
+          "exit_code": 0,
+          "source_immutable": true,
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "python",
+            "tools/quality/validation/check_debt_ledger.py",
+            "--check",
+            "--report-only"
+          ],
+          "counts": null,
+          "junit": null,
+          "execution_running": false,
+          "receipt_not_final": false
+        }
+      ],
+      "standalone_invocation_check_outcome": "PASS",
+      "observed_selector_check_outcome": "PASS",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    },
+    {
+      "selector": "ci-08",
+      "label": "check extension example installability",
+      "owner": "root/extension environment owner",
+      "canonical_umbrella_observation": {
+        "label": "check extension example installability",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/check_extension_examples.py"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ci-parity/internal-stages.json",
+        "bytes": 11245,
+        "sha256": "7bb007de28f922caef21994b2395f0d2a7f9b330c742742f6718838914b787c8"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-08/checks/standalone-ci-08/standalone-ci-08.json",
+          "outcome": "UNRUN",
+          "execution_running": false,
+          "receipt_not_final": false,
+          "reason": "Extension checker editable installs mutate root environment; deferred until active root readers/capturers close and root admits exclusive writer lease",
+          "dependency_recipe_ref": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/minimum-declared-dependency-admission-and-retry.json",
+            "bytes": 11894,
+            "sha256": "4098541e4753242a62d29c40758e98dea70d9406dec26ec47569d51179347f99"
+          }
+        }
+      ],
+      "equivalent_environment_selector_observation": {
+        "admitted_plan": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/execution-plan.json",
+          "bytes": 23540,
+          "sha256": "af3aecf458a09dea5e89f54542b5bd11aba10678a30b7e6bedfef12a7b6964b2"
+        },
+        "original_root_environment_invocation_replaced": false,
+        "scope": "Same canonical root source checker/all7examples; existing DoE environment is explicit",
+        "environment_difference": [
+          "Existing DoE interpreter/prefix replaces root interpreter; no newenv or lock synchronization.",
+          "Canonical checker still chooses native pip or uv installer and targets sys.executable; seven --no-deps editable installs, no manual entry points.",
+          "Only output/tmp/pytest-cache/basetime/JUnit/benchmark locations isolated via environment; complete seven-example scope unchanged.",
+          "All cap variables removed; no worker/thread/process/CPU quotas. No default root API/port mutation."
+        ],
+        "outcome": "PASS",
+        "receipt": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/checks/native-ci08-existing-doe-environment/native-ci08-existing-doe-environment.json",
+          "bytes": 8821,
+          "sha256": "9a5b4ad8d7a54b861f7e37ffaeb4bf90d1ed70cc4034cc3ee74b4bc8d249f409"
+        },
+        "stdout": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/checks/native-ci08-existing-doe-environment/native-ci08-existing-doe-environment.stdout.txt",
+          "bytes": 4960,
+          "sha256": "155012f0e77926fc2a9bc1b2a8ccbeda17fbcf43981f875c5693908ca40b629d"
+        },
+        "exit_code": 0,
+        "source_immutable": true,
+        "command": [
+          "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+          "tools/quality/validation/check_extension_examples.py"
+        ],
+        "counts": {
+          "cases": 8,
+          "passed": 8,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "junit": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/checks/native-ci08-existing-doe-environment/pytest.xml",
+        "execution_running": false,
+        "receipt_not_final": false
+      },
+      "standalone_invocation_check_outcome": "UNRUN",
+      "observed_selector_check_outcome": "PASS",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    },
+    {
+      "selector": "ci-09",
+      "label": "check ADR thematic index freshness",
+      "owner": "doe_r4",
+      "canonical_umbrella_observation": {
+        "label": "check ADR thematic index freshness",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/generate_adr_index.py",
+          "--check"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ci-parity/internal-stages.json",
+        "bytes": 11245,
+        "sha256": "7bb007de28f922caef21994b2395f0d2a7f9b330c742742f6718838914b787c8"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-09/checks/standalone-ci-09/standalone-ci-09.json",
+          "outcome": "PASS",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-09/checks/standalone-ci-09/standalone-ci-09.json",
+            "bytes": 8311,
+            "sha256": "0aa0b022500ddc1207cc07b365ca8da4377a2eea60b239962ab400c0ed07a916"
+          },
+          "stdout": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-09/checks/standalone-ci-09/standalone-ci-09.stdout.txt",
+            "bytes": 28,
+            "sha256": "e6cb3d25339d1fb5adff0f49a1bec2afc7a9101bac49d652c862d1cee37058b9"
+          },
+          "exit_code": 0,
+          "source_immutable": true,
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "python",
+            "tools/quality/validation/generate_adr_index.py",
+            "--check"
+          ],
+          "counts": null,
+          "junit": null,
+          "execution_running": false,
+          "receipt_not_final": false
+        }
+      ],
+      "standalone_invocation_check_outcome": "PASS",
+      "observed_selector_check_outcome": "PASS",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    },
+    {
+      "selector": "ci-10",
+      "label": "check docs accuracy",
+      "owner": "doe_r4",
+      "canonical_umbrella_observation": {
+        "label": "check docs accuracy",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "--extra",
+          "docs",
+          "python",
+          "tools/quality/validation/check_docs_accuracy.py",
+          "--repo-root",
+          "."
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ci-parity/internal-stages.json",
+        "bytes": 11245,
+        "sha256": "7bb007de28f922caef21994b2395f0d2a7f9b330c742742f6718838914b787c8"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-10/checks/standalone-ci-10/standalone-ci-10.json",
+          "outcome": "FAIL",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-10/checks/standalone-ci-10/standalone-ci-10.json",
+            "bytes": 8364,
+            "sha256": "02f639352706c511c153a14d06e1ea01b85abd62beda579cec004d933a309110"
+          },
+          "stdout": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-10/checks/standalone-ci-10/standalone-ci-10.stdout.txt",
+            "bytes": 2880,
+            "sha256": "b3387b8e4cc33bf0fdc3a6486bd8e2f8767499f5b1e49bbdc2e4f3f9081560eb"
+          },
+          "exit_code": 1,
+          "source_immutable": true,
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "--extra",
+            "docs",
+            "python",
+            "tools/quality/validation/check_docs_accuracy.py",
+            "--repo-root",
+            "."
+          ],
+          "counts": null,
+          "junit": null,
+          "execution_running": false,
+          "receipt_not_final": false
+        }
+      ],
+      "standalone_invocation_check_outcome": "FAIL",
+      "observed_selector_check_outcome": "FAIL",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    },
+    {
+      "selector": "ci-11",
+      "label": "build docs in strict mode",
+      "owner": "doe_r4",
+      "canonical_umbrella_observation": {
+        "label": "build docs in strict mode",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "--extra",
+          "docs",
+          "python",
+          "-m",
+          "mkdocs",
+          "build",
+          "--strict"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ci-parity/internal-stages.json",
+        "bytes": 11245,
+        "sha256": "7bb007de28f922caef21994b2395f0d2a7f9b330c742742f6718838914b787c8"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-11/checks/standalone-ci-11/standalone-ci-11.json",
+          "outcome": "FAIL",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-11/checks/standalone-ci-11/standalone-ci-11.json",
+            "bytes": 8460,
+            "sha256": "46b50df6b7652d463242e4e3eedb4f730a52beb66c60560fab52affa01f94957"
+          },
+          "stdout": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-11/checks/standalone-ci-11/standalone-ci-11.stdout.txt",
+            "bytes": 230183,
+            "sha256": "a5e53cb944840209256ac0afc2fd0306e0d01f2f824bbb5c06224038dc77ccc5"
+          },
+          "exit_code": 1,
+          "source_immutable": true,
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "--extra",
+            "docs",
+            "python",
+            "-m",
+            "mkdocs",
+            "build",
+            "--strict",
+            "--site-dir",
+            "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-11/mkdocs-site"
+          ],
+          "counts": null,
+          "junit": null,
+          "execution_running": false,
+          "receipt_not_final": false
+        }
+      ],
+      "standalone_invocation_check_outcome": "FAIL",
+      "observed_selector_check_outcome": "FAIL",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    },
+    {
+      "selector": "ci-12",
+      "label": "check semantic docstring quality",
+      "owner": "doe_r4",
+      "canonical_umbrella_observation": {
+        "label": "check semantic docstring quality",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "--extra",
+          "docs",
+          "python",
+          "tools/quality/validation/check_docstring_quality.py",
+          "--repo-root",
+          ".",
+          "--allowlist",
+          "tools/quality/validation/docstring_quality_allowlist.txt",
+          "--coverage-scope",
+          "public-surface",
+          "--minimum-coverage",
+          "85"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ci-parity/internal-stages.json",
+        "bytes": 11245,
+        "sha256": "7bb007de28f922caef21994b2395f0d2a7f9b330c742742f6718838914b787c8"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-12/checks/standalone-ci-12/standalone-ci-12.json",
+          "outcome": "FAIL",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-12/checks/standalone-ci-12/standalone-ci-12.json",
+            "bytes": 8536,
+            "sha256": "5ae3fe31d9acb1c838b856d90844283e733e5b1596d47d28b8c54e1843b8de1d"
+          },
+          "stdout": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-12/checks/standalone-ci-12/standalone-ci-12.stdout.txt",
+            "bytes": 6770,
+            "sha256": "561144a3aeb416b2516081155925bb3cf23f5564a399c29b11ed24c7d96d8bf5"
+          },
+          "exit_code": 1,
+          "source_immutable": true,
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "--extra",
+            "docs",
+            "python",
+            "tools/quality/validation/check_docstring_quality.py",
+            "--repo-root",
+            ".",
+            "--allowlist",
+            "tools/quality/validation/docstring_quality_allowlist.txt",
+            "--coverage-scope",
+            "public-surface",
+            "--minimum-coverage",
+            "85"
+          ],
+          "counts": null,
+          "junit": null,
+          "execution_running": false,
+          "receipt_not_final": false
+        }
+      ],
+      "standalone_invocation_check_outcome": "FAIL",
+      "observed_selector_check_outcome": "FAIL",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    },
+    {
+      "selector": "ci-13",
+      "label": "npm typecheck",
+      "owner": "root/frontend owner",
+      "canonical_umbrella_observation": {
+        "label": "npm typecheck",
+        "command": [
+          "npm",
+          "run",
+          "typecheck"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ci-parity/internal-stages.json",
+        "bytes": 11245,
+        "sha256": "7bb007de28f922caef21994b2395f0d2a7f9b330c742742f6718838914b787c8"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-13/checks/standalone-ci-13/standalone-ci-13.json",
+          "outcome": "PASS",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-13/checks/standalone-ci-13/standalone-ci-13.json",
+            "bytes": 8219,
+            "sha256": "57f301c53ba9aa204f02e5529f8c03848ebc69c728c4b187dd430bb224118feb"
+          },
+          "stdout": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-13/checks/standalone-ci-13/standalone-ci-13.stdout.txt",
+            "bytes": 161,
+            "sha256": "26f8779fd93cdcbd5092ecd066f5eb4dc59c30b9a684219fe31c459232c601c5"
+          },
+          "exit_code": 0,
+          "source_immutable": true,
+          "command": [
+            "npm",
+            "run",
+            "typecheck"
+          ],
+          "counts": null,
+          "junit": null,
+          "execution_running": false,
+          "receipt_not_final": false
+        }
+      ],
+      "standalone_invocation_check_outcome": "PASS",
+      "observed_selector_check_outcome": "PASS",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    },
+    {
+      "selector": "ci-14",
+      "label": "npm lint",
+      "owner": "root/frontend owner",
+      "canonical_umbrella_observation": {
+        "label": "npm lint",
+        "command": [
+          "npm",
+          "run",
+          "lint"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ci-parity/internal-stages.json",
+        "bytes": 11245,
+        "sha256": "7bb007de28f922caef21994b2395f0d2a7f9b330c742742f6718838914b787c8"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-14/checks/standalone-ci-14/standalone-ci-14.json",
+          "outcome": "PASS",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-14/checks/standalone-ci-14/standalone-ci-14.json",
+            "bytes": 8215,
+            "sha256": "bde9783c3009e66a3ebf8edd3c549ae0a72f2d3106045cd71b06f71dd8869e78"
+          },
+          "stdout": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-14/checks/standalone-ci-14/standalone-ci-14.stdout.txt",
+            "bytes": 399,
+            "sha256": "62fca50e1f13c135633450bde2ea47fb0faaf9e67fe79c3dd9f6be8c6801e8e4"
+          },
+          "exit_code": 0,
+          "source_immutable": true,
+          "command": [
+            "npm",
+            "run",
+            "lint"
+          ],
+          "counts": null,
+          "junit": null,
+          "execution_running": false,
+          "receipt_not_final": false
+        }
+      ],
+      "standalone_invocation_check_outcome": "PASS",
+      "observed_selector_check_outcome": "PASS",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    },
+    {
+      "selector": "ci-15",
+      "label": "npm format check",
+      "owner": "root/frontend owner",
+      "canonical_umbrella_observation": {
+        "label": "npm format check",
+        "command": [
+          "npm",
+          "run",
+          "format:check"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ci-parity/internal-stages.json",
+        "bytes": 11245,
+        "sha256": "7bb007de28f922caef21994b2395f0d2a7f9b330c742742f6718838914b787c8"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-15/checks/standalone-ci-15/standalone-ci-15.json",
+          "outcome": "PASS",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-15/checks/standalone-ci-15/standalone-ci-15.json",
+            "bytes": 8219,
+            "sha256": "3c3e2ede51b1becfe5adbdd03d9a63ececeb13058f4b78f9017daa58ecb56aa7"
+          },
+          "stdout": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-15/checks/standalone-ci-15/standalone-ci-15.stdout.txt",
+            "bytes": 138,
+            "sha256": "26cee1136a1c1306ecebb8b7ab69d98ab655bf941aea3bf8db787416321203d0"
+          },
+          "exit_code": 0,
+          "source_immutable": true,
+          "command": [
+            "npm",
+            "run",
+            "format:check"
+          ],
+          "counts": null,
+          "junit": null,
+          "execution_running": false,
+          "receipt_not_final": false
+        }
+      ],
+      "standalone_invocation_check_outcome": "PASS",
+      "observed_selector_check_outcome": "PASS",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    },
+    {
+      "selector": "ci-16",
+      "label": "npm architecture check",
+      "owner": "root/frontend owner",
+      "canonical_umbrella_observation": {
+        "label": "npm architecture check",
+        "command": [
+          "npm",
+          "run",
+          "check:architecture"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ci-parity/internal-stages.json",
+        "bytes": 11245,
+        "sha256": "7bb007de28f922caef21994b2395f0d2a7f9b330c742742f6718838914b787c8"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-16/checks/standalone-ci-16/standalone-ci-16.json",
+          "outcome": "PASS",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-16/checks/standalone-ci-16/standalone-ci-16.json",
+            "bytes": 8223,
+            "sha256": "b08bb1afcfbf35cd0df70e3678556dbaaf574431e92b1e3befb9b86dc4b54592"
+          },
+          "stdout": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-16/checks/standalone-ci-16/standalone-ci-16.stdout.txt",
+            "bytes": 254,
+            "sha256": "5fc106646fc24cb077620399b5b27ee3af100c2641908c647b17f513a531f696"
+          },
+          "exit_code": 0,
+          "source_immutable": true,
+          "command": [
+            "npm",
+            "run",
+            "check:architecture"
+          ],
+          "counts": null,
+          "junit": null,
+          "execution_running": false,
+          "receipt_not_final": false
+        }
+      ],
+      "standalone_invocation_check_outcome": "PASS",
+      "observed_selector_check_outcome": "PASS",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    },
+    {
+      "selector": "ci-17",
+      "label": "npm contract fixtures",
+      "owner": "root/frontend owner",
+      "canonical_umbrella_observation": {
+        "label": "npm contract fixtures",
+        "command": [
+          "npm",
+          "run",
+          "contracts:verify"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ci-parity/internal-stages.json",
+        "bytes": 11245,
+        "sha256": "7bb007de28f922caef21994b2395f0d2a7f9b330c742742f6718838914b787c8"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-17/checks/standalone-ci-17/standalone-ci-17.json",
+          "outcome": "FAIL",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-17/checks/standalone-ci-17/standalone-ci-17.json",
+            "bytes": 8223,
+            "sha256": "2cc6b364fb9585240d1cae4ac4c73820501746895b0cd944fdb78b1c401cb0f1"
+          },
+          "stdout": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-17/checks/standalone-ci-17/standalone-ci-17.stdout.txt",
+            "bytes": 2607,
+            "sha256": "d7e70be485be9e477f4e2b03ddc48a870f7f577730f8ecc47ae40b7ed502eb43"
+          },
+          "exit_code": 1,
+          "source_immutable": true,
+          "command": [
+            "npm",
+            "run",
+            "contracts:verify"
+          ],
+          "counts": null,
+          "junit": null,
+          "execution_running": false,
+          "receipt_not_final": false
+        }
+      ],
+      "standalone_invocation_check_outcome": "FAIL",
+      "observed_selector_check_outcome": "FAIL",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    },
+    {
+      "selector": "ci-18",
+      "label": "npm coverage",
+      "owner": "root/frontend owner",
+      "canonical_umbrella_observation": {
+        "label": "npm coverage",
+        "command": [
+          "npm",
+          "run",
+          "test:coverage"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ci-parity/internal-stages.json",
+        "bytes": 11245,
+        "sha256": "7bb007de28f922caef21994b2395f0d2a7f9b330c742742f6718838914b787c8"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-18/checks/standalone-ci-18-step1/standalone-ci-18-step1.json",
+          "outcome": "FAIL",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-18/checks/standalone-ci-18-step1/standalone-ci-18-step1.json",
+            "bytes": 8332,
+            "sha256": "b4e8cc5c37bb69bf36ef4b46e8d8b0bbdb363247375f5c4b9cf3724ee2749491"
+          },
+          "stdout": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-18/checks/standalone-ci-18-step1/standalone-ci-18-step1.stdout.txt",
+            "bytes": 38900,
+            "sha256": "faf6c24815976f0d5f31bc680a69ef3d59f38745ba23e5ad7ebc485502d7b42c"
+          },
+          "exit_code": 1,
+          "source_immutable": true,
+          "command": [
+            "npm",
+            "exec",
+            "--",
+            "vitest",
+            "run",
+            "--coverage",
+            "--testTimeout=20000",
+            "--hookTimeout=20000"
+          ],
+          "counts": null,
+          "junit": null,
+          "execution_running": false,
+          "receipt_not_final": false
+        },
+        {
+          "ordinal": 1,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-18/checks/standalone-ci-18-step2/standalone-ci-18-step2.json",
+          "outcome": "UNRUN",
+          "execution_running": false,
+          "receipt_not_final": false,
+          "reason": "Declared && coverage-ratchet successor not attempted after actual coverage test failure; no inferred ratchet PASS"
+        }
+      ],
+      "standalone_invocation_check_outcome": "FAIL",
+      "observed_selector_check_outcome": "FAIL",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    },
+    {
+      "selector": "ci-19",
+      "label": "npm build",
+      "owner": "root/frontend owner",
+      "canonical_umbrella_observation": {
+        "label": "npm build",
+        "command": [
+          "npm",
+          "run",
+          "build"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ci-parity/internal-stages.json",
+        "bytes": 11245,
+        "sha256": "7bb007de28f922caef21994b2395f0d2a7f9b330c742742f6718838914b787c8"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-19/checks/standalone-ci-19/standalone-ci-19.json",
+          "outcome": "PASS",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-19/checks/standalone-ci-19/standalone-ci-19.json",
+            "bytes": 8217,
+            "sha256": "ba458f3a8dc77716c55b415785e21f0cf24343eca07a80ae588f82844a86ba51"
+          },
+          "stdout": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-19/checks/standalone-ci-19/standalone-ci-19.stdout.txt",
+            "bytes": 16482,
+            "sha256": "6af277f620def4495f75eb55ee280de005db8d34803c44ddf3be8e6d17ccda00"
+          },
+          "exit_code": 0,
+          "source_immutable": true,
+          "command": [
+            "npm",
+            "run",
+            "build"
+          ],
+          "counts": null,
+          "junit": null,
+          "execution_running": false,
+          "receipt_not_final": false
+        }
+      ],
+      "standalone_invocation_check_outcome": "PASS",
+      "observed_selector_check_outcome": "PASS",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    },
+    {
+      "selector": "ci-20",
+      "label": "npm build-storybook",
+      "owner": "root/frontend owner",
+      "canonical_umbrella_observation": {
+        "label": "npm build-storybook",
+        "command": [
+          "npm",
+          "run",
+          "build-storybook"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ci-parity/internal-stages.json",
+        "bytes": 11245,
+        "sha256": "7bb007de28f922caef21994b2395f0d2a7f9b330c742742f6718838914b787c8"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-20/checks/standalone-ci-20/standalone-ci-20.json",
+          "outcome": "PASS",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-20/checks/standalone-ci-20/standalone-ci-20.json",
+            "bytes": 8226,
+            "sha256": "d147880ea47ed07a79d5d00e5f9016652fc168b3c974f1d57c92cae37b9f66d2"
+          },
+          "stdout": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-20/checks/standalone-ci-20/standalone-ci-20.stdout.txt",
+            "bytes": 14139,
+            "sha256": "50cf847546137549578849747491dfcc88fe70022e26abb8d7c4715893543559"
+          },
+          "exit_code": 0,
+          "source_immutable": true,
+          "command": [
+            "npm",
+            "run",
+            "build-storybook"
+          ],
+          "counts": null,
+          "junit": null,
+          "execution_running": false,
+          "receipt_not_final": false
+        }
+      ],
+      "standalone_invocation_check_outcome": "PASS",
+      "observed_selector_check_outcome": "PASS",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    },
+    {
+      "selector": "ci-21",
+      "label": "Playwright browser install",
+      "owner": "root/frontend owner",
+      "canonical_umbrella_observation": {
+        "label": "Playwright browser install",
+        "command": [
+          "npm",
+          "run",
+          "playwright:install"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ci-parity/internal-stages.json",
+        "bytes": 11245,
+        "sha256": "7bb007de28f922caef21994b2395f0d2a7f9b330c742742f6718838914b787c8"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-21/checks/standalone-ci-21/standalone-ci-21.json",
+          "outcome": "PASS",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-21/checks/standalone-ci-21/standalone-ci-21.json",
+            "bytes": 8232,
+            "sha256": "a5a40ed3c03aa8b6b001129a55c5a83aaa17a4d72f45c8198cec2735be083e78"
+          },
+          "stdout": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-21/checks/standalone-ci-21/standalone-ci-21.stdout.txt",
+            "bytes": 87,
+            "sha256": "6be761daf8be7a6eca8ad6f6a191c87a6f5a1dc5c2533fd999fa0b67d95e172b"
+          },
+          "exit_code": 0,
+          "source_immutable": true,
+          "command": [
+            "npm",
+            "run",
+            "playwright:install"
+          ],
+          "counts": null,
+          "junit": null,
+          "execution_running": false,
+          "receipt_not_final": false
+        }
+      ],
+      "standalone_invocation_check_outcome": "PASS",
+      "observed_selector_check_outcome": "PASS",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    },
+    {
+      "selector": "ci-22",
+      "label": "npm Storybook interaction tests",
+      "owner": "root/frontend owner",
+      "canonical_umbrella_observation": {
+        "label": "npm Storybook interaction tests",
+        "command": [
+          "npm",
+          "run",
+          "test:storybook"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ci-parity/internal-stages.json",
+        "bytes": 11245,
+        "sha256": "7bb007de28f922caef21994b2395f0d2a7f9b330c742742f6718838914b787c8"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-22/checks/standalone-ci-22/standalone-ci-22.json",
+          "outcome": "FAIL",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-22/checks/standalone-ci-22/standalone-ci-22.json",
+            "bytes": 8224,
+            "sha256": "7aedac4f6cf783fda0f85134a9d988654c0e4ea8873193ba2bc87d7de1615dfe"
+          },
+          "stdout": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-22/checks/standalone-ci-22/standalone-ci-22.stdout.txt",
+            "bytes": 3873,
+            "sha256": "c60251d1c698135b290e92b1eda70cc8f66c36865285c50d231874d371997bdb"
+          },
+          "exit_code": 130,
+          "source_immutable": true,
+          "command": [
+            "npm",
+            "run",
+            "test:storybook"
+          ],
+          "counts": null,
+          "junit": null,
+          "execution_running": false,
+          "receipt_not_final": false
+        }
+      ],
+      "standalone_invocation_check_outcome": "FAIL",
+      "observed_selector_check_outcome": "FAIL",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    },
+    {
+      "selector": "ci-23",
+      "label": "npm accessibility suite",
+      "owner": "root/frontend owner",
+      "canonical_umbrella_observation": {
+        "label": "npm accessibility suite",
+        "command": [
+          "npm",
+          "run",
+          "test:a11y"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      },
+      "canonical_umbrella_ref": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ci-parity/internal-stages.json",
+        "bytes": 11245,
+        "sha256": "7bb007de28f922caef21994b2395f0d2a7f9b330c742742f6718838914b787c8"
+      },
+      "canonical_umbrella_UNRUN_rewritten": false,
+      "steps": [
+        {
+          "ordinal": 0,
+          "expected_receipt_path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-23/checks/standalone-ci-23/standalone-ci-23.json",
+          "outcome": "FAIL",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-23/checks/standalone-ci-23/standalone-ci-23.json",
+            "bytes": 8220,
+            "sha256": "066cd990aabdf30a5571974bb5cb5eb6bd78d32d2db3a8305d03e3b660a1b917"
+          },
+          "stdout": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-23/checks/standalone-ci-23/standalone-ci-23.stdout.txt",
+            "bytes": 21697,
+            "sha256": "2a4cc02b09087d1c2c2c486bf197e98a902476b7034b4e3aed0d80bada810dda"
+          },
+          "exit_code": 1,
+          "source_immutable": true,
+          "command": [
+            "npm",
+            "run",
+            "test:a11y"
+          ],
+          "counts": null,
+          "junit": null,
+          "execution_running": false,
+          "receipt_not_final": false
+        }
+      ],
+      "declared_inner_page_successor": {
+        "outcome": "UNRUN",
+        "execution_running": false,
+        "reason": "Original npm accessibility script failed in component Vitest stage before && test:a11y:pages",
+        "exact_scope_packet": {
+          "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/a11y-shared-state-and-retry-packet.json",
+          "bytes": 8132,
+          "sha256": "efcc40be3465b5357762debf75feca233720a2db79ba6d239c7405033a92bc32"
+        }
+      },
+      "standalone_invocation_check_outcome": "FAIL",
+      "observed_selector_check_outcome": "FAIL",
+      "execution_running": false,
+      "receipt_not_final": false,
+      "finding_outcome_inferred": false
+    }
+  ],
+  "observed_selector_outcome_counts": {
+    "FAIL": 21,
+    "PASS": 15,
+    "UNRUN": 1
+  },
+  "standalone_invocation_outcome_counts": {
+    "FAIL": 20,
+    "PASS": 14,
+    "UNRUN": 3
+  },
+  "all_invocations_closed": true,
+  "canonical_umbrella_refs": {
+    "workspace": {
+      "outcome": "FAIL",
+      "receipt": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/workspace-verify/workspace-verify.json",
+        "bytes": 8640,
+        "sha256": "0a931767d9c7ce564189b1b79d9d199731e4110a9ab70609dcdbb5d3989f67e8"
+      },
+      "stdout": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/workspace-verify/workspace-verify.stdout.txt",
+        "bytes": 7454,
+        "sha256": "0d323368ef32d64a3fe0d64b44831f6152bced2aa15409c3e009ddae9f2070c5"
+      },
+      "exit_code": 1,
+      "source_immutable": true,
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+        "--repo",
+        "/workspace/e02-E-continuation-20261006",
+        "--gate",
+        "verify",
+        "--stages-output",
+        "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/workspace-verify/internal-stages.json",
+        "--temp-root",
+        "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/umbrella-temp/workspace-verify",
+        "--backend-only"
+      ],
+      "counts": null,
+      "junit": null
+    },
+    "CI": {
+      "outcome": "FAIL",
+      "receipt": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ci-parity/ci-parity.json",
+        "bytes": 8574,
+        "sha256": "8ce46546614f66778a33e41cb9ba21533edab45c97137610f6d8bb56a88114af"
+      },
+      "stdout": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ci-parity/ci-parity.stdout.txt",
+        "bytes": 15296,
+        "sha256": "048275b6f4334ea9638817049dabcff2cf1a14e9cbfb4085a30fd5f0a333c8fd"
+      },
+      "exit_code": 1,
+      "source_immutable": true,
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+        "--repo",
+        "/workspace/e02-E-continuation-20261006",
+        "--gate",
+        "ci-parity",
+        "--stages-output",
+        "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ci-parity/internal-stages.json",
+        "--temp-root",
+        "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/umbrella-temp/ci-parity"
+      ],
+      "counts": null,
+      "junit": null
+    }
+  },
+  "input_plan": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/dispatch-preparation-20261007/dispatch-plan-64d7444a18c5-frozen-final.json",
+    "bytes": 322808,
+    "sha256": "f0f00bef93befbca83a1bdbb59c1d895ac0a43cc50db602de18629ef0ccb86e6"
+  },
+  "builder_source": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/build-current-37-selector-index.py.txt",
+    "bytes": 16865,
+    "sha256": "a4b115a24caec4f6465010681495b34aed1e2780fb036312d407c3ca43deea60"
+  },
+  "receipt_guard": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/build-final-all-54-update.py.txt",
+    "bytes": 9402,
+    "sha256": "2a3ce838f1b48a605ad61b5d41eb254a890f161f8f5062a11358e1df13777e40"
+  },
+  "check_vs_finding_rule": "Check states are independent of original finding dispositions. Canonical fail-fast UNRUN stays UNRUN; running invocation has null outcome and explicit running/final-receipt flags.",
+  "P41": "not_established unless exact slice-base command/full input replay proves attribution",
+  "source_or_environment_mutated": false
+}

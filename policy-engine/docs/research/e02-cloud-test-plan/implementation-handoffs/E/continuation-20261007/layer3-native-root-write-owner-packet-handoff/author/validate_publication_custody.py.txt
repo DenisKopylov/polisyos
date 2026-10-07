@@ -1,0 +1,53 @@
+from __future__ import annotations
+import collections,copy,hashlib,json,subprocess,sys
+from pathlib import Path
+ROOT=Path('/workspace/e02-E-doe-20261006')
+PREFIX='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-native-root-write-owner-packet'
+CANDIDATE='73e298743bb5f56e40d5ad31446ce2728db02ff7'
+HERE=ROOT/PREFIX
+INDEX=json.loads((HERE/'copy-index.json').read_text())
+def req(c,m):
+ if not c:raise ValueError(m)
+def h(b):return hashlib.sha256(b).hexdigest()
+trusted=INDEX['selector_inputs']
+# Exact index bytes already pinned by immutable DOC candidate; original member denial remains independently recomputed.
+req(subprocess.check_output(['git','-C',str(ROOT),'show',CANDIDATE+':'+PREFIX+'/copy-index.json'])==(HERE/'copy-index.json').read_bytes(),'immutable index mismatch')
+v=HERE/'validate_review_copies.py.txt';vb=v.read_bytes();vr=next(x for x in INDEX['records'] if x['copied_path']==str(v.relative_to(ROOT)))
+req(h(vb)==vr['sha256'] and len(vb)==vr['bytes'],'existing canonical validator identity')
+ns={'__name__':'existing_copy_validator','__file__':str(v)};exec(compile(vb,str(v),'exec'),ns)
+expected=collections.Counter()
+for s in trusted:
+ b=(ROOT/s['copied_path']).read_bytes();req(h(b)==s['sha256'] and len(b)==s['bytes'],'selector identity')
+ for x in json.loads(b)['assets']:
+  expected[(s['group'],x.get('original_path',x.get('path')),PREFIX+'/'+s['group']+'/'+x['portable_path'],x['bytes'],x['sha256'])]+=1
+def admit(index,guard=True):
+ actual=collections.Counter((x['group'],x['original_path'],x['copied_path'],x['bytes'],x['sha256']) for x in index['records'] if 'group' in x and x['copied_path'].startswith(PREFIX+'/'+x['group']+'/'))
+ if guard:req(actual==expected,'complete original selected-member multiset mismatch')
+ req(type(index['copies']) is int and index['copies']==len(index['records']),'copy count mismatch')
+ req(type(index['total_bytes']) is int and index['total_bytes']==sum(x['bytes'] for x in index['records']),'copy byte denominator mismatch')
+ ns['validate'](ROOT,index['records'],CANDIDATE)
+ return True
+admit(INDEX)
+controls=[]
+for field,value in [('sha256','0'*64),('bytes',True),('bytes',1),('copied_path','../outside'),('copies',True),('total_bytes',INDEX['total_bytes']+1)]:
+ bad=copy.deepcopy(INDEX)
+ if field in ('copies','total_bytes'):bad[field]=value
+ else:bad['records'][0][field]=value
+ try:admit(bad)
+ except (ValueError,TypeError):controls.append({'field':field,'value':value,'outcome':'refused'})
+ else:raise ValueError('corrupt field accepted')
+omitted=copy.deepcopy(INDEX);omitted['records'].pop(0);omitted['copies']=len(omitted['records']);omitted['total_bytes']=sum(x['bytes'] for x in omitted['records'])
+try:admit(omitted)
+except ValueError:controls.append({'field':'selected_member_omission_with_counts_recomputed','outcome':'refused'})
+else:raise ValueError('complete original selection omission accepted')
+# Effective removal of exact Counter admission restores the omission despite all remaining native custody markers.
+req(admit(omitted,guard=False),'removal must actually admit omission')
+controls.append({'field':'complete_member_guard_removed','outcome':'admitted omission','defining_complete_custody_property':'FAIL'})
+try:ns['validate'](ROOT,INDEX['records'],'7537ef95beed07d02a3b72343b082ff3b7fd14e2')
+except ValueError:controls.append({'field':'unpublished_base','outcome':'refused'})
+else:raise ValueError('unpublished parent accepted')
+paths=subprocess.check_output(['git','-C',str(ROOT),'diff','--name-only','7537ef95beed07d02a3b72343b082ff3b7fd14e2',CANDIDATE]).decode().splitlines()
+req(len(paths)==97 and all(p.startswith(PREFIX+'/') and not p.endswith('.py') for p in paths),'DOC footprint mismatch')
+for row in INDEX['records']:
+ b=Path(row['original_path']).read_bytes();req(len(b)==row['bytes'] and h(b)==row['sha256'],'original capture changed')
+print(json.dumps({'outcome':'PASS','mode':'normal' if __debug__ else 'optimized','candidate':CANDIDATE,'tree':'0dba6c8a03f009838a72589965ff8676c1177005','source':'64d7444a18c55df7b88b71b7699a2f1b25ca24bd','complete_doc_paths':len(paths),'literal_copies':INDEX['copies'],'literal_bytes':INDEX['total_bytes'],'original_member_count':sum(expected.values()),'original_selectors':4,'controls':controls,'control_count':len(controls),'validator_reused_sha256':h(vb),'current_source_or_native_reexecution':False,'limits':['Custody only; actual native fixture/runtime selectors UNRUN, P41 unknown; all source/fullbackend outcomes unchanged.']},indent=2))

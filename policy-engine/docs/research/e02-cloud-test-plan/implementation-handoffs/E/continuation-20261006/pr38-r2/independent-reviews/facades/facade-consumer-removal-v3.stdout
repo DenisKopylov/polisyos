@@ -1,0 +1,6 @@
+{"mode": "denominator_removed", "actual_node_forged_denominator_refusal": null, "export_names_retained": true}
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r2-receipts/independent-doe-reviewer/facades/consumer_probe_v3.py", line 72, in <module>
+    assert refusal is not None and "denominator" in refusal,refusal
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: None

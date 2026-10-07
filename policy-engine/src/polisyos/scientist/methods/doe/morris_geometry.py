@@ -16,10 +16,11 @@ def _validate_morris_plan_samples(
     problem: dict[str, object] | None = None,
 ) -> None:
     """Admit a plan's complete design before consumers may resample its blocks."""
-    from .designs import _build_salib_problem
+    from .designs import _admit_sensitivity_plan, _build_salib_problem
 
     if samples.ndim != 2 or samples.shape[1] != plan.num_parameters:
         raise ValueError("Morris samples must have one column per declared parameter")
+    plan = _admit_sensitivity_plan(plan, actual_run_count=int(samples.shape[0]))
     num_levels = plan.parameter_specs[0].num_levels
     if any(spec.num_levels != num_levels for spec in plan.parameter_specs):
         raise ValueError("Morris parameters must declare the same num_levels")

@@ -1,0 +1,36 @@
+{
+  "candidate": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+  "tree": "2e692d5a5dfa4cfbff78d0079c6fed3e4ba1a73f",
+  "generator_packet": "ir-compat-independent/generator-700f9d5a/generator-packet.json",
+  "patch": "ir-compat-independent/generator-700f9d5a/canonical-generated-full.patch",
+  "owners": [
+    {
+      "owner": "G/team-ir/team-architecture canonical generators",
+      "input": "owner-packet full102model7path27KB patch plus command/source manifest; all99oldIRkeys retained+newprofile",
+      "next_result": "Apply/review canonical full generated inventory/schema/docs projection after resolving separatelychangedfeedback_solve_result owner; update actual IRpublicsurface count290/root+3 doc and record review before releasefragment flagtrue."
+    },
+    {
+      "owner": "Core/API owner",
+      "input": "Exacttest-only CoreToIRArtifactStoreAdapter internal seam observer; productionloader stays declaredIRArtifactStore protocol",
+      "next_result": "Choose explicit native test-only seam admission or narrow existingCoreartifacts module export; no incidental collection-order route assumed."
+    },
+    {
+      "owner": "E root/G",
+      "input": "Immutable source700, allthreeGO receipts and originalcriterion supplements",
+      "next_result": "Individual accountable criterion disposition and integration acceptance separate from codeGO; full required global successors and sourcefreeze wave."
+    },
+    {
+      "owner": "Bayesian/source/calibration producer owner for B197",
+      "input": "Realcontentboundsource/fit/noise/targetjoin only where originalcriterion requires it",
+      "next_result": "Actualconfiguredfit→profile→CAS→nativeconsumer receipt; current synthetic finitecorpus does not supply it."
+    }
+  ],
+  "surface_state": "surface_missing",
+  "public_counts": {
+    "analytics_base": 278,
+    "analytics_current": 290,
+    "published_reference_current": 274,
+    "IRroot_new_DTOs": 3
+  },
+  "generated_patch_warning": "Complete actual102-modelprojection changesfeedback_solve_result independently of Eprofile; canonicalowner decides attribution. Seven-path patch is unapplied. Explicit IR public-surface countdoc is additional ownerreview companion; no generated/doc handedit by helper."
+}

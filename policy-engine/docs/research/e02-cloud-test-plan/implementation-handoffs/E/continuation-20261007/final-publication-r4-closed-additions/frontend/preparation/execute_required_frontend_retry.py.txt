@@ -1,0 +1,67 @@
+"""Run one prepared whole native selector after explicit shared snapshot lease closure."""
+from __future__ import annotations
+
+import argparse
+from datetime import datetime, timezone
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+
+ROOT = Path('/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007')
+REPO = Path('/workspace/e02-E-continuation-20261006')
+SOURCE = '64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+TREE = 'aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+
+def bind(path):
+    body = path.read_bytes()
+    return {'path': str(path), 'bytes': len(body), 'sha256': hashlib.sha256(body).hexdigest()}
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--job', choices=['storybook-full-native-retry', 'a11y-full-native-retry'], required=True)
+parser.add_argument('--closed-lease-message', required=True)
+args = parser.parse_args()
+if not args.closed_lease_message.strip() or 'CLOSED' not in args.closed_lease_message:
+    raise ValueError('Explicit actual coordinator CLOSED message is required')
+preparation_path = ROOT / 'required-retry-preparation.json'
+preparation = json.loads(preparation_path.read_bytes())
+job = next(row for row in preparation['jobs_in_serial_order'] if row['name'] == args.job)
+if preparation['candidate_sha'] != SOURCE or preparation['candidate_tree_sha'] != TREE:
+    raise ValueError('Actual immutable source mismatch')
+head = subprocess.check_output(['/usr/bin/git', 'rev-parse', 'HEAD', 'HEAD^{tree}'], cwd=REPO).decode().splitlines()
+if head != [SOURCE, TREE]:
+    raise ValueError('Frozen source changed before launch')
+for row in preparation['source_inputs']:
+    body = Path(row['path']).read_bytes()
+    if hashlib.sha256(body).hexdigest() != row['sha256'] or len(body) != row['bytes']:
+        raise ValueError('Prepared source/config/capturer bytes changed')
+ps = subprocess.check_output(['/usr/bin/ps', '-eo', 'pid,ppid,etimes,state,args']).decode()
+own_pid = str(os.getpid())
+active = [line for line in ps.splitlines() if line.split()[0] != own_pid and ('vitest.mjs run ' in line or 'playwright/cli.js test ' in line or '--user-data-dir=' in line and 'playwright_chromiumdev_profile-' in line)]
+if active:
+    raise ValueError('Existing browser/controller writer is still active: ' + '\n'.join(active))
+original_path = Path('/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe') / ('ci-22/checks/standalone-ci-22/standalone-ci-22.json' if args.job.startswith('storybook') else 'ci-23/checks/standalone-ci-23/standalone-ci-23.json')
+original = json.loads(original_path.read_bytes())
+env = os.environ.copy()
+for name, value in original['environment']['selected_variables'].items():
+    if value is None:
+        env.pop(name, None)
+    else:
+        env[name] = value
+env.update(job['environment_override'])
+root = ROOT / ('storybook' if args.job.startswith('storybook') else 'a11y')
+launch_path = root / 'launch.json'
+if launch_path.exists():
+    raise ValueError('Launch evidence already exists; refuse overwrite/repeat')
+frontend_snapshot = [ps.splitlines()[0], *[line for line in ps.splitlines()[1:] if 'runtime-dashboard' in line or 'playwright_chromiumdev_profile-' in line]]
+launch = {'schema': 'policyos.e02.E.required_frontend_native_launch.v1', 'candidate_sha': SOURCE, 'candidate_tree_sha': TREE, 'prepared_input': bind(preparation_path), 'original_profile_input': bind(original_path), 'job': job['name'], 'command': job['command'], 'capture_argv': job['capture_argv'], 'cwd': job['cwd'], 'started_UTC': datetime.now(timezone.utc).isoformat(), 'lease_closed_message': args.closed_lease_message, 'pre_launch_process_snapshot': '\n'.join(frontend_snapshot), 'pre_launch_active_browser_count': len(active), 'effective_profile': {name: env.get(name) for name in [*original['environment']['selected_variables'], 'CI', 'NODE_OPTIONS', 'VITEST_STORYBOOK', 'VITEST_BROWSER_DEBUG']}, 'native_node_version': subprocess.check_output(['node', '--version'], env=env).decode().strip(), 'timeouts_workers_exclusions_changed': False, 'fresh_TMPDIR': env['TMPDIR'], 'cache_deleted_or_cleared': False, 'environment_created': False}
+launch_path.write_text(json.dumps(launch, indent=2) + '\n')
+with (root / 'capture.stdout.txt').open('xb') as stdout, (root / 'capture.stderr.txt').open('xb') as stderr:
+    process = subprocess.run(job['capture_argv'], cwd=REPO, env=env, stdout=stdout, stderr=stderr, check=False)
+receipt = Path(job['capture_argv'][job['capture_argv'].index('--output') + 1]) / (job['name'] + '.json')
+finish = {'schema': 'policyos.e02.E.required_frontend_native_capture_completion.v1', 'job': args.job, 'finished_UTC': datetime.now(timezone.utc).isoformat(), 'capturer_exit': process.returncode, 'capture_stdout': bind(root / 'capture.stdout.txt'), 'capture_stderr': bind(root / 'capture.stderr.txt'), 'native_receipt': bind(receipt) if receipt.exists() else None, 'launch': bind(launch_path), 'source_candidate': SOURCE}
+(root / 'completion.json').write_text(json.dumps(finish, indent=2) + '\n')
+print(json.dumps(finish))
+sys.exit(process.returncode)

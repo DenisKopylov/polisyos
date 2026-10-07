@@ -1,0 +1,693 @@
+{
+  "schema": "policyos.e02.pcl.native_witness.v1",
+  "fixture": {
+    "test_path": "/workspace/e02-E-pcl-20261006/policy-engine/tests/unit/foundry/methods/catalog/econometrics/test_advanced_persistence.py",
+    "test_sha256": "621d7aeced8c7efaf3ec078d8b30549f372601a78eed28618a4b63d0ad9ba1f8",
+    "distribution": "NumPy default_rng(20261006).normal(scale=0.25, size=140)",
+    "rows": 140,
+    "entities": 2,
+    "time_steps_per_entity": 70,
+    "holdout_steps_per_entity": 50,
+    "target_id": "synthetic-return",
+    "unit": "return",
+    "production_history": false
+  },
+  "native_checks": 3,
+  "source_row_checks": "all 100 ordered rows per artifact checked by tracked native oracle",
+  "artifacts": [
+    {
+      "cas_root": "/workspace/e02-E-pr38-r2-receipts/pcl-native-witness-cas-74b26eb067de/real_dispatch/cas",
+      "diagnostics_ref": {
+        "artifact_id": "sha256:30e0097e7425732b6bc849f73377c269b5900889ef9bcf44566a6bf89275dcb9",
+        "kind": "continuous_calibration_diagnostics",
+        "media_type": "application/json"
+      },
+      "pairs_ref": {
+        "artifact_id": "sha256:4ffd88d67f72c9896154c6ffcf41ed0e7fa7294df9d8073723ba71eae1ebe937",
+        "kind": "continuous_calibration_pairs",
+        "media_type": "application/json"
+      },
+      "source_data_ref": {
+        "artifact_id": "sha256:883f9efcc0f2de2755ebf151703b156fd222a934121c90c11772155411bea519",
+        "kind": "foundry.econometric_panel_data",
+        "media_type": "application/json"
+      },
+      "oracle": "fresh source dependent[source_row_index] vs persisted interval endpoints",
+      "manual_hits": 82,
+      "requested": 100,
+      "eligible": 100,
+      "observed": 100,
+      "observed_pairs": 100,
+      "manual_coverage": 0.82,
+      "reopened_coverage": 0.82,
+      "reopened_ece": 0.13,
+      "source_binding": {
+        "group": "g",
+        "method_fqn": "econometrics.panel.nonstationary_garch@1.0.0",
+        "seed": 37,
+        "segment_index": 0,
+        "source_authority_basis": "not_established",
+        "target_id": "synthetic-return",
+        "unit": "return"
+      },
+      "first_row": {
+        "entity_id": 0,
+        "evaluation_mode": "blocked_holdout",
+        "forecast_horizon": 1,
+        "observation_time_id": 20,
+        "source_row_index": 20,
+        "training_end_time_id": 19,
+        "training_start_time_id": 0
+      },
+      "last_row": {
+        "entity_id": 1,
+        "evaluation_mode": "blocked_holdout",
+        "forecast_horizon": 50,
+        "observation_time_id": 69,
+        "source_row_index": 139,
+        "training_end_time_id": 19,
+        "training_start_time_id": 0
+      },
+      "row_binding_sha256": "b604828450e7510057ff05ed729ef853e26beca3639eee11027f9eac323aea88",
+      "gate_eligible": false,
+      "source_authority_basis": "not_established"
+    },
+    {
+      "cas_root": "/workspace/e02-E-pr38-r2-receipts/pcl-native-witness-cas-74b26eb067de/real_dispatch/cas",
+      "diagnostics_ref": {
+        "artifact_id": "sha256:63957554c7a3df52e8903518bd0c38d757366c46b96d6760c07a3b365611fef2",
+        "kind": "continuous_calibration_diagnostics",
+        "media_type": "application/json"
+      },
+      "pairs_ref": {
+        "artifact_id": "sha256:4ffd88d67f72c9896154c6ffcf41ed0e7fa7294df9d8073723ba71eae1ebe937",
+        "kind": "continuous_calibration_pairs",
+        "media_type": "application/json"
+      },
+      "source_data_ref": {
+        "artifact_id": "sha256:883f9efcc0f2de2755ebf151703b156fd222a934121c90c11772155411bea519",
+        "kind": "foundry.econometric_panel_data",
+        "media_type": "application/json"
+      },
+      "oracle": "fresh source dependent[source_row_index] vs persisted interval endpoints",
+      "manual_hits": 82,
+      "requested": 100,
+      "eligible": 100,
+      "observed": 100,
+      "observed_pairs": 100,
+      "manual_coverage": 0.82,
+      "reopened_coverage": 0.82,
+      "reopened_ece": 0.13,
+      "source_binding": {
+        "method_fqn": "econometrics.panel.nonstationary_garch@1.0.0",
+        "seed": 37,
+        "source_authority_basis": "not_established",
+        "target_id": "synthetic-return",
+        "unit": "return"
+      },
+      "first_row": {
+        "entity_id": 0,
+        "evaluation_mode": "blocked_holdout",
+        "forecast_horizon": 1,
+        "observation_time_id": 20,
+        "source_row_index": 20,
+        "training_end_time_id": 19,
+        "training_start_time_id": 0
+      },
+      "last_row": {
+        "entity_id": 1,
+        "evaluation_mode": "blocked_holdout",
+        "forecast_horizon": 50,
+        "observation_time_id": 69,
+        "source_row_index": 139,
+        "training_end_time_id": 19,
+        "training_start_time_id": 0
+      },
+      "row_binding_sha256": "b604828450e7510057ff05ed729ef853e26beca3639eee11027f9eac323aea88",
+      "gate_eligible": false,
+      "source_authority_basis": "not_established"
+    },
+    {
+      "cas_root": "/workspace/e02-E-pr38-r2-receipts/pcl-native-witness-cas-74b26eb067de/real_dispatch/cas",
+      "diagnostics_ref": {
+        "artifact_id": "sha256:63957554c7a3df52e8903518bd0c38d757366c46b96d6760c07a3b365611fef2",
+        "kind": "continuous_calibration_diagnostics",
+        "media_type": "application/json"
+      },
+      "pairs_ref": {
+        "artifact_id": "sha256:4ffd88d67f72c9896154c6ffcf41ed0e7fa7294df9d8073723ba71eae1ebe937",
+        "kind": "continuous_calibration_pairs",
+        "media_type": "application/json"
+      },
+      "source_data_ref": {
+        "artifact_id": "sha256:883f9efcc0f2de2755ebf151703b156fd222a934121c90c11772155411bea519",
+        "kind": "foundry.econometric_panel_data",
+        "media_type": "application/json"
+      },
+      "oracle": "fresh source dependent[source_row_index] vs persisted interval endpoints",
+      "manual_hits": 82,
+      "requested": 100,
+      "eligible": 100,
+      "observed": 100,
+      "observed_pairs": 100,
+      "manual_coverage": 0.82,
+      "reopened_coverage": 0.82,
+      "reopened_ece": 0.13,
+      "source_binding": {
+        "method_fqn": "econometrics.panel.nonstationary_garch@1.0.0",
+        "seed": 37,
+        "source_authority_basis": "not_established",
+        "target_id": "synthetic-return",
+        "unit": "return"
+      },
+      "first_row": {
+        "entity_id": 0,
+        "evaluation_mode": "blocked_holdout",
+        "forecast_horizon": 1,
+        "observation_time_id": 20,
+        "source_row_index": 20,
+        "training_end_time_id": 19,
+        "training_start_time_id": 0
+      },
+      "last_row": {
+        "entity_id": 1,
+        "evaluation_mode": "blocked_holdout",
+        "forecast_horizon": 50,
+        "observation_time_id": 69,
+        "source_row_index": 139,
+        "training_end_time_id": 19,
+        "training_start_time_id": 0
+      },
+      "row_binding_sha256": "b604828450e7510057ff05ed729ef853e26beca3639eee11027f9eac323aea88",
+      "gate_eligible": false,
+      "source_authority_basis": "not_established"
+    },
+    {
+      "cas_root": "/workspace/e02-E-pr38-r2-receipts/pcl-native-witness-cas-74b26eb067de/real_dispatch/cas",
+      "diagnostics_ref": {
+        "artifact_id": "sha256:ecf2b18f7d8133a1205e02314f25ecaf7f320da54963c11ea3fd5c05217ca683",
+        "kind": "continuous_calibration_diagnostics",
+        "media_type": "application/json"
+      },
+      "pairs_ref": {
+        "artifact_id": "sha256:4ffd88d67f72c9896154c6ffcf41ed0e7fa7294df9d8073723ba71eae1ebe937",
+        "kind": "continuous_calibration_pairs",
+        "media_type": "application/json"
+      },
+      "source_data_ref": {
+        "artifact_id": "sha256:883f9efcc0f2de2755ebf151703b156fd222a934121c90c11772155411bea519",
+        "kind": "foundry.econometric_panel_data",
+        "media_type": "application/json"
+      },
+      "oracle": "fresh source dependent[source_row_index] vs persisted interval endpoints",
+      "manual_hits": 82,
+      "requested": 100,
+      "eligible": 100,
+      "observed": 100,
+      "observed_pairs": 100,
+      "manual_coverage": 0.82,
+      "reopened_coverage": 0.82,
+      "reopened_ece": 0.13,
+      "source_binding": {
+        "method_fqn": "econometrics.panel.nonstationary_garch@1.0.0",
+        "scenario": "pooled_stationary_garch",
+        "seed": 37,
+        "source_authority_basis": "not_established",
+        "target_id": "synthetic-return",
+        "unit": "return"
+      },
+      "first_row": {
+        "entity_id": 0,
+        "evaluation_mode": "blocked_holdout",
+        "forecast_horizon": 1,
+        "observation_time_id": 20,
+        "source_row_index": 20,
+        "training_end_time_id": 19,
+        "training_start_time_id": 0
+      },
+      "last_row": {
+        "entity_id": 1,
+        "evaluation_mode": "blocked_holdout",
+        "forecast_horizon": 50,
+        "observation_time_id": 69,
+        "source_row_index": 139,
+        "training_end_time_id": 19,
+        "training_start_time_id": 0
+      },
+      "row_binding_sha256": "b604828450e7510057ff05ed729ef853e26beca3639eee11027f9eac323aea88",
+      "gate_eligible": false,
+      "source_authority_basis": "not_established"
+    },
+    {
+      "cas_root": "/workspace/e02-E-pr38-r2-receipts/pcl-native-witness-cas-74b26eb067de/real_dispatch/cas",
+      "diagnostics_ref": {
+        "artifact_id": "sha256:5c8576c3c9311b3d6b8e0b17790f7660caf907a2e2ce00e5b4a6ccb20726dfd8",
+        "kind": "continuous_calibration_diagnostics",
+        "media_type": "application/json"
+      },
+      "pairs_ref": {
+        "artifact_id": "sha256:4ffd88d67f72c9896154c6ffcf41ed0e7fa7294df9d8073723ba71eae1ebe937",
+        "kind": "continuous_calibration_pairs",
+        "media_type": "application/json"
+      },
+      "source_data_ref": {
+        "artifact_id": "sha256:883f9efcc0f2de2755ebf151703b156fd222a934121c90c11772155411bea519",
+        "kind": "foundry.econometric_panel_data",
+        "media_type": "application/json"
+      },
+      "oracle": "fresh source dependent[source_row_index] vs persisted interval endpoints",
+      "manual_hits": 82,
+      "requested": 100,
+      "eligible": 100,
+      "observed": 100,
+      "observed_pairs": 100,
+      "manual_coverage": 0.82,
+      "reopened_coverage": 0.82,
+      "reopened_ece": 0.13,
+      "source_binding": {
+        "method_fqn": "econometrics.panel.nonstationary_garch@1.0.0",
+        "scenario": "group_specific_stationary_garch",
+        "seed": 37,
+        "source_authority_basis": "not_established",
+        "target_id": "synthetic-return",
+        "unit": "return"
+      },
+      "first_row": {
+        "entity_id": 0,
+        "evaluation_mode": "blocked_holdout",
+        "forecast_horizon": 1,
+        "observation_time_id": 20,
+        "source_row_index": 20,
+        "training_end_time_id": 19,
+        "training_start_time_id": 0
+      },
+      "last_row": {
+        "entity_id": 1,
+        "evaluation_mode": "blocked_holdout",
+        "forecast_horizon": 50,
+        "observation_time_id": 69,
+        "source_row_index": 139,
+        "training_end_time_id": 19,
+        "training_start_time_id": 0
+      },
+      "row_binding_sha256": "b604828450e7510057ff05ed729ef853e26beca3639eee11027f9eac323aea88",
+      "gate_eligible": false,
+      "source_authority_basis": "not_established"
+    },
+    {
+      "cas_root": "/workspace/e02-E-pr38-r2-receipts/pcl-native-witness-cas-74b26eb067de/real_dispatch/cas",
+      "diagnostics_ref": {
+        "artifact_id": "sha256:2336de614f2ed0b7828f6430188550247f9120a76012f74891b6ab5af3f9c80f",
+        "kind": "continuous_calibration_diagnostics",
+        "media_type": "application/json"
+      },
+      "pairs_ref": {
+        "artifact_id": "sha256:4ffd88d67f72c9896154c6ffcf41ed0e7fa7294df9d8073723ba71eae1ebe937",
+        "kind": "continuous_calibration_pairs",
+        "media_type": "application/json"
+      },
+      "source_data_ref": {
+        "artifact_id": "sha256:883f9efcc0f2de2755ebf151703b156fd222a934121c90c11772155411bea519",
+        "kind": "foundry.econometric_panel_data",
+        "media_type": "application/json"
+      },
+      "oracle": "fresh source dependent[source_row_index] vs persisted interval endpoints",
+      "manual_hits": 82,
+      "requested": 100,
+      "eligible": 100,
+      "observed": 100,
+      "observed_pairs": 100,
+      "manual_coverage": 0.82,
+      "reopened_coverage": 0.82,
+      "reopened_ece": 0.13,
+      "source_binding": {
+        "method_fqn": "econometrics.panel.nonstationary_garch@1.0.0",
+        "scenario": "pooled_break_garch",
+        "seed": 37,
+        "source_authority_basis": "not_established",
+        "target_id": "synthetic-return",
+        "unit": "return"
+      },
+      "first_row": {
+        "entity_id": 0,
+        "evaluation_mode": "blocked_holdout",
+        "forecast_horizon": 1,
+        "observation_time_id": 20,
+        "source_row_index": 20,
+        "training_end_time_id": 19,
+        "training_start_time_id": 0
+      },
+      "last_row": {
+        "entity_id": 1,
+        "evaluation_mode": "blocked_holdout",
+        "forecast_horizon": 50,
+        "observation_time_id": 69,
+        "source_row_index": 139,
+        "training_end_time_id": 19,
+        "training_start_time_id": 0
+      },
+      "row_binding_sha256": "b604828450e7510057ff05ed729ef853e26beca3639eee11027f9eac323aea88",
+      "gate_eligible": false,
+      "source_authority_basis": "not_established"
+    },
+    {
+      "cas_root": "/workspace/e02-E-pr38-r2-receipts/pcl-native-witness-cas-74b26eb067de/native_graph/configured-cas",
+      "diagnostics_ref": {
+        "artifact_id": "sha256:2f028c9fb9c40246e07812672d4b252595db38754d7ea884fe473623d8f1448b",
+        "kind": "continuous_calibration_diagnostics",
+        "media_type": "application/json"
+      },
+      "pairs_ref": {
+        "artifact_id": "sha256:4ffd88d67f72c9896154c6ffcf41ed0e7fa7294df9d8073723ba71eae1ebe937",
+        "kind": "continuous_calibration_pairs",
+        "media_type": "application/json"
+      },
+      "source_data_ref": {
+        "artifact_id": "sha256:883f9efcc0f2de2755ebf151703b156fd222a934121c90c11772155411bea519",
+        "kind": "foundry.econometric_panel_data",
+        "media_type": "application/json"
+      },
+      "oracle": "fresh source dependent[source_row_index] vs persisted interval endpoints",
+      "manual_hits": 82,
+      "requested": 100,
+      "eligible": 100,
+      "observed": 100,
+      "observed_pairs": 100,
+      "manual_coverage": 0.82,
+      "reopened_coverage": 0.82,
+      "reopened_ece": 0.13,
+      "source_binding": {
+        "group": "g",
+        "method_fqn": "econometrics.panel.nonstationary_garch@1.0.0",
+        "seed": 1726809743,
+        "segment_index": 0,
+        "source_authority_basis": "not_established",
+        "target_id": "synthetic-return",
+        "unit": "return"
+      },
+      "first_row": {
+        "entity_id": 0,
+        "evaluation_mode": "blocked_holdout",
+        "forecast_horizon": 1,
+        "observation_time_id": 20,
+        "source_row_index": 20,
+        "training_end_time_id": 19,
+        "training_start_time_id": 0
+      },
+      "last_row": {
+        "entity_id": 1,
+        "evaluation_mode": "blocked_holdout",
+        "forecast_horizon": 50,
+        "observation_time_id": 69,
+        "source_row_index": 139,
+        "training_end_time_id": 19,
+        "training_start_time_id": 0
+      },
+      "row_binding_sha256": "b604828450e7510057ff05ed729ef853e26beca3639eee11027f9eac323aea88",
+      "gate_eligible": false,
+      "source_authority_basis": "not_established"
+    },
+    {
+      "cas_root": "/workspace/e02-E-pr38-r2-receipts/pcl-native-witness-cas-74b26eb067de/native_graph/configured-cas",
+      "diagnostics_ref": {
+        "artifact_id": "sha256:c525da5971df5c9266b8959a074953544cc803f0e2f81349b6fb26378f1e1363",
+        "kind": "continuous_calibration_diagnostics",
+        "media_type": "application/json"
+      },
+      "pairs_ref": {
+        "artifact_id": "sha256:4ffd88d67f72c9896154c6ffcf41ed0e7fa7294df9d8073723ba71eae1ebe937",
+        "kind": "continuous_calibration_pairs",
+        "media_type": "application/json"
+      },
+      "source_data_ref": {
+        "artifact_id": "sha256:883f9efcc0f2de2755ebf151703b156fd222a934121c90c11772155411bea519",
+        "kind": "foundry.econometric_panel_data",
+        "media_type": "application/json"
+      },
+      "oracle": "fresh source dependent[source_row_index] vs persisted interval endpoints",
+      "manual_hits": 82,
+      "requested": 100,
+      "eligible": 100,
+      "observed": 100,
+      "observed_pairs": 100,
+      "manual_coverage": 0.82,
+      "reopened_coverage": 0.82,
+      "reopened_ece": 0.13,
+      "source_binding": {
+        "method_fqn": "econometrics.panel.nonstationary_garch@1.0.0",
+        "seed": 1726809743,
+        "source_authority_basis": "not_established",
+        "target_id": "synthetic-return",
+        "unit": "return"
+      },
+      "first_row": {
+        "entity_id": 0,
+        "evaluation_mode": "blocked_holdout",
+        "forecast_horizon": 1,
+        "observation_time_id": 20,
+        "source_row_index": 20,
+        "training_end_time_id": 19,
+        "training_start_time_id": 0
+      },
+      "last_row": {
+        "entity_id": 1,
+        "evaluation_mode": "blocked_holdout",
+        "forecast_horizon": 50,
+        "observation_time_id": 69,
+        "source_row_index": 139,
+        "training_end_time_id": 19,
+        "training_start_time_id": 0
+      },
+      "row_binding_sha256": "b604828450e7510057ff05ed729ef853e26beca3639eee11027f9eac323aea88",
+      "gate_eligible": false,
+      "source_authority_basis": "not_established"
+    },
+    {
+      "cas_root": "/workspace/e02-E-pr38-r2-receipts/pcl-native-witness-cas-74b26eb067de/native_graph/configured-cas",
+      "diagnostics_ref": {
+        "artifact_id": "sha256:c525da5971df5c9266b8959a074953544cc803f0e2f81349b6fb26378f1e1363",
+        "kind": "continuous_calibration_diagnostics",
+        "media_type": "application/json"
+      },
+      "pairs_ref": {
+        "artifact_id": "sha256:4ffd88d67f72c9896154c6ffcf41ed0e7fa7294df9d8073723ba71eae1ebe937",
+        "kind": "continuous_calibration_pairs",
+        "media_type": "application/json"
+      },
+      "source_data_ref": {
+        "artifact_id": "sha256:883f9efcc0f2de2755ebf151703b156fd222a934121c90c11772155411bea519",
+        "kind": "foundry.econometric_panel_data",
+        "media_type": "application/json"
+      },
+      "oracle": "fresh source dependent[source_row_index] vs persisted interval endpoints",
+      "manual_hits": 82,
+      "requested": 100,
+      "eligible": 100,
+      "observed": 100,
+      "observed_pairs": 100,
+      "manual_coverage": 0.82,
+      "reopened_coverage": 0.82,
+      "reopened_ece": 0.13,
+      "source_binding": {
+        "method_fqn": "econometrics.panel.nonstationary_garch@1.0.0",
+        "seed": 1726809743,
+        "source_authority_basis": "not_established",
+        "target_id": "synthetic-return",
+        "unit": "return"
+      },
+      "first_row": {
+        "entity_id": 0,
+        "evaluation_mode": "blocked_holdout",
+        "forecast_horizon": 1,
+        "observation_time_id": 20,
+        "source_row_index": 20,
+        "training_end_time_id": 19,
+        "training_start_time_id": 0
+      },
+      "last_row": {
+        "entity_id": 1,
+        "evaluation_mode": "blocked_holdout",
+        "forecast_horizon": 50,
+        "observation_time_id": 69,
+        "source_row_index": 139,
+        "training_end_time_id": 19,
+        "training_start_time_id": 0
+      },
+      "row_binding_sha256": "b604828450e7510057ff05ed729ef853e26beca3639eee11027f9eac323aea88",
+      "gate_eligible": false,
+      "source_authority_basis": "not_established"
+    },
+    {
+      "cas_root": "/workspace/e02-E-pr38-r2-receipts/pcl-native-witness-cas-74b26eb067de/native_graph/configured-cas",
+      "diagnostics_ref": {
+        "artifact_id": "sha256:428456123675139a10dab1b3514b9af99cdf21a88091c276da7d4e2262530247",
+        "kind": "continuous_calibration_diagnostics",
+        "media_type": "application/json"
+      },
+      "pairs_ref": {
+        "artifact_id": "sha256:4ffd88d67f72c9896154c6ffcf41ed0e7fa7294df9d8073723ba71eae1ebe937",
+        "kind": "continuous_calibration_pairs",
+        "media_type": "application/json"
+      },
+      "source_data_ref": {
+        "artifact_id": "sha256:883f9efcc0f2de2755ebf151703b156fd222a934121c90c11772155411bea519",
+        "kind": "foundry.econometric_panel_data",
+        "media_type": "application/json"
+      },
+      "oracle": "fresh source dependent[source_row_index] vs persisted interval endpoints",
+      "manual_hits": 82,
+      "requested": 100,
+      "eligible": 100,
+      "observed": 100,
+      "observed_pairs": 100,
+      "manual_coverage": 0.82,
+      "reopened_coverage": 0.82,
+      "reopened_ece": 0.13,
+      "source_binding": {
+        "method_fqn": "econometrics.panel.nonstationary_garch@1.0.0",
+        "scenario": "pooled_stationary_garch",
+        "seed": 1726809743,
+        "source_authority_basis": "not_established",
+        "target_id": "synthetic-return",
+        "unit": "return"
+      },
+      "first_row": {
+        "entity_id": 0,
+        "evaluation_mode": "blocked_holdout",
+        "forecast_horizon": 1,
+        "observation_time_id": 20,
+        "source_row_index": 20,
+        "training_end_time_id": 19,
+        "training_start_time_id": 0
+      },
+      "last_row": {
+        "entity_id": 1,
+        "evaluation_mode": "blocked_holdout",
+        "forecast_horizon": 50,
+        "observation_time_id": 69,
+        "source_row_index": 139,
+        "training_end_time_id": 19,
+        "training_start_time_id": 0
+      },
+      "row_binding_sha256": "b604828450e7510057ff05ed729ef853e26beca3639eee11027f9eac323aea88",
+      "gate_eligible": false,
+      "source_authority_basis": "not_established"
+    },
+    {
+      "cas_root": "/workspace/e02-E-pr38-r2-receipts/pcl-native-witness-cas-74b26eb067de/native_graph/configured-cas",
+      "diagnostics_ref": {
+        "artifact_id": "sha256:ff65911d29ab56349501ee5617cdc95ef03de982cf4d7e5fa08737037c8a2446",
+        "kind": "continuous_calibration_diagnostics",
+        "media_type": "application/json"
+      },
+      "pairs_ref": {
+        "artifact_id": "sha256:4ffd88d67f72c9896154c6ffcf41ed0e7fa7294df9d8073723ba71eae1ebe937",
+        "kind": "continuous_calibration_pairs",
+        "media_type": "application/json"
+      },
+      "source_data_ref": {
+        "artifact_id": "sha256:883f9efcc0f2de2755ebf151703b156fd222a934121c90c11772155411bea519",
+        "kind": "foundry.econometric_panel_data",
+        "media_type": "application/json"
+      },
+      "oracle": "fresh source dependent[source_row_index] vs persisted interval endpoints",
+      "manual_hits": 82,
+      "requested": 100,
+      "eligible": 100,
+      "observed": 100,
+      "observed_pairs": 100,
+      "manual_coverage": 0.82,
+      "reopened_coverage": 0.82,
+      "reopened_ece": 0.13,
+      "source_binding": {
+        "method_fqn": "econometrics.panel.nonstationary_garch@1.0.0",
+        "scenario": "group_specific_stationary_garch",
+        "seed": 1726809743,
+        "source_authority_basis": "not_established",
+        "target_id": "synthetic-return",
+        "unit": "return"
+      },
+      "first_row": {
+        "entity_id": 0,
+        "evaluation_mode": "blocked_holdout",
+        "forecast_horizon": 1,
+        "observation_time_id": 20,
+        "source_row_index": 20,
+        "training_end_time_id": 19,
+        "training_start_time_id": 0
+      },
+      "last_row": {
+        "entity_id": 1,
+        "evaluation_mode": "blocked_holdout",
+        "forecast_horizon": 50,
+        "observation_time_id": 69,
+        "source_row_index": 139,
+        "training_end_time_id": 19,
+        "training_start_time_id": 0
+      },
+      "row_binding_sha256": "b604828450e7510057ff05ed729ef853e26beca3639eee11027f9eac323aea88",
+      "gate_eligible": false,
+      "source_authority_basis": "not_established"
+    },
+    {
+      "cas_root": "/workspace/e02-E-pr38-r2-receipts/pcl-native-witness-cas-74b26eb067de/native_graph/configured-cas",
+      "diagnostics_ref": {
+        "artifact_id": "sha256:ccb56b09e432a63c2d39e299ad8a4b17e6cbee35f2ed34ff70d588b6bb235fe4",
+        "kind": "continuous_calibration_diagnostics",
+        "media_type": "application/json"
+      },
+      "pairs_ref": {
+        "artifact_id": "sha256:4ffd88d67f72c9896154c6ffcf41ed0e7fa7294df9d8073723ba71eae1ebe937",
+        "kind": "continuous_calibration_pairs",
+        "media_type": "application/json"
+      },
+      "source_data_ref": {
+        "artifact_id": "sha256:883f9efcc0f2de2755ebf151703b156fd222a934121c90c11772155411bea519",
+        "kind": "foundry.econometric_panel_data",
+        "media_type": "application/json"
+      },
+      "oracle": "fresh source dependent[source_row_index] vs persisted interval endpoints",
+      "manual_hits": 82,
+      "requested": 100,
+      "eligible": 100,
+      "observed": 100,
+      "observed_pairs": 100,
+      "manual_coverage": 0.82,
+      "reopened_coverage": 0.82,
+      "reopened_ece": 0.13,
+      "source_binding": {
+        "method_fqn": "econometrics.panel.nonstationary_garch@1.0.0",
+        "scenario": "pooled_break_garch",
+        "seed": 1726809743,
+        "source_authority_basis": "not_established",
+        "target_id": "synthetic-return",
+        "unit": "return"
+      },
+      "first_row": {
+        "entity_id": 0,
+        "evaluation_mode": "blocked_holdout",
+        "forecast_horizon": 1,
+        "observation_time_id": 20,
+        "source_row_index": 20,
+        "training_end_time_id": 19,
+        "training_start_time_id": 0
+      },
+      "last_row": {
+        "entity_id": 1,
+        "evaluation_mode": "blocked_holdout",
+        "forecast_horizon": 50,
+        "observation_time_id": 69,
+        "source_row_index": 139,
+        "training_end_time_id": 19,
+        "training_start_time_id": 0
+      },
+      "row_binding_sha256": "b604828450e7510057ff05ed729ef853e26beca3639eee11027f9eac323aea88",
+      "gate_eligible": false,
+      "source_authority_basis": "not_established"
+    }
+  ],
+  "missing_store": {
+    "persistence_status": "store_missing",
+    "gate_eligible": false
+  }
+}

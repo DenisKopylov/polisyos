@@ -1,0 +1,134 @@
+{
+  "mode": "normal",
+  "base_sha": "c29a58197a7a51f3605857e573de50a4f7a8da61",
+  "current_source_sha256": "6f1e4c188a978b4da6298f3939e32ef71e9839bcf6eb77d41239b29f0ba57e3f",
+  "source_preflight_controls": [
+    {
+      "name": "last-path-none",
+      "refused": true,
+      "Git_callback_count": 0,
+      "reason": "invalid source path"
+    },
+    {
+      "name": "last-path-dot",
+      "refused": true,
+      "Git_callback_count": 0,
+      "reason": "invalid source path"
+    },
+    {
+      "name": "last-path-bool",
+      "refused": true,
+      "Git_callback_count": 0,
+      "reason": "invalid source path"
+    },
+    {
+      "name": "last-path-parent",
+      "refused": true,
+      "Git_callback_count": 0,
+      "reason": "invalid source path"
+    },
+    {
+      "name": "last-path-empty-segment",
+      "refused": true,
+      "Git_callback_count": 0,
+      "reason": "invalid source path"
+    },
+    {
+      "name": "last-path-dot-segment",
+      "refused": true,
+      "Git_callback_count": 0,
+      "reason": "invalid source path"
+    },
+    {
+      "name": "last-bytes-bool",
+      "refused": true,
+      "Git_callback_count": 0,
+      "reason": "invalid source footprint hash/size"
+    },
+    {
+      "name": "last-digest-bool",
+      "refused": true,
+      "Git_callback_count": 0,
+      "reason": "invalid source footprint hash/size"
+    },
+    {
+      "name": "last-row-none",
+      "refused": true,
+      "Git_callback_count": 0,
+      "reason": "invalid source footprint record"
+    },
+    {
+      "name": "footprint-dict",
+      "refused": true,
+      "Git_callback_count": 0,
+      "reason": "invalid source footprint payload"
+    },
+    {
+      "name": "changed-last-none",
+      "refused": true,
+      "Git_callback_count": 0,
+      "reason": "invalid source path"
+    },
+    {
+      "name": "base-none",
+      "refused": true,
+      "Git_callback_count": 0,
+      "reason": "source identity must be an exact SHA1"
+    },
+    {
+      "name": "tree-bool",
+      "refused": true,
+      "Git_callback_count": 0,
+      "reason": "source identity must be an exact SHA1"
+    },
+    {
+      "name": "source-count-bool",
+      "refused": true,
+      "Git_callback_count": 0,
+      "reason": "invalid source footprint count"
+    }
+  ],
+  "actualCLI": [
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/validate.py",
+        "--publication-receipt",
+        "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/implementation-handoff-format-current.json"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "exit_code": 0,
+      "expected_exit_code": 0
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/validate.py"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "exit_code": 1,
+      "expected_exit_code": 1
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-frc-20261006/policy-engine/_build/e02-validator-format-legacy-c29-v2/validate.py"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "exit_code": 0,
+      "expected_exit_code": 0
+    }
+  ],
+  "sole_preflight_call_removal": {
+    "Git_callback_count": 2,
+    "eventual_refusal": "source footprint denominator mismatch",
+    "required_zero_callback_property": "FAIL"
+  },
+  "validate_copy_index_AST_equal": true,
+  "validate_AST_delta": "shared complete source preflight at entry; removed late per-row guard now covered by shared admission",
+  "source_inputs_historical_unchanged_except_declared_program": true,
+  "METADATA_count": 207,
+  "installedMETADATA_unchanged": true,
+  "source_native_numeric_gates_executed": false,
+  "ROOT_source_environment_locks_written": false
+}

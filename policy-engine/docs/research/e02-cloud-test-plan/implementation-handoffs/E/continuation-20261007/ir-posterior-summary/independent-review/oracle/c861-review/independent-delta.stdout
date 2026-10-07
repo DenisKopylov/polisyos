@@ -1,0 +1,236 @@
+{
+  "schema": "policyos.e02.independent_ir_delta_review.v1",
+  "candidate": "c8616e2babe1f0674799c12f07faffa5d6bd266d",
+  "tree": "135ab8cff4026f3fa366ce997e4aa9b181441218",
+  "base": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+  "parent_candidate": "c87f532e6ce6ab2507d937c10eb6eff8153c1699",
+  "source_unchanged": true,
+  "footprint": {
+    "policy-engine/release-fragments/unreleased/2026-10-07-posterior-summary-profile.toml": {
+      "sha256": "b554f6d23d35ac70aa372c4560e5af7dc52e8253931c8e3d40d5cb9218826be7",
+      "bytes": 1712
+    },
+    "policy-engine/src/polisyos/foundry/calibration/report.py": {
+      "sha256": "a8eac8e97b9c1fc9ca5b4d32daea0f174bd0afd95605faf67acbefd6675972f3",
+      "bytes": 16300
+    },
+    "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py": {
+      "sha256": "37302579aba877b0b286c5739a82a0aaba0269a7f7d4afcef18e6e95377f8960",
+      "bytes": 16741
+    },
+    "policy-engine/src/polisyos/foundry/uncertainty/protocol.py": {
+      "sha256": "037522acb445e0f120532832efc78b8919658c5efc6a8cd8e3b52e19061410d3",
+      "bytes": 5742
+    },
+    "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py": {
+      "sha256": "87ad37b29d2ccbc7430395ef40cb3cd6219bcbb24051d74b9d29eaba7993ba55",
+      "bytes": 23973
+    },
+    "policy-engine/src/polisyos/ir/__init__.py": {
+      "sha256": "15f06972034343d4a341f0a126a3f566c03b6daee0366f5350505dfaf3db155c",
+      "bytes": 39304
+    },
+    "policy-engine/src/polisyos/ir/analytics/README.md": {
+      "sha256": "f9dd246e0449245a0396fb360f72afba14d062864a02f1aaa3352ecc29022200",
+      "bytes": 7397
+    },
+    "policy-engine/src/polisyos/ir/analytics/posterior_summary.py": {
+      "sha256": "808b4e690ae204df1c6825084aea087b43f61f6904c1e9d3734e08f5fb49dc70",
+      "bytes": 19877
+    },
+    "policy-engine/src/polisyos/ir/api.py": {
+      "sha256": "01a443f8e51294137cdf3a70c2eed90de570f69bd6d822742099069afd8bab8a",
+      "bytes": 49444
+    },
+    "policy-engine/src/polisyos/schemas/abi_models.py": {
+      "sha256": "ef435c7f9665279057dda175451f7f8ccabba8948fd7d6b7cd7452c31ee1d6f3",
+      "bytes": 27404
+    },
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py": {
+      "sha256": "a77d35527d03e3c8d25ef33678ecd988c547941353d810460055f1a3eb043e41",
+      "bytes": 20893
+    },
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py": {
+      "sha256": "3e0690590297b52e1fc69b3e52812eba8d3c3c2e73469bc498bba0deca52be23",
+      "bytes": 193138
+    },
+    "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py": {
+      "sha256": "af8fa2bf5fd31ea885b14b4406dc98f281c744b73176ff8ed1e5b16df7f8992e",
+      "bytes": 9674
+    },
+    "policy-engine/tests/unit/ir/test_posterior_summary.py": {
+      "sha256": "3e224b210aa53a91a0d762498d4ff74db56862fd56c9805168817a443adca212",
+      "bytes": 13928
+    },
+    "policy-engine/tests/unit/scientist/nodes/builtins/simulate/test_welfare_empirical_law.py": {
+      "sha256": "a7bd90fe23eb9c7a3b04940b41b3e92b9c5798376f177dcd04760465a8b842b1",
+      "bytes": 15822
+    },
+    "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py": {
+      "sha256": "6f9fd54596622f706693bd23bcbb9e067399760cb60be1d545c5fb42ae7c4a5e",
+      "bytes": 16962
+    }
+  },
+  "cases": [
+    {
+      "id": "canonical_IRadapter_single_read_and_exact_bytes",
+      "check_status": "PASS",
+      "detail": {
+        "healthy_named_mean": 0.5,
+        "healthy_byte_reads": 1,
+        "tampered_byte_reads": 1,
+        "tampered_callback_count": 0,
+        "actual_refusal": "posterior summary CAS kind/schema/content is invalid",
+        "canonical_adapter_ref": {
+          "artifact_id": "sha256:207c9ae2be1408e5a8c41ac5e8df1f7899657d9ef1b5b1c2c621f6401e59c3c7",
+          "kind": "ir.uncertainty_envelope",
+          "media_type": "application/json"
+        }
+      }
+    },
+    {
+      "id": "native_group_refusal_1_consistent_joint",
+      "check_status": "PASS",
+      "detail": {
+        "actual_refusal": "posterior summary joint content digest does not reconcile",
+        "actual_callbacks": 0,
+        "actual_builders": 0
+      }
+    },
+    {
+      "id": "native_group_refusal_2_consistent_joint",
+      "check_status": "PASS",
+      "detail": {
+        "actual_refusal": "posterior summary joint content digest does not reconcile",
+        "actual_callbacks": 0,
+        "actual_builders": 0
+      }
+    },
+    {
+      "id": "native_group_refusal_2_incomplete_joint",
+      "check_status": "PASS",
+      "detail": {
+        "actual_refusal": "posterior summary joint coordinate mapping is incomplete",
+        "actual_callbacks": 0,
+        "actual_builders": 0
+      }
+    },
+    {
+      "id": "existing_shared_joint_hash_exact_format",
+      "check_status": "PASS",
+      "detail": {
+        "independent_original_JSON_sha256": "499ac949494fe12d67b725e773bb6ad5636a6fa708fe8721b4917ab7b20e02c3",
+        "new_shared_Foundry_sha256": "499ac949494fe12d67b725e773bb6ad5636a6fa708fe8721b4917ab7b20e02c3",
+        "new_IR_shared_sha256": "499ac949494fe12d67b725e773bb6ad5636a6fa708fe8721b4917ab7b20e02c3",
+        "unicode_axis_and_rows_retained": true
+      }
+    },
+    {
+      "id": "public_real_non_bool_axes",
+      "check_status": "PASS",
+      "detail": {
+        "six_typed_refusals": [
+          {
+            "axis": "samples",
+            "raw_type": "bool",
+            "actual_refusal": "posterior summary axes require finite real non-bool values"
+          },
+          {
+            "axis": "samples",
+            "raw_type": "bool",
+            "actual_refusal": "posterior summary axes require finite real non-bool values"
+          },
+          {
+            "axis": "samples",
+            "raw_type": "str",
+            "actual_refusal": "posterior summary axes require finite real non-bool values"
+          },
+          {
+            "axis": "probabilities",
+            "raw_type": "bool",
+            "actual_refusal": "posterior summary axes require finite real non-bool values"
+          },
+          {
+            "axis": "probabilities",
+            "raw_type": "bool",
+            "actual_refusal": "posterior summary axes require finite real non-bool values"
+          },
+          {
+            "axis": "probabilities",
+            "raw_type": "str",
+            "actual_refusal": "posterior summary axes require finite real non-bool values"
+          }
+        ],
+        "healthy_float_control": [
+          0.5,
+          0.0,
+          [
+            0.0,
+            1.0
+          ]
+        ]
+      }
+    },
+    {
+      "id": "finite_scaled_hypot_and_diagnostic_range_refusal",
+      "check_status": "PASS",
+      "detail": {
+        "independent_finite_std": 5e+199,
+        "actual_diagnostic_std": 5e+199,
+        "fresh_named_mean": 5e+199,
+        "fresh_interval": [
+          0.0,
+          1e+200
+        ],
+        "gaussian_span_overflow_typed_refusal": "1 validation error for UncertaintyEnvelope\n  Value error, confidence_interval[0] must be finite [type=value_error, input_value={'point_estimate': 0.0, '..., 'component': 'total'}}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/value_error",
+        "scope": "IR/NumPy finite corpus; no float32 backend range promise or inferential covariance authority."
+      }
+    },
+    {
+      "id": "native_content_valid_context_disagreement",
+      "check_status": "PASS",
+      "detail": {
+        "actual_refusal": "posterior summary joint profile bindings do not agree",
+        "actual_callbacks": 0,
+        "actual_builders": 0,
+        "individually_content_valid_contexts": true
+      }
+    },
+    {
+      "id": "effective_complete_group_context_admission_removal",
+      "check_status": "PASS",
+      "detail": {
+        "property_removal_effective": true,
+        "required_negative_assertion_outcome": "FAIL",
+        "actual_callbacks": 257,
+        "actual_builders": 1,
+        "CAS_profiles_and_context_hashes_retained": true
+      }
+    }
+  ],
+  "counts": {
+    "PASS": 9
+  },
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "numpy": "2.3.5",
+    "scipy": "1.16.3",
+    "pydantic": "2.12.5",
+    "jax": "0.8.2",
+    "pytest": "9.0.2"
+  },
+  "cleanup_candidates": [
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c861-review/adapter-jsh0jlbe",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c861-review/node-5ml9_muc",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c861-review/node-1njzck5e",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c861-review/node-kms4sjzv",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c861-review/large-cknkblst",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c861-review/context-group-933t5r1o",
+    "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent/c861-review/context-group-ci_iaol4"
+  ],
+  "limits": [
+    "Unchanged c87 native28case corpus reused under explicit source delta review; no broad family wave.",
+    "Old generic-label v1.1 compatibility amendment pending separate owner-author correction; not falsely called old ABI pass.",
+    "Signed zero producer/CAS identity probe recorded separately."
+  ]
+}

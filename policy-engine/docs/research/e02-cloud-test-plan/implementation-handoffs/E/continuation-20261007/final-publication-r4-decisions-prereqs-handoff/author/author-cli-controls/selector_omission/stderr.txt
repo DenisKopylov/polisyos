@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt", line 100, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt", line 90, in main
+    p=Path(args.manifest);d=json.loads(p.read_text());validate(p,d)
+                                                      ^^^^^^^^^^^^^
+  File "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt", line 67, in validate
+    expected=recompute_expected(manifest_path,manifest)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt", line 49, in recompute_expected
+    if declared!={(f,p,n,h,k) for f,p,n,h,k in EXPECTED}:raise ValueError('fixed five selector identities')
+                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: fixed five selector identities

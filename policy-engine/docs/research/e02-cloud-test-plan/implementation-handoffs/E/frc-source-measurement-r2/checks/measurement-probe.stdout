@@ -1,0 +1,42 @@
+{
+  "source_file": "/workspace/e02-E-frc-20261006/policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+  "oracle": "missing/unresolved/wrong-unit schema must refuse before numerical callback",
+  "rows": [
+    {
+      "defect": "missing_schema",
+      "callback_count": 0,
+      "outcome": "REFUSED",
+      "error": {
+        "type": "ValueError",
+        "message": "forecast source schema reference is missing"
+      },
+      "source_ref": "sha256:782fadedf9126bba4366a4d0957feb76ee83f6889bc23875504c0b42d3a4070b",
+      "point_forecast": null,
+      "measurement_bound": false
+    },
+    {
+      "defect": "unresolved_schema",
+      "callback_count": 0,
+      "outcome": "REFUSED",
+      "error": {
+        "type": "FileNotFoundError",
+        "message": "[Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/frc/candidate-probe-cas/unresolved_schema/artifacts/sha256/ff/ff/ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff.manifest.json'"
+      },
+      "source_ref": "sha256:bb420db0accde331d62baa81cab19f275e7d6c4972623e250ed9361ec6a9efa9",
+      "point_forecast": null,
+      "measurement_bound": false
+    },
+    {
+      "defect": "wrong_unit",
+      "callback_count": 0,
+      "outcome": "REFUSED",
+      "error": {
+        "type": "ValueError",
+        "message": "forecast measurement unit disagrees with the source schema"
+      },
+      "source_ref": "sha256:e71b80360dea093b5dbf431492db328bdb0e1dd738c53dcfb8ae4dd2541843fa",
+      "point_forecast": null,
+      "measurement_bound": false
+    }
+  ]
+}

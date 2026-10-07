@@ -1,0 +1,632 @@
+{
+  "contract_error_count": 77,
+  "contract_errors": [
+    {
+      "check": "module-size",
+      "detail": "logical_lines=1146 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/build_honest_diagnostics_coverage.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=2395 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/build_policy_design_case_pass2_diagnostics.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=1311 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/build_policy_design_case_wave35b.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=1354 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/build_policy_design_case_wave35c.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=1434 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/build_policy_design_case_wave35d.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=1577 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/build_policy_design_case_wave35e.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=1230 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/build_policy_design_case_wave35f_integrity.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=1156 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/build_policy_design_case_wave35g_backfill.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=1299 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/check_compilation_truthfulness.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=1468 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/check_debt_ledger.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=1135 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/check_grounding_active_controller_contract.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=1821 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/check_grounding_admission_contract.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=1509 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/check_grounding_bind_contract.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=1103 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/check_grounding_phrasing_defense_contract.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=1608 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/check_grounding_relation_contract.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=1067 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/check_layer3_gy_acquisition_contract.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=1660 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/check_layer3_gy_acquisition_executor.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=1358 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/check_layer3_gy_composition_artifacts.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=4420 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/check_layer3_gy_confidence_ledger.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=7762 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=3684 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/check_layer3_gy_design_generation_contract.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=1702 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/check_layer3_gy_epoch_chronology_contract.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=1584 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=2225 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/check_layer3_gy_generation_cycle_contract.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=2281 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=1665 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/check_layer3_gy_joint_simulation_horizon_contract.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=4442 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/check_layer3_gy_loop_artifacts.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=1019 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/check_layer3_gy_openalex_artifacts.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=2472 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/check_layer3_gy_phase2_artifacts.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=2404 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/check_layer3_gy_promotion_contract.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=7128 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/check_layer3_gy_second_domain_pack.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=5957 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/check_layer3_gy_value_gate_contract.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=1170 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/check_layer3_workflow_failure_authority.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=3669 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/check_policy_design_case_capability_ratchet.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=1141 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/check_policy_design_case_cluster_ownership_map.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=5294 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/check_policy_design_case_layer2_readiness.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=1259 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=1096 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/check_policy_design_case_layer3_g7_readiness.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=3573 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/check_policy_design_case_layer3_gx_hardening.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=3590 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/check_trust_claim_posture.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=1701 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/execute_gy_n12_artifact_transition.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=1106 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/inspect_evidence_bundles.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=2954 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/layer3_gy_acquisition_executor.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=1222 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/layer3_gy_confidence_ledger_contract.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=4763 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/layer3_gy_n13a_acquisition_census.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=2260 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/layer3_gy_n13b_acceptance.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=2538 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/layer3_gy_n13b_acquisition_contract.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=1385 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/production_quality_evidence_inventory.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=1007 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/rederive_layer3_gy_n10_cg1_l2_relation_census.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=1011 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/run_domain_coverage_critic_diversity_audit.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=1607 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/run_policy_design_case_local_validation_ladder.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=1174 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/run_policy_design_case_pass2_phase34_3.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "logical_lines=10479 warning=1000",
+      "message": "validation tooling above warning threshold lacks a module-size budget",
+      "severity": "error",
+      "subject": "tools/quality/validation/run_universal_outcome_corpus.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "2026-08-31",
+      "message": "validation tooling extraction target date must be today or future",
+      "severity": "error",
+      "subject": "tools/quality/validation/architecture_report_only_contracts.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "2026-08-31",
+      "message": "validation tooling extraction target date must be today or future",
+      "severity": "error",
+      "subject": "tools/quality/validation/fabric_best_in_class_inventory.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "2026-08-31",
+      "message": "validation tooling extraction target date must be today or future",
+      "severity": "error",
+      "subject": "tools/quality/validation/decomposition_preflight.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "2026-08-31",
+      "message": "validation tooling extraction target date must be today or future",
+      "severity": "error",
+      "subject": "tools/quality/validation/repository_last_mile_inventory.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "2026-08-31",
+      "message": "validation tooling extraction target date must be today or future",
+      "severity": "error",
+      "subject": "tools/quality/validation/check_package_import_gates.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "2026-08-31",
+      "message": "validation tooling extraction target date must be today or future",
+      "severity": "error",
+      "subject": "tools/quality/validation/repository_best_in_class_phase0_7_inventory.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "2026-08-31",
+      "message": "validation tooling extraction target date must be today or future",
+      "severity": "error",
+      "subject": "tools/quality/validation/repository_verification_inventory.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "2026-08-31",
+      "message": "validation tooling extraction target date must be today or future",
+      "severity": "error",
+      "subject": "tools/quality/validation/directory_health.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "2026-08-31",
+      "message": "validation tooling extraction target date must be today or future",
+      "severity": "error",
+      "subject": "tools/quality/validation/repository_structure_phase0.py"
+    },
+    {
+      "check": "report-only-gates",
+      "detail": "2026-10-01",
+      "message": "target_fail_closed_not_before must be today or future",
+      "severity": "error",
+      "subject": "package-contract-schema"
+    },
+    {
+      "check": "report-only-gates",
+      "detail": "2026-10-01",
+      "message": "target_fail_closed_not_before must be today or future",
+      "severity": "error",
+      "subject": "debt-ledger-reconciliation"
+    },
+    {
+      "check": "report-only-gates",
+      "detail": "2026-10-01",
+      "message": "target_fail_closed_not_before must be today or future",
+      "severity": "error",
+      "subject": "compatibility-release-gates"
+    },
+    {
+      "check": "report-only-gates",
+      "detail": "2026-10-01",
+      "message": "target_fail_closed_not_before must be today or future",
+      "severity": "error",
+      "subject": "package-aggregate-mirror"
+    },
+    {
+      "check": "report-only-gates",
+      "detail": "2026-10-01",
+      "message": "target_fail_closed_not_before must be today or future",
+      "severity": "error",
+      "subject": "module-size-budget"
+    },
+    {
+      "check": "report-only-gates",
+      "detail": "2026-10-01",
+      "message": "target_fail_closed_not_before must be today or future",
+      "severity": "error",
+      "subject": "generated-artifact-contracts"
+    },
+    {
+      "check": "report-only-gates",
+      "detail": "2026-10-01",
+      "message": "target_fail_closed_not_before must be today or future",
+      "severity": "error",
+      "subject": "extension-points"
+    },
+    {
+      "check": "report-only-gates",
+      "detail": "2026-10-01",
+      "message": "target_fail_closed_not_before must be today or future",
+      "severity": "error",
+      "subject": "runbook-coverage"
+    },
+    {
+      "check": "report-only-gates",
+      "detail": "2026-10-01",
+      "message": "target_fail_closed_not_before must be today or future",
+      "severity": "error",
+      "subject": "component-observability"
+    },
+    {
+      "check": "report-only-gates",
+      "detail": "2026-10-01",
+      "message": "target_fail_closed_not_before must be today or future",
+      "severity": "error",
+      "subject": "runtime-state-layout"
+    },
+    {
+      "check": "report-only-gates",
+      "detail": "2026-10-01",
+      "message": "target_fail_closed_not_before must be today or future",
+      "severity": "error",
+      "subject": "test-ratchets"
+    },
+    {
+      "check": "report-only-gates",
+      "detail": "2026-10-01",
+      "message": "target_fail_closed_not_before must be today or future",
+      "severity": "error",
+      "subject": "directory-contracts"
+    },
+    {
+      "check": "report-only-gates",
+      "detail": "2026-10-01",
+      "message": "target_fail_closed_not_before must be today or future",
+      "severity": "error",
+      "subject": "directory-hygiene-assets"
+    },
+    {
+      "check": "report-only-gates",
+      "detail": "2026-10-01",
+      "message": "target_fail_closed_not_before must be today or future",
+      "severity": "error",
+      "subject": "static-analysis-overrides"
+    },
+    {
+      "check": "report-only-gates",
+      "detail": "2026-10-01",
+      "message": "target_fail_closed_not_before must be today or future",
+      "severity": "error",
+      "subject": "dead-static-analysis-overrides"
+    }
+  ],
+  "finding_count": 6,
+  "findings": [
+    {
+      "check": "module-size",
+      "detail": "current=953 current_budget=926",
+      "message": "module grew above Phase 4.3 current-line budget",
+      "severity": "report_only",
+      "subject": "src/polisyos/scientist/nodes/builtins/decide/decision_packet/builder.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "current=953 limit=926",
+      "message": "module exceeds report-only limit",
+      "severity": "report_only",
+      "subject": "src/polisyos/scientist/nodes/builtins/decide/decision_packet/builder.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "current=7283 current_budget=4430",
+      "message": "module grew above Phase 4.3 current-line budget",
+      "severity": "report_only",
+      "subject": "src/polisyos/runtime/http/services/control/run_lifecycle.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "current=7283 limit=4430",
+      "message": "module exceeds report-only limit",
+      "severity": "report_only",
+      "subject": "src/polisyos/runtime/http/services/control/run_lifecycle.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "current=4421 current_budget=2783",
+      "message": "module grew above Phase 4.3 current-line budget",
+      "severity": "report_only",
+      "subject": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py"
+    },
+    {
+      "check": "module-size",
+      "detail": "current=4421 limit=2733",
+      "message": "module exceeds report-only limit",
+      "severity": "report_only",
+      "subject": "src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py"
+    }
+  ],
+  "mode": "report_only",
+  "phase": "repository-best-in-class-phase-1.3",
+  "report": "module-size",
+  "status": "contract_errors",
+  "summary": {
+    "dead_override_report": {
+      "finding_count": 0,
+      "missing_metadata_count": 0,
+      "mypy_override_count": 749,
+      "override_count": 989,
+      "ruff_override_count": 240,
+      "stale_mypy_override_count": 0,
+      "stale_ruff_override_count": 0
+    },
+    "module_size_budget_count": 33,
+    "package_contract_count": 19,
+    "package_contracts": [
+      "berl",
+      "calibration",
+      "common",
+      "core",
+      "data_forge",
+      "ddm",
+      "evidence",
+      "fabric",
+      "foundry-agent-sim-world",
+      "foundry",
+      "ir",
+      "lex",
+      "method_requirement",
+      "obligation_graph",
+      "obligation_rules",
+      "participation_requirement",
+      "runtime",
+      "scholar",
+      "scientist"
+    ],
+    "report_only_gate_count": 15,
+    "static_analysis_counts": {
+      "inline_noqa_count": 822,
+      "inline_type_ignore_count": 1342
+    }
+  }
+}

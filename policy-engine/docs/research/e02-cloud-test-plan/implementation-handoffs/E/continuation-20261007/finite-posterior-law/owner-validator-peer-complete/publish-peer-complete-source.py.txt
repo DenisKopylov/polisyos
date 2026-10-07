@@ -1,0 +1,63 @@
+import hashlib
+import json
+import pathlib
+import subprocess
+
+lane = pathlib.Path('/workspace/e02-E-mc-20261006')
+root = lane / 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law'
+selection = pathlib.Path('/tmp/e02-E-owner3932-packet-independent-lint-20261007/publication-selection.json')
+out = root / 'owner-validator-peer-complete'
+out.mkdir(exist_ok=False)
+def digest(data):
+    return hashlib.sha256(data).hexdigest()
+def write(path, data):
+    with path.open('xb') as stream:
+        stream.write(data)
+def jbytes(obj):
+    return (json.dumps(obj, indent=2, ensure_ascii=False) + '\n').encode()
+source = '3932cded22a29254a7dfced99723e147d6fea7cb'
+head = subprocess.check_output(['git','rev-parse','HEAD'],cwd=lane,text=True).strip()
+if head != 'dfe874313b3172b74fe66663516db68eb6b5b2b8':
+    raise RuntimeError('unexpected publication head')
+seldata = selection.read_bytes()
+if digest(seldata) != '3dfd1b31a8eac1f62c7661818527fa84d4e2504bbc8524f4aa6c35f1a9f4367b':
+    raise RuntimeError('peer selection identity changed')
+sel = json.loads(seldata)
+if sel['candidate'] != source or sel['asset_count'] != 20:
+    raise RuntimeError('peer source or denominator changed')
+existing = {}
+for path in sorted(root.rglob('*')):
+    if path.is_file():
+        data = path.read_bytes()
+        existing.setdefault((len(data),digest(data)), []).append(path)
+rows = []
+newfiles = []
+for item in sel['assets'] + [{'path':str(selection),'bytes':len(seldata),'sha256':digest(seldata),'role':'Complete independent logical selection; historical thin selection remains exact.'}]:
+    path = pathlib.Path(item['path'])
+    data = path.read_bytes()
+    key = (len(data),digest(data))
+    if key != (item['bytes'], item['sha256']):
+        raise RuntimeError('peer literal mismatch ' + str(path))
+    choices = existing.get(key, [])
+    if path.suffix == '.py':
+        choices = [p for p in choices if p.name.endswith('.py.txt')]
+    if choices:
+        portable = choices[0]
+        copied = False
+    else:
+        name = path.name + ('.txt' if path.suffix == '.py' else '')
+        portable = out / name
+        write(portable,data)
+        existing.setdefault(key,[]).append(portable)
+        newfiles.append({'portable_path':str(portable.relative_to(root)), 'bytes':len(data),'sha256':digest(data)})
+        copied = True
+    rows.append({'source_path':str(path),'portable_path':str(portable.relative_to(root)),'bytes':len(data),'sha256':digest(data),'new_literal_copy':copied,'role':item.get('role','complete independent peer source/output')})
+index = {'schema':'policyos.e02.E.complete_owner_validator_peer_copy_index.v1','candidate':source,'tree':'8d19c30199666cf97dd3934f60d772baa3071f7e','prior_doc_publication':head,'selection_sha256':digest(seldata),'files':rows,'logical_asset_rows':len(rows),'new_literal_files':newfiles,'no_active_python_added':True}
+idxdata = jbytes(index)
+write(out/'copy-index.json',idxdata)
+disposition = {'schema':'policyos.e02.E.complete_owner_validator_peer_disposition.v1','candidate':source,'tree':'8d19c30199666cf97dd3934f60d772baa3071f7e','prior_doc_publication':head,'copy_index_sha256':digest(idxdata),'complete_peer_review_sha256':'4da3d11f62afcb388f6bb5b89d420970a6bb988d7336a64275afeca8b1916f3b','scope':'Complete independent peer logical member closure, original27/corrective16 raw identities, typed summary guard and effective removal; source/math/native generator checks not repeated.','actual_controls':'Original V1 four false summaries remain historical; current peer eleven controls each under normal/-O plus reproduced author nineteen controls each; source GO, E proposals and G/global intake remain separate.','schema_components':573,'confidence_dependency_entries':1494,'full_abi_models':103,'ir_abi_models':101,'no_product_or_generated_change':True,'historical_readme_ref_note':'corrective-runtime-count-receipt.json corrected_current_readme binds its actual da079c6b correction phase. Later README append phases are separate publications; that prior pinned byte reference is not presented as the latest README hash.','current_publication_readme_refs':'Read current README bytes from this committed DOC publication; no future commit self reference.'}
+write(out/'disposition.json',jbytes(disposition))
+readme = root/'README.md'
+with readme.open('a') as stream:
+    stream.write('\n`owner-validator-peer-complete/` adds the final full independent peer member closure, deduplicating already published literal bytes. Original27/V1 and corrective16 observations remain exact; eleven peer controls each and nineteen author controls each run under normal and optimized Python. The prior corrective receipt pins its actual README correction phase; later README append phases are separate publications.\n')
+print(json.dumps({'prior_head':head,'logical_rows':len(rows),'new_files':len(newfiles),'new_bytes':sum(x['bytes'] for x in newfiles),'index_sha256':digest(idxdata)},indent=2))

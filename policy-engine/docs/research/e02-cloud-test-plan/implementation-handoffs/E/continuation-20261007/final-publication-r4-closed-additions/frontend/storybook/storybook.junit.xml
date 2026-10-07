@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites name="vitest tests" tests="38" failures="1" errors="0" time="13.914">
+    <testsuite name="src/shared/brand/AtlasBrand.stories.tsx" timestamp="2026-10-07T10:46:29.835Z" hostname="b5f0914494dc" tests="0" failures="0" errors="0" skipped="0" time="0">
+    </testsuite>
+    <testsuite name="src/shared/brand/EvidenceSigil.stories.tsx" timestamp="2026-10-07T10:46:29.835Z" hostname="b5f0914494dc" tests="0" failures="0" errors="0" skipped="0" time="0">
+    </testsuite>
+    <testsuite name="src/shared/brand/Glyph.stories.tsx" timestamp="2026-10-07T10:46:29.836Z" hostname="b5f0914494dc" tests="0" failures="0" errors="0" skipped="0" time="0">
+    </testsuite>
+    <testsuite name="src/shared/brand/JanusGlyph.stories.tsx" timestamp="2026-10-07T10:46:29.836Z" hostname="b5f0914494dc" tests="0" failures="0" errors="0" skipped="0" time="0">
+    </testsuite>
+    <testsuite name="src/shared/charts/FanChart.stories.tsx" timestamp="2026-10-07T10:46:29.836Z" hostname="b5f0914494dc" tests="0" failures="0" errors="0" skipped="0" time="0">
+    </testsuite>
+    <testsuite name="src/shared/charts/HypotheticalOutcomePlot.stories.tsx" timestamp="2026-10-07T10:46:29.837Z" hostname="b5f0914494dc" tests="0" failures="0" errors="0" skipped="0" time="0">
+    </testsuite>
+    <testsuite name="src/shared/charts/QuantileDotplot.stories.tsx" timestamp="2026-10-07T10:46:29.837Z" hostname="b5f0914494dc" tests="0" failures="0" errors="0" skipped="0" time="0">
+    </testsuite>
+    <testsuite name="src/shared/charts/SmallMultiples.stories.tsx" timestamp="2026-10-07T10:46:29.837Z" hostname="b5f0914494dc" tests="0" failures="0" errors="0" skipped="0" time="0">
+    </testsuite>
+    <testsuite name="src/shared/charts/UncertaintyBand.stories.tsx" timestamp="2026-10-07T10:46:29.837Z" hostname="b5f0914494dc" tests="0" failures="0" errors="0" skipped="0" time="0">
+    </testsuite>
+    <testsuite name="src/shared/charts/UncertaintyCharts.stories.tsx" timestamp="2026-10-07T10:46:29.838Z" hostname="b5f0914494dc" tests="2" failures="0" errors="0" skipped="0" time="0.7215">
+        <testcase classname="src/shared/charts/UncertaintyCharts.stories.tsx" name="Atlas Preview" time="0.3988">
+        </testcase>
+        <testcase classname="src/shared/charts/UncertaintyCharts.stories.tsx" name="Dark Theme" time="0.3135">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/shared/ui/AsyncSection.stories.tsx" timestamp="2026-10-07T10:46:29.838Z" hostname="b5f0914494dc" tests="0" failures="0" errors="0" skipped="0" time="0">
+    </testsuite>
+    <testsuite name="src/shared/ui/Badge.stories.tsx" timestamp="2026-10-07T10:46:29.839Z" hostname="b5f0914494dc" tests="0" failures="0" errors="0" skipped="0" time="0">
+    </testsuite>
+    <testsuite name="src/shared/ui/Button.stories.tsx" timestamp="2026-10-07T10:46:29.839Z" hostname="b5f0914494dc" tests="0" failures="0" errors="0" skipped="0" time="0">
+    </testsuite>
+    <testsuite name="src/shared/ui/Card.stories.tsx" timestamp="2026-10-07T10:46:29.839Z" hostname="b5f0914494dc" tests="0" failures="0" errors="0" skipped="0" time="0">
+    </testsuite>
+    <testsuite name="src/shared/ui/Checkbox.stories.tsx" timestamp="2026-10-07T10:46:29.839Z" hostname="b5f0914494dc" tests="2" failures="0" errors="0" skipped="0" time="0.3165">
+        <testcase classname="src/shared/ui/Checkbox.stories.tsx" name="Default" time="0.2114">
+        </testcase>
+        <testcase classname="src/shared/ui/Checkbox.stories.tsx" name="Filter Cluster" time="0.0913">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/shared/ui/DataTable.stories.tsx" timestamp="2026-10-07T10:46:29.840Z" hostname="b5f0914494dc" tests="0" failures="0" errors="0" skipped="0" time="0">
+    </testsuite>
+    <testsuite name="src/shared/ui/EmptyState.stories.tsx" timestamp="2026-10-07T10:46:29.840Z" hostname="b5f0914494dc" tests="0" failures="0" errors="0" skipped="0" time="0">
+    </testsuite>
+    <testsuite name="src/shared/ui/Input.stories.tsx" timestamp="2026-10-07T10:46:29.840Z" hostname="b5f0914494dc" tests="0" failures="0" errors="0" skipped="0" time="0">
+    </testsuite>
+    <testsuite name="src/shared/ui/LineageGraph.stories.tsx" timestamp="2026-10-07T10:46:29.840Z" hostname="b5f0914494dc" tests="0" failures="0" errors="0" skipped="0" time="0">
+    </testsuite>
+    <testsuite name="src/shared/ui/ProvenanceStrip.stories.tsx" timestamp="2026-10-07T10:46:29.840Z" hostname="b5f0914494dc" tests="0" failures="0" errors="0" skipped="0" time="0">
+    </testsuite>
+    <testsuite name="src/shared/ui/Radio.stories.tsx" timestamp="2026-10-07T10:46:29.841Z" hostname="b5f0914494dc" tests="2" failures="0" errors="0" skipped="0" time="0.3996">
+        <testcase classname="src/shared/ui/Radio.stories.tsx" name="Default" time="0.1956">
+        </testcase>
+        <testcase classname="src/shared/ui/Radio.stories.tsx" name="Choice Cards" time="0.1861">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/shared/ui/SegmentedControl.stories.tsx" timestamp="2026-10-07T10:46:29.841Z" hostname="b5f0914494dc" tests="2" failures="0" errors="0" skipped="0" time="0.4572">
+        <testcase classname="src/shared/ui/SegmentedControl.stories.tsx" name="Workspace Modes" time="0.3054">
+        </testcase>
+        <testcase classname="src/shared/ui/SegmentedControl.stories.tsx" name="Rail Compact" time="0.1475">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/shared/ui/Select.stories.tsx" timestamp="2026-10-07T10:46:29.842Z" hostname="b5f0914494dc" tests="0" failures="0" errors="0" skipped="0" time="0">
+    </testsuite>
+    <testsuite name="src/shared/ui/Skeleton.stories.tsx" timestamp="2026-10-07T10:46:29.842Z" hostname="b5f0914494dc" tests="0" failures="0" errors="0" skipped="0" time="0">
+    </testsuite>
+    <testsuite name="src/shared/ui/Switch.stories.tsx" timestamp="2026-10-07T10:46:29.842Z" hostname="b5f0914494dc" tests="0" failures="0" errors="0" skipped="0" time="0">
+    </testsuite>
+    <testsuite name="src/shared/ui/Text.stories.tsx" timestamp="2026-10-07T10:46:29.842Z" hostname="b5f0914494dc" tests="0" failures="0" errors="0" skipped="0" time="0">
+    </testsuite>
+    <testsuite name="src/shared/ui/Textarea.stories.tsx" timestamp="2026-10-07T10:46:29.842Z" hostname="b5f0914494dc" tests="0" failures="0" errors="0" skipped="0" time="0">
+    </testsuite>
+    <testsuite name="src/shared/ui/ToggleButton.stories.tsx" timestamp="2026-10-07T10:46:29.842Z" hostname="b5f0914494dc" tests="2" failures="0" errors="0" skipped="0" time="0.4475">
+        <testcase classname="src/shared/ui/ToggleButton.stories.tsx" name="Default" time="0.3204">
+        </testcase>
+        <testcase classname="src/shared/ui/ToggleButton.stories.tsx" name="Rail Compact" time="0.1255">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/test/a11y/OpaqueBackgroundContrast.stories.tsx" timestamp="2026-10-07T10:46:29.843Z" hostname="b5f0914494dc" tests="1" failures="0" errors="0" skipped="0" time="1.499">
+        <testcase classname="src/test/a11y/OpaqueBackgroundContrast.stories.tsx" name="Seven Declared Sources" time="1.4932">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/features/artifacts/bureaucratic/BureaucraticArtifactView.stories.tsx" timestamp="2026-10-07T10:46:29.843Z" hostname="b5f0914494dc" tests="0" failures="0" errors="0" skipped="0" time="0">
+    </testsuite>
+    <testsuite name="src/features/artifacts/reading-view/MonographLayout.stories.tsx" timestamp="2026-10-07T10:46:29.844Z" hostname="b5f0914494dc" tests="1" failures="0" errors="0" skipped="0" time="1.4966">
+        <testcase classname="src/features/artifacts/reading-view/MonographLayout.stories.tsx" name="Default" time="1.4895">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/shared/ui/compounds/Compounds.stories.tsx" timestamp="2026-10-07T10:46:29.844Z" hostname="b5f0914494dc" tests="1" failures="0" errors="0" skipped="0" time="0.56">
+        <testcase classname="src/shared/ui/compounds/Compounds.stories.tsx" name="Operational Overview" time="0.5526">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/shared/ui/authored-text/AuthoredText.stories.tsx" timestamp="2026-10-07T10:46:29.844Z" hostname="b5f0914494dc" tests="6" failures="0" errors="0" skipped="0" time="1.0468">
+        <testcase classname="src/shared/ui/authored-text/AuthoredText.stories.tsx" name="Citation Register" time="0.3285">
+        </testcase>
+        <testcase classname="src/shared/ui/authored-text/AuthoredText.stories.tsx" name="Human Register" time="0.1408">
+        </testcase>
+        <testcase classname="src/shared/ui/authored-text/AuthoredText.stories.tsx" name="Drafter Register" time="0.1505">
+        </testcase>
+        <testcase classname="src/shared/ui/authored-text/AuthoredText.stories.tsx" name="Formalizer Register" time="0.133">
+        </testcase>
+        <testcase classname="src/shared/ui/authored-text/AuthoredText.stories.tsx" name="Critic Register" time="0.1057">
+        </testcase>
+        <testcase classname="src/shared/ui/authored-text/AuthoredText.stories.tsx" name="Prominent Audit Rail" time="0.1825">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/shared/ui/evidence/EvidencePrimitives.stories.tsx" timestamp="2026-10-07T10:46:29.845Z" hostname="b5f0914494dc" tests="3" failures="0" errors="0" skipped="0" time="0.9387">
+        <testcase classname="src/shared/ui/evidence/EvidencePrimitives.stories.tsx" name="Candidate Clothing" time="0.3919">
+        </testcase>
+        <testcase classname="src/shared/ui/evidence/EvidencePrimitives.stories.tsx" name="Fixture Only" time="0.1907">
+        </testcase>
+        <testcase classname="src/shared/ui/evidence/EvidencePrimitives.stories.tsx" name="All Primitives" time="0.3484">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/shared/ui/patterns/Patterns.stories.tsx" timestamp="2026-10-07T10:46:29.846Z" hostname="b5f0914494dc" tests="2" failures="0" errors="0" skipped="0" time="0.9685">
+        <testcase classname="src/shared/ui/patterns/Patterns.stories.tsx" name="Workspace Scaffold" time="0.7145">
+        </testcase>
+        <testcase classname="src/shared/ui/patterns/Patterns.stories.tsx" name="Selection Vocabulary" time="0.2258">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/shared/ui/quantity/Quantity.stories.tsx" timestamp="2026-10-07T10:46:29.846Z" hostname="b5f0914494dc" tests="1" failures="1" errors="0" skipped="0" time="0">
+        <testcase classname="src/shared/ui/quantity/Quantity.stories.tsx" name="src/shared/ui/quantity/Quantity.stories.tsx" time="0">
+            <failure message="Failed to import test file /workspace/e02-E-continuation-20261006/policy-engine/node_modules/.pnpm/@storybook+addon-vitest@9.1.20_@vitest+browser-playwright@4.1.5_@vitest+browser@4.1.5_@_6e95651060b6cf6ca1a2459c077a90c4/node_modules/@storybook/addon-vitest/dist/vitest-plugin/setup-file.mjs" type="Error">
+Error: Failed to import test file /workspace/e02-E-continuation-20261006/policy-engine/node_modules/.pnpm/@storybook+addon-vitest@9.1.20_@vitest+browser-playwright@4.1.5_@vitest+browser@4.1.5_@_6e95651060b6cf6ca1a2459c077a90c4/node_modules/@storybook/addon-vitest/dist/vitest-plugin/setup-file.mjs
+Caused by: Caused by: TypeError: Failed to fetch dynamically imported module: http://localhost:63315/workspace/e02-E-continuation-20261006/policy-engine/node_modules/.pnpm/@storybook+addon-vitest@9.1.20_@vitest+browser-playwright@4.1.5_@vitest+browser@4.1.5_@_6e95651060b6cf6ca1a2459c077a90c4/node_modules/@storybook/addon-vitest/dist/vitest-plugin/setup-file.mjs?import&amp;browserv=1791369989637
+            </failure>
+        </testcase>
+    </testsuite>
+    <testsuite name="src/shared/ui/temporal/TemporalScrubber.stories.tsx" timestamp="2026-10-07T10:46:29.848Z" hostname="b5f0914494dc" tests="1" failures="0" errors="0" skipped="0" time="0.4119">
+        <testcase classname="src/shared/ui/temporal/TemporalScrubber.stories.tsx" name="Default" time="0.3699">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/features/export/social/OGCard.stories.tsx" timestamp="2026-10-07T10:46:29.848Z" hostname="b5f0914494dc" tests="0" failures="0" errors="0" skipped="0" time="0">
+    </testsuite>
+    <testsuite name="src/shared/ui/tokens/AtlasV4Reference.stories.tsx" timestamp="2026-10-07T10:46:29.848Z" hostname="b5f0914494dc" tests="8" failures="0" errors="0" skipped="0" time="2.7531">
+        <testcase classname="src/shared/ui/tokens/AtlasV4Reference.stories.tsx" name="Color" time="0.9839">
+        </testcase>
+        <testcase classname="src/shared/ui/tokens/AtlasV4Reference.stories.tsx" name="Color Dark" time="0.2688">
+        </testcase>
+        <testcase classname="src/shared/ui/tokens/AtlasV4Reference.stories.tsx" name="Type" time="0.2893">
+        </testcase>
+        <testcase classname="src/shared/ui/tokens/AtlasV4Reference.stories.tsx" name="Shadows" time="0.2137">
+        </testcase>
+        <testcase classname="src/shared/ui/tokens/AtlasV4Reference.stories.tsx" name="Glyphs" time="0.2677">
+        </testcase>
+        <testcase classname="src/shared/ui/tokens/AtlasV4Reference.stories.tsx" name="Buttons" time="0.1986">
+        </testcase>
+        <testcase classname="src/shared/ui/tokens/AtlasV4Reference.stories.tsx" name="Badges" time="0.2104">
+        </testcase>
+        <testcase classname="src/shared/ui/tokens/AtlasV4Reference.stories.tsx" name="Cards" time="0.2983">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/shared/ui/tokens/DesignTokens.stories.tsx" timestamp="2026-10-07T10:46:29.850Z" hostname="b5f0914494dc" tests="3" failures="0" errors="0" skipped="0" time="1.3754">
+        <testcase classname="src/shared/ui/tokens/DesignTokens.stories.tsx" name="Foundations" time="0.7378">
+        </testcase>
+        <testcase classname="src/shared/ui/tokens/DesignTokens.stories.tsx" name="Semantic" time="0.3094">
+        </testcase>
+        <testcase classname="src/shared/ui/tokens/DesignTokens.stories.tsx" name="Semantic Dark" time="0.3083">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/features/platform/routes/PlatformHealthPage.stories.tsx" timestamp="2026-10-07T10:46:29.851Z" hostname="b5f0914494dc" tests="1" failures="0" errors="0" skipped="0" time="0.5217">
+        <testcase classname="src/features/platform/routes/PlatformHealthPage.stories.tsx" name="Healthy" time="0.4989">
+        </testcase>
+    </testsuite>
+    <testsuite name="src/features/runs/compare/PolicyDiffView.stories.tsx" timestamp="2026-10-07T10:46:29.851Z" hostname="b5f0914494dc" tests="0" failures="0" errors="0" skipped="0" time="0">
+    </testsuite>
+    <testsuite name="src/features/runs/components/AtlasRunDeck.stories.tsx" timestamp="2026-10-07T10:46:29.851Z" hostname="b5f0914494dc" tests="0" failures="0" errors="0" skipped="0" time="0">
+    </testsuite>
+    <testsuite name="src/features/platform/settings/AppearanceSection.stories.tsx" timestamp="2026-10-07T10:46:29.852Z" hostname="b5f0914494dc" tests="0" failures="0" errors="0" skipped="0" time="0">
+    </testsuite>
+    <testsuite name="src/features/runs/routes/RunsListPage.stories.tsx" timestamp="2026-10-07T10:46:29.852Z" hostname="b5f0914494dc" tests="0" failures="0" errors="0" skipped="0" time="0">
+    </testsuite>
+</testsuites>

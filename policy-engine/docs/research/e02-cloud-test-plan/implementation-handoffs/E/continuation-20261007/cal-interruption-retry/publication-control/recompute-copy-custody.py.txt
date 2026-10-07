@@ -1,0 +1,50 @@
+"""Recompute the moderate literal-copy index and reject corrupt metadata."""
+import copy
+import hashlib
+import json
+from pathlib import Path
+
+packet = Path('/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/cal-interruption-retry')
+index = json.loads((packet/'copy-index.json').read_text())
+handoff = json.loads((packet/'implementation-handoff.json').read_text())
+lane = Path('/workspace/e02-E-frc-20261006')
+
+def verify(i, h):
+    rows = i['copies']
+    assert len(rows) == i['copied_files'] == h['copied_files']
+    assert sum(row['bytes'] for row in rows) == i['copied_bytes'] == h['copied_bytes']
+    paths = []
+    for row in rows:
+        p = Path(row['portable_path'])
+        assert not p.is_absolute() and '..' not in p.parts and p.as_posix() == row['portable_path']
+        paths.append(p.as_posix())
+        data = (packet/p).read_bytes()
+        assert len(data) == row['bytes']
+        assert hashlib.sha256(data).hexdigest() == row['sha256']
+    assert len(paths) == len(set(paths))
+    actual = sorted(p.relative_to(lane).as_posix() for p in packet.rglob('*') if p.is_file())
+    assert actual == h['changed_paths'] and len(actual) == h['path_count']
+    assert sum(name.endswith('.py') for name in actual) == h['active_python_path_count'] == 0
+    assert h['candidate_sha'] == i['verification_candidate_sha'] == '64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+    assert h['candidate_tree_sha'] == i['verification_candidate_tree_sha'] == 'aef23574d3162abb19bf5a1c67d02624ff9d4d1d'
+
+verify(index,handoff)
+negative = []
+for name in ('copied_files','copied_bytes','path_count','active_python_path_count','copy_hash','portable_escape'):
+    i = copy.deepcopy(index)
+    h = copy.deepcopy(handoff)
+    if name in ('copied_files','copied_bytes'):
+        i[name] += 1
+    elif name in ('path_count','active_python_path_count'):
+        h[name] += 1
+    elif name == 'copy_hash':
+        i['copies'][0]['sha256'] = '0'*64
+    else:
+        i['copies'][0]['portable_path'] = '../escape.json'
+    try:
+        verify(i,h)
+    except AssertionError:
+        negative.append({'mutation':name,'outcome':'REFUSED'})
+    else:
+        raise AssertionError('corrupt control accepted: '+name)
+print(json.dumps({'schema':'policyos.e02.literal_copy_custody_recomputation.v1','candidate_sha':handoff['candidate_sha'],'scope':'Current packet copies at execution, before archiving this observer/output; subsequent Git readback binds full publication','copied_files_at_execution':index['copied_files'],'copied_bytes_at_execution':index['copied_bytes'],'actual_paths_at_execution':handoff['path_count'],'positive':'PASS','negative_controls':negative,'source_test_execution':False},indent=2))

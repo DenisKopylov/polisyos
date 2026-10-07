@@ -1,0 +1,129 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "slice": "canonical E evidence facade consumers",
+  "base_sha": "8aaffa4b568d81b8e6889ea493e2afb86f195ed8",
+  "candidate_sha": "14d6dd4c4f8e61857bc2216a270090aafb0cd72e",
+  "candidate_tree_sha": "3a3d2e153283f4494e8b6977f4c82d64e540012c",
+  "implementation_commits": [
+    "22998874b5f32434c462065baaca44a78e967f91",
+    "b0d4b0ea243bf9e01e3cf80a5544865c1115aad1",
+    "14d6dd4c4f8e61857bc2216a270090aafb0cd72e"
+  ],
+  "full_footprint": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-evidence-facades.toml",
+    "policy-engine/src/polisyos/calibration/README.md",
+    "policy-engine/src/polisyos/calibration/__init__.py",
+    "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+    "policy-engine/src/polisyos/foundry/uncertainty/__init__.py",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+    "policy-engine/tests/unit/calibration/test_evidence_facades.py"
+  ],
+  "candidate_file_sha256": {
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-evidence-facades.toml": "37e0342de0bffbc8280e121bee988c471d2b674b1ff9d270d526377ef6e38917",
+    "policy-engine/src/polisyos/calibration/README.md": "943b4e8a3f2db6642200d61ff3e6a959165db6410e17bf65772edb35c706b42a",
+    "policy-engine/src/polisyos/calibration/__init__.py": "3fcbc6d7e10176cf6578dc88fdc54482ba6a300a55385f3603f3069ad2ab67bd",
+    "policy-engine/src/polisyos/foundry/uncertainty/README.md": "2e7a07708193d8ad54a5a2f3e8a5ea2f012a229147f77211ba45d775f4fa0c98",
+    "policy-engine/src/polisyos/foundry/uncertainty/__init__.py": "f555f6960f0fdb140ca4d393004dc358dcd82066297f16561160cc4875802d8d",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py": "86af4657cb009f932fa8e06921eea5ca9d1896834c8a60af4e95613e4f67203e",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py": "efd11f9df309774ae8eab4f7633a4a2b669b3fb66b062ac1f8e406cedbe238a5",
+    "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py": "f9421a672185153e7a55e1f0944f25a30e1a7950b3c978ac332fae12091625e8",
+    "policy-engine/tests/unit/calibration/test_evidence_facades.py": "d865444e783cd42f261a2d3eee852232d344ccbb6269085de3c4103dee83b574"
+  },
+  "runtime_property": "Actual ForecastOwner and Scientist sampling callers resolve canonical types/functions from declared E package facades. Continuous evaluation persistence exports preserve the existing reader/writer. Calibration keeps declared eager mode and explicit AST-readable export inventory.",
+  "tests": [
+    {
+      "command": "PYTHONPATH=src .venv/bin/python -m pytest -q tests/unit/calibration/test_evidence_facades.py tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+      "outcome": "PASS",
+      "cases": 7,
+      "stdout": "facade-evidence/facade-eager-contract.stdout.txt",
+      "junit": "facade-evidence/facade-eager-contract.junit.xml"
+    }
+  ],
+  "oracle": "Real configured ETS producer\u2192CAS\u2192fresh receipt/evidence read through package exports; canonical type identity checked against actual caller-required symbols. Public sampling API independently reconciles a full terminal denominator.",
+  "negative_controls": [
+    "Forged successful denominator rejected with receipt marker preserved",
+    "Candidate receipt verifier_provenance=verified rejected with real CAS refs unchanged",
+    "Nonexported authority lookup fails",
+    "Before implementation both new facade imports fail with ImportError"
+  ],
+  "predicate_basis": "recomputed canonical object/denominator and CAS content binding; institutional or verifier provenance not_established",
+  "effective_exports": {
+    "policy-engine/src/polisyos/calibration/__init__.py": [
+      "PREDICTIVE_AUTHORITY_DENIALS",
+      "REFERENCE_PROFILES",
+      "CalibrationPoint",
+      "CalibrationResult",
+      "EmpiricalCalibrationContext",
+      "EmpiricalCalibrationEvidenceRef",
+      "EvidenceArtifactRef",
+      "ForecastCalibrationProfile",
+      "ForecastCandidateReceipt",
+      "ForecastCandidateReceiptRef",
+      "apply_calibrator",
+      "compare_calibrators",
+      "compute_calibration_curve",
+      "evaluate_binary",
+      "evaluate_continuous",
+      "evaluate_multiclass",
+      "fit_calibrator",
+      "load_continuous_evaluation",
+      "load_empirical_calibration_evidence",
+      "load_forecast_calibration_profile",
+      "persist_continuous_evaluation",
+      "persist_empirical_calibration_evidence",
+      "persist_forecast_candidate_receipt",
+      "produce_empirical_calibration_evidence",
+      "to_validation_report"
+    ],
+    "policy-engine/src/polisyos/foundry/uncertainty/__init__.py": [
+      "AdaptiveStoppingConfig",
+      "AggregationStrategy",
+      "BoundedIndicatorResponse",
+      "FabricUncertaintyContext",
+      "PropagationConfig",
+      "PropagationDispatcher",
+      "PropagationResult",
+      "PropagationStrategy",
+      "QuasiMCSampler",
+      "aggregate_envelopes",
+      "compute_first_order_indices",
+      "extract_std",
+      "fabric_uncertainty_context_from_decision_data",
+      "reconcile_draw_outcomes",
+      "sampling_content_digest",
+      "verify_mean_certificate"
+    ]
+  },
+  "environment": {
+    "python": "3.14.7",
+    "pydantic": "2.12.5",
+    "numpy": "2.3.5",
+    "jax": "0.8.2",
+    "jaxlib": "0.8.2",
+    "SALib": "1.5.2",
+    "CAS": "local FileSystemCAS synthetic fixture",
+    "CPU_thread_caps": "none",
+    "backend_unavailable": "none for selected checks"
+  },
+  "architecture": {
+    "outcome": "UNRUN",
+    "reason": "Non-frozen iteration guard superseded after test/companion changes; frozen aggregate owns exact full guard. Core/IR owner admission remains pending; no baseline/exception waiver.",
+    "receipt": "facade-evidence/facade-architecture-state.json"
+  },
+  "independent_review": "pending distinct reviewer",
+  "limitations": [
+    "Three of the twelve original new cross-root edges use E facades; Core/IR exports/admission require their owners",
+    "Typed public exports establish no source unit/law or calibration authority",
+    "FRC measurement DTO/adapter companion is separately owned and reviewed in upcoming FRC slice",
+    "Global public inventory regeneration is deferred to canonical generator on final candidate; package modes/classifications reviewed against committed contract"
+  ],
+  "owners": {
+    "Core_IR": "core-ir-facade-owner-packet.json",
+    "IR_semantics": "ir-semantic-owner-decision.json",
+    "A": "FRC default composition/verifier/served chain",
+    "D": "DoE default Search packet"
+  },
+  "cleanup": "No native Trash; retain source/docs/unique evidence, reusable pytest fixture directories listed at final closeout only."
+}

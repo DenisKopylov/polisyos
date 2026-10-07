@@ -1,0 +1,39 @@
+{
+  "schema": "e02.E.portable-review-copy-index.v1",
+  "source_candidate_sha": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "files": [
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/corrected-wave-a9f78817c-owner-results/README.md",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-current-wave-results/README.md",
+      "bytes": 908,
+      "sha256": "22a44c7b0a13352f73b95393387248767ecbd5f67fe42e0f29783aa5062cecc5"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/corrected-wave-a9f78817c-owner-results/actual-owner-results.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-current-wave-results/actual-owner-results.json",
+      "bytes": 15961,
+      "sha256": "5e18597cb2c8ceba4f57edd7d78580a9e4e8c529671494fda19a0a7b3c16c862"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/corrected-wave-a9f78817c-owner-results/collector-execution.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-current-wave-results/collector-execution.json",
+      "bytes": 2134,
+      "sha256": "34ff23086933ec230f0f5a1a154bf3a776d8160db3d5a018ad87324becb0fda3"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/corrected-wave-a9f78817c-owner-results/four-actual-A-FRC-failures.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-current-wave-results/four-actual-A-FRC-failures.json",
+      "bytes": 11750,
+      "sha256": "2e4fa91a8a6f855bb5b0df740f020e069fe6ccf2d0bc3afcb96edf5c95e158d6"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/corrected-wave-a9f78817c-owner-results/copy-index.json",
+      "copied_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/a-current-wave-results/copy-index.json",
+      "bytes": 876,
+      "sha256": "bdf8179d2bbec3e49f2003bb9e6b829bd099508797618c7417e769a6d6255d82"
+    }
+  ],
+  "file_count": 5,
+  "total_bytes": 31629,
+  "finding_closure": false
+}

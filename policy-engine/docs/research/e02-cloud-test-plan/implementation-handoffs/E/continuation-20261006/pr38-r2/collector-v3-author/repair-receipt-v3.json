@@ -1,0 +1,104 @@
+{
+  "schema": "policyos.e02.collector-admission-repair.v3",
+  "scope": "Scratch author source/control/evidence reader repair; no product/native/gate tests run, no root/source/config mutations and no independent selfGO",
+  "historical_source_commit": "1e1b5028274814b7c4318671588202480390a6bc",
+  "historical_v2_sha256": "c1846ca80e2fd5c2cdd6d4dc6f28e1a0497eed273f2013314d608165c340a212",
+  "frozen_new_source": {
+    "path": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collect_wave_v3_final.py",
+    "sha256": "a6399cc46cbfe25b103fa210259eff2be9483f582ae7cba773632f079f7194ec",
+    "bytes": 38152
+  },
+  "repair_basis": "Independent DoE exact1e1 demonstrated integrity-consistent private-as-stdout copied to raw publication, and counterfeit classname substring classified as A. V1/v2/firstv3 history and actual5e inputs/publications unchanged.",
+  "runtime_property": "Common public_evidence admission rejects raw/private/escape/leaf+intermediate symlink, nonregular or noncanonical role before copy. Check receipt/stdout/JUnit/owner-packet/private/static roles bind canonical planned locations; raw/private remain hash-size custody only. Exact known module labels, exact/absent file labels; anonymous only unique immutable function+matching job. Contradictory cases explicit unattributed, excluded from native/A counts; LIMITED/refusal, no silent native relabel.",
+  "author_controls": {
+    "source": "/workspace/e02-E-pr38-r2-receipts/collector-v3-final-author-controls/collector_controls_v3_final.py.txt",
+    "results": "controls.json",
+    "count": 13,
+    "scope": "Synthetic protocol only, derived from independent DoE script with attribution",
+    "positive": "named and actual-shaped anonymous identity retain correct A/native counts",
+    "negatives": "same-byte stdout alias, private-as-stdout, leaf/parent symlink, counterfeitclassname, named/anonymous contradictory file, count999",
+    "removal": "removing only public-role admission recopies sentinel; replacing only exact module membership with substring reaccepts counterfeit; deleting count predicate reaccepts999; all names/fields retained. Known synthetic sentinel only, no actualprivate data copied.",
+    "control_source_syntax": "PASS",
+    "configured_Ruff_scope": "Collector source only, control helper is executable .py.txt evidence packet and not claimed lintPASS"
+  },
+  "configured_checks": [
+    {
+      "name": "configured-collector-ruff",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/ruff",
+        "check",
+        "--config",
+        "/workspace/e02-E-continuation-20261006/policy-engine/ruff.toml",
+        "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collect_wave_v3_final.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006",
+      "exit_code": 0,
+      "stdout": "configured-collector-ruff.stdout.txt",
+      "stderr": "configured-collector-ruff.stderr.txt",
+      "scope": "Frozen collector source only; author control helper syntax, not configured Ruff PASS claim"
+    },
+    {
+      "name": "configured-collector-format",
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/ruff",
+        "format",
+        "--check",
+        "--config",
+        "/workspace/e02-E-continuation-20261006/policy-engine/ruff.toml",
+        "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/collect_wave_v3_final.py"
+      ],
+      "cwd": "/workspace/e02-E-continuation-20261006",
+      "exit_code": 0,
+      "stdout": "configured-collector-format.stdout.txt",
+      "stderr": "configured-collector-format.stderr.txt",
+      "scope": "Frozen collector source only; author control helper syntax, not configured Ruff PASS claim"
+    }
+  ],
+  "actual5e_reader_recheck": {
+    "scope": "Reads/copies the SAME already completed actual wave; no command replay or new check counts",
+    "output_root": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v3",
+    "state": "COMPLETE_BOUND",
+    "numeric_counts": {
+      "cases": 1440,
+      "passed": 1086,
+      "failed": 3,
+      "errors": 351,
+      "skipped": 0
+    },
+    "native_counts": {
+      "cases": 1433,
+      "passed": 1086,
+      "failed": 2,
+      "errors": 345,
+      "skipped": 0
+    },
+    "A_counts": [
+      {
+        "cases": 5,
+        "passed": 0,
+        "failed": 0,
+        "errors": 5,
+        "skipped": 0
+      },
+      {
+        "cases": 2,
+        "passed": 0,
+        "failed": 1,
+        "errors": 1,
+        "skipped": 0
+      }
+    ],
+    "unattributed": {
+      "cases": 0,
+      "passed": 0,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "all15_bound": true,
+    "index": "/workspace/e02-E-pr38-r2-receipts/common-wave-publication-prep/actual-failed-5e3e37276-v3/copy-index.json"
+  },
+  "private_and_large_raw": "Original15private config files and171772803byte static raw not copied; exact rawcustody hashes/sizes preserved. All new actual publication assets are moderate.",
+  "next_owner": "Independent DoE review frozen source/hash/controls/actual unchanged custody; root copies append-only after GO. No source publication done by author.",
+  "cleanup": "No deletion/Trash. Synthetic repeated control clones and reader-only publication duplicate dirs are exact repeatable candidates after receipts/no active users; preserve original5e deciding bytes/unique source/docs/private raw; no nativeTrash established."
+}

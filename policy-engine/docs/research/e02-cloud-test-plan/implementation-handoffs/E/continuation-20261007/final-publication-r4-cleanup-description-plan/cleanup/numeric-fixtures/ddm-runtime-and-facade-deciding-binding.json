@@ -1,0 +1,140 @@
+{
+  "candidate": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/ddm-runtime-and-facade",
+  "native_receipt": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.json",
+    "bytes": 9677,
+    "sha256": "3f5055ffa1d657d7fb6bb48aba2f58586a9dff7c477926a46cce4cac4ed38fed"
+  },
+  "publication_SHA": "a5021561c7630b8a1e721e34307d30550825b07d",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "command": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-o",
+    "cache_dir=/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ddm-runtime-and-facade/cache/pytest",
+    "--benchmark-storage=file:///workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ddm-runtime-and-facade/cache/benchmarks",
+    "--junitxml",
+    "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ddm-runtime-and-facade/pytest.xml",
+    "--basetemp",
+    "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/ddm-runtime-and-facade",
+    "tests/unit/ddm/mirror_contracts/test_audit.py",
+    "tests/unit/ddm/mirror_contracts/test_calibrate.py",
+    "tests/unit/ddm/mirror_contracts/test_data_quality_monitor.py",
+    "tests/unit/ddm/mirror_contracts/test_events.py",
+    "tests/unit/ddm/mirror_contracts/test_multiple_testing.py",
+    "tests/unit/ddm/mirror_contracts/test_performance_estimator.py",
+    "tests/unit/ddm/mirror_contracts/test_realized_performance_monitor.py",
+    "tests/unit/ddm/mirror_contracts/test_track_2_2_shift_adapter.py",
+    "tests/unit/ddm/test_delayed_label_replay.py",
+    "tests/unit/ddm/test_facade.py",
+    "tests/unit/ddm/test_full_acceptance.py",
+    "tests/unit/ddm/test_readiness_mapping.py",
+    "tests/unit/ddm/test_stationary_replay.py",
+    "tests/unit/ddm/test_synthetic_drift_delay.py",
+    "tests/unit/remediation/test_ddm_02.py",
+    "tests/unit/ddm/test_registry_schema_compatibility.py"
+  ],
+  "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "cpu_count": 5,
+    "packages": {
+      "numpy": "2.3.5",
+      "scipy": "1.16.3",
+      "jax": "0.8.2",
+      "SALib": "1.5.2",
+      "pydantic": "2.12.5",
+      "pytest": "9.0.2",
+      "ruff": "0.14.10",
+      "pytest-xdist": "3.8.0"
+    },
+    "selected_variables": {
+      "UV_NO_SYNC": "1",
+      "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-continuation-20261006/policy-engine/.venv",
+      "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine/src",
+      "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/tmp-env/ddm-runtime-and-facade",
+      "RUFF_CACHE_DIR": null,
+      "PATH": "/workspace/.polisyos-environment/bin:/workspace/.polisyos-environment/uv/bin:/workspace/.polisyos-environment/node-v22.23.3-linux-x64/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+      "COREPACK_HOME": "/workspace/.polisyos-environment/cache/corepack",
+      "PLAYWRIGHT_BROWSERS_PATH": "/home/agent/.cache/ms-playwright",
+      "UV_CACHE_DIR": null,
+      "PNPM_HOME": null,
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "NUMEXPR_NUM_THREADS": null,
+      "VECLIB_MAXIMUM_THREADS": null,
+      "BLIS_NUM_THREADS": null,
+      "XLA_FLAGS": null,
+      "JAX_PLATFORMS": null,
+      "JAX_ENABLE_X64": null,
+      "POLISYOS_METRICS_PORT": "0",
+      "POLISYOS_PYTEST_WORKERS": null,
+      "POLISYOS_PYTEST_DIST": null,
+      "PYTEST_ADDOPTS": null
+    }
+  },
+  "input_files": {
+    "AGENTS.md": {
+      "sha256": "35b1e1bf610b8a19b417cb35d6f0c7afca341c4c8c9bbc1574400c38f24b7d50",
+      "bytes": 22656,
+      "git_blob": "94173d77ab34173f12883ee6575db4a461f6df98"
+    },
+    "policy-engine/CONTRIBUTING.md": {
+      "sha256": "1c9ea84e5fa0d8f05517287523d47d71128742ad02a5d20ce326163d21754783",
+      "bytes": 10553,
+      "git_blob": "ac70f96fa6a0c0bd6b810e10f33b409dea2a78bf"
+    },
+    "policy-engine/pyproject.toml": {
+      "sha256": "b205b652e2a16d342394988aa4a4dab0e2eb54acb0788ea8cc90c7b8cc10a267",
+      "bytes": 11007,
+      "git_blob": "c46d8c1c952112ba132d167f05c941304a85cd0c"
+    },
+    "policy-engine/uv.lock": {
+      "sha256": "e6125cd8f7fc22dfdd7460e7461937b96ee0644b0b451e5a30c2e0f56367f463",
+      "bytes": 779204,
+      "git_blob": "85f1fb2150a4da454fee02108565381d44f56730"
+    }
+  },
+  "actual_outcome": "PASS",
+  "exit_code": 0,
+  "counts": {
+    "cases": 82,
+    "passed": 82,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "original_and_saved_outputs": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.json",
+      "bytes": 9677,
+      "sha256": "3f5055ffa1d657d7fb6bb48aba2f58586a9dff7c477926a46cce4cac4ed38fed",
+      "publication_SHA": "a5021561c7630b8a1e721e34307d30550825b07d",
+      "git_blob": "34c3ab6219d2f27e6c21ef4028d74583437f8226",
+      "saved_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/saved-deciding/ddm-runtime-and-facade/ddm-runtime-and-facade.json"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ddm-runtime-and-facade/ddm-runtime-and-facade.stdout.txt",
+      "bytes": 160,
+      "sha256": "4bed8cc624113743771e380f4fea7f09ec8586d03d46684c5c3a9889a2038305",
+      "publication_SHA": "a5021561c7630b8a1e721e34307d30550825b07d",
+      "git_blob": "c288ea4adfe566fc35bcd338ade14477f739293b",
+      "saved_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/saved-deciding/ddm-runtime-and-facade/ddm-runtime-and-facade.stdout.txt"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/checks/ddm-runtime-and-facade/pytest.xml",
+      "bytes": 12578,
+      "sha256": "8ec75f41d5be88b055f813772e9c89fdb9ed1ba978df9966b153074d899cfbcd",
+      "publication_SHA": "a5021561c7630b8a1e721e34307d30550825b07d",
+      "git_blob": "a4d57f2e1f6fddf0d908eac77a637beca6fb3b3c",
+      "saved_path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/saved-deciding/ddm-runtime-and-facade/pytest.xml"
+    }
+  ],
+  "finding_closure": false
+}

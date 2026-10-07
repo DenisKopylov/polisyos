@@ -1,0 +1,50 @@
+import copy
+import hashlib
+import json
+import pathlib
+import subprocess
+
+lane = pathlib.Path('/workspace/e02-E-mc-20261006')
+root = lane / 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law'
+peer = root / 'owner-validator-peer-complete'
+index = json.loads((peer/'copy-index.json').read_text())
+disposition = json.loads((peer/'disposition.json').read_text())
+source = '3932cded22a29254a7dfced99723e147d6fea7cb'
+def sha(data):
+    return hashlib.sha256(data).hexdigest()
+def admit(value):
+    if value['candidate'] != source or value['tree'] != '8d19c30199666cf97dd3934f60d772baa3071f7e':
+        raise ValueError('source identity')
+    if type(value['logical_asset_rows']) is not int or value['logical_asset_rows'] != 21 or len(value['files']) != 21:
+        raise ValueError('logical denominator')
+    for row in value['files']:
+        path = root / row['portable_path']
+        if path.suffix == '.py':
+            raise ValueError('active archived observer')
+        data = path.read_bytes()
+        if type(row['bytes']) is not int or len(data) != row['bytes'] or sha(data) != row['sha256']:
+            raise ValueError('literal member')
+    return True
+admit(index)
+if disposition['copy_index_sha256'] != sha((peer/'copy-index.json').read_bytes()):
+    raise RuntimeError('disposition index identity')
+paths = subprocess.check_output(['git','diff','--name-only',source,'HEAD'],cwd=lane,text=True).splitlines()
+allowed = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/'
+if any(not p.startswith(allowed) for p in paths):
+    raise RuntimeError('product/generated input changed after source freeze')
+controls=[]
+for name, edit in [
+    ('wrong candidate',lambda j:j.__setitem__('candidate','0'*40)),
+    ('boolean denominator',lambda j:j.__setitem__('logical_asset_rows',True)),
+    ('wrong copied hash',lambda j:j['files'][0].__setitem__('sha256','0'*64)),
+    ('wrong copied size',lambda j:j['files'][0].__setitem__('bytes',j['files'][0]['bytes']+1)),
+]:
+    value=copy.deepcopy(index)
+    edit(value)
+    try:
+        admit(value)
+    except (ValueError,FileNotFoundError) as exc:
+        controls.append({'control':name,'outcome':'PASS','refusal':str(exc)})
+    else:
+        raise RuntimeError('copy admission corruption escaped: '+name)
+print(json.dumps({'schema':'policyos.e02.E.complete_peer_copy_custody_controls.v1','source':source,'outcome':'PASS','positive':{'logical_rows':21,'literal_rows_verified':len(index['files'])},'negative_controls':controls,'scope':'Pure stdlib Git/literal custody only; no native source/generator/global gate rerun.','post_source_committed_doc_paths':len(paths)},indent=2))

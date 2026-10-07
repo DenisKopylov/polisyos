@@ -1,0 +1,165 @@
+{
+  "all_count": 3634,
+  "scope_paths": [
+    "src/polisyos/foundry/calibration/__init__.py",
+    "src/polisyos/foundry/calibration/bayesian_fit_bridge.py",
+    "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+    "tests/unit/scientist/nodes/test_bayesian_fit_consumer.py"
+  ],
+  "selected": {
+    "polisyos.foundry.calibration.bayesian_fit_bridge->polisyos.core.artifacts": {
+      "key": "polisyos.foundry.calibration.bayesian_fit_bridge->polisyos.core.artifacts",
+      "source_module": "polisyos.foundry.calibration.bayesian_fit_bridge",
+      "source_package": "polisyos.foundry",
+      "source_file": "src/polisyos/foundry/calibration/bayesian_fit_bridge.py",
+      "lineno": 20,
+      "target_module": "polisyos.core.artifacts",
+      "target_package": "polisyos.core",
+      "target_root": "core",
+      "registered_exception": ""
+    },
+    "polisyos.foundry.calibration.bayesian_fit_bridge->polisyos.core.canon": {
+      "key": "polisyos.foundry.calibration.bayesian_fit_bridge->polisyos.core.canon",
+      "source_module": "polisyos.foundry.calibration.bayesian_fit_bridge",
+      "source_package": "polisyos.foundry",
+      "source_file": "src/polisyos/foundry/calibration/bayesian_fit_bridge.py",
+      "lineno": 27,
+      "target_module": "polisyos.core.canon",
+      "target_package": "polisyos.core",
+      "target_root": "core",
+      "registered_exception": ""
+    },
+    "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.common.logger": {
+      "key": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.common.logger",
+      "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+      "source_package": "polisyos.scientist",
+      "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "lineno": 12,
+      "target_module": "polisyos.common.logger",
+      "target_package": "polisyos.common",
+      "target_root": "common",
+      "registered_exception": ""
+    },
+    "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.core.artifacts.manifest": {
+      "key": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.core.artifacts.manifest",
+      "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+      "source_package": "polisyos.scientist",
+      "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "lineno": 13,
+      "target_module": "polisyos.core.artifacts.manifest",
+      "target_package": "polisyos.core",
+      "target_root": "core",
+      "registered_exception": ""
+    },
+    "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.core.artifacts.store": {
+      "key": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.core.artifacts.store",
+      "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+      "source_package": "polisyos.scientist",
+      "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "lineno": 14,
+      "target_module": "polisyos.core.artifacts.store",
+      "target_package": "polisyos.core",
+      "target_root": "core",
+      "registered_exception": ""
+    },
+    "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.core.canon": {
+      "key": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.core.canon",
+      "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+      "source_package": "polisyos.scientist",
+      "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "lineno": 15,
+      "target_module": "polisyos.core.canon",
+      "target_package": "polisyos.core",
+      "target_root": "core",
+      "registered_exception": ""
+    },
+    "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.core.components": {
+      "key": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.core.components",
+      "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+      "source_package": "polisyos.scientist",
+      "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "lineno": 16,
+      "target_module": "polisyos.core.components",
+      "target_package": "polisyos.core",
+      "target_root": "core",
+      "registered_exception": ""
+    },
+    "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.core.contracts.fabric": {
+      "key": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.core.contracts.fabric",
+      "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+      "source_package": "polisyos.scientist",
+      "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "lineno": 17,
+      "target_module": "polisyos.core.contracts.fabric",
+      "target_package": "polisyos.core",
+      "target_root": "core",
+      "registered_exception": ""
+    },
+    "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.core.contracts.foundry": {
+      "key": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.core.contracts.foundry",
+      "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+      "source_package": "polisyos.scientist",
+      "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "lineno": 18,
+      "target_module": "polisyos.core.contracts.foundry",
+      "target_package": "polisyos.core",
+      "target_root": "core",
+      "registered_exception": ""
+    },
+    "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.foundry.calibration": {
+      "key": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.foundry.calibration",
+      "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+      "source_package": "polisyos.scientist",
+      "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "lineno": 19,
+      "target_module": "polisyos.foundry.calibration",
+      "target_package": "polisyos.foundry",
+      "target_root": "foundry",
+      "registered_exception": ""
+    },
+    "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.foundry.uncertainty.config": {
+      "key": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.foundry.uncertainty.config",
+      "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+      "source_package": "polisyos.scientist",
+      "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "lineno": 26,
+      "target_module": "polisyos.foundry.uncertainty.config",
+      "target_package": "polisyos.foundry",
+      "target_root": "foundry",
+      "registered_exception": ""
+    },
+    "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.foundry.uncertainty.dispatcher": {
+      "key": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.foundry.uncertainty.dispatcher",
+      "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+      "source_package": "polisyos.scientist",
+      "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "lineno": 27,
+      "target_module": "polisyos.foundry.uncertainty.dispatcher",
+      "target_package": "polisyos.foundry",
+      "target_root": "foundry",
+      "registered_exception": ""
+    },
+    "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.foundry.uncertainty.protocol": {
+      "key": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.foundry.uncertainty.protocol",
+      "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+      "source_package": "polisyos.scientist",
+      "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "lineno": 28,
+      "target_module": "polisyos.foundry.uncertainty.protocol",
+      "target_package": "polisyos.foundry",
+      "target_root": "foundry",
+      "registered_exception": ""
+    },
+    "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.ir.analytics.uncertainty": {
+      "key": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty->polisyos.ir.analytics.uncertainty",
+      "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+      "source_package": "polisyos.scientist",
+      "source_file": "src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "lineno": 31,
+      "target_module": "polisyos.ir.analytics.uncertainty",
+      "target_package": "polisyos.ir",
+      "target_root": "ir",
+      "registered_exception": ""
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "schema": "policyos.e02.executed-review-helper-source.v1",
+  "files": [
+    {
+      "execution_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/check_selected_routes.py",
+      "preserved_exact_bytes": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/executed-helper-source/check_selected_routes.py",
+      "bytes": 9055,
+      "sha256": "39a0e99764ecd2c997a25225b845cd0bc4dc7dd3e66d983cfd9dc7c6b7351804"
+    },
+    {
+      "execution_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/test_independent_api.py",
+      "preserved_exact_bytes": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/executed-helper-source/test_independent_api.py",
+      "bytes": 3734,
+      "sha256": "48512216234a2f39dba5562fc9a702f24fd232b6240d36f4d6da63abf5523463"
+    },
+    {
+      "execution_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/run_independent_native.py",
+      "preserved_exact_bytes": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/executed-helper-source/run_independent_native.py",
+      "bytes": 4407,
+      "sha256": "9037857b03c24449f5a96125c2926a53b8090b4842a0c4a0699d4bec1c905436"
+    },
+    {
+      "execution_path": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/export_cas_deciding.py",
+      "preserved_exact_bytes": "/workspace/e02-E-pr38-r2-receipts/independent-ddm-reviewer/welfare-facade-5e/executed-helper-source/export_cas_deciding.py",
+      "bytes": 4217,
+      "sha256": "7514a01fd384933025c344b3da1bb63536e2d45effec5247f6423eba234e7573"
+    }
+  ],
+  "correction": "Publication helper versions subsequently formatted; E731 proxy lambda replaced by equivalent named def. Exact9PASS executed test source remains preserved; no product change/new native result inferred."
+}

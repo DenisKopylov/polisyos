@@ -1,0 +1,6 @@
+home = /home/agent/.local/share/uv/python/cpython-3.14-linux-x86_64-gnu/bin
+implementation = CPython
+uv = 0.12.19
+version_info = 3.14
+include-system-site-packages = false
+prompt = policy-engine

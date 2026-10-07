@@ -1,0 +1,1 @@
+{"source_base": "198076863e143dea9f89f02734b13d50dae3eed5", "property": "raw positive receipt without ordered pairs", "predecessor_proxy_tier": "approximate_calibrated", "candidate_tier": "unverified", "negative_control": "same metrics/receipt fields, no persisted pairs"}

@@ -1,0 +1,17 @@
+[
+  {
+    "control": "hash",
+    "outcome": "REFUSED",
+    "reason": "payload bytes/hash mismatch"
+  },
+  {
+    "control": "size",
+    "outcome": "REFUSED",
+    "reason": "denominator mismatch"
+  },
+  {
+    "control": "denominator",
+    "outcome": "REFUSED",
+    "reason": "denominator mismatch"
+  }
+]

@@ -26,10 +26,6 @@ from polisyos.ir.analytics.simulation_proof_bridge import (
     SimulationProofBridgeArtifacts,
     build_simulation_proof_bridge_artifacts,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.c6c_runtime_support import (
     build_runtime_abstraction_metadata,
@@ -72,6 +68,15 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_REGISTRY_BUNDLE_REF,
     INPUT_TRINITY_BUNDLE_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 
 logger = get_logger(__name__)
@@ -124,11 +129,14 @@ _SPEC = NodeSpec(
         "params.macro_strategic_payoff_tables",
         "params.performative_loop_spec",
         "params.causal_query",
+        "params.backtest_native_forecast_request_ref",
+        "params.random_seed",
     ],
     state_writes=[
         f"inputs.{INPUT_PARAMETER_OVERRIDE_BUNDLE_REF}",
         f"artifacts_index.{ARTIFACT_SIMULATION_RESULT_REF}",
         f"artifacts_index.{ARTIFACT_METRICS_REF}",
+        "artifacts_index.backtest_native_forecast_ref",
         f"artifacts_index.{ARTIFACT_STATE_DELTA_REF}",
         f"artifacts_index.{ARTIFACT_STATE_SNAPSHOT_REF}",
         f"artifacts_index.{ARTIFACT_CONSTRAINT_REPORT_REF}",
@@ -149,6 +157,7 @@ _SPEC = NodeSpec(
     produces=[
         ARTIFACT_SIMULATION_RESULT_REF,
         ARTIFACT_METRICS_REF,
+        "backtest_native_forecast_ref",
         ARTIFACT_STATE_DELTA_REF,
         ARTIFACT_STATE_SNAPSHOT_REF,
         ARTIFACT_CONSTRAINT_REPORT_REF,
@@ -206,6 +215,7 @@ class RunSimulationNode:
                 f"inputs.{INPUT_PARAMETER_OVERRIDE_BUNDLE_REF}",
                 f"artifacts_index.{ARTIFACT_SIMULATION_RESULT_REF}",
                 f"artifacts_index.{ARTIFACT_METRICS_REF}",
+                "artifacts_index.backtest_native_forecast_ref",
                 f"artifacts_index.{ARTIFACT_STATE_DELTA_REF}",
                 f"artifacts_index.{ARTIFACT_STATE_SNAPSHOT_REF}",
                 f"artifacts_index.{ARTIFACT_CONSTRAINT_REPORT_REF}",
@@ -294,6 +304,15 @@ class RunSimulationNode:
             return NodeOutcome(status="fail", state=new_state, error=error)
 
         try:
+            config = self.exec_config
+            native_request_ref = state.params.get("backtest_native_forecast_request_ref")
+            if native_request_ref is not None:
+                requested_seed = state.params.get("random_seed")
+                if isinstance(requested_seed, bool) or not isinstance(requested_seed, int):
+                    raise ValueError("native forecast requires an integer runtime seed")
+                config = FoundryExecConfig.model_validate(
+                    {**self.exec_config.model_dump(), "seed": requested_seed}
+                )
             request = ExecuteRequest(
                 exec_plan_ref=ExecPlanRef.model_validate(exec_plan_ref.model_dump(mode="json")),
                 input_bindings_ref=FoundryInputBindingsRef.model_validate(
@@ -307,7 +326,7 @@ class RunSimulationNode:
                     if parameter_override_bundle_ref is not None
                     else None
                 ),
-                exec_config=self.exec_config,
+                exec_config=config,
             )
         except _SIMULATION_VALIDATION_ERRORS as exc:
             error = NodeError(
@@ -317,7 +336,24 @@ class RunSimulationNode:
             metrics.record_slo_simulation_run("error", method=method)
             return NodeOutcome(status="fail", state=new_state, error=error)
 
-        result = ctx.foundry.execute(ctx.store, request)
+        if native_request_ref is None:
+            result = ctx.foundry.execute(ctx.store, request)
+        else:
+            from polisyos.scientist.methods.backtesting.native_replay import (
+                execute_native_forecast,
+            )
+
+            try:
+                result = execute_native_forecast(
+                    ctx, request, ArtifactRef.model_validate(native_request_ref)
+                )
+            except _SIMULATION_VALIDATION_ERRORS as exc:
+                error = NodeError(
+                    code=node_errors.ERROR_FOUNDRY_EXECUTE_FAILED,
+                    message=f"Native predictive replay refused: {exc}",
+                )
+                metrics.record_slo_simulation_run("error", method=method)
+                return NodeOutcome(status="fail", state=new_state, error=error)
 
         artifacts = list(materialized_artifacts)
         simulation_payload: dict[str, Any] | None = None
@@ -356,6 +392,8 @@ class RunSimulationNode:
             artifacts.append(item.ref)
             if item.role == "metrics":
                 new_state.artifacts_index[ARTIFACT_METRICS_REF] = item.ref
+            elif item.role == "backtest_native_forecast_ref":
+                new_state.artifacts_index["backtest_native_forecast_ref"] = item.ref
             elif item.role == "state_delta":
                 new_state.artifacts_index[ARTIFACT_STATE_DELTA_REF] = item.ref
             elif item.role == "constraint_report":
@@ -417,7 +455,9 @@ class RunSimulationNode:
                     code=node_errors.ERROR_SIMULATION_PROOF_BRIDGE_FAILED,
                     message="Simulation proof bridge failed after Foundry execute",
                     details={
-                        "simulation_result_ref": result.simulation_result_ref.model_dump(mode="json"),
+                        "simulation_result_ref": result.simulation_result_ref.model_dump(
+                            mode="json"
+                        ),
                         "reason": str(exc),
                     },
                 )
@@ -600,9 +640,7 @@ def _attach_simulation_proof_bridge(
         output.evidence_bundle_ref
     )
     state.artifacts_index[ARTIFACT_PROOF_BUNDLE_REF] = _to_core_ref(output.proof_bundle_ref)
-    state.artifacts_index[ARTIFACT_PROOF_WITNESS_INDEX_REF] = _to_core_ref(
-        output.witness_index_ref
-    )
+    state.artifacts_index[ARTIFACT_PROOF_WITNESS_INDEX_REF] = _to_core_ref(output.witness_index_ref)
     state.artifacts_index[ARTIFACT_PROOF_COMPOSABILITY_CERTIFICATE_REF] = _to_core_ref(
         output.composability_certificate_ref
     )

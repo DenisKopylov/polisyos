@@ -1,0 +1,35 @@
+from pathlib import Path
+from copy import deepcopy
+import argparse,hashlib,json,re,subprocess
+p=argparse.ArgumentParser();p.add_argument('--root',required=True);p.add_argument('--output',required=True);p.add_argument('--controls',action='store_true');a=p.parse_args();root=Path(a.root);d=root/'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law'
+def need(v,m):
+ if not v:raise ValueError(m)
+def ref(r):
+ b=(root/r['path']).read_bytes();need(len(b)==r['bytes'] and hashlib.sha256(b).hexdigest()==r['sha256'],'changed_ref:'+r['path']);return b
+def validate(h):
+ need(h['candidate']=='3932cded22a29254a7dfced99723e147d6fea7cb' and h['tree']=='8d19c30199666cf97dd3934f60d772baa3071f7e','source_identity')
+ need(subprocess.check_output(['git','-C',str(root),'rev-parse',h['candidate']+'^{tree}'],text=True).strip()==h['tree'],'Git_tree')
+ need(not h['G_formal_intake_or_ROOT_source_merge_claimed'] and not h['global_gate_PASS'] and h['capability_state']=='surface_missing','capability_or_intake_forged')
+ main=json.loads(ref(h['source_handoff']));need(main['candidate']==h['candidate'] and main['tree']==h['tree'],'source_handoff')
+ index=json.loads(ref(h['copy_index']));need(index['file_count']==len(index['files']) and index['bytes']==sum(r['bytes'] for r in index['files']),'copy_denominator')
+ for row in index['files']:
+  b=(d/row['portable_path']).read_bytes();need(len(b)==row['bytes'] and hashlib.sha256(b).hexdigest()==row['sha256'],'changed_portable:'+row['portable_path'])
+ gen=json.loads(ref(h['qualified_canonical_projection']));need(gen['candidate']==h['candidate'] and gen['tree']==h['tree'],'generator_source');need(gen['canonical_full_ABI_count']==103 and gen['full_public_packages']==20 and gen['public_families']==13 and gen['runtime_schema_components']==1494,'complete_actual_registry_counts')
+ need(gen['capability_state']=='surface_missing' and gen['global_required_gate_outcome'] is None and not gen['shared_generated_files_changed'],'unapplied_surface')
+ patch=ref(h['direct_tracked_final3932_patch']).decode();paths=[m.group(2) for m in re.finditer(r'^diff --git a/(.*?) b/(.*?)$',patch,re.M)];need(len(paths)==9 and len(set(paths))==9,'complete9_patch')
+ eq=json.loads(ref(h['complete103_schema_equality']));need(eq['candidate']==h['candidate'] and eq['all_complete103_before_after_equal'] and eq['all_projected103_model_schema_values_equal'] and len(eq['models'])==103,'schema_equality')
+ decisions=json.loads(ref(h['individual_original_row_decisions']));need(decisions['candidate']==h['candidate'] and decisions['tree']==h['tree'],'decision_source');need(decisions['historical_ledger_preserved']=={'partial':49,'held':4,'closed':1},'historical_ledger_changed');need(decisions['ROOT64d_current_proposals_preserved']=={'closed':41,'limited':9,'held':2,'open':2},'ROOT_source_rebranded');need(decisions['3932_topic_qualified_proposals_after_explicit_E_decision']=={'closed':43,'limited':9,'held':2},'topic_proposal_denominator');need(not decisions['G_formal_intake_or_ROOT3932_integration_asserted'],'formal_intake_forged');need({row['id'] for row in decisions['rows']}=={'B188','B192','B201','B202'},'original_four_rows')
+ for path in subprocess.check_output(['git','-C',str(root),'diff','--name-only',main['base'],h['candidate']],text=True).splitlines():
+  if path.endswith('.py'):need((root/path).read_bytes()==subprocess.check_output(['git','-C',str(root),'show',h['candidate']+':'+path]),'frozen_current_Python:'+path)
+ return {'source':h['candidate'],'tree':h['tree'],'files':len(index['files']),'bytes':index['bytes'],'actual_all_models':103,'patch_paths':paths,'owner_rows':4,'historic49_4_1_and_ROOT41_9_2_2_unchanged':True,'topic_proposals43_9_2_separate':True,'global_gate_PASS':False}
+h=json.loads((d/'final-companions.json').read_text());healthy=validate(h);controls=[]
+if a.controls:
+ tests=[('source_changed',lambda x:x.update(candidate='0'*40)),('tree_changed',lambda x:x.update(tree='0'*40)),('source_handoff_ref_changed',lambda x:x['source_handoff'].update(sha256='0'*64)),('copy_index_ref_changed',lambda x:x['copy_index'].update(sha256='0'*64)),('final_patch_ref_changed',lambda x:x['direct_tracked_final3932_patch'].update(sha256='0'*64)),('original_rows_ref_changed',lambda x:x['individual_original_row_decisions'].update(sha256='0'*64)),('gate_PASS_forged',lambda x:x.update(global_gate_PASS=True)),('formal_intake_forged',lambda x:x.update(G_formal_intake_or_ROOT_source_merge_claimed=True))]
+ for name,mutate in tests:
+  bad=deepcopy(h);mutate(bad)
+  try:validate(bad)
+  except (ValueError,FileNotFoundError,subprocess.CalledProcessError) as e:controls.append({'case':name,'outcome':'PASS refused','reason':str(e)})
+  else:raise ValueError('corruption_accepted:'+name)
+r={'healthy':healthy,'controls':controls,'handoff_sha256':hashlib.sha256((d/'final-companions.json').read_bytes()).hexdigest(),'scope':'Final sparse owner/generator custody only; no source edits, numeric rerun, public admission or global gate claim.'}
+with Path(a.output).open('x') as f:json.dump(r,f,indent=2);f.write('\n')
+print(json.dumps(r,indent=2))

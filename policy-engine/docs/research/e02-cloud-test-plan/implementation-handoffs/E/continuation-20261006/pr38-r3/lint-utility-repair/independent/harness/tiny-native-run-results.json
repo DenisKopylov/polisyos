@@ -1,0 +1,156 @@
+[
+  {
+    "name": "results-importer",
+    "argv": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/load_cli.py",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/sources/run_check.py",
+      "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "--repo",
+      "/workspace/e02-E-cal05-20261006",
+      "--candidate",
+      "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+      "--cwd",
+      "/workspace/e02-E-cal05-20261006/policy-engine",
+      "--output",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/results-importer",
+      "--name",
+      "results-importer",
+      "--",
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "-c",
+      "print(\"tiny importer positive\")"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/results-importer.capture.stdout.txt",
+      "bytes": 241,
+      "sha256": "9f7f6756a303cbb58315a7601fceb81f31a0d3c348352058cff786adbf9f0434"
+    },
+    "stderr": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/results-importer.capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "numeric-mixed",
+    "argv": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/load_cli.py",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/sources/run_check.py",
+      "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "--repo",
+      "/workspace/e02-E-cal05-20261006",
+      "--candidate",
+      "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+      "--cwd",
+      "/workspace/e02-E-cal05-20261006/policy-engine",
+      "--output",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/numeric-mixed",
+      "--name",
+      "numeric-mixed",
+      "--junit",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/numeric-mixed/pytest.xml",
+      "--",
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "--confcutdir",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3",
+      "--junitxml",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/numeric-mixed/pytest.xml",
+      "--basetemp",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/temporary/numeric-mixed",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny_cases.py"
+    ],
+    "exit_code": 1,
+    "stdout": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/numeric-mixed.capture.stdout.txt",
+      "bytes": 670,
+      "sha256": "bd111988619f8f1ff0997356e19d089a09eea12382a079756472dbd1c1e931a0"
+    },
+    "stderr": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/numeric-mixed.capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "numeric-skip",
+    "argv": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/load_cli.py",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/sources/run_check.py",
+      "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "--repo",
+      "/workspace/e02-E-cal05-20261006",
+      "--candidate",
+      "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+      "--cwd",
+      "/workspace/e02-E-cal05-20261006/policy-engine",
+      "--output",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/numeric-skip",
+      "--name",
+      "numeric-skip",
+      "--junit",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/numeric-skip/pytest.xml",
+      "--",
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-q",
+      "--confcutdir",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3",
+      "--junitxml",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/numeric-skip/pytest.xml",
+      "--basetemp",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/temporary/numeric-skip",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny_skip.py"
+    ],
+    "exit_code": 0,
+    "stdout": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/numeric-skip.capture.stdout.txt",
+      "bytes": 667,
+      "sha256": "d108d5df2aae4e7b20d521d195370e374eede4e68eaa4c3dc7272fe36380a665"
+    },
+    "stderr": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/numeric-skip.capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  {
+    "name": "missing-backend",
+    "argv": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/load_cli.py",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/sources/run_check.py",
+      "/workspace/e02-E-cal05-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "--repo",
+      "/workspace/e02-E-cal05-20261006",
+      "--candidate",
+      "f3ec0335e992fa7a5107000224f8ba6deefd02e5",
+      "--cwd",
+      "/workspace/e02-E-cal05-20261006/policy-engine",
+      "--output",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/tiny-native-wave/checks/missing-backend",
+      "--name",
+      "missing-backend",
+      "--",
+      "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/deliberately-missing-executable"
+    ],
+    "exit_code": 127,
+    "stdout": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/missing-backend.capture.stdout.txt",
+      "bytes": 220,
+      "sha256": "dd6cd9f332eecbe5d3e19a72cfede70cedffbb719658155d6131269c003835f7"
+    },
+    "stderr": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/harness-independent-r3/missing-backend.capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+]

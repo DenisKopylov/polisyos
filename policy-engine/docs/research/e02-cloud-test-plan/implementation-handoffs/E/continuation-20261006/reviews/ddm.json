@@ -1,0 +1,100 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "E",
+  "slice": "DDM",
+  "reviewer": "/root",
+  "author": "/root/ddm_r3",
+  "base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_sha": "052135e93a5c61dab854e17656feef3903042999",
+  "implementation_tree_sha": "2732a4183cbfd385ccce02f097d6feee08a6b12d",
+  "diff_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-06-e02-ddm-source-binding.toml",
+    "policy-engine/src/polisyos/ddm/README.md",
+    "policy-engine/src/polisyos/ddm/integration/model_registry.py",
+    "policy-engine/src/polisyos/ddm/integration/model_registry_gate.md",
+    "policy-engine/src/polisyos/ddm/integration/model_registry_record.schema.json",
+    "policy-engine/src/polisyos/ddm/integration/monitor.py",
+    "policy-engine/tests/unit/ddm/test_full_acceptance.py",
+    "policy-engine/tests/unit/remediation/test_ddm_02.py"
+  ],
+  "code_acceptance": "GO within standalone source-reconciled producer/rebind/gate scope",
+  "finding_closure": false,
+  "specification_verdict": "limited",
+  "engineering_verdict": "no blocking finding within declared scope",
+  "checks": [
+    {
+      "reviewer": "/root",
+      "implementation_sha": "927b8fdd8b2ecb804a9bba55c9b9535406f17e9d",
+      "head": "927b8fdd8b2ecb804a9bba55c9b9535406f17e9d",
+      "command": [
+        "/workspace/e02-E-ddm-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/unit/ddm",
+        "tests/unit/remediation/test_ddm_02.py"
+      ],
+      "cwd": "/workspace/e02-E-ddm-20261006/policy-engine",
+      "exit_code": 0,
+      "wall_seconds": 1.7523980969999684,
+      "output": ".....................................................................    [100%]\n=============================== warnings summary ===============================\n.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428\n  /workspace/e02-E-ddm-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir\n  \n    self._warn_or_fail_if_strict(f\"Unknown config option: {key}\\n\")\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n69 passed, 1 warning in 0.35s\n",
+      "output_sha256": "b0e8610c3fc3286aeb692559dd679910d09df663485e0e5c9a54070749736353",
+      "thread_controls": {
+        "OMP_NUM_THREADS": null,
+        "OPENBLAS_NUM_THREADS": null,
+        "MKL_NUM_THREADS": null,
+        "NUMEXPR_NUM_THREADS": null,
+        "XLA_FLAGS": null
+      }
+    },
+    {
+      "reviewer": "/root",
+      "implementation_sha": "052135e93a5c61dab854e17656feef3903042999",
+      "command": [
+        ".venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/unit/ddm",
+        "tests/unit/remediation/test_ddm_02.py"
+      ],
+      "cwd": "/workspace/e02-E-ddm-20261006/policy-engine",
+      "exit_code": 0,
+      "output": ".......................................................................  [100%]\n=============================== warnings summary ===============================\n.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428\n  /workspace/e02-E-ddm-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir\n  \n    self._warn_or_fail_if_strict(f\"Unknown config option: {key}\\n\")\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n71 passed, 1 warning in 1.27s\n"
+    }
+  ],
+  "property_paths": [
+    "DriftAndDegradationMonitor.evaluate_window -> source contracts -> build_model_registry_record -> JSON readback -> rebind_calibration_validity -> evaluate_registry_gate"
+  ],
+  "independent_basis": [
+    "Complete shared calibration/metric fields must match exact original sources; public digest alone cannot grant authority.",
+    "Readiness effective/expiry times remain distinct from calibration report validity.",
+    "Persisted promotion=False remains a veto after rebind; subsequent permission mutation cannot restore promotion.",
+    "Canonical policy/currentestimate/CI derive consumed budget; claimed budget cannot hide a computed value of 1."
+  ],
+  "review_finding_resolved": {
+    "class": "source/projection binding",
+    "escape": "rebound permission restored from original optimistic source",
+    "response": "P40 widened complete public projection digest except independently refreshed calibration validity; canonical metric_budget_used now reconciles all source values and rejects nonfinite/mismatched quantities before readiness and rebind.",
+    "second_escape": "Complete matching metric fields with budget_used=0 suppressed canonical consumed budget=1 and admitted R4"
+  },
+  "capability_state": "standalone consumer implemented; served consumer_missing",
+  "limitations_next_owner": [
+    "DDM runtime owner must integrate durable source-input readback with deployed registry consumer; source completeness and external signoff authority are not established.",
+    "G must apply finding-specific production-history requirements read-only on this exact implementation SHA.",
+    "Committed finding ledger remains unchanged; code acceptance does not ratify finding closure."
+  ],
+  "P41": "not_established; no inherited-red attribution claimed",
+  "implementation_commits": [
+    "927b8fdd8b2ecb804a9bba55c9b9535406f17e9d",
+    "052135e93a5c61dab854e17656feef3903042999"
+  ]
+}

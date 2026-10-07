@@ -1,0 +1,29 @@
+"""Independent thin literal publication aliases and 32-input replay custody."""
+from pathlib import Path
+import hashlib,json
+
+BASE=Path('/tmp/e02-E-declared-prereq-custody-64d-20261007');OUT=Path('/tmp/e02-E-install-custody-independent-doe-20261007')
+selection=BASE/'publication-selection-pending.json';raw=selection.read_bytes()
+def require(v,why):
+ if not v:raise ValueError(why)
+def sha(b):return hashlib.sha256(b).hexdigest()
+require((len(raw),sha(raw))==(29703,'8d7754348f56c8a564f10b197e99e79806c167d07a22222a5cbed3d979866ea2'),'closed exact pending selector')
+s=json.loads(raw);rows=s['files'];require(len(rows)==56 and s['logical_files']==56,'full56 logical denominator');by_dest={};by_storage={};observations=[]
+for r in rows:
+ b=Path(r['path']).read_bytes();require((len(b),sha(b))==(r['bytes'],r['sha256']),'literal selected source bytes')
+ for k in ('stored_at','logical_at'):
+  p=Path(r[k]);require(not p.is_absolute() and '..' not in p.parts and not p.name.endswith('.py') and str(p)==r[k],'portable passive path '+k)
+ require(r['logical_at'] not in by_dest,'unique logical destination');by_dest[r['logical_at']]=r
+ if r['stored_at'] in by_storage:require((r['bytes'],r['sha256'])==(by_storage[r['stored_at']]['bytes'],by_storage[r['stored_at']]['sha256']),'literal stored alias identity')
+ else:by_storage[r['stored_at']]=r
+ if 'original' in r:
+  o=r['original'];require((len(Path(o['path']).read_bytes()),sha(Path(o['path']).read_bytes()))==(o['bytes'],o['sha256'])==(r['bytes'],r['sha256']),'literal original input identity')
+ if r['logical_at'].endswith('.json'):require(r['bytes']>0,'empty observer stdout is text archive')
+ observations.append({'logical_at':r['logical_at'],'stored_at':r['stored_at'],'path':r['path'],'bytes':r['bytes'],'sha256':r['sha256'],'alias':r['logical_at']!=r['stored_at'],'role':r['role']})
+require(len(by_storage)==44==s['unique_files'] and sum(r['bytes'] for r in by_storage.values())==503972==s['total_unique_bytes'],'full44 canonical byte denominator')
+for dest,r in by_storage.items():require(dest in by_dest and (by_dest[dest]['bytes'],by_dest[dest]['sha256'])==(r['bytes'],r['sha256']),'each storage carrier has its declared primary logical destination')
+index=json.loads((BASE/'input-index.json').read_text())
+for r in index['files']:
+ require(r['stored_at'] in by_dest and (by_dest[r['stored_at']]['bytes'],by_dest[r['stored_at']]['sha256'])==(r['bytes'],r['sha256']),'all32 actual validator replay inputs retained throughaliases')
+report={'schema':'policyos.e02.independent_install_pending_publication_alias_custody.v1','verdict':'GO thin exact saved-source/alias custody','selection':{'path':str(selection),'bytes':len(raw),'sha256':sha(raw)},'logical_count':56,'unique_count':44,'unique_bytes':503972,'validator_input_alias_count':32,'rows':observations,'scope':'No utility/native/backend/source/environment rerun. Existing underlying independent reader GO reused; portable materialization aliases are sufficient for literal32-input replay. Initial schema inspection used assets by mistake, observerKeyError only; corrected actual input class is files, original selector bytes unchanged.'}
+p=OUT/'independent-pending-publication-alias-review.json';p.write_text(json.dumps(report,indent=2)+'\n');b=p.read_bytes();print(str(p),len(b),sha(b))

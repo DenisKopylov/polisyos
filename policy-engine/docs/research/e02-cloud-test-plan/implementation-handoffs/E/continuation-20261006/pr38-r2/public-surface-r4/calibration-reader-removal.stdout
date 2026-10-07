@@ -1,0 +1,6 @@
+{"fixture": "wrong-kind", "same_payload_artifact_id": "sha256:03ec7c17cef2e8db2e1930b7c59693f343830b1667cead300cfed9f5a458a5ac", "different_manifest_profile": true, "kind": "funnel.calibration_report", "schema": "polisyos.foundry.CalibrationReport", "manifest_version": "2.0", "callback_count": 101, "dispatch_count": 1, "refusal": null, "outcome": "ok", "removed_admission": true}
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r2-receipts/public-surface-packet-r4/calibration_reader_probe.py", line 67, in <module>
+    assert callback_count[0]==dispatch_count[0]==0 and error is not None, 'canonical export retained but stripped reader admission reached actual consumer callbacks'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: canonical export retained but stripped reader admission reached actual consumer callbacks

@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/check_wrapper_preparation.py", line 192, in <module>
+    check('actual_wrapper_CLI_native_IR_source_inclusion',
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+          'policy-engine/tests/unit/ir/test_posterior_summary.py' in cli_plan['source_test_assets'],
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+          actual_real_test_source_included=True)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/check_wrapper_preparation.py", line 74, in check
+    raise AssertionError(name)
+AssertionError: actual_wrapper_CLI_native_IR_source_inclusion

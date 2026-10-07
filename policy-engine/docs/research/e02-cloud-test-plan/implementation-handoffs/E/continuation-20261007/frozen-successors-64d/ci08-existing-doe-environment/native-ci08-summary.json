@@ -1,0 +1,186 @@
+{
+  "schema": "policyos.e02.native_ci08_equivalent_selector_observation.v1",
+  "candidate_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "candidate_tree_sha": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "outcome": "PASS",
+  "exit_code": 0,
+  "actual_counts": {
+    "cases": 8,
+    "passed": 8,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "actual_example_count": 7,
+  "fresh_native_component_discovery": 6,
+  "fresh_native_governance_pass_discovery": 1,
+  "receipt": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/checks/native-ci08-existing-doe-environment/native-ci08-existing-doe-environment.json",
+    "bytes": 8821,
+    "sha256": "9a5b4ad8d7a54b861f7e37ffaeb4bf90d1ed70cc4034cc3ee74b4bc8d249f409"
+  },
+  "complete_stdout_stderr_merged": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/checks/native-ci08-existing-doe-environment/native-ci08-existing-doe-environment.stdout.txt",
+    "bytes": 4960,
+    "sha256": "155012f0e77926fc2a9bc1b2a8ccbeda17fbcf43981f875c5693908ca40b629d"
+  },
+  "canonical_CommandSpec": {
+    "label": "check extension example installability",
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+      "run",
+      "python",
+      "tools/quality/validation/check_extension_examples.py"
+    ],
+    "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+    "env": {}
+  },
+  "effective_command": [
+    "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+    "tools/quality/validation/check_extension_examples.py"
+  ],
+  "effective_cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+  "environment_change": {
+    "doe": {
+      "before_count": 177,
+      "after_count": 184,
+      "added": [
+        "polisyos-data-forge-domain-example",
+        "polisyos-fabric-connector-example",
+        "polisyos-foundry-method-example",
+        "polisyos-lex-normpack-example",
+        "polisyos-runtime-middleware-example",
+        "polisyos-scientist-governance-pass-example",
+        "polisyos-scientist-node-example"
+      ],
+      "removed": [],
+      "modified": [],
+      "protected_metadata_byte_equal": true,
+      "protected_distributions": [
+        "jax",
+        "jaxlib",
+        "numpy",
+        "policy-engine",
+        "pydantic",
+        "pytest",
+        "SALib",
+        "scipy"
+      ],
+      "before": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/doe-environment-before.json",
+        "bytes": 93571,
+        "sha256": "3956445d4210b69a97bb033c5667fa2232efdea2d6bc9a64802bbce7983a6dc2"
+      },
+      "after": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/doe-environment-after.json",
+        "bytes": 96904,
+        "sha256": "7fed98071ca818829a00cab95b02ae7f6a3ea368e9c8a84552fd837edc715755"
+      }
+    },
+    "root": {
+      "before_count": 203,
+      "after_count": 203,
+      "added": [],
+      "removed": [],
+      "modified": [],
+      "protected_metadata_byte_equal": true,
+      "protected_distributions": [
+        "jax",
+        "jaxlib",
+        "numpy",
+        "policy-engine",
+        "pydantic",
+        "pytest",
+        "SALib",
+        "scipy"
+      ],
+      "before": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/root-environment-before.json",
+        "bytes": 109549,
+        "sha256": "0f09cc62cb1103c6c31d30b55a103509fac27380534344717c70102d49587f88"
+      },
+      "after": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/root-environment-after.json",
+        "bytes": 109549,
+        "sha256": "ad0624a06d3a01e9139bc0f322a68410d5fc7b343f7171e219df6657cf3aa1c1"
+      }
+    }
+  },
+  "actual_environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "cpu_count": 5,
+    "packages": {
+      "numpy": "2.3.5",
+      "scipy": "1.16.3",
+      "jax": "0.8.2",
+      "SALib": "1.5.2",
+      "pydantic": "2.12.5",
+      "pytest": "9.0.2",
+      "ruff": "0.14.10",
+      "pytest-xdist": "3.8.0"
+    },
+    "selected_variables": {
+      "UV_NO_SYNC": "1",
+      "UV_PROJECT_ENVIRONMENT": "/workspace/e02-E-doe-20261006/policy-engine/.venv",
+      "PYTHONPATH": "/workspace/e02-E-continuation-20261006/policy-engine:/workspace/e02-E-continuation-20261006/policy-engine/src",
+      "TMPDIR": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/environment-tmp",
+      "RUFF_CACHE_DIR": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/ruff-cache",
+      "PATH": "/workspace/.polisyos-environment/uv/bin:/run/codex-environment/codex-home/tmp/arg0/codex-arg01gKa79:/opt/codex/codex-path:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+      "COREPACK_HOME": null,
+      "PLAYWRIGHT_BROWSERS_PATH": null,
+      "UV_CACHE_DIR": null,
+      "PNPM_HOME": null,
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "NUMEXPR_NUM_THREADS": null,
+      "VECLIB_MAXIMUM_THREADS": null,
+      "BLIS_NUM_THREADS": null,
+      "XLA_FLAGS": null,
+      "JAX_PLATFORMS": null,
+      "JAX_ENABLE_X64": null,
+      "POLISYOS_METRICS_PORT": null,
+      "POLISYOS_PYTEST_WORKERS": null,
+      "POLISYOS_PYTEST_DIST": null,
+      "PYTEST_ADDOPTS": "--basetemp=/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/pytest-base -o cache_dir=/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/pytest-cache --benchmark-storage=file:///workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/benchmarks --junitxml=/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/checks/native-ci08-existing-doe-environment/pytest.xml"
+    }
+  },
+  "source_identity_before": {
+    "tracked_paths": 17016,
+    "bytes": 524100024,
+    "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+  },
+  "source_identity_after": {
+    "tracked_paths": 17016,
+    "bytes": 524100024,
+    "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5"
+  },
+  "source_immutable": true,
+  "full_native_runtime": "Existing unchanged full checker installed all7 examples via native --no-deps editable installer, ran fresh-interpreter native component/governance discovery with actual API probes, then executed all7 example test directories (8 smoke cases).",
+  "installed_entrypoint_custody": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/installed-entrypoint-bindings.json",
+    "bytes": 25299,
+    "sha256": "bb221e7456a1c06668a01e90ac769b2f353e0f9e80fbfa4bdb0f2c2b86eeb129"
+  },
+  "independent_xml_count_reader": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/doe-r4/ci08-extension-doe-env-64d-20261007/actual-smoke-xml-recompute.json",
+    "bytes": 2671,
+    "sha256": "8547e43004c2b604ae715e177a26fb2b766a79ea3cdc7b5f27de2b7ee114962b"
+  },
+  "original_root_env_invocation": "Deferred/UNRUN observation remains unchanged; equivalent full-selector PASS has explicit distinct existing DoE interpreter/installed environment identity.",
+  "no_manual_workaround": "No manual entry points, package source changes, schema/generated edits, lock sync, skipped phase or selector reduction; numerical environment protected and root installed distribution metadata unchanged.",
+  "historical_observer_errors": [
+    "Initial host-wide process observer refused on unreadable privileged dockerd/containerd environment; v2 explicitly covers all live agent-UID processes and retains exact infrastructure exclusions.",
+    "First dispatch inlet requested nonexistent policy-engine/conftest.py and refused Git128 before any checker/install callback; literal source/stdout/stderr archived. Corrected inlet includes51 actual existing Git-bound sources."
+  ],
+  "limitations": [
+    "Command parity is on the declared different existing environment; the original root-env command was not invoked.",
+    "Protected metadata equality includes RECORD/METADATA/WHEEL, not independent rehash of every numerical binary.",
+    "This generic extension fixture does not establish production history, original E finding closure, hosted CI or broad workflow PASS."
+  ],
+  "finding_closure": false,
+  "parallel_limits": "No artificial worker/thread/process/CPU caps. Canonical7editable install loop serialized because it shares DoE site-packages; exclusive existing-env lease only.",
+  "cleanup": "No environment or current deciding output removed; seven installed examples are retained in existing DoEenv until root releases active-user protection."
+}

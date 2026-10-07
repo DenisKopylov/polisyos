@@ -1,0 +1,36 @@
+{
+  "schema": "policyos.e02.current_trace_first_wave_native_context.v1",
+  "tracked_snapshot": "a9f78817c873be5b35a08155f2593b229d9fdbb6",
+  "original_stage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/bkt-frc-s10-and-adjacent-report-consumers/bkt-frc-s10-and-adjacent-report-consumers.json",
+  "original_stage_sha256": "3ab10e942a5284d8ec47d228691bd69f51644f03cb97f3fd62747eeda77a435c",
+  "original_JUnit_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/failed-wave-5e/checks/bkt-frc-s10-and-adjacent-report-consumers/pytest.xml",
+  "original_JUnit_sha256": "4ad2bf5259307f5047fec2725336a7126835edb7338b4c1937a1cc1ea59168e5",
+  "original_JUnit_bytes": 373561,
+  "selected_cases": [
+    {
+      "attributes": {
+        "classname": "tests.unit.scientist.methods.backtesting.test_native_replay",
+        "name": "test_default_native_forecast_replays_consume_masked_rows_and_actual_seeds[1]",
+        "time": "0.001"
+      },
+      "outcome": "ERROR",
+      "error_attributes": {
+        "message": "failed on setup with \"FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/bkt-frc-s10-and-adjacent-report-consumers'\""
+      },
+      "error_text": "fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>\nrequest = <SubRequest 'tmp_path' for <Function test_default_native_forecast_replays_consume_masked_rows_and_actual_seeds[1]>>\n\n    @pytest.hookimpl(wrapper=True)\n    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:\n        asyncio_mode = _get_asyncio_mode(request.config)\n        if not _is_asyncio_fixture_function(fixturedef.func):\n            if asyncio_mode == Mode.STRICT:\n                # Ignore async fixtures without explicit asyncio mark in strict mode\n                # This applies to pytest_trio fixtures, for example\n                return (yield)\n            if not _is_coroutine_or_asyncgen(fixturedef.func):\n>               return (yield)\n                        ^^^^^\n\n.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/bkt-frc-s10-and-adjacent-report-consumers')\nmode = 448, parents = False, exist_ok = False\n\n    def mkdir(self, mode=0o777, parents=False, exist_ok=False):\n        \"\"\"\n        Create a new directory at this given path.\n        \"\"\"\n        try:\n>           os.mkdir(self, mode)\nE           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/bkt-frc-s10-and-adjacent-report-consumers'\n\n/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError"
+    },
+    {
+      "attributes": {
+        "classname": "tests.unit.scientist.methods.backtesting.test_native_replay",
+        "name": "test_default_native_forecast_replays_consume_masked_rows_and_actual_seeds[7]",
+        "time": "0.001"
+      },
+      "outcome": "ERROR",
+      "error_attributes": {
+        "message": "failed on setup with \"FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/bkt-frc-s10-and-adjacent-report-consumers'\""
+      },
+      "error_text": "fixturedef = <FixtureDef argname='tmp_path' scope='function' baseid=''>\nrequest = <SubRequest 'tmp_path' for <Function test_default_native_forecast_replays_consume_masked_rows_and_actual_seeds[7]>>\n\n    @pytest.hookimpl(wrapper=True)\n    def pytest_fixture_setup(fixturedef: FixtureDef, request) -> object | None:\n        asyncio_mode = _get_asyncio_mode(request.config)\n        if not _is_asyncio_fixture_function(fixturedef.func):\n            if asyncio_mode == Mode.STRICT:\n                # Ignore async fixtures without explicit asyncio mark in strict mode\n                # This applies to pytest_trio fixtures, for example\n                return (yield)\n            if not _is_coroutine_or_asyncgen(fixturedef.func):\n>               return (yield)\n                        ^^^^^\n\n.venv/lib/python3.14/site-packages/pytest_asyncio/plugin.py:730: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nself = PosixPath('/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/bkt-frc-s10-and-adjacent-report-consumers')\nmode = 448, parents = False, exist_ok = False\n\n    def mkdir(self, mode=0o777, parents=False, exist_ok=False):\n        \"\"\"\n        Create a new directory at this given path.\n        \"\"\"\n        try:\n>           os.mkdir(self, mode)\nE           FileNotFoundError: [Errno 2] No such file or directory: '/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/temporary/bkt-frc-s10-and-adjacent-report-consumers'\n\n/home/agent/.local/share/uv/python/cpython-3.14.7-linux-x86_64-gnu/lib/python3.14/pathlib/__init__.py:1011: FileNotFoundError"
+    }
+  ],
+  "claim": "First5e common-wave native K1/K7 setup/harness ERROR is preserved, not a backend PASS or finding verdict. Trace uses original separate executed generic K7 evidence and independent fixed-reader K3 review. Exact current code joins do not transform an ERROR stage into new numerical evidence. Final common wave/retry is root-owned and not yet measured by this trace."
+}

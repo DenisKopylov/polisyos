@@ -1,0 +1,247 @@
+"""Canonical generator projections and applicable patches in scratch, no shared writes."""
+
+from __future__ import annotations
+
+import argparse
+import difflib
+import hashlib
+import importlib.util
+import json
+import re
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from types import ModuleType
+
+
+def require(value: object, message: str) -> None:
+    if not value:
+        raise ValueError(message)
+
+
+def load_module(name: str, path: Path) -> ModuleType:
+    spec = importlib.util.spec_from_file_location(name, path)
+    require(spec is not None and spec.loader is not None, "generator source unavailable")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--repo", type=Path, required=True)
+    ap.add_argument("--candidate", required=True)
+    ap.add_argument("--base", required=True)
+    ap.add_argument("--output", type=Path, required=True)
+    args = ap.parse_args()
+    require(
+        bool(re.fullmatch(r"[0-9a-f]{40}", args.candidate))
+        and bool(re.fullmatch(r"[0-9a-f]{40}", args.base)),
+        "exact commit revisions required",
+    )
+    git_executable = shutil.which("git")
+    require(git_executable is not None, "Git executable unavailable")
+    args.output.mkdir(parents=True, exist_ok=False)
+    root = args.repo / "policy-engine"
+
+    def git(*argv: str) -> bytes:
+        return subprocess.run(  # noqa: S603 -- resolved executable, admitted exact revisions, fixed Git read grammar
+            [git_executable, *argv], cwd=args.repo, check=True, capture_output=True, shell=False
+        ).stdout
+
+    require(
+        git("status", "--porcelain").strip() == b"",
+        "generator packet requires clean immutable author lane",
+    )
+    source_refs = []
+    for rel in [
+        "tools/quality/diagnostics/gen_schema.py",
+        "tools/quality/diagnostics/generate_ir_reference_catalog.py",
+        "tools/devx/architecture/guardrails.py",
+        "architecture/public_surface/contract.toml",
+        "src/polisyos/schemas/abi_models.py",
+        "src/polisyos/ir/api.py",
+        "src/polisyos/ir/__init__.py",
+        "src/polisyos/ir/analytics/posterior_summary.py",
+    ]:
+        blob = git("show", args.candidate + ":policy-engine/" + rel)
+        require(blob == (root / rel).read_bytes(), "canonical source drift:" + rel)
+        source_refs.append(
+            {
+                "path": "policy-engine/" + rel,
+                "sha256": hashlib.sha256(blob).hexdigest(),
+                "bytes": len(blob),
+            }
+        )
+    gen = load_module(
+        "immutable_profile_full_ABI_generator", root / "tools/quality/diagnostics/gen_schema.py"
+    )
+    guard = load_module(
+        "immutable_profile_full_public_generator", root / "tools/devx/architecture/guardrails.py"
+    )
+    docs = load_module(
+        "immutable_profile_full_reference_generator",
+        root / "tools/quality/diagnostics/generate_ir_reference_catalog.py",
+    )
+    entries = gen.select_abi_entries(None)
+    resolved = gen._resolve_entries(entries)
+    bykey = {r.entry.abi_key: r for r in resolved}
+    groups = {}
+    for entry in entries:
+        if entry.abi_key in bykey:
+            groups.setdefault(entry.module, []).append(entry)
+    projection = args.output / "projected"
+    snapshots = projection / "schemas/snapshots"
+    manifest_observations = []
+    total = 0
+    for module, group in sorted(groups.items()):
+        errors = []
+        _updated, models = gen._process_module(
+            module=module,
+            entries=tuple(group),
+            output_dir=snapshots,
+            fmt="pretty",
+            check=False,
+            errors=errors,
+            cache_root=None,
+            resolved_entries=bykey,
+            pydantic_version=gen._import_version("pydantic"),
+        )
+        require(not errors, "canonical module projection errors:" + repr(errors))
+        total += len(models)
+        oldpath = root / "schemas/snapshots" / module / "_manifest.json"
+        old = json.loads(oldpath.read_text()) if oldpath.exists() else {"models": {}}
+        new = json.loads((snapshots / module / "_manifest.json").read_text())
+        before = set(old["models"])
+        after = set(new["models"])
+        require(not before - after, "projection dropped full manifest keys:" + module)
+        manifest_observations.append(
+            {
+                "module": module,
+                "old_count": len(before),
+                "projected_count": len(after),
+                "old_keys_retained": True,
+                "added_keys": sorted(after - before),
+                "changed_old_entries": [
+                    key
+                    for key in sorted(before & after)
+                    if old["models"][key] != new["models"][key]
+                ],
+                "canonical_content_hash_verified": new["content_hash"]
+                == gen._schema_hash(new["models"]),
+                "compatibility": new["compatibility"],
+            }
+        )
+    catalog = docs.get_ir_schema_catalog()
+    reference_targets = {
+        "docs/reference/ir/schema-catalog.md": docs.render_ir_schema_catalog(catalog),
+        "docs/reference/schemas.md": docs.render_schema_reference(catalog),
+    }
+    policy = guard._parse_public_surface(root / "architecture/public_surface/contract.toml")
+    families = guard._parse_public_generated_artifact_families(
+        root / "architecture/public_surface/contract.toml"
+    )
+    inventory = guard.build_public_surface_inventory(policy)
+    reference_targets["architecture/public_surface/inventory.json"] = (
+        guard.render_public_surface_json(inventory, generated_artifact_families=families)
+    )
+    reference_targets["docs/reference/public-surface.md"] = guard.render_public_surface_markdown(
+        inventory
+    )
+    for relative, contents in reference_targets.items():
+        target = projection / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(contents)
+    changes = []
+    full_patch = ""
+    for target in sorted(projection.rglob("*")):
+        if not target.is_file():
+            continue
+        rel = target.relative_to(projection).as_posix()
+        before = (root / rel).read_bytes() if (root / rel).exists() else b""
+        after = target.read_bytes()
+        if before == after:
+            continue
+        if (
+            target.name == "_manifest.json"
+            and before
+            and gen._manifest_content(json.loads(before))
+            == gen._manifest_content(json.loads(after))
+        ):
+            continue
+        # All bytes remain generator results. Shared owners decide global companions.
+        patch = "".join(
+            difflib.unified_diff(
+                before.decode().splitlines(keepends=True),
+                after.decode().splitlines(keepends=True),
+                fromfile="a/policy-engine/" + rel if before else "/dev/null",
+                tofile="b/policy-engine/" + rel,
+            )
+        )
+        full_patch += patch
+        changes.append(
+            {
+                "path": "policy-engine/" + rel,
+                "old_bytes": len(before),
+                "old_sha256": hashlib.sha256(before).hexdigest() if before else None,
+                "projected_bytes": len(after),
+                "projected_sha256": hashlib.sha256(after).hexdigest(),
+                "owner": "team-ir/G canonical generator"
+                if rel.startswith("schemas")
+                or rel in {"docs/reference/ir/schema-catalog.md", "docs/reference/schemas.md"}
+                else "team-architecture/G public surface generator",
+                "same_as_source_candidate": False,
+            }
+        )
+    (args.output / "canonical-generated-full.patch").write_text(full_patch)
+    for source in source_refs:
+        require(
+            hashlib.sha256((args.repo / source["path"]).read_bytes()).hexdigest()
+            == source["sha256"],
+            "source changed during generation:" + source["path"],
+        )
+    result = {
+        "candidate": args.candidate,
+        "tree": git("rev-parse", args.candidate + "^{tree}").decode().strip(),
+        "base": args.base,
+        "source_inputs": source_refs,
+        "module_manifests": manifest_observations,
+        "complete_ABI_registry_selected": len(entries),
+        "complete_ABI_resolved": len(resolved),
+        "complete_models_generated": total,
+        "full_public_manifest_packages": len(policy),
+        "full_public_generated_families": len(families),
+        "changed_generated_companions": changes,
+        "patch": {
+            "path": str(args.output / "canonical-generated-full.patch"),
+            "bytes": len(full_patch.encode()),
+            "sha256": hashlib.sha256(full_patch.encode()).hexdigest(),
+        },
+        "check_outcome": "GENERATED_PACKET_ONLY",
+        "capability_state": "surface_missing",
+        "remaining_owner": (
+            "G/canonical generator and public inventory writers apply/rev"
+            "iew exact full-source projection; no E shared-writer edits a"
+            "uthorized"
+        ),
+        "repository_writes": False,
+        "new_environment": False,
+        "broad_wave": False,
+        "warning": (
+            "Generated patch contains the complete actual denominator; di"
+            "fferences outside the E profile are separately attributed by"
+            " canonical owners, not excused inherited by path overlap. No"
+            " selected-only manifest or manual generated edits."
+        ),
+    }
+    (args.output / "generator-packet.json").write_text(json.dumps(result, indent=2) + "\n")
+    sys.stdout.write(json.dumps(result, indent=2) + "\n")
+
+
+if __name__ == "__main__":
+    main()

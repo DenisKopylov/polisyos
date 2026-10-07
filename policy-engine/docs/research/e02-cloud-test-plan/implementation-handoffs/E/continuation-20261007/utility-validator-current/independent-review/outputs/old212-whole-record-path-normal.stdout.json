@@ -1,0 +1,79 @@
+{
+  "schema": "policyos.e02.exact_Git212_malformed_late_source_path_probe.v1",
+  "mode": "normal",
+  "source_sha256": "21224439f7bc4d91e0fe0b5e447ea166e61bebf4d3f5ecbd29c1ca0dff5c5c0d",
+  "input_root": "/tmp/e02-E-validator-format-independent-r4/immutable-old212-publication",
+  "immutable_219_Git_input_identity": "old212-git-replay-normal.stdout.json",
+  "controls": [
+    {
+      "value": null,
+      "exception": "ValueError",
+      "reason": "source footprint denominator mismatch",
+      "actual_callback_count": 2,
+      "callbacks": [
+        [
+          "/usr/local/bin/git",
+          "rev-parse",
+          "700f9d5a5e2167787d7042ca11e1ef3bf80ced74^{tree}"
+        ],
+        [
+          "/usr/local/bin/git",
+          "diff",
+          "--name-only",
+          "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+          "700f9d5a5e2167787d7042ca11e1ef3bf80ced74"
+        ]
+      ],
+      "malformed_whole_record_preflight_zero_callback_property": "FAIL",
+      "corruption_eventually_refused": true
+    },
+    {
+      "value": ".",
+      "exception": "ValueError",
+      "reason": "source footprint denominator mismatch",
+      "actual_callback_count": 2,
+      "callbacks": [
+        [
+          "/usr/local/bin/git",
+          "rev-parse",
+          "700f9d5a5e2167787d7042ca11e1ef3bf80ced74^{tree}"
+        ],
+        [
+          "/usr/local/bin/git",
+          "diff",
+          "--name-only",
+          "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+          "700f9d5a5e2167787d7042ca11e1ef3bf80ced74"
+        ]
+      ],
+      "malformed_whole_record_preflight_zero_callback_property": "FAIL",
+      "corruption_eventually_refused": true
+    },
+    {
+      "value": false,
+      "exception": "ValueError",
+      "reason": "source footprint denominator mismatch",
+      "actual_callback_count": 2,
+      "callbacks": [
+        [
+          "/usr/local/bin/git",
+          "rev-parse",
+          "700f9d5a5e2167787d7042ca11e1ef3bf80ced74^{tree}"
+        ],
+        [
+          "/usr/local/bin/git",
+          "diff",
+          "--name-only",
+          "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+          "700f9d5a5e2167787d7042ca11e1ef3bf80ced74"
+        ]
+      ],
+      "malformed_whole_record_preflight_zero_callback_property": "FAIL",
+      "corruption_eventually_refused": true
+    }
+  ],
+  "probe_uses_real_validate_copy_index_and_output_reads": true,
+  "actual_Git_children_called": false,
+  "scope": "Typed malformed record path preflight; eventual refusal is preserved, no source authority or code/gate/finding closure claim. Safe admitted SHA read-only rev-parse/diff spies measure ordering only.",
+  "ROOT_or_FRC_source_environment_written": false
+}

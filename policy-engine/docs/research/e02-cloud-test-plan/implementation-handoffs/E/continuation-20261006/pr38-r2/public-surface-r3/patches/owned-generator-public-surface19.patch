@@ -1,0 +1,32 @@
+--- a/policy-engine/docs/reference/public-surface.md
++++ b/policy-engine/docs/reference/public-surface.md
+@@ -2309,7 +2309,7 @@
+ | `polisyos.foundry.api` | `src/polisyos/foundry/api.py` | `eager_exports` | 3 |
+ | `polisyos.foundry.compile` | `src/polisyos/foundry/compile/__init__.py` | `lazy_facade` | 1 |
+ | `polisyos.foundry.execute` | `src/polisyos/foundry/execute/__init__.py` | `lazy_facade` | 3 |
+-| `polisyos.foundry.uncertainty` | `src/polisyos/foundry/uncertainty/__init__.py` | `eager_exports` | 16 |
++| `polisyos.foundry.uncertainty` | `src/polisyos/foundry/uncertainty/__init__.py` | `eager_exports` | 19 |
+ 
+ #### `polisyos.foundry`
+ 
+@@ -2403,7 +2403,7 @@
+ - Facade: `eager_exports`
+ - Summary: Expose uncertainty propagation helpers used around Foundry simulation outputs.
+ 
+-<details><summary>Entrypoint exports (16)</summary>
++<details><summary>Entrypoint exports (19)</summary>
+ 
+ ```text
+ AdaptiveStoppingConfig
+@@ -2415,8 +2415,11 @@
+ PropagationResult
+ PropagationStrategy
+ QuasiMCSampler
++admit_empirical_weights
++admit_unit_uniform
+ aggregate_envelopes
+ compute_first_order_indices
++empirical_cdf
+ extract_std
+ fabric_uncertainty_context_from_decision_data
+ reconcile_draw_outcomes

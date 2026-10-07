@@ -1,0 +1,61 @@
+from pathlib import Path
+import copy
+import hashlib
+import json
+import platform
+import subprocess
+import sys
+
+out=Path(__file__).parent
+root=Path('/workspace/e02-E-continuation-20261006')
+author=Path('/workspace/e02-E-pr38-r2-receipts/publication-freeze-a9f78817c-adapter-v3')
+identity=lambda p:{'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()}
+assert not (out/'copy-index.json').exists()
+review=json.loads((out/'review.json').read_text())
+assert len(review['independent_refusals'])==18
+assert len(review['public_path_controls'])==7
+assert len(review['effective_property_removals'])==4
+assert len(review['complete_review_bindings'])==8
+assert review['verdict']=='GO-bounded-publication-role-carrier-adapter'
+assert (out/'ruff.stdout').read_text()=='All checks passed!\n'
+assert (out/'format.stdout').read_text()=='2 files already formatted\n'
+record={
+ 'status':'READY-immutable-independent-publication-role-adapter',
+ 'primary':'review.json','python':sys.version,'executable':sys.executable,'platform':platform.platform(),
+ 'root':str(root),'source':review['source'],'carrier':review['carrier'],'author_index':review['author_index'],
+ 'commands':[
+  {'argv':['python','review_adapter.py.txt'],'exit_code':0,'stdout':'review.stdout','stderr':'review.stderr'},
+  {'argv':['ruff','check','--no-cache','--config',str(root/'policy-engine/ruff.toml'),str(author/'adapt_publication_freeze.py'),str(author/'adapter_controls.py')],'exit_code':0,'stdout':'ruff.stdout','stderr':'ruff.stderr'},
+  {'argv':['ruff','format','--check','--no-cache','--config',str(root/'policy-engine/ruff.toml'),str(author/'adapt_publication_freeze.py'),str(author/'adapter_controls.py')],'exit_code':0,'stdout':'format.stdout','stderr':'format.stderr'}],
+ 'required_environment':{'UV_NO_SYNC':'1','PYTHONDONTWRITEBYTECODE':'1'},
+ 'complete_role_denominator':review['review_denominator'],
+ 'collector_extra_external_field_validated':False,
+ 'independent_adapter_additional_binding_required':True,
+ 'initial_carrier_error_preserved':True,'new_source_freeze':False,
+ 'scope':'Scratch pure metadata predicate checks/configured two-file lint only; no collector/native/numeric/gate/wheel or environment/repository mutation.',
+ 'cleanup_candidates':['synthetic-public-roles/; own repeatable synthetic metadata fixtures, not original/carrier/eight reviews/source/docs/deciding evidence; native Trash unavailable; no deletion performed'],
+ 'next_owner':review['next_owner']
+}
+(out/'READY.json').write_text(json.dumps(record,indent=2)+'\n')
+rows=[{'path':p.name,**identity(p)} for p in sorted(out.iterdir()) if p.is_file() and p.name!='copy-index.json']
+index={'schema':'policyos.e02.moderate-copy-index.v1','files':rows,'file_count':len(rows),'total_bytes':sum(r['bytes'] for r in rows)}
+def validate(index):
+ if index['file_count']!=len(index['files']) or index['total_bytes']!=sum(r['bytes'] for r in index['files']):raise ValueError('denominator mismatch')
+ if len({r['path'] for r in index['files']})!=len(index['files']):raise ValueError('duplicate role')
+ for row in index['files']:
+  if Path(row['path']).name!=row['path']:raise ValueError('noncanonical role')
+  if identity(out/row['path'])!={'bytes':row['bytes'],'sha256':row['sha256']}:raise ValueError('byte/hash mismatch')
+validate(index)
+negative=[]
+for name,mutate in [('byte-count',lambda x:x['files'][0].update(bytes=x['files'][0]['bytes']+1)),('content-hash',lambda x:x['files'][0].update(sha256='0'*64)),('denominator',lambda x:x.update(file_count=x['file_count']+1))]:
+ altered=copy.deepcopy(index);mutate(altered)
+ try:validate(altered)
+ except ValueError as error:negative.append({'control':name,'outcome':'REFUSED','reason':str(error)})
+ else:raise AssertionError('forged index admitted')
+(out/'index-corrupt-field-controls.json').write_text(json.dumps(negative,indent=2)+'\n')
+rows=[{'path':p.name,**identity(p)} for p in sorted(out.iterdir()) if p.is_file() and p.name!='copy-index.json']
+index={'schema':'policyos.e02.moderate-copy-index.v1','files':rows,'file_count':len(rows),'total_bytes':sum(r['bytes'] for r in rows)}
+validate(index)
+(out/'copy-index.json').write_text(json.dumps(index,indent=2)+'\n')
+assert subprocess.check_output(['git','-C',str(root),'rev-parse','HEAD','HEAD^{tree}'],text=True).splitlines()==review['root_before_after']
+print(json.dumps({'index':str(out/'copy-index.json'),**identity(out/'copy-index.json'),'files':index['file_count'],'asset_bytes':index['total_bytes'],'status':record['status']}))

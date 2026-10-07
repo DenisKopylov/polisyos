@@ -1,0 +1,20 @@
+from pathlib import Path
+import hashlib,json,subprocess,sys,xml.etree.ElementTree as ET
+root=Path(subprocess.check_output(['git','rev-parse','--show-toplevel'],text=True).strip());pe=root/'policy-engine'
+p=Path(sys.argv[1]);r=json.loads(p.read_text())
+assert subprocess.check_output(['git','rev-parse',r['candidate_sha']+'^{tree}'],cwd=root,text=True).strip()==r['candidate_tree_sha']
+assert subprocess.check_output(['git','rev-parse',r['slice_base_sha']+'^{tree}'],cwd=root,text=True).strip()==r['slice_base_tree_sha']
+subprocess.run(['git','merge-base','--is-ancestor',r['slice_base_sha'],r['candidate_sha']],cwd=root,check=True)
+actual=set(subprocess.check_output(['git','diff','--name-only',r['slice_base_sha'],r['candidate_sha']],cwd=root,text=True).splitlines());assert actual==set(r['implementation_paths'])
+for file,h in r['path_sha256'].items():
+ data=subprocess.check_output(['git','show',r['candidate_sha']+':'+file],cwd=root);assert hashlib.sha256(data).hexdigest()==h
+for row in r['copy_index']:
+ data=(pe/row['path']).read_bytes();assert len(data)==row['bytes'];assert hashlib.sha256(data).hexdigest()==row['sha256']
+packet=pe/'docs/research/e02-cloud-test-plan/implementation-handoffs/E/calibration-legacy-consumer-r2'
+def counts(name):
+ t=ET.parse(packet/name).getroot();s=t.find('testsuite')
+ return {k:int(s.attrib[k]) for k in ['tests','failures','errors','skipped']}
+assert counts('affected-native.junit.xml')=={'tests':7,'failures':0,'errors':0,'skipped':0}
+assert counts('property-removal.junit.xml')=={'tests':3,'failures':3,'errors':0,'skipped':0}
+assert r['ledger_status']=={'B197':'held','B198':'closed'} and r['closure_changed'] is False
+print(json.dumps({'receipt':'PASS','source':r['candidate_sha'],'copied_files':len(r['copy_index']),'native':counts('affected-native.junit.xml'),'removal':counts('property-removal.junit.xml')}))

@@ -1,0 +1,38 @@
+{
+  "schema": "policyos.e02.closed_additions_pure_custody_controls.v1",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "manifest_sha256": "8eb551e9b96d403f571686adce443e2184de48e9c4703d44ed87894fe134a254",
+  "copier_sha256": "099f71e9df6e01a4e54d2e54f24a5a3c1f831789a5a5fe08a8288d5bd900cdfd",
+  "healthy": "PASS",
+  "controls": [
+    {
+      "case": "payload_hash",
+      "outcome": "REFUSED"
+    },
+    {
+      "case": "payload_bytes",
+      "outcome": "REFUSED"
+    },
+    {
+      "case": "logical_count",
+      "outcome": "REFUSED"
+    },
+    {
+      "case": "six_selector_hash",
+      "outcome": "REFUSED"
+    },
+    {
+      "case": "frontend_alias_omission",
+      "outcome": "REFUSED"
+    },
+    {
+      "case": "catalog_member_omission",
+      "outcome": "REFUSED"
+    },
+    {
+      "case": "independent_member_omission",
+      "outcome": "REFUSED"
+    }
+  ],
+  "scope": "pure data-only guard controls; no ROOT/source/env/locks/gate/numeric execution"
+}

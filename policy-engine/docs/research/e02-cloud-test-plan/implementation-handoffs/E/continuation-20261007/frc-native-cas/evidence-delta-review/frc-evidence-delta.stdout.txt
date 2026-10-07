@@ -1,0 +1,74 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "disposition": "GO for bounded post-source receipt utility and complete output publication",
+  "reviewer": "oracle_r4 (not author)",
+  "product_candidate": "1eba9f9e47a82cca1db341314a748b4980e015fc",
+  "product_tree": "0b79095f9293a04ca263356b24d22478b46e6688",
+  "bound_fixed_evidence_inputs": {
+    "validate.py": {
+      "sha256": "341eac979b4f662bcda92ab409cbaa3402ce89f9dae468c3517fedc7afa2ce81",
+      "bytes": 5286
+    },
+    "implementation-handoff.json": {
+      "sha256": "20fba51cc630a938871576cdd4dc9f9766a7f41269b015aa14c002d0b26e215b",
+      "bytes": 22657
+    },
+    "independent-output-copy-index.json": {
+      "sha256": "e3c2d38a47965954a67cc17ed3309a1fcf2c8ca361cdcb211299b9008b64991e",
+      "bytes": 7402
+    },
+    "deciding-output-index.json": {
+      "sha256": "1d75d6e0e1a70413bef38a34325e340e3e332eecdeaa4b3ed1cec74cdd06a2c7",
+      "bytes": 6669
+    },
+    "README.md": {
+      "sha256": "a405099a42b989c9900edacdc9e221727b0d028818d76e0ff482c3886b672c50",
+      "bytes": 3003
+    }
+  },
+  "author_output_records": 24,
+  "independent_output_records": 16,
+  "verbatim_copy_reconciliation": true,
+  "negative_controls": [
+    {
+      "case": "digest",
+      "outcome": "PASS",
+      "negative_gate_outcome": "FAIL",
+      "error": "deciding-output digest mismatch"
+    },
+    {
+      "case": "size",
+      "outcome": "PASS",
+      "negative_gate_outcome": "FAIL",
+      "error": "deciding-output size mismatch"
+    },
+    {
+      "case": "missing-output",
+      "outcome": "PASS",
+      "negative_gate_outcome": "FAIL",
+      "error": "deciding-output denominator mismatch"
+    },
+    {
+      "case": "forged-count",
+      "outcome": "PASS",
+      "negative_gate_outcome": "FAIL",
+      "error": "JUnit case/state mismatch"
+    },
+    {
+      "case": "wrong-tree",
+      "outcome": "PASS",
+      "negative_gate_outcome": "FAIL",
+      "error": "candidate tree mismatch"
+    },
+    {
+      "case": "independent-copy-digest",
+      "outcome": "PASS",
+      "negative_gate_outcome": "FAIL",
+      "error": "independent-output digest mismatch"
+    }
+  ],
+  "source_unchanged": true,
+  "scope": "Recomputes declared 24 author output denominator/hash/size, JUnit cases/states and product tree; validates all16 published independent refs and verbatim originals. Does not confer source/profile authority or substitute for default/HTTP execution.",
+  "finding_status": "partial retained; ledger acceptance separate",
+  "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]"
+}

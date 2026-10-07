@@ -1,0 +1,1135 @@
+{
+  "schema": "policyos.e02.owner_catalog_fixture_packet.v1",
+  "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree_sha": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "created_at_utc": "2026-10-07T11:21:40.468626+00:00",
+  "factual_writer": "E/lint_r4 read-only observer and unapplied fixture-only owner patch",
+  "canonical_writers": {
+    "helper_and_native_runtime_composition": "A / @runtime-owners",
+    "DataForge_catalog_producer_reader_schema": "@data-forge-owners; exact public facade/native reader retained",
+    "frontend_fixture_server_and_Playwright_companions": "A/G canonical fixture owner + @frontend-owners",
+    "integration_publication": "G only"
+  },
+  "receipts": {
+    "native_positive": {
+      "path": "native-attempt1/receipt.json",
+      "bytes": 61599,
+      "sha256": "4cd0b778d7045c8d5c14b380ae4bf29e950e0213a237d120aea2a67fd7ccd493"
+    },
+    "missing_native_startup": {
+      "path": "missing-startup/receipt.json",
+      "bytes": 4683,
+      "sha256": "7403fca7c842b6b8dcd2c1cebf23405aa8cb20d5482a1af06426d0570411e723"
+    },
+    "owner_overlay_healthy": {
+      "path": "owner-overlay-healthy/receipt.json",
+      "bytes": 6896,
+      "sha256": "0d6f87b11c00cff8a0db60b08e224e74de6c7e2488e2604da3f2ddc37cf74aea"
+    },
+    "owner_overlay_removed_route": {
+      "path": "owner-overlay-removed-route/receipt.json",
+      "bytes": 4849,
+      "sha256": "b46984ec83dc4536cb71174630ae4ef0914e92f16cb16b0d71d123a87f02836c"
+    },
+    "owner_overlay_fake_producer": {
+      "path": "owner-overlay-fake-producer-r2/receipt.json",
+      "bytes": 4990,
+      "sha256": "059326e448c4c37fdf4aef1f537c1d0e14db089895c7359c5c6b48c1b584b413"
+    }
+  },
+  "runtime_property": "Existing native fixture producer provisions real persisted catalog metadata, then actual immutable default ControlPlaneService/strict DatasetCatalogStore consume its content-bound binding. Missing/replaced source and present-but-fake producer refuse. Counters or credible flags cannot satisfy this property.",
+  "source_guard_inputs": [
+    {
+      "path": "policy-engine/apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 7457,
+      "sha256": "210a02646fc4bdade933ca85fa53ced9b91dcdea4ca49d62abd265b5d7826dce"
+    },
+    {
+      "path": "policy-engine/tests/_helpers/runtime_http.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 56431,
+      "sha256": "b1e9e4a3ca5ae825aaed75b814e48d2e842800aa3dd9ab21be3848f2a230a85e"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_human_decision_api.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 4174,
+      "sha256": "a78ce52aad1f1a043e3c47b6625e9e3d4f2219b9d597823f318e755852d22220"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_service_di.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 123424,
+      "sha256": "01278a3cecfc6d3ca20dca7c10b817adf16847cf1ed5c5d28e47d87fd5d3b821"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 347497,
+      "sha256": "6bb583a8a35dc8a7f70348aa4873899264a98e17ab5c14350ce840a8688f63e9"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/substrate_registry.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 79191,
+      "sha256": "a2a4f06452428a225b393941ae16cf3cb42043c01a38679bb725595818cb9f62"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/read_api/catalog.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 37677,
+      "sha256": "c175225c5e4f8eda08d784e0319b4a5c023fe97fd89fbe24e758f5530a9beb72"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/graph_builder.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 29776,
+      "sha256": "4831403a2d505773e75bf6572e0323464ea2f9e9b3312d1111ac1572dc328f9f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/store.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 42587,
+      "sha256": "ba5781f542b3cfb2477158a5d09205f6b559d96dd27c1ed9235912955689b710"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/search.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 29478,
+      "sha256": "eaebbe358294cb227faa417fa23cefc12b881b2e298137dd4abbded4099a1ab2"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/overlay.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 206555,
+      "sha256": "ed902ef5d990a9e352e70a196f4a1d13ac25f6778d46a79828252cc7a35674e5"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/knowledge/types.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 11620,
+      "sha256": "ed089faee129ba1ce9101f00e65a702b00af22582f07afd0c7a867674b7070ab"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/connectors/reference/static_csv.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 17327,
+      "sha256": "770558cf2c526fe1ee7a5af3d36197def4ae329fb3acb59ac74383f4ba647be9"
+    },
+    {
+      "path": "policy-engine/src/polisyos/fabric/data_plane/orchestrator.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 29896,
+      "sha256": "ebb6e42109d9725a60bafda60a8744a0a4ee1b1ed1ef6378a2aa3f874cb1bab6"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/fabric.py",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "size": 5421,
+      "sha256": "390415a884778be3f78415c6610db9ea51e26484466d246859a912076a557bf7"
+    }
+  ],
+  "actual_environment": {
+    "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+    "packages": [
+      {
+        "name": "about-time",
+        "version": "4.2.1"
+      },
+      {
+        "name": "absl-py",
+        "version": "2.3.1"
+      },
+      {
+        "name": "aiohappyeyeballs",
+        "version": "2.6.1"
+      },
+      {
+        "name": "aiohttp",
+        "version": "3.13.3"
+      },
+      {
+        "name": "aiosignal",
+        "version": "1.4.0"
+      },
+      {
+        "name": "alive-progress",
+        "version": "3.3.0"
+      },
+      {
+        "name": "annotated-doc",
+        "version": "0.0.4"
+      },
+      {
+        "name": "annotated-types",
+        "version": "0.7.0"
+      },
+      {
+        "name": "anyio",
+        "version": "4.12.0"
+      },
+      {
+        "name": "arch",
+        "version": "8.0.0"
+      },
+      {
+        "name": "arrow",
+        "version": "1.4.0"
+      },
+      {
+        "name": "attrs",
+        "version": "25.4.0"
+      },
+      {
+        "name": "autograd",
+        "version": "1.8.0"
+      },
+      {
+        "name": "autograd-gamma",
+        "version": "0.5.0"
+      },
+      {
+        "name": "babel",
+        "version": "2.17.0"
+      },
+      {
+        "name": "backrefs",
+        "version": "6.2"
+      },
+      {
+        "name": "basedpyright",
+        "version": "1.39.0"
+      },
+      {
+        "name": "certifi",
+        "version": "2025.11.12"
+      },
+      {
+        "name": "cffi",
+        "version": "2.0.0"
+      },
+      {
+        "name": "cfgv",
+        "version": "3.5.0"
+      },
+      {
+        "name": "charset-normalizer",
+        "version": "3.4.4"
+      },
+      {
+        "name": "chex",
+        "version": "0.1.91"
+      },
+      {
+        "name": "click",
+        "version": "8.3.1"
+      },
+      {
+        "name": "cma",
+        "version": "4.4.1"
+      },
+      {
+        "name": "colorama",
+        "version": "0.4.6"
+      },
+      {
+        "name": "contourpy",
+        "version": "1.3.3"
+      },
+      {
+        "name": "cryptography",
+        "version": "46.0.4"
+      },
+      {
+        "name": "cycler",
+        "version": "0.12.1"
+      },
+      {
+        "name": "defusedxml",
+        "version": "0.7.1"
+      },
+      {
+        "name": "Deprecated",
+        "version": "1.3.1"
+      },
+      {
+        "name": "diffrax",
+        "version": "0.7.0"
+      },
+      {
+        "name": "dill",
+        "version": "0.4.1"
+      },
+      {
+        "name": "distlib",
+        "version": "0.4.0"
+      },
+      {
+        "name": "distro",
+        "version": "1.9.0"
+      },
+      {
+        "name": "duckdb",
+        "version": "1.4.3"
+      },
+      {
+        "name": "equinox",
+        "version": "0.13.2"
+      },
+      {
+        "name": "et_xmlfile",
+        "version": "2.0.0"
+      },
+      {
+        "name": "execnet",
+        "version": "2.1.2"
+      },
+      {
+        "name": "fastapi",
+        "version": "0.128.6"
+      },
+      {
+        "name": "filelock",
+        "version": "3.20.2"
+      },
+      {
+        "name": "fonttools",
+        "version": "4.61.1"
+      },
+      {
+        "name": "formulaic",
+        "version": "1.2.1"
+      },
+      {
+        "name": "fqdn",
+        "version": "1.5.1"
+      },
+      {
+        "name": "frozenlist",
+        "version": "1.8.0"
+      },
+      {
+        "name": "ghp-import",
+        "version": "2.1.0"
+      },
+      {
+        "name": "googleapis-common-protos",
+        "version": "1.72.0"
+      },
+      {
+        "name": "graphemeu",
+        "version": "0.7.2"
+      },
+      {
+        "name": "griffelib",
+        "version": "2.0.2"
+      },
+      {
+        "name": "grpcio",
+        "version": "1.78.0"
+      },
+      {
+        "name": "h11",
+        "version": "0.16.0"
+      },
+      {
+        "name": "hatchling",
+        "version": "1.27.0"
+      },
+      {
+        "name": "httpcore",
+        "version": "1.0.9"
+      },
+      {
+        "name": "httptools",
+        "version": "0.7.1"
+      },
+      {
+        "name": "httpx",
+        "version": "0.28.1"
+      },
+      {
+        "name": "hypothesis",
+        "version": "6.151.2"
+      },
+      {
+        "name": "identify",
+        "version": "2.6.15"
+      },
+      {
+        "name": "idna",
+        "version": "3.11"
+      },
+      {
+        "name": "immutabledict",
+        "version": "4.2.2"
+      },
+      {
+        "name": "importlib_metadata",
+        "version": "8.7.1"
+      },
+      {
+        "name": "iniconfig",
+        "version": "2.3.0"
+      },
+      {
+        "name": "interface-meta",
+        "version": "1.3.0"
+      },
+      {
+        "name": "isoduration",
+        "version": "20.11.0"
+      },
+      {
+        "name": "jax",
+        "version": "0.8.2"
+      },
+      {
+        "name": "jaxlib",
+        "version": "0.8.2"
+      },
+      {
+        "name": "jaxtyping",
+        "version": "0.3.4"
+      },
+      {
+        "name": "Jinja2",
+        "version": "3.1.6"
+      },
+      {
+        "name": "jiter",
+        "version": "0.13.0"
+      },
+      {
+        "name": "joblib",
+        "version": "1.5.3"
+      },
+      {
+        "name": "jsonpatch",
+        "version": "1.33"
+      },
+      {
+        "name": "jsonpointer",
+        "version": "3.0.0"
+      },
+      {
+        "name": "jsonschema",
+        "version": "4.25.1"
+      },
+      {
+        "name": "jsonschema-specifications",
+        "version": "2025.9.1"
+      },
+      {
+        "name": "kiwisolver",
+        "version": "1.4.9"
+      },
+      {
+        "name": "langchain",
+        "version": "1.2.0"
+      },
+      {
+        "name": "langchain-core",
+        "version": "1.2.6"
+      },
+      {
+        "name": "langgraph",
+        "version": "1.0.5"
+      },
+      {
+        "name": "langgraph-checkpoint",
+        "version": "3.0.1"
+      },
+      {
+        "name": "langgraph-prebuilt",
+        "version": "1.0.5"
+      },
+      {
+        "name": "langgraph-sdk",
+        "version": "0.3.1"
+      },
+      {
+        "name": "langsmith",
+        "version": "0.6.0"
+      },
+      {
+        "name": "lark",
+        "version": "1.3.1"
+      },
+      {
+        "name": "libcst",
+        "version": "1.8.6"
+      },
+      {
+        "name": "librt",
+        "version": "0.7.7"
+      },
+      {
+        "name": "lifelines",
+        "version": "0.30.3"
+      },
+      {
+        "name": "linearmodels",
+        "version": "7.0"
+      },
+      {
+        "name": "lineax",
+        "version": "0.0.8"
+      },
+      {
+        "name": "loguru",
+        "version": "0.7.3"
+      },
+      {
+        "name": "MAPIE",
+        "version": "1.3.0"
+      },
+      {
+        "name": "Markdown",
+        "version": "3.10.2"
+      },
+      {
+        "name": "MarkupSafe",
+        "version": "3.0.3"
+      },
+      {
+        "name": "matplotlib",
+        "version": "3.10.8"
+      },
+      {
+        "name": "mergedeep",
+        "version": "1.3.4"
+      },
+      {
+        "name": "mkdocs",
+        "version": "1.6.1"
+      },
+      {
+        "name": "mkdocs-autorefs",
+        "version": "1.4.4"
+      },
+      {
+        "name": "mkdocs-get-deps",
+        "version": "0.2.2"
+      },
+      {
+        "name": "mkdocs-material",
+        "version": "9.7.6"
+      },
+      {
+        "name": "mkdocs-material-extensions",
+        "version": "1.3.1"
+      },
+      {
+        "name": "mkdocstrings",
+        "version": "1.0.3"
+      },
+      {
+        "name": "mkdocstrings-python",
+        "version": "2.0.3"
+      },
+      {
+        "name": "ml_dtypes",
+        "version": "0.5.4"
+      },
+      {
+        "name": "moocore",
+        "version": "0.1.10"
+      },
+      {
+        "name": "multidict",
+        "version": "6.7.1"
+      },
+      {
+        "name": "multiprocess",
+        "version": "0.70.19"
+      },
+      {
+        "name": "mypy",
+        "version": "1.19.1"
+      },
+      {
+        "name": "mypy_extensions",
+        "version": "1.1.0"
+      },
+      {
+        "name": "narwhals",
+        "version": "2.14.0"
+      },
+      {
+        "name": "nodeenv",
+        "version": "1.10.0"
+      },
+      {
+        "name": "nodejs-wheel-binaries",
+        "version": "24.14.1"
+      },
+      {
+        "name": "numpy",
+        "version": "2.3.5"
+      },
+      {
+        "name": "odfpy",
+        "version": "1.4.1"
+      },
+      {
+        "name": "openai",
+        "version": "1.109.1"
+      },
+      {
+        "name": "openpyxl",
+        "version": "3.1.5"
+      },
+      {
+        "name": "opentelemetry-api",
+        "version": "1.39.1"
+      },
+      {
+        "name": "opentelemetry-exporter-otlp-proto-common",
+        "version": "1.39.1"
+      },
+      {
+        "name": "opentelemetry-exporter-otlp-proto-grpc",
+        "version": "1.39.1"
+      },
+      {
+        "name": "opentelemetry-exporter-prometheus",
+        "version": "0.60b1"
+      },
+      {
+        "name": "opentelemetry-proto",
+        "version": "1.39.1"
+      },
+      {
+        "name": "opentelemetry-sdk",
+        "version": "1.39.1"
+      },
+      {
+        "name": "opentelemetry-semantic-conventions",
+        "version": "0.60b1"
+      },
+      {
+        "name": "opt_einsum",
+        "version": "3.4.0"
+      },
+      {
+        "name": "optax",
+        "version": "0.2.6"
+      },
+      {
+        "name": "optimistix",
+        "version": "0.0.11"
+      },
+      {
+        "name": "orjson",
+        "version": "3.11.5"
+      },
+      {
+        "name": "ormsgpack",
+        "version": "1.12.1"
+      },
+      {
+        "name": "ortools",
+        "version": "9.15.6755"
+      },
+      {
+        "name": "packaging",
+        "version": "25.0"
+      },
+      {
+        "name": "paginate",
+        "version": "0.5.7"
+      },
+      {
+        "name": "pandas",
+        "version": "2.3.3"
+      },
+      {
+        "name": "pathspec",
+        "version": "0.12.1"
+      },
+      {
+        "name": "patsy",
+        "version": "1.0.2"
+      },
+      {
+        "name": "pillow",
+        "version": "12.3.0"
+      },
+      {
+        "name": "platformdirs",
+        "version": "4.5.1"
+      },
+      {
+        "name": "pluggy",
+        "version": "1.6.0"
+      },
+      {
+        "name": "policy-engine",
+        "version": "0.1.0"
+      },
+      {
+        "name": "pre_commit",
+        "version": "4.5.1"
+      },
+      {
+        "name": "prometheus_client",
+        "version": "0.23.1"
+      },
+      {
+        "name": "propcache",
+        "version": "0.4.1"
+      },
+      {
+        "name": "protobuf",
+        "version": "6.33.2"
+      },
+      {
+        "name": "py-cpuinfo",
+        "version": "9.0.0"
+      },
+      {
+        "name": "pyarrow",
+        "version": "22.0.0"
+      },
+      {
+        "name": "pycparser",
+        "version": "2.23"
+      },
+      {
+        "name": "pydantic",
+        "version": "2.12.5"
+      },
+      {
+        "name": "pydantic-settings",
+        "version": "2.12.0"
+      },
+      {
+        "name": "pydantic_core",
+        "version": "2.41.5"
+      },
+      {
+        "name": "Pygments",
+        "version": "2.19.2"
+      },
+      {
+        "name": "pyhdfe",
+        "version": "0.2.0"
+      },
+      {
+        "name": "PyJWT",
+        "version": "2.11.0"
+      },
+      {
+        "name": "pymdown-extensions",
+        "version": "10.21.2"
+      },
+      {
+        "name": "pymoo",
+        "version": "0.6.1.6"
+      },
+      {
+        "name": "pyparsing",
+        "version": "3.3.1"
+      },
+      {
+        "name": "pypdf",
+        "version": "6.7.4"
+      },
+      {
+        "name": "pytest",
+        "version": "9.0.2"
+      },
+      {
+        "name": "pytest-asyncio",
+        "version": "1.3.0"
+      },
+      {
+        "name": "pytest-benchmark",
+        "version": "5.2.3"
+      },
+      {
+        "name": "pytest-xdist",
+        "version": "3.8.0"
+      },
+      {
+        "name": "python-dateutil",
+        "version": "2.9.0.post0"
+      },
+      {
+        "name": "python-dotenv",
+        "version": "1.2.1"
+      },
+      {
+        "name": "pytz",
+        "version": "2025.2"
+      },
+      {
+        "name": "PyYAML",
+        "version": "6.0.3"
+      },
+      {
+        "name": "pyyaml_env_tag",
+        "version": "1.1"
+      },
+      {
+        "name": "rdflib",
+        "version": "7.6.0"
+      },
+      {
+        "name": "referencing",
+        "version": "0.37.0"
+      },
+      {
+        "name": "regex",
+        "version": "2026.9.3"
+      },
+      {
+        "name": "requests",
+        "version": "2.32.5"
+      },
+      {
+        "name": "requests-toolbelt",
+        "version": "1.0.0"
+      },
+      {
+        "name": "rfc3339-validator",
+        "version": "0.1.4"
+      },
+      {
+        "name": "rfc3986-validator",
+        "version": "0.1.1"
+      },
+      {
+        "name": "rfc3987-syntax",
+        "version": "1.1.0"
+      },
+      {
+        "name": "rpds-py",
+        "version": "0.30.0"
+      },
+      {
+        "name": "ruff",
+        "version": "0.14.10"
+      },
+      {
+        "name": "ruptures",
+        "version": "1.1.10"
+      },
+      {
+        "name": "SALib",
+        "version": "1.5.2"
+      },
+      {
+        "name": "scikit-learn",
+        "version": "1.8.0"
+      },
+      {
+        "name": "scipy",
+        "version": "1.16.3"
+      },
+      {
+        "name": "six",
+        "version": "1.17.0"
+      },
+      {
+        "name": "sniffio",
+        "version": "1.3.1"
+      },
+      {
+        "name": "sortedcontainers",
+        "version": "2.4.0"
+      },
+      {
+        "name": "starlette",
+        "version": "0.52.1"
+      },
+      {
+        "name": "statsmodels",
+        "version": "0.14.6"
+      },
+      {
+        "name": "structlog",
+        "version": "25.5.0"
+      },
+      {
+        "name": "tenacity",
+        "version": "9.1.2"
+      },
+      {
+        "name": "threadpoolctl",
+        "version": "3.6.0"
+      },
+      {
+        "name": "tiktoken",
+        "version": "0.12.0"
+      },
+      {
+        "name": "toolz",
+        "version": "1.1.0"
+      },
+      {
+        "name": "tqdm",
+        "version": "4.67.3"
+      },
+      {
+        "name": "trove-classifiers",
+        "version": "2026.9.21.13"
+      },
+      {
+        "name": "types-requests",
+        "version": "2.32.4.20250913"
+      },
+      {
+        "name": "typing-inspection",
+        "version": "0.4.2"
+      },
+      {
+        "name": "typing_extensions",
+        "version": "4.15.0"
+      },
+      {
+        "name": "tzdata",
+        "version": "2025.3"
+      },
+      {
+        "name": "uri-template",
+        "version": "1.3.0"
+      },
+      {
+        "name": "urllib3",
+        "version": "2.6.2"
+      },
+      {
+        "name": "uuid_utils",
+        "version": "0.12.0"
+      },
+      {
+        "name": "uvicorn",
+        "version": "0.40.0"
+      },
+      {
+        "name": "uvloop",
+        "version": "0.22.1"
+      },
+      {
+        "name": "virtualenv",
+        "version": "20.35.4"
+      },
+      {
+        "name": "wadler_lindig",
+        "version": "0.1.7"
+      },
+      {
+        "name": "watchdog",
+        "version": "6.0.0"
+      },
+      {
+        "name": "watchfiles",
+        "version": "1.1.1"
+      },
+      {
+        "name": "webcolors",
+        "version": "25.10.0"
+      },
+      {
+        "name": "websockets",
+        "version": "16.0"
+      },
+      {
+        "name": "wrapt",
+        "version": "2.0.1"
+      },
+      {
+        "name": "xlrd",
+        "version": "2.0.2"
+      },
+      {
+        "name": "xxhash",
+        "version": "3.6.0"
+      },
+      {
+        "name": "yarl",
+        "version": "1.22.0"
+      },
+      {
+        "name": "zipp",
+        "version": "3.23.0"
+      },
+      {
+        "name": "zstandard",
+        "version": "0.25.0"
+      }
+    ],
+    "overrides": {
+      "POLISYOS_CACHE_HOME": "/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/native-attempt1/cache",
+      "POLISYOS_METRICS_PORT": "0"
+    }
+  },
+  "intended_owner_patch": {
+    "path": "owner-only-runtime-catalog-fixture.patch",
+    "bytes": 2085,
+    "sha256": "6b7a5181ae30c7243fca125490495b797853a17a2b4424be72533bb13a51d910"
+  },
+  "literal_patched_fixture_source": {
+    "path": "runtime_http.owner-overlay.py.txt",
+    "bytes": 58250,
+    "sha256": "5d87c44b1eff48129afbc4bddb65aae982b853f1c5b43666e9e58bf1d93604cf"
+  },
+  "source_footprint": {
+    "tracked_native_source_changes": [],
+    "unapplied_proposal_paths": [
+      "policy-engine/tests/_helpers/runtime_http.py"
+    ],
+    "affected_real_caller_companions": [
+      "policy-engine/apps/runtime-dashboard/scripts/serve_fixture_runtime_api.py",
+      "policy-engine/apps/runtime-dashboard/playwright.config.ts",
+      "policy-engine/tests/unit/runtime/http/test_human_decision_api.py",
+      "policy-engine/tests/unit/runtime/http/test_control_service_di.py"
+    ],
+    "product_runtime_or_DataForge_edits": [],
+    "new_runtime_API": false,
+    "generated_files_edited": false
+  },
+  "configured_input": {
+    "source_root": "/workspace/e02-E-continuation-20261006/policy-engine",
+    "path": "/workspace/e02-E-continuation-20261006/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+    "is_file": false,
+    "role": "L1 persisted baseline catalog; optional existing acquisition overlay is separately content-bound",
+    "actual_default_overlay_path": "/workspace/e02-E-continuation-20261006/policy-engine/architecture/policy_design_case/layer3_gy_acquisition_overlay.duckdb",
+    "fixture_inlet": "Existing native tests replace only SubstrateCatalogPaths.l1_dcat_path for the exact source checkout root via scoped pytest.MonkeyPatch; native graph/store preserved. Proposed helper centralizes that fixture-only seam without changing its public signature."
+  },
+  "minimum_fixture_inputs": {
+    "producer": "DataForge public catalog facade build_slice0_fixture_catalog_graph(explicit scratch root), native batch graph_builder.build_graph",
+    "actual_catalog_counts": {
+      "ds_alignment_audit": 0,
+      "ds_alignment_hints": 0,
+      "ds_datasets": 9,
+      "ds_distributions": 9,
+      "ds_entity_mappings": 0,
+      "ds_metric_bindings": 13,
+      "ds_observations": 0,
+      "ds_registry_datasets": 0,
+      "ds_schema_profiles": 6,
+      "ds_variable_alignments": 0
+    },
+    "actual_schema_and_profile_ref": {
+      "path": "native-attempt1/receipt.json",
+      "bytes": 61599,
+      "sha256": "4cd0b778d7045c8d5c14b380ae4bf29e950e0213a237d120aea2a67fd7ccd493"
+    },
+    "row_identity": "actual selected IC.FRM.ACCS.ZS/worldbank.wdi/worldbank binding, exact catalog dataset and distribution IDs in the persisted binding receipt",
+    "profile": "worldbank; catalog profile metadata generated by existing canonical fixture; not inferred transport/source authority",
+    "time_roles": "metadata coverage 2020\u20132024 / firm-year in canonical fixture; generated schema inferred year/country_code and value columns. These are fixture metadata, not observed source-time/validity/deployment signoff.",
+    "startup_scope": "Generic HTTP fixture construction and health/run surface do not require production observations or HNSW vector assets. ds_observations=0 is disclosed. This is not a minimal-row optimization or proof that empty/counter-only catalogs satisfy target binding.",
+    "separate_local_snapshot": "Actual three-row localhost CSV -> native StaticCSVConnector schema/version -> existing _build_snapshot_from_evidence_async -> fresh CAS rows. Separate fixture source, never joined to the worldbank catalog metadata or used to authorize real source law.",
+    "snapshot_schema_limit": "Existing snapshot producer does not attach data_schema_ref; schema is separately persisted and bound in receipt. No field or lineage is silently invented."
+  },
+  "native_full_HTTP": {
+    "original_outcome": "FAIL",
+    "native_exit_code": 1,
+    "full_original_counts": {
+      "cases": 1585,
+      "passed": 675,
+      "failed": 81,
+      "errors": 827,
+      "skipped": 2
+    },
+    "catalog_error_count": 413,
+    "statuses": {
+      "errors": 347,
+      "failed": 66
+    },
+    "literal_errno28_trace_count": 0,
+    "cause_ENOSPC_established": false,
+    "P41": "not_established",
+    "independent_attribution_ref": {
+      "path": "/tmp/e02-E-http-error-independent-64d/http-failure-attribution.json",
+      "bytes": 232669,
+      "sha256": "24bd1839a71410277c9b3a212f645cc2fb44ce86c9ddac40d02b5cdb72bc0fe7"
+    },
+    "native_receipt": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/checks/standalone-ci-02/standalone-ci-02.json",
+      "bytes": 9044,
+      "sha256": "90d0c3c172507dfc8079522f930adcd5f238ff3ee27b4e182db7d9974d9ee2c0"
+    },
+    "native_stdout": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/checks/standalone-ci-02/standalone-ci-02.stdout.txt",
+      "bytes": 2165621,
+      "sha256": "eabc9cab8ea803353f1c7287c11bbb466f6b6a2e305adb5abfb3dc03c3a64a9e"
+    },
+    "native_junit": {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-02/checks/standalone-ci-02/pytest.xml",
+      "bytes": 2421172,
+      "sha256": "b94c3b86ca8edb3b059714e68492faaf31cc2a05297006279201a62dac202c30"
+    },
+    "immutable_original_bytes": "Retain original native1585-case counts, FAIL1 and complete traces. Bounded generic fixture witness does not turn the413 rows or CI02 into PASS.",
+    "next_named_selectors": [
+      "tests/unit/runtime/http/test_control_service_di.py::test_control_service_preserves_real_catalog_ownership",
+      "tests/unit/runtime/http/test_acquisition_routes_api.py::test_acquisition_routes_have_exact_get_resource_binding",
+      "tests/unit/runtime/http/test_api_maturity.py::test_artifact_endpoints_emit_immutable_cache_headers"
+    ]
+  },
+  "native_frontend": {
+    "original_current_a11y_attempt2": "/tmp/e02-E-a11y-full-native-retry-64d-20261007-r2/a11y/checks/a11y-full-native-retry/a11y-full-native-retry.json",
+    "original_outcome": "FAIL1; pages command attempted, webServer setup catalog_fetch_source_unreadable; no page-case execution reported",
+    "bounded_overlay_witness": "Full immutable _build_dashboard_fixture_env with include_run_paper_fixtures=True and include_bound_run_paper_fixture=True + actual TestClient health200/runs200. Direct builder/HTTP witness; no uvicorn listening/browser assertion. Native pages command actually requests bound fixture, and extra run-paper flags in positive do not weaken that case.",
+    "owner_next_native_command": [
+      "npm",
+      "run",
+      "test:a11y"
+    ],
+    "owner_next_cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+    "required_unchanged_body": [
+      "a11y:contrast",
+      "a11y:motion",
+      "a11y:color-blind",
+      "test:a11y:components",
+      "test:a11y:pages"
+    ],
+    "browser_mutable_state_lease": "After any snapshot/controller/cache writers close; no exclusions or artificial limits/timeout increases."
+  },
+  "observer_provenance": {
+    "native_sources_unchanged": true,
+    "owner_overlay_not_a_Git_candidate": true,
+    "healthy_and_removal_driver_version": {
+      "path": "probe_owner_patch_overlay.fake-attempt1-ERROR.py.txt",
+      "bytes": 6324,
+      "sha256": "8a319147c1e365461f64f1b80d1a0e3818b01c3f830c7cb9135c6a3ddebe0c1b"
+    },
+    "corrected_fake_driver_version": {
+      "path": "probe_owner_patch_overlay.py",
+      "bytes": 6542,
+      "sha256": "dedecdce4e3ef6b8e9d872b199be93ccb9fd108cae1546134782108c7619df85"
+    },
+    "historical_observer_ERROR": {
+      "source": {
+        "path": "probe_owner_patch_overlay.fake-attempt1-ERROR.py.txt",
+        "bytes": 6324,
+        "sha256": "8a319147c1e365461f64f1b80d1a0e3818b01c3f830c7cb9135c6a3ddebe0c1b"
+      },
+      "stderr": {
+        "path": "owner-overlay-fake-producer.stderr.txt",
+        "bytes": 9233,
+        "sha256": "91b9c0203efff16c048a97fa696536381804aeeff754bb47dfa3c44302202a03"
+      },
+      "reason": "First fake-builder observer patched the facade too broadly and omitted optional root=None; unrelated native registry bootstrap raised TypeError before the intended catalog source guard. This is observer ERROR, not candidate regression/control PASS.",
+      "correction": "Delegate all other builder calls to original native producer; fake only the one exact fixture-root source path."
+    }
+  },
+  "scope_and_owner_review": {
+    "overlay_controls": "Healthy applied patch, effective removal of only source-root path routing predicate, and scoped present-but-fake producer tested in isolated processes. No product source patch applied.",
+    "concurrency_limit": "Existing pytest.MonkeyPatch catalog path seam is process-global. This proposed fixture-only patch requires serialized shared fixture calls/dedicated native frontend fixture process. Canonical A owner should choose typed DI if it needs concurrent calls within one process; do not ship a global production path override.",
+    "not_an_owner_GO": "Concrete reviewable patch/test packet; canonical A/DataForge/API owners must review implementation and mandatory companions before accepting/cherry-picking any source change. Author of this packet does not self-approve canonical source.",
+    "finding_boundary": "Generic fixture mechanism/readback is available in cloud, so absence of production history is not the generic startup blocker. Actual production, source-law, semantic or institutional criteria still require their scoped real inputs."
+  },
+  "next_concrete_result": "A fixture/config writer applies/reviews the native helper patch or canonical equivalent typed inlet in its own topic, preserves strict missing/changed-source refusal, then named affected HTTP selectors and full CI02 + exact full a11y pages after source review/freeze. DataForge owner confirms source/schema/profiles unchanged and no observation/authority uplift. G fetches exact accepted source SHA and appends only integration.",
+  "finding_closure": false,
+  "browser_cases_executed": false,
+  "overlay_is_committed_implementation": false,
+  "root_status_after_native": "?? policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/\n?? policy-engine/architecture/policy_design_case/layer3_gy_intervention_atom_binding_contract_unregistered_probe.json\n",
+  "cleanup_candidates": "All scratch native-api/catalog/cache trees in this packet are repeatable and currently unused after closed children. Preserve deciding receipts/input hashes/scripts/schema/source CSV/CAS refs before any authorized cloud cleanup. No cleanup performed by this observer."
+}

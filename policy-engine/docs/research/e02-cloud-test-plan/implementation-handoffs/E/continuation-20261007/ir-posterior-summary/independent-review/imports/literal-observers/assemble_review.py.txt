@@ -1,0 +1,89 @@
+"""Assemble a bounded independent source review from retained deciding observations."""
+from __future__ import annotations
+import hashlib
+import importlib.metadata
+import json
+import subprocess
+from pathlib import Path
+
+ROOT=Path('/workspace/e02-E-pr38-r3-receipts/ir-import-independent')
+LANE=Path('/workspace/e02-E-frc-20261006')
+CANDIDATE='700f9d5a5e2167787d7042ca11e1ef3bf80ced74'
+TREE='2e692d5a5dfa4cfbff78d0079c6fed3e4ba1a73f'
+BASE='cdaea067935c8062a6a13fab8d7ffb53ae5fd401'
+def require(value,reason):
+    if not value:raise AssertionError(reason)
+def identity(path):
+    path=Path(path);data=path.read_bytes()
+    return {'source_path':str(path),'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()}
+def load(name):return json.loads((ROOT/name).read_text())
+def git(*args):return subprocess.check_output(['/usr/bin/git','-C',str(LANE),*args])
+census=load('import-census-700.json')
+arch=load('architecture-700/architecture-controls.json')
+facades=load('facade-bindings-700.json')
+additional=load('additional-routes-700.json')
+packet=load('owner-packet-status-700.json')
+executions=[load(name+'.execution.json') for name in ['700-imports','700-architecture','700-facades','700-additional-routes','700-owner-packet']]
+for result in [census,arch,facades,additional,packet]:require(result['candidate']==CANDIDATE,'mixed source observation')
+for execution in executions:
+    require(execution['exit_code']==0 and execution['status']=='PASS','observer failed')
+    for stream in ['stdout','stderr']:
+        value=execution[stream];actual=identity(value['path'])
+        require(actual['sha256']==value['sha256'] and actual['bytes']==value['bytes'],'execution stream changed')
+    for observer in execution['literal_observer_source']:
+        actual=identity(observer['path'])
+        require(actual['sha256']==observer['sha256'] and actual['bytes']==observer['bytes'],'executed observer source changed')
+require(git('rev-parse',CANDIDATE+'^{tree}').decode().strip()==TREE,'candidate tree mismatch')
+for row in facades['complete_changed_source_bindings']:
+    exact=git('show',CANDIDATE+':'+row['path'])
+    require(hashlib.sha256(exact).hexdigest()==row['sha256'],'review footprint hash mismatch')
+    require((LANE/row['path']).read_bytes()==exact,'author source drift before review handoff')
+require(len(facades['complete_changed_source_bindings'])==16,'incomplete footprint')
+require(len(facades['complete_new_export_bindings'])==15 and facades['actual_product_caller_binding_count']==15,'incomplete actual facade/caller denominator')
+require(not arch['new_actual_deep_edges'] and not arch['source_receipts'][1]['complete_violations'],'selected new deep import property failed')
+require(arch['property_removal']['discriminator']=='PASS' and arch['property_removal']['required_negative_gate']=='FAIL','collector removal not discriminating')
+require(facades['present_name_identity_removal']['discriminator']=='PASS' and facades['present_name_identity_removal']['required_identity_gate']=='FAIL','facade fake not discriminating')
+require(all(v['exact_bytes_unchanged'] for v in census['prior_Core_route_preservation']),'Core539 author body changed unexpectedly')
+summary=[]
+for item in census['complete_changed_python_censuses']:
+    summary.append({k:v for k,v in item.items() if k not in ['rows','delta_AST_reparsed_paths','prior_AST_reuse_after_exact_git_blob_and_sha256_confirmation']})
+    summary[-1]['delta_AST_reparsed_paths']=item['delta_AST_reparsed_paths']
+    summary[-1]['exact_unchanged_AST_reuse_count']=len(item['prior_AST_reuse_after_exact_git_blob_and_sha256_confirmation'])
+slice_census=census['complete_changed_python_censuses'][0]
+new_product_rows=[];new_test_rows=[]
+for source in slice_census['rows']:
+    for row in source['added_import_rows']:
+        if not row['cross_root']:continue
+        value={'path':source['path'],**row}
+        target=row['target_module']
+        if source['role']=='product_source':
+            value['route_basis']='Existing Core root module export' if target=='polisyos.core' else 'Registered IR analytics facade with actual native identity'
+            new_product_rows.append(value)
+        else:
+            if target in ['polisyos.core','polisyos.ir','polisyos.ir.analytics']:
+                purpose='Existing curated facade; profile additions remain scoped semantic owner contract.'
+                owner='Core/IR API facade owners; E scoped B201/B202 author uses existing definitions.'
+            elif target=='polisyos.core.artifacts' and row['symbol']=='ir_adapter':
+                purpose='Explicit root-confirmed native canonical Core-to-IR adapter test seam; not a public facade export.'
+                owner='Core/API owner packet and enforceable reviewer @DenisKopylov; E owns native regression test.'
+            elif target.startswith('polisyos.ir.analytics.uncertainty'):
+                purpose='Exact old v1.1 codec/replay definition control; curated legacy serializers remain separate owner packet.'
+                owner='IR API/codec owner; E scoped compatibility fixture.'
+            elif target=='polisyos.ir.registry.refs':
+                purpose='Native typed CAS-ref fixture, existing definition not curated on root/analytics.'
+                owner='IR ref/API owner; E scoped raw CAS fixture.'
+            else:
+                purpose='Native existing Foundry producer/report/sampler implementation fixture required by original UQS-01; no new production facade edge.'
+                owner='Foundry producer/report/uncertainty owner and E scoped B201/B202 implementation author.'
+            value.update({'purpose':purpose,'canonical_owner':owner})
+            new_test_rows.append(value)
+require(len(new_product_rows)==16 and len(new_test_rows)==22,'cross-root complete slice denominator differs')
+contract_preservation=[]
+for path in ['policy-engine/pyproject.toml','policy-engine/tools/devx/architecture/guardrails.py','policy-engine/architecture/public_surface/contract.toml','policy-engine/architecture/baselines/imports/deep_import.json']:
+    base=git('show',BASE+':'+path);candidate=git('show',CANDIDATE+':'+path)
+    require(base==candidate,'architecture contract/baseline changed')
+    contract_preservation.append({'path':path,'bytes':len(candidate),'sha256':hashlib.sha256(candidate).hexdigest(),'exact_base_candidate_bytes_unchanged':True})
+result={'schema':'policyos.e02.independent_ir_architecture_review.v1','reviewer':'imports_r4','author':'frc_r4','disposition':'GO','scope':'Architectural placement, complete source/test/companion import census, scoped public-route definition identity, actual selected caller binding and collector discrimination.','original_bundle':'UQS-01','original_finding_ids':['B201','B202'],'base':BASE,'candidate':CANDIDATE,'tree':TREE,'prior_sources':['c87f532e6ce6ab2507d937c10eb6eff8153c1699','c8616e2babe1f0674799c12f07faffa5d6bd266d'],'topic_branch':'codex/e02-E-frc-20261006','admitted_worktree':str(LANE),'source_status_at_final_read':git('status','-sb').decode(),'predicate_basis':'recomputed','all16_changed_footprint':facades['complete_changed_source_bindings'],'complete_changed_python_denominators':summary,'all_added_slice_cross_root_product_rows':new_product_rows,'all_added_slice_cross_root_test_rows_with_owner_purpose':new_test_rows,'selected_product_collector':{'path':arch['actual_runtime_path'],'complete_changed_product_denominator':arch['selected_complete_product_source_denominator'],'base_selected_violation_count':len(arch['source_receipts'][0]['complete_violations']),'candidate_selected_violation_count':len(arch['source_receipts'][1]['complete_violations']),'new_edges':arch['new_actual_deep_edges'],'removed_edges':arch['removed_actual_deep_edges'],'complete_controls':arch['controls'],'removal':arch['property_removal']},'public_facades':{'root_old_count':facades['root_old_mapping_count'],'root_new_count':facades['root_new_mapping_count'],'analytics_old_count':facades['analytics_old_mapping_count'],'analytics_new_count':facades['analytics_new_mapping_count'],'old_root_names_and_old_mapping_targets_preserved':True,'new_export_binding_count':len(facades['complete_new_export_bindings']),'all_new_export_identities':facades['complete_new_export_bindings'],'all_actual_IR_product_caller_bindings':facades['actual_product_caller_bindings'],'actual_public_invocations':facades['actual_public_calls'],'present_name_function_metadata_and_numeric_output_fake':facades['present_name_identity_removal'],'ABI_definition_identity':facades['abi_definition_identity']},'Core_and_shared_digest_routes':additional,'contracts_and_complete_baseline_unchanged':contract_preservation,'prior_Core539_author_bodies_preserved_only':census['prior_Core_route_preservation'],'current_remaining_owner_packet':packet,'runtime_environment':{**executions[0]['execution_environment'],'packages':{name:importlib.metadata.version(name) for name in ['numpy','pydantic']},'new_environment_or_install':False,'production_data_used':False},'complete_deciding_execution_receipts':executions,'authority_and_review_boundaries':{'scoped_semantic_appointment':'a0ac10fc11975c345312034d0e568b4cfc330d76:policy-engine/docs/research/e02-cloud-test-plan/integration/decisions/B201-B202-E-owner-2026-10-07.md','four_decision_ratification':BASE+':policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-semantic-ratification/decision.json','original_card':CANDIDATE+':policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQS-01.md','full_finding_owner_source':CANDIDATE+':policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv','source_semantics_law_truth':'Independent oracle_r4; this review checks admitted facade/route mechanism only.','strictness_v11_replay_native_consumers_generated_companions':'Independent criteria_r4 and canonical generator/API owner.','finding_outcomes':'Not adjudicated by this narrow review; original historical ledger status remains separate from check PASS.','general_legacy_exports':'Eight old aliases still absent; existing c07 owner packet remains applicable. Scoped E appointment does not grant general Core/IR/Foundry facade authority.','global_architecture_and_P41':'No full global architecture PASS or inherited attribution. Final broad selector/root gate ownership remains separate; P41 not_established unless exact full base command/input intersection proves it.'},'limitations':['Dynamic import dispatch outside selected actual facade routes is not inferred from AST.','Complete main198 and historical539 denominators include other owners and utilities; their cross-root rows are not assigned wholesale to E.','Optional old APIs were not all imported; exact old lazy map/name preservation is checked statically.','Core adapter remains an explicit native test seam, absent from fresh Core root artifact module availability.','CAS law correctness/transport/refusals, signed-zero arithmetic and legacy generic-label semantics are separate independent oracle/criteria controls.','Generated public schema/inventory/reference/release and current global gates remain canonical owner queue.','No new broad numerical wave was run.'],'cleanup':{'native_Trash_used':False,'reason':'Cloud has no native Trash; retain unique deciding observations and enumerate repeatable candidates after checking active users.','candidates':[str(ROOT/name/child) for name in ['architecture','architecture-c861','architecture-700'] for child in ['base','candidate']],'active_source_and_shared_environment':'Author lane, source code, committed docs and shared interpreter remain active and are preserved.'}}
+output=ROOT/'independent-ir-review-700.json'
+output.write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps({'review':identity(output),'disposition':result['disposition'],'source':CANDIDATE,'new_exports':15,'actual_IR_callers':15,'product_cross_root_rows':16,'test_cross_root_rows':22,'selected_deep_import_violations':0},indent=2))

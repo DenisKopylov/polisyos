@@ -1,0 +1,390 @@
+{
+  "schema": "policyos.e02.closed_decisions_prereqs_postpublication_moderate_selection.v1",
+  "published_source": "66a4f8fc1398ed72b3ee9d38b07d88a4d2d5c3cd",
+  "published_tree": "54ec53ea6e53a61432135e8d2728c6fa1cfd964a",
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-custody-independent/review_handoff_metadata_66a4.py.txt",
+      "portable_path": "independent-handoff/review_handoff_metadata_66a4.py.txt",
+      "role": "closed independent335copy/339DOC thinhand off original and exact23negative/removal controls",
+      "bytes": 11058,
+      "sha256": "428920f2128701dca9ffafda5a70bfd5d5e83d64e0465c4bece86de258c5e034",
+      "original_selector_record": {
+        "path": "/tmp/e02-E-decisions-prereqs-custody-independent/review_handoff_metadata_66a4.py.txt",
+        "portable_path": "review_handoff_metadata_66a4.py.txt",
+        "bytes": 11058,
+        "sha256": "428920f2128701dca9ffafda5a70bfd5d5e83d64e0465c4bece86de258c5e034"
+      }
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-custody-independent/review_handoff_byte_custody_98e913.py.txt",
+      "portable_path": "independent-handoff/review_handoff_byte_custody_98e913.py.txt",
+      "role": "closed independent335copy/339DOC thinhand off original and exact23negative/removal controls",
+      "bytes": 4778,
+      "sha256": "a529b08890d04be0cf29ce127156d8c488e11ae6354da6b0f18ba282ac88742b",
+      "original_selector_record": {
+        "path": "/tmp/e02-E-decisions-prereqs-custody-independent/review_handoff_byte_custody_98e913.py.txt",
+        "portable_path": "review_handoff_byte_custody_98e913.py.txt",
+        "bytes": 4778,
+        "sha256": "a529b08890d04be0cf29ce127156d8c488e11ae6354da6b0f18ba282ac88742b"
+      }
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-custody-independent/historical-review-handoff-66a4-before-field-shape-correction.py.txt",
+      "portable_path": "independent-handoff/historical-review-handoff-66a4-before-field-shape-correction.py.txt",
+      "role": "closed independent335copy/339DOC thinhand off original and exact23negative/removal controls",
+      "bytes": 10938,
+      "sha256": "a35ac7b13043b543399c22abf060657183224570c91cd885fb11f2d992275391",
+      "original_selector_record": {
+        "path": "/tmp/e02-E-decisions-prereqs-custody-independent/historical-review-handoff-66a4-before-field-shape-correction.py.txt",
+        "portable_path": "historical-review-handoff-66a4-before-field-shape-correction.py.txt",
+        "bytes": 10938,
+        "sha256": "a35ac7b13043b543399c22abf060657183224570c91cd885fb11f2d992275391"
+      }
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-custody-independent/handoff-66a4-normal.stderr.txt",
+      "portable_path": "independent-handoff/handoff-66a4-normal.stderr.txt",
+      "role": "closed independent335copy/339DOC thinhand off original and exact23negative/removal controls",
+      "bytes": 593,
+      "sha256": "c57505175927e5fda720c41ed30500bf937f027a001e740b812dfce7dc4a4be0",
+      "original_selector_record": {
+        "path": "/tmp/e02-E-decisions-prereqs-custody-independent/handoff-66a4-normal.stderr.txt",
+        "portable_path": "handoff-66a4-normal.stderr.txt",
+        "bytes": 593,
+        "sha256": "c57505175927e5fda720c41ed30500bf937f027a001e740b812dfce7dc4a4be0"
+      }
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-custody-independent/handoff-98e913-byte.stdout.json",
+      "portable_path": "independent-handoff/handoff-98e913-byte.stdout.json",
+      "role": "closed independent335copy/339DOC thinhand off original and exact23negative/removal controls",
+      "bytes": 580,
+      "sha256": "40685e72aafe18094086862f5a266abd40f26eb5ac8eb51c0d2202c7c06cd8e0",
+      "original_selector_record": {
+        "path": "/tmp/e02-E-decisions-prereqs-custody-independent/handoff-98e913-byte.stdout.json",
+        "portable_path": "handoff-98e913-byte.stdout.json",
+        "bytes": 580,
+        "sha256": "40685e72aafe18094086862f5a266abd40f26eb5ac8eb51c0d2202c7c06cd8e0"
+      }
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-custody-independent/handoff-98e913-byte.stderr.txt",
+      "portable_path": "independent-handoff/handoff-98e913-byte.stderr.txt",
+      "role": "closed independent335copy/339DOC thinhand off original and exact23negative/removal controls",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_selector_record": {
+        "path": "/tmp/e02-E-decisions-prereqs-custody-independent/handoff-98e913-byte.stderr.txt",
+        "portable_path": "handoff-98e913-byte.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-custody-independent/handoff-66a4-normal-v2.stdout.json",
+      "portable_path": "independent-handoff/handoff-66a4-normal-v2.stdout.json",
+      "role": "closed independent335copy/339DOC thinhand off original and exact23negative/removal controls",
+      "bytes": 605,
+      "sha256": "d636e81e424890abe0e7b3dacbe9db41ebbc2bc124db3bb0b915315f4b4b6efd",
+      "original_selector_record": {
+        "path": "/tmp/e02-E-decisions-prereqs-custody-independent/handoff-66a4-normal-v2.stdout.json",
+        "portable_path": "handoff-66a4-normal-v2.stdout.json",
+        "bytes": 605,
+        "sha256": "d636e81e424890abe0e7b3dacbe9db41ebbc2bc124db3bb0b915315f4b4b6efd"
+      }
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-custody-independent/handoff-66a4-normal-v2.stderr.txt",
+      "portable_path": "independent-handoff/handoff-66a4-normal-v2.stderr.txt",
+      "role": "closed independent335copy/339DOC thinhand off original and exact23negative/removal controls",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_selector_record": {
+        "path": "/tmp/e02-E-decisions-prereqs-custody-independent/handoff-66a4-normal-v2.stderr.txt",
+        "portable_path": "handoff-66a4-normal-v2.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-custody-independent/handoff-66a4-optimized-v2.stdout.json",
+      "portable_path": "independent-handoff/handoff-66a4-optimized-v2.stdout.json",
+      "role": "closed independent335copy/339DOC thinhand off original and exact23negative/removal controls",
+      "bytes": 607,
+      "sha256": "a9879cf1d9ee0b961e4c35a0d39ec80ee7333073118d41fc3d108fec8e13afe3",
+      "original_selector_record": {
+        "path": "/tmp/e02-E-decisions-prereqs-custody-independent/handoff-66a4-optimized-v2.stdout.json",
+        "portable_path": "handoff-66a4-optimized-v2.stdout.json",
+        "bytes": 607,
+        "sha256": "a9879cf1d9ee0b961e4c35a0d39ec80ee7333073118d41fc3d108fec8e13afe3"
+      }
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-custody-independent/handoff-66a4-optimized-v2.stderr.txt",
+      "portable_path": "independent-handoff/handoff-66a4-optimized-v2.stderr.txt",
+      "role": "closed independent335copy/339DOC thinhand off original and exact23negative/removal controls",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_selector_record": {
+        "path": "/tmp/e02-E-decisions-prereqs-custody-independent/handoff-66a4-optimized-v2.stderr.txt",
+        "portable_path": "handoff-66a4-optimized-v2.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-custody-independent/handoff-98e913/independent-byte-custody-98e913.json",
+      "portable_path": "independent-handoff/independent-byte-custody-98e913.json",
+      "role": "closed independent335copy/339DOC thinhand off original and exact23negative/removal controls",
+      "bytes": 276595,
+      "sha256": "5e29c610e0e89466a5b91bbdebc220245fa59be9c41144835b4805f461bb5af1",
+      "original_selector_record": {
+        "path": "/tmp/e02-E-decisions-prereqs-custody-independent/handoff-98e913/independent-byte-custody-98e913.json",
+        "portable_path": "independent-byte-custody-98e913.json",
+        "bytes": 276595,
+        "sha256": "5e29c610e0e89466a5b91bbdebc220245fa59be9c41144835b4805f461bb5af1"
+      }
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-custody-independent/handoff-66a4/independent-handoff-normal.json",
+      "portable_path": "independent-handoff/independent-handoff-normal.json",
+      "role": "closed independent335copy/339DOC thinhand off original and exact23negative/removal controls",
+      "bytes": 123634,
+      "sha256": "77ea906e59e6e6ec1fdcb5db83dd35b7dd2430b2b3e1bbd28081c4d0a41849f1",
+      "original_selector_record": {
+        "path": "/tmp/e02-E-decisions-prereqs-custody-independent/handoff-66a4/independent-handoff-normal.json",
+        "portable_path": "independent-handoff-normal.json",
+        "bytes": 123634,
+        "sha256": "77ea906e59e6e6ec1fdcb5db83dd35b7dd2430b2b3e1bbd28081c4d0a41849f1"
+      }
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-custody-independent/handoff-66a4/independent-handoff-optimized.json",
+      "portable_path": "independent-handoff/independent-handoff-optimized.json",
+      "role": "closed independent335copy/339DOC thinhand off original and exact23negative/removal controls",
+      "bytes": 123633,
+      "sha256": "8f9d5709429d63dc76962159766f2282ee57f2a8824b12d3bb723fe817143b6c",
+      "original_selector_record": {
+        "path": "/tmp/e02-E-decisions-prereqs-custody-independent/handoff-66a4/independent-handoff-optimized.json",
+        "portable_path": "independent-handoff-optimized.json",
+        "bytes": 123633,
+        "sha256": "8f9d5709429d63dc76962159766f2282ee57f2a8824b12d3bb723fe817143b6c"
+      }
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-custody-independent/publication-selection-handoff-66a4.json",
+      "portable_path": "independent-handoff/publication-selection.json",
+      "role": "fixed original13asset thinindependent selector",
+      "bytes": 4431,
+      "sha256": "9d7d354baebf4d4559fe18650705b3e78f1577f0297b4a3fc821d0ded14cbb35"
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/publication-receipt.json",
+      "portable_path": "author-postpublication/publication-receipt.json",
+      "role": "literal closed DOC commit/push/hooks/remote readback or exact passive source recipe; no source/native/gate execution",
+      "bytes": 10976,
+      "sha256": "b9dab4e95a04e440fb42dd20496478f8e8346794bc883b9516cd1d297f4964bc"
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/push.stdout.txt",
+      "portable_path": "author-postpublication/push.stdout.txt",
+      "role": "literal closed DOC commit/push/hooks/remote readback or exact passive source recipe; no source/native/gate execution",
+      "bytes": 486,
+      "sha256": "f38523d2d9bd78558a20b41d5dd05bd65a5c3a49f45177d8dd451709d8e9d98a"
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/push.stderr.txt",
+      "portable_path": "author-postpublication/push.stderr.txt",
+      "role": "literal closed DOC commit/push/hooks/remote readback or exact passive source recipe; no source/native/gate execution",
+      "bytes": 126,
+      "sha256": "150a64d2ae598d0949509efba543cbdf4a17d0813dc2fd2e14c9a3dcfb2f5330"
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/fetch-readback.stdout.txt",
+      "portable_path": "author-postpublication/fetch-readback.stdout.txt",
+      "role": "literal closed DOC commit/push/hooks/remote readback or exact passive source recipe; no source/native/gate execution",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/fetch-readback.stderr.txt",
+      "portable_path": "author-postpublication/fetch-readback.stderr.txt",
+      "role": "literal closed DOC commit/push/hooks/remote readback or exact passive source recipe; no source/native/gate execution",
+      "bytes": 131,
+      "sha256": "7e871006a60321ecd7538ed49e2aa24ff97554f9c573240779611888d8e0f3ad"
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/ls-remote-readback.stdout.txt",
+      "portable_path": "author-postpublication/ls-remote-readback.stdout.txt",
+      "role": "literal closed DOC commit/push/hooks/remote readback or exact passive source recipe; no source/native/gate execution",
+      "bytes": 163,
+      "sha256": "38da49fdbae38ca25f20f7466c81707b7b60cb05851c161ce62c00149f399e09"
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/ls-remote-readback.stderr.txt",
+      "portable_path": "author-postpublication/ls-remote-readback.stderr.txt",
+      "role": "literal closed DOC commit/push/hooks/remote readback or exact passive source recipe; no source/native/gate execution",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/handoff-commit.stdout.txt",
+      "portable_path": "author-postpublication/handoff-commit.stdout.txt",
+      "role": "literal closed DOC commit/push/hooks/remote readback or exact passive source recipe; no source/native/gate execution",
+      "bytes": 78206,
+      "sha256": "046431529a24242413971b0ea1fb453514bfc82f1480b906ada72e2727b23f8d"
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/handoff-commit.stderr.txt",
+      "portable_path": "author-postpublication/handoff-commit.stderr.txt",
+      "role": "literal closed DOC commit/push/hooks/remote readback or exact passive source recipe; no source/native/gate execution",
+      "bytes": 653,
+      "sha256": "ddb61329b86a02a3ccea41f6236fa39a7782503d30657fbd70d0394773abe28d"
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/predicate-basis-commit.stdout.txt",
+      "portable_path": "author-postpublication/predicate-basis-commit.stdout.txt",
+      "role": "literal closed DOC commit/push/hooks/remote readback or exact passive source recipe; no source/native/gate execution",
+      "bytes": 351,
+      "sha256": "1bf254c793958aeeadbff936c0f1294498c22fe5e50d044e6dd80c39a43363b8"
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/predicate-basis-commit.stderr.txt",
+      "portable_path": "author-postpublication/predicate-basis-commit.stderr.txt",
+      "role": "literal closed DOC commit/push/hooks/remote readback or exact passive source recipe; no source/native/gate execution",
+      "bytes": 653,
+      "sha256": "952af162589687736a832c46ea72e1ddf3a29a4e42761fa8d441506bf422d1cb"
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/predicate-basis-correction.stdout.json",
+      "portable_path": "author-postpublication/predicate-basis-correction.stdout.json",
+      "role": "literal closed DOC commit/push/hooks/remote readback or exact passive source recipe; no source/native/gate execution",
+      "bytes": 554,
+      "sha256": "57e0488189f48c17f332e84215b4b7352b41ea70802c3d146d63caf6ab032b9d"
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/predicate-basis-correction.stderr.txt",
+      "portable_path": "author-postpublication/predicate-basis-correction.stderr.txt",
+      "role": "literal closed DOC commit/push/hooks/remote readback or exact passive source recipe; no source/native/gate execution",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/final-handoff-footprint.json",
+      "portable_path": "author-postpublication/final-handoff-footprint.json",
+      "role": "literal closed DOC commit/push/hooks/remote readback or exact passive source recipe; no source/native/gate execution",
+      "bytes": 320,
+      "sha256": "bd82249674e6677215d6ed1d5ecff5fcfbd6173fa742738389e9ff929b1c810b"
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/handoff-Git-readback.json",
+      "portable_path": "author-postpublication/handoff-Git-readback.json",
+      "role": "literal closed DOC commit/push/hooks/remote readback or exact passive source recipe; no source/native/gate execution",
+      "bytes": 116496,
+      "sha256": "dc7ee3d4d1a3348b3bc9cf84758802251d0c2cccaf147007ffa3bf6a93cf35af"
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/handoff-Git-readback.stdout.json",
+      "portable_path": "author-postpublication/handoff-Git-readback.stdout.json",
+      "role": "literal closed DOC commit/push/hooks/remote readback or exact passive source recipe; no source/native/gate execution",
+      "bytes": 344,
+      "sha256": "e156a307d0d4a9f80d309a84b7a9f7d8e04e754fb22eb9ce1a43c16d82d92ba6"
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/handoff-Git-readback.stderr.txt",
+      "portable_path": "author-postpublication/handoff-Git-readback.stderr.txt",
+      "role": "literal closed DOC commit/push/hooks/remote readback or exact passive source recipe; no source/native/gate execution",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/handoff-precommit-readback.json",
+      "portable_path": "author-postpublication/handoff-precommit-readback.json",
+      "role": "literal closed DOC commit/push/hooks/remote readback or exact passive source recipe; no source/native/gate execution",
+      "bytes": 116265,
+      "sha256": "4955bcb85f97356f58729c2cf4edf4d416778cd945f5c25e8628f1fe6201512d"
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/handoff-precommit.stdout.json",
+      "portable_path": "author-postpublication/handoff-precommit.stdout.json",
+      "role": "literal closed DOC commit/push/hooks/remote readback or exact passive source recipe; no source/native/gate execution",
+      "bytes": 113,
+      "sha256": "34fc7ca14a5720ea50fbc3d3c695f4fa8f0c33c6d9768ddc0b2a05076fb97436"
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/handoff-precommit.stderr.txt",
+      "portable_path": "author-postpublication/handoff-precommit.stderr.txt",
+      "role": "literal closed DOC commit/push/hooks/remote readback or exact passive source recipe; no source/native/gate execution",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/precommit-ordering-tool-observation.json",
+      "portable_path": "author-postpublication/precommit-ordering-tool-observation.json",
+      "role": "literal closed DOC commit/push/hooks/remote readback or exact passive source recipe; no source/native/gate execution",
+      "bytes": 995,
+      "sha256": "78f06c1dc935c5fb39dde0b143a0e177b4502991b866fbe59675290156516c8f"
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/build-handoff.stdout.json",
+      "portable_path": "author-postpublication/build-handoff.stdout.json",
+      "role": "literal closed DOC commit/push/hooks/remote readback or exact passive source recipe; no source/native/gate execution",
+      "bytes": 732,
+      "sha256": "ce8eb2fb9a0033133dee366f209a79c9e1b7781f772e26958ea7e360dd2d56bb"
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/build-handoff.stderr.txt",
+      "portable_path": "author-postpublication/build-handoff.stderr.txt",
+      "role": "literal closed DOC commit/push/hooks/remote readback or exact passive source recipe; no source/native/gate execution",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/write-publication-receipt.py.txt",
+      "portable_path": "author-postpublication/write-publication-receipt.py.txt",
+      "role": "literal closed DOC commit/push/hooks/remote readback or exact passive source recipe; no source/native/gate execution",
+      "bytes": 5251,
+      "sha256": "c034e5899ccb4e294353c84a340d942b36a22db0a8582cf3efbd85515a4790a4"
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/write-publication-receipt.stdout.json",
+      "portable_path": "author-postpublication/write-publication-receipt.stdout.json",
+      "role": "literal closed DOC commit/push/hooks/remote readback or exact passive source recipe; no source/native/gate execution",
+      "bytes": 189,
+      "sha256": "cf2f7b54c9d6fd31911b144042fd2d3d0b15339288a765d39a46a54b2e192057"
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/write-publication-receipt.stderr.txt",
+      "portable_path": "author-postpublication/write-publication-receipt.stderr.txt",
+      "role": "literal closed DOC commit/push/hooks/remote readback or exact passive source recipe; no source/native/gate execution",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/verify-handoff-precommit.py.txt",
+      "portable_path": "author-postpublication/verify-handoff-precommit.py.txt",
+      "role": "literal closed DOC commit/push/hooks/remote readback or exact passive source recipe; no source/native/gate execution",
+      "bytes": 1416,
+      "sha256": "60dc6e346b47ff76f7087b5bed7cf58b18ede000d735363b045225e50b378950"
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/readback-handoff-Git.py.txt",
+      "portable_path": "author-postpublication/readback-handoff-Git.py.txt",
+      "role": "literal closed DOC commit/push/hooks/remote readback or exact passive source recipe; no source/native/gate execution",
+      "bytes": 1446,
+      "sha256": "6ec89dd235078a49d6b4d6ba7872ddbcb2e57b63511c1a076b8f6a3e5b05b950"
+    },
+    {
+      "source_path": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/select-postpublication.py.txt",
+      "portable_path": "author-postpublication/select-postpublication.py.txt",
+      "role": "literal closed DOC commit/push/hooks/remote readback or exact passive source recipe; no source/native/gate execution",
+      "bytes": 3441,
+      "sha256": "cc2df6351e78173d429f724679c93edefa56c8a7fbfe828c2ab907ea10f77a18"
+    }
+  ],
+  "asset_count": 43,
+  "total_bytes": 896759,
+  "scope": "External next-root/supplement assets only: published521\u2192522DOC currentthinreview+commit/remote custody. No recursive mutation of alreadypublished source/handoff; original335 copies and237 membership chain unchanged.",
+  "exclusions": "No source/numeric/native/backend/private/raw/temp destination trees; currentROOTgeneratedinput mutation no wholeclean or cause claim."
+}

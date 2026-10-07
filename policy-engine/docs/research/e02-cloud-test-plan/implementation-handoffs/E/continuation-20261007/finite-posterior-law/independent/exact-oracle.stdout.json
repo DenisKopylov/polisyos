@@ -1,0 +1,66 @@
+{
+  "outcome": "independent oracle derived",
+  "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/exact-finite-oracle.json",
+  "bytes": 6369,
+  "sha256": "9ecfbdb387d63e1db764bd6cec49b26edcddb38c3ffeac4e82cbd586b682bfdc",
+  "dyadic": {
+    "mean": "21/4",
+    "variance": "243/16",
+    "callback_grid_rows": [
+      64,
+      64,
+      128
+    ]
+  },
+  "third_boundary_actual_gold": [
+    {
+      "weights": [
+        1,
+        2
+      ],
+      "u": 0.0,
+      "u_hex": "0x0.0p+0",
+      "exact_u": "0",
+      "exact_CDF_first": "1/3",
+      "bucket": 0,
+      "quantile_sample_at_same_q": null
+    },
+    {
+      "weights": [
+        1,
+        2
+      ],
+      "u": 0.3333333333333333,
+      "u_hex": "0x1.5555555555555p-2",
+      "exact_u": "6004799503160661/18014398509481984",
+      "exact_CDF_first": "1/3",
+      "bucket": 0,
+      "quantile_sample_at_same_q": 0.0
+    },
+    {
+      "weights": [
+        1,
+        2
+      ],
+      "u": 0.33333333333333337,
+      "u_hex": "0x1.5555555555556p-2",
+      "exact_u": "3002399751580331/9007199254740992",
+      "exact_CDF_first": "1/3",
+      "bucket": 1,
+      "quantile_sample_at_same_q": 1.0
+    },
+    {
+      "weights": [
+        1,
+        2
+      ],
+      "u": 0.9999999999999999,
+      "u_hex": "0x1.fffffffffffffp-1",
+      "exact_u": "9007199254740991/9007199254740992",
+      "exact_CDF_first": "1/3",
+      "bucket": 1,
+      "quantile_sample_at_same_q": 1.0
+    }
+  ],
+  "candidate_imports_or_tests": false
+}

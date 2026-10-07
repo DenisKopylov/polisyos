@@ -1,0 +1,21 @@
+{
+  "base": "2c0fb5e26172129ab3ae032c24b35ed2ced6c80f",
+  "candidate": "ca17a489559eb574285bb1c7291cc3c56a9e29da",
+  "tree": "f2ce9f70a02fa7184a5caac3faaeddd95f6e1d3e",
+  "rows": [
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-posterior-ratio-law-v2.toml",
+      "before_sha256": "75a277dec3e8eccc026c5b2735f6fc248ad12ba4c7aa1ccb24658dd046fe1045",
+      "after_sha256": "5cfbb8a2d2b6dcf32564a98454dea5b6110e56d01bf6227e41de55ae52be2b93",
+      "bytes": 1316
+    },
+    {
+      "path": "policy-engine/tests/unit/ir/test_posterior_ratio_law.py",
+      "before_sha256": "fd411d7a00282eaa85db85f17f73db3532a8ce7873673f8d3bc5bfcc5b878e70",
+      "after_sha256": "1335426176a93732e569d0c7c672bd99ed3b306af89c0ab6f43d4c69896669f6",
+      "bytes": 11522
+    }
+  ],
+  "product_delta_paths": [],
+  "defining_math_reuse": "Exact product bytes unchanged; 414-case2c0 receipt remains source2c0, fresh delta facade identity is separate."
+}

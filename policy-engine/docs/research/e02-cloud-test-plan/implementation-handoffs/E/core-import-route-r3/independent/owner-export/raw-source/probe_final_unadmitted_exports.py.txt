@@ -1,0 +1,24 @@
+from pathlib import Path
+import hashlib,importlib,json,subprocess,sys
+repo=Path('/workspace/e02-E-cal-review-20261006')
+ref='539ee6d6aad7f9db4c03dc520fc515dabef8d799'
+sys.path[:0]=[str(repo/'policy-engine/src'),str(repo/'policy-engine')]
+aliases={
+ 'polisyos.ir.analytics':['PosteriorSamplesCarrier','ParametricFitCarrier','load_forecasting_uncertainty_bundle','persist_forecasting_uncertainty_bundle','load_uncertainty_envelope','persist_uncertainty_envelope'],
+ 'polisyos.foundry.execute':['get_state_path','load_state_snapshot','put_state_snapshot'],
+}
+cases=[]
+for fullname,names in aliases.items():
+ module=importlib.import_module(fullname)
+ for name in names:
+  try:
+   value=getattr(module,name)
+  except AttributeError as exc:
+   cases.append({'module':fullname,'name':name,'outcome':'PASS','capability':'surface_missing','typed_error':type(exc).__name__,'error':str(exc),'curated':name in module.__all__})
+  else:raise AssertionError('Unexpected already available export '+fullname+'.'+name)
+inputs=[]
+for path in ['policy-engine/src/polisyos/ir/api.py','policy-engine/src/polisyos/ir/analytics/__init__.py','policy-engine/src/polisyos/foundry/execute/__init__.py']:
+ data=(repo/path).read_bytes();expected=subprocess.check_output(['git','-C',str(repo),'show',ref+':'+path]);assert data==expected
+ inputs.append({'path':path,'sha256':hashlib.sha256(data).hexdigest(),'bytes':len(data)})
+report={'source_sha':ref,'cases':cases,'source_bindings':inputs,'scope':'Actual runtime API availability check only; does not infer statistical or authority semantics','python':sys.version}
+p=Path(__file__).parent/'final-unadmitted-exports.json';p.write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report,indent=2))

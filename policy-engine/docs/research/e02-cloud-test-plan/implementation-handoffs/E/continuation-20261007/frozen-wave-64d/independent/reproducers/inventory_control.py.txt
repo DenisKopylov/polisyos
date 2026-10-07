@@ -1,0 +1,42 @@
+"""Prove complete-set receipt guard survives optimized Python."""
+
+import importlib.util
+import json
+from pathlib import Path
+
+ROOT = Path("/workspace/e02-E-continuation-20261006")
+SOURCE = "64d7444a18c55df7b88b71b7699a2f1b25ca24bd"
+SPEC = importlib.util.spec_from_file_location(
+    "collector", Path(__file__).with_name("recompute_wave.py")
+)
+MODULE = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(MODULE)
+actual = MODULE.inventory(ROOT, SOURCE)
+raw = MODULE.git(
+    ROOT, "show", SOURCE + ":" + MODULE.PLAN_PREFIX + "closure-decisions/coverage.json"
+)
+corrupt = json.loads(raw)
+removed = next(row for row in corrupt["findings"] if row["unit"] == "E")
+corrupt["findings"].remove(removed)
+MODULE.git = lambda *args: json.dumps(corrupt).encode()
+try:
+    MODULE.inventory(ROOT, SOURCE)
+except ValueError as error:
+    print(
+        json.dumps(
+            {
+                "outcome": "PASS",
+                "healthy_denominator": [
+                    len(actual["bundles"]),
+                    len(actual["findings"]),
+                    sum(len(b["finding_ids"]) for b in actual["bundles"]),
+                ],
+                "retained_marker_unit": "E",
+                "actual_finding_removed": removed["id"],
+                "negative_refusal": str(error),
+                "assert_statements_required": False,
+            }
+        )
+    )
+else:
+    raise RuntimeError("Missing actual finding accepted because count markers remained")

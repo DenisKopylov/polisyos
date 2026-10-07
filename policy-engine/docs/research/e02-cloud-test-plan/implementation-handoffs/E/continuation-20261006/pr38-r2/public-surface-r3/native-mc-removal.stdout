@@ -1,0 +1,6 @@
+{"fixture": "collapsed", "callback_count": 257, "family": "bootstrap", "gate_eligible": false, "removed_guard": true}
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r2-receipts/public-surface-packet-r3/native_mc_export_probe.py", line 32, in <module>
+    assert calls==[], 'collapsed-law admission guard removed: actual native producer reached callbacks'
+           ^^^^^^^^^
+AssertionError: collapsed-law admission guard removed: actual native producer reached callbacks

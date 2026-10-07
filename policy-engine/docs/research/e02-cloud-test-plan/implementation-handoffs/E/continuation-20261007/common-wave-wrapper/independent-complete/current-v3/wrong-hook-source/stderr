@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/retained_runtime_api_cli.py", line 138, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/retained_runtime_api_cli.py", line 25, in main
+    raise RuntimeError(
+        "runtime API checker source differs from admitted candidate bytes"
+    )
+RuntimeError: runtime API checker source differs from admitted candidate bytes

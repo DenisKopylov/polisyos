@@ -1,0 +1,17 @@
+{
+  "format": "lossless_utf8_deciding_streams.v1",
+  "streams": {
+    "stdout": {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/1915-E-Morris-analysis-probe/setup-failure-2-stdout.txt",
+      "bytes": 1868,
+      "sha256": "fe78d6c4a3d6238445b8f653aaf08d95d8e98fea43623c946f1b4e5a6b8fa313",
+      "text": "{\"candidate\": \"70c4a14fc872f5ef66437d958ba63884ecdda168\", \"candidate_tree\": \"3e654b07a3228d1b3d2d0bb2a3a91ae792068090\", \"elapsed_seconds\": 0.097174, \"environment\": {\"BLIS_NUM_THREADS\": \"1\", \"CANDIDATE_SOURCE\": \"/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src\", \"MKL_NUM_THREADS\": \"1\", \"NUMEXPR_NUM_THREADS\": \"1\", \"OMP_NUM_THREADS\": \"1\", \"OPENBLAS_NUM_THREADS\": \"1\", \"OVERLAY\": \"/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-doe-prerequisite/overlay\", \"PYTHONDONTWRITEBYTECODE\": \"1\", \"PYTHONHASHSEED\": \"0\", \"PYTHONNOUSERSITE\": \"1\", \"PYTHONPATH\": \"/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1800-doe-prerequisite/overlay:/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src\", \"VECLIB_MAXIMUM_THREADS\": \"1\"}, \"error\": {\"message\": \"[Errno 2] No such file or directory: '/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine/src/src/polisyos/scientist/methods/doe/designs.py'\", \"type\": \"FileNotFoundError\"}, \"inputs_sha256\": \"02e3b25797ce6f468efe1da748b5da73ef8e4f6d24846e75b1c49d459d571f8c\", \"peak_rss_bytes\": 22429696, \"process\": {\"cwd\": \"/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/1845-DOE-checks/source/policy-engine\", \"python\": \"/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python\", \"python_version\": \"3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]\"}, \"status\": \"error\"}\n"
+    },
+    "stderr": {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/1915-E-Morris-analysis-probe/setup-failure-2-stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "text": ""
+    }
+  }
+}

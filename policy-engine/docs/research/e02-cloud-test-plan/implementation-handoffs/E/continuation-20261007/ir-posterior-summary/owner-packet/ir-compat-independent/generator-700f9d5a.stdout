@@ -1,0 +1,167 @@
+{
+  "candidate": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+  "tree": "2e692d5a5dfa4cfbff78d0079c6fed3e4ba1a73f",
+  "base": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+  "source_inputs": [
+    {
+      "path": "policy-engine/tools/quality/diagnostics/gen_schema.py",
+      "sha256": "6d1b8f48e20853415dbd9109d0b0662f3d9ca199e2d15c36292823b2e7c1d72e",
+      "bytes": 23635
+    },
+    {
+      "path": "policy-engine/tools/quality/diagnostics/generate_ir_reference_catalog.py",
+      "sha256": "f4b8184a1052a76f7d54a6e729757478eced3c8213b88326ca652f604a213c27",
+      "bytes": 10707
+    },
+    {
+      "path": "policy-engine/tools/devx/architecture/guardrails.py",
+      "sha256": "65f0daa51b96910c04cd6dd69676040f9b41b1674955c66e7c479106cd9d187a",
+      "bytes": 103077
+    },
+    {
+      "path": "policy-engine/architecture/public_surface/contract.toml",
+      "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6",
+      "bytes": 19715
+    },
+    {
+      "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+      "sha256": "ef435c7f9665279057dda175451f7f8ccabba8948fd7d6b7cd7452c31ee1d6f3",
+      "bytes": 27404
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/api.py",
+      "sha256": "01a443f8e51294137cdf3a70c2eed90de570f69bd6d822742099069afd8bab8a",
+      "bytes": 49444
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "sha256": "15f06972034343d4a341f0a126a3f566c03b6daee0366f5350505dfaf3db155c",
+      "bytes": 39304
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "sha256": "0e6b8f25eab56fc0f5f782effc9960f2fe449da559009422adfe5737525bb43e",
+      "bytes": 19970
+    }
+  ],
+  "module_manifests": [
+    {
+      "module": "fabric",
+      "old_count": 2,
+      "projected_count": 2,
+      "old_keys_retained": true,
+      "added_keys": [],
+      "changed_old_entries": [],
+      "canonical_content_hash_verified": true,
+      "compatibility": {
+        "breaking_change_requires_fragment": "true",
+        "compatibility_class": "schema-openapi-abi",
+        "deprecation_window": "2 minor releases",
+        "release_fragment_change_class": "schema-openapi-abi",
+        "version_owner": "team-fabric"
+      }
+    },
+    {
+      "module": "ir",
+      "old_count": 99,
+      "projected_count": 100,
+      "old_keys_retained": true,
+      "added_keys": [
+        "posterior_summary_profile"
+      ],
+      "changed_old_entries": [
+        "feedback_solve_result"
+      ],
+      "canonical_content_hash_verified": true,
+      "compatibility": {
+        "breaking_change_requires_fragment": "true",
+        "compatibility_class": "persisted-artifact-format",
+        "deprecation_window": "2 minor releases",
+        "release_fragment_change_class": "persisted-artifact-format",
+        "version_owner": "team-ir"
+      }
+    }
+  ],
+  "complete_ABI_registry_selected": 102,
+  "complete_ABI_resolved": 102,
+  "complete_models_generated": 102,
+  "full_public_manifest_packages": 20,
+  "full_public_generated_families": 13,
+  "changed_generated_companions": [
+    {
+      "path": "policy-engine/architecture/public_surface/inventory.json",
+      "old_bytes": 222856,
+      "old_sha256": "63a4ed665331cb937ec4ec5968e72ba5659914c147ed23eb447f7183c5a37fd1",
+      "projected_bytes": 223082,
+      "projected_sha256": "20e6fd9e5b427ad2ed91fc5bc3bd228d17a962bcea471ff3642229e5ce2a68b6",
+      "owner": "team-architecture/G public surface generator",
+      "same_as_source_candidate": false
+    },
+    {
+      "path": "policy-engine/docs/reference/ir/schema-catalog.md",
+      "old_bytes": 1635334,
+      "old_sha256": "a62664c41c7f7cb75e7447674925ef9fba38b66e4f79f4ec03f39f33ebb9a315",
+      "projected_bytes": 1639768,
+      "projected_sha256": "820dd9055dd5e014b5ba5fce88d25539265f2edc019085f3632ad58ff07fbb31",
+      "owner": "team-ir/G canonical generator",
+      "same_as_source_candidate": false
+    },
+    {
+      "path": "policy-engine/docs/reference/public-surface.md",
+      "old_bytes": 154167,
+      "old_sha256": "99b655871e2e68c0577cd6f6e18358dfea9a5aac7e216bcbb3a6aed7d2fd56ed",
+      "projected_bytes": 154315,
+      "projected_sha256": "daf79ae716a36244d8228515308c5a646b4b9c9fd081c000d50910b5b416090f",
+      "owner": "team-architecture/G public surface generator",
+      "same_as_source_candidate": false
+    },
+    {
+      "path": "policy-engine/docs/reference/schemas.md",
+      "old_bytes": 29371,
+      "old_sha256": "538414f0c110610aa21a85aca0dbc48a31894f54669fde4cfae9e2d01f8fbda2",
+      "projected_bytes": 29701,
+      "projected_sha256": "3c35dc5d2e3f18868cf6c45acff40e4058b47498c0a2b39ca209abc5e7ec9895",
+      "owner": "team-ir/G canonical generator",
+      "same_as_source_candidate": false
+    },
+    {
+      "path": "policy-engine/schemas/snapshots/ir/_manifest.json",
+      "old_bytes": 52447,
+      "old_sha256": "b566b7f999f25d3aec2bb10184ed85c108ccbdfd8abad8f558259c037d9b2a27",
+      "projected_bytes": 52990,
+      "projected_sha256": "7a271d42ecb245ffbe87b0123e58419e17c05c21a002faa95609ffcd3665626e",
+      "owner": "team-ir/G canonical generator",
+      "same_as_source_candidate": false
+    },
+    {
+      "path": "policy-engine/schemas/snapshots/ir/feedback_solve_result.schema.json",
+      "old_bytes": 8853,
+      "old_sha256": "00d1fac4d9059783c0107cb3d39b772115bfab8847267fadafc80ca5c7d27b42",
+      "projected_bytes": 10458,
+      "projected_sha256": "27dad4e3ca52c016d9203c5d70b27299bfbb38698fc6f64f4e2bc7377d2045d3",
+      "owner": "team-ir/G canonical generator",
+      "same_as_source_candidate": false
+    },
+    {
+      "path": "policy-engine/schemas/snapshots/ir/posterior_summary_profile.schema.json",
+      "old_bytes": 0,
+      "old_sha256": null,
+      "projected_bytes": 6257,
+      "projected_sha256": "fb26ce985c4b99092bd1a9d75a2f9b3940415eff83cbb9383fbb63a89b2dccf6",
+      "owner": "team-ir/G canonical generator",
+      "same_as_source_candidate": false
+    }
+  ],
+  "patch": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-700f9d5a/canonical-generated-full.patch",
+    "bytes": 27313,
+    "sha256": "3838278b4419d3d17053282e0a3f5c248ef100b6b2c3b41c34d032b499dc0580"
+  },
+  "check_outcome": "GENERATED_PACKET_ONLY",
+  "capability_state": "surface_missing",
+  "remaining_owner": "G/canonical generator and public inventory writers apply/review exact full-source projection; no E shared-writer edits authorized",
+  "repository_writes": false,
+  "new_environment": false,
+  "broad_wave": false,
+  "warning": "Generated patch contains the complete actual denominator; differences outside the E profile are separately attributed by canonical owners, not excused inherited by path overlap. No selected-only manifest or manual generated edits."
+}

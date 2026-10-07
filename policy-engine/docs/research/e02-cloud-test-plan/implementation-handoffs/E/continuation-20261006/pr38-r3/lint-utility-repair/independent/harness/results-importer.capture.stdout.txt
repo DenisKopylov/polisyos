@@ -1,0 +1,1 @@
+{"command": ["/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python", "-c", "print(\"tiny importer positive\")"], "exit_code": 0, "outcome": "PASS", "counts": null, "wall_seconds": 5.29053258895874, "source_immutable": true}

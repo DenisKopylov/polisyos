@@ -1,0 +1,483 @@
+{
+  "elapsed_seconds": 0.105382,
+  "extract_mgraph_metadata": {
+    "exception_type": "ValueError",
+    "message": "extract_mgraph_metadata requires graph_type=MGRAPH, got GraphType.ADMG",
+    "outcome": "FAIL"
+  },
+  "fresh_cas_artifact_available": true,
+  "fresh_cas_ref": "artifact_id=ArtifactID(root='sha256:dbb7233ea3ab79fbf52c3abe9f29c41827134fd7e3e2d47066cb5cd603139302') kind='ir.causal_graph_model' media_type='application/json' manifest_profile_sha256=None",
+  "fresh_reader_edges": [
+    [
+      "R_X",
+      "X_star",
+      "tail",
+      "arrow",
+      null
+    ],
+    [
+      "X",
+      "Y",
+      "arrow",
+      "arrow",
+      null
+    ],
+    [
+      "X",
+      "Y",
+      "tail",
+      "arrow",
+      null
+    ]
+  ],
+  "fresh_reader_graph_dump": {
+    "discovery_method": "reconciled_prior_graph",
+    "edges": [
+      {
+        "combined_confidence": 0.9,
+        "data_confidence": 0.9,
+        "dst": "X_star",
+        "evidence_refs": [],
+        "expert_confidence": null,
+        "lag": null,
+        "literature_confidence": null,
+        "llm_confidence": null,
+        "mark_dst": "arrow",
+        "mark_src": "tail",
+        "metadata": {},
+        "p_value": null,
+        "simulation_confidence": null,
+        "sources": [
+          "data"
+        ],
+        "src": "R_X",
+        "unsupported_by_evidence": false
+      },
+      {
+        "combined_confidence": 0.9,
+        "data_confidence": 0.9,
+        "dst": "Y",
+        "evidence_refs": [],
+        "expert_confidence": null,
+        "lag": null,
+        "literature_confidence": null,
+        "llm_confidence": null,
+        "mark_dst": "arrow",
+        "mark_src": "tail",
+        "metadata": {},
+        "p_value": null,
+        "simulation_confidence": null,
+        "sources": [
+          "data"
+        ],
+        "src": "X",
+        "unsupported_by_evidence": false
+      },
+      {
+        "combined_confidence": 0.9,
+        "data_confidence": 0.9,
+        "dst": "Y",
+        "evidence_refs": [],
+        "expert_confidence": null,
+        "lag": null,
+        "literature_confidence": null,
+        "llm_confidence": null,
+        "mark_dst": "arrow",
+        "mark_src": "arrow",
+        "metadata": {},
+        "p_value": null,
+        "simulation_confidence": null,
+        "sources": [
+          "data"
+        ],
+        "src": "X",
+        "unsupported_by_evidence": false
+      }
+    ],
+    "graph_type": "admg",
+    "id_confidence_under_pag": null,
+    "metadata": {
+      "llm_prior_constants": {
+        "LLM_OVERLAP_DISCOUNT": 0.5,
+        "LLM_PRIOR_CEILING": 0.3,
+        "LLM_REPLICATION_BONUS": 0.05
+      },
+      "mgraph": {
+        "fully_observed_vars": [
+          "Y"
+        ],
+        "proxy_nodes": [
+          {
+            "proxy_name": "X_star",
+            "target_variable": "X"
+          }
+        ],
+        "r_nodes": [
+          {
+            "description": "",
+            "missingness_kind": "mcar",
+            "target_variable": "X"
+          }
+        ],
+        "schema_version": "1.0",
+        "substantive_vars": [
+          "X",
+          "Y"
+        ]
+      },
+      "needs_expert_review": false,
+      "reconciliation_diagnostics": {
+        "curl_norm": 0.0,
+        "cyclic_inconsistency_norm": 0.0,
+        "d0_shape": [
+          3,
+          4
+        ],
+        "d1_shape": [
+          0,
+          3
+        ],
+        "delta0_shape": [
+          4,
+          3
+        ],
+        "delta1_shape": [
+          3,
+          0
+        ],
+        "diagnostics_truncated": false,
+        "gradient_norm": 0.8999999999999999,
+        "harmonic_norm": 1.570092458683775e-16,
+        "irreducible_conflict_norm": 1.570092458683775e-16,
+        "n_components": 2,
+        "n_edges": 3,
+        "n_sources": 1,
+        "n_triangles": 0,
+        "operators": {
+          "D0": [
+            [
+              -1.0,
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              0.0,
+              -1.0,
+              0.0,
+              1.0
+            ],
+            [
+              0.0,
+              -1.0,
+              0.0,
+              1.0
+            ]
+          ],
+          "D1": [],
+          "delta^0": [
+            [
+              -1.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              -1.0,
+              -1.0
+            ],
+            [
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              1.0,
+              1.0
+            ]
+          ],
+          "delta^1": []
+        },
+        "truncation_reason": null
+      },
+      "reconciliation_input_sha256": "1561d602a2e52b3785763c0b7e850bee5c4ee1540e1c9480f0497223bf0b26e9",
+      "reconciliation_warnings": []
+    },
+    "nodes": [
+      "R_X",
+      "X",
+      "X_star",
+      "Y"
+    ],
+    "pag_identification_policy": "conservative",
+    "schema_version": "1.0",
+    "skg_version_id": null
+  },
+  "fresh_reader_graph_type": "admg",
+  "fresh_reader_metadata_mgraph": {
+    "fully_observed_vars": [
+      "Y"
+    ],
+    "proxy_nodes": [
+      {
+        "proxy_name": "X_star",
+        "target_variable": "X"
+      }
+    ],
+    "r_nodes": [
+      {
+        "description": "",
+        "missingness_kind": "mcar",
+        "target_variable": "X"
+      }
+    ],
+    "schema_version": "1.0",
+    "substantive_vars": [
+      "X",
+      "Y"
+    ]
+  },
+  "input_edges": [
+    [
+      "R_X",
+      "X_star",
+      "tail",
+      "arrow",
+      null
+    ],
+    [
+      "X",
+      "Y",
+      "arrow",
+      "arrow",
+      null
+    ],
+    [
+      "X",
+      "Y",
+      "tail",
+      "arrow",
+      null
+    ]
+  ],
+  "input_graph_type": "mgraph",
+  "input_graph_validated_dump": {
+    "discovery_method": "native-probe-mgraph",
+    "edges": [
+      {
+        "combined_confidence": 0.9,
+        "data_confidence": 0.9,
+        "dst": "Y",
+        "evidence_refs": [],
+        "expert_confidence": null,
+        "lag": null,
+        "literature_confidence": null,
+        "llm_confidence": null,
+        "mark_dst": "arrow",
+        "mark_src": "tail",
+        "metadata": {},
+        "p_value": null,
+        "simulation_confidence": null,
+        "sources": [
+          "data"
+        ],
+        "src": "X",
+        "unsupported_by_evidence": false
+      },
+      {
+        "combined_confidence": 0.9,
+        "data_confidence": 0.9,
+        "dst": "Y",
+        "evidence_refs": [],
+        "expert_confidence": null,
+        "lag": null,
+        "literature_confidence": null,
+        "llm_confidence": null,
+        "mark_dst": "arrow",
+        "mark_src": "arrow",
+        "metadata": {},
+        "p_value": null,
+        "simulation_confidence": null,
+        "sources": [
+          "data"
+        ],
+        "src": "X",
+        "unsupported_by_evidence": false
+      },
+      {
+        "combined_confidence": 0.9,
+        "data_confidence": 0.9,
+        "dst": "X_star",
+        "evidence_refs": [],
+        "expert_confidence": null,
+        "lag": null,
+        "literature_confidence": null,
+        "llm_confidence": null,
+        "mark_dst": "arrow",
+        "mark_src": "tail",
+        "metadata": {},
+        "p_value": null,
+        "simulation_confidence": null,
+        "sources": [
+          "data"
+        ],
+        "src": "R_X",
+        "unsupported_by_evidence": false
+      }
+    ],
+    "graph_type": "mgraph",
+    "id_confidence_under_pag": null,
+    "metadata": {
+      "mgraph": {
+        "fully_observed_vars": [
+          "Y"
+        ],
+        "proxy_nodes": [
+          {
+            "proxy_name": "X_star",
+            "target_variable": "X"
+          }
+        ],
+        "r_nodes": [
+          {
+            "description": "",
+            "missingness_kind": "mcar",
+            "target_variable": "X"
+          }
+        ],
+        "schema_version": "1.0",
+        "substantive_vars": [
+          "X",
+          "Y"
+        ]
+      }
+    },
+    "nodes": [
+      "X",
+      "Y",
+      "R_X",
+      "X_star"
+    ],
+    "pag_identification_policy": "conservative",
+    "schema_version": "1.0",
+    "skg_version_id": null
+  },
+  "input_metadata_mgraph": {
+    "fully_observed_vars": [
+      "Y"
+    ],
+    "proxy_nodes": [
+      {
+        "proxy_name": "X_star",
+        "target_variable": "X"
+      }
+    ],
+    "r_nodes": [
+      {
+        "description": "",
+        "missingness_kind": "mcar",
+        "target_variable": "X"
+      }
+    ],
+    "schema_version": "1.0",
+    "substantive_vars": [
+      "X",
+      "Y"
+    ]
+  },
+  "input_mgraph_metadata_reader": {
+    "outcome": "PASS",
+    "value": {
+      "fully_observed_vars": [
+        "Y"
+      ],
+      "proxy_nodes": [
+        {
+          "proxy_name": "X_star",
+          "target_variable": "X"
+        }
+      ],
+      "r_nodes": [
+        {
+          "description": "",
+          "missingness_kind": "mcar",
+          "target_variable": "X"
+        }
+      ],
+      "schema_version": "1.0",
+      "substantive_vars": [
+        "X",
+        "Y"
+      ]
+    }
+  },
+  "input_schema_validated": true,
+  "mgraph_metadata_preserved": true,
+  "node_error": null,
+  "node_status": "ok",
+  "phase": "fresh-reader",
+  "producer_complete": true,
+  "producer_extract_mgraph_metadata": {
+    "exception_type": "ValueError",
+    "message": "extract_mgraph_metadata requires graph_type=MGRAPH, got GraphType.ADMG",
+    "outcome": "FAIL"
+  },
+  "producer_issues": [],
+  "producer_mgraph_metadata_preserved": true,
+  "producer_reconciled_edges": [
+    [
+      "R_X",
+      "X_star",
+      "tail",
+      "arrow",
+      null
+    ],
+    [
+      "X",
+      "Y",
+      "arrow",
+      "arrow",
+      null
+    ],
+    [
+      "X",
+      "Y",
+      "tail",
+      "arrow",
+      null
+    ]
+  ],
+  "producer_reconciled_graph_type": "admg",
+  "producer_reconciled_metadata_mgraph": {
+    "fully_observed_vars": [
+      "Y"
+    ],
+    "proxy_nodes": [
+      {
+        "proxy_name": "X_star",
+        "target_variable": "X"
+      }
+    ],
+    "r_nodes": [
+      {
+        "description": "",
+        "missingness_kind": "mcar",
+        "target_variable": "X"
+      }
+    ],
+    "schema_version": "1.0",
+    "substantive_vars": [
+      "X",
+      "Y"
+    ]
+  },
+  "producer_result_payload_keys": [
+    "diagnostics",
+    "needs_expert_review",
+    "reconciled_graph",
+    "warnings"
+  ],
+  "producer_result_ref": "artifact_id=ArtifactID(root='sha256:fe5af6f4a9a9795ac1addba4e903a7fd08f3f191dbece37f770ce51c0bd2eb81') kind='scientist.method_result.causal.prior' media_type='application/json' manifest_profile_sha256=None",
+  "source_artifact_id": "sha256:5f540209066ab86a0874c45c41c4010d9164f62cbdfa2a2ca13d23224d04448e"
+}

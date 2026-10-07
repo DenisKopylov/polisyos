@@ -1,0 +1,93 @@
+{
+  "schema": "policyos.e02.independent_decisions_prereqs_handoff_selection.v1",
+  "source_sha": "66a4f8fc1398ed72b3ee9d38b07d88a4d2d5c3cd",
+  "source_tree": "54ec53ea6e53a61432135e8d2728c6fa1cfd964a",
+  "assets": [
+    {
+      "path": "/tmp/e02-E-decisions-prereqs-custody-independent/review_handoff_metadata_66a4.py.txt",
+      "portable_path": "review_handoff_metadata_66a4.py.txt",
+      "bytes": 11058,
+      "sha256": "428920f2128701dca9ffafda5a70bfd5d5e83d64e0465c4bece86de258c5e034"
+    },
+    {
+      "path": "/tmp/e02-E-decisions-prereqs-custody-independent/review_handoff_byte_custody_98e913.py.txt",
+      "portable_path": "review_handoff_byte_custody_98e913.py.txt",
+      "bytes": 4778,
+      "sha256": "a529b08890d04be0cf29ce127156d8c488e11ae6354da6b0f18ba282ac88742b"
+    },
+    {
+      "path": "/tmp/e02-E-decisions-prereqs-custody-independent/historical-review-handoff-66a4-before-field-shape-correction.py.txt",
+      "portable_path": "historical-review-handoff-66a4-before-field-shape-correction.py.txt",
+      "bytes": 10938,
+      "sha256": "a35ac7b13043b543399c22abf060657183224570c91cd885fb11f2d992275391"
+    },
+    {
+      "path": "/tmp/e02-E-decisions-prereqs-custody-independent/handoff-66a4-normal.stderr.txt",
+      "portable_path": "handoff-66a4-normal.stderr.txt",
+      "bytes": 593,
+      "sha256": "c57505175927e5fda720c41ed30500bf937f027a001e740b812dfce7dc4a4be0"
+    },
+    {
+      "path": "/tmp/e02-E-decisions-prereqs-custody-independent/handoff-98e913-byte.stdout.json",
+      "portable_path": "handoff-98e913-byte.stdout.json",
+      "bytes": 580,
+      "sha256": "40685e72aafe18094086862f5a266abd40f26eb5ac8eb51c0d2202c7c06cd8e0"
+    },
+    {
+      "path": "/tmp/e02-E-decisions-prereqs-custody-independent/handoff-98e913-byte.stderr.txt",
+      "portable_path": "handoff-98e913-byte.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-decisions-prereqs-custody-independent/handoff-66a4-normal-v2.stdout.json",
+      "portable_path": "handoff-66a4-normal-v2.stdout.json",
+      "bytes": 605,
+      "sha256": "d636e81e424890abe0e7b3dacbe9db41ebbc2bc124db3bb0b915315f4b4b6efd"
+    },
+    {
+      "path": "/tmp/e02-E-decisions-prereqs-custody-independent/handoff-66a4-normal-v2.stderr.txt",
+      "portable_path": "handoff-66a4-normal-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-decisions-prereqs-custody-independent/handoff-66a4-optimized-v2.stdout.json",
+      "portable_path": "handoff-66a4-optimized-v2.stdout.json",
+      "bytes": 607,
+      "sha256": "a9879cf1d9ee0b961e4c35a0d39ec80ee7333073118d41fc3d108fec8e13afe3"
+    },
+    {
+      "path": "/tmp/e02-E-decisions-prereqs-custody-independent/handoff-66a4-optimized-v2.stderr.txt",
+      "portable_path": "handoff-66a4-optimized-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-decisions-prereqs-custody-independent/handoff-98e913/independent-byte-custody-98e913.json",
+      "portable_path": "independent-byte-custody-98e913.json",
+      "bytes": 276595,
+      "sha256": "5e29c610e0e89466a5b91bbdebc220245fa59be9c41144835b4805f461bb5af1"
+    },
+    {
+      "path": "/tmp/e02-E-decisions-prereqs-custody-independent/handoff-66a4/independent-handoff-normal.json",
+      "portable_path": "independent-handoff-normal.json",
+      "bytes": 123634,
+      "sha256": "77ea906e59e6e6ec1fdcb5db83dd35b7dd2430b2b3e1bbd28081c4d0a41849f1"
+    },
+    {
+      "path": "/tmp/e02-E-decisions-prereqs-custody-independent/handoff-66a4/independent-handoff-optimized.json",
+      "portable_path": "independent-handoff-optimized.json",
+      "bytes": 123633,
+      "sha256": "8f9d5709429d63dc76962159766f2282ee57f2a8824b12d3bb723fe817143b6c"
+    }
+  ],
+  "asset_count": 13,
+  "total_bytes": 553021,
+  "limitations": [
+    "No copied destinations/source data or existing metadata duplication",
+    "339 DOC /335 literal copies and normal-O23corruptcontrol classes; effective claiminletremoval propertyFAIL",
+    "Reviewer initial active_python_paths field-shape assumption ERROR preserved, corrected no product failure",
+    "ROOT generatedinput/caller/currentcleanliness remains qualifiednotestablished; no native/source repeat"
+  ]
+}

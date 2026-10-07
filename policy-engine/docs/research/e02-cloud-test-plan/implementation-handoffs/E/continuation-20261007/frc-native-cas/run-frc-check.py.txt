@@ -1,0 +1,46 @@
+"""Capture one exact isolated FRC command and complete outputs."""
+import hashlib
+import importlib.metadata as metadata
+import json
+import os
+from pathlib import Path
+import platform
+import resource
+import subprocess
+import sys
+import time
+
+LANE=Path("/workspace/e02-E-frc-20261006")
+OUT=Path("/workspace/e02-E-pr38-r3-receipts/frc-r4")
+PYTHON="/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python"
+label=sys.argv[1]
+argv=[PYTHON,"-m","pytest","-q",*sys.argv[2:]]
+argv.extend(["--basetemp="+str(OUT/(label+"-tmp")),"--junitxml="+str(OUT/(label+".xml"))])
+env=os.environ.copy()
+env["PYTHONPATH"]=str(LANE/"policy-engine/src")+":"+str(LANE/"policy-engine")+":"+str(OUT/("a-removal-overlay" if label == "a-property-removal" else "a-overlay"))
+paths=["policy-engine/tests/_helpers/forecast.py","policy-engine/tests/unit/remediation/test_frc_01.py","policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py","policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py","policy-engine/src/polisyos/calibration/forecast_bridge.py","policy-engine/src/polisyos/runtime/quality/generation_cycle.py","policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py","policy-engine/pyproject.toml","policy-engine/uv.lock"]
+extra_paths=[Path(__file__)]+[Path(a) for a in sys.argv[2:] if Path(a).is_absolute() and Path(a).is_file()]
+if "a_packet_overlay" in argv:
+    overlay=OUT/("a-removal-overlay" if label == "a-property-removal" else "a-overlay")
+    extra_paths.extend([overlay/"a_packet_overlay.py",overlay/"generation_cycle.py"])
+inputs={p:{"sha256":hashlib.sha256((LANE/p).read_bytes()).hexdigest(),"bytes":(LANE/p).stat().st_size} for p in paths}
+auxiliary_inputs={str(p):{"sha256":hashlib.sha256(p.read_bytes()).hexdigest(),"bytes":p.stat().st_size} for p in extra_paths}
+source=subprocess.check_output(["git","rev-parse","HEAD"],cwd=LANE,text=True).strip()
+tree=subprocess.check_output(["git","rev-parse","HEAD^{tree}"],cwd=LANE,text=True).strip()
+started=time.time()
+with (OUT/(label+".stdout")).open("wb") as stdout,(OUT/(label+".stderr")).open("wb") as stderr:
+    try:
+        result=subprocess.run(argv,cwd=LANE/"policy-engine",env=env,stdout=stdout,stderr=stderr,timeout=900,check=False)
+        code=result.returncode
+    except subprocess.TimeoutExpired:
+        code=None
+versions={}
+for package in ["numpy","scipy","jax","jaxlib","SALib","statsmodels","pytest","pydantic","ruff"]:
+    try: versions[package]=metadata.version(package)
+    except metadata.PackageNotFoundError: versions[package]=None
+receipt={"candidate_sha":source,"candidate_tree":tree,"argv":argv,"cwd":str(LANE/"policy-engine"),"exit_code":code,"wall_s":time.time()-started,"child_peak_rss_kib":resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss,"input_files":inputs,"auxiliary_inputs":auxiliary_inputs,"A_overlay_active":"a_packet_overlay" in argv,"source_unchanged":all(hashlib.sha256((LANE/p).read_bytes()).hexdigest()==r["sha256"] for p,r in inputs.items()),"environment":{"python":sys.version,"platform":platform.platform(),"packages":versions,"interpreter":PYTHON,"PYTHONPATH":env["PYTHONPATH"],"numerical_env":{k:env.get(k) for k in ["JAX_PLATFORMS","JAX_ENABLE_X64","OMP_NUM_THREADS","OPENBLAS_NUM_THREADS","MKL_NUM_THREADS","NUMEXPR_NUM_THREADS"]},"orchestrator_caps_added":False},"output_files":{}}
+for suffix in ["stdout","stderr","xml"]:
+    file=OUT/(label+"."+suffix)
+    if file.exists():receipt["output_files"][suffix]={"path":str(file),"sha256":hashlib.sha256(file.read_bytes()).hexdigest(),"bytes":file.stat().st_size}
+(OUT/(label+".json")).write_text(json.dumps(receipt,indent=2)+"\n")
+print(json.dumps({k:receipt[k] for k in ["candidate_sha","exit_code","wall_s","source_unchanged"]}))

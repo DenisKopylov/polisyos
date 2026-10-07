@@ -1,0 +1,104 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "unit": "E",
+  "slice": "BKT",
+  "reviewer": "/root",
+  "author": "/root/backtest_r3",
+  "base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "implementation_sha": "2f442904a1ed77e5907e8bb288a1d742874b31b7",
+  "implementation_tree_sha": "877885ff3dc44d54a2073a7b4e383b6c8acf67ca",
+  "implementation_commits": [
+    "d94b1116cb852eb66722d47610dcd65d75faf503",
+    "2f442904a1ed77e5907e8bb288a1d742874b31b7"
+  ],
+  "diff_paths": [
+    "policy-engine/release-fragments/unreleased/e02-backtest-replay-admission.md",
+    "policy-engine/src/polisyos/scientist/governance/backtest_matrix.py",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/README.md",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/bootstrap.py",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/evaluator.py",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/trust_scorer.py",
+    "policy-engine/tests/unit/remediation/test_bkt_02.py",
+    "policy-engine/tests/unit/remediation/test_bkt_03.py",
+    "policy-engine/tests/unit/scientist/governance/test_backtest_matrix.py",
+    "policy-engine/tests/unit/scientist/methods/backtesting/test_backtesting.py",
+    "policy-engine/tests/unit/scientist/methods/backtesting/test_replay_admission.py"
+  ],
+  "code_acceptance": "GO within replay dispatch/accounting, defined scalar bootstrap, SciPy residual diagnostics and withheld trust authority scope",
+  "finding_closure": false,
+  "specification_verdict": "limited",
+  "checks": [
+    {
+      "reviewer": "/root",
+      "implementation_sha": "d94b1116cb852eb66722d47610dcd65d75faf503",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tests/unit/scientist/methods/backtesting/test_replay_admission.py",
+        "tests/unit/remediation/test_bkt_02.py",
+        "tests/unit/remediation/test_bkt_03.py",
+        "tests/unit/scientist/governance/test_backtest_matrix.py"
+      ],
+      "cwd": "/workspace/e02-E-backtest-20261006/policy-engine",
+      "PYTHONPATH": "/workspace/e02-E-backtest-20261006/policy-engine/src",
+      "exit_code": 0,
+      "wall_seconds": 14.870755889991415,
+      "output": ".......................................................                  [100%]\n=============================== warnings summary ===============================\n../../e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428\n  /workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir\n  \n    self._warn_or_fail_if_strict(f\"Unknown config option: {key}\\n\")\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n55 passed, 1 warning in 9.22s\n",
+      "output_sha256": "b299e1faea74af52171aa81efaa74862ba6de7bd90df2f3a1d368d94c71c84a6",
+      "prior_attempt": {
+        "outcome": "ERROR",
+        "reason": "lane .venv interpreter absent; no test executed"
+      }
+    },
+    {
+      "reviewer": "/root",
+      "implementation_sha": "2f442904a1ed77e5907e8bb288a1d742874b31b7",
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-o",
+        "addopts=",
+        "-q",
+        "-s",
+        "-p",
+        "no:cacheprovider",
+        "tests/unit/scientist/methods/backtesting/test_replay_admission.py",
+        "tests/unit/scientist/methods/backtesting/test_backtesting.py::test_scientist_dispatch_binds_masked_view_to_backend_input"
+      ],
+      "cwd": "/workspace/e02-E-backtest-20261006/policy-engine",
+      "PYTHONPATH": "/workspace/e02-E-backtest-20261006/policy-engine/src",
+      "exit_code": 0,
+      "wall_seconds": 20.231236195992096,
+      "output": "...............{\"actual_native_errors\": [{\"message\": \"Missing required bind: inputs.trinity_bundle_ref\", \"type\": \"WorkflowSpecError\"}, {\"message\": \"Missing required bind: inputs.trinity_bundle_ref\", \"type\": \"WorkflowSpecError\"}], \"submitted_states\": [{\"inputs\": {\"data_snapshot_ref\": {\"artifact_id\": \"sha256:90c4fc9dbcbdaa29ab4b449603ed57355a5cfc7b6e7a754825c72aa959330cf7\", \"kind\": \"fabric.data_snapshot\", \"media_type\": \"application/json\"}}, \"params\": {\"n_simulation_runs\": 1, \"random_seed\": 570356716, \"workflow_id\": \"scientist_default\"}, \"run_id\": \"e02-native-missing-trinity:replica:0\"}, {\"inputs\": {\"data_snapshot_ref\": {\"artifact_id\": \"sha256:4e93c51827fdf6f59f368071df57dfae1e194ce0e7ed0e692258909095655e0c\", \"kind\": \"fabric.data_snapshot\", \"media_type\": \"application/json\"}}, \"params\": {\"n_simulation_runs\": 1, \"random_seed\": 741055479, \"workflow_id\": \"scientist_default\"}, \"run_id\": \"e02-native-missing-trinity:replica:1\"}]}\n..\n=============================== warnings summary ===============================\n../../e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428\n  /workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir\n  \n    self._warn_or_fail_if_strict(f\"Unknown config option: {key}\\n\")\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n17 passed, 1 warning in 13.88s\n",
+      "output_sha256": "114bb9cd0c6d91db96fe80d08a17e5b15fe6056e88873150bd8a13afb86d4b0a"
+    }
+  ],
+  "independent_basis": [
+    "Requested K dispatches scalar replay plans with distinct requested seeds/run identities and exact masked snapshot refs through the same configured CAS.",
+    "Provided forecasts execute once; failed native runs remain attempted/failed and cannot become observed successes.",
+    "Requested/eligible/observed comparison denominators remain separate; empty comparisons cannot recover metrics from fake summaries.",
+    "Native SciPy t oracles t=0,df=2,p=1 and t=2.598076211353316,df=2,p=.1216899343463201; p>alpha does not establish equivalence.",
+    "Named builtin bootstrap uses exact scalar function and independent resample oracle; callable names are not provenance.",
+    "Backtest matrix cannot restore authority without admitted purpose/profile/equivalence margin."
+  ],
+  "review_finding_resolved": {
+    "escape": "Controlled backend spy could not establish real Scientist forecasting; actual native caller used a different default store.",
+    "response": "Forward configured core CAS, preserve native refusal and requested-vs-executed seed distinction, add actual unchanged facade/workflow replay."
+  },
+  "actual_backend_outcome": "Native workflow invoked twice; both WorkflowSpecError Missing required bind: inputs.trinity_bundle_ref. Completed=0, failed=2 persisted. Successful K native forecasts UNRUN.",
+  "capability_state": "canonical dispatch/accounting implemented; successful Scientist forecast materializer/seed bridge missing",
+  "limitations_next_owner": [
+    "Scientist workflow/model owner must supply admitted Trinity bundle/model registry, masked-history to GlobalState materializer and forecast output contract; bind requested seed into actual Foundry ExecConfig.",
+    "Trust-profile owner must issue versioned purpose/profile and owner-defined meaningful-bias margin/equivalence interval where required.",
+    "G must replay any production-history criterion locally read-only on this exact implementation SHA; synthetic metrics/dispatch spies are not production forecasts."
+  ],
+  "P41": "not_established; no inherited-red attribution"
+}

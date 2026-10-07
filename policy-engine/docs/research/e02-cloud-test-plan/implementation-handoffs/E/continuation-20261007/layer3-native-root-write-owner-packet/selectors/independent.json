@@ -1,0 +1,131 @@
+{
+  "schema": "policyos.e02.independent_G_layer3_owner_isolation_selection.v3",
+  "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "source_tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "assets": [
+    {
+      "path": "/tmp/e02-E-layer3-owner-independent-64d/review_owner_packet.py.txt",
+      "portable_path": "review_owner_packet.py.txt",
+      "bytes": 12105,
+      "sha256": "e370294e46e08064c2f67901cf6e0cebe2506816216aec2706c2c6c739bf8bed"
+    },
+    {
+      "path": "/tmp/e02-E-layer3-owner-independent-64d/close_owner_review_v3.py.txt",
+      "portable_path": "close_owner_review_v3.py.txt",
+      "bytes": 2867,
+      "sha256": "48dcb20f243cd038ee8cc474416878ad329094013e027bde3171096e41c7054a"
+    },
+    {
+      "path": "/tmp/e02-E-layer3-owner-independent-64d/original-closed-selection.json",
+      "portable_path": "original-closed-selection.json",
+      "bytes": 19426,
+      "sha256": "ebfdd337de6bc01dada000fc7b6f03f596c32002c1618c51331b57b940ff32d3"
+    },
+    {
+      "path": "/tmp/e02-E-layer3-owner-independent-64d/bounded-inputs/probe_writer_boundary.py.txt",
+      "portable_path": "bounded-inputs/probe_writer_boundary.py.txt",
+      "bytes": 7390,
+      "sha256": "da6ee4c9cef220c704a9fd99d892bd7a81aafc75a4880235e19f780c01791f78"
+    },
+    {
+      "path": "/tmp/e02-E-layer3-owner-independent-64d/independent-writer-normal.json",
+      "portable_path": "independent-writer-normal.json",
+      "bytes": 43752,
+      "sha256": "21760d9833760cfc08dcf84b35ece3ae583d4795a96d065a33d554880ec5b554"
+    },
+    {
+      "path": "/tmp/e02-E-layer3-owner-independent-64d/independent-writer-normal.stderr.txt",
+      "portable_path": "independent-writer-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-layer3-owner-independent-64d/independent-writer-optimized.json",
+      "portable_path": "independent-writer-optimized.json",
+      "bytes": 43752,
+      "sha256": "e7c502eff0fbc30cf690486a0b9b94fe9ca2183ca305cde6f34605e31eeeb4e9"
+    },
+    {
+      "path": "/tmp/e02-E-layer3-owner-independent-64d/independent-writer-optimized.stderr.txt",
+      "portable_path": "independent-writer-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-layer3-owner-independent-64d/independent-owner-review-normal.json",
+      "portable_path": "independent-owner-review-normal.json",
+      "bytes": 13849,
+      "sha256": "9478bdc83bacbf5690abfe73f2960807d2c77dc8f0420d7f917a2ec36efd8404"
+    },
+    {
+      "path": "/tmp/e02-E-layer3-owner-independent-64d/independent-owner-review-optimized.json",
+      "portable_path": "independent-owner-review-optimized.json",
+      "bytes": 13848,
+      "sha256": "ea0a9c01aa47af65ee813cd198b5968cb2d0b36065db1cf22f7a0094f75393d9"
+    },
+    {
+      "path": "/tmp/e02-E-layer3-owner-independent-64d/independent-owner-normal.stdout.json",
+      "portable_path": "independent-owner-normal.stdout.json",
+      "bytes": 635,
+      "sha256": "cc89c6f9ea8a6d489d59e11f9ffc5cdaafa941e1cd8eb6a67b36cffad8532780"
+    },
+    {
+      "path": "/tmp/e02-E-layer3-owner-independent-64d/independent-owner-normal.stderr.txt",
+      "portable_path": "independent-owner-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-layer3-owner-independent-64d/independent-owner-optimized.stdout.json",
+      "portable_path": "independent-owner-optimized.stdout.json",
+      "bytes": 637,
+      "sha256": "c0c888a060ebe90f21affaa016dbd95a6279bf74ed0a219532a7372ab2135784"
+    },
+    {
+      "path": "/tmp/e02-E-layer3-owner-independent-64d/independent-owner-optimized.stderr.txt",
+      "portable_path": "independent-owner-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-layer3-owner-independent-64d/independent-patch-apply.stdout.txt",
+      "portable_path": "independent-patch-apply.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-layer3-owner-independent-64d/independent-patch-apply.stderr.txt",
+      "portable_path": "independent-patch-apply.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-layer3-owner-independent-64d/independent-final-owner-review-v3.json",
+      "portable_path": "independent-final-owner-review-v3.json",
+      "bytes": 15456,
+      "sha256": "1a82fdfbc58158f8569181015fb9d08d5a501ad5d3810597699eeb40ad9bfd2f"
+    },
+    {
+      "path": "/tmp/e02-E-layer3-owner-independent-64d/independent-final-owner-v3.stdout.json",
+      "portable_path": "independent-final-owner-v3.stdout.json",
+      "bytes": 1177,
+      "sha256": "4ac1c29d8a6b1cbcbb516a434bc3c544a497adf866b0acc6fc717c226bdd0b3c"
+    },
+    {
+      "path": "/tmp/e02-E-layer3-owner-independent-64d/independent-final-owner-v3.stderr.txt",
+      "portable_path": "independent-final-owner-v3.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "asset_count": 19,
+  "total_bytes": 174894,
+  "outcome": "GO owner-ready bounded source routing/preflight proposal; fullruntime/nativeinputclosure/P41notestablished",
+  "exclusions": [
+    "all source-standin catalogs and tar/testfiles are repeatablecontrols",
+    "bounded-inputs copied source payloads already in exactauthor48selector",
+    "actualROOT changedJSON snapshots preservedonlyatparentimmutableobservationrefs",
+    "no fullGit productarchive or productiondata copied"
+  ],
+  "no_ROOT_source_env_or_nativebackend_execution": true
+}

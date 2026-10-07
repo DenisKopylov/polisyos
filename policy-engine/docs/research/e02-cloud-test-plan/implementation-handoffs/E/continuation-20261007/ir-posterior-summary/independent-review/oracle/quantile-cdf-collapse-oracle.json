@@ -1,0 +1,44 @@
+{
+  "schema": "policyos.e02.independent_quantile_cdf_collapse.v1",
+  "input_samples": [
+    0.0,
+    -1.0,
+    1.0
+  ],
+  "input_float64_masses": [
+    1e-20,
+    0.5,
+    0.5
+  ],
+  "draw_order_cdf": [
+    1e-20,
+    0.5,
+    1.0
+  ],
+  "draw_order_categories_positive": true,
+  "stable_value_order": [
+    1,
+    0,
+    2
+  ],
+  "sorted_value_cdf": [
+    0.5,
+    0.5,
+    1.0
+  ],
+  "sorted_incremental_masses": [
+    0.5,
+    0.0,
+    0.5
+  ],
+  "positive_interior_atom_collapses": true,
+  "independent_rationally_normalized_weights": [
+    "1/100000000000000000001",
+    "50000000000000000000/100000000000000000001",
+    "50000000000000000000/100000000000000000001"
+  ],
+  "independent_rational_median": 0,
+  "float64_sorted_cdf_unchecked_median": -1.0,
+  "required_approved_machine_profile_outcome": "typed refusal at producer AND strict fresh reader, before any evaluator or nominal callback; no unsupported exact-real quantile promise",
+  "source_status": "Independent arithmetic design falsifier; actual new immutable profile source check pending."
+}

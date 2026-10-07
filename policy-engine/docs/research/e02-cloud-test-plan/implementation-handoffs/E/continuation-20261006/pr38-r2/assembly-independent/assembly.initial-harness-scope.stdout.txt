@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/assembly/review_assembly.py", line 65, in <module>
+    family('BKT',bkt['source_sha'],bkt['property_paths_exact_reviewed_blobs'],review_refs['BKT'])
+  File "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/assembly/review_assembly.py", line 49, in family
+    assert a==b,(label,p,'unexpected source delta')
+           ^^^^
+AssertionError: ('BKT', 'policy-engine/src/polisyos/scientist/nodes/builtins/simulate/README.md', 'unexpected source delta')

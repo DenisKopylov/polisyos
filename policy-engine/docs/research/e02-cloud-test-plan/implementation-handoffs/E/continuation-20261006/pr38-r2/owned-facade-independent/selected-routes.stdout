@@ -1,0 +1,13 @@
+{
+  "state": "PASS_bounded_selected_routes_and_generator",
+  "source_read_denominator": 40,
+  "inventory_counts": {
+    "polisyos.foundry.uncertainty": 25,
+    "polisyos.calibration": 28,
+    "polisyos.ddm": 17
+  },
+  "negative_controls": [
+    "all25exports_present_oldprivateWelfare_route_detected",
+    "28Calexports_present_oldforbiddenimport_detected"
+  ]
+}

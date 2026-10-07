@@ -1,0 +1,20 @@
+{
+  "label": "ruff-candidate",
+  "argv": [
+    "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "src/polisyos/ddm/integration/model_registry.py",
+    "tests/unit/ddm/test_registry_schema_compatibility.py"
+  ],
+  "cwd": "/workspace/e02-E-ddm-20261006/policy-engine",
+  "source_sha_before": "4c5afb1dc10b4e3f4dbc10b50ca6066de9b08ccb",
+  "source_sha_after": "4c5afb1dc10b4e3f4dbc10b50ca6066de9b08ccb",
+  "exit_code": 0,
+  "wall_seconds": 0.06803263199981302,
+  "max_rss_kib_children_cumulative": 132824,
+  "stdout_path": "/workspace/e02-E-pr38-r2-receipts/ddm/ruff-candidate.stdout",
+  "stdout_bytes": 19,
+  "stdout_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+}

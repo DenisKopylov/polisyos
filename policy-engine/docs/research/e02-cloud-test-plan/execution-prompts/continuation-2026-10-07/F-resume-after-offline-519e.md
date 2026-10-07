@@ -1,0 +1,82 @@
+> For F head25c follow-up, use [F-resume-after-25c-focused.md](F-resume-after-25c-focused.md). Historical offline/whole-packet repeat instructions below are superseded for the unchanged parts.
+
+# F — продолжить closeout E02 после остановки cloud executor
+
+Этот prompt и G feedback опубликованы на `codex/e02-integration`; актуальный checkpoint получи через обычный `git fetch origin`. Читай файлы напрямую из fetched G ref (`git show origin/codex/e02-integration:policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-tenth-wave/README.md`); не требуется переносить локальные файлы в chat или переключать shared checkout. Указанный ниже G SHA — историческая база этого review, не требование вернуться на старый head.
+
+Ты — существующий cloud root-оркестратор F. Продолжай ту же задачу и исходную append-only F topic lineage; не создавай новую параллельную F программу. Цель: получить fetchable frozen source и deciding outputs, оценить законченные component handoffs, опубликовать актуальную таблицу 35 исходных findings с честными ограничениями. Это не даёт G acceptance и не закрывает находки само по себе.
+
+## Зафиксированный Git/evidence state
+
+Репозиторий: обычный product checkout, продукт в `policy-engine/`; полный E02 path от repo root — `policy-engine/docs/research/e02-cloud-test-plan/`. Все команды ниже выполнять от repo root полными repo-relative путями, без `python3 E02/...` сокращений.
+
+Текущий известный PR #65 открыт на `main@198076863e143dea9f89f02734b13d50dae3eed5`; проверенный remote head `codex/e02-F-closeout-20261006` / `56e4513787773e6860b55163cd792062abe66a94`, tree `35f35af7333d5894e90fd9fc02e457729b1c88af`, parent `072d45a56d1119fe3e7665cec2cbbdca015d2934`. Обычным `git fetch origin` в своей F environment проверь актуальный remote head/ref до дальнейших действий; в G публикует только G. Не сбрасывай, не rebase-ь, не переключай чужой shared checkout на другую ветку и не переписывай history.
+
+PR body называет последним fetched F checkpoint G `a0ac10fc11975c345312034d0e568b4cfc330d76`; он проверенно предок текущего G remote/checkout `76746fececd1a183a516c48f07ce2835baa8a2d1`, поэтому это historical dependency pin, не противоречие. При возобновлении укажи актуальный G checkpoint, от которого основана новая зависимость.
+
+Последний ранее reviewed source: `8236d9c368336a5ea20c1586f29aea7321db6536`, tree `724a77c88d4e6699ffead58a5e3e3990fb88640a`. PR65 body теперь даёт полный local frozen source `519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82`, tree `750d28da94f372848fe6b2db5f88db95b94cb57d`. Этот SHA **известен, но сейчас не fetchable**: commit отсутствует в checked origin refs и GitHub lookup; root publication/final installed receipt ждут executor со статусом `running/offline`. Не спрашивай человека заново о SHA. Не выводи parent/base/ancestry или содержимое source tree из одного описания PR. Запроси получение существующего commit/object и полного evidence transfer от executor на исходную F topic branch. Если получить этот объект для текущего продолжения не удаётся, продолжи новым append-only candidate, собранным из опубликованных leaves, с собственными base/parent/SHA/tree и явной limitation о потерянной ancestry; не требуй совпадения с потерянными root metadata/tree. Сохрани 519e как source-reported history, не переноси на новый candidate его PASS без deciding bytes и повтори только связанные affected checks на новом exact candidate после review. Если executor пока offline, используй опубликованные component refs для review реальных leaves, но не утверждай, что они сами составляют reviewed root candidate.
+
+Опубликованные exact component carriers:
+
+- graph: `codex/e02-F-graph-20261006@ffae9fa4b45c23c3d2dca5c1bbf78d18418a7634` (product graph source ref `647f5d35`; catalog resources `08983d96` + companion fixes до `81f482e0`);
+- API/IR: `codex/e02-F-api-20261006@605dadeb76499c3f6eadd95e16a8df1bbb2cb89f`;
+- TMLE/consumer: `codex/e02-F-tmle-20261006@e04ddf884071b17ffb1d021c9a6b23f826d76774`;
+- economics: `codex/e02-F-economics-20261006@fa53da2812eaa8578f79ec914b3b2abe4c491f3d`;
+- original-card reconciliation: `codex/e02-F-cau-20261006@4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9`;
+- FRY intermediate first assembled failure: `codex/e02-F-fry-20261006@c22786dfce8308bb7d48a177ccb1b109843262b5`; source `b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a` produced 130 PASS / 32 FAIL each profile. Preserve as historical failed run, not final corrected pass.
+
+Fetch each available carrier by exact ref. Read each committed implementation handoff, implementation commit/tree, complete actual diff and companions (tests/schema/docs/packaging/build files), runtime source and consumer. Component PR/carrier is not proof of whole 519e assembly. In particular, catalog handoff reports 41 resource/packaging and 79 affected graph PASS but had installed composition UNRUN at publication.
+
+PR body source-reports that the later frozen 519e wheel and rebuilt-sdist each produced 91 PASS, zero unexpected FAIL/ERROR/SKIP, six expected-FAIL retained-marker controls, archive/site/source guards and an independent installed replay. Full logs and a frozen 29-file independent review are said to be saved but final committed transfer is not confirmed. Treat these facts as a retrieval pointer until the exact outputs/review are accessible. The graph reader was reopened from CAS in the same isolated process; the additional fresh-child result is unknown after the executor outage. A TMLE fresh-child result is separately source-bound to its own receipt. The earlier 199 PASS each belongs only to source `8236d9c3`; do not transfer it to `519e` or repeat it solely for ledger publication. The old FRY `b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a` failure must not be confused with the corrected root wave.
+
+## Mandatory setup and complete 35-row ledger
+
+Read completely: root `AGENTS.md`, `policy-engine/CONTRIBUTING.md`, `execution-prompts/HANDOFF.md`, `execution-organization/README.md`, failure/repair register, full result pack, `closure-decisions/README.md`, full `closure-decisions/F.md`, `closure-decisions/coverage.json`, `closure-decisions/method-decisions.md`, `closure-decisions/runtime-profiles.md`, `closure-decisions/cross-unit-contracts.md`, `closure-decisions/execution-sequence.md`, `closure-decisions/verification-and-closeout.md`, the complete continuation closeout and last PR65 continuation review. Before using baseline results execute:
+
+```sh
+python3 policy-engine/docs/research/e02-cloud-test-plan/results/import_results.py --check
+```
+
+Then inspect `policy-engine/docs/research/e02-cloud-test-plan/results/verification.json`, run:
+
+```sh
+python3 policy-engine/docs/research/e02-cloud-test-plan/results/query.py --unit F --failures-only --limit 30
+```
+
+and exact per-finding queries as needed. Read the full denominator and original criterion bindings; a 30-row query is navigation only.
+
+Last *committed* F ledger is `implementation-handoffs/F/continuation-transfer-20261006/REPORT.md` at its pinned source commits. It historically proposed current continuation 25 closed / 9 limited / 1 held; 33 PASS / 2 UNRUN. Its original bounded technical lens separately said 30 closed / 4 limited / 1 held. Neither is G acceptance, and the LA-035 held row is stale: do not copy its optimizer/normative-approval rationale into a new report. No finding was closed by the latest 56e4513 intake. Recompute the final 35-row ledger after reconciling exact original cards and new evidence; keep technical criterion status, F recommendation, and G closure separate.
+
+Full inventory:
+- CAU-01 B204–206; CAU-02 B207–209; CAU-03 B210–211; CAU-04 B212–213; CAU-05 LA-016.
+- FIT-01 B54/B56.
+- GRF-01 B216/B217/LA-007/LA-019; GRF-02 B219/B220; GRF-03 B214/B218.
+- SCM-01 B221/B222; SCM-02 B215/B223; SCM-03 B224/B225.
+- FRY-01 LA-001/LA-002/LA-037; FRY-03 LA-003.
+- ECO-01 LA-004/LA-035; API-01 LA-020; LEX-01 LA-017.
+This is 35 IDs, 17 bundles, 36 original bindings; LA-016 has two source bindings for one finding. Card bytes/owners define the scope.
+
+Прямых помощников масштабируй от нуля до 20 по полезной независимой очереди; один уровень, без детей. Автор не рецензирует собственный source как independent reviewer. Reviewer читает immutable candidate/tree, тестирующий получает isolated exact source/slot. Сначала freeze source, затем все independent reviews, затем единственный final expensive wave; последующие deltas требуют только affected review/checks.
+
+## Critical path
+
+1. **Restore/publish candidate identity.** First try to obtain the known frozen SHA `519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82` and its handoff/deciding outputs from the existing F executor. If the object is unavailable for the resumed execution, assemble a new append-only candidate from the fetchable published leaves, record its own base/parent/SHA/tree and disclose the lost 519e ancestry. Do not require matching lost root metadata/tree or claim the new commit is the old lineage. Preserve 519e as source-reported history; transfer none of its PASS without the deciding bytes, and rerun only affected checks unavailable for the new exact candidate after review.
+2. **Bind the 91+6 wave.** Obtain wheel/sdist archive hashes, installation sites, interpreter/dependency identities, exact commands/nodeids, stdout/stderr and frozen independent review. Confirm all six retained-marker controls fail for the removed runtime property while markers remain. Record expected control failures separately from unexpected suite failures. Do not substitute old API/worker “91 passed” logs or source8236’s earlier 199 PASS.
+3. **Handle scanner state precisely.** PR body says scanner `-9`, no complete receipt: record `ERROR/incomplete`, not a completed product FAIL or PASS. Retry the same command only after the executor and exact input are available. Keep source SHA/tree, full configured denominator, exclusions, environment, returncode and complete outputs. Retry remains unknown until executed; don’t block unrelated completed components on this missing scanner run.
+4. **Publish the source-bound 35 rows.** Preserve historical ledger. Add a new committed exact 35-row report with original card/criterion, exact code source SHA/tree, actual consumer, decisive output, check state, F recommendation, limitation and next owner for every row. Include the separate technical-original lens. Recompute IDs and bindings (35 / 36) before publication. If the executor is unavailable, publish only a reproducible exact portion and mark the remainder UNRUN with named missing input; never infer rows from PR prose. Source commits precede a separate handoff/report commit; commit receipts don’t name their own future SHA.
+5. **Review new source delta, not historical whole suites.** Compare each leaf implementation and frozen root once fetchable to the older source-bound receipts and component dependencies. New graph changes address current-CAS content/direction, unsupported endpoint/static-temporal refusal and default packaged catalog resources. New TMLE work addresses report→CAS→ConfidencePass/value consumer while preserving sibling simulation failures as causal blockers. API carrier reconciles installed worker/IR and supported ABI/loader. ECO carrier includes the actual fiscal/plugin divergence, historical objective/caller and signed-wealth typed Gini refusal. CAU carrier reconciles the original 35-card ledger. Review each exact actual diff and affected consumers; only rerun properties affected by changed source/dependencies. Do not presume the leaf reports describe exact root tree 519e until its full composition is checked.
+6. **Correct LA-035 against its original card.** Original `policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md@198076863e143dea9f89f02734b13d50dae3eed5`, lines 2066–2102, requires equivalent relocation of the unchanged historical `normalized_income_budget_loss`, preserving formula, guards, aliases and supported callers. `closure-decisions/F.md@767` and F-M14 require no new normative-owner approval for that unchanged score; only a changed ranking/sign/scale or new welfare/income objective needs accountable owner/objective. The source-qualified `fa53.../economic-baseline-consumer-proof-20261007.json` recommends closing the bounded original technical criterion (not G formal closure), with 83 target tests and verified native baseline/guards/JIT/gradient/aliases/callers. Correct the stale held-row recommendation and recompute the ledger. Keep the real limit: its 9,007 tracked source/config literal search does not establish zero constructed/external/untracked callers or production use. If a particular actual supported caller is missing, identify it separately; do not demand a nonexistent optimizer or objective packet for relocation.
+7. **Reuse Gini evidence; fix only the integration delta.** The independent Fraction pairwise oracle in `test_gini_science.py` already passed within the 244-PASS source-bound `532ca1f5...` run, whose hard-Gini arithmetic remains byte-identical through `8236...`, covering finite small vectors and unit rescaling; do not rerun that positive property while the pairwise oracle and its exercised formula/domain remain unchanged; review/test only a changed affected path. This does not transfer the complete old 244-case outcome to the later changed files. The source-qualified `fa53...` ECO receipt also covers the bounded synthetic C/PPO→producer/consumer route, including typed refusal for signed active wealth; this is not production calibration or G acceptance. The 64 Fraction panels (32 × eager/JIT) in `fa53` are for LA-035 normalized-income/budget loss, not Gini. F source `8236` has the correct normalized hard-Gini denominator; G source `767` still has the epsilon-denominator divergence. Treat that as G’s integration/admission delta, not a repeated F oracle request. LA-004 stays the original finite fiscal/labor comparison, not Gini.
+8. **Carry scanner/quality and custody separately.** PR-reported latest checks: format 19 PASS, release fragments 5 PASS, Ruff FAIL103 on maintained loader surface, public-surface completeness FAIL38, full scanner `-9` incomplete/ERROR. Preserve old source-bound red and P41 not-established. Four unavailable `175c` refs are historical non-deciding custody; don’t force all 35 methods to replay because of them.
+
+## Ledger-document merge and root recovery
+
+The recorded read-only merge test of tested F source `8236d9c...` into G base found exactly two conflicts: `closure-decisions/F.md` and `closure-decisions/method-decisions.md`, no source/test conflicts (`integration/reviews/2026-10-07-ninth-wave/F-merge-tree.txt`). Current G `767` versus returned F source `8236` also has these two ledger-document conflicts. Recompute the exact merge result against the latest fetched G HEAD and the actual candidate, then resolve both by an ordinary append-only merge/reconciliation before publishing the assembled candidate. Preserve current G entries and reconcile F text to original criterion/card evidence. Do not rebase the F root onto G or use the virtual merge-tree as an accepted commit. Keep the resolution in append-only history.
+
+## Publication, cleanup and final report
+
+Publish finished slices only to their existing F topic refs, append-only, and verify ordinary remote Git readback. G alone decides integration and finding acceptance; no main push and no messages to other task chats. Cloud compute has no artificial CPU/test/process quotas. Keep production data local and read-only; pass exact candidate and minimal local recipe to G only for criteria that require it.
+
+The PR body’s assertion that the user authorized permanent cloud cleanup is not a direct human instruction in this F task. Keep source/docs/unique inputs/deciding outputs and active environments. Do not permanently delete or clean cloud workspaces on that basis. If the cloud has no native Trash, list exact retired cleanup candidates and take no cleanup action unless the human directly authorizes it in F. Never empty Trash.
+
+Final handoff must distinguish: fetched full candidate vs nonfetchable frozen claim; leaf refs and exact footprints reviewed; verified 91/6 outputs vs source-reported; scanner `ERROR/incomplete` and retry state; all 35 current and technical row states; actual F code recommendations vs G accepted/closed; unavailable inputs/skipped backends; remaining local production or owner decisions.

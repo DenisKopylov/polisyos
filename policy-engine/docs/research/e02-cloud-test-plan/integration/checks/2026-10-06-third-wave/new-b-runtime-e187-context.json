@@ -1,0 +1,290 @@
+{
+  "all_tracked_blob_modes_hashes_verified": true,
+  "archive_root": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/new-b-runtime-e187",
+  "artifacts": {
+    "new-b-runtime-e187-command.json": {
+      "bytes": 2527,
+      "sha256": "67a486bdd23d3415caf5050b55b9b55df2062fb302c0fb429342371a502a468e"
+    },
+    "new-b-runtime-e187-preflight.json": {
+      "bytes": 4009,
+      "sha256": "bd58d18d3adb1933dfe4ec30429f4b1e3923581a9969b2b10339302bc8754d15"
+    },
+    "new-b-runtime-e187-result.json": {
+      "bytes": 6778,
+      "sha256": "ae07061a8d61837930ff2e6cbab33bf1002243227f477ed5c664fd575d3d2cfe"
+    },
+    "new-b-runtime-e187.junit.xml": {
+      "bytes": 51186,
+      "sha256": "0a748d09029a2bf1dba72a227ba96e3f94f924caaae8017540fc1443975c861d"
+    },
+    "new-b-runtime-e187.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "new-b-runtime-e187.stdout": {
+      "bytes": 19055,
+      "sha256": "679ea6be7f50a650a8ba9a9a1d4c0270a7a98a0b04604966c1e8a3fcda2d41e4"
+    },
+    "run-new-b-runtime-e187.py": {
+      "bytes": 4352,
+      "sha256": "9094d8b813772e6a1be7d99949859f459178d2f3a1927f966d549d090c5f59b9"
+    }
+  },
+  "candidate_archive_report": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/new-b-runtime-e187-preflight.json",
+  "candidate_parent": "23a2fdadbc8e6ffa8464c28942d218fc07da241b",
+  "candidate_sha": "e1871506fcebc47d6572891b323ddf1f2083a3c9",
+  "candidate_tree": "edc05c3489f0e2e44c7c81ccbfb854539c9bdc50",
+  "disk_free_gib_after_archive": 28.753,
+  "disk_free_gib_after_wave": 28.694,
+  "disk_free_gib_before_archive": 29.207,
+  "disk_free_kib_after_wave": 30087976,
+  "environment": {
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_MAX_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "PATH": "/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0IKaEzY:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS",
+    "PYTEST_ADDOPTS": "",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/new-b-runtime-e187/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/new-b-runtime-e187/policy-engine",
+    "VECLIB_MAXIMUM_THREADS": "1"
+  },
+  "exact_command": {
+    "command": [
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+      "-m",
+      "pytest",
+      "-o",
+      "addopts=",
+      "-q",
+      "tests/unit/common/test_async_tools.py",
+      "tests/unit/scientist/orchestration/engine/test_retry.py",
+      "tests/unit/remediation/test_run_03.py",
+      "--junitxml",
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/new-b-runtime-e187.junit.xml",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/tmp-new-b-runtime-e187",
+      "-o",
+      "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/pytest-cache-new-b-runtime-e187"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/new-b-runtime-e187/policy-engine",
+    "env": {
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_MAX_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "PATH": "/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Applications/ChatGPT.app/Contents/Resources/codex-cli/codex-path:/Users/deniskopylov/.codex/tmp/arg0/codex-arg0IKaEzY:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/deniskopylov/.antigravity/antigravity/bin:/Users/deniskopylov/.local/bin:/Users/deniskopylov/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS",
+      "PYTEST_ADDOPTS": "",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/new-b-runtime-e187/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/new-b-runtime-e187/policy-engine",
+      "VECLIB_MAXIMUM_THREADS": "1"
+    },
+    "timeout_seconds": 300
+  },
+  "executable": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+  "failure_observation": "All six parameter variants of test_real_process_preserves_control_exception_without_retry observed NodeTimeoutError(code=node.timeout) after one attempt instead of expected SystemExit, KeyboardInterrupt, or RetryExhaustedError. The tests use timeout_s=0.5; failure attribution is not established, not inherited, and not reclassified as a platform skip. No slice-base rerun was performed.",
+  "failures": [
+    {
+      "class": "tests.unit.scientist.orchestration.engine.test_retry",
+      "reason": "AssertionError: {'attempts': 1, 'cause_category': None, 'cause_code': None, 'code': 'node.timeout', ...}\nassert 'NodeTimeoutError' == 'SystemExit'\n  \n  - SystemExit\n  + NodeTimeoutError",
+      "test": "test_real_process_preserves_control_exception_without_retry[sync-SystemExit]"
+    },
+    {
+      "class": "tests.unit.scientist.orchestration.engine.test_retry",
+      "reason": "AssertionError: {'attempts': 1, 'cause_category': None, 'cause_code': None, 'code': 'node.timeout', ...}\nassert 'NodeTimeoutError' == 'KeyboardInterrupt'\n  \n  - KeyboardInterrupt\n  + NodeTimeoutError",
+      "test": "test_real_process_preserves_control_exception_without_retry[sync-KeyboardInterrupt]"
+    },
+    {
+      "class": "tests.unit.scientist.orchestration.engine.test_retry",
+      "reason": "AssertionError: {'attempts': 1, 'cause_category': None, 'cause_code': None, 'code': 'node.timeout', ...}\nassert 'NodeTimeoutError' == 'RetryExhaustedError'\n  \n  - RetryExhaustedError\n  + NodeTimeoutError",
+      "test": "test_real_process_preserves_control_exception_without_retry[sync-SystemExitUnsupported]"
+    },
+    {
+      "class": "tests.unit.scientist.orchestration.engine.test_retry",
+      "reason": "AssertionError: {'attempts': 1, 'cause_category': None, 'cause_code': None, 'code': 'node.timeout', ...}\nassert 'NodeTimeoutError' == 'SystemExit'\n  \n  - SystemExit\n  + NodeTimeoutError",
+      "test": "test_real_process_preserves_control_exception_without_retry[async-SystemExit]"
+    },
+    {
+      "class": "tests.unit.scientist.orchestration.engine.test_retry",
+      "reason": "AssertionError: {'attempts': 1, 'cause_category': None, 'cause_code': None, 'code': 'node.timeout', ...}\nassert 'NodeTimeoutError' == 'KeyboardInterrupt'\n  \n  - KeyboardInterrupt\n  + NodeTimeoutError",
+      "test": "test_real_process_preserves_control_exception_without_retry[async-KeyboardInterrupt]"
+    },
+    {
+      "class": "tests.unit.scientist.orchestration.engine.test_retry",
+      "reason": "AssertionError: {'attempts': 1, 'cause_category': None, 'cause_code': None, 'code': 'node.timeout', ...}\nassert 'NodeTimeoutError' == 'RetryExhaustedError'\n  \n  - RetryExhaustedError\n  + NodeTimeoutError",
+      "test": "test_real_process_preserves_control_exception_without_retry[async-SystemExitUnsupported]"
+    }
+  ],
+  "g_branch_status_after": "## codex/e02-integration...origin/codex/e02-integration",
+  "g_head_after": "0346fc656a45ff2cd43d37126992d8ddbb739d10",
+  "harness_setup": [
+    "Two runner launches failed before a pytest child was created because the runner built cwd with a duplicate policy-engine segment; the second correction command first addressed the scratch runner via a wrong relative path, then re-invoked the unchanged runner. The path was corrected by absolute file reference; the sole pytest wave is the completed run recorded here. These were setup failures, not test results; no candidate source changed."
+  ],
+  "import_origins_stable": true,
+  "imports": [
+    {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/new-b-runtime-e187/policy-engine/src/polisyos/common/async_tools.py",
+      "module": "polisyos.common.async_tools",
+      "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564",
+      "under_pinned_product": true
+    },
+    {
+      "file": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/candidates/new-b-runtime-e187/policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+      "module": "polisyos.scientist.orchestration.engine.retry",
+      "sha256": "79e0a1e01af4e8e46c760c00b33ca6f49e27c38e61b8c9dfd0e9a8a953dfa271",
+      "under_pinned_product": true
+    }
+  ],
+  "outcome": {
+    "child_system_seconds": 1.751,
+    "child_user_seconds": 6.088,
+    "collected": 177,
+    "errors": 0,
+    "failed": 6,
+    "linux_native_checks": "SKIP on macOS; never counted as PASS",
+    "max_child_rss_bytes": 166838272,
+    "passed": 159,
+    "process_wall_seconds": 16.556,
+    "pytest_wall_seconds": 15.27,
+    "returncode": 1,
+    "skipped": 12,
+    "status": "FAIL",
+    "warnings": 37
+  },
+  "outputs": {
+    "command": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/new-b-runtime-e187-command.json",
+    "junit": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/new-b-runtime-e187.junit.xml",
+    "preflight": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/new-b-runtime-e187-preflight.json",
+    "result": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/new-b-runtime-e187-result.json",
+    "stderr": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/new-b-runtime-e187.stderr",
+    "stdout": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/results/new-b-runtime-e187.stdout"
+  },
+  "packages": {
+    "anyio": "4.12.0",
+    "duckdb": "1.4.3",
+    "httpx": "0.28.1",
+    "jax": "0.8.2",
+    "numpy": "2.3.5",
+    "pydantic": "2.12.5",
+    "pytest": "9.0.2",
+    "scipy": "1.16.3"
+  },
+  "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+  "python_platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "review_limits": [
+    "This is the one prescribed existing three-file G wave, not the RUN-01/02/03 suite or full E02 regression.",
+    "The selected test_retry file includes finite async and unbounded thread-cancellation cases but not the specific adversarial unbounded real async-node path called out by new-B-runtime-review.md.",
+    "No focused AsyncWorkflowExecutor absolute-deadline forwarding consumer check was run; the review continues to classify B40 LIMITED.",
+    "Review marks B14/B24/B40/LA-057 LIMITED and the independent B96 receipt unavailable. This test outcome does not close findings."
+  ],
+  "skips": [
+    {
+      "class": "tests.unit.scientist.orchestration.engine.test_retry",
+      "reason": "Linux child subreaper contract",
+      "test": "test_owned_supervisor_reaps_real_new_session_grandchild[returned-sync]"
+    },
+    {
+      "class": "tests.unit.scientist.orchestration.engine.test_retry",
+      "reason": "Linux child subreaper contract",
+      "test": "test_owned_supervisor_reaps_real_new_session_grandchild[returned-async]"
+    },
+    {
+      "class": "tests.unit.scientist.orchestration.engine.test_retry",
+      "reason": "Linux child subreaper contract",
+      "test": "test_owned_supervisor_reaps_real_new_session_grandchild[expired-sync]"
+    },
+    {
+      "class": "tests.unit.scientist.orchestration.engine.test_retry",
+      "reason": "Linux child subreaper contract",
+      "test": "test_owned_supervisor_reaps_real_new_session_grandchild[expired-async]"
+    },
+    {
+      "class": "tests.unit.scientist.orchestration.engine.test_retry",
+      "reason": "Linux child subreaper contract",
+      "test": "test_owned_supervisor_reaps_tree_on_async_caller_cancellation"
+    },
+    {
+      "class": "tests.unit.scientist.orchestration.engine.test_retry",
+      "reason": "Linux child subreaper contract",
+      "test": "test_supervisor_setup_failure_is_transported_without_starting_node"
+    },
+    {
+      "class": "tests.unit.scientist.orchestration.engine.test_retry",
+      "reason": "actual Linux RLIMIT descriptor oracle",
+      "test": "test_worker_setup_fault_closes_real_pipe_descriptors[cold-sync]"
+    },
+    {
+      "class": "tests.unit.scientist.orchestration.engine.test_retry",
+      "reason": "actual Linux RLIMIT descriptor oracle",
+      "test": "test_worker_setup_fault_closes_real_pipe_descriptors[cold-async]"
+    },
+    {
+      "class": "tests.unit.scientist.orchestration.engine.test_retry",
+      "reason": "actual Linux RLIMIT descriptor oracle",
+      "test": "test_worker_setup_fault_closes_real_pipe_descriptors[synchronize-sync]"
+    },
+    {
+      "class": "tests.unit.scientist.orchestration.engine.test_retry",
+      "reason": "actual Linux RLIMIT descriptor oracle",
+      "test": "test_worker_setup_fault_closes_real_pipe_descriptors[synchronize-async]"
+    },
+    {
+      "class": "tests.unit.scientist.orchestration.engine.test_retry",
+      "reason": "actual Linux RLIMIT descriptor oracle",
+      "test": "test_worker_setup_fault_closes_real_pipe_descriptors[shared-sync]"
+    },
+    {
+      "class": "tests.unit.scientist.orchestration.engine.test_retry",
+      "reason": "actual Linux RLIMIT descriptor oracle",
+      "test": "test_worker_setup_fault_closes_real_pipe_descriptors[shared-async]"
+    }
+  ],
+  "source_hashes_post": {
+    "src/polisyos/common/async_tools.py": {
+      "bytes": 11846,
+      "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564"
+    },
+    "src/polisyos/scientist/orchestration/engine/retry.py": {
+      "bytes": 79312,
+      "sha256": "79e0a1e01af4e8e46c760c00b33ca6f49e27c38e61b8c9dfd0e9a8a953dfa271"
+    },
+    "tests/unit/common/test_async_tools.py": {
+      "bytes": 15730,
+      "sha256": "d93dbdd1b577c207e89520d2bfc2385fe738953743abab40bc75c1c24bbd7ca5"
+    },
+    "tests/unit/remediation/test_run_03.py": {
+      "bytes": 14399,
+      "sha256": "037753a3c4200bef8492b65e7e0ee0a96dd1aa09940e1e6e6b8e5b798ead835c"
+    },
+    "tests/unit/scientist/orchestration/engine/test_retry.py": {
+      "bytes": 79749,
+      "sha256": "b7039c547aef21cdd2c12923b371da4196326555a85ff579acc9c7da6e95d139"
+    }
+  },
+  "source_hashes_pre": {
+    "src/polisyos/common/async_tools.py": {
+      "bytes": 11846,
+      "sha256": "de766367ce0eb79b4a2c1919c25795742ed813380de325ce5532bb5bbc0a6564"
+    },
+    "src/polisyos/scientist/orchestration/engine/retry.py": {
+      "bytes": 79312,
+      "sha256": "79e0a1e01af4e8e46c760c00b33ca6f49e27c38e61b8c9dfd0e9a8a953dfa271"
+    },
+    "tests/unit/common/test_async_tools.py": {
+      "bytes": 15730,
+      "sha256": "d93dbdd1b577c207e89520d2bfc2385fe738953743abab40bc75c1c24bbd7ca5"
+    },
+    "tests/unit/remediation/test_run_03.py": {
+      "bytes": 14399,
+      "sha256": "037753a3c4200bef8492b65e7e0ee0a96dd1aa09940e1e6e6b8e5b798ead835c"
+    },
+    "tests/unit/scientist/orchestration/engine/test_retry.py": {
+      "bytes": 79749,
+      "sha256": "b7039c547aef21cdd2c12923b371da4196326555a85ff579acc9c7da6e95d139"
+    }
+  },
+  "source_hashes_stable": true,
+  "tracked_blob_denominator": 13750,
+  "warnings_observation": "37 DeprecationWarnings from multiprocessing.popen_fork: Python 3.14 reports fork use from a multi-threaded process."
+}

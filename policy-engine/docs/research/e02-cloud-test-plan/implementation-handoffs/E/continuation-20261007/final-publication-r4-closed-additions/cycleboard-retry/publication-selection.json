@@ -1,0 +1,72 @@
+{
+  "schema": "policyos.e02.moderate_backend_http_retry_selection.v1",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "assets": [
+    {
+      "path": "/tmp/e02-E-http-cycle-board-retry-64d-20261007-1110/retry-admission.json",
+      "bytes": 5714,
+      "sha256": "cd3fa95b2c045d61072199feb8a2b059df5c415116186e589977bc6cee030595"
+    },
+    {
+      "path": "/tmp/e02-E-http-cycle-board-retry-64d-20261007-1110/actual-root-environment-before.json",
+      "bytes": 65148,
+      "sha256": "f0d05c20584103ced3df08d6510514824f58d8826c42607685895dd205976067"
+    },
+    {
+      "path": "/tmp/e02-E-http-cycle-board-retry-64d-20261007-1110/actual-root-environment-after-readback.json",
+      "bytes": 65195,
+      "sha256": "bc317e9891d3a54f876376d0265af4fda064a9b80acc69bf714eadd170467f92"
+    },
+    {
+      "path": "/tmp/e02-E-http-cycle-board-retry-64d-20261007-1110/retry-completion.json",
+      "bytes": 4548,
+      "sha256": "bf90b5e8077247a94aa138ce442679619d1e96a8d2acda8789395f0256f745a7"
+    },
+    {
+      "path": "/tmp/e02-E-http-cycle-board-retry-64d-20261007-1110/launch-result.json",
+      "bytes": 326,
+      "sha256": "f4b617b3974bf2c9ff4cd85b2d3fe25b17bffdb5470f44be0267e51792df0fd2"
+    },
+    {
+      "path": "/tmp/e02-E-http-cycle-board-retry-64d-20261007-1110/runner.stdout.txt",
+      "bytes": 807,
+      "sha256": "7215772bee530fa7016f1cf7be0b02083a568ec005f07e3d7fc9584e00c57853"
+    },
+    {
+      "path": "/tmp/e02-E-http-cycle-board-retry-64d-20261007-1110/runner.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-http-cycle-board-retry-64d-20261007-1110/checks/cycle-board-owner-recompute-retry/cycle-board-owner-recompute-retry.json",
+      "bytes": 8779,
+      "sha256": "7d4bb04f7f0a2770691e345a53a7c21f077b93769dd8176fcdae59d490c56ab1"
+    },
+    {
+      "path": "/tmp/e02-E-http-cycle-board-retry-64d-20261007-1110/checks/cycle-board-owner-recompute-retry/cycle-board-owner-recompute-retry.stdout.txt",
+      "bytes": 80,
+      "sha256": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d"
+    },
+    {
+      "path": "/tmp/e02-E-http-cycle-board-retry-64d-20261007-1110/checks/cycle-board-owner-recompute-retry/pytest.xml",
+      "bytes": 435,
+      "sha256": "9c1f551db4c220b30236cc217092a6ab0bedf738815a1ce54701c958f4df1ccc"
+    },
+    {
+      "path": "/tmp/e02-E-http-cycle-board-retry-64d-20261007-1110/prepare_cycle_board_retry.py.txt",
+      "bytes": 5537,
+      "sha256": "932b9d2dbbe29da8c2bed5a367206bc178680acb85249912bfd9593551124f49"
+    },
+    {
+      "path": "/tmp/e02-E-http-cycle-board-retry-64d-20261007-1110/recompute_retry.py.txt",
+      "bytes": 7942,
+      "sha256": "4bb911b24b199eb7c7f2666169910016021f76502738e133f3721bc295db7e6b"
+    }
+  ],
+  "count": 12,
+  "total_bytes": 164511,
+  "private_git_config_excluded": true,
+  "fixture_cache_dirs_excluded": true,
+  "original_fail_receipt_not_rewritten": true
+}

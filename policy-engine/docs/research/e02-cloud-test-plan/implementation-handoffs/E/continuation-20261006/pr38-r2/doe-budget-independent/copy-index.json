@@ -1,0 +1,106 @@
+{
+  "schema": "e02.E.independent_Doe_budget_copy_index.v1",
+  "source": "70c4a14fc872f5ef66437d958ba63884ecdda168",
+  "tree": "3e654b07a3228d1b3d2d0bb2a3a91ae792068090",
+  "exact_bytes_required": true,
+  "files": [
+    {
+      "source": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-budget/baseline-a267-falsifier.json",
+      "destination_name": "baseline-a267-falsifier.json",
+      "bytes": 3604,
+      "sha256": "976ae0f86ec95bb2d1238034cdd74065f08f745bcc73ecaaa64a2166e18da80f"
+    },
+    {
+      "source": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-budget/baseline-a267-falsifier.stdout.txt",
+      "destination_name": "baseline-a267-falsifier.stdout.txt",
+      "bytes": 3604,
+      "sha256": "976ae0f86ec95bb2d1238034cdd74065f08f745bcc73ecaaa64a2166e18da80f"
+    },
+    {
+      "source": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-budget/baseline_falsifier.py",
+      "destination_name": "baseline_falsifier.py",
+      "bytes": 3976,
+      "sha256": "398ccfb626cf27ffe7473197ab59ff16061c5342d4b5d3eea0904623154b9ae5"
+    },
+    {
+      "source": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-budget/doe-budget-independent-review-70c4.json",
+      "destination_name": "doe-budget-independent-review-70c4.json",
+      "bytes": 14630,
+      "sha256": "f3c1fca229ff1e2ea50acef950847188c30097754b7e3c805413b9d25a04c60b"
+    },
+    {
+      "source": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-budget/finalize.stdout.txt",
+      "destination_name": "finalize.stdout.txt",
+      "bytes": 372,
+      "sha256": "dc05aeeda5f70adb13250034751e65351dfc424fce0775500b49799dad9f4bcc"
+    },
+    {
+      "source": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-budget/finalize_review.py",
+      "destination_name": "finalize_review.py",
+      "bytes": 10649,
+      "sha256": "d63f6d19e834c4b8f2cd01e20d1aeaee996865bd7213ef1f9737c49a148de372"
+    },
+    {
+      "source": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-budget/format-receipt.json",
+      "destination_name": "format-receipt.json",
+      "bytes": 4355,
+      "sha256": "cc2cf91dca29d452e60b63c8965e0bca8796de9255d4952c288289332b6f210b"
+    },
+    {
+      "source": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-budget/format.stdout.txt",
+      "destination_name": "format.stdout.txt",
+      "bytes": 26,
+      "sha256": "8e93d18ae56550d4eef2feac77e6630617c7e169246e56e39c75d58b46167985"
+    },
+    {
+      "source": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-budget/fresh-cas-deciding-artifacts.json",
+      "destination_name": "fresh-cas-deciding-artifacts.json",
+      "bytes": 15054,
+      "sha256": "ed365b19a1d9b26b5d788406e8c3ed71ce0e50947adac4c96a84abfb83a98756"
+    },
+    {
+      "source": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-budget/independent-native-origins-artifacts.json",
+      "destination_name": "independent-native-origins-artifacts.json",
+      "bytes": 15299,
+      "sha256": "98b2eb79886a10010b401967a9a453d99f9d38bf878a91db44fcb4796d94dc11"
+    },
+    {
+      "source": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-budget/independent-native-receipt.json",
+      "destination_name": "independent-native-receipt.json",
+      "bytes": 4038,
+      "sha256": "84cfc1c50cb846dc5735a95e7dac315c6e2ede61c93cacb6c4ff43b4ce68218f"
+    },
+    {
+      "source": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-budget/independent-native.stdout.txt",
+      "destination_name": "independent-native.stdout.txt",
+      "bytes": 2745,
+      "sha256": "9e3a1c89700ed067646af6d1bcb8220beb7344c48863b62ae85d9b70f20c802f"
+    },
+    {
+      "source": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-budget/independent_budget_tests.py",
+      "destination_name": "independent_budget_tests.py",
+      "bytes": 11477,
+      "sha256": "668c5ed50ca4134ea724eb8252827f19e3c43e1249112ee6ce682b0dda905deb"
+    },
+    {
+      "source": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-budget/run_review.py",
+      "destination_name": "run_review.py",
+      "bytes": 2272,
+      "sha256": "fd752d9f9c5ed2de2442b4e82a9273e6ae096034d85f6af65716c000a78bd81d"
+    },
+    {
+      "source": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-budget/style-receipt.json",
+      "destination_name": "style-receipt.json",
+      "bytes": 4338,
+      "sha256": "6a724849f0949b48ba34808bb3369bcfdaabbc58ae66c313943be50db45581d2"
+    },
+    {
+      "source": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer/doe-budget/style.stdout.txt",
+      "destination_name": "style.stdout.txt",
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    }
+  ],
+  "file_count": 16,
+  "total_bytes": 96458
+}

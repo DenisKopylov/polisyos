@@ -1,0 +1,183 @@
+{
+  "source_sha": "1e1b5028274814b7c4318671588202480390a6bc",
+  "collector_sha256": "c1846ca80e2fd5c2cdd6d4dc6f28e1a0497eed273f2013314d608165c340a212",
+  "scope": "Synthetic independent protocol controls only; no product/numerical/gate/production evidence",
+  "controls": [
+    {
+      "fixture": "independent-positive",
+      "source_reference": "d43f8d4693767637424da759ae960f7b51736449",
+      "collector_control_only": true,
+      "product_native_or_gate_commands_executed": 0,
+      "state": "CONTROL_COMPLETE_BOUND",
+      "issues": [],
+      "native_counts": {
+        "cases": 7,
+        "passed": 7,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "A_counts": [
+        {
+          "cases": 2,
+          "passed": 2,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "cases": 2,
+          "passed": 1,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "private_paths_published": [],
+      "stdout_only_synthetic_sentinel": true
+    },
+    {
+      "fixture": "independent-corrupt-counts",
+      "source_reference": "d43f8d4693767637424da759ae960f7b51736449",
+      "collector_control_only": true,
+      "product_native_or_gate_commands_executed": 0,
+      "state": "CONTROL_LIMITED_INCOMPLETE_OR_INCONSISTENT",
+      "issues": [
+        {
+          "job": "pcl-continuous-persistence",
+          "reason": "JUnit receipt counts mismatch"
+        }
+      ],
+      "native_counts": {
+        "cases": 7,
+        "passed": 7,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "A_counts": [
+        {
+          "cases": 2,
+          "passed": 2,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "cases": 2,
+          "passed": 1,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "private_paths_published": [],
+      "stdout_only_synthetic_sentinel": true
+    },
+    {
+      "fixture": "independent-private-as-stdout",
+      "source_reference": "d43f8d4693767637424da759ae960f7b51736449",
+      "collector_control_only": true,
+      "product_native_or_gate_commands_executed": 0,
+      "state": "CONTROL_COMPLETE_BOUND",
+      "issues": [],
+      "native_counts": {
+        "cases": 7,
+        "passed": 7,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "A_counts": [
+        {
+          "cases": 2,
+          "passed": 2,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "cases": 2,
+          "passed": 1,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "private_paths_published": [
+        "raw/results-importer.git-config-private.nul"
+      ],
+      "stdout_only_synthetic_sentinel": true
+    },
+    {
+      "fixture": "independent-wrong-classname",
+      "source_reference": "d43f8d4693767637424da759ae960f7b51736449",
+      "collector_control_only": true,
+      "product_native_or_gate_commands_executed": 0,
+      "state": "CONTROL_COMPLETE_BOUND",
+      "issues": [],
+      "native_counts": {
+        "cases": 7,
+        "passed": 7,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "A_counts": [
+        {
+          "cases": 2,
+          "passed": 2,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "cases": 2,
+          "passed": 1,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "private_paths_published": [],
+      "stdout_only_synthetic_sentinel": true
+    },
+    {
+      "fixture": "independent-count-guard-removed",
+      "source_reference": "d43f8d4693767637424da759ae960f7b51736449",
+      "collector_control_only": true,
+      "product_native_or_gate_commands_executed": 0,
+      "state": "CONTROL_COMPLETE_BOUND",
+      "issues": [],
+      "native_counts": {
+        "cases": 7,
+        "passed": 7,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "A_counts": [
+        {
+          "cases": 2,
+          "passed": 2,
+          "failed": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "cases": 2,
+          "passed": 1,
+          "failed": 1,
+          "errors": 0,
+          "skipped": 0
+        }
+      ],
+      "private_paths_published": [],
+      "stdout_only_synthetic_sentinel": true,
+      "outcome": "EXPECTED_DISCRIMINATING_ESCAPE"
+    }
+  ],
+  "original_source_and_author_fixture_unchanged": true,
+  "actual5e_publication_bytes": "Not changed; separate custody read-only verification",
+  "verdict": "HOLD-reusable-collector-raw-path-and-exact-module-attribution; actual5e bounded custody separately assessable"
+}

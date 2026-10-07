@@ -1,0 +1,1254 @@
+{
+  "schema": "policyos.e02.E.storybook_required_retry_native_review.v1",
+  "candidate_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "candidate_tree_sha": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "checks": [
+    {
+      "name": "actual_native_retry_FAIL1_no_interruption",
+      "passed": true
+    },
+    {
+      "name": "independent_complete_JUnit_case_count_matches_native_reader",
+      "passed": true
+    },
+    {
+      "name": "complete_JUnit_suites_include_uncompleted_empty_rows",
+      "passed": true
+    },
+    {
+      "name": "reported_file_denominator_and_gap_are_literal",
+      "passed": true
+    },
+    {
+      "name": "two_distinct_failure_boundaries_preserved",
+      "passed": true
+    },
+    {
+      "name": "CSS_warning_not_sufficient_failure_cause",
+      "passed": true
+    },
+    {
+      "name": "corrupt_bound_capture_refused",
+      "passed": true
+    },
+    {
+      "name": "count_only_proxy_diverges",
+      "passed": true
+    },
+    {
+      "name": "empty_suite_addition_changes_scope_without_cases",
+      "passed": true
+    },
+    {
+      "name": "exact_source_Quantity.stories.tsx",
+      "passed": true
+    },
+    {
+      "name": "exact_source_ProvenanceStrip.stories.tsx",
+      "passed": true
+    },
+    {
+      "name": "exact_source_vitest.setup.ts",
+      "passed": true
+    },
+    {
+      "name": "exact_source_vitest.storybook.config.ts",
+      "passed": true
+    }
+  ],
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python"
+  },
+  "native_inputs": [
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/checks/storybook-full-native-retry/storybook-full-native-retry.json",
+      "bytes": 8778,
+      "sha256": "dbc605446e66b1248d2938303924183c1e7f97a71dad22c0dacd2f6dd33e1bcb"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/checks/storybook-full-native-retry/storybook-full-native-retry.stdout.txt",
+      "bytes": 9844,
+      "sha256": "1eaa888e0b899d7652079c6dadf25b5c7e5e974db7df880d94466c4e1c92d7fe"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/storybook.junit.xml",
+      "bytes": 15322,
+      "sha256": "e5dce3ce283dbcba582621af2606c183bc9f18525e76628cbd1ff4f3add19d77"
+    },
+    {
+      "source_path": "/workspace/e02-E-pr38-r3-receipts/frontend-required-retry-64d-20261007/storybook/launch.json",
+      "bytes": 4990,
+      "sha256": "08027effa967d93b554384ab967d82cf8e9e9897d2fd627417632dc0bc0dd0d3"
+    }
+  ],
+  "actual_counts": {
+    "cases": 38,
+    "passed": 37,
+    "failed": 1,
+    "errors": 0,
+    "skipped": 0
+  },
+  "complete_suites": [
+    {
+      "attributes": {
+        "name": "src/shared/brand/AtlasBrand.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.835Z",
+        "hostname": "b5f0914494dc",
+        "tests": "0",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0"
+      },
+      "case_count": 0,
+      "cases": [],
+      "empty_suite_interpretation": "No per-case completion evidence; do not infer PASS/SKIP from an empty suite"
+    },
+    {
+      "attributes": {
+        "name": "src/shared/brand/EvidenceSigil.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.835Z",
+        "hostname": "b5f0914494dc",
+        "tests": "0",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0"
+      },
+      "case_count": 0,
+      "cases": [],
+      "empty_suite_interpretation": "No per-case completion evidence; do not infer PASS/SKIP from an empty suite"
+    },
+    {
+      "attributes": {
+        "name": "src/shared/brand/Glyph.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.836Z",
+        "hostname": "b5f0914494dc",
+        "tests": "0",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0"
+      },
+      "case_count": 0,
+      "cases": [],
+      "empty_suite_interpretation": "No per-case completion evidence; do not infer PASS/SKIP from an empty suite"
+    },
+    {
+      "attributes": {
+        "name": "src/shared/brand/JanusGlyph.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.836Z",
+        "hostname": "b5f0914494dc",
+        "tests": "0",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0"
+      },
+      "case_count": 0,
+      "cases": [],
+      "empty_suite_interpretation": "No per-case completion evidence; do not infer PASS/SKIP from an empty suite"
+    },
+    {
+      "attributes": {
+        "name": "src/shared/charts/FanChart.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.836Z",
+        "hostname": "b5f0914494dc",
+        "tests": "0",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0"
+      },
+      "case_count": 0,
+      "cases": [],
+      "empty_suite_interpretation": "No per-case completion evidence; do not infer PASS/SKIP from an empty suite"
+    },
+    {
+      "attributes": {
+        "name": "src/shared/charts/HypotheticalOutcomePlot.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.837Z",
+        "hostname": "b5f0914494dc",
+        "tests": "0",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0"
+      },
+      "case_count": 0,
+      "cases": [],
+      "empty_suite_interpretation": "No per-case completion evidence; do not infer PASS/SKIP from an empty suite"
+    },
+    {
+      "attributes": {
+        "name": "src/shared/charts/QuantileDotplot.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.837Z",
+        "hostname": "b5f0914494dc",
+        "tests": "0",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0"
+      },
+      "case_count": 0,
+      "cases": [],
+      "empty_suite_interpretation": "No per-case completion evidence; do not infer PASS/SKIP from an empty suite"
+    },
+    {
+      "attributes": {
+        "name": "src/shared/charts/SmallMultiples.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.837Z",
+        "hostname": "b5f0914494dc",
+        "tests": "0",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0"
+      },
+      "case_count": 0,
+      "cases": [],
+      "empty_suite_interpretation": "No per-case completion evidence; do not infer PASS/SKIP from an empty suite"
+    },
+    {
+      "attributes": {
+        "name": "src/shared/charts/UncertaintyBand.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.837Z",
+        "hostname": "b5f0914494dc",
+        "tests": "0",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0"
+      },
+      "case_count": 0,
+      "cases": [],
+      "empty_suite_interpretation": "No per-case completion evidence; do not infer PASS/SKIP from an empty suite"
+    },
+    {
+      "attributes": {
+        "name": "src/shared/charts/UncertaintyCharts.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.838Z",
+        "hostname": "b5f0914494dc",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.7215"
+      },
+      "case_count": 2,
+      "cases": [
+        {
+          "attributes": {
+            "classname": "src/shared/charts/UncertaintyCharts.stories.tsx",
+            "name": "Atlas Preview",
+            "time": "0.3988"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        },
+        {
+          "attributes": {
+            "classname": "src/shared/charts/UncertaintyCharts.stories.tsx",
+            "name": "Dark Theme",
+            "time": "0.3135"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        }
+      ],
+      "empty_suite_interpretation": null
+    },
+    {
+      "attributes": {
+        "name": "src/shared/ui/AsyncSection.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.838Z",
+        "hostname": "b5f0914494dc",
+        "tests": "0",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0"
+      },
+      "case_count": 0,
+      "cases": [],
+      "empty_suite_interpretation": "No per-case completion evidence; do not infer PASS/SKIP from an empty suite"
+    },
+    {
+      "attributes": {
+        "name": "src/shared/ui/Badge.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.839Z",
+        "hostname": "b5f0914494dc",
+        "tests": "0",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0"
+      },
+      "case_count": 0,
+      "cases": [],
+      "empty_suite_interpretation": "No per-case completion evidence; do not infer PASS/SKIP from an empty suite"
+    },
+    {
+      "attributes": {
+        "name": "src/shared/ui/Button.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.839Z",
+        "hostname": "b5f0914494dc",
+        "tests": "0",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0"
+      },
+      "case_count": 0,
+      "cases": [],
+      "empty_suite_interpretation": "No per-case completion evidence; do not infer PASS/SKIP from an empty suite"
+    },
+    {
+      "attributes": {
+        "name": "src/shared/ui/Card.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.839Z",
+        "hostname": "b5f0914494dc",
+        "tests": "0",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0"
+      },
+      "case_count": 0,
+      "cases": [],
+      "empty_suite_interpretation": "No per-case completion evidence; do not infer PASS/SKIP from an empty suite"
+    },
+    {
+      "attributes": {
+        "name": "src/shared/ui/Checkbox.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.839Z",
+        "hostname": "b5f0914494dc",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.3165"
+      },
+      "case_count": 2,
+      "cases": [
+        {
+          "attributes": {
+            "classname": "src/shared/ui/Checkbox.stories.tsx",
+            "name": "Default",
+            "time": "0.2114"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        },
+        {
+          "attributes": {
+            "classname": "src/shared/ui/Checkbox.stories.tsx",
+            "name": "Filter Cluster",
+            "time": "0.0913"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        }
+      ],
+      "empty_suite_interpretation": null
+    },
+    {
+      "attributes": {
+        "name": "src/shared/ui/DataTable.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.840Z",
+        "hostname": "b5f0914494dc",
+        "tests": "0",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0"
+      },
+      "case_count": 0,
+      "cases": [],
+      "empty_suite_interpretation": "No per-case completion evidence; do not infer PASS/SKIP from an empty suite"
+    },
+    {
+      "attributes": {
+        "name": "src/shared/ui/EmptyState.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.840Z",
+        "hostname": "b5f0914494dc",
+        "tests": "0",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0"
+      },
+      "case_count": 0,
+      "cases": [],
+      "empty_suite_interpretation": "No per-case completion evidence; do not infer PASS/SKIP from an empty suite"
+    },
+    {
+      "attributes": {
+        "name": "src/shared/ui/Input.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.840Z",
+        "hostname": "b5f0914494dc",
+        "tests": "0",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0"
+      },
+      "case_count": 0,
+      "cases": [],
+      "empty_suite_interpretation": "No per-case completion evidence; do not infer PASS/SKIP from an empty suite"
+    },
+    {
+      "attributes": {
+        "name": "src/shared/ui/LineageGraph.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.840Z",
+        "hostname": "b5f0914494dc",
+        "tests": "0",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0"
+      },
+      "case_count": 0,
+      "cases": [],
+      "empty_suite_interpretation": "No per-case completion evidence; do not infer PASS/SKIP from an empty suite"
+    },
+    {
+      "attributes": {
+        "name": "src/shared/ui/ProvenanceStrip.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.840Z",
+        "hostname": "b5f0914494dc",
+        "tests": "0",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0"
+      },
+      "case_count": 0,
+      "cases": [],
+      "empty_suite_interpretation": "No per-case completion evidence; do not infer PASS/SKIP from an empty suite"
+    },
+    {
+      "attributes": {
+        "name": "src/shared/ui/Radio.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.841Z",
+        "hostname": "b5f0914494dc",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.3996"
+      },
+      "case_count": 2,
+      "cases": [
+        {
+          "attributes": {
+            "classname": "src/shared/ui/Radio.stories.tsx",
+            "name": "Default",
+            "time": "0.1956"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        },
+        {
+          "attributes": {
+            "classname": "src/shared/ui/Radio.stories.tsx",
+            "name": "Choice Cards",
+            "time": "0.1861"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        }
+      ],
+      "empty_suite_interpretation": null
+    },
+    {
+      "attributes": {
+        "name": "src/shared/ui/SegmentedControl.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.841Z",
+        "hostname": "b5f0914494dc",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.4572"
+      },
+      "case_count": 2,
+      "cases": [
+        {
+          "attributes": {
+            "classname": "src/shared/ui/SegmentedControl.stories.tsx",
+            "name": "Workspace Modes",
+            "time": "0.3054"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        },
+        {
+          "attributes": {
+            "classname": "src/shared/ui/SegmentedControl.stories.tsx",
+            "name": "Rail Compact",
+            "time": "0.1475"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        }
+      ],
+      "empty_suite_interpretation": null
+    },
+    {
+      "attributes": {
+        "name": "src/shared/ui/Select.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.842Z",
+        "hostname": "b5f0914494dc",
+        "tests": "0",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0"
+      },
+      "case_count": 0,
+      "cases": [],
+      "empty_suite_interpretation": "No per-case completion evidence; do not infer PASS/SKIP from an empty suite"
+    },
+    {
+      "attributes": {
+        "name": "src/shared/ui/Skeleton.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.842Z",
+        "hostname": "b5f0914494dc",
+        "tests": "0",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0"
+      },
+      "case_count": 0,
+      "cases": [],
+      "empty_suite_interpretation": "No per-case completion evidence; do not infer PASS/SKIP from an empty suite"
+    },
+    {
+      "attributes": {
+        "name": "src/shared/ui/Switch.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.842Z",
+        "hostname": "b5f0914494dc",
+        "tests": "0",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0"
+      },
+      "case_count": 0,
+      "cases": [],
+      "empty_suite_interpretation": "No per-case completion evidence; do not infer PASS/SKIP from an empty suite"
+    },
+    {
+      "attributes": {
+        "name": "src/shared/ui/Text.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.842Z",
+        "hostname": "b5f0914494dc",
+        "tests": "0",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0"
+      },
+      "case_count": 0,
+      "cases": [],
+      "empty_suite_interpretation": "No per-case completion evidence; do not infer PASS/SKIP from an empty suite"
+    },
+    {
+      "attributes": {
+        "name": "src/shared/ui/Textarea.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.842Z",
+        "hostname": "b5f0914494dc",
+        "tests": "0",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0"
+      },
+      "case_count": 0,
+      "cases": [],
+      "empty_suite_interpretation": "No per-case completion evidence; do not infer PASS/SKIP from an empty suite"
+    },
+    {
+      "attributes": {
+        "name": "src/shared/ui/ToggleButton.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.842Z",
+        "hostname": "b5f0914494dc",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.4475"
+      },
+      "case_count": 2,
+      "cases": [
+        {
+          "attributes": {
+            "classname": "src/shared/ui/ToggleButton.stories.tsx",
+            "name": "Default",
+            "time": "0.3204"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        },
+        {
+          "attributes": {
+            "classname": "src/shared/ui/ToggleButton.stories.tsx",
+            "name": "Rail Compact",
+            "time": "0.1255"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        }
+      ],
+      "empty_suite_interpretation": null
+    },
+    {
+      "attributes": {
+        "name": "src/test/a11y/OpaqueBackgroundContrast.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.843Z",
+        "hostname": "b5f0914494dc",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "1.499"
+      },
+      "case_count": 1,
+      "cases": [
+        {
+          "attributes": {
+            "classname": "src/test/a11y/OpaqueBackgroundContrast.stories.tsx",
+            "name": "Seven Declared Sources",
+            "time": "1.4932"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        }
+      ],
+      "empty_suite_interpretation": null
+    },
+    {
+      "attributes": {
+        "name": "src/features/artifacts/bureaucratic/BureaucraticArtifactView.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.843Z",
+        "hostname": "b5f0914494dc",
+        "tests": "0",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0"
+      },
+      "case_count": 0,
+      "cases": [],
+      "empty_suite_interpretation": "No per-case completion evidence; do not infer PASS/SKIP from an empty suite"
+    },
+    {
+      "attributes": {
+        "name": "src/features/artifacts/reading-view/MonographLayout.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.844Z",
+        "hostname": "b5f0914494dc",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "1.4966"
+      },
+      "case_count": 1,
+      "cases": [
+        {
+          "attributes": {
+            "classname": "src/features/artifacts/reading-view/MonographLayout.stories.tsx",
+            "name": "Default",
+            "time": "1.4895"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        }
+      ],
+      "empty_suite_interpretation": null
+    },
+    {
+      "attributes": {
+        "name": "src/shared/ui/compounds/Compounds.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.844Z",
+        "hostname": "b5f0914494dc",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.56"
+      },
+      "case_count": 1,
+      "cases": [
+        {
+          "attributes": {
+            "classname": "src/shared/ui/compounds/Compounds.stories.tsx",
+            "name": "Operational Overview",
+            "time": "0.5526"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        }
+      ],
+      "empty_suite_interpretation": null
+    },
+    {
+      "attributes": {
+        "name": "src/shared/ui/authored-text/AuthoredText.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.844Z",
+        "hostname": "b5f0914494dc",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "1.0468"
+      },
+      "case_count": 6,
+      "cases": [
+        {
+          "attributes": {
+            "classname": "src/shared/ui/authored-text/AuthoredText.stories.tsx",
+            "name": "Citation Register",
+            "time": "0.3285"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        },
+        {
+          "attributes": {
+            "classname": "src/shared/ui/authored-text/AuthoredText.stories.tsx",
+            "name": "Human Register",
+            "time": "0.1408"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        },
+        {
+          "attributes": {
+            "classname": "src/shared/ui/authored-text/AuthoredText.stories.tsx",
+            "name": "Drafter Register",
+            "time": "0.1505"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        },
+        {
+          "attributes": {
+            "classname": "src/shared/ui/authored-text/AuthoredText.stories.tsx",
+            "name": "Formalizer Register",
+            "time": "0.133"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        },
+        {
+          "attributes": {
+            "classname": "src/shared/ui/authored-text/AuthoredText.stories.tsx",
+            "name": "Critic Register",
+            "time": "0.1057"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        },
+        {
+          "attributes": {
+            "classname": "src/shared/ui/authored-text/AuthoredText.stories.tsx",
+            "name": "Prominent Audit Rail",
+            "time": "0.1825"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        }
+      ],
+      "empty_suite_interpretation": null
+    },
+    {
+      "attributes": {
+        "name": "src/shared/ui/evidence/EvidencePrimitives.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.845Z",
+        "hostname": "b5f0914494dc",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.9387"
+      },
+      "case_count": 3,
+      "cases": [
+        {
+          "attributes": {
+            "classname": "src/shared/ui/evidence/EvidencePrimitives.stories.tsx",
+            "name": "Candidate Clothing",
+            "time": "0.3919"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        },
+        {
+          "attributes": {
+            "classname": "src/shared/ui/evidence/EvidencePrimitives.stories.tsx",
+            "name": "Fixture Only",
+            "time": "0.1907"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        },
+        {
+          "attributes": {
+            "classname": "src/shared/ui/evidence/EvidencePrimitives.stories.tsx",
+            "name": "All Primitives",
+            "time": "0.3484"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        }
+      ],
+      "empty_suite_interpretation": null
+    },
+    {
+      "attributes": {
+        "name": "src/shared/ui/patterns/Patterns.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.846Z",
+        "hostname": "b5f0914494dc",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.9685"
+      },
+      "case_count": 2,
+      "cases": [
+        {
+          "attributes": {
+            "classname": "src/shared/ui/patterns/Patterns.stories.tsx",
+            "name": "Workspace Scaffold",
+            "time": "0.7145"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        },
+        {
+          "attributes": {
+            "classname": "src/shared/ui/patterns/Patterns.stories.tsx",
+            "name": "Selection Vocabulary",
+            "time": "0.2258"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        }
+      ],
+      "empty_suite_interpretation": null
+    },
+    {
+      "attributes": {
+        "name": "src/shared/ui/quantity/Quantity.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.846Z",
+        "hostname": "b5f0914494dc",
+        "tests": "1",
+        "failures": "1",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0"
+      },
+      "case_count": 1,
+      "cases": [
+        {
+          "attributes": {
+            "classname": "src/shared/ui/quantity/Quantity.stories.tsx",
+            "name": "src/shared/ui/quantity/Quantity.stories.tsx",
+            "time": "0"
+          },
+          "JUnit_status": "failed",
+          "failure_attributes": {
+            "message": "Failed to import test file /workspace/e02-E-continuation-20261006/policy-engine/node_modules/.pnpm/@storybook+addon-vitest@9.1.20_@vitest+browser-playwright@4.1.5_@vitest+browser@4.1.5_@_6e95651060b6cf6ca1a2459c077a90c4/node_modules/@storybook/addon-vitest/dist/vitest-plugin/setup-file.mjs",
+            "type": "Error"
+          },
+          "failure_text": "\nError: Failed to import test file /workspace/e02-E-continuation-20261006/policy-engine/node_modules/.pnpm/@storybook+addon-vitest@9.1.20_@vitest+browser-playwright@4.1.5_@vitest+browser@4.1.5_@_6e95651060b6cf6ca1a2459c077a90c4/node_modules/@storybook/addon-vitest/dist/vitest-plugin/setup-file.mjs\nCaused by: Caused by: TypeError: Failed to fetch dynamically imported module: http://localhost:63315/workspace/e02-E-continuation-20261006/policy-engine/node_modules/.pnpm/@storybook+addon-vitest@9.1.20_@vitest+browser-playwright@4.1.5_@vitest+browser@4.1.5_@_6e95651060b6cf6ca1a2459c077a90c4/node_modules/@storybook/addon-vitest/dist/vitest-plugin/setup-file.mjs?import&browserv=1791369989637\n            ",
+          "scope": "JUnit import-failure synthetic row, no authored test-body assertion inferred"
+        }
+      ],
+      "empty_suite_interpretation": null
+    },
+    {
+      "attributes": {
+        "name": "src/shared/ui/temporal/TemporalScrubber.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.848Z",
+        "hostname": "b5f0914494dc",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.4119"
+      },
+      "case_count": 1,
+      "cases": [
+        {
+          "attributes": {
+            "classname": "src/shared/ui/temporal/TemporalScrubber.stories.tsx",
+            "name": "Default",
+            "time": "0.3699"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        }
+      ],
+      "empty_suite_interpretation": null
+    },
+    {
+      "attributes": {
+        "name": "src/features/export/social/OGCard.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.848Z",
+        "hostname": "b5f0914494dc",
+        "tests": "0",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0"
+      },
+      "case_count": 0,
+      "cases": [],
+      "empty_suite_interpretation": "No per-case completion evidence; do not infer PASS/SKIP from an empty suite"
+    },
+    {
+      "attributes": {
+        "name": "src/shared/ui/tokens/AtlasV4Reference.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.848Z",
+        "hostname": "b5f0914494dc",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "2.7531"
+      },
+      "case_count": 8,
+      "cases": [
+        {
+          "attributes": {
+            "classname": "src/shared/ui/tokens/AtlasV4Reference.stories.tsx",
+            "name": "Color",
+            "time": "0.9839"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        },
+        {
+          "attributes": {
+            "classname": "src/shared/ui/tokens/AtlasV4Reference.stories.tsx",
+            "name": "Color Dark",
+            "time": "0.2688"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        },
+        {
+          "attributes": {
+            "classname": "src/shared/ui/tokens/AtlasV4Reference.stories.tsx",
+            "name": "Type",
+            "time": "0.2893"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        },
+        {
+          "attributes": {
+            "classname": "src/shared/ui/tokens/AtlasV4Reference.stories.tsx",
+            "name": "Shadows",
+            "time": "0.2137"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        },
+        {
+          "attributes": {
+            "classname": "src/shared/ui/tokens/AtlasV4Reference.stories.tsx",
+            "name": "Glyphs",
+            "time": "0.2677"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        },
+        {
+          "attributes": {
+            "classname": "src/shared/ui/tokens/AtlasV4Reference.stories.tsx",
+            "name": "Buttons",
+            "time": "0.1986"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        },
+        {
+          "attributes": {
+            "classname": "src/shared/ui/tokens/AtlasV4Reference.stories.tsx",
+            "name": "Badges",
+            "time": "0.2104"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        },
+        {
+          "attributes": {
+            "classname": "src/shared/ui/tokens/AtlasV4Reference.stories.tsx",
+            "name": "Cards",
+            "time": "0.2983"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        }
+      ],
+      "empty_suite_interpretation": null
+    },
+    {
+      "attributes": {
+        "name": "src/shared/ui/tokens/DesignTokens.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.850Z",
+        "hostname": "b5f0914494dc",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "1.3754"
+      },
+      "case_count": 3,
+      "cases": [
+        {
+          "attributes": {
+            "classname": "src/shared/ui/tokens/DesignTokens.stories.tsx",
+            "name": "Foundations",
+            "time": "0.7378"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        },
+        {
+          "attributes": {
+            "classname": "src/shared/ui/tokens/DesignTokens.stories.tsx",
+            "name": "Semantic",
+            "time": "0.3094"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        },
+        {
+          "attributes": {
+            "classname": "src/shared/ui/tokens/DesignTokens.stories.tsx",
+            "name": "Semantic Dark",
+            "time": "0.3083"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        }
+      ],
+      "empty_suite_interpretation": null
+    },
+    {
+      "attributes": {
+        "name": "src/features/platform/routes/PlatformHealthPage.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.851Z",
+        "hostname": "b5f0914494dc",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.5217"
+      },
+      "case_count": 1,
+      "cases": [
+        {
+          "attributes": {
+            "classname": "src/features/platform/routes/PlatformHealthPage.stories.tsx",
+            "name": "Healthy",
+            "time": "0.4989"
+          },
+          "JUnit_status": "passed",
+          "failure_attributes": null,
+          "failure_text": null,
+          "scope": "Actual native completed case row"
+        }
+      ],
+      "empty_suite_interpretation": null
+    },
+    {
+      "attributes": {
+        "name": "src/features/runs/compare/PolicyDiffView.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.851Z",
+        "hostname": "b5f0914494dc",
+        "tests": "0",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0"
+      },
+      "case_count": 0,
+      "cases": [],
+      "empty_suite_interpretation": "No per-case completion evidence; do not infer PASS/SKIP from an empty suite"
+    },
+    {
+      "attributes": {
+        "name": "src/features/runs/components/AtlasRunDeck.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.851Z",
+        "hostname": "b5f0914494dc",
+        "tests": "0",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0"
+      },
+      "case_count": 0,
+      "cases": [],
+      "empty_suite_interpretation": "No per-case completion evidence; do not infer PASS/SKIP from an empty suite"
+    },
+    {
+      "attributes": {
+        "name": "src/features/platform/settings/AppearanceSection.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.852Z",
+        "hostname": "b5f0914494dc",
+        "tests": "0",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0"
+      },
+      "case_count": 0,
+      "cases": [],
+      "empty_suite_interpretation": "No per-case completion evidence; do not infer PASS/SKIP from an empty suite"
+    },
+    {
+      "attributes": {
+        "name": "src/features/runs/routes/RunsListPage.stories.tsx",
+        "timestamp": "2026-10-07T10:46:29.852Z",
+        "hostname": "b5f0914494dc",
+        "tests": "0",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0"
+      },
+      "case_count": 0,
+      "cases": [],
+      "empty_suite_interpretation": "No per-case completion evidence; do not infer PASS/SKIP from an empty suite"
+    }
+  ],
+  "file_denominator": {
+    "displayed": 45,
+    "explicit_passed": 15,
+    "explicit_failed": 1,
+    "unassigned_reported_status": 29,
+    "actual_empty_JUnit_suites": 29
+  },
+  "source_inputs": [
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/Quantity.stories.tsx",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "bytes": 2479,
+      "sha256": "0bb0c3b403f22e7324b1e5a7ebb2716287ec228f3fdfd258b85fa61bcd816bad"
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/shared/ui/ProvenanceStrip.stories.tsx",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "bytes": 2267,
+      "sha256": "a2c75e142d0fa66061fc07248dbc5830c4bf00d8338fc693507b602053948e59"
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/.storybook/vitest.setup.ts",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "bytes": 984,
+      "sha256": "c7c61a0ed7098bf2bdbe80bea13b6e78bc299601d0fba46f88056d28e6f47f25"
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/vitest.storybook.config.ts",
+      "source_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+      "bytes": 1325,
+      "sha256": "61e57d5c2097bcc9a1fb4dcd0df3ff067ef61ee4ad86d5a7a16d42ff3441a294"
+    }
+  ],
+  "diagnosis": {
+    "completed": "Full unfiltered exact native Storybook body exited1 in25.333s;37 actual case PASS plus one failed-import suite row. Old4749sFAIL130 interruption is separate.",
+    "failed_boundaries": [
+      "Quantity.stories setup-file dynamic module fetch failed before authored test body",
+      "ProvenanceStrip iframe connection/CORS produced separate unhandled error"
+    ],
+    "not_established": [
+      "No causally proved ENOSPC/cache/collision/source defect attribution for these two failures",
+      "No original current JS wait/progress diagnosis follows from this faster changed-output retry",
+      "Empty/unassigned29 suites do not prove case PASS/SKIP"
+    ]
+  },
+  "next_owner": "Frontend/team-frontend/@UI through G, exact native setup-file fetch and iframe URL boundary with current source/config refs; parent capacity owner restores workspace before required full a11y.",
+  "finding_closure": false,
+  "browser_or_tests_executed_by_this_observer": false
+}

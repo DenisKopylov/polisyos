@@ -1,0 +1,1474 @@
+{
+  "base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "frozen_sha": "58e2d97965c0826c44843a78dcb2f8698d9950a3",
+  "current_sha": "5d4e01011a0b7e0a3954decdb622a9e9cf1fb787",
+  "current_tree": "ba48381b0cf671c316e2cffa4be6568fd945011a",
+  "audit_sha": "0346fc656a45ff2cd43d37126992d8ddbb739d10",
+  "denominators": {
+    "changed_src_paths": 44,
+    "new_unadmitted_cross_root_module_edges": 12,
+    "audit_expected_edges": 12,
+    "E_changed_path_report_rows": 35,
+    "all_report_rows": 163
+  },
+  "ast_equals_exact_audit_edges": true,
+  "extra_ast_edges": [],
+  "missing_ast_edges": [],
+  "all_new_ast_rows": [
+    {
+      "source_module": "polisyos.calibration.continuous",
+      "source_path": "policy-engine/src/polisyos/calibration/continuous.py",
+      "target_module": "polisyos.core.artifacts",
+      "symbols": [
+        "ArtifactRef",
+        "ArtifactStore"
+      ],
+      "aliases": {},
+      "type_checking": true,
+      "line": 23
+    },
+    {
+      "source_module": "polisyos.calibration.continuous",
+      "source_path": "policy-engine/src/polisyos/calibration/continuous.py",
+      "target_module": "polisyos.core.artifacts",
+      "symbols": [
+        "ArtifactWriteOptions",
+        "SchemaInfo"
+      ],
+      "aliases": {},
+      "type_checking": false,
+      "line": 265
+    },
+    {
+      "source_module": "polisyos.calibration.continuous",
+      "source_path": "policy-engine/src/polisyos/calibration/continuous.py",
+      "target_module": "polisyos.core.canon",
+      "symbols": [
+        "CanonSpec"
+      ],
+      "aliases": {},
+      "type_checking": false,
+      "line": 266
+    },
+    {
+      "source_module": "polisyos.calibration.continuous",
+      "source_path": "policy-engine/src/polisyos/calibration/continuous.py",
+      "target_module": "polisyos.core.artifacts",
+      "symbols": [
+        "ArtifactRef"
+      ],
+      "aliases": {},
+      "type_checking": false,
+      "line": 306
+    },
+    {
+      "source_module": "polisyos.calibration.continuous",
+      "source_path": "policy-engine/src/polisyos/calibration/continuous.py",
+      "target_module": "polisyos.core.canon",
+      "symbols": [
+        "from_canonical_bytes"
+      ],
+      "aliases": {},
+      "type_checking": false,
+      "line": 337
+    },
+    {
+      "source_module": "polisyos.calibration.forecast_bridge",
+      "source_path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "target_module": "polisyos.ir.analytics.forecasting_uncertainty",
+      "symbols": [
+        "load_forecasting_uncertainty_bundle"
+      ],
+      "aliases": {},
+      "type_checking": false,
+      "line": 861
+    },
+    {
+      "source_module": "polisyos.foundry.methods.catalog.econometrics.advanced",
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+      "target_module": "polisyos.core.artifacts",
+      "symbols": [
+        "ArtifactStore"
+      ],
+      "aliases": {},
+      "type_checking": true,
+      "line": 55
+    },
+    {
+      "source_module": "polisyos.foundry.uncertainty.sampling_admission",
+      "source_path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "target_module": "polisyos.ir.analytics.uncertainty",
+      "symbols": [
+        "DistributionFamily",
+        "IntervalSemantics",
+        "PosteriorSamplesCarrier",
+        "PropagationMethod",
+        "UncertaintyEnvelope",
+        "UncertaintySource"
+      ],
+      "aliases": {},
+      "type_checking": false,
+      "line": 19
+    },
+    {
+      "source_module": "polisyos.scientist.methods.autotune.sensitivity_bridge",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+      "target_module": "polisyos.core.artifacts",
+      "symbols": [
+        "ArtifactStore"
+      ],
+      "aliases": {},
+      "type_checking": true,
+      "line": 10
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "target_module": "polisyos.calibration.forecast_bridge",
+      "symbols": [
+        "PREDICTIVE_AUTHORITY_DENIALS",
+        "REFERENCE_PROFILES",
+        "EmpiricalCalibrationContext",
+        "EmpiricalCalibrationEvidenceRef",
+        "EvidenceArtifactRef",
+        "ForecastCalibrationProfile",
+        "ForecastCandidateReceipt",
+        "ForecastCandidateReceiptRef",
+        "load_empirical_calibration_evidence",
+        "load_forecast_calibration_profile",
+        "persist_empirical_calibration_evidence",
+        "persist_forecast_candidate_receipt",
+        "produce_empirical_calibration_evidence"
+      ],
+      "aliases": {},
+      "type_checking": false,
+      "line": 22
+    },
+    {
+      "source_module": "polisyos.scientist.methods.doe._receipt",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "target_module": "polisyos.core.artifacts",
+      "symbols": [
+        "ArtifactRef",
+        "ArtifactStore"
+      ],
+      "aliases": {},
+      "type_checking": true,
+      "line": 14
+    },
+    {
+      "source_module": "polisyos.scientist.methods.doe._receipt",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "target_module": "polisyos.core.artifacts",
+      "symbols": [
+        "ArtifactWriteOptions",
+        "SchemaInfo"
+      ],
+      "aliases": {},
+      "type_checking": false,
+      "line": 45
+    },
+    {
+      "source_module": "polisyos.scientist.methods.doe._receipt",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "target_module": "polisyos.core.canon",
+      "symbols": [
+        "CanonSpec"
+      ],
+      "aliases": {},
+      "type_checking": false,
+      "line": 46
+    },
+    {
+      "source_module": "polisyos.scientist.methods.doe._receipt",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "target_module": "polisyos.core.canon",
+      "symbols": [
+        "from_canonical_bytes"
+      ],
+      "aliases": {},
+      "type_checking": false,
+      "line": 74
+    },
+    {
+      "source_module": "polisyos.scientist.methods.search.sensitivity_adapter",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+      "target_module": "polisyos.core.artifacts",
+      "symbols": [
+        "ArtifactRef",
+        "ArtifactStore"
+      ],
+      "aliases": {},
+      "type_checking": true,
+      "line": 8
+    },
+    {
+      "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+      "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "target_module": "polisyos.foundry.uncertainty.sampling_admission",
+      "symbols": [
+        "BoundedIndicatorResponse",
+        "reconcile_draw_outcomes",
+        "verify_mean_certificate"
+      ],
+      "aliases": {},
+      "type_checking": false,
+      "line": 23
+    },
+    {
+      "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+      "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "target_module": "polisyos.foundry.uncertainty.sampling_admission",
+      "symbols": [
+        "reconcile_draw_outcomes",
+        "sampling_content_digest"
+      ],
+      "aliases": {},
+      "type_checking": false,
+      "line": 42
+    }
+  ],
+  "original12_reconciliation": [
+    {
+      "source_module": "polisyos.calibration.continuous",
+      "old_target_module": "polisyos.core.artifacts",
+      "source_path": "policy-engine/src/polisyos/calibration/continuous.py",
+      "frozen_imports": [
+        {
+          "source_module": "polisyos.calibration.continuous",
+          "source_path": "policy-engine/src/polisyos/calibration/continuous.py",
+          "target_module": "polisyos.core.artifacts",
+          "symbols": [
+            "ArtifactRef",
+            "ArtifactStore"
+          ],
+          "aliases": {},
+          "type_checking": true,
+          "line": 23
+        },
+        {
+          "source_module": "polisyos.calibration.continuous",
+          "source_path": "policy-engine/src/polisyos/calibration/continuous.py",
+          "target_module": "polisyos.core.artifacts",
+          "symbols": [
+            "ArtifactWriteOptions",
+            "SchemaInfo"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 265
+        },
+        {
+          "source_module": "polisyos.calibration.continuous",
+          "source_path": "policy-engine/src/polisyos/calibration/continuous.py",
+          "target_module": "polisyos.core.artifacts",
+          "symbols": [
+            "ArtifactRef"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 306
+        }
+      ],
+      "current_same_target": [
+        {
+          "source_module": "polisyos.calibration.continuous",
+          "source_path": "policy-engine/src/polisyos/calibration/continuous.py",
+          "target_module": "polisyos.core.artifacts",
+          "symbols": [
+            "ArtifactRef",
+            "ArtifactStore"
+          ],
+          "aliases": {},
+          "type_checking": true,
+          "line": 23
+        },
+        {
+          "source_module": "polisyos.calibration.continuous",
+          "source_path": "policy-engine/src/polisyos/calibration/continuous.py",
+          "target_module": "polisyos.core.artifacts",
+          "symbols": [
+            "ArtifactWriteOptions",
+            "SchemaInfo"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 265
+        },
+        {
+          "source_module": "polisyos.calibration.continuous",
+          "source_path": "policy-engine/src/polisyos/calibration/continuous.py",
+          "target_module": "polisyos.core.artifacts",
+          "symbols": [
+            "ArtifactRef"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 306
+        }
+      ],
+      "current_facade_replacements": [],
+      "edge_present_in_exact_ast_delta": true
+    },
+    {
+      "source_module": "polisyos.calibration.continuous",
+      "old_target_module": "polisyos.core.canon",
+      "source_path": "policy-engine/src/polisyos/calibration/continuous.py",
+      "frozen_imports": [
+        {
+          "source_module": "polisyos.calibration.continuous",
+          "source_path": "policy-engine/src/polisyos/calibration/continuous.py",
+          "target_module": "polisyos.core.canon",
+          "symbols": [
+            "CanonSpec"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 266
+        },
+        {
+          "source_module": "polisyos.calibration.continuous",
+          "source_path": "policy-engine/src/polisyos/calibration/continuous.py",
+          "target_module": "polisyos.core.canon",
+          "symbols": [
+            "from_canonical_bytes"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 337
+        }
+      ],
+      "current_same_target": [
+        {
+          "source_module": "polisyos.calibration.continuous",
+          "source_path": "policy-engine/src/polisyos/calibration/continuous.py",
+          "target_module": "polisyos.core.canon",
+          "symbols": [
+            "CanonSpec"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 266
+        },
+        {
+          "source_module": "polisyos.calibration.continuous",
+          "source_path": "policy-engine/src/polisyos/calibration/continuous.py",
+          "target_module": "polisyos.core.canon",
+          "symbols": [
+            "from_canonical_bytes"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 337
+        }
+      ],
+      "current_facade_replacements": [],
+      "edge_present_in_exact_ast_delta": true
+    },
+    {
+      "source_module": "polisyos.calibration.forecast_bridge",
+      "old_target_module": "polisyos.ir.analytics.forecasting_uncertainty",
+      "source_path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "frozen_imports": [
+        {
+          "source_module": "polisyos.calibration.forecast_bridge",
+          "source_path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+          "target_module": "polisyos.ir.analytics.forecasting_uncertainty",
+          "symbols": [
+            "load_forecasting_uncertainty_bundle"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 861
+        }
+      ],
+      "current_same_target": [
+        {
+          "source_module": "polisyos.calibration.forecast_bridge",
+          "source_path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+          "target_module": "polisyos.ir.analytics.forecasting_uncertainty",
+          "symbols": [
+            "load_forecasting_uncertainty_bundle"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 995
+        }
+      ],
+      "current_facade_replacements": [],
+      "edge_present_in_exact_ast_delta": true
+    },
+    {
+      "source_module": "polisyos.foundry.methods.catalog.econometrics.advanced",
+      "old_target_module": "polisyos.core.artifacts",
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+      "frozen_imports": [
+        {
+          "source_module": "polisyos.foundry.methods.catalog.econometrics.advanced",
+          "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+          "target_module": "polisyos.core.artifacts",
+          "symbols": [
+            "ArtifactStore"
+          ],
+          "aliases": {},
+          "type_checking": true,
+          "line": 55
+        }
+      ],
+      "current_same_target": [
+        {
+          "source_module": "polisyos.foundry.methods.catalog.econometrics.advanced",
+          "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+          "target_module": "polisyos.core.artifacts",
+          "symbols": [
+            "ArtifactStore"
+          ],
+          "aliases": {},
+          "type_checking": true,
+          "line": 60
+        },
+        {
+          "source_module": "polisyos.foundry.methods.catalog.econometrics.advanced",
+          "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+          "target_module": "polisyos.core.artifacts",
+          "symbols": [
+            "ArtifactWriteOptions",
+            "SchemaInfo"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 1521
+        }
+      ],
+      "current_facade_replacements": [
+        {
+          "source_module": "polisyos.foundry.methods.catalog.econometrics.advanced",
+          "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+          "target_module": "polisyos.calibration",
+          "symbols": [
+            "evaluate_continuous",
+            "load_continuous_evaluation",
+            "persist_continuous_evaluation"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 13
+        }
+      ],
+      "edge_present_in_exact_ast_delta": true
+    },
+    {
+      "source_module": "polisyos.foundry.uncertainty.sampling_admission",
+      "old_target_module": "polisyos.ir.analytics.uncertainty",
+      "source_path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "frozen_imports": [
+        {
+          "source_module": "polisyos.foundry.uncertainty.sampling_admission",
+          "source_path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+          "target_module": "polisyos.ir.analytics.uncertainty",
+          "symbols": [
+            "DistributionFamily",
+            "IntervalSemantics",
+            "PosteriorSamplesCarrier",
+            "PropagationMethod",
+            "UncertaintyEnvelope",
+            "UncertaintySource"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 19
+        }
+      ],
+      "current_same_target": [
+        {
+          "source_module": "polisyos.foundry.uncertainty.sampling_admission",
+          "source_path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+          "target_module": "polisyos.ir.analytics.uncertainty",
+          "symbols": [
+            "PosteriorSamplesCarrier"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 26
+        }
+      ],
+      "current_facade_replacements": [
+        {
+          "source_module": "polisyos.foundry.uncertainty.sampling_admission",
+          "source_path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+          "target_module": "polisyos.ir.analytics",
+          "symbols": [
+            "DistributionFamily",
+            "IntervalSemantics",
+            "PropagationMethod",
+            "UncertaintyEnvelope",
+            "UncertaintySource"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 19
+        }
+      ],
+      "edge_present_in_exact_ast_delta": true
+    },
+    {
+      "source_module": "polisyos.scientist.methods.autotune.sensitivity_bridge",
+      "old_target_module": "polisyos.core.artifacts",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+      "frozen_imports": [
+        {
+          "source_module": "polisyos.scientist.methods.autotune.sensitivity_bridge",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+          "target_module": "polisyos.core.artifacts",
+          "symbols": [
+            "ArtifactStore"
+          ],
+          "aliases": {},
+          "type_checking": true,
+          "line": 10
+        }
+      ],
+      "current_same_target": [
+        {
+          "source_module": "polisyos.scientist.methods.autotune.sensitivity_bridge",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+          "target_module": "polisyos.core.artifacts",
+          "symbols": [
+            "ArtifactStore"
+          ],
+          "aliases": {},
+          "type_checking": true,
+          "line": 10
+        }
+      ],
+      "current_facade_replacements": [],
+      "edge_present_in_exact_ast_delta": true
+    },
+    {
+      "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+      "old_target_module": "polisyos.calibration.forecast_bridge",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "frozen_imports": [
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+          "target_module": "polisyos.calibration.forecast_bridge",
+          "symbols": [
+            "PREDICTIVE_AUTHORITY_DENIALS",
+            "REFERENCE_PROFILES",
+            "EmpiricalCalibrationContext",
+            "EmpiricalCalibrationEvidenceRef",
+            "EvidenceArtifactRef",
+            "ForecastCalibrationProfile",
+            "ForecastCandidateReceipt",
+            "ForecastCandidateReceiptRef",
+            "load_empirical_calibration_evidence",
+            "load_forecast_calibration_profile",
+            "persist_empirical_calibration_evidence",
+            "persist_forecast_candidate_receipt",
+            "produce_empirical_calibration_evidence"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 22
+        }
+      ],
+      "current_same_target": [],
+      "current_facade_replacements": [
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+          "target_module": "polisyos.calibration",
+          "symbols": [
+            "PREDICTIVE_AUTHORITY_DENIALS",
+            "REFERENCE_PROFILES",
+            "EmpiricalCalibrationContext",
+            "EmpiricalCalibrationEvidenceRef",
+            "EvidenceArtifactRef",
+            "ForecastCalibrationProfile",
+            "ForecastCandidateReceipt",
+            "ForecastCandidateReceiptRef",
+            "ForecastMeasurementBinding",
+            "evaluate_continuous",
+            "load_empirical_calibration_evidence",
+            "load_forecast_calibration_profile",
+            "persist_empirical_calibration_evidence",
+            "persist_forecast_candidate_receipt",
+            "produce_empirical_calibration_evidence",
+            "resolve_forecast_measurement_binding"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 21
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+          "target_module": "polisyos.calibration",
+          "symbols": [
+            "load_forecast_candidate_receipt"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 315
+        }
+      ],
+      "edge_present_in_exact_ast_delta": true
+    },
+    {
+      "source_module": "polisyos.scientist.methods.doe._receipt",
+      "old_target_module": "polisyos.core.artifacts",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "frozen_imports": [
+        {
+          "source_module": "polisyos.scientist.methods.doe._receipt",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+          "target_module": "polisyos.core.artifacts",
+          "symbols": [
+            "ArtifactRef",
+            "ArtifactStore"
+          ],
+          "aliases": {},
+          "type_checking": true,
+          "line": 14
+        },
+        {
+          "source_module": "polisyos.scientist.methods.doe._receipt",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+          "target_module": "polisyos.core.artifacts",
+          "symbols": [
+            "ArtifactWriteOptions",
+            "SchemaInfo"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 45
+        }
+      ],
+      "current_same_target": [
+        {
+          "source_module": "polisyos.scientist.methods.doe._receipt",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+          "target_module": "polisyos.core.artifacts",
+          "symbols": [
+            "ArtifactRef",
+            "ArtifactStore"
+          ],
+          "aliases": {},
+          "type_checking": true,
+          "line": 14
+        },
+        {
+          "source_module": "polisyos.scientist.methods.doe._receipt",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+          "target_module": "polisyos.core.artifacts",
+          "symbols": [
+            "ArtifactWriteOptions",
+            "SchemaInfo"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 45
+        }
+      ],
+      "current_facade_replacements": [],
+      "edge_present_in_exact_ast_delta": true
+    },
+    {
+      "source_module": "polisyos.scientist.methods.doe._receipt",
+      "old_target_module": "polisyos.core.canon",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "frozen_imports": [
+        {
+          "source_module": "polisyos.scientist.methods.doe._receipt",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+          "target_module": "polisyos.core.canon",
+          "symbols": [
+            "CanonSpec"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 46
+        },
+        {
+          "source_module": "polisyos.scientist.methods.doe._receipt",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+          "target_module": "polisyos.core.canon",
+          "symbols": [
+            "from_canonical_bytes"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 74
+        }
+      ],
+      "current_same_target": [
+        {
+          "source_module": "polisyos.scientist.methods.doe._receipt",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+          "target_module": "polisyos.core.canon",
+          "symbols": [
+            "CanonSpec"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 46
+        },
+        {
+          "source_module": "polisyos.scientist.methods.doe._receipt",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+          "target_module": "polisyos.core.canon",
+          "symbols": [
+            "from_canonical_bytes"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 74
+        }
+      ],
+      "current_facade_replacements": [],
+      "edge_present_in_exact_ast_delta": true
+    },
+    {
+      "source_module": "polisyos.scientist.methods.search.sensitivity_adapter",
+      "old_target_module": "polisyos.core.artifacts",
+      "source_path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+      "frozen_imports": [
+        {
+          "source_module": "polisyos.scientist.methods.search.sensitivity_adapter",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+          "target_module": "polisyos.core.artifacts",
+          "symbols": [
+            "ArtifactRef",
+            "ArtifactStore"
+          ],
+          "aliases": {},
+          "type_checking": true,
+          "line": 8
+        }
+      ],
+      "current_same_target": [
+        {
+          "source_module": "polisyos.scientist.methods.search.sensitivity_adapter",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+          "target_module": "polisyos.core.artifacts",
+          "symbols": [
+            "ArtifactRef",
+            "ArtifactStore"
+          ],
+          "aliases": {},
+          "type_checking": true,
+          "line": 8
+        }
+      ],
+      "current_facade_replacements": [],
+      "edge_present_in_exact_ast_delta": true
+    },
+    {
+      "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+      "old_target_module": "polisyos.foundry.uncertainty.sampling_admission",
+      "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "frozen_imports": [
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+          "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "target_module": "polisyos.foundry.uncertainty.sampling_admission",
+          "symbols": [
+            "BoundedIndicatorResponse",
+            "reconcile_draw_outcomes",
+            "verify_mean_certificate"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 23
+        }
+      ],
+      "current_same_target": [],
+      "current_facade_replacements": [
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_uncertainty",
+          "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+          "target_module": "polisyos.foundry.uncertainty",
+          "symbols": [
+            "BoundedIndicatorResponse",
+            "reconcile_draw_outcomes",
+            "verify_mean_certificate"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 20
+        }
+      ],
+      "edge_present_in_exact_ast_delta": true
+    },
+    {
+      "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+      "old_target_module": "polisyos.foundry.uncertainty.sampling_admission",
+      "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "frozen_imports": [
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+          "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "target_module": "polisyos.foundry.uncertainty.sampling_admission",
+          "symbols": [
+            "reconcile_draw_outcomes",
+            "sampling_content_digest"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 42
+        }
+      ],
+      "current_same_target": [],
+      "current_facade_replacements": [
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+          "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "target_module": "polisyos.foundry.uncertainty",
+          "symbols": [
+            "extract_std"
+          ],
+          "aliases": {
+            "extract_std": "_extract_typed_std"
+          },
+          "type_checking": false,
+          "line": 33
+        },
+        {
+          "source_module": "polisyos.scientist.nodes.builtins.simulate.propagate_welfare",
+          "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+          "target_module": "polisyos.foundry.uncertainty",
+          "symbols": [
+            "reconcile_draw_outcomes",
+            "sampling_content_digest"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 34
+        }
+      ],
+      "edge_present_in_exact_ast_delta": true
+    }
+  ],
+  "forthcoming_family_imports": {
+    "BKT": {
+      "comparison_sha": "31059ec77f9add8651667967a4b1a51acfab6d24",
+      "source_sha": "0983d064df3c3e21f8b1accff4ee90484d78973b",
+      "source_tree": "438277e00ae3cdaf6c7729c509d40fa09464e88f",
+      "rows": [
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.native_replay",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+          "target_module": "polisyos.core.artifacts",
+          "symbols": [
+            "ArtifactRef",
+            "PutOptions",
+            "SchemaInfo",
+            "input_ref_from_artifact_ref"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 17,
+          "new_vs_current_module_edge": true,
+          "admitted_by_frozen_contract": false
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.native_replay",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+          "target_module": "polisyos.core.canon",
+          "symbols": [
+            "CanonSpec",
+            "from_canonical_bytes"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 18,
+          "new_vs_current_module_edge": true,
+          "admitted_by_frozen_contract": false
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.native_replay",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+          "target_module": "polisyos.core.contracts",
+          "symbols": [
+            "DataSnapshot",
+            "DerivedArtifact",
+            "ExecPlan",
+            "ExecuteRequest",
+            "ExecuteResult",
+            "FoundryExecConfig",
+            "FoundryInputBindingRule",
+            "FoundryInputBindings",
+            "FoundryInputBindingsRef",
+            "LoweredIR",
+            "ProgramGraph",
+            "SimulationResult",
+            "StateSnapshotRef"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 19,
+          "new_vs_current_module_edge": true,
+          "admitted_by_frozen_contract": true
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.native_replay",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+          "target_module": "polisyos.core.registry",
+          "symbols": [
+            "load_registry_bundle_content"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 34,
+          "new_vs_current_module_edge": true,
+          "admitted_by_frozen_contract": false
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.native_replay",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+          "target_module": "polisyos.foundry.execute.executor",
+          "symbols": [
+            "get_state_path",
+            "load_state_snapshot",
+            "put_state_snapshot"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 35,
+          "new_vs_current_module_edge": true,
+          "admitted_by_frozen_contract": false
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.native_replay",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+          "target_module": "polisyos.ir",
+          "symbols": [
+            "TrinityBundle"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 40,
+          "new_vs_current_module_edge": true,
+          "admitted_by_frozen_contract": true
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.native_replay",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+          "target_module": "polisyos.core.artifacts",
+          "symbols": [
+            "ArtifactStore"
+          ],
+          "aliases": {},
+          "type_checking": true,
+          "line": 43,
+          "new_vs_current_module_edge": true,
+          "admitted_by_frozen_contract": false
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.orchestrator",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+          "target_module": "polisyos.core.artifacts.ids",
+          "symbols": [
+            "ArtifactID"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 18,
+          "new_vs_current_module_edge": false,
+          "admitted_by_frozen_contract": false
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.orchestrator",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+          "target_module": "polisyos.core.artifacts.ir_adapter",
+          "symbols": [
+            "CoreToIRArtifactStoreAdapter",
+            "build_ir_artifact_store",
+            "ensure_ir_artifact_store"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 19,
+          "new_vs_current_module_edge": false,
+          "admitted_by_frozen_contract": false
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.orchestrator",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+          "target_module": "polisyos.core.canon",
+          "symbols": [
+            "from_canonical_bytes"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 24,
+          "new_vs_current_module_edge": false,
+          "admitted_by_frozen_contract": false
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.orchestrator",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+          "target_module": "polisyos.core.contracts.fabric",
+          "symbols": [
+            "DataSnapshot"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 25,
+          "new_vs_current_module_edge": false,
+          "admitted_by_frozen_contract": false
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.orchestrator",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+          "target_module": "polisyos.ir.analytics.backtest",
+          "symbols": [
+            "BacktestReport",
+            "BacktestScenario",
+            "BiasDirection",
+            "SystematicBias",
+            "persist_backtest_report"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 26,
+          "new_vs_current_module_edge": false,
+          "admitted_by_frozen_contract": false
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.orchestrator",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+          "target_module": "polisyos.ir.analytics.uncertainty",
+          "symbols": [
+            "IntervalSemantics",
+            "UncertaintyEnvelope",
+            "UncertaintySource",
+            "combine_envelopes"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 33,
+          "new_vs_current_module_edge": false,
+          "admitted_by_frozen_contract": false
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.orchestrator",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+          "target_module": "polisyos.ir.artifacts",
+          "symbols": [
+            "InputRef",
+            "normalize_input_refs",
+            "put_json_artifact"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 39,
+          "new_vs_current_module_edge": false,
+          "admitted_by_frozen_contract": false
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.orchestrator",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+          "target_module": "polisyos.ir.model_layer.canon",
+          "symbols": [
+            "CanonSpec"
+          ],
+          "aliases": {
+            "CanonSpec": "IRCanonSpec"
+          },
+          "type_checking": false,
+          "line": 40,
+          "new_vs_current_module_edge": false,
+          "admitted_by_frozen_contract": false
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.orchestrator",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+          "target_module": "polisyos.core.artifacts.protocol",
+          "symbols": [
+            "ArtifactStore"
+          ],
+          "aliases": {
+            "ArtifactStore": "CoreArtifactStore"
+          },
+          "type_checking": true,
+          "line": 52,
+          "new_vs_current_module_edge": false,
+          "admitted_by_frozen_contract": false
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.orchestrator",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+          "target_module": "polisyos.ir.artifacts",
+          "symbols": [
+            "ArtifactStore"
+          ],
+          "aliases": {
+            "ArtifactStore": "IRArtifactStore"
+          },
+          "type_checking": true,
+          "line": 53,
+          "new_vs_current_module_edge": false,
+          "admitted_by_frozen_contract": false
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.orchestrator",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+          "target_module": "polisyos.core.artifacts",
+          "symbols": [
+            "ArtifactRef"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 605,
+          "new_vs_current_module_edge": true,
+          "admitted_by_frozen_contract": false
+        }
+      ]
+    },
+    "FRC": {
+      "comparison_sha": "31059ec77f9add8651667967a4b1a51acfab6d24",
+      "source_sha": "8486baad6fdef8063cfaad80b15f6b6d8532460a",
+      "source_tree": "3be4935b1bfa426a71f8581bc376fa322145fe31",
+      "rows": [
+        {
+          "source_module": "polisyos.calibration.forecast_bridge",
+          "source_path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+          "target_module": "polisyos.ir.analytics.backtest",
+          "symbols": [
+            "BacktestReport",
+            "load_backtest_report"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 32,
+          "new_vs_current_module_edge": false,
+          "admitted_by_frozen_contract": false
+        },
+        {
+          "source_module": "polisyos.calibration.forecast_bridge",
+          "source_path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+          "target_module": "polisyos.ir.artifacts",
+          "symbols": [
+            "ArtifactID",
+            "ArtifactStore",
+            "get_json_artifact",
+            "put_json_artifact"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 33,
+          "new_vs_current_module_edge": false,
+          "admitted_by_frozen_contract": false
+        },
+        {
+          "source_module": "polisyos.calibration.forecast_bridge",
+          "source_path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+          "target_module": "polisyos.ir.model_layer.canon",
+          "symbols": [
+            "CanonSpec"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 39,
+          "new_vs_current_module_edge": false,
+          "admitted_by_frozen_contract": false
+        },
+        {
+          "source_module": "polisyos.calibration.forecast_bridge",
+          "source_path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+          "target_module": "polisyos.ir.registry.refs",
+          "symbols": [
+            "ArtifactRefModel",
+            "BacktestReportRef"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 40,
+          "new_vs_current_module_edge": false,
+          "admitted_by_frozen_contract": false
+        },
+        {
+          "source_module": "polisyos.calibration.forecast_bridge",
+          "source_path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+          "target_module": "polisyos.ir.analytics.forecasting_uncertainty",
+          "symbols": [
+            "load_forecasting_uncertainty_bundle"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 995,
+          "new_vs_current_module_edge": false,
+          "admitted_by_frozen_contract": false
+        },
+        {
+          "source_module": "polisyos.calibration.forecast_bridge",
+          "source_path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+          "target_module": "polisyos.ir.registry.refs",
+          "symbols": [
+            "ForecastingUncertaintyBundleRef"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 998,
+          "new_vs_current_module_edge": false,
+          "admitted_by_frozen_contract": false
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+          "target_module": "polisyos.calibration",
+          "symbols": [
+            "PREDICTIVE_AUTHORITY_DENIALS",
+            "REFERENCE_PROFILES",
+            "EmpiricalCalibrationContext",
+            "EmpiricalCalibrationEvidenceRef",
+            "EvidenceArtifactRef",
+            "ForecastCalibrationProfile",
+            "ForecastCandidateReceipt",
+            "ForecastCandidateReceiptRef",
+            "ForecastMeasurementBinding",
+            "evaluate_continuous",
+            "load_empirical_calibration_evidence",
+            "load_forecast_calibration_profile",
+            "persist_empirical_calibration_evidence",
+            "persist_forecast_candidate_receipt",
+            "produce_empirical_calibration_evidence",
+            "resolve_forecast_measurement_binding"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 21,
+          "new_vs_current_module_edge": false,
+          "admitted_by_frozen_contract": true
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+          "target_module": "polisyos.core.artifacts.store",
+          "symbols": [
+            "FileSystemCAS"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 39,
+          "new_vs_current_module_edge": false,
+          "admitted_by_frozen_contract": false
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+          "target_module": "polisyos.core.contracts.fabric",
+          "symbols": [
+            "DataSnapshot",
+            "DataSnapshotRef"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 40,
+          "new_vs_current_module_edge": false,
+          "admitted_by_frozen_contract": false
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+          "target_module": "polisyos.fabric",
+          "symbols": [
+            "DataSchema"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 41,
+          "new_vs_current_module_edge": true,
+          "admitted_by_frozen_contract": true
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+          "target_module": "polisyos.foundry.methods.artifacts",
+          "symbols": [
+            "MethodArtifact",
+            "store_method_artifact"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 42,
+          "new_vs_current_module_edge": false,
+          "admitted_by_frozen_contract": false
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+          "target_module": "polisyos.foundry.methods.backends.dispatch",
+          "symbols": [
+            "MethodDispatcher"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 43,
+          "new_vs_current_module_edge": false,
+          "admitted_by_frozen_contract": false
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+          "target_module": "polisyos.foundry.methods.base",
+          "symbols": [
+            "ComputeBackend"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 44,
+          "new_vs_current_module_edge": false,
+          "admitted_by_frozen_contract": false
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+          "target_module": "polisyos.foundry.methods.catalog.forecasting",
+          "symbols": [
+            "ensure_forecasting_methods_registered"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 45,
+          "new_vs_current_module_edge": false,
+          "admitted_by_frozen_contract": false
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+          "target_module": "polisyos.foundry.methods.compiler.specialization",
+          "symbols": [
+            "BackendSpec",
+            "ShapeSpec",
+            "Specialization",
+            "compute_static_params_hash"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 46,
+          "new_vs_current_module_edge": false,
+          "admitted_by_frozen_contract": false
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+          "target_module": "polisyos.foundry.methods.selection.registry",
+          "symbols": [
+            "MethodRegistry"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 52,
+          "new_vs_current_module_edge": false,
+          "admitted_by_frozen_contract": false
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+          "target_module": "polisyos.ir.analytics.backtest",
+          "symbols": [
+            "BacktestReport",
+            "load_backtest_report"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 53,
+          "new_vs_current_module_edge": false,
+          "admitted_by_frozen_contract": false
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+          "target_module": "polisyos.ir.analytics.calibration_diagnostics",
+          "symbols": [
+            "CalibrationDiagnosticsReport"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 57,
+          "new_vs_current_module_edge": false,
+          "admitted_by_frozen_contract": false
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+          "target_module": "polisyos.ir.analytics.forecasting_uncertainty",
+          "symbols": [
+            "ForecastingUncertaintyBundle",
+            "ForecastIntervalSemantics",
+            "load_forecasting_uncertainty_bundle",
+            "persist_forecasting_uncertainty_bundle"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 58,
+          "new_vs_current_module_edge": false,
+          "admitted_by_frozen_contract": false
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+          "target_module": "polisyos.ir.artifacts",
+          "symbols": [
+            "ArtifactID",
+            "ArtifactStore",
+            "InputRef",
+            "get_json_artifact",
+            "normalize_artifact_ref",
+            "put_json_artifact"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 64,
+          "new_vs_current_module_edge": false,
+          "admitted_by_frozen_contract": false
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+          "target_module": "polisyos.ir.model_layer.canon",
+          "symbols": [
+            "CanonSpec"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 72,
+          "new_vs_current_module_edge": false,
+          "admitted_by_frozen_contract": false
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+          "target_module": "polisyos.ir.registry.refs",
+          "symbols": [
+            "ArtifactRefModel",
+            "BacktestReportRef",
+            "ForecastingUncertaintyBundleRef"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 73,
+          "new_vs_current_module_edge": false,
+          "admitted_by_frozen_contract": false
+        },
+        {
+          "source_module": "polisyos.scientist.methods.backtesting.forecast_owner",
+          "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+          "target_module": "polisyos.calibration",
+          "symbols": [
+            "load_forecast_candidate_receipt"
+          ],
+          "aliases": {},
+          "type_checking": false,
+          "line": 315,
+          "new_vs_current_module_edge": false,
+          "admitted_by_frozen_contract": true
+        }
+      ]
+    }
+  },
+  "P41": "not_established; no global command replay or input denominator measured by this AST-only packet"
+}

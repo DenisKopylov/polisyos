@@ -1,0 +1,276 @@
+{
+  "schema": "policyos.e02.closed_prerequisite_controls.v1",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "outcome": "PASS",
+  "control_count": 36,
+  "source_sha256": "2bca3cb0116a30e2fdfc46e3045d3c3057b0de1627c771f16570bde12e07035e",
+  "summary_claim_count": 194,
+  "controls": [
+    {
+      "control": "actual_closed_inputs_healthy",
+      "outcome": "PASS",
+      "receipt": {
+        "check_outcome": "PASS",
+        "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+        "summary_receipt": {
+          "structured_claims": 194,
+          "claim_sha256": "562be6bf77beb70460b1ef7c2f0471dc813839b93329b090f9fdee4e12644f77"
+        },
+        "input_denominator": {
+          "files": 32,
+          "bytes": 369304,
+          "source_paths": 6
+        },
+        "native_executed": false,
+        "environment_mutated": false,
+        "global_backend_result_established": false,
+        "finding_closure": false
+      }
+    },
+    {
+      "control": "old_count_proxy",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch",
+      "native_marker_intact": true,
+      "installation_marker_intact": true
+    },
+    {
+      "control": "new_count_proxy",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch",
+      "native_marker_intact": true,
+      "installation_marker_intact": true
+    },
+    {
+      "control": "count_bool_escape",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch",
+      "native_marker_intact": true,
+      "installation_marker_intact": true
+    },
+    {
+      "control": "changed_old_metadata_hidden",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch",
+      "native_marker_intact": true,
+      "installation_marker_intact": true
+    },
+    {
+      "control": "four_additions_omitted",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch",
+      "native_marker_intact": true,
+      "installation_marker_intact": true
+    },
+    {
+      "control": "protected_version_relabel",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch",
+      "native_marker_intact": true,
+      "installation_marker_intact": true
+    },
+    {
+      "control": "protected_hash_proxy",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch",
+      "native_marker_intact": true,
+      "installation_marker_intact": true
+    },
+    {
+      "control": "source_ref_proxy",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch",
+      "native_marker_intact": true,
+      "installation_marker_intact": true
+    },
+    {
+      "control": "tree_ref_proxy",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch",
+      "native_marker_intact": true,
+      "installation_marker_intact": true
+    },
+    {
+      "control": "preflight_exit_spoof",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch",
+      "native_marker_intact": true,
+      "installation_marker_intact": true
+    },
+    {
+      "control": "cp_sat_int_to_bool",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch",
+      "native_marker_intact": true,
+      "installation_marker_intact": true
+    },
+    {
+      "control": "historical_unrun_reclassified",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch",
+      "native_marker_intact": true,
+      "installation_marker_intact": true
+    },
+    {
+      "control": "historical_pending_reclassified",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch",
+      "native_marker_intact": true,
+      "installation_marker_intact": true
+    },
+    {
+      "control": "infra_quiescence_spoof",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch",
+      "native_marker_intact": true,
+      "installation_marker_intact": true
+    },
+    {
+      "control": "unreadable_scope_removed",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch",
+      "native_marker_intact": true,
+      "installation_marker_intact": true
+    },
+    {
+      "control": "wheel_copy_hidden",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch",
+      "native_marker_intact": true,
+      "installation_marker_intact": true
+    },
+    {
+      "control": "wheel_size_proxy",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch",
+      "native_marker_intact": true,
+      "installation_marker_intact": true
+    },
+    {
+      "control": "claim_extra_authority",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch",
+      "native_marker_intact": true,
+      "installation_marker_intact": true
+    },
+    {
+      "control": "global_ci_false_to_true",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch",
+      "native_marker_intact": true,
+      "installation_marker_intact": true
+    },
+    {
+      "control": "finding_closure_upgrade",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch",
+      "native_marker_intact": true,
+      "installation_marker_intact": true
+    },
+    {
+      "control": "native_repeat_hidden",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch",
+      "native_marker_intact": true,
+      "installation_marker_intact": true
+    },
+    {
+      "control": "old_selection_denominator",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch",
+      "native_marker_intact": true,
+      "installation_marker_intact": true
+    },
+    {
+      "control": "all_inputs_denominator",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch",
+      "native_marker_intact": true,
+      "installation_marker_intact": true
+    },
+    {
+      "control": "publication_timestamp_backfill",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch",
+      "native_marker_intact": true,
+      "installation_marker_intact": true
+    },
+    {
+      "control": "publication_persisted_ref",
+      "outcome": "PASS",
+      "refusal": "summary_mismatch",
+      "native_marker_intact": true,
+      "installation_marker_intact": true
+    },
+    {
+      "control": "effective_summary_removal:old_count_proxy",
+      "outcome": "PASS",
+      "property_expected_refusal": "FAIL",
+      "mutant_validator_outcome": "PASS",
+      "all_raw_closed_inputs_unchanged": true
+    },
+    {
+      "control": "effective_summary_removal:protected_version_relabel",
+      "outcome": "PASS",
+      "property_expected_refusal": "FAIL",
+      "mutant_validator_outcome": "PASS",
+      "all_raw_closed_inputs_unchanged": true
+    },
+    {
+      "control": "effective_summary_removal:infra_quiescence_spoof",
+      "outcome": "PASS",
+      "property_expected_refusal": "FAIL",
+      "mutant_validator_outcome": "PASS",
+      "all_raw_closed_inputs_unchanged": true
+    },
+    {
+      "control": "effective_summary_removal:all_inputs_denominator",
+      "outcome": "PASS",
+      "property_expected_refusal": "FAIL",
+      "mutant_validator_outcome": "PASS",
+      "all_raw_closed_inputs_unchanged": true
+    },
+    {
+      "control": "late_option_ref",
+      "outcome": "PASS",
+      "callback_count": 0,
+      "refusal": "full hex identity"
+    },
+    {
+      "control": "late_path_none",
+      "outcome": "PASS",
+      "callback_count": 0,
+      "refusal": "complete source footprint"
+    },
+    {
+      "control": "late_path_dot",
+      "outcome": "PASS",
+      "callback_count": 0,
+      "refusal": "complete source footprint"
+    },
+    {
+      "control": "late_blob_bool",
+      "outcome": "PASS",
+      "callback_count": 0,
+      "refusal": "full hex identity"
+    },
+    {
+      "control": "raw_protected_int_to_bool",
+      "outcome": "PASS",
+      "refusal": "metadata byte integer",
+      "framed_hash_recomputed": true
+    },
+    {
+      "control": "raw_version_changed",
+      "outcome": "PASS",
+      "refusal": "protected versions",
+      "framed_hash_recomputed": true
+    }
+  ],
+  "native_backend_or_interpreter_repeated": false,
+  "environment_mutated": false,
+  "source_mutated": false,
+  "finding_closure": false
+}

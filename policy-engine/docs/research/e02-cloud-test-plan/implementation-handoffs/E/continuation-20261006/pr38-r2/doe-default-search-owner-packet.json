@@ -1,0 +1,48 @@
+{
+  "schema": "policyos.e02.owner_dependency_packet.v1",
+  "owner": "D; Scientist Search/autotune canonical writer",
+  "source_sha": "f07b7d485531b96a206ae9b2aad7acf5f2755324",
+  "source_tree": "8dcd5c26a4868e1b055a54a6cd53365e9d5890f3",
+  "code_slice_verdict": "GO",
+  "dependency": "DoE canonical configured CAS sensitivity receipt -> actual default SearchLoopRunner compatible carrier and ranking-dependent proposal execution",
+  "actual_native_boundary": {
+    "canonical_owner": "D Scientist Search/autotune",
+    "exact_paths": [
+      "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py::SearchLoopRunner.run",
+      "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py::SearchLoopRunner._evaluate_candidate",
+      "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py::PydanticMutationCodec.decode",
+      "policy-engine/src/polisyos/scientist/methods/autotune/models.py::MutationArtifact",
+      "policy-engine/src/polisyos/scientist/methods/autotune/models.py::SearchLoopSpec",
+      "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py::SensitivityAwareCandidateGenerator.generate/generate_batch"
+    ],
+    "actual_exception": {
+      "type": "ValidationError",
+      "message": "1 validation error for MutationArtifact\n_sensitivity\n  Extra inputs are not permitted [type=extra_forbidden, input_value={'ranking': ['z', 'x'], '...tus': 'not_established'}, input_type=dict]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden"
+    },
+    "minimum_inputs": [
+      "admitted actual mutation/parameter coordinates and bounds/distribution/units",
+      "real evaluator and exploratory purpose",
+      "explicit independent Sobol experimental law or supported Morris plan",
+      "seed and numerical budget",
+      "configured CAS store shared with real SearchLoopRunner",
+      "owner-chosen compatible metadata/ref carrier through actual codec, persisted mutation/evaluation and reopened Search state"
+    ],
+    "minimum_next_result": "Default native SearchLoopRunner actually executes ranking-dependent proposals and persists/reopens exact analysis_ref/design_id/analysis_id through admitted codec/carrier; changed evaluator interaction changes applied recomputed sensitivity, and property removal with markers retained breaks this witness. Merely decorating candidate metadata is insufficient.",
+    "surface_state": "bridge_missing / consumer_missing for ranking-dependent default Search; current supplied-generator consumption exists but typed metadata carrier admission is missing"
+  },
+  "evaluator_authority_boundary": {
+    "numerical_readback": "accepted supplied X/Y",
+    "evaluator_provenance": "not_established",
+    "population_law_status": "not_established",
+    "authority_purpose": "exploratory_parameter_experiment",
+    "analysis_ref": {
+      "artifact_id": "sha256:6bf9d1443ce25ac38c222171102b28e3947be8a10ce11d51af6cbb61e65a0534",
+      "kind": "doe_sensitivity_analysis",
+      "media_type": "application/json"
+    }
+  },
+  "evidence": "pr38-r2/independent-reviews/doe/doe-consumer-boundary-receipt.json and full stdout/script; copy-index recomputes source/output hashes",
+  "prohibition": "Do not weaken MutationArtifact strict-extra policy or create second search runtime merely to accept decorated dictionaries; D chooses admitted typed carrier/metadata/ref contract through real codec and persisted default consumer. Core/IR public contract changes require their lease/review.",
+  "finding_status": "historical partial remains; this is concrete consumer implementation residual, not code PASS or finding closure",
+  "next_verifiable_result": "Default native SearchLoopRunner actually executes ranking-dependent proposals and persists/reopens exact analysis_ref/design_id/analysis_id through admitted codec/carrier; changed evaluator interaction changes applied recomputed sensitivity, and property removal with markers retained breaks this witness. Merely decorating candidate metadata is insufficient."
+}

@@ -1,0 +1,117 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "reviewer": "/root/oracle_r4",
+  "review_mode": "read_only_immutable_source_and_independent_native_execution",
+  "source_sha": "5840d477346912b0502689a3eeeb6504e6bc2711",
+  "source_tree": "32b8183ea9cf38bb656a807f79428e50e204a041",
+  "slice_base_sha": "82c261b37b742fa46c83af7632cf7d5a34d66dfc",
+  "slice_base_tree": "211636937e6e9c3d9fcb8480084d624c7ae746f3",
+  "disposition": "GO",
+  "scope": "Additional Morris actual-analysis-input admission only; not automatic B99/B100 or other finding closure.",
+  "complete_changed_footprint": [
+    "policy-engine/release-fragments/unreleased/2026-10-07-doe-morris-analysis-work.toml",
+    "policy-engine/src/polisyos/scientist/methods/doe/README.md",
+    "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+    "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+    "policy-engine/src/polisyos/scientist/methods/doe/morris_geometry.py",
+    "policy-engine/src/polisyos/scientist/methods/doe/stability.py",
+    "policy-engine/tests/unit/scientist/methods/doe/test_morris_analysis_admission.py"
+  ],
+  "changed_path_count": 7,
+  "mandatory_companions": [
+    "DOE README",
+    "internal release fragment",
+    "21-case native regression companion"
+  ],
+  "defining_property": "Original supplied Morris rows cannot exceed explicit admitted plan.estimated_runs, before failure filtering/PCA/native analyzer/content identity/stability short-circuit; explicit larger admitted plan remains usable.",
+  "mechanism_observations": [
+    "One shared existing _admit_sensitivity_plan is extended; mutable-plan reconstruction remains unchanged.",
+    "Original row denominator is admitted in _prepare_analysis_inputs before finite-mask/filter policy.",
+    "CAS producer identity and fresh read analysis reuse the same predicate.",
+    "Geometry and ranking stability also admit actual rows before native analysis/resampling or insufficient-input short-circuit.",
+    "No dependency changes, sampler replacement, cumulative/server cap, normative authority or fixed-N inference introduced.",
+    "The 767119d4\u21925840d477 delta only reroutes the new test FileSystemCAS binding through existing Core root artifacts attribute; every product blob is unchanged."
+  ],
+  "independent_execution": {
+    "case_count": 11,
+    "outcome": "PASS",
+    "native_backend": "SALib 1.5.2",
+    "positive": "Exact Fraction slopes independently give mu*=2; healthy2 row one trajectory remains point-only sigmaNaN; explicitly admitted4 rows give sigma\u22480.",
+    "adversarial": "Four complete valid Morris rows under declared2 refused before SALib, including allow_large_run=true with unchanged declared trajectory count; raw4 cannot hide through DROP_FAILED/PCA; stability shortcut and content identity cannot bypass.",
+    "consumer": "Actual analysis producer\u2192configured FileSystemCAS\u2192fresh FileSystemCAS reader; exact analysis_id preserved. Hash-valid re-persisted artifact with smaller plan fails before SALib.",
+    "removal": "Ignoring actual_run_count while preserving plan construction/markers reopens real SALib4-row call; independent refusal discriminator raises AssertionError as intended.",
+    "command": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "/workspace/e02-E-pr38-r3-receipts/oracle-r4/probe_morris_candidate.py",
+      "--ref",
+      "5840d477346912b0502689a3eeeb6504e6bc2711",
+      "--output-dir",
+      "/workspace/e02-E-pr38-r3-receipts/oracle-r4/candidate-5840d477-final"
+    ],
+    "exit_code": 0
+  },
+  "old_exact_source_red": {
+    "sources": [
+      "70c4a14fc872f5ef66437d958ba63884ecdda168",
+      "a9f78817c873be5b35a08155f2593b229d9fdbb6"
+    ],
+    "observed": "Both accept4 complete rows under admitted2 and call nativeSALib once; the same defining refusal script fails on a9.",
+    "sigma_correction": "Primary G attempt2 and independent cloud runs: NaN belongs to two-row control; four-row discriminator sigma=4.440892098500626e-16.",
+    "source_class": "SAME_CLASS_DEEPER actual-input/plan mismatch, separate from sampler overgeneration."
+  },
+  "predicate_basis": "recomputed",
+  "limitations": [
+    "Native finite fixture proves additional analysis-work admission, not inference validity or population/source authority.",
+    "One trajectory yields undefined sample dispersion and remains point_only_incomplete.",
+    "D default Search analysis_ref edge is additional cross-owner work and does not hold original B100.",
+    "Global gates and broader suite remain root frozen-wave work; this review does not claim CI PASS.",
+    "Historical ledger status and individual accountable owner acceptance are separate."
+  ],
+  "deciding_outputs": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/oracle-r4/morris-historical-results.json",
+      "bytes": 18803,
+      "sha256": "53aa2676ce63ad138cc4d265147080a3c81c63e9f2eda00d1096b7378e8242a2"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/oracle-r4/morris-historical.stdout.txt",
+      "bytes": 1521,
+      "sha256": "6d6dfcdca38a4af6a741254122bec44b8cdc06f2b19976f23b5ae79989f38608"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/oracle-r4/morris-historical.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/oracle-r4/probe_morris_historical.py",
+      "bytes": 6854,
+      "sha256": "dd8111b3301f2486d2ead5abf7f2c3099928e703d66fe480540f1caca75f84ba"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/oracle-r4/candidate-falsifier-old-a9.stderr.txt",
+      "bytes": 640,
+      "sha256": "3b69efee2276891668a8ffa3283dc87172ac4aa7dae7a129c206221cef869cbf"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/oracle-r4/candidate-5840d477-final/review-results.json",
+      "bytes": 26303,
+      "sha256": "8e966990ed4cccaf2fa2fed11a35fbb64b6d6cec413db9a79f6eaaa6c81352c7"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/oracle-r4/candidate-5840d477-final.stdout.txt",
+      "bytes": 468,
+      "sha256": "95341771137e8ede3c2913b4c121872a50b2e015ad9295f6b83ef11fb9f8b2ba"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/oracle-r4/candidate-5840d477-final.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/oracle-r4/probe_morris_candidate.py",
+      "bytes": 9613,
+      "sha256": "296fba140ea56fc3f510f238a8d213fc6e272006e76493fa6e02a45b2f4337d9"
+    }
+  ]
+}

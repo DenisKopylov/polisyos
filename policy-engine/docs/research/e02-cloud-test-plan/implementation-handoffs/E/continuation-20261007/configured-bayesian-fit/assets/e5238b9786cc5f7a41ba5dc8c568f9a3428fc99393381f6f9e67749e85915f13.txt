@@ -1,0 +1,19 @@
+import json,pathlib
+from polisyos.core import artifacts,canon
+from polisyos.ir.analytics import UncertaintyEnvelope,load_posterior_summary_envelope
+from polisyos.ir.analytics.uncertainty import persist_uncertainty_envelope
+out=pathlib.Path('/tmp/e02-E-bayesian-fit-bridge-r6/profile-correction'); original=pathlib.Path('/tmp/e02-E-bayesian-fit-bridge-r6/closed-inputs/hmc');cas=artifacts.FileSystemCAS(out/'publisher-equivalence-fixture-v2')
+rows=[]
+for manifest in sorted(original.glob('*.manifest.json')):
+ if '.view.' in manifest.name:continue
+ raw=json.loads(manifest.read_text())
+ if raw['kind']!='ir.uncertainty_envelope':continue
+ payload=canon.from_canonical_bytes(manifest.with_name(manifest.name.removesuffix('.manifest.json')+'.blob').read_bytes());envelope=UncertaintyEnvelope.model_validate(payload)
+ old=persist_uncertainty_envelope(cas,envelope)
+ current=cas.put_json(envelope.model_dump(mode='python',round_trip=True),artifacts.PutOptions(kind='ir.uncertainty_envelope',media_type='application/json',schema=artifacts.SchemaInfo(name='ir.uncertainty_envelope',version='1.1')),canon_spec=canon.CanonSpec(forbid_floats=False))
+ fresh=artifacts.FileSystemCAS(out/'publisher-equivalence-fixture-v2'); reopened=load_posterior_summary_envelope(fresh,current)
+ old_core_ref=artifacts.ArtifactRef.model_validate(old.model_dump(mode="json"));old_manifest=fresh.get_manifest(old_core_ref);new_manifest=fresh.get_manifest(current)
+ properties={'artifact_id':str(old.artifact_id)==str(current.artifact_id),'kind':old.kind==current.kind,'media_type':old.media_type==current.media_type,'selected_manifest_profile':old_core_ref.manifest_profile_sha256==current.manifest_profile_sha256,'schema':old_manifest.artifact_schema==new_manifest.artifact_schema,'canonical_metadata':old_manifest.canon==new_manifest.canon,'empty_input_defaults':old_manifest.inputs==new_manifest.inputs==[],'fresh_raw_validated_envelope':reopened==envelope}
+ if not all(properties.values()):raise ValueError('publisher_semantics_diverge '+str(properties))
+ rows.append({'source_ref':raw['artifact_id'],'old_ref':old.model_dump(mode='json'),'new_ref':current.model_dump(mode='json'),'properties':properties})
+print(json.dumps({'probe':'old IR wrapper vs native configured Core writer; real CAS put/fresh profile reader','cases':rows,'backend_rerun':False,'full_codec_equivalence':False},indent=2))

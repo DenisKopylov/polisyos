@@ -1,0 +1,154 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "E",
+  "slice": "composed-imports-morris",
+  "base_sha": "8e7e6cc28ac336fa9275ed456ac19a74d0e55553",
+  "candidate_sha": "c309262a9beeaa2fe87cd0e7b6d73fe335dc0343",
+  "candidate_tree": "46d18477c016c43d5b23bfbbad65dc97b28007af",
+  "source_commits": [
+    "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+    "767119d44d2272c89f8b441df8e8d2fbcef8ceb9",
+    "5840d477346912b0502689a3eeeb6504e6bc2711"
+  ],
+  "root_merge_commits": [
+    "f21b1a36a590f597cca5733cd1307ead53d0c8a1",
+    "c309262a9beeaa2fe87cd0e7b6d73fe335dc0343"
+  ],
+  "complete_changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work.validation.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/author-admission.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/author-admission.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/author-admission.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/author-baseline-red.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/author-baseline-red.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/author-baseline-red.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/author-family-resolved.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/author-family-resolved.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/author-family-resolved.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/author-family.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/author-family.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/author-import-delta.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/author-import-delta.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/author-import-delta.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/environment.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/format.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/format.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/import-delta-format.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/import-delta-ruff.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/independent-candidate-oracle.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/independent-candidate-probe.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/independent-candidate.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/independent-candidate.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/independent-historical-oracle.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/independent-historical-probe.py.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/independent-historical.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/independent-historical.stdout",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/independent-old-falsifier.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/independent-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/ruff.stderr",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/ruff.stdout",
+    "policy-engine/release-fragments/unreleased/2026-10-07-doe-morris-analysis-work.toml",
+    "policy-engine/src/polisyos/calibration/continuous.py",
+    "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+    "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/native_replay.py",
+    "policy-engine/src/polisyos/scientist/methods/backtesting/orchestrator.py",
+    "policy-engine/src/polisyos/scientist/methods/doe/README.md",
+    "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+    "policy-engine/src/polisyos/scientist/methods/doe/analysis.py",
+    "policy-engine/src/polisyos/scientist/methods/doe/designs.py",
+    "policy-engine/src/polisyos/scientist/methods/doe/morris_geometry.py",
+    "policy-engine/src/polisyos/scientist/methods/doe/stability.py",
+    "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+    "policy-engine/tests/unit/calibration/test_core_artifact_routes.py",
+    "policy-engine/tests/unit/scientist/methods/doe/test_morris_analysis_admission.py"
+  ],
+  "canonical_writers": [
+    "E calibration/DoE/backtesting consumers via existing Core public root modules",
+    "E DoE shared plan admission; author doe_r4, reviewer oracle_r4"
+  ],
+  "property": "Existing public Core exports preserve actual CAS/SALib consumers; original actual Morris work is admitted before native analyzer and survives persisted reader reconstruction.",
+  "consumer": "SensitivityBridge real SALib -> existing CAS analysis receipt -> fresh reader / actual sensitivity consumer; continuous diagnostics persistence/fresh recomputation; shared Morris analysis admission.",
+  "independent_review": {
+    "imports": "composed-imports-morris/root-import-independent-review.json",
+    "morris": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/morris-analysis-work/independent-review.json@0a56a41b8ef41487f1caf4354554c703fd8a15bb"
+  },
+  "checks": {
+    "root_independent_imports": {
+      "status": "PASS",
+      "cases": 3
+    },
+    "composed_affected_consumer": {
+      "status": "PASS",
+      "cases": 47,
+      "receipt": "composed-imports-morris/composed-receipt.json",
+      "source_sha": "c309262a9beeaa2fe87cd0e7b6d73fe335dc0343",
+      "scope": "Affected selectors; common numeric/gate wave NOT_RUN"
+    }
+  },
+  "negative_oracles": [
+    "Present root facade with actual writer capability removed fails persistence despite retained name",
+    "Integrity-valid forged continuous observed count refuses after fresh CAS resolution",
+    "Excess four geometrically valid Morris analysis rows refuse before SALib",
+    "Content-valid forged smaller analysis plan refuses through persisted reader",
+    "Remove actual shared admission while preserving markers admits excessive rows and causes independent discriminator FAIL"
+  ],
+  "predicate_basis": "recomputed",
+  "historical_ledger_status": "unchanged; source acceptance and original-criterion owner decision are separate",
+  "limitations_next_owner": [
+    "Remaining non-curated IR/Foundry exports go to their canonical facade owners; architecture gate outcome remains separate",
+    "D owns additional default Search analysis_ref/reopen/ranking edge; B100 original criterion is not held by that edge",
+    "A owns FRC default/HTTP consumer shared writers; no A source edited",
+    "E root completes lint source/review then freezes one current common wave; old a9 wave remains historical only",
+    "G independently accepts source and publishes integration; no main/integration push authorized"
+  ],
+  "assets": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-imports-morris/composed-pytest.xml",
+      "bytes": 8286,
+      "sha256": "6a683d9b3f725e8cf51190fd084e00082c477c3b7e23b07100e7b1f2928813b5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-imports-morris/composed-receipt.json",
+      "bytes": 1365,
+      "sha256": "b9d5d82b6fcbe087e95966e25b78447af644a5e1b2b4830f507e6c3ff32624d5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-imports-morris/composed-stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-imports-morris/composed-stdout.txt",
+      "bytes": 1226,
+      "sha256": "c77d0cc28682099db38f19d9016637a435b1515452004c96d2e552ca13f8c708"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-imports-morris/environment.json",
+      "bytes": 489,
+      "sha256": "54c76e451189625bc4662adf71c5b01fc06a40452e7a82edaf4f8a98231efbfe"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-imports-morris/root-import-independent-review.json",
+      "bytes": 4395,
+      "sha256": "5b6621feca95591219efea27af8336b1854fa8414302e07098f4a547debbee79"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-imports-morris/root-import-review.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-imports-morris/root-import-review.stdout.txt",
+      "bytes": 98,
+      "sha256": "2254188bf92f0a45f4be39d9656ba198d6c452b697c6c844211eeeccef6da1fb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/composed-imports-morris/root-import-review.xml",
+      "bytes": 713,
+      "sha256": "e75a1a0b6d6239a4d49eee1227f426d7054def08cd2a53aadcc74b0fda56233e"
+    }
+  ],
+  "cleanup": "No native Trash available: keep all used scratch directories; no permanent deletion. Shared venv remains active."
+}

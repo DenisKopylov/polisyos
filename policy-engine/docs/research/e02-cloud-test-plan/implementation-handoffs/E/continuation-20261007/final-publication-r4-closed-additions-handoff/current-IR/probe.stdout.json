@@ -1,0 +1,14 @@
+{
+  "outcome": "CHANGE_REQUIRED two bounded current conditions",
+  "receipt": {
+    "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/actual-conditions-counterexamples.json",
+    "bytes": 18774,
+    "sha256": "d4827c252f4da22f69be8fb920dde6e6a5737553df43a199f886e115637b8042"
+  },
+  "joint_generated_inlet_admits": true,
+  "actual_callback_count_per_case": 129,
+  "finite_profile_mean": 10000000000000.0,
+  "finite_CDF_mean": 9999999999999.342,
+  "mean_difference": 0.658203125,
+  "source_unchanged": true
+}

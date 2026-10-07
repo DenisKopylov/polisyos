@@ -1,0 +1,347 @@
+{
+  "generated_at": "2026-05-15T00:00:00Z",
+  "invalid_invariants": [],
+  "metrics": {
+    "attestation_observed_material_coverage_pct": {
+      "definition": {
+        "direction": "higher_is_better",
+        "target": {
+          "final": "100",
+          "wave0": "baseline only",
+          "wave1": "baseline only",
+          "wave3": "baseline only",
+          "wave4": "100"
+        },
+        "title": "Attestation observed-material coverage",
+        "unit": "percent"
+      },
+      "denominator": 1,
+      "denominator_changed": false,
+      "measurement_status": "measured_from_registry_contract",
+      "metric_id": "attestation_observed_material_coverage_pct",
+      "numerator": 0,
+      "value": 0.0
+    },
+    "authority_bearing_provenance_pct": {
+      "definition": {
+        "direction": "higher_is_better",
+        "target": {
+          "final": "100",
+          "wave0": "baseline only",
+          "wave1": "100 for fixtures",
+          "wave3": "100"
+        },
+        "title": "Authority-bearing provenance coverage",
+        "unit": "percent"
+      },
+      "denominator": 21,
+      "denominator_changed": false,
+      "metric_id": "authority_bearing_provenance_pct",
+      "numerator": 21,
+      "value": 100.0
+    },
+    "authority_envelope_complete_pct": {
+      "definition": {
+        "direction": "higher_is_better",
+        "target": {
+          "final": "100",
+          "wave0": "fixture baseline",
+          "wave1": "100 for contract tests",
+          "wave3": ">= 90 runtime bundles"
+        },
+        "title": "Authority envelope completeness",
+        "unit": "percent"
+      },
+      "denominator": 21,
+      "denominator_changed": false,
+      "metric_id": "authority_envelope_complete_pct",
+      "numerator": 21,
+      "value": 100.0
+    },
+    "diagnostic_slo_metric_coverage_pct": {
+      "definition": {
+        "direction": "higher_is_better",
+        "target": {
+          "final": "100",
+          "wave0": "baseline only",
+          "wave1": "baseline only",
+          "wave3": "baseline only",
+          "wave4": "100"
+        },
+        "title": "Diagnostic SLO metric coverage",
+        "unit": "percent"
+      },
+      "denominator": 16,
+      "denominator_changed": false,
+      "measurement_status": "measured_from_registry_contract",
+      "metric_id": "diagnostic_slo_metric_coverage_pct",
+      "numerator": 0,
+      "value": 0.0
+    },
+    "fallback_ledger_coverage_pct": {
+      "definition": {
+        "direction": "higher_is_better",
+        "target": {
+          "final": "100",
+          "wave0": "baseline only",
+          "wave1": ">= 60 known paths",
+          "wave3": ">= 90 known paths"
+        },
+        "title": "Fallback ledger coverage",
+        "unit": "percent"
+      },
+      "denominator": 21,
+      "denominator_changed": false,
+      "metric_id": "fallback_ledger_coverage_pct",
+      "numerator": 21,
+      "value": 100.0
+    },
+    "false_pass_rate_negative_controls": {
+      "definition": {
+        "direction": "lower_is_better",
+        "target": {
+          "final": "0",
+          "wave0": "0",
+          "wave1": "0",
+          "wave3": "0"
+        },
+        "title": "False-pass rate for negative controls",
+        "unit": "rate"
+      },
+      "denominator": 0,
+      "denominator_changed": false,
+      "metric_id": "false_pass_rate_negative_controls",
+      "numerator": 0,
+      "value": null
+    },
+    "invariant_registry_complete_pct": {
+      "definition": {
+        "direction": "higher_is_better",
+        "target": {
+          "final": "100",
+          "wave0": ">= 10",
+          "wave1": "100",
+          "wave3": "100"
+        },
+        "title": "Invariant registry completeness",
+        "unit": "percent"
+      },
+      "denominator": 21,
+      "denominator_changed": false,
+      "metric_id": "invariant_registry_complete_pct",
+      "numerator": 21,
+      "value": 100.0
+    },
+    "legacy_quarantine_classified_pct": {
+      "definition": {
+        "direction": "higher_is_better",
+        "target": {
+          "final": "100",
+          "wave0": "baseline only",
+          "wave1": ">= 90 known bundles",
+          "wave3": "100"
+        },
+        "title": "Legacy quarantine classification coverage",
+        "unit": "percent"
+      },
+      "denominator": 21,
+      "denominator_changed": false,
+      "measurement_status": "measured_from_registry_contract",
+      "metric_id": "legacy_quarantine_classified_pct",
+      "numerator": 21,
+      "value": 100.0
+    },
+    "negative_control_coverage_pct": {
+      "definition": {
+        "direction": "higher_is_better",
+        "target": {
+          "final": "100",
+          "wave0": ">= 25",
+          "wave1": ">= 60",
+          "wave3": "100"
+        },
+        "title": "Negative-control coverage",
+        "unit": "percent"
+      },
+      "denominator": 21,
+      "denominator_changed": false,
+      "metric_id": "negative_control_coverage_pct",
+      "numerator": 21,
+      "value": 100.0
+    },
+    "operator_ttrc_p50_minutes": {
+      "definition": {
+        "direction": "lower_is_better",
+        "target": {
+          "final": "<= 5",
+          "wave0": "measured",
+          "wave1": "measured",
+          "wave3": "<= 10"
+        },
+        "title": "Operator time-to-root-cause p50",
+        "unit": "minutes"
+      },
+      "denominator": 0,
+      "denominator_changed": false,
+      "measurement_status": "missing_wave5_runtime_evidence",
+      "metric_id": "operator_ttrc_p50_minutes",
+      "numerator": 0,
+      "value": null
+    },
+    "operator_ttrc_p90_minutes": {
+      "definition": {
+        "direction": "lower_is_better",
+        "target": {
+          "final": "<= 10",
+          "wave0": "measured",
+          "wave1": "measured",
+          "wave3": "<= 20"
+        },
+        "title": "Operator time-to-root-cause p90",
+        "unit": "minutes"
+      },
+      "denominator": 0,
+      "denominator_changed": false,
+      "measurement_status": "missing_wave5_runtime_evidence",
+      "metric_id": "operator_ttrc_p90_minutes",
+      "numerator": 0,
+      "value": null
+    },
+    "payload_identity_verified_gate_pct": {
+      "definition": {
+        "direction": "higher_is_better",
+        "target": {
+          "final": "100",
+          "wave0": "baseline only",
+          "wave1": "baseline only",
+          "wave3": "100"
+        },
+        "title": "Payload identity verified gate coverage",
+        "unit": "percent"
+      },
+      "denominator": 21,
+      "denominator_changed": false,
+      "metric_id": "payload_identity_verified_gate_pct",
+      "numerator": 21,
+      "value": 100.0
+    },
+    "public_redaction_projection_coverage_pct": {
+      "definition": {
+        "direction": "higher_is_better",
+        "target": {
+          "final": "100",
+          "wave0": "baseline only",
+          "wave1": "baseline only",
+          "wave3": "baseline only",
+          "wave4": "100"
+        },
+        "title": "Public redaction projection coverage",
+        "unit": "percent"
+      },
+      "denominator": 21,
+      "denominator_changed": false,
+      "measurement_status": "measured_from_registry_contract",
+      "metric_id": "public_redaction_projection_coverage_pct",
+      "numerator": 21,
+      "value": 100.0
+    },
+    "replay_drift_gate_pct": {
+      "definition": {
+        "direction": "higher_is_better",
+        "target": {
+          "final": "100",
+          "wave0": "baseline only",
+          "wave1": "baseline only",
+          "wave3": "baseline only"
+        },
+        "title": "Replay and drift gate coverage",
+        "unit": "percent"
+      },
+      "denominator": 0,
+      "denominator_changed": false,
+      "metric_id": "replay_drift_gate_pct",
+      "numerator": 0,
+      "value": null
+    },
+    "runtime_emitted_invariant_pct": {
+      "definition": {
+        "direction": "higher_is_better",
+        "target": {
+          "final": "100",
+          "wave0": "baseline only",
+          "wave1": "baseline only",
+          "wave3": ">= 85"
+        },
+        "title": "Runtime-emitted invariant coverage",
+        "unit": "percent"
+      },
+      "denominator": 21,
+      "denominator_changed": false,
+      "metric_id": "runtime_emitted_invariant_pct",
+      "numerator": 21,
+      "value": 100.0
+    },
+    "semantic_binding_gate_pct": {
+      "definition": {
+        "direction": "higher_is_better",
+        "target": {
+          "final": "100",
+          "wave0": "baseline only",
+          "wave1": "baseline only",
+          "wave3": ">= 60"
+        },
+        "title": "Semantic binding gate coverage",
+        "unit": "percent"
+      },
+      "denominator": 21,
+      "denominator_changed": false,
+      "measurement_status": "measured_from_registry_contract",
+      "metric_id": "semantic_binding_gate_pct",
+      "numerator": 21,
+      "value": 100.0
+    },
+    "source_truth_conflict_gate_pct": {
+      "definition": {
+        "direction": "higher_is_better",
+        "target": {
+          "final": "100",
+          "wave0": "baseline only",
+          "wave1": ">= 80 field families",
+          "wave3": "100"
+        },
+        "title": "Source-truth conflict gate coverage",
+        "unit": "percent"
+      },
+      "denominator": 21,
+      "denominator_changed": false,
+      "metric_id": "source_truth_conflict_gate_pct",
+      "numerator": 21,
+      "value": 100.0
+    }
+  },
+  "missing_evidence": [],
+  "repo_root": "/workspace/e02-E-continuation-20261006/policy-engine",
+  "schema_version": "policyos.honest_diagnostics_coverage.v1",
+  "source": {
+    "invariant_count": 21,
+    "invariant_registry": "architecture/production_quality/invariant_registry.toml",
+    "operational_closeout_report": null,
+    "substrate_drift_report": null,
+    "wave5_metamorphic_report": null,
+    "wave5_replay_report": null,
+    "wave5_resilience_report": null
+  },
+  "summary": {
+    "invalid_invariant_count": 0,
+    "invariant_count": 21,
+    "known_minimum_closeout_gate_count": 21,
+    "metric_count": 17,
+    "missing_evidence_count": 0,
+    "required_metric_count": 17,
+    "status": "pass",
+    "target_violation_count": 0,
+    "wave": null
+  },
+  "target_violations": [],
+  "tool": "quality.validation.build-honest-diagnostics-coverage"
+}

@@ -1,0 +1,33 @@
+{
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "native_mechanism": "GO bounded owner-ready packet",
+  "evidence_validator": "CHANGE_REQUIRED summary class",
+  "complete_assets": {
+    "logical": 50,
+    "unique": 42,
+    "bytes": 510011
+  },
+  "patch_scope": "43\t0\tpolicy-engine/tests/_helpers/runtime_http.py",
+  "actual_native_positive": "health200/runs200/bound-run",
+  "effective_negatives": [
+    "missing_source",
+    "changed_source/session",
+    "old_binding",
+    "wrong_profile",
+    "wrong_dataset",
+    "native_route_removed_producer_still_present",
+    "fake_credible_gate_flags_reached_but_refused"
+  ],
+  "independent_CSV_CAS_rows": 3,
+  "catalog_observations": 0,
+  "original_observer_ERROR_preserved": true,
+  "original_HTTP_FAIL_preserved": true,
+  "source_guard_count": 15,
+  "source_immutable": true,
+  "review": {
+    "path": "/tmp/e02-E-native-catalog-packet-independent-64d/native-owner-packet-review.json",
+    "bytes": 13629,
+    "sha256": "630a3eabe3e5c1d25b2a80596db1d8f10a5c38b4f2dc1fb9a4b45ad3e1b122f0"
+  }
+}

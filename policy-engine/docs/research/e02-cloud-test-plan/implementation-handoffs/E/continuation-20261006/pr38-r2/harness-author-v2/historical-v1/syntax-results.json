@@ -1,0 +1,26 @@
+{
+  "all_three_ast_parse": true,
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+      "expected_preimage_sha256": "bac7106ab2a58cafa920c3db05b4a55c29ea50bba36b915970f1050edb502878",
+      "postimage_sha256": "a9c5de34adc66d89bdf941f5a27372797d4b30e696c3501ee33cb18252a3d02a",
+      "postimage_bytes": 21943,
+      "syntax_ast_parse": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "expected_preimage_sha256": "56240a2b6396610022a8bd9bef6abb964308f1f6aea33b1004af2caa9f9193d7",
+      "postimage_sha256": "9d59c0e66658bae5b8ab22ae4770335462a167af6ecd640356978f8402a2fce6",
+      "postimage_bytes": 11192,
+      "syntax_ast_parse": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+      "expected_preimage_sha256": "3ca556f1ffad614d5848d00f2ce44931fbd248abca2e3a80f99b9d182d0b79ab",
+      "postimage_sha256": "01943657857d2e86047514bf207e9bcddd54f6982c863153cbdd8a5da25243e7",
+      "postimage_bytes": 6792,
+      "syntax_ast_parse": true
+    }
+  ]
+}

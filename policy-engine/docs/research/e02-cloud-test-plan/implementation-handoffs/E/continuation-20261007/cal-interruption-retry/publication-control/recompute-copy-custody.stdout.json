@@ -1,0 +1,36 @@
+{
+  "schema": "policyos.e02.literal_copy_custody_recomputation.v1",
+  "candidate_sha": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "scope": "Current packet copies at execution, before archiving this observer/output; subsequent Git readback binds full publication",
+  "copied_files_at_execution": 44,
+  "copied_bytes_at_execution": 1194471,
+  "actual_paths_at_execution": 47,
+  "positive": "PASS",
+  "negative_controls": [
+    {
+      "mutation": "copied_files",
+      "outcome": "REFUSED"
+    },
+    {
+      "mutation": "copied_bytes",
+      "outcome": "REFUSED"
+    },
+    {
+      "mutation": "path_count",
+      "outcome": "REFUSED"
+    },
+    {
+      "mutation": "active_python_path_count",
+      "outcome": "REFUSED"
+    },
+    {
+      "mutation": "copy_hash",
+      "outcome": "REFUSED"
+    },
+    {
+      "mutation": "portable_escape",
+      "outcome": "REFUSED"
+    }
+  ],
+  "source_test_execution": false
+}

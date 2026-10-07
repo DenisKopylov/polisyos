@@ -1,0 +1,92 @@
+"""Recompute complete existing public manifest companions, without repository writes."""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import importlib.util
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+
+def require(condition: object, reason: str) -> None:
+    if not condition:
+        raise ValueError(reason)
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--repo", type=Path, required=True)
+    parser.add_argument("--candidate", required=True)
+    parser.add_argument("--base", required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+    root = args.repo / "policy-engine"
+    args.output.mkdir(parents=True, exist_ok=False)
+
+    def git(*argv: str) -> bytes:
+        return subprocess.run(["git", *argv], cwd=args.repo, check=True, capture_output=True).stdout
+
+    source = root / "tools/devx/architecture/guardrails.py"
+    tracked = git("show", args.candidate + ":policy-engine/tools/devx/architecture/guardrails.py")
+    require(tracked == source.read_bytes(), "canonical public renderer source drift")
+    spec = importlib.util.spec_from_file_location("immutable_canonical_public_renderer", source)
+    require(spec is not None and spec.loader is not None, "canonical renderer unavailable")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    manifest = root / "architecture/public_surface/contract.toml"
+    current = manifest.read_bytes()
+    require(current == git("show", args.candidate + ":policy-engine/architecture/public_surface/contract.toml"), "full public manifest source drift")
+    policies = module._parse_public_surface(manifest)
+    families = module._parse_public_generated_artifact_families(manifest)
+    complete = module.build_public_surface_inventory(policies)
+    expected_json = module.render_public_surface_json(complete, generated_artifact_families=families)
+    expected_md = module.render_public_surface_markdown(complete)
+    comparisons = []
+    for relative, expected, scratch_name in [("architecture/public_surface/inventory.json",expected_json,"expected-full-public-inventory.json"),("docs/reference/public-surface.md",expected_md,"expected-full-public-surface.md")]:
+        encoded = expected.encode()
+        (args.output/scratch_name).write_bytes(encoded)
+        actual = (root/relative).read_bytes()
+        comparisons.append({"path":"policy-engine/"+relative,"candidate_bytes":len(actual),"candidate_sha256":hashlib.sha256(actual).hexdigest(),"recomputed_bytes":len(encoded),"recomputed_sha256":hashlib.sha256(encoded).hexdigest(),"outcome":"PASS" if actual==encoded else "FAIL","owner":"team-architecture; exact canonical renderer, complete manifest preserved"})
+    # No new manual inventory, no partial generator selection, no exception-baseline widening.
+    inventory = json.loads(expected_json)
+    committed_manifest = root / "schemas/snapshots/ir/_manifest.json"
+    before_manifest=json.loads(git("show",args.base+":policy-engine/schemas/snapshots/ir/_manifest.json"))
+    after_manifest=json.loads(committed_manifest.read_text())
+    oldkeys=set(before_manifest["models"]);newkeys=set(after_manifest["models"])
+    missing=sorted(oldkeys-newkeys)
+    require(not missing,"full IR schema manifest lost old entries:"+repr(missing))
+    added=sorted(newkeys-oldkeys)
+    schema = root / "schemas/snapshots/ir/posterior_summary_profile.schema.json"
+    schema_status = "PASS" if schema.exists() and "posterior_summary_profile"in newkeys else "FAIL"
+    spec_schema = importlib.util.spec_from_file_location("immutable_canonical_ABI_generator",root/"tools/quality/diagnostics/gen_schema.py")
+    require(spec_schema is not None and spec_schema.loader is not None,"canonical ABI generator unavailable")
+    canonical = importlib.util.module_from_spec(spec_schema)
+    sys.modules[spec_schema.name]=canonical;spec_schema.loader.exec_module(canonical)
+    from polisyos.schemas.abi_models import select_abi_entries
+    profile_entries=[e for e in select_abi_entries(None) if e.abi_key=="posterior_summary_profile"]
+    require(len(profile_entries)==1,"profile ABI registry entry not unique")
+    resolved=canonical._resolve_entry(profile_entries[0])
+    runtime_payload=canonical._load_or_generate_entry_payload(resolved,cache_root=None,pydantic_version=canonical._import_version("pydantic"))
+    expected_profile=canonical._json_dump(runtime_payload["schema_payload"],"pretty")
+    healthy_errors=[];canonical._assert_file_equals(schema,expected_profile,healthy_errors)
+    if healthy_errors:schema_status="FAIL"
+    require(runtime_payload["schema_version"]=="1.0" and runtime_payload["schema_payload"]["$id"]=="urn:policyos:ir:bayesian-posterior-summary-profile:1","profile ABI identity/version differs from ratification")
+    corrupted=json.loads(expected_profile);corrupted["additionalProperties"]=True
+    damaged=args.output/"corrupt-profile-schema.json";damaged.write_text(canonical._json_dump(corrupted,"pretty"))
+    corrupt_errors=[];canonical._assert_file_equals(damaged,expected_profile,corrupt_errors)
+    require(bool(corrupt_errors),"corrupted actual public ABI schema accepted by canonical checker")
+    manifest_record=after_manifest["models"].get("posterior_summary_profile")
+    profile_manifest_match=manifest_record is not None and manifest_record.get("sha256_full")==runtime_payload["sha256_full"] and manifest_record.get("sha256_semantic")==runtime_payload["sha256_semantic"] and manifest_record.get("schema_version")=="1.0"
+    if not profile_manifest_match:schema_status="FAIL"
+    full_manifest_hash_ok=after_manifest.get("content_hash")==canonical._schema_hash(after_manifest["models"])
+    require(full_manifest_hash_ok,"complete current IR manifest content hash mismatch")
+    receipt={"candidate":args.candidate,"tree":git("rev-parse",args.candidate+"^{tree}").decode().strip(),"base":args.base,"scope":"complete existing public manifest plus full old IR schema key retention; no generated source writes","public_manifest":{"sha256":hashlib.sha256(current).hexdigest(),"packages":len(policies),"package_inventories":len(complete),"generated_artifact_families":len(families)},"comparisons":comparisons,"IR_schema_manifest":{"old_count":len(oldkeys),"current_count":len(newkeys),"missing":missing,"added":added,"new_profile_schema_present":schema.exists(),"new_schema_runtime_drift_errors":healthy_errors,"new_profile_manifest_hashes_match_runtime":profile_manifest_match,"complete_manifest_content_hash_ok":full_manifest_hash_ok,"canonical_corrupt_schema_errors":corrupt_errors,"outcome":schema_status},"canonical_generator_source":{"path":"policy-engine/tools/devx/architecture/guardrails.py","sha256":hashlib.sha256(tracked).hexdigest()},"output_projection_is_semantic_authority":False,"new_environment":False,"repository_writes":False}
+    (args.output/"public-companions-receipt.json").write_text(json.dumps(receipt,indent=2)+"\n")
+    print(json.dumps(receipt,indent=2))
+
+
+if __name__=="__main__":
+    main()

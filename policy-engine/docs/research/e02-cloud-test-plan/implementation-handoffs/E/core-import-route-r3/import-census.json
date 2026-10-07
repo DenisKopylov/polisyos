@@ -1,0 +1,250 @@
+{
+  "schema": "policyos.e02.import_census.v1",
+  "implementation_sha": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+  "historical_exact_12": [
+    {
+      "source_path": "policy-engine/src/polisyos/calibration/continuous.py",
+      "target_module": "polisyos.core.artifacts",
+      "current_candidate": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+      "current_deep_edge_present": false,
+      "current_new_violation_present": false,
+      "source_import_route_owner": "E leased import writer"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/calibration/continuous.py",
+      "target_module": "polisyos.core.canon",
+      "current_candidate": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+      "current_deep_edge_present": false,
+      "current_new_violation_present": false,
+      "source_import_route_owner": "E leased import writer"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+      "target_module": "polisyos.ir.analytics.forecasting_uncertainty",
+      "current_candidate": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+      "current_deep_edge_present": true,
+      "current_new_violation_present": true,
+      "source_import_route_owner": "Canonical IR API export owner and E callers"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
+      "target_module": "polisyos.core.artifacts",
+      "current_candidate": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+      "current_deep_edge_present": false,
+      "current_new_violation_present": false,
+      "source_import_route_owner": "E leased import writer"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "target_module": "polisyos.ir.analytics.uncertainty",
+      "current_candidate": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+      "current_deep_edge_present": true,
+      "current_new_violation_present": true,
+      "source_import_route_owner": "Canonical IR API export owner and E callers"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/scientist/methods/autotune/sensitivity_bridge.py",
+      "target_module": "polisyos.core.artifacts",
+      "current_candidate": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+      "current_deep_edge_present": false,
+      "current_new_violation_present": false,
+      "source_import_route_owner": "E leased import writer"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/scientist/methods/backtesting/forecast_owner.py",
+      "target_module": "polisyos.calibration.forecast_bridge",
+      "current_candidate": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+      "current_deep_edge_present": false,
+      "current_new_violation_present": false,
+      "source_import_route_owner": "E FRC writer"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "target_module": "polisyos.core.artifacts",
+      "current_candidate": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+      "current_deep_edge_present": false,
+      "current_new_violation_present": false,
+      "source_import_route_owner": "E leased import writer"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/scientist/methods/doe/_receipt.py",
+      "target_module": "polisyos.core.canon",
+      "current_candidate": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+      "current_deep_edge_present": false,
+      "current_new_violation_present": false,
+      "source_import_route_owner": "E leased import writer"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/scientist/methods/search/sensitivity_adapter.py",
+      "target_module": "polisyos.core.artifacts",
+      "current_candidate": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+      "current_deep_edge_present": false,
+      "current_new_violation_present": false,
+      "source_import_route_owner": "E leased import writer"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "target_module": "polisyos.foundry.uncertainty.sampling_admission",
+      "current_candidate": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+      "current_deep_edge_present": false,
+      "current_new_violation_present": false,
+      "source_import_route_owner": "E UQ writer"
+    },
+    {
+      "source_path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "target_module": "polisyos.foundry.uncertainty.sampling_admission",
+      "current_candidate": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+      "current_deep_edge_present": false,
+      "current_new_violation_present": false,
+      "source_import_route_owner": "E UQ writer"
+    }
+  ],
+  "full_changed_python_censuses": {
+    "main": {
+      "base_sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "candidate_sha": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+      "full_changed_path_count": 2779,
+      "changed_python_count": 341,
+      "source_python_count": 50,
+      "test_python_count": 58,
+      "companion_python_count": 233,
+      "added_absolute_polisyos_import_rows": 869,
+      "scope": "Every changed .py blob read and parsed at both Git refs; test/companion import rows are a separate denominator from cross-root product module edges"
+    },
+    "fetched-G": {
+      "base_sha": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+      "candidate_sha": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+      "full_changed_path_count": 2357,
+      "changed_python_count": 323,
+      "source_python_count": 45,
+      "test_python_count": 49,
+      "companion_python_count": 229,
+      "added_absolute_polisyos_import_rows": 837,
+      "scope": "Every changed .py blob read and parsed at both Git refs; test/companion import rows are a separate denominator from cross-root product module edges"
+    },
+    "slice-base": {
+      "base_sha": "6c80d1ac520e78a7b79d02402031c5a1673a6161",
+      "candidate_sha": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+      "full_changed_path_count": 8,
+      "changed_python_count": 8,
+      "source_python_count": 7,
+      "test_python_count": 1,
+      "companion_python_count": 0,
+      "added_absolute_polisyos_import_rows": 24,
+      "scope": "Every changed .py blob read and parsed at both Git refs; test/companion import rows are a separate denominator from cross-root product module edges"
+    }
+  },
+  "deep_collector": {
+    "source_denominator": 2701,
+    "before": {
+      "source_sha": "93d3b713abc5e40a0ef85d7fb86e568b36a3e124",
+      "deep_edge_count": 3463,
+      "violation_count": 165
+    },
+    "after": {
+      "source_sha": "539ee6d6aad7f9db4c03dc520fc515dabef8d799",
+      "deep_edge_count": 3450,
+      "violation_count": 153
+    },
+    "removed_new_violations": [
+      {
+        "check": "deep_import",
+        "subject": "polisyos.calibration.continuous",
+        "message": "New deep-import creep detected: polisyos.calibration.continuous -> polisyos.core.artifacts (src/polisyos/calibration/continuous.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+        "detail": "polisyos.core.artifacts",
+        "source_module": "polisyos.calibration.continuous",
+        "target_module": "polisyos.core.artifacts"
+      },
+      {
+        "check": "deep_import",
+        "subject": "polisyos.calibration.continuous",
+        "message": "New deep-import creep detected: polisyos.calibration.continuous -> polisyos.core.canon (src/polisyos/calibration/continuous.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+        "detail": "polisyos.core.canon",
+        "source_module": "polisyos.calibration.continuous",
+        "target_module": "polisyos.core.canon"
+      },
+      {
+        "check": "deep_import",
+        "subject": "polisyos.foundry.methods.catalog.econometrics.advanced",
+        "message": "New deep-import creep detected: polisyos.foundry.methods.catalog.econometrics.advanced -> polisyos.core.artifacts (src/polisyos/foundry/methods/catalog/econometrics/advanced.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+        "detail": "polisyos.core.artifacts",
+        "source_module": "polisyos.foundry.methods.catalog.econometrics.advanced",
+        "target_module": "polisyos.core.artifacts"
+      },
+      {
+        "check": "deep_import",
+        "subject": "polisyos.foundry.methods.catalog.econometrics.advanced",
+        "message": "New deep-import creep detected: polisyos.foundry.methods.catalog.econometrics.advanced -> polisyos.core.canon (src/polisyos/foundry/methods/catalog/econometrics/advanced.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+        "detail": "polisyos.core.canon",
+        "source_module": "polisyos.foundry.methods.catalog.econometrics.advanced",
+        "target_module": "polisyos.core.canon"
+      },
+      {
+        "check": "deep_import",
+        "subject": "polisyos.scientist.methods.autotune.sensitivity_bridge",
+        "message": "New deep-import creep detected: polisyos.scientist.methods.autotune.sensitivity_bridge -> polisyos.core.artifacts (src/polisyos/scientist/methods/autotune/sensitivity_bridge.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+        "detail": "polisyos.core.artifacts",
+        "source_module": "polisyos.scientist.methods.autotune.sensitivity_bridge",
+        "target_module": "polisyos.core.artifacts"
+      },
+      {
+        "check": "deep_import",
+        "subject": "polisyos.scientist.methods.backtesting.native_replay",
+        "message": "New deep-import creep detected: polisyos.scientist.methods.backtesting.native_replay -> polisyos.core.artifacts (src/polisyos/scientist/methods/backtesting/native_replay.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+        "detail": "polisyos.core.artifacts",
+        "source_module": "polisyos.scientist.methods.backtesting.native_replay",
+        "target_module": "polisyos.core.artifacts"
+      },
+      {
+        "check": "deep_import",
+        "subject": "polisyos.scientist.methods.backtesting.native_replay",
+        "message": "New deep-import creep detected: polisyos.scientist.methods.backtesting.native_replay -> polisyos.core.canon (src/polisyos/scientist/methods/backtesting/native_replay.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+        "detail": "polisyos.core.canon",
+        "source_module": "polisyos.scientist.methods.backtesting.native_replay",
+        "target_module": "polisyos.core.canon"
+      },
+      {
+        "check": "deep_import",
+        "subject": "polisyos.scientist.methods.backtesting.native_replay",
+        "message": "New deep-import creep detected: polisyos.scientist.methods.backtesting.native_replay -> polisyos.core.registry (src/polisyos/scientist/methods/backtesting/native_replay.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+        "detail": "polisyos.core.registry",
+        "source_module": "polisyos.scientist.methods.backtesting.native_replay",
+        "target_module": "polisyos.core.registry"
+      },
+      {
+        "check": "deep_import",
+        "subject": "polisyos.scientist.methods.backtesting.orchestrator",
+        "message": "New deep-import creep detected: polisyos.scientist.methods.backtesting.orchestrator -> polisyos.core.artifacts (src/polisyos/scientist/methods/backtesting/orchestrator.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+        "detail": "polisyos.core.artifacts",
+        "source_module": "polisyos.scientist.methods.backtesting.orchestrator",
+        "target_module": "polisyos.core.artifacts"
+      },
+      {
+        "check": "deep_import",
+        "subject": "polisyos.scientist.methods.doe._receipt",
+        "message": "New deep-import creep detected: polisyos.scientist.methods.doe._receipt -> polisyos.core.artifacts (src/polisyos/scientist/methods/doe/_receipt.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+        "detail": "polisyos.core.artifacts",
+        "source_module": "polisyos.scientist.methods.doe._receipt",
+        "target_module": "polisyos.core.artifacts"
+      },
+      {
+        "check": "deep_import",
+        "subject": "polisyos.scientist.methods.doe._receipt",
+        "message": "New deep-import creep detected: polisyos.scientist.methods.doe._receipt -> polisyos.core.canon (src/polisyos/scientist/methods/doe/_receipt.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+        "detail": "polisyos.core.canon",
+        "source_module": "polisyos.scientist.methods.doe._receipt",
+        "target_module": "polisyos.core.canon"
+      },
+      {
+        "check": "deep_import",
+        "subject": "polisyos.scientist.methods.search.sensitivity_adapter",
+        "message": "New deep-import creep detected: polisyos.scientist.methods.search.sensitivity_adapter -> polisyos.core.artifacts (src/polisyos/scientist/methods/search/sensitivity_adapter.py). Add a stable facade, update the baseline intentionally, or register a temporary exception.",
+        "detail": "polisyos.core.artifacts",
+        "source_module": "polisyos.scientist.methods.search.sensitivity_adapter",
+        "target_module": "polisyos.core.artifacts"
+      }
+    ],
+    "introduced_new_violations": []
+  },
+  "limits": "AST/canonical architecture import properties only; invocation and finding acceptance are separate. Exact source/criterion ownership comes from full owner TSVs and writer leases, not a count."
+}

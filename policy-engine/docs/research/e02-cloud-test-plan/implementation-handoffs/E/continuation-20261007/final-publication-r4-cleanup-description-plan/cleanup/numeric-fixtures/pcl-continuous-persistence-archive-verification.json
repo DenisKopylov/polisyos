@@ -1,0 +1,16 @@
+{
+  "archive": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/pcl-continuous-persistence.tar.gz",
+    "bytes": 99074,
+    "sha256": "7073eadf2d142b4641f4dd2eab313a7bc8c3eadd89b536f94163e2bcb5ae6831"
+  },
+  "full_inventory": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/pcl-continuous-persistence-full-inventory.json",
+    "bytes": 216631,
+    "sha256": "04d8cf8e22fc5460379b747f9cbc8fdc44677855278ecb73e783f0bd90cf80f2"
+  },
+  "members": 576,
+  "verified_file_bytes": 513698,
+  "all_modes_links_byte_identities": true,
+  "no_unmatched_unique_input_or_diagnostic_dropped": true
+}

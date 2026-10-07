@@ -1,0 +1,25 @@
+{
+  "schema": "e02.g.journal-payload-readback.v1",
+  "checks": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/journal/stdout.txt",
+      "commit": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+      "container_bytes": 1813,
+      "container_sha256": "288d9f59feb51b4f807af25fcb300448aa3d3ce698808b864592b4a610f18822",
+      "native_bytes": 1094,
+      "native_sha256": "d700695c86bd3d2a0a9cec8b3aa5d8075942a9551eca78c3a5cd0abaa62ce52d",
+      "matches_original_git_bytes": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/without-journal/stdout.txt",
+      "commit": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+      "container_bytes": 1829,
+      "container_sha256": "acdb8c12292a9bcf0abf0e02f1e2427c18b5df382cff7246f8f266a239d61ade",
+      "native_bytes": 1102,
+      "native_sha256": "9f7c7ba6bd9369a7d2349454f399dd7f33e4b43920bac97767b2d33f7b9dd163",
+      "matches_original_git_bytes": true
+    }
+  ],
+  "product_runtime_accepted": false,
+  "finding_closures": []
+}

@@ -1,0 +1,212 @@
+E701 Multiple statements on one line (colon)
+   --> tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:189:26
+    |
+187 |         payload = evidence["artifacts"]["posterior_draws"]["payload"]
+188 |         record = payload["parameters"]["coefficients"]
+189 |         if case == "axes": payload["draw_layout"]["axis_order"] = ["draw", "chain", "parameter"]
+    |                          ^
+190 |         elif case == "dtype": record["dtype"] = "<f4"
+191 |         elif case == "byte_length": record["data_base64"] = base64.b64encode(b"x").decode()
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:190:29
+    |
+188 |         record = payload["parameters"]["coefficients"]
+189 |         if case == "axes": payload["draw_layout"]["axis_order"] = ["draw", "chain", "parameter"]
+190 |         elif case == "dtype": record["dtype"] = "<f4"
+    |                             ^
+191 |         elif case == "byte_length": record["data_base64"] = base64.b64encode(b"x").decode()
+192 |         elif case == "chain_rows": record["shape"] = [1, 64, 1]
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:191:35
+    |
+189 |         if case == "axes": payload["draw_layout"]["axis_order"] = ["draw", "chain", "parameter"]
+190 |         elif case == "dtype": record["dtype"] = "<f4"
+191 |         elif case == "byte_length": record["data_base64"] = base64.b64encode(b"x").decode()
+    |                                   ^
+192 |         elif case == "chain_rows": record["shape"] = [1, 64, 1]
+193 |         elif case == "stale_digest": record["data_base64"] = base64.b64encode(base64.b64decode(record["data_base64"])[::-1]).decode()
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:192:34
+    |
+190 |         elif case == "dtype": record["dtype"] = "<f4"
+191 |         elif case == "byte_length": record["data_base64"] = base64.b64encode(b"x").decode()
+192 |         elif case == "chain_rows": record["shape"] = [1, 64, 1]
+    |                                  ^
+193 |         elif case == "stale_digest": record["data_base64"] = base64.b64encode(base64.b64decode(record["data_base64"])[::-1]).decode()
+194 |         elif case == "nonfinite":
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:193:36
+    |
+191 |         elif case == "byte_length": record["data_base64"] = base64.b64encode(b"x").decode()
+192 |         elif case == "chain_rows": record["shape"] = [1, 64, 1]
+193 |         elif case == "stale_digest": record["data_base64"] = base64.b64encode(base64.b64decode(record["data_base64"])[::-1]).decode()
+    |                                    ^
+194 |         elif case == "nonfinite":
+195 |             arr = np.frombuffer(base64.b64decode(record["data_base64"]), dtype="<f8").copy(); arr[0] = np.nan
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:195:93
+    |
+193 |         elif case == "stale_digest": record["data_base64"] = base64.b64encode(base64.b64decode(record["data_base64"])[::-1]).decode()
+194 |         elif case == "nonfinite":
+195 |             arr = np.frombuffer(base64.b64decode(record["data_base64"]), dtype="<f8").copy(); arr[0] = np.nan
+    |                                                                                             ^
+196 |             record["data_base64"] = base64.b64encode(arr.tobytes()).decode()
+197 |         if case in {"axes", "dtype", "byte_length", "chain_rows", "nonfinite"}: _rebind_corpus(result, evidence)
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:197:79
+    |
+195 |             arr = np.frombuffer(base64.b64decode(record["data_base64"]), dtype="<f8").copy(); arr[0] = np.nan
+196 |             record["data_base64"] = base64.b64encode(arr.tobytes()).decode()
+197 |         if case in {"axes", "dtype", "byte_length", "chain_rows", "nonfinite"}: _rebind_corpus(result, evidence)
+    |                                                                               ^
+198 |     store, r, e, binding = _copy_pair(tmp_path, real_fit, mutate)
+199 |     if case == "seed": binding = binding.model_copy(update={"seed": 322})
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:199:22
+    |
+197 |         if case in {"axes", "dtype", "byte_length", "chain_rows", "nonfinite"}: _rebind_corpus(result, evidence)
+198 |     store, r, e, binding = _copy_pair(tmp_path, real_fit, mutate)
+199 |     if case == "seed": binding = binding.model_copy(update={"seed": 322})
+    |                      ^
+200 |     elif case == "params": binding = binding.model_copy(update={"effective_parameters": {"num_samples": 33}})
+201 |     elif case == "source": binding = binding.model_copy(update={"source_refs": dict(reversed(list(binding.source_refs.items()))) | {"…
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:200:26
+    |
+198 |     store, r, e, binding = _copy_pair(tmp_path, real_fit, mutate)
+199 |     if case == "seed": binding = binding.model_copy(update={"seed": 322})
+200 |     elif case == "params": binding = binding.model_copy(update={"effective_parameters": {"num_samples": 33}})
+    |                          ^
+201 |     elif case == "source": binding = binding.model_copy(update={"source_refs": dict(reversed(list(binding.source_refs.items()))) | {"…
+202 |     elif case == "kind": r = r.model_copy(update={"kind": "foundry.calibration_report"})
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:201:26
+    |
+199 |     if case == "seed": binding = binding.model_copy(update={"seed": 322})
+200 |     elif case == "params": binding = binding.model_copy(update={"effective_parameters": {"num_samples": 33}})
+201 |     elif case == "source": binding = binding.model_copy(update={"source_refs": dict(reversed(list(binding.source_refs.items()))) | {"…
+    |                          ^
+202 |     elif case == "kind": r = r.model_copy(update={"kind": "foundry.calibration_report"})
+203 |     elif case == "wrong_pair":
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:202:24
+    |
+200 |     elif case == "params": binding = binding.model_copy(update={"effective_parameters": {"num_samples": 33}})
+201 |     elif case == "source": binding = binding.model_copy(update={"source_refs": dict(reversed(list(binding.source_refs.items()))) | {"…
+202 |     elif case == "kind": r = r.model_copy(update={"kind": "foundry.calibration_report"})
+    |                        ^
+203 |     elif case == "wrong_pair":
+204 |         payload = from_canonical_bytes(store.get_bytes(e)); payload["result_ref"] = str(binding.source_refs["target"].artifact_id)
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:204:59
+    |
+202 |     elif case == "kind": r = r.model_copy(update={"kind": "foundry.calibration_report"})
+203 |     elif case == "wrong_pair":
+204 |         payload = from_canonical_bytes(store.get_bytes(e)); payload["result_ref"] = str(binding.source_refs["target"].artifact_id)
+    |                                                           ^
+205 |         e = store.put_json(payload, PutOptions(kind=e.kind, media_type=e.media_type, schema=SchemaInfo(name="polisyos.scientist.Metho…
+206 |     elif case == "duplicate_source":
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:207:59
+    |
+205 |         e = store.put_json(payload, PutOptions(kind=e.kind, media_type=e.media_type, schema=SchemaInfo(name="polisyos.scientist.Metho…
+206 |     elif case == "duplicate_source":
+207 |         payload = from_canonical_bytes(store.get_bytes(r)); manifest = store.get_manifest(r)
+    |                                                           ^
+208 |         r = store.put_json(payload, PutOptions(kind=r.kind, media_type=r.media_type, schema=manifest.artifact_schema, inputs=manifest…
+209 |     ctx, state = _node_fixture(FileSystemCAS(tmp_path), r, e, binding)
+    |
+
+RUF005 Consider `[*manifest.inputs, manifest.inputs[0]]` instead of concatenation
+   --> tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:208:126
+    |
+206 | …
+207 | …et_manifest(r)
+208 | …_type, schema=manifest.artifact_schema, inputs=manifest.inputs + [manifest.inputs[0]]), canon_spec=CanonSpec(forbid_floats=False))
+    |                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+209 | …
+210 | …
+    |
+help: Replace with `[*manifest.inputs, manifest.inputs[0]]`
+
+E701 Multiple statements on one line (colon)
+   --> tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:210:29
+    |
+208 |         r = store.put_json(payload, PutOptions(kind=r.kind, media_type=r.media_type, schema=manifest.artifact_schema, inputs=manifest…
+209 |     ctx, state = _node_fixture(FileSystemCAS(tmp_path), r, e, binding)
+210 |     if case == "missing_ref": state.inputs.pop("bayesian_method_evidence_ref")
+    |                             ^
+211 |     calls = 0; publications = 0
+212 |     from polisyos.foundry.uncertainty import PropagationDispatcher
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:211:14
+    |
+209 |     ctx, state = _node_fixture(FileSystemCAS(tmp_path), r, e, binding)
+210 |     if case == "missing_ref": state.inputs.pop("bayesian_method_evidence_ref")
+211 |     calls = 0; publications = 0
+    |              ^
+212 |     from polisyos.foundry.uncertainty import PropagationDispatcher
+213 |     original_put = FileSystemCAS.put_json
+    |
+
+E701 Multiple statements on one line (colon)
+   --> tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:216:50
+    |
+214 |     def counted_put(self, obj, opts, canon_spec=None):
+215 |         nonlocal publications
+216 |         if opts.kind == "ir.uncertainty_envelope": publications += 1
+    |                                                  ^
+217 |         return original_put(self, obj, opts, canon_spec)
+218 |     def forbidden(*args, **kwargs):
+    |
+
+E702 Multiple statements on one line (semicolon)
+   --> tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:233:55
+    |
+231 |     from polisyos.foundry.calibration import bayesian_fit_bridge as bridge
+232 |     store, r, e, binding = _copy_pair(tmp_path, real_fit)
+233 |     payload = from_canonical_bytes(store.get_bytes(e)); payload["result_ref"] = str(binding.source_refs["target"].artifact_id)
+    |                                                       ^
+234 |     e = store.put_json(payload, PutOptions(kind=e.kind, media_type=e.media_type, schema=SchemaInfo(name="polisyos.scientist.MethodExe…
+235 |     tree = ast.parse(inspect.getsource(bridge.persist_bayesian_fit_envelopes))
+    |
+
+S102 Use of `exec` detected
+   --> tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:241:5
+    |
+239 |     function.body.remove(guards[0])
+240 |     namespace = dict(vars(bridge))
+241 |     exec(compile(ast.fix_missing_locations(tree), "relationship-admission-removed", "exec"), namespace)
+    |     ^^^^
+242 |     monkeypatch.setattr(node, "persist_bayesian_fit_envelopes", namespace["persist_bayesian_fit_envelopes"])
+243 |     ctx, state = _node_fixture(store, r, e, binding)
+    |
+
+Found 20 errors (1 fixed, 19 remaining).
+No fixes available (1 hidden fix can be enabled with the `--unsafe-fixes` option).

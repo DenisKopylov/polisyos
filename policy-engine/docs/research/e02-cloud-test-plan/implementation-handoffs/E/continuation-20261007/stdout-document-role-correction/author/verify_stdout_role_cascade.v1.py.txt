@@ -1,0 +1,165 @@
+"""Recompute corrected publication paths and immutable historical input roles."""
+
+from __future__ import annotations
+
+import argparse
+import copy
+import hashlib
+import importlib.util
+import json
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+BASE = "64d7444a18c55df7b88b71b7699a2f1b25ca24bd"
+R2 = "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/"
+GROUP = R2 + "final-closeout-independent/"
+MAP = "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r3/stdout-document-role-correction/current-publication-map.json"
+
+
+def identity(data: bytes) -> dict[str, object]:
+    return {"bytes": len(data), "sha256": hashlib.sha256(data).hexdigest()}
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--repo", type=Path, required=True)
+    parser.add_argument("--candidate", required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+    if not args.repo.is_absolute() or re.fullmatch(r"[0-9a-f]{40}", args.candidate) is None:
+        raise ValueError("absolute repo and full immutable candidate are required")
+    sys.dont_write_bytecode = True
+
+    def git(*argv: str) -> bytes:
+        return subprocess.run(["git", "-C", str(args.repo), *argv], check=True, capture_output=True).stdout
+
+    def blob(sha: str, path: str) -> bytes:
+        return git("show", f"{sha}:{path}")
+
+    def current(path: str) -> bytes:
+        data = (args.repo / path).read_bytes()
+        if data != blob(args.candidate, path):
+            raise ValueError(f"physical source differs from candidate: {path}")
+        return data
+
+    def require(value: bool, reason: str) -> None:
+        if not value:
+            raise ValueError(reason)
+
+    require(git("rev-parse", "HEAD").decode().strip() == args.candidate, "candidate HEAD")
+    tree = git("rev-parse", "HEAD^{tree}").decode().strip()
+    require(not git("status", "--porcelain", "--untracked-files=no"), "clean tracked source")
+    index_path, portable_path = GROUP + "copy-index.json", GROUP + "portable-copy-index.json"
+    assembly_path, ref_path = R2 + "final-publication-assembly.json", R2 + "final-review-refbindings.json"
+    payloads = {path: json.loads(current(path)) for path in [MAP, index_path, portable_path, assembly_path, ref_path]}
+    original_portable = json.loads(blob(BASE, portable_path))
+    helper_path = "policy-engine/tools/lib/document_references.py"
+    helper_bytes = current(helper_path)
+    require(helper_bytes == blob(BASE, helper_path), "canonical parser was weakened")
+    spec = importlib.util.spec_from_file_location("canonical_candidate_reference_parser", args.repo / helper_path)
+    require(spec is not None and spec.loader is not None, "canonical loader")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    controls: list[dict[str, object]] = []
+    for number in range(1, 5):
+        old = GROUP + f"independent-recompute-attempt{number}.stdout.json"
+        new = old.removesuffix(".json") + ".txt"
+        data = current(new)
+        require(data == blob(BASE, old) == b"", "historical empty stdout bytes")
+        require(not (args.repo / old).exists(), "obsolete current JSON role")
+        text = module.reference_scan_text(Path(new.removeprefix("policy-engine/")), data.decode())
+        require(text == "", "native corrected txt role")
+        controls.append({"case": f"native_current_txt_{number}", "outcome": "PASS"})
+        try:
+            module.reference_scan_text(Path(old.removeprefix("policy-engine/")), data.decode())
+        except json.JSONDecodeError as error:
+            controls.append({"case": f"effective_role_removal_{number}", "outcome": "PASS", "discriminator": "FAIL", "actual_refusal": str(error)})
+        else:
+            raise ValueError("suffix-role removal did not restore actual refusal")
+        stderr = GROUP + f"independent-recompute-attempt{number}.stderr.txt"
+        require(current(stderr) == blob(BASE, stderr), "historical observer stderr changed")
+        controls.append({"case": f"historical_stderr_unchanged_{number}", "outcome": "PASS"})
+        forged = b'{"outcome":"PASS"}\n'
+        require(module.reference_scan_text(Path(old.removeprefix("policy-engine/")), forged.decode()) == forged.decode(), "forgery syntax control")
+        require(identity(forged) != identity(blob(BASE, old)), "forged result body passed historical identity")
+        controls.append({"case": f"fake_json_body_identity_refusal_{number}", "outcome": "PASS"})
+
+    def validate(packets: dict[str, object]) -> None:
+        index, portable, assembly, refs, provenance = (packets[path] for path in [index_path, portable_path, assembly_path, ref_path, MAP])
+        require(portable["source_index"] == original_portable["source_index"], "historical source_index changed")
+        require([row["source_path"] for row in portable["files"]] == [row["source_path"] for row in original_portable["files"]], "historical source_path axis changed")
+        require(portable["total_bytes"] == sum(row["bytes"] for row in portable["files"]), "portable row sum")
+        require(len(index["files"]) == index["file_count"] == 49, "complete copy-index denominator")
+        require(len(portable["files"]) == portable["file_count"] == 51, "complete portable denominator")
+        for number in range(1, 5):
+            name = f"independent-recompute-attempt{number}.stdout.txt"
+            row = next(row for row in index["files"] if row["path"] == name)
+            require({key: row[key] for key in ["bytes", "sha256"]} == identity(current(GROUP + name)), "current stdout copy identity")
+            copied = next(row for row in portable["files"] if row["source_path"].endswith(f"independent-recompute-attempt{number}.stdout.json"))
+            require(copied["copied_path"] == GROUP + name, "historical source/current stdout role pair")
+            require({key: copied[key] for key in ["bytes", "sha256"]} == identity(current(copied["copied_path"])), "portable stdout copy identity")
+        derivative = next(row for row in portable["files"] if row["copied_path"] == index_path)
+        require({key: derivative[key] for key in ["bytes", "sha256"]} == identity(current(index_path)), "derivative copy-index identity")
+        original_derivative = next(row for row in original_portable["files"] if row["copied_path"] == index_path)
+        require(derivative["historical_source_identity"] == {key: original_derivative[key] for key in ["source_path", "bytes", "sha256"]}, "original derivative input identity")
+        for path in [index_path, portable_path, ref_path]:
+            row = next(row for row in assembly["staged_footprint"] if row["path"] == path)
+            require({key: row[key] for key in ["bytes", "sha256"]} == identity(current(path)), "assembly current bytes")
+            require(row["index_git_blob"] == git("rev-parse", f"{args.candidate}:{path}").decode().strip(), "assembly current Git blob")
+        group = next(row for row in assembly["review_copy_groups"] if row["path"] == portable_path)
+        require({key: group[key] for key in ["bytes", "sha256"]} == identity(current(portable_path)), "assembly portable binding")
+        refgroup = next(row for row in refs["review_copy_groups"] if row["path"] == portable_path)
+        require(refgroup["bytes"] == portable["total_bytes"], "current group aggregate")
+        require(refs["review_copy_bytes"] == sum(row["bytes"] for row in refs["review_copy_groups"]), "current refbinding aggregate")
+        for original in provenance["historical_original_index_refs"]:
+            require(original["repository_sha"] == BASE, "historical index source SHA")
+            require({key: original[key] for key in ["bytes", "sha256"]} == identity(blob(BASE, original["repository_path"])), "historical index source bytes")
+
+    validate(payloads)
+    controls.append({"case": "actual_complete_changed_reference_cascade", "outcome": "PASS"})
+    for path in payloads[MAP]["historical_observation_files_unchanged"]:
+        require(current(path) == blob(BASE, path), "historical observation rewritten")
+    controls.append({"case": "all_declared_historical_observations_byte_equal", "outcome": "PASS"})
+    mutations = []
+    corrupted = copy.deepcopy(payloads); corrupted[portable_path]["source_index"]["sha256"] = "0" * 64; mutations.append(("historical_source_index_hash", corrupted))
+    corrupted = copy.deepcopy(payloads); corrupted[portable_path]["files"][0]["source_path"] = "/invented/input"; mutations.append(("historical_source_path_axis", corrupted))
+    corrupted = copy.deepcopy(payloads); next(row for row in corrupted[index_path]["files"] if row["path"].endswith("attempt1.stdout.txt"))["bytes"] = -1; mutations.append(("current_stdout_negative_size", corrupted))
+    corrupted = copy.deepcopy(payloads); next(row for row in corrupted[portable_path]["files"] if row["copied_path"].endswith("attempt1.stdout.txt"))["copied_path"] = GROUP + "independent-recompute-attempt1.stdout.json"; mutations.append(("remove_current_role_mapping_keep_provenance", corrupted))
+    corrupted = copy.deepcopy(payloads); next(row for row in corrupted[assembly_path]["staged_footprint"] if row["path"] == index_path)["index_git_blob"] = "0" * 40; mutations.append(("current_index_git_blob", corrupted))
+    corrupted = copy.deepcopy(payloads); next(row for row in corrupted[assembly_path]["review_copy_groups"] if row["path"] == portable_path)["sha256"] = "0" * 64; mutations.append(("current_index_hash", corrupted))
+    for name, corrupted in mutations:
+        try:
+            validate(corrupted)
+        except (ValueError, StopIteration) as error:
+            controls.append({"case": name, "outcome": "PASS", "discriminator": "FAIL", "actual_refusal": str(error)})
+        else:
+            raise ValueError(f"corrupted field was accepted: {name}")
+    census = []
+    for sha in [BASE, args.candidate]:
+        rows = []
+        for path in [index_path, portable_path]:
+            index = json.loads(blob(sha, path)); bad = []
+            for record in index["files"]:
+                target = GROUP + record["path"] if "path" in record else record["copied_path"]
+                actual = identity(blob(sha, target))
+                if actual != {key: record[key] for key in ["bytes", "sha256"]}:
+                    bad.append({"repository_path": target, "declared": {key: record[key] for key in ["bytes", "sha256"]}, "actual": actual})
+            rows.append({"index_path": path, "complete_row_count": len(index["files"]), "mismatches": bad})
+        census.append({"source_sha": sha, "indexes": rows})
+    output = {
+        "schema": "policyos.e02.E.stdout_role_cascade_recompute.v1",
+        "candidate": args.candidate, "tree": tree, "base": BASE,
+        "controls": controls,
+        "complete_unchanged_historical_alias_census": census,
+        "limitation": "Complete49/51 census measures remaining historical active-script byte aliases independently; it is not suppressed by current-path controls or a generic full-custody PASS.",
+        "actual_canonical_inventory": "Read separately captured complete native command receipt; this validator does not substitute for --check.",
+        "no_finding_decision": True,
+    }
+    args.output.write_text(json.dumps(output, ensure_ascii=False, indent=2) + "\n")
+    print(json.dumps({"output": str(args.output), "bounded_controls": len(controls), "index_census_counts": [[len(row["mismatches"]) for row in entry["indexes"]] for entry in census]}))
+
+
+if __name__ == "__main__":
+    main()

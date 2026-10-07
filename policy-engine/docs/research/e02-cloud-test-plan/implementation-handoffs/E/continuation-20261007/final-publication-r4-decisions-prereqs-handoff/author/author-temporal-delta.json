@@ -1,0 +1,118 @@
+{
+  "schema": "policyos.e02.decisions_prereqs_temporal_qualification_delta.v1",
+  "class_candidate_reused": "100aa796447a5f8afbcf627a93cd13a7497553a6",
+  "exact_validation_function_body_reuse": {
+    "sha": "1d2eb6c3aabeb16f2dede34362d38938f2783292bd9bc956c01c3524eccc3b66",
+    "canonical": "f313f45e1f6cb0eb6293f361fc148b87761b9c3578eee2f3cbf7767bc29b89e8",
+    "normalized": "5d1039b14cf90477d9589d99dd635fd75a7e893778466d27e0cd9c53d6b5db28",
+    "expand": "4ef64067396bf8286b24b3eb362a08a516cb0fbad9013d17db3213d64c3f9745",
+    "recompute_expected": "75fab6ede9bab4e887b818c4a312e7a8c741f9ee70d2a204bdf78af37b6c34b6",
+    "validate": "e173d69b3d5cb8746be2b5d51195ec48bb9f5db5299b4844a6faaae2dc5a4be7",
+    "main": "b382f376bcc386f03be3077af4899cc2ae2476a05d618273b15da36405bb930e"
+  },
+  "new_copier_sha256": "f90cf379b8833595e16009d4f800160638c7a84f296d575e50d3f2385e448768",
+  "controls": [
+    {
+      "case": "healthy",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-temporal-delta/normal-healthy/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-temporal-delta/normal-healthy/destination"
+      ],
+      "exit_code": 0,
+      "destination_created": true,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-temporal-delta/normal-healthy/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-temporal-delta/normal-healthy/stderr.txt"
+    },
+    {
+      "case": "bool_new_temporal_integer",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-temporal-delta/normal-bool_new_temporal_integer/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-temporal-delta/normal-bool_new_temporal_integer/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-temporal-delta/normal-bool_new_temporal_integer/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-temporal-delta/normal-bool_new_temporal_integer/stderr.txt"
+    },
+    {
+      "case": "false_new_source_accepted_claim",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-temporal-delta/normal-false_new_source_accepted_claim/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-temporal-delta/normal-false_new_source_accepted_claim/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-temporal-delta/normal-false_new_source_accepted_claim/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-temporal-delta/normal-false_new_source_accepted_claim/stderr.txt"
+    },
+    {
+      "case": "healthy",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-temporal-delta/optimized-healthy/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-temporal-delta/optimized-healthy/destination"
+      ],
+      "exit_code": 0,
+      "destination_created": true,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-temporal-delta/optimized-healthy/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-temporal-delta/optimized-healthy/stderr.txt"
+    },
+    {
+      "case": "bool_new_temporal_integer",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-temporal-delta/optimized-bool_new_temporal_integer/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-temporal-delta/optimized-bool_new_temporal_integer/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-temporal-delta/optimized-bool_new_temporal_integer/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-temporal-delta/optimized-bool_new_temporal_integer/stderr.txt"
+    },
+    {
+      "case": "false_new_source_accepted_claim",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/copy-decisions-prereqs.py.txt",
+        "--manifest",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-temporal-delta/optimized-false_new_source_accepted_claim/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-temporal-delta/optimized-false_new_source_accepted_claim/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-temporal-delta/optimized-false_new_source_accepted_claim/stdout.txt",
+      "stderr": "/tmp/e02-E-decisions-prereqs-publication-r4-stage/author-temporal-delta/optimized-false_new_source_accepted_claim/stderr.txt"
+    }
+  ],
+  "old_normal_optimized19_controls_reused_with_explicit_source": true,
+  "ROOT_source_env_locks_changed": false,
+  "source_numeric_gate_reexecuted": false
+}

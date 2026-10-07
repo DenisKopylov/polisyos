@@ -1,0 +1,1 @@
+{"validation": "PASS", "candidate": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74", "controls": [{"mutation": "output-hash", "refused": true}, {"mutation": "output-size", "refused": true}, {"mutation": "output-removed", "refused": true}, {"mutation": "forged-count", "refused": true}, {"mutation": "wrong-tree", "refused": true}, {"mutation": "source-removed", "refused": true}]}

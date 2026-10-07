@@ -1,0 +1,646 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="15" failures="0" skipped="0" tests="18" time="11.281" timestamp="2026-10-07T15:03:43.687516+00:00" hostname="b5f0914494dc"><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_real_configured_backend_corpus_persists_and_fresh_node_consumes" time="5.818"><error message="failed on setup with &quot;AssertionError: assert not [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]&#10; +  where [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}] = JobResult(job_key=JobKey(value='job:5479db19177c0870b2be1b56ebba8a929ac9aef6a9e4f0776f73a757b137e77f'), state_delta_re...e', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}], warnings=[]).issues&quot;">tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/pytest-base'), _trace=&lt;pluggy._tracing.Ta...80&gt;, _basetemp=PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/pytest-base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def real_fit(tmp_path_factory):
+        root = tmp_path_factory.mktemp("real-bayesian-fit")
+        store = FileSystemCAS(root)
+        source = {
+            "features": [[-1.0], [0.0], [1.0], [-0.5], [0.5]],
+            "target": [-0.2, 0.1, 0.2, -0.1, 0.0],
+        }
+        refs = {
+            name: store.put_json(
+                data,
+                PutOptions(kind="test.bayesian_source", media_type="application/json"),
+                canon_spec=CanonSpec(forbid_floats=False),
+            )
+            for name, data in source.items()
+        }
+        params = {
+            "runtime_backend": "numpy",
+            "num_warmup": 32,
+            "num_samples": 32,
+            "num_chains": 2,
+            "step_size": 0.015,
+            "n_leapfrog": 8,
+            "credible_mass": 0.9,
+        }
+        # This caller actually materializes the input refs before MethodBackend;
+        # a method dispatch spy or a separately supplied input_state is not a witness.
+        result = run_job(
+            JobSpec(
+                job_kind="method",
+                method_fqn="bayesian.sampling.hmc@1.0.0",
+                input_refs=refs,
+                method_params=params,
+                seed=321,
+            ),
+            cas_root=root,
+        )
+&gt;       assert not result.issues
+E       AssertionError: assert not [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]
+E        +  where [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}] = JobResult(job_key=JobKey(value='job:5479db19177c0870b2be1b56ebba8a929ac9aef6a9e4f0776f73a757b137e77f'), state_delta_re...e', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}], warnings=[]).issues
+
+tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:70: AssertionError</error></testcase><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_adversarial_fit_refuses_before_publication_or_evaluator[axes]" time="0.000"><error message="failed on setup with &quot;AssertionError: assert not [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]&#10; +  where [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}] = JobResult(job_key=JobKey(value='job:5479db19177c0870b2be1b56ebba8a929ac9aef6a9e4f0776f73a757b137e77f'), state_delta_re...e', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}], warnings=[]).issues&quot;">tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/pytest-base'), _trace=&lt;pluggy._tracing.Ta...80&gt;, _basetemp=PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/pytest-base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def real_fit(tmp_path_factory):
+        root = tmp_path_factory.mktemp("real-bayesian-fit")
+        store = FileSystemCAS(root)
+        source = {
+            "features": [[-1.0], [0.0], [1.0], [-0.5], [0.5]],
+            "target": [-0.2, 0.1, 0.2, -0.1, 0.0],
+        }
+        refs = {
+            name: store.put_json(
+                data,
+                PutOptions(kind="test.bayesian_source", media_type="application/json"),
+                canon_spec=CanonSpec(forbid_floats=False),
+            )
+            for name, data in source.items()
+        }
+        params = {
+            "runtime_backend": "numpy",
+            "num_warmup": 32,
+            "num_samples": 32,
+            "num_chains": 2,
+            "step_size": 0.015,
+            "n_leapfrog": 8,
+            "credible_mass": 0.9,
+        }
+        # This caller actually materializes the input refs before MethodBackend;
+        # a method dispatch spy or a separately supplied input_state is not a witness.
+        result = run_job(
+            JobSpec(
+                job_kind="method",
+                method_fqn="bayesian.sampling.hmc@1.0.0",
+                input_refs=refs,
+                method_params=params,
+                seed=321,
+            ),
+            cas_root=root,
+        )
+&gt;       assert not result.issues
+E       AssertionError: assert not [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]
+E        +  where [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}] = JobResult(job_key=JobKey(value='job:5479db19177c0870b2be1b56ebba8a929ac9aef6a9e4f0776f73a757b137e77f'), state_delta_re...e', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}], warnings=[]).issues
+
+tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:70: AssertionError</error></testcase><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_adversarial_fit_refuses_before_publication_or_evaluator[dtype]" time="0.000"><error message="failed on setup with &quot;AssertionError: assert not [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]&#10; +  where [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}] = JobResult(job_key=JobKey(value='job:5479db19177c0870b2be1b56ebba8a929ac9aef6a9e4f0776f73a757b137e77f'), state_delta_re...e', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}], warnings=[]).issues&quot;">tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/pytest-base'), _trace=&lt;pluggy._tracing.Ta...80&gt;, _basetemp=PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/pytest-base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def real_fit(tmp_path_factory):
+        root = tmp_path_factory.mktemp("real-bayesian-fit")
+        store = FileSystemCAS(root)
+        source = {
+            "features": [[-1.0], [0.0], [1.0], [-0.5], [0.5]],
+            "target": [-0.2, 0.1, 0.2, -0.1, 0.0],
+        }
+        refs = {
+            name: store.put_json(
+                data,
+                PutOptions(kind="test.bayesian_source", media_type="application/json"),
+                canon_spec=CanonSpec(forbid_floats=False),
+            )
+            for name, data in source.items()
+        }
+        params = {
+            "runtime_backend": "numpy",
+            "num_warmup": 32,
+            "num_samples": 32,
+            "num_chains": 2,
+            "step_size": 0.015,
+            "n_leapfrog": 8,
+            "credible_mass": 0.9,
+        }
+        # This caller actually materializes the input refs before MethodBackend;
+        # a method dispatch spy or a separately supplied input_state is not a witness.
+        result = run_job(
+            JobSpec(
+                job_kind="method",
+                method_fqn="bayesian.sampling.hmc@1.0.0",
+                input_refs=refs,
+                method_params=params,
+                seed=321,
+            ),
+            cas_root=root,
+        )
+&gt;       assert not result.issues
+E       AssertionError: assert not [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]
+E        +  where [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}] = JobResult(job_key=JobKey(value='job:5479db19177c0870b2be1b56ebba8a929ac9aef6a9e4f0776f73a757b137e77f'), state_delta_re...e', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}], warnings=[]).issues
+
+tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:70: AssertionError</error></testcase><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_adversarial_fit_refuses_before_publication_or_evaluator[byte_length]" time="0.000"><error message="failed on setup with &quot;AssertionError: assert not [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]&#10; +  where [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}] = JobResult(job_key=JobKey(value='job:5479db19177c0870b2be1b56ebba8a929ac9aef6a9e4f0776f73a757b137e77f'), state_delta_re...e', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}], warnings=[]).issues&quot;">tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/pytest-base'), _trace=&lt;pluggy._tracing.Ta...80&gt;, _basetemp=PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/pytest-base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def real_fit(tmp_path_factory):
+        root = tmp_path_factory.mktemp("real-bayesian-fit")
+        store = FileSystemCAS(root)
+        source = {
+            "features": [[-1.0], [0.0], [1.0], [-0.5], [0.5]],
+            "target": [-0.2, 0.1, 0.2, -0.1, 0.0],
+        }
+        refs = {
+            name: store.put_json(
+                data,
+                PutOptions(kind="test.bayesian_source", media_type="application/json"),
+                canon_spec=CanonSpec(forbid_floats=False),
+            )
+            for name, data in source.items()
+        }
+        params = {
+            "runtime_backend": "numpy",
+            "num_warmup": 32,
+            "num_samples": 32,
+            "num_chains": 2,
+            "step_size": 0.015,
+            "n_leapfrog": 8,
+            "credible_mass": 0.9,
+        }
+        # This caller actually materializes the input refs before MethodBackend;
+        # a method dispatch spy or a separately supplied input_state is not a witness.
+        result = run_job(
+            JobSpec(
+                job_kind="method",
+                method_fqn="bayesian.sampling.hmc@1.0.0",
+                input_refs=refs,
+                method_params=params,
+                seed=321,
+            ),
+            cas_root=root,
+        )
+&gt;       assert not result.issues
+E       AssertionError: assert not [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]
+E        +  where [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}] = JobResult(job_key=JobKey(value='job:5479db19177c0870b2be1b56ebba8a929ac9aef6a9e4f0776f73a757b137e77f'), state_delta_re...e', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}], warnings=[]).issues
+
+tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:70: AssertionError</error></testcase><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_adversarial_fit_refuses_before_publication_or_evaluator[chain_rows]" time="0.000"><error message="failed on setup with &quot;AssertionError: assert not [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]&#10; +  where [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}] = JobResult(job_key=JobKey(value='job:5479db19177c0870b2be1b56ebba8a929ac9aef6a9e4f0776f73a757b137e77f'), state_delta_re...e', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}], warnings=[]).issues&quot;">tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/pytest-base'), _trace=&lt;pluggy._tracing.Ta...80&gt;, _basetemp=PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/pytest-base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def real_fit(tmp_path_factory):
+        root = tmp_path_factory.mktemp("real-bayesian-fit")
+        store = FileSystemCAS(root)
+        source = {
+            "features": [[-1.0], [0.0], [1.0], [-0.5], [0.5]],
+            "target": [-0.2, 0.1, 0.2, -0.1, 0.0],
+        }
+        refs = {
+            name: store.put_json(
+                data,
+                PutOptions(kind="test.bayesian_source", media_type="application/json"),
+                canon_spec=CanonSpec(forbid_floats=False),
+            )
+            for name, data in source.items()
+        }
+        params = {
+            "runtime_backend": "numpy",
+            "num_warmup": 32,
+            "num_samples": 32,
+            "num_chains": 2,
+            "step_size": 0.015,
+            "n_leapfrog": 8,
+            "credible_mass": 0.9,
+        }
+        # This caller actually materializes the input refs before MethodBackend;
+        # a method dispatch spy or a separately supplied input_state is not a witness.
+        result = run_job(
+            JobSpec(
+                job_kind="method",
+                method_fqn="bayesian.sampling.hmc@1.0.0",
+                input_refs=refs,
+                method_params=params,
+                seed=321,
+            ),
+            cas_root=root,
+        )
+&gt;       assert not result.issues
+E       AssertionError: assert not [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]
+E        +  where [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}] = JobResult(job_key=JobKey(value='job:5479db19177c0870b2be1b56ebba8a929ac9aef6a9e4f0776f73a757b137e77f'), state_delta_re...e', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}], warnings=[]).issues
+
+tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:70: AssertionError</error></testcase><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_adversarial_fit_refuses_before_publication_or_evaluator[stale_digest]" time="0.000"><error message="failed on setup with &quot;AssertionError: assert not [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]&#10; +  where [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}] = JobResult(job_key=JobKey(value='job:5479db19177c0870b2be1b56ebba8a929ac9aef6a9e4f0776f73a757b137e77f'), state_delta_re...e', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}], warnings=[]).issues&quot;">tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/pytest-base'), _trace=&lt;pluggy._tracing.Ta...80&gt;, _basetemp=PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/pytest-base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def real_fit(tmp_path_factory):
+        root = tmp_path_factory.mktemp("real-bayesian-fit")
+        store = FileSystemCAS(root)
+        source = {
+            "features": [[-1.0], [0.0], [1.0], [-0.5], [0.5]],
+            "target": [-0.2, 0.1, 0.2, -0.1, 0.0],
+        }
+        refs = {
+            name: store.put_json(
+                data,
+                PutOptions(kind="test.bayesian_source", media_type="application/json"),
+                canon_spec=CanonSpec(forbid_floats=False),
+            )
+            for name, data in source.items()
+        }
+        params = {
+            "runtime_backend": "numpy",
+            "num_warmup": 32,
+            "num_samples": 32,
+            "num_chains": 2,
+            "step_size": 0.015,
+            "n_leapfrog": 8,
+            "credible_mass": 0.9,
+        }
+        # This caller actually materializes the input refs before MethodBackend;
+        # a method dispatch spy or a separately supplied input_state is not a witness.
+        result = run_job(
+            JobSpec(
+                job_kind="method",
+                method_fqn="bayesian.sampling.hmc@1.0.0",
+                input_refs=refs,
+                method_params=params,
+                seed=321,
+            ),
+            cas_root=root,
+        )
+&gt;       assert not result.issues
+E       AssertionError: assert not [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]
+E        +  where [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}] = JobResult(job_key=JobKey(value='job:5479db19177c0870b2be1b56ebba8a929ac9aef6a9e4f0776f73a757b137e77f'), state_delta_re...e', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}], warnings=[]).issues
+
+tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:70: AssertionError</error></testcase><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_adversarial_fit_refuses_before_publication_or_evaluator[nonfinite]" time="0.000"><error message="failed on setup with &quot;AssertionError: assert not [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]&#10; +  where [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}] = JobResult(job_key=JobKey(value='job:5479db19177c0870b2be1b56ebba8a929ac9aef6a9e4f0776f73a757b137e77f'), state_delta_re...e', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}], warnings=[]).issues&quot;">tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/pytest-base'), _trace=&lt;pluggy._tracing.Ta...80&gt;, _basetemp=PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/pytest-base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def real_fit(tmp_path_factory):
+        root = tmp_path_factory.mktemp("real-bayesian-fit")
+        store = FileSystemCAS(root)
+        source = {
+            "features": [[-1.0], [0.0], [1.0], [-0.5], [0.5]],
+            "target": [-0.2, 0.1, 0.2, -0.1, 0.0],
+        }
+        refs = {
+            name: store.put_json(
+                data,
+                PutOptions(kind="test.bayesian_source", media_type="application/json"),
+                canon_spec=CanonSpec(forbid_floats=False),
+            )
+            for name, data in source.items()
+        }
+        params = {
+            "runtime_backend": "numpy",
+            "num_warmup": 32,
+            "num_samples": 32,
+            "num_chains": 2,
+            "step_size": 0.015,
+            "n_leapfrog": 8,
+            "credible_mass": 0.9,
+        }
+        # This caller actually materializes the input refs before MethodBackend;
+        # a method dispatch spy or a separately supplied input_state is not a witness.
+        result = run_job(
+            JobSpec(
+                job_kind="method",
+                method_fqn="bayesian.sampling.hmc@1.0.0",
+                input_refs=refs,
+                method_params=params,
+                seed=321,
+            ),
+            cas_root=root,
+        )
+&gt;       assert not result.issues
+E       AssertionError: assert not [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]
+E        +  where [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}] = JobResult(job_key=JobKey(value='job:5479db19177c0870b2be1b56ebba8a929ac9aef6a9e4f0776f73a757b137e77f'), state_delta_re...e', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}], warnings=[]).issues
+
+tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:70: AssertionError</error></testcase><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_adversarial_fit_refuses_before_publication_or_evaluator[seed]" time="0.000"><error message="failed on setup with &quot;AssertionError: assert not [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]&#10; +  where [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}] = JobResult(job_key=JobKey(value='job:5479db19177c0870b2be1b56ebba8a929ac9aef6a9e4f0776f73a757b137e77f'), state_delta_re...e', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}], warnings=[]).issues&quot;">tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/pytest-base'), _trace=&lt;pluggy._tracing.Ta...80&gt;, _basetemp=PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/pytest-base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def real_fit(tmp_path_factory):
+        root = tmp_path_factory.mktemp("real-bayesian-fit")
+        store = FileSystemCAS(root)
+        source = {
+            "features": [[-1.0], [0.0], [1.0], [-0.5], [0.5]],
+            "target": [-0.2, 0.1, 0.2, -0.1, 0.0],
+        }
+        refs = {
+            name: store.put_json(
+                data,
+                PutOptions(kind="test.bayesian_source", media_type="application/json"),
+                canon_spec=CanonSpec(forbid_floats=False),
+            )
+            for name, data in source.items()
+        }
+        params = {
+            "runtime_backend": "numpy",
+            "num_warmup": 32,
+            "num_samples": 32,
+            "num_chains": 2,
+            "step_size": 0.015,
+            "n_leapfrog": 8,
+            "credible_mass": 0.9,
+        }
+        # This caller actually materializes the input refs before MethodBackend;
+        # a method dispatch spy or a separately supplied input_state is not a witness.
+        result = run_job(
+            JobSpec(
+                job_kind="method",
+                method_fqn="bayesian.sampling.hmc@1.0.0",
+                input_refs=refs,
+                method_params=params,
+                seed=321,
+            ),
+            cas_root=root,
+        )
+&gt;       assert not result.issues
+E       AssertionError: assert not [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]
+E        +  where [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}] = JobResult(job_key=JobKey(value='job:5479db19177c0870b2be1b56ebba8a929ac9aef6a9e4f0776f73a757b137e77f'), state_delta_re...e', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}], warnings=[]).issues
+
+tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:70: AssertionError</error></testcase><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_adversarial_fit_refuses_before_publication_or_evaluator[params]" time="0.000"><error message="failed on setup with &quot;AssertionError: assert not [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]&#10; +  where [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}] = JobResult(job_key=JobKey(value='job:5479db19177c0870b2be1b56ebba8a929ac9aef6a9e4f0776f73a757b137e77f'), state_delta_re...e', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}], warnings=[]).issues&quot;">tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/pytest-base'), _trace=&lt;pluggy._tracing.Ta...80&gt;, _basetemp=PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/pytest-base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def real_fit(tmp_path_factory):
+        root = tmp_path_factory.mktemp("real-bayesian-fit")
+        store = FileSystemCAS(root)
+        source = {
+            "features": [[-1.0], [0.0], [1.0], [-0.5], [0.5]],
+            "target": [-0.2, 0.1, 0.2, -0.1, 0.0],
+        }
+        refs = {
+            name: store.put_json(
+                data,
+                PutOptions(kind="test.bayesian_source", media_type="application/json"),
+                canon_spec=CanonSpec(forbid_floats=False),
+            )
+            for name, data in source.items()
+        }
+        params = {
+            "runtime_backend": "numpy",
+            "num_warmup": 32,
+            "num_samples": 32,
+            "num_chains": 2,
+            "step_size": 0.015,
+            "n_leapfrog": 8,
+            "credible_mass": 0.9,
+        }
+        # This caller actually materializes the input refs before MethodBackend;
+        # a method dispatch spy or a separately supplied input_state is not a witness.
+        result = run_job(
+            JobSpec(
+                job_kind="method",
+                method_fqn="bayesian.sampling.hmc@1.0.0",
+                input_refs=refs,
+                method_params=params,
+                seed=321,
+            ),
+            cas_root=root,
+        )
+&gt;       assert not result.issues
+E       AssertionError: assert not [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]
+E        +  where [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}] = JobResult(job_key=JobKey(value='job:5479db19177c0870b2be1b56ebba8a929ac9aef6a9e4f0776f73a757b137e77f'), state_delta_re...e', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}], warnings=[]).issues
+
+tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:70: AssertionError</error></testcase><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_adversarial_fit_refuses_before_publication_or_evaluator[source]" time="0.001"><error message="failed on setup with &quot;AssertionError: assert not [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]&#10; +  where [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}] = JobResult(job_key=JobKey(value='job:5479db19177c0870b2be1b56ebba8a929ac9aef6a9e4f0776f73a757b137e77f'), state_delta_re...e', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}], warnings=[]).issues&quot;">tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/pytest-base'), _trace=&lt;pluggy._tracing.Ta...80&gt;, _basetemp=PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/pytest-base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def real_fit(tmp_path_factory):
+        root = tmp_path_factory.mktemp("real-bayesian-fit")
+        store = FileSystemCAS(root)
+        source = {
+            "features": [[-1.0], [0.0], [1.0], [-0.5], [0.5]],
+            "target": [-0.2, 0.1, 0.2, -0.1, 0.0],
+        }
+        refs = {
+            name: store.put_json(
+                data,
+                PutOptions(kind="test.bayesian_source", media_type="application/json"),
+                canon_spec=CanonSpec(forbid_floats=False),
+            )
+            for name, data in source.items()
+        }
+        params = {
+            "runtime_backend": "numpy",
+            "num_warmup": 32,
+            "num_samples": 32,
+            "num_chains": 2,
+            "step_size": 0.015,
+            "n_leapfrog": 8,
+            "credible_mass": 0.9,
+        }
+        # This caller actually materializes the input refs before MethodBackend;
+        # a method dispatch spy or a separately supplied input_state is not a witness.
+        result = run_job(
+            JobSpec(
+                job_kind="method",
+                method_fqn="bayesian.sampling.hmc@1.0.0",
+                input_refs=refs,
+                method_params=params,
+                seed=321,
+            ),
+            cas_root=root,
+        )
+&gt;       assert not result.issues
+E       AssertionError: assert not [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]
+E        +  where [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}] = JobResult(job_key=JobKey(value='job:5479db19177c0870b2be1b56ebba8a929ac9aef6a9e4f0776f73a757b137e77f'), state_delta_re...e', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}], warnings=[]).issues
+
+tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:70: AssertionError</error></testcase><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_adversarial_fit_refuses_before_publication_or_evaluator[wrong_pair]" time="0.001"><error message="failed on setup with &quot;AssertionError: assert not [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]&#10; +  where [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}] = JobResult(job_key=JobKey(value='job:5479db19177c0870b2be1b56ebba8a929ac9aef6a9e4f0776f73a757b137e77f'), state_delta_re...e', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}], warnings=[]).issues&quot;">tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/pytest-base'), _trace=&lt;pluggy._tracing.Ta...80&gt;, _basetemp=PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/pytest-base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def real_fit(tmp_path_factory):
+        root = tmp_path_factory.mktemp("real-bayesian-fit")
+        store = FileSystemCAS(root)
+        source = {
+            "features": [[-1.0], [0.0], [1.0], [-0.5], [0.5]],
+            "target": [-0.2, 0.1, 0.2, -0.1, 0.0],
+        }
+        refs = {
+            name: store.put_json(
+                data,
+                PutOptions(kind="test.bayesian_source", media_type="application/json"),
+                canon_spec=CanonSpec(forbid_floats=False),
+            )
+            for name, data in source.items()
+        }
+        params = {
+            "runtime_backend": "numpy",
+            "num_warmup": 32,
+            "num_samples": 32,
+            "num_chains": 2,
+            "step_size": 0.015,
+            "n_leapfrog": 8,
+            "credible_mass": 0.9,
+        }
+        # This caller actually materializes the input refs before MethodBackend;
+        # a method dispatch spy or a separately supplied input_state is not a witness.
+        result = run_job(
+            JobSpec(
+                job_kind="method",
+                method_fqn="bayesian.sampling.hmc@1.0.0",
+                input_refs=refs,
+                method_params=params,
+                seed=321,
+            ),
+            cas_root=root,
+        )
+&gt;       assert not result.issues
+E       AssertionError: assert not [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]
+E        +  where [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}] = JobResult(job_key=JobKey(value='job:5479db19177c0870b2be1b56ebba8a929ac9aef6a9e4f0776f73a757b137e77f'), state_delta_re...e', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}], warnings=[]).issues
+
+tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:70: AssertionError</error></testcase><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_adversarial_fit_refuses_before_publication_or_evaluator[kind]" time="0.000"><error message="failed on setup with &quot;AssertionError: assert not [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]&#10; +  where [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}] = JobResult(job_key=JobKey(value='job:5479db19177c0870b2be1b56ebba8a929ac9aef6a9e4f0776f73a757b137e77f'), state_delta_re...e', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}], warnings=[]).issues&quot;">tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/pytest-base'), _trace=&lt;pluggy._tracing.Ta...80&gt;, _basetemp=PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/pytest-base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def real_fit(tmp_path_factory):
+        root = tmp_path_factory.mktemp("real-bayesian-fit")
+        store = FileSystemCAS(root)
+        source = {
+            "features": [[-1.0], [0.0], [1.0], [-0.5], [0.5]],
+            "target": [-0.2, 0.1, 0.2, -0.1, 0.0],
+        }
+        refs = {
+            name: store.put_json(
+                data,
+                PutOptions(kind="test.bayesian_source", media_type="application/json"),
+                canon_spec=CanonSpec(forbid_floats=False),
+            )
+            for name, data in source.items()
+        }
+        params = {
+            "runtime_backend": "numpy",
+            "num_warmup": 32,
+            "num_samples": 32,
+            "num_chains": 2,
+            "step_size": 0.015,
+            "n_leapfrog": 8,
+            "credible_mass": 0.9,
+        }
+        # This caller actually materializes the input refs before MethodBackend;
+        # a method dispatch spy or a separately supplied input_state is not a witness.
+        result = run_job(
+            JobSpec(
+                job_kind="method",
+                method_fqn="bayesian.sampling.hmc@1.0.0",
+                input_refs=refs,
+                method_params=params,
+                seed=321,
+            ),
+            cas_root=root,
+        )
+&gt;       assert not result.issues
+E       AssertionError: assert not [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]
+E        +  where [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}] = JobResult(job_key=JobKey(value='job:5479db19177c0870b2be1b56ebba8a929ac9aef6a9e4f0776f73a757b137e77f'), state_delta_re...e', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}], warnings=[]).issues
+
+tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:70: AssertionError</error></testcase><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_adversarial_fit_refuses_before_publication_or_evaluator[duplicate_source]" time="0.000"><error message="failed on setup with &quot;AssertionError: assert not [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]&#10; +  where [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}] = JobResult(job_key=JobKey(value='job:5479db19177c0870b2be1b56ebba8a929ac9aef6a9e4f0776f73a757b137e77f'), state_delta_re...e', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}], warnings=[]).issues&quot;">tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/pytest-base'), _trace=&lt;pluggy._tracing.Ta...80&gt;, _basetemp=PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/pytest-base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def real_fit(tmp_path_factory):
+        root = tmp_path_factory.mktemp("real-bayesian-fit")
+        store = FileSystemCAS(root)
+        source = {
+            "features": [[-1.0], [0.0], [1.0], [-0.5], [0.5]],
+            "target": [-0.2, 0.1, 0.2, -0.1, 0.0],
+        }
+        refs = {
+            name: store.put_json(
+                data,
+                PutOptions(kind="test.bayesian_source", media_type="application/json"),
+                canon_spec=CanonSpec(forbid_floats=False),
+            )
+            for name, data in source.items()
+        }
+        params = {
+            "runtime_backend": "numpy",
+            "num_warmup": 32,
+            "num_samples": 32,
+            "num_chains": 2,
+            "step_size": 0.015,
+            "n_leapfrog": 8,
+            "credible_mass": 0.9,
+        }
+        # This caller actually materializes the input refs before MethodBackend;
+        # a method dispatch spy or a separately supplied input_state is not a witness.
+        result = run_job(
+            JobSpec(
+                job_kind="method",
+                method_fqn="bayesian.sampling.hmc@1.0.0",
+                input_refs=refs,
+                method_params=params,
+                seed=321,
+            ),
+            cas_root=root,
+        )
+&gt;       assert not result.issues
+E       AssertionError: assert not [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]
+E        +  where [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}] = JobResult(job_key=JobKey(value='job:5479db19177c0870b2be1b56ebba8a929ac9aef6a9e4f0776f73a757b137e77f'), state_delta_re...e', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}], warnings=[]).issues
+
+tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:70: AssertionError</error></testcase><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_adversarial_fit_refuses_before_publication_or_evaluator[missing_ref]" time="0.000"><error message="failed on setup with &quot;AssertionError: assert not [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]&#10; +  where [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}] = JobResult(job_key=JobKey(value='job:5479db19177c0870b2be1b56ebba8a929ac9aef6a9e4f0776f73a757b137e77f'), state_delta_re...e', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}], warnings=[]).issues&quot;">tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/pytest-base'), _trace=&lt;pluggy._tracing.Ta...80&gt;, _basetemp=PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/pytest-base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def real_fit(tmp_path_factory):
+        root = tmp_path_factory.mktemp("real-bayesian-fit")
+        store = FileSystemCAS(root)
+        source = {
+            "features": [[-1.0], [0.0], [1.0], [-0.5], [0.5]],
+            "target": [-0.2, 0.1, 0.2, -0.1, 0.0],
+        }
+        refs = {
+            name: store.put_json(
+                data,
+                PutOptions(kind="test.bayesian_source", media_type="application/json"),
+                canon_spec=CanonSpec(forbid_floats=False),
+            )
+            for name, data in source.items()
+        }
+        params = {
+            "runtime_backend": "numpy",
+            "num_warmup": 32,
+            "num_samples": 32,
+            "num_chains": 2,
+            "step_size": 0.015,
+            "n_leapfrog": 8,
+            "credible_mass": 0.9,
+        }
+        # This caller actually materializes the input refs before MethodBackend;
+        # a method dispatch spy or a separately supplied input_state is not a witness.
+        result = run_job(
+            JobSpec(
+                job_kind="method",
+                method_fqn="bayesian.sampling.hmc@1.0.0",
+                input_refs=refs,
+                method_params=params,
+                seed=321,
+            ),
+            cas_root=root,
+        )
+&gt;       assert not result.issues
+E       AssertionError: assert not [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]
+E        +  where [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}] = JobResult(job_key=JobKey(value='job:5479db19177c0870b2be1b56ebba8a929ac9aef6a9e4f0776f73a757b137e77f'), state_delta_re...e', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}], warnings=[]).issues
+
+tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:70: AssertionError</error></testcase><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_whole_relationship_admission_removal_is_detected" time="0.000"><error message="failed on setup with &quot;AssertionError: assert not [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]&#10; +  where [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}] = JobResult(job_key=JobKey(value='job:5479db19177c0870b2be1b56ebba8a929ac9aef6a9e4f0776f73a757b137e77f'), state_delta_re...e', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}], warnings=[]).issues&quot;">tmp_path_factory = TempPathFactory(_given_basetemp=PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/pytest-base'), _trace=&lt;pluggy._tracing.Ta...80&gt;, _basetemp=PosixPath('/tmp/e02-E-bayesian-fit-bridge-r6/pytest-base'), _retention_count=3, _retention_policy='all')
+
+    @pytest.fixture(scope="module")
+    def real_fit(tmp_path_factory):
+        root = tmp_path_factory.mktemp("real-bayesian-fit")
+        store = FileSystemCAS(root)
+        source = {
+            "features": [[-1.0], [0.0], [1.0], [-0.5], [0.5]],
+            "target": [-0.2, 0.1, 0.2, -0.1, 0.0],
+        }
+        refs = {
+            name: store.put_json(
+                data,
+                PutOptions(kind="test.bayesian_source", media_type="application/json"),
+                canon_spec=CanonSpec(forbid_floats=False),
+            )
+            for name, data in source.items()
+        }
+        params = {
+            "runtime_backend": "numpy",
+            "num_warmup": 32,
+            "num_samples": 32,
+            "num_chains": 2,
+            "step_size": 0.015,
+            "n_leapfrog": 8,
+            "credible_mass": 0.9,
+        }
+        # This caller actually materializes the input refs before MethodBackend;
+        # a method dispatch spy or a separately supplied input_state is not a witness.
+        result = run_job(
+            JobSpec(
+                job_kind="method",
+                method_fqn="bayesian.sampling.hmc@1.0.0",
+                input_refs=refs,
+                method_params=params,
+                seed=321,
+            ),
+            cas_root=root,
+        )
+&gt;       assert not result.issues
+E       AssertionError: assert not [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}]
+E        +  where [{'actual': None, 'code': None, 'error_type': 'runtime', 'expected': None, ...}] = JobResult(job_key=JobKey(value='job:5479db19177c0870b2be1b56ebba8a929ac9aef6a9e4f0776f73a757b137e77f'), state_delta_re...e', 'input_value': None, 'path': None, 'code': None, 'expected': None, 'actual': None, 'severity': None}], warnings=[]).issues
+
+tests/unit/scientist/nodes/test_bayesian_fit_consumer.py:70: AssertionError</error></testcase><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_effective_parameter_profile_rejects_non_real_values_before_store[True]" time="0.001" /><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_effective_parameter_profile_rejects_non_real_values_before_store[inf]" time="0.000" /><testcase classname="tests.unit.scientist.nodes.test_bayesian_fit_consumer" name="test_effective_parameter_profile_rejects_non_real_values_before_store[32]" time="0.001" /></testsuite></testsuites>

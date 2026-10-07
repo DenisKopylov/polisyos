@@ -1,0 +1,5 @@
+This slice connects the existing configured reference HMC/NUTS method result/evidence pair to a content-bound retained-corpus Profile2 artifact and the native uncertainty node. Source is frozen at `77b4d68ec37e3f34b84ce4fd1787746e3d5f5322`; the source-first commits are 6638,9147,77b4. It grants no fit/mixing/noise/source-law authority and is not a CalibrationReport.
+
+The copy-index preserves every selected logical alias while deduplicating exact bytes in passive `.txt` carriers. Original source paths and hashes remain explicit. Historical 6638/9147 CHANGE_REQUIRED receipts and the author74/23 capture loss are retained; the immutable independent9147 full74 observation supplies deciding historical bridge evidence. Later affected 28 normal/optimized output-ref checks and23 existing consumers are separate current observations. Do not interpret the source receipt as original-row closure or full global PASS.
+
+The protected Scientist float-materializer repair is an applicable owner packet, not an applied source change. Independent source/publication review is attached separately; the future evidence commit is not self-referenced.

@@ -1,0 +1,121 @@
+{
+  "schema": "policyos.e02.immutable_review_output_index.v1",
+  "source_candidate": "d43f8d4693767637424da759ae960f7b51736449",
+  "source_tree": "6d38589b1b21a40ca64796cd018f766646099f7e",
+  "primary_typed_receipt": "receipt.json",
+  "primary_review": "assembly-delta-review-d43.json",
+  "primary_receipt_included": true,
+  "records": [
+    {
+      "copied_path": "DOE-author-receipt-70c4.original.json",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/assembly-delta-final/DOE-author-receipt-70c4.original.json",
+      "bytes": 13120,
+      "sha256": "9965a85e6f7a4b02361fca13846e99f432e95eba037f4af872060e79812253db"
+    },
+    {
+      "copied_path": "README.md",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/assembly-delta-final/README.md",
+      "bytes": 3729,
+      "sha256": "bba72849e88c37557b595ff9aa4d51f6f372a7fd85ba174c14dffdb123567a49"
+    },
+    {
+      "copied_path": "assembly-delta-review-d43.json",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/assembly-delta-final/assembly-delta-review-d43.json",
+      "bytes": 78708,
+      "sha256": "9df5906f362727b18e1c011bcb17c0597b4388eede40c630d830efd7d62d207e"
+    },
+    {
+      "copied_path": "doe-budget-independent-review-70c4.original.json",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/assembly-delta-final/doe-budget-independent-review-70c4.original.json",
+      "bytes": 14630,
+      "sha256": "f3c1fca229ff1e2ea50acef950847188c30097754b7e3c805413b9d25a04c60b"
+    },
+    {
+      "copied_path": "full-c79-to-d43-footprint.tsv",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/assembly-delta-final/full-c79-to-d43-footprint.tsv",
+      "bytes": 55016,
+      "sha256": "4b96a6f2b5c6e0fea9a42a9dd6bfe32bc5612c2eb8c51d4ee954954e11011be2"
+    },
+    {
+      "copied_path": "harness-independent-review-4758.original.json",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/assembly-delta-final/harness-independent-review-4758.original.json",
+      "bytes": 11010,
+      "sha256": "9f3c2514c74e781f20217a65ad7e6f3cde609247750be7af8ec89afa0dea3fc2"
+    },
+    {
+      "copied_path": "historical-harnesserror-01/review.stderr",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/assembly-delta-final/historical-harnesserror-01/review.stderr",
+      "bytes": 412,
+      "sha256": "6f6a5e4c6b79054360cc766bccf09e3c2a06110415213aa5689573d31cda1fbc"
+    },
+    {
+      "copied_path": "historical-harnesserror-01/review.stdout",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/assembly-delta-final/historical-harnesserror-01/review.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "copied_path": "historical-harnesserror-01/review_assembly_delta.py",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/assembly-delta-final/historical-harnesserror-01/review_assembly_delta.py",
+      "bytes": 27842,
+      "sha256": "b0e6d128952f1b04068afa1fd264d3fd2bb4223eeb538bf7b361a99c28394700"
+    },
+    {
+      "copied_path": "historical-harnesserror-02/review.stderr",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/assembly-delta-final/historical-harnesserror-02/review.stderr",
+      "bytes": 471,
+      "sha256": "1bb816c11eb26a78b6653fbc2139eb026b5f9020c8dc8041b9d9a596ffba7111"
+    },
+    {
+      "copied_path": "historical-harnesserror-02/review.stdout",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/assembly-delta-final/historical-harnesserror-02/review.stdout",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "copied_path": "historical-harnesserror-02/review_assembly_delta.py",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/assembly-delta-final/historical-harnesserror-02/review_assembly_delta.py",
+      "bytes": 28146,
+      "sha256": "4d46acdd41e745d66e7cb9707c7c856cfb7336cc46b8f73e6919f7ba26cda0c5"
+    },
+    {
+      "copied_path": "prior-assembly-review-c79.original.json",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/assembly-delta-final/prior-assembly-review-c79.original.json",
+      "bytes": 51942,
+      "sha256": "3c4e7a931a9fe76129f3d783106a2092e8655af3ce49ef68c00461115e28ae97"
+    },
+    {
+      "copied_path": "receipt.json",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/assembly-delta-final/receipt.json",
+      "bytes": 4638,
+      "sha256": "0c0a276cf8916e46cabbc901c0f85bb87592b81079414f85e626c768071e7fe9"
+    },
+    {
+      "copied_path": "release-independent-receipt-25ab.original.json",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/assembly-delta-final/release-independent-receipt-25ab.original.json",
+      "bytes": 5441,
+      "sha256": "db079d0493228f65fd0cb8c42cbb05b04d502fe41b49f3e1749f5e83cfbffe89"
+    },
+    {
+      "copied_path": "review.stderr",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/assembly-delta-final/review.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "copied_path": "review.stdout",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/assembly-delta-final/review.stdout",
+      "bytes": 388,
+      "sha256": "55bb29651bd94ab3bde463be5b6c5f8be32f47f5db19defa375dc26f4aa99be2"
+    },
+    {
+      "copied_path": "review_assembly_delta.py",
+      "source_path": "/workspace/e02-E-pr38-r2-receipts/assembly-delta-final/review_assembly_delta.py",
+      "bytes": 28871,
+      "sha256": "285fe230488bb0d6a753b31a4859e74a7d9d178c5632cf4843d84b077bc9a94e"
+    }
+  ],
+  "total_files": 18,
+  "total_bytes": 324364,
+  "scope": "Exact moderate assembly delta outputs and original primary receipts; no new numerical/backend/global wave; no source archive"
+}

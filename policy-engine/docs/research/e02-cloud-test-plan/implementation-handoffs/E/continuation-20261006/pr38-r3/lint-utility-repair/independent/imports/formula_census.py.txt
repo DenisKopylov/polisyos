@@ -1,0 +1,97 @@
+"""Compare guarded admission failures without assuming ordered NaN complements."""
+exec(open('/workspace/e02-E-pr38-r3-receipts/import-lint-independent/census.py').read().split('records=[];totals=')[0].replace("FINAL='90c6f82ab8c9ca056f69635487f299bea6245862'", "FINAL='f3ec0335e992fa7a5107000224f8ba6deefd02e5'"))
+
+def map_extra(old,new,mapping):
+ names={n.id for n in ast.walk(old) if isinstance(n,ast.Name)}
+ for n in ast.walk(new):
+  if isinstance(n,ast.Name) and n.id.startswith('observed_'):
+   if n.id in names:continue
+   suffix=n.id.removeprefix('observed_'); options={suffix,suffix.upper()}&names
+   if len(options)==1:mapping[n.id]=next(iter(options))
+ old_imports={};new_imports={}
+ for t,store in [(old,old_imports),(new,new_imports)]:
+  for n in ast.walk(t):
+   if isinstance(n,ast.ImportFrom):
+    for a in n.names:store[(n.module,a.name)]=a.asname or a.name
+ for key,name in old_imports.items():
+  if key in new_imports and new_imports[key]!=name:mapping[new_imports[key]]=name
+ if any(isinstance(n,ast.Name) and n.id=='A' for n in ast.walk(old)) and any(isinstance(n,ast.Name) and n.id=='observed_a' for n in ast.walk(new)):mapping['observed_a']='A'
+ return mapping
+class Normalize(ast.NodeTransformer):
+ def __init__(self,mapping):self.mapping=mapping
+ def visit_Name(self,n):n.id=self.mapping.get(n.id,n.id);return n
+ def visit_Compare(self,n):
+  self.generic_visit(n)
+  if len(n.ops)==1 and isinstance(n.ops[0],ast.LtE) and isinstance(n.left,ast.Constant) and n.left.value==0 and len(n.comparators)==1 and isinstance(n.comparators[0],ast.Name) and n.comparators[0].id=='samples':
+   n.left,n.comparators=n.comparators[0],[n.left];n.ops=[ast.GtE()]
+  return n
+ def visit_Call(self,n):
+  self.generic_visit(n)
+  if isinstance(n.func,ast.Name) and n.func.id=='set' and len(n.args)==1 and isinstance(n.args[0],ast.GeneratorExp):return ast.SetComp(elt=n.args[0].elt,generators=n.args[0].generators)
+  if isinstance(n.func,ast.Name) and n.func.id=='_resolve_executable' and len(n.args)==1 and isinstance(n.args[0],ast.Constant):return n.args[0]
+  if isinstance(n.func,ast.Name) and n.func.id=='dict' and not n.args and all(k.arg for k in n.keywords):return ast.Dict(keys=[ast.Constant(k.arg) for k in n.keywords],values=[k.value for k in n.keywords])
+  if isinstance(n.func,ast.Attribute) and n.func.attr in {'sha1','sha256'} and isinstance(n.func.value,ast.Name) and n.func.value.id=='hashlib':n.keywords=[k for k in n.keywords if k.arg!='usedforsecurity']
+  return n
+
+def expr(n,mapping):return Normalize(mapping).visit(copy.deepcopy(n))
+def formula(n,negative=False,mapping=None):
+ n=expr(n,mapping or {})
+ if isinstance(n,ast.UnaryOp) and isinstance(n.op,ast.Not):return formula(n.operand,not negative)
+ if isinstance(n,ast.BoolOp):
+  op='and' if isinstance(n.op,ast.And) else 'or'
+  if negative:op='or' if op=='and' else 'and'
+  values=[]
+  for v in n.values:
+   f=formula(v,negative)
+   values.extend(f[1:] if f[0]==op else [f])
+  return (op,*values)
+ if isinstance(n,ast.Compare) and len(n.ops)==1:
+  inverse={ast.NotEq:ast.Eq,ast.IsNot:ast.Is,ast.NotIn:ast.In}
+  if type(n.ops[0]) in inverse:n.ops=[inverse[type(n.ops[0])]()];negative=not negative
+ return ('not_atom' if negative else 'atom',dump(n))
+
+def and_form(values):
+ out=[]
+ for f in values:out.extend(f[1:] if f[0]=='and' else [f])
+ return out[0] if len(out)==1 else ('and',*out)
+
+def visit(tree):
+ records=[]
+ def walk(node,conditions,scope):
+  if isinstance(node,ast.FunctionDef):scope=scope+'.'+node.name;conditions=[]
+  if isinstance(node,ast.Assert):records.append(('assert',node,conditions,scope.lower()))
+  if isinstance(node,ast.Expr) and isinstance(node.value,ast.Call) and isinstance(node.value.func,ast.Name) and node.value.func.id=='_require_same_object':
+   call=node.value
+   if len(call.args)==2:records.append(('failure',ast.If(test=ast.Compare(left=call.args[0],ops=[ast.IsNot()],comparators=[call.args[1]]),body=[],orelse=[],lineno=node.lineno),conditions,scope.lower()))
+  if isinstance(node,ast.If):
+   if any(isinstance(x,ast.Raise) and (isinstance(x.exc,ast.Name) and x.exc.id=='AssertionError' or isinstance(x.exc,ast.Call) and isinstance(x.exc.func,ast.Name) and x.exc.func.id=='AssertionError') for x in node.body):records.append(('failure',node,conditions,scope.lower()))
+   for x in node.body:walk(x,conditions+[(node.test,False)],scope)
+   for x in node.orelse:walk(x,conditions+[(node.test,True)],scope)
+   return
+  for child in ast.iter_child_nodes(node):walk(child,conditions,scope)
+ walk(tree,[],'module');return records
+
+totals=collections.Counter();records=[]
+for path in paths:
+ before=blob(BASE,path);after=blob(FINAL,path);old=ast.parse(before);new=ast.parse(after);mapping=map_extra(old,new,mappings(old,new))
+ tests=visit(old); failures=visit(new); lookup=collections.defaultdict(list)
+ for kind,n,guards,scope in failures:
+  if kind!='failure':continue
+  f=and_form([formula(g,negative,mapping) for g,negative in guards]+[formula(n.test,mapping=mapping)])
+  lookup[(scope,str(f))].append(n)
+ rows=[]
+ for kind,n,guards,scope in tests:
+  if kind!='assert':continue
+  f=and_form([formula(g,negative) for g,negative in guards]+[formula(n.test,True)])
+  matches=lookup.get((scope,str(f)),[])
+  if matches:match=matches.pop(0);totals['matched']+=1;row={'old_line':n.lineno,'new_line':match.lineno,'class':'guarded_complement','old':ast.unparse(n.test),'candidate':ast.unparse(match.test)}
+  else:totals['unmatched']+=1;row={'old_line':n.lineno,'scope':scope,'class':'unmatched','old':ast.unparse(n.test),'old_guarded_formula':str(f)}
+  rows.append(row);totals['old_assertions']+=1
+ if rows:
+  records.append({'path':path,'renames':mapping,'rows':rows,'candidate_failures':[{'line':n.lineno,'scope':scope,'predicate':ast.unparse(n.test),'guards':[ast.unparse(g) for g,neg in guards]} for kind,n,guards,scope in failures if kind=='failure']})
+result={'schema':'policyos.e02.independent_guarded_predicate_census.v1','base':BASE,'candidate':FINAL,'utility_denominator':len(paths),'totals':dict(totals),'records':records,'limits':'Dict literal/builtin constructor and Git nonsecurity SHA1 flag are classified separately. Eq/NotEq normalized for existing plain structured/scalar observation domains, not arbitrary overloaded equality. Ordered comparisons remain literal, no NaN-based inversion assumed; control admission runtime checks are separate.'}
+(ROOT/'guarded-predicate-census.json').write_text(json.dumps(result,indent=2)+'\n')
+summary={k:v for k,v in result.items() if k!='records'}
+summary['unmatched']=[{**{k:v for k,v in r.items() if k not in ['rows','candidate_failures']},'rows':[x for x in r['rows'] if x['class']=='unmatched'],'candidate_failures':r['candidate_failures']} for r in records if any(x['class']=='unmatched' for x in r['rows'])]
+(ROOT/'guarded-complement-summary.json').write_text(json.dumps(summary,indent=2)+'\n')
+sys.stdout.write(json.dumps({k:v for k,v in summary.items() if k!='unmatched'},indent=2)+'\n')

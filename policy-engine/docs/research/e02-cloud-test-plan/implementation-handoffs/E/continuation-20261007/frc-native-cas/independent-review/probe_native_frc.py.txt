@@ -1,0 +1,126 @@
+"""Independent native ETS/CAS/S10 oracle and a content-resolution removal control."""
+from __future__ import annotations
+import argparse
+import dataclasses
+from datetime import UTC, datetime
+import hashlib
+import importlib
+import importlib.metadata
+import importlib.util
+import json
+from pathlib import Path
+import platform
+import subprocess
+import sys
+import time
+from types import SimpleNamespace
+from unittest.mock import patch
+
+parser=argparse.ArgumentParser();parser.add_argument('--ref',required=True);parser.add_argument('--output-dir',type=Path,required=True)
+args=parser.parse_args();ref=args.ref;out=args.output_dir;out.mkdir(parents=True,exist_ok=True)
+REPO=Path('/workspace/e02-E-frc-20261006');PREFIX='policy-engine/'
+def git(*a):return subprocess.check_output(['git','-C',str(REPO),*a])
+ref=git('rev-parse',ref).decode().strip()
+sys.path.insert(0,str(REPO/'policy-engine/src'));sys.path.insert(1,str(REPO/'policy-engine'))
+fixture_path='policy-engine/tests/_helpers/forecast.py'
+file=out/'configured_forecast_fixture.py';file.write_bytes(git('show',ref+':'+fixture_path))
+spec=importlib.util.spec_from_file_location('oracle_configured_forecast_fixture',file);fixture=importlib.util.module_from_spec(spec);spec.loader.exec_module(fixture)
+from polisyos.core import artifacts as core_artifacts, canon as core_canon
+from polisyos.calibration import load_empirical_calibration_evidence,load_forecast_candidate_receipt
+from polisyos.scientist.methods.backtesting.forecast_owner import ForecastOwner
+from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
+import polisyos.runtime.quality.generation_cycle as cycle
+
+started=time.monotonic(); cases=[];dispatches=[]
+def binding_inputs(request,fields):
+    return dict(candidate=SimpleNamespace(candidate_id='oracle-predictive-candidate'),problem=SimpleNamespace(design_problem_id='oracle-problem',outcome_of_interest=SimpleNamespace(target_variable=request.target_metric)),world_record=SimpleNamespace(world_model_record_id='oracle-world',content_hash='sha256:'+'a'*64,valid_time_scope='2026-Q1',region_or_jurisdiction='UA'),method_result=SimpleNamespace(output=fields),selected_method_fqn=request.method_fqn)
+
+def consume(request,fields,fresh,loader=None):
+    callback=loader or (lambda artifact:load_empirical_calibration_evidence(fresh,artifact))
+    return cycle.RealValueOwnerGateway(repo_root=fresh.root,empirical_evidence_resolver=callback).produce_forecast_inputs(**binding_inputs(request,fields))
+
+for label,holdout,expected_hits in [('healthy',[31.,32.,33.,34.],4),('floor_limited',[1000.]*4,0)]:
+    store=core_artifacts.FileSystemCAS(out/('CAS-'+label))
+    request,profile=fixture.configured_forecast_request(store,holdout)
+    native=MethodDispatcher.dispatch
+    def recording_dispatch(self,*a,**kw):
+        actual=native(self,*a,**kw)
+        signature=kw['signature']
+        dispatches.append({'case':label,'method_fqn':signature.fqn,'method_class':kw['method_class'].__module__+'.'+kw['method_class'].__qualname__,'seed':kw['seed'],'backend':actual.reproducibility.backend.value})
+        return actual
+    with patch.object(MethodDispatcher,'dispatch',recording_dispatch):
+        result=ForecastOwner(store,empirical_profile_ref=profile).run(request)
+    assert len(dispatches)>0
+    fresh=core_artifacts.FileSystemCAS(store.root)
+    receipt=load_forecast_candidate_receipt(fresh,result.candidate_receipt_ref)
+    empirical=load_empirical_calibration_evidence(fresh,result.empirical_evidence_ref)
+    assert result.candidate_receipt_ref.artifact_id!=result.empirical_evidence_ref.artifact_id
+    assert receipt.empirical_evidence_ref==result.empirical_evidence_ref
+    snapshot=core_canon.from_canonical_bytes(fresh.get_bytes(request.observed_source_ref.artifact_id))
+    all_rows=core_canon.from_canonical_bytes(fresh.get_bytes(snapshot['data_ref']['artifact_id']))['metric']
+    train=list(map(float,all_rows[:30]));actual=list(map(float,all_rows[30:34]))
+    # Derive the exact noise-free linear fixture forecast independently of ETS,
+    # backtest comparison rows, empirical hit accounting, and producer flags.
+    slope=train[-1]-train[-2]
+    expected_points=[train[-1]+lead*slope for lead in range(1,5)]
+    assert expected_points==[31.,32.,33.,34.]
+    bundle=core_canon.from_canonical_bytes(fresh.get_bytes(result.uncertainty_bundle_ref.artifact_id))
+    intervals=sorted(bundle['prediction_interval'],key=lambda v:v['horizon'])
+    bounds=[(float(v['lower']),float(v['upper'])) for v in intervals]
+    assert bounds==[(v,v) for v in expected_points]
+    hits=sum(1 for observed,(lo,hi) in zip(actual,bounds,strict=True) if lo<=observed<=hi)
+    assert hits==expected_hits
+    assert (empirical.recomputed_numerator,empirical.recomputed_denominator)==(hits,4)
+    assert receipt.verifier_provenance=='not_established'
+    assert receipt.authority_scope=='predictive_only'
+    assert result.bridge_status=='bridge_pending'
+    fields=result.to_s10_input_fields(fresh)
+    inputs=consume(request,fields,fresh)
+    record=inputs['forecast_calibration_record'];support=inputs['forecast_support']
+    assert record is not None
+    assert (record.numerator,record.denominator)==(hits,4)
+    assert {'causal_effect_authority','treatment_assignment_authority','s10_authority'}<=set(record.may_not_use_for)
+    for role,role_time in request.temporal_roles.model_dump().items():
+        assert getattr(record,role)==role_time==getattr(empirical,role)
+    assert len(set(request.temporal_roles.model_dump().values()))==6
+    again=consume(request,result.to_s10_input_fields(core_artifacts.FileSystemCAS(store.root)),core_artifacts.FileSystemCAS(store.root))
+    assert again['forecast_calibration_record']==record
+    cases.append({'case':label,'outcome':'PASS','expected_points':expected_points,'actual_source_holdout':actual,'issued_intervals':bounds,'manual_hits':hits,'denominator':4,'candidate_ref':result.candidate_receipt_ref.model_dump(mode='json'),'empirical_ref':result.empirical_evidence_ref.model_dump(mode='json'),'six_roles':request.temporal_roles.model_dump(mode='json'),'unit':result.measurement_binding.model_dump(mode='json'),'consumer_tier':support.forecast_tier,'consumer_limitations':support.s6_limitation_refs,'consumer_disposition_reason':support.forecast_authority_disposition_reason,'producer_failure_codes':list(empirical.failure_codes),'default_HTTP_verified':False})
+    if label=='healthy':
+        good_request,good_result,good_fields,good_store,good_evidence=request,result,fields,fresh,empirical
+
+for defect,reason in [('missing_ref','empirical_evidence_ref_missing'),('unresolved_ref','empirical_evidence_ref_unresolved'),('wrong_kind','empirical_evidence_ref_kind_mismatch'),('wrong_time','empirical_evidence_time_mismatch'),('wrong_rule','empirical_evidence_rule_mismatch')]:
+    fields=dict(good_fields)
+    if defect=='missing_ref':fields['empirical_calibration_evidence_ref']=None
+    elif defect=='unresolved_ref':fields['empirical_calibration_evidence_ref']=good_result.empirical_evidence_ref.model_copy(update={'artifact_id':'sha256:'+'f'*64})
+    elif defect=='wrong_kind':fields['empirical_calibration_evidence_ref']=good_result.backtest_report_ref
+    elif defect=='wrong_time':fields['temporal_roles']=good_request.temporal_roles.model_copy(update={'observation_time':datetime(2025,1,1,tzinfo=UTC)})
+    else:fields['expected_rule_version_ref']='wrong-rule'
+    inputs=consume(good_request,fields,core_artifacts.FileSystemCAS(good_store.root))
+    assert inputs['forecast_calibration_record'] is None
+    support=inputs['forecast_support'];assert support.forecast_tier=='blocked'
+    assert support.s6_limitation_refs==['s10://calibration/fail-closed/'+reason]
+    cases.append({'case':defect,'outcome':'PASS','record':None,'tier':support.forecast_tier,'reason':reason,'S6':support.s6_limitation_refs,'disposition_reason':support.forecast_authority_disposition_reason})
+
+# Keep the exact fake content-addressed reference and all rule/time/measurement
+# markers; replace only actual CAS resolution with an already loaded good object.
+fake_fields=dict(good_fields)
+fake_fields['empirical_calibration_evidence_ref']=good_result.empirical_evidence_ref.model_copy(update={'artifact_id':'sha256:'+'f'*64})
+removed=consume(good_request,fake_fields,good_store,loader=lambda artifact:good_evidence)
+try:
+    assert removed['forecast_calibration_record'] is None,'CAS resolution removed: present-but-fake ref minted a calibration record'
+except AssertionError as exc:
+    removal={'outcome':'PASS','negative_gate_outcome':'FAIL','assertion':str(exc),'fake_ref_present':True,'markers_preserved':['candidate_receipt_ref','method_ref','rule_ref','six_temporal_roles','measurement_binding','predictive_denials'],'record_minted':removed['forecast_calibration_record'] is not None,'scope':'faulty injected resolver deliberately bypasses CAS; does not claim trusted A default verifier'}
+else:
+    raise AssertionError('CAS resolution removal negative is ineffective')
+
+critical=['src/polisyos/scientist/methods/backtesting/forecast_owner.py','src/polisyos/calibration/forecast_bridge.py','src/polisyos/runtime/quality/generation_cycle.py','src/polisyos/foundry/methods/catalog/forecasting/univariate.py','src/polisyos/foundry/methods/backends/dispatch.py','src/polisyos/core/__init__.py','src/polisyos/core/artifacts/__init__.py','src/polisyos/core/canon/__init__.py']
+bindings=[]
+for relative in critical:
+    p=REPO/'policy-engine'/relative
+    if not p.exists():continue
+    path='policy-engine/'+relative;data=p.read_bytes();assert data==git('show',ref+':'+path)
+    bindings.append({'path':path,'git_blob':git('rev-parse',ref+':'+path).decode().strip(),'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()})
+report={'schema':'policyos.e02.independent_oracle.v1','candidate_sha':ref,'candidate_tree':git('rev-parse',ref+'^{tree}').decode().strip(),'complete_cases':cases,'case_count':len(cases),'property_removal':removal,'real_method_dispatches':dispatches,'runtime_source_bindings':bindings,'fixture_input':{'path':fixture_path,'git_blob':git('rev-parse',ref+':'+fixture_path).decode().strip(),'sha256':hashlib.sha256(file.read_bytes()).hexdigest()},'environment':{'python':sys.version,'platform':platform.platform(),'packages':{n:importlib.metadata.version(n) for n in ['NumPy','SciPy','pydantic']}},'elapsed_seconds':time.monotonic()-started,'predicate_basis':'recomputed and independently_reconciled source-row/linear-response oracle','limitations':['Synthetic admitted predictive profile threshold .8 is a fixture, not trusted issuer/profile authority.','Native configured gateway freshCAS proves bounded producer/reader handoff; A default/HTTP persisted verifier remains owner work.','Unpatched missing-ref/floor reason propagation tested separately as expected FAIL; packet overlay PASS is not an applied A fix.','All causal/treatment/policy authority remains denied.']}
+(out/'native-fRC-review-results.json').write_text(json.dumps(report,indent=2,default=str)+'\n')
+print(json.dumps({'sha':ref,'cases':len(cases),'outcome':'PASS','removal':removal,'actual_method_dispatches':len(dispatches)},indent=2))

@@ -1,0 +1,48 @@
+Semantic docstring quality report
+- inspected public symbols: 11285
+- semantic docstring coverage (all subjects): 8785/11285 (77.8%)
+- semantic docstring coverage (public surface): 7200/7366 (97.7%)
+- placeholder violations: 22
+- packages needing second pass:
+  - polisyos.foundry: 847
+  - polisyos.fabric: 518
+  - polisyos.scientist: 469
+  - polisyos.core: 268
+  - polisyos.ir: 218
+  - polisyos.data_forge: 60
+  - polisyos.lex: 39
+  - polisyos.berl: 32
+  - polisyos.runtime: 29
+  - polisyos.scholar: 12
+  - polisyos.corpus: 1
+  - polisyos.data_requirement: 1
+  - polisyos.legal_requirement: 1
+  - polisyos.method_requirement: 1
+  - polisyos.obligation_graph: 1
+  - polisyos.pdc: 1
+  - polisyos.policy_grammar: 1
+  - polisyos.scholar_requirement: 1
+
+Placeholder docstrings:
+- src/polisyos/ir/analytics/abstraction.py:1: polisyos.ir.analytics.abstraction [module] placeholder summary matches a banned generic docstring pattern; summary='Public analytics abstraction module API.'; source=docs:reference/ir/analytics.md
+- src/polisyos/ir/analytics/abstraction.py:788: polisyos.ir.analytics.abstraction.persist_abstraction_certificate [function] placeholder summary matches a banned generic docstring pattern; summary='Persist abstraction certificate helper.'; source=docs:reference/ir/analytics.md -> persist_abstraction_certificate
+- src/polisyos/ir/analytics/abstraction.py:758: polisyos.ir.analytics.abstraction.persist_finite_state_abstraction_map [function] placeholder summary matches a banned generic docstring pattern; summary='Persist finite state abstraction map helper.'; source=docs:reference/ir/analytics.md -> persist_finite_state_abstraction_map
+- src/polisyos/scientist/nodes/components.py:27: polisyos.scientist.nodes.components.ScientistNodeComponent.create [method] placeholder summary matches a banned generic docstring pattern; summary='Instantiate the host-side node implementation.'; source=docs:reference/scientist/nodes.md -> ScientistNodeComponent
+- src/polisyos/core/observability/determinism.py:47: polisyos.core.observability.determinism.parse_determinism_tier [function] placeholder summary matches a banned generic docstring pattern; summary='Parse determinism tier helper.'; source=facade:polisyos.core -> parse_determinism_tier
+- src/polisyos/data_forge/domains/ukraine/sharding.py:22: polisyos.data_forge.domains.ukraine.sharding.UkraineLexShardEntry [class] placeholder summary matches a banned generic docstring pattern; summary='One shard entry emitted by the NPA pre-sharding helper.'; source=facade -> UkraineLexShardEntry
+- src/polisyos/data_forge/domains/ukraine/sharding.py:72: polisyos.data_forge.domains.ukraine.sharding.infer_lex_snapshot_label [function] placeholder summary matches a banned generic docstring pattern; summary='Infer the snapshot suffix used by the pre-sharding helper.'; source=facade -> infer_lex_snapshot_label
+- src/polisyos/fabric/ingestion/ingestion.py:199: polisyos.fabric.ingestion.ingestion.ConnectorManifestSpec [class] placeholder summary matches a banned generic docstring pattern; summary='Connector manifest spec data model.'; source=facade -> ConnectorManifestSpec
+- src/polisyos/fabric/ingestion/ingestion.py:158: polisyos.fabric.ingestion.ingestion.DatasetFetchSpec [class] placeholder summary matches a banned generic docstring pattern; summary='Dataset fetch spec data model.'; source=facade -> DatasetFetchSpec
+- src/polisyos/fabric/connectors/ingestion/connectors_ingestion.py:23: polisyos.fabric.connectors.ingestion.connectors_ingestion.run [function] placeholder summary matches a banned generic docstring pattern; summary='Run helper.'; source=facade -> run
+- src/polisyos/fabric/identity/segment_manifest.py:11: polisyos.fabric.identity.segment_manifest.write_segment_manifest [function] placeholder summary matches a banned generic docstring pattern; summary='Write segment manifest helper.'; source=facade -> write_segment_manifest
+- src/polisyos/fabric/trust/adapter.py:15: polisyos.fabric.trust.adapter.envelope_from_trust_bounds [function] placeholder summary matches a banned generic docstring pattern; summary='Envelope from trust bounds helper.'; source=facade -> envelope_from_trust_bounds
+- src/polisyos/fabric/trust/trust.py:49: polisyos.fabric.trust.trust.persist_uncertainty_bounds [function] placeholder summary matches a banned generic docstring pattern; summary='Persist uncertainty bounds helper.'; source=facade -> persist_uncertainty_bounds
+- src/polisyos/fabric/trust/trust.py:14: polisyos.fabric.trust.trust.two_pass_compare [function] placeholder summary matches a banned generic docstring pattern; summary='Two pass compare helper.'; source=facade -> two_pass_compare
+- src/polisyos/fabric/trust/trust.py:27: polisyos.fabric.trust.trust.two_pass_compare_with_envelope [function] placeholder summary matches a banned generic docstring pattern; summary='Two pass compare with envelope helper.'; source=facade -> two_pass_compare_with_envelope
+- src/polisyos/scientist/compute/job_spec.py:66: polisyos.scientist.compute.job_spec.JobResult [class] placeholder summary matches a banned generic docstring pattern; summary='Job result data model.'; source=facade -> JobResult
+- src/polisyos/scientist/compute/job_spec.py:14: polisyos.scientist.compute.job_spec.JobSpec [class] placeholder summary matches a banned generic docstring pattern; summary='Job spec data model.'; source=facade -> JobSpec
+- src/polisyos/scientist/feedback/core.py:160: polisyos.scientist.feedback.core.DecisionFeedbackService [class] placeholder summary matches a banned generic docstring pattern; summary='Decision feedback service implementation.'; source=facade -> DecisionFeedbackService
+- src/polisyos/scientist/replay/backend.py:70: polisyos.scientist.replay.backend.ReplayBackendResult [class] placeholder summary matches a banned generic docstring pattern; summary='Replay backend result data model.'; source=facade -> ReplayBackendResult
+- src/polisyos/scientist/replay/verification.py:170: polisyos.scientist.replay.verification.persist_replay_verification_report [function] placeholder summary matches a banned generic docstring pattern; summary='Persist replay verification report helper.'; source=facade -> persist_replay_verification_report
+- src/polisyos/scientist/replay/backend.py:115: polisyos.scientist.replay.backend.replay_packet [function] placeholder summary matches a banned generic docstring pattern; summary='Replay packet helper.'; source=facade -> replay_packet
+- src/polisyos/scientist/replay/verification.py:201: polisyos.scientist.replay.verification.verify_and_persist_replay_bundle [function] placeholder summary matches a banned generic docstring pattern; summary='Verify and persist replay bundle helper.'; source=facade -> verify_and_persist_replay_bundle

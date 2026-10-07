@@ -1,0 +1,49 @@
+{
+  "schema": "policyos.e02.closed_generated_site_cleanup_result.v1",
+  "admission": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci11-generated-site/cleanup-admission.json",
+    "bytes": 20196243,
+    "sha256": "4b2633e4ceb11c601f77d7aee186038fb07c2af1cf810fe967f77b5fd92bcc9a"
+  },
+  "exact_removed_child": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch/prepared-64d7444a18c5-doe/ci-11/mkdocs-site",
+  "started_unix": 1791371581.4878318,
+  "ended_unix": 1791371581.790362,
+  "filesystem_before": {
+    "observed_unix": 1791371581.4878294,
+    "total_bytes": 33770192896,
+    "free_bytes": 5514969088,
+    "available_bytes": 3780206592
+  },
+  "filesystem_after": {
+    "observed_unix": 1791371581.7615337,
+    "total_bytes": 33770192896,
+    "free_bytes": 6158262272,
+    "available_bytes": 4423499776
+  },
+  "observed_free_delta_bytes": 643293184,
+  "observed_available_delta_bytes": 643293184,
+  "classifications": {
+    "native_repeatable_mkdocs_rendered_html_or_generated_search_index": {
+      "files": 1437,
+      "bytes": 372553999
+    },
+    "exact_duplicate_of_preserved_tracked_source_blob": {
+      "files": 5288,
+      "bytes": 244645092
+    },
+    "unbound_nonrendered_asset_preserved_byte_exact_before_cleanup": {
+      "files": 54,
+      "bytes": 2956735
+    }
+  },
+  "preserved_unbound_nonrendered_asset_count": 54,
+  "preserved_unbound_nonrendered_asset_bytes": 2956735,
+  "full_unique_artifact_preservation_refs_in_admission": true,
+  "source_code_useful_docs_Git_and_registrations_untouched": true,
+  "ROOT_DoE_envs_cache_numeric_basetemps_untouched_by_this_action": true,
+  "concurrent_parent_environment_install_note": "Authorized ROOT backend prerequisite install lease may proceed separately; this cleanup does not claim environment metadata unchanged across that independent mutation.",
+  "all_original_native_outputs_unchanged": true,
+  "native_outcome_unchanged": "FAIL",
+  "source_SHA": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "source_tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d"
+}

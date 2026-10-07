@@ -1,0 +1,284 @@
+#!/usr/bin/env python3
+"""Record immutable changed-Python inputs; never execute a Ruff/format gate."""
+from __future__ import annotations
+import argparse
+import csv
+import hashlib
+import io
+import json
+from pathlib import Path, PurePosixPath
+import re
+import shutil
+import subprocess
+import sys
+import tomllib
+
+BASE = '198076863e143dea9f89f02734b13d50dae3eed5'
+E02 = 'policy-engine/docs/research/e02-cloud-test-plan/'
+MANIFEST = E02 + 'execution-organization/bundle-owners.tsv'
+FINDING_OWNERS = E02 + 'execution-organization/finding-owners.tsv'
+SHA = re.compile(r'[0-9a-f]{40}')
+SOURCE_HANDOFFS = [E02 + 'implementation-handoffs/' + name for name in ('E/pcl-configured-consumer-20261006.json', 'E/backtest-native-default-replay-r2.json', 'E/doe-ordered-20261006.json', 'E/core-import-route-r3.json', 'B/current-durability-settlement.json', 'B/current-durability.json')]
+
+
+def admit_sha(value: object) -> str:
+    if not isinstance(value, str) or SHA.fullmatch(value) is None:
+        raise ValueError('An exact lowercase 40-hex commit SHA is required before Git callbacks')
+    return value
+
+
+def admit_path(value: object) -> str:
+    if not isinstance(value, str) or not value or '\0' in value or '\n' in value or '\t' in value:
+        raise ValueError('A canonical repository-relative path is required')
+    path = PurePosixPath(value)
+    if path.is_absolute() or not path.parts or '..' in path.parts or value.startswith('-') or str(path) != value:
+        raise ValueError('Path is not canonical repository relative')
+    return value
+
+
+def parse_changes(raw: bytes) -> list[dict[str, str]]:
+    fields = raw.decode('utf-8').split('\0')
+    if fields.pop() != '' or len(fields) % 2:
+        raise ValueError('Malformed NUL-separated Git diff')
+    rows = []
+    for offset in range(0, len(fields), 2):
+        status, path = fields[offset:offset + 2]
+        if status not in {'A', 'M', 'D', 'T'}:
+            raise ValueError('Unexpected diff status with --no-renames')
+        rows.append({'status': status, 'path': admit_path(path)})
+    return rows
+
+
+def parse_tree(raw: bytes) -> dict[str, dict[str, str]]:
+    result = {}
+    for item in raw.split(b'\0'):
+        if not item:
+            continue
+        header, raw_path = item.split(b'\t', 1)
+        mode, kind, object_id = header.decode('ascii').split(' ')
+        path = admit_path(raw_path.decode('utf-8'))
+        if path in result or SHA.fullmatch(object_id) is None:
+            raise ValueError('Invalid/duplicate tree entry')
+        result[path] = {'mode': mode, 'kind': kind, 'object_id': object_id}
+    return result
+
+
+def select_python(changes: list[dict[str, str]], tree: dict[str, dict[str, str]]) -> tuple[list[dict[str, str]], list[dict[str, str]], list[dict[str, str]]]:
+    selected, deleted, non_python = [], [], []
+    for record in changes:
+        path = admit_path(record['path'])
+        if not path.endswith('.py'):
+            non_python.append(record)
+            continue
+        if record['status'] == 'D':
+            if path in tree:
+                raise ValueError('Deleted path unexpectedly exists in candidate tree')
+            deleted.append(record)
+            continue
+        entry = tree.get(path)
+        if entry is None or entry['kind'] != 'blob' or entry['mode'] not in {'100644', '100755'}:
+            raise ValueError('Changed Python path is absent or not a regular candidate blob')
+        selected.append({**record, **entry})
+    if len({row['path'] for row in selected}) != len(selected):
+        raise ValueError('Duplicate Python denominator input')
+    return selected, deleted, non_python
+
+
+def batch_blobs(repo: Path, executable: str, object_ids: list[str]) -> dict[str, bytes]:
+    unique = sorted(set(object_ids))
+    if any(SHA.fullmatch(item) is None for item in unique):
+        raise ValueError('Whole blob set must be admitted before Git callback')
+    output = subprocess.run([executable, 'cat-file', '--batch'], cwd=repo, input=('\n'.join(unique) + '\n').encode(), capture_output=True, check=True).stdout
+    result = {}
+    offset = 0
+    for expected in unique:
+        end = output.index(b'\n', offset)
+        object_id, kind, count = output[offset:end].decode().split(' ')
+        if object_id != expected or kind != 'blob':
+            raise ValueError('Git batch object identity differs')
+        start = end + 1
+        stop = start + int(count)
+        result[expected] = output[start:stop]
+        if len(result[expected]) != int(count) or output[stop:stop + 1] != b'\n':
+            raise ValueError('Truncated Git blob')
+        offset = stop + 1
+    if offset != len(output):
+        raise ValueError('Trailing Git batch bytes')
+    return result
+
+
+def live_snapshot(path: Path, repo: Path, stored: bytes) -> dict[str, object]:
+    present = path.is_file() and path.resolve().is_relative_to(repo.resolve())
+    live = path.read_bytes() if present else None
+    return {'live_exists': present, 'live_sha256': hashlib.sha256(live).hexdigest() if live is not None else None, 'live_equals_candidate': live == stored}
+
+
+def classify_kind(path: str) -> str:
+    if path.startswith('policy-engine/src/'):
+        return 'production_source'
+    if path.startswith('policy-engine/tests/'):
+        return 'test_or_test_companion'
+    return 'publication_or_verification_utility'
+
+
+def classify_writer(path: str, bundles: dict[str, dict[str, str]], claims: dict[str, list[dict[str, object]]] | None = None) -> dict[str, object]:
+    if claims and path in claims:
+        units = sorted({row['unit'] for row in claims[path]})
+        return {'writer': units[0] if len(units) == 1 else None, 'source_implementation_claims': claims[path], 'canonical_product_writer': 'D' if '/methods/search/' in path or '/methods/autotune/' in path else None, 'basis': 'Exact changed_paths in the specifically selected committed source handoffs; historical source scope is separate from canonical product authority', 'attribution': 'source_footprint' if len(units) == 1 else 'not_established'}
+    if path.startswith(E02 + 'implementation-handoffs/'):
+        unit = path[len(E02 + 'implementation-handoffs/'):].split('/', 1)[0]
+        if unit in {'A', 'B', 'C', 'D', 'E', 'F'}:
+            return {'writer': unit, 'basis': 'Publication path unit and explicit E-root publication writer lease; this does not transfer product ownership', 'canonical_product_writer': None}
+    name = PurePosixPath(path).stem
+    if path.startswith('policy-engine/tests/unit/remediation/') and name.startswith('test_'):
+        parts = name[5:].split('_')
+        if len(parts) >= 2:
+            bundle = parts[0].upper() + '-' + parts[1]
+            if bundle in bundles:
+                return {'writer': bundles[bundle]['unit'], 'bundle': bundle, 'writer_family': bundles[bundle]['initial_writer_family'], 'basis': MANIFEST + ' exact bundle row', 'canonical_product_writer': None}
+    normalized = path.replace('/test_', '/')
+    rules = [
+        ('/ir/analytics/calibration_diagnostics.py', 'E', ['PCL-01']),
+        ('/_helpers/forecast.py', 'E', ['FRC-01', 'BKT-01']),
+        ('/nodes/builtins/simulate/welfare_', 'E', ['UQP-01', 'CAL-06']),
+        ('/calibration/', 'E', ['CAL-01', 'CAL-06', 'FRC-01', 'PCL-01']),
+        ('/foundry/uncertainty/', 'E', ['UQP-01', 'UQS-01']),
+        ('/ddm/', 'E', ['DDM-01', 'DDM-02']),
+        ('/methods/backtesting/', 'E', ['BKT-01', 'BKT-04', 'FRC-02']),
+        ('/methods/doe/', 'E', ['DOE-01', 'DOE-02', 'DOE-03']),
+        ('/governance/backtest_matrix', 'E', ['BKT-02']),
+        ('/nodes/builtins/simulate/propagate_', 'E', ['UQP-01', 'CAL-06']),
+        ('/nodes/calibration_report_consumer.py', 'E', ['CAL-06']),
+        ('/lex/legal_evaluation/', 'F', ['LEX-01']),
+        ('/orchestration/engine/budget_', 'B', ['DUR-01']),
+        ('/core/artifacts/put_integrity_retry.py', 'B', ['CAS-01']),
+    ]
+    for fragment, unit, ids in rules:
+        if fragment in normalized:
+            return {'writer': unit, 'basis': 'Declared family mechanism/companion scope corroborated by full bundle-owner rows', 'bundles': [{'id': item, 'unit': bundles[item]['unit']} for item in ids if item in bundles], 'canonical_product_writer': None}
+    if '/runtime/http/services/control_plane_store.py' in path or '/runtime/http/test_control_plane_store.py' in path:
+        return {'writer': 'B', 'canonical_product_writer': None, 'basis': E02 + 'integration/checkpoint-10.json bound-control-handler-transaction-publication accepted B slice; candidate 4f71e8bbd95225c8d857b2123f7f2fe9fcc5071d'}
+    if '/methods/search/' in path or '/methods/autotune/' in path:
+        return {'writer': None, 'canonical_product_writer': 'D', 'basis': 'Default Search/autotune is D; exact current companion implementation attribution requires its source handoff', 'attribution': 'not_established'}
+    if '/common/async_tools' in path or '/common/test_async_tools' in path or '/foundry/execute/_internal/graph/' in path:
+        return {'writer': 'B', 'canonical_product_writer': None, 'basis': E02 + 'integration/checkpoint-09.json executor-callback-capacity accepted slice; source-path exact handoff remains the authority'}
+    if path.startswith(E02 + 'integration/'):
+        return {'writer': 'G', 'canonical_product_writer': None, 'basis': 'G integration publication/verification utility; no product authority inferred'}
+    return {'writer': None, 'canonical_product_writer': None, 'attribution': 'not_established', 'basis': 'Shared source or new companion requires its exact canonical writer/handoff; path appearance alone does not assign ownership'}
+
+
+def fingerprint(path: Path, repo: Path, tree: dict[str, dict[str, str]], blobs: dict[str, bytes]) -> dict[str, object]:
+    relative = path.relative_to(repo).as_posix()
+    raw = path.read_bytes()
+    entry = tree.get(relative)
+    stored = blobs[entry['object_id']] if entry and entry['kind'] == 'blob' else None
+    return {'path': relative, 'bytes': len(raw), 'sha256': hashlib.sha256(raw).hexdigest(), 'git_object_id': entry['object_id'] if entry else None, 'tracked_in_candidate': stored is not None, 'live_equals_candidate': raw == stored if stored is not None else False}
+
+
+def config_paths(repo: Path, selected: list[dict[str, str]]) -> list[Path]:
+    paths = set()
+    for row in selected:
+        directory = (repo / row['path']).parent
+        while directory.is_relative_to(repo):
+            for name in ('.ruff.toml', 'ruff.toml', 'pyproject.toml'):
+                path = directory / name
+                if not path.is_file():
+                    continue
+                value = tomllib.loads(path.read_text())
+                if name == 'pyproject.toml' and 'ruff' not in value.get('tool', {}):
+                    continue
+                paths.add(path)
+                configuration = value.get('tool', {}).get('ruff', {}) if name == 'pyproject.toml' else value
+                extended = configuration.get('extend')
+                while extended:
+                    path = (path.parent / extended).resolve()
+                    if not path.is_relative_to(repo) or not path.is_file():
+                        raise ValueError('Ruff extend escapes repository or is unavailable')
+                    paths.add(path)
+                    configuration = tomllib.loads(path.read_text())
+                    extended = configuration.get('extend')
+            if directory == repo:
+                break
+            directory = directory.parent
+    return sorted(paths)
+
+
+def record(repo: Path, base: str, candidate: str, python: Path) -> dict[str, object]:
+    # Admit the complete input record before any child callback.
+    base, candidate = admit_sha(base), admit_sha(candidate)
+    repo = repo.resolve()
+    if not repo.is_dir() or not (repo / 'AGENTS.md').is_file() or not python.is_absolute() or not python.is_file():
+        raise ValueError('Existing repository and absolute configured Python are required')
+    executable = shutil.which('git')
+    if executable is None:
+        raise ValueError('Git unavailable')
+    executable = str(Path(executable).resolve())
+    callbacks = []
+    def git(*arguments: str) -> bytes:
+        argv = [executable, *arguments]
+        result = subprocess.run(argv, cwd=repo, capture_output=True, check=True)
+        callbacks.append({'argv': argv, 'cwd': str(repo), 'exit_code': result.returncode, 'stdout_bytes': len(result.stdout), 'stdout_sha256': hashlib.sha256(result.stdout).hexdigest(), 'stderr': result.stderr.decode()})
+        return result.stdout
+    base_tree = git('rev-parse', '--verify', '--end-of-options', base + '^{tree}').decode().strip()
+    candidate_tree = git('rev-parse', '--verify', '--end-of-options', candidate + '^{tree}').decode().strip()
+    changes = parse_changes(git('diff', '--name-status', '--no-renames', '-z', base, candidate, '--'))
+    tree = parse_tree(git('ls-tree', '-r', '-z', candidate))
+    selected, deleted, other = select_python(changes, tree)
+    owners = [MANIFEST, FINDING_OWNERS, E02 + 'integration/checkpoint-09.json', E02 + 'integration/checkpoint-10.json', E02 + 'closure-decisions/E.md', *[path for path in SOURCE_HANDOFFS if path in tree]]
+    configs = config_paths(repo, selected)
+    needed = {row['object_id'] for row in selected}
+    for path in [*owners, *[p.relative_to(repo).as_posix() for p in configs]]:
+        entry = tree.get(path)
+        if entry and entry['kind'] == 'blob':
+            needed.add(entry['object_id'])
+    blobs = batch_blobs(repo, executable, sorted(needed))
+    bundle_entry = tree[MANIFEST]
+    bundles = {row['bundle_id']: row for row in csv.DictReader(io.StringIO(blobs[bundle_entry['object_id']].decode()), delimiter='\t')}
+    claims = {}
+    for relative in SOURCE_HANDOFFS:
+        if relative not in tree:
+            continue
+        receipt = json.loads(blobs[tree[relative]['object_id']])
+        for changed in receipt.get('changed_paths', []):
+            if isinstance(changed, str) and changed.endswith('.py'):
+                claims.setdefault(changed, []).append({'unit': receipt['unit'], 'handoff_path': relative, 'handoff_sha256': hashlib.sha256(blobs[tree[relative]['object_id']]).hexdigest(), 'canonical_writer_declaration': receipt.get('canonical_writer')})
+    rows, absent, divergent = [], [], []
+    for entry in selected:
+        path = repo / entry['path']
+        stored = blobs[entry['object_id']]
+        snapshot = live_snapshot(path, repo, stored)
+        present = snapshot['live_exists']
+        matches = snapshot['live_equals_candidate']
+        row = {**entry, 'kind': classify_kind(entry['path']), 'bytes': len(stored), 'sha256': hashlib.sha256(stored).hexdigest(), **snapshot, 'writer_attribution': classify_writer(entry['path'], bundles, claims)}
+        rows.append(row)
+        if not present: absent.append(entry['path'])
+        elif not matches: divergent.append(entry['path'])
+    outside_policy = [row['path'] for row in rows if not row['path'].startswith('policy-engine/')]
+    paths = [str(PurePosixPath(row['path']).relative_to('policy-engine')) for row in rows if row['live_exists'] and row['path'].startswith('policy-engine/')]
+    commands = [{'name': 'Ruff', 'argv': [str(python), '-m', 'ruff', 'check', '--output-format', 'json', *paths]}, {'name': 'format', 'argv': [str(python), '-m', 'ruff', 'format', '--check', *paths]}]
+    for command in commands:
+        command.update({'cwd': str(repo / 'policy-engine'), 'executed': False, 'check_status': 'UNRUN'})
+    statuses = {state: sum(row['status'] == state for row in rows) for state in ('A', 'M', 'T')}
+    head = git('rev-parse', 'HEAD').decode().strip()
+    return {'schema': 'policyos.e02.final_lint_denominator.v1', 'recorder_identity': {'path': str(Path(__file__).resolve()), 'bytes': Path(__file__).stat().st_size, 'sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest()}, 'repo_root': str(repo), 'base_sha': base, 'base_tree': base_tree, 'candidate_sha': candidate, 'candidate_tree': candidate_tree, 'observed_head': head, 'candidate_is_observed_head': head == candidate, 'full_git_delta_path_count': len(changes), 'python_candidate_path_count': len(rows), 'python_status_counts': statuses, 'rows': rows, 'deleted_python_paths': deleted, 'non_python_delta_path_count': len(other), 'absent_live_candidate_paths': absent, 'divergent_live_candidate_paths': divergent, 'outside_policy_engine_paths': outside_policy, 'configuration_inputs': [fingerprint(path, repo, tree, blobs) for path in configs], 'ownership_inputs': [{'path': name, 'git_object_id': tree[name]['object_id'], 'sha256': hashlib.sha256(blobs[tree[name]['object_id']]).hexdigest()} for name in owners], 'commands': commands, 'command_python_path_count': len(paths), 'input_binding_complete': not absent and not divergent and not outside_policy and head == candidate and all(fingerprint(path, repo, tree, blobs)['live_equals_candidate'] for path in configs), 'configuration_selector': 'Actual policy-engine cwd and per-directory discovery; no explicit --config override. An explicit root-config invocation from the repository root changes project-root/relative settings and is a separate selector.', 'git_callbacks': callbacks, 'global_Ruff_or_format_executed': False, 'finding_dispositions_changed': False}
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--repo', type=Path, required=True)
+    parser.add_argument('--base', default=BASE)
+    parser.add_argument('--candidate', required=True)
+    parser.add_argument('--python', type=Path, required=True)
+    parser.add_argument('--output', type=Path, required=True)
+    arguments = parser.parse_args()
+    # Validate output/input class before any subprocess, including malformed last refs.
+    admit_sha(arguments.base); admit_sha(arguments.candidate)
+    if not arguments.repo.is_absolute() or not arguments.output.is_absolute() or arguments.output.resolve().is_relative_to(arguments.repo.resolve()):
+        raise ValueError('Read-only recorder writes only to an absolute scratch path outside the repository')
+    result = record(arguments.repo, arguments.base, arguments.candidate, arguments.python)
+    arguments.output.parent.mkdir(parents=True, exist_ok=True)
+    arguments.output.write_text(json.dumps(result, indent=2, ensure_ascii=False) + '\n')
+    print(json.dumps({'candidate_sha': result['candidate_sha'], 'python_candidate_path_count': result['python_candidate_path_count'], 'command_python_path_count': result['command_python_path_count'], 'input_binding_complete': result['input_binding_complete'], 'global_Ruff_or_format_executed': False}))
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,266 @@
+{
+  "source": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+  "tree": "d5efa295c8af983a86a620a120ab091aae580db3",
+  "parent": "9147c06c0ec72083214f5ce32206f9aa01dc3a5b",
+  "original_slice_base": "3cc20af36297493aa8ba8fdc66f3810abadf81a2",
+  "disposition": "GO",
+  "observer_error_history": {
+    "public-bindings": "three initial reviewer observers used incorrect symbol/module assumptions: nonexistent BayesianFitEnvelopes (actual PersistedBayesianFit) and nonexistent IR contracts module (actual ir.registry.refs). All original errors and literal observer bytes retained. Final observer uses actual three declared fit exports and compares admitted Core contracts DTO to existing native definition without introducing a production private edge."
+  },
+  "scope": "bounded configured finite-corpus producer/readback/native E consumer and final output handle correction; code acceptance separate from finding decisions/global gates",
+  "delta_footprint": [
+    {
+      "change": "M",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "blob": "b2abde4969018769d81dbf41f249ca0eb82fb453",
+      "bytes": 24832,
+      "sha256": "09f3e98c821dd5aac616b0df7977e1c7019266cfd3e9a1cdd789ff653965472f",
+      "physicalGitEqual": true
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/tests/unit/scientist/nodes/test_bayesian_fit_consumer.py",
+      "blob": "a4da5f1f87cef67afd76033d43950fb7603f7b30",
+      "bytes": 34293,
+      "sha256": "a3c52aba86dcb0c219f6f47a876f90a02da460b2a346c726ca75b7ddec57594b",
+      "physicalGitEqual": true
+    }
+  ],
+  "independent_current_checks": {
+    "pytest": {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-s",
+        "tests/unit/scientist/nodes/test_bayesian_fit_consumer.py",
+        "-k",
+        "output_ref",
+        "--basetemp",
+        "/tmp/e02-E-fit-independent-77b4-20261007/pytest-base",
+        "--junitxml",
+        "/tmp/e02-E-fit-independent-77b4-20261007/pytest.junit.xml"
+      ],
+      "cwd": "/workspace/e02-E-cal-20261006/policy-engine",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-E-cal-20261006/policy-engine/src",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "POLISYOS_METRICS_PORT": "0",
+        "TMPDIR": "/tmp/e02-E-fit-independent-77b4-20261007/tmp"
+      },
+      "runner_interpreter": "/usr/bin/python3",
+      "runner_version": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]",
+      "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+      "started_epoch": 1791388196.4299538,
+      "wall_seconds": 28.878929615020752,
+      "returncode": 0,
+      "source_unchanged": true,
+      "environment_metadata_unchanged": true,
+      "metadata_record_count": 209,
+      "source": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+      "tree": "d5efa295c8af983a86a620a120ab091aae580db3"
+    },
+    "compat": {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/scientist/nodes/test_calibration_report_consumer.py",
+        "tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+        "-o",
+        "cache_dir=/tmp/e02-E-fit-independent-77b4-20261007/compat-cache",
+        "--basetemp",
+        "/tmp/e02-E-fit-independent-77b4-20261007/compat-fixture",
+        "--junitxml",
+        "/tmp/e02-E-fit-independent-77b4-20261007/compat.junit.xml"
+      ],
+      "cwd": "/workspace/e02-E-cal-20261006/policy-engine",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-E-cal-20261006/policy-engine/src",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "POLISYOS_METRICS_PORT": "0",
+        "TMPDIR": "/tmp/e02-E-fit-independent-77b4-20261007/tmp"
+      },
+      "runner_interpreter": "/usr/bin/python3",
+      "runner_version": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]",
+      "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+      "started_epoch": 1791388444.434494,
+      "wall_seconds": 20.061458349227905,
+      "returncode": 0,
+      "source_unchanged": true,
+      "environment_metadata_unchanged": true,
+      "metadata_record_count": 209,
+      "source": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+      "tree": "d5efa295c8af983a86a620a120ab091aae580db3"
+    },
+    "probe-output-ref": {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-E-fit-independent-77b4-20261007/probe_output_ref.py.txt"
+      ],
+      "cwd": "/workspace/e02-E-cal-20261006/policy-engine",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-E-cal-20261006/policy-engine/src",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "POLISYOS_METRICS_PORT": "0",
+        "TMPDIR": "/tmp/e02-E-fit-independent-77b4-20261007/tmp"
+      },
+      "runner_interpreter": "/usr/bin/python3",
+      "runner_version": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]",
+      "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+      "started_epoch": 1791388444.4346628,
+      "wall_seconds": 12.921127319335938,
+      "returncode": 0,
+      "source_unchanged": true,
+      "environment_metadata_unchanged": true,
+      "metadata_record_count": 209,
+      "source": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+      "tree": "d5efa295c8af983a86a620a120ab091aae580db3"
+    },
+    "probe-selected-ref": {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-E-fit-independent-77b4-20261007/probe_selected_ref.py.txt"
+      ],
+      "cwd": "/workspace/e02-E-cal-20261006/policy-engine",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-E-cal-20261006/policy-engine/src",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "POLISYOS_METRICS_PORT": "0",
+        "TMPDIR": "/tmp/e02-E-fit-independent-77b4-20261007/tmp"
+      },
+      "runner_interpreter": "/usr/bin/python3",
+      "runner_version": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]",
+      "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+      "started_epoch": 1791388444.4544854,
+      "wall_seconds": 11.585437536239624,
+      "returncode": 0,
+      "source_unchanged": true,
+      "environment_metadata_unchanged": true,
+      "metadata_record_count": 209,
+      "source": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+      "tree": "d5efa295c8af983a86a620a120ab091aae580db3"
+    },
+    "typing-current": {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/basedpyright",
+        "--project",
+        "/tmp/e02-E-fit-independent-77b4-20261007/pyright-current.json",
+        "--pythonpath",
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "--outputjson"
+      ],
+      "cwd": "/workspace/e02-E-cal-20261006/policy-engine",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-E-cal-20261006/policy-engine/src",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "POLISYOS_METRICS_PORT": "0",
+        "TMPDIR": "/tmp/e02-E-fit-independent-77b4-20261007/tmp"
+      },
+      "runner_interpreter": "/usr/bin/python3",
+      "runner_version": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]",
+      "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+      "started_epoch": 1791388444.4452174,
+      "wall_seconds": 8.593015432357788,
+      "returncode": 0,
+      "source_unchanged": true,
+      "environment_metadata_unchanged": true,
+      "metadata_record_count": 209,
+      "source": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+      "tree": "d5efa295c8af983a86a620a120ab091aae580db3"
+    },
+    "public-bindings-v4": {
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/tmp/e02-E-fit-independent-77b4-20261007/check_public_bindings_v4.py.txt"
+      ],
+      "cwd": "/workspace/e02-E-cal-20261006/policy-engine",
+      "environment": {
+        "PYTHONPATH": "/workspace/e02-E-cal-20261006/policy-engine/src",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "POLISYOS_METRICS_PORT": "0",
+        "TMPDIR": "/tmp/e02-E-fit-independent-77b4-20261007/tmp"
+      },
+      "runner_interpreter": "/usr/bin/python3",
+      "runner_version": "3.13.5 (main, Jul 15 2026, 20:25:40) [GCC 14.2.0]",
+      "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+      "started_epoch": 1791388624.5174894,
+      "wall_seconds": 9.206411600112915,
+      "returncode": 0,
+      "source_unchanged": true,
+      "environment_metadata_unchanged": true,
+      "metadata_record_count": 209,
+      "source": "77b4d68ec37e3f34b84ce4fd1787746e3d5f5322",
+      "tree": "d5efa295c8af983a86a620a120ab091aae580db3"
+    },
+    "output_ref_delta": {
+      "tests": 28,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    },
+    "existing_consumers": {
+      "tests": 23,
+      "errors": 0,
+      "failures": 0,
+      "skipped": 0
+    }
+  },
+  "original9147counterexample": {
+    "current": "REFUSED both HMC/NUTS",
+    "actual_old_IR_publisher": "REFUSED same literal kind/media discriminator",
+    "payload_and_CAS_hashes_unchanged_by_returned_handle_mutation": true,
+    "output_stage": "input and evaluator already ran successfully; one output-envelope write occurred before refusal. This is not pre-evaluator/callback-zero evidence."
+  },
+  "selected_view_compatibility": {
+    "current": "ADMITTED both HMC/NUTS",
+    "old": "ADMITTED",
+    "fresh_strict_simulation_reader": "ADMITTED",
+    "wire_keys": [
+      "artifact_id",
+      "kind",
+      "media_type"
+    ],
+    "declared_selected_manifest_resolved_before_stable3field_normalization": "actual source _admit_output_envelope_ref calls Core get_manifest/get_bytes/verify with revalidated complete raw CoreRef before normalization; healthy native spy supplies existing selected manifest",
+    "old_view_authority": "old IR wrapper normalized to three fields; no claim it previously consumed selected view"
+  },
+  "unchanged_profile_controls": {
+    "source": "9147c06c0ec72083214f5ce32206f9aa01dc3a5b",
+    "tests": 74,
+    "outcome": "PASS",
+    "reuse_basis": "complete bayesian_fit_bridge.py Git bytes exactly equal9147\u219277; actual supported-profile admission functions and all fixture/proxy corpus controls unchanged",
+    "literal_deciding_receipt": "/tmp/e02-E-fit-independent-9147-20261007/independent-review-9147.json",
+    "not_current74execution": true,
+    "author_historical_capture_loss": "author9147 original capture loss remains explicit; independent literal9147/74 source stdout/JUnit/input closure retained"
+  },
+  "property_removal": {
+    "actual_current_tests": 6,
+    "target": "sole _admit_output_envelope_ref RHS in execute",
+    "preserved_elsewhere": "actual writer/CAS/DTO/report source, markers and remaining predicates",
+    "actual_removed_outcomes": "node admits returned-kind, stored-schema and wrong-valid-content mutants for each backend; independent required-refusal property diverges"
+  },
+  "typing": {
+    "status": "PASS",
+    "summary": {
+      "filesAnalyzed": 2,
+      "errorCount": 0,
+      "warningCount": 0,
+      "informationCount": 0,
+      "timeInSec": 5.28
+    },
+    "original7owned_boundary_errors_repaired": true,
+    "scope": "two exact current bridge/node files and actual canonical declared package context; not global typing/P41 waiver"
+  },
+  "finding_disposition": "No automatic finding-status change. B194/B197 held source/evaluator/fit/noise authority limitations remain; bounded B201/B202 source acceptance and historicalledger/G intake separate. Finite corpus does not establish Bayesian mixing/convergence, posterior quality or uncertainty authority.",
+  "limitations": [
+    "No production data uploaded; configured tiny native fixture only.",
+    "Current output-ref selector itself regenerates tiny native HMC/NUTS producer fixtures; this is not an unchanged74 or broad numeric wave.",
+    "Public inventory/generated/runtime/API/architecture final source gates remain separate canonical G/Root checks.",
+    "Input manifests preserve requested source IDs; selected source profiles are explicitly refused by fit binding because MethodBackend discards them.",
+    "No source-law/noise/mixing/full hyperparameter replay authority is inferred.",
+    "Existing foreign/deep-import seams remain explicit owner packets, no exception baseline widened."
+  ],
+  "source_guard": "all command full tracked source frames exactly equal77 before/after; ROOT207 207 distribution METADATA+2 protected rows exactly unchanged, actual209row denominator"
+}

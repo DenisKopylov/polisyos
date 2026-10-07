@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-DoE-basis2824-independent/immutable-validator.py.txt", line 116, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/tmp/e02-E-DoE-basis2824-independent/immutable-validator.py.txt", line 79, in main
+    healthy=admit(args.repo,packet)
+            ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-DoE-basis2824-independent/immutable-validator.py.txt", line 59, in admit
+    if not remove_unknown_records:admit_unknown_authority_records(packet)
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-DoE-basis2824-independent/immutable-validator.py.txt", line 56, in admit_unknown_authority_records
+    require(type(record['check_status']) is str and record['check_status']==UNKNOWN_STATUS[name],'exact scoped unknown authority check status')
+  File "/tmp/e02-E-DoE-basis2824-independent/immutable-validator.py.txt", line 24, in require
+    if not ok:raise ValueError(why)
+              ^^^^^^^^^^^^^^^^^^^^^
+ValueError: exact scoped unknown authority check status

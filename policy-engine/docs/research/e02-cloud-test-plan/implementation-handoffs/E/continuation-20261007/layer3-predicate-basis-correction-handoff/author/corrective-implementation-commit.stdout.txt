@@ -1,0 +1,9 @@
+[codex/e02-E-doe-20261006 2824114d9] docs(e02-E): admit complete unknown predicate records
+ 11 files changed, 818 insertions(+), 4 deletions(-)
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/class-correction-receipt.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/historical-6b-independent-CHANGE_REQUIRED.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/historical-6b-metadata-controls.normal.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/historical-6b-metadata-controls.normal.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/historical-6b-metadata-controls.optimized.json
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/historical-6b-metadata-controls.optimized.stderr.txt
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction/historical-6b-validate_predicate_basis.py.txt

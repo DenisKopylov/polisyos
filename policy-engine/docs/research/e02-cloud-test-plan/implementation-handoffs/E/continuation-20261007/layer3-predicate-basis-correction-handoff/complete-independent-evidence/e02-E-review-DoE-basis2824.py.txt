@@ -1,0 +1,38 @@
+from pathlib import Path
+import json,hashlib,subprocess,copy,sys
+R=Path('/workspace/e02-E-doe-20261006');C='2824114d97d804b1894075ed8f78cb1c6a8a4076';BASE='6b6280d1e66edf26031568e8773e93726fde9928';PREFIX='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/layer3-predicate-basis-correction';D=Path('/tmp/e02-E-DoE-basis2824-independent');D.mkdir(exist_ok=True)
+def git(*args):return subprocess.check_output(['git',*args],cwd=R)
+def need(q,m):
+ if not q:raise ValueError(m)
+s=git('show',C+':'+PREFIX+'/validate_predicate_basis.py.txt').decode();packet=git('show',C+':'+PREFIX+'/predicate-basis-correction.json');need(packet==git('show',BASE+':'+PREFIX+'/predicate-basis-correction.json'),'original basis DTO bytes unchanged');j=json.loads(packet)
+(D/'immutable-validator.py.txt').write_text(s);(D/'healthy.json').write_bytes(packet);bad=copy.deepcopy(j);bad['authority_bounds']['full_native_fixture_outcome']['check_status']='PASS';(D/'old_escape_native_PASS.json').write_text(json.dumps(bad,indent=2)+'\n')
+rows=[]
+for mode in ['normal','optimized']:
+ for name in ['healthy','old_escape_native_PASS']:
+  args=[sys.executable]+(['-O'] if mode=='optimized' else [])+[str(D/'immutable-validator.py.txt'),'--repo',str(R),'--packet',str(D/(name+'.json'))];r=subprocess.run(args,capture_output=True)
+  (D/(mode+'-'+name+'.stdout.txt')).write_bytes(r.stdout);(D/(mode+'-'+name+'.stderr.txt')).write_bytes(r.stderr)
+  need((r.returncode==0)==(name=='healthy'),'actual publicCLI corrected outcome');rows.append({'mode':mode,'case':name,'argv':args,'exit_code':r.returncode,'stdout_path':str(D/(mode+'-'+name+'.stdout.txt')),'stderr_path':str(D/(mode+'-'+name+'.stderr.txt'))})
+def load(code):
+ ns={'__name__':'independent_read','__file__':str(D/'immutable-validator.py.txt')};exec(compile(code,str(D/'immutable-validator.py.txt'),'exec'),ns);return ns
+healthy=load(s)['admit'](R,j);mutants=[]
+for scope in j['authority_bounds']:
+ q=copy.deepcopy(j);q['authority_bounds'][scope]['check_status']='PASS';mutants.append((scope+'_false_PASS',q))
+for name,change in [('status_bool',lambda x:x.__setitem__('check_status',True)),('positive_zero',lambda x:x.__setitem__('positive_claim',0)),('extra_context',lambda x:x.__setitem__('trusted_authority',True)),('missing_status',lambda x:x.pop('check_status')),('invented_basis',lambda x:x.__setitem__('basis','recomputed')),('wrong_record_type',None)]:
+ q=copy.deepcopy(j)
+ if change:change(q['authority_bounds']['full_native_fixture_outcome'])
+ else:q['authority_bounds']['full_native_fixture_outcome']=[]
+ mutants.append((name,q))
+controls=[]
+for name,q in mutants:
+ ns=load(s);calls=[]
+ def forbidden(*a,**k):calls.append('input IO');raise RuntimeError('input IO before unknown-record admission')
+ ns['asset']=forbidden;ns['subprocess']=type('PureUnknownGuardObserver',(),{'run':staticmethod(forbidden)})()
+ try:ns['admit'](R,q)
+ except ValueError as e:need(not calls,'refusal before any evidenceGit/asset IO');controls.append({'case':name,'outcome':'refused before evidence IO','input_IO_callbacks':len(calls),'reason':str(e)})
+ else:raise ValueError('invalid raw claims admitted '+name)
+line=' if not remove_unknown_records:admit_unknown_authority_records(packet)';need(s.count(line)==1,'one shared property inlet');removed=s.replace(line,' pass # sole complete unknown record admission removed',1);(D/'effective-unknown-record-removal.py.txt').write_text(removed);v=load(removed)['admit'](R,bad);need(v['native_execution'] is False,'marker-preserving removal');paths=git('diff','--name-only',BASE,C).decode().splitlines();need(all(p.startswith(PREFIX) and not p.endswith('.py') for p in paths),'passive DOC delta only')
+# Prior111 output bodies preserved: path changes wholly outside original two packages.
+priorpaths=git('diff','--name-only','7537ef95beed07d02a3b72343b082ff3b7fd14e2','9d6c9fa14e082d067fd13f6e02d6b10b00547d89').decode().splitlines();need(len(priorpaths)==111,'prior111 footprint')
+for p in priorpaths:need(git('show',C+':'+p)==git('show','9d6c9fa14e082d067fd13f6e02d6b10b00547d89:'+p),'prior immutable DOC body changed')
+result={'schema':'policyos.e02.independent_P37_unknown_claim_class_delta_review.v1','outcome':'GO bounded typed unknown record admission','candidate':C,'tree':git('rev-parse',C+'^{tree}').decode().strip(),'base':BASE,'DOC_delta':len(paths),'passive_changed_paths':paths,'basis_DTO_byte_equal_prior6b':True,'prior111DOC_bytes_preserved':True,'healthy':healthy,'actual_publicCLI':rows,'pure_admission_controls':controls,'effective_removal':{'source_predicate':'sole complete shared unknown-record inlet','preserved_markers':'all10canonical bases/positive_claimfalse/exactrefs/native_executionfalse retained','actual_bad_nativePASS_re_admitted':v,'property_outcome':'FAIL'},'resolved_red':'Exact prior6b normal/-O actual CLI nativeUNRUN→PASS acceptance is now refused; all scoped authority fieldsets/types/status/positive context checked before evidence IO. Historical utility/control bytes retained.','source_numeric_native_global_execution':False,'qualification':'Only additive P37 research metadata/typed authority claims and prior DOC byte custody; actual full G fixture/native caller/complete input isolation/finding authority remains not_established/UNRUN. Existing native/helper receipts not rerun.'}
+p=D/'review.json';p.write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))

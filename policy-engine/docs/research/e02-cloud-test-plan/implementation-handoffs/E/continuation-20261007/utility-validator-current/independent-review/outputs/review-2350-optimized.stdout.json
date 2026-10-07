@@ -1,0 +1,340 @@
+{
+  "schema": "policyos.e02.independent_immutable_publication_utility_review.v1",
+  "outcome": "GO bounded utility source/metadata/actual CLI; scientific/global/finding outcomes unchanged",
+  "mode": "optimized",
+  "source": "2350edfba4e71909fbc615fe3101793b1b13945a",
+  "tree": "fb4486cb39dc44b1ef09ea1e280df8b640b772ba",
+  "base": "c29a58197a7a51f3605857e573de50a4f7a8da61",
+  "complete_source_footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/implementation-handoff-format-current.json",
+      "bytes": 76221,
+      "sha256": "1ceb6b24a4d0f2e034d8c5087224d5d7825f486549980f2bacc73791807e0e3b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/publication-copy-index-format-current.json",
+      "bytes": 72056,
+      "sha256": "ac1b554b926e7b08dfc904300b48106ec0b3f0ce87a4432c5d234fcb63aca1e5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/validate.py",
+      "bytes": 10661,
+      "sha256": "6f1e4c188a978b4da6298f3939e32ef71e9839bcf6eb77d41239b29f0ba57e3f"
+    }
+  ],
+  "source_sha256": "6f1e4c188a978b4da6298f3939e32ef71e9839bcf6eb77d41239b29f0ba57e3f",
+  "old_source_sha256": "21224439f7bc4d91e0fe0b5e447ea166e61bebf4d3f5ecbd29c1ca0dff5c5c0d",
+  "AST_review": {
+    "validate_copy_index_unchanged": true,
+    "validate_delta": "one complete source record admission entry call; obsolete late per-row guard removed",
+    "main_delta": "only explicit optional publication receipt selector +argparse import",
+    "remaining_function_bodies_unchanged": true
+  },
+  "current_index_only_changed_copy_record": [
+    {
+      "position": 0,
+      "before": {
+        "source_path": "/workspace/e02-E-pr38-r3-receipts/ir-profile/validate-publication-fixed.py",
+        "portable_path": "validate.py",
+        "bytes": 8355,
+        "sha256": "21224439f7bc4d91e0fe0b5e447ea166e61bebf4d3f5ecbd29c1ca0dff5c5c0d",
+        "custody": "exact current authored publication utility bytes; prior insufficient-summary-control utility preserved separately"
+      },
+      "after": {
+        "source_path": "/tmp/e02-E-validator-format-current-r4/current-preflight-validator.py.txt",
+        "portable_path": "validate.py",
+        "bytes": 10661,
+        "sha256": "6f1e4c188a978b4da6298f3939e32ef71e9839bcf6eb77d41239b29f0ba57e3f",
+        "custody": "current canonical formatting, explicit corrective-receipt CLI and whole source-record preflight; historical21224439 program/index remain immutable Git originals"
+      }
+    }
+  ],
+  "historical_file_count": 218,
+  "historical_bytes": 3348193,
+  "historical_inputs_byte_identical_before_after": true,
+  "actual_CLI": [
+    {
+      "name": "current",
+      "argv": [
+        "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+        "-B",
+        "-O",
+        "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/validate.py",
+        "--publication-receipt",
+        "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/implementation-handoff-format-current.json"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "exit_code": 0,
+      "stdout": {
+        "path": "/tmp/e02-E-validator-format-independent-r4/current-2350-optimized.stdout.txt",
+        "bytes": 821,
+        "sha256": "1f963e6ad42cd95c93ee9f4f0fb10d02832825bec93042bf1f1336edfd4415a5"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-validator-format-independent-r4/current-2350-optimized.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "healthy_and_corrupt_controls": {
+        "validation": "PASS",
+        "candidate": "700f9d5a5e2167787d7042ca11e1ef3bf80ced74",
+        "controls": [
+          {
+            "mutation": "output-hash",
+            "refused": true
+          },
+          {
+            "mutation": "output-size",
+            "refused": true
+          },
+          {
+            "mutation": "output-removed",
+            "refused": true
+          },
+          {
+            "mutation": "forged-count",
+            "refused": true
+          },
+          {
+            "mutation": "wrong-tree",
+            "refused": true
+          },
+          {
+            "mutation": "source-removed",
+            "refused": true
+          },
+          {
+            "mutation": "declared-output-count",
+            "refused": true
+          },
+          {
+            "mutation": "declared-output-bytes",
+            "refused": true
+          },
+          {
+            "mutation": "declared-path-count",
+            "refused": true
+          },
+          {
+            "mutation": "declared-python-count",
+            "refused": true
+          },
+          {
+            "mutation": "declared-changed-paths",
+            "refused": true
+          },
+          {
+            "mutation": "copy-index-hash",
+            "refused": true
+          },
+          {
+            "mutation": "copy-index-copied_files",
+            "refused": true
+          },
+          {
+            "mutation": "copy-index-copied_bytes",
+            "refused": true
+          }
+        ]
+      }
+    },
+    {
+      "name": "historical-default",
+      "argv": [
+        "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+        "-B",
+        "-O",
+        "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/validate.py"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "exit_code": 1,
+      "stdout": {
+        "path": "/tmp/e02-E-validator-format-independent-r4/historical-default-2350-optimized.stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-validator-format-independent-r4/historical-default-2350-optimized.stderr.txt",
+        "bytes": 1097,
+        "sha256": "8eadea254b052275568d72bad25f50d4803e8672c4ca7a8804dcc1375fbd1df4"
+      }
+    }
+  ],
+  "own_whole_source_object_controls": [
+    {
+      "case": "late-path-none",
+      "outcome": "PASS refusal",
+      "Git_callback_count": 0,
+      "reason": "invalid source path"
+    },
+    {
+      "case": "late-path-dot",
+      "outcome": "PASS refusal",
+      "Git_callback_count": 0,
+      "reason": "invalid source path"
+    },
+    {
+      "case": "late-path-bool",
+      "outcome": "PASS refusal",
+      "Git_callback_count": 0,
+      "reason": "invalid source path"
+    },
+    {
+      "case": "late-path-parent",
+      "outcome": "PASS refusal",
+      "Git_callback_count": 0,
+      "reason": "invalid source path"
+    },
+    {
+      "case": "late-path-empty-segment",
+      "outcome": "PASS refusal",
+      "Git_callback_count": 0,
+      "reason": "invalid source path"
+    },
+    {
+      "case": "late-path-dot-segment",
+      "outcome": "PASS refusal",
+      "Git_callback_count": 0,
+      "reason": "invalid source path"
+    },
+    {
+      "case": "late-path-backslash",
+      "outcome": "PASS refusal",
+      "Git_callback_count": 0,
+      "reason": "invalid source path"
+    },
+    {
+      "case": "late-path-NUL",
+      "outcome": "PASS refusal",
+      "Git_callback_count": 0,
+      "reason": "invalid source path"
+    },
+    {
+      "case": "late-size-bool",
+      "outcome": "PASS refusal",
+      "Git_callback_count": 0,
+      "reason": "invalid source footprint hash/size"
+    },
+    {
+      "case": "late-size-negative",
+      "outcome": "PASS refusal",
+      "Git_callback_count": 0,
+      "reason": "invalid source footprint hash/size"
+    },
+    {
+      "case": "late-digest-bool",
+      "outcome": "PASS refusal",
+      "Git_callback_count": 0,
+      "reason": "invalid source footprint hash/size"
+    },
+    {
+      "case": "late-digest-short",
+      "outcome": "PASS refusal",
+      "Git_callback_count": 0,
+      "reason": "invalid source footprint hash/size"
+    },
+    {
+      "case": "late-row-none",
+      "outcome": "PASS refusal",
+      "Git_callback_count": 0,
+      "reason": "invalid source footprint record"
+    },
+    {
+      "case": "footprint-dict",
+      "outcome": "PASS refusal",
+      "Git_callback_count": 0,
+      "reason": "invalid source footprint payload"
+    },
+    {
+      "case": "changed-last-none",
+      "outcome": "PASS refusal",
+      "Git_callback_count": 0,
+      "reason": "invalid source path"
+    },
+    {
+      "case": "changed-path-duplicate",
+      "outcome": "PASS refusal",
+      "Git_callback_count": 0,
+      "reason": "source footprint summary mismatch"
+    },
+    {
+      "case": "candidate-option",
+      "outcome": "PASS refusal",
+      "Git_callback_count": 0,
+      "reason": "source identity must be an exact SHA1"
+    },
+    {
+      "case": "base-none",
+      "outcome": "PASS refusal",
+      "Git_callback_count": 0,
+      "reason": "source identity must be an exact SHA1"
+    },
+    {
+      "case": "tree-bool",
+      "outcome": "PASS refusal",
+      "Git_callback_count": 0,
+      "reason": "source identity must be an exact SHA1"
+    },
+    {
+      "case": "source-count-bool",
+      "outcome": "PASS refusal",
+      "Git_callback_count": 0,
+      "reason": "invalid source footprint count"
+    },
+    {
+      "case": "python-count-float",
+      "outcome": "PASS refusal",
+      "Git_callback_count": 0,
+      "reason": "invalid source footprint count"
+    }
+  ],
+  "sole_preflight_entry_call_removal": [
+    {
+      "path": null,
+      "Git_callback_count": 2,
+      "eventual_refusal": "source footprint denominator mismatch",
+      "required_zero_callback_property": "FAIL"
+    },
+    {
+      "path": ".",
+      "Git_callback_count": 2,
+      "eventual_refusal": "source footprint denominator mismatch",
+      "required_zero_callback_property": "FAIL"
+    },
+    {
+      "path": false,
+      "Git_callback_count": 2,
+      "eventual_refusal": "source footprint denominator mismatch",
+      "required_zero_callback_property": "FAIL"
+    }
+  ],
+  "old212_exact_Git_replay": {
+    "normal": {
+      "path": "/tmp/e02-E-validator-format-independent-r4/old212-git-replay-normal.stdout.json",
+      "bytes": 85610,
+      "sha256": "d3767f2cd6955876b03e3d94f8eccdbfe48e341052ff960fbdc183303ab92eae"
+    },
+    "optimized": {
+      "path": "/tmp/e02-E-validator-format-independent-r4/old212-git-replay-optimized.stdout.json",
+      "bytes": 85613,
+      "sha256": "2973d84893865e9fb8161e2c65fa57abe4b5fa62362a39ea6d86713fdd715ae1"
+    },
+    "scope": "actual original helpers+14 corrupt controls on219Git publication copies; original oldmain actualCLI is separately preserved by author baseline/replay"
+  },
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "executable": "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+    "override": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "GIT_OPTIONAL_LOCKS": "0"
+    }
+  },
+  "ROOT_FRC_source_or_environment_written": false,
+  "native_numeric_or_full_global_gate_repeated": false,
+  "P41": "not_established; source metadata preflight falsifier2\u21920 callbacks is not global inherited attribution",
+  "observer_source": {
+    "path": "/tmp/e02-E-validator-format-independent-r4/review_2350_candidate.py",
+    "bytes": 11879,
+    "sha256": "e1279ee85c2542d80181ea8f7e1b38e4ffed772430c53377ca30c013494ac589"
+  }
+}

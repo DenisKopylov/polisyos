@@ -1,0 +1,23 @@
+import hashlib,json,subprocess
+from pathlib import Path
+L=Path('/workspace/e02-E-frc-20261006');O=Path('/tmp/e02-E-validator-format-current-r4');P=Path('policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary');base='c29a58197a7a51f3605857e573de50a4f7a8da61';candidate='2350edfba4e71909fbc615fe3101793b1b13945a'
+def git(*args):return subprocess.check_output(['git',*args],cwd=L).decode().strip()
+if git('rev-parse','HEAD')!=candidate or git('status','--porcelain'):raise ValueError('source frozen clean')
+paths=git('diff','--name-only',base,candidate).splitlines();source=[]
+for path in paths:
+ b=subprocess.check_output(['git','show',candidate+':'+path],cwd=L)
+ if b!=(L/path).read_bytes():raise ValueError('immutable source bytes')
+ source.append({'path':path,'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest(),'git_blob':git('rev-parse',candidate+':'+path)})
+old=[]
+for name in ['implementation-handoff.json','publication-copy-index.json']:
+ p=str(P/name);b=subprocess.check_output(['git','show',base+':'+p],cwd=L)
+ if b!=(L/p).read_bytes():raise ValueError('historical bytes changed')
+ old.append({'path':p,'base_sha':base,'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest(),'unchanged':True})
+ruff='/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/ruff';path=str(P.relative_to('policy-engine')/'validate.py');cache=str(O/'ruff-cache')
+commands=[{'argv':[ruff,'check','--cache-dir',cache,path],'cwd':str(L/'policy-engine'),'exit_code':0,'stdout':'source-ruff-final.stdout.txt','stderr':'source-ruff-final.stderr.txt'},{'argv':[ruff,'format','--check','--cache-dir',cache,path],'cwd':str(L/'policy-engine'),'exit_code':0,'stdout':'source-format-final.stdout.txt','stderr':'source-format-final.stderr.txt'}]
+# Results were actually captured before source2350; their source hash is checked against Git above.
+for record in commands:
+ if (O/record['stderr']).read_bytes():raise ValueError('target lint stderr')
+versions={'ruff':subprocess.check_output([ruff,'--version']).decode().strip(),'python':subprocess.check_output(['/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python','--version']).decode().strip()}
+x={'schema':'policyos.e02.utility_source_execution.v1','source_base_sha':base,'source_base_tree':git('rev-parse',base+'^{tree}'),'candidate_sha':candidate,'candidate_tree_sha':git('rev-parse',candidate+'^{tree}'),'branch':git('branch','--show-current'),'source_footprint':source,'path_count':len(paths),'python_path_count':sum(p.endswith('.py') for p in paths),'historical_index_and_receipt':old,'targeted_lint_commands':commands,'versions':versions,'installed_metadata_input':'environment-before.json','installed_metadata_count':207,'source_native_numeric_global_gates_executed':False,'root_environment_source_locks_written':False,'current_scientific_finding_acceptance_established':False}
+(O/'source-execution-manifest.json').write_text(json.dumps(x,indent=2)+'\n');print(json.dumps(x,indent=2))

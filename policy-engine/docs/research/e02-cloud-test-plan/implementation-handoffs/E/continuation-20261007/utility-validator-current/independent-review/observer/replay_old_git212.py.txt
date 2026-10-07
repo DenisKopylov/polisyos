@@ -1,0 +1,40 @@
+from __future__ import annotations
+import copy,hashlib,json,os,pathlib,subprocess,sys,types
+D=pathlib.Path('/tmp/e02-E-validator-format-independent-r4');R=pathlib.Path('/workspace/e02-E-frc-20261006');SHA='3d0029873afc25b998a3deaf5f05ea25e6f5285e';PREFIX='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary';ROOT=D/'immutable-old212-publication'
+def need(x,m):
+ if not x:raise ValueError(m)
+def git(*a):
+ return subprocess.check_output(['git','-C',str(R),*a],env={**os.environ,'GIT_OPTIONAL_LOCKS':'0'})
+files=[]
+for v in git('ls-tree','-r','-z',SHA,'--',PREFIX).decode().rstrip('\0').split('\0'):
+ meta,p=v.split('\t');mode,kind,obj=meta.split();need(kind=='blob' and p.startswith(PREFIX+'/'),'immutable publication file');data=git('cat-file','blob',obj);relative=p[len(PREFIX)+1:];target=ROOT/relative;target.parent.mkdir(parents=True,exist_ok=True)
+ if target.exists():need(target.read_bytes()==data,'old fixture physical input changed')
+ else:target.write_bytes(data)
+ files.append({'path':p,'object_id':obj,'bytes':len(data),'sha256':hashlib.sha256(data).hexdigest()})
+source=(ROOT/'validate.py').read_bytes();need(hashlib.sha256(source).hexdigest()=='21224439f7bc4d91e0fe0b5e447ea166e61bebf4d3f5ecbd29c1ca0dff5c5c0d','exact old Git212 subject');m=types.ModuleType('immutable_old212');m.__file__=str(ROOT/'validate.py');exec(compile(source,m.__file__,'exec'),m.__dict__);receipt=json.loads((ROOT/'implementation-handoff.json').read_text());m.validate(ROOT,R,receipt);controls=[]
+for name in ('output-hash','output-size','output-removed','forged-count','wrong-tree','source-removed','declared-output-count','declared-output-bytes','declared-path-count','declared-python-count','declared-changed-paths','copy-index-hash'):
+ bad=copy.deepcopy(receipt)
+ if name=='output-hash':bad['deciding_outputs'][0]['sha256']='0'*64
+ elif name=='output-size':bad['deciding_outputs'][0]['bytes']+=1
+ elif name=='output-removed':bad['deciding_outputs'].pop()
+ elif name=='forged-count':next(x for x in bad['checks'] if 'junit' in x)['states']['PASS']+=1
+ elif name=='wrong-tree':bad['candidate_tree_sha']='0'*40
+ elif name=='source-removed':bad['source_footprint'].pop()
+ elif name=='declared-output-count':bad['deciding_output_count']+=1
+ elif name=='declared-output-bytes':bad['deciding_output_bytes']+=1
+ elif name=='declared-path-count':bad['path_count']+=1
+ elif name=='declared-python-count':bad['python_path_count']+=1
+ elif name=='declared-changed-paths':bad['changed_paths'].pop()
+ else:bad['publication_copy_index']['sha256']='0'*64
+ try:m.validate(ROOT,R,bad)
+ except ValueError as e:controls.append({'case':name,'outcome':'PASS refusal','reason':str(e)})
+ else:raise ValueError('old212 corrupted receipt accepted '+name)
+index=json.loads((ROOT/receipt['publication_copy_index']['path']).read_text())
+for name in ('copied_files','copied_bytes'):
+ bad=copy.deepcopy(index);bad[name]+=1
+ try:m.validate_copy_index(ROOT,bad)
+ except ValueError as e:controls.append({'case':'copy-index-'+name,'outcome':'PASS refusal','reason':str(e)})
+ else:raise ValueError('old212 corrupted index accepted')
+for f in files:
+ data=(ROOT/f['path'][len(PREFIX)+1:]).read_bytes();need(len(data)==f['bytes'] and hashlib.sha256(data).hexdigest()==f['sha256'],'old fixture after identity')
+print(json.dumps({'schema':'policyos.e02.independent_exact_Git212_publication_helper_replay.v1','mode':'optimized' if sys.flags.optimize else 'normal','source_git_commit':SHA,'source_sha256':hashlib.sha256(source).hexdigest(),'git_tracked_publication_files':len(files),'git_tracked_publication_bytes':sum(f['bytes'] for f in files),'full_immutable_file_index':files,'fixture':str(ROOT),'existing_Git_resolver_lane':str(R),'healthy':'PASS actual old validate+validate_copy_index via exact Git program/input copies','corrupt_controls':controls,'source_receipt_candidate':receipt['candidate_sha'],'source_receipt_tree':receipt['candidate_tree_sha'],'source_receipt_outputs':receipt['deciding_output_count'],'environment':{'python':sys.version,'executable':sys.executable,'PYTHONDONTWRITEBYTECODE':'1','GIT_OPTIONAL_LOCKS':'0'},'new_git_marker_checkout_environment_created':False,'ROOT_or_FRC_code_environment_written':False,'numeric_tests_rerun':False,'old_main_CLI_reexecuted':False,'old_main_CLI_scope':'Author pre-edit actual baseline proves original CLI; this independent replay executes actual original helpers on Git-only publication copies with explicit existing lane. Baseline220 includes ignoredpyc; this Git-only fixture has no ignored caches.'},indent=2))

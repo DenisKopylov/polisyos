@@ -1,0 +1,10 @@
+╭───────────────────────────────────╮
+│ lefthook v2.1.6  hook: pre-commit │
+╰───────────────────────────────────╯
+│  prettier (skip) no files for inspection
+│  check-contrast (skip) no matching staged files
+│  check-reduced-motion (skip) no matching staged files
+│  eslint (skip) no files for inspection
+                                      
+  ────────────────────────────────────
+summary: (done in 1.13 seconds)       

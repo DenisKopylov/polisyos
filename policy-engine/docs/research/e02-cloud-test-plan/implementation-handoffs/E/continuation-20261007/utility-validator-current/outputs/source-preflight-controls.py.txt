@@ -1,0 +1,57 @@
+import ast, copy, hashlib, importlib.util, json, os, subprocess, sys
+from pathlib import Path
+L=Path('/workspace/e02-E-frc-20261006');P=L/'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary';O=Path('/tmp/e02-E-validator-format-current-r4');exe='/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python';base='c29a58197a7a51f3605857e573de50a4f7a8da61'
+mode='optimized' if sys.flags.optimize else 'normal'; env=os.environ.copy();env.update(PYTHONDONTWRITEBYTECODE='1',GIT_OPTIONAL_LOCKS='0');outputs=[]
+if not sys.flags.optimize:
+ new=(P/'validate.py').read_bytes();(O/'current-preflight-validator.py.txt').write_bytes(new)
+ idx=json.loads((P/'publication-copy-index-format-current.json').read_bytes());row=next(r for r in idx['copies'] if r['portable_path']=='validate.py');row.update(source_path=str(O/'current-preflight-validator.py.txt'),bytes=len(new),sha256=hashlib.sha256(new).hexdigest(),custody='current canonical formatting, explicit corrective-receipt CLI and whole source-record preflight; historical21224439 program/index remain immutable Git originals')
+ idx['copied_bytes']=sum(r['bytes'] for r in idx['copies']);ib=(json.dumps(idx,indent=2)+'\n').encode();(P/'publication-copy-index-format-current.json').write_bytes(ib)
+ h=json.loads((P/'implementation-handoff-format-current.json').read_bytes());h['publication_copy_index']={'path':'publication-copy-index-format-current.json','bytes':len(ib),'sha256':hashlib.sha256(ib).hexdigest()};h['current_receipt_scope']='current canonical formatting, explicit receipt selector and complete typed source-record admission before any Git callback; unchanged200 saved outputs/source16/JUnit observations from historical700; currentROOT/MC scientific status and Gclosure outside';h['evidence_builder']['current_source_behavior']='shared whole-record source identity/path/hash/size/count admission before any Git callback; existing recomputation and fourteen CLI corruption controls preserved';(P/'implementation-handoff-format-current.json').write_text(json.dumps(h,indent=2)+'\n')
+r=json.loads((P/'implementation-handoff-format-current.json').read_bytes())
+spec=importlib.util.spec_from_file_location('current_publication_validator',P/'validate.py');module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+real=module.subprocess.check_output
+mutations=[('last-path-none',lambda b:b['source_footprint'][-1].__setitem__('path',None)),('last-path-dot',lambda b:b['source_footprint'][-1].__setitem__('path','.')),('last-path-bool',lambda b:b['source_footprint'][-1].__setitem__('path',False)),('last-path-parent',lambda b:b['source_footprint'][-1].__setitem__('path','policy-engine/../x')),('last-path-empty-segment',lambda b:b['source_footprint'][-1].__setitem__('path','policy-engine//x')),('last-path-dot-segment',lambda b:b['source_footprint'][-1].__setitem__('path','policy-engine/./x')),('last-bytes-bool',lambda b:b['source_footprint'][-1].__setitem__('bytes',True)),('last-digest-bool',lambda b:b['source_footprint'][-1].__setitem__('sha256',True)),('last-row-none',lambda b:b['source_footprint'].__setitem__(-1,None)),('footprint-dict',lambda b:b.__setitem__('source_footprint',{})),('changed-last-none',lambda b:b['changed_paths'].__setitem__(-1,None)),('base-none',lambda b:b.__setitem__('base_sha',None)),('tree-bool',lambda b:b.__setitem__('candidate_tree_sha',False)),('source-count-bool',lambda b:b.__setitem__('path_count',True))]
+for name,mutate in mutations:
+ calls=[]
+ def forbidden(*a,**k):calls.append(a);raise RuntimeError('Git callback before whole source admission')
+ module.subprocess.check_output=forbidden;b=copy.deepcopy(r);mutate(b)
+ try:module.validate(P,L,b)
+ except ValueError as e:outputs.append({'name':name,'refused':True,'Git_callback_count':len(calls),'reason':str(e)})
+ else:raise ValueError('malformed source accepted')
+ if calls:raise ValueError('early callback escape')
+module.subprocess.check_output=real
+cli=[]
+for name,argv,expected in [('current', [exe]+(['-O'] if sys.flags.optimize else [])+[str(P/'validate.py'),'--publication-receipt',str(P/'implementation-handoff-format-current.json')],0),('historical-default',[exe]+(['-O'] if sys.flags.optimize else [])+[str(P/'validate.py')],1),('old-Git212-replay',[exe]+(['-O'] if sys.flags.optimize else [])+[str(L/'policy-engine/_build/e02-validator-format-legacy-c29-v2/validate.py')],0)]:
+ result=subprocess.run(argv,cwd=L/'policy-engine',env=env,capture_output=True);(O/('preflight-'+name+'-'+mode+'.stdout.txt')).write_bytes(result.stdout);(O/('preflight-'+name+'-'+mode+'.stderr.txt')).write_bytes(result.stderr);cli.append({'argv':argv,'cwd':str(L/'policy-engine'),'exit_code':result.returncode,'expected_exit_code':expected})
+ if result.returncode!=expected:raise ValueError('CLI outcome')
+ if expected==0:
+  value=json.loads(result.stdout)
+  if value['validation']!='PASS' or len(value['controls'])!=14 or not all(c['refused'] for c in value['controls']):raise ValueError('actual14 CLI controls')
+ elif b'copy-index portable bytes mismatch' not in result.stderr:raise ValueError('historical refusal reason')
+# Remove only the actual preflight call, keeping helper/docstring/receipt and all other predicates.
+source=(P/'validate.py').read_text();needle='    _admit_source_receipt(receipt)\n'
+if source.count(needle)!=1:raise ValueError('one load-bearing call')
+removed=source.replace(needle,'',1);(O/'preflight-call-removed.py.txt').write_text(removed);namespace={'__name__':'removed_source_admission'};exec(compile(removed,'preflight-call-removed.py.txt','exec'),namespace)
+calls=[]
+def observer(*a,**k):calls.append(a);return real(*a,**k)
+namespace['subprocess'].check_output=observer;bad=copy.deepcopy(r);bad['source_footprint'][-1]['path']=None
+try:namespace['validate'](P,L,bad)
+except ValueError as e:removal={'Git_callback_count':len(calls),'eventual_refusal':str(e),'required_zero_callback_property':'FAIL'}
+finally:namespace['subprocess'].check_output=real
+if len(calls)!=2:raise ValueError('effective sole admission-call removal divergence')
+# Old original index/receipt and all recorded scientific evidence remain literal.
+frame=json.loads((O/'baseline-input-frame.json').read_bytes())
+for row in frame['frames']:
+ if row['path']==str((P/'validate.py').relative_to(L)):continue
+ body=(L/row['path']).read_bytes()
+ if len(body)!=row['bytes'] or hashlib.sha256(body).hexdigest()!=row['sha256']:raise ValueError('historical evidence changed')
+metadata=json.loads((O/'environment-before.json').read_bytes())['metadata']
+for row in metadata:
+ body=Path(row['path']).read_bytes()
+ if len(body)!=row['bytes'] or hashlib.sha256(body).hexdigest()!=row['sha256']:raise ValueError('METADATA changed')
+old=subprocess.check_output(['git','show',base+':'+str((P/'validate.py').relative_to(L))],cwd=L,env=env)
+def functions(body):return {n.name:ast.dump(n,include_attributes=False) for n in ast.parse(body).body if isinstance(n,ast.FunctionDef)}
+a,b=functions(old),functions(source)
+if a['validate_copy_index']!=b['validate_copy_index']:raise ValueError('copy index behavior changed')
+report={'mode':mode,'base_sha':base,'current_source_sha256':hashlib.sha256(source.encode()).hexdigest(),'source_preflight_controls':outputs,'actualCLI':cli,'sole_preflight_call_removal':removal,'validate_copy_index_AST_equal':True,'validate_AST_delta':'shared complete source preflight at entry; removed late per-row guard now covered by shared admission','source_inputs_historical_unchanged_except_declared_program':True,'METADATA_count':len(metadata),'installedMETADATA_unchanged':True,'source_native_numeric_gates_executed':False,'ROOT_source_environment_locks_written':False}
+(O/('source-preflight-controls-'+mode+'.json')).write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report,indent=2))

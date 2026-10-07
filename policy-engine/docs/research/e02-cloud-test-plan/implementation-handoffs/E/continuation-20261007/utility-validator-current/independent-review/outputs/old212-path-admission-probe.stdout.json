@@ -1,0 +1,33 @@
+{
+  "source": "21224439f7bc4d91e0fe0b5e447ea166e61bebf4d3f5ecbd29c1ca0dff5c5c0d",
+  "probe": "immutable old212 with actual healthy publication input bytes; only malformed late source path changed",
+  "controls": [
+    {
+      "invalid_path": null,
+      "exception": "ValueError",
+      "message": "copy-index portable bytes mismatch",
+      "child_callback_count": 0,
+      "read_only_spy_callbacks": [],
+      "genuine_source_path_pure_preflight_zero_callback_property": true
+    },
+    {
+      "invalid_path": ".",
+      "exception": "ValueError",
+      "message": "copy-index portable bytes mismatch",
+      "child_callback_count": 0,
+      "read_only_spy_callbacks": [],
+      "genuine_source_path_pure_preflight_zero_callback_property": true
+    },
+    {
+      "invalid_path": false,
+      "exception": "ValueError",
+      "message": "copy-index portable bytes mismatch",
+      "child_callback_count": 0,
+      "read_only_spy_callbacks": [],
+      "genuine_source_path_pure_preflight_zero_callback_property": true
+    }
+  ],
+  "real_Git_commands_after_module_load": 0,
+  "root_source_environment_written": false,
+  "numeric_selectors_repeated": false
+}

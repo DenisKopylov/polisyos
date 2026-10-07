@@ -1,0 +1,221 @@
+{
+  "schema": "policyos.e02.implementation_handoff.utility_validator_current.v1",
+  "slice": "E-owned publication validator current formatting/receipt selection/source preflight",
+  "canonical_writer": "E",
+  "source_base_sha": "c29a58197a7a51f3605857e573de50a4f7a8da61",
+  "source_base_tree": "77682dc5cb150823233b32c8702de5b36fcdf578",
+  "candidate_sha": "2350edfba4e71909fbc615fe3101793b1b13945a",
+  "candidate_tree_sha": "fb4486cb39dc44b1ef09ea1e280df8b640b772ba",
+  "topic_branch": "codex/e02-E-frc-20261006",
+  "source_footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/implementation-handoff-format-current.json",
+      "bytes": 76221,
+      "sha256": "1ceb6b24a4d0f2e034d8c5087224d5d7825f486549980f2bacc73791807e0e3b",
+      "git_blob": "623fb5ea8a72c474dc4a7a7656090e5966ca635b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/publication-copy-index-format-current.json",
+      "bytes": 72056,
+      "sha256": "ac1b554b926e7b08dfc904300b48106ec0b3f0ce87a4432c5d234fcb63aca1e5",
+      "git_blob": "13bdd0d781d13fac71a49333b7c8a5bfc9005cb8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/validate.py",
+      "bytes": 10661,
+      "sha256": "6f1e4c188a978b4da6298f3939e32ef71e9839bcf6eb77d41239b29f0ba57e3f",
+      "git_blob": "fd459340890a9173421e7281c30ba8c1c38ebc12"
+    }
+  ],
+  "source_path_count": 3,
+  "source_python_path_count": 1,
+  "original_related_ids": [
+    "B201",
+    "B202"
+  ],
+  "original_ids_scope": "Only their frozen source700 publication validator is changed. This source slice makes no scientific/current finding closure decision.",
+  "runtime_property": {
+    "caller": "actual validate.py CLI --publication-receipt explicit current overlay",
+    "current_receipt": "../ir-posterior-summary/implementation-handoff-format-current.json",
+    "current_copy_index": "../ir-posterior-summary/publication-copy-index-format-current.json",
+    "complete_source_record_preflight": "all source identities/tree/path/row/hash/size/count admitted before any Git subprocess callback",
+    "historical_default": "new utility refuses historical receipt/index with old212 utility hash; exact old212 reader replays from219 tracked original Git inputs",
+    "copy_index_function": "same AST; existing payload/JUnit/hash/source recomputation remains",
+    "scoped_behavior_delta": "canonical formatting + optional CLI selector + shared source-record admission moved before callbacks"
+  },
+  "deciding_checks": {
+    "current_normal_and_optimized": {
+      "check_status": "PASS",
+      "controls_per_mode": 14
+    },
+    "old_Git212_replay": {
+      "check_status": "PASS",
+      "controls_per_mode": 14,
+      "Git_tracked_files": 219,
+      "physical_baseline_files": 220,
+      "ignored_untracked_cache_excluded": true
+    },
+    "historical_default_under_new_source": {
+      "check_status": "PASS",
+      "expected_refusal": "copy-index portable bytes mismatch"
+    },
+    "new_source_record_controls": {
+      "check_status": "PASS",
+      "controls_per_mode": 14,
+      "Git_callback_count_each": 0
+    },
+    "sole_admission_call_removal": {
+      "observed_property_status": "FAIL",
+      "Git_callback_count_each": 2,
+      "eventual_refusal": true,
+      "retained_helper_and_other_predicates": true
+    },
+    "targeted_ruff": {
+      "check_status": "PASS",
+      "version": "0.14.10"
+    },
+    "targeted_format": {
+      "check_status": "PASS",
+      "version": "0.14.10"
+    }
+  },
+  "environment_input": {
+    "runtime": {
+      "ruff": "ruff 0.14.10",
+      "python": "Python 3.14.7"
+    },
+    "installedMETADATA_records": 207,
+    "installedMETADATA_bytes": 2294815,
+    "input_receipt": "outputs/environment-before.json",
+    "unchanged_after_controls": true,
+    "thread_cpu_process_caps": null,
+    "selected_variable_observation": "outputs/environment-selected-variables.json (post-execution executor observation; no added CPU/thread/process caps)"
+  },
+  "historical_originals": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/implementation-handoff.json",
+      "base_sha": "c29a58197a7a51f3605857e573de50a4f7a8da61",
+      "bytes": 74846,
+      "sha256": "5e635ed1c51789d9b38f6aee980568211fce982b5dd491fbf463830214d02424",
+      "unchanged": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/publication-copy-index.json",
+      "base_sha": "c29a58197a7a51f3605857e573de50a4f7a8da61",
+      "bytes": 71843,
+      "sha256": "ba46ae9201b2b9b8e46ee2e52bea4d2acf27bac756b252ae435993371ee2132e",
+      "unchanged": true
+    }
+  ],
+  "publication_copy_index": {
+    "path": "copy-index.json",
+    "bytes": 39860,
+    "sha256": "95a0966c8024c6f1805d7f49a64502e37904f78edce3b77557246de41fd30b52"
+  },
+  "publication_original_files": 97,
+  "publication_original_bytes": 534326,
+  "predicate_basis": {
+    "source_identity": {
+      "basis": "recomputed",
+      "explanation": "exact base/candidate/tree and complete three-path immutable Git footprint"
+    },
+    "complete_source_preflight": {
+      "basis": "recomputed",
+      "explanation": "actual source rejects all fourteen malformed source records before Git; removal changes required callback property"
+    },
+    "current_utility_bytes": {
+      "basis": "recomputed",
+      "explanation": "new distinct index binds new utility bytes without changing historical original index"
+    },
+    "stored_output_and_JUnit_counts": {
+      "basis": "recomputed",
+      "explanation": "actual current CLI recomputes frozen saved200outputs/sevenJUnit/16sourcepath observations only"
+    },
+    "original_byte_custody": {
+      "basis": "not_established",
+      "explanation": "Author literal copy-index reconciliation complete; independent reviewer source/custody disposition will be appended as its own exact receipt when available."
+    },
+    "old_Git_reader_replay": {
+      "basis": "recomputed",
+      "explanation": "actual old212 reader executed normal/-O against219 literal tracked Git original inputs"
+    },
+    "current_scientific_finding_authority": {
+      "basis": "not_established",
+      "explanation": "source utility repair does not decide B201/B202 or any scientific closure"
+    },
+    "whole_ROOT_input_identity": {
+      "basis": "not_established",
+      "explanation": "no current ROOT clean/full-input claim; earlier generated input drift and terminal native failures are separate parent evidence"
+    },
+    "independent_source_disposition": {
+      "basis": "independently_reconciled",
+      "explanation": "Closed independent source2350 GO with actual21 malformed source controls per mode, original-reader compatibility and target canonical lint/format"
+    }
+  },
+  "historical_observers": [
+    {
+      "input": "outputs/historical-empty-fixed-python312-environment.json",
+      "outcome": "ERROR",
+      "scope": "first hardcoded environment path inspection returnedzero metadata; actual3.14.7 site207 input used"
+    },
+    {
+      "input": "outputs/historical-first-current-control-attempt/current-controls-driver.stderr.txt",
+      "outcome": "ERROR",
+      "scope": "first legacy Git replay attempted untracked ignoredpyc; saved observer history, corrected219Git selection succeeds"
+    },
+    {
+      "input": "outputs/source-ruff.stdout.txt",
+      "outcome": "FAIL",
+      "scope": "draft Any annotation ANN401; corrected toobject before final Ruff/candidate source"
+    },
+    {
+      "input": "outputs/current-controls.json",
+      "scope": "pre-guard formatting/selector phase only; AST equality claim there applies earlier source draft, final source intentionally changes validate entry"
+    }
+  ],
+  "limitations": [
+    "No scientific/backend/numerical/common wave or global gates rerun by this utility/source packet.",
+    "Historical frozen source700 finding proposals remain historical; no automatic closure or semantic ratification.",
+    "Current receipt explicitly selects current utility bytes; default historical receipt is expected to refuse new utility bytes.",
+    "Foreign current366 lint/format paths and canonical public surface/generated companion owners are outside this source slice.",
+    "The internal publication-copy recipe uses the exact fixed independent selector; only literal custody of its healthy34-member input is claimed, not a general mutable-selector API or a new scientific gate."
+  ],
+  "next_owner": {
+    "source_review": "independent lint_r4 review of immutable2350 source/current CLI/old Git compatibility",
+    "integration": "G decides source acceptance and independent finding closure separately",
+    "publication": "E appends a separate evidence commit after immutable source implementation; no self-reference to a future evidence commit"
+  },
+  "cleanup_candidates": [
+    "/workspace/e02-E-frc-20261006/policy-engine/_build/e02-validator-format-legacy-c29",
+    "/workspace/e02-E-frc-20261006/policy-engine/_build/e02-validator-format-legacy-c29-v2"
+  ],
+  "cleanup_disposition": "No native Trash. Preserve unique code/evidence/data; candidates listed only, not deleted.",
+  "source_publication_readback": {
+    "path": "outputs/source-publication-receipt.json",
+    "published_candidate_sha": "2350edfba4e71909fbc615fe3101793b1b13945a",
+    "tracking_and_remote_exact": true,
+    "plain_fetch_only_FETCH_HEAD_observation_preserved": true
+  },
+  "independent_source_review": {
+    "outcome": "GO",
+    "reviewer": "lint_r4 (not source author)",
+    "path": "independent-review/outputs/final-source-GO.json",
+    "bytes": 2922,
+    "sha256": "f41521d4b5efd65c1bf74720ec5411369d1b93f9dab497ea61a916cdea8827df",
+    "selection_path": "independent-review/publication-selection-2350.json",
+    "selection_bytes": 14505,
+    "selection_sha256": "8ffd7b4dcd5afe132087a6ecdcb405fcc525dd2cc0fa90775e56ec637e4329df",
+    "independent_malformed_source_controls_per_mode": 21,
+    "Git_callbacks_each": 0,
+    "source_current_CLI_controls_per_mode": 14,
+    "logical_members": 34,
+    "physical_carriers": 20,
+    "physical_bytes": 252830,
+    "scope": "bounded source/CLI/preflight/original Git replay/Ruff/format; no finding or globalgate acceptance"
+  },
+  "independent_member_index": {
+    "path": "independent-member-index.json",
+    "bytes": 17086,
+    "sha256": "6c5b10a2e0309d728e4a2da3eb948e6ff84bca0e5e50934ff4249740a811a7f3"
+  }
+}

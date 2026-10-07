@@ -1,0 +1,84 @@
+{
+  "schema": "policyos.e02.utility_source_execution.v1",
+  "source_base_sha": "c29a58197a7a51f3605857e573de50a4f7a8da61",
+  "source_base_tree": "77682dc5cb150823233b32c8702de5b36fcdf578",
+  "candidate_sha": "2350edfba4e71909fbc615fe3101793b1b13945a",
+  "candidate_tree_sha": "fb4486cb39dc44b1ef09ea1e280df8b640b772ba",
+  "branch": "codex/e02-E-frc-20261006",
+  "source_footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/implementation-handoff-format-current.json",
+      "bytes": 76221,
+      "sha256": "1ceb6b24a4d0f2e034d8c5087224d5d7825f486549980f2bacc73791807e0e3b",
+      "git_blob": "623fb5ea8a72c474dc4a7a7656090e5966ca635b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/publication-copy-index-format-current.json",
+      "bytes": 72056,
+      "sha256": "ac1b554b926e7b08dfc904300b48106ec0b3f0ce87a4432c5d234fcb63aca1e5",
+      "git_blob": "13bdd0d781d13fac71a49333b7c8a5bfc9005cb8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/validate.py",
+      "bytes": 10661,
+      "sha256": "6f1e4c188a978b4da6298f3939e32ef71e9839bcf6eb77d41239b29f0ba57e3f",
+      "git_blob": "fd459340890a9173421e7281c30ba8c1c38ebc12"
+    }
+  ],
+  "path_count": 3,
+  "python_path_count": 1,
+  "historical_index_and_receipt": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/implementation-handoff.json",
+      "base_sha": "c29a58197a7a51f3605857e573de50a4f7a8da61",
+      "bytes": 74846,
+      "sha256": "5e635ed1c51789d9b38f6aee980568211fce982b5dd491fbf463830214d02424",
+      "unchanged": true
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/publication-copy-index.json",
+      "base_sha": "c29a58197a7a51f3605857e573de50a4f7a8da61",
+      "bytes": 71843,
+      "sha256": "ba46ae9201b2b9b8e46ee2e52bea4d2acf27bac756b252ae435993371ee2132e",
+      "unchanged": true
+    }
+  ],
+  "targeted_lint_commands": [
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/ruff",
+        "check",
+        "--cache-dir",
+        "/tmp/e02-E-validator-format-current-r4/ruff-cache",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/validate.py"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "exit_code": 0,
+      "stdout": "source-ruff-final.stdout.txt",
+      "stderr": "source-ruff-final.stderr.txt"
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/ruff",
+        "format",
+        "--check",
+        "--cache-dir",
+        "/tmp/e02-E-validator-format-current-r4/ruff-cache",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/validate.py"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "exit_code": 0,
+      "stdout": "source-format-final.stdout.txt",
+      "stderr": "source-format-final.stderr.txt"
+    }
+  ],
+  "versions": {
+    "ruff": "ruff 0.14.10",
+    "python": "Python 3.14.7"
+  },
+  "installed_metadata_input": "environment-before.json",
+  "installed_metadata_count": 207,
+  "source_native_numeric_global_gates_executed": false,
+  "root_environment_source_locks_written": false,
+  "current_scientific_finding_acceptance_established": false
+}

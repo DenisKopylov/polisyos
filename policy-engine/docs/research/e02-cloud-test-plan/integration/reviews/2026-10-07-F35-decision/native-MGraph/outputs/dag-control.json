@@ -1,0 +1,186 @@
+{
+  "elapsed_seconds": 0.210458,
+  "extract_mgraph_metadata": {
+    "exception_type": "ValueError",
+    "message": "extract_mgraph_metadata requires graph_type=MGRAPH, got GraphType.DAG",
+    "outcome": "FAIL"
+  },
+  "fresh_cas_artifact_available": true,
+  "fresh_cas_ref": "artifact_id=ArtifactID(root='sha256:bef7aca66bc54a8b631fa79660a59bfa4c6d8818bb74cbf844650843521f433f') kind='ir.causal_graph_model' media_type='application/json' manifest_profile_sha256=None",
+  "fresh_reader_edges": [
+    [
+      "X",
+      "Y",
+      "tail",
+      "arrow",
+      null
+    ]
+  ],
+  "fresh_reader_graph_dump": {
+    "discovery_method": "reconciled_prior_graph",
+    "edges": [
+      {
+        "combined_confidence": 0.9,
+        "data_confidence": 0.9,
+        "dst": "Y",
+        "evidence_refs": [],
+        "expert_confidence": null,
+        "lag": null,
+        "literature_confidence": null,
+        "llm_confidence": null,
+        "mark_dst": "arrow",
+        "mark_src": "tail",
+        "metadata": {},
+        "p_value": null,
+        "simulation_confidence": null,
+        "sources": [
+          "data"
+        ],
+        "src": "X",
+        "unsupported_by_evidence": false
+      }
+    ],
+    "graph_type": "dag",
+    "id_confidence_under_pag": null,
+    "metadata": {
+      "llm_prior_constants": {
+        "LLM_OVERLAP_DISCOUNT": 0.5,
+        "LLM_PRIOR_CEILING": 0.3,
+        "LLM_REPLICATION_BONUS": 0.05
+      },
+      "needs_expert_review": false,
+      "reconciliation_diagnostics": {
+        "curl_norm": 0.0,
+        "cyclic_inconsistency_norm": 0.0,
+        "d0_shape": [
+          1,
+          2
+        ],
+        "d1_shape": [
+          0,
+          1
+        ],
+        "delta0_shape": [
+          2,
+          1
+        ],
+        "delta1_shape": [
+          1,
+          0
+        ],
+        "diagnostics_truncated": false,
+        "gradient_norm": 0.8999999999999999,
+        "harmonic_norm": 1.1102230246251565e-16,
+        "irreducible_conflict_norm": 1.1102230246251565e-16,
+        "n_components": 1,
+        "n_edges": 1,
+        "n_sources": 1,
+        "n_triangles": 0,
+        "operators": {
+          "D0": [
+            [
+              -1.0,
+              1.0
+            ]
+          ],
+          "D1": [],
+          "delta^0": [
+            [
+              -1.0
+            ],
+            [
+              1.0
+            ]
+          ],
+          "delta^1": []
+        },
+        "truncation_reason": null
+      },
+      "reconciliation_input_sha256": "90993eef64052b8d3519ae4b9c81624c3b32738c4abe1e2178741f10d53af120",
+      "reconciliation_warnings": []
+    },
+    "nodes": [
+      "X",
+      "Y"
+    ],
+    "pag_identification_policy": "conservative",
+    "schema_version": "1.0",
+    "skg_version_id": null
+  },
+  "fresh_reader_graph_type": "dag",
+  "fresh_reader_metadata_mgraph": null,
+  "input_edges": [
+    [
+      "X",
+      "Y",
+      "tail",
+      "arrow",
+      null
+    ]
+  ],
+  "input_graph_type": "dag",
+  "input_graph_validated_dump": {
+    "discovery_method": "native-probe-dag-control",
+    "edges": [
+      {
+        "combined_confidence": 0.9,
+        "data_confidence": 0.9,
+        "dst": "Y",
+        "evidence_refs": [],
+        "expert_confidence": null,
+        "lag": null,
+        "literature_confidence": null,
+        "llm_confidence": null,
+        "mark_dst": "arrow",
+        "mark_src": "tail",
+        "metadata": {},
+        "p_value": null,
+        "simulation_confidence": null,
+        "sources": [
+          "data"
+        ],
+        "src": "X",
+        "unsupported_by_evidence": false
+      }
+    ],
+    "graph_type": "dag",
+    "id_confidence_under_pag": null,
+    "metadata": {},
+    "nodes": [
+      "X",
+      "Y"
+    ],
+    "pag_identification_policy": "conservative",
+    "schema_version": "1.0",
+    "skg_version_id": null
+  },
+  "input_metadata_mgraph": null,
+  "input_mgraph_metadata_reader": null,
+  "input_schema_validated": true,
+  "mgraph_metadata_preserved": true,
+  "node_error": null,
+  "node_status": "ok",
+  "phase": "fresh-reader",
+  "producer_complete": true,
+  "producer_issues": [],
+  "producer_mgraph_metadata_preserved": true,
+  "producer_reconciled_edges": [
+    [
+      "X",
+      "Y",
+      "tail",
+      "arrow",
+      null
+    ]
+  ],
+  "producer_reconciled_graph_type": "dag",
+  "producer_reconciled_metadata_mgraph": null,
+  "producer_result_payload_keys": [
+    "diagnostics",
+    "needs_expert_review",
+    "reconciled_graph",
+    "warnings"
+  ],
+  "producer_result_ref": "artifact_id=ArtifactID(root='sha256:5c72318b3a8a2e3dc7f9066c114f30cfda25c04bdd46173b20c36e42eeb8043e') kind='scientist.method_result.causal.prior' media_type='application/json' manifest_profile_sha256=None",
+  "source_artifact_id": "sha256:523aee0610c9f4805c17d6c22bba422f9392604fb807815196d8830edf807894"
+}

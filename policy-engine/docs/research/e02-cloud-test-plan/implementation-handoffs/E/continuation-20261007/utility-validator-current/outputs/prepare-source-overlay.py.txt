@@ -1,0 +1,45 @@
+import ast,copy,hashlib,json,subprocess
+from pathlib import Path
+L=Path('/workspace/e02-E-frc-20261006');P=L/'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary';O=Path('/tmp/e02-E-validator-format-current-r4')
+old=(P/'validate.py').read_bytes();formatted=Path('/tmp/e02-E-actual-lint-b6b0d415-20261007/E-validator-proposed-format.py.txt').read_bytes()
+if hashlib.sha256(old).hexdigest()!='21224439f7bc4d91e0fe0b5e447ea166e61bebf4d3f5ecbd29c1ca0dff5c5c0d' or hashlib.sha256(formatted).hexdigest()!='f16588650858c2714eb01d2f7cbed45e7126071cdf8cc0f161a0bb3233764830':raise ValueError('exact canonical formatproposal')
+if ast.dump(ast.parse(old),include_attributes=False)!=ast.dump(ast.parse(formatted),include_attributes=False):raise ValueError('format-only AST premise')
+s=formatted.decode().replace('import copy\n','import argparse\nimport copy\n',1)
+needle='    receipt = json.loads((root / "implementation-handoff.json").read_text())'
+replacement='''    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--publication-receipt",
+        type=Path,
+        default=root / "implementation-handoff.json",
+        help="Select a current corrective receipt; default selects the historical receipt.",
+    )
+    arguments = parser.parse_args()
+    receipt = json.loads(arguments.publication_receipt.read_text())'''
+if s.count(needle)!=1:raise ValueError('one existingreceipt reader')
+s=s.replace(needle,replacement)
+# Canonical pure formatter writes stdout only, isolated cache; no tracked source edit.
+ruff='/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/ruff'
+argv=[ruff,'format','--stdin-filename',str(P/'validate.py'),'-']
+r=subprocess.run(argv,input=s.encode(),capture_output=True,cwd=L/'policy-engine')
+(O/'format-proposal.stdout.py.txt').write_bytes(r.stdout);(O/'format-proposal.stderr.txt').write_bytes(r.stderr)
+if r.returncode:raise ValueError('canonicalformatter exit')
+new=r.stdout;(O/'proposed-current-validator.py.txt').write_bytes(new)
+# All scientific/input/index validation functions stay structurally identical.
+a={n.name:ast.dump(n,include_attributes=False) for n in ast.parse(old).body if isinstance(n,ast.FunctionDef)}
+b={n.name:ast.dump(n,include_attributes=False) for n in ast.parse(new).body if isinstance(n,ast.FunctionDef)}
+if set(a)!=set(b) or any(a[k]!=b[k] for k in a if k!='main'):raise ValueError('validation bodies changed')
+idx=json.loads((P/'publication-copy-index.json').read_bytes());current=copy.deepcopy(idx)
+rows=[r for r in current['copies'] if r['portable_path']=='validate.py']
+if len(rows)!=1:raise ValueError('one canonicalutilitycopyrecord')
+row=rows[0];row.update(source_path=str(O/'proposed-current-validator.py.txt'),bytes=len(new),sha256=hashlib.sha256(new).hexdigest(),custody='current canonical formatting plus explicit corrective receipt CLI; historical21224439 program/index remain immutableGit originals')
+current['copied_bytes']=sum(r['bytes'] for r in current['copies']);current['copied_files']=len(current['copies'])
+current['current_validation_scope']='current program bytes against frozen scientific source700f observations only; no currentfinding/code/generator/globalPASS acceptance'
+ib=(json.dumps(current,indent=2)+'\n').encode();(O/'publication-copy-index-format-current.json').write_bytes(ib)
+h=json.loads((P/'implementation-handoff.json').read_bytes());h['publication_copy_index']={'path':'publication-copy-index-format-current.json','bytes':len(ib),'sha256':hashlib.sha256(ib).hexdigest()}
+h['historical_finding_proposals']=h.pop('finding_proposals');h['finding_proposals']={};h['historical_finding_proposals_scope']='frozen source700 proposals before G855counterexamples; not current acceptance and not re-ratified by formatting'
+h['current_receipt_scope']='current formatting and explicitreceipt selector, unchanged200savedoutput/source16path/JUnit validation from historical700; currentROOT/MCscientificstatus and Gclosure outside'
+h['historical_receipt_and_index']={'receipt_path':'implementation-handoff.json','receipt_sha256':hashlib.sha256((P/'implementation-handoff.json').read_bytes()).hexdigest(),'index_path':'publication-copy-index.json','index_sha256':hashlib.sha256((P/'publication-copy-index.json').read_bytes()).hexdigest(),'utility_SHA256':'21224439f7bc4d91e0fe0b5e447ea166e61bebf4d3f5ecbd29c1ca0dff5c5c0d'}
+h['evidence_builder']['current_explicit_CLI']='python validate.py --publication-receipt implementation-handoff-format-current.json';h['evidence_builder']['historical_output_scope']='existing output/Ruff/format fields remain frozen observed outputs; currentsource controls separatelypublished'
+(O/'implementation-handoff-format-current.json').write_text(json.dumps(h,indent=2)+'\n')
+x={'scope':'scratch-only proposal, noownedsourceedit yet','old_SHA256':hashlib.sha256(old).hexdigest(),'canonical_format_only_SHA256':hashlib.sha256(formatted).hexdigest(),'current_proposal_SHA256':hashlib.sha256(new).hexdigest(),'current_proposal_bytes':len(new),'validate_and_validate_copy_index_AST_equal':True,'main_behavior_delta':'only explicit optionalcurrentreceiptselection; legacydefaultremains','formatter_argv':argv,'formatter_exit':r.returncode,'old_receipt_index_unchanged':True,'source_native_numeric_gate_execution':False}
+(O/'source-overlay-proposal.json').write_text(json.dumps(x,indent=2)+'\n');print(json.dumps(x,indent=2))

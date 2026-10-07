@@ -1,0 +1,118 @@
+{
+  "schema": "policyos.e02.g.native_mgraph.published.v1",
+  "same_bytes_as_local_receipts": true,
+  "files": [
+    {
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/unscored.stdout.txt",
+      "bytes": 2626,
+      "sha256": "94d7cc9c55b92cebc55cce0c9df1996fd0e6f8f3243bdd51814031cd4124ff7e"
+    },
+    {
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/report.md",
+      "bytes": 3908,
+      "sha256": "bfacb9efca3b8963451fb8c8578af8908cc96753fdb37481b3542eb5f0f4ccd8"
+    },
+    {
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/deciding.stdout.txt",
+      "bytes": 3050,
+      "sha256": "8160fecd4d7fa174c7a328b2970295a27d44c5e17ba830af72596c0417dd3197"
+    },
+    {
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/probe.py",
+      "bytes": 23974,
+      "sha256": "5ce7244429ec1c6cf60507f5c4ef1b3059583ea3825aaa269c00dfc7b7f21bbc"
+    },
+    {
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/unscored.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/run-native.py",
+      "bytes": 2527,
+      "sha256": "840e32d15fdb762ebf0c68f5ddc1f2a90aca635822095212e517e3c6f045e0d6"
+    },
+    {
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/unscored.execution.json",
+      "bytes": 1248,
+      "sha256": "10b18c3a2e6c675d65dee40f8f6b8857b40d777421a39ac084637b317af3f27b"
+    },
+    {
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/deciding.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/preflight.json",
+      "bytes": 3101,
+      "sha256": "a310c269d533902f4d1135321cca5273a472080be4787db486a83740e4254f1c"
+    },
+    {
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/execution.json",
+      "bytes": 1346,
+      "sha256": "f020896b72787af5b409ca3e2e335b086b8e59fd38e70685f4502f87fd9e0d11"
+    },
+    {
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/receipt.json",
+      "bytes": 26957,
+      "sha256": "97cbc9aba2cd526966b12de34be1494a0477b01f1063fdc11c301d9fc2476bbc"
+    },
+    {
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/outputs/mgraph-target.json",
+      "bytes": 10617,
+      "sha256": "6e99a3f2c30986008edf901527daac3fe8d63f2ef86f170dc11d8b5775652a6e"
+    },
+    {
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/outputs/admg-control.json",
+      "bytes": 6158,
+      "sha256": "47e47a5b9e6d81cce90c7703497993e19f92211eb2453adae1029d7d41f3c3cf"
+    },
+    {
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/outputs/dag-control.json",
+      "bytes": 4784,
+      "sha256": "d3728437b52fc566b936561fc071516d4a019486869069e40c8f7711f302c883"
+    },
+    {
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/dag-control-request.json",
+      "bytes": 1018,
+      "sha256": "79381e702c2893cf6d8ebedfa89c0742823a884a1782b512ae37f4f7e7a3cf78"
+    },
+    {
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/mgraph-builder-unscored.json",
+      "bytes": 2116,
+      "sha256": "b0340670241b67bfef2e0d7003e7aca289b472381bac88f24653daf4b637a71b"
+    },
+    {
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/mgraph-target.json",
+      "bytes": 2176,
+      "sha256": "9720406aeef3dc2f352764dc7ce0fdbba6bcebceb84c85fa03ed949396e7a17c"
+    },
+    {
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/admg-control-request.json",
+      "bytes": 1537,
+      "sha256": "c00ee99fa7cb0cd1e9e18300aa740a29d8edfaee93c61e9f00af53339960d8ae"
+    },
+    {
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/mgraph-target-request.json",
+      "bytes": 2569,
+      "sha256": "e7a18e9ab89845ef412ac35bb03645ea0316ecd1064bca66187be686b4608a96"
+    },
+    {
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/mgraph-builder-arguments.json",
+      "bytes": 696,
+      "sha256": "14b9630a497d41a356b8d70dea65dec13adb6a7a50050c5415d3acba23087823"
+    },
+    {
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/admg-control.json",
+      "bytes": 1236,
+      "sha256": "180ff927350ba499b90e712bc3cc9f4435420a70692fd3a795b9b7a6691c797f"
+    },
+    {
+      "published_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-F35-decision/native-MGraph/inputs/dag-control.json",
+      "bytes": 757,
+      "sha256": "1f2aad745173d5913678e20479f34f538c923bc1400c3197444fc111950e7291"
+    }
+  ],
+  "large_local_artifacts": "Complete source/origin inventories and probe-results.json remain ignored at the original receipt paths; they are not required to inspect the published complete native input/output/stdout chain.",
+  "setup_error_retention": "Initial source-only setup error is transcript-bound; original raw bytes were overwritten. Deciding run and unscored attempt full stdout/stderr are retained."
+}

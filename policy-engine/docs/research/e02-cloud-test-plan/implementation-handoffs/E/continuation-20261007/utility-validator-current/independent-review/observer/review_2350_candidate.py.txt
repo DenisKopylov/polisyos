@@ -1,0 +1,72 @@
+from __future__ import annotations
+import ast,copy,datetime,hashlib,json,os,pathlib,re,subprocess,sys,types
+R=pathlib.Path('/workspace/e02-E-frc-20261006');P=R/'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary';D=pathlib.Path('/tmp/e02-E-validator-format-independent-r4');SHA='2350edfba4e71909fbc615fe3101793b1b13945a';TREE='fb4486cb39dc44b1ef09ea1e280df8b640b772ba';BASE='c29a58197a7a51f3605857e573de50a4f7a8da61';PREFIX=P.relative_to(R).as_posix();PY=sys.executable;mode='optimized' if sys.flags.optimize else 'normal';ENV={**os.environ,'PYTHONDONTWRITEBYTECODE':'1','GIT_OPTIONAL_LOCKS':'0'}
+def need(x,m):
+ if not x:raise ValueError(m)
+def h(b):return hashlib.sha256(b).hexdigest()
+def ref(p):
+ b=p.read_bytes();return {'path':str(p),'bytes':len(b),'sha256':h(b)}
+def git(*a):
+ q=subprocess.run(['git','-C',str(R),*a],capture_output=True,env=ENV);need(q.returncode==0,'read-only Git '+str(a));return q.stdout
+need(git('rev-parse','HEAD').decode().strip()==SHA and git('rev-parse','HEAD^{tree}').decode().strip()==TREE,'immutable exact source HEAD/tree');need(not git('status','--porcelain=v1','--untracked-files=no'),'tracked clean source')
+paths=git('diff','--name-only',BASE,SHA).decode().splitlines();need(set(paths)=={PREFIX+'/'+x for x in ['validate.py','implementation-handoff-format-current.json','publication-copy-index-format-current.json']} and len(paths)==3,'complete three-path footprint')
+source=git('show',SHA+':'+PREFIX+'/validate.py');old=git('show',BASE+':'+PREFIX+'/validate.py');need(h(old)=='21224439f7bc4d91e0fe0b5e447ea166e61bebf4d3f5ecbd29c1ca0dff5c5c0d','exact original source');need((P/'validate.py').read_bytes()==source,'actual source equals immutable Git')
+footprint=[{'path':x,'bytes':len(git('show',SHA+':'+x)),'sha256':h(git('show',SHA+':'+x))} for x in paths]
+for x in footprint:need((R/x['path']).read_bytes()==git('show',SHA+':'+x['path']),'physical companion Git identity')
+# Full immutable historical source/index/deciding data stay exact at the previous boundary.
+historical=[]
+for raw in git('ls-tree','-r','-z',BASE,'--',PREFIX).decode().rstrip('\0').split('\0'):
+ metadata,path=raw.split('\t');obj=metadata.split()[2];body=git('cat-file','blob',obj)
+ if path==PREFIX+'/validate.py':continue
+ need(body==git('show',SHA+':'+path)==(R/path).read_bytes(),'historical input rewritten '+path);historical.append({'path':path,'bytes':len(body),'sha256':h(body)})
+# Review exact helper/caller AST changes rather than treating this as format-only.
+def functions(body):return {n.name:n for n in ast.parse(body).body if isinstance(n,ast.FunctionDef)}
+a,b=functions(old),functions(source);need(set(b)==set(a)|{'_admit_source_receipt'},'function footprint');need(ast.dump(a['validate_copy_index'],include_attributes=False)==ast.dump(b['validate_copy_index'],include_attributes=False),'copy-index AST changed')
+oldvalidate=copy.deepcopy(a['validate']);newvalidate=copy.deepcopy(b['validate']);need(isinstance(newvalidate.body[1],ast.Expr) and ast.unparse(newvalidate.body[1])=='_admit_source_receipt(receipt)','one entry source admission');del newvalidate.body[1]
+for n in ast.walk(oldvalidate):
+ if isinstance(n,ast.For) and ast.unparse(n.target)=='record' and ast.unparse(n.iter)=='footprint':
+  need(isinstance(n.body[1],ast.If) and ast.unparse(n.body[1].test).startswith('not isinstance(path, str)'),'exact old late row path guard');del n.body[1]
+need(ast.dump(oldvalidate,include_attributes=False)==ast.dump(newvalidate,include_attributes=False),'unexplained validate semantic delta')
+oldmain=copy.deepcopy(a['main']);newmain=copy.deepcopy(b['main']);start=next(i for i,x in enumerate(newmain.body) if isinstance(x,ast.Assign) and ast.unparse(x.targets[0])=='parser');end=next(i for i,x in enumerate(newmain.body) if isinstance(x,ast.Assign) and ast.unparse(x.targets[0])=='receipt');newmain.body[start:end+1]=[copy.deepcopy(next(x for x in oldmain.body if isinstance(x,ast.Assign) and ast.unparse(x.targets[0])=='receipt'))];need(ast.dump(oldmain,include_attributes=False)==ast.dump(newmain,include_attributes=False),'unexplained main delta')
+current=json.loads((P/'implementation-handoff-format-current.json').read_text());oldreceipt=json.loads((P/'implementation-handoff.json').read_text());index=json.loads((P/'publication-copy-index-format-current.json').read_text());oldindex=json.loads((P/'publication-copy-index.json').read_text());indexchanged=[]
+need(len(index['copies'])==len(oldindex['copies']),'index row count changed')
+for i,(x,y) in enumerate(zip(oldindex['copies'],index['copies'])):
+ if x!=y:indexchanged.append({'position':i,'before':x,'after':y})
+need(len(indexchanged)==1 and indexchanged[0]['after']['portable_path']=='validate.py','only current program row may change');row=indexchanged[0]['after'];need(type(row['bytes']) is int and row['bytes']==len(source) and row['sha256']==h(source),'actual new source self-binding');need(index['copied_files']==oldindex['copied_files'] and index['copied_bytes']==sum(x['bytes'] for x in index['copies']),'current copy-index totals');need(current['finding_proposals']=={} and current['historical_finding_proposals']==oldreceipt['finding_proposals'],'no new finding authority by formatting');need(current['source_footprint']==oldreceipt['source_footprint'] and current['checks']==oldreceipt['checks'] and current['deciding_outputs']==oldreceipt['deciding_outputs'],'historical evidence repurposed')
+module=types.ModuleType('immutable_candidate2350');module.__file__=str(P/'validate.py');exec(compile(source,str(P/'validate.py'),'exec'),module.__dict__);module.validate(P,R,current)
+# Actual CLI source and explicit/default receipt behavior; no author observer is executed.
+cli=[]
+for name,args,expected in [('current',['--publication-receipt',str(P/'implementation-handoff-format-current.json')],0),('historical-default',[],1)]:
+ argv=[PY,'-B']+(['-O'] if sys.flags.optimize else [])+[str(P/'validate.py'),*args];q=subprocess.run(argv,cwd=R/'policy-engine',env=ENV,capture_output=True);out=D/(name+'-2350-'+mode+'.stdout.txt');err=D/(name+'-2350-'+mode+'.stderr.txt');out.write_bytes(q.stdout);err.write_bytes(q.stderr);need(q.returncode==expected,'actual CLI exit');r={'name':name,'argv':argv,'cwd':str(R/'policy-engine'),'exit_code':q.returncode,'stdout':ref(out),'stderr':ref(err)}
+ if expected==0:
+  value=json.loads(q.stdout);need(value['validation']=='PASS' and len(value['controls'])==14 and all(x['refused'] is True for x in value['controls']),'actual full14 CLI controls');r['healthy_and_corrupt_controls']=value
+ else:need(not q.stdout and b'copy-index portable bytes mismatch' in q.stderr,'default legacy selfhash refusal')
+ cli.append(r)
+# Independent complete source-object classes, including late/paired list and scalar type variants.
+def setlast(key,val):return lambda x:x['source_footprint'][-1].__setitem__(key,val)
+mutations=[('late-path-none',setlast('path',None)),('late-path-dot',setlast('path','.')),('late-path-bool',setlast('path',False)),('late-path-parent',setlast('path','policy-engine/../x')),('late-path-empty-segment',setlast('path','policy-engine//x')),('late-path-dot-segment',setlast('path','policy-engine/./x')),('late-path-backslash',setlast('path','policy-engine/a\\b')),('late-path-NUL',setlast('path','policy-engine/a\0b')),('late-size-bool',setlast('bytes',True)),('late-size-negative',setlast('bytes',-1)),('late-digest-bool',setlast('sha256',True)),('late-digest-short',setlast('sha256','0'*63)),('late-row-none',lambda x:x['source_footprint'].__setitem__(-1,None)),('footprint-dict',lambda x:x.__setitem__('source_footprint',{})),('changed-last-none',lambda x:x['changed_paths'].__setitem__(-1,None)),('changed-path-duplicate',lambda x:x['changed_paths'].__setitem__(-1,x['changed_paths'][0])),('candidate-option',lambda x:x.__setitem__('candidate_sha','--output=/tmp/never-created')),('base-none',lambda x:x.__setitem__('base_sha',None)),('tree-bool',lambda x:x.__setitem__('candidate_tree_sha',False)),('source-count-bool',lambda x:x.__setitem__('path_count',True)),('python-count-float',lambda x:x.__setitem__('python_path_count',14.0))]
+controls=[];real=module.subprocess.check_output
+for name,change in mutations:
+ bad=copy.deepcopy(current);change(bad);calls=[]
+ def forbidden(*args,**kwargs):calls.append(args);raise RuntimeError('unadmitted source reached child')
+ module.subprocess.check_output=forbidden
+ try:module.validate(P,R,bad)
+ except ValueError as exc:controls.append({'case':name,'outcome':'PASS refusal','Git_callback_count':len(calls),'reason':str(exc)})
+ else:raise ValueError('malformed object admitted '+name)
+ finally:module.subprocess.check_output=real
+ need(not calls,'malformed whole object reached Git '+name)
+# Effective removal only of the actual entry call; all other preflight code/markers remain.
+tree=ast.parse(source);validate=next(x for x in tree.body if isinstance(x,ast.FunctionDef) and x.name=='validate');del validate.body[1];namespace={'__name__':'effective_call_removal','__file__':str(P/'validate.py')};exec(compile(ast.fix_missing_locations(tree),'<only-source-admission-call-removed>','exec'),namespace);removal=[]
+for value in [None,'.',False]:
+ bad=copy.deepcopy(current);bad['source_footprint'][-1]['path']=value;calls=[]
+ def counting(*args,**kwargs):calls.append(args[0]);return real(*args,**kwargs)
+ namespace['subprocess'].check_output=counting
+ try:namespace['validate'](P,R,bad)
+ except ValueError as exc:removal.append({'path':value,'Git_callback_count':len(calls),'eventual_refusal':str(exc),'required_zero_callback_property':'FAIL'})
+ else:raise ValueError('removal malformed object accepted without eventual refusal')
+ finally:namespace['subprocess'].check_output=real
+ need(len(calls)==2,'removal failed actual ordering divergence')
+for x in footprint:need(len((R/x['path']).read_bytes())==x['bytes'] and h((R/x['path']).read_bytes())==x['sha256'],'candidate source/input changed during reads')
+for x in historical:need(len((R/x['path']).read_bytes())==x['bytes'] and h((R/x['path']).read_bytes())==x['sha256'],'historical input changed during reads')
+need(git('rev-parse','HEAD').decode().strip()==SHA and not git('status','--porcelain=v1','--untracked-files=no'),'source boundary changed')
+print(json.dumps({'schema':'policyos.e02.independent_immutable_publication_utility_review.v1','outcome':'GO bounded utility source/metadata/actual CLI; scientific/global/finding outcomes unchanged','mode':mode,'source':SHA,'tree':TREE,'base':BASE,'complete_source_footprint':footprint,'source_sha256':h(source),'old_source_sha256':h(old),'AST_review':{'validate_copy_index_unchanged':True,'validate_delta':'one complete source record admission entry call; obsolete late per-row guard removed','main_delta':'only explicit optional publication receipt selector +argparse import','remaining_function_bodies_unchanged':True},'current_index_only_changed_copy_record':indexchanged,'historical_file_count':len(historical),'historical_bytes':sum(x['bytes'] for x in historical),'historical_inputs_byte_identical_before_after':True,'actual_CLI':cli,'own_whole_source_object_controls':controls,'sole_preflight_entry_call_removal':removal,'old212_exact_Git_replay':{'normal':ref(D/'old212-git-replay-normal.stdout.json'),'optimized':ref(D/'old212-git-replay-optimized.stdout.json'),'scope':'actual original helpers+14 corrupt controls on219Git publication copies; original oldmain actualCLI is separately preserved by author baseline/replay'},'environment':{'python':sys.version,'executable':PY,'override':{'PYTHONDONTWRITEBYTECODE':'1','GIT_OPTIONAL_LOCKS':'0'}},'ROOT_FRC_source_or_environment_written':False,'native_numeric_or_full_global_gate_repeated':False,'P41':'not_established; source metadata preflight falsifier2→0 callbacks is not global inherited attribution','observer_source':ref(pathlib.Path(__file__))},indent=2))

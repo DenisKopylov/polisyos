@@ -1,0 +1,633 @@
+{
+  "artifacts": [
+    {
+      "bytes": 23974,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/probe.py",
+      "sha256": "5ce7244429ec1c6cf60507f5c4ef1b3059583ea3825aaa269c00dfc7b7f21bbc"
+    },
+    {
+      "bytes": 2527,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/run-native.py",
+      "sha256": "840e32d15fdb762ebf0c68f5ddc1f2a90aca635822095212e517e3c6f045e0d6"
+    },
+    {
+      "bytes": 57344000,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/exact-source.tar",
+      "sha256": "0a571bbcb86a4e2aecb86b75cdd15f421d71a5fdbd0294e1cf72cf5a21517385"
+    },
+    {
+      "bytes": 577540,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/source-manifest.json",
+      "sha256": "e5215abd128c90d7d531a0903b3982585b0623a66bf80ecc5660125101fc4067"
+    },
+    {
+      "bytes": 839680,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/tracked-working-assets.tar",
+      "sha256": "505c139bd98dad78629aa8ec690dc9b0955473b26abe90aaa3442b6abfc2c822"
+    },
+    {
+      "bytes": 1257,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/working-assets-manifest.json",
+      "sha256": "3c01a519765345b5b943b0f35618480686349f4ea2339748620ba443a4277811"
+    },
+    {
+      "bytes": 3101,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/preflight.json",
+      "sha256": "a310c269d533902f4d1135321cca5273a472080be4787db486a83740e4254f1c"
+    },
+    {
+      "bytes": 377632,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/attempt2-confidence-annotated/probe-results.json",
+      "sha256": "a8ae5414146c4b1f754dd97fa5e4a00f364f20d913b128eb6b28a7dad3b128a6"
+    },
+    {
+      "bytes": 3050,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/raw/attempt2-confidence-annotated.stdout.txt",
+      "sha256": "8160fecd4d7fa174c7a328b2970295a27d44c5e17ba830af72596c0417dd3197"
+    },
+    {
+      "bytes": 0,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/raw/attempt2-confidence-annotated.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1346,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/raw/attempt2-confidence-annotated.execution.json",
+      "sha256": "f020896b72787af5b409ca3e2e335b086b8e59fd38e70685f4502f87fd9e0d11"
+    },
+    {
+      "bytes": 696,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/attempt2-confidence-annotated/inputs/mgraph-builder-arguments.json",
+      "sha256": "14b9630a497d41a356b8d70dea65dec13adb6a7a50050c5415d3acba23087823"
+    },
+    {
+      "bytes": 2116,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/attempt2-confidence-annotated/inputs/mgraph-builder-unscored.json",
+      "sha256": "b0340670241b67bfef2e0d7003e7aca289b472381bac88f24653daf4b637a71b"
+    },
+    {
+      "bytes": 2176,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/attempt2-confidence-annotated/inputs/mgraph-target.json",
+      "sha256": "9720406aeef3dc2f352764dc7ce0fdbba6bcebceb84c85fa03ed949396e7a17c"
+    },
+    {
+      "bytes": 2569,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/attempt2-confidence-annotated/inputs/mgraph-target-request.json",
+      "sha256": "e7a18e9ab89845ef412ac35bb03645ea0316ecd1064bca66187be686b4608a96"
+    },
+    {
+      "bytes": 4784,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/attempt2-confidence-annotated/outputs/dag-control.json",
+      "sha256": "d3728437b52fc566b936561fc071516d4a019486869069e40c8f7711f302c883"
+    },
+    {
+      "bytes": 6158,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/attempt2-confidence-annotated/outputs/admg-control.json",
+      "sha256": "47e47a5b9e6d81cce90c7703497993e19f92211eb2453adae1029d7d41f3c3cf"
+    },
+    {
+      "bytes": 10617,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/attempt2-confidence-annotated/outputs/mgraph-target.json",
+      "sha256": "6e99a3f2c30986008edf901527daac3fe8d63f2ef86f170dc11d8b5775652a6e"
+    },
+    {
+      "bytes": 371394,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/attempt1-builder-unscored/probe-results.json",
+      "sha256": "72a9d35d32dbbaf3151927e63e65abeec7141c1571dedd533c4cd21b907bb5ed"
+    },
+    {
+      "bytes": 43781,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/attempt1-builder-unscored/preservation.json",
+      "sha256": "b6917aecdc6de5f4aeabb0b6e17bccde508dc585ccf74dd06fc264e40a2f4c09"
+    }
+  ],
+  "attempt_history": {
+    "builder_unscored_fixture": {
+      "execution": {
+        "bytes": 1248,
+        "path": "policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/attempt1-builder-unscored/raw/native-probe-execution.json",
+        "sha256": "10b18c3a2e6c675d65dee40f8f6b8857b40d777421a39ac084637b317af3f27b"
+      },
+      "preserved_folder": "policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/attempt1-builder-unscored",
+      "reason": "Builder-generated edges have no confidence; real default threshold removed them, yielding empty DAG.",
+      "result": "INCONCLUSIVE_OTHER_PATH",
+      "status": "INCONCLUSIVE_not_ADMG_discriminator",
+      "stderr": {
+        "bytes": 0,
+        "path": "policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/attempt1-builder-unscored/raw/native-probe.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 2626,
+        "path": "policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/attempt1-builder-unscored/raw/native-probe.stdout.txt",
+        "sha256": "94d7cc9c55b92cebc55cce0c9df1996fd0e6f8f3243bdd51814031cd4124ff7e"
+      }
+    },
+    "deciding_attempt": {
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/attempt2-confidence-annotated",
+      "run_tag": "attempt2-confidence-annotated",
+      "status": "CONFIRMED_ADMITTED_TYPE_ERASURE"
+    },
+    "initial_source_only_setup_error": {
+      "cause": "missing exact candidate method_catalog_dependency_digest_domains.toml during dependency_authority import",
+      "elapsed_seconds": 1.496346,
+      "retention": "transcript only; complete raw file bytes were overwritten when the runner reused its raw names. Not a raw deciding receipt.",
+      "returncode": 2,
+      "status": "ERROR_setup_import_closure",
+      "stderr_bytes": 3082,
+      "stderr_sha256": "304784dcdc1f29931a14f08208a9f98bc88103822b3c8da3a84c11aee1f6a201",
+      "stdout_bytes": 144,
+      "stdout_sha256": "02bff47a8224618cd721bcfea41b8b32e49e06315f37d694ba22985124b47f54"
+    }
+  },
+  "chain": {
+    "artifact": "Actual CAS MethodResult, read with FileSystemCAS and the node _extract_graph implementation",
+    "cases": {
+      "admg-control": {
+        "elapsed_seconds": 0.10446,
+        "extract_mgraph_metadata": {
+          "exception_type": "ValueError",
+          "message": "extract_mgraph_metadata requires graph_type=MGRAPH, got GraphType.ADMG",
+          "outcome": "FAIL"
+        },
+        "fresh_cas_artifact_available": true,
+        "fresh_cas_ref": "artifact_id=ArtifactID(root='sha256:a62acb6aae1939bdccaf3a8362578925bb3c74d99fe56aa8b3d939733697e989') kind='ir.causal_graph_model' media_type='application/json' manifest_profile_sha256=None",
+        "fresh_reader_edges": [
+          [
+            "X",
+            "Y",
+            "arrow",
+            "arrow",
+            null
+          ],
+          [
+            "X",
+            "Y",
+            "tail",
+            "arrow",
+            null
+          ]
+        ],
+        "fresh_reader_graph_type": "admg",
+        "input_edges": [
+          [
+            "X",
+            "Y",
+            "arrow",
+            "arrow",
+            null
+          ],
+          [
+            "X",
+            "Y",
+            "tail",
+            "arrow",
+            null
+          ]
+        ],
+        "input_graph_type": "admg",
+        "input_mgraph_metadata_reader": null,
+        "mgraph_metadata_preserved": true,
+        "node_error": null,
+        "node_status": "ok",
+        "producer_complete": true,
+        "producer_extract_mgraph_metadata": null,
+        "producer_issues": [],
+        "producer_mgraph_metadata_preserved": true,
+        "producer_reconciled_edges": [
+          [
+            "X",
+            "Y",
+            "arrow",
+            "arrow",
+            null
+          ],
+          [
+            "X",
+            "Y",
+            "tail",
+            "arrow",
+            null
+          ]
+        ],
+        "producer_reconciled_graph_type": "admg",
+        "producer_result_ref": "artifact_id=ArtifactID(root='sha256:d45962179c61b083c378bec1360073a614175cb21bc8aa552d23dc4a6e52204c') kind='scientist.method_result.causal.prior' media_type='application/json' manifest_profile_sha256=None",
+        "source_artifact_id": "sha256:9b57342f640815f903d076334707542e7e14d1b59376bd7174460b232ea98788"
+      },
+      "dag-control": {
+        "elapsed_seconds": 0.210458,
+        "extract_mgraph_metadata": {
+          "exception_type": "ValueError",
+          "message": "extract_mgraph_metadata requires graph_type=MGRAPH, got GraphType.DAG",
+          "outcome": "FAIL"
+        },
+        "fresh_cas_artifact_available": true,
+        "fresh_cas_ref": "artifact_id=ArtifactID(root='sha256:bef7aca66bc54a8b631fa79660a59bfa4c6d8818bb74cbf844650843521f433f') kind='ir.causal_graph_model' media_type='application/json' manifest_profile_sha256=None",
+        "fresh_reader_edges": [
+          [
+            "X",
+            "Y",
+            "tail",
+            "arrow",
+            null
+          ]
+        ],
+        "fresh_reader_graph_type": "dag",
+        "input_edges": [
+          [
+            "X",
+            "Y",
+            "tail",
+            "arrow",
+            null
+          ]
+        ],
+        "input_graph_type": "dag",
+        "input_mgraph_metadata_reader": null,
+        "mgraph_metadata_preserved": true,
+        "node_error": null,
+        "node_status": "ok",
+        "producer_complete": true,
+        "producer_extract_mgraph_metadata": null,
+        "producer_issues": [],
+        "producer_mgraph_metadata_preserved": true,
+        "producer_reconciled_edges": [
+          [
+            "X",
+            "Y",
+            "tail",
+            "arrow",
+            null
+          ]
+        ],
+        "producer_reconciled_graph_type": "dag",
+        "producer_result_ref": "artifact_id=ArtifactID(root='sha256:5c72318b3a8a2e3dc7f9066c114f30cfda25c04bdd46173b20c36e42eeb8043e') kind='scientist.method_result.causal.prior' media_type='application/json' manifest_profile_sha256=None",
+        "source_artifact_id": "sha256:523aee0610c9f4805c17d6c22bba422f9392604fb807815196d8830edf807894"
+      },
+      "mgraph-target": {
+        "elapsed_seconds": 0.105382,
+        "extract_mgraph_metadata": {
+          "exception_type": "ValueError",
+          "message": "extract_mgraph_metadata requires graph_type=MGRAPH, got GraphType.ADMG",
+          "outcome": "FAIL"
+        },
+        "fresh_cas_artifact_available": true,
+        "fresh_cas_ref": "artifact_id=ArtifactID(root='sha256:dbb7233ea3ab79fbf52c3abe9f29c41827134fd7e3e2d47066cb5cd603139302') kind='ir.causal_graph_model' media_type='application/json' manifest_profile_sha256=None",
+        "fresh_reader_edges": [
+          [
+            "R_X",
+            "X_star",
+            "tail",
+            "arrow",
+            null
+          ],
+          [
+            "X",
+            "Y",
+            "arrow",
+            "arrow",
+            null
+          ],
+          [
+            "X",
+            "Y",
+            "tail",
+            "arrow",
+            null
+          ]
+        ],
+        "fresh_reader_graph_type": "admg",
+        "input_edges": [
+          [
+            "R_X",
+            "X_star",
+            "tail",
+            "arrow",
+            null
+          ],
+          [
+            "X",
+            "Y",
+            "arrow",
+            "arrow",
+            null
+          ],
+          [
+            "X",
+            "Y",
+            "tail",
+            "arrow",
+            null
+          ]
+        ],
+        "input_graph_type": "mgraph",
+        "input_mgraph_metadata_reader": {
+          "outcome": "PASS",
+          "value": {
+            "fully_observed_vars": [
+              "Y"
+            ],
+            "proxy_nodes": [
+              {
+                "proxy_name": "X_star",
+                "target_variable": "X"
+              }
+            ],
+            "r_nodes": [
+              {
+                "description": "",
+                "missingness_kind": "mcar",
+                "target_variable": "X"
+              }
+            ],
+            "schema_version": "1.0",
+            "substantive_vars": [
+              "X",
+              "Y"
+            ]
+          }
+        },
+        "mgraph_metadata_preserved": true,
+        "node_error": null,
+        "node_status": "ok",
+        "producer_complete": true,
+        "producer_extract_mgraph_metadata": {
+          "exception_type": "ValueError",
+          "message": "extract_mgraph_metadata requires graph_type=MGRAPH, got GraphType.ADMG",
+          "outcome": "FAIL"
+        },
+        "producer_issues": [],
+        "producer_mgraph_metadata_preserved": true,
+        "producer_reconciled_edges": [
+          [
+            "R_X",
+            "X_star",
+            "tail",
+            "arrow",
+            null
+          ],
+          [
+            "X",
+            "Y",
+            "arrow",
+            "arrow",
+            null
+          ],
+          [
+            "X",
+            "Y",
+            "tail",
+            "arrow",
+            null
+          ]
+        ],
+        "producer_reconciled_graph_type": "admg",
+        "producer_result_ref": "artifact_id=ArtifactID(root='sha256:fe5af6f4a9a9795ac1addba4e903a7fd08f3f191dbece37f770ce51c0bd2eb81') kind='scientist.method_result.causal.prior' media_type='application/json' manifest_profile_sha256=None",
+        "source_artifact_id": "sha256:5f540209066ab86a0874c45c41c4010d9164f62cbdfa2a2ca13d23224d04448e"
+      }
+    },
+    "consumer": "ReconcileCausalGraphNode.execute -> persisted ir.causal_graph_model -> new FileSystemCAS -> load_causal_graph_model -> extract_mgraph_metadata",
+    "decision": {
+      "admg_control_valid": true,
+      "dag_control_valid": true,
+      "mgraph_target_actual_reader": {
+        "exception_type": "ValueError",
+        "message": "extract_mgraph_metadata requires graph_type=MGRAPH, got GraphType.ADMG",
+        "outcome": "FAIL"
+      },
+      "mgraph_target_admitted_then_type_erased_reader_failure": true,
+      "mgraph_target_early_typed_refusal": false,
+      "mgraph_target_metadata_preserved": true,
+      "mgraph_target_output_type": "admg",
+      "mgraph_target_producer_edges": [
+        [
+          "R_X",
+          "X_star",
+          "tail",
+          "arrow",
+          null
+        ],
+        [
+          "X",
+          "Y",
+          "arrow",
+          "arrow",
+          null
+        ],
+        [
+          "X",
+          "Y",
+          "tail",
+          "arrow",
+          null
+        ]
+      ],
+      "mgraph_target_producer_metadata_preserved": true,
+      "mgraph_target_producer_output_type": "admg",
+      "mgraph_target_producer_reader": {
+        "exception_type": "ValueError",
+        "message": "extract_mgraph_metadata requires graph_type=MGRAPH, got GraphType.ADMG",
+        "outcome": "FAIL"
+      }
+    },
+    "producer": "MethodRegistry.register(ReconcileCausalGraph, override=True) -> run_job with method JobSpec and GraphReconciliationData"
+  },
+  "checkout_readback": {
+    "branch": "codex/e02-integration",
+    "head": "c75eb7125ae0b4b296fc469b13bba9653f1dd42d",
+    "recorded_at_utc": "2026-10-07T14:51:49Z",
+    "tracked_worktree_clean": true
+  },
+  "disposition": {
+    "classification": "Same static-profile admission class at graph-type identity depth, not a new causal-authority or identification finding.",
+    "confirmed": "A valid MGRAPH reaches the actual producer and node; both accept it, preserve mgraph metadata and all marks, but serialize graph_type as ADMG. The real MGraph reader fails on both producer output and fresh-CAS output with ValueError.",
+    "limitations": [
+      "Bounded synthetic runtime path, not broad F regression or causal identification evidence.",
+      "Candidate 25cdea is not an ancestor of G integration head c75eb71.",
+      "Initial import-closure error is transcript-bound, not retained as complete raw file bytes."
+    ],
+    "owner_action": "F graph owner: refuse MGRAPH at this ADMG boundary before producing output, or preserve the MGRAPH type and full reader contract. No product/test fix was made."
+  },
+  "execution": {
+    "child_command": [
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+      "-B",
+      "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/probe.py"
+    ],
+    "complete_probe_json": {
+      "bytes": 377632,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/attempt2-confidence-annotated/probe-results.json",
+      "sha256": "a8ae5414146c4b1f754dd97fa5e4a00f364f20d913b128eb6b28a7dad3b128a6"
+    },
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local",
+    "execution_record": {
+      "bytes": 1346,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/raw/attempt2-confidence-annotated.execution.json",
+      "sha256": "f020896b72787af5b409ca3e2e335b086b8e59fd38e70685f4502f87fd9e0d11"
+    },
+    "outer_command": [
+      "policy-engine/.venv/bin/python",
+      "-I",
+      "policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/run-native.py"
+    ],
+    "probe_elapsed_seconds": 7.406093,
+    "probe_max_rss_platform_units": 588562432,
+    "returncode": 0,
+    "stderr": {
+      "bytes": 0,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/raw/attempt2-confidence-annotated.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stdout": {
+      "bytes": 3050,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/raw/attempt2-confidence-annotated.stdout.txt",
+      "sha256": "8160fecd4d7fa174c7a328b2970295a27d44c5e17ba830af72596c0417dd3197"
+    },
+    "timed_out": false,
+    "timeout_seconds": 90,
+    "wrapper_elapsed_seconds": 8.128967708
+  },
+  "isolated_input": {
+    "all_tracked_paths_modes_blobs_verified": true,
+    "method": "git archive tracked source plus tracked runtime-read working assets; no .git, copied venv, production data, or managed worktree",
+    "source_archive": {
+      "bytes": 57344000,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/exact-source.tar",
+      "sha256": "0a571bbcb86a4e2aecb86b75cdd15f421d71a5fdbd0294e1cf72cf5a21517385"
+    },
+    "source_before_after_same": true,
+    "source_bytes": 54939306,
+    "source_file_count": 2914,
+    "source_inventory_after": "c60c5ecdea90dc018f60e589fa1bfc51921e583bd975afe4e1c17aef8cca425a",
+    "source_inventory_before": "c60c5ecdea90dc018f60e589fa1bfc51921e583bd975afe4e1c17aef8cca425a",
+    "source_manifest": {
+      "bytes": 577540,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/source-manifest.json",
+      "sha256": "e5215abd128c90d7d531a0903b3982585b0623a66bf80ecc5660125101fc4067"
+    },
+    "working_asset_entries": [
+      {
+        "blob": "3918078a573ff8e292e3c908d3faa2206032685c",
+        "bytes": 588,
+        "mode": "100644",
+        "path": "policy-engine/architecture/production_quality/method_catalog_dependency_profiles.toml"
+      },
+      {
+        "blob": "ac453ab0ea23f9a97ff98e01b0009465fdf66ee3",
+        "bytes": 941,
+        "mode": "100644",
+        "path": "policy-engine/architecture/production_quality/method_catalog_dependency_authority.toml"
+      },
+      {
+        "blob": "caf4fa98a0669f6d81bd8b5db0014cb015b9492f",
+        "bytes": 38632,
+        "mode": "100644",
+        "path": "policy-engine/architecture/production_quality/method_catalog_dependency_digest_domains.toml"
+      },
+      {
+        "blob": "c46d8c1c952112ba132d167f05c941304a85cd0c",
+        "bytes": 11007,
+        "mode": "100644",
+        "path": "policy-engine/pyproject.toml"
+      },
+      {
+        "blob": "85f1fb2150a4da454fee02108565381d44f56730",
+        "bytes": 779204,
+        "mode": "100644",
+        "path": "policy-engine/uv.lock"
+      }
+    ],
+    "working_assets_archive": {
+      "bytes": 839680,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/tracked-working-assets.tar",
+      "sha256": "505c139bd98dad78629aa8ec690dc9b0955473b26abe90aaa3442b6abfc2c822"
+    },
+    "working_assets_before_after_same": true,
+    "working_assets_manifest": {
+      "bytes": 1257,
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/working-assets-manifest.json",
+      "sha256": "3c01a519765345b5b943b0f35618480686349f4ea2339748620ba443a4277811"
+    }
+  },
+  "property": "The registered static-ADMG reconciliation path must refuse unsupported MGRAPH before changing its graph type, or preserve the MGRAPH type and its reader contract end to end.",
+  "runtime": {
+    "all_loaded_polisyos_modules_exact_archive_blob_verified": true,
+    "dependency_install": false,
+    "executable": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "loaded_polisyos_module_count": 970,
+    "networkx": "not installed; selected path executed without it",
+    "numpy": "2.3.5",
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "pydantic": "2.12.5",
+    "python": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+    "selected_module_origins": {
+      "polisyos.foundry.methods.catalog.causal.graph_reconciliation": {
+        "blob": "6b148f720d7fb7aa978fb46bbca722615cf433cf",
+        "origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/candidate/policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py"
+      },
+      "polisyos.ir.analytics.causal_graph": {
+        "blob": "f2635665550259d20323d29a784faf11dc8896b7",
+        "origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/candidate/policy-engine/src/polisyos/ir/analytics/causal_graph.py"
+      },
+      "polisyos.ir.analytics.mgraph": {
+        "blob": "9e7308b213ce90be5033bf8077c357c8e38617eb",
+        "origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/candidate/policy-engine/src/polisyos/ir/analytics/mgraph.py"
+      },
+      "polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph": {
+        "blob": "70ccfd46c42253861c31210ac176e22df3119e15",
+        "origin": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/F35-decision-20261007/Mgraph-local/candidate/policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py"
+      }
+    },
+    "thread_env": {
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1"
+    }
+  },
+  "schema": "policyos.e02.g.native_mgraph_probe.v1",
+  "target": {
+    "candidate_commit": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+    "candidate_critical_blobs_equal_source_freeze": {
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/graph_reconciliation.py": {
+        "candidate_blob": "6b148f720d7fb7aa978fb46bbca722615cf433cf",
+        "equal": true,
+        "source_519e_blob": "6b148f720d7fb7aa978fb46bbca722615cf433cf"
+      },
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/protocols.py": {
+        "candidate_blob": "2d35616ebe69a23b820cca258c77cf296d155bef",
+        "equal": true,
+        "source_519e_blob": "2d35616ebe69a23b820cca258c77cf296d155bef"
+      },
+      "policy-engine/src/polisyos/ir/analytics/causal_graph.py": {
+        "candidate_blob": "f2635665550259d20323d29a784faf11dc8896b7",
+        "equal": true,
+        "source_519e_blob": "f2635665550259d20323d29a784faf11dc8896b7"
+      },
+      "policy-engine/src/polisyos/ir/analytics/mgraph.py": {
+        "candidate_blob": "9e7308b213ce90be5033bf8077c357c8e38617eb",
+        "equal": true,
+        "source_519e_blob": "9e7308b213ce90be5033bf8077c357c8e38617eb"
+      },
+      "policy-engine/src/polisyos/scientist/compute/runner.py": {
+        "candidate_blob": "1212dad9803b1ed65376d500c59d87b32935f6bb",
+        "equal": true,
+        "source_519e_blob": "1212dad9803b1ed65376d500c59d87b32935f6bb"
+      },
+      "policy-engine/src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py": {
+        "candidate_blob": "70ccfd46c42253861c31210ac176e22df3119e15",
+        "equal": true,
+        "source_519e_blob": "70ccfd46c42253861c31210ac176e22df3119e15"
+      }
+    },
+    "candidate_is_ancestor_of_integration_head": false,
+    "candidate_tree": "ed4a4fd6864e8b60cb45124fb8e6fa9b7c503b66",
+    "integration_branch": "codex/e02-integration",
+    "integration_head_during_probe": "c75eb7125ae0b4b296fc469b13bba9653f1dd42d",
+    "integration_head_tree": "1aa2e587332108de1b60d9d9eb5a1d1fcae46ff6",
+    "source_freeze_commit": "519e4822f608cbe4e7ac1ee7b01f6c29cb84bc82",
+    "source_freeze_tree": "750d28da94f372848fe6b2db5f88db95b94cb57d",
+    "unit": "F graph / SCM"
+  },
+  "verdict": "CONFIRMED_ADMITTED_TYPE_ERASURE"
+}

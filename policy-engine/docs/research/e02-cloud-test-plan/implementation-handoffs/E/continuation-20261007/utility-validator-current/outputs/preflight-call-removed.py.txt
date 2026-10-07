@@ -1,0 +1,260 @@
+"""Bind posterior-profile deciding outputs to an immutable source and test counts."""
+
+from __future__ import annotations
+
+import argparse
+import copy
+import hashlib
+import json
+import re
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+from typing import Any
+
+from defusedxml.ElementTree import parse
+
+
+def _admit_source_receipt(receipt: dict[str, Any]) -> None:
+    """Admit the complete source identity and payload before any Git callback."""
+    if not isinstance(receipt, dict):
+        raise ValueError("invalid source receipt")
+    for key in ("candidate_sha", "base_sha", "candidate_tree_sha"):
+        value = receipt.get(key)
+        if not isinstance(value, str) or re.fullmatch(r"[0-9a-f]{40}", value) is None:
+            raise ValueError("source identity must be an exact SHA1")
+    for key in ("path_count", "python_path_count"):
+        value = receipt.get(key)
+        if type(value) is not int or value < 0:
+            raise ValueError("invalid source footprint count")
+
+    def admit_path(value: object) -> None:
+        if (
+            not isinstance(value, str)
+            or not value.startswith("policy-engine/")
+            or any(part in ("", ".", "..") for part in value.split("/"))
+            or "\\" in value
+            or any(ord(character) < 32 for character in value)
+        ):
+            raise ValueError("invalid source path")
+
+    footprint = receipt.get("source_footprint")
+    changed_paths = receipt.get("changed_paths")
+    if not isinstance(footprint, list) or not isinstance(changed_paths, list):
+        raise ValueError("invalid source footprint payload")
+    paths = []
+    for record in footprint:
+        if not isinstance(record, dict):
+            raise ValueError("invalid source footprint record")
+        path = record.get("path")
+        admit_path(path)
+        size, digest = record.get("bytes"), record.get("sha256")
+        if (
+            type(size) is not int
+            or size < 0
+            or not isinstance(digest, str)
+            or re.fullmatch(r"[0-9a-f]{64}", digest) is None
+        ):
+            raise ValueError("invalid source footprint hash/size")
+        paths.append(path)
+    for path in changed_paths:
+        admit_path(path)
+    if (
+        len(set(paths)) != len(paths)
+        or len(set(changed_paths)) != len(changed_paths)
+        or set(paths) != set(changed_paths)
+        or receipt["path_count"] != len(paths)
+        or receipt["python_path_count"] != sum(path.endswith(".py") for path in paths)
+    ):
+        raise ValueError("source footprint summary mismatch")
+
+
+def validate_copy_index(root: Path, index: dict[str, Any]) -> None:
+    """Bind declared copy totals and portable bytes to the original custody index."""
+    records = index["copies"]
+    if (
+        len(records) != index["copied_files"]
+        or sum(record["bytes"] for record in records) != index["copied_bytes"]
+    ):
+        raise ValueError("copy-index summary mismatch")
+    paths = [record["portable_path"] for record in records]
+    if len(set(paths)) != len(paths):
+        raise ValueError("copy-index duplicate output")
+    for record in records:
+        path = root / record["portable_path"]
+        if not path.resolve().is_relative_to(root.resolve()):
+            raise ValueError("copy-index path outside publication")
+        data = path.read_bytes()
+        if len(data) != record["bytes"] or hashlib.sha256(data).hexdigest() != record["sha256"]:
+            raise ValueError("copy-index portable bytes mismatch")
+
+
+def validate(root: Path, lane: Path, receipt: dict[str, Any]) -> None:
+    """Recompute output/source denominators, hashes and JUnit states."""
+    records = receipt["deciding_outputs"]
+    actual = {
+        str(path.relative_to(root))
+        for directory in ("checks", "independent-review", "owner-packet")
+        for path in (root / directory).rglob("*")
+        if path.is_file()
+    }
+    if len(records) != len(actual) or {record["path"] for record in records} != actual:
+        raise ValueError("deciding-output denominator mismatch")
+    if receipt["deciding_output_count"] != len(actual) or receipt["deciding_output_bytes"] != sum(
+        (root / path).stat().st_size for path in actual
+    ):
+        raise ValueError("deciding-output summary mismatch")
+    for record in records:
+        path = root / record["path"]
+        data = path.read_bytes()
+        if len(data) != record["bytes"]:
+            raise ValueError("deciding-output size mismatch")
+        if hashlib.sha256(data).hexdigest() != record["sha256"]:
+            raise ValueError("deciding-output hash mismatch")
+    index_record = receipt["publication_copy_index"]
+    data = (root / index_record["path"]).read_bytes()
+    if (
+        len(data) != index_record["bytes"]
+        or hashlib.sha256(data).hexdigest() != (index_record["sha256"])
+    ):
+        raise ValueError("copy-index hash/size mismatch")
+    validate_copy_index(root, json.loads(data))
+    for check in receipt["checks"]:
+        if "junit" not in check:
+            continue
+        if check["junit"] not in actual:
+            raise ValueError("JUnit outside deciding denominator")
+        cases = parse(root / check["junit"]).getroot().findall(".//testcase")
+        states = dict.fromkeys(("PASS", "FAIL", "ERROR", "SKIP"), 0)
+        for case in cases:
+            state = (
+                "FAIL"
+                if case.find("failure") is not None
+                else "ERROR"
+                if case.find("error") is not None
+                else "SKIP"
+                if case.find("skipped") is not None
+                else "PASS"
+            )
+            states[state] += 1
+        if len(cases) != check["cases"] or states != check["states"]:
+            raise ValueError("JUnit count/state mismatch")
+    executable = shutil.which("git")
+    if executable is None:
+        raise RuntimeError("git unavailable")
+    candidate, base = receipt["candidate_sha"], receipt["base_sha"]
+    for ref in (candidate, base):
+        if not isinstance(ref, str) or re.fullmatch(r"[0-9a-f]{40}", ref) is None:
+            raise ValueError("source identity must be an exact SHA1")
+    tree = subprocess.check_output(  # noqa: S603 - fixed git command and validated SHA.
+        [executable, "rev-parse", candidate + "^{tree}"], cwd=lane, text=True
+    ).strip()
+    if tree != receipt["candidate_tree_sha"]:
+        raise ValueError("source tree mismatch")
+    paths = subprocess.check_output(  # noqa: S603 - fixed git command and validated SHAs.
+        [executable, "diff", "--name-only", base, candidate], cwd=lane, text=True
+    ).splitlines()
+    footprint = receipt["source_footprint"]
+    if len(footprint) != len(paths) or {record["path"] for record in footprint} != set(paths):
+        raise ValueError("source footprint denominator mismatch")
+    if (
+        receipt["path_count"] != len(paths)
+        or receipt["python_path_count"] != sum(path.endswith(".py") for path in paths)
+        or len(receipt["changed_paths"]) != len(paths)
+        or set(receipt["changed_paths"]) != set(paths)
+    ):
+        raise ValueError("source footprint summary mismatch")
+    for record in footprint:
+        path = record["path"]
+        data = subprocess.check_output(  # noqa: S603 - fixed git command and validated source path.
+            [executable, "show", candidate + ":" + path], cwd=lane
+        )
+        if len(data) != record["bytes"] or hashlib.sha256(data).hexdigest() != record["sha256"]:
+            raise ValueError("source footprint hash/size mismatch")
+
+
+def main() -> None:
+    """Require each independent receipt corruption to be detected."""
+    root = Path(__file__).resolve().parent
+    lane = next(parent for parent in root.parents if (parent / ".git").exists())
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--publication-receipt",
+        type=Path,
+        default=root / "implementation-handoff.json",
+        help="Select a current corrective receipt; default selects the historical receipt.",
+    )
+    arguments = parser.parse_args()
+    receipt = json.loads(arguments.publication_receipt.read_text())
+    validate(root, lane, receipt)
+    controls = []
+    for name in (
+        "output-hash",
+        "output-size",
+        "output-removed",
+        "forged-count",
+        "wrong-tree",
+        "source-removed",
+        "declared-output-count",
+        "declared-output-bytes",
+        "declared-path-count",
+        "declared-python-count",
+        "declared-changed-paths",
+        "copy-index-hash",
+    ):
+        bad = copy.deepcopy(receipt)
+        if name == "output-hash":
+            bad["deciding_outputs"][0]["sha256"] = "0" * 64
+        elif name == "output-size":
+            bad["deciding_outputs"][0]["bytes"] += 1
+        elif name == "output-removed":
+            bad["deciding_outputs"].pop()
+        elif name == "forged-count":
+            next(check for check in bad["checks"] if "junit" in check)["states"]["PASS"] += 1
+        elif name == "wrong-tree":
+            bad["candidate_tree_sha"] = "0" * 40
+        elif name == "source-removed":
+            bad["source_footprint"].pop()
+        elif name == "declared-output-count":
+            bad["deciding_output_count"] += 1
+        elif name == "declared-output-bytes":
+            bad["deciding_output_bytes"] += 1
+        elif name == "declared-path-count":
+            bad["path_count"] += 1
+        elif name == "declared-python-count":
+            bad["python_path_count"] += 1
+        elif name == "declared-changed-paths":
+            bad["changed_paths"].pop()
+        else:
+            bad["publication_copy_index"]["sha256"] = "0" * 64
+        try:
+            validate(root, lane, bad)
+        except ValueError:
+            controls.append({"mutation": name, "refused": True})
+        else:
+            raise RuntimeError("publication control escaped: " + name)
+    index = json.loads((root / receipt["publication_copy_index"]["path"]).read_text())
+    for name in ("copied_files", "copied_bytes"):
+        bad = copy.deepcopy(index)
+        bad[name] += 1
+        try:
+            validate_copy_index(root, bad)
+        except ValueError:
+            controls.append({"mutation": "copy-index-" + name, "refused": True})
+        else:
+            raise RuntimeError("copy-index control escaped: " + name)
+    sys.stdout.write(
+        json.dumps(
+            {
+                "validation": "PASS",
+                "candidate": receipt["candidate_sha"],
+                "controls": controls,
+            }
+        )
+        + "\n"
+    )
+
+
+if __name__ == "__main__":
+    main()

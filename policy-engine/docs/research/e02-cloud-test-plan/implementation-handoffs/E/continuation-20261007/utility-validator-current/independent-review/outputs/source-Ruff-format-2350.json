@@ -1,0 +1,77 @@
+{
+  "source": "2350edfba4e71909fbc615fe3101793b1b13945a",
+  "tree": "fb4486cb39dc44b1ef09ea1e280df8b640b772ba",
+  "source_program": {
+    "path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/validate.py",
+    "bytes": 10661,
+    "sha256": "6f1e4c188a978b4da6298f3939e32ef71e9839bcf6eb77d41239b29f0ba57e3f"
+  },
+  "source_before_after_unchanged": true,
+  "checks": [
+    {
+      "name": "Ruff",
+      "argv": [
+        "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "ruff",
+        "check",
+        "--output-format",
+        "json",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/validate.py"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "environment_overrides": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "GIT_OPTIONAL_LOCKS": "0",
+        "RUFF_CACHE_DIR": "/tmp/e02-E-validator-format-independent-r4/cache-source-Ruff"
+      },
+      "began_at": "2026-10-07T14:21:46.428088+00:00",
+      "ended_at": "2026-10-07T14:21:46.554224+00:00",
+      "exit_code": 0,
+      "stdout": {
+        "path": "/tmp/e02-E-validator-format-independent-r4/source-Ruff-2350.stdout.txt",
+        "bytes": 2,
+        "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-validator-format-independent-r4/source-Ruff-2350.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "format",
+      "argv": [
+        "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/validate.py"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006/policy-engine",
+      "environment_overrides": {
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "GIT_OPTIONAL_LOCKS": "0",
+        "RUFF_CACHE_DIR": "/tmp/e02-E-validator-format-independent-r4/cache-source-format"
+      },
+      "began_at": "2026-10-07T14:21:46.429302+00:00",
+      "ended_at": "2026-10-07T14:21:46.547836+00:00",
+      "exit_code": 0,
+      "stdout": {
+        "path": "/tmp/e02-E-validator-format-independent-r4/source-format-2350.stdout.txt",
+        "bytes": 25,
+        "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-validator-format-independent-r4/source-format-2350.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "global_denominator_rerun": false,
+  "root_environment_written": false
+}

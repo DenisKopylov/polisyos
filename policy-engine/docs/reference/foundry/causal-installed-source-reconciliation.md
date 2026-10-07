@@ -35,8 +35,9 @@ No graph, schema, backend, or public facade is changed by this reconciliation.
 The narrow installed test executes the real parameter-emission and CSV
 consumers, persists the mixed or updated graph in FileSystemCAS, then starts a
 fresh isolated reader from the same installed distribution. It checks complete
-NetworkX edge payloads, multiplicity, endpoint marks, lags, ancestor sets, schema
-version, and installed origins. Its parameter recorder verifies the ordinary
+NetworkX edge payloads, multiplicity, endpoint marks, lags, static ancestor sets,
+explicit static-inference refusal for a temporal graph, schema version, and
+installed origins. Its parameter recorder verifies the ordinary
 dictionary consumer ABI; it is not a live Kuzu database witness. The source
 receipt names the distribution SHA separately from the new test-carrier SHA.
 
@@ -48,4 +49,3 @@ support that finite window. Computed external clients are outside that census;
 the 38 incomplete static export declarations remain explicit unknowns with
 unknown total counts. Neither observation is a repository-wide absence claim
 or a completed static export inventory.
-

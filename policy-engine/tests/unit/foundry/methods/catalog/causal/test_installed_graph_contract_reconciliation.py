@@ -45,10 +45,20 @@ network=graph.to_networkx()
 assert network.is_multigraph()
 actual=[{'src':u,'dst':v,**data} for u,v,key,data in network.edges(keys=True,data=True)]
 assert sorted(json.dumps(x,sort_keys=True) for x in actual)==sorted(json.dumps(x,sort_keys=True) for x in expected['edges'])
-assert ancestors(graph,frozenset({'Y'}))==frozenset(json.loads(sys.argv[4]))
+if sys.argv[4]=='static_refused':
+    try:
+        ancestors(graph,frozenset({'Y'}))
+    except ValueError as exc:
+        assert 'Unsupported static ADMG profile' in str(exc) and 'lag=1' in str(exc)
+        ancestry='static_refused'
+    else:
+        raise AssertionError('temporal graph admitted to static ancestry')
+else:
+    ancestry=sorted(ancestors(graph,frozenset({'Y'})))
+    assert ancestry==json.loads(sys.argv[4])
 origins={name:module.__file__ for name,module in sys.modules.copy().items() if name.startswith('polisyos') and getattr(module,'__file__',None)}
 assert all(Path(path).resolve().is_relative_to(site) for path in origins.values())
-print(json.dumps({'owner':str(Path(owner.__file__).resolve()),'owner_sha256':hashlib.sha256(Path(owner.__file__).read_bytes()).hexdigest(),'cas_id':ref.artifact_id,'schema_version':graph.schema_version,'edge_count':network.number_of_edges(),'edges':actual,'ancestors':sorted(ancestors(graph,frozenset({'Y'}))),'origins':origins},sort_keys=True))
+print(json.dumps({'owner':str(Path(owner.__file__).resolve()),'owner_sha256':hashlib.sha256(Path(owner.__file__).read_bytes()).hexdigest(),'cas_id':ref.artifact_id,'schema_version':graph.schema_version,'edge_count':network.number_of_edges(),'edges':actual,'ancestors':ancestry,'origins':origins},sort_keys=True))
 """
 
 
@@ -72,14 +82,27 @@ def test_installed_detached_rows_csv_and_fresh_typed_graph_reader(
 ) -> None:
     site = Path(sysconfig.get_paths()["purelib"]).resolve()
     assert Path(owner.__file__).resolve().is_relative_to(site)
-    original = _mixed_graph()
+    original = (
+        _mixed_graph()
+        if version == "mixed"
+        else owner.CausalGraphModel(
+            graph_type=owner.GraphType.DAG,
+            nodes=["X", "Y"],
+            edges=[owner.CausalEdge(src="X", dst="Y")],
+        )
+    )
     original_dump = original.model_dump(mode="json")
-    assert len(original.kuzu_edge_rows) == 5
-    assert ancestors(original, frozenset({"Y"})) == frozenset({"X", "Y"})
+    original_edge_count = 5 if version == "mixed" else 1
+    assert len(original.kuzu_edge_rows) == original_edge_count
+    if version == "mixed":
+        with pytest.raises(ValueError, match="Unsupported static ADMG profile.*lag=1"):
+            ancestors(original, frozenset({"Y"}))
+    else:
+        assert ancestors(original, frozenset({"Y"})) == frozenset({"X", "Y"})
     graph = original if version == "mixed" else original.model_copy(update={"edges": []})
     expected = graph.model_dump(mode="json")
     edge_count = 5 if version == "mixed" else 0
-    expected_ancestors = ["X", "Y"] if version == "mixed" else ["Y"]
+    ancestry_argument = "static_refused" if version == "mixed" else json.dumps(["Y"])
     rows = (deepcopy(graph.kuzu_node_rows), deepcopy(graph.kuzu_edge_rows))
 
     # A real parameter consumer may mutate ordinary dictionaries. Neither this
@@ -124,7 +147,7 @@ def test_installed_detached_rows_csv_and_fresh_typed_graph_reader(
     )
     assert all(row["FROM"] == "X" and row["TO"] == "Y" for row in edges)
     assert original.model_dump(mode="json") == original_dump
-    assert len(original.kuzu_edge_rows) == 5
+    assert len(original.kuzu_edge_rows) == original_edge_count
 
     cas = tmp_path / "cas"
     ref = owner.persist_causal_graph_model(FileSystemCAS(cas), graph)
@@ -137,7 +160,7 @@ def test_installed_detached_rows_csv_and_fresh_typed_graph_reader(
             str(cas),
             ref.model_dump_json(),
             json.dumps(expected),
-            json.dumps(expected_ancestors),
+            ancestry_argument,
         ],
         capture_output=True,
         text=True,

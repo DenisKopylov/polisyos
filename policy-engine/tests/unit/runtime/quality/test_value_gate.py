@@ -3106,7 +3106,7 @@ def test_value_port_selects_then_routes_missing_owner_assignment_to_acquisition(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """A bound built-in registry routes persisted N5 to the owner-assignment gap."""
+    """Bound selection preserves assignment and source-currentness limitations."""
 
     candidate, problem, simulation, execution_context, store = _persisted_n5_value_fixture(
         tmp_path,
@@ -3141,6 +3141,7 @@ def test_value_port_selects_then_routes_missing_owner_assignment_to_acquisition(
     assert observation.value_receipt is None
     assert observation.authority_blockers == (
         "treatment_assignment_not_owner_derived",
+        "source_update_time_not_established",
     )
     assert isinstance(observation.method_selection_receipt, MethodSelectionReceipt)
     assert observation.method_selection_receipt.selection_authority == (

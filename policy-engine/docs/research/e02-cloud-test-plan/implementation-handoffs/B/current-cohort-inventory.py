@@ -5,6 +5,9 @@ and load them with ``-p current_cohort_inventory``. Set only the explicit output
 ``E02_B_COHORT_INVENTORY_PATH`` to a fresh absolute Git-ignored path. The collection
 checkpoint is persisted before execution; the final snapshot accompanies full stdout
 and JUnit. This is observation, not a test, finding-closure gate, or import read-set audit.
+Optionally set ``E02_B_COHORT_REPORT_JOURNAL_PATH`` to another fresh absolute ignored
+path. Its append-only JSONL records survive abrupt process death up to the last
+flushed report; a surviving prefix never establishes completion of the whole session.
 """
 
 from __future__ import annotations
@@ -167,6 +170,16 @@ class _Inventory:
     annotations: dict[int, Record] = field(default_factory=dict)
     worker_collections: list[Record] = field(default_factory=list)
     finished: bool = False
+    journal: BinaryIO | None = None
+    journal_path: str | None = None
+
+    def journal_report(self, report: Record) -> None:
+        """Flush each observed phase independently of the final inventory snapshot."""
+        if self.journal is not None:
+            self.journal.write(
+                (json.dumps(report, ensure_ascii=False, allow_nan=False) + "\n").encode()
+            )
+            self.journal.flush()
 
     def persist(self, *, final: Record | None = None) -> None:
         payload: Record = {
@@ -183,6 +196,7 @@ class _Inventory:
             "ini_path": str(self.config.inipath) if self.config.inipath is not None else None,
             "ini_addopts": self.config.getini("addopts"),
             "junit_path": getattr(self.config.option, "xmlpath", None),
+            "runtime_report_journal": self.journal_path,
             "git_at_start": self.started,
             "session_items_before_execution": self.items,
             "collection_reports": self.collect_reports,
@@ -364,6 +378,24 @@ def pytest_configure(config: pytest.Config) -> None:
     started = _snapshot(repo)
     started["read_operations"].extend([receipt, ignored])
     _ACTIVE = _Inventory(config, repo, output, os.fdopen(descriptor, "wb"), started, worker_id)
+    journal_setting = os.environ.get("E02_B_COHORT_REPORT_JOURNAL_PATH")
+    if journal_setting is not None:
+        journal = Path(journal_setting)
+        if not journal.is_absolute():
+            raise pytest.UsageError("Report journal must be a fresh absolute ignored path")
+        journal = journal.resolve()
+        if worker_id is not None:
+            journal = journal.with_name(journal.name + "." + worker_id + ".jsonl")
+        _, journal_ignored = _git(repo, "check-ignore", "--quiet", "--no-index", "--", str(journal))
+        if not journal.is_relative_to(repo) or journal_ignored.get("returncode") != 0:
+            raise pytest.UsageError("Report journal must be inside actual Git-ignored storage")
+        journal.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            journal_descriptor = os.open(journal, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        except OSError as exc:
+            raise pytest.UsageError("Report journal could not be exclusively created") from exc
+        _ACTIVE.journal = os.fdopen(journal_descriptor, "wb")
+        _ACTIVE.journal_path = str(journal)
     _ACTIVE.persist()
 
 
@@ -427,16 +459,16 @@ def pytest_runtest_logreport(report: pytest.TestReport) -> None:
     """Record every observed setup/call/teardown phase without altering it."""
     if _ACTIVE is not None:
         annotation = _ACTIVE.annotations.pop(id(report), {})
-        _ACTIVE.runtime_reports.append(
-            {
-                **_report(report),
-                "when": report.when,
-                "duration": _number(report.duration),
-                "start": _number(report.start),
-                "stop": _number(report.stop),
-                **annotation,
-            }
-        )
+        row = {
+            **_report(report),
+            "when": report.when,
+            "duration": _number(report.duration),
+            "start": _number(report.start),
+            "stop": _number(report.stop),
+            **annotation,
+        }
+        _ACTIVE.runtime_reports.append(row)
+        _ACTIVE.journal_report(row)
 
 
 @pytest.hookimpl(optionalhook=True)
@@ -476,5 +508,7 @@ def pytest_unconfigure(config: pytest.Config) -> None:
                     final={"session_exitstatus": None, "git_at_finish": _snapshot(_ACTIVE.repo)}
                 )
         finally:
+            if _ACTIVE.journal is not None:
+                _ACTIVE.journal.close()
             _ACTIVE.stream.close()
             _ACTIVE = None

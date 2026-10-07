@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterator
+from contextlib import contextmanager
 from dataclasses import replace
 from pathlib import Path
 from typing import Any
@@ -68,6 +70,14 @@ async def test_informative_voi_candidate_core_readback_and_preview_refusal(
     from tests.unit.runtime.http.test_control_job_execution_intent import (
         _valid_intake_for_mode,
     )
+
+    @contextmanager
+    def owner_scoped_test_client(app: Any) -> Iterator[Any]:
+        """Keep the producer's existing CAS owner active through app lifespan."""
+
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            with TestClient(app) as client:
+                yield client
 
     monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
     monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
@@ -206,7 +216,7 @@ async def test_informative_voi_candidate_core_readback_and_preview_refusal(
                 ),
                 allow_fixture_identity=True,
             )
-        with TestClient(first_app) as client:
+        with owner_scoped_test_client(first_app) as client:
             accepted_response = client.post(
                 "/api/v1/control/runs/nl",
                 json={
@@ -317,7 +327,7 @@ async def test_informative_voi_candidate_core_readback_and_preview_refusal(
                 ),
                 allow_fixture_identity=True,
             )
-        with TestClient(fresh_app) as fresh_client:
+        with owner_scoped_test_client(fresh_app) as fresh_client:
             fresh_service = fresh_app.state._control_service
             fresh_job = fresh_service._control_store.get_job(accepted["job_id"])
             assert fresh_job is not None and fresh_job.state == "completed"

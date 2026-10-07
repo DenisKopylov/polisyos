@@ -57,7 +57,7 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
     from fastapi.testclient import TestClient
 
     from polisyos.core import canon
-    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.artifacts.manifest import ArtifactID, ArtifactRef
     from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.pdc import gy_content_hash
     from polisyos.runtime.http.app import create_runtime_api_app
@@ -510,7 +510,7 @@ def test_manual_n5_interaction_evidence_is_recomputed_by_fresh_run_details_get(
                 assert leaf.cycle_run.schema_version == (
                     "policyos.runtime.generation_cycle_controller.v5"
                 )
-                source_ref = ArtifactRef.model_validate(source_binding.source_run_ref)
+                source_ref = ArtifactID.model_validate(source_binding.source_run_ref)
                 with tenant_scope(None, tenant_id=TENANT_ID, cell_id=CELL_ID):
                     source_raw = service._artifact_store.get_bytes(source_ref)
                     source_manifest = service._artifact_store.get_manifest(source_ref)

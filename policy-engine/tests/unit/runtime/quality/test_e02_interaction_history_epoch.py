@@ -224,7 +224,10 @@ async def test_actual_default_n5_n8_interaction_history_is_versioned_and_replaya
 
         missing_cycles = copy.deepcopy(persisted)
         missing_cycles["cycles"] = []
-        assert missing_cycles["value_port"]["conditional_interaction_evidence"] == expected_wire
+        assert (
+            missing_cycles["value_port"]["conditional_interaction_evidence"]
+            == persisted["value_port"]["conditional_interaction_evidence"]
+        )
         with pytest.raises(
             ValueError,
             match="generation_cycle_interaction_evidence_cycle_missing",

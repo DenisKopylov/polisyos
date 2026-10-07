@@ -1,0 +1,49 @@
+{
+  "schema": "policyos.e02.complete_companion_admission_correction.v1",
+  "historical_candidate": "7f872f2119f220ae86510ca89993ed0240efe982",
+  "historical_copier_metadata": 9,
+  "historical_replay_paths": 205,
+  "actual_Git_paths": 207,
+  "current_copier_metadata": 11,
+  "current_complete_replay_paths": 207,
+  "declared_and_actual_denominators_derived": true,
+  "all_noncomputed_metadata_identity": {
+    "build-stage.py.txt": {
+      "bytes": 19033,
+      "sha256": "32d513ddf108ccbe15e9fe3120deeda0458bd6a9cd07834b55bd6ee45379569e"
+    },
+    "README.md": {
+      "bytes": 1180,
+      "sha256": "fc686b319366666342267355adac0d184c2a2c6731591faf5166324f82ecf17c"
+    },
+    "qualification.json": {
+      "bytes": 3078,
+      "sha256": "9ae9fed8b53b141ba98317581ce451fd9b45a35334296fcf5aa4360dd954f6ad"
+    },
+    "build.stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "resume-admission.json": {
+      "bytes": 123184,
+      "sha256": "216c537435382e64dbc5a4ce11cf4a760a340ef411cfb054d67810c59925f704"
+    },
+    "resume-admission.stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "metadata-admission-correction.py.txt": {
+      "bytes": 2815,
+      "sha256": "ca96ef7f6d52bfd34b5b6acefb9f6def55dba4e099db20a4f6760d4e8a743891"
+    },
+    "correct-raw-stream-portable.py.txt": {
+      "bytes": 3882,
+      "sha256": "d4bf48fb4c13f7e73e00a478f45eaf452c4fca43714693eb00863146372975bb"
+    }
+  },
+  "original_payload_member_Counter_bytes_unchanged": true,
+  "copier_sha256": "2175b7eac8fab8b2ca9d20a062c8bea23a9ff75c0ca8f5a4bfd636c79ddb11bc",
+  "build_stdout_sha256": "d98481f17a90380508fd88a7231c985ec0f07635aebaf0500a0cb0f761d04bfd",
+  "source_native_numeric_gate_execution": false,
+  "ROOT_source_env_locks_written": false
+}

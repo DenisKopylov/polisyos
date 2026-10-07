@@ -1,0 +1,17 @@
+{
+  "disposition": "CHANGE_REQUIRED",
+  "control_count": 14,
+  "report": {
+    "path": "/tmp/e02-E-pr38-description-independent-doe-20261007/independent-review-optimized.json",
+    "bytes": 20644,
+    "sha256": "70c647687eee71f082a80aee5109a7de8a135290365e58116569729f2e66affc"
+  },
+  "required_correction": {
+    "source_path": "policy-engine/src/polisyos/calibration/forecast_bridge.py",
+    "target_module": "polisyos.ir.analytics.forecasting_uncertainty",
+    "line": 995,
+    "symbols": [
+      "load_forecasting_uncertainty_bundle"
+    ]
+  }
+}

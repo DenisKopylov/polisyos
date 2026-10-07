@@ -1,0 +1,23 @@
+import hashlib,json
+from pathlib import Path
+S=Path('/tmp/e02-E-decisions-prereqs-publication-r4-stage')
+I=Path('/tmp/e02-E-decisions-prereqs-custody-independent/publication-selection-handoff-66a4.json')
+rows=[]
+def add(p,target,role,expected=None,record=None):
+ p=Path(p);b=p.read_bytes();i={'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+ if expected and i!=expected:raise ValueError('closed original asset drift')
+ if any(a['portable_path']==target for a in rows):raise ValueError('portable collision')
+ if target.endswith('.py'):raise ValueError('active Python route')
+ if target.endswith('.json') and not b:raise ValueError('empty stream needs txt')
+ r={'source_path':str(p),'portable_path':target,'role':role,**i}
+ if record is not None:r['original_selector_record']=record
+ rows.append(r)
+if {'bytes':len(I.read_bytes()),'sha256':hashlib.sha256(I.read_bytes()).hexdigest()}!={'bytes':4431,'sha256':'9d7d354baebf4d4559fe18650705b3e78f1577f0297b4a3fc821d0ded14cbb35'}:raise ValueError('thinreviewselector')
+for a in json.loads(I.read_text())['assets']:
+ add(a['path'],'independent-handoff/'+a['portable_path'],'closed independent335copy/339DOC thinhand off original and exact23negative/removal controls',{k:a[k] for k in ('bytes','sha256')},a)
+add(I,'independent-handoff/publication-selection.json','fixed original13asset thinindependent selector')
+for n in ('publication-receipt.json','push.stdout.txt','push.stderr.txt','fetch-readback.stdout.txt','fetch-readback.stderr.txt','ls-remote-readback.stdout.txt','ls-remote-readback.stderr.txt','handoff-commit.stdout.txt','handoff-commit.stderr.txt','predicate-basis-commit.stdout.txt','predicate-basis-commit.stderr.txt','predicate-basis-correction.stdout.json','predicate-basis-correction.stderr.txt','final-handoff-footprint.json','handoff-Git-readback.json','handoff-Git-readback.stdout.json','handoff-Git-readback.stderr.txt','handoff-precommit-readback.json','handoff-precommit.stdout.json','handoff-precommit.stderr.txt','precommit-ordering-tool-observation.json','build-handoff.stdout.json','build-handoff.stderr.txt','write-publication-receipt.py.txt','write-publication-receipt.stdout.json','write-publication-receipt.stderr.txt','verify-handoff-precommit.py.txt','readback-handoff-Git.py.txt','select-postpublication.py.txt'):
+ add(S/n,'author-postpublication/'+n,'literal closed DOC commit/push/hooks/remote readback or exact passive source recipe; no source/native/gate execution')
+o={'schema':'policyos.e02.closed_decisions_prereqs_postpublication_moderate_selection.v1','published_source':'66a4f8fc1398ed72b3ee9d38b07d88a4d2d5c3cd','published_tree':'54ec53ea6e53a61432135e8d2728c6fa1cfd964a','assets':rows,'asset_count':len(rows),'total_bytes':sum(a['bytes'] for a in rows),'scope':'External next-root/supplement assets only: published521→522DOC currentthinreview+commit/remote custody. No recursive mutation of alreadypublished source/handoff; original335 copies and237 membership chain unchanged.','exclusions':'No source/numeric/native/backend/private/raw/temp destination trees; currentROOTgeneratedinput mutation no wholeclean or cause claim.'}
+(S/'postpublication-selection.json').write_text(json.dumps(o,indent=2)+'\n')
+b=(S/'postpublication-selection.json').read_bytes();print(json.dumps({'path':str(S/'postpublication-selection.json'),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest(),'assets':len(rows),'selected_bytes':o['total_bytes']},indent=2))

@@ -1,0 +1,23 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt", line 115, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt", line 90, in main
+    p=Path(args.manifest);raw_manifest=p.read_bytes();m=strict_json(raw_manifest);validate(p,m)
+                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt", line 21, in strict_json
+    return json.loads(body,object_pairs_hook=duplicate_checked,parse_constant=refused)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/__init__.py", line 359, in loads
+    return cls(**kw).decode(s)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/decoder.py", line 338, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/json/decoder.py", line 354, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt", line 16, in duplicate_checked
+    if key in out:raise ValueError('duplicate JSON metadata key '+key)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: duplicate JSON metadata key logical_count

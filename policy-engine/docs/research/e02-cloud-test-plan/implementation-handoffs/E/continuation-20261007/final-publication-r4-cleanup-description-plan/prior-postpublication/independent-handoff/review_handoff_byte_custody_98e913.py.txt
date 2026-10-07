@@ -1,0 +1,40 @@
+import hashlib,json,subprocess
+from pathlib import Path
+R=Path('/workspace/e02-E-frc-20261006');O=Path('/tmp/e02-E-decisions-prereqs-custody-independent/handoff-98e913');P='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs-handoff';S='98e913252845384f275092d86714c3d18a647218';T='4004d3a31cda811ac9a348a6e51f8a95d9092931';C='e233efcd0e5a4bb4c5b280f86a12ec7d0a264d62'
+def sha(b):return hashlib.sha256(b).hexdigest()
+def need(x,m):
+ if not x:raise ValueError(m)
+def git(*a):return subprocess.check_output(['git','-C',str(R),*a])
+need(git('rev-parse',S+'^{tree}').decode().strip()==T,'immutable handofftree')
+blobs={};foot=[]
+for row in git('diff','--name-status',C,S).decode().splitlines():
+ status,path=row.split('\t');need(status=='A' and path.startswith(P+'/') and not path.endswith('.py'),'DOC-only additive footprint')
+ b=git('show',S+':'+path);need(b==(R/path).read_bytes(),'Git/physical '+path)
+ if path.endswith('.json'):json.loads(b)
+ blobs[path[len(P)+1:]]=b;foot.append({'path':path,'status':status,'bytes':len(b),'sha256':sha(b)})
+need(len(foot)==338 and sum(r['bytes'] for r in foot)==1498698,'full handoff338/1498698')
+h=json.loads(blobs['implementation-handoff.json']);idx=json.loads(blobs['copy-index.json']);env=json.loads(blobs['environment.json'])
+for n in ['implementation-handoff.json','copy-index.json','environment.json','README.md']:(O/n).write_bytes(blobs[n])
+need(h['candidate_sha']==C and h['candidate_tree_sha']=='6f541e58830bb760c2885921d58d6dfae4e6b01a','candidate identities')
+need(h['base_sha']=='737c9e3115abac3fefe76920b08c05e76a5bee17','originalslice base')
+need(h['verification_source_sha']=='64d7444a18c55df7b88b71b7699a2f1b25ca24bd' and h['verification_source_tree_sha']=='aef23574d3162abb19bf5a1c67d02624ff9d4d1d','frozenverification identities')
+need(set(h['handoff_footprint'])=={r['path'] for r in foot},'complete exact handoff set')
+need(h['handoff_path_count']==338 and h['implementation_path_count']==183 and h['full_path_count']==521,'pathdenominators')
+need(set(h['full_footprint'])==set(h['handoff_footprint'])|set(h['implementation_footprint']),'wholecompanions521')
+need(git('diff','--name-only',C,S,'--','policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-decisions-prereqs').strip()==b'','all183implementation unchanged')
+need(idx['copied_files']==334 and idx['copied_bytes']==1033929 and len(idx['copies'])==334,'334copydenominator')
+need(h['copied_handoff_files']==334 and h['copied_handoff_bytes']==1033929,'handoff copydenominator')
+need(h['copy_index']['sha256']==sha(blobs['copy-index.json']) and h['copy_index']['bytes']==len(blobs['copy-index.json']),'copyindex hashinlet')
+copyrows=[]
+for r in idx['copies']:
+ p=r['portable_path'];need(p in blobs,'indexedportable exists')
+ b=Path(r['source_path']).read_bytes();need(b==blobs[p] and len(b)==r['bytes'] and sha(b)==r['sha256'],'literal originalbyte equality '+p)
+ copyrows.append(r)
+need(len({r['portable_path'] for r in copyrows})==334,'portableunique')
+need(set(blobs)=={r['portable_path'] for r in copyrows}|{'README.md','implementation-handoff.json','copy-index.json','environment.json'},'no omitted/extrafootprint')
+need(sum(r['bytes'] for r in copyrows)==1033929,'actualcopiedbytes')
+q=h['ROOT_tracked_input_qualification'];need(q['broad_source_input_immutable'] is False and q['whole_tracked_clean'] is False and q['snapshot_atomic'] is False and q['allowlisted_or_waived_sourcefreeze'] is False,'rootinputboundary explicit')
+need('not_established' in q['native_mutating_caller_attribution'],'actualcallerunknown')
+proof={'schema':'policyos.e02.independent_decisions_prereqs_handoff_byte_custody.v1','disposition':'GO literal byte custody only; P37labels CHANGE_REQUIRED pendingmetadataappend','source_sha':S,'source_tree':T,'implementation_source':C,'complete_footprint':foot,'copied_original_records':copyrows,'copied_files':334,'copied_bytes':1033929,'full_files':338,'full_bytes':1498698,'all183_implementation_bytes_unchanged':True,'qualified_independent_receipt_included':True,'ROOT_input_broad_identity_not_established':True,'no_native_or_source_execution':True,'metadata_P37_gap':'predicate_basis prose-onlyvalues; HANDOFF56/P37requirescanonical category labels beforehandoffGO'}
+p=O/'independent-byte-custody-98e913.json';p.write_text(json.dumps(proof,indent=2)+'\n')
+print(json.dumps({'literal_custody':'GO','P37metadata':'CHANGE_REQUIRED onlyprose/nochosenbasislabels','source_sha':S,'source_tree':T,'338DOC':1498698,'334literalcopies':1033929,'all183implementation_unchanged':True,'proof':{'path':str(p),'bytes':p.stat().st_size,'sha256':sha(p.read_bytes())},'no_native_reexecution':True},indent=2))

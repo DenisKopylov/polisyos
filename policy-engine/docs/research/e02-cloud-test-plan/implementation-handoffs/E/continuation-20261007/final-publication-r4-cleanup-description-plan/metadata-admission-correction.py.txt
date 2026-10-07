@@ -1,0 +1,37 @@
+from pathlib import Path
+S=Path('/tmp/e02-E-cleanup-description-plan-publication-r4-stage')
+p=S/'copy-cleanup-description-plan.py.txt'
+s=p.read_text()
+old=""" p=Path(args.manifest);m=strict_json(p.read_bytes());validate(p,m)
+ target=Path(args.destination_root)/PREFIX
+ if target.exists():raise ValueError('existing destination')
+ for r in m['canonical_copies']:
+  dest=target/r['destination'];dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes((p.parent/'payload'/r['destination']).read_bytes())
+ for name in METADATA:
+  dest=target/name;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes((p.parent/name).read_bytes())
+"""
+new=""" p=Path(args.manifest);raw_manifest=p.read_bytes();m=strict_json(raw_manifest);validate(p,m)
+ # Snapshot and admit every mandatory companion before any destination write.
+ # Cached bytes also avoid a second source read during copying.
+ try:metadata_bytes={name:(p.parent/name).read_bytes() for name in METADATA}
+ except OSError as error:raise ValueError('required metadata unavailable before write') from error
+ if metadata_bytes['manifest.json']!=raw_manifest:raise ValueError('manifest changed during custody observation')
+ for name,body in metadata_bytes.items():
+  if name.endswith('.json'):strict_json(body)
+ build_claim={'logical_count':m['logical_count'],'logical_bytes':m['logical_bytes'],'unique_payload_files':m['unique_payload_files'],'unique_payload_bytes':m['unique_payload_bytes'],'aliases':m['deduplicated_aliases'],'metadata_files':len(METADATA),'expected_git_paths':m['unique_payload_files']+len(METADATA)}
+ if canonical(strict_json(metadata_bytes['build.stdout.json']))!=canonical(build_claim):raise ValueError('recomputed complete build summary claims')
+ if canonical(strict_json(metadata_bytes['qualification.json']))!=canonical(QUALIFICATION):raise ValueError('cached qualification identity')
+ payload_bytes={r['destination']:(p.parent/'payload'/r['destination']).read_bytes() for r in m['canonical_copies']}
+ for r in m['canonical_copies']:
+  body=payload_bytes[r['destination']]
+  if len(body)!=r['source_bytes'] or sha(body)!=r['source_sha256']:raise ValueError('cached carrier identity before write')
+ target=Path(args.destination_root)/PREFIX
+ if target.exists():raise ValueError('existing destination')
+ for r in m['canonical_copies']:
+  dest=target/r['destination'];dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(payload_bytes[r['destination']])
+ for name in METADATA:
+  dest=target/name;dest.parent.mkdir(parents=True,exist_ok=True);dest.write_bytes(metadata_bytes[name])
+"""
+if s.count(old)!=1:raise ValueError('one exact original late-metadata inlet')
+p.write_text(s.replace(old,new))
+print('mandatory metadata and cached payload admission before destination writes; original nine-file builder summary preserved')

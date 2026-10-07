@@ -1,0 +1,53 @@
+{
+  "schema": "policyos.e02.independent_copier_publication_scope.v1",
+  "candidate": "3d0029873afc25b998a3deaf5f05ea25e6f5285e",
+  "tree": "2e9734dfa44b2cd3687d680d1cb7b4145566cf3d",
+  "base": "66a4f8fc1398ed72b3ee9d38b07d88a4d2d5c3cd",
+  "outcome": "GO",
+  "counts": {
+    "DOC_paths": 207,
+    "DOC_bytes": 4093123,
+    "activePython": 0,
+    "logical_rows": 237,
+    "selected_originals": 231,
+    "selectors": 6,
+    "unique_carriers": 196,
+    "aliases": 41,
+    "mandatory_metadata": 11,
+    "negative_refusals_per_mode": 24,
+    "healthy_per_mode": 1,
+    "effective_unique_predicate_removals_per_mode": 3
+  },
+  "current_observation": "Actual public CLI normal and optimized: one healthy complete 207-path Git-byte replay, 24 pre-write refusals, three effective sole-predicate removals per mode. Changed removal program is honestly paired with identical self companion; self identity remains admitted.",
+  "historical_reds": [
+    "7f872f2119f220ae86510ca89993ed0240efe982 full 207 Git paths but copier admitted/replayed 205 only",
+    "343f6d1f74aab12d1fd592dec36ace932ac2ba11 accepts integrity-valid fake self companion through actual trusted executing CLI",
+    "Independent initial helper used published flat metadata rather than staged payload layout, failed before product run; helper stderr and source preserved."
+  ],
+  "replay_input_layout": "Review helper constructs own stage from exact immutable Git metadata with payload directory linked to independently reconciled literal Git payloads. Flat published metadata is not claimed to run without this layout.",
+  "ROOT_source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "ROOT_tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "whole_ROOT_checkout_clean": false,
+  "whole_ROOT_input_immutable": false,
+  "current_ROOT_mutating_caller_P41": "not_established",
+  "claim_limits": "No new cleanup, native backend, numeric, browser, Ruff/format, generator or global gate execution by copier. Lint remains PLAN_ONLY. Source-specific prior owner decisions and formal G closure remain separate.",
+  "excluded": "All CLI mutated stages, full destination trees, payload carrier repeats and raw archives excluded; actual complete stdout/stderr/argv are published.",
+  "P37_predicates": [
+    {
+      "predicate": "immutable source and complete footprint",
+      "basis": "recomputed"
+    },
+    {
+      "predicate": "literal original/Git carrier equality and exact selected member Counter",
+      "basis": "independently_reconciled"
+    },
+    {
+      "predicate": "actual healthy/refusal/removal CLI outcomes",
+      "basis": "recomputed"
+    },
+    {
+      "predicate": "formal G finding closure and current ROOT caller cause",
+      "basis": "not_established"
+    }
+  ]
+}

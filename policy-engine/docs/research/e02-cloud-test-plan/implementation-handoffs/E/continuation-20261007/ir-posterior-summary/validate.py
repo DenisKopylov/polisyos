@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import argparse
 import copy
 import hashlib
 import json
@@ -13,6 +14,60 @@ from pathlib import Path
 from typing import Any
 
 from defusedxml.ElementTree import parse
+
+
+def _admit_source_receipt(receipt: dict[str, Any]) -> None:
+    """Admit the complete source identity and payload before any Git callback."""
+    if not isinstance(receipt, dict):
+        raise ValueError("invalid source receipt")
+    for key in ("candidate_sha", "base_sha", "candidate_tree_sha"):
+        value = receipt.get(key)
+        if not isinstance(value, str) or re.fullmatch(r"[0-9a-f]{40}", value) is None:
+            raise ValueError("source identity must be an exact SHA1")
+    for key in ("path_count", "python_path_count"):
+        value = receipt.get(key)
+        if type(value) is not int or value < 0:
+            raise ValueError("invalid source footprint count")
+
+    def admit_path(value: object) -> None:
+        if (
+            not isinstance(value, str)
+            or not value.startswith("policy-engine/")
+            or any(part in ("", ".", "..") for part in value.split("/"))
+            or "\\" in value
+            or any(ord(character) < 32 for character in value)
+        ):
+            raise ValueError("invalid source path")
+
+    footprint = receipt.get("source_footprint")
+    changed_paths = receipt.get("changed_paths")
+    if not isinstance(footprint, list) or not isinstance(changed_paths, list):
+        raise ValueError("invalid source footprint payload")
+    paths = []
+    for record in footprint:
+        if not isinstance(record, dict):
+            raise ValueError("invalid source footprint record")
+        path = record.get("path")
+        admit_path(path)
+        size, digest = record.get("bytes"), record.get("sha256")
+        if (
+            type(size) is not int
+            or size < 0
+            or not isinstance(digest, str)
+            or re.fullmatch(r"[0-9a-f]{64}", digest) is None
+        ):
+            raise ValueError("invalid source footprint hash/size")
+        paths.append(path)
+    for path in changed_paths:
+        admit_path(path)
+    if (
+        len(set(paths)) != len(paths)
+        or len(set(changed_paths)) != len(changed_paths)
+        or set(paths) != set(changed_paths)
+        or receipt["path_count"] != len(paths)
+        or receipt["python_path_count"] != sum(path.endswith(".py") for path in paths)
+    ):
+        raise ValueError("source footprint summary mismatch")
 
 
 def validate_copy_index(root: Path, index: dict[str, Any]) -> None:
@@ -31,15 +86,13 @@ def validate_copy_index(root: Path, index: dict[str, Any]) -> None:
         if not path.resolve().is_relative_to(root.resolve()):
             raise ValueError("copy-index path outside publication")
         data = path.read_bytes()
-        if (
-            len(data) != record["bytes"]
-            or hashlib.sha256(data).hexdigest() != record["sha256"]
-        ):
+        if len(data) != record["bytes"] or hashlib.sha256(data).hexdigest() != record["sha256"]:
             raise ValueError("copy-index portable bytes mismatch")
 
 
 def validate(root: Path, lane: Path, receipt: dict[str, Any]) -> None:
     """Recompute output/source denominators, hashes and JUnit states."""
+    _admit_source_receipt(receipt)
     records = receipt["deciding_outputs"]
     actual = {
         str(path.relative_to(root))
@@ -49,9 +102,9 @@ def validate(root: Path, lane: Path, receipt: dict[str, Any]) -> None:
     }
     if len(records) != len(actual) or {record["path"] for record in records} != actual:
         raise ValueError("deciding-output denominator mismatch")
-    if receipt["deciding_output_count"] != len(actual) or receipt[
-        "deciding_output_bytes"
-    ] != sum((root / path).stat().st_size for path in actual):
+    if receipt["deciding_output_count"] != len(actual) or receipt["deciding_output_bytes"] != sum(
+        (root / path).stat().st_size for path in actual
+    ):
         raise ValueError("deciding-output summary mismatch")
     for record in records:
         path = root / record["path"]
@@ -104,9 +157,7 @@ def validate(root: Path, lane: Path, receipt: dict[str, Any]) -> None:
         [executable, "diff", "--name-only", base, candidate], cwd=lane, text=True
     ).splitlines()
     footprint = receipt["source_footprint"]
-    if len(footprint) != len(paths) or {record["path"] for record in footprint} != set(
-        paths
-    ):
+    if len(footprint) != len(paths) or {record["path"] for record in footprint} != set(paths):
         raise ValueError("source footprint denominator mismatch")
     if (
         receipt["path_count"] != len(paths)
@@ -117,19 +168,10 @@ def validate(root: Path, lane: Path, receipt: dict[str, Any]) -> None:
         raise ValueError("source footprint summary mismatch")
     for record in footprint:
         path = record["path"]
-        if (
-            not isinstance(path, str)
-            or not path.startswith("policy-engine/")
-            or ".." in Path(path).parts
-        ):
-            raise ValueError("invalid source path")
         data = subprocess.check_output(  # noqa: S603 - fixed git command and validated source path.
             [executable, "show", candidate + ":" + path], cwd=lane
         )
-        if (
-            len(data) != record["bytes"]
-            or hashlib.sha256(data).hexdigest() != record["sha256"]
-        ):
+        if len(data) != record["bytes"] or hashlib.sha256(data).hexdigest() != record["sha256"]:
             raise ValueError("source footprint hash/size mismatch")
 
 
@@ -137,7 +179,15 @@ def main() -> None:
     """Require each independent receipt corruption to be detected."""
     root = Path(__file__).resolve().parent
     lane = next(parent for parent in root.parents if (parent / ".git").exists())
-    receipt = json.loads((root / "implementation-handoff.json").read_text())
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--publication-receipt",
+        type=Path,
+        default=root / "implementation-handoff.json",
+        help="Select a current corrective receipt; default selects the historical receipt.",
+    )
+    arguments = parser.parse_args()
+    receipt = json.loads(arguments.publication_receipt.read_text())
     validate(root, lane, receipt)
     controls = []
     for name in (
@@ -162,9 +212,7 @@ def main() -> None:
         elif name == "output-removed":
             bad["deciding_outputs"].pop()
         elif name == "forged-count":
-            next(check for check in bad["checks"] if "junit" in check)["states"][
-                "PASS"
-            ] += 1
+            next(check for check in bad["checks"] if "junit" in check)["states"]["PASS"] += 1
         elif name == "wrong-tree":
             bad["candidate_tree_sha"] = "0" * 40
         elif name == "source-removed":

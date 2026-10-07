@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+    "--manifest",
+    "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/manifest.json",
+    "--destination-root",
+    "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/draft-missingconstant-target"
+  ],
+  "exit_code": 1,
+  "destination_created": false,
+  "observation": "draft recipe text insertion matched wrong sha argument spelling; NameError beforewrite, no immutable productcandidate",
+  "source_native_numeric_gate_execution": false
+}

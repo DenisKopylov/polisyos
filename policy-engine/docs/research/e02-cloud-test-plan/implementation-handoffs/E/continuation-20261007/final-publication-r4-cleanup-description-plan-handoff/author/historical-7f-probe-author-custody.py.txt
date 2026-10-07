@@ -1,0 +1,62 @@
+import copy,hashlib,json,subprocess,sys
+from pathlib import Path
+S=Path('/tmp/e02-E-cleanup-description-plan-publication-r4-stage');OUT=S/'author-custody-raw-stream-final';OUT.mkdir(exist_ok=False)
+SCRIPT=S/'copy-cleanup-description-plan.py.txt';base=json.loads((S/'manifest.json').read_text());qual=json.loads((S/'qualification.json').read_text());rows=[]
+def run(name,mut=None,optimized=False,script=SCRIPT,raw=None):
+ root=OUT/(('optimized-' if optimized else 'normal-')+name);root.mkdir();m=copy.deepcopy(base)
+ if mut:mut(m)
+ for n in ('payload','copy-cleanup-description-plan.py.txt','build-stage.py.txt','README.md','qualification.json','build.stdout.json','build.stderr.txt','resume-admission.json','resume-admission.stderr.txt'):(root/n).symlink_to(S/n,target_is_directory=n=='payload')
+ (root/'manifest.json').write_text(raw if raw is not None else json.dumps(m,indent=2)+'\n');target=root/'destination'
+ argv=[sys.executable]+(['-O'] if optimized else [])+[str(script),'--manifest',str(root/'manifest.json'),'--destination-root',str(target)]
+ p=subprocess.run(argv,capture_output=True);(root/'stdout.txt').write_bytes(p.stdout);(root/'stderr.txt').write_bytes(p.stderr)
+ r={'name':name,'optimized':optimized,'argv':argv,'exit_code':p.returncode,'destination_created':target.exists(),'stdout':str(root/'stdout.txt'),'stderr':str(root/'stderr.txt')};rows.append(r);return r
+mods={
+ 'logical_count_bool':lambda m:m.update(logical_count=True),
+ 'logical_bytes_plus1':lambda m:m.update(logical_bytes=m['logical_bytes']+1),
+ 'carrier_bytes_plus1':lambda m:m.update(unique_payload_bytes=m['unique_payload_bytes']+1),
+ 'missing_original_selector':lambda m:m['logical_sources'].pop(next(i for i,r in enumerate(m['logical_sources']) if r['member_class']=='selector')),
+ 'selector_vector_missing':lambda m:m['selection_inputs'].pop(),
+ 'selected_raw_role_mutation':lambda m:m['logical_sources'][0]['selected_record'].update(role='fabricated-role'),
+ 'forged_source_head':lambda m:m['ROOT_after'].update(head='0'*40),
+ 'ROOT_full_input_immutable_true':lambda m:m['ROOT_after'].update(broad_source_input_immutable=True),
+ 'lint_Ruff_PASS':lambda m:m['qualification']['lint'].update(Ruff='PASS'),
+ 'lint366_bool':lambda m:m['qualification']['lint'].update(prospective_python_paths=True),
+ 'cleanup_tarcount_float':lambda m:m['qualification']['cleanup'].update(tar_members_including_ten_root_directories=73768.0),
+ 'new_G_fixture_authority':lambda m:m['qualification'].update(G_fixture_packet_copied_or_accepted=True),
+}
+# A same-content raw alias substitution preserves the complete numeric denominator/carriers.
+candidates=[(i,r) for i,r in enumerate(base['logical_sources']) if r['literal_alias']]
+for i,a in candidates:
+ pair=(a['source_sha256'],a['source_bytes'])
+ matching=[b for j,b in candidates if j!=i and (b['source_sha256'],b['source_bytes'])==pair and b['logical_destination']!=a['logical_destination']]
+ if matching:
+  alias_index=i;alias_replacement=matching[0];break
+else:raise ValueError('ready equal-body alias fixture')
+def aliasmut(m):m['logical_sources'][alias_index]=copy.deepcopy(alias_replacement)
+mods['same_bytes_counter_member_substitution']=aliasmut
+for opt in (False,True):
+ if run('healthy',optimized=opt)['exit_code']!=0:raise ValueError('actual healthy custody')
+ for name,mut in mods.items():
+  r=run(name,mut,optimized=opt)
+  if r['exit_code']!=1 or r['destination_created']:raise ValueError('negative escaped '+name)
+ raw=(S/'manifest.json').read_text().rstrip();raw=raw[:-1]+',"logical_count":237}\n'
+ r=run('duplicate_JSON_key',optimized=opt,raw=raw)
+ if r['exit_code']!=1 or r['destination_created']:raise ValueError('duplicate JSON escaped')
+ raw=(S/'manifest.json').read_text().replace('"logical_count": 237','"logical_count": NaN',1)
+ r=run('nonfinite_JSON_metadata',optimized=opt,raw=raw)
+ if r['exit_code']!=1 or r['destination_created']:raise ValueError('nonfinite JSON escaped')
+removals=[]
+for name,needle,replacement,mutation in (
+ ('Counter',"if got!=want:raise ValueError('exact selected member Counter')","if False:raise ValueError('exact selected member Counter')",aliasmut),
+ ('header',"if canonical({k:m[k] for k in FIXED_HEADER})!=canonical(FIXED_HEADER):raise ValueError('typed fixed publication/source/before-after/scope claims')","if False:raise ValueError('typed fixed publication/source/before-after/scope claims')",mods['forged_source_head']),
+ ('qualification',"if canonical(m['qualification'])!=canonical(QUALIFICATION):raise ValueError('typed raw lifecycle/lint/cleanup/authority claims')","if False:raise ValueError('typed raw lifecycle/lint/cleanup/authority claims')",mods['lint_Ruff_PASS']),
+):
+ body=SCRIPT.read_text()
+ if body.count(needle)!=1:raise ValueError('unique exact removal predicate '+name)
+ script=OUT/(name+'-predicate-removal.py.txt');script.write_text(body.replace(needle,replacement))
+ r=run(name+'-effective-removal',mutation,script=script)
+ if r['exit_code']!=0 or not r['destination_created']:raise ValueError('ineffective removal '+name)
+ removals.append(r|{'defining_property_outcome':'FAIL','only_predicate_removed':True,'marker_preserved':True,'source':str(script)})
+o={'schema':'policyos.e02.cleanup_description_plan_author_custody_controls.v1','copier_sha256':hashlib.sha256(SCRIPT.read_bytes()).hexdigest(),'manifest_sha256':hashlib.sha256((S/'manifest.json').read_bytes()).hexdigest(),'normal_optimized_healthy':2,'negative_controls_per_mode':len(mods)+2,'controls':rows,'effective_removals':removals,'source_native_numeric_gate_execution':False,'ROOT_source_env_locks_written':False}
+(S/'author-custody-controls.json').write_text(json.dumps(o,indent=2)+'\n')
+print(json.dumps({'healthy':2,'negative_per_mode':len(mods)+2,'all_refused_before_write':True,'effective_removals':[x['name'] for x in removals],'source_native_numeric_gate_execution':False},indent=2))

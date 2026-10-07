@@ -1,0 +1,11 @@
+{
+  "candidate": "98e913252845384f275092d86714c3d18a647218",
+  "tree": "4004d3a31cda811ac9a348a6e51f8a95d9092931",
+  "parent": "e233efcd0e5a4bb4c5b280f86a12ec7d0a264d62",
+  "delta_paths": 338,
+  "delta_bytes": 1498698,
+  "prior_implementation_paths": 183,
+  "prior_implementation_unchanged": true,
+  "union_paths": 521,
+  "active_python": []
+}

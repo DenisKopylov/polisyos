@@ -1,0 +1,16 @@
+{
+  "archive": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/cal-and-welfare-consumer.tar.gz",
+    "bytes": 928363,
+    "sha256": "a3faa00201884016227c93a0ad8af9f530959610a5370cd3f0908d5ca2062b29"
+  },
+  "full_inventory": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/cal-and-welfare-consumer-full-inventory.json",
+    "bytes": 1267436,
+    "sha256": "300c4be3c25ffdd29e4e12478729b2b79b6a80c134f8ccd6d5258ada4000663f"
+  },
+  "members": 3260,
+  "verified_file_bytes": 3893141,
+  "all_modes_links_byte_identities": true,
+  "no_unmatched_unique_input_or_diagnostic_dropped": true
+}

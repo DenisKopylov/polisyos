@@ -1,0 +1,568 @@
+{
+  "schema": "policyos.e02.independent_cleanup_append_custody_review.v1",
+  "outcome": "GO bounded custody",
+  "reviewer": "oracle_r4; independent read-only observer, not cleanup author",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "selection": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-append-20261007/publication-selection-v2.json",
+    "bytes": 51421,
+    "sha256": "f522e7f42a508643e167d66bcbaf7600f6c4c75dace6988039d32d3983f82e6f"
+  },
+  "summary": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-append-20261007/cleanup-append-summary-v2.json",
+    "bytes": 10202,
+    "sha256": "8e4b7eedc47c427c09241454f3b6026af60236d6d5ddda8d4c92f42d13cf738b"
+  },
+  "selected_files": 101,
+  "selected_bytes": 1057547,
+  "archive_actions": 10,
+  "source_copy_members": 41073,
+  "numeric_fixture_members": 32685,
+  "observations": [
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/architecture-retained/source",
+      "archive": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/architecture-retained-source.tar.gz",
+        "bytes": 135133695,
+        "sha256": "be25692ac486a06dffca2c0be1c025e4d319ca88fda95225c24ccb6d9c8f22ab"
+      },
+      "full_inventory": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/architecture-retained-full-inventory.json",
+        "bytes": 12852251,
+        "sha256": "b226200b9407260b2624b0e0974c1a7812385ab4d3ceda9880275ea4c12e46b4"
+      },
+      "members": 20526,
+      "file_bytes": 525479786,
+      "no_users_refs": [
+        {
+          "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/architecture-retained-before-archive-processes.json",
+          "bytes": 2865,
+          "sha256": "5fc48bb69dc4f471d87525ecbbe42468317d9c7a2b0172155448ecf01526dcc0"
+        },
+        {
+          "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/architecture-retained-immediate-processes.json",
+          "bytes": 2865,
+          "sha256": "8961bc6833ba1c0c8fd28fa74463eaae0a6232de03a075c14018122d8ea4a3c0"
+        }
+      ],
+      "immediate_before_unlink_seconds": 0.047106027603149414,
+      "literal_action": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/architecture-retained-cleanup-result.json",
+        "bytes": 1310,
+        "sha256": "5295cc7708ff20beb48e4bcc92ee9e2a6c6c7f65426f6b53c552bddd4c97171d"
+      }
+    },
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/full-architecture-retained/source",
+      "archive": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/full-architecture-retained-source.tar.gz",
+        "bytes": 135138492,
+        "sha256": "12f927e032c6c84c319ed4a5ad57feb4ff0ae36c6581483d08fa8f5acdcecef3"
+      },
+      "full_inventory": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/full-architecture-retained-full-inventory.json",
+        "bytes": 12840994,
+        "sha256": "90968117adfa6c45412e817a99611f0f440d49b15eda6bdca888d8f8b7024196"
+      },
+      "members": 20547,
+      "file_bytes": 525483332,
+      "no_users_refs": [
+        {
+          "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/full-architecture-retained-before-archive-processes.json",
+          "bytes": 2865,
+          "sha256": "562f21e2dcf14419df3b22de9efea909b13a318ab5e86a5e4ae725f57cf3a1af"
+        },
+        {
+          "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/full-architecture-retained-immediate-processes.json",
+          "bytes": 3592,
+          "sha256": "106665f8e6ceec069b34f69c6389a28e2a877f7ebe83cacd80c408e91c8cbfcb"
+        }
+      ],
+      "immediate_before_unlink_seconds": 0.028854846954345703,
+      "literal_action": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-architecture-source-copies/full-architecture-retained-cleanup-result.json",
+        "bytes": 1325,
+        "sha256": "cbebc04cca68336e43f6b359fa36806e899a1cda695aa9ccca2a379bc97ddd83"
+      }
+    },
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/bkt-frc-s10-and-adjacent-report-consumers",
+      "archive": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/bkt-frc-s10-and-adjacent-report-consumers.tar.gz",
+        "bytes": 6256608,
+        "sha256": "f541855404fd242b05c3b54c174bc535e0fa41c87c116604f5b62f74951c0cbe"
+      },
+      "full_inventory": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/bkt-frc-s10-and-adjacent-report-consumers-full-inventory.json",
+        "bytes": 6127647,
+        "sha256": "22054246fe5a43064954e9bab6a74d247cbc0793ed505757566fdf07030d8c5a"
+      },
+      "members": 15399,
+      "file_bytes": 46429850,
+      "no_users_refs": [
+        {
+          "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/bkt-frc-s10-and-adjacent-report-consumers-before-archive-processes.json",
+          "bytes": 4172,
+          "sha256": "8312de0304404f1999de1e743714bb81530c3d3a277905d0c11d1de562dcf7f7"
+        },
+        {
+          "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/bkt-frc-s10-and-adjacent-report-consumers-immediate-processes.json",
+          "bytes": 4391,
+          "sha256": "badad43725aa08e38482b8bf42e6f8e1a3f96077c75834cd0e899e7338e795db"
+        }
+      ],
+      "immediate_before_unlink_seconds": 0.0833432674407959,
+      "literal_action": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/bkt-frc-s10-and-adjacent-report-consumers-cleanup-result.json",
+        "bytes": 1606,
+        "sha256": "3937d9b3077dec9b41547bdb1fce7835591d9276f97fd5d3f904c30ac39daba0"
+      }
+    },
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/mc-joint-law-support-and-scientist-consumer",
+      "archive": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/mc-joint-law-support-and-scientist-consumer.tar.gz",
+        "bytes": 1294819,
+        "sha256": "d58fdf51b9d560ba27ade1e808f976f6f0ceea6d1dc285054bfe0b434fed5a13"
+      },
+      "full_inventory": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/mc-joint-law-support-and-scientist-consumer-full-inventory.json",
+        "bytes": 1755487,
+        "sha256": "f2ede3a1b112dce5caffe26ef587d7ebbec167df9a20ed43a21481848ce1aeca"
+      },
+      "members": 4564,
+      "file_bytes": 5740519,
+      "no_users_refs": [
+        {
+          "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/mc-joint-law-support-and-scientist-consumer-before-archive-processes.json",
+          "bytes": 4391,
+          "sha256": "7e9ea5863d597cf9886cab32b1f64166c9d53e63496dd0b4d571d69fdae985b2"
+        },
+        {
+          "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/mc-joint-law-support-and-scientist-consumer-immediate-processes.json",
+          "bytes": 4391,
+          "sha256": "a4b69d8efd758ff80a671290f6215d11834ba61cf63a410ee466e2c739299d61"
+        }
+      ],
+      "immediate_before_unlink_seconds": 0.08072447776794434,
+      "literal_action": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/mc-joint-law-support-and-scientist-consumer-cleanup-result.json",
+        "bytes": 1611,
+        "sha256": "31a468688aeeb7d2b7dc2ae0bfe3fb464c02deffa0923b4992efa323cd3104d1"
+      }
+    },
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/cal-and-welfare-consumer",
+      "archive": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/cal-and-welfare-consumer.tar.gz",
+        "bytes": 928363,
+        "sha256": "a3faa00201884016227c93a0ad8af9f530959610a5370cd3f0908d5ca2062b29"
+      },
+      "full_inventory": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/cal-and-welfare-consumer-full-inventory.json",
+        "bytes": 1267436,
+        "sha256": "300c4be3c25ffdd29e4e12478729b2b79b6a80c134f8ccd6d5258ada4000663f"
+      },
+      "members": 3260,
+      "file_bytes": 3893141,
+      "no_users_refs": [
+        {
+          "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/cal-and-welfare-consumer-before-archive-processes.json",
+          "bytes": 4390,
+          "sha256": "7c1d58382b080e019c4466e558d0c0dafe060bb61b5ffc03f01f68ce98897997"
+        },
+        {
+          "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/cal-and-welfare-consumer-immediate-processes.json",
+          "bytes": 4390,
+          "sha256": "04cf30ab08917cdc2804d5f77d29c964f0c054f5b4b679febd822905a7d6673d"
+        }
+      ],
+      "immediate_before_unlink_seconds": 0.08000707626342773,
+      "literal_action": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/cal-and-welfare-consumer-cleanup-result.json",
+        "bytes": 1464,
+        "sha256": "e282bdbc37a00372a85eb1aebcccb2612143e09dc5df49c784c56084cc0a8f70"
+      }
+    },
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/g-checkpoint10-controlplanestore-companion",
+      "archive": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/g-checkpoint10-controlplanestore-companion.tar.gz",
+        "bytes": 385217,
+        "sha256": "0df62a91226b20a38e51743ee0eebf9a9e022a517c85bb7a68e7f2dbb6006172"
+      },
+      "full_inventory": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/g-checkpoint10-controlplanestore-companion-full-inventory.json",
+        "bytes": 62779,
+        "sha256": "1a3e5d7a778e35d2f223309de5c2d65eeea09a97f1659e7173805c6d791c1a42"
+      },
+      "members": 176,
+      "file_bytes": 9282888,
+      "no_users_refs": [
+        {
+          "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/g-checkpoint10-controlplanestore-companion-before-archive-processes.json",
+          "bytes": 4390,
+          "sha256": "c64fb2052370c32d4f24f2f051e9ccc2dc68a394ec78f479d936a43a40d4c941"
+        },
+        {
+          "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/g-checkpoint10-controlplanestore-companion-immediate-processes.json",
+          "bytes": 4391,
+          "sha256": "9f0b9ff593b01021e1ab1d8303033cea65f18826580d886c563ddd39c0186fb8"
+        }
+      ],
+      "immediate_before_unlink_seconds": 0.086883544921875,
+      "literal_action": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/g-checkpoint10-controlplanestore-companion-cleanup-result.json",
+        "bytes": 1599,
+        "sha256": "1ce10dc811c8ab7d08055b42a587760c024e3c8838b3f8e57dd8fb40685e8268"
+      }
+    },
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/doe-salib-and-consumer-factory",
+      "archive": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/doe-salib-and-consumer-factory.tar.gz",
+        "bytes": 407349,
+        "sha256": "80dc60b5a292d1f990a409f6400dee378d2df301f94392f37e3753ca9a30f5ef"
+      },
+      "full_inventory": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/doe-salib-and-consumer-factory-full-inventory.json",
+        "bytes": 93549,
+        "sha256": "22750c181aa4374ef85565c99fae9c2c598b424b7fc3ca1236a75171b0138641"
+      },
+      "members": 254,
+      "file_bytes": 2745318,
+      "no_users_refs": [
+        {
+          "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/doe-salib-and-consumer-factory-before-archive-processes.json",
+          "bytes": 4545,
+          "sha256": "318ffbbb38fa855f1c879d04f14767d0b0d3841ddeb7693c5fb7e583fffdbfb0"
+        },
+        {
+          "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/doe-salib-and-consumer-factory-immediate-processes.json",
+          "bytes": 4391,
+          "sha256": "c0552f6a51cda9bbd969aa23bb1d9a55b112a4bd3c2a9b6f56d5d954ca30a9db"
+        }
+      ],
+      "immediate_before_unlink_seconds": 0.05764293670654297,
+      "literal_action": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/doe-salib-and-consumer-factory-cleanup-result.json",
+        "bytes": 1565,
+        "sha256": "95e54a98ef8f56ca97a7f55203e3bfeb749a87dd595f679c13da1a48b2366f19"
+      }
+    },
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/pcl-continuous-persistence",
+      "archive": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/pcl-continuous-persistence.tar.gz",
+        "bytes": 99074,
+        "sha256": "7073eadf2d142b4641f4dd2eab313a7bc8c3eadd89b536f94163e2bcb5ae6831"
+      },
+      "full_inventory": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/pcl-continuous-persistence-full-inventory.json",
+        "bytes": 216631,
+        "sha256": "04d8cf8e22fc5460379b747f9cbc8fdc44677855278ecb73e783f0bd90cf80f2"
+      },
+      "members": 576,
+      "file_bytes": 513698,
+      "no_users_refs": [
+        {
+          "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/pcl-continuous-persistence-before-archive-processes.json",
+          "bytes": 4390,
+          "sha256": "ad1ebc2b878d1484d5e064560c27341141547bdb492e5bb399282d8c9626e6b8"
+        },
+        {
+          "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/pcl-continuous-persistence-immediate-processes.json",
+          "bytes": 4391,
+          "sha256": "f4f1a2035713efef575840459ade5c179c4728fe30700e839712d4e364ba708b"
+        }
+      ],
+      "immediate_before_unlink_seconds": 0.06143999099731445,
+      "literal_action": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/pcl-continuous-persistence-cleanup-result.json",
+        "bytes": 1550,
+        "sha256": "4c570a7fc8b996fa5d7e761028fb5046936337ea1703e2cd209dff6622b21343"
+      }
+    },
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/ddm-runtime-and-facade",
+      "archive": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/ddm-runtime-and-facade.tar.gz",
+        "bytes": 1519,
+        "sha256": "8ca3901cf55e93692aa62644523d89db7a93b9c0b7076f4b435a6a4738c103d3"
+      },
+      "full_inventory": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/ddm-runtime-and-facade-full-inventory.json",
+        "bytes": 2536,
+        "sha256": "8b826e06c55b2e9d929da341d53e8e665366b13b09765fc5dfce5672d8bf9e2c"
+      },
+      "members": 6,
+      "file_bytes": 3375,
+      "no_users_refs": [
+        {
+          "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/ddm-runtime-and-facade-before-archive-processes.json",
+          "bytes": 4391,
+          "sha256": "e49178978b77a27f33b6cb6786000594963ec990b2ec514bfba8f8c5446c298c"
+        },
+        {
+          "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/ddm-runtime-and-facade-immediate-processes.json",
+          "bytes": 4391,
+          "sha256": "e3b5e90a400ea73ea53cbeb0bc9f4c3bb6a77530c087a27fb2a3d7b43ccfe584"
+        }
+      ],
+      "immediate_before_unlink_seconds": 0.06212258338928223,
+      "literal_action": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/ddm-runtime-and-facade-cleanup-result.json",
+        "bytes": 1526,
+        "sha256": "291d752c357158f924b6fc231309f975c769ba65bdc41c5bcd5c2b394bed6eb0"
+      }
+    },
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/temporary/cal-and-welfare-consumer-retry",
+      "archive": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/cal-and-welfare-consumer-retry.tar.gz",
+        "bytes": 1718810,
+        "sha256": "8f8e3dd380c7661773134600b90c635f03d2c30b72c2f731168d69b3d500ec8a"
+      },
+      "full_inventory": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/cal-and-welfare-consumer-retry-full-inventory.json",
+        "bytes": 3292357,
+        "sha256": "998cbb77fe9616b092493ef54aa955a99c7909541463c15e09ef4455b50ca822"
+      },
+      "members": 8450,
+      "file_bytes": 6957852,
+      "no_users_refs": [
+        {
+          "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/cal-and-welfare-consumer-retry-before-archive-processes.json",
+          "bytes": 4391,
+          "sha256": "4db532e26b845ce3df7aea1d3fea63e2f8491177db7f6720ef0f44bd1149752a"
+        },
+        {
+          "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/cal-and-welfare-consumer-retry-immediate-processes.json",
+          "bytes": 4527,
+          "sha256": "e4a04d8c31bf6b2445c11e46fd028ba4b4acad38775694428f68e8eae4154217"
+        }
+      ],
+      "immediate_before_unlink_seconds": 0.05387377738952637,
+      "literal_action": {
+        "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/cal-and-welfare-consumer-retry-cleanup-result.json",
+        "bytes": 1588,
+        "sha256": "a8e642e2614958d007ad03b56bad70cb6c1c213dbaf958beb3fd3c51b04ff452"
+      }
+    }
+  ],
+  "protected_metadata": {
+    "bound_source": {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-numeric-fixtures/protected-metadata-before.json",
+      "bytes": 103791,
+      "sha256": "19ebd20f38c574b66c9a87969d17b0e39384add175b058b6c092c756bf7e8d0d"
+    },
+    "actual_current_groups": [
+      207,
+      184
+    ],
+    "all391_path_size_hash_identity_checks": "PASS"
+  },
+  "source_guard_before": {
+    "head": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d"
+  },
+  "source_guard_after": {
+    "head": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d"
+  },
+  "actual_registration_pathset": "unchanged; concurrent MC2c→ca17 HEAD change disclosed, original raw equality false preserved",
+  "actual_backend_scope_correction": {
+    "receipt": {
+      "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed-append-20261007/actual-backend-scope-corrective-readback.json",
+      "bytes": 19794,
+      "sha256": "c4d62bd25599ec9faee118acd8509b84ea77670465d96681fdff0bf26b721084"
+    },
+    "actual_prefix": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry",
+    "scoped_observed_active_users": 5,
+    "all_ten_actions_actual_lexically_disjoint": true,
+    "original_stale_executed_literal_preserved": true
+  },
+  "original_native_outcomes": [
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/bkt-frc-s10-and-adjacent-report-consumers",
+      "outcome": "FAIL",
+      "exit_code": 1,
+      "counts": {
+        "cases": 321,
+        "passed": 313,
+        "failed": 8,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/mc-joint-law-support-and-scientist-consumer",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "counts": {
+        "cases": 443,
+        "passed": 443,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/cal-and-welfare-consumer",
+      "outcome": "FAIL",
+      "exit_code": -9,
+      "counts": null
+    },
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/g-checkpoint10-controlplanestore-companion",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "counts": {
+        "cases": 59,
+        "passed": 59,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/doe-salib-and-consumer-factory",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "counts": {
+        "cases": 221,
+        "passed": 221,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/pcl-continuous-persistence",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "counts": {
+        "cases": 99,
+        "passed": 99,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/ddm-runtime-and-facade",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "counts": {
+        "cases": 82,
+        "passed": 82,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "candidate": "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/temporary/cal-and-welfare-consumer-retry",
+      "outcome": "PASS",
+      "exit_code": 0,
+      "counts": {
+        "cases": 324,
+        "passed": 324,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    }
+  ],
+  "negative_controls": [
+    {
+      "id": "source_members_41073_to_1",
+      "outcome": "PASS refused",
+      "actual_refusal": "summary claims must match independently recomputed original receipts/inventories",
+      "all_original_referenced_bytes_unchanged": true,
+      "required_claim_control_after_removal": "FAIL would re-admit corrupted summary"
+    },
+    {
+      "id": "numeric_action_count_8_to_True",
+      "outcome": "PASS refused",
+      "actual_refusal": "summary claims must match independently recomputed original receipts/inventories",
+      "all_original_referenced_bytes_unchanged": true,
+      "required_claim_control_after_removal": "FAIL would re-admit corrupted summary"
+    },
+    {
+      "id": "numeric_members_32685_to_32684",
+      "outcome": "PASS refused",
+      "actual_refusal": "summary claims must match independently recomputed original receipts/inventories",
+      "all_original_referenced_bytes_unchanged": true,
+      "required_claim_control_after_removal": "FAIL would re-admit corrupted summary"
+    },
+    {
+      "id": "interrupted_CAL_to_PASS_markers_retained",
+      "outcome": "PASS refused",
+      "actual_refusal": "summary claims must match independently recomputed original receipts/inventories",
+      "all_original_referenced_bytes_unchanged": true,
+      "required_claim_control_after_removal": "FAIL would re-admit corrupted summary"
+    },
+    {
+      "id": "eight_A_failures_to_zero",
+      "outcome": "PASS refused",
+      "actual_refusal": "summary claims must match independently recomputed original receipts/inventories",
+      "all_original_referenced_bytes_unchanged": true,
+      "required_claim_control_after_removal": "FAIL would re-admit corrupted summary"
+    },
+    {
+      "id": "protected_ROOT_count_207_to_208",
+      "outcome": "PASS refused",
+      "actual_refusal": "summary claims must match independently recomputed original receipts/inventories",
+      "all_original_referenced_bytes_unchanged": true,
+      "required_claim_control_after_removal": "FAIL would re-admit corrupted summary"
+    },
+    {
+      "id": "registration_false_history_hidden",
+      "outcome": "PASS refused",
+      "actual_refusal": "summary claims must match independently recomputed original receipts/inventories",
+      "all_original_referenced_bytes_unchanged": true,
+      "required_claim_control_after_removal": "FAIL would re-admit corrupted summary"
+    },
+    {
+      "id": "cleanup_becomes_finding_closure",
+      "outcome": "PASS refused",
+      "actual_refusal": "summary claims must match independently recomputed original receipts/inventories",
+      "all_original_referenced_bytes_unchanged": true,
+      "required_claim_control_after_removal": "FAIL would re-admit corrupted summary"
+    },
+    {
+      "id": "corrected_actual_backend_reverts_to_stale_prefix",
+      "outcome": "PASS refused",
+      "actual_refusal": "summary claims must match independently recomputed original receipts/inventories",
+      "all_original_referenced_bytes_unchanged": true,
+      "required_claim_control_after_removal": "FAIL would re-admit corrupted summary"
+    },
+    {
+      "id": "consistent_omitted_member",
+      "outcome": "PASS refused",
+      "actual_refusal": "complete frozen selected-member Counter"
+    },
+    {
+      "id": "same_count_alias_relocation",
+      "outcome": "PASS refused",
+      "actual_refusal": "complete frozen selected-member Counter"
+    }
+  ],
+  "normal_or_optimized": "normal",
+  "archive_replay_scope": "Compressed archive hashes and inventory sums recomputed; no archive decompression/member-byte replay, no cleanup/native/numeric execution.",
+  "predicate_basis": {
+    "selected_Counter_hashes_inventory_sums_metadata_and_JUnit_custody": "recomputed",
+    "original_per_member_byte_link_mode_readback": "recomputed",
+    "scoped_live_agent_no_users": "recomputed",
+    "hostwide_quiescence_and_numeric_failure_cause": "not_established"
+  },
+  "scope_limits": [
+    "Ten exact unregistered CLOSED source/pytest children only; all raw unknown/unique bytes remain in complete archives.",
+    "Agent-UID cwd/argv/environment/maps/FD visibility only; privileged daemon exclusion is explicit.",
+    "Observed filesystem capacity deltas are not physical RAM recovery or an additive resource promise.",
+    "Original CAL -9/countsnull and later324PASS remain distinct; cleanup does not change closure or explain interrupted-process cause.",
+    "No source/env/package/checkouts/Git mutations by reviewer."
+  ]
+}

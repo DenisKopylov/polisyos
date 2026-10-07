@@ -1,0 +1,195 @@
+{
+  "schema": "policyos.e02.independent_current_PR_description_append_custody.v1",
+  "reviewer": "doe_r4",
+  "mode": "optimized",
+  "disposition": "GO",
+  "current_publication": {
+    "path": "/tmp/e02-E-pr38-description-edge-qualification-64d-20261007/receipt.json",
+    "bytes": 1949,
+    "sha256": "470d05f613e9deb1805ab19ec0abcfdb7e43388da2b4479765c9a0f3aee34df7"
+  },
+  "original_change_required_publication": {
+    "path": "/tmp/e02-E-pr38-description-current-64d-20261007/receipt.json",
+    "bytes": 2779,
+    "sha256": "920581bf61629d4ded557a34dd369c754b5c2ae4ef4c7f098ec78394c15030ad"
+  },
+  "independent_historical_CHANGE_REQUIRED": {
+    "path": "/tmp/e02-E-pr38-description-independent-doe-20261007/independent-review-normal.json",
+    "bytes": 20641,
+    "sha256": "406da07e34e4e47b47055dff10b37f47ff3e8062bc7581eebce8bd8458aad24d"
+  },
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "actual_current_claims_rebound": {
+    "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+    "wave_cases": 1549,
+    "wave_passed": 1541,
+    "wave_failed": 8,
+    "retry_passed": 324,
+    "original_terminated_retained": true,
+    "lint_paths": 360,
+    "lint_diagnostics": 36,
+    "format_changes": 3,
+    "historical_partial": 49,
+    "historical_held": 4,
+    "historical_closed": 1,
+    "imports_removed": 11,
+    "historical_imports": 12,
+    "remaining_original_loader_explicit": true,
+    "CanonSpec_separate_denominator": true,
+    "global_gates_red": true,
+    "technical_B201_B202_open": true,
+    "future_MC_not_current": true,
+    "backend_no_terminal_claim": true,
+    "cloud_cleanup_explicit_and_bounded": true,
+    "local_cleanup_Trash_only": true
+  },
+  "current_body": {
+    "path": "/tmp/e02-E-pr38-description-edge-qualification-64d-20261007/body.md",
+    "bytes": 5905,
+    "sha256": "def7607630f4b4a761a7be17a8fa08dff27e941668a0774fa7d8278e67c75c3b"
+  },
+  "only_changed_paragraph": "The remaining edge in the historical 12 is the ForecastBridge private load_forecasting_uncertainty_bundle route; the existing bundle writer/reader need canonical IR facade aliases. A separate current CanonSpec private edge has its own typed owner packet: the public Core sibling adds two typed-call errors, so a canonical facade export or coordinated typed inlet is required. No copied codec, widened exception or type-ignore is used.",
+  "owner_scope": "Historical12 remaining ForecastBridge private load_forecasting_uncertainty_bundle reader at995. Separate newer CanonSpec/Core typed owner question remains pending; scoped B201/B202 appointment grants no automatic general facade lease.",
+  "controls": [
+    {
+      "name": "retotal_wave",
+      "outcome": "PASS",
+      "actual_refusal": "typed description claims differ from independently recomputed source/evidence or omit import-owner denominator",
+      "exactreadbackflags_preserved": true
+    },
+    {
+      "name": "retotal_ledger",
+      "outcome": "PASS",
+      "actual_refusal": "typed description claims differ from independently recomputed source/evidence or omit import-owner denominator",
+      "exactreadbackflags_preserved": true
+    },
+    {
+      "name": "falsely_integrated_newMC",
+      "outcome": "PASS",
+      "actual_refusal": "typed description claims differ from independently recomputed source/evidence or omit import-owner denominator",
+      "exactreadbackflags_preserved": true
+    },
+    {
+      "name": "false_terminal_backend",
+      "outcome": "PASS",
+      "actual_refusal": "typed description claims differ from independently recomputed source/evidence or omit import-owner denominator",
+      "exactreadbackflags_preserved": true
+    },
+    {
+      "name": "owneredge_scope_removed",
+      "outcome": "PASS",
+      "actual_refusal": "typed description claims differ from independently recomputed source/evidence or omit import-owner denominator",
+      "exactreadbackflags_preserved": true
+    },
+    {
+      "name": "technicalopen_removed",
+      "outcome": "PASS",
+      "actual_refusal": "typed description claims differ from independently recomputed source/evidence or omit import-owner denominator",
+      "exactreadbackflags_preserved": true
+    },
+    {
+      "name": "custody_sha256",
+      "outcome": "PASS",
+      "actual_refusal": "currentliteral assethash/size",
+      "exactreadbackflags_preserved": true
+    },
+    {
+      "name": "custody_bytes",
+      "outcome": "PASS",
+      "actual_refusal": "currentliteral assethash/size",
+      "exactreadbackflags_preserved": true
+    },
+    {
+      "name": "mandatory_graphqlrequest_omitted",
+      "outcome": "PASS",
+      "actual_refusal": "complete8 actual appendassets",
+      "exactreadbackflags_preserved": true
+    },
+    {
+      "name": "futureMC_fullyrebound_body_headstill_not_publishedfrozen_source",
+      "outcome": "PASS",
+      "actual_refusal": "current immutable64d source/tree",
+      "exactreadbackflags_preserved": true
+    },
+    {
+      "name": "shared_typed_admission_removed",
+      "outcome": "PASS",
+      "actual_removed_guard_defining_property": "FAIL",
+      "admitted_wrong_case_total": 1548,
+      "true_case_total": 1549,
+      "source_and_all_native/custody_markers_retained": true
+    }
+  ],
+  "control_count": 11,
+  "input_refs": [
+    {
+      "path": "/tmp/e02-E-pr38-description-review-doe.py",
+      "bytes": 20197,
+      "sha256": "7a925971513cbc8498c9fdfa7f68274498b8feb3fb3bfe826fd62d67eb40205f"
+    },
+    {
+      "path": "/tmp/e02-E-pr38-description-independent-doe-20261007/independent-review-normal.json",
+      "bytes": 20641,
+      "sha256": "406da07e34e4e47b47055dff10b37f47ff3e8062bc7581eebce8bd8458aad24d"
+    },
+    {
+      "path": "/tmp/e02-E-pr38-description-independent-doe-20261007/independent-review-optimized.json",
+      "bytes": 20644,
+      "sha256": "70c647687eee71f082a80aee5109a7de8a135290365e58116569729f2e66affc"
+    },
+    {
+      "path": "/tmp/e02-E-pr38-description-edge-qualification-64d-20261007/receipt.json",
+      "bytes": 1949,
+      "sha256": "470d05f613e9deb1805ab19ec0abcfdb7e43388da2b4479765c9a0f3aee34df7"
+    },
+    {
+      "path": "/tmp/e02-E-pr38-description-edge-qualification-64d-20261007/after.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-pr38-description-edge-qualification-64d-20261007/after.stdout.json",
+      "bytes": 6109,
+      "sha256": "c8628f928fdfef3993117fc8db89c78a5b394354e352773b934949ec123e2ba9"
+    },
+    {
+      "path": "/tmp/e02-E-pr38-description-edge-qualification-64d-20261007/before.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-pr38-description-edge-qualification-64d-20261007/before.stdout.json",
+      "bytes": 5932,
+      "sha256": "e26c941f63fc18c8d6b4b85654ac6c13733ce680122bc5dd81bfb2e6016b3a3c"
+    },
+    {
+      "path": "/tmp/e02-E-pr38-description-edge-qualification-64d-20261007/body.md",
+      "bytes": 5905,
+      "sha256": "def7607630f4b4a761a7be17a8fa08dff27e941668a0774fa7d8278e67c75c3b"
+    },
+    {
+      "path": "/tmp/e02-E-pr38-description-edge-qualification-64d-20261007/edit.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-pr38-description-edge-qualification-64d-20261007/edit.stdout.json",
+      "bytes": 6155,
+      "sha256": "7f7f0adfa67d45a60ff403b7d831118a7eeeb04bfec1610f416d4e50771c3823"
+    },
+    {
+      "path": "/tmp/e02-E-pr38-description-edge-qualification-64d-20261007/request.json",
+      "bytes": 6152,
+      "sha256": "e0f2be565300e7be1428dc69418de6f08748a4ed89d94a76022bd34523cc7049"
+    }
+  ],
+  "truth_limits": [
+    "CurrentPRsource64d only; newerMCsource correction is not merged/currentPRauthority.",
+    "1549 counts include separateCAL324retry; originalCAL\u22129/noJUnit and originalglobalrequiredgateFAIL remain literal.",
+    "No fullbackend finalcounts/outcome claimed; native61243 is pending, not PASS.",
+    "Description publication claim/custody GO is neither runtime/code review nor ownerfinding/globalCI acceptance.",
+    "No remote fetch/edit/Git/source/env/native test or cleanup action by this reviewer."
+  ]
+}

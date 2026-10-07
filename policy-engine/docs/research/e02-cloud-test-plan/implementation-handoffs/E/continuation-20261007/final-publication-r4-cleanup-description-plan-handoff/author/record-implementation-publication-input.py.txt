@@ -1,0 +1,11 @@
+import hashlib,json,subprocess,datetime
+from pathlib import Path
+S=Path('/tmp/e02-E-cleanup-description-plan-publication-r4-stage');L=Path('/workspace/e02-E-frc-20261006')
+candidate='3d0029873afc25b998a3deaf5f05ea25e6f5285e';base='66a4f8fc1398ed72b3ee9d38b07d88a4d2d5c3cd'
+def git(*args):return subprocess.check_output(['git',*args],cwd=L)
+paths=git('diff','--name-only',base,candidate).decode().splitlines();footprint=[]
+for path in paths:
+ body=git('show',candidate+':'+path);footprint.append({'path':path,'bytes':len(body),'sha256':hashlib.sha256(body).hexdigest()})
+if len(footprint)!=207 or any(r['path'].endswith('.py') for r in footprint):raise ValueError('fullpassiveDOC footprint')
+x={'schema':'policyos.e02.cleanup_description_plan_implementation.v1','base_sha':base,'candidate_sha':candidate,'candidate_tree_sha':git('rev-parse',candidate+'^{tree}').decode().strip(),'canonical_writer':'E DOC evidence carrier; underlying cleanup/PR body/lint owners remain source authors','path_count':len(paths),'bytes':sum(r['bytes'] for r in footprint),'Python_paths':0,'source_footprint':footprint,'commit_capacity_history':'historical actual Git treeENOSPC retained; subsequent capacity guard refused before attempt; measured485101568available /2219864064free then actualretry exit0','actual_commit_streams':[{'path':str(S/n),'bytes':len((S/n).read_bytes()),'sha256':hashlib.sha256((S/n).read_bytes()).hexdigest()} for n in ['implementation-commit-retry2.stdout.txt','implementation-commit-retry2.stderr.txt']],'publication_source':'ROOT64d/aef; source/tests/native/backend notchanged/rerun; broad inputimmutatibilityFalse after29generatedJSON','temporal_note':'resource availability source-reported actual toolheader; full resource CLI stdout was not separately captured as an original asset'}
+(S/'implementation-source-footprint.json').write_text(json.dumps(x,indent=2)+'\n');print(json.dumps({k:v for k,v in x.items() if k not in ('source_footprint','actual_commit_streams')},indent=2))

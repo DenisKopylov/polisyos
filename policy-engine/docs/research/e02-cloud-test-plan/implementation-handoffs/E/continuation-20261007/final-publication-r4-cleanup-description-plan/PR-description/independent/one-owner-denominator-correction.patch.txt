@@ -1,0 +1,11 @@
+--- published-body.md
++++ proposed-body.md
+@@ -19,7 +19,7 @@
+ - [x] Owned areas and cross-owner boundaries documented.
+ - [ ] Formal GitHub owner review and G integration intake remain pending.
+ 
+-E owns Calibration, Foundry uncertainty, Scientist BKT/PCL/DDM/DoE/ETS mechanisms and their evidence. A owns generation/S10/HTTP shared writers; D owns default Search. The remaining CanonSpec private import has an applicable IR/API owner packet: the public Core sibling adds two typed-call errors, so a canonical facade export or coordinated typed inlet is required. No copied codec, widened exception or type-ignore is used. G owns integration publication and canonical generator coordination; no main publication is authorized.
++E owns Calibration, Foundry uncertainty, Scientist BKT/PCL/DDM/DoE/ETS mechanisms and their evidence. A owns generation/S10/HTTP shared writers; D owns default Search. The remaining edge in the historical 12-import denominator is `calibration.forecast_bridge` → the private IR `load_forecasting_uncertainty_bundle` reader. Its IR API owner packet proposes admitting the existing loader, preferably with its native writer, through the canonical facade. A separate CanonSpec/Core compatibility question lies outside that denominator: the public Core sibling adds two typed-call errors, so its canonical owner must choose a narrow facade export or coordinated typed inlet. No copied codec, widened exception or type-ignore is used. G owns integration publication and canonical generator coordination; no main publication is authorized.
+ 
+ ## Validation
+ 

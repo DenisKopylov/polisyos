@@ -1,0 +1,430 @@
+{
+  "schema": "policyos.e02.actual_active_backend_path_scope_corrective_readback.v1",
+  "observed_unix": 1791376473.542626,
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "actual_protected_backend_prefix": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry",
+  "actual_backend_stat": {
+    "mode": 16832,
+    "device": 27,
+    "inode": 1496451,
+    "exists": true
+  },
+  "exact_cleanup_actions": [
+    "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/bkt-frc-s10-and-adjacent-report-consumers",
+    "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/mc-joint-law-support-and-scientist-consumer",
+    "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/cal-and-welfare-consumer",
+    "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/g-checkpoint10-controlplanestore-companion",
+    "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/doe-salib-and-consumer-factory",
+    "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/pcl-continuous-persistence",
+    "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/temporary/ddm-runtime-and-facade",
+    "/workspace/e02-E-pr38-r3-receipts/cal-interruption-retry-64d7444a-20261007-0946/temporary/cal-and-welfare-consumer-retry"
+  ],
+  "all8_actual_actions_lexically_disjoint_from_actual_backend": true,
+  "actual_backend_process_observation": {
+    "observed_unix": 1791376473.5007405,
+    "agent_uid": 1000,
+    "candidate_prefixes": [
+      "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry"
+    ],
+    "live_agent_process_count": 11,
+    "active_users": [
+      {
+        "pid": 536902,
+        "uid": 1000,
+        "argv0": "python3",
+        "cwd": "/workspace/e02-E-continuation-20261006",
+        "target_evidence": [
+          {
+            "kind": "open file",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/capture.stdout.txt"
+          },
+          {
+            "kind": "open file",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/capture.stderr.txt"
+          }
+        ]
+      },
+      {
+        "pid": 536903,
+        "uid": 1000,
+        "argv0": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "cwd": "/workspace/e02-E-continuation-20261006",
+        "target_evidence": [
+          {
+            "kind": "cmdline target argument",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/checks/workspace14-declared-deps-retry"
+          },
+          {
+            "kind": "cmdline target argument",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/checks/workspace14-declared-deps-retry/pytest.xml"
+          },
+          {
+            "kind": "cmdline target argument",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/pytest-base"
+          },
+          {
+            "kind": "cmdline target argument",
+            "value": "cache_dir=/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/pytest-cache"
+          },
+          {
+            "kind": "cmdline target argument",
+            "value": "--benchmark-storage=file:///workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/benchmarks"
+          },
+          {
+            "kind": "cmdline target argument",
+            "value": "--junitxml=/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/checks/workspace14-declared-deps-retry/pytest.xml"
+          },
+          {
+            "kind": "open file",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/capture.stdout.txt"
+          },
+          {
+            "kind": "open file",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/capture.stderr.txt"
+          },
+          {
+            "kind": "open file",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/checks/workspace14-declared-deps-retry/workspace14-declared-deps-retry.stdout.txt"
+          }
+        ]
+      },
+      {
+        "pid": 536937,
+        "uid": 1000,
+        "argv0": "/workspace/.polisyos-environment/uv/bin/uv",
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "target_evidence": [
+          {
+            "kind": "cmdline target argument",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/pytest-base"
+          },
+          {
+            "kind": "cmdline target argument",
+            "value": "cache_dir=/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/pytest-cache"
+          },
+          {
+            "kind": "cmdline target argument",
+            "value": "--benchmark-storage=file:///workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/benchmarks"
+          },
+          {
+            "kind": "cmdline target argument",
+            "value": "--junitxml=/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/checks/workspace14-declared-deps-retry/pytest.xml"
+          },
+          {
+            "kind": "open file",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/checks/workspace14-declared-deps-retry/workspace14-declared-deps-retry.stdout.txt"
+          },
+          {
+            "kind": "open file",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/checks/workspace14-declared-deps-retry/workspace14-declared-deps-retry.stdout.txt"
+          }
+        ]
+      },
+      {
+        "pid": 536940,
+        "uid": 1000,
+        "argv0": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "target_evidence": [
+          {
+            "kind": "cmdline target argument",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/pytest-base"
+          },
+          {
+            "kind": "cmdline target argument",
+            "value": "cache_dir=/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/pytest-cache"
+          },
+          {
+            "kind": "cmdline target argument",
+            "value": "--benchmark-storage=file:///workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/benchmarks"
+          },
+          {
+            "kind": "cmdline target argument",
+            "value": "--junitxml=/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/checks/workspace14-declared-deps-retry/pytest.xml"
+          },
+          {
+            "kind": "open file",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/environment-tmp/#1496670 (deleted)"
+          },
+          {
+            "kind": "open file",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/environment-tmp/#1496678 (deleted)"
+          },
+          {
+            "kind": "open file",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/checks/workspace14-declared-deps-retry/workspace14-declared-deps-retry.stdout.txt"
+          },
+          {
+            "kind": "open file",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/environment-tmp/#1496670 (deleted)"
+          },
+          {
+            "kind": "open file",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/checks/workspace14-declared-deps-retry/workspace14-declared-deps-retry.stdout.txt"
+          },
+          {
+            "kind": "open file",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/environment-tmp/#1496678 (deleted)"
+          },
+          {
+            "kind": "open file",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/checks/workspace14-declared-deps-retry/workspace14-declared-deps-retry.stdout.txt"
+          }
+        ]
+      },
+      {
+        "pid": 571826,
+        "uid": 1000,
+        "argv0": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "target_evidence": [
+          {
+            "kind": "open file",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/environment-tmp/#1496670 (deleted)"
+          },
+          {
+            "kind": "open file",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/environment-tmp/#1496678 (deleted)"
+          },
+          {
+            "kind": "open file",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/environment-tmp/#1496678 (deleted)"
+          }
+        ]
+      }
+    ],
+    "unreadable_agent_processes": [],
+    "privileged_infrastructure_exclusions": [
+      {
+        "pid": 199,
+        "uid": 0,
+        "argv0": "/usr/local/bin/dockerd",
+        "reason": "Privileged infrastructure daemon outside complete live agent UID scope; no host-wide environ/maps visibility asserted."
+      },
+      {
+        "pid": 250,
+        "uid": 0,
+        "argv0": "containerd",
+        "reason": "Privileged infrastructure daemon outside complete live agent UID scope; no host-wide environ/maps visibility asserted."
+      }
+    ],
+    "observations": [
+      {
+        "pid": 1,
+        "uid": 1000,
+        "argv0": "tail",
+        "cwd": "/workspace",
+        "target_evidence": []
+      },
+      {
+        "pid": 2,
+        "uid": 1000,
+        "argv0": "/usr/local/bin/caas-prefix-transfer-server",
+        "cwd": "/workspace",
+        "target_evidence": []
+      },
+      {
+        "pid": 515,
+        "uid": 1000,
+        "argv0": "/opt/codex/bin/codex",
+        "cwd": "/workspace",
+        "target_evidence": []
+      },
+      {
+        "pid": 536899,
+        "uid": 1000,
+        "argv0": "/bin/bash",
+        "cwd": "/workspace/e02-E-continuation-20261006",
+        "target_evidence": []
+      },
+      {
+        "pid": 536902,
+        "uid": 1000,
+        "argv0": "python3",
+        "cwd": "/workspace/e02-E-continuation-20261006",
+        "target_evidence": [
+          {
+            "kind": "open file",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/capture.stdout.txt"
+          },
+          {
+            "kind": "open file",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/capture.stderr.txt"
+          }
+        ]
+      },
+      {
+        "pid": 536903,
+        "uid": 1000,
+        "argv0": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "cwd": "/workspace/e02-E-continuation-20261006",
+        "target_evidence": [
+          {
+            "kind": "cmdline target argument",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/checks/workspace14-declared-deps-retry"
+          },
+          {
+            "kind": "cmdline target argument",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/checks/workspace14-declared-deps-retry/pytest.xml"
+          },
+          {
+            "kind": "cmdline target argument",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/pytest-base"
+          },
+          {
+            "kind": "cmdline target argument",
+            "value": "cache_dir=/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/pytest-cache"
+          },
+          {
+            "kind": "cmdline target argument",
+            "value": "--benchmark-storage=file:///workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/benchmarks"
+          },
+          {
+            "kind": "cmdline target argument",
+            "value": "--junitxml=/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/checks/workspace14-declared-deps-retry/pytest.xml"
+          },
+          {
+            "kind": "open file",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/capture.stdout.txt"
+          },
+          {
+            "kind": "open file",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/capture.stderr.txt"
+          },
+          {
+            "kind": "open file",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/checks/workspace14-declared-deps-retry/workspace14-declared-deps-retry.stdout.txt"
+          }
+        ]
+      },
+      {
+        "pid": 536937,
+        "uid": 1000,
+        "argv0": "/workspace/.polisyos-environment/uv/bin/uv",
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "target_evidence": [
+          {
+            "kind": "cmdline target argument",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/pytest-base"
+          },
+          {
+            "kind": "cmdline target argument",
+            "value": "cache_dir=/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/pytest-cache"
+          },
+          {
+            "kind": "cmdline target argument",
+            "value": "--benchmark-storage=file:///workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/benchmarks"
+          },
+          {
+            "kind": "cmdline target argument",
+            "value": "--junitxml=/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/checks/workspace14-declared-deps-retry/pytest.xml"
+          },
+          {
+            "kind": "open file",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/checks/workspace14-declared-deps-retry/workspace14-declared-deps-retry.stdout.txt"
+          },
+          {
+            "kind": "open file",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/checks/workspace14-declared-deps-retry/workspace14-declared-deps-retry.stdout.txt"
+          }
+        ]
+      },
+      {
+        "pid": 536940,
+        "uid": 1000,
+        "argv0": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "target_evidence": [
+          {
+            "kind": "cmdline target argument",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/pytest-base"
+          },
+          {
+            "kind": "cmdline target argument",
+            "value": "cache_dir=/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/pytest-cache"
+          },
+          {
+            "kind": "cmdline target argument",
+            "value": "--benchmark-storage=file:///workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/benchmarks"
+          },
+          {
+            "kind": "cmdline target argument",
+            "value": "--junitxml=/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/checks/workspace14-declared-deps-retry/pytest.xml"
+          },
+          {
+            "kind": "open file",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/environment-tmp/#1496670 (deleted)"
+          },
+          {
+            "kind": "open file",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/environment-tmp/#1496678 (deleted)"
+          },
+          {
+            "kind": "open file",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/checks/workspace14-declared-deps-retry/workspace14-declared-deps-retry.stdout.txt"
+          },
+          {
+            "kind": "open file",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/environment-tmp/#1496670 (deleted)"
+          },
+          {
+            "kind": "open file",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/checks/workspace14-declared-deps-retry/workspace14-declared-deps-retry.stdout.txt"
+          },
+          {
+            "kind": "open file",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/environment-tmp/#1496678 (deleted)"
+          },
+          {
+            "kind": "open file",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/checks/workspace14-declared-deps-retry/workspace14-declared-deps-retry.stdout.txt"
+          }
+        ]
+      },
+      {
+        "pid": 571826,
+        "uid": 1000,
+        "argv0": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "target_evidence": [
+          {
+            "kind": "open file",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/environment-tmp/#1496670 (deleted)"
+          },
+          {
+            "kind": "open file",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/environment-tmp/#1496678 (deleted)"
+          },
+          {
+            "kind": "open file",
+            "value": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/environment-tmp/#1496678 (deleted)"
+          }
+        ]
+      },
+      {
+        "pid": 578117,
+        "uid": 1000,
+        "argv0": "/bin/bash",
+        "cwd": "/workspace",
+        "target_evidence": []
+      },
+      {
+        "pid": 578118,
+        "uid": 1000,
+        "argv0": "python3",
+        "cwd": "/workspace",
+        "target_evidence": []
+      }
+    ]
+  },
+  "old_executed_observer": {
+    "path": "/tmp/e02-E-capacity-cleanup-20261007-doe/closed_numeric_fixture_archive_cleanup.py",
+    "bytes": 14810,
+    "sha256": "b082999455f40a58ae0b5a69248ce0a50d8d888caad3a78631ba28269bf74a29"
+  },
+  "historical_observer_fourth_PROTECTED_literal": "/workspace/e02-E-pr38-r3-receipts/full-backend-after-prereq-64d-20261007",
+  "correction": "Historical fourth prefix was an outdated auxiliary name, and is not evidence of directly checking the actual native backend prefix. The exact eight terminal receipt-owned --basetemp actions are independently rebound here as disjoint from the real active backend directory; no additional unlink/action occurred. Original source, observer and receipts retained byte-identical.",
+  "complete_ROOT207_DoE184_metadata_still_identical": true,
+  "cleanup_action_or_backend_test_repeat": false
+}

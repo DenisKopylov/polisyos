@@ -1,0 +1,193 @@
+{
+  "schema": "policyos.e02.moderate_publication_selection.v1",
+  "status": "PLAN_ONLY nativeRuff/formatUNRUN; rootreviewpending",
+  "files": [
+    {
+      "path": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/prepare_current_lint_inputs.py",
+      "bytes": 13943,
+      "sha256": "0643e751d4fdb8ce9b5a06ddfeab5f63dfcd46f65564b78ab97f847c4b507e67",
+      "logical_at": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/prepare_current_lint_inputs.py",
+      "stored_at": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/prepare_current_lint_inputs.py",
+      "role": "historical observer ERROR or superseded pending metadata",
+      "portable_rule": "Archive .py as .py.txt; zero-byte JSONstdout as .txt literal alias"
+    },
+    {
+      "path": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/prepare.stdout.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logical_at": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/prepare.stdout.json",
+      "stored_at": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/prepare.stdout.json",
+      "role": "historical observer ERROR or superseded pending metadata",
+      "portable_rule": "Archive .py as .py.txt; zero-byte JSONstdout as .txt literal alias"
+    },
+    {
+      "path": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/prepare.stderr.txt",
+      "bytes": 960,
+      "sha256": "b70617c836ce181af73c0b7d1f7f8e0ebb094bac61021d6902409de4eb828064",
+      "logical_at": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/prepare.stderr.txt",
+      "stored_at": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/prepare.stderr.txt",
+      "role": "historical observer ERROR or superseded pending metadata",
+      "portable_rule": "Archive .py as .py.txt; zero-byte JSONstdout as .txt literal alias"
+    },
+    {
+      "path": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/prepare_current_lint_inputs.v3.py",
+      "bytes": 15952,
+      "sha256": "bfe8dd2e1c0c78b1c3b6a9e2b9c5f2b408141c87fee9d7ad2a047702864ab924",
+      "logical_at": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/prepare_current_lint_inputs.v3.py",
+      "stored_at": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/prepare_current_lint_inputs.v3.py",
+      "role": "current complete source/input/deciding output",
+      "portable_rule": "Archive .py as .py.txt; zero-byte JSONstdout as .txt literal alias"
+    },
+    {
+      "path": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/prepare-v3.stdout.json",
+      "bytes": 349,
+      "sha256": "2a9ab20dd0fcf871f3f6289226808b807022120a157c4cb6fa4562c0015297d0",
+      "logical_at": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/prepare-v3.stdout.json",
+      "stored_at": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/prepare-v3.stdout.json",
+      "role": "current complete source/input/deciding output",
+      "portable_rule": "Archive .py as .py.txt; zero-byte JSONstdout as .txt literal alias"
+    },
+    {
+      "path": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/prepare-v3.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logical_at": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/prepare-v3.stderr.txt",
+      "stored_at": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/prepare-v3.stderr.txt",
+      "role": "current complete source/input/deciding output",
+      "portable_rule": "Archive .py as .py.txt; zero-byte JSONstdout as .txt literal alias"
+    },
+    {
+      "path": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/plan-v3.json",
+      "bytes": 722104,
+      "sha256": "106a280d6fd0fb60893392e9f67408e76b712dff8b16cce5bbb2f697f6d52f74",
+      "logical_at": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/plan-v3.json",
+      "stored_at": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/plan-v3.json",
+      "role": "current complete source/input/deciding output",
+      "portable_rule": "Archive .py as .py.txt; zero-byte JSONstdout as .txt literal alias"
+    },
+    {
+      "path": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/check_plan_controls.v3.py",
+      "bytes": 6070,
+      "sha256": "d16b90592afe290d16efbbe89cf78c53c99c3ac817bd3ba3c3ab522cdda455c2",
+      "logical_at": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/check_plan_controls.v3.py",
+      "stored_at": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/check_plan_controls.v3.py",
+      "role": "current complete source/input/deciding output",
+      "portable_rule": "Archive .py as .py.txt; zero-byte JSONstdout as .txt literal alias"
+    },
+    {
+      "path": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/controls-v3-normal.stdout.json",
+      "bytes": 187002,
+      "sha256": "ec5909a4daf0f8f3bad36577bcada4d56f2f1bdd04adbf8cbed71c08f266508e",
+      "logical_at": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/controls-v3-normal.stdout.json",
+      "stored_at": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/controls-v3-normal.stdout.json",
+      "role": "current complete source/input/deciding output",
+      "portable_rule": "Archive .py as .py.txt; zero-byte JSONstdout as .txt literal alias"
+    },
+    {
+      "path": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/controls-v3-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logical_at": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/controls-v3-normal.stderr.txt",
+      "stored_at": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/controls-v3-normal.stderr.txt",
+      "role": "current complete source/input/deciding output",
+      "portable_rule": "Archive .py as .py.txt; zero-byte JSONstdout as .txt literal alias"
+    },
+    {
+      "path": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/controls-v3-optimized.stdout.json",
+      "bytes": 187005,
+      "sha256": "96b3663b7c6db53d1a079b000ab7e3b7e4dbee2f807f26d40aaf757b52091a24",
+      "logical_at": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/controls-v3-optimized.stdout.json",
+      "stored_at": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/controls-v3-optimized.stdout.json",
+      "role": "current complete source/input/deciding output",
+      "portable_rule": "Archive .py as .py.txt; zero-byte JSONstdout as .txt literal alias"
+    },
+    {
+      "path": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/controls-v3-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logical_at": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/controls-v3-optimized.stderr.txt",
+      "stored_at": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/controls-v3-optimized.stderr.txt",
+      "role": "current complete source/input/deciding output",
+      "portable_rule": "Archive .py as .py.txt; zero-byte JSONstdout as .txt literal alias"
+    },
+    {
+      "path": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/remote-heads.stdout.txt",
+      "bytes": 361,
+      "sha256": "b97a79382c000a74d24fd14b0f41edd91c3aff4a6736080b2c799eda8a86f50e",
+      "logical_at": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/remote-heads.stdout.txt",
+      "stored_at": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/remote-heads.stdout.txt",
+      "role": "current complete source/input/deciding output",
+      "portable_rule": "Archive .py as .py.txt; zero-byte JSONstdout as .txt literal alias"
+    },
+    {
+      "path": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/remote-heads.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "logical_at": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/remote-heads.stderr.txt",
+      "stored_at": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/remote-heads.stderr.txt",
+      "role": "current complete source/input/deciding output",
+      "portable_rule": "Archive .py as .py.txt; zero-byte JSONstdout as .txt literal alias"
+    },
+    {
+      "path": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/remote-readback.json",
+      "bytes": 1915,
+      "sha256": "cc7f5934146543d85c5d448b8c84f72f4b03008860c213294cfff8ff42db3801",
+      "logical_at": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/remote-readback.json",
+      "stored_at": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/remote-readback.json",
+      "role": "current complete source/input/deciding output",
+      "portable_rule": "Archive .py as .py.txt; zero-byte JSONstdout as .txt literal alias"
+    },
+    {
+      "path": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/publication-selection.json",
+      "bytes": 8754,
+      "sha256": "f709b6a85410de04a8d8c4a629a89a8f64643e280b2ecd4f794403d626191ecc",
+      "logical_at": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/publication-selection.json",
+      "stored_at": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/publication-selection.json",
+      "role": "historical observer ERROR or superseded pending metadata",
+      "portable_rule": "Archive .py as .py.txt; zero-byte JSONstdout as .txt literal alias"
+    },
+    {
+      "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/source-qualification-3932.json",
+      "bytes": 8793,
+      "sha256": "e9be8494cbf87f77f6c737fc5f2eebd58c6481b2893d4dfd76891b854409f418",
+      "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/source-qualification-3932.json",
+      "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/source-qualification-3932.json",
+      "role": "independent reviewed source/admission qualifier"
+    },
+    {
+      "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/forecast-import-edge-scope-correction.json",
+      "bytes": 3378,
+      "sha256": "635cf79a6a1bf081bb28c710ed1d24c2fcbf31a2a1956f1e71996404cfad046c",
+      "logical_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/forecast-import-edge-scope-correction.json",
+      "stored_at": "/tmp/e02-E-MC-public-api-review-ca17-20261007/forecast-import-edge-scope-correction.json",
+      "role": "independent reviewed source/admission qualifier"
+    }
+  ],
+  "logical_count": 18,
+  "content_unique_count": 14,
+  "content_unique_bytes": 1156586,
+  "actual_merged_candidate": null,
+  "prospective_python": 366,
+  "planned_refs": {
+    "main": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "frozen": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "G": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+    "FRC": "737c9e3115abac3fefe76920b08c05e76a5bee17",
+    "DOE": "7537ef95beed07d02a3b72343b082ff3b7fd14e2",
+    "MC": "3932cded22a29254a7dfced99723e147d6fea7cb"
+  },
+  "previous_staging_versions": {
+    "v2_plan": {
+      "path": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/plan-v2.json",
+      "bytes": 718643,
+      "sha256": "0dd5164c7a6963d0de427352599a19d51af92f43f7c5172dd578dcfa883b1d1c"
+    },
+    "v2_observer": {
+      "path": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/prepare_current_lint_inputs.v2.py",
+      "bytes": 14723,
+      "sha256": "66ad643d132ef55707a468bdad4aef0a68ecac775f9a88b84373df44eb2724ea"
+    },
+    "rule": "Still retained unchanged in scratch; superseded successful metadata not selected repeatedly. Historical v1 observer ERROR remains selected with full literal source/stdout/stderr."
+  },
+  "fresh_heads_rule": "Additional source or DOC heads require exact refreshed input/config/writer census and actual clean merged source binding before execute; prospectively qualified366 count is not a nativecheck outcome."
+}

@@ -1,0 +1,340 @@
+{
+  "schema": "policyos.e02.prewrite_metadata_corrected_controls.v1",
+  "copier_sha256": "00cafa8cb9173e72ce58a9c6dde148f4b8c775b039e2eb0033ffd10885c53fd7",
+  "normal_optimized_controls": [
+    {
+      "name": "missing-build-stdout",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-missing-build-stdout/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-missing-build-stdout/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-missing-build-stdout/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-missing-build-stdout/stderr.txt"
+    },
+    {
+      "name": "forged-build-count",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-forged-build-count/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-forged-build-count/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-forged-build-count/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-forged-build-count/stderr.txt"
+    },
+    {
+      "name": "bool-build-count",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-bool-build-count/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-bool-build-count/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-bool-build-count/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-bool-build-count/stderr.txt"
+    },
+    {
+      "name": "malformed-doctor-json",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-malformed-doctor-json/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-malformed-doctor-json/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-malformed-doctor-json/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-malformed-doctor-json/stderr.txt"
+    },
+    {
+      "name": "missing-first-recipe",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-missing-first-recipe/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-missing-first-recipe/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-missing-first-recipe/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-missing-first-recipe/stderr.txt"
+    },
+    {
+      "name": "forged-first-recipe",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-forged-first-recipe/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-forged-first-recipe/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-forged-first-recipe/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-forged-first-recipe/stderr.txt"
+    },
+    {
+      "name": "missing-second-recipe",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-missing-second-recipe/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-missing-second-recipe/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-missing-second-recipe/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-missing-second-recipe/stderr.txt"
+    },
+    {
+      "name": "forged-second-recipe",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-forged-second-recipe/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-forged-second-recipe/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-forged-second-recipe/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-forged-second-recipe/stderr.txt"
+    },
+    {
+      "name": "missing-self-companion",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-missing-self-companion/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-missing-self-companion/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-missing-self-companion/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-missing-self-companion/stderr.txt"
+    },
+    {
+      "name": "fake-self-companion",
+      "optimized": false,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-fake-self-companion/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-fake-self-companion/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-fake-self-companion/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/normal-fake-self-companion/stderr.txt"
+    },
+    {
+      "name": "missing-build-stdout",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-missing-build-stdout/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-missing-build-stdout/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-missing-build-stdout/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-missing-build-stdout/stderr.txt"
+    },
+    {
+      "name": "forged-build-count",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-forged-build-count/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-forged-build-count/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-forged-build-count/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-forged-build-count/stderr.txt"
+    },
+    {
+      "name": "bool-build-count",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-bool-build-count/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-bool-build-count/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-bool-build-count/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-bool-build-count/stderr.txt"
+    },
+    {
+      "name": "malformed-doctor-json",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-malformed-doctor-json/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-malformed-doctor-json/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-malformed-doctor-json/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-malformed-doctor-json/stderr.txt"
+    },
+    {
+      "name": "missing-first-recipe",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-missing-first-recipe/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-missing-first-recipe/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-missing-first-recipe/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-missing-first-recipe/stderr.txt"
+    },
+    {
+      "name": "forged-first-recipe",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-forged-first-recipe/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-forged-first-recipe/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-forged-first-recipe/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-forged-first-recipe/stderr.txt"
+    },
+    {
+      "name": "missing-second-recipe",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-missing-second-recipe/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-missing-second-recipe/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-missing-second-recipe/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-missing-second-recipe/stderr.txt"
+    },
+    {
+      "name": "forged-second-recipe",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-forged-second-recipe/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-forged-second-recipe/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-forged-second-recipe/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-forged-second-recipe/stderr.txt"
+    },
+    {
+      "name": "missing-self-companion",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-missing-self-companion/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-missing-self-companion/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-missing-self-companion/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-missing-self-companion/stderr.txt"
+    },
+    {
+      "name": "fake-self-companion",
+      "optimized": true,
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-O",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/copy-cleanup-description-plan.py.txt",
+        "--manifest",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-fake-self-companion/manifest.json",
+        "--destination-root",
+        "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-fake-self-companion/destination"
+      ],
+      "exit_code": 1,
+      "destination_created": false,
+      "stdout": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-fake-self-companion/stdout.txt",
+      "stderr": "/tmp/e02-E-cleanup-description-plan-publication-r4-stage/metadata-admission-trustedself-final/optimized-fake-self-companion/stderr.txt"
+    }
+  ],
+  "negative_per_mode": 10,
+  "all_refused_before_destination": true,
+  "historical_counterexamples": "historical-late-metadata.json",
+  "source_native_numeric_gate_execution": false
+}

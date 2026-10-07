@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="10" skipped="0" tests="15" time="114.886" timestamp="2026-10-07T07:39:20.134339+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer" name="test_http_money_does_not_become_zero_in_durable_reader[tiny-positive]" time="11.385"><failure message="AssertionError: {'admission_error': 'BudgetLedgerCompletionRequiredError', 'd_source': [{'bytes': 13294, 'module': 'polisyos.common.se...lative_cost_usd', ...}, 'ledger_bytes_sha256': 'f01c61a7ea17f4d08f4ae5e454add6553d8fb330f6ce9f59f10ee34f3f6fdbc6', ...}&#10;assert 'BudgetLedger...RequiredError' == 'BudgetLedger...nPendingError'&#10;  &#10;  - BudgetLedgerCompletionPendingError&#10;  ?                       ^ ^ ---&#10;  + BudgetLedgerCompletionRequiredError&#10;  ?                       ^ ^^^^^">tmp_path = PosixPath('/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom0')
+lexeme = '1e-1000', expected = None
+
+    @pytest.mark.parametrize(("profile", "lexeme", "expected"), _CASES, ids=[row[0] for row in _CASES])
+    def test_http_money_does_not_become_zero_in_durable_reader(
+        tmp_path: Path, profile: str, lexeme: str | None, expected: Decimal | None
+    ) -&gt; None:
+        del profile
+        observed = asyncio.run(_exercise(tmp_path, lexeme))
+        state = observed["snapshot"]["state"]
+        receipts = observed["snapshot"]["spend_receipts"]
+        fresh = observed["fresh"]
+        if expected is None:
+            assert observed["result_error"] == "LLMAccountingError", observed
+            assert not receipts and observed["snapshot"]["completion_obligations"], observed
+            assert Decimal(state["reserved"]["run"]) &gt; 0
+&gt;           assert fresh["admission_error"] == "BudgetLedgerCompletionPendingError", fresh
+E           AssertionError: {'admission_error': 'BudgetLedgerCompletionRequiredError', 'd_source': [{'bytes': 13294, 'module': 'polisyos.common.se...lative_cost_usd', ...}, 'ledger_bytes_sha256': 'f01c61a7ea17f4d08f4ae5e454add6553d8fb330f6ce9f59f10ee34f3f6fdbc6', ...}
+E           assert 'BudgetLedger...RequiredError' == 'BudgetLedger...nPendingError'
+E             
+E             - BudgetLedgerCompletionPendingError
+E             ?                       ^ ^ ---
+E             + BudgetLedgerCompletionRequiredError
+E             ?                       ^ ^^^^^
+
+../../e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py:292: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer" name="test_http_money_does_not_become_zero_in_durable_reader[tiny-negative]" time="7.384"><failure message="AssertionError: {'admission_error': 'BudgetLedgerCompletionRequiredError', 'd_source': [{'bytes': 13294, 'module': 'polisyos.common.se...lative_cost_usd', ...}, 'ledger_bytes_sha256': 'b3f411bf2f0aab28be207a3b17d7a581ac51010099a48eaf452f8e4b0722d544', ...}&#10;assert 'BudgetLedger...RequiredError' == 'BudgetLedger...nPendingError'&#10;  &#10;  - BudgetLedgerCompletionPendingError&#10;  ?                       ^ ^ ---&#10;  + BudgetLedgerCompletionRequiredError&#10;  ?                       ^ ^^^^^">tmp_path = PosixPath('/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom1')
+lexeme = '-1e-1000', expected = None
+
+    @pytest.mark.parametrize(("profile", "lexeme", "expected"), _CASES, ids=[row[0] for row in _CASES])
+    def test_http_money_does_not_become_zero_in_durable_reader(
+        tmp_path: Path, profile: str, lexeme: str | None, expected: Decimal | None
+    ) -&gt; None:
+        del profile
+        observed = asyncio.run(_exercise(tmp_path, lexeme))
+        state = observed["snapshot"]["state"]
+        receipts = observed["snapshot"]["spend_receipts"]
+        fresh = observed["fresh"]
+        if expected is None:
+            assert observed["result_error"] == "LLMAccountingError", observed
+            assert not receipts and observed["snapshot"]["completion_obligations"], observed
+            assert Decimal(state["reserved"]["run"]) &gt; 0
+&gt;           assert fresh["admission_error"] == "BudgetLedgerCompletionPendingError", fresh
+E           AssertionError: {'admission_error': 'BudgetLedgerCompletionRequiredError', 'd_source': [{'bytes': 13294, 'module': 'polisyos.common.se...lative_cost_usd', ...}, 'ledger_bytes_sha256': 'b3f411bf2f0aab28be207a3b17d7a581ac51010099a48eaf452f8e4b0722d544', ...}
+E           assert 'BudgetLedger...RequiredError' == 'BudgetLedger...nPendingError'
+E             
+E             - BudgetLedgerCompletionPendingError
+E             ?                       ^ ^ ---
+E             + BudgetLedgerCompletionRequiredError
+E             ?                       ^ ^^^^^
+
+../../e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py:292: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer" name="test_http_money_does_not_become_zero_in_durable_reader[missing]" time="7.369"><failure message="AssertionError: {'admission_error': 'BudgetLedgerCompletionRequiredError', 'd_source': [{'bytes': 13294, 'module': 'polisyos.common.se...lative_cost_usd', ...}, 'ledger_bytes_sha256': '78907ba2919179eab23695af2a60036378f4aaed7a8f9f3608d9df04beec8e45', ...}&#10;assert 'BudgetLedger...RequiredError' == 'BudgetLedger...nPendingError'&#10;  &#10;  - BudgetLedgerCompletionPendingError&#10;  ?                       ^ ^ ---&#10;  + BudgetLedgerCompletionRequiredError&#10;  ?                       ^ ^^^^^">tmp_path = PosixPath('/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom2')
+lexeme = None, expected = None
+
+    @pytest.mark.parametrize(("profile", "lexeme", "expected"), _CASES, ids=[row[0] for row in _CASES])
+    def test_http_money_does_not_become_zero_in_durable_reader(
+        tmp_path: Path, profile: str, lexeme: str | None, expected: Decimal | None
+    ) -&gt; None:
+        del profile
+        observed = asyncio.run(_exercise(tmp_path, lexeme))
+        state = observed["snapshot"]["state"]
+        receipts = observed["snapshot"]["spend_receipts"]
+        fresh = observed["fresh"]
+        if expected is None:
+            assert observed["result_error"] == "LLMAccountingError", observed
+            assert not receipts and observed["snapshot"]["completion_obligations"], observed
+            assert Decimal(state["reserved"]["run"]) &gt; 0
+&gt;           assert fresh["admission_error"] == "BudgetLedgerCompletionPendingError", fresh
+E           AssertionError: {'admission_error': 'BudgetLedgerCompletionRequiredError', 'd_source': [{'bytes': 13294, 'module': 'polisyos.common.se...lative_cost_usd', ...}, 'ledger_bytes_sha256': '78907ba2919179eab23695af2a60036378f4aaed7a8f9f3608d9df04beec8e45', ...}
+E           assert 'BudgetLedger...RequiredError' == 'BudgetLedger...nPendingError'
+E             
+E             - BudgetLedgerCompletionPendingError
+E             ?                       ^ ^ ---
+E             + BudgetLedgerCompletionRequiredError
+E             ?                       ^ ^^^^^
+
+../../e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py:292: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer" name="test_http_money_does_not_become_zero_in_durable_reader[null]" time="7.359"><failure message="AssertionError: {'admission_error': 'BudgetLedgerCompletionRequiredError', 'd_source': [{'bytes': 13294, 'module': 'polisyos.common.se...lative_cost_usd', ...}, 'ledger_bytes_sha256': '06a93ce18755b7f9307e18483659ff10e5c591b32c32947c1dac475e7fa30064', ...}&#10;assert 'BudgetLedger...RequiredError' == 'BudgetLedger...nPendingError'&#10;  &#10;  - BudgetLedgerCompletionPendingError&#10;  ?                       ^ ^ ---&#10;  + BudgetLedgerCompletionRequiredError&#10;  ?                       ^ ^^^^^">tmp_path = PosixPath('/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom3')
+lexeme = 'null', expected = None
+
+    @pytest.mark.parametrize(("profile", "lexeme", "expected"), _CASES, ids=[row[0] for row in _CASES])
+    def test_http_money_does_not_become_zero_in_durable_reader(
+        tmp_path: Path, profile: str, lexeme: str | None, expected: Decimal | None
+    ) -&gt; None:
+        del profile
+        observed = asyncio.run(_exercise(tmp_path, lexeme))
+        state = observed["snapshot"]["state"]
+        receipts = observed["snapshot"]["spend_receipts"]
+        fresh = observed["fresh"]
+        if expected is None:
+            assert observed["result_error"] == "LLMAccountingError", observed
+            assert not receipts and observed["snapshot"]["completion_obligations"], observed
+            assert Decimal(state["reserved"]["run"]) &gt; 0
+&gt;           assert fresh["admission_error"] == "BudgetLedgerCompletionPendingError", fresh
+E           AssertionError: {'admission_error': 'BudgetLedgerCompletionRequiredError', 'd_source': [{'bytes': 13294, 'module': 'polisyos.common.se...lative_cost_usd', ...}, 'ledger_bytes_sha256': '06a93ce18755b7f9307e18483659ff10e5c591b32c32947c1dac475e7fa30064', ...}
+E           assert 'BudgetLedger...RequiredError' == 'BudgetLedger...nPendingError'
+E             
+E             - BudgetLedgerCompletionPendingError
+E             ?                       ^ ^ ---
+E             + BudgetLedgerCompletionRequiredError
+E             ?                       ^ ^^^^^
+
+../../e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py:292: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer" name="test_http_money_does_not_become_zero_in_durable_reader[integer-zero]" time="7.329" /><testcase classname="tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer" name="test_http_money_does_not_become_zero_in_durable_reader[decimal-zero]" time="7.465" /><testcase classname="tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer" name="test_http_money_does_not_become_zero_in_durable_reader[negative-integer-zero]" time="7.356" /><testcase classname="tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer" name="test_http_money_does_not_become_zero_in_durable_reader[negative-decimal-zero]" time="7.393" /><testcase classname="tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer" name="test_http_money_does_not_become_zero_in_durable_reader[ordinary-positive]" time="7.325" /><testcase classname="tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer" name="test_http_money_does_not_become_zero_in_durable_reader[ordinary-negative]" time="7.482"><failure message="AssertionError: {'admission_error': 'BudgetLedgerCompletionRequiredError', 'd_source': [{'bytes': 13294, 'module': 'polisyos.common.se...lative_cost_usd', ...}, 'ledger_bytes_sha256': 'eea93b8297db3612afee83e31af1c876cc21810056e1c44008cd43b9716f83c3', ...}&#10;assert 'BudgetLedger...RequiredError' == 'BudgetLedger...nPendingError'&#10;  &#10;  - BudgetLedgerCompletionPendingError&#10;  ?                       ^ ^ ---&#10;  + BudgetLedgerCompletionRequiredError&#10;  ?                       ^ ^^^^^">tmp_path = PosixPath('/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom9')
+lexeme = '-0.02', expected = None
+
+    @pytest.mark.parametrize(("profile", "lexeme", "expected"), _CASES, ids=[row[0] for row in _CASES])
+    def test_http_money_does_not_become_zero_in_durable_reader(
+        tmp_path: Path, profile: str, lexeme: str | None, expected: Decimal | None
+    ) -&gt; None:
+        del profile
+        observed = asyncio.run(_exercise(tmp_path, lexeme))
+        state = observed["snapshot"]["state"]
+        receipts = observed["snapshot"]["spend_receipts"]
+        fresh = observed["fresh"]
+        if expected is None:
+            assert observed["result_error"] == "LLMAccountingError", observed
+            assert not receipts and observed["snapshot"]["completion_obligations"], observed
+            assert Decimal(state["reserved"]["run"]) &gt; 0
+&gt;           assert fresh["admission_error"] == "BudgetLedgerCompletionPendingError", fresh
+E           AssertionError: {'admission_error': 'BudgetLedgerCompletionRequiredError', 'd_source': [{'bytes': 13294, 'module': 'polisyos.common.se...lative_cost_usd', ...}, 'ledger_bytes_sha256': 'eea93b8297db3612afee83e31af1c876cc21810056e1c44008cd43b9716f83c3', ...}
+E           assert 'BudgetLedger...RequiredError' == 'BudgetLedger...nPendingError'
+E             
+E             - BudgetLedgerCompletionPendingError
+E             ?                       ^ ^ ---
+E             + BudgetLedgerCompletionRequiredError
+E             ?                       ^ ^^^^^
+
+../../e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py:292: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer" name="test_http_money_does_not_become_zero_in_durable_reader[boolean-true]" time="7.416"><failure message="AssertionError: {'admission_error': 'BudgetLedgerCompletionRequiredError', 'd_source': [{'bytes': 13294, 'module': 'polisyos.common.se...lative_cost_usd', ...}, 'ledger_bytes_sha256': '4ac387dfa74ed6f234bc3d70768f0621fb788f02847656c076c23a299b13f2eb', ...}&#10;assert 'BudgetLedger...RequiredError' == 'BudgetLedger...nPendingError'&#10;  &#10;  - BudgetLedgerCompletionPendingError&#10;  ?                       ^ ^ ---&#10;  + BudgetLedgerCompletionRequiredError&#10;  ?                       ^ ^^^^^">tmp_path = PosixPath('/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom10')
+lexeme = 'true', expected = None
+
+    @pytest.mark.parametrize(("profile", "lexeme", "expected"), _CASES, ids=[row[0] for row in _CASES])
+    def test_http_money_does_not_become_zero_in_durable_reader(
+        tmp_path: Path, profile: str, lexeme: str | None, expected: Decimal | None
+    ) -&gt; None:
+        del profile
+        observed = asyncio.run(_exercise(tmp_path, lexeme))
+        state = observed["snapshot"]["state"]
+        receipts = observed["snapshot"]["spend_receipts"]
+        fresh = observed["fresh"]
+        if expected is None:
+            assert observed["result_error"] == "LLMAccountingError", observed
+            assert not receipts and observed["snapshot"]["completion_obligations"], observed
+            assert Decimal(state["reserved"]["run"]) &gt; 0
+&gt;           assert fresh["admission_error"] == "BudgetLedgerCompletionPendingError", fresh
+E           AssertionError: {'admission_error': 'BudgetLedgerCompletionRequiredError', 'd_source': [{'bytes': 13294, 'module': 'polisyos.common.se...lative_cost_usd', ...}, 'ledger_bytes_sha256': '4ac387dfa74ed6f234bc3d70768f0621fb788f02847656c076c23a299b13f2eb', ...}
+E           assert 'BudgetLedger...RequiredError' == 'BudgetLedger...nPendingError'
+E             
+E             - BudgetLedgerCompletionPendingError
+E             ?                       ^ ^ ---
+E             + BudgetLedgerCompletionRequiredError
+E             ?                       ^ ^^^^^
+
+../../e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py:292: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer" name="test_http_money_does_not_become_zero_in_durable_reader[boolean-false]" time="7.325"><failure message="AssertionError: {'admission_error': 'BudgetLedgerCompletionRequiredError', 'd_source': [{'bytes': 13294, 'module': 'polisyos.common.se...lative_cost_usd', ...}, 'ledger_bytes_sha256': '06854bfc38de34e4a0403e7456cc455b07c2b243b75b9bf7a6692c451d9daf2c', ...}&#10;assert 'BudgetLedger...RequiredError' == 'BudgetLedger...nPendingError'&#10;  &#10;  - BudgetLedgerCompletionPendingError&#10;  ?                       ^ ^ ---&#10;  + BudgetLedgerCompletionRequiredError&#10;  ?                       ^ ^^^^^">tmp_path = PosixPath('/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom11')
+lexeme = 'false', expected = None
+
+    @pytest.mark.parametrize(("profile", "lexeme", "expected"), _CASES, ids=[row[0] for row in _CASES])
+    def test_http_money_does_not_become_zero_in_durable_reader(
+        tmp_path: Path, profile: str, lexeme: str | None, expected: Decimal | None
+    ) -&gt; None:
+        del profile
+        observed = asyncio.run(_exercise(tmp_path, lexeme))
+        state = observed["snapshot"]["state"]
+        receipts = observed["snapshot"]["spend_receipts"]
+        fresh = observed["fresh"]
+        if expected is None:
+            assert observed["result_error"] == "LLMAccountingError", observed
+            assert not receipts and observed["snapshot"]["completion_obligations"], observed
+            assert Decimal(state["reserved"]["run"]) &gt; 0
+&gt;           assert fresh["admission_error"] == "BudgetLedgerCompletionPendingError", fresh
+E           AssertionError: {'admission_error': 'BudgetLedgerCompletionRequiredError', 'd_source': [{'bytes': 13294, 'module': 'polisyos.common.se...lative_cost_usd', ...}, 'ledger_bytes_sha256': '06854bfc38de34e4a0403e7456cc455b07c2b243b75b9bf7a6692c451d9daf2c', ...}
+E           assert 'BudgetLedger...RequiredError' == 'BudgetLedger...nPendingError'
+E             
+E             - BudgetLedgerCompletionPendingError
+E             ?                       ^ ^ ---
+E             + BudgetLedgerCompletionRequiredError
+E             ?                       ^ ^^^^^
+
+../../e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py:292: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer" name="test_http_money_does_not_become_zero_in_durable_reader[nan]" time="7.174"><failure message="AssertionError: {'admission_error': 'BudgetLedgerCompletionRequiredError', 'd_source': [{'bytes': 13294, 'module': 'polisyos.common.se...lative_cost_usd', ...}, 'ledger_bytes_sha256': 'b7f82450cc895b9f61344ccd97604c80922a03b5144ab160456e3bccbefa5054', ...}&#10;assert 'BudgetLedger...RequiredError' == 'BudgetLedger...nPendingError'&#10;  &#10;  - BudgetLedgerCompletionPendingError&#10;  ?                       ^ ^ ---&#10;  + BudgetLedgerCompletionRequiredError&#10;  ?                       ^ ^^^^^">tmp_path = PosixPath('/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom12')
+lexeme = 'NaN', expected = None
+
+    @pytest.mark.parametrize(("profile", "lexeme", "expected"), _CASES, ids=[row[0] for row in _CASES])
+    def test_http_money_does_not_become_zero_in_durable_reader(
+        tmp_path: Path, profile: str, lexeme: str | None, expected: Decimal | None
+    ) -&gt; None:
+        del profile
+        observed = asyncio.run(_exercise(tmp_path, lexeme))
+        state = observed["snapshot"]["state"]
+        receipts = observed["snapshot"]["spend_receipts"]
+        fresh = observed["fresh"]
+        if expected is None:
+            assert observed["result_error"] == "LLMAccountingError", observed
+            assert not receipts and observed["snapshot"]["completion_obligations"], observed
+            assert Decimal(state["reserved"]["run"]) &gt; 0
+&gt;           assert fresh["admission_error"] == "BudgetLedgerCompletionPendingError", fresh
+E           AssertionError: {'admission_error': 'BudgetLedgerCompletionRequiredError', 'd_source': [{'bytes': 13294, 'module': 'polisyos.common.se...lative_cost_usd', ...}, 'ledger_bytes_sha256': 'b7f82450cc895b9f61344ccd97604c80922a03b5144ab160456e3bccbefa5054', ...}
+E           assert 'BudgetLedger...RequiredError' == 'BudgetLedger...nPendingError'
+E             
+E             - BudgetLedgerCompletionPendingError
+E             ?                       ^ ^ ---
+E             + BudgetLedgerCompletionRequiredError
+E             ?                       ^ ^^^^^
+
+../../e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py:292: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer" name="test_http_money_does_not_become_zero_in_durable_reader[positive-infinity]" time="7.332"><failure message="AssertionError: {'admission_error': 'BudgetLedgerCompletionRequiredError', 'd_source': [{'bytes': 13294, 'module': 'polisyos.common.se...lative_cost_usd', ...}, 'ledger_bytes_sha256': '74f157a83b18f250481e5f94ff140db34cb4d4d53fbf32bcacc41ae24a43660b', ...}&#10;assert 'BudgetLedger...RequiredError' == 'BudgetLedger...nPendingError'&#10;  &#10;  - BudgetLedgerCompletionPendingError&#10;  ?                       ^ ^ ---&#10;  + BudgetLedgerCompletionRequiredError&#10;  ?                       ^ ^^^^^">tmp_path = PosixPath('/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom13')
+lexeme = 'Infinity', expected = None
+
+    @pytest.mark.parametrize(("profile", "lexeme", "expected"), _CASES, ids=[row[0] for row in _CASES])
+    def test_http_money_does_not_become_zero_in_durable_reader(
+        tmp_path: Path, profile: str, lexeme: str | None, expected: Decimal | None
+    ) -&gt; None:
+        del profile
+        observed = asyncio.run(_exercise(tmp_path, lexeme))
+        state = observed["snapshot"]["state"]
+        receipts = observed["snapshot"]["spend_receipts"]
+        fresh = observed["fresh"]
+        if expected is None:
+            assert observed["result_error"] == "LLMAccountingError", observed
+            assert not receipts and observed["snapshot"]["completion_obligations"], observed
+            assert Decimal(state["reserved"]["run"]) &gt; 0
+&gt;           assert fresh["admission_error"] == "BudgetLedgerCompletionPendingError", fresh
+E           AssertionError: {'admission_error': 'BudgetLedgerCompletionRequiredError', 'd_source': [{'bytes': 13294, 'module': 'polisyos.common.se...lative_cost_usd', ...}, 'ledger_bytes_sha256': '74f157a83b18f250481e5f94ff140db34cb4d4d53fbf32bcacc41ae24a43660b', ...}
+E           assert 'BudgetLedger...RequiredError' == 'BudgetLedger...nPendingError'
+E             
+E             - BudgetLedgerCompletionPendingError
+E             ?                       ^ ^ ---
+E             + BudgetLedgerCompletionRequiredError
+E             ?                       ^ ^^^^^
+
+../../e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py:292: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer" name="test_http_money_does_not_become_zero_in_durable_reader[negative-infinity]" time="7.341"><failure message="AssertionError: {'admission_error': 'BudgetLedgerCompletionRequiredError', 'd_source': [{'bytes': 13294, 'module': 'polisyos.common.se...lative_cost_usd', ...}, 'ledger_bytes_sha256': '0dff9a7a4a4fa3a770f653942a47315fd863564f4c99fb063cfbdfa5aa18367a', ...}&#10;assert 'BudgetLedger...RequiredError' == 'BudgetLedger...nPendingError'&#10;  &#10;  - BudgetLedgerCompletionPendingError&#10;  ?                       ^ ^ ---&#10;  + BudgetLedgerCompletionRequiredError&#10;  ?                       ^ ^^^^^">tmp_path = PosixPath('/tmp/e02-B-gateway-exact-money-candidate/qualified-full/test_http_money_does_not_becom14')
+lexeme = '-Infinity', expected = None
+
+    @pytest.mark.parametrize(("profile", "lexeme", "expected"), _CASES, ids=[row[0] for row in _CASES])
+    def test_http_money_does_not_become_zero_in_durable_reader(
+        tmp_path: Path, profile: str, lexeme: str | None, expected: Decimal | None
+    ) -&gt; None:
+        del profile
+        observed = asyncio.run(_exercise(tmp_path, lexeme))
+        state = observed["snapshot"]["state"]
+        receipts = observed["snapshot"]["spend_receipts"]
+        fresh = observed["fresh"]
+        if expected is None:
+            assert observed["result_error"] == "LLMAccountingError", observed
+            assert not receipts and observed["snapshot"]["completion_obligations"], observed
+            assert Decimal(state["reserved"]["run"]) &gt; 0
+&gt;           assert fresh["admission_error"] == "BudgetLedgerCompletionPendingError", fresh
+E           AssertionError: {'admission_error': 'BudgetLedgerCompletionRequiredError', 'd_source': [{'bytes': 13294, 'module': 'polisyos.common.se...lative_cost_usd', ...}, 'ledger_bytes_sha256': '0dff9a7a4a4fa3a770f653942a47315fd863564f4c99fb063cfbdfa5aa18367a', ...}
+E           assert 'BudgetLedger...RequiredError' == 'BudgetLedger...nPendingError'
+E             
+E             - BudgetLedgerCompletionPendingError
+E             ?                       ^ ^ ---
+E             + BudgetLedgerCompletionRequiredError
+E             ?                       ^ ^^^^^
+
+../../e02-B-current-execution-state/policy-engine/tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py:292: AssertionError</failure></testcase></testsuite></testsuites>

@@ -1,0 +1,86 @@
+{
+  "schema_version": "1.2",
+  "canonical_contract": "scientist.multi_host_budget_ledger.v1",
+  "coordination_mode": "shared_posix_file_lock",
+  "ledger_id": "ledger:raw-http-money",
+  "revision": 2,
+  "updated_at": "2026-10-07T07:39:42.888289Z",
+  "last_writer": {
+    "host_id": "b878f4efbdfc",
+    "writer_id": "b878f4efbdfc:660151:budget.json",
+    "pid": 660151
+  },
+  "recent_mutations": [
+    {
+      "revision": 0,
+      "operation": "bootstrap",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:660151:budget.json",
+        "pid": 660151
+      },
+      "committed_at": "2026-10-07T07:39:42.878562Z"
+    },
+    {
+      "revision": 1,
+      "operation": "admit_provider_intent",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:660151:budget.json",
+        "pid": 660151
+      },
+      "committed_at": "2026-10-07T07:39:42.880301Z"
+    },
+    {
+      "revision": 2,
+      "operation": "transition_completion",
+      "writer": {
+        "host_id": "b878f4efbdfc",
+        "writer_id": "b878f4efbdfc:660151:budget.json",
+        "pid": 660151
+      },
+      "committed_at": "2026-10-07T07:39:42.888284Z"
+    }
+  ],
+  "state": {
+    "limits": {
+      "run": {
+        "key": "run",
+        "max_usd": "10"
+      }
+    },
+    "spent": {},
+    "provider_spent": {},
+    "reserved": {
+      "run": "0.0000225"
+    }
+  },
+  "spend_receipts": {},
+  "completion_obligations": {
+    "llm-producer:aefc37a7e7f24027a4d0bdb639049f2c": {
+      "obligation_id": "llm-producer:aefc37a7e7f24027a4d0bdb639049f2c",
+      "event_payload": {
+        "event_id": "llm-producer:aefc37a7e7f24027a4d0bdb639049f2c",
+        "request_digest": "sha256:a3a06c2b1a42d2be5a0f67b8471db8f1e12ea480a7b3004cd23703eedc7b6ca5",
+        "response_digest": "sha256:1137768b423a9b2a971a6f48da1524d7d8dbd39bea8ff017f424721b96bd8567",
+        "model": "gpt-4o",
+        "provider": "local-http",
+        "amount": null,
+        "cost_origin": "unknown",
+        "kind": "provider",
+        "origin_event_id": null
+      },
+      "event_digest": "sha256:8dd7fe5caa1f629fbc5a32647f7d8cebce6459dbab6a0b833a1e32b1eed3e111",
+      "run_id": "raw-http-money",
+      "owner_epoch": "660151:4499a5cdbfef49c097fc79e2d7e48a7d",
+      "budget_keys": [
+        "run"
+      ],
+      "reserved_amounts": {
+        "run": "0.0000225"
+      },
+      "phase": "cost_unknown",
+      "known_receipt_ids": []
+    }
+  }
+}

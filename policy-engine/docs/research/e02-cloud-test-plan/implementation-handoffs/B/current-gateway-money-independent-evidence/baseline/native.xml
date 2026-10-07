@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="15" time="147.848" timestamp="2026-10-07T07:42:21.583760+00:00" hostname="b878f4efbdfc"><testcase classname="tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer" name="test_http_money_does_not_become_zero_in_durable_reader[tiny-positive]" time="10.050"><failure message="AssertionError: {'child_command': ['/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python', '/workspace...origin_available': False, 'receipt_revision_available': False, 'source': 'caller_state'}, 'cost': 0.0, ...}, ...}, ...}&#10;assert None == 'LLMAccountingError'">tmp_path = PosixPath('/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom0')
+lexeme = '1e-1000', expected = None
+
+    @pytest.mark.parametrize(("profile", "lexeme", "expected"), _CASES, ids=[row[0] for row in _CASES])
+    def test_http_money_does_not_become_zero_in_durable_reader(
+        tmp_path: Path, profile: str, lexeme: str | None, expected: Decimal | None
+    ) -&gt; None:
+        del profile
+        observed = asyncio.run(_exercise(tmp_path, lexeme))
+        state = observed["snapshot"]["state"]
+        receipts = observed["snapshot"]["spend_receipts"]
+        fresh = observed["fresh"]
+        if expected is None:
+&gt;           assert observed["result_error"] == "LLMAccountingError", observed
+E           AssertionError: {'child_command': ['/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python', '/workspace...origin_available': False, 'receipt_revision_available': False, 'source': 'caller_state'}, 'cost': 0.0, ...}, ...}, ...}
+E           assert None == 'LLMAccountingError'
+
+tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py:290: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer" name="test_http_money_does_not_become_zero_in_durable_reader[tiny-negative]" time="9.789"><failure message="AssertionError: {'child_command': ['/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python', '/workspace...origin_available': False, 'receipt_revision_available': False, 'source': 'caller_state'}, 'cost': 0.0, ...}, ...}, ...}&#10;assert None == 'LLMAccountingError'">tmp_path = PosixPath('/tmp/e02-B-gateway-exact-money-baseline/qualified-595/test_http_money_does_not_becom1')
+lexeme = '-1e-1000', expected = None
+
+    @pytest.mark.parametrize(("profile", "lexeme", "expected"), _CASES, ids=[row[0] for row in _CASES])
+    def test_http_money_does_not_become_zero_in_durable_reader(
+        tmp_path: Path, profile: str, lexeme: str | None, expected: Decimal | None
+    ) -&gt; None:
+        del profile
+        observed = asyncio.run(_exercise(tmp_path, lexeme))
+        state = observed["snapshot"]["state"]
+        receipts = observed["snapshot"]["spend_receipts"]
+        fresh = observed["fresh"]
+        if expected is None:
+&gt;           assert observed["result_error"] == "LLMAccountingError", observed
+E           AssertionError: {'child_command': ['/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python', '/workspace...origin_available': False, 'receipt_revision_available': False, 'source': 'caller_state'}, 'cost': 0.0, ...}, ...}, ...}
+E           assert None == 'LLMAccountingError'
+
+tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py:290: AssertionError</failure></testcase><testcase classname="tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer" name="test_http_money_does_not_become_zero_in_durable_reader[missing]" time="9.665" /><testcase classname="tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer" name="test_http_money_does_not_become_zero_in_durable_reader[null]" time="9.792" /><testcase classname="tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer" name="test_http_money_does_not_become_zero_in_durable_reader[integer-zero]" time="9.683" /><testcase classname="tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer" name="test_http_money_does_not_become_zero_in_durable_reader[decimal-zero]" time="9.860" /><testcase classname="tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer" name="test_http_money_does_not_become_zero_in_durable_reader[negative-integer-zero]" time="9.745" /><testcase classname="tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer" name="test_http_money_does_not_become_zero_in_durable_reader[negative-decimal-zero]" time="9.953" /><testcase classname="tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer" name="test_http_money_does_not_become_zero_in_durable_reader[ordinary-positive]" time="9.955" /><testcase classname="tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer" name="test_http_money_does_not_become_zero_in_durable_reader[ordinary-negative]" time="9.643" /><testcase classname="tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer" name="test_http_money_does_not_become_zero_in_durable_reader[boolean-true]" time="9.697" /><testcase classname="tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer" name="test_http_money_does_not_become_zero_in_durable_reader[boolean-false]" time="9.813" /><testcase classname="tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer" name="test_http_money_does_not_become_zero_in_durable_reader[nan]" time="9.839" /><testcase classname="tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer" name="test_http_money_does_not_become_zero_in_durable_reader[positive-infinity]" time="9.939" /><testcase classname="tests.unit.scientist.orchestration.llm.test_gateway_exact_money_consumer" name="test_http_money_does_not_become_zero_in_durable_reader[negative-infinity]" time="10.168" /></testsuite></testsuites>

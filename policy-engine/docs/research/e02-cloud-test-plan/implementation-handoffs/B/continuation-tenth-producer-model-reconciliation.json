@@ -268,12 +268,12 @@
   },
   "predicate_basis": "not_established",
   "per_premise_basis": {
-    "exact_tree_blob_footprint": "recomputed and independently_reconciled",
-    "finite_source_review": "independently_reconciled NONBLOCKING",
-    "new_behavior_and_generic_removal": "not_established UNRUN",
-    "old4_and15_peer_controls": "independently_reconciled exact590; no current producer source transfer",
-    "old_author_12_red": "consumer_asserted; receiver raw availability not_established",
-    "external_authority": "institutionally_supplied required, not present",
+    "exact_tree_blob_footprint": "independently_reconciled",
+    "finite_source_review": "independently_reconciled",
+    "new_behavior_and_generic_removal": "not_established",
+    "old4_and15_peer_controls": "independently_reconciled",
+    "old_author_12_red": "consumer_asserted",
+    "external_authority": "not_established",
     "P41": "not_established"
   },
   "P40": {
@@ -582,8 +582,8 @@
   },
   "instrumentation_status": {
     "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-producer-reconciliation-evidence/instrumentation-status.json",
-    "sha256": "9a35b2edfb1450778d83beb7414353822c982c81a4bb849d8656deb5dd19750e",
-    "bytes": 7100,
+    "sha256": "c36f21b39d53f6d87d01bba86c3898a8ed8323d9c2415895af20d8cc1794a8f5",
+    "bytes": 8697,
     "receiver_raw_availability": "VM-only actual instrument outputs not_established until published; no summary proof."
   },
   "footprint": {
@@ -626,7 +626,9 @@
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-native-preparation-evidence/input-plan.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-native-preparation.json",
     "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-root-handoff-independent-evidence/review.json",
-    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-root-handoff-independent-review.json"
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-root-handoff-independent-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-producer-reconciliation-evidence/independent-handoff-review.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-producer-reconciliation-evidence/cas-corrective-readback.txt"
   ],
   "native_plan": {
     "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-producer-reconciliation-evidence/native-plan.json",
@@ -634,7 +636,7 @@
     "bytes": 14282,
     "status": "Author14normal files and exact argv nowindependently Git byte-qualified; independent20preparedfile/removal finite-no-conftest contour stillseparate; runtime/origins/sourceprojection UNRUN/notestablished."
   },
-  "current_execution_status": "Actual pwdcreation rejected409environment_offline despite helperready. Latest observed spec76 pending/offline/failureNull; current runtime/sourceprojection and native/removal UNRUN. No process cause, complete source19038 snapshot or case partition inferred.",
+  "current_execution_status": "Spec76 briefly connected: actual smallPython probeexit0, streaming19038guard invokedsession47767; pollingtransport disconnected before completion. Officialrunning/offline. Full physicalsourceclosure/guardexit/hash not_established; dependent finalnative/removalUNRUN. No causal sender/mechanism established.",
   "author_native_preparation": {
     "git_sha": "082c28efd1afcd4e0d7718d3ffdfd49045174861",
     "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-producer-native-preparation.json",
@@ -662,6 +664,42 @@
     "R2": "Current15 has874actualpaths871B+3D; separate historical equivalence875/876",
     "R3": "Completion neutralCOPY, original producer-held live view retains scopeguards",
     "new_author_plan": "Exact14wholefile APIblob inputs nowcommitted; normal currentnative executionUNRUN",
-    "source_and_old_deciding_outputs": "Unchanged, no rerun or evidence-grade restamp."
+    "source_and_old_deciding_outputs": "Unchanged, no rerun or evidence-grade restamp.",
+    "P37": "One registered label per premise; holder-specific descriptive annotations separate. Absent external law not_established, institutionally_supplied only requested future basis."
+  },
+  "per_premise_qualifications": {
+    "prior_descriptive_annotations": {
+      "exact_tree_blob_footprint": "recomputed and independently_reconciled",
+      "finite_source_review": "independently_reconciled NONBLOCKING",
+      "new_behavior_and_generic_removal": "not_established UNRUN",
+      "old4_and15_peer_controls": "independently_reconciled exact590; no current producer source transfer",
+      "old_author_12_red": "consumer_asserted; receiver raw availability not_established",
+      "external_authority": "institutionally_supplied required, not present",
+      "P41": "not_established"
+    },
+    "exact_tree_blob_footprint": "Root recomputed immutable220path/source bytes; independent CAS reconciled exacttree/parent/protected-source and full-footprint. No native from tree equality.",
+    "finite_source_review": "Declared finite profile NONBLOCKING independent source review, not code acceptance or runtime.",
+    "new_behavior_and_generic_removal": "Finalsource native/removalUNRUN; previous physical inputguard ERROR not currentbehavior evidence.",
+    "old4_and15_peer_controls": "Actual completed590 native binding only; current source carry uses exact unchanged dependencies without calling newnativePASS.",
+    "old_author_12_red": "Actual author2be controls observed; complete decidingbytes receiver custody not_established pending VMrecovery.",
+    "external_authority": "Requested canonical owner law requires institutionally supplied authority; absent law isnot_established, never granted by fixture/hash/readability.",
+    "P41": "No exact slice-base+completezero-input-intersection proof; no inherited-red attribution."
+  },
+  "final_independent_metadata_review": {
+    "review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-producer-reconciliation-evidence/independent-handoff-review.json",
+      "sha256": "e2da0d252af413ded0c4ef69d62912fa6acb04c3900917fc943a17f30f462bed",
+      "bytes": 6550,
+      "reviewed_sha": "abd3c94c19295a2ecfcf60dbe4634fa9810b6345",
+      "outcome": "NONBLOCKING after accepted P37 normalization; source/native acceptance held."
+    },
+    "CAS_delta": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-tenth-producer-reconciliation-evidence/cas-corrective-readback.txt",
+      "sha256": "e9b64accca01b164aec665a5ba21e705d71377a88999b0a60566f0c1461e7a59",
+      "bytes": 1307,
+      "reviewed_sha": "abd3c94c19295a2ecfcf60dbe4634fa9810b6345",
+      "outcome": "R1/R2/R3 exact corrective readbackPASS; no source/native grade transfer."
+    },
+    "normalization": "All currentper_premise_basis labels nowexactone enum. Descriptive annotations separate; absent lawnot_established."
   }
 }

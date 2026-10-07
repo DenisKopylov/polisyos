@@ -89,6 +89,25 @@
       "actual_harness_terminal": "Rejected: Failed to create unified exec process: exec-server connection attempt failed: environment registry request failed (409 Conflict, environment_offline): Environment is not connected.",
       "process_created": false,
       "qualification": "Backend readiness helper returnedready; direct actual shell gate disproved available execution. No nativecollection or productoutcome."
+    },
+    {
+      "command": [
+        "python3",
+        "/tmp/e02-B-tenth-wave-20261007/verify-fulltracked-stream.py"
+      ],
+      "cwd": "/workspace",
+      "stdout_path": "/tmp/e02-B-tenth-wave-20261007/fulltracked-stream-stdout.txt",
+      "guard_output_path": "/tmp/e02-B-tenth-wave-20261007/frozen-fulltracked-producer-source-stream.json",
+      "invocation_observed": "exec_command yielded session47767; no terminal exit/custody result received",
+      "chunk_bytes": 131072,
+      "source_sha": "6b87fcd2471191acf2c879356e7fd0129fc9a2ee",
+      "source_tree_sha": "2e069f18e02175dd0d6f7acd6573a4c0b071c766",
+      "published_source_equivalent": "0bf788ac2e57533b08be9172d64c19705a3af30d",
+      "outcome": "not_established",
+      "qualification": "Guard completion/exit/hash not_established due pollingtransport loss. This is not a native outcome; all dependent tests remainUNRUN.",
+      "actual_process_signal": "not_established",
+      "execution_status": "INVOKED_WITHOUT_COMPLETION",
+      "dependent_native_outcome": "UNRUN"
     }
   ],
   "resource_observation": {
@@ -101,7 +120,18 @@
     "shmem_bytes": 15702130688,
     "swap_total": 0,
     "ps_largest_rss_bytes": 34271232,
-    "attribution": "Aggregate measurements are exact contemporaneous observations, not causal proof of any selected process signal. No sender established."
+    "attribution": "Aggregate measurements are exact contemporaneous observations, not causal proof of any selected process signal. No sender established.",
+    "later_actual_probe": {
+      "memory_current": 17179852800,
+      "memory_max": 17179869184,
+      "oom": 81,
+      "oom_kill": 76,
+      "swap_total": "not remeasured",
+      "attribution": "Aggregate contemporaneous cgroup counters only; no causal signal attribution.",
+      "interpreter_path_exists": true,
+      "full_archive_bytes": 635658240,
+      "archive_hash": "not_established"
+    }
   },
   "reclaim_attempt": {
     "path": "/sys/fs/cgroup/memory.reclaim",
@@ -121,7 +151,8 @@
     "official running/offline after custody attempt",
     "official starting/offline",
     "wait_for_environment returned statusready, but subsequent actual pwd request terminated with409environment_offline; no shell created",
-    "2026-10-07current official spec76 observedpending/connectivityoffline/failureNull/networkstateunknown"
+    "2026-10-07current official spec76 observedpending/connectivityoffline/failureNull/networkstateunknown",
+    "Spec76observedrunning/connected; actual smallPython readexit0 then streamingguard invoked; pollingtransport lost again; officialrunning/offline"
   ],
   "product_validation": "Final source native/removal/affected consumers UNRUN; no fabricated JUnit/count; G broad replay still pending.",
   "cleanup": {

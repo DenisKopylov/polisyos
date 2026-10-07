@@ -6,6 +6,7 @@ from typing import Any
 import pytest
 
 from tests._helpers.controlled_candidate_profile import (
+    _candidate_only_procurement_intervention_bundle,
     _configured_procurement_profile,
     _controlled_procurement_recording,
     _current_compiler_problem,
@@ -25,6 +26,31 @@ def test_served_candidate_value_is_recomputed_from_n5_cas_on_fresh_get(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """The ordinary run-details route replays one candidate-only value from CAS."""
+
+    _exercise_served_candidate_value_fresh_get(tmp_path, monkeypatch)
+
+
+def test_served_candidate_value_fresh_get_with_candidate_only_substrate(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The same served path works with explicit synthetic candidate-only inputs."""
+
+    pytest.importorskip("fastapi.testclient")
+    _exercise_served_candidate_value_fresh_get(
+        tmp_path,
+        monkeypatch,
+        intervention_substrate=_candidate_only_procurement_intervention_bundle(),
+    )
+
+
+def _exercise_served_candidate_value_fresh_get(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    intervention_substrate: object | None = None,
+) -> None:
+    """Exercise the served candidate path for the supplied substrate fixture."""
 
     pytest.importorskip("fastapi.testclient")
     from fastapi.testclient import TestClient
@@ -122,6 +148,7 @@ def test_served_candidate_value_is_recomputed_from_n5_cas_on_fresh_get(
         artifact_store=first_context.store,
         tenant_id=_TENANT_ID,
         cell_id=_CELL_ID,
+        intervention_substrate=intervention_substrate,
     )
     assert profile.profile_selection_ref == cycle_job_profile_selection_ref(recorded_problem)
 

@@ -1,0 +1,69 @@
+"""Reconcile completed parent inventory/journal/JUnit without runtime replay."""
+from collections import Counter, defaultdict
+import hashlib
+import json
+from pathlib import Path
+import sys
+import xml.etree.ElementTree as ET
+
+ROOT = Path('/workspace/e02-B-current-coordination')
+SOURCE = '6fa9b7142ba590c3173f1cd3be097286db5acc4d'
+TREE = 'f53c67ae337db3f2125bf851ce3ee318356bcd68'
+RAW = ROOT / '.polisyos/e02-B-current/raw'
+BASE = RAW / ('continuation-' + SOURCE[:12] + '-admitted/native')
+OUT = Path(sys.argv[1])
+errors = []
+refs = []
+sha = lambda b: hashlib.sha256(b).hexdigest()
+def read(p):
+    b=p.read_bytes(); refs.append({'path':str(p),'bytes':len(b),'sha256':sha(b),'receiver_git_availability':'not_established'}); return b
+
+i=json.loads(read(BASE/'inventory.json')); p=json.loads(read(BASE/'profile.json'))
+w=json.loads(read(RAW/'review'/('continuation-'+SOURCE[:12]+'-admitted-native.json')))
+stdout=read(Path(w['output_path'])); x=ET.fromstring(read(BASE/'native.xml'))
+journal=[json.loads(line) for line in read(BASE/'runtime-reports.jsonl').splitlines() if line]
+args=read(BASE/'whole-files.args').decode().splitlines()
+resource=json.loads(read(BASE/'resource-after.json'))
+if i['state']!='session_finished':errors.append('not terminal session')
+if journal!=i['runtime_phase_reports']:errors.append('complete journal/inventory phase mismatch')
+if w['output_sha256']!=sha(stdout):errors.append('wrapper stdout hash mismatch')
+for point in [i['git_at_start'],i['git_at_finish']]:
+    if point['head']!=SOURCE or point['tree']!=TREE or point['tracked_status']!='':errors.append('actual start/finish source mismatch')
+if w['head']!=SOURCE or w['head_after']!=SOURCE or p['sha']!=SOURCE or p['tree']!=TREE:errors.append('wrapper/profile source mismatch')
+if w['command']!=p['command']:errors.append('profile/literal argv mismatch')
+if args!=p['inputs']['selector']['test_paths'] or len(args)!=len(set(args)):errors.append('actual args/selector mismatch')
+keys=defaultdict(list); items={}; phases=defaultdict(list)
+for item in i['session_items_before_execution']:
+    node=item['nodeid']; items[node]=item
+    parts=node.split('::'); file=parts[0] or item['location'][0]
+    while file.startswith('../'):file=file[3:]
+    dotted=file.removesuffix('.py').replace('/','.')
+    classname=dotted+('.'+'.'.join(parts[1:-1]) if len(parts)>2 else '')
+    keys[(classname,parts[-1])].append(node)
+for report in journal:phases[report['nodeid']].append(report)
+if len(items)!=len(i['session_items_before_execution']):errors.append('duplicate inventory nodeid')
+casecounts=Counter(); phasecounts=Counter(); perfile=defaultdict(Counter); failure_rows=[]; error_signatures=Counter(); errors_by_type=Counter(); mismatch=[]; seen=set()
+for report in journal:phasecounts[(report['when'],report['outcome'])]+=1
+for t in x.iter('testcase'):
+    key=(t.attrib['classname'],t.attrib['name']); nodes=keys.get(key,[])
+    if len(nodes)!=1:errors.append('unresolved/ambiguous XML identity '+repr(key));continue
+    node=nodes[0];seen.add(node);reports=phases[node]
+    outcome='ERROR' if t.find('error') is not None else 'FAIL' if t.find('failure') is not None else 'SKIP' if t.find('skipped') is not None else 'PASS'
+    inferred='ERROR' if any(r['when']!='call' and r['outcome']=='failed' for r in reports) else 'FAIL' if any(r['when']=='call' and r['outcome']=='failed' for r in reports) else 'SKIP' if any(r['outcome']=='skipped' for r in reports) else 'PASS'
+    if outcome!=inferred:mismatch.append(node)
+    casecounts[outcome]+=1;perfile[items[node]['location'][0]][outcome]+=1
+    if outcome=='FAIL':
+        f=t.find('failure');failure_rows.append({'nodeid':node,'source_location':items[node]['location'],'phases':[{'when':r['when'],'outcome':r['outcome'],'longrepr_sha256':r['longrepr_sha256']} for r in reports],'message':f.attrib.get('message'),'full_failure_text':f.text,'body_entered':any(r['when']=='call' for r in reports),'source_cause':'not inferred; canonical owner diagnoses separately. Event.wait failures alone do not establish target admission premise.'})
+    if outcome=='ERROR':
+        e=t.find('error');txt=e.attrib.get('message','')+'\n'+(e.text or '')
+        errors_by_type[e.attrib.get('message','').split(':',1)[0]]+=1
+        signature='literal_ENOSPC_or_errno28' if 'No space left on device' in txt or '[Errno 28]' in txt else 'numbered_tmpdir_refusal_without_literal_errno28' if 'could not create numbered dir' in txt else 'other'
+        error_signatures[signature]+=1
+if seen!=set(items):errors.append('XML/inventory full identity set mismatch')
+if mismatch:errors.append('per-case XML/phase outcome mismatch')
+suite=list(x.iter('testsuite')); declared={k:sum(int(s.attrib.get(k,0)) for s in suite) for k in ['tests','failures','errors','skipped']}
+if declared!={'tests':len(items),'failures':casecounts['FAIL'],'errors':casecounts['ERROR'],'skipped':casecounts['SKIP']}:errors.append('JUnit declared denominator mismatch')
+result={'schema':'policyos.e02.completed_case_output_audit.v1','source_sha':SOURCE,'source_tree':TREE,'artifact_refs':refs,'actual_command':w['command'],'cwd':w['cwd'],'source_start':i['git_at_start'],'source_finish':i['git_at_finish'],'wrapper_exit_code':w['exit_code'],'wall_s':w['wall_s'],'wait4_child_maxrss_kib':w['process_rusage_maxrss_kib'],'selected_whole_files':len(args),'selected_tracked_files':p['inputs']['selector']['tracked_file_count'],'selected_external_files':p['inputs']['selector']['external_file_count'],'unique_cases':len(items),'runtime_phases':len(journal),'collection_failed':i['counts']['collection_failed'],'deselected':i['counts']['deselected'],'case_counts':dict(casecounts),'phase_counts':{a+':'+b:n for (a,b),n in phasecounts.items()},'allcase_xml_phase_join_mismatches':mismatch,'literal_failure_cases':failure_rows,'error_diagnostic_buckets':dict(error_signatures),'error_message_types':dict(errors_by_type),'per_file_case_partition':{pa:dict(c) for pa,c in sorted(perfile.items())},'resources_before':p['resources_before'],'resources_after':resource,'audit_errors':errors,'predicate_basis':'independently_reconciled','qualification':'This is exact current complete native data reconciliation, not source-code acceptance or finding closure. Setup ERROR bodies are unentered; literal environment diagnostics do not become new product assertion failures. All ten literal FAILs retained with full text. No inherited/flaky waiver or signal-sender/resource causal inference. Original20MB inventory/7MB journal remain cloud@hash; receiver transport not established here.','P41':'NOT_ESTABLISHED; full current inputs materially intersect source and no complete matching baseline/zero-intersection proof.'}
+OUT.write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps({'source':SOURCE,'tree':TREE,'selected_whole_files':len(args),'unique_cases':len(items),'runtime_phases':len(journal),'case_counts':dict(casecounts),'phase_counts':result['phase_counts'],'error_diagnostic_buckets':dict(error_signatures),'audit_errors':errors,'output':str(OUT),'bytes':OUT.stat().st_size,'sha256':sha(OUT.read_bytes())},indent=2))
+sys.exit(1 if errors else 0)

@@ -1,0 +1,1415 @@
+{
+  "schema": "policyos.e02.completed_case_output_audit.v1",
+  "source_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+  "source_tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+  "artifact_refs": [
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/inventory.json",
+      "bytes": 20392426,
+      "sha256": "97f2314c77ce5611d32037f060adb569152ea502dad597de77df90a66448bc01",
+      "receiver_git_availability": "not_established"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/profile.json",
+      "bytes": 2383355,
+      "sha256": "75f3276dd7a45ac8980ded64debc1eca57bef5f6ff51c8b133af387b7fb45dec",
+      "receiver_git_availability": "not_established"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-admitted-native.json",
+      "bytes": 3186,
+      "sha256": "1b79fb2293003aa418f66959656d6e4caf0c6ed86b25577ac70b2487b5c47a69",
+      "receiver_git_availability": "not_established"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-admitted-native.txt",
+      "bytes": 4551084,
+      "sha256": "ffe9b73469ce61c647b3ce5a0992e4dfa6038eeb3efd2e2906b5545586106231",
+      "receiver_git_availability": "not_established"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/native.xml",
+      "bytes": 4697237,
+      "sha256": "beb9c1aab3508e78d07445b223aa6f4116ae37500f23f5fb107ba32ad4cd2108",
+      "receiver_git_availability": "not_established"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/runtime-reports.jsonl",
+      "bytes": 7372479,
+      "sha256": "4f9132679ad3c7d539e940c2b60de1dc320a1b159e19620a0b4bff8cc7626806",
+      "receiver_git_availability": "not_established"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/whole-files.args",
+      "bytes": 15279,
+      "sha256": "52272ab63030e91325875de023291ec9dc44ec47c99125d66e4f4e995ea166ad",
+      "receiver_git_availability": "not_established"
+    },
+    {
+      "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/resource-after.json",
+      "bytes": 1864,
+      "sha256": "4ab65d73a23f17244f7320db47754d9a1bd95b1899ac747bee10375a2a8a204a",
+      "receiver_git_availability": "not_established"
+    }
+  ],
+  "actual_command": [
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+    "-m",
+    "pytest",
+    "-vv",
+    "-p",
+    "current_cohort_inventory",
+    "@/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/whole-files.args",
+    "--continue-on-collection-errors",
+    "--basetemp",
+    "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/pytest",
+    "-o",
+    "cache_dir=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/cache",
+    "--junitxml=/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/native.xml"
+  ],
+  "cwd": "/workspace/e02-B-current-coordination/policy-engine",
+  "source_start": {
+    "repo": "/workspace/e02-B-current-coordination",
+    "read_operations": [
+      {
+        "args": [
+          "rev-parse",
+          "HEAD"
+        ],
+        "returncode": 0,
+        "stdout_bytes": 41,
+        "stdout_sha256": "77947fa047d22bf2f852cfeffac2c69865406336ae86e8e0f852822e56048153",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "args": [
+          "rev-parse",
+          "HEAD^{tree}"
+        ],
+        "returncode": 0,
+        "stdout_bytes": 41,
+        "stdout_sha256": "7ccda25e6211a38de1f77090eeb12992bb4f8d1e9770f59a64e3011c7f64da2e",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "args": [
+          "symbolic-ref",
+          "-q",
+          "HEAD"
+        ],
+        "returncode": 0,
+        "stdout_bytes": 44,
+        "stdout_sha256": "bfde8247cb81ff2593f7bf5cc01fe7b50fbaf2863cea0890e1f7762d93244f49",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "args": [
+          "rev-parse",
+          "--show-object-format"
+        ],
+        "returncode": 0,
+        "stdout_bytes": 5,
+        "stdout_sha256": "335277ee77cfc8d51d6602e4137232cf6041aac2bc663777e384b90d5ae74d51",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "args": [
+          "status",
+          "--porcelain=v1",
+          "--untracked-files=no"
+        ],
+        "returncode": 0,
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "args": [
+          "rev-parse",
+          "--show-toplevel"
+        ],
+        "returncode": 0,
+        "stdout_bytes": 38,
+        "stdout_sha256": "9eddf2e0113e73bece768c8be80383b366cf2016bc78e9b36bcb64816aac56ef",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "args": [
+          "check-ignore",
+          "--quiet",
+          "--no-index",
+          "--",
+          "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/inventory.json"
+        ],
+        "returncode": 0,
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "head": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+    "tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+    "branch": "refs/heads/codex/e02-B-current-coordination",
+    "object_format": "sha1",
+    "tracked_status": ""
+  },
+  "source_finish": {
+    "repo": "/workspace/e02-B-current-coordination",
+    "read_operations": [
+      {
+        "args": [
+          "rev-parse",
+          "HEAD"
+        ],
+        "returncode": 0,
+        "stdout_bytes": 41,
+        "stdout_sha256": "77947fa047d22bf2f852cfeffac2c69865406336ae86e8e0f852822e56048153",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "args": [
+          "rev-parse",
+          "HEAD^{tree}"
+        ],
+        "returncode": 0,
+        "stdout_bytes": 41,
+        "stdout_sha256": "7ccda25e6211a38de1f77090eeb12992bb4f8d1e9770f59a64e3011c7f64da2e",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "args": [
+          "symbolic-ref",
+          "-q",
+          "HEAD"
+        ],
+        "returncode": 0,
+        "stdout_bytes": 44,
+        "stdout_sha256": "bfde8247cb81ff2593f7bf5cc01fe7b50fbaf2863cea0890e1f7762d93244f49",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "args": [
+          "rev-parse",
+          "--show-object-format"
+        ],
+        "returncode": 0,
+        "stdout_bytes": 5,
+        "stdout_sha256": "335277ee77cfc8d51d6602e4137232cf6041aac2bc663777e384b90d5ae74d51",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "args": [
+          "status",
+          "--porcelain=v1",
+          "--untracked-files=no"
+        ],
+        "returncode": 0,
+        "stdout_bytes": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr_bytes": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "head": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+    "tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+    "branch": "refs/heads/codex/e02-B-current-coordination",
+    "object_format": "sha1",
+    "tracked_status": ""
+  },
+  "wrapper_exit_code": 1,
+  "wall_s": 270.92755358299473,
+  "wait4_child_maxrss_kib": 1056260,
+  "selected_whole_files": 261,
+  "selected_tracked_files": 260,
+  "selected_external_files": 1,
+  "unique_cases": 3986,
+  "runtime_phases": 9308,
+  "collection_failed": 0,
+  "deselected": 0,
+  "case_counts": {
+    "PASS": 1326,
+    "FAIL": 10,
+    "ERROR": 2650
+  },
+  "phase_counts": {
+    "setup:passed": 1336,
+    "call:passed": 1326,
+    "teardown:passed": 3986,
+    "call:failed": 10,
+    "setup:failed": 2650
+  },
+  "allcase_xml_phase_join_mismatches": [],
+  "literal_failure_cases": [
+    {
+      "nodeid": "tests/integration/scientist/test_res_03_real_simulation_route.py::test_res_03_real_simulation_later_failure_reaches_user_route",
+      "source_location": [
+        "tests/integration/scientist/test_res_03_real_simulation_route.py",
+        400,
+        "test_res_03_real_simulation_later_failure_reaches_user_route"
+      ],
+      "phases": [
+        {
+          "when": "setup",
+          "outcome": "passed",
+          "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "when": "call",
+          "outcome": "failed",
+          "longrepr_sha256": "3b447373d2ba4458f5fd04eaf197961bcb4dfffd7c1ef397e10d186ad2cf9f8c"
+        },
+        {
+          "when": "teardown",
+          "outcome": "passed",
+          "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "message": "ValueError: catalog_fetch_source_unreadable",
+      "full_failure_text": "tmp_path = PosixPath('/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-6fa9b7142ba5-admitted/native/pytest/test_res_03_real_simulation_la0')\nrequest = <FixtureRequest for <Function test_res_03_real_simulation_later_failure_reaches_user_route>>\n\n    def test_res_03_real_simulation_later_failure_reaches_user_route(\n        tmp_path,\n        request: pytest.FixtureRequest,\n    ) -> None:\n        \"\"\"Persist a real simulation, then expose the later failure and invalidation.\"\"\"\n        store = _TenantScopedCAS(tmp_path / \"cas\", tenant_id=_TENANT_ID, cell_id=_CELL_ID)\n        run_id = \"R_res03_real_route\"\n    \n        with tenant_scope(None, tenant_id=_TENANT_ID, cell_id=_CELL_ID):\n            registry_bundle = build_default_registry_bundle(store)\n            trinity, data_snapshot_ref = _build_real_trinity(store, registry_bundle.bundle_ref)\n            trinity_ref = store.put_json(\n                trinity,\n                PutOptions(\n                    kind=\"ir.trinity_bundle\",\n                    media_type=\"application/json\",\n                    schema=SchemaInfo(\n                        name=\"polisyos.ir.TrinityBundle\",\n                        version=trinity.schema_version,\n                    ),\n                ),\n            )\n            state = ExperimentState(\n                run_id=run_id,\n                inputs={\n                    \"trinity_bundle_ref\": trinity_ref,\n                    \"registry_bundle_ref\": registry_bundle.bundle_ref,\n                    \"data_snapshot_ref\": data_snapshot_ref,\n                },\n                params={\n                    # The state-snapshot compatibility path loads the source state\n                    # verbatim.  Bind one real slot so the persisted bound snapshot\n                    # has distinct bytes before CAS adds its input lineage profile.\n                    \"foundry_input_binding_rules\": [\n                        FoundryInputBindingRule(\n                            binding_id=\"res03.fixture_tax_rate\",\n                            source_path=\"fixture.tax_rate\",\n                            target_slot_id=\"global.tax_rate\",\n                            default_value=Decimal(\"0.1\"),\n                            notes=[\"test fixture makes bound snapshot distinct\"],\n                        )\n                    ]\n                },\n            )\n    \n            later_failure = _LaterFailureNode()\n            dependent = _DependentNode()\n            independent = _IndependentSiblingNode()\n            registry: NodeRegistry = build_registry_with_builtin_nodes(include_discovered_nodes=False)\n            registry.register(later_failure)\n            registry.register(dependent)\n            registry.register(independent)\n    \n            ctx = build_execution_context(\n                store,\n                registry_bundle.bundle_ref,\n                run_id=run_id,\n                foundry=DefaultFoundryPort(),\n            )\n            result = WorkflowExecutor(ctx, registry).execute(_build_workflow(), state)\n    \n        records = {record.alias: record for record in result.report.nodes}\n        simulation_ref = result.state.artifacts_index[ARTIFACT_SIMULATION_RESULT_REF]\n        simulation_manifest = store.get_manifest(simulation_ref.artifact_id)\n        simulation_result = SimulationResult.model_validate(\n            from_canonical_bytes(store.get_bytes(simulation_ref.artifact_id))\n        )\n    \n        assert result.report.status == \"fail\"\n        assert simulation_result.exec_plan_ref is not None\n        assert records[\"run_simulation\"].status == \"ok\"\n        assert records[\"later_failure\"].status == \"fail\"\n        assert records[\"later_failure\"].error is not None\n        assert records[\"later_failure\"].error.code == \"res03.later_failure\"\n        assert records[\"later_failure\"].error.details[\"scope\"][\"simulation_result_ref\"] == str(\n            simulation_ref.artifact_id\n        )\n        assert records[\"dependent_after_failure\"].status == \"skip\"\n        assert records[\"dependent_after_failure\"].skip_reason == \"upstream_failed\"\n        assert not records[\"dependent_after_failure\"].artifacts\n        assert records[\"independent_sibling\"].status == \"ok\"\n        assert later_failure.seen_simulation_ref == simulation_ref\n        assert independent.seen_simulation_ref == simulation_ref\n        assert result.state.params[\"res03_independent_ran\"] is True\n        assert \"res03_dependent_output\" not in result.state.params\n    \n        input_roles = {item.role for item in simulation_manifest.inputs}\n        assert {\n            \"exec_plan\",\n            \"input.input_bindings_ref\",\n            \"input.data_snapshot_ref\",\n            \"input.bound_state_snapshot_ref\",\n            \"state_snapshot\",\n        } <= input_roles\n    \n        app = create_runtime_api_app(\n            cas_root=store.root,\n            core_runs_root=store.root / \"runs\",\n            allow_unscoped_artifacts=True,\n            allow_fixture_identity=True,\n            enable_security_middlewares=False,\n        )\n        client_lifecycle = ExitStack()\n        request.addfinalizer(client_lifecycle.close)\n>       client = client_lifecycle.enter_context(TestClient(app, raise_server_exceptions=False))\n                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/integration/scientist/test_res_03_real_simulation_route.py:505: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:530: in enter_context\n    result = _enter(cm)\n             ^^^^^^^^^^\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/starlette/testclient.py:688: in __enter__\n    portal.call(self.wait_startup)\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/anyio/from_thread.py:326: in call\n    return cast(T_Retval, self.start_task_soon(func, *args).result())\n                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/concurrent/futures/_base.py:450: in result\n    return self.__get_result()\n           ^^^^^^^^^^^^^^^^^^^\n../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/concurrent/futures/_base.py:395: in __get_result\n    raise self._exception\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/anyio/from_thread.py:257: in _call_func\n    retval = await retval_or_awaitable\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/starlette/testclient.py:723: in wait_startup\n    await receive()\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/starlette/testclient.py:714: in receive\n    self.task.result()\n../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/concurrent/futures/_base.py:443: in result\n    return self.__get_result()\n           ^^^^^^^^^^^^^^^^^^^\n../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/concurrent/futures/_base.py:395: in __get_result\n    raise self._exception\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/anyio/from_thread.py:257: in _call_func\n    retval = await retval_or_awaitable\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/starlette/testclient.py:704: in lifespan\n    await self.app(scope, self.stream_receive.receive, self.stream_send.send)\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/fastapi/applications.py:1138: in __call__\n    await super().__call__(scope, receive, send)\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/starlette/applications.py:107: in __call__\n    await self.middleware_stack(scope, receive, send)\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/starlette/middleware/errors.py:151: in __call__\n    await self.app(scope, receive, send)\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/starlette/middleware/base.py:103: in __call__\n    await self.app(scope, receive, send)\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/starlette/middleware/base.py:103: in __call__\n    await self.app(scope, receive, send)\nsrc/polisyos/runtime/http/authz_middleware.py:568: in __call__\n    await self._app(scope, receive, send)\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/starlette/middleware/base.py:103: in __call__\n    await self.app(scope, receive, send)\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/starlette/middleware/gzip.py:19: in __call__\n    await self.app(scope, receive, send)\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/starlette/middleware/base.py:103: in __call__\n    await self.app(scope, receive, send)\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/starlette/middleware/exceptions.py:49: in __call__\n    await self.app(scope, receive, send)\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/fastapi/middleware/asyncexitstack.py:18: in __call__\n    await self.app(scope, receive, send)\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/starlette/routing.py:716: in __call__\n    await self.middleware_stack(scope, receive, send)\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/starlette/routing.py:725: in app\n    await self.lifespan(scope, receive, send)\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/starlette/routing.py:694: in lifespan\n    async with self.lifespan_context(app) as maybe_state:\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^\n../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__\n    return await anext(self.gen)\n           ^^^^^^^^^^^^^^^^^^^^^\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan\n    async with original_context(app) as maybe_original_state:\n               ^^^^^^^^^^^^^^^^^^^^^\n../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__\n    return await anext(self.gen)\n           ^^^^^^^^^^^^^^^^^^^^^\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan\n    async with original_context(app) as maybe_original_state:\n               ^^^^^^^^^^^^^^^^^^^^^\n../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__\n    return await anext(self.gen)\n           ^^^^^^^^^^^^^^^^^^^^^\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan\n    async with original_context(app) as maybe_original_state:\n               ^^^^^^^^^^^^^^^^^^^^^\n../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__\n    return await anext(self.gen)\n           ^^^^^^^^^^^^^^^^^^^^^\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan\n    async with original_context(app) as maybe_original_state:\n               ^^^^^^^^^^^^^^^^^^^^^\n../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__\n    return await anext(self.gen)\n           ^^^^^^^^^^^^^^^^^^^^^\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan\n    async with original_context(app) as maybe_original_state:\n               ^^^^^^^^^^^^^^^^^^^^^\n../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__\n    return await anext(self.gen)\n           ^^^^^^^^^^^^^^^^^^^^^\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan\n    async with original_context(app) as maybe_original_state:\n               ^^^^^^^^^^^^^^^^^^^^^\n../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__\n    return await anext(self.gen)\n           ^^^^^^^^^^^^^^^^^^^^^\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan\n    async with original_context(app) as maybe_original_state:\n               ^^^^^^^^^^^^^^^^^^^^^\n../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__\n    return await anext(self.gen)\n           ^^^^^^^^^^^^^^^^^^^^^\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan\n    async with original_context(app) as maybe_original_state:\n               ^^^^^^^^^^^^^^^^^^^^^\n../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__\n    return await anext(self.gen)\n           ^^^^^^^^^^^^^^^^^^^^^\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan\n    async with original_context(app) as maybe_original_state:\n               ^^^^^^^^^^^^^^^^^^^^^\n../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__\n    return await anext(self.gen)\n           ^^^^^^^^^^^^^^^^^^^^^\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan\n    async with original_context(app) as maybe_original_state:\n               ^^^^^^^^^^^^^^^^^^^^^\n../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__\n    return await anext(self.gen)\n           ^^^^^^^^^^^^^^^^^^^^^\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan\n    async with original_context(app) as maybe_original_state:\n               ^^^^^^^^^^^^^^^^^^^^^\n../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__\n    return await anext(self.gen)\n           ^^^^^^^^^^^^^^^^^^^^^\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan\n    async with original_context(app) as maybe_original_state:\n               ^^^^^^^^^^^^^^^^^^^^^\n../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__\n    return await anext(self.gen)\n           ^^^^^^^^^^^^^^^^^^^^^\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan\n    async with original_context(app) as maybe_original_state:\n               ^^^^^^^^^^^^^^^^^^^^^\n../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__\n    return await anext(self.gen)\n           ^^^^^^^^^^^^^^^^^^^^^\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan\n    async with original_context(app) as maybe_original_state:\n               ^^^^^^^^^^^^^^^^^^^^^\n../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__\n    return await anext(self.gen)\n           ^^^^^^^^^^^^^^^^^^^^^\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan\n    async with original_context(app) as maybe_original_state:\n               ^^^^^^^^^^^^^^^^^^^^^\n../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__\n    return await anext(self.gen)\n           ^^^^^^^^^^^^^^^^^^^^^\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan\n    async with original_context(app) as maybe_original_state:\n               ^^^^^^^^^^^^^^^^^^^^^\n../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__\n    return await anext(self.gen)\n           ^^^^^^^^^^^^^^^^^^^^^\n../.polisyos/e02-B-current/environment/lib/python3.14/site-packages/fastapi/routing.py:203: in merged_lifespan\n    async with original_context(app) as maybe_original_state:\n               ^^^^^^^^^^^^^^^^^^^^^\n../../.polisyos-environment/python/cpython-3.14.2-linux-x86_64-gnu/lib/python3.14/contextlib.py:214: in __aenter__\n    return await anext(self.gen)\n           ^^^^^^^^^^^^^^^^^^^^^\nsrc/polisyos/runtime/http/app.py:261: in _runtime_lifespan\n    await runtime_container.startup(app)\nsrc/polisyos/runtime/http/container.py:387: in startup\n    control_service = ControlPlaneService(\nsrc/polisyos/runtime/http/services/control/run_lifecycle.py:2232: in __init__\n    self._retrieval_catalog = catalog_read_api.DatasetCatalogGraph(\nsrc/polisyos/data_forge/domains/catalog/knowledge/search.py:257: in __init__\n    self._store = DatasetCatalogStore(\nsrc/polisyos/data_forge/domains/catalog/knowledge/store.py:138: in __init__\n    self._session_source_identities = self._fetch_source_identities()\n                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/polisyos/data_forge/domains/catalog/knowledge/store.py:982: in _fetch_source_identities\n    identify(self._db_path),\n    ^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\npath = PosixPath('/workspace/e02-B-current-coordination/policy-engine/production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb')\n\n    def identify(path: Path) -> CatalogContentIdentity:\n        if not path.is_file():\n>           raise ValueError(\"catalog_fetch_source_unreadable\")\nE           ValueError: catalog_fetch_source_unreadable\n\nsrc/polisyos/data_forge/domains/catalog/knowledge/store.py:966: ValueError",
+      "body_entered": true,
+      "source_cause": "not inferred; canonical owner diagnoses separately. Event.wait failures alone do not establish target admission premise."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_jit_01.py::test_dynamic_defaults_bind_per_handle_without_rebuilding_kernel",
+      "source_location": [
+        "tests/unit/remediation/test_jit_01.py",
+        132,
+        "test_dynamic_defaults_bind_per_handle_without_rebuilding_kernel"
+      ],
+      "phases": [
+        {
+          "when": "setup",
+          "outcome": "passed",
+          "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "when": "call",
+          "outcome": "failed",
+          "longrepr_sha256": "cf8094ec39c51171231f6342775f6fd3d6d400c22bc62322a252b5a2d90a1a5e"
+        },
+        {
+          "when": "teardown",
+          "outcome": "passed",
+          "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "message": "polisyos.foundry.methods.exceptions.CompilationError: Compilation failed for jit01.dynamic_scale@1.0.0: source identity is unavailable for builtin_function_or_method",
+      "full_failure_text": "method_class = <class 'tests.unit.remediation.test_jit_01.DynamicScaleMethod'>\nsignature = MethodSignature(name='dynamic_scale', namespace='jit01', version='1.0.0', input_slots=frozenset({SlotSpec(name='value'...ozenset(), conflicts_with=frozenset(), requires=frozenset(), supports_jit=True, supports_vmap=True, supports_grad=True)\n\n    def _implementation_digest(method_class: type, signature: MethodSignature) -> str:\n        try:\n            return _stable_digest(\n                {\n                    \"signature_digest\": signature.stable_digest(),\n>                   \"source\": implementation_identity_projection(method_class),\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                }\n            )\n\nsrc/polisyos/foundry/methods/compiler/__init__.py:540: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nsrc/polisyos/foundry/methods/artifacts/_implementation_identity.py:114: in implementation_identity_projection\n    \"implementation\": _project(implementation, strict=strict, visiting=set()),\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/polisyos/foundry/methods/artifacts/_implementation_identity.py:328: in _project\n    name: _project(item, strict=strict, visiting=visiting)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/polisyos/foundry/methods/artifacts/_implementation_identity.py:255: in _project\n    \"function\": _project(value.__func__, strict=strict, visiting=visiting),\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/polisyos/foundry/methods/artifacts/_implementation_identity.py:337: in _project\n    else _project(item, strict=strict, visiting=visiting)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/polisyos/foundry/methods/artifacts/_implementation_identity.py:300: in _project\n    return _unavailable(value, strict)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nvalue = <built-in function getattr>, strict = True\n\n    def _unavailable(value: Any, strict: bool) -> dict[str, str]:\n        if strict:\n>           raise SourceIdentityUnavailableError(\n                \"source identity is unavailable for \" + type(value).__name__\n            )\nE           polisyos.foundry.methods.artifacts._implementation_identity.SourceIdentityUnavailableError: source identity is unavailable for builtin_function_or_method\n\nsrc/polisyos/foundry/methods/artifacts/_implementation_identity.py:120: SourceIdentityUnavailableError\n\nThe above exception was the direct cause of the following exception:\n\nscalar_slots = (SlotSpec(name='value', slot_type=<SlotType.SCALAR: 1>, unit=Unit('value', 'unit'), contract_id=None, shape=(), descri...ntract_id=None, shape=(), description='', bounds=(None, None), contract_capabilities=frozenset(), contract_owner=None))\n\n    def test_dynamic_defaults_bind_per_handle_without_rebuilding_kernel(scalar_slots):\n        value_slot, result_slot = scalar_slots\n        builds = 0\n    \n        def pure_step(state: ScalarState, params: Mapping[str, Any]) -> ScalarState:\n            return state._replace(result=state.value * params[\"coefficient\"])\n    \n        method = _method(\n            name=\"dynamic_scale\",\n            namespace=\"jit01\",\n            input_slots=frozenset({value_slot}),\n            output_slots=frozenset({result_slot}),\n            parameters=(ParameterSpec(\"coefficient\", default=2.0, is_static=False),),\n            pure_step=pure_step,\n        )\n        registry = MethodRegistry.get_instance()\n        registry.register(method)\n    \n        class CountingCompiler(MethodCompiler):\n            def _compile_method(self, *args, **kwargs):\n                nonlocal builds\n                builds += 1\n                return super()._compile_method(*args, **kwargs)\n    \n        state = ScalarState(value=jnp.asarray(10.0), result=jnp.asarray(0.0))\n        compiler = CountingCompiler(registry=registry, cache=CompilationCache())\n>       cold = compiler.compile(\n            method_name=\"jit01.dynamic_scale@1.0.0\",\n            params={\"coefficient\": 2.0},\n            sample_inputs={\"value\": state.value},\n            jit=False,\n        )\n\ntests/unit/remediation/test_jit_01.py:159: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nsrc/polisyos/foundry/methods/compiler/__init__.py:617: in compile\n    implementation_hash=_implementation_digest(method_class, sig),\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nmethod_class = <class 'tests.unit.remediation.test_jit_01.DynamicScaleMethod'>\nsignature = MethodSignature(name='dynamic_scale', namespace='jit01', version='1.0.0', input_slots=frozenset({SlotSpec(name='value'...ozenset(), conflicts_with=frozenset(), requires=frozenset(), supports_jit=True, supports_vmap=True, supports_grad=True)\n\n    def _implementation_digest(method_class: type, signature: MethodSignature) -> str:\n        try:\n            return _stable_digest(\n                {\n                    \"signature_digest\": signature.stable_digest(),\n                    \"source\": implementation_identity_projection(method_class),\n                }\n            )\n        except SourceIdentityUnavailableError as exc:\n>           raise CompilationError(signature.fqn, str(exc)) from exc\nE           polisyos.foundry.methods.exceptions.CompilationError: Compilation failed for jit01.dynamic_scale@1.0.0: source identity is unavailable for builtin_function_or_method\n\nsrc/polisyos/foundry/methods/compiler/__init__.py:544: CompilationError",
+      "body_entered": true,
+      "source_cause": "not inferred; canonical owner diagnoses separately. Event.wait failures alone do not establish target admission premise."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_jit_01.py::test_native_jax_dynamic_defaults_rebind_without_recompile",
+      "source_location": [
+        "tests/unit/remediation/test_jit_01.py",
+        177,
+        "test_native_jax_dynamic_defaults_rebind_without_recompile"
+      ],
+      "phases": [
+        {
+          "when": "setup",
+          "outcome": "passed",
+          "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "when": "call",
+          "outcome": "failed",
+          "longrepr_sha256": "4a855def7ddcaad6f698734d6672118490c4f54d80f9cc6e6f995128efd835f5"
+        },
+        {
+          "when": "teardown",
+          "outcome": "passed",
+          "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "message": "polisyos.foundry.methods.exceptions.CompilationError: Compilation failed for jit01.native_scale@1.0.0: source identity is unavailable for builtin_function_or_method",
+      "full_failure_text": "method_class = <class 'tests.unit.remediation.test_jit_01.NativeScaleMethod'>\nsignature = MethodSignature(name='native_scale', namespace='jit01', version='1.0.0', input_slots=frozenset({SlotSpec(name='value',...ozenset(), conflicts_with=frozenset(), requires=frozenset(), supports_jit=True, supports_vmap=True, supports_grad=True)\n\n    def _implementation_digest(method_class: type, signature: MethodSignature) -> str:\n        try:\n            return _stable_digest(\n                {\n                    \"signature_digest\": signature.stable_digest(),\n>                   \"source\": implementation_identity_projection(method_class),\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                }\n            )\n\nsrc/polisyos/foundry/methods/compiler/__init__.py:540: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nsrc/polisyos/foundry/methods/artifacts/_implementation_identity.py:114: in implementation_identity_projection\n    \"implementation\": _project(implementation, strict=strict, visiting=set()),\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/polisyos/foundry/methods/artifacts/_implementation_identity.py:328: in _project\n    name: _project(item, strict=strict, visiting=visiting)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/polisyos/foundry/methods/artifacts/_implementation_identity.py:255: in _project\n    \"function\": _project(value.__func__, strict=strict, visiting=visiting),\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/polisyos/foundry/methods/artifacts/_implementation_identity.py:337: in _project\n    else _project(item, strict=strict, visiting=visiting)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/polisyos/foundry/methods/artifacts/_implementation_identity.py:300: in _project\n    return _unavailable(value, strict)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nvalue = <built-in function getattr>, strict = True\n\n    def _unavailable(value: Any, strict: bool) -> dict[str, str]:\n        if strict:\n>           raise SourceIdentityUnavailableError(\n                \"source identity is unavailable for \" + type(value).__name__\n            )\nE           polisyos.foundry.methods.artifacts._implementation_identity.SourceIdentityUnavailableError: source identity is unavailable for builtin_function_or_method\n\nsrc/polisyos/foundry/methods/artifacts/_implementation_identity.py:120: SourceIdentityUnavailableError\n\nThe above exception was the direct cause of the following exception:\n\nscalar_slots = (SlotSpec(name='value', slot_type=<SlotType.SCALAR: 1>, unit=Unit('value', 'unit'), contract_id=None, shape=(), descri...ntract_id=None, shape=(), description='', bounds=(None, None), contract_capabilities=frozenset(), contract_owner=None))\n\n    @pytest.mark.integration\n    def test_native_jax_dynamic_defaults_rebind_without_recompile(scalar_slots):\n        value_slot, result_slot = scalar_slots\n    \n        def pure_step(state: ScalarState, params: Mapping[str, Any]) -> ScalarState:\n            return state._replace(result=state.value * params[\"coefficient\"])\n    \n        method = _method(\n            name=\"native_scale\",\n            namespace=\"jit01\",\n            input_slots=frozenset({value_slot}),\n            output_slots=frozenset({result_slot}),\n            parameters=(ParameterSpec(\"coefficient\", default=2.0, is_static=False),),\n            pure_step=pure_step,\n        )\n        registry = MethodRegistry.get_instance()\n        registry.register(method)\n    \n        state = ScalarState(value=jnp.asarray(10.0), result=jnp.asarray(0.0))\n        compiler = MethodCompiler(registry=registry, cache=CompilationCache())\n>       cold = compiler.compile(\n            method_name=\"jit01.native_scale@1.0.0\",\n            params={\"coefficient\": 2.0},\n            sample_inputs={\"value\": state.value},\n            jit=True,\n        )\n\ntests/unit/remediation/test_jit_01.py:198: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nsrc/polisyos/foundry/methods/compiler/__init__.py:617: in compile\n    implementation_hash=_implementation_digest(method_class, sig),\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nmethod_class = <class 'tests.unit.remediation.test_jit_01.NativeScaleMethod'>\nsignature = MethodSignature(name='native_scale', namespace='jit01', version='1.0.0', input_slots=frozenset({SlotSpec(name='value',...ozenset(), conflicts_with=frozenset(), requires=frozenset(), supports_jit=True, supports_vmap=True, supports_grad=True)\n\n    def _implementation_digest(method_class: type, signature: MethodSignature) -> str:\n        try:\n            return _stable_digest(\n                {\n                    \"signature_digest\": signature.stable_digest(),\n                    \"source\": implementation_identity_projection(method_class),\n                }\n            )\n        except SourceIdentityUnavailableError as exc:\n>           raise CompilationError(signature.fqn, str(exc)) from exc\nE           polisyos.foundry.methods.exceptions.CompilationError: Compilation failed for jit01.native_scale@1.0.0: source identity is unavailable for builtin_function_or_method\n\nsrc/polisyos/foundry/methods/compiler/__init__.py:544: CompilationError",
+      "body_entered": true,
+      "source_cause": "not inferred; canonical owner diagnoses separately. Event.wait failures alone do not establish target admission premise."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_jit_01.py::test_single_flight_publishes_before_followers_are_notified",
+      "source_location": [
+        "tests/unit/remediation/test_jit_01.py",
+        214,
+        "test_single_flight_publishes_before_followers_are_notified"
+      ],
+      "phases": [
+        {
+          "when": "setup",
+          "outcome": "passed",
+          "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "when": "call",
+          "outcome": "failed",
+          "longrepr_sha256": "646a4ae110634f3535a718fb51edcd1af1c63b6c0933d99c89c5a156050d2798"
+        },
+        {
+          "when": "teardown",
+          "outcome": "passed",
+          "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "message": "assert False\n +  where False = wait(timeout=2)\n +    where wait = <threading.Event at 0x7f7fa31ee7b0: unset>.wait",
+      "full_failure_text": "scalar_slots = (SlotSpec(name='value', slot_type=<SlotType.SCALAR: 1>, unit=Unit('value', 'unit'), contract_id=None, shape=(), descri...ntract_id=None, shape=(), description='', bounds=(None, None), contract_capabilities=frozenset(), contract_owner=None))\n\n    def test_single_flight_publishes_before_followers_are_notified(scalar_slots):\n        value_slot, result_slot = scalar_slots\n    \n        def pure_step(state: ScalarState, params: Mapping[str, Any]) -> ScalarState:\n            return state._replace(result=state.value * params[\"coefficient\"])\n    \n        method = _method(\n            name=\"single_flight_scale\",\n            namespace=\"jit01\",\n            input_slots=frozenset({value_slot}),\n            output_slots=frozenset({result_slot}),\n            parameters=(ParameterSpec(\"coefficient\", default=2.0, is_static=False),),\n            pure_step=pure_step,\n        )\n        registry = MethodRegistry.get_instance()\n        registry.register(method)\n    \n        cache = CompilationCache()\n        first_compile_returned = threading.Event()\n        release_compile = threading.Event()\n        first_publish_entered = threading.Event()\n        release_publish = threading.Event()\n        duplicate_compile_entered = threading.Event()\n        calls = 0\n    \n        class CoordinatedCompiler(MethodCompiler):\n            def _compile_method(self, *args, **kwargs):\n                nonlocal calls\n                calls += 1\n                if calls == 1:\n                    first_compile_returned.set()\n                    assert release_compile.wait(timeout=2)\n                else:\n                    duplicate_compile_entered.set()\n                return super()._compile_method(*args, **kwargs)\n    \n        compiler = CoordinatedCompiler(registry=registry, cache=cache)\n        original_publish = cache.publish_flight\n        publish_calls = 0\n    \n        def gated_publish(*args, **kwargs):\n            nonlocal publish_calls\n            publish_calls += 1\n            if publish_calls == 1:\n                first_publish_entered.set()\n                assert release_publish.wait(timeout=2)\n            return original_publish(*args, **kwargs)\n    \n        cache.publish_flight = gated_publish\n        state = ScalarState(value=jnp.asarray(10.0), result=jnp.asarray(0.0))\n    \n        def compile_one():\n            return compiler.compile(\n                method_name=\"jit01.single_flight_scale@1.0.0\",\n                params={\"coefficient\": 2.0},\n                sample_inputs={\"value\": state.value},\n                jit=False,\n            )\n    \n        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:\n            leader = executor.submit(compile_one)\n>           assert first_compile_returned.wait(timeout=2)\nE           assert False\nE            +  where False = wait(timeout=2)\nE            +    where wait = <threading.Event at 0x7f7fa31ee7b0: unset>.wait\n\ntests/unit/remediation/test_jit_01.py:276: AssertionError",
+      "body_entered": true,
+      "source_cause": "not inferred; canonical owner diagnoses separately. Event.wait failures alone do not establish target admission premise."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_jit_01.py::test_single_flight_is_shared_by_compiler_instances",
+      "source_location": [
+        "tests/unit/remediation/test_jit_01.py",
+        300,
+        "test_single_flight_is_shared_by_compiler_instances"
+      ],
+      "phases": [
+        {
+          "when": "setup",
+          "outcome": "passed",
+          "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "when": "call",
+          "outcome": "failed",
+          "longrepr_sha256": "00fa59d8747686448cf14308e3cff9e920ccc30b28b27b02058d1624f683ace5"
+        },
+        {
+          "when": "teardown",
+          "outcome": "passed",
+          "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "message": "assert False\n +  where False = wait(timeout=2)\n +    where wait = <threading.Event at 0x7f7fa31ef110: unset>.wait",
+      "full_failure_text": "scalar_slots = (SlotSpec(name='value', slot_type=<SlotType.SCALAR: 1>, unit=Unit('value', 'unit'), contract_id=None, shape=(), descri...ntract_id=None, shape=(), description='', bounds=(None, None), contract_capabilities=frozenset(), contract_owner=None))\n\n    def test_single_flight_is_shared_by_compiler_instances(scalar_slots):\n        value_slot, result_slot = scalar_slots\n    \n        def pure_step(state: ScalarState, params: Mapping[str, Any]) -> ScalarState:\n            return state._replace(result=state.value * params[\"coefficient\"])\n    \n        method = _method(\n            name=\"shared_single_flight_scale\",\n            namespace=\"jit01\",\n            input_slots=frozenset({value_slot}),\n            output_slots=frozenset({result_slot}),\n            parameters=(ParameterSpec(\"coefficient\", default=2.0, is_static=False),),\n            pure_step=pure_step,\n        )\n        registry = MethodRegistry.get_instance()\n        registry.register(method)\n    \n        cache = CompilationCache()\n        first_compile_started = threading.Event()\n        release_compile = threading.Event()\n        calls = 0\n    \n        class CoordinatedCompiler(MethodCompiler):\n            def _compile_method(self, *args, **kwargs):\n                nonlocal calls\n                calls += 1\n                if calls == 1:\n                    first_compile_started.set()\n                    assert release_compile.wait(timeout=2)\n                return super()._compile_method(*args, **kwargs)\n    \n        compiler_a = CoordinatedCompiler(registry=registry, cache=cache)\n        compiler_b = CoordinatedCompiler(registry=registry, cache=cache)\n        state = ScalarState(value=jnp.asarray(10.0), result=jnp.asarray(0.0))\n    \n        def compile_one(compiler: MethodCompiler):\n            return compiler.compile(\n                method_name=\"jit01.shared_single_flight_scale@1.0.0\",\n                params={\"coefficient\": 2.0},\n                sample_inputs={\"value\": state.value},\n                jit=False,\n            )\n    \n        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:\n            leader = executor.submit(compile_one, compiler_a)\n>           assert first_compile_started.wait(timeout=2)\nE           assert False\nE            +  where False = wait(timeout=2)\nE            +    where wait = <threading.Event at 0x7f7fa31ef110: unset>.wait\n\ntests/unit/remediation/test_jit_01.py:346: AssertionError",
+      "body_entered": true,
+      "source_cause": "not inferred; canonical owner diagnoses separately. Event.wait failures alone do not establish target admission premise."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_jit_01.py::test_single_flight_follower_honors_deadline_and_cancellation",
+      "source_location": [
+        "tests/unit/remediation/test_jit_01.py",
+        365,
+        "test_single_flight_follower_honors_deadline_and_cancellation"
+      ],
+      "phases": [
+        {
+          "when": "setup",
+          "outcome": "passed",
+          "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "when": "call",
+          "outcome": "failed",
+          "longrepr_sha256": "bc529ca1a5d02eceb6fdc8b7aa3b25d88f4504199f927acc805e01ef42c2fdb7"
+        },
+        {
+          "when": "teardown",
+          "outcome": "passed",
+          "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "message": "assert False\n +  where False = wait(timeout=2)\n +    where wait = <threading.Event at 0x7f7fa31efb90: unset>.wait",
+      "full_failure_text": "scalar_slots = (SlotSpec(name='value', slot_type=<SlotType.SCALAR: 1>, unit=Unit('value', 'unit'), contract_id=None, shape=(), descri...ntract_id=None, shape=(), description='', bounds=(None, None), contract_capabilities=frozenset(), contract_owner=None))\n\n    def test_single_flight_follower_honors_deadline_and_cancellation(scalar_slots):\n        value_slot, result_slot = scalar_slots\n    \n        def pure_step(state: ScalarState, params: Mapping[str, Any]) -> ScalarState:\n            return state._replace(result=state.value * params[\"coefficient\"])\n    \n        method = _method(\n            name=\"bounded_single_flight_scale\",\n            namespace=\"jit01\",\n            input_slots=frozenset({value_slot}),\n            output_slots=frozenset({result_slot}),\n            parameters=(ParameterSpec(\"coefficient\", default=2.0, is_static=False),),\n            pure_step=pure_step,\n        )\n        registry = MethodRegistry.get_instance()\n        registry.register(method)\n    \n        cache = CompilationCache()\n        leader_started = threading.Event()\n        release_leader = threading.Event()\n        calls = 0\n    \n        class HangingCompiler(MethodCompiler):\n            def _compile_method(self, *args, **kwargs):\n                nonlocal calls\n                calls += 1\n                if calls == 1:\n                    leader_started.set()\n                    assert release_leader.wait(timeout=2)\n                return super()._compile_method(*args, **kwargs)\n    \n        compiler = HangingCompiler(registry=registry, cache=cache)\n        state = ScalarState(value=jnp.asarray(10.0), result=jnp.asarray(0.0))\n    \n        def compile_leader():\n            return compiler.compile(\n                method_name=\"jit01.bounded_single_flight_scale@1.0.0\",\n                params={\"coefficient\": 2.0},\n                sample_inputs={\"value\": state.value},\n                jit=False,\n            )\n    \n        def compile_follower(*, cancel_event=None):\n            return compiler.compile(\n                method_name=\"jit01.bounded_single_flight_scale@1.0.0\",\n                params={\"coefficient\": 2.0},\n                sample_inputs={\"value\": state.value},\n                jit=False,\n                flight_timeout=0.05,\n                cancel_event=cancel_event,\n            )\n    \n        with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:\n            leader = executor.submit(compile_leader)\n>           assert leader_started.wait(timeout=2)\nE           assert False\nE            +  where False = wait(timeout=2)\nE            +    where wait = <threading.Event at 0x7f7fa31efb90: unset>.wait\n\ntests/unit/remediation/test_jit_01.py:420: AssertionError",
+      "body_entered": true,
+      "source_cause": "not inferred; canonical owner diagnoses separately. Event.wait failures alone do not establish target admission premise."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_jit_01.py::test_single_flight_retries_when_invalidation_wins_result_delivery",
+      "source_location": [
+        "tests/unit/remediation/test_jit_01.py",
+        436,
+        "test_single_flight_retries_when_invalidation_wins_result_delivery"
+      ],
+      "phases": [
+        {
+          "when": "setup",
+          "outcome": "passed",
+          "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "when": "call",
+          "outcome": "failed",
+          "longrepr_sha256": "1fd8e54c99f821be0ea49626e5cab9f9bc3ba208b8f5c859c64a1314cdcf2b2f"
+        },
+        {
+          "when": "teardown",
+          "outcome": "passed",
+          "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "message": "assert False\n +  where False = wait(timeout=2)\n +    where wait = <threading.Event at 0x7f7fa31dc230: unset>.wait",
+      "full_failure_text": "scalar_slots = (SlotSpec(name='value', slot_type=<SlotType.SCALAR: 1>, unit=Unit('value', 'unit'), contract_id=None, shape=(), descri...ntract_id=None, shape=(), description='', bounds=(None, None), contract_capabilities=frozenset(), contract_owner=None))\nmonkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f801ae43150>\n\n    def test_single_flight_retries_when_invalidation_wins_result_delivery(\n        scalar_slots,\n        monkeypatch,\n    ):\n        value_slot, result_slot = scalar_slots\n    \n        def pure_step(state: ScalarState, params: Mapping[str, Any]) -> ScalarState:\n            return state._replace(result=state.value * params[\"coefficient\"])\n    \n        method = _method(\n            name=\"invalidation_race_scale\",\n            namespace=\"jit01\",\n            input_slots=frozenset({value_slot}),\n            output_slots=frozenset({result_slot}),\n            parameters=(ParameterSpec(\"coefficient\", default=2.0, is_static=False),),\n            pure_step=pure_step,\n        )\n        registry = MethodRegistry.get_instance()\n        registry.register(method)\n    \n        cache = CompilationCache()\n        first_compile_started = threading.Event()\n        release_compile = threading.Event()\n        publication_ready = threading.Event()\n        release_publication = threading.Event()\n        follower_wait_started = threading.Event()\n        follower_wait_entered = threading.Event()\n        release_follower = threading.Event()\n        publish_calls = 0\n        calls = 0\n    \n        class CountingCompiler(MethodCompiler):\n            def _compile_method(self, *args, **kwargs):\n                nonlocal calls\n                calls += 1\n                if calls == 1:\n                    first_compile_started.set()\n                    assert release_compile.wait(timeout=2)\n                return super()._compile_method(*args, **kwargs)\n    \n        compiler_a = CountingCompiler(registry=registry, cache=cache)\n        compiler_b = CountingCompiler(registry=registry, cache=cache)\n        original_publish = cache.publish_flight\n        original_wait = compiler_module._wait_for_flight\n        wait_calls = 0\n    \n        def gated_publish(*args, **kwargs):\n            nonlocal publish_calls\n            publish_calls += 1\n            if publish_calls == 1:\n                published = original_publish(*args, **kwargs)\n                publication_ready.set()\n                assert release_publication.wait(timeout=2)\n                return published\n            return original_publish(*args, **kwargs)\n    \n        def gated_wait(*args, **kwargs):\n            nonlocal wait_calls\n            follower_wait_started.set()\n            result = original_wait(*args, **kwargs)\n            wait_calls += 1\n            if wait_calls == 1:\n                follower_wait_entered.set()\n                assert release_follower.wait(timeout=2)\n            return result\n    \n        cache.publish_flight = gated_publish\n        monkeypatch.setattr(compiler_module, \"_wait_for_flight\", gated_wait)\n        state = ScalarState(value=jnp.asarray(10.0), result=jnp.asarray(0.0))\n    \n        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:\n            leader = executor.submit(\n                compiler_a.compile,\n                method_name=\"jit01.invalidation_race_scale@1.0.0\",\n                params={\"coefficient\": 2.0},\n                sample_inputs={\"value\": state.value},\n                jit=False,\n            )\n>           assert first_compile_started.wait(timeout=2)\nE           assert False\nE            +  where False = wait(timeout=2)\nE            +    where wait = <threading.Event at 0x7f7fa31dc230: unset>.wait\n\ntests/unit/remediation/test_jit_01.py:515: AssertionError",
+      "body_entered": true,
+      "source_cause": "not inferred; canonical owner diagnoses separately. Event.wait failures alone do not establish target admission premise."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_jit_01.py::test_single_flight_error_releases_all_followers",
+      "source_location": [
+        "tests/unit/remediation/test_jit_01.py",
+        539,
+        "test_single_flight_error_releases_all_followers"
+      ],
+      "phases": [
+        {
+          "when": "setup",
+          "outcome": "passed",
+          "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "when": "call",
+          "outcome": "failed",
+          "longrepr_sha256": "1b69195c63c4c172b07dfca75426b90fb32bf93bd06c24da2ab6191437d6fdf7"
+        },
+        {
+          "when": "teardown",
+          "outcome": "passed",
+          "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "message": "assert False\n +  where False = wait(timeout=2)\n +    where wait = <threading.Event at 0x7f7fa31dcb90: unset>.wait",
+      "full_failure_text": "scalar_slots = (SlotSpec(name='value', slot_type=<SlotType.SCALAR: 1>, unit=Unit('value', 'unit'), contract_id=None, shape=(), descri...ntract_id=None, shape=(), description='', bounds=(None, None), contract_capabilities=frozenset(), contract_owner=None))\n\n    def test_single_flight_error_releases_all_followers(scalar_slots):\n        value_slot, result_slot = scalar_slots\n    \n        def pure_step(state: ScalarState, params: Mapping[str, Any]) -> ScalarState:\n            return state._replace(result=state.value * params[\"coefficient\"])\n    \n        method = _method(\n            name=\"failing_scale\",\n            namespace=\"jit01\",\n            input_slots=frozenset({value_slot}),\n            output_slots=frozenset({result_slot}),\n            parameters=(ParameterSpec(\"coefficient\", default=2.0, is_static=False),),\n            pure_step=pure_step,\n        )\n        registry = MethodRegistry.get_instance()\n        registry.register(method)\n        calls = 0\n        failure_started = threading.Event()\n        release_failure = threading.Event()\n    \n        class FailingCompiler(MethodCompiler):\n            def _compile_method(self, *args, **kwargs):\n                nonlocal calls\n                calls += 1\n                if calls == 1:\n                    failure_started.set()\n                    assert release_failure.wait(timeout=2)\n                raise RuntimeError(\"controlled compile failure\")\n    \n        compiler = FailingCompiler(registry=registry, cache=CompilationCache())\n        state = ScalarState(value=jnp.asarray(10.0), result=jnp.asarray(0.0))\n    \n        def compile_one():\n            return compiler.compile(\n                method_name=\"jit01.failing_scale@1.0.0\",\n                params={\"coefficient\": 2.0},\n                sample_inputs={\"value\": state.value},\n                jit=False,\n            )\n    \n        with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:\n            leader = executor.submit(compile_one)\n>           assert failure_started.wait(timeout=2)\nE           assert False\nE            +  where False = wait(timeout=2)\nE            +    where wait = <threading.Event at 0x7f7fa31dcb90: unset>.wait\n\ntests/unit/remediation/test_jit_01.py:582: AssertionError",
+      "body_entered": true,
+      "source_cause": "not inferred; canonical owner diagnoses separately. Event.wait failures alone do not establish target admission premise."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_jit_01.py::test_chain_shape_inference_uses_declared_shapes_without_pure_step",
+      "source_location": [
+        "tests/unit/remediation/test_jit_01.py",
+        593,
+        "test_chain_shape_inference_uses_declared_shapes_without_pure_step"
+      ],
+      "phases": [
+        {
+          "when": "setup",
+          "outcome": "passed",
+          "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "when": "call",
+          "outcome": "failed",
+          "longrepr_sha256": "b9df7dc93893c3c57ccfc6ea7201439db067cca3b7c5b93ca531c370a07a3ca1"
+        },
+        {
+          "when": "teardown",
+          "outcome": "passed",
+          "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "message": "polisyos.foundry.methods.exceptions.CompilationError: Compilation failed for jit01.sum_values@1.0.0: source identity is unavailable for builtin_function_or_method",
+      "full_failure_text": "method_class = <class 'tests.unit.remediation.test_jit_01.SumValuesMethod'>\nsignature = MethodSignature(name='sum_values', namespace='jit01', version='1.0.0', input_slots=frozenset({SlotSpec(name='values', ...ozenset(), conflicts_with=frozenset(), requires=frozenset(), supports_jit=True, supports_vmap=True, supports_grad=True)\n\n    def _implementation_digest(method_class: type, signature: MethodSignature) -> str:\n        try:\n            return _stable_digest(\n                {\n                    \"signature_digest\": signature.stable_digest(),\n>                   \"source\": implementation_identity_projection(method_class),\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                }\n            )\n\nsrc/polisyos/foundry/methods/compiler/__init__.py:540: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nsrc/polisyos/foundry/methods/artifacts/_implementation_identity.py:114: in implementation_identity_projection\n    \"implementation\": _project(implementation, strict=strict, visiting=set()),\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/polisyos/foundry/methods/artifacts/_implementation_identity.py:328: in _project\n    name: _project(item, strict=strict, visiting=visiting)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/polisyos/foundry/methods/artifacts/_implementation_identity.py:255: in _project\n    \"function\": _project(value.__func__, strict=strict, visiting=visiting),\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/polisyos/foundry/methods/artifacts/_implementation_identity.py:337: in _project\n    else _project(item, strict=strict, visiting=visiting)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/polisyos/foundry/methods/artifacts/_implementation_identity.py:300: in _project\n    return _unavailable(value, strict)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nvalue = <built-in function getattr>, strict = True\n\n    def _unavailable(value: Any, strict: bool) -> dict[str, str]:\n        if strict:\n>           raise SourceIdentityUnavailableError(\n                \"source identity is unavailable for \" + type(value).__name__\n            )\nE           polisyos.foundry.methods.artifacts._implementation_identity.SourceIdentityUnavailableError: source identity is unavailable for builtin_function_or_method\n\nsrc/polisyos/foundry/methods/artifacts/_implementation_identity.py:120: SourceIdentityUnavailableError\n\nThe above exception was the direct cause of the following exception:\n\n    def test_chain_shape_inference_uses_declared_shapes_without_pure_step(scalar_slots):\n        del scalar_slots\n        unit = Unit(\"value\", \"unit\")\n        values_slot = SlotSpec(\"values\", SlotType.VECTOR, unit, shape=(\"n\",))\n        total_slot = SlotSpec(\"total\", SlotType.SCALAR, unit, shape=())\n        result_slot = SlotSpec(\"result\", SlotType.SCALAR, unit, shape=())\n        calls = {\"sum\": 0, \"result\": 0}\n    \n        def sum_step(state: ChainState, params: Mapping[str, Any]) -> ChainState:\n            return state._replace(total=jnp.sum(state.values))\n    \n        def result_step(state: ChainState, params: Mapping[str, Any]) -> ChainState:\n            return state._replace(result=state.total * 0.1)\n    \n        sum_method = _method(\n            name=\"sum_values\",\n            namespace=\"jit01\",\n            input_slots=frozenset({values_slot}),\n            output_slots=frozenset({total_slot}),\n            pure_step=sum_step,\n        )\n        result_method = _method(\n            name=\"make_result\",\n            namespace=\"jit01\",\n            input_slots=frozenset({total_slot}),\n            output_slots=frozenset({result_slot}),\n            pure_step=result_step,\n        )\n        registry = MethodRegistry.get_instance()\n        registry.register(sum_method)\n        registry.register(result_method)\n    \n        composer = MethodComposer(registry=registry)\n        sum_node = composer.add(\"jit01.sum_values@1.0.0\")\n        result_node = composer.add(\"jit01.make_result@1.0.0\")\n        composer.connect(sum_node, result_node)\n        chain = composer.build()\n        sample_state = ChainState(\n            values=jnp.ones((5,)),\n            total=jnp.zeros((5,)),\n            result=jnp.asarray(0.0),\n        )\n    \n        compiler = MethodCompiler(registry=registry, cache=CompilationCache())\n        with _observe_bodies(calls, sum=sum_step, result=result_step):\n>           executor = compiler.compile_chain(chain, sample_state, jit=False, infer_shapes=True)\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/unit/remediation/test_jit_01.py:639: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nsrc/polisyos/foundry/methods/compiler/__init__.py:854: in compile_chain\n    compiled = self.compile(\nsrc/polisyos/foundry/methods/compiler/__init__.py:617: in compile\n    implementation_hash=_implementation_digest(method_class, sig),\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nmethod_class = <class 'tests.unit.remediation.test_jit_01.SumValuesMethod'>\nsignature = MethodSignature(name='sum_values', namespace='jit01', version='1.0.0', input_slots=frozenset({SlotSpec(name='values', ...ozenset(), conflicts_with=frozenset(), requires=frozenset(), supports_jit=True, supports_vmap=True, supports_grad=True)\n\n    def _implementation_digest(method_class: type, signature: MethodSignature) -> str:\n        try:\n            return _stable_digest(\n                {\n                    \"signature_digest\": signature.stable_digest(),\n                    \"source\": implementation_identity_projection(method_class),\n                }\n            )\n        except SourceIdentityUnavailableError as exc:\n>           raise CompilationError(signature.fqn, str(exc)) from exc\nE           polisyos.foundry.methods.exceptions.CompilationError: Compilation failed for jit01.sum_values@1.0.0: source identity is unavailable for builtin_function_or_method\n\nsrc/polisyos/foundry/methods/compiler/__init__.py:544: CompilationError",
+      "body_entered": true,
+      "source_cause": "not inferred; canonical owner diagnoses separately. Event.wait failures alone do not establish target admission premise."
+    },
+    {
+      "nodeid": "tests/unit/remediation/test_jit_01.py::test_chain_shape_inference_refuses_unknown_data_dependent_shape",
+      "source_location": [
+        "tests/unit/remediation/test_jit_01.py",
+        649,
+        "test_chain_shape_inference_refuses_unknown_data_dependent_shape"
+      ],
+      "phases": [
+        {
+          "when": "setup",
+          "outcome": "passed",
+          "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "when": "call",
+          "outcome": "failed",
+          "longrepr_sha256": "aa34c7fe8c1ffab9c02ee24d195fd949018eb8bdcf2e6cf3d603be0fa2f162a3"
+        },
+        {
+          "when": "teardown",
+          "outcome": "passed",
+          "longrepr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "message": "AssertionError: Regex pattern did not match.\n  Expected regex: 'data-dependent'\n  Actual message: 'Compilation failed for jit01.data_dependent@1.0.0: source identity is unavailable for builtin_function_or_method'",
+      "full_failure_text": "method_class = <class 'tests.unit.remediation.test_jit_01.DataDependentMethod'>\nsignature = MethodSignature(name='data_dependent', namespace='jit01', version='1.0.0', input_slots=frozenset({SlotSpec(name='value...ozenset(), conflicts_with=frozenset(), requires=frozenset(), supports_jit=True, supports_vmap=True, supports_grad=True)\n\n    def _implementation_digest(method_class: type, signature: MethodSignature) -> str:\n        try:\n            return _stable_digest(\n                {\n                    \"signature_digest\": signature.stable_digest(),\n>                   \"source\": implementation_identity_projection(method_class),\n                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n                }\n            )\n\nsrc/polisyos/foundry/methods/compiler/__init__.py:540: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nsrc/polisyos/foundry/methods/artifacts/_implementation_identity.py:114: in implementation_identity_projection\n    \"implementation\": _project(implementation, strict=strict, visiting=set()),\n                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/polisyos/foundry/methods/artifacts/_implementation_identity.py:328: in _project\n    name: _project(item, strict=strict, visiting=visiting)\n          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/polisyos/foundry/methods/artifacts/_implementation_identity.py:255: in _project\n    \"function\": _project(value.__func__, strict=strict, visiting=visiting),\n                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/polisyos/foundry/methods/artifacts/_implementation_identity.py:337: in _project\n    else _project(item, strict=strict, visiting=visiting)\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nsrc/polisyos/foundry/methods/artifacts/_implementation_identity.py:300: in _project\n    return _unavailable(value, strict)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nvalue = <built-in function getattr>, strict = True\n\n    def _unavailable(value: Any, strict: bool) -> dict[str, str]:\n        if strict:\n>           raise SourceIdentityUnavailableError(\n                \"source identity is unavailable for \" + type(value).__name__\n            )\nE           polisyos.foundry.methods.artifacts._implementation_identity.SourceIdentityUnavailableError: source identity is unavailable for builtin_function_or_method\n\nsrc/polisyos/foundry/methods/artifacts/_implementation_identity.py:120: SourceIdentityUnavailableError\n\nThe above exception was the direct cause of the following exception:\n\n    def test_chain_shape_inference_refuses_unknown_data_dependent_shape(scalar_slots):\n        del scalar_slots\n        unit = Unit(\"value\", \"unit\")\n        values_slot = SlotSpec(\"values\", SlotType.VECTOR, unit, shape=(\"n\",))\n        unknown_slot = SlotSpec(\"unknown\", SlotType.VECTOR, unit, shape=(None,))\n        result_slot = SlotSpec(\"result\", SlotType.SCALAR, unit, shape=())\n        calls = {\"producer\": 0, \"consumer\": 0}\n    \n        def producer(state: UnknownShapeState, params: Mapping[str, Any]) -> UnknownShapeState:\n            return state._replace(unknown=state.values[: int(params.get(\"count\", 1))])\n    \n        def consumer(state: UnknownShapeState, params: Mapping[str, Any]) -> UnknownShapeState:\n            return state._replace(result=jnp.sum(state.unknown))\n    \n        producer_method = _method(\n            name=\"data_dependent\",\n            namespace=\"jit01\",\n            input_slots=frozenset({values_slot}),\n            output_slots=frozenset({unknown_slot}),\n            pure_step=producer,\n        )\n        consumer_method = _method(\n            name=\"consume_unknown\",\n            namespace=\"jit01\",\n            input_slots=frozenset({unknown_slot}),\n            output_slots=frozenset({result_slot}),\n            pure_step=consumer,\n        )\n        registry = MethodRegistry.get_instance()\n        registry.register(producer_method)\n        registry.register(consumer_method)\n    \n        composer = MethodComposer(registry=registry)\n        producer_node = composer.add(\"jit01.data_dependent@1.0.0\")\n        consumer_node = composer.add(\"jit01.consume_unknown@1.0.0\")\n        composer.connect(producer_node, consumer_node)\n        chain = composer.build()\n        sample_state = UnknownShapeState(\n            values=jnp.ones((5,)),\n            unknown=jnp.ones((5,)),\n            result=jnp.asarray(0.0),\n        )\n    \n        compiler = MethodCompiler(registry=registry, cache=CompilationCache())\n        with (\n            _observe_bodies(calls, producer=producer, consumer=consumer),\n            pytest.raises(CompilationError, match=\"data-dependent\"),\n        ):\n>           compiler.compile_chain(chain, sample_state, jit=False, infer_shapes=True)\n\ntests/unit/remediation/test_jit_01.py:698: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \nsrc/polisyos/foundry/methods/compiler/__init__.py:854: in compile_chain\n    compiled = self.compile(\nsrc/polisyos/foundry/methods/compiler/__init__.py:617: in compile\n    implementation_hash=_implementation_digest(method_class, sig),\n                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nmethod_class = <class 'tests.unit.remediation.test_jit_01.DataDependentMethod'>\nsignature = MethodSignature(name='data_dependent', namespace='jit01', version='1.0.0', input_slots=frozenset({SlotSpec(name='value...ozenset(), conflicts_with=frozenset(), requires=frozenset(), supports_jit=True, supports_vmap=True, supports_grad=True)\n\n    def _implementation_digest(method_class: type, signature: MethodSignature) -> str:\n        try:\n            return _stable_digest(\n                {\n                    \"signature_digest\": signature.stable_digest(),\n                    \"source\": implementation_identity_projection(method_class),\n                }\n            )\n        except SourceIdentityUnavailableError as exc:\n>           raise CompilationError(signature.fqn, str(exc)) from exc\nE           polisyos.foundry.methods.exceptions.CompilationError: Compilation failed for jit01.data_dependent@1.0.0: source identity is unavailable for builtin_function_or_method\n\nsrc/polisyos/foundry/methods/compiler/__init__.py:544: CompilationError\n\nDuring handling of the above exception, another exception occurred:\n\n    def test_chain_shape_inference_refuses_unknown_data_dependent_shape(scalar_slots):\n        del scalar_slots\n        unit = Unit(\"value\", \"unit\")\n        values_slot = SlotSpec(\"values\", SlotType.VECTOR, unit, shape=(\"n\",))\n        unknown_slot = SlotSpec(\"unknown\", SlotType.VECTOR, unit, shape=(None,))\n        result_slot = SlotSpec(\"result\", SlotType.SCALAR, unit, shape=())\n        calls = {\"producer\": 0, \"consumer\": 0}\n    \n        def producer(state: UnknownShapeState, params: Mapping[str, Any]) -> UnknownShapeState:\n            return state._replace(unknown=state.values[: int(params.get(\"count\", 1))])\n    \n        def consumer(state: UnknownShapeState, params: Mapping[str, Any]) -> UnknownShapeState:\n            return state._replace(result=jnp.sum(state.unknown))\n    \n        producer_method = _method(\n            name=\"data_dependent\",\n            namespace=\"jit01\",\n            input_slots=frozenset({values_slot}),\n            output_slots=frozenset({unknown_slot}),\n            pure_step=producer,\n        )\n        consumer_method = _method(\n            name=\"consume_unknown\",\n            namespace=\"jit01\",\n            input_slots=frozenset({unknown_slot}),\n            output_slots=frozenset({result_slot}),\n            pure_step=consumer,\n        )\n        registry = MethodRegistry.get_instance()\n        registry.register(producer_method)\n        registry.register(consumer_method)\n    \n        composer = MethodComposer(registry=registry)\n        producer_node = composer.add(\"jit01.data_dependent@1.0.0\")\n        consumer_node = composer.add(\"jit01.consume_unknown@1.0.0\")\n        composer.connect(producer_node, consumer_node)\n        chain = composer.build()\n        sample_state = UnknownShapeState(\n            values=jnp.ones((5,)),\n            unknown=jnp.ones((5,)),\n            result=jnp.asarray(0.0),\n        )\n    \n        compiler = MethodCompiler(registry=registry, cache=CompilationCache())\n        with (\n            _observe_bodies(calls, producer=producer, consumer=consumer),\n>           pytest.raises(CompilationError, match=\"data-dependent\"),\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        ):\nE       AssertionError: Regex pattern did not match.\nE         Expected regex: 'data-dependent'\nE         Actual message: 'Compilation failed for jit01.data_dependent@1.0.0: source identity is unavailable for builtin_function_or_method'\n\ntests/unit/remediation/test_jit_01.py:696: AssertionError",
+      "body_entered": true,
+      "source_cause": "not inferred; canonical owner diagnoses separately. Event.wait failures alone do not establish target admission premise."
+    }
+  ],
+  "error_diagnostic_buckets": {
+    "numbered_tmpdir_refusal_without_literal_errno28": 2650
+  },
+  "error_message_types": {
+    "failed on setup with \"OSError": 2650
+  },
+  "per_file_case_partition": {
+    "../.polisyos/e02-B-current/raw/continuation-20261007/frozen-6fa9b7142ba5-inputs/test_half_open_consumer.py": {
+      "PASS": 3
+    },
+    "tests/integration/scientist/test_checkpoint_resume.py": {
+      "PASS": 11
+    },
+    "tests/integration/scientist/test_parallel_tier_compensation_oracle.py": {
+      "PASS": 2
+    },
+    "tests/integration/scientist/test_res_03_real_simulation_route.py": {
+      "FAIL": 1
+    },
+    "tests/unit/common/test_async_tools.py": {
+      "PASS": 20
+    },
+    "tests/unit/common/test_async_tools_installed_wheel.py": {
+      "PASS": 1
+    },
+    "tests/unit/core/artifacts/backends/test_caching_store.py": {
+      "PASS": 28
+    },
+    "tests/unit/core/artifacts/test_artifact_id_serialization_contract.py": {
+      "PASS": 12
+    },
+    "tests/unit/core/artifacts/test_artifact_store_protocol.py": {
+      "PASS": 11
+    },
+    "tests/unit/core/artifacts/test_async_store.py": {
+      "PASS": 3
+    },
+    "tests/unit/core/artifacts/test_batch_completion_admission.py": {
+      "PASS": 20
+    },
+    "tests/unit/core/artifacts/test_caching_write_through_exact_bytes.py": {
+      "PASS": 4
+    },
+    "tests/unit/core/artifacts/test_cas_integrity_report.py": {
+      "PASS": 1
+    },
+    "tests/unit/core/artifacts/test_import_admission_noop.py": {
+      "PASS": 34
+    },
+    "tests/unit/core/artifacts/test_manifest_lineage_input_normalization.py": {
+      "PASS": 11
+    },
+    "tests/unit/core/artifacts/test_manifest_serialization_schema.py": {
+      "PASS": 6
+    },
+    "tests/unit/core/artifacts/test_multi_tenant_shared_cas.py": {
+      "PASS": 12
+    },
+    "tests/unit/core/artifacts/test_put_consumer_oracle.py": {
+      "PASS": 2
+    },
+    "tests/unit/core/artifacts/test_put_integrity_retry.py": {
+      "PASS": 5
+    },
+    "tests/unit/core/artifacts/test_signed_evidence.py": {
+      "PASS": 6
+    },
+    "tests/unit/core/artifacts/test_storage_protocol_boundaries.py": {
+      "PASS": 3
+    },
+    "tests/unit/core/artifacts/test_transfer_generation_publication.py": {
+      "PASS": 25
+    },
+    "tests/unit/core/artifacts/test_verification_failure_snapshot_report.py": {
+      "PASS": 14
+    },
+    "tests/unit/core/artifacts/test_verification_snapshot_report.py": {
+      "PASS": 9
+    },
+    "tests/unit/core/phase0/test_artifact_export_import.py": {
+      "PASS": 1
+    },
+    "tests/unit/core/phase0/test_artifact_graph.py": {
+      "PASS": 4
+    },
+    "tests/unit/core/phase0/test_artifact_store.py": {
+      "PASS": 11
+    },
+    "tests/unit/core/phase0/test_audit_export_verify.py": {
+      "PASS": 6
+    },
+    "tests/unit/core/phase0/test_audit_manifest_compat.py": {
+      "PASS": 3
+    },
+    "tests/unit/core/phase0/test_canon_json.py": {
+      "PASS": 5
+    },
+    "tests/unit/core/phase0/test_cli.py": {
+      "PASS": 8
+    },
+    "tests/unit/core/phase0/test_cli_resume.py": {
+      "PASS": 3
+    },
+    "tests/unit/core/phase0/test_cli_signing.py": {
+      "PASS": 5
+    },
+    "tests/unit/core/phase0/test_decorators.py": {
+      "PASS": 7
+    },
+    "tests/unit/core/phase0/test_environment_manifest.py": {
+      "PASS": 20
+    },
+    "tests/unit/core/phase0/test_logs.py": {
+      "PASS": 2
+    },
+    "tests/unit/core/phase0/test_metric_validation_cli.py": {
+      "PASS": 1
+    },
+    "tests/unit/core/phase0/test_metrics.py": {
+      "PASS": 8
+    },
+    "tests/unit/core/phase0/test_observability.py": {
+      "PASS": 2
+    },
+    "tests/unit/core/phase0/test_phase0_quality_validation_contract.py": {
+      "PASS": 2
+    },
+    "tests/unit/core/phase0/test_propagation.py": {
+      "PASS": 4
+    },
+    "tests/unit/core/phase0/test_provenance_contract_shims.py": {
+      "PASS": 2
+    },
+    "tests/unit/core/phase0/test_registry_bundle.py": {
+      "PASS": 4
+    },
+    "tests/unit/core/phase0/test_run_context.py": {
+      "PASS": 2
+    },
+    "tests/unit/core/phase0/test_signing.py": {
+      "PASS": 11
+    },
+    "tests/unit/core/phase0/test_store_signing.py": {
+      "PASS": 21
+    },
+    "tests/unit/core/phase0/test_tracer.py": {
+      "PASS": 11
+    },
+    "tests/unit/core/phase0/test_workspace_commands.py": {
+      "PASS": 6
+    },
+    "tests/unit/core/phase0/test_worktree_admission.py": {
+      "PASS": 23
+    },
+    "tests/unit/core/test_llm_core.py": {
+      "PASS": 5
+    },
+    "tests/unit/data_forge/domains/academic/knowledge/test_skg_query.py": {
+      "PASS": 11,
+      "ERROR": 15
+    },
+    "tests/unit/fabric/connectors/test_pool_e02.py": {
+      "PASS": 16
+    },
+    "tests/unit/fabric/connectors/test_registry.py": {
+      "PASS": 74
+    },
+    "tests/unit/fabric/connectors/test_resilience.py": {
+      "PASS": 30
+    },
+    "tests/unit/fabric/connectors/test_resilience_e02.py": {
+      "PASS": 31
+    },
+    "tests/unit/fabric/data_plane/test_pool_stream_budget_oracle.py": {
+      "ERROR": 2
+    },
+    "tests/unit/fabric/data_plane/test_stream_pool_cleanup_oracle.py": {
+      "ERROR": 8
+    },
+    "tests/unit/fabric/data_plane/test_streaming_runtime.py": {
+      "PASS": 15,
+      "ERROR": 35
+    },
+    "tests/unit/fabric/test_concurrency_bounded_runtime_phase2.py": {
+      "PASS": 10,
+      "ERROR": 4
+    },
+    "tests/unit/foundry/methods/artifacts/test_compiled_chain_plan.py": {
+      "ERROR": 14,
+      "PASS": 5
+    },
+    "tests/unit/foundry/methods/backends/test_checkpoint_identity.py": {
+      "ERROR": 39
+    },
+    "tests/unit/foundry/methods/backends/test_checkpointing.py": {
+      "ERROR": 19
+    },
+    "tests/unit/foundry/methods/backends/test_checkpointing_execution.py": {
+      "ERROR": 23,
+      "PASS": 3
+    },
+    "tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py": {
+      "ERROR": 4
+    },
+    "tests/unit/foundry/methods/backends/test_module_source_identity.py": {
+      "ERROR": 13
+    },
+    "tests/unit/foundry/methods/components/test_composition_e02.py": {
+      "PASS": 17
+    },
+    "tests/unit/foundry/methods/test_artifacts.py": {
+      "PASS": 24
+    },
+    "tests/unit/foundry/methods/test_compiled_preparation_consumer_oracle.py": {
+      "ERROR": 15
+    },
+    "tests/unit/foundry/methods/test_compiler.py": {
+      "PASS": 47
+    },
+    "tests/unit/foundry/methods/test_compiler_e02.py": {
+      "PASS": 11
+    },
+    "tests/unit/foundry/methods/test_compiler_leader_termination_e02.py": {
+      "PASS": 3
+    },
+    "tests/unit/foundry/methods/test_composer.py": {
+      "PASS": 25
+    },
+    "tests/unit/foundry/methods/test_composer_hardening.py": {
+      "PASS": 9
+    },
+    "tests/unit/foundry/methods/test_linker.py": {
+      "PASS": 52
+    },
+    "tests/unit/foundry/methods/test_semantic_validator.py": {
+      "PASS": 18
+    },
+    "tests/unit/foundry/mirror_contracts/test_specialization.py": {
+      "PASS": 1
+    },
+    "tests/unit/lex/legal_evaluation/test_impact_diff.py": {
+      "ERROR": 15
+    },
+    "tests/unit/remediation/test_cas_01.py": {
+      "ERROR": 13,
+      "PASS": 5
+    },
+    "tests/unit/remediation/test_cas_02.py": {
+      "ERROR": 18
+    },
+    "tests/unit/remediation/test_cas_03.py": {
+      "ERROR": 16
+    },
+    "tests/unit/remediation/test_cmp_01.py": {
+      "PASS": 4
+    },
+    "tests/unit/remediation/test_cmp_02.py": {
+      "PASS": 8
+    },
+    "tests/unit/remediation/test_cmp_03.py": {
+      "PASS": 13
+    },
+    "tests/unit/remediation/test_dur_02.py": {
+      "PASS": 5
+    },
+    "tests/unit/remediation/test_dur_02_process.py": {
+      "ERROR": 20
+    },
+    "tests/unit/remediation/test_exe_02.py": {
+      "PASS": 8
+    },
+    "tests/unit/remediation/test_jit_01.py": {
+      "FAIL": 9
+    },
+    "tests/unit/remediation/test_llm_01.py": {
+      "PASS": 8
+    },
+    "tests/unit/remediation/test_req_01_installed.py": {
+      "ERROR": 1
+    },
+    "tests/unit/remediation/test_res_01.py": {
+      "ERROR": 11
+    },
+    "tests/unit/remediation/test_res_02.py": {
+      "PASS": 8
+    },
+    "tests/unit/remediation/test_res_03.py": {
+      "PASS": 4
+    },
+    "tests/unit/remediation/test_res_04.py": {
+      "ERROR": 15,
+      "PASS": 1
+    },
+    "tests/unit/remediation/test_run_03.py": {
+      "PASS": 7,
+      "ERROR": 2
+    },
+    "tests/unit/remediation/test_wire_01.py": {
+      "PASS": 55
+    },
+    "tests/unit/runtime/http/services/test__control_contracts.py": {
+      "ERROR": 4
+    },
+    "tests/unit/runtime/http/services/test_b_llm_cost_projection_consumer_e02.py": {
+      "ERROR": 4
+    },
+    "tests/unit/runtime/http/services/test_evaluation_safety.py": {
+      "ERROR": 15
+    },
+    "tests/unit/runtime/http/services/test_lex_pipeline.py": {
+      "ERROR": 3
+    },
+    "tests/unit/runtime/http/test_acquisition_admission_artifact_facade.py": {
+      "ERROR": 1
+    },
+    "tests/unit/runtime/http/test_acquisition_authority_deployment.py": {
+      "ERROR": 2
+    },
+    "tests/unit/runtime/http/test_acquisition_control_worker.py": {
+      "ERROR": 7
+    },
+    "tests/unit/runtime/http/test_acquisition_human_source.py": {
+      "ERROR": 6
+    },
+    "tests/unit/runtime/http/test_acquisition_route_authority_sink.py": {
+      "ERROR": 7
+    },
+    "tests/unit/runtime/http/test_acquisition_routes_api.py": {
+      "ERROR": 2
+    },
+    "tests/unit/runtime/http/test_acquisition_surface_projection.py": {
+      "ERROR": 7
+    },
+    "tests/unit/runtime/http/test_analysis_api.py": {
+      "ERROR": 3
+    },
+    "tests/unit/runtime/http/test_api_maturity.py": {
+      "ERROR": 11
+    },
+    "tests/unit/runtime/http/test_architecture_boundaries.py": {
+      "ERROR": 9
+    },
+    "tests/unit/runtime/http/test_artifact_inspector_api.py": {
+      "ERROR": 4
+    },
+    "tests/unit/runtime/http/test_artifact_inspector_service.py": {
+      "ERROR": 2
+    },
+    "tests/unit/runtime/http/test_artifact_surface_safety.py": {
+      "ERROR": 4
+    },
+    "tests/unit/runtime/http/test_auth_api.py": {
+      "ERROR": 1
+    },
+    "tests/unit/runtime/http/test_authority_values.py": {
+      "ERROR": 8
+    },
+    "tests/unit/runtime/http/test_authorization_audience_denials.py": {
+      "ERROR": 7
+    },
+    "tests/unit/runtime/http/test_b88_served_replay.py": {
+      "ERROR": 5
+    },
+    "tests/unit/runtime/http/test_bureaucratic_rendering_api.py": {
+      "ERROR": 8
+    },
+    "tests/unit/runtime/http/test_capability_discovery_api.py": {
+      "ERROR": 9
+    },
+    "tests/unit/runtime/http/test_case_inspection_api.py": {
+      "ERROR": 6
+    },
+    "tests/unit/runtime/http/test_confidence_ledger_risk_spend_api.py": {
+      "ERROR": 3
+    },
+    "tests/unit/runtime/http/test_confidence_ledger_risk_spend_contracts.py": {
+      "ERROR": 15
+    },
+    "tests/unit/runtime/http/test_confidence_ledger_risk_spend_projection.py": {
+      "ERROR": 9
+    },
+    "tests/unit/runtime/http/test_control_api.py": {
+      "ERROR": 68
+    },
+    "tests/unit/runtime/http/test_control_hardening.py": {
+      "ERROR": 8
+    },
+    "tests/unit/runtime/http/test_control_import_boundary.py": {
+      "ERROR": 3
+    },
+    "tests/unit/runtime/http/test_control_job_core_attempts.py": {
+      "ERROR": 1
+    },
+    "tests/unit/runtime/http/test_control_job_execution_intent.py": {
+      "ERROR": 31
+    },
+    "tests/unit/runtime/http/test_control_plane_store.py": {
+      "ERROR": 59
+    },
+    "tests/unit/runtime/http/test_control_service_di.py": {
+      "ERROR": 43
+    },
+    "tests/unit/runtime/http/test_control_worker_custody.py": {
+      "ERROR": 2
+    },
+    "tests/unit/runtime/http/test_control_worker_maintenance.py": {
+      "ERROR": 1
+    },
+    "tests/unit/runtime/http/test_control_worker_postgres_fencing_oracle.py": {
+      "ERROR": 8
+    },
+    "tests/unit/runtime/http/test_core_only_runs_api.py": {
+      "ERROR": 2
+    },
+    "tests/unit/runtime/http/test_curated_dir_resolution.py": {
+      "ERROR": 4
+    },
+    "tests/unit/runtime/http/test_cycle_board_historical_availability.py": {
+      "ERROR": 8
+    },
+    "tests/unit/runtime/http/test_cycle_board_movement.py": {
+      "ERROR": 1
+    },
+    "tests/unit/runtime/http/test_cycle_board_projection_access_replay.py": {
+      "ERROR": 1
+    },
+    "tests/unit/runtime/http/test_cycle_board_projection_fact_algebra.py": {
+      "ERROR": 6
+    },
+    "tests/unit/runtime/http/test_cycle_board_projection_fact_owners.py": {
+      "ERROR": 2
+    },
+    "tests/unit/runtime/http/test_cycle_board_projection_loading.py": {
+      "ERROR": 11
+    },
+    "tests/unit/runtime/http/test_cycle_board_projection_service.py": {
+      "ERROR": 5
+    },
+    "tests/unit/runtime/http/test_cycle_substrate_job_execution_binding.py": {
+      "ERROR": 5
+    },
+    "tests/unit/runtime/http/test_debug_api.py": {
+      "ERROR": 6
+    },
+    "tests/unit/runtime/http/test_decision_validity_api.py": {
+      "ERROR": 12
+    },
+    "tests/unit/runtime/http/test_depth_n_route_projection_artifact.py": {
+      "ERROR": 5
+    },
+    "tests/unit/runtime/http/test_ds20_authorization_binding_followups.py": {
+      "ERROR": 3
+    },
+    "tests/unit/runtime/http/test_ds20_seeded_negatives.py": {
+      "ERROR": 16
+    },
+    "tests/unit/runtime/http/test_e2e_ingestion.py": {
+      "ERROR": 16
+    },
+    "tests/unit/runtime/http/test_epoch_custody_container.py": {
+      "ERROR": 1
+    },
+    "tests/unit/runtime/http/test_epoch_issuance_composition.py": {
+      "ERROR": 4
+    },
+    "tests/unit/runtime/http/test_error_semantics.py": {
+      "ERROR": 4
+    },
+    "tests/unit/runtime/http/test_fabric_integration_routes.py": {
+      "ERROR": 4
+    },
+    "tests/unit/runtime/http/test_fixture_runtime_api_loader.py": {
+      "ERROR": 2
+    },
+    "tests/unit/runtime/http/test_governed_projection_api.py": {
+      "ERROR": 10
+    },
+    "tests/unit/runtime/http/test_governed_projection_service.py": {
+      "ERROR": 81
+    },
+    "tests/unit/runtime/http/test_governed_projection_validation_worker.py": {
+      "ERROR": 25
+    },
+    "tests/unit/runtime/http/test_human_decision_api.py": {
+      "ERROR": 2
+    },
+    "tests/unit/runtime/http/test_human_decision_guarded_custody.py": {
+      "ERROR": 2
+    },
+    "tests/unit/runtime/http/test_human_decision_guarded_timeout.py": {
+      "ERROR": 1
+    },
+    "tests/unit/runtime/http/test_human_decision_mutation_binding.py": {
+      "ERROR": 5
+    },
+    "tests/unit/runtime/http/test_human_decision_service.py": {
+      "ERROR": 78
+    },
+    "tests/unit/runtime/http/test_insights_api.py": {
+      "ERROR": 3
+    },
+    "tests/unit/runtime/http/test_lineage_api.py": {
+      "ERROR": 6
+    },
+    "tests/unit/runtime/http/test_lineage_routes.py": {
+      "ERROR": 3
+    },
+    "tests/unit/runtime/http/test_mobility_api.py": {
+      "ERROR": 2
+    },
+    "tests/unit/runtime/http/test_nl_pipeline_materialization.py": {
+      "ERROR": 51
+    },
+    "tests/unit/runtime/http/test_non_data_acquisition_projection.py": {
+      "ERROR": 8
+    },
+    "tests/unit/runtime/http/test_normative_evidence_intake.py": {
+      "ERROR": 14
+    },
+    "tests/unit/runtime/http/test_normative_generation_bridge.py": {
+      "ERROR": 28
+    },
+    "tests/unit/runtime/http/test_public_decision_verification.py": {
+      "ERROR": 55
+    },
+    "tests/unit/runtime/http/test_public_decision_verification_configuration.py": {
+      "ERROR": 15
+    },
+    "tests/unit/runtime/http/test_public_decision_verification_routes.py": {
+      "ERROR": 7
+    },
+    "tests/unit/runtime/http/test_public_decision_verification_schema.py": {
+      "ERROR": 1
+    },
+    "tests/unit/runtime/http/test_public_export.py": {
+      "ERROR": 15
+    },
+    "tests/unit/runtime/http/test_r13_ingestion_tenant_custody.py": {
+      "ERROR": 2
+    },
+    "tests/unit/runtime/http/test_resilience_guards.py": {
+      "ERROR": 8
+    },
+    "tests/unit/runtime/http/test_review_collaboration_api.py": {
+      "ERROR": 5
+    },
+    "tests/unit/runtime/http/test_review_collaboration_service.py": {
+      "ERROR": 4
+    },
+    "tests/unit/runtime/http/test_review_effectiveness_projection.py": {
+      "ERROR": 8
+    },
+    "tests/unit/runtime/http/test_run_compare_api.py": {
+      "ERROR": 4
+    },
+    "tests/unit/runtime/http/test_run_evidence_context_promotions.py": {
+      "ERROR": 2
+    },
+    "tests/unit/runtime/http/test_run_paper_api.py": {
+      "ERROR": 64
+    },
+    "tests/unit/runtime/http/test_runs_api.py": {
+      "ERROR": 46
+    },
+    "tests/unit/runtime/http/test_runtime_api_authz.py": {
+      "ERROR": 175
+    },
+    "tests/unit/runtime/http/test_runtime_api_contract_hardening.py": {
+      "ERROR": 39
+    },
+    "tests/unit/runtime/http/test_runtime_api_no_legacy_sources.py": {
+      "ERROR": 2
+    },
+    "tests/unit/runtime/http/test_runtime_api_observability.py": {
+      "ERROR": 13
+    },
+    "tests/unit/runtime/http/test_runtime_api_write_path_hardening.py": {
+      "ERROR": 7
+    },
+    "tests/unit/runtime/http/test_runtime_authorization_access_audit.py": {
+      "ERROR": 32
+    },
+    "tests/unit/runtime/http/test_runtime_deployment_security.py": {
+      "ERROR": 54
+    },
+    "tests/unit/runtime/http/test_runtime_fixture_identity_prohibition.py": {
+      "ERROR": 14
+    },
+    "tests/unit/runtime/http/test_runtime_permission_vocabulary.py": {
+      "ERROR": 12
+    },
+    "tests/unit/runtime/http/test_runtime_postgres_linearizability.py": {
+      "ERROR": 6
+    },
+    "tests/unit/runtime/http/test_runtime_rego_authorization_parity.py": {
+      "ERROR": 24
+    },
+    "tests/unit/runtime/http/test_runtime_security_compliance.py": {
+      "ERROR": 4
+    },
+    "tests/unit/runtime/http/test_runtime_service_container.py": {
+      "ERROR": 8
+    },
+    "tests/unit/runtime/http/test_runtime_step_up_authz.py": {
+      "ERROR": 65
+    },
+    "tests/unit/runtime/http/test_sae_spatial_route.py": {
+      "ERROR": 2
+    },
+    "tests/unit/runtime/http/test_scenarios_api.py": {
+      "ERROR": 11
+    },
+    "tests/unit/runtime/http/test_served_unknown_target_scope.py": {
+      "ERROR": 6
+    },
+    "tests/unit/runtime/http/test_temporal_api.py": {
+      "ERROR": 16
+    },
+    "tests/unit/runtime/http/test_temporal_routes.py": {
+      "ERROR": 13
+    },
+    "tests/unit/runtime/http/test_timeline_api.py": {
+      "ERROR": 7
+    },
+    "tests/unit/runtime/http/test_workspace_loop_transition.py": {
+      "ERROR": 28
+    },
+    "tests/unit/runtime/quality/test_chronology_proof.py": {
+      "ERROR": 38,
+      "PASS": 1
+    },
+    "tests/unit/scientist/agent/test_drafter_accounting_owner_oracle.py": {
+      "ERROR": 3
+    },
+    "tests/unit/scientist/agent/test_optional_spend_projection_boundary.py": {
+      "ERROR": 3
+    },
+    "tests/unit/scientist/methods/causal/test_resolve_parameters_node.py": {
+      "ERROR": 9
+    },
+    "tests/unit/scientist/mirror_contracts/test_budget_ledger.py": {
+      "PASS": 1
+    },
+    "tests/unit/scientist/mirror_contracts/test_local_runner.py": {
+      "PASS": 1
+    },
+    "tests/unit/scientist/nodes/builtins/causal/test_resolve_parameters.py": {
+      "ERROR": 8
+    },
+    "tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py": {
+      "PASS": 5,
+      "ERROR": 10
+    },
+    "tests/unit/scientist/orchestration/engine/runner/test_distributed_tier.py": {
+      "ERROR": 6,
+      "PASS": 2
+    },
+    "tests/unit/scientist/orchestration/engine/runner/test_fallback_runner.py": {
+      "PASS": 20
+    },
+    "tests/unit/scientist/orchestration/engine/runner/test_serialization.py": {
+      "PASS": 23,
+      "ERROR": 9
+    },
+    "tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py": {
+      "PASS": 30,
+      "ERROR": 2
+    },
+    "tests/unit/scientist/orchestration/engine/runner/test_state_merge.py": {
+      "PASS": 8
+    },
+    "tests/unit/scientist/orchestration/engine/test_async_cache_cost_oracle.py": {
+      "ERROR": 2
+    },
+    "tests/unit/scientist/orchestration/engine/test_async_cache_recovery.py": {
+      "ERROR": 21
+    },
+    "tests/unit/scientist/orchestration/engine/test_async_executor.py": {
+      "PASS": 9,
+      "ERROR": 6
+    },
+    "tests/unit/scientist/orchestration/engine/test_async_executor_hardening.py": {
+      "PASS": 12
+    },
+    "tests/unit/scientist/orchestration/engine/test_budget_completion_obligations.py": {
+      "ERROR": 36
+    },
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger_process.py": {
+      "ERROR": 32
+    },
+    "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py": {
+      "ERROR": 29,
+      "PASS": 1
+    },
+    "tests/unit/scientist/orchestration/engine/test_budget_llm_process_recovery.py": {
+      "ERROR": 3
+    },
+    "tests/unit/scientist/orchestration/engine/test_budget_middleware.py": {
+      "PASS": 23,
+      "ERROR": 9
+    },
+    "tests/unit/scientist/orchestration/engine/test_budget_wire_consumer_oracle.py": {
+      "ERROR": 24
+    },
+    "tests/unit/scientist/orchestration/engine/test_cache_reference_custody.py": {
+      "ERROR": 5
+    },
+    "tests/unit/scientist/orchestration/engine/test_checkpoint.py": {
+      "PASS": 2,
+      "ERROR": 24
+    },
+    "tests/unit/scientist/orchestration/engine/test_checkpoint_deadline_budget_oracle.py": {
+      "ERROR": 1
+    },
+    "tests/unit/scientist/orchestration/engine/test_checkpoint_gc.py": {
+      "PASS": 10,
+      "ERROR": 10
+    },
+    "tests/unit/scientist/orchestration/engine/test_checkpoint_publication_budget.py": {
+      "ERROR": 23
+    },
+    "tests/unit/scientist/orchestration/engine/test_checkpoint_short_budget_oracle.py": {
+      "ERROR": 6
+    },
+    "tests/unit/scientist/orchestration/engine/test_circuit_breaker.py": {
+      "PASS": 21
+    },
+    "tests/unit/scientist/orchestration/engine/test_completion_admission_consumer_oracle.py": {
+      "ERROR": 11
+    },
+    "tests/unit/scientist/orchestration/engine/test_engine_executor_idempotency.py": {
+      "ERROR": 6
+    },
+    "tests/unit/scientist/orchestration/engine/test_idempotency.py": {
+      "ERROR": 26
+    },
+    "tests/unit/scientist/orchestration/engine/test_native_execution_admission.py": {
+      "ERROR": 9
+    },
+    "tests/unit/scientist/orchestration/engine/test_native_list_journal.py": {
+      "ERROR": 46,
+      "PASS": 2
+    },
+    "tests/unit/scientist/orchestration/engine/test_native_state_cache_semantics.py": {
+      "ERROR": 1
+    },
+    "tests/unit/scientist/orchestration/engine/test_resume_artifact_requirements.py": {
+      "ERROR": 8
+    },
+    "tests/unit/scientist/orchestration/engine/test_retry.py": {
+      "PASS": 57,
+      "ERROR": 91
+    },
+    "tests/unit/scientist/orchestration/engine/test_retry_integration.py": {
+      "PASS": 5,
+      "ERROR": 2
+    },
+    "tests/unit/scientist/orchestration/engine/test_state_branching.py": {
+      "PASS": 8
+    },
+    "tests/unit/scientist/orchestration/engine/test_state_merge.py": {
+      "PASS": 25
+    },
+    "tests/unit/scientist/orchestration/engine/test_workflow_deadline_custody.py": {
+      "ERROR": 17
+    },
+    "tests/unit/scientist/orchestration/llm/test_budget_enforcer.py": {
+      "PASS": 15,
+      "ERROR": 1
+    },
+    "tests/unit/scientist/orchestration/llm/test_cost_metrics.py": {
+      "PASS": 13
+    },
+    "tests/unit/scientist/orchestration/llm/test_factory.py": {
+      "PASS": 12
+    },
+    "tests/unit/scientist/orchestration/llm/test_gateway_exact_money_consumer.py": {
+      "ERROR": 15
+    },
+    "tests/unit/scientist/orchestration/llm/test_gateway_numeric_decode.py": {
+      "PASS": 30
+    },
+    "tests/unit/scientist/orchestration/llm/test_prompt_cache.py": {
+      "PASS": 24
+    },
+    "tests/unit/scientist/orchestration/llm/test_prompt_cache_e02.py": {
+      "PASS": 8,
+      "ERROR": 39
+    },
+    "tests/unit/scientist/orchestration/llm/test_prompt_sanitization.py": {
+      "PASS": 4
+    },
+    "tests/unit/scientist/orchestration/llm/test_protected_audit_admission_e02.py": {
+      "ERROR": 8
+    },
+    "tests/unit/scientist/orchestration/llm/test_required_audit_settlement_e02.py": {
+      "ERROR": 17
+    },
+    "tests/unit/scientist/orchestration/llm/test_shared_flight_completion_independent_e02.py": {
+      "ERROR": 7
+    },
+    "tests/unit/scientist/orchestration/llm/test_unknown_cost_settlement_e02.py": {
+      "ERROR": 101
+    },
+    "tests/unit/scientist/policy_design/test_phase_b_policy_workers.py": {
+      "ERROR": 3,
+      "PASS": 4
+    },
+    "tests/unit/scientist/policy_design/test_worker_accounting_admission_e02.py": {
+      "ERROR": 10,
+      "PASS": 2
+    },
+    "tests/unit/scientist/policy_design/test_worker_accounting_boundary_e02.py": {
+      "ERROR": 14
+    }
+  },
+  "resources_before": {
+    "memory.current": "17173606400\n",
+    "memory.max": "17179869184\n",
+    "memory.events": "low 0\nhigh 0\nmax 393553\noom 15\noom_kill 11\noom_group_kill 0\n",
+    "memory.stat": "anon 62169088\nfile 15398346752\nkernel 1712242688\nkernel_stack 606208\npagetables 2363392\nsec_pagetables 0\npercpu 14336\nsock 0\nvmalloc 0\nshmem 14281900032\nfile_mapped 27172864\nfile_dirty 2527232\nfile_writeback 0\nswapcached 0\nanon_thp 0\nfile_thp 0\nshmem_thp 0\ninactive_anon 6523457536\nactive_anon 7820611584\ninactive_file 653090816\nactive_file 463347712\nunevictable 0\nslab_reclaimable 1231360816\nslab_unreclaimable 477881000\nslab 1709241816\nworkingset_refault_anon 0\nworkingset_refault_file 18375535\nworkingset_activate_anon 0\nworkingset_activate_file 4266583\nworkingset_restore_anon 0\nworkingset_restore_file 2412070\nworkingset_nodereclaim 0\npgdemote_kswapd 0\npgdemote_direct 0\npgdemote_khugepaged 0\npgdemote_proactive 0\npgscan 157748448\npgsteal 27107543\npswpin 0\npswpout 0\npgscan_kswapd 11475867\npgscan_direct 146272581\npgscan_khugepaged 0\npgscan_proactive 0\npgsteal_kswapd 11049999\npgsteal_direct 16057544\npgsteal_khugepaged 0\npgsteal_proactive 0\npgfault 864485987\npgmajfault 50262\npgrefill 17265414\npgactivate 18230367\npgdeactivate 16164490\npglazyfree 2296858\npglazyfreed 381\nswpin_zero 0\nswpout_zero 0\nthp_fault_alloc 4\nthp_collapse_alloc 0\nthp_swpout 0\nthp_swpout_fallback 0\n",
+    "pids.current": "1606\n",
+    "storage": {
+      "/workspace": {
+        "total": 33770192896,
+        "used": 31942627328,
+        "free": 92803072
+      },
+      "/tmp": {
+        "total": 9441349632,
+        "used": 7152545792,
+        "free": 2288803840
+      },
+      "/dev/shm": {
+        "total": 9441349632,
+        "used": 7115980800,
+        "free": 2325368832
+      }
+    },
+    "attribution": "Observed counters, not a killed-process sender or causal attribution"
+  },
+  "resources_after": {
+    "memory.current": "16279613440\n",
+    "memory.max": "17179869184\n",
+    "memory.events": "low 0\nhigh 0\nmax 469626\noom 15\noom_kill 11\noom_group_kill 0\n",
+    "memory.stat": "anon 67932160\nfile 14727274496\nkernel 1483603968\nkernel_stack 606208\npagetables 2334720\nsec_pagetables 0\npercpu 14336\nsock 0\nvmalloc 0\nshmem 14284816384\nfile_mapped 27160576\nfile_dirty 4067328\nfile_writeback 0\nswapcached 0\nanon_thp 0\nfile_thp 4194304\nshmem_thp 0\ninactive_anon 6532046848\nactive_anon 7820709888\ninactive_file 319934464\nactive_file 122478592\nunevictable 0\nslab_reclaimable 1002397432\nslab_unreclaimable 478245416\nslab 1480642848\nworkingset_refault_anon 0\nworkingset_refault_file 22659308\nworkingset_activate_anon 0\nworkingset_activate_file 4804721\nworkingset_restore_anon 0\nworkingset_restore_file 2579104\nworkingset_nodereclaim 0\npgdemote_kswapd 0\npgdemote_direct 0\npgdemote_khugepaged 0\npgdemote_proactive 0\npgscan 162960284\npgsteal 31594894\npswpin 0\npswpout 0\npgscan_kswapd 12485945\npgscan_direct 150474339\npgscan_khugepaged 0\npgscan_proactive 0\npgsteal_kswapd 12001954\npgsteal_direct 19592940\npgsteal_khugepaged 0\npgsteal_proactive 0\npgfault 868440933\npgmajfault 64976\npgrefill 18764098\npgactivate 18641816\npgdeactivate 17527189\npglazyfree 2301012\npglazyfreed 381\nswpin_zero 0\nswpout_zero 0\nthp_fault_alloc 4\nthp_collapse_alloc 0\nthp_swpout 0\nthp_swpout_fallback 0\n",
+    "pids.current": "1637\n",
+    "storage": {
+      "/workspace": {
+        "total": 33770192896,
+        "used": 32064720896,
+        "free": 0
+      },
+      "/tmp": {
+        "total": 9441349632,
+        "used": 7155462144,
+        "free": 2285887488
+      },
+      "/dev/shm": {
+        "total": 9441349632,
+        "used": 7115980800,
+        "free": 2325368832
+      }
+    },
+    "attribution": "Observed counters, not a killed-process sender or causal attribution"
+  },
+  "audit_errors": [],
+  "predicate_basis": "independently_reconciled",
+  "qualification": "This is exact current complete native data reconciliation, not source-code acceptance or finding closure. Setup ERROR bodies are unentered; literal environment diagnostics do not become new product assertion failures. All ten literal FAILs retained with full text. No inherited/flaky waiver or signal-sender/resource causal inference. Original20MB inventory/7MB journal remain cloud@hash; receiver transport not established here.",
+  "P41": "NOT_ESTABLISHED; full current inputs materially intersect source and no complete matching baseline/zero-intersection proof."
+}

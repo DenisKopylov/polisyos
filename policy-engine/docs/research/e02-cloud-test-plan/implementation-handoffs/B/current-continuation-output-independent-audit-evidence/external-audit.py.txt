@@ -1,0 +1,30 @@
+"""Read already terminal verify/parity records; never executes their argv."""
+import hashlib
+import json
+from pathlib import Path
+import sys
+
+SOURCE='6fa9b7142ba590c3173f1cd3be097286db5acc4d'
+TREE='f53c67ae337db3f2125bf851ce3ee318356bcd68'
+BASE=Path('/tmp/e02-B-continuation-external-'+SOURCE[:12])
+OUT=Path(sys.argv[1])
+sha=lambda b:hashlib.sha256(b).hexdigest()
+errors=[];rows=[]
+for name,total in [('verify',15),('parity',35)]:
+    refs=[];data={}
+    for file in ['receipt.json','profile-before-exec.json','stdout.txt']:
+        b=(BASE/name/file).read_bytes();data[file]=b
+        refs.append({'path':str(BASE/name/file),'bytes':len(b),'sha256':sha(b),'receiver_git_availability':'not_established'})
+    r=json.loads(data['receipt.json']);p=json.loads(data['profile-before-exec.json']);text=data['stdout.txt'].decode()
+    plan,end=json.JSONDecoder().raw_decode(text);tail=text[end:]
+    executed=[x.removeprefix('[uncapped constituent] ') for x in tail.splitlines() if x.startswith('[uncapped constituent] ')]
+    if r['sha']!=SOURCE or r['head_after']!=SOURCE or r['tree']!=TREE or plan['target_source_sha']!=SOURCE or plan['target_tree']!=TREE:errors.append(name+': source mismatch')
+    if sha(data['stdout.txt'])!=r['output_sha256'] or len(data['stdout.txt'])!=r['output_bytes']:errors.append(name+': stdout mismatch')
+    if plan['expanded_commands']!=total or len(plan['commands'])!=total or executed!=['doctor']:errors.append(name+': full plan/execution denominator mismatch')
+    if p['command']!=r['command'] or p['inputs']!=r['inputs'] or p['selected_environment']!=r['selected_environment']:errors.append(name+': preexec input mismatch')
+    if not all(r['numeric_caps_absent'].values()) or r['launcher_sha256']!='3fe86143a9b124b78d89fdafe42757d7f521680aea99de731e20ab2c5a6f82d9':errors.append(name+': source/caps mismatch')
+    rows.append({'gate':name,'outcome':'FAIL','source_sha':SOURCE,'source_tree':TREE,'command':r['command'],'cwd':r['cwd'],'artifact_refs':refs,'exit_code':r['exit_code'],'harness_state':r['harness_state'],'exec_setup_error':r['exec_setup_error'],'child_pid':r['child_pid'],'wall_s':r['wall_s'],'wait4_child_maxrss_kib':r['process_rusage_maxrss_kib'],'planned_expanded_commands':total,'executed_constituents':[{'index':0,'label':'doctor','outcome':'FAIL'}],'remaining_constituents_UNRUN':[{'index':c['index'],'label':c['label']} for c in plan['commands'][1:]],'literal_doctor_status_lines':[x for x in tail.splitlines() if x.startswith('[PASS]') or x.startswith('[FAIL]') or x.startswith('doctor failed')],'literal_schema_drift_lines':[x for x in tail.splitlines() if 'snapshot out of date:' in x],'pnpm_ENOSPC_literal_present':'ENOSPC: no space left on device' in tail,'runtime_openapi137_literal_present':'runtime-openapi' in tail and 'exit status 137' in tail,'actual_uncapped_profile':{'config_source_sha':plan['config_source_sha'],'factory_paths':plan['factory_paths'],'canonical_flags':plan['canonical_flags'],'environment_delta':plan['environment_delta'],'additional_argv_projection':plan['additional_argv_projection'],'qualification':'Qualified uncapped constituent projection, not native capped CLI PASS. Coverage projection remains planned only because doctor stops both suites.'},'selected_environment':r['selected_environment'],'inputs':r['inputs'],'harness_environment_deltas':r['harness_environment_deltas'],'resources_before':r['resources_before'],'resources_after':r['resources_after'],'P41':'NOT_ESTABLISHED: full selected/current input intersections; no exact matching baseline or inherited waiver.','qualification':'Actual doctor FAIL retained; all later suite constituents UNRUN. Parity also records schema snapshot drift and runtime OpenAPI137, not solely pnpm ENOSPC. Doctor frontend contract subcheck PASS is not a 35-command parity grade. Shared counters do not identify signal sender/cause.'})
+result={'schema':'policyos.e02.external_gate_output_audit.v1','source_sha':SOURCE,'source_tree':TREE,'gates':rows,'audit_errors':errors,'predicate_basis':'independently_reconciled','scope':'Read-only captured output/source/input audit. No gates, imports or native execution.'}
+OUT.write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps({'source':SOURCE,'tree':TREE,'gates':[{'name':r['gate'],'outcome':r['outcome'],'planned':r['planned_expanded_commands'],'executed':len(r['executed_constituents']),'UNRUN':len(r['remaining_constituents_UNRUN']),'doctor_status':r['literal_doctor_status_lines'],'schema_drift':r['literal_schema_drift_lines']} for r in rows],'audit_errors':errors,'output':str(OUT),'bytes':OUT.stat().st_size,'sha256':sha(OUT.read_bytes())},indent=2))
+sys.exit(1 if errors else 0)

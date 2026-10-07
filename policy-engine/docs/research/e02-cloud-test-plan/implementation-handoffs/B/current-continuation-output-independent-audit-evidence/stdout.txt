@@ -1,0 +1,88 @@
+{
+  "source": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+  "tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+  "gates": [
+    {
+      "name": "ruff",
+      "outcome": "FAIL",
+      "exit": 1,
+      "inputs": 286,
+      "complete": true,
+      "stdout": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-ruff.txt",
+        "bytes": 2915042,
+        "sha256": "ee7a72ea4f57a21f3b7cd5ac2c8b1fd34c5a2a08aaf5cd0b97a8c9384c2cf8ac",
+        "receiver_git_availability": "not_established"
+      }
+    },
+    {
+      "name": "format",
+      "outcome": "FAIL",
+      "exit": 1,
+      "inputs": 286,
+      "complete": true,
+      "stdout": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-format.txt",
+        "bytes": 13457,
+        "sha256": "9d0355f38487e3549a8ce015ed036beb90329edd328a02b20647dae519313b99",
+        "receiver_git_availability": "not_established"
+      }
+    },
+    {
+      "name": "mypy",
+      "outcome": "ERROR",
+      "exit": -9,
+      "inputs": 56,
+      "complete": false,
+      "stdout": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-mypy.txt",
+        "bytes": 6584,
+        "sha256": "7061fc1eb406b182ba5bcea18902ae2b1485f299141349a40ee756295a60ea10",
+        "receiver_git_availability": "not_established"
+      }
+    },
+    {
+      "name": "runtime-api",
+      "outcome": "ERROR",
+      "exit": 137,
+      "inputs": 0,
+      "complete": false,
+      "stdout": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-runtime-api.txt",
+        "bytes": 6755,
+        "sha256": "87db5f736256073906ba6c308d5f6d89a9b8192d096800935c4c9e6a29794013",
+        "receiver_git_availability": "not_established"
+      }
+    },
+    {
+      "name": "production-invocation",
+      "outcome": "ERROR",
+      "exit": -9,
+      "inputs": 0,
+      "complete": false,
+      "stdout": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-production-invocation.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "receiver_git_availability": "not_established"
+      }
+    },
+    {
+      "name": "architecture",
+      "outcome": "UNRUN",
+      "exit": 2,
+      "inputs": 0,
+      "complete": false,
+      "stdout": {
+        "path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/review/continuation-6fa9b7142ba5-architecture.txt",
+        "bytes": 136179,
+        "sha256": "a2b68b4ec11e89d3b6146b9e7c7194a2157625a097836ad33141a0ea42169b49",
+        "receiver_git_availability": "not_established"
+      }
+    }
+  ],
+  "audit_errors": [],
+  "output": "/tmp/e02-B-cas-output-audit-20261007/audit.json",
+  "bytes": 136332,
+  "sha256": "27e4a8e01835a85886ac1fabb547b93f6c4098bec9f12e7341b5f6c3aeac1075"
+}

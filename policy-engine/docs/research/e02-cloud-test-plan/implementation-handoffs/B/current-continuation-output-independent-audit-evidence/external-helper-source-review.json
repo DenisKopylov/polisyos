@@ -1,0 +1,25 @@
+{
+  "schema": "policyos.e02.foreign_capture_source_review.v1",
+  "source_sha": "6fa9b7142ba590c3173f1cd3be097286db5acc4d",
+  "source_tree": "f53c67ae337db3f2125bf851ce3ee318356bcd68",
+  "actual_helper_path": "/tmp/e02-B-continuation-external-6fa9b7142ba5/external-gates.py",
+  "helper_sha256": "3fe86143a9b124b78d89fdafe42757d7f521680aea99de731e20ab2c5a6f82d9",
+  "helper_bytes": 5441,
+  "predicate_basis": "independently_reconciled",
+  "verdict": "NONBLOCKING narrow capture/input caller",
+  "source_runtime_unrun_by_reviewer": true,
+  "reviewed_quantities": [
+    "Canonical exact seven installed-wheel inputs and private PG admission reused; private credentials not published.",
+    "Same actual 15 verify/backend-only and35 parity/skip-browser uncapped constituent runner argv/cwd; six numeric caps removed, no added quotas.",
+    "Exclusive new preserved /tmp deciding streams/receipt; prior files/source/worktrees untouched; no cleanup context.",
+    "Whitelisted child environment/cap absence plus explicit missing empty tools suffix and E02_REMOVE_PROTECTION=0 deltas recorded.",
+    "Pre-exec profile retained, real child PID/state and direct wait4 exact child status/maxRSS; OSError exec setup produces UNRUN127 typed receipt.",
+    "Source clean/attached admission before and exact HEAD after; ROOT held source immutable through execution."
+  ],
+  "qualifications": [
+    "Source review is not a gate execution or fixture/input-sufficiency proof. Canonical gate outputs/fixtures in source cwd may still fail ENOSPC.",
+    "Capture does not fsync/establish powerloss custody. Shared cgroup counters do not identify sender/cause.",
+    "Prior initial a546 source read identified missing env/preexec capture and two unrecorded harness env deltas; final3fe fixes those. Original initial helper bytes were not separately archived; historical read/prose only.",
+    "No finding closure/source mechanism/all-B acceptance; ROOT owns future repaired-source candidate."
+  ]
+}

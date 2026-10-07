@@ -1,0 +1,74 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_______ test_default_cycle_preserves_simulation_only_result_and_history ________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x13c94e520>
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-678/test_default_cycle_preserves_s0')
+
+    @pytest.mark.asyncio
+    async def test_default_cycle_preserves_simulation_only_result_and_history(
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+    ) -> None:
+        """Default N8 keeps real K-sim limitations and does not enter empirical intake."""
+    
+        from polisyos.core.security.tenant_context import tenant_scope
+>       from tests.unit.runtime.quality.test_generation_cycle import (
+            _owner_program_graph_n5_witness,
+            _problem,
+        )
+
+tests/unit/remediation/test_emp_01.py:601: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../../../../../.venv/lib/python3.14/site-packages/_pytest/assertion/rewrite.py:197: in exec_module
+    exec(co, module.__dict__)
+tests/unit/runtime/quality/test_generation_cycle.py:130: in <module>
+    from tools.quality.validation import (
+tools/quality/validation/check_layer3_gy_generation_cycle_contract.py:102: in <module>
+    from tools.lib.fs import (
+tools/lib/__init__.py:13: in <module>
+    from .imports import ensure_repo_import_roots, is_type_checking_test, repo_root_from
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <sitecustomize._CandidateOnlyFinder object at 0x1030fb0e0>
+fullname = 'tools.lib.imports'
+path = ['/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/candidate/policy-engine/tools/lib']
+
+    def find_spec(self, fullname, path=None, target=None):
+        del target
+        if fullname == "polisyos" or fullname.startswith("polisyos."):
+            root = SOURCE_ROOT
+        elif fullname == "benchmarks" or fullname.startswith("benchmarks."):
+            root = CANDIDATE
+        elif fullname == "tests" or fullname.startswith("tests."):
+            root = TESTS_ROOT
+        elif fullname == "_helpers" or fullname.startswith("_helpers."):
+            root = TEST_HELPERS_ROOT
+        elif fullname == "tools" or fullname.startswith("tools."):
+            root = PRODUCT_ROOT
+        else:
+            return None
+        if path is None:
+            search = [str(root)]
+        else:
+            search = [str(Path(item).resolve()) for item in path if _inside(Path(item), root)]
+            if not search:
+                raise ModuleNotFoundError(f"candidate-only import blocked {fullname}: {path}")
+        spec = importlib.machinery.PathFinder.find_spec(fullname, search)
+        if spec is None:
+>           raise ModuleNotFoundError(
+                f"module {fullname!r} absent from exact candidate export", name=fullname
+            )
+E           ModuleNotFoundError: module 'tools.lib.imports' absent from exact candidate export
+
+../../harness/sitecustomize.py:84: ModuleNotFoundError
+=============================== warnings summary ===============================
+../../../../../../../.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/remediation/test_emp_01.py::test_default_cycle_preserves_simulation_only_result_and_history
+1 failed, 1 warning in 24.08s

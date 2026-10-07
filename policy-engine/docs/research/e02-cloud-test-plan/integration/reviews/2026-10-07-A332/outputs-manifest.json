@@ -1,0 +1,313 @@
+{
+  "schema": "policyos.e02.g.output_alias_manifest.v1",
+  "candidate": "332ba0b91e9a85774d48d101d4af86e3a3baf911",
+  "files": [
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/core_voi_projection/junit.xml",
+      "path": "outputs/core_voi_projection/junit.xml",
+      "sha256": "0049cf0dfa59a284472e7f4b6bd0bc40be445e2a67e69899492c419223637b8d",
+      "bytes": 11813
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/core_voi_projection/receipt.json",
+      "path": "outputs/core_voi_projection/receipt.json",
+      "sha256": "d80b51e00770938b38a0d68837be6382913f25b36c4cfac1e0e03add5088f6cc",
+      "bytes": 8478
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/core_voi_projection/stderr.txt",
+      "path": "outputs/core_voi_projection/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/core_voi_projection/stdout.txt",
+      "path": "outputs/core_voi_projection/stdout.txt",
+      "sha256": "cc44081e06cfe54699ca6ac5cc43c5c9250a739ab9351128a99cadd352099a80",
+      "bytes": 63286
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/core_voi_projection-attempt2-closure-harness-error/junit.xml",
+      "path": "outputs/core_voi_projection-attempt2-closure-harness-error/junit.xml",
+      "sha256": "18b4384aca1155d56210e1a0e4e07f0b572c56dc5e283dfeda82aeebb330f8dd",
+      "bytes": 5126
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/core_voi_projection-attempt2-closure-harness-error/stderr.txt",
+      "path": "outputs/core_voi_projection-attempt2-closure-harness-error/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/core_voi_projection-attempt2-closure-harness-error/stdout.txt",
+      "path": "outputs/core_voi_projection-attempt2-closure-harness-error/stdout.txt",
+      "sha256": "204db00f1c7eea925dad2778e730f93f51bff9307af3aa4ef440a2fa98afaac0",
+      "bytes": 5407
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/core_voi_projection-attempt3-tool-import-harness-error/junit.xml",
+      "path": "outputs/core_voi_projection-attempt3-tool-import-harness-error/junit.xml",
+      "sha256": "a919f9ea042ddb136406d42701b43f425af1c3ba78ed2a7e2ce4a07900b0dd01",
+      "bytes": 6060
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/core_voi_projection-attempt3-tool-import-harness-error/stderr.txt",
+      "path": "outputs/core_voi_projection-attempt3-tool-import-harness-error/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/core_voi_projection-attempt3-tool-import-harness-error/stdout.txt",
+      "path": "outputs/core_voi_projection-attempt3-tool-import-harness-error/stdout.txt",
+      "sha256": "781b9be70207f90d032dd8bb53f741d1a9e4c6ff75634ea17593967e0308fb3d",
+      "bytes": 6388
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/core_voi_projection-attempt4-incomplete-tools-harness-error/junit.xml",
+      "path": "outputs/core_voi_projection-attempt4-incomplete-tools-harness-error/junit.xml",
+      "sha256": "6e51d3f21ff8b21078240e64285072cb280a0dda8a267be6ed3bbf1afd1d0599",
+      "bytes": 6071
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/core_voi_projection-attempt4-incomplete-tools-harness-error/stderr.txt",
+      "path": "outputs/core_voi_projection-attempt4-incomplete-tools-harness-error/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/core_voi_projection-attempt4-incomplete-tools-harness-error/stdout.txt",
+      "path": "outputs/core_voi_projection-attempt4-incomplete-tools-harness-error/stdout.txt",
+      "sha256": "35917fbc5900d369c9a509e3eaaa8a460203cf89397a1ea46bd5731a4353b527",
+      "bytes": 6400
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/core_voi_projection-repair1-registry/junit.xml",
+      "path": "outputs/core_voi_projection-repair1-registry/junit.xml",
+      "sha256": "835944f0b3cde75c6c91ed385dccb50a04233aa21ec0dc0a0ff45e2a4ad6ad31",
+      "bytes": 519
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/core_voi_projection-repair1-registry/receipt.json",
+      "path": "outputs/core_voi_projection-repair1-registry/receipt.json",
+      "sha256": "311a8a2b9d0c35cc98e178ac32ee997acd75ca7d855b8461c87bfde3f77c5f22",
+      "bytes": 8323
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/core_voi_projection-repair1-registry/stderr.txt",
+      "path": "outputs/core_voi_projection-repair1-registry/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/core_voi_projection-repair1-registry/stdout.txt",
+      "path": "outputs/core_voi_projection-repair1-registry/stdout.txt",
+      "sha256": "5844b9a47a4a2b963c82bd7df9c79624ae25ae25d9851a761082ff687437b96a",
+      "bytes": 628
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/core_voi_projection-repair1-source-supplement.json",
+      "path": "outputs/core_voi_projection-repair1-source-supplement.json",
+      "sha256": "27ae91a8468b6df7a34672ab4d7b676ac53be3df315fc66139e14845c77f7d58",
+      "bytes": 2196
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/default_cycle_simulation_history/junit.xml",
+      "path": "outputs/default_cycle_simulation_history/junit.xml",
+      "sha256": "535cd4306327da7c69d8888c8eb073e1fa2c9106691f607b4628e70341b1d6c8",
+      "bytes": 7216
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/default_cycle_simulation_history/receipt.json",
+      "path": "outputs/default_cycle_simulation_history/receipt.json",
+      "sha256": "a1c0e764fe55b348dbc81b94525aa2cdf6f4eafd09416896c6f8796071c04cf5",
+      "bytes": 7950
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/default_cycle_simulation_history/stderr.txt",
+      "path": "outputs/default_cycle_simulation_history/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/default_cycle_simulation_history/stdout.txt",
+      "path": "outputs/default_cycle_simulation_history/stdout.txt",
+      "sha256": "48eec8771177dabef626cbc1efcced2d77b9f8191c2da1d1abc34601b7e6fa3e",
+      "bytes": 9077
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/default_cycle_simulation_history-attempt2-closure-harness-error/junit.xml",
+      "path": "outputs/default_cycle_simulation_history-attempt2-closure-harness-error/junit.xml",
+      "sha256": "ee0855f16b9a9f4c9877f633a71c7a8e13bc166b6dbdb433f9a18a2593dc9591",
+      "bytes": 6805
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/default_cycle_simulation_history-attempt2-closure-harness-error/stderr.txt",
+      "path": "outputs/default_cycle_simulation_history-attempt2-closure-harness-error/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/default_cycle_simulation_history-attempt2-closure-harness-error/stdout.txt",
+      "path": "outputs/default_cycle_simulation_history-attempt2-closure-harness-error/stdout.txt",
+      "sha256": "f6a0b42c6341421abbeae8c4bc09c15c83a89bee40408eff99b49183fca11f56",
+      "bytes": 7202
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/default_cycle_simulation_history-attempt3-tool-import-harness-error/junit.xml",
+      "path": "outputs/default_cycle_simulation_history-attempt3-tool-import-harness-error/junit.xml",
+      "sha256": "057ac026b739983e6cb37dad870dba4a3b54d7332e29e6121a6cec110e90befb",
+      "bytes": 3660
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/default_cycle_simulation_history-attempt3-tool-import-harness-error/stderr.txt",
+      "path": "outputs/default_cycle_simulation_history-attempt3-tool-import-harness-error/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/default_cycle_simulation_history-attempt3-tool-import-harness-error/stdout.txt",
+      "path": "outputs/default_cycle_simulation_history-attempt3-tool-import-harness-error/stdout.txt",
+      "sha256": "2cabb2797a83ebcd48fcf5f244e9628991394a2912d712e36bfb4a640eb2f685",
+      "bytes": 3995
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/default_cycle_simulation_history-attempt4-incomplete-tools-harness-error/junit.xml",
+      "path": "outputs/default_cycle_simulation_history-attempt4-incomplete-tools-harness-error/junit.xml",
+      "sha256": "2a8f16ab0286448a774e737b517f507ff6559bb259c3dd200a7cd07a99a9d3b0",
+      "bytes": 3671
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/default_cycle_simulation_history-attempt4-incomplete-tools-harness-error/stderr.txt",
+      "path": "outputs/default_cycle_simulation_history-attempt4-incomplete-tools-harness-error/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/default_cycle_simulation_history-attempt4-incomplete-tools-harness-error/stdout.txt",
+      "path": "outputs/default_cycle_simulation_history-attempt4-incomplete-tools-harness-error/stdout.txt",
+      "sha256": "9efe9c084b2913a505d3d8ddcf9633b555311b9d0ec8e9c18b3cdeace0ef8990",
+      "bytes": 4007
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/direct_sparse_owner_profile/junit.xml",
+      "path": "outputs/direct_sparse_owner_profile/junit.xml",
+      "sha256": "07e2a172e013aa5160b912e3b2734b74e7673d776910f4b5a8c3ae10f38429fe",
+      "bytes": 941
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/direct_sparse_owner_profile/receipt.json",
+      "path": "outputs/direct_sparse_owner_profile/receipt.json",
+      "sha256": "a40cb7234f755de1091c07139fb4c95351f3dea006244ab400ddcaecba28f4f3",
+      "bytes": 6495
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/direct_sparse_owner_profile/stderr.txt",
+      "path": "outputs/direct_sparse_owner_profile/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/direct_sparse_owner_profile/stdout.txt",
+      "path": "outputs/direct_sparse_owner_profile/stdout.txt",
+      "sha256": "bd7f42fca9ccd379662d86c050b588e777b9b54bd65c190ceb4d24d343955e9e",
+      "bytes": 628
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/direct_sparse_owner_profile-attempt1-unpinned-harness-error/junit.xml",
+      "path": "outputs/direct_sparse_owner_profile-attempt1-unpinned-harness-error/junit.xml",
+      "sha256": "77f7928f99f547af29d2e4937038989adfc3b852a41c816948905a1aba69d812",
+      "bytes": 941
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/direct_sparse_owner_profile-attempt1-unpinned-harness-error/stderr.txt",
+      "path": "outputs/direct_sparse_owner_profile-attempt1-unpinned-harness-error/stderr.txt",
+      "sha256": "3153a9f3f6457a3a1f2fc57483e427f1930bbdfcb3eb53265bba0854e1b450d3",
+      "bytes": 258
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/direct_sparse_owner_profile-attempt1-unpinned-harness-error/stdout.txt",
+      "path": "outputs/direct_sparse_owner_profile-attempt1-unpinned-harness-error/stdout.txt",
+      "sha256": "8cee21c2174514568f9e2811768099a5c47f9e5c4ef70061e196a4c6d4dd8ae3",
+      "bytes": 628
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/direct_sparse_owner_profile-attempt2-closure-harness-error/junit.xml",
+      "path": "outputs/direct_sparse_owner_profile-attempt2-closure-harness-error/junit.xml",
+      "sha256": "bc5013c22c41ff34b486b9eb99b83a41f21d0ff0bbb4045d6975c21ceaa291fd",
+      "bytes": 20066
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/direct_sparse_owner_profile-attempt2-closure-harness-error/stderr.txt",
+      "path": "outputs/direct_sparse_owner_profile-attempt2-closure-harness-error/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/direct_sparse_owner_profile-attempt2-closure-harness-error/stdout.txt",
+      "path": "outputs/direct_sparse_owner_profile-attempt2-closure-harness-error/stdout.txt",
+      "sha256": "74babb262316c96685b5de48a2d15373d87d3724feabcfe099f13b4147d0e017",
+      "bytes": 20197
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/direct_sparse_owner_profile-attempt3-tool-import-harness-error/junit.xml",
+      "path": "outputs/direct_sparse_owner_profile-attempt3-tool-import-harness-error/junit.xml",
+      "sha256": "5356a41db9c198e45053a39a95ed666bd7e4ff281770cab56bfe7849bf74e5e8",
+      "bytes": 10677
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/direct_sparse_owner_profile-attempt3-tool-import-harness-error/stderr.txt",
+      "path": "outputs/direct_sparse_owner_profile-attempt3-tool-import-harness-error/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/direct_sparse_owner_profile-attempt3-tool-import-harness-error/stdout.txt",
+      "path": "outputs/direct_sparse_owner_profile-attempt3-tool-import-harness-error/stdout.txt",
+      "sha256": "1ba12e72df294b219f46dac5d36a78ce0aef05f9907ef9ce0bb06cf3a1506acf",
+      "bytes": 10622
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/direct_sparse_owner_profile-attempt4-incomplete-tools-harness-error/junit.xml",
+      "path": "outputs/direct_sparse_owner_profile-attempt4-incomplete-tools-harness-error/junit.xml",
+      "sha256": "26780f48323f6dae8a17de7d583b99696ed7b03a5641be6e4af1ecb0b96745cb",
+      "bytes": 10710
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/direct_sparse_owner_profile-attempt4-incomplete-tools-harness-error/stderr.txt",
+      "path": "outputs/direct_sparse_owner_profile-attempt4-incomplete-tools-harness-error/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/direct_sparse_owner_profile-attempt4-incomplete-tools-harness-error/stdout.txt",
+      "path": "outputs/direct_sparse_owner_profile-attempt4-incomplete-tools-harness-error/stdout.txt",
+      "sha256": "c7e5123509480068955425b31eae33aff52dcb7bf871ac8dc41a62758a17be32",
+      "bytes": 10658
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/import-only-collection/receipt-verified.json",
+      "path": "outputs/import-only-collection/receipt-verified.json",
+      "sha256": "e497eddaa586556e866a9046760dd42ba507fae49d1dc6239a0ab562ce9914a9",
+      "bytes": 3686
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/import-only-collection/receipt.json",
+      "path": "outputs/import-only-collection/receipt.json",
+      "sha256": "38139b35f22915c5631b4658c88f560e9c70cdf77e611ee6f1572a10f1e7d0f1",
+      "bytes": 4759
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/import-only-collection/stderr.txt",
+      "path": "outputs/import-only-collection/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "source_path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/import-only-collection/stdout.txt",
+      "path": "outputs/import-only-collection/stdout.txt",
+      "sha256": "7e27f2a00238eeea2ed07ea61fd0079436f0db864f0018ddcc3b0dfbe8ad630b",
+      "bytes": 1514
+    }
+  ],
+  "large_origin_maps_and_source_manifests": "Retained in ignored local native-A evidence at path@sha in native-receipt.json; not Git copies of tracked source."
+}

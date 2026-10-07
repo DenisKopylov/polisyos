@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="21.487" timestamp="2026-10-07T23:05:43.982133+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="_build.e02-g-continuation-20261006.R.A-332-20261007.native-A.candidate.policy-engine.tests.integration.core_runtime.test_e02_voi_artifact_projection" name="test_informative_voi_candidate_core_readback_and_preview_refusal" time="21.433"><failure message="ValueError: claim_dependency_registry_missing">tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-685/test_informative_voi_candidate0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x109b81220&gt;
+
+    @pytest.mark.asyncio
+    async def test_informative_voi_candidate_core_readback_and_preview_refusal(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        """Read back actual B11 values, then assert the unowned preview is refused.
+    
+        The B11 N6 producer run is real. This fixture manually dispatches a Core
+        control-job lease callback to persist that run through the canonical
+        compiled-recursive artifact writer; it does not claim an ordinary NL
+        request invokes this B11 generator. The recursive wrapper is explicitly
+        contract-testing scoped, and the generic content route's refusal is the
+        expected boundary until an artifact owner supplies preview authority.
+        """
+    
+        pytest.importorskip("fastapi.testclient")
+        from fastapi.testclient import TestClient
+    
+        from polisyos.core import canon
+        from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
+        from polisyos.core.security.tenant_context import tenant_scope
+        from polisyos.data_forge.read_api import catalog as catalog_api
+        from polisyos.pdc import gy_content_hash
+        from polisyos.runtime.http import dev_identity_middleware
+        from polisyos.runtime.http.app import create_runtime_api_app
+        from polisyos.runtime.http.container import RuntimeContainerOverrides
+        from polisyos.runtime.http.dependencies import build_runtime_api_context
+        from polisyos.runtime.http.security import build_fixture_identity_claims
+        from polisyos.runtime.http.services.control.generation_cycle import (
+            COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,
+            CompiledRecursiveGenerationCycleRun,
+        )
+        from polisyos.runtime.quality import substrate_registry
+        from polisyos.runtime.quality.design_axes.coupling_composition import (
+            derive_recursive_design_graph,
+        )
+        from polisyos.runtime.quality.generation_cycle import JointSimulationPort
+        from polisyos.runtime.quality.recursive_generation_cycle import (
+            RecursiveCycleBudget,
+            RecursiveGenerationCycleController,
+            RecursiveGenerationCycleRun,
+        )
+        from polisyos.scientist.methods.search.voi_scheduler import SimpleVOIScheduler
+        from tests._helpers.control_worker import dispatch_one_control_job
+        from tests.integration.core_runtime.test_e02_hard_feasibility_before_voi import (
+            _owner_fixture,
+        )
+        from tests.integration.core_runtime.test_e02_informative_voi_execution import (
+            _bounded_budget,
+            _controller,
+        )
+        from tests.unit.runtime.http.test_control_job_execution_intent import (
+            _valid_intake_for_mode,
+        )
+    
+        @contextmanager
+        def owner_scoped_test_client(app: Any) -&gt; Iterator[Any]:
+            """Keep the producer's existing CAS owner active through app lifespan."""
+    
+            with (
+                tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"),
+                TestClient(app) as client,
+            ):
+                yield client
+    
+        monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
+        monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
+        monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+        monkeypatch.setenv(
+            "POLISYOS_CONTROL_SQLITE_PATH", (tmp_path / "control.sqlite3").as_posix()
+        )
+        monkeypatch.setenv("POLISYOS_CACHE_HOME", (tmp_path / "runtime-cache").as_posix())
+    
+        catalog_root = tmp_path / "voi-preview-catalog"
+        catalog_api.build_slice0_fixture_catalog_graph(catalog_root).close()
+        curated_root = tmp_path / "voi-preview-curated"
+        curated_root.mkdir()
+        monkeypatch.setenv("POLISYOS_CURATED_DIR", curated_root.as_posix())
+        monkeypatch.setattr(
+            catalog_api,
+            "default_acquisition_overlay_path",
+            lambda _root: tmp_path / "absent-acquisition-overlay.duckdb",
+        )
+        default_catalog_paths = substrate_registry.default_substrate_catalog_paths
+        repo_root = Path(__file__).resolve().parents[3]
+        monkeypatch.setattr(
+            substrate_registry,
+            "default_substrate_catalog_paths",
+            lambda root: (
+                replace(
+                    default_catalog_paths(root),
+                    l1_dcat_path=catalog_root / "catalog.duckdb",
+                )
+                if Path(root).resolve() == repo_root
+                else default_catalog_paths(root)
+            ),
+        )
+    
+        producer_root = tmp_path / "b11-producer"
+        producer_store, problem, substrate_context, _high, candidate = _owner_fixture(
+            producer_root
+        )
+        cas_root = producer_root / "runtime-cas"
+        problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+        root_node_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
+        graph = derive_recursive_design_graph(
+            design_ref=root_node_ref,
+            module_refs=(),
+            parent_child_edges=(),
+            rule_version_ref="repo://rules/e02-voi-artifact-preview-contract-test",
+        )
+        cycle_controllers: dict[str, Any] = {}
+    
+        def build_cycle_controller(node_ref: str, _problem: object) -&gt; Any:
+            controller = _controller(
+                store=producer_store,
+                problem=problem,
+                context=substrate_context,
+                candidate=candidate,
+                repo_root=repo_root,
+            )
+            cycle_controllers[node_ref] = controller
+            return controller
+    
+        recursive_controller = RecursiveGenerationCycleController.for_contract_testing(
+            cycle_controller_factory=build_cycle_controller,
+            repo_root=repo_root,
+            artifact_store=producer_store,
+        )
+        n5_calls: list[str] = []
+        original_n5_call = JointSimulationPort.__call__
+    
+        def observe_real_n5_call(self: JointSimulationPort, **kwargs: Any) -&gt; Any:
+            n5_calls.append(str(kwargs["candidate"].candidate_id))
+            return original_n5_call(self, **kwargs)
+    
+        monkeypatch.setattr(JointSimulationPort, "__call__", observe_real_n5_call)
+        try:
+            with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+                recursive_run = await recursive_controller.run(
+                    graph,
+                    problems_by_node={root_node_ref: problem},
+                    budget_state=_bounded_budget("1.0"),
+                    recursive_budget=RecursiveCycleBudget(
+                        max_depth=0,
+                        max_nodes=1,
+                        min_cycles_per_leaf=1,
+                        max_cycles_per_leaf=1,
+                    ),
+                    cycle_substrate_contexts_by_node={root_node_ref: substrate_context},
+                    execution_intents_by_node={root_node_ref: "candidate_only"},
+                )
+    
+            assert isinstance(recursive_run, RecursiveGenerationCycleRun)
+            assert recursive_run.authority_scope == "contract_testing"
+            leaf = recursive_run.leaf_nodes[0]
+            assert leaf.cycle_run is not None
+            n6_run = leaf.cycle_run
+            summary = next(
+                row
+                for row in n6_run.candidate_summaries
+                if row.candidate_id == candidate.candidate_id
+            )
+            cycle = n6_run.cycles[0]
+            assert type(cycle_controllers[root_node_ref]._voi_scheduler) is SimpleVOIScheduler
+            assert cycle.voi_decision.scheduler_action == "advance"
+            assert cycle.voi_decision.scheduler_reason == "advance_by_information_value"
+            assert cycle.simulation.status == "joint_simulated"
+            assert cycle.value_port.status == "value_conditional"
+            assert summary.proxy_score == 0.0
+            assert summary.voi_estimate == 0.4
+            assert not summary.certified_by_n9
+            assert n5_calls == [candidate.candidate_id]
+    
+            compiled_payload = {
+                "schema_version": COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,
+                "design_problem_ref": problem_ref,
+                "design_problem": problem.model_dump(mode="json"),
+                "cycle_substrate_context_ref": None,
+                "recursive_run": recursive_run.model_dump(
+                    mode="json", exclude={"leaf_nodes"}
+                ),
+            }
+            compiled = CompiledRecursiveGenerationCycleRun.model_validate(
+                {**compiled_payload, "content_hash": gy_content_hash(compiled_payload)}
+            )
+    
+            first_context = build_runtime_api_context(
+                cas_root=cas_root,
+                core_runs_root=cas_root / "runs",
+            )
+            # RuntimeServiceContainer owns a shared verifier-provenance artifact
+            # whose bytes were first written by the B11 producer under this tenant.
+            # Keep that existing owner active while the app container reuses CAS.
+            with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+&gt;               first_app = create_runtime_api_app(
+                    cas_root=cas_root,
+                    container_overrides=RuntimeContainerOverrides(
+                        runtime_api_context=first_context
+                    ),
+                    allow_fixture_identity=True,
+                )
+
+tests/integration/core_runtime/test_e02_voi_artifact_projection.py:214: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/polisyos/runtime/http/app.py:220: in create_runtime_api_app
+    runtime_container = RuntimeServiceContainer.build(
+src/polisyos/runtime/http/container.py:257: in build
+    or build_epoch_claim_lifecycle_bridge(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def build_epoch_claim_lifecycle_bridge(
+        *,
+        completed_batches: EpochValidityCompletedBatchEvidenceResolver,
+        claim_owner: ClaimLedgerOwnerPort,
+        artifacts: ArtifactStore,
+    ) -&gt; EpochClaimLifecycleBridgeService:
+        """Build the single same-store DV-to-Claim production composition."""
+    
+        if getattr(claim_owner, "store", None) is not artifacts:
+            raise ValueError("claim_ledger_owner_store_mismatch")
+        registry_path = (
+            Path(__file__).resolve().parents[5]
+            / "architecture/policy_design_case/layer3_gy_claim_dependency_field_registry.json"
+        )
+        if not registry_path.is_file():
+&gt;           raise ValueError("claim_dependency_registry_missing")
+E           ValueError: claim_dependency_registry_missing
+
+src/polisyos/scientist/governance/continuous/lifecycle_bridge.py:305: ValueError</failure></testcase></testsuite></testsuites>

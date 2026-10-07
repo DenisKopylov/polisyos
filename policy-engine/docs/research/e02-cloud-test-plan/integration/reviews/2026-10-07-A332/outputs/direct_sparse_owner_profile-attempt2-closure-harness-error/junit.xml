@@ -1,0 +1,475 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="3" skipped="0" tests="3" time="24.009" timestamp="2026-10-07T22:55:30.513560+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="_build.e02-g-continuation-20261006.R.A-332-20261007.native-A.candidate.policy-engine.tests.unit.remediation.test_emp_01" name="test_direct_foundry_value_port_refuses_sparse_owner_profile[1]" time="0.558"><failure message="ModuleNotFoundError: No module named 'tools'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x139792520&gt;
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-674/test_direct_foundry_value_port0')
+row_count = 1
+
+    @pytest.mark.parametrize("row_count", [1, 2, 3])
+    def test_direct_foundry_value_port_refuses_sparse_owner_profile(
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+        row_count: int,
+    ) -&gt; None:
+        """A direct simulate-only FoundryValuePort call preserves the real owner refusal."""
+    
+        from polisyos.core.security.tenant_context import tenant_scope
+&gt;       from tests.unit.runtime.quality.test_generation_cycle import (
+            _owner_program_graph_n5_witness,
+            _problem,
+        )
+
+tests/unit/remediation/test_emp_01.py:733: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../../../../../.venv/lib/python3.14/site-packages/_pytest/assertion/rewrite.py:197: in exec_module
+    exec(co, module.__dict__)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    from __future__ import annotations
+    
+    import copy
+    import hashlib
+    import json
+    import os
+    import subprocess
+    import sys
+    from dataclasses import dataclass
+    from datetime import UTC, datetime
+    from decimal import Decimal
+    from functools import cache
+    from pathlib import Path
+    from types import SimpleNamespace
+    from typing import Any, get_args
+    from uuid import uuid4
+    
+    import pytest
+    
+    import polisyos.runtime.quality.generation_cycle as generation_cycle_module
+    import polisyos.runtime.quality.promotion_sequence as promotion_sequence_module
+    from polisyos.core import canon
+    from polisyos.core import contracts as core_contracts
+    from polisyos.core.artifacts import ArtifactWriteOptions, FileSystemCAS
+    from polisyos.core.contracts.value_outer_set import DataTrust, ValueOuterSet
+    from polisyos.data_requirement import (
+        DataQualityMinimums,
+        DataRequirementScope,
+        DataRequirementSpec,
+    )
+    from polisyos.data_requirement.compiler import compile_data_requirements_for_scenario
+    from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.quality import confidence_ledger as confidence_ledger_module
+    from polisyos.runtime.quality import cycle_substrate as cycle_substrate_module
+    from polisyos.runtime.quality import epoch_validity_cascade as epoch_cascade_module
+    from polisyos.runtime.quality.acquisition_planner import (
+        AcquisitionCaptureProvenance,
+        AcquisitionOwnerArtifact,
+        AcquisitionWorldSnapshot,
+        RecordedAcquisitionOwnerGateway,
+        l1_variable_availability_requirement_gap,
+        value_input_world_knowledge_requirement_gap,
+    )
+    from polisyos.runtime.quality.confidence_ledger import (
+        LoadedDeploymentIdentityObservation,
+    )
+    from polisyos.runtime.quality.cycle_substrate import (
+        CandidateLeverEvidence,
+        CycleSubstrateContext,
+        build_cycle_substrate_context,
+        cycle_substrate_context_binding_hash,
+        resolve_cycle_substrate_world_identity,
+    )
+    from polisyos.runtime.quality.data_state_substrate import L1VariableAvailability
+    from polisyos.runtime.quality.design_problem import (
+        AuthorityProfile,
+        CandidateLever,
+        CandidateLeverSpace,
+        DesignConstraint,
+        DesignObjective,
+        DesignProblem,
+        DesignStakeholder,
+        EvidenceAcquisitionNeeds,
+        EvidenceNeed,
+        JurisdictionTimeSemantics,
+        NLProvenance,
+        OutcomeOfInterest,
+    )
+    from polisyos.runtime.quality.generation_cycle import (
+        AcquisitionOverlayReentryReceipt,
+        CandidateGroundingObservation,
+        CandidateSummary,
+        GenerationCycleController,
+        GenerationCycleError,
+        GenerationCycleRun,
+        JointSimulationPort,
+        N4GenerationPort,
+        PendingN8ValuePort,
+        PolicyGroundingPort,
+        PromotionPortObservation,
+        RealValueOwnerGateway,
+        SimulationPortObservation,
+        StrangleReceipt,
+        ValueCalibrationReceipt,
+        ValueGateReceipt,
+        ValuePortObservation,
+        ValueTransportReceipt,
+        _apply_promotion_to_summaries,
+        _build_boundary_world_model_record,
+        _derive_fronts,
+        _disposition_candidates,
+        _grounding_disposition_denominator,
+        _joint_simulation_port_outcome,
+        _summary_with_value_observation,
+        enforce_no_retry_without_new_grammar,
+        generation_cycle_terminal_state,
+        validate_generation_cycle_candidate_run,
+        validate_generation_cycle_run,
+        validate_generation_cycle_run_history,
+    )
+    from polisyos.runtime.quality.grounding_disposition_vocab import (
+        GroundingDispositionKind,
+    )
+    from polisyos.runtime.quality.intervention_atom_binding import InterventionAtomBinding
+    from polisyos.runtime.quality.intervention_substrate import InterventionLeverRefusal
+    from polisyos.runtime.quality.open_world_risk import (
+        OpenWorldRiskVectorArtifactRepository,
+        PromotionRuntime,
+        VerifiedOpenWorldRiskVector,
+    )
+    from polisyos.runtime.quality.promotion_sequence import (
+        CanonicalN9PromotionPort,
+        CanonicalPromotionReceipt,
+        validate_canonical_promotion_receipt,
+    )
+    from polisyos.runtime.quality.substrate_registry import (
+        SubstrateCoverage,
+        SubstrateLayer,
+        SubstrateRegistration,
+        SubstrateRegistry,
+        SubstrateSchemaRegime,
+        SubstrateTrustTier,
+        build_substrate_registry,
+        build_substrate_registry_entry,
+        default_substrate_catalog_paths,
+    )
+    from polisyos.runtime.quality.world_model_record import WorldModelRecordError
+    from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+    from polisyos.scientist.validation.decision_validity import DecisionValidityService
+&gt;   from tools.quality.validation import (
+        check_layer3_gy_generation_cycle_contract as contract,
+    )
+E   ModuleNotFoundError: No module named 'tools'
+
+tests/unit/runtime/quality/test_generation_cycle.py:130: ModuleNotFoundError</failure></testcase><testcase classname="_build.e02-g-continuation-20261006.R.A-332-20261007.native-A.candidate.policy-engine.tests.unit.remediation.test_emp_01" name="test_direct_foundry_value_port_refuses_sparse_owner_profile[2]" time="0.277"><failure message="ModuleNotFoundError: No module named 'tools'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x13a83a2c0&gt;
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-674/test_direct_foundry_value_port1')
+row_count = 2
+
+    @pytest.mark.parametrize("row_count", [1, 2, 3])
+    def test_direct_foundry_value_port_refuses_sparse_owner_profile(
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+        row_count: int,
+    ) -&gt; None:
+        """A direct simulate-only FoundryValuePort call preserves the real owner refusal."""
+    
+        from polisyos.core.security.tenant_context import tenant_scope
+&gt;       from tests.unit.runtime.quality.test_generation_cycle import (
+            _owner_program_graph_n5_witness,
+            _problem,
+        )
+
+tests/unit/remediation/test_emp_01.py:733: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../../../../../.venv/lib/python3.14/site-packages/_pytest/assertion/rewrite.py:197: in exec_module
+    exec(co, module.__dict__)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    from __future__ import annotations
+    
+    import copy
+    import hashlib
+    import json
+    import os
+    import subprocess
+    import sys
+    from dataclasses import dataclass
+    from datetime import UTC, datetime
+    from decimal import Decimal
+    from functools import cache
+    from pathlib import Path
+    from types import SimpleNamespace
+    from typing import Any, get_args
+    from uuid import uuid4
+    
+    import pytest
+    
+    import polisyos.runtime.quality.generation_cycle as generation_cycle_module
+    import polisyos.runtime.quality.promotion_sequence as promotion_sequence_module
+    from polisyos.core import canon
+    from polisyos.core import contracts as core_contracts
+    from polisyos.core.artifacts import ArtifactWriteOptions, FileSystemCAS
+    from polisyos.core.contracts.value_outer_set import DataTrust, ValueOuterSet
+    from polisyos.data_requirement import (
+        DataQualityMinimums,
+        DataRequirementScope,
+        DataRequirementSpec,
+    )
+    from polisyos.data_requirement.compiler import compile_data_requirements_for_scenario
+    from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.quality import confidence_ledger as confidence_ledger_module
+    from polisyos.runtime.quality import cycle_substrate as cycle_substrate_module
+    from polisyos.runtime.quality import epoch_validity_cascade as epoch_cascade_module
+    from polisyos.runtime.quality.acquisition_planner import (
+        AcquisitionCaptureProvenance,
+        AcquisitionOwnerArtifact,
+        AcquisitionWorldSnapshot,
+        RecordedAcquisitionOwnerGateway,
+        l1_variable_availability_requirement_gap,
+        value_input_world_knowledge_requirement_gap,
+    )
+    from polisyos.runtime.quality.confidence_ledger import (
+        LoadedDeploymentIdentityObservation,
+    )
+    from polisyos.runtime.quality.cycle_substrate import (
+        CandidateLeverEvidence,
+        CycleSubstrateContext,
+        build_cycle_substrate_context,
+        cycle_substrate_context_binding_hash,
+        resolve_cycle_substrate_world_identity,
+    )
+    from polisyos.runtime.quality.data_state_substrate import L1VariableAvailability
+    from polisyos.runtime.quality.design_problem import (
+        AuthorityProfile,
+        CandidateLever,
+        CandidateLeverSpace,
+        DesignConstraint,
+        DesignObjective,
+        DesignProblem,
+        DesignStakeholder,
+        EvidenceAcquisitionNeeds,
+        EvidenceNeed,
+        JurisdictionTimeSemantics,
+        NLProvenance,
+        OutcomeOfInterest,
+    )
+    from polisyos.runtime.quality.generation_cycle import (
+        AcquisitionOverlayReentryReceipt,
+        CandidateGroundingObservation,
+        CandidateSummary,
+        GenerationCycleController,
+        GenerationCycleError,
+        GenerationCycleRun,
+        JointSimulationPort,
+        N4GenerationPort,
+        PendingN8ValuePort,
+        PolicyGroundingPort,
+        PromotionPortObservation,
+        RealValueOwnerGateway,
+        SimulationPortObservation,
+        StrangleReceipt,
+        ValueCalibrationReceipt,
+        ValueGateReceipt,
+        ValuePortObservation,
+        ValueTransportReceipt,
+        _apply_promotion_to_summaries,
+        _build_boundary_world_model_record,
+        _derive_fronts,
+        _disposition_candidates,
+        _grounding_disposition_denominator,
+        _joint_simulation_port_outcome,
+        _summary_with_value_observation,
+        enforce_no_retry_without_new_grammar,
+        generation_cycle_terminal_state,
+        validate_generation_cycle_candidate_run,
+        validate_generation_cycle_run,
+        validate_generation_cycle_run_history,
+    )
+    from polisyos.runtime.quality.grounding_disposition_vocab import (
+        GroundingDispositionKind,
+    )
+    from polisyos.runtime.quality.intervention_atom_binding import InterventionAtomBinding
+    from polisyos.runtime.quality.intervention_substrate import InterventionLeverRefusal
+    from polisyos.runtime.quality.open_world_risk import (
+        OpenWorldRiskVectorArtifactRepository,
+        PromotionRuntime,
+        VerifiedOpenWorldRiskVector,
+    )
+    from polisyos.runtime.quality.promotion_sequence import (
+        CanonicalN9PromotionPort,
+        CanonicalPromotionReceipt,
+        validate_canonical_promotion_receipt,
+    )
+    from polisyos.runtime.quality.substrate_registry import (
+        SubstrateCoverage,
+        SubstrateLayer,
+        SubstrateRegistration,
+        SubstrateRegistry,
+        SubstrateSchemaRegime,
+        SubstrateTrustTier,
+        build_substrate_registry,
+        build_substrate_registry_entry,
+        default_substrate_catalog_paths,
+    )
+    from polisyos.runtime.quality.world_model_record import WorldModelRecordError
+    from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+    from polisyos.scientist.validation.decision_validity import DecisionValidityService
+&gt;   from tools.quality.validation import (
+        check_layer3_gy_generation_cycle_contract as contract,
+    )
+E   ModuleNotFoundError: No module named 'tools'
+
+tests/unit/runtime/quality/test_generation_cycle.py:130: ModuleNotFoundError</failure></testcase><testcase classname="_build.e02-g-continuation-20261006.R.A-332-20261007.native-A.candidate.policy-engine.tests.unit.remediation.test_emp_01" name="test_direct_foundry_value_port_refuses_sparse_owner_profile[3]" time="0.411"><failure message="ModuleNotFoundError: No module named 'tools'">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x13d437770&gt;
+tmp_path = PosixPath('/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-674/test_direct_foundry_value_port2')
+row_count = 3
+
+    @pytest.mark.parametrize("row_count", [1, 2, 3])
+    def test_direct_foundry_value_port_refuses_sparse_owner_profile(
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+        row_count: int,
+    ) -&gt; None:
+        """A direct simulate-only FoundryValuePort call preserves the real owner refusal."""
+    
+        from polisyos.core.security.tenant_context import tenant_scope
+&gt;       from tests.unit.runtime.quality.test_generation_cycle import (
+            _owner_program_graph_n5_witness,
+            _problem,
+        )
+
+tests/unit/remediation/test_emp_01.py:733: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../../../../../.venv/lib/python3.14/site-packages/_pytest/assertion/rewrite.py:197: in exec_module
+    exec(co, module.__dict__)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    from __future__ import annotations
+    
+    import copy
+    import hashlib
+    import json
+    import os
+    import subprocess
+    import sys
+    from dataclasses import dataclass
+    from datetime import UTC, datetime
+    from decimal import Decimal
+    from functools import cache
+    from pathlib import Path
+    from types import SimpleNamespace
+    from typing import Any, get_args
+    from uuid import uuid4
+    
+    import pytest
+    
+    import polisyos.runtime.quality.generation_cycle as generation_cycle_module
+    import polisyos.runtime.quality.promotion_sequence as promotion_sequence_module
+    from polisyos.core import canon
+    from polisyos.core import contracts as core_contracts
+    from polisyos.core.artifacts import ArtifactWriteOptions, FileSystemCAS
+    from polisyos.core.contracts.value_outer_set import DataTrust, ValueOuterSet
+    from polisyos.data_requirement import (
+        DataQualityMinimums,
+        DataRequirementScope,
+        DataRequirementSpec,
+    )
+    from polisyos.data_requirement.compiler import compile_data_requirements_for_scenario
+    from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.quality import confidence_ledger as confidence_ledger_module
+    from polisyos.runtime.quality import cycle_substrate as cycle_substrate_module
+    from polisyos.runtime.quality import epoch_validity_cascade as epoch_cascade_module
+    from polisyos.runtime.quality.acquisition_planner import (
+        AcquisitionCaptureProvenance,
+        AcquisitionOwnerArtifact,
+        AcquisitionWorldSnapshot,
+        RecordedAcquisitionOwnerGateway,
+        l1_variable_availability_requirement_gap,
+        value_input_world_knowledge_requirement_gap,
+    )
+    from polisyos.runtime.quality.confidence_ledger import (
+        LoadedDeploymentIdentityObservation,
+    )
+    from polisyos.runtime.quality.cycle_substrate import (
+        CandidateLeverEvidence,
+        CycleSubstrateContext,
+        build_cycle_substrate_context,
+        cycle_substrate_context_binding_hash,
+        resolve_cycle_substrate_world_identity,
+    )
+    from polisyos.runtime.quality.data_state_substrate import L1VariableAvailability
+    from polisyos.runtime.quality.design_problem import (
+        AuthorityProfile,
+        CandidateLever,
+        CandidateLeverSpace,
+        DesignConstraint,
+        DesignObjective,
+        DesignProblem,
+        DesignStakeholder,
+        EvidenceAcquisitionNeeds,
+        EvidenceNeed,
+        JurisdictionTimeSemantics,
+        NLProvenance,
+        OutcomeOfInterest,
+    )
+    from polisyos.runtime.quality.generation_cycle import (
+        AcquisitionOverlayReentryReceipt,
+        CandidateGroundingObservation,
+        CandidateSummary,
+        GenerationCycleController,
+        GenerationCycleError,
+        GenerationCycleRun,
+        JointSimulationPort,
+        N4GenerationPort,
+        PendingN8ValuePort,
+        PolicyGroundingPort,
+        PromotionPortObservation,
+        RealValueOwnerGateway,
+        SimulationPortObservation,
+        StrangleReceipt,
+        ValueCalibrationReceipt,
+        ValueGateReceipt,
+        ValuePortObservation,
+        ValueTransportReceipt,
+        _apply_promotion_to_summaries,
+        _build_boundary_world_model_record,
+        _derive_fronts,
+        _disposition_candidates,
+        _grounding_disposition_denominator,
+        _joint_simulation_port_outcome,
+        _summary_with_value_observation,
+        enforce_no_retry_without_new_grammar,
+        generation_cycle_terminal_state,
+        validate_generation_cycle_candidate_run,
+        validate_generation_cycle_run,
+        validate_generation_cycle_run_history,
+    )
+    from polisyos.runtime.quality.grounding_disposition_vocab import (
+        GroundingDispositionKind,
+    )
+    from polisyos.runtime.quality.intervention_atom_binding import InterventionAtomBinding
+    from polisyos.runtime.quality.intervention_substrate import InterventionLeverRefusal
+    from polisyos.runtime.quality.open_world_risk import (
+        OpenWorldRiskVectorArtifactRepository,
+        PromotionRuntime,
+        VerifiedOpenWorldRiskVector,
+    )
+    from polisyos.runtime.quality.promotion_sequence import (
+        CanonicalN9PromotionPort,
+        CanonicalPromotionReceipt,
+        validate_canonical_promotion_receipt,
+    )
+    from polisyos.runtime.quality.substrate_registry import (
+        SubstrateCoverage,
+        SubstrateLayer,
+        SubstrateRegistration,
+        SubstrateRegistry,
+        SubstrateSchemaRegime,
+        SubstrateTrustTier,
+        build_substrate_registry,
+        build_substrate_registry_entry,
+        default_substrate_catalog_paths,
+    )
+    from polisyos.runtime.quality.world_model_record import WorldModelRecordError
+    from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+    from polisyos.scientist.validation.decision_validity import DecisionValidityService
+&gt;   from tools.quality.validation import (
+        check_layer3_gy_generation_cycle_contract as contract,
+    )
+E   ModuleNotFoundError: No module named 'tools'
+
+tests/unit/runtime/quality/test_generation_cycle.py:130: ModuleNotFoundError</failure></testcase></testsuite></testsuites>

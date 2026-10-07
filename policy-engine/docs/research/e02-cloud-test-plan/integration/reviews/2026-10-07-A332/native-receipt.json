@@ -1,0 +1,343 @@
+{
+  "candidate": {
+    "base_sha": "2605d13916f4dd38f216419562c04718ba4c2028",
+    "sha": "332ba0b91e9a85774d48d101d4af86e3a3baf911",
+    "tree": "4e21c90467913c6dae1c85b84b8c7a42a1dc9124"
+  },
+  "case_totals": {
+    "authorized_core_only_repair": {
+      "error": 0,
+      "fail": 0,
+      "pass": 1,
+      "skip": 0
+    },
+    "final_deciding_cases": {
+      "candidate_fail": 1,
+      "pass": 4,
+      "unrun_remaining": 0
+    },
+    "initial_wave": {
+      "candidate_fail": 1,
+      "pass": 3,
+      "unrun_after_harness_input_error": 1
+    }
+  },
+  "checks": [
+    {
+      "case_counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 3
+      },
+      "classification": "initial focused wave",
+      "evidence_verdict": "PASS",
+      "import_origin_errors": [],
+      "imported_candidate_module_count": 1470,
+      "junit": {
+        "path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/direct_sparse_owner_profile/junit.xml",
+        "sha256": "07e2a172e013aa5160b912e3b2734b74e7673d776910f4b5a8c3ae10f38429fe"
+      },
+      "name": "direct_sparse_owner_profile",
+      "origin_audit": {
+        "path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/direct_sparse_owner_profile/import-origin-audit.json",
+        "sha256": "e3d5eb3d559657807aac71e448767ba5661034a3d39830064952c426ab9833e1"
+      },
+      "peak_sampled_rss_kib": 1072224,
+      "python": "Python 3.14.3",
+      "raw_pytest_status": "PASS",
+      "runner_receipt": {
+        "path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/direct_sparse_owner_profile/receipt.json",
+        "sha256": "a40cb7234f755de1091c07139fb4c95351f3dea006244ab400ddcaecba28f4f3"
+      },
+      "selector": "tests/unit/remediation/test_emp_01.py::test_direct_foundry_value_port_refuses_sparse_owner_profile",
+      "source_integrity_after_ok": true,
+      "source_integrity_before_ok": true,
+      "stderr": {
+        "path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/direct_sparse_owner_profile/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/direct_sparse_owner_profile/stdout.txt",
+        "sha256": "bd7f42fca9ccd379662d86c050b588e777b9b54bd65c190ceb4d24d343955e9e"
+      },
+      "timeout_seconds": 180,
+      "wall_seconds": 24.797
+    },
+    {
+      "case_counts": {
+        "errors": 0,
+        "failures": 1,
+        "skipped": 0,
+        "tests": 1
+      },
+      "classification": "initial focused wave",
+      "evidence_verdict": "FAIL_CANDIDATE",
+      "import_origin_errors": [],
+      "imported_candidate_module_count": 1500,
+      "junit": {
+        "path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/default_cycle_simulation_history/junit.xml",
+        "sha256": "535cd4306327da7c69d8888c8eb073e1fa2c9106691f607b4628e70341b1d6c8"
+      },
+      "name": "default_cycle_simulation_history",
+      "origin_audit": {
+        "path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/default_cycle_simulation_history/import-origin-audit.json",
+        "sha256": "12f6612d9957929220c1174a861d73dcf622d6360551affa0bdaea9edfaa8d29"
+      },
+      "peak_sampled_rss_kib": 1086864,
+      "python": "Python 3.14.3",
+      "raw_pytest_status": "FAIL",
+      "runner_receipt": {
+        "path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/default_cycle_simulation_history/receipt.json",
+        "sha256": "a1c0e764fe55b348dbc81b94525aa2cdf6f4eafd09416896c6f8796071c04cf5"
+      },
+      "selector": "tests/unit/remediation/test_emp_01.py::test_default_cycle_preserves_simulation_only_result_and_history",
+      "source_integrity_after_ok": true,
+      "source_integrity_before_ok": true,
+      "stderr": {
+        "path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/default_cycle_simulation_history/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/default_cycle_simulation_history/stdout.txt",
+        "sha256": "48eec8771177dabef626cbc1efcced2d77b9f8191c2da1d1abc34601b7e6fa3e"
+      },
+      "timeout_seconds": 180,
+      "wall_seconds": 23.879
+    },
+    {
+      "case_counts": {
+        "errors": 0,
+        "failures": 1,
+        "skipped": 0,
+        "tests": 1
+      },
+      "classification": "initial attempt; incomplete export",
+      "evidence_verdict": "UNRUN_HARNESS_INPUT_MISSING",
+      "import_origin_errors": [],
+      "imported_candidate_module_count": 1738,
+      "junit": {
+        "path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/core_voi_projection/junit.xml",
+        "sha256": "0049cf0dfa59a284472e7f4b6bd0bc40be445e2a67e69899492c419223637b8d"
+      },
+      "name": "core_voi_projection",
+      "origin_audit": {
+        "path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/core_voi_projection/import-origin-audit.json",
+        "sha256": "45ca937b588af8975ddc59b990d4186be6b69e29175e52202707c9ac67ba6ede"
+      },
+      "peak_sampled_rss_kib": 1100880,
+      "python": "Python 3.14.3",
+      "raw_pytest_status": "FAIL",
+      "runner_receipt": {
+        "path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/core_voi_projection/receipt.json",
+        "sha256": "d80b51e00770938b38a0d68837be6382913f25b36c4cfac1e0e03add5088f6cc"
+      },
+      "selector": "tests/integration/core_runtime/test_e02_voi_artifact_projection.py::test_informative_voi_candidate_core_readback_and_preview_refusal",
+      "source_integrity_after_ok": true,
+      "source_integrity_before_ok": true,
+      "stderr": {
+        "path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/core_voi_projection/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/core_voi_projection/stdout.txt",
+        "sha256": "cc44081e06cfe54699ca6ac5cc43c5c9250a739ab9351128a99cadd352099a80"
+      },
+      "timeout_seconds": 180,
+      "wall_seconds": 25.823
+    },
+    {
+      "case_counts": {
+        "errors": 0,
+        "failures": 0,
+        "skipped": 0,
+        "tests": 1
+      },
+      "classification": "authorized one-input Core rerun",
+      "evidence_verdict": "PASS",
+      "import_origin_errors": [],
+      "imported_candidate_module_count": 1740,
+      "junit": {
+        "path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/core_voi_projection-repair1-registry/junit.xml",
+        "sha256": "835944f0b3cde75c6c91ed385dccb50a04233aa21ec0dc0a0ff45e2a4ad6ad31"
+      },
+      "name": "core_voi_projection-repair1-registry",
+      "origin_audit": {
+        "path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/core_voi_projection-repair1-registry/import-origin-audit.json",
+        "sha256": "23696f994008414b08258d8d11b1121a60caa23f7ddfaa95712495563aa4a1ef"
+      },
+      "peak_sampled_rss_kib": 1112144,
+      "python": "Python 3.14.3",
+      "raw_pytest_status": "PASS",
+      "runner_receipt": {
+        "path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/core_voi_projection-repair1-registry/receipt.json",
+        "sha256": "311a8a2b9d0c35cc98e178ac32ee997acd75ca7d855b8461c87bfde3f77c5f22"
+      },
+      "selector": "tests/integration/core_runtime/test_e02_voi_artifact_projection.py::test_informative_voi_candidate_core_readback_and_preview_refusal",
+      "source_integrity_after_ok": true,
+      "source_integrity_before_ok": true,
+      "stderr": {
+        "path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/core_voi_projection-repair1-registry/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/core_voi_projection-repair1-registry/stdout.txt",
+        "sha256": "5844b9a47a4a2b963c82bd7df9c79624ae25ae25d9851a761082ff687437b96a"
+      },
+      "timeout_seconds": 180,
+      "wall_seconds": 25.718
+    }
+  ],
+  "environment": {
+    "dependency_installation": false,
+    "fastapi": "0.128.6",
+    "httpx": "0.28.1",
+    "interpreter": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/.venv/bin/python",
+    "numpy": "2.3.5",
+    "production_data_and_common_credentials_scrubbed": true,
+    "pydantic": "2.12.5",
+    "pytest": "9.0.2",
+    "python": "3.14.3",
+    "scipy": "1.16.3",
+    "thread_limits": {
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "VECLIB_MAXIMUM_THREADS": "1"
+    }
+  },
+  "export": {
+    "all_tracked_entries_pre_post_verified": true,
+    "declared_closure": {
+      "selected_test_closure_files": 29,
+      "src_files": 2911,
+      "tools_python_files": 445,
+      "tools_tree_files": 540
+    },
+    "path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/candidate",
+    "source_manifest": {
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/source-manifest.json",
+      "sha256": "768ca5ca1f9a31211a7501b539caf09be09d08d817b2875e07cea3e56b149136"
+    },
+    "supplement": {
+      "path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/core_voi_projection-repair1-source-supplement.json",
+      "sha256": "27ae91a8468b6df7a34672ab4d7b676ac53be3df315fc66139e14845c77f7d58"
+    },
+    "tracked_entry_count": 3485,
+    "tracked_logical_bytes": 70143489
+  },
+  "full_outputs_preserved": true,
+  "history": [
+    {
+      "classification": "HARNESS_ERROR_NOT_PRODUCT_RESULT",
+      "export_entries": 2945,
+      "export_manifest_sha256": "25e2f7d1207253be3495e1b44ee005b523b9b788046b291ed777c5f999f35edc",
+      "note": "ERROR_ORIGIN_AUDIT: first guard/archive-root mapping did not bind the loaded origins; its pytest count is not deciding evidence.",
+      "raw_selector_statuses": [
+        "ERROR_ORIGIN_AUDIT"
+      ],
+      "summary": {
+        "path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/summary-attempt1-harness-error.json",
+        "sha256": "658c72789184ee72b322fefa9d486d7ad039f379fc6f65e2e6aa20fa157e2a51"
+      }
+    },
+    {
+      "classification": "HARNESS_ERROR_NOT_PRODUCT_RESULT",
+      "export_entries": 2945,
+      "export_manifest_sha256": "25e2f7d1207253be3495e1b44ee005b523b9b788046b291ed777c5f999f35edc",
+      "note": "HARNESS ERROR: initial export mapping/tool closure was incomplete; pytest failures are setup/custody evidence, not product findings.",
+      "raw_selector_statuses": [
+        "FAIL",
+        "FAIL",
+        "FAIL"
+      ],
+      "summary": {
+        "path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/summary-attempt2-closure-harness-error.json",
+        "sha256": "315efc0a7232fe84da3e66759b5add1084ad388c51957baa992966f7ed67880b"
+      }
+    },
+    {
+      "classification": "HARNESS_ERROR_NOT_PRODUCT_RESULT",
+      "export_entries": 2953,
+      "export_manifest_sha256": "2924aa2312b4ab230947e59389568aaeba97ab676c747d68d7b459d6fcac4f87",
+      "note": "HARNESS ERROR: required tracked tools.lib.imports was absent from the selected export closure.",
+      "raw_selector_statuses": [
+        "FAIL",
+        "FAIL",
+        "FAIL"
+      ],
+      "summary": {
+        "path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/summary-attempt3-tool-import-harness-error.json",
+        "sha256": "f9b294037f152ea82c3c41e1a9e703561d7a7b400880bab50e0f50f4ce118f17"
+      }
+    },
+    {
+      "classification": "HARNESS_ERROR_NOT_PRODUCT_RESULT",
+      "export_entries": 2954,
+      "export_manifest_sha256": "0287adb7aec6a8060ee5a2f6e62e7d0df27b6cc0a55af1d532211ab4ca44b4ea",
+      "note": "HARNESS ERROR: required tracked tools.lib.output was absent from the selected export closure.",
+      "raw_selector_statuses": [
+        "FAIL",
+        "FAIL",
+        "FAIL"
+      ],
+      "summary": {
+        "path": "policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/summary-attempt4-incomplete-tools-harness-error.json",
+        "sha256": "802ed35b7cec2c9467522ab00464d9857e3d13f469f6fe51c21f1ad490c3b1b4"
+      }
+    }
+  ],
+  "important_outcomes": {
+    "core_projection": "The original invocation failed before the deciding property because the selected export omitted the exact tracked dependency registry. Treat that invocation as harness-input error/UNRUN, not product failure. The single authorized rerun with the exact registry asset passed full selector 1/1.",
+    "default_cycle_history": "One real candidate failure: validate_generation_cycle_run_history(persisted) returns generation_cycle_historical_projection_mismatch where the test expects no issues. No slice-base replay was run, so attribution/inheritance is not established.",
+    "direct_sparse_profile": "3 parameterized cases pass on exact candidate; all imported PolisyOS/tools/tests origins bound to candidate export."
+  },
+  "interpretation_limits": {
+    "candidate_failure_attribution": "not_established_without_slice_base_replay",
+    "code_acceptance": "separate G review decision",
+    "finding_closure": "not claimed",
+    "main_publication": "out of scope"
+  },
+  "lane": "G-local-independent-runtime-check",
+  "resource_closeout": {
+    "disk_free_after_run": "43 GiB",
+    "no_cleanup_performed": true,
+    "pytest_temp_path_from_final_core_selector": "/private/var/folders/zm/nt7795nd0djbxr7ctd5yl4p40000gn/T/pytest-of-deniskopylov/pytest-686"
+  },
+  "schema": "policyos.e02.g.a332.native-receipt.v1",
+  "source_binding": {
+    "additional_sibling_registry_inputs_read_by_loader": [],
+    "explanation": "The factory resolves one fixed registry file. Its JSON contains inline field-path rules; the resolver validates these against ClaimRecord code and does not load sibling registry files.",
+    "loader_and_test_blob_ids": {
+      "policy-engine/src/polisyos/scientist/evidence/claims/head_index.py": "2639c34c229c501636e966f75b07ef0caf0975d1",
+      "policy-engine/src/polisyos/scientist/governance/continuous/lifecycle_bridge.py": "83ca528cde4ed2df6ae967a3dc2b95a434c7569d",
+      "policy-engine/tests/integration/core_runtime/test_e02_voi_artifact_projection.py": "4527f53ad773104bf79e5f52d0e50023e8edda69",
+      "policy-engine/tests/unit/remediation/test_emp_01.py": "284f373c87eb7212aaf8bc9d67a1a3fcbb34e203"
+    },
+    "registry_asset_bytes": 1825,
+    "registry_asset_git_blob_sha1": "a055f369d8cc40cc47ed4e85ab796a3acb2cba00",
+    "registry_asset_git_mode": "100644",
+    "registry_asset_git_path": "policy-engine/architecture/policy_design_case/layer3_gy_claim_dependency_field_registry.json",
+    "registry_asset_sha256": "1bdc2e1005b5ee2fc78cda31353b78dfe5447704445bb3238eb072cca1300deb"
+  },
+  "source_integrity": {
+    "additional_generated_runtime_files": [
+      "policy-engine/.polisyos/runtime/grounding_risk/1679aa38cffc54e8eab273b306a42d0945aa735d3de417d6204bacb5fcc5ae3b/cas/artifacts/ownership/transactions/root.lock",
+      "policy-engine/.polisyos/runtime/grounding_risk/c8bbbb21d19d32b2c1aa14509f1bd9cf5cd500b97ffd6a6f1191331eabeff95c/cas/artifacts/ownership/transactions/root.lock"
+    ],
+    "base_manifest_sha256": "768ca5ca1f9a31211a7501b539caf09be09d08d817b2875e07cea3e56b149136",
+    "cleanup_performed": false,
+    "generated_runtime_file_bytes": 0,
+    "integrity_errors": []
+  },
+  "working_tree_observation": {
+    "branch": "codex/e02-integration",
+    "head_at_receipt_write": "2abc17f46a033a7879663486ff9946a95786601f",
+    "status_short": [
+      " M policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/continuation-2026-10-07/README.md",
+      "?? policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-A332/"
+    ],
+    "tester_git_writes": false
+  }
+}

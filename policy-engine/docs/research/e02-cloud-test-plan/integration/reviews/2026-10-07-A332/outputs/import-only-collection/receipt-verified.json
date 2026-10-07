@@ -1,0 +1,47 @@
+{
+  "base_sha": "2605d13916f4dd38f216419562c04718ba4c2028",
+  "candidate_sha": "332ba0b91e9a85774d48d101d4af86e3a3baf911",
+  "candidate_tree": "4e21c90467913c6dae1c85b84b8c7a42a1dc9124",
+  "collected_node_count": 5,
+  "collected_nodes": [
+    "_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/candidate/policy-engine/tests/unit/remediation/test_emp_01.py::test_direct_foundry_value_port_refuses_sparse_owner_profile[1]",
+    "_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/candidate/policy-engine/tests/unit/remediation/test_emp_01.py::test_direct_foundry_value_port_refuses_sparse_owner_profile[2]",
+    "_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/candidate/policy-engine/tests/unit/remediation/test_emp_01.py::test_direct_foundry_value_port_refuses_sparse_owner_profile[3]",
+    "_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/candidate/policy-engine/tests/unit/remediation/test_emp_01.py::test_default_cycle_preserves_simulation_only_result_and_history",
+    "_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/candidate/policy-engine/tests/integration/core_runtime/test_e02_voi_artifact_projection.py::test_informative_voi_candidate_core_readback_and_preview_refusal"
+  ],
+  "collection_parser_correction": "The first wrapper parse expected lines starting with tests/. Pytest emitted paths beginning at the export\u2019s parent prefix; exact stdout and returncode prove the five expected nodes were collected. The original ERROR_COLLECTION_COUNT receipt is retained unchanged.",
+  "collection_returncode": 0,
+  "execution_kind": "pytest collection only; no test functions executed",
+  "manifest_tracked_paths": 3485,
+  "origin_audit": {
+    "errors": [],
+    "module_count": 1440,
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/import-only-collection/import-origin-audit.json",
+    "sha256": "8ffd04328123b175ef94c4fe8cfa558c8805563189829b3a7b9a468c059d892a"
+  },
+  "original_receipt": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/import-only-collection/receipt.json",
+  "original_receipt_sha256": "38139b35f22915c5631b4658c88f560e9c70cdf77e611ee6f1572a10f1e7d0f1",
+  "original_stderr": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/import-only-collection/stderr.txt",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "original_stdout": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/results/import-only-collection/stdout.txt",
+    "sha256": "7e27f2a00238eeea2ed07ea61fd0079436f0db864f0018ddcc3b0dfbe8ad630b"
+  },
+  "peak_sampled_rss_kib": 914064,
+  "python_version": "Python 3.14.3",
+  "source_integrity_before_after": "all manifested Git blobs and modes matched; no extra runtime paths",
+  "source_manifest": "/Users/deniskopylov/.codex/worktrees/e02-integration-6971/polisyos/policy-engine/_build/e02-g-continuation-20261006/R/A-332-20261007/native-A/source-manifest.json",
+  "source_manifest_sha256": "768ca5ca1f9a31211a7501b539caf09be09d08d817b2875e07cea3e56b149136",
+  "status": "PASS_IMPORT_ONLY_COLLECTION",
+  "thread_limits": {
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1"
+  },
+  "wall_seconds": 18.788
+}

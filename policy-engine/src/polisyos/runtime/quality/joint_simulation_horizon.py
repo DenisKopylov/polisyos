@@ -1748,7 +1748,15 @@ class JointSimulationHorizonController:
                     if slot.name not in state:
                         return f"registered_input_missing:{slot.name}"
                     value = state[slot.name]
-                    if slot.shape or slot.slot_type in {SlotType.VECTOR, SlotType.MATRIX}:
+                    if slot.slot_type is SlotType.SCALAR and slot.contract_id is None:
+                        value = _required_finite_scalar(
+                            value,
+                            field=slot.name,
+                            missing_code="registered_input_missing",
+                            malformed_code="registered_input_non_numeric",
+                            non_finite_code="registered_input_non_finite",
+                        )
+                    elif slot.shape or slot.slot_type in {SlotType.VECTOR, SlotType.MATRIX}:
                         if _contains_invalid_original_numeric_element(value):
                             return f"registered_input_non_numeric:{slot.name}"
                         value = np.asarray(value, dtype=float)

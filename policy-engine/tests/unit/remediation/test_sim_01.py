@@ -4,8 +4,11 @@ from __future__ import annotations
 
 import pytest
 
+from polisyos.foundry.methods import SlotType
+from polisyos.foundry.methods.catalog.simulation import ensure_simulation_methods_registered
 from polisyos.runtime.quality.generation_cycle import _joint_simulation_port_outcome
 from polisyos.runtime.quality.joint_simulation_horizon import (
+    EngineDecision,
     EnginePlan,
     HorizonSpec,
     JointSimulationControllerError,
@@ -13,6 +16,7 @@ from polisyos.runtime.quality.joint_simulation_horizon import (
     JointSimulationRequest,
     SimulationTrajectory,
     TrajectoryPoint,
+    _system_dynamics_state_for_subset,
 )
 from polisyos.runtime.quality.recursive_generation_cycle import _joint_simulation_is_unsupported
 from tests.unit.runtime.quality.test_joint_simulation_horizon import (
@@ -339,6 +343,31 @@ def _system_dynamics_input_fallback_request(
     return request, valid_plan
 
 
+def _install_system_dynamics_runner_spy(
+    controller: JointSimulationHorizonController,
+    monkeypatch: pytest.MonkeyPatch,
+) -> list[int]:
+    """Count physical system-dynamics runner calls while preserving its behavior."""
+
+    calls = [0]
+    original_runner = controller._run_system_dynamics_horizon
+
+    def count_runs(
+        request: JointSimulationRequest,
+        plan: EnginePlan,
+        decision: EngineDecision,
+    ) -> list[SimulationTrajectory]:
+        calls[0] += 1
+        return original_runner(request, plan, decision)
+
+    monkeypatch.setattr(
+        controller,
+        "_engine_runners",
+        lambda: {"system_dynamics": count_runs},
+    )
+    return calls
+
+
 @pytest.mark.parametrize(
     "invalid_flow_matrix",
     [
@@ -395,6 +424,166 @@ def test_invalid_first_system_dynamics_plan_falls_back_to_registered_second(
     )
 
 
+def _registered_seir_input_preflight_case(
+    susceptible: object,
+) -> tuple[
+    JointSimulationHorizonController,
+    JointSimulationRequest,
+    EnginePlan,
+    EngineDecision,
+]:
+    """Build a controlled preflight-only probe for the registered SEIR input slots."""
+
+    controller = JointSimulationHorizonController()
+    ensure_simulation_methods_registered(controller._registry)
+    method_fqn = "simulation.compartmental.seir@1.0.0"
+    entry = controller._registry.get_entry(method_fqn)
+    assert entry is not None
+    input_slots = {slot.name: slot for slot in entry.signature.input_slots}
+    assert set(input_slots) == {"susceptible", "exposed", "infected", "recovered"}
+    assert all(slot.slot_type is SlotType.SCALAR for slot in input_slots.values())
+    assert all(slot.contract_id is None and not slot.shape for slot in input_slots.values())
+
+    base_request = _request()
+    atom = _atom(
+        "seir_preflight_atom",
+        causal_variable="agents.income",
+        engine_variable="audit_noise",
+        value=1.0,
+        world_model_record_ref=base_request.world_model_record_ref,
+    )
+    plan = EnginePlan(
+        engine_kind="method_registry_estimator",
+        objective_ref="objective://seir-input-preflight-only",
+        method_fqn=method_fqn,
+        variable_map={"agents.income": "audit_noise"},
+        system_dynamics_state={
+            "susceptible": susceptible,
+            "exposed": 0.0,
+            "infected": 0.0,
+            "recovered": 0.0,
+            "audit_noise": 0.0,
+        },
+    )
+    request = base_request.model_copy(
+        update={"intervention_atoms": (atom,), "engine_plan": (plan,)}
+    )
+
+    # Current SEIR metadata cannot establish this controller's output semantics.
+    # Keep the real selector refusal and construct a controlled decision only to
+    # exercise the shared preselection input validator, not production eligibility.
+    selector_result = controller._select_registry_method_engine(plan)
+    assert selector_result.decision == "unsupported"
+    assert selector_result.reason == "method_output_shape_does_not_back_semantics"
+    decision = selector_result.model_copy(
+        update={
+            "decision": "selected",
+            "method_fqn": method_fqn,
+            "reason": "controlled_input_preflight_probe",
+            "blockers": (),
+        }
+    )
+    return controller, request, plan, decision
+
+
+@pytest.mark.parametrize(
+    ("susceptible", "expected_issue"),
+    [
+        pytest.param(0.0, None, id="valid-zero-scalar"),
+        pytest.param("0.0", "registered_input_non_numeric:susceptible", id="string"),
+        pytest.param([0.0], "registered_input_non_numeric:susceptible", id="array-rank"),
+        pytest.param(True, "registered_input_non_numeric:susceptible", id="boolean"),
+        pytest.param(float("nan"), "registered_input_non_finite:susceptible", id="non-finite"),
+    ],
+)
+def test_registered_seir_scalar_inputs_are_preflighted_before_method_engine(
+    susceptible: object,
+    expected_issue: str | None,
+) -> None:
+    """The shared input preflight accepts finite scalars and refuses malformed values."""
+
+    controller, request, plan, decision = _registered_seir_input_preflight_case(susceptible)
+
+    issue = controller._registered_system_dynamics_input_issue(request, plan, decision)
+
+    if expected_issue is None:
+        assert issue is None
+        assert plan.system_dynamics_state["susceptible"] == 0.0
+        assert type(plan.system_dynamics_state["susceptible"]) is float
+    else:
+        assert issue is not None
+        assert expected_issue in issue
+
+
+def test_square_per_atom_flow_matrix_dimension_mismatch_falls_back() -> None:
+    """A square override still fails when its shared stock axis disagrees with state."""
+
+    request, valid_plan = _system_dynamics_input_fallback_request(
+        [[0.0, 0.1], [0.0, 0.0]]
+    )
+    first_atom = request.intervention_atoms[0]
+    square_override = [[0.0]]
+    assert len(square_override) == 1 and len(square_override[0]) == 1
+    invalid_plan = valid_plan.model_copy(
+        update={
+            "objective_ref": "objective://square-override-invalid-axis",
+            "system_dynamics_state_overrides_by_atom": {
+                first_atom.intervention_id: {"flow_matrix": square_override}
+            },
+        }
+    )
+    request = request.model_copy(update={"engine_plan": (invalid_plan, valid_plan)})
+
+    result = JointSimulationHorizonController().run(request)
+
+    assert [item.decision for item in result.engine_decisions] == ["unsupported", "selected"]
+    assert result.engine_decisions[0].reason == "engine_input_contract_failed"
+    assert result.engine_decisions[0].blockers == (
+        "registered_input_dimension_mismatch:initial_stocks:n_stocks",
+    )
+    assert result.engine_decisions[1].method_fqn == (
+        "simulation.system_dynamics.stock_flow@1.0.0"
+    )
+    assert result.engine_decisions[1].objective_ref == valid_plan.objective_ref
+    assert result.trajectories
+    assert all(
+        trajectory.objective_ref == valid_plan.objective_ref for trajectory in result.trajectories
+    )
+
+
+def test_method_registry_stock_flow_input_state_uses_shared_preflight() -> None:
+    """A selected registry estimator with system state receives the same validation."""
+
+    request, valid_plan = _system_dynamics_input_fallback_request(
+        [[0.0, 0.1], [0.0, 0.0]]
+    )
+    controller = JointSimulationHorizonController()
+    ensure_simulation_methods_registered(controller._registry)
+    entry = controller._registry.get_entry("simulation.system_dynamics.stock_flow@1.0.0")
+    assert entry is not None
+    atom = request.intervention_atoms[0]
+    plan = valid_plan.model_copy(
+        update={
+            "engine_kind": "method_registry_estimator",
+            "method_fqn": entry.signature.fqn,
+            "system_dynamics_state_overrides_by_atom": {
+                atom.intervention_id: {"initial_stocks": [10.0]}
+            },
+        }
+    )
+    decision = controller._select_registry_method_engine(plan)
+    assert decision.decision == "selected"
+    assert decision.method_fqn == "simulation.system_dynamics.stock_flow@1.0.0"
+
+    issue = controller._registered_system_dynamics_input_issue(
+        request.model_copy(update={"engine_plan": (plan,)}),
+        plan,
+        decision,
+    )
+
+    assert issue == "registered_input_dimension_mismatch:initial_stocks:n_stocks"
+
+
 @pytest.mark.parametrize(
     "invalid_flow_matrix",
     [
@@ -421,6 +610,136 @@ def test_removing_system_dynamics_input_validation_keeps_marker_but_fails(
     assert selected.decisions[0].reason == "engine_eligibility_satisfied"
     with pytest.raises(ValueError, match="flow_matrix must be a square matrix"):
         controller.run(request)
+
+
+def test_identical_per_atom_flow_matrix_overrides_are_order_independent() -> None:
+    """Identical typed writes compose under either atom order and share run identity."""
+
+    request, valid_plan = _system_dynamics_input_fallback_request(
+        [[0.0, 0.1], [0.0, 0.0]]
+    )
+    atoms = request.intervention_atoms
+    flow_matrix = [[0.0, 0.1], [0.0, 0.0]]
+    plan = valid_plan.model_copy(
+        update={
+            "system_dynamics_state_overrides_by_atom": {
+                atom.intervention_id: {"flow_matrix": flow_matrix} for atom in atoms
+            }
+        }
+    )
+    forward_request = request.model_copy(update={"engine_plan": (plan,)})
+    reverse_atoms = tuple(reversed(atoms))
+    reverse_request = request.model_copy(
+        update={"engine_plan": (plan,), "intervention_atoms": reverse_atoms}
+    )
+    controller = JointSimulationHorizonController()
+
+    forward = controller.run(forward_request)
+    reverse = controller.run(reverse_request)
+
+    assert forward.engine_decisions[0].decision == "selected"
+    assert reverse.engine_decisions[0].decision == "selected"
+    assert forward.engine_decisions[0].method_fqn == (
+        "simulation.system_dynamics.stock_flow@1.0.0"
+    )
+    assert reverse.engine_decisions[0].method_fqn == (
+        "simulation.system_dynamics.stock_flow@1.0.0"
+    )
+    joint_forward = forward.trajectory_for(
+        "joint", tuple(atom.intervention_id for atom in atoms)
+    )
+    joint_reverse = reverse.trajectory_for(
+        "joint", tuple(atom.intervention_id for atom in reverse_atoms)
+    )
+    assert [point.outcomes for point in joint_forward.points] == [
+        point.outcomes for point in joint_reverse.points
+    ]
+    assert joint_forward.diagnostics["physical_run_ref"] == joint_reverse.diagnostics[
+        "physical_run_ref"
+    ]
+
+
+@pytest.mark.parametrize("reverse_atoms", [False, True], ids=["forward", "reverse"])
+def test_different_valid_per_atom_flow_matrices_refuse_before_runner(
+    reverse_atoms: bool,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Different valid state writes conflict independent of request atom order."""
+
+    request, valid_plan = _system_dynamics_input_fallback_request(
+        [[0.0, 0.1], [0.0, 0.0]]
+    )
+    atoms = request.intervention_atoms
+    plan = valid_plan.model_copy(
+        update={
+            "system_dynamics_state_overrides_by_atom": {
+                atoms[0].intervention_id: {
+                    "flow_matrix": [[0.0, 0.1], [0.0, 0.0]]
+                },
+                atoms[1].intervention_id: {
+                    "flow_matrix": [[0.0, 0.2], [0.0, 0.0]]
+                },
+            }
+        }
+    )
+    ordered_atoms = tuple(reversed(atoms)) if reverse_atoms else atoms
+    request = request.model_copy(
+        update={"engine_plan": (plan,), "intervention_atoms": ordered_atoms}
+    )
+    controller = JointSimulationHorizonController()
+    physical_runs = _install_system_dynamics_runner_spy(controller, monkeypatch)
+
+    result = controller.run(request)
+
+    assert len(result.engine_decisions) == 1
+    assert result.engine_decisions[0].decision == "unsupported"
+    assert result.engine_decisions[0].reason == "engine_intervention_assignment_conflict"
+    assert result.engine_decisions[0].blockers == ("engine_variable_conflict:flow_matrix",)
+    assert result.trajectories == ()
+    assert physical_runs == [0]
+
+
+def test_container_and_child_state_writes_refuse_in_both_order_sensitive_orders(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A container override and another atom's child write have no unordered merge law."""
+
+    request, valid_plan = _system_dynamics_input_fallback_request(
+        [[0.0, 0.1], [0.0, 0.0]]
+    )
+    container_atom, child_atom = request.intervention_atoms
+    plan = valid_plan.model_copy(
+        update={
+            "system_dynamics_state_overrides_by_atom": {
+                container_atom.intervention_id: {
+                    "exogenous_inflows": [0.0, 0.0]
+                }
+            }
+        }
+    )
+    forward_atoms = (container_atom, child_atom)
+    reverse_atoms = tuple(reversed(forward_atoms))
+    forward_state = _system_dynamics_state_for_subset(plan, forward_atoms)
+    reverse_state = _system_dynamics_state_for_subset(plan, reverse_atoms)
+    assert forward_state["exogenous_inflows"] == [2.0, 3.0]
+    assert reverse_state["exogenous_inflows"] == [2.0, 0.0]
+
+    for ordered_atoms in (forward_atoms, reverse_atoms):
+        ordered_request = request.model_copy(
+            update={"engine_plan": (plan,), "intervention_atoms": ordered_atoms}
+        )
+        controller = JointSimulationHorizonController()
+        physical_runs = _install_system_dynamics_runner_spy(controller, monkeypatch)
+        result = controller.run(ordered_request)
+
+        assert len(result.engine_decisions) == 1
+        assert result.engine_decisions[0].decision == "unsupported"
+        assert result.engine_decisions[0].reason == "engine_intervention_assignment_conflict"
+        assert result.engine_decisions[0].blockers[0].startswith(
+            "engine_variable_conflict:exogenous_inflows"
+        )
+        assert result.trajectories == ()
+        assert physical_runs == [0]
 
 
 def test_foreign_trajectory_cannot_satisfy_selected_plan(

@@ -1803,6 +1803,7 @@ class CandidateModelRevisionReentryReceipt(_StrictModel):
         "candidate_model_revision_only"
     )
     source_run_id: str = Field(min_length=1)
+    source_history_binding: Literal["not_established"] = "not_established"
     design_problem_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     source_cycle_index: int = Field(ge=0)
     candidate_id: str = Field(min_length=1)
@@ -1907,6 +1908,7 @@ def reconcile_candidate_model_revision(
         load_ncm_spec_selected_view,
     )
     from polisyos.runtime.quality.candidate_simulation import CandidateSimulationExecutionV5
+    from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContextArtifactOwner
     from polisyos.runtime.quality.generation_source import (
         GenerationSourceRepository,
         N4CandidateScenarioSourceRecordV3,
@@ -1916,6 +1918,7 @@ def reconcile_candidate_model_revision(
         receipt.model_dump(mode="python")
     )
     repository = GenerationSourceRepository(artifact_store)
+    context_owner = CycleSubstrateContextArtifactOwner(store=artifact_store)
     scope = {
         "expected_run_id": receipt.run_id,
         "expected_job_id": receipt.job_id,
@@ -1955,6 +1958,19 @@ def reconcile_candidate_model_revision(
             raise GenerationCycleError("candidate_model_revision_consumed_model_mismatch")
         if prefix == "new":
             simulation = receipt.new_cycle.simulation
+            selected_summaries = tuple(
+                row for row in receipt.candidate_summaries
+                if row.candidate_id == receipt.candidate_id
+                and row.cycle_index == receipt.new_cycle.cycle_index
+            )
+            if (
+                len(selected_summaries) != 1
+                or selected_summaries[0].content_hash
+                != receipt.new_cycle.selected_candidate_content_hash
+                or (selected_summaries[0].source_content_hash or selected_summaries[0].content_hash)
+                != source.candidate.atom.content_hash
+            ):
+                raise GenerationCycleError("candidate_model_revision_occurrence_hash_mismatch")
             if (
                 execution.n5_result_ref != simulation.simulation_result_ref
                 or execution.n5_result_content_hash != simulation.simulation_ref
@@ -1966,6 +1982,18 @@ def reconcile_candidate_model_revision(
                 ) != execution_ref
             ):
                 raise GenerationCycleError("candidate_model_revision_readback_binding_mismatch")
+            context_job = context_owner.resolve_historical_job_artifact(
+                execution.context_job_ref,
+                problem=source.problem,
+                expected_job_id=receipt.job_id,
+                expected_run_id=receipt.run_id,
+                expected_tenant_id=receipt.tenant_id,
+                expected_cell_id=receipt.cell_id,
+            )
+            world = context_job.context.world_model_record
+            if world.content_hash != execution.world_model_record_hash:
+                raise GenerationCycleError("candidate_model_revision_readback_world_mismatch")
+            simulation = simulation.model_copy(update={"world_model_record": world})
             value = _conditional_simulation_value_observation(
                 candidate=source.candidate,
                 simulation=simulation,

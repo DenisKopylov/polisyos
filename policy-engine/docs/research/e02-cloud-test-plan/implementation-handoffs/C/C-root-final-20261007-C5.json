@@ -1,0 +1,294 @@
+{
+  "schema": "implementation_handoff.v1",
+  "unit": "C",
+  "slice": "C5 root delivery after C4: full33/C54 decisions and reviewed available source deltas",
+  "closure_ids": [],
+  "bundle_ids": [
+    "BER-01",
+    "CAN-01",
+    "CLI-01",
+    "DFI-01",
+    "DFI-02",
+    "DFI-03",
+    "DFK-01",
+    "DFK-02",
+    "EMB-01",
+    "EMB-02",
+    "EMB-03",
+    "FED-01",
+    "FED-02",
+    "HYG-02",
+    "HYG-04",
+    "ING-01",
+    "ING-02",
+    "ING-03",
+    "MIG-01",
+    "MIG-02",
+    "MIG-04",
+    "MIG-05",
+    "OBS-01",
+    "OBS-02",
+    "PLG-01",
+    "PLG-02",
+    "PLG-03",
+    "SCL-01",
+    "SCL-03",
+    "UDF-01",
+    "UDF-02",
+    "UDF-04",
+    "UDF-05"
+  ],
+  "branch": "codex/e02-C-continuation-20261006",
+  "slice_base_sha": "c5668bcb9ac76a55984fce0d196197dbfded1151",
+  "slice_base_tree_sha": "d360d36e2cf2dbd13e60422e174e229491e384be",
+  "candidate_sha": "dc75326c2cc65edc45f85188333b5087c6c32ca1",
+  "candidate_tree_sha": "2fde180ec08c1ba58892263cbd7568c3ecacd0a4",
+  "candidate_role": "Evidence carrier and Root observer/decision input, not a common accepted runtime or a wholesale merge candidate. G must intake source DAGs separately.",
+  "implementation_commits": [
+    "23ec3ab0b9d91bb7814fbdaa4b895a0bb06416a9",
+    "cf96e97641e1c06f889cf71305879c63bfba7971",
+    "2a702c26c047ccafde68523afcd7fc356f2edfb9",
+    "347a57b261850975fada82437a34342ea92a290e",
+    "dc75326c2cc65edc45f85188333b5087c6c32ca1"
+  ],
+  "coverage": {
+    "bundles": 33,
+    "findings": 54,
+    "original_criterion_occurrences": 59,
+    "original_criterion_source_commit": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "original_criterion_source_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+    "all54_row_source": {
+      "source_ref": "C54_table",
+      "json_pointer": "/rows"
+    },
+    "recommendations_computed_from_all54": {
+      "closed": 31,
+      "limited": 12,
+      "held": 11
+    },
+    "historical_C4_recommendations": {
+      "closed": 31,
+      "limited": 9,
+      "held": 14
+    },
+    "G_formal_statuses": {
+      "not_adjudicated": 54
+    },
+    "status_semantics": "C recommendations only; code admission, product acceptance, and formal G finding closure are separate decisions."
+  },
+  "fetched_base": {
+    "origin_main": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "main_tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+    "required_anchor": "1ddcd7b3905e52c0d19db091823a64830139fa64",
+    "anchor_ancestor_check_exit": 0,
+    "frozen_G": "9806442ddb47d624a2940bac75d9d6248e934c48",
+    "frozen_G_tree": "4a1caafc331990e0ebf0130a9051c08ae1ffcbd4",
+    "later_fetched_G": "2abc17f46a033a7879663486ff9946a95786601f",
+    "later_G_tree": "375301dd0c86a6168f4f747d8c56d9e0acb9567c",
+    "later_G_effect": "76docs only; C54 seven owner/criterion/action inputs byte-identical, no new runtime acceptance/formal closure."
+  },
+  "source_slices": {
+    "DFK": {
+      "base": "28b04149e6477216f37c2ab2e0abfc54b8857ac6",
+      "candidate": "a13f6c1acfe15a6750d71c6e86521f119d794def",
+      "tree": "35d9c02156f8a27335b858bfe8053d7cbc6a54f2",
+      "source_slice_paths": 8,
+      "aggregate_main_history_paths": 82,
+      "review": "bounded_source_GO",
+      "C_current_recommendations": {
+        "LA-005": "limited",
+        "LA-006": "limited",
+        "LA-026": "limited",
+        "LA-027": "limited"
+      },
+      "full_footprint_source_ref": "DFK_handoff",
+      "property": "Exact retired-FQN/import/resource behavior, canonical registry/runner consumers, retained identity alias, generic module/package/resource census. Archive/installed and external history remain bounded."
+    },
+    "Legal": {
+      "base": "f428b114f4afb5c9cdde93a8e9bf036abe5ac329",
+      "candidate": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+      "tree": "8c9eb49a9a7096ed564f74e91b6f7f1bc1f2b714",
+      "source_slice_paths": 10,
+      "review": "bounded_source_GO",
+      "C_current_recommendations": {
+        "LA-040": "held"
+      },
+      "capability_state": "bridge_missing for serving encoder/provider and production paired assets/generation",
+      "full_footprint_source_ref": "Legal_handoff",
+      "property": "Actual text+live-encoder admission before all3native HNSW consumers; wrongweight/rawvector/mutation refusals and target/decoy removal; request retains one generation."
+    },
+    "C54": {
+      "base": "847929e3e0cac30fb49ff61a47ecaf46d41ac94d",
+      "candidate": "96cf53a6cfbd8e6b753779d4b56fab456a13c159",
+      "tree": "e6fc3a2f573c4e59f3cefe88fa196570cf08f0ff",
+      "source_slice_paths": 3,
+      "review": "bounded_source_projection_GO",
+      "generated_output_commit": "d62424a9751082a06f274b450ba031e4c79dac28",
+      "handoff_commit": "980d91b36452307d683283ddcf1e89a653af3ce2",
+      "property": "All54/33/59 criterion/owner/evidence bindings;23explicit decisions+31carried finite criteria;8tampercontrols; C2/C4 emitted bytes preserved. It verifies bookkeeping, not runtime claims."
+    }
+  },
+  "source_refs": {
+    "C54_table": {
+      "commit": "980d91b36452307d683283ddcf1e89a653af3ce2",
+      "tree": "a8394f6cfb7196ee0a37d610b26cb4b402d32495",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-c5-v1.json",
+      "git_blob": "98c39eb77e4397bc9a6e95d8e0a210100fa96e5f",
+      "sha256": "a955000a989ec0d2ae3b4956ab42b4f3304659279e6897c29ea42cdc6876a41c",
+      "bytes": 655130
+    },
+    "C54_markdown": {
+      "commit": "980d91b36452307d683283ddcf1e89a653af3ce2",
+      "tree": "a8394f6cfb7196ee0a37d610b26cb4b402d32495",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-c5-v1.md",
+      "git_blob": "8281a8baa4e156b58287eb45635a1da7fe169df7",
+      "sha256": "7566489e46a19e51d6b914986e33cc298bc5b215e004db7941b519f7caae174a",
+      "bytes": 195659
+    },
+    "C54_handoff": {
+      "commit": "980d91b36452307d683283ddcf1e89a653af3ce2",
+      "tree": "a8394f6cfb7196ee0a37d610b26cb4b402d32495",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c5-current-root-20261007-handoff.json",
+      "git_blob": "dda9f30b936370fc404ca6a7c84ec7c7abefd9c0",
+      "sha256": "a1e23c1cc81eb5e5302f7c962ecb8be7519494681252e20543cd6156abf7d69f",
+      "bytes": 18172
+    },
+    "C54_independent_review": {
+      "commit": "04eb30817d16f270feae316650994f2e2f273a44",
+      "tree": "09400c3315b450a47994ed94784301ae7e4789c5",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c5-independent-review-20261007/review-result.json",
+      "git_blob": "9b6362cdd01793a291b329238bc5852bf0be11a2",
+      "sha256": "29164aa3bb03b5c25b0e37baf9137fa97932ff0f49b99127feb189b15093909a",
+      "bytes": 6979
+    },
+    "DFK_handoff": {
+      "commit": "4576f67b1ff1f8d09b6a4223779b53fff9b369ae",
+      "tree": "e541dbed27ed1f64e0a096cc632f720b78ba0745",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/dfk-c5-lifecycle-source-handoff.json",
+      "git_blob": "160e129aef4802b471876f307be42afcff703736",
+      "sha256": "7b3ea1ef9a3bc3d8e5b4e2915efe15fd9440e628a15548df2868dfe0e7e64310",
+      "bytes": 66971
+    },
+    "DFK_independent_review": {
+      "commit": "341f92fb2b18e163778ab28db13b6b67a90e7d44",
+      "tree": "7d3bcc2e63209645b89913e51d7f8e180c84468b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/dfk-independent-review-20261007/review.json",
+      "git_blob": "682b7d0b241115afedeacd22d6ebb53c396c34f1",
+      "sha256": "cb60c122917c16b52aeb1fe50844e51c4391949d1c87f684518208222d84805b",
+      "bytes": 19775
+    },
+    "Legal_handoff": {
+      "commit": "51609922447716115c22287ac79c218d13cd9067",
+      "tree": "bc8b7ac5989b71aba55d1b4cc646589e85daf0a2",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/legal-query-profile-20261007.json",
+      "git_blob": "677801f5f2979495e0c15493434a0ccd90b1a881",
+      "sha256": "c76f1e1f70957438ed9abd6e6f12efbe5ef29cb5a792ad779e442ad0119fd01e",
+      "bytes": 18983
+    },
+    "Legal_independent_review": {
+      "commit": "77c5cd319c92e52932b1bf15c342b24a41e7b051",
+      "tree": "751a1a854e2c4332ae68c545c739b4d8046c7149",
+      "path": "policy-engine/docs/system-design-decisions/reviews/2026-10-07-legal-query-profile-binding/review.json",
+      "git_blob": "15a8e7048497421dab22cfa7269c043539929420",
+      "sha256": "51556950e90935042dddfe6830b593862c89eefb54ab54fc2665bbe1427b1aa2",
+      "bytes": 5841
+    },
+    "CAN_unchanged_handoff": {
+      "commit": "60b523c2d0e1a587f2f1d4b92a0ac9a89a1f49db",
+      "tree": "75308c9d306bc8187008613597f2acc917cb0d74",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-canonical-json-mapping-20261007.json",
+      "git_blob": "6dda17e5d9c2e04c383883bda5e8196c319d9d4b",
+      "sha256": "529f473f1546e1035f7abb0571d08088fb1f1d1749cf655e7248c8f2bdccd1bc",
+      "bytes": 49591
+    },
+    "NET_unchanged_handoff": {
+      "commit": "373c9623071f60c08f5e362e61d211829e5d8f5a",
+      "tree": "dece08804715a9288aa17281532c4f58cb249bda",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/current-net-ing-owner-overlap-20261007.json",
+      "git_blob": "31e59a5fe2c4228c6cd8708b971642eab727af61",
+      "sha256": "bae4a34c8433e5b853f6f4bdc7147fdc88142a0b0de4a2878f3906692fc274da",
+      "bytes": 32852
+    },
+    "C5_intake": {
+      "commit": "2535e30fbe91f119fde4579f45ba4caef7e75260",
+      "tree": "f1d31a05da4dd63ca301491342e2a481a910d3ff",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c5-intake-20261007-handoff.json",
+      "git_blob": "0ff3eea9608ef0f2285a935282377a3215d40384",
+      "sha256": "282574e49861331449ead2bc82860d5af20705aa800d339093c243b1a05ecbc4",
+      "bytes": 7636
+    },
+    "C5_owner_inputs": {
+      "commit": "2a702c26c047ccafde68523afcd7fc356f2edfb9",
+      "tree": "950e05b6cad1e5f7381627db488b1638b10eb5d6",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-owner-inputs/C5-owner-inputs-20261007.json",
+      "git_blob": "5549b337ecaf567c222f970977f636ed386b2aed",
+      "sha256": "95dfff35eadcd55895b643af217ddaac3a6f176038e6d1b651662c4165b4c385",
+      "bytes": 42442
+    },
+    "C5_owner_handoff": {
+      "commit": "6dcca1d49484459d9b5d0c4bf4eba17aa2e29bb4",
+      "tree": "b9322e7bec970952dc2548e59194507a5a060e94",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/c5-owner-inputs-20261007-handoff.json",
+      "git_blob": "da7104c3ef7f9cad6e885d71cf8d97a1edbe4422",
+      "sha256": "ebf4b77bb478610d76ec7e49250c74eb90aecb85d3c0bb85aee0c3e7723f7526",
+      "bytes": 6653
+    },
+    "closeout_observations": {
+      "commit": "347a57b261850975fada82437a34342ea92a290e",
+      "tree": "21fa94ab0f26154047351a5422c928070bc3c650",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-closeout/closeout-observations.json",
+      "git_blob": "c8c681d5bc400d8e4b7e8a1f4f8bf17f6a4a0913",
+      "sha256": "f4b41ec43b6e3bbe052fd73bfe4cc2f0f9f5d0c7e63bdd767aa664a8782c1270",
+      "bytes": 5077
+    },
+    "closeout_output_index": {
+      "commit": "347a57b261850975fada82437a34342ea92a290e",
+      "tree": "21fa94ab0f26154047351a5422c928070bc3c650",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-closeout/output-index.json",
+      "git_blob": "19c5f9eb9d745d2d01e57ea3673012de4b9cfab3",
+      "sha256": "2d6214dc42522ba632606698c33e8f5979c5a4cfa33af25bb2f34d9bacb5c78b",
+      "bytes": 18282
+    },
+    "Root_observer_lint": {
+      "commit": "dc75326c2cc65edc45f85188333b5087c6c32ca1",
+      "tree": "2fde180ec08c1ba58892263cbd7568c3ecacd0a4",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-closeout/root-presence-probe-ruff.json",
+      "git_blob": "34d0cb92f0f84c41e952d5176e756eea75c9358b",
+      "sha256": "ad09818099d89aafc970f6ba668efaa033a9bc5f906fd389af5cdb60ec373da9",
+      "bytes": 1208
+    }
+  },
+  "remaining_inputs_and_owners": {
+    "complete_per_ID_source": "C54_table /rows and C5_owner_inputs /rows; no bounded subset replaces denominator",
+    "B": "B79/B80 dataset/run/cursor/content evidence binder; B83 source-owned event/version key; two decoder-only B-owned pool-stream selectors. B87 remains separate physical-resource finding.",
+    "B_Core_G": "LA021 raw Core emission/admission contract or bounded bypass decision plus exacte3 installed layer. Mapping fix is complete and unchanged.",
+    "C_W04_serving_G": "LA040 paired production generation/assets/live encoder provider, then already-authorized minimal read-only ordered projection/membership and real same-profile served readback. DB present; no renewed reading authorization required.",
+    "Source_rights": "LA018 source-bound permitted-purpose trusted rights input and Lex bridge; LA024/025 exact Scholar reuse permission. License strings are not permission.",
+    "Product_C_W15": "LA023 public .train/TrainingResult/checkpoint-field promise then typed continuation or supported explicit unsupported boundary. Warm actor/fresh optimizer behavior is not checkpoint resume and is not banned without that contract.",
+    "A": "LA028 run_profile/context through actual serving callers; no invented default.",
+    "G_UDF_C_W19": "LA029 eligibleLinux/C7 lifecycle; LA032 authoritative versioned source→state-ID/targets/prior/donor inventory and read_api bridge. SSH timeout is availability only.",
+    "E_F_BERL": "LA036 admitted conditional feature law/model/support/order/epoch/provenance and nonlinear bound verifier if applicable; posterior-parameter rows/SCM hashes do not supply it.",
+    "MIG_history": "LA050 authorized genuine0.9 manifest; scope19paths/129columns10tables/4current1.0 stays bounded."
+  },
+  "verification_limits": [
+    "Baseline import integrity/navigation only, raw VM archives0; no baseline PASS/FAIL carried as new candidate runtime PASS.",
+    "No broad post-merge regression/full-production run; G performs one expensive composed replay after source freeze.",
+    "CANe3/DFKa13/Legalc60 exact noneditable wheel/archive layers UNRUN without available local Hatchling backend; no older wheel substituted.",
+    "Required production-invocation audit is partial static only: DFK exit0, Legal exit3/eight unresolved symbols, no regressions observed in staticmodel, runtime_invocation_established=false; not an inherited-red or noninvocation proof.",
+    "Global DFK release-fragment failures and prior C3 default-mode failure have P41not_established ownership; no zero full-input intersection proved.",
+    "Standalone root observer style fix changes no observed metadata/row inputs; original2a script and snapshot remain immutable historic execution."
+  ],
+  "pattern_pass": [
+    "P13",
+    "P29",
+    "P35",
+    "P37",
+    "P38",
+    "P39",
+    "P40",
+    "P41"
+  ],
+  "cleanup": "NativeTrash only; six Legal review dependency roots and unused Root partialvenv preserved there; own audit reports/code/docs/production/shared dependencies retained, Trash not emptied, no physical disk-space release claim.",
+  "publication": "Seven C source/input/review topics ordinarypushed and exacthead readback; rootfinalcarrier publication/readback is the next separate receipt. Main/integration are untouched. No other user chats messaged.",
+  "final_C_scope_status": "Available C5 source slices and all54 precise recommendations/next-owner dispositions delivered; G source admission/formal finding closure and named held/limited inputs remain pending."
+}

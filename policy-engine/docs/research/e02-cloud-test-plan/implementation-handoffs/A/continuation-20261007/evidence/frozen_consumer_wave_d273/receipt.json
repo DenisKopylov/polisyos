@@ -1,0 +1,76 @@
+{
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "e02_origin",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "-q",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/frozen-consumer-wave-d273/junit.xml",
+    "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/frozen-consumer-wave-d273/pytest-basetemp",
+    "tests/unit/remediation/test_frc_01.py",
+    "tests/unit/remediation/test_sim_01.py",
+    "tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+    "tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py",
+    "tests/unit/runtime/quality/test_workspace_composition.py",
+    "tests/unit/remediation/test_sim_03.py",
+    "tests/unit/remediation/test_cyc_02.py",
+    "tests/integration/core_runtime/test_e02_empirical_member_intake.py",
+    "tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_falls_back_from_unbound_program_graph_to_owner_ncm",
+    "tests/unit/runtime/quality/test_generation_cycle.py::test_owner_program_graph_n5_consumes_distinct_wmr_states_and_n8_keeps_limits",
+    "tests/unit/runtime/quality/test_generation_cycle.py::test_owner_program_graph_n5_consumes_selected_wmr_view_and_rejects_sibling",
+    "tests/unit/runtime/quality/test_generation_cycle.py::test_owner_program_graph_n5_consumes_selected_state_blob_view",
+    "tests/unit/runtime/quality/test_generation_cycle.py::test_owner_program_graph_n5_rejects_state_ref_selector_removal_with_markers",
+    "tests/unit/runtime/quality/test_generation_cycle.py::test_owner_program_graph_n5_state_handoff_removal_probe_keeps_markers_red",
+    "tests/unit/runtime/quality/test_generation_cycle.py::test_single_step_static_ncm_reaches_n8_with_simulate_only_intake",
+    "tests/unit/runtime/quality/test_generation_cycle.py::test_n8_recovers_persisted_candidate_only_blocker_after_lossy_projection",
+    "tests/unit/runtime/quality/test_generation_cycle.py::test_n8_types_unknown_or_malformed_content_bound_persisted_blockers",
+    "tests/unit/runtime/quality/test_generation_cycle.py::test_missing_canonical_registry_never_mints_n6_bootstrap_authority",
+    "tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py",
+    "tests/unit/runtime/quality/test_generation_cycle_history.py",
+    "tests/unit/runtime/quality/test_generation_cycle_outer_artifact_replay.py",
+    "tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py",
+    "tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+    "tests/unit/remediation/test_e02_source_strangle_owner_resolution.py",
+    "tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+  "candidate_sha": "d273659a117d20c70f2598309fec558c8e753b77",
+  "candidate_tree": "eb27248291194b311689f2ef3244bc738d1628bd",
+  "exit_code": 1,
+  "wall_s": 264.9752533750143,
+  "environment": {
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/frozen-consumer-wave-d273:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "JAX_PLATFORMS": "cpu"
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 37779,
+      "sha256": "c2fb36e15612b3418eda0618d750130438aba889500a82eb7c4727f4fa527a16"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "e02_origin.py": {
+      "bytes": 656,
+      "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+    },
+    "junit.xml": {
+      "bytes": 95955,
+      "sha256": "afd6e162e86fef3358f0b7ea14fc2186df43e2d33b8dc9d6f119147488ee8114"
+    },
+    "origins.json": {
+      "bytes": 1270,
+      "sha256": "109afc05f7b6d88f1c55726c09127366efb2b412cba48f219707076583ece603"
+    }
+  }
+}

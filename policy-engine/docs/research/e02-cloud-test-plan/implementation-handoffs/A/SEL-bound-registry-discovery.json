@@ -1,0 +1,315 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "SEL-bound-registry-discovery",
+  "closure_ids": [],
+  "bundle_ids": [
+    "SEL-01"
+  ],
+  "slice_base_sha": "d273659a117d20c70f2598309fec558c8e753b77",
+  "slice_base_tree_sha": "eb27248291194b311689f2ef3244bc738d1628bd",
+  "implementation_commits": [
+    "269152fd057a353e69d6144081e6370a99fcc314"
+  ],
+  "implementation_commit_records": [
+    {
+      "sha": "269152fd057a353e69d6144081e6370a99fcc314",
+      "tree": "8d0f9849ea71c26e29bd66c09353ed8fec7d6c27",
+      "parents": [
+        "a1c413594c417b6666d24f3748d4950a42cdea5d"
+      ],
+      "subject": "fix(e02): require bound registry discovery before value-method selection",
+      "changed_paths": [
+        {
+          "status": "M",
+          "path": "policy-engine/src/polisyos/foundry/methods/selection/advisor.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tests/unit/foundry/methods/test_selection_advisor.py"
+        }
+      ]
+    }
+  ],
+  "candidate_sha": "4912a409278da05a5ec170c55bf0fbbc7b1dba16",
+  "candidate_tree_sha": "8d9c6443020d75cba495d467f0377d0fc98cb36a",
+  "branch": "codex/e02-A-delivery-attached",
+  "pull_request": null,
+  "full_path_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/methods/selection/advisor.py",
+      "base_blob": "47aa05a090e01d7ba0ea047345407193d25d1b27",
+      "candidate_blob": "5c5ee9e26c0e82745ba6a53d11e488f9ceb3c1b1",
+      "net_status": "modified",
+      "touched_in": [
+        {
+          "commit": "269152fd057a353e69d6144081e6370a99fcc314",
+          "status_in_commit": "M",
+          "tree_after_commit": "8d0f9849ea71c26e29bd66c09353ed8fec7d6c27"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/data_requirement/test_e02_named_profile_context.py",
+      "base_blob": null,
+      "candidate_blob": "3c17ca0d3c9a71d35e00564d4a9464c7a7eb84d4",
+      "net_status": "added",
+      "touched_in": [
+        {
+          "commit": "a1c413594c417b6666d24f3748d4950a42cdea5d",
+          "status_in_commit": "A",
+          "tree_after_commit": "6ef412cb05aaa5e8693d61aa0f1ac35cfd197272"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/foundry/methods/test_selection_advisor.py",
+      "base_blob": "8804f4287bfafc827bcdf0cb90f91fcb43666afd",
+      "candidate_blob": "9e8acfa90e994ba1efcbd057c983792102e09e08",
+      "net_status": "modified",
+      "touched_in": [
+        {
+          "commit": "269152fd057a353e69d6144081e6370a99fcc314",
+          "status_in_commit": "M",
+          "tree_after_commit": "8d0f9849ea71c26e29bd66c09353ed8fec7d6c27"
+        },
+        {
+          "commit": "4912a409278da05a5ec170c55bf0fbbc7b1dba16",
+          "status_in_commit": "M",
+          "tree_after_commit": "8d9c6443020d75cba495d467f0377d0fc98cb36a"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py",
+      "base_blob": "6dff51c2c42e1abe2a68ce1d1efb7c8726ac49ad",
+      "candidate_blob": "50292f91782a49f89d2e6a2ba5566cdb06526c0b",
+      "net_status": "modified",
+      "touched_in": [
+        {
+          "commit": "a1c413594c417b6666d24f3748d4950a42cdea5d",
+          "status_in_commit": "M",
+          "tree_after_commit": "6ef412cb05aaa5e8693d61aa0f1ac35cfd197272"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+      "base_blob": "9fff40fb39a15bfd613fc6cb21b499fe735ae739",
+      "candidate_blob": "3e62adc9d3fae0a8ce0b4fb7739f17ab82e34aeb",
+      "net_status": "modified",
+      "touched_in": [
+        {
+          "commit": "a1c413594c417b6666d24f3748d4950a42cdea5d",
+          "status_in_commit": "M",
+          "tree_after_commit": "6ef412cb05aaa5e8693d61aa0f1ac35cfd197272"
+        },
+        {
+          "commit": "5779901f0fb71338afe856782148e1943388cbd9",
+          "status_in_commit": "M",
+          "tree_after_commit": "b006fb6fc73084599a5d458f8b93fc8e9cfe1163"
+        }
+      ]
+    }
+  ],
+  "baseline_cells": [],
+  "property": {
+    "statement": "Value-method selection requires bound registry discovery and preserves distinct advisory, profile-context, and source-manifest roles.",
+    "runtime_path": [
+      "registry discovery",
+      "bound registry artifact",
+      "selection advisor bridge",
+      "value-method selector"
+    ],
+    "proxy_divergence": "A clean source scan, marker, hash, or exit status alone does not establish the consumer property; deciding checks must exercise the named persisted/owner-bound path.",
+    "negative_controls": []
+  },
+  "predicate_basis": "not_established",
+  "capability_state_or_finding_state": "provisional_source_receipt_only_G_acceptance_pending",
+  "limitations_and_next_owner": [
+    "4912 is the test candidate; six tests fail and remain unresolved as fixture/expectation issues pending owner review."
+  ],
+  "handoff_state": "source receipt assembled; independent code review and G integration acceptance pending",
+  "candidate_role": "historical_as_of_affected_consumer_receipt_candidate_not_current_HEAD_or_source_implementation_commit",
+  "footprint_note": "full_path_footprint includes all touched paths, including mandatory tests and companions; it does not classify every path as an implementation mechanism.",
+  "progress_source": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+    "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+    "denominator_pointer": "#/denominator_and_reconciliation/A_slice",
+    "criterion_source_pins_pointer": "#/source_pins",
+    "finding_rows_pointer_template": "#/finding_rows/{index}",
+    "note": "Original historical statuses, source closure state, provisional finding outcomes, and carried-forward check states remain in the append-only progress rows cited below; this handoff does not change them."
+  },
+  "criterion_and_finding_refs": [
+    {
+      "id": "B34",
+      "primary_bundle": "SEL-01",
+      "owner_bundle_ids": [
+        "SEL-01"
+      ],
+      "progress_row_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+        "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+        "json_pointer": "#/finding_rows/28"
+      },
+      "historical_status_ref": "#/finding_rows/28/historical_status",
+      "provisional_finding_outcome_ref": "#/finding_rows/28/provisional_finding_outcome",
+      "criterion_check_state_ref": "#/finding_rows/28/criterion_check_state_carried_forward",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "criterion_id": "B34",
+          "bundle_occurrence": "SEL-01",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "source_lines_inclusive": [
+            639,
+            663
+          ],
+          "criterion_block_sha256": "b72c038145a8eea6dbec5058fd877f57f9a7f4a2e16d63de9ae67be750158be4",
+          "progress_ref": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+            "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+            "json_pointer": "#/finding_rows/28/criterion_occurrences/0"
+          }
+        }
+      ],
+      "binding_correction_ref": null,
+      "adjudication": "not_adjudicated_by_source_slice_receipt"
+    },
+    {
+      "id": "B35",
+      "primary_bundle": "SEL-01",
+      "owner_bundle_ids": [
+        "SEL-01"
+      ],
+      "progress_row_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+        "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+        "json_pointer": "#/finding_rows/29"
+      },
+      "historical_status_ref": "#/finding_rows/29/historical_status",
+      "provisional_finding_outcome_ref": "#/finding_rows/29/provisional_finding_outcome",
+      "criterion_check_state_ref": "#/finding_rows/29/criterion_check_state_carried_forward",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "criterion_id": "B35",
+          "bundle_occurrence": "SEL-01",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "source_lines_inclusive": [
+            664,
+            681
+          ],
+          "criterion_block_sha256": "d68708b6e5c579f97b0e9f3f121f67a477712796fce8dc87371fc93ee91400b4",
+          "progress_ref": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+            "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+            "json_pointer": "#/finding_rows/29/criterion_occurrences/0"
+          }
+        }
+      ],
+      "binding_correction_ref": null,
+      "adjudication": "not_adjudicated_by_source_slice_receipt"
+    },
+    {
+      "id": "B36",
+      "primary_bundle": "SEL-01",
+      "owner_bundle_ids": [
+        "SEL-01"
+      ],
+      "progress_row_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+        "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+        "json_pointer": "#/finding_rows/30"
+      },
+      "historical_status_ref": "#/finding_rows/30/historical_status",
+      "provisional_finding_outcome_ref": "#/finding_rows/30/provisional_finding_outcome",
+      "criterion_check_state_ref": "#/finding_rows/30/criterion_check_state_carried_forward",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "criterion_id": "B36",
+          "bundle_occurrence": "SEL-01",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "source_lines_inclusive": [
+            682,
+            699
+          ],
+          "criterion_block_sha256": "0493e6060257ca8b6680154283ca98ea0abba69172a196664e83a4cc3baad90b",
+          "progress_ref": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+            "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+            "json_pointer": "#/finding_rows/30/criterion_occurrences/0"
+          }
+        }
+      ],
+      "binding_correction_ref": null,
+      "adjudication": "not_adjudicated_by_source_slice_receipt"
+    }
+  ],
+  "bundle_context_only_refs": [],
+  "check_catalogue_ref": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/checks.json",
+    "schema": "policyos.e02.implementation_handoff_checks.v1",
+    "check_ids": [
+      "affected_consumer_delta_4912"
+    ],
+    "note": "Full commands, immutable check targets, output hashes, environment/origin inputs, and copied-output paths are recorded once in checks.json. Check results are not source-slice acceptance or finding closure."
+  },
+  "review_and_acceptance": {
+    "ancestry_review_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/review/accepted-ancestry-handoff.json",
+      "sha256": "ac0b42e7d50f36d3dac40aedcf9f9c63d2a88d3d4add511143436d4839f2ef99",
+      "verdict": "bounded_GO_after_pin_label_corrections",
+      "scope": "ancestry, trees, complete footprints, original nine check pins and output hashes only; not code review or G acceptance"
+    },
+    "independent_code_review": "pending",
+    "G_acceptance": "pending",
+    "formal_closure": false,
+    "closure_ids": []
+  },
+  "historical_reuse_reference": {
+    "commit": {
+      "sha": "b07287c6d159bf812051b50111b15b870b823797",
+      "tree": "b3bdbafd5957d91e54f0561c213fdda565ad4444",
+      "parents": [
+        "198076863e143dea9f89f02734b13d50dae3eed5"
+      ],
+      "subject": "Fail closed on unbound value selection registry",
+      "changed_paths": [
+        {
+          "status": "M",
+          "path": "policy-engine/src/polisyos/foundry/methods/selection/advisor.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tests/unit/foundry/methods/test_selection_advisor.py"
+        }
+      ]
+    },
+    "classification": "historical_reuse_reference_only_not_main_or_G_accepted",
+    "parent_is_main_checkpoint": {
+      "sha": "198076863e143dea9f89f02734b13d50dae3eed5",
+      "tree": "2b754a92c27959e2e747738d47ed0b419f3b6dd8",
+      "parents": [
+        "1ddcd7b3905e52c0d19db091823a64830139fa64"
+      ],
+      "subject": "docs(e02): publish six owner continuation prompts from main checkpoint"
+    },
+    "path_blob_at_reference": "bdad0538a4f1373220ef74798afd7d12321a2f59",
+    "path_blob_at_d273": "47aa05a090e01d7ba0ea047345407193d25d1b27",
+    "path_blob_at_269152": "5c5ee9e26c0e82745ba6a53d11e488f9ceb3c1b1",
+    "path_blob_at_4912": "5c5ee9e26c0e82745ba6a53d11e488f9ceb3c1b1",
+    "note": "269152 is the current topic implementation after d273; b072 is an older main-based reference, not a source acceptance or integrated commit."
+  },
+  "candidate_role_note": "269152 is the SEL source implementation commit. The existing candidate_sha/tree remain the separate 4912 immutable affected-consumer receipt snapshot; 4912 is historical as-of receipt state, not current HEAD.",
+  "source_candidate_pin_as_of": {
+    "sha": "269152fd057a353e69d6144081e6370a99fcc314",
+    "tree": "8d0f9849ea71c26e29bd66c09353ed8fec7d6c27",
+    "status": "historical_as_of_source_implementation_candidate_not_current_HEAD",
+    "note": "Source implementation pin; the separate 4912 candidate_sha/tree remain the immutable affected-consumer receipt target."
+  }
+}

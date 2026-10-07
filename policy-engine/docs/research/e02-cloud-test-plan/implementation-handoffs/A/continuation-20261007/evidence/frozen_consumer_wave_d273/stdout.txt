@@ -1,0 +1,730 @@
+........................................................................ [ 20%]
+........................................................................ [ 40%]
+............................................................F........... [ 60%]
+........................................................................ [ 81%]
+..........................F.FF...F.................................      [100%]
+=================================== FAILURES ===================================
+___ test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback ___
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/frozen-consumer-wave-d273/pytest-basetemp/test_latest_candidate_occurren0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x1423d2190>
+
+    @pytest.mark.asyncio
+    async def test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Replay both fixture appearances and bind only the latest through CAS owners.
+    
+        The opaque hashes and test grounding/value/completion fixtures establish no
+        source provenance, N5 truth, or deployment-currentness claim. The observed
+        refusal is the real pre-N9 policy-admission gate; no signed N9 admission is
+        required for this B28 occurrence-binding witness.
+        """
+    
+        problem = _problem("same_subject_persisted_occurrence")
+        problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+        root_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
+        graph = derive_recursive_design_graph(
+            design_ref=root_ref,
+            module_refs=(),
+            parent_child_edges=(),
+            rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
+        )
+        generator = _SameCandidateNewBasisGenerator()
+        recursive = RecursiveGenerationCycleController.for_contract_testing(
+            repo_root=REPO_ROOT,
+            cycle_controller_factory=lambda _node_ref, _problem: GenerationCycleController(
+                generation_port=generator,
+                grounding_port=_CurrentValidOnSecondCycleGrounding(),
+                value_port=_ReadyValuePort(),
+                repo_root=REPO_ROOT,
+            ),
+        )
+        recursive_run = await recursive.run(
+            graph,
+            problems_by_node={root_ref: problem},
+            budget_state=_budget(),
+            recursive_budget=RecursiveCycleBudget(
+                max_depth=0,
+                max_nodes=1,
+                min_cycles_per_leaf=2,
+                max_cycles_per_leaf=2,
+            ),
+        )
+        leaf_runs = tuple(
+            node.cycle_run
+            for node in recursive_run.leaf_nodes
+            if node.cycle_run is not None
+        )
+        assert len(leaf_runs) == 1
+        produced_run = leaf_runs[0]
+        assert produced_run.terminal_status == "completed"
+        assert tuple(
+            (row.candidate_id, row.content_hash, row.cycle_index)
+            for row in produced_run.candidate_summaries
+        ) == (
+            ("candidate_same_subject", "sha256:" + "1" * 64, 0),
+            ("candidate_same_subject", "sha256:" + "2" * 64, 1),
+        )
+        _assert_modern_value_receipt_roundtrips(produced_run)
+        _assert_actual_legacy_history_roundtrips()
+    
+        recursive_payload = recursive_run.model_dump(mode="json", exclude={"leaf_nodes"})
+        compiled_payload = {
+            "schema_version": COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,
+            "design_problem_ref": problem_ref,
+            "design_problem": problem.model_dump(mode="json"),
+            "cycle_substrate_context_ref": None,
+            "recursive_run": recursive_payload,
+        }
+        compiled = CompiledRecursiveGenerationCycleRun.model_validate(
+            {**compiled_payload, "content_hash": gy_content_hash(compiled_payload)}
+        )
+    
+        cas_root = tmp_path / "compiled-run-cas"
+        writer = FileSystemCAS(cas_root)
+        compiled_ref = writer.put_json(
+            compiled.model_dump(mode="json"),
+            ArtifactWriteOptions(
+                kind="runtime.compiled_recursive_generation_cycle",
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name="polisyos.runtime.CompiledRecursiveGenerationCycleRun",
+                    version="1.0",
+                ),
+            ),
+            canon_spec=canon.CanonSpec(forbid_floats=False),
+        )
+    
+        # Re-open the same CAS with fresh readers before constructing the consumer.
+        read_store = FileSystemCAS(cas_root)
+        assert read_store.verify(compiled_ref).ok
+        manifest = read_store.get_manifest(compiled_ref)
+        assert manifest.kind == "runtime.compiled_recursive_generation_cycle"
+        assert manifest.artifact_schema == SchemaInfo(
+            name="polisyos.runtime.CompiledRecursiveGenerationCycleRun",
+            version="1.0",
+        )
+        raw = read_store.get_bytes(compiled_ref)
+        assert str(compiled_ref.artifact_id) == f"sha256:{canon.content_hash(raw)}"
+        payload = canon.from_canonical_bytes(raw)
+        assert isinstance(payload, dict)
+        replayed = CompiledRecursiveGenerationCycleRun.model_validate(payload)
+        replayed_runs = tuple(
+            node.cycle_run
+            for node in replayed.recursive_run.leaf_nodes
+            if node.cycle_run is not None
+        )
+        assert len(replayed_runs) == 1
+        replayed_run = replayed_runs[0]
+>       assert replayed_run == produced_run
+E       assert GenerationCyc...y_reason=None) == GenerationCyc...y_reason=None)
+E         
+E         Use -v to get more diff
+
+tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py:349: AssertionError
+__________ test_non_simulation_leaf_requires_current_eval_safety_head __________
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/frozen-consumer-wave-d273/pytest-basetemp/test_non_simulation_leaf_requi0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x146bb1da0>
+
+    @pytest.mark.asyncio
+    async def test_non_simulation_leaf_requires_current_eval_safety_head(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        from polisyos.runtime.http.services.control import evaluation_safety as c02
+        from polisyos.runtime.quality import evaluation_safety as es
+        from polisyos.runtime.quality import generation_cycle as generation_cycle_owner
+        from polisyos.runtime.quality import recursive_generation_cycle as recursive_cycle_owner
+        from polisyos.runtime.quality.generation_cycle import (
+            JointSimulationPort,
+            RealValueOwnerGateway,
+            ValueOwnerAccessError,
+            currentness_for_generation_cycle_run,
+            validate_generation_cycle_candidate_run,
+            validate_generation_cycle_run,
+        )
+        from tests.unit.runtime.http.services import test_evaluation_safety as c02_test
+        from tests.unit.runtime.quality.test_generation_cycle import (
+            REPO_ROOT,
+            _Atom,
+            _budget,
+            _Candidate,
+            _CgfGenerationPort,
+            _problem,
+        )
+        from tests.unit.runtime.quality.test_value_gate import (
+            _execution_ref,
+            _simulation,
+            _world_record,
+        )
+    
+        runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "promotion-cas"))
+        problem = _problem(f"recursive_eval_safety_{uuid4().hex}")
+        problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+        root_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
+        graph = derive_recursive_design_graph(
+            design_ref=root_ref,
+            module_refs=(),
+            parent_child_edges=(),
+            rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
+        )
+        recursive_budget = RecursiveCycleBudget(
+            max_depth=0,
+            max_nodes=1,
+            min_cycles_per_leaf=1,
+            max_cycles_per_leaf=1,
+        )
+        candidate = _Candidate(
+            candidate_id="candidate_cgf_shadow",
+            atom=_Atom(
+                "candidate_cgf_shadow",
+                "sha256:" + "4" * 64,
+                target_world_slots=("firm_survival",),
+            ),
+            diversity_key=("grant", "firms", "cgf_shadow", "baseline"),
+        )
+        world = _world_record("7")
+        simulation = _simulation(world, candidate_id=candidate.candidate_id)
+        bound_candidate_ref = _execution_ref(
+            candidate.candidate_id,
+            candidate.atom.content_hash,
+            artifact_type="candidate",
+            schema_ref="policyos.runtime.candidate.v1",
+        )
+        bound_world_model_record_ref = _execution_ref(
+            world.world_model_record_id,
+            world.content_hash,
+            artifact_type="world_model_record",
+            schema_ref="policyos.runtime.world_model_record.v1",
+        )
+        original_intake = c02_test.EvaluationAttemptIntake
+    
+        def bound_intake(**values: object) -> es.EvaluationAttemptIntake:
+            values.update(
+                {
+                    "candidate_ref": bound_candidate_ref,
+                    "world_model_record_ref": bound_world_model_record_ref,
+                }
+            )
+            return original_intake(**values)
+    
+        monkeypatch.setattr(c02_test, "EvaluationAttemptIntake", bound_intake)
+        fixture = c02_test._passing_fixture(  # noqa: SLF001
+            tmp_path / "eval-safety",
+            design_problem_ref=problem_ref,
+        )
+    
+        def actual_n5_input_ref(
+            observation: object,
+        ) -> object:
+            assert observation is simulation
+            return fixture.execution_context.evaluation_input_refs[0]
+    
+        monkeypatch.setattr(
+            generation_cycle_owner,
+            "simulation_evaluation_input_ref",
+            actual_n5_input_ref,
+        )
+    
+        class CurrentStateResolver:
+            def resolve(
+                self,
+                context: es.EvaluationExecutionContext,
+            ) -> c02.EvaluationSafetyReplayMaterial:
+                del context
+                return fixture.replay_material
+    
+        concrete_verifier = c02.EvaluationSafetyAdmissionVerifier(
+            persistence_service=fixture.service,
+            current_state_resolver=CurrentStateResolver(),
+            authority_resolver=fixture.authority_resolver,
+            appointment_resolver=fixture.appointment_resolver,
+            verifier_registry=fixture.verifier_registry,
+        )
+    
+        class ReplayFirstPositive:
+            def __init__(self) -> None:
+                self.first: es.EvalSafetyConsumerAdmissionReceipt | None = None
+    
+            def require_admission(
+                self,
+                context: es.EvaluationExecutionContext,
+                challenge: es.EvalSafetyAdmissionChallenge,
+            ) -> es.EvalSafetyConsumerAdmissionReceipt:
+                if self.first is None:
+                    self.first = concrete_verifier.require_admission(context, challenge)
+                return self.first
+    
+        owner_calls: list[str] = []
+        n4_calls = 0
+        n5_calls = 0
+    
+        def actual_n5(
+            self: JointSimulationPort,
+            *,
+            candidate: object,
+            problem: object,
+            cycle_index: int,
+        ) -> object:
+            nonlocal n5_calls
+            del self, problem, cycle_index
+            n5_calls += 1
+            assert candidate.candidate_id == simulation.candidate_id  # type: ignore[attr-defined]
+            return simulation
+    
+        def value_owner_spy(
+            self: RealValueOwnerGateway,
+            **values: object,
+        ) -> object:
+            del self, values
+            owner_calls.append("load_value_data_profile")
+            raise ValueOwnerAccessError("value_owner_data_profile_invalid")
+    
+        monkeypatch.setattr(JointSimulationPort, "__call__", actual_n5)
+        monkeypatch.setattr(RealValueOwnerGateway, "load_value_data_profile", value_owner_spy)
+    
+        class _CanonicalFixtureN4Port(N4GenerationPort):
+            def __init__(self) -> None:
+                super().__init__(model_id="fixture-model")
+                self._delegate = _CgfGenerationPort()
+    
+            async def __call__(self, problem, *, cycle_index):
+                nonlocal n4_calls
+                n4_calls += 1
+                return await self._delegate(problem, cycle_index=cycle_index)
+    
+        async def run_leaf(
+            *,
+            context: es.EvaluationExecutionContext,
+            verifier: object,
+            context_bindings: dict[str, es.EvaluationExecutionContext] | None = None,
+        ):
+            controller = build_default_recursive_generation_cycle_controller(
+                repo_root=REPO_ROOT,
+                promotion_runtime=runtime,
+                eval_safety_verifier=verifier,
+            )
+            return await controller.run(
+                graph,
+                problems_by_node={root_ref: problem},
+                budget_state=_budget(),
+                recursive_budget=recursive_budget,
+                n4_generation_ports_by_node={root_ref: _CanonicalFixtureN4Port()},
+                evaluation_contexts_by_node=(
+                    {root_ref: context} if context_bindings is None else context_bindings
+                ),
+                execution_intents_by_node={root_ref: "field_pilot"},
+            )
+    
+>       current = await run_leaf(
+            context=fixture.execution_context,
+            verifier=concrete_verifier,
+        )
+
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:1429: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:1417: in run_leaf
+    return await controller.run(
+src/polisyos/runtime/quality/recursive_generation_cycle.py:1345: in run
+    root = await route(recursive_graph.root_design_ref)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/recursive_generation_cycle.py:1203: in route
+    cycle_run = await controller.run(
+src/polisyos/runtime/quality/generation_cycle.py:6156: in run
+    cycle, cycle_summaries = await self._run_cycle(
+src/polisyos/runtime/quality/generation_cycle.py:6874: in _run_cycle
+    finished = await self._engine.run_async(state)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/workflows/engine_simple.py:51: in run_async
+    next_state = fn(state)
+                 ^^^^^^^^^
+src/polisyos/runtime/quality/generation_cycle.py:8798: in _joint_value_node
+    value = value_port(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <polisyos.runtime.quality.generation_cycle.FoundryValuePort object at 0x146b375f0>
+
+    def __call__(
+        self,
+        *,
+        candidate: object,
+        simulation: SimulationPortObservation,
+        problem: DesignProblem,
+        cycle_index: int,
+    ) -> ValuePortObservation:
+        """Compute value over a named WMR or fail closed with typed blockers."""
+    
+        started = time.monotonic()
+        del cycle_index
+        candidate_id = _candidate_id(candidate)
+        context = self._evaluation_context
+        mode = context.evaluation_mode
+        if context.evaluator_owner_id != FOUNDRY_VALUE_PORT_EVALUATOR_ID:
+            return _blocked_value_observation(
+                code="eval_safety_evaluator_owner_mismatch",
+                reason="EvalSafety context is bound to another evaluator owner.",
+                mode=mode,
+                started=started,
+                candidate_id=candidate_id,
+            )
+        if context.design_problem_ref != _problem_ref(problem):
+            return _blocked_value_observation(
+                code="eval_safety_design_problem_binding_mismatch",
+                reason="EvalSafety context does not bind this DesignProblem.",
+                mode=mode,
+                started=started,
+                candidate_id=candidate_id,
+            )
+>       actual_input_ref = simulation_evaluation_input_ref(
+            simulation, artifact_store=self._artifact_store
+        )
+E       TypeError: test_non_simulation_leaf_requires_current_eval_safety_head.<locals>.actual_n5_input_ref() got an unexpected keyword argument 'artifact_store'
+
+src/polisyos/runtime/quality/generation_cycle.py:4984: TypeError
+__ test_http_recursive_route_carries_one_cycle_context_without_manual_context __
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/frozen-consumer-wave-d273/pytest-basetemp/test_http_recursive_route_carr0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x143f88bb0>
+
+    @pytest.mark.asyncio
+    async def test_http_recursive_route_carries_one_cycle_context_without_manual_context(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """HTTP → recursion → N6 must retain one content-bound substrate envelope."""
+    
+        from polisyos.runtime.quality.design_problem import DesignProblemAuthorityError
+        from tests.unit.runtime.quality.test_generation_cycle import (
+            REPO_ROOT,
+            _budget,
+            _cyc01_owner_bound_n5_case,
+            _GenerationResult,
+            _Ranking,
+        )
+    
+        problem, substrate_context, candidate = _cyc01_owner_bound_n5_case()
+        runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    
+        class _NeverCalledVerifier:
+            def require_admission(self, *_args, **_kwargs):
+                raise AssertionError("ordinary HTTP test unexpectedly called EvalSafety verifier")
+    
+        async def compile_problem(**kwargs):
+            del kwargs
+            return problem
+    
+        monkeypatch.setattr(
+            generation_cycle_service,
+            "build_design_problem_from_nl_request",
+            compile_problem,
+        )
+    
+        def source_scan_must_not_run(*_args, **_kwargs):
+            pytest.fail("served_candidate_reentry_scanned_source_tree")
+    
+        monkeypatch.setattr(StrangleReceipt, "recompute", source_scan_must_not_run)
+    
+        class _ContextFixtureN4Port(N4GenerationPort):
+            def __init__(self) -> None:
+                super().__init__(model_id="fixture-model")
+                self.calls = 0
+    
+            async def __call__(self, problem, *, cycle_index):
+                del problem, cycle_index
+                self.calls += 1
+                return _GenerationResult(
+                    status="generated",
+                    candidates=(candidate,),
+                    surrogate_rankings=(
+                        _Ranking(
+                            candidate_id=candidate.candidate_id,
+                            score=0.91,
+                            voi_estimate=0.1,
+                        ),
+                    ),
+                    grounding_dispositions=(),
+                )
+    
+        recursive_budget = RecursiveCycleBudget(
+            max_depth=0,
+            max_nodes=1,
+            min_cycles_per_leaf=1,
+            max_cycles_per_leaf=1,
+        )
+        n4_port = _ContextFixtureN4Port()
+        compiled = await generation_cycle_service.compile_and_run_recursive_generation_cycle(
+            raw_request=problem.nl_provenance.raw_request,
+            context={},
+            model_name="fixture-model",
+            execution_intent="simulate_only",
+            compiler_gateway=object(),  # type: ignore[arg-type]
+            budget_state=_budget(),
+            recursive_budget=recursive_budget,
+            root_evaluation_context=None,
+            eval_safety_verifier=_NeverCalledVerifier(),
+            cycle_substrate_context=substrate_context,
+            root_n4_generation_port=n4_port,
+            promotion_runtime=runtime,
+            repo_root=REPO_ROOT,
+        )
+    
+        assert compiled.recursive_run.leaf_nodes[0].cycle_run is not None
+        leaf_cycle = compiled.recursive_run.leaf_nodes[0].cycle_run
+        assert leaf_cycle.cycles
+        simulation = leaf_cycle.cycles[0].simulation
+        assert leaf_cycle.strangle_receipt.status == "not_established"
+        assert leaf_cycle.promotion_port.status == "not_promoted"
+>       assert leaf_cycle.promotion_port.reason == (
+            "generation_cycle_n6_census_not_established:n6_census_issuer_not_appointed"
+        )
+E       AssertionError: assert 'generation_c...isite_not_met' == 'generation_c...not_appointed'
+E         
+E         - generation_cycle_n6_census_not_established:n6_census_issuer_not_appointed
+E         + generation_cycle_blocked_before_n9:n5_preflight_blocked:n5_grounding_prerequisite_not_met
+
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:1728: AssertionError
+_______ test_http_recursive_route_carries_one_context_to_n5_owner_block ________
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/frozen-consumer-wave-d273/pytest-basetemp/test_http_recursive_route_carr1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x143f89320>
+
+    @pytest.mark.asyncio
+    async def test_http_recursive_route_carries_one_context_to_n5_owner_block(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """HTTP → leaf → N5 must retain the one owner WMR on a typed NCM block."""
+    
+        from tests.unit.runtime.quality.test_generation_cycle import (
+            REPO_ROOT,
+            _budget,
+            _cyc01_owner_bound_n5_case,
+            _GenerationResult,
+            _GroundingDisposition,
+            _Ranking,
+        )
+    
+        problem, substrate_context, candidate = _cyc01_owner_bound_n5_case()
+        runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    
+        class _NeverCalledVerifier:
+            def require_admission(self, *_args, **_kwargs):
+                raise AssertionError("owner-blocked N5 path unexpectedly called EvalSafety verifier")
+    
+        class _BoundN4Port(N4GenerationPort):
+            def __init__(self) -> None:
+                super().__init__(model_id="fixture-model")
+                self.calls = 0
+    
+            async def __call__(self, problem, *, cycle_index):
+                del problem, cycle_index
+                self.calls += 1
+                return _GenerationResult(
+                    status="generated",
+                    candidates=(candidate,),
+                    surrogate_rankings=(
+                        _Ranking(
+                            candidate_id=candidate.candidate_id,
+                            score=0.91,
+                            voi_estimate=0.1,
+                        ),
+                    ),
+                    grounding_dispositions=(
+                        _GroundingDisposition(
+                            proposal_id=candidate.candidate_id,
+                            candidate_id=candidate.candidate_id,
+                            raw_candidate_hash=candidate.atom.content_hash,
+                            disposition="shadow_bound",
+                            selected_relation="exact",
+                            shadow_atom_content_hash=candidate.atom.content_hash,
+                        ),
+                    ),
+                )
+    
+        async def compile_problem(**kwargs):
+            del kwargs
+            return problem
+    
+        monkeypatch.setattr(
+            generation_cycle_service,
+            "build_design_problem_from_nl_request",
+            compile_problem,
+        )
+        n4_port = _BoundN4Port()
+        compiled = await generation_cycle_service.compile_and_run_recursive_generation_cycle(
+            raw_request=problem.nl_provenance.raw_request,
+            context={},
+            model_name="fixture-model",
+            execution_intent="simulate_only",
+            compiler_gateway=object(),  # type: ignore[arg-type]
+            budget_state=_budget(),
+            recursive_budget=RecursiveCycleBudget(
+                max_depth=0,
+                max_nodes=1,
+                min_cycles_per_leaf=1,
+                max_cycles_per_leaf=1,
+            ),
+            root_evaluation_context=None,
+            eval_safety_verifier=_NeverCalledVerifier(),
+            cycle_substrate_context=substrate_context,
+            root_n4_generation_port=n4_port,
+            promotion_runtime=runtime,
+            repo_root=REPO_ROOT,
+        )
+    
+        assert n4_port.calls == 1
+        assert compiled.cycle_substrate_context_ref == substrate_context.content_hash
+        leaf = compiled.recursive_run.leaf_nodes[0]
+        assert leaf.cycle_run is not None
+        assert leaf.cycle_run.cycles
+>       assert leaf.cycle_run.cycles[0].value_port.evaluation_mode == "simulate_only"
+E       AssertionError: assert None == 'simulate_only'
+E        +  where None = ValuePortObservation(status='value_blocked', candidate_id='candidate_cyc_n5_builder', value_ref=None, authority_blocke...t_receipt=None, calibration_receipt=None, value_receipt=None, conditional_interaction_evidence=None, wall_time_ms=None).evaluation_mode
+E        +    where ValuePortObservation(status='value_blocked', candidate_id='candidate_cyc_n5_builder', value_ref=None, authority_blocke...t_receipt=None, calibration_receipt=None, value_receipt=None, conditional_interaction_evidence=None, wall_time_ms=None) = GenerationCycleRecord(cycle_index=0, design_problem_ref='sha256:5af6fafda89678e99f8ea0afb688f0340d78fc44b5168d2b19fd87...on_receipt=None, acquisition_routing_report=None, acquisition_cost_basis_record=None, acquisition_cost_basis_hash=None).value_port
+
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:1881: AssertionError
+_______ test_recursive_constructor_denominator_has_no_unwrapped_n9_call ________
+
+    def test_recursive_constructor_denominator_has_no_unwrapped_n9_call() -> None:
+        repo_root = Path(__file__).resolve().parents[4]
+        git_paths, filesystem_paths = _production_python_paths(repo_root)
+        assert git_paths == filesystem_paths
+    
+        constructors: list[_CallSite] = []
+        promotion_calls: list[_CallSite] = []
+        ambiguous: list[str] = []
+        for relative_path in sorted(git_paths):
+            source_path = repo_root / relative_path
+            found_constructors, found_ports, found_ambiguous = _scan_python_source(
+                source=source_path.read_text(encoding="utf-8"),
+                module=_module_name(repo_root, source_path),
+                source_path=relative_path,
+            )
+            constructors.extend(found_constructors)
+            promotion_calls.extend(found_ports)
+            ambiguous.extend(found_ambiguous)
+>       _assert_constructor_contract(tuple(constructors), tuple(promotion_calls), tuple(ambiguous))
+
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:2143: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+constructors = (_CallSite(module='polisyos.runtime.http.services.control.generation_cycle', source_path='src/polisyos/runtime/http/se...ulation_port', 'grounding_port', 'value_port'}), has_keyword_expansion=False, authority_scope='contract_testing'), ...)
+promotion_calls = (_CallSite(module='polisyos.runtime.quality.generation_cycle', source_path='src/polisyos/runtime/quality/generation_cy...tion_port', keyword_names=frozenset({'admitted_batch', 'problem'}), has_keyword_expansion=False, authority_scope=None))
+ambiguous = ()
+
+    def _assert_constructor_contract(
+        constructors: tuple[_CallSite, ...],
+        promotion_calls: tuple[_CallSite, ...],
+        ambiguous: tuple[str, ...],
+    ) -> None:
+        assert ambiguous == ()
+        expected_production = {
+            (
+                "polisyos.runtime.http.services.control.generation_cycle",
+                "src/polisyos/runtime/http/services/control/generation_cycle.py",
+                "compile_and_run_recursive_generation_cycle",
+                "polisyos.runtime.quality.recursive_generation_cycle."
+                "build_default_recursive_generation_cycle_controller",
+                frozenset(
+                    {"repo_root", "model_id", "promotion_runtime", "eval_safety_verifier"}
+                ),
+            ),
+            (
+                "polisyos.runtime.quality.recursive_generation_cycle",
+                "src/polisyos/runtime/quality/recursive_generation_cycle.py",
+                "build_default_recursive_generation_cycle_controller",
+                "polisyos.runtime.quality.recursive_generation_cycle."
+                "RecursiveGenerationCycleController",
+                frozenset(
+                    {"repo_root", "model_id", "promotion_runtime", "eval_safety_verifier"}
+                ),
+            ),
+            (
+                "polisyos.runtime.quality.recursive_generation_cycle",
+                "src/polisyos/runtime/quality/recursive_generation_cycle.py",
+                "RecursiveGenerationCycleController.run.route",
+                "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+                frozenset(
+                    {
+                        "generation_port",
+                        "repo_root",
+                        "model_id",
+                        "cycle_substrate_context",
+                        "promotion_runtime",
+                        "value_port",
+                    }
+                ),
+            ),
+            (
+                "polisyos.runtime.quality.generation_cycle",
+                "src/polisyos/runtime/quality/generation_cycle.py",
+                "GenerationCycleController.__init__",
+                "polisyos.runtime.quality.promotion_sequence.CanonicalN9PromotionPort",
+                frozenset({"repo_root", "promotion_runtime", "epoch_n9_evidence_resolver"}),
+            ),
+        }
+        observed_production = {
+            (row.module, row.source_path, row.enclosing, row.target, row.keyword_names)
+            for row in constructors
+            if row.source_path.startswith("src/")
+        }
+>       assert observed_production == expected_production
+E       AssertionError: assert {('polisyos.r...repo_root'}))} == {('polisyos.r...repo_root'}))}
+E         
+E         Extra items in the left set:
+E         ('polisyos.runtime.quality.generation_cycle', 'src/polisyos/runtime/quality/generation_cycle.py', 'GenerationCycleCont...der', 'epoch_n9_evidence_resolver', 'measurement_catalog', 'measurement_providers', 'promotion_runtime', 'repo_root'}))
+E         ('polisyos.runtime.quality.acquisition_world_growth', 'src/polisyos/runtime/quality/acquisition_world_growth.py', 'Acq...runtime.quality.generation_cycle.GenerationCycleController', frozenset({'model_id', 'promotion_runtime', 'repo_root'}))
+E         ('polisyos.runtime.quality.recursive_generation_cycle', 'src/polisyo...
+E         
+E         ...Full output truncated (5 lines hidden), use '-vv' to show
+
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:936: AssertionError
+=============================== warnings summary ===============================
+tests/unit/runtime/quality/test_generation_cycle_history.py::test_source_free_package_replays_n6_v1_v2_v3_with_semantic_mutation
+  tests/unit/runtime/quality/test_generation_cycle_history.py:70: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_source_free_package_replays_n6_v1_v2_v3_with_semantic_mutation(
+
+tests/unit/runtime/quality/test_generation_cycle_history.py::test_all_current_and_pinned_historical_n6_runs_replay_byte_exactly
+  tests/unit/runtime/quality/test_generation_cycle_history.py:529: PytestWarning: record_property is incompatible with junit_family 'xunit2' (use 'legacy' or 'xunit1')
+    def test_all_current_and_pinned_historical_n6_runs_replay_byte_exactly(
+
+tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py::test_pareto_archive_unvalidated_minting_seams_revalidate[model_construct]
+tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py::test_pareto_archive_unvalidated_minting_seams_revalidate[construct]
+  /Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+    PydanticSerializationUnexpectedValue(Expected `AuthorityBoundary` - serialized value may not be as expected [field_name='authority_boundary', input_value={'authoritative_for': ['p...r2.s8.value_choice.v1']}, input_type=dict])
+    return self.__pydantic_serializer__.to_python(
+
+tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py::test_pareto_archive_unvalidated_minting_seams_revalidate[copy]
+tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py::test_pareto_archive_unvalidated_minting_seams_revalidate[copy]
+  /Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src/polisyos/runtime/quality/design_axes/value_choice_provenance.py:327: PydanticDeprecatedSince20: The `copy` method is deprecated; use `model_copy` instead. See the docstring of `BaseModel.copy` for details about how to handle `include` and `exclude`. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    copied = super().copy(
+
+tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py::test_pareto_archive_unvalidated_minting_seams_revalidate[construct]
+  /Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py:369: PydanticDeprecatedSince20: The `construct` method is deprecated; use `model_construct` instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    archive_model.construct(**{**unranked_payload, **ranked_update})
+
+tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py::test_pareto_archive_unvalidated_minting_seams_revalidate[construct]
+  /Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py:384: PydanticDeprecatedSince20: The `construct` method is deprecated; use `model_construct` instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.12/migration/
+    safe_copy = archive_model.construct(**unranked_payload)
+
+tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py::test_subclass_atom_identity_is_distinct_but_preflight_refuses_it
+  /Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+    PydanticSerializationUnexpectedValue(Expected `OperatorKind` - serialized value may not be as expected [field_name='operator_kind', input_value={'trinity_kind': 'tax_sub...ntionType.NODE: 'node'>}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `TargetSelectorBinding` - serialized value may not be as expected [field_name='target_selector', input_value={'trinity_target': {'kind...e3a837ca092796e5e38f61'}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `DirectEffectBundle` - serialized value may not be as expected [field_name='direct_effect_bundle', input_value={'params': {'rate': Decim...nnels': (), 'notes': ()}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `CausalDoExpression` - serialized value may not be as expected [field_name='causal_do_expr', input_value={'intervention_type': <Pr...lector_content_bound']}}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `IntendedDownstreamEstimand` - serialized value may not be as expected [field_name='intended_downstream_estimand', input_value={'target_kind': <QueryTar...: None, 'unit_id': None}, input_type=dict])
+    PydanticSerializationUnexpectedValue(Expected `IdentificationPlanRef` - serialized value may not be as expected [field_name='causal_path_or_identification_plan_ref', input_value={'plan_ref': 'sha256:5fe4...tions': (), 'notes': ()}, input_type=dict])
+    return self.__pydantic_serializer__.to_python(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py::test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback
+FAILED tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py::test_non_simulation_leaf_requires_current_eval_safety_head
+FAILED tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py::test_http_recursive_route_carries_one_cycle_context_without_manual_context
+FAILED tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py::test_http_recursive_route_carries_one_context_to_n5_owner_block
+FAILED tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py::test_recursive_constructor_denominator_has_no_unwrapped_n9_call
+5 failed, 350 passed, 9 warnings in 260.19s (0:04:20)

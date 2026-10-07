@@ -1,0 +1,69 @@
+{
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "e02_origin",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "-q",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/affected-consumer-delta-4912/junit.xml",
+    "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/affected-consumer-delta-4912/pytest-basetemp",
+    "tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py",
+    "tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py::test_non_simulation_leaf_requires_current_eval_safety_head",
+    "tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py::test_http_recursive_route_carries_one_cycle_context_without_manual_context",
+    "tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py::test_direct_service_refuses_unbound_shadow_marker_before_n5",
+    "tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py::test_recursive_constructor_denominator_has_no_unwrapped_n9_call",
+    "tests/unit/data_requirement/test_compiler.py",
+    "tests/unit/data_requirement/test_e02_named_profile_context.py",
+    "tests/unit/foundry/methods/test_selection_advisor.py",
+    "tests/unit/runtime/quality/test_value_gate.py::test_value_port_selects_then_routes_missing_owner_assignment_to_acquisition",
+    "tests/unit/runtime/quality/test_value_gate.py::test_source_time_limitation_can_accompany_the_bound_treatment_gap",
+    "tests/unit/runtime/quality/test_value_gate.py::test_n8_value_port_accepts_recomputed_foundry_receipt_context",
+    "tests/unit/runtime/quality/test_value_gate.py::test_value_port_rejects_selection_receipt_replayed_from_other_owner_profile",
+    "tests/unit/runtime/quality/test_value_gate.py::test_value_port_rejects_unowned_method_selection_receipt"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+  "candidate_sha": "4912a409278da05a5ec170c55bf0fbbc7b1dba16",
+  "candidate_tree": "8d9c6443020d75cba495d467f0377d0fc98cb36a",
+  "exit_code": 1,
+  "wall_s": 235.67335883300984,
+  "environment": {
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/affected-consumer-delta-4912:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "JAX_PLATFORMS": "cpu"
+  },
+  "probe_environment": {},
+  "launcher": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+    "sha256": "928c32ba9a42cd2c1e28652bf9d6ba3bddf038de5d17abfef3ac701fcd04c7e2"
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 38465,
+      "sha256": "f9af344fe96c752509547e03aeb67d0e626feabd79b9b67f77a151613fd6cd7e"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "e02_origin.py": {
+      "bytes": 656,
+      "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+    },
+    "junit.xml": {
+      "bytes": 55320,
+      "sha256": "54d87bc5d60be50a3551fd4fd02167ca21c28e8c9f93053cff2b104f78779e1e"
+    },
+    "origins.json": {
+      "bytes": 1095,
+      "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+    }
+  }
+}

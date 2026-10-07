@@ -1,0 +1,1803 @@
+{
+  "schema": "policyos.e02.implementation_handoff_checks.v1",
+  "unit": "A",
+  "recorded_at_utc": "2026-10-07T12:51:03.583212+00:00",
+  "status": "canonical receipt evidence; source/code review and G acceptance remain pending",
+  "documented_workspace_HEAD_as_of_assembly": {
+    "branch": "codex/e02-A-delivery-attached",
+    "sha": "a2fca1416d6f13704e91b0051f5a68762fbf3efc",
+    "tree": "83228f7d2dc7dfac819d357325e104e86bb80069",
+    "note": "assembly snapshot only; not a claim that all later or dirty workspace content is receipted"
+  },
+  "source_receipt_input": {
+    "path": "policy-engine/_build/e02-A-continuation-20261007/handoff-prep/source-receipts.json",
+    "sha256": "8bd08afa3e9ae62fa56bfd5233594031c2dfa878941431436908689f710c1ef8",
+    "role": "local receipt assembly input; not copied into canonical evidence"
+  },
+  "queue_denominator": {
+    "progress_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+      "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+      "denominator_pointer": "#/denominator_and_reconciliation",
+      "row_pointer_template": "#/finding_rows/{index}",
+      "slice_base_note": "The progress file source_pins.slice_base is the main checkpoint only; the independent receipt bases below are authoritative for each slice."
+    },
+    "whole_queue": {
+      "owner_bundle_rows": 127,
+      "coverage_bundles": 127,
+      "owner_finding_rows": 282,
+      "coverage_findings": 282,
+      "canonical_source_block_occurrences": 291
+    },
+    "A_slice": {
+      "owned_bundles": 13,
+      "unique_finding_ids": 34,
+      "primary_finding_rows": 34,
+      "criterion_occurrences": 35,
+      "criterion_document_counts": {
+        "B_r19": 31,
+        "LA_r09": 4
+      },
+      "historical_source_status_counts": {
+        "partial": 31,
+        "open": 1,
+        "closed": 1,
+        "held": 1
+      },
+      "source_closure_now_counts": {
+        "not_adjudicated": 34
+      },
+      "provisional_prior_outcome_counts": {
+        "open": 4,
+        "limited": 27,
+        "closed": 2,
+        "held": 1
+      }
+    },
+    "whole_queue_pointer": "#/denominator_and_reconciliation/whole_queue",
+    "A_slice_pointer": "#/denominator_and_reconciliation/A_slice",
+    "owner_tsv_coverage_progress_id_sets_reconciled": true,
+    "criterion_ref_occurrences_reconciled": true
+  },
+  "criterion_source_pins": {
+    "B_r19": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+      "source_git_blob_at_main_checkpoint": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+      "source_file_sha256_at_main_checkpoint": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+      "coverage_declared_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a"
+    },
+    "LA_r09": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "source_git_blob_at_main_checkpoint": "4bdf76e99f0c26e40bc2a71e76d4940c23712260",
+      "source_file_sha256_at_main_checkpoint": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+      "coverage_declared_blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260"
+    },
+    "coverage_json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "bytes": 549568,
+      "sha256": "cd8ced9c346eb452b0f9df835ef834c5467e529262d54550f58cdf714c445ff2",
+      "git_blob_at_main_checkpoint": "561233cba5e82cbf9b6d8cb28a0928ecd3cfad3a"
+    },
+    "bundle_owners_tsv": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv",
+      "bytes": 12413,
+      "sha256": "f587df5256ebef909b4060a588c2f947f31b173adf8d44b32e7f4eea5abd1f75",
+      "git_blob_at_main_checkpoint": "78b4385b8a9a3752d84d3389c8c4a972dd65f16b"
+    },
+    "finding_owners_tsv": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv",
+      "bytes": 9504,
+      "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722",
+      "git_blob_at_main_checkpoint": "515c70d29f59f3175521642e72d04f1aaffc72d7"
+    },
+    "original_A_binding_corrections": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/original-A-binding-corrections.json",
+      "git_commit": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+      "git_blob": "2d322088105d9be291e87e450d987fa005bf0164",
+      "bytes": 11304,
+      "sha256": "b8c690105157087ebe30f7a0ef1f772864c0f31f6f7085fc73fe005bfc9fd1e1",
+      "denominator": {
+        "bundles": 13,
+        "unique_ids": 34,
+        "source_criterion_occurrences": 35,
+        "B_r19_occurrences": 31,
+        "LA_r09_occurrences": 4,
+        "LA_046_same_source_occurrences_preserved": 2
+      },
+      "record_refs": {
+        "B05": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/original-A-binding-corrections.json@9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7#/records/0",
+        "B11": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/original-A-binding-corrections.json@9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7#/records/1",
+        "B16": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/original-A-binding-corrections.json@9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7#/records/2",
+        "B28": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/original-A-binding-corrections.json@9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7#/records/3",
+        "B30": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/original-A-binding-corrections.json@9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7#/records/4",
+        "B31": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/original-A-binding-corrections.json@9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7#/records/5",
+        "LA-046": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/original-A-binding-corrections.json@9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7#/records/6"
+      }
+    },
+    "original_A_binding_corrections_records_are_pointers_only": true
+  },
+  "accepted_ancestry_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/review/accepted-ancestry-handoff.json",
+    "sha256": "ac0b42e7d50f36d3dac40aedcf9f9c63d2a88d3d4add511143436d4839f2ef99",
+    "reviewer": "/root/accepted_ancestry",
+    "recorded_at_utc": "2026-10-07T12:27:14.667214+00:00",
+    "verdict": "bounded_GO_after_pin_label_corrections",
+    "reviewed_input": {
+      "path": "policy-engine/_build/e02-A-continuation-20261007/handoff-prep/source-receipts.json",
+      "sha256": "8bd08afa3e9ae62fa56bfd5233594031c2dfa878941431436908689f710c1ef8"
+    },
+    "verified": "All three slice base/candidate trees, complete commit chains and footprints matched Git (10/10, 7/7, 5/5 paths). All nine check target pins, output byte sizes/SHA256 and complete JUnit summaries matched saved outputs. No tests or source changes by reviewer. Formal closure IDs are empty and all 34 outcomes provisional.",
+    "scope_limit": "Ancestry, tree, footprint and original nine check pins only. It is not code review, criterion closeout, or G acceptance. The two 42918 checks below were added after this review."
+  },
+  "G_context": {
+    "docs_only_commit": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+    "tree": "2e228785406834ba128bb7b4dd9c636a6a2a1cb5",
+    "G_acceptance": "pending",
+    "source_or_test_acceptance": "pending"
+  },
+  "findings_and_closure": {
+    "formal_closure": false,
+    "closure_ids": [],
+    "row_outcomes": "All original historical statuses and prior provisional outcomes are referenced from the existing append-only progress JSON; no row is adjudicated here.",
+    "source_closure_now": "not_adjudicated for all 34 source rows"
+  },
+  "check_count": 11,
+  "checks": [
+    {
+      "id": "frozen_consumer_wave_d273",
+      "kind": "pytest",
+      "scope": "Composite affected-consumer wave at d273: 350 passed / 5 failed; not a current 4912 result.",
+      "runner_outcome": "FAIL",
+      "runner_exit_code": 1,
+      "interpretation": "Composite affected-consumer run failed 5/355. Preserve as an aggregate failure; no individual finding closes from it.",
+      "counts_from_complete_junit": {
+        "tests": 355,
+        "failures": 5,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 350
+      },
+      "target": {
+        "sha": "d273659a117d20c70f2598309fec558c8e753b77",
+        "tree": "eb27248291194b311689f2ef3244bc738d1628bd",
+        "role": "immutable check target; candidate label is receipt-specific, not a claim of currentness",
+        "equals_documented_workspace_HEAD_as_of_assembly": false,
+        "documented_workspace_HEAD_as_of_assembly": "a2fca1416d6f13704e91b0051f5a68762fbf3efc",
+        "documented_workspace_tree_as_of_assembly": "83228f7d2dc7dfac819d357325e104e86bb80069"
+      },
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/frozen-consumer-wave-d273/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/frozen-consumer-wave-d273/pytest-basetemp",
+        "tests/unit/remediation/test_frc_01.py",
+        "tests/unit/remediation/test_sim_01.py",
+        "tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+        "tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py",
+        "tests/unit/runtime/quality/test_workspace_composition.py",
+        "tests/unit/remediation/test_sim_03.py",
+        "tests/unit/remediation/test_cyc_02.py",
+        "tests/integration/core_runtime/test_e02_empirical_member_intake.py",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_falls_back_from_unbound_program_graph_to_owner_ncm",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_owner_program_graph_n5_consumes_distinct_wmr_states_and_n8_keeps_limits",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_owner_program_graph_n5_consumes_selected_wmr_view_and_rejects_sibling",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_owner_program_graph_n5_consumes_selected_state_blob_view",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_owner_program_graph_n5_rejects_state_ref_selector_removal_with_markers",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_owner_program_graph_n5_state_handoff_removal_probe_keeps_markers_red",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_single_step_static_ncm_reaches_n8_with_simulate_only_intake",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_n8_recovers_persisted_candidate_only_blocker_after_lossy_projection",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_n8_types_unknown_or_malformed_content_bound_persisted_blockers",
+        "tests/unit/runtime/quality/test_generation_cycle.py::test_missing_canonical_registry_never_mints_n6_bootstrap_authority",
+        "tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py",
+        "tests/unit/runtime/quality/test_generation_cycle_history.py",
+        "tests/unit/runtime/quality/test_generation_cycle_outer_artifact_replay.py",
+        "tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py",
+        "tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+        "tests/unit/remediation/test_e02_source_strangle_owner_resolution.py",
+        "tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py"
+      ],
+      "working_directory": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+      "wall_seconds": 264.9752533750143,
+      "environment_ref": {
+        "path": "evidence/frozen_consumer_wave_d273/receipt.json",
+        "sha256": "c3c4e45c49709ab08241a742ce0aa7231e647cc901386225aad91011f69da8bd",
+        "json_pointer": "#/environment",
+        "probe_environment_pointer": "#/probe_environment"
+      },
+      "origin_ref": {
+        "path": null,
+        "sha256": "109afc05f7b6d88f1c55726c09127366efb2b412cba48f219707076583ece603"
+      },
+      "runner_receipt_ref": {
+        "path": null,
+        "sha256": "c3c4e45c49709ab08241a742ce0aa7231e647cc901386225aad91011f69da8bd"
+      },
+      "source_blob_bindings_at_target": [
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+          "blob_at_check_target": "fc4e60761e0275d9f14c92fe1e7e24167501ec97"
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+          "blob_at_check_target": "6bb5df68dcacb5f39688f4b558ad165ac5b06ec1"
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/design_axes/value_choice_provenance.py",
+          "blob_at_check_target": "029219fe7ecd80c340725201c7be9df2994a455b"
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+          "blob_at_check_target": "77f0743bebfdf72f635a0f0477884c279b865da6"
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/production_invocation.py",
+          "blob_at_check_target": "71794d380c565e12f5fdba6b12286921c0a7e0b1"
+        }
+      ],
+      "output_files": {
+        "receipt.json": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/frozen-consumer-wave-d273/receipt.json",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/frozen_consumer_wave_d273/receipt.json",
+          "bytes": 4377,
+          "sha256": "c3c4e45c49709ab08241a742ce0aa7231e647cc901386225aad91011f69da8bd",
+          "copy": "byte_exact",
+          "role": "runner_receipt"
+        },
+        "stdout.txt": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/frozen-consumer-wave-d273/stdout.txt",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/frozen_consumer_wave_d273/stdout.txt",
+          "bytes": 37779,
+          "sha256": "c2fb36e15612b3418eda0618d750130438aba889500a82eb7c4727f4fa527a16",
+          "copy": "byte_exact",
+          "role": "stdout"
+        },
+        "stderr.txt": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/frozen-consumer-wave-d273/stderr.txt",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/frozen_consumer_wave_d273/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "copy": "byte_exact",
+          "role": "stderr"
+        },
+        "junit.xml": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/frozen-consumer-wave-d273/junit.xml",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/frozen_consumer_wave_d273/junit.xml",
+          "bytes": 95955,
+          "sha256": "afd6e162e86fef3358f0b7ea14fc2186df43e2d33b8dc9d6f119147488ee8114",
+          "copy": "byte_exact",
+          "role": "complete_junit"
+        },
+        "origins.json": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/frozen-consumer-wave-d273/origins.json",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/frozen_consumer_wave_d273/origins.json",
+          "bytes": 1270,
+          "sha256": "109afc05f7b6d88f1c55726c09127366efb2b412cba48f219707076583ece603",
+          "copy": "byte_exact",
+          "role": "module_origin_and_environment"
+        },
+        "e02_origin.py": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/frozen-consumer-wave-d273/e02_origin.py",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/frozen_consumer_wave_d273/e02_origin.py",
+          "bytes": 656,
+          "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+          "copy": "byte_exact",
+          "role": "pytest_origin_plugin"
+        },
+        "failure-details.json": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/frozen-consumer-wave-d273/failure-details.json",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/frozen_consumer_wave_d273/failure-details.json",
+          "bytes": 34846,
+          "sha256": "ae9e8c68c0d7c6314ba0ad5cda05460db27c810c77b64866fb462d42abd3b426",
+          "copy": "byte_exact",
+          "role": "failure_detail_companion"
+        }
+      },
+      "local_only_raw_outputs": [],
+      "input_denominator_ref": null,
+      "slice_refs": [
+        "persisted-value-hard-feasibility",
+        "B30-owner-census"
+      ],
+      "case_semantics": {},
+      "scope_limit": "This check records its exact command, target and runner bytes. It does not adjudicate a finding or G acceptance.",
+      "related_slice_refs": [
+        {
+          "slice": "persisted-value-hard-feasibility",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/persisted-value-hard-feasibility.json",
+          "relation": "check referenced by this slice; check scope is defined in this shared catalogue"
+        },
+        {
+          "slice": "B30-owner-census",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/B30-owner-census.json",
+          "relation": "check referenced by this slice; check scope is defined in this shared catalogue"
+        }
+      ]
+    },
+    {
+      "id": "affected_consumer_delta_4912",
+      "kind": "pytest",
+      "scope": "Current candidate 4912: 92/98 pass, six failures remain unresolved and are not mapped to finding closure.",
+      "runner_outcome": "FAIL",
+      "runner_exit_code": 1,
+      "interpretation": "As-of receipt candidate aggregate failed 6/98; six failures remain unresolved and are not mapped to finding closure.",
+      "counts_from_complete_junit": {
+        "tests": 98,
+        "failures": 6,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 92
+      },
+      "target": {
+        "sha": "4912a409278da05a5ec170c55bf0fbbc7b1dba16",
+        "tree": "8d9c6443020d75cba495d467f0377d0fc98cb36a",
+        "role": "immutable check target; candidate label is receipt-specific, not a claim of currentness",
+        "equals_documented_workspace_HEAD_as_of_assembly": false,
+        "documented_workspace_HEAD_as_of_assembly": "a2fca1416d6f13704e91b0051f5a68762fbf3efc",
+        "documented_workspace_tree_as_of_assembly": "83228f7d2dc7dfac819d357325e104e86bb80069"
+      },
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/affected-consumer-delta-4912/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/affected-consumer-delta-4912/pytest-basetemp",
+        "tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py",
+        "tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py::test_non_simulation_leaf_requires_current_eval_safety_head",
+        "tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py::test_http_recursive_route_carries_one_cycle_context_without_manual_context",
+        "tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py::test_direct_service_refuses_unbound_shadow_marker_before_n5",
+        "tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py::test_recursive_constructor_denominator_has_no_unwrapped_n9_call",
+        "tests/unit/data_requirement/test_compiler.py",
+        "tests/unit/data_requirement/test_e02_named_profile_context.py",
+        "tests/unit/foundry/methods/test_selection_advisor.py",
+        "tests/unit/runtime/quality/test_value_gate.py::test_value_port_selects_then_routes_missing_owner_assignment_to_acquisition",
+        "tests/unit/runtime/quality/test_value_gate.py::test_source_time_limitation_can_accompany_the_bound_treatment_gap",
+        "tests/unit/runtime/quality/test_value_gate.py::test_n8_value_port_accepts_recomputed_foundry_receipt_context",
+        "tests/unit/runtime/quality/test_value_gate.py::test_value_port_rejects_selection_receipt_replayed_from_other_owner_profile",
+        "tests/unit/runtime/quality/test_value_gate.py::test_value_port_rejects_unowned_method_selection_receipt"
+      ],
+      "working_directory": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+      "wall_seconds": 235.67335883300984,
+      "environment_ref": {
+        "path": "evidence/affected_consumer_delta_4912/receipt.json",
+        "sha256": "75e98c9fba8421204301f0637e39af24357c2b841dd339b0fd3dfdf9422b10a9",
+        "json_pointer": "#/environment",
+        "probe_environment_pointer": "#/probe_environment"
+      },
+      "origin_ref": {
+        "path": null,
+        "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+      },
+      "runner_receipt_ref": {
+        "path": null,
+        "sha256": "75e98c9fba8421204301f0637e39af24357c2b841dd339b0fd3dfdf9422b10a9"
+      },
+      "source_blob_bindings_at_target": [
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+          "blob_at_check_target": "fc4e60761e0275d9f14c92fe1e7e24167501ec97"
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+          "blob_at_check_target": "6bb5df68dcacb5f39688f4b558ad165ac5b06ec1"
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/design_axes/value_choice_provenance.py",
+          "blob_at_check_target": "029219fe7ecd80c340725201c7be9df2994a455b"
+        },
+        {
+          "path": "policy-engine/src/polisyos/foundry/methods/selection/advisor.py",
+          "blob_at_check_target": "5c5ee9e26c0e82745ba6a53d11e488f9ceb3c1b1"
+        }
+      ],
+      "output_files": {
+        "receipt.json": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/affected-consumer-delta-4912/receipt.json",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/affected_consumer_delta_4912/receipt.json",
+          "bytes": 3812,
+          "sha256": "75e98c9fba8421204301f0637e39af24357c2b841dd339b0fd3dfdf9422b10a9",
+          "copy": "byte_exact",
+          "role": "runner_receipt"
+        },
+        "stdout.txt": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/affected-consumer-delta-4912/stdout.txt",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/affected_consumer_delta_4912/stdout.txt",
+          "bytes": 38465,
+          "sha256": "f9af344fe96c752509547e03aeb67d0e626feabd79b9b67f77a151613fd6cd7e",
+          "copy": "byte_exact",
+          "role": "stdout"
+        },
+        "stderr.txt": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/affected-consumer-delta-4912/stderr.txt",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/affected_consumer_delta_4912/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "copy": "byte_exact",
+          "role": "stderr"
+        },
+        "junit.xml": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/affected-consumer-delta-4912/junit.xml",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/affected_consumer_delta_4912/junit.xml",
+          "bytes": 55320,
+          "sha256": "54d87bc5d60be50a3551fd4fd02167ca21c28e8c9f93053cff2b104f78779e1e",
+          "copy": "byte_exact",
+          "role": "complete_junit"
+        },
+        "origins.json": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/affected-consumer-delta-4912/origins.json",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/affected_consumer_delta_4912/origins.json",
+          "bytes": 1095,
+          "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+          "copy": "byte_exact",
+          "role": "module_origin_and_environment"
+        },
+        "e02_origin.py": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/affected-consumer-delta-4912/e02_origin.py",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/affected_consumer_delta_4912/e02_origin.py",
+          "bytes": 656,
+          "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+          "copy": "byte_exact",
+          "role": "pytest_origin_plugin"
+        },
+        "failure-details.json": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/affected-consumer-delta-4912/failure-details.json",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/affected_consumer_delta_4912/failure-details.json",
+          "bytes": 40653,
+          "sha256": "87976b185ac5f6ae3da49a4940b66c274de2d8d2c274b0173799b62ce50aaed9",
+          "copy": "byte_exact",
+          "role": "failure_detail_companion"
+        },
+        "run_check.py": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/affected_consumer_delta_4912/run_check.py",
+          "bytes": 2538,
+          "sha256": "928c32ba9a42cd2c1e28652bf9d6ba3bddf038de5d17abfef3ac701fcd04c7e2",
+          "copy": "byte_exact",
+          "role": "runner_launcher"
+        }
+      },
+      "local_only_raw_outputs": [],
+      "input_denominator_ref": null,
+      "slice_refs": [
+        "persisted-value-hard-feasibility",
+        "SEL-bound-registry-discovery"
+      ],
+      "case_semantics": {},
+      "scope_limit": "This check records its exact command, target and runner bytes. It does not adjudicate a finding or G acceptance.",
+      "candidate_label": "as_of_receipt_candidate_not_current_HEAD_as_of_assembly",
+      "failure_diagnostics": [
+        {
+          "test": "tests.unit.runtime.quality.test_e02_candidate_occurrence_readback::test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback",
+          "category": "unresolved_expected_refusal_mismatch",
+          "diagnostic": "Expected refusal policy_admission_missing; observed generation_cycle_promotion_basis_mismatch. Unresolved test expectation/fixture distinction."
+        },
+        {
+          "test": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate::test_recursive_constructor_denominator_has_no_unwrapped_n9_call",
+          "category": "unresolved_test_or_source_denominator",
+          "diagnostic": "Constructor AST-denominator assertion reports an extra CanonicalN9PromotionPort._for_verification callable. Unresolved source-versus-expected-denominator classification."
+        },
+        {
+          "test": "tests.unit.runtime.quality.test_value_gate::test_value_port_selects_then_routes_missing_owner_assignment_to_acquisition",
+          "category": "unresolved_fixture_precondition",
+          "diagnostic": "Fixture helper raises eval_safety_simulation_input_unresolved while resolving simulation input/world record. Unresolved fixture precondition; no product attribution."
+        },
+        {
+          "test": "tests.unit.runtime.quality.test_value_gate::test_n8_value_port_accepts_recomputed_foundry_receipt_context",
+          "category": "unresolved_fixture_precondition",
+          "diagnostic": "Fixture helper raises eval_safety_simulation_input_unresolved while resolving simulation input/world record. Unresolved fixture precondition; no product attribution."
+        },
+        {
+          "test": "tests.unit.runtime.quality.test_value_gate::test_value_port_rejects_selection_receipt_replayed_from_other_owner_profile",
+          "category": "unresolved_fixture_precondition",
+          "diagnostic": "Fixture helper raises eval_safety_simulation_input_unresolved while resolving simulation input/world record. Unresolved fixture precondition; no product attribution."
+        },
+        {
+          "test": "tests.unit.runtime.quality.test_value_gate::test_value_port_rejects_unowned_method_selection_receipt",
+          "category": "unresolved_fixture_precondition",
+          "diagnostic": "Fixture helper raises eval_safety_simulation_input_unresolved while resolving simulation input/world record. Unresolved fixture precondition; no product attribution."
+        }
+      ],
+      "related_slice_refs": [
+        {
+          "slice": "persisted-value-hard-feasibility",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/persisted-value-hard-feasibility.json",
+          "relation": "cross-slice aggregate on immutable 4912 receipt candidate; not an isolated source-slice test"
+        },
+        {
+          "slice": "B30-owner-census",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/B30-owner-census.json",
+          "relation": "cross-slice aggregate on immutable 4912 receipt candidate; not an isolated source-slice test"
+        },
+        {
+          "slice": "SEL-bound-registry-discovery",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/SEL-bound-registry-discovery.json",
+          "relation": "cross-slice aggregate on immutable 4912 receipt candidate; not an isolated source-slice test"
+        }
+      ]
+    },
+    {
+      "id": "ruff_23_paths_d273",
+      "kind": "ruff",
+      "scope": "23 explicitly listed changed Python production/test paths at d273; no broader lint claim.",
+      "runner_outcome": "PASS",
+      "runner_exit_code": 0,
+      "interpretation": "Scoped Ruff PASS over the exact denominator in its runner receipt; no broader lint claim.",
+      "counts_from_complete_junit": null,
+      "target": {
+        "sha": "d273659a117d20c70f2598309fec558c8e753b77",
+        "tree": "eb27248291194b311689f2ef3244bc738d1628bd",
+        "role": "immutable check target; candidate label is receipt-specific, not a claim of currentness",
+        "equals_documented_workspace_HEAD_as_of_assembly": false,
+        "documented_workspace_HEAD_as_of_assembly": "a2fca1416d6f13704e91b0051f5a68762fbf3efc",
+        "documented_workspace_tree_as_of_assembly": "83228f7d2dc7dfac819d357325e104e86bb80069"
+      },
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/runtime/quality/capability_discovery.py",
+        "src/polisyos/runtime/quality/data_state_substrate.py",
+        "src/polisyos/runtime/quality/design_axes/coupling_composition.py",
+        "src/polisyos/runtime/quality/design_axes/value_choice_provenance.py",
+        "src/polisyos/runtime/quality/generation_cycle.py",
+        "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+        "src/polisyos/runtime/quality/production_invocation.py",
+        "src/polisyos/runtime/quality/recursive_generation_cycle.py",
+        "src/polisyos/scientist/policy_design/search.py",
+        "tests/integration/core_runtime/test_e02_empirical_member_intake.py",
+        "tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py",
+        "tests/unit/remediation/test_e02_source_strangle_owner_resolution.py",
+        "tests/unit/remediation/test_frc_01.py",
+        "tests/unit/remediation/test_sim_01.py",
+        "tests/unit/runtime/quality/test_design_axes_coupling_composition.py",
+        "tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py",
+        "tests/unit/runtime/quality/test_e02_configured_n7_resolver.py",
+        "tests/unit/runtime/quality/test_generation_cycle.py",
+        "tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+        "tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+        "tests/unit/runtime/quality/test_workspace_composition.py",
+        "tests/unit/scientist/policy_design/test_structure_context_bridge.py",
+        "tests/unit/scientist/search/test_voi_scheduler.py"
+      ],
+      "working_directory": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+      "wall_seconds": null,
+      "environment_ref": {
+        "path": "evidence/ruff_23_paths_d273/receipt.json",
+        "sha256": "7a6b36b57c1efb94e851d51bf7801acaa4c4b6b75cd89f1c9530ab098f134f20",
+        "json_pointer": "#/environment",
+        "probe_environment_pointer": "#/probe_environment"
+      },
+      "origin_ref": {
+        "path": null,
+        "sha256": null
+      },
+      "runner_receipt_ref": {
+        "path": null,
+        "sha256": "7a6b36b57c1efb94e851d51bf7801acaa4c4b6b75cd89f1c9530ab098f134f20"
+      },
+      "source_blob_bindings_at_target": [],
+      "output_files": {
+        "receipt.json": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/ruff-d273/receipt.json",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/ruff_23_paths_d273/receipt.json",
+          "bytes": 3809,
+          "sha256": "7a6b36b57c1efb94e851d51bf7801acaa4c4b6b75cd89f1c9530ab098f134f20",
+          "copy": "byte_exact",
+          "role": "runner_receipt"
+        },
+        "stdout.txt": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/ruff-d273/stdout.txt",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/ruff_23_paths_d273/stdout.txt",
+          "bytes": 19,
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "copy": "byte_exact",
+          "role": "stdout"
+        },
+        "stderr.txt": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/ruff-d273/stderr.txt",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/ruff_23_paths_d273/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "copy": "byte_exact",
+          "role": "stderr"
+        },
+        "junit.xml": {
+          "status": "not_generated"
+        },
+        "origins.json": {
+          "status": "not_generated"
+        },
+        "e02_origin.py": {
+          "status": "not_generated"
+        }
+      },
+      "local_only_raw_outputs": [],
+      "input_denominator_ref": {
+        "path": "evidence/ruff_23_paths_d273/receipt.json",
+        "sha256": "7a6b36b57c1efb94e851d51bf7801acaa4c4b6b75cd89f1c9530ab098f134f20",
+        "json_pointer": "#/input_denominator"
+      },
+      "slice_refs": [
+        "persisted-value-hard-feasibility",
+        "B30-owner-census"
+      ],
+      "case_semantics": {},
+      "scope_limit": "This check records its exact command, target and runner bytes. It does not adjudicate a finding or G acceptance.",
+      "related_slice_refs": []
+    },
+    {
+      "id": "frc01_r1_nullable_rate_d273",
+      "kind": "pytest",
+      "scope": "Three targeted tests: two controls PASS; the zero-denominator removal mutant fails at the expected assertion (R1 witnessed), not a product suite pass.",
+      "runner_outcome": "FAIL",
+      "runner_exit_code": 1,
+      "interpretation": "Two controls PASS and the zero-denominator removal mutant fails at the expected assertion; this is an R1 witness, not a product-suite pass.",
+      "counts_from_complete_junit": {
+        "tests": 3,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 2
+      },
+      "target": {
+        "sha": "d273659a117d20c70f2598309fec558c8e753b77",
+        "tree": "eb27248291194b311689f2ef3244bc738d1628bd",
+        "role": "immutable check target; candidate label is receipt-specific, not a claim of currentness",
+        "equals_documented_workspace_HEAD_as_of_assembly": false,
+        "documented_workspace_HEAD_as_of_assembly": "a2fca1416d6f13704e91b0051f5a68762fbf3efc",
+        "documented_workspace_tree_as_of_assembly": "83228f7d2dc7dfac819d357325e104e86bb80069"
+      },
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/s10-nullable-rate-removal-d273/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/s10-nullable-rate-removal-d273/pytest-basetemp",
+        "tests/unit/remediation/test_frc_01.py::test_gateway_preserves_missing_calibration_metric_as_distinct_from_observed_zero[unavailable-observation]",
+        "tests/unit/remediation/test_frc_01.py::test_gateway_preserves_missing_calibration_metric_as_distinct_from_observed_zero[observed-zero-rate]",
+        "tests/unit/remediation/test_frc_01.py::test_zero_denominator_projection_mutant_does_not_emit_calibration_record"
+      ],
+      "working_directory": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+      "wall_seconds": 18.632976458990015,
+      "environment_ref": {
+        "path": "evidence/frc01_r1_nullable_rate_d273/receipt.json",
+        "sha256": "d657f766cd48967c3eb488d376add9bcd2872017437f811d3078264622ac7e62",
+        "json_pointer": "#/environment",
+        "probe_environment_pointer": "#/probe_environment"
+      },
+      "origin_ref": {
+        "path": null,
+        "sha256": "109afc05f7b6d88f1c55726c09127366efb2b412cba48f219707076583ece603"
+      },
+      "runner_receipt_ref": {
+        "path": null,
+        "sha256": "d657f766cd48967c3eb488d376add9bcd2872017437f811d3078264622ac7e62"
+      },
+      "source_blob_bindings_at_target": [
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/design_axes/value_choice_provenance.py",
+          "blob_at_check_target": "029219fe7ecd80c340725201c7be9df2994a455b"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_frc_01.py",
+          "blob_at_check_target": "90c70911e6b7e7be78e09d52542f2c52e05b8c10"
+        }
+      ],
+      "output_files": {
+        "receipt.json": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/s10-nullable-rate-removal-d273/receipt.json",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/frc01_r1_nullable_rate_d273/receipt.json",
+          "bytes": 2842,
+          "sha256": "d657f766cd48967c3eb488d376add9bcd2872017437f811d3078264622ac7e62",
+          "copy": "byte_exact",
+          "role": "runner_receipt"
+        },
+        "stdout.txt": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/s10-nullable-rate-removal-d273/stdout.txt",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/frc01_r1_nullable_rate_d273/stdout.txt",
+          "bytes": 2762,
+          "sha256": "789aac77fdfa74bb5c3ac415ea8bb78f153a51081ed712d999503861f47d15d6",
+          "copy": "byte_exact",
+          "role": "stdout"
+        },
+        "stderr.txt": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/s10-nullable-rate-removal-d273/stderr.txt",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/frc01_r1_nullable_rate_d273/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "copy": "byte_exact",
+          "role": "stderr"
+        },
+        "junit.xml": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/s10-nullable-rate-removal-d273/junit.xml",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/frc01_r1_nullable_rate_d273/junit.xml",
+          "bytes": 3163,
+          "sha256": "90bd9ac0746d4104efa2612bd044347808ae3262de276d3216eb0f52a2c161bb",
+          "copy": "byte_exact",
+          "role": "complete_junit"
+        },
+        "origins.json": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/s10-nullable-rate-removal-d273/origins.json",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/frc01_r1_nullable_rate_d273/origins.json",
+          "bytes": 1270,
+          "sha256": "109afc05f7b6d88f1c55726c09127366efb2b412cba48f219707076583ece603",
+          "copy": "byte_exact",
+          "role": "module_origin_and_environment"
+        },
+        "e02_origin.py": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/s10-nullable-rate-removal-d273/e02_origin.py",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/frc01_r1_nullable_rate_d273/e02_origin.py",
+          "bytes": 656,
+          "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+          "copy": "byte_exact",
+          "role": "pytest_origin_plugin"
+        },
+        "run_check.py": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/frc01_r1_nullable_rate_d273/run_check.py",
+          "bytes": 2538,
+          "sha256": "928c32ba9a42cd2c1e28652bf9d6ba3bddf038de5d17abfef3ac701fcd04c7e2",
+          "copy": "byte_exact",
+          "role": "runner_launcher"
+        }
+      },
+      "local_only_raw_outputs": [],
+      "input_denominator_ref": null,
+      "slice_refs": [
+        "persisted-value-hard-feasibility"
+      ],
+      "case_semantics": {},
+      "scope_limit": "This check records its exact command, target and runner bytes. It does not adjudicate a finding or G acceptance.",
+      "related_slice_refs": [
+        {
+          "slice": "persisted-value-hard-feasibility",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/persisted-value-hard-feasibility.json",
+          "relation": "check referenced by this slice; check scope is defined in this shared catalogue"
+        },
+        {
+          "slice": "B30-owner-census",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/B30-owner-census.json",
+          "relation": "check referenced by this slice; check scope is defined in this shared catalogue"
+        }
+      ]
+    },
+    {
+      "id": "b23_physical_positive_f5cf",
+      "kind": "pytest",
+      "scope": "Bounded B23 physical cache positive: one test PASS at f5cf.",
+      "runner_outcome": "PASS",
+      "runner_exit_code": 0,
+      "interpretation": "Bounded B23 physical identity positive PASS at f5cf.",
+      "counts_from_complete_junit": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 1
+      },
+      "target": {
+        "sha": "f5cfba1e1bdafcc562c0d191a1c47b37f59cfba8",
+        "tree": "413f52aae666aeb5dece2a2a15238bc9b2ae2a9e",
+        "role": "immutable check target; candidate label is receipt-specific, not a claim of currentness",
+        "equals_documented_workspace_HEAD_as_of_assembly": false,
+        "documented_workspace_HEAD_as_of_assembly": "a2fca1416d6f13704e91b0051f5a68762fbf3efc",
+        "documented_workspace_tree_as_of_assembly": "83228f7d2dc7dfac819d357325e104e86bb80069"
+      },
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b23-positive-f5cf/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b23-positive-f5cf/pytest-basetemp",
+        "tests/unit/remediation/test_sim_03.py::test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request"
+      ],
+      "working_directory": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+      "wall_seconds": 20.08795299998019,
+      "environment_ref": {
+        "path": "evidence/b23_physical_positive_f5cf/receipt.json",
+        "sha256": "2e05b39f2a5261952e779b2dc73d37c1afa4924c39aefbe9c3a691430314f37e",
+        "json_pointer": "#/environment",
+        "probe_environment_pointer": "#/probe_environment"
+      },
+      "origin_ref": {
+        "path": null,
+        "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+      },
+      "runner_receipt_ref": {
+        "path": null,
+        "sha256": "2e05b39f2a5261952e779b2dc73d37c1afa4924c39aefbe9c3a691430314f37e"
+      },
+      "source_blob_bindings_at_target": [
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+          "blob_at_check_target": "77f0743bebfdf72f635a0f0477884c279b865da6"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_sim_03.py",
+          "blob_at_check_target": "4804ffac006db662bbd912ae835c1c8fafbb6f05"
+        }
+      ],
+      "output_files": {
+        "receipt.json": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/b23-positive-f5cf/receipt.json",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/b23_physical_positive_f5cf/receipt.json",
+          "bytes": 2172,
+          "sha256": "2e05b39f2a5261952e779b2dc73d37c1afa4924c39aefbe9c3a691430314f37e",
+          "copy": "byte_exact",
+          "role": "runner_receipt"
+        },
+        "stdout.txt": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/b23-positive-f5cf/stdout.txt",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/b23_physical_positive_f5cf/stdout.txt",
+          "bytes": 99,
+          "sha256": "c7f387b1e72991d5a0e62ce4411cc54dddb931bd2b32cc2344c22badca98cb6a",
+          "copy": "byte_exact",
+          "role": "stdout"
+        },
+        "stderr.txt": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/b23-positive-f5cf/stderr.txt",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/b23_physical_positive_f5cf/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "copy": "byte_exact",
+          "role": "stderr"
+        },
+        "junit.xml": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/b23-positive-f5cf/junit.xml",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/b23_physical_positive_f5cf/junit.xml",
+          "bytes": 414,
+          "sha256": "ef82bcee571089b98b3f4deb08d1a6b12b8730623ed37dd48880a68d0b48344e",
+          "copy": "byte_exact",
+          "role": "complete_junit"
+        },
+        "origins.json": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/b23-positive-f5cf/origins.json",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/b23_physical_positive_f5cf/origins.json",
+          "bytes": 1095,
+          "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+          "copy": "byte_exact",
+          "role": "module_origin_and_environment"
+        },
+        "e02_origin.py": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/b23-positive-f5cf/e02_origin.py",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/b23_physical_positive_f5cf/e02_origin.py",
+          "bytes": 656,
+          "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+          "copy": "byte_exact",
+          "role": "pytest_origin_plugin"
+        }
+      },
+      "local_only_raw_outputs": [],
+      "input_denominator_ref": null,
+      "slice_refs": [
+        "persisted-value-hard-feasibility"
+      ],
+      "case_semantics": {},
+      "scope_limit": "This check records its exact command, target and runner bytes. It does not adjudicate a finding or G acceptance.",
+      "related_slice_refs": [
+        {
+          "slice": "persisted-value-hard-feasibility",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/persisted-value-hard-feasibility.json",
+          "relation": "check referenced by this slice; check scope is defined in this shared catalogue"
+        }
+      ]
+    },
+    {
+      "id": "b23_physical_seed_removal_f5cf",
+      "kind": "pytest",
+      "scope": "R1 removal mutant: one expected test failure at the physical-ref cardinality assertion; not a product regression receipt.",
+      "runner_outcome": "FAIL",
+      "runner_exit_code": 1,
+      "interpretation": "Expected R1 removal failure at the physical-ref cardinality assertion; not a product regression.",
+      "counts_from_complete_junit": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 0
+      },
+      "target": {
+        "sha": "f5cfba1e1bdafcc562c0d191a1c47b37f59cfba8",
+        "tree": "413f52aae666aeb5dece2a2a15238bc9b2ae2a9e",
+        "role": "immutable check target; candidate label is receipt-specific, not a claim of currentness",
+        "equals_documented_workspace_HEAD_as_of_assembly": false,
+        "documented_workspace_HEAD_as_of_assembly": "a2fca1416d6f13704e91b0051f5a68762fbf3efc",
+        "documented_workspace_tree_as_of_assembly": "83228f7d2dc7dfac819d357325e104e86bb80069"
+      },
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b23-removal-seed-f5cf/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b23-removal-seed-f5cf/pytest-basetemp",
+        "tests/unit/remediation/test_sim_03.py::test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request"
+      ],
+      "working_directory": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+      "wall_seconds": 17.40824987500673,
+      "environment_ref": {
+        "path": "evidence/b23_physical_seed_removal_f5cf/receipt.json",
+        "sha256": "e9231dcc40e97e4dd344b6ce8c997ed168aae86fa9d11f0058bad2cf864b1eea",
+        "json_pointer": "#/environment",
+        "probe_environment_pointer": "#/probe_environment"
+      },
+      "origin_ref": {
+        "path": null,
+        "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+      },
+      "runner_receipt_ref": {
+        "path": null,
+        "sha256": "e9231dcc40e97e4dd344b6ce8c997ed168aae86fa9d11f0058bad2cf864b1eea"
+      },
+      "source_blob_bindings_at_target": [
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+          "blob_at_check_target": "77f0743bebfdf72f635a0f0477884c279b865da6"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_sim_03.py",
+          "blob_at_check_target": "4804ffac006db662bbd912ae835c1c8fafbb6f05"
+        }
+      ],
+      "output_files": {
+        "receipt.json": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/b23-removal-seed-f5cf/receipt.json",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/b23_physical_seed_removal_f5cf/receipt.json",
+          "bytes": 2188,
+          "sha256": "e9231dcc40e97e4dd344b6ce8c997ed168aae86fa9d11f0058bad2cf864b1eea",
+          "copy": "byte_exact",
+          "role": "runner_receipt"
+        },
+        "stdout.txt": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/b23-removal-seed-f5cf/stdout.txt",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/b23_physical_seed_removal_f5cf/stdout.txt",
+          "bytes": 56451,
+          "sha256": "066e1783ffd7b7db71aebccacc984607fca97ca06390fccd93d8d20ffa89ccdc",
+          "copy": "byte_exact",
+          "role": "stdout"
+        },
+        "stderr.txt": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/b23-removal-seed-f5cf/stderr.txt",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/b23_physical_seed_removal_f5cf/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "copy": "byte_exact",
+          "role": "stderr"
+        },
+        "junit.xml": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/b23-removal-seed-f5cf/junit.xml",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/b23_physical_seed_removal_f5cf/junit.xml",
+          "bytes": 5576,
+          "sha256": "45e55ac9d1aa53f96e17b8d0531ccff6db3be7c5d27afa4d6882158b5442ad52",
+          "copy": "byte_exact",
+          "role": "complete_junit"
+        },
+        "origins.json": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/b23-removal-seed-f5cf/origins.json",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/b23_physical_seed_removal_f5cf/origins.json",
+          "bytes": 1095,
+          "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+          "copy": "byte_exact",
+          "role": "module_origin_and_environment"
+        },
+        "e02_origin.py": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/b23-removal-seed-f5cf/e02_origin.py",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/b23_physical_seed_removal_f5cf/e02_origin.py",
+          "bytes": 656,
+          "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+          "copy": "byte_exact",
+          "role": "pytest_origin_plugin"
+        }
+      },
+      "local_only_raw_outputs": [],
+      "input_denominator_ref": null,
+      "slice_refs": [
+        "persisted-value-hard-feasibility"
+      ],
+      "case_semantics": {},
+      "scope_limit": "This check records its exact command, target and runner bytes. It does not adjudicate a finding or G acceptance.",
+      "related_slice_refs": [
+        {
+          "slice": "persisted-value-hard-feasibility",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/persisted-value-hard-feasibility.json",
+          "relation": "check referenced by this slice; check scope is defined in this shared catalogue"
+        }
+      ]
+    },
+    {
+      "id": "b23_physical_plan_removal_f5cf",
+      "kind": "pytest",
+      "scope": "R1 removal mutant: one expected test failure at the physical-ref cardinality assertion; not a product regression receipt.",
+      "runner_outcome": "FAIL",
+      "runner_exit_code": 1,
+      "interpretation": "Expected R1 removal failure at the physical-ref cardinality assertion; not a product regression.",
+      "counts_from_complete_junit": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 0
+      },
+      "target": {
+        "sha": "f5cfba1e1bdafcc562c0d191a1c47b37f59cfba8",
+        "tree": "413f52aae666aeb5dece2a2a15238bc9b2ae2a9e",
+        "role": "immutable check target; candidate label is receipt-specific, not a claim of currentness",
+        "equals_documented_workspace_HEAD_as_of_assembly": false,
+        "documented_workspace_HEAD_as_of_assembly": "a2fca1416d6f13704e91b0051f5a68762fbf3efc",
+        "documented_workspace_tree_as_of_assembly": "83228f7d2dc7dfac819d357325e104e86bb80069"
+      },
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b23-removal-plan-f5cf/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b23-removal-plan-f5cf/pytest-basetemp",
+        "tests/unit/remediation/test_sim_03.py::test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request"
+      ],
+      "working_directory": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+      "wall_seconds": 18.99968704202911,
+      "environment_ref": {
+        "path": "evidence/b23_physical_plan_removal_f5cf/receipt.json",
+        "sha256": "f6053d7e72804ef0a0afe0c3865e89d2f3ecf476aee753d3171ec7314769c73e",
+        "json_pointer": "#/environment",
+        "probe_environment_pointer": "#/probe_environment"
+      },
+      "origin_ref": {
+        "path": null,
+        "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+      },
+      "runner_receipt_ref": {
+        "path": null,
+        "sha256": "f6053d7e72804ef0a0afe0c3865e89d2f3ecf476aee753d3171ec7314769c73e"
+      },
+      "source_blob_bindings_at_target": [
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/joint_simulation_horizon.py",
+          "blob_at_check_target": "77f0743bebfdf72f635a0f0477884c279b865da6"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_sim_03.py",
+          "blob_at_check_target": "4804ffac006db662bbd912ae835c1c8fafbb6f05"
+        }
+      ],
+      "output_files": {
+        "receipt.json": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/b23-removal-plan-f5cf/receipt.json",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/b23_physical_plan_removal_f5cf/receipt.json",
+          "bytes": 2188,
+          "sha256": "f6053d7e72804ef0a0afe0c3865e89d2f3ecf476aee753d3171ec7314769c73e",
+          "copy": "byte_exact",
+          "role": "runner_receipt"
+        },
+        "stdout.txt": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/b23-removal-plan-f5cf/stdout.txt",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/b23_physical_plan_removal_f5cf/stdout.txt",
+          "bytes": 56451,
+          "sha256": "a254fcaa49b025be4ae1ec75fbda1e7cc7ad72f1e13d8955c48e279c7c287618",
+          "copy": "byte_exact",
+          "role": "stdout"
+        },
+        "stderr.txt": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/b23-removal-plan-f5cf/stderr.txt",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/b23_physical_plan_removal_f5cf/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "copy": "byte_exact",
+          "role": "stderr"
+        },
+        "junit.xml": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/b23-removal-plan-f5cf/junit.xml",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/b23_physical_plan_removal_f5cf/junit.xml",
+          "bytes": 5576,
+          "sha256": "12016ef13313201685708d5ddec60ad6310b97e4adf35286ba78ca55640fb265",
+          "copy": "byte_exact",
+          "role": "complete_junit"
+        },
+        "origins.json": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/b23-removal-plan-f5cf/origins.json",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/b23_physical_plan_removal_f5cf/origins.json",
+          "bytes": 1095,
+          "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+          "copy": "byte_exact",
+          "role": "module_origin_and_environment"
+        },
+        "e02_origin.py": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/b23-removal-plan-f5cf/e02_origin.py",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/b23_physical_plan_removal_f5cf/e02_origin.py",
+          "bytes": 656,
+          "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+          "copy": "byte_exact",
+          "role": "pytest_origin_plugin"
+        }
+      },
+      "local_only_raw_outputs": [],
+      "input_denominator_ref": null,
+      "slice_refs": [
+        "persisted-value-hard-feasibility"
+      ],
+      "case_semantics": {},
+      "scope_limit": "This check records its exact command, target and runner bytes. It does not adjudicate a finding or G acceptance.",
+      "related_slice_refs": [
+        {
+          "slice": "persisted-value-hard-feasibility",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/persisted-value-hard-feasibility.json",
+          "relation": "check referenced by this slice; check scope is defined in this shared catalogue"
+        }
+      ]
+    },
+    {
+      "id": "b30_first_red_7498",
+      "kind": "pytest",
+      "scope": "Pre-implementation B30 owner-census falsifier at 7498; this test commit is not the slice base.",
+      "runner_outcome": "FAIL",
+      "runner_exit_code": 1,
+      "interpretation": "Pre-implementation first red after the f5cf slice base: 4 PASS / 5 FAIL; it is not the slice base or a current product result.",
+      "counts_from_complete_junit": {
+        "tests": 9,
+        "failures": 5,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 4
+      },
+      "target": {
+        "sha": "7498bfeb017c2d0eb86d3d8d981113789e4dc7ff",
+        "tree": "a751aa143d6e02688167d6cbfff03f0392b4793a",
+        "role": "immutable check target; candidate label is receipt-specific, not a claim of currentness",
+        "equals_documented_workspace_HEAD_as_of_assembly": false,
+        "documented_workspace_HEAD_as_of_assembly": "a2fca1416d6f13704e91b0051f5a68762fbf3efc",
+        "documented_workspace_tree_as_of_assembly": "83228f7d2dc7dfac819d357325e104e86bb80069"
+      },
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b30-owner-census-red/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b30-owner-census-red/pytest-basetemp",
+        "tests/unit/remediation/test_e02_source_strangle_owner_resolution.py"
+      ],
+      "working_directory": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+      "wall_seconds": 18.68107379198773,
+      "environment_ref": {
+        "path": "evidence/b30_first_red_7498/receipt.json",
+        "sha256": "a692a638e11bfaf475642efff3db00c0ae17fe7e28ad9bd3459d802da63abf31",
+        "json_pointer": "#/environment",
+        "probe_environment_pointer": "#/probe_environment"
+      },
+      "origin_ref": {
+        "path": null,
+        "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+      },
+      "runner_receipt_ref": {
+        "path": null,
+        "sha256": "a692a638e11bfaf475642efff3db00c0ae17fe7e28ad9bd3459d802da63abf31"
+      },
+      "source_blob_bindings_at_target": [
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+          "blob_at_check_target": "23cf9a62532fbb6398483d9501f2ba4bdf6d627c"
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/production_invocation.py",
+          "blob_at_check_target": "08474ca1c4ed05c21d338a734c36113c4667132b"
+        },
+        {
+          "path": "policy-engine/tests/unit/remediation/test_e02_source_strangle_owner_resolution.py",
+          "blob_at_check_target": "55846b621aaee75f5c940f6023b297e5306ef427"
+        }
+      ],
+      "output_files": {
+        "receipt.json": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/b30-owner-census-red/receipt.json",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/b30_first_red_7498/receipt.json",
+          "bytes": 2138,
+          "sha256": "a692a638e11bfaf475642efff3db00c0ae17fe7e28ad9bd3459d802da63abf31",
+          "copy": "byte_exact",
+          "role": "runner_receipt"
+        },
+        "stdout.txt": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/b30-owner-census-red/stdout.txt",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/b30_first_red_7498/stdout.txt",
+          "bytes": 6781,
+          "sha256": "be875db01d9e7ba9e2a72f5d6b5b17eda296749f91cceb81b23a44ee83fa15c7",
+          "copy": "byte_exact",
+          "role": "stdout"
+        },
+        "stderr.txt": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/b30-owner-census-red/stderr.txt",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/b30_first_red_7498/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "copy": "byte_exact",
+          "role": "stderr"
+        },
+        "junit.xml": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/b30-owner-census-red/junit.xml",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/b30_first_red_7498/junit.xml",
+          "bytes": 7880,
+          "sha256": "9a7372335dc2b36f7f458b874b5095bd8b7adf35a9efca690b81fedaa0521362",
+          "copy": "byte_exact",
+          "role": "complete_junit"
+        },
+        "origins.json": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/b30-owner-census-red/origins.json",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/b30_first_red_7498/origins.json",
+          "bytes": 1095,
+          "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+          "copy": "byte_exact",
+          "role": "module_origin_and_environment"
+        },
+        "e02_origin.py": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/b30-owner-census-red/e02_origin.py",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/b30_first_red_7498/e02_origin.py",
+          "bytes": 656,
+          "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+          "copy": "byte_exact",
+          "role": "pytest_origin_plugin"
+        }
+      },
+      "local_only_raw_outputs": [],
+      "input_denominator_ref": null,
+      "slice_refs": [
+        "B30-owner-census"
+      ],
+      "case_semantics": {},
+      "scope_limit": "This check records its exact command, target and runner bytes. It does not adjudicate a finding or G acceptance.",
+      "related_slice_refs": [
+        {
+          "slice": "B30-owner-census",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/B30-owner-census.json",
+          "relation": "check referenced by this slice; check scope is defined in this shared catalogue"
+        }
+      ]
+    },
+    {
+      "id": "historical_418_b379_local_only",
+      "kind": "pytest",
+      "scope": "Oversized earlier broad run; raw bytes are local ignored only and not established to a remote receiver. Exact rerun command preserved.",
+      "runner_outcome": "FAIL",
+      "runner_exit_code": 1,
+      "interpretation": "Historical 418-case aggregate: raw stdout/JUnit are local ignored files and are not established to a remote receiver; preserve exact rerun argv and hashes.",
+      "counts_from_complete_junit": {
+        "tests": 418,
+        "failures": 55,
+        "errors": 0,
+        "skipped": 15,
+        "passed": 348
+      },
+      "target": {
+        "sha": "b379d01f6561120eac77ed3dd871a8983b4a1bf5",
+        "tree": "ef36f25d343e95f23f8b09cb91990b048fad34e7",
+        "role": "immutable check target; candidate label is receipt-specific, not a claim of currentness",
+        "equals_documented_workspace_HEAD_as_of_assembly": false,
+        "documented_workspace_HEAD_as_of_assembly": "a2fca1416d6f13704e91b0051f5a68762fbf3efc",
+        "documented_workspace_tree_as_of_assembly": "83228f7d2dc7dfac819d357325e104e86bb80069"
+      },
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/affected-wave-b379-importlib/junit.xml",
+        "tests/unit/remediation/test_frc_01.py",
+        "tests/unit/remediation/test_sim_01.py",
+        "tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+        "tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py",
+        "tests/unit/runtime/quality/test_design_axes_coupling_composition.py",
+        "tests/unit/runtime/quality/test_workspace_composition.py",
+        "tests/unit/scientist/search/test_voi_scheduler.py",
+        "tests/unit/remediation/test_sim_03.py",
+        "tests/unit/remediation/test_cyc_02.py",
+        "tests/integration/core_runtime/test_e02_empirical_member_intake.py",
+        "tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py",
+        "tests/unit/runtime/quality/test_e02_configured_n7_resolver.py",
+        "tests/unit/scientist/policy_design/test_structure_context_bridge.py",
+        "tests/unit/runtime/quality/test_generation_cycle.py"
+      ],
+      "working_directory": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+      "wall_seconds": 414.5503087909892,
+      "environment_ref": {
+        "path": "evidence/historical_418_b379_local_only/receipt.json",
+        "sha256": "1074537fc9d0d8e157a0fe2d649a51f89126358ce00c8c8e4362ef33af942e6b",
+        "json_pointer": "#/environment",
+        "probe_environment_pointer": "#/probe_environment"
+      },
+      "origin_ref": {
+        "path": null,
+        "sha256": "109afc05f7b6d88f1c55726c09127366efb2b412cba48f219707076583ece603"
+      },
+      "runner_receipt_ref": {
+        "path": null,
+        "sha256": "1074537fc9d0d8e157a0fe2d649a51f89126358ce00c8c8e4362ef33af942e6b"
+      },
+      "source_blob_bindings_at_target": [],
+      "output_files": {
+        "receipt.json": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/affected-wave-b379-importlib/receipt.json",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/historical_418_b379_local_only/receipt.json",
+          "bytes": 2780,
+          "sha256": "1074537fc9d0d8e157a0fe2d649a51f89126358ce00c8c8e4362ef33af942e6b",
+          "copy": "byte_exact",
+          "role": "runner_receipt"
+        },
+        "stdout.txt": {
+          "status": "local_raw_not_copied_receiver_not_established",
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/affected-wave-b379-importlib/stdout.txt",
+          "bytes": 536814,
+          "sha256": "ceb95027e6080e1ef26d37270537b112a410441f3d022904bc1a2c7c57f95c8d"
+        },
+        "stderr.txt": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/affected-wave-b379-importlib/stderr.txt",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/historical_418_b379_local_only/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "copy": "byte_exact",
+          "role": "stderr"
+        },
+        "junit.xml": {
+          "status": "local_raw_not_copied_receiver_not_established",
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/affected-wave-b379-importlib/junit.xml",
+          "bytes": 622259,
+          "sha256": "c4d5939ba23bae7922dbbc1fdb51fc957c23d2af9c9c8936b4161e385994b54a"
+        },
+        "origins.json": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/affected-wave-b379-importlib/origins.json",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/historical_418_b379_local_only/origins.json",
+          "bytes": 1270,
+          "sha256": "109afc05f7b6d88f1c55726c09127366efb2b412cba48f219707076583ece603",
+          "copy": "byte_exact",
+          "role": "module_origin_and_environment"
+        },
+        "e02_origin.py": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/affected-wave-b379-importlib/e02_origin.py",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/historical_418_b379_local_only/e02_origin.py",
+          "bytes": 656,
+          "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+          "copy": "byte_exact",
+          "role": "pytest_origin_plugin"
+        },
+        "failure-details.json": {
+          "status": "local_raw_not_copied_receiver_not_established",
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/affected-wave-b379-importlib/failure-details.json",
+          "bytes": 551401,
+          "sha256": "86632c946dc0618a3b36b38db8dc136f1f0f38973d6190404fb20bf662d247ce"
+        }
+      },
+      "local_only_raw_outputs": [
+        {
+          "name": "junit.xml",
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/affected-wave-b379-importlib/junit.xml",
+          "bytes": 622259,
+          "sha256": "c4d5939ba23bae7922dbbc1fdb51fc957c23d2af9c9c8936b4161e385994b54a",
+          "receiver_status": "not_established"
+        },
+        {
+          "name": "stdout.txt",
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/affected-wave-b379-importlib/stdout.txt",
+          "bytes": 536814,
+          "sha256": "ceb95027e6080e1ef26d37270537b112a410441f3d022904bc1a2c7c57f95c8d",
+          "receiver_status": "not_established"
+        },
+        {
+          "name": "failure-details.json",
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/affected-wave-b379-importlib/failure-details.json",
+          "bytes": 551401,
+          "sha256": "86632c946dc0618a3b36b38db8dc136f1f0f38973d6190404fb20bf662d247ce",
+          "receiver_status": "not_established"
+        }
+      ],
+      "input_denominator_ref": null,
+      "slice_refs": [],
+      "case_semantics": {},
+      "scope_limit": "This check records its exact command, target and runner bytes. It does not adjudicate a finding or G acceptance.",
+      "evidence_portability": "not_established_to_receiver",
+      "exact_rerun_command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/affected-wave-b379-importlib/junit.xml",
+        "tests/unit/remediation/test_frc_01.py",
+        "tests/unit/remediation/test_sim_01.py",
+        "tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+        "tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py",
+        "tests/unit/runtime/quality/test_design_axes_coupling_composition.py",
+        "tests/unit/runtime/quality/test_workspace_composition.py",
+        "tests/unit/scientist/search/test_voi_scheduler.py",
+        "tests/unit/remediation/test_sim_03.py",
+        "tests/unit/remediation/test_cyc_02.py",
+        "tests/integration/core_runtime/test_e02_empirical_member_intake.py",
+        "tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py",
+        "tests/unit/runtime/quality/test_e02_configured_n7_resolver.py",
+        "tests/unit/scientist/policy_design/test_structure_context_bridge.py",
+        "tests/unit/runtime/quality/test_generation_cycle.py"
+      ],
+      "target_role": "historical_broad_run_not_current_candidate_proof",
+      "related_slice_refs": []
+    },
+    {
+      "id": "promotion_basis_constructor_delta_42918",
+      "kind": "pytest",
+      "scope": "42918 focused constructor denominator delta: B28 case passes; third-role constructor case fails.",
+      "runner_outcome": "FAIL",
+      "runner_exit_code": 1,
+      "interpretation": "one B28 witness PASS plus one unresolved constructor-third-role FAIL; not a whole-criterion closure",
+      "counts_from_complete_junit": {
+        "tests": 2,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 1
+      },
+      "target": {
+        "sha": "42918ff1dd88299fd68d412e9ddceff580558ed7",
+        "tree": "72669e9472f8e9409c13ad48a714d61964e22b1b",
+        "role": "immutable check target; candidate label is receipt-specific, not a claim of currentness",
+        "equals_documented_workspace_HEAD_as_of_assembly": false,
+        "documented_workspace_HEAD_as_of_assembly": "a2fca1416d6f13704e91b0051f5a68762fbf3efc",
+        "documented_workspace_tree_as_of_assembly": "83228f7d2dc7dfac819d357325e104e86bb80069"
+      },
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/promotion-basis-constructor-delta-42918/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/promotion-basis-constructor-delta-42918/pytest-basetemp",
+        "tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py::test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback",
+        "tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py::test_recursive_constructor_denominator_has_no_unwrapped_n9_call"
+      ],
+      "working_directory": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+      "wall_seconds": 46.73830083402572,
+      "environment_ref": {
+        "path": "evidence/promotion_basis_constructor_delta_42918/receipt.json",
+        "sha256": "5ec8b4df0a72030f1001a4a67fd60e7f7226bde7db59f840f73bdbe80689cd92",
+        "json_pointer": "#/environment",
+        "probe_environment_pointer": "#/probe_environment"
+      },
+      "origin_ref": {
+        "path": null,
+        "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+      },
+      "runner_receipt_ref": {
+        "path": null,
+        "sha256": "5ec8b4df0a72030f1001a4a67fd60e7f7226bde7db59f840f73bdbe80689cd92"
+      },
+      "source_blob_bindings_at_target": [
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+          "blob_at_check_target": "64ab5d46257065c0ef7148655984c050bc481d5a"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py",
+          "blob_at_check_target": "1f0a83be57f409aa207929b8fd02d855ac6b30f3"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+          "blob_at_check_target": "298c53c5693d5226bfa89ccba04402436cb9c058"
+        }
+      ],
+      "output_files": {
+        "receipt.json": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/promotion-basis-constructor-delta-42918/receipt.json",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/promotion_basis_constructor_delta_42918/receipt.json",
+          "bytes": 2693,
+          "sha256": "5ec8b4df0a72030f1001a4a67fd60e7f7226bde7db59f840f73bdbe80689cd92",
+          "copy": "byte_exact",
+          "role": "runner_receipt"
+        },
+        "stdout.txt": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/promotion-basis-constructor-delta-42918/stdout.txt",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/promotion_basis_constructor_delta_42918/stdout.txt",
+          "bytes": 16259,
+          "sha256": "f0a05028ed6264a6e2ea4cc7036a07ca05e7a0322c8d7d6b554304dd987a7a1b",
+          "copy": "byte_exact",
+          "role": "stdout"
+        },
+        "stderr.txt": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/promotion-basis-constructor-delta-42918/stderr.txt",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/promotion_basis_constructor_delta_42918/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "copy": "byte_exact",
+          "role": "stderr"
+        },
+        "junit.xml": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/promotion-basis-constructor-delta-42918/junit.xml",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/promotion_basis_constructor_delta_42918/junit.xml",
+          "bytes": 16986,
+          "sha256": "e6454ed30d59485b3297c2048798b549ad6970b302084b1844121334ae048176",
+          "copy": "byte_exact",
+          "role": "complete_junit"
+        },
+        "origins.json": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/promotion-basis-constructor-delta-42918/origins.json",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/promotion_basis_constructor_delta_42918/origins.json",
+          "bytes": 1095,
+          "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+          "copy": "byte_exact",
+          "role": "module_origin_and_environment"
+        },
+        "e02_origin.py": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/promotion-basis-constructor-delta-42918/e02_origin.py",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/promotion_basis_constructor_delta_42918/e02_origin.py",
+          "bytes": 656,
+          "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+          "copy": "byte_exact",
+          "role": "pytest_origin_plugin"
+        },
+        "run_check.py": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/promotion_basis_constructor_delta_42918/run_check.py",
+          "bytes": 2538,
+          "sha256": "928c32ba9a42cd2c1e28652bf9d6ba3bddf038de5d17abfef3ac701fcd04c7e2",
+          "copy": "byte_exact",
+          "role": "runner_launcher"
+        }
+      },
+      "local_only_raw_outputs": [],
+      "input_denominator_ref": null,
+      "slice_refs": [
+        "persisted-value-hard-feasibility"
+      ],
+      "case_semantics": {
+        "test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback": "B28 bounded case PASS",
+        "test_recursive_constructor_denominator_has_no_unwrapped_n9_call": "unresolved third-role constructor FAIL"
+      },
+      "scope_limit": "This check records its exact command, target and runner bytes. It does not adjudicate a finding or G acceptance.",
+      "case_results_from_complete_junit": [
+        {
+          "node": "tests.unit.runtime.quality.test_e02_candidate_occurrence_readback::test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback",
+          "result": "PASS"
+        },
+        {
+          "node": "tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate::test_recursive_constructor_denominator_has_no_unwrapped_n9_call",
+          "result": "FAIL"
+        }
+      ],
+      "candidate_label": "immutable_target_42918_not_current_HEAD_as_of_assembly",
+      "related_slice_refs": [
+        {
+          "slice": "persisted-value-hard-feasibility",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/persisted-value-hard-feasibility.json",
+          "relation": "check referenced by this slice; check scope is defined in this shared catalogue"
+        }
+      ]
+    },
+    {
+      "id": "persisted_width_removal_42918",
+      "kind": "pytest",
+      "scope": "Removal probe at 42918: remove persisted-width rejection while retaining the surrounding test markers.",
+      "runner_outcome": "FAIL",
+      "runner_exit_code": 1,
+      "interpretation": "expected R1 removal failure observed (DID NOT RAISE); property-removal discriminator only",
+      "counts_from_complete_junit": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 0
+      },
+      "target": {
+        "sha": "42918ff1dd88299fd68d412e9ddceff580558ed7",
+        "tree": "72669e9472f8e9409c13ad48a714d61964e22b1b",
+        "role": "immutable check target; candidate label is receipt-specific, not a claim of currentness",
+        "equals_documented_workspace_HEAD_as_of_assembly": false,
+        "documented_workspace_HEAD_as_of_assembly": "a2fca1416d6f13704e91b0051f5a68762fbf3efc",
+        "documented_workspace_tree_as_of_assembly": "83228f7d2dc7dfac819d357325e104e86bb80069"
+      },
+      "command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_origin",
+        "-p",
+        "e02_remove_width_property_probe",
+        "-s",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-q",
+        "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/persisted-width-removal-42918/junit.xml",
+        "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/persisted-width-removal-42918/pytest-basetemp",
+        "tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py::test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback"
+      ],
+      "working_directory": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+      "wall_seconds": 15.637671166972723,
+      "environment_ref": {
+        "path": "evidence/persisted_width_removal_42918/receipt.json",
+        "sha256": "97756cbba0f51ba1a43e39aaa1819b675de4869aa7eb5557234b17ed1e8ceb6f",
+        "json_pointer": "#/environment",
+        "probe_environment_pointer": "#/probe_environment"
+      },
+      "origin_ref": {
+        "path": null,
+        "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+      },
+      "runner_receipt_ref": {
+        "path": null,
+        "sha256": "97756cbba0f51ba1a43e39aaa1819b675de4869aa7eb5557234b17ed1e8ceb6f"
+      },
+      "source_blob_bindings_at_target": [
+        {
+          "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+          "blob_at_check_target": "64ab5d46257065c0ef7148655984c050bc481d5a"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py",
+          "blob_at_check_target": "1f0a83be57f409aa207929b8fd02d855ac6b30f3"
+        }
+      ],
+      "output_files": {
+        "receipt.json": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/persisted-width-removal-42918/receipt.json",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/persisted_width_removal_42918/receipt.json",
+          "bytes": 3013,
+          "sha256": "97756cbba0f51ba1a43e39aaa1819b675de4869aa7eb5557234b17ed1e8ceb6f",
+          "copy": "byte_exact",
+          "role": "runner_receipt"
+        },
+        "stdout.txt": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/persisted-width-removal-42918/stdout.txt",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/persisted_width_removal_42918/stdout.txt",
+          "bytes": 8676,
+          "sha256": "fcf3c987f11a29c6d8293130c75c267f185fd9d4d1a23c5d784c55a02f4dc815",
+          "copy": "byte_exact",
+          "role": "stdout"
+        },
+        "stderr.txt": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/persisted-width-removal-42918/stderr.txt",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/persisted_width_removal_42918/stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "copy": "byte_exact",
+          "role": "stderr"
+        },
+        "junit.xml": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/persisted-width-removal-42918/junit.xml",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/persisted_width_removal_42918/junit.xml",
+          "bytes": 8702,
+          "sha256": "814bf7bd49a12f2dfffa3c65c419af75581c960c00492ed5ed680dac2b46ba09",
+          "copy": "byte_exact",
+          "role": "complete_junit"
+        },
+        "origins.json": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/persisted-width-removal-42918/origins.json",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/persisted_width_removal_42918/origins.json",
+          "bytes": 1095,
+          "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d",
+          "copy": "byte_exact",
+          "role": "module_origin_and_environment"
+        },
+        "e02_origin.py": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/persisted-width-removal-42918/e02_origin.py",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/persisted_width_removal_42918/e02_origin.py",
+          "bytes": 656,
+          "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951",
+          "copy": "byte_exact",
+          "role": "pytest_origin_plugin"
+        },
+        "run_width_probe.py": {
+          "source_path": "policy-engine/_build/e02-A-continuation-20261007/run_width_probe.py",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/persisted_width_removal_42918/run_width_probe.py",
+          "bytes": 2801,
+          "sha256": "6199d28330b8dc0ffeb5516643a5d60ed3f5e2fe99a8ce439c8abfccc9657392",
+          "copy": "byte_exact",
+          "role": "runner_launcher"
+        },
+        "mutation_plugin.py": {
+          "source_path": "policy-engine/_build/e02-A-full-queue/remove-width-property-probe/e02_remove_width_property_probe.py",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/evidence/persisted_width_removal_42918/mutation_plugin.py",
+          "bytes": 3539,
+          "sha256": "c76e69a2dc69028302d67a4a3bbd4ef55f24f6269acf5072b56dde2bb484803e",
+          "copy": "byte_exact",
+          "role": "property_mutation_plugin"
+        }
+      },
+      "local_only_raw_outputs": [],
+      "input_denominator_ref": null,
+      "slice_refs": [
+        "persisted-value-hard-feasibility"
+      ],
+      "case_semantics": {
+        "test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback": "expected removal-probe FAIL: removed_width_rejections=1; actual width gate DID NOT RAISE"
+      },
+      "scope_limit": "This check records its exact command, target and runner bytes. It does not adjudicate a finding or G acceptance.",
+      "case_results_from_complete_junit": [
+        {
+          "node": "tests.unit.runtime.quality.test_e02_candidate_occurrence_readback::test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback",
+          "result": "FAIL"
+        }
+      ],
+      "candidate_label": "immutable_target_42918_not_current_HEAD_as_of_assembly",
+      "related_slice_refs": [
+        {
+          "slice": "persisted-value-hard-feasibility",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/persisted-value-hard-feasibility.json",
+          "relation": "check referenced by this slice; check scope is defined in this shared catalogue"
+        }
+      ]
+    }
+  ],
+  "excluded_non_deciding_evidence": [
+    {
+      "path": "policy-engine/_build/e02-A-continuation-20261007/n8-real-cas-selector-delta-a2fca-valid",
+      "reason": "Root reports three B66 production inputs were uncommitted in this run; it is not an immutable full-candidate A2 PASS. Rerun the census after the B66 source commit."
+    }
+  ],
+  "evidence_policy": {
+    "copied_deciding_bytes": "For each output with a canonical path, byte count and SHA256 were read back and matched before this handoff was assembled.",
+    "local_only_raw": "Historical 418-case stdout/JUnit/failure-details remain under ignored _build with exact hashes and rerun command; receiver availability is not established. They are not copied here.",
+    "source_review": "The ancestry review covers the original nine check targets only. The two 42918 checks were added later and are not covered by that review.",
+    "candidate_boundary": "4912 remains its exact test receipt candidate, not current HEAD. Workspace HEAD recorded as of assembly is a separate context snapshot; dirty post-snapshot paths are not implicitly receipted.",
+    "later_unreceipted_run": "The later N8 A2 run is excluded as a deciding result because it used three dirty B66 production paths; it is not counted as a full-candidate PASS."
+  }
+}

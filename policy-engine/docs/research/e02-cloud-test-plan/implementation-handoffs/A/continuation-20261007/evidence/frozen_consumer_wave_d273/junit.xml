@@ -1,0 +1,664 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="5" skipped="0" tests="355" time="260.176" timestamp="2026-10-07T14:09:38.926465+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.remediation.test_frc_01" name="test_gateway_preserves_missing_calibration_metric_as_distinct_from_observed_zero[unavailable-observation]" time="0.119" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_gateway_preserves_missing_calibration_metric_as_distinct_from_observed_zero[observed-zero-rate]" time="0.119" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_zero_denominator_projection_mutant_does_not_emit_calibration_record" time="0.110" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_empirical_projection_rejects_malformed_optional_rate_and_counters[boolean-rate]" time="0.099" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_empirical_projection_rejects_malformed_optional_rate_and_counters[boolean-zero-rate]" time="0.104" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_empirical_projection_rejects_malformed_optional_rate_and_counters[string-rate]" time="0.099" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_empirical_projection_rejects_malformed_optional_rate_and_counters[nan-rate]" time="0.104" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_empirical_projection_rejects_malformed_optional_rate_and_counters[infinite-rate]" time="0.099" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_empirical_projection_rejects_malformed_optional_rate_and_counters[missing-rate-with-data]" time="0.098" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_empirical_projection_rejects_malformed_optional_rate_and_counters[rate-without-data]" time="0.096" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_empirical_projection_rejects_malformed_optional_rate_and_counters[boolean-numerator]" time="0.096" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_empirical_projection_rejects_malformed_optional_rate_and_counters[string-numerator]" time="0.098" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_empirical_projection_rejects_malformed_optional_rate_and_counters[float-numerator]" time="0.098" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_empirical_projection_rejects_malformed_optional_rate_and_counters[boolean-denominator]" time="0.097" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_empirical_projection_rejects_malformed_optional_rate_and_counters[string-denominator]" time="0.097" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_empirical_projection_rejects_malformed_optional_rate_and_counters[float-denominator]" time="0.100" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_finite_estimator_report_without_observations_cannot_pass_calibration" time="0.000" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_nominal_confidence_is_not_empirical_coverage_without_observations" time="0.000" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_missing_report_remains_blocked_and_records_false_clear" time="0.000" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_failed_estimator_diagnostic_remains_limited" time="0.000" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_calibration_time_roles_are_preserved_from_bound_evidence" time="0.111" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_content_complete_projection_without_resolved_evidence_stays_blocked[owner-limited]" time="0.098" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_content_complete_projection_without_resolved_evidence_stays_blocked[caller-forged-pass]" time="0.098" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_content_complete_projection_without_resolved_evidence_stays_blocked[omitted-status-forged-pass]" time="0.098" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_gateway_rejects_temporal_roles_that_disagree_with_loaded_evidence" time="0.108" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_missing_calibration_evidence_refs_stays_typed_blocked" time="0.000" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_unbound_forecast_without_calibration_status_has_no_history_claim" time="0.000" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_s10_authority_boundary_keeps_purpose_denials" time="0.000" /><testcase classname="tests.unit.remediation.test_sim_01" name="test_unsupported_first_engine_falls_back_to_supported_second" time="1.388" /><testcase classname="tests.unit.remediation.test_sim_01" name="test_all_engine_candidates_incompatible_return_typed_rejection" time="1.933" /><testcase classname="tests.unit.remediation.test_sim_01" name="test_selected_plan_requires_its_executed_trajectory" time="0.802" /><testcase classname="tests.unit.remediation.test_sim_01" name="test_static_engine_rejected_by_actual_grid_falls_back_to_stock_flow" time="0.910" /><testcase classname="tests.unit.remediation.test_sim_01" name="test_invalid_first_system_dynamics_plan_falls_back_to_registered_second[wrong-rank]" time="0.209" /><testcase classname="tests.unit.remediation.test_sim_01" name="test_invalid_first_system_dynamics_plan_falls_back_to_registered_second[symbolic-dimension-mismatch]" time="0.209" /><testcase classname="tests.unit.remediation.test_sim_01" name="test_registered_seir_scalar_inputs_are_preflighted_before_method_engine[valid-zero-scalar]" time="0.995" /><testcase classname="tests.unit.remediation.test_sim_01" name="test_registered_seir_scalar_inputs_are_preflighted_before_method_engine[string]" time="0.985" /><testcase classname="tests.unit.remediation.test_sim_01" name="test_registered_seir_scalar_inputs_are_preflighted_before_method_engine[array-rank]" time="1.079" /><testcase classname="tests.unit.remediation.test_sim_01" name="test_registered_seir_scalar_inputs_are_preflighted_before_method_engine[boolean]" time="1.111" /><testcase classname="tests.unit.remediation.test_sim_01" name="test_registered_seir_scalar_inputs_are_preflighted_before_method_engine[non-finite]" time="1.059" /><testcase classname="tests.unit.remediation.test_sim_01" name="test_square_per_atom_flow_matrix_dimension_mismatch_falls_back" time="0.213" /><testcase classname="tests.unit.remediation.test_sim_01" name="test_method_registry_stock_flow_input_state_uses_shared_preflight" time="1.004" /><testcase classname="tests.unit.remediation.test_sim_01" name="test_removing_system_dynamics_input_validation_keeps_marker_but_fails[wrong-rank]" time="0.209" /><testcase classname="tests.unit.remediation.test_sim_01" name="test_removing_system_dynamics_input_validation_keeps_marker_but_fails[symbolic-dimension-mismatch]" time="0.206" /><testcase classname="tests.unit.remediation.test_sim_01" name="test_identical_per_atom_flow_matrix_overrides_are_order_independent" time="0.225" /><testcase classname="tests.unit.remediation.test_sim_01" name="test_different_valid_per_atom_flow_matrices_refuse_before_runner[forward]" time="0.107" /><testcase classname="tests.unit.remediation.test_sim_01" name="test_different_valid_per_atom_flow_matrices_refuse_before_runner[reverse]" time="0.110" /><testcase classname="tests.unit.remediation.test_sim_01" name="test_container_and_child_state_writes_refuse_in_both_order_sensitive_orders" time="0.208" /><testcase classname="tests.unit.remediation.test_sim_01" name="test_foreign_trajectory_cannot_satisfy_selected_plan" time="0.830" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_horizon" name="test_static_ncm_multistep_request_is_typed_no_run_before_runner" time="0.807" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_horizon" name="test_registered_ncm_single_atom_checks_only_first_order" time="0.820" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_horizon" name="test_joint_simulation_v1_result_replays_byte_exactly_without_state_handoff" time="0.839" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_horizon" name="test_committed_v1_joint_result_keeps_original_receipt_projection" time="0.003" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_horizon" name="test_unsupported_coupling_is_gated_not_summed[shared_resource-unsupported_coupling_class:shared_resource]" time="0.801" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_horizon" name="test_unsupported_coupling_is_gated_not_summed[feedback-unsupported_coupling_class:feedback]" time="0.814" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_horizon" name="test_unsupported_coupling_is_gated_not_summed[general_equilibrium-general_equilibrium_coupling_not_grounded_by_available_engine]" time="0.792" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_horizon" name="test_supported_shared_resource_runs_on_coupled_engine_with_gate_receipt" time="0.166" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_horizon" name="test_contract_testing_can_only_demonstrate_removed_coupling_gate_mutation" time="0.840" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_horizon" name="test_safe_public_policy_exposes_no_gate_bypass_knobs" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_horizon" name="test_declared_unbacked_equilibrium_semantics_is_gated" time="0.806" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_horizon" name="test_receipt_verification_fails_when_run_is_claimed_without_trajectories" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_horizon" name="test_program_graph_plan_loops_real_shared_state_executor" time="2.210" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_horizon" name="test_program_graph_conflicting_overrides_refuse_before_first_execution[different-rates-on-shared-parameter-forward]" time="0.042" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_horizon" name="test_program_graph_conflicting_overrides_refuse_before_first_execution[different-rates-on-shared-parameter-reversed]" time="0.043" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_horizon" name="test_program_graph_conflicting_overrides_refuse_before_first_execution[bool-and-int-are-distinct-typed-values-forward]" time="0.042" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_horizon" name="test_program_graph_conflicting_overrides_refuse_before_first_execution[bool-and-int-are-distinct-typed-values-reversed]" time="0.042" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_horizon" name="test_program_graph_conflict_guard_removal_exposes_order_dependent_last_write" time="2.027" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_horizon" name="test_served_program_graph_refuses_foreign_selected_manifest_profile" time="0.083" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_horizon" name="test_served_program_graph_output_lineage_keeps_selected_manifest_profiles" time="2.171" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_horizon" name="test_system_dynamics_plan_runs_registered_stock_flow_engine" time="0.113" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_horizon" name="test_method_registry_estimator_selects_registered_dynamic_method_without_engine_branch" time="0.904" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_horizon" name="test_registry_des_queue_tag_does_not_back_time_series_semantics" time="0.904" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_horizon" name="test_fresh_scalar_method_contract_does_not_back_agent_based_semantics" time="1.102" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_horizon" name="test_newly_registered_dynamic_method_is_selectable_without_controller_code" time="0.946" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_horizon" name="test_matching_coupled_engine_runs_individual_pairwise_joint_with_real_interaction" time="0.130" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_horizon" name="test_receipt_verification_fails_for_fabricated_stub_refs" time="0.810" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_horizon" name="test_non_matching_domain_is_not_routed_to_unemployment_coupled_kernel" time="0.105" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_horizon" name="test_cyclic_ncm_is_rejected_not_silently_grounded" time="0.791" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_horizon" name="test_pending_world_model_record_ref_fails_closed" time="0.005" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_horizon" name="test_receipt_builder_is_deterministic_and_strangles_abm_stub_fields" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_horizon" name="test_n5_abm_strangle_probe_censuses_every_production_stub_caller" time="0.019" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_horizon" name="test_n5_rederive_audit_validates_live_payload_without_frozen_artifact" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_horizon" name="test_n5_abm_source_flip_runs_behavior_and_restores_bytes" time="0.001" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_static_engine_eligibility_uses_the_requested_grid_not_hint_strings" time="1.612" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_conflicting_canonical_slot_writes_refuse_before_any_singleton[left-right]" time="0.009" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_conflicting_canonical_slot_writes_refuse_before_any_singleton[right-left]" time="0.009" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_engine_variable_alias_conflict_rejects_candidate_before_runner" time="0.929" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_interaction_coverage_requires_exact_ordered_requested_grid[short-trailing]" time="0.005" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_interaction_coverage_requires_exact_ordered_requested_grid[missing-middle]" time="0.005" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_interaction_coverage_requires_exact_ordered_requested_grid[suffix-only]" time="0.005" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_interaction_coverage_requires_exact_ordered_requested_grid[reordered-full-set]" time="0.004" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_interaction_coverage_requires_exact_ordered_requested_grid[overlong]" time="0.004" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_physical_run_identity_canonicalizes_atoms_and_binds_comparator_inputs" time="0.860" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_missing_queue_and_mass_balance_output_never_becomes_numeric_zero" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_shared_required_output_projection_rejects_invalid_values[null]" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_shared_required_output_projection_rejects_invalid_values[malformed]" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_shared_required_output_projection_rejects_invalid_values[nan]" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_shared_required_output_projection_rejects_invalid_values[infinity]" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_shared_required_output_projection_rejects_invalid_original_elements[mixed-python-bool-float]" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_shared_required_output_projection_rejects_invalid_original_elements[mixed-numpy-bool-float]" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_shared_required_output_projection_rejects_invalid_original_elements[object-bool-float]" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_shared_required_output_projection_rejects_invalid_original_elements[nested-bool-float]" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_shared_required_output_projection_rejects_invalid_original_elements[object-none-float]" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_shared_required_output_projection_rejects_invalid_original_elements[object-string-float]" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_shared_required_output_projection_rejects_invalid_original_elements[object-bytes-float]" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_shared_required_output_projection_rejects_invalid_original_elements[object-complex-float]" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_shared_required_output_projection_preserves_zero_and_finite_arrays" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_coupled_output_adapter_rejects_mixed_boolean_sequence" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_replication_cache_aggregator_rejects_mixed_boolean_sequence" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_shared_cache_executor_rejects_nonfinite_adapter_output" time="0.843" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_generic_scalar_result_is_unavailable_without_terminal_binding" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_registered_stock_flow_mass_balance_is_terminal_only_not_broadcast" time="0.121" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_registered_stock_flow_marks_unbound_time_grid_when_dt_disagrees" time="0.121" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_single_point_stock_flow_can_mix_initial_row_with_terminal_scalar" time="0.120" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_invocation_cache_hits_and_semantic_misses_execute_the_real_engine" time="0.878" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_program_graph_cache_binds_mutated_state_with_same_cas_refs" time="0.261" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_program_graph_controller_preserves_store_handles_and_snapshots_state" time="1.142" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_stock_flow_runner_does_not_fill_a_short_trajectory_with_final_state" time="0.120" /><testcase classname="tests.unit.runtime.quality.test_joint_simulation_e02_semantics" name="test_real_ncm_cubic_exposes_joint_residual_with_zero_lower_order_terms" time="0.904" /><testcase classname="tests.unit.runtime.quality.test_workspace_composition" name="test_independent_chapters_compose_through_ports_with_certificate" time="0.032" /><testcase classname="tests.unit.runtime.quality.test_workspace_composition" name="test_empty_or_absent_graph_does_not_inherit_default_boundary_evidence" time="0.001" /><testcase classname="tests.unit.runtime.quality.test_workspace_composition" name="test_in_memory_subdesign_port_authority_pseudo_ref_fails_closed" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_workspace_composition" name="test_feedback_composition_is_invalid_and_requires_joint_grounding" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_workspace_composition" name="test_feedback_edge_without_consistency_evidence_cannot_be_laundered_by_name" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_workspace_composition" name="test_feedback_word_in_verified_independent_edge_does_not_overblock" time="0.031" /><testcase classname="tests.unit.runtime.quality.test_workspace_composition" name="test_bogus_independence_consistency_ref_fails_closed" time="0.014" /><testcase classname="tests.unit.runtime.quality.test_workspace_composition" name="test_mismatched_independence_consistency_ref_fails_closed" time="0.015" /><testcase classname="tests.unit.runtime.quality.test_workspace_composition" name="test_producer_self_stamped_independence_consistency_ref_fails_closed" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_workspace_composition" name="test_graph_back_edge_is_feedback_regardless_of_ref_or_flags" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_workspace_composition" name="test_emergent_claim_is_capped_to_own_grounding_not_inherited_from_parts" time="0.063" /><testcase classname="tests.unit.runtime.quality.test_workspace_composition" name="test_missing_p14_independence_map_blocks_emergent_support_inflation" time="0.045" /><testcase classname="tests.unit.runtime.quality.test_workspace_composition" name="test_missing_emergent_grounding_fails_closed" time="0.030" /><testcase classname="tests.unit.runtime.quality.test_workspace_composition" name="test_inline_emergent_grounding_fake_ref_fails_closed" time="0.045" /><testcase classname="tests.unit.runtime.quality.test_workspace_composition" name="test_non_independent_evidence_count_collapses_before_support_can_compose" time="0.059" /><testcase classname="tests.unit.runtime.quality.test_workspace_composition" name="test_independent_evidence_count_remains_raw_when_sources_are_distinct" time="0.059" /><testcase classname="tests.unit.runtime.quality.test_workspace_composition" name="test_unbound_valid_p14_map_does_not_support_composed_claim" time="0.045" /><testcase classname="tests.unit.runtime.quality.test_workspace_composition" name="test_fabricated_p14_binding_records_do_not_support_composed_claim" time="0.059" /><testcase classname="tests.unit.runtime.quality.test_workspace_composition" name="test_unknown_coupling_fails_closed_instead_of_composing" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_workspace_composition" name="test_empty_authoritative_for_after_port_meet_fails_closed" time="0.030" /><testcase classname="tests.unit.runtime.quality.test_workspace_composition" name="test_shared_resource_declares_capacity_aggregation_out_of_scope" time="0.001" /><testcase classname="tests.unit.runtime.quality.test_workspace_composition" name="test_child_acquisition_strips_all_composed_authority" time="0.073" /><testcase classname="tests.unit.remediation.test_sim_03" name="test_summary_distance_requires_one_declared_metric_set" time="0.000" /><testcase classname="tests.unit.remediation.test_sim_03" name="test_smm_missing_required_moment_cannot_win_calibration" time="0.000" /><testcase classname="tests.unit.remediation.test_sim_03" name="test_smm_all_incomparable_candidates_are_explicitly_blocked" time="0.000" /><testcase classname="tests.unit.remediation.test_sim_03" name="test_single_paired_draw_has_unestimated_standard_error" time="0.000" /><testcase classname="tests.unit.remediation.test_sim_03" name="test_paired_replicates_require_distinct_seeds" time="0.000" /><testcase classname="tests.unit.remediation.test_sim_03" name="test_joint_request_runs_each_requested_replication_with_distinct_seeds" time="0.867" /><testcase classname="tests.unit.remediation.test_sim_03" name="test_ncm_evidence_none_and_explicit_empty_are_distinct" time="1.715" /><testcase classname="tests.unit.remediation.test_sim_03" name="test_physical_run_ref_binds_effective_evidence_and_source_mode" time="3.355" /><testcase classname="tests.unit.remediation.test_sim_03" name="test_physical_run_identity_binds_seed_and_plan_and_reexecutes_each_request" time="2.431" /><testcase classname="tests.unit.remediation.test_sim_03" name="test_three_atom_controller_reports_real_higher_order_residual_and_order" time="0.854" /><testcase classname="tests.unit.remediation.test_sim_03" name="test_complete_additive_three_atom_basis_remains_additive" time="0.808" /><testcase classname="tests.unit.remediation.test_sim_03" name="test_missing_pair_basis_is_unsupported_not_false_additivity" time="0.818" /><testcase classname="tests.unit.remediation.test_sim_03" name="test_selected_outcome_and_engine_horizon_are_part_of_the_basis[selected_outcome]" time="0.831" /><testcase classname="tests.unit.remediation.test_sim_03" name="test_selected_outcome_and_engine_horizon_are_part_of_the_basis[static_horizon_step]" time="0.832" /><testcase classname="tests.unit.remediation.test_sim_03" name="test_static_ncm_multi_step_horizon_is_rejected_before_execution" time="0.861" /><testcase classname="tests.unit.remediation.test_sim_03" name="test_static_ncm_single_step_horizon_remains_additive" time="0.865" /><testcase classname="tests.unit.remediation.test_sim_03" name="test_four_atom_cancellation_is_bounded_aggregate_not_additive" time="1.005" /><testcase classname="tests.unit.remediation.test_sim_03" name="test_joint_simulation_requires_explicit_selected_outcome_baseline" time="0.880" /><testcase classname="tests.unit.remediation.test_sim_03" name="test_explicit_comparator_makes_equal_scenarios_zero_effect" time="0.812" /><testcase classname="tests.unit.remediation.test_sim_03" name="test_joint_simulation_reuses_physical_spec_across_roles" time="0.800" /><testcase classname="tests.unit.remediation.test_sim_03" name="test_joint_residual_keeps_higher_order_interaction_visible" time="0.006" /><testcase classname="tests.unit.remediation.test_sim_03" name="test_checked_interaction_orders_include_pairwise_two_atom_run" time="0.004" /><testcase classname="tests.unit.remediation.test_cyc_02" name="test_legacy_recursive_v1_without_n5_cas_ref_reopens_without_new_evidence" time="0.022" /><testcase classname="tests.unit.remediation.test_cyc_02" name="test_legacy_recursive_v1_allowlist_covers_tracked_sources" time="0.415" /><testcase classname="tests.unit.remediation.test_cyc_02" name="test_n5_fresh_process_readback_binds_default_n8_to_cas_identity" time="27.005" /><testcase classname="tests.unit.remediation.test_cyc_02" name="test_k_sim_limitation_remains_a_usable_simulation_input" time="0.873" /><testcase classname="tests.unit.remediation.test_cyc_02" name="test_n5_transient_store_failure_is_unavailable_not_integrity_invalid" time="0.884" /><testcase classname="tests.unit.remediation.test_cyc_02" name="test_n5_guarded_runtime_store_errors_are_typed_unavailable[unavailable-RuntimeDependencyUnavailableError]" time="0.928" /><testcase classname="tests.unit.remediation.test_cyc_02" name="test_n5_guarded_runtime_store_errors_are_typed_unavailable[timeout-RuntimeDependencyTimeoutError]" time="0.986" /><testcase classname="tests.unit.remediation.test_cyc_02" name="test_n5_replay_does_not_mask_store_programming_errors" time="0.879" /><testcase classname="tests.unit.remediation.test_cyc_02" name="test_conditional_n8_status_is_not_authority_ready" time="0.899" /><testcase classname="tests.unit.remediation.test_cyc_02" name="test_program_graph_v2_blocker_removal_stays_out_of_eval_safety" time="1.717" /><testcase classname="tests.unit.remediation.test_cyc_02" name="test_n5_result_has_reopenable_cas_reference" time="0.897" /><testcase classname="tests.unit.remediation.test_cyc_02" name="test_recursive_parent_keeps_n5_cas_reference" time="1.281" /><testcase classname="tests.unit.remediation.test_cyc_02" name="test_recursive_parent_without_store_refuses_before_n5_execution" time="0.058" /><testcase classname="tests.unit.remediation.test_cyc_02" name="test_n5_replay_uses_supplied_guarded_tenant_store" time="0.947" /><testcase classname="tests.unit.remediation.test_cyc_02" name="test_n5_does_not_execute_without_runtime_owned_store" time="0.018" /><testcase classname="tests.integration.core_runtime.test_e02_empirical_member_intake" name="test_default_root_gateway_uses_exact_c_members_before_cap_and_grouping" time="6.975" /><testcase classname="tests.integration.core_runtime.test_e02_empirical_member_intake" name="test_active_c_claim_without_member_projection_refuses_before_availability" time="0.987" /><testcase classname="tests.integration.core_runtime.test_e02_empirical_member_intake" name="test_non_none_projection_is_c_verified_before_availability[malformed_digest-acquire_data:active_observation_projection_invalid]" time="1.048" /><testcase classname="tests.integration.core_runtime.test_e02_empirical_member_intake" name="test_non_none_projection_is_c_verified_before_availability[wrong_target-acquire_data:active_observation_projection_invalid]" time="1.018" /><testcase classname="tests.integration.core_runtime.test_e02_empirical_member_intake" name="test_non_none_projection_is_c_verified_before_availability[tampered_c_ref-acquire_data:active_observation_projection_drift]" time="1.044" /><testcase classname="tests.integration.core_runtime.test_e02_empirical_member_intake" name="test_non_none_projection_is_c_verified_before_availability[foreign_projection-acquire_data:active_observation_passport_unresolved]" time="2.039" /><testcase classname="tests.integration.core_runtime.test_e02_empirical_member_intake" name="test_unavailable_c_state_projection_refuses_before_availability" time="1.043" /><testcase classname="tests.integration.core_runtime.test_e02_empirical_member_intake" name="test_no_active_c_claim_keeps_epoch_zero_rows_in_baseline_only_mode" time="0.732" /><testcase classname="tests.integration.core_runtime.test_e02_empirical_member_intake" name="test_same_country_nonmember_cannot_replace_a_missing_c_member_in_denominator" time="1.141" /><testcase classname="tests.integration.core_runtime.test_e02_empirical_member_intake" name="test_active_projection_rejects_tampering_of_every_physical_c_field" time="2.574" /><testcase classname="tests.integration.core_runtime.test_e02_empirical_member_intake" name="test_c_owner_rejects_rehashed_nonphysical_provenance_forgery[acquisition_method]" time="1.136" /><testcase classname="tests.integration.core_runtime.test_e02_empirical_member_intake" name="test_c_owner_rejects_rehashed_nonphysical_provenance_forgery[source_watermark]" time="1.149" /><testcase classname="tests.integration.core_runtime.test_e02_empirical_member_intake" name="test_c_owner_rejects_rehashed_nonphysical_provenance_forgery[dataset_version]" time="1.139" /><testcase classname="tests.integration.core_runtime.test_e02_empirical_member_intake" name="test_c_admitted_condition_unit_conflict_is_refused_by_a_profile_owner" time="1.226" /><testcase classname="tests.integration.core_runtime.test_e02_empirical_member_intake" name="test_nonfinite_scoped_row_refuses_instead_of_reducing_profile_denominator" time="0.019" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle" name="test_joint_port_falls_back_from_unbound_program_graph_to_owner_ncm" time="0.899" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle" name="test_owner_program_graph_n5_consumes_distinct_wmr_states_and_n8_keeps_limits" time="3.524" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle" name="test_owner_program_graph_n5_consumes_selected_wmr_view_and_rejects_sibling" time="1.821" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle" name="test_owner_program_graph_n5_consumes_selected_state_blob_view" time="1.756" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle" name="test_owner_program_graph_n5_rejects_state_ref_selector_removal_with_markers" time="1.754" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle" name="test_owner_program_graph_n5_state_handoff_removal_probe_keeps_markers_red" time="4.318" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle" name="test_single_step_static_ncm_reaches_n8_with_simulate_only_intake" time="2.597" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle" name="test_n8_recovers_persisted_candidate_only_blocker_after_lossy_projection" time="1.469" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle" name="test_n8_types_unknown_or_malformed_content_bound_persisted_blockers[unknown-persisted-blocker]" time="1.802" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle" name="test_n8_types_unknown_or_malformed_content_bound_persisted_blockers[malformed-blocker-container]" time="1.853" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle" name="test_n8_types_unknown_or_malformed_content_bound_persisted_blockers[malformed-blocker-item]" time="1.710" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle" name="test_missing_canonical_registry_never_mints_n6_bootstrap_authority" time="0.024" /><testcase classname="tests.unit.runtime.quality.test_e02_candidate_occurrence_readback" name="test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback" time="0.158"><failure message="assert GenerationCyc...y_reason=None) == GenerationCyc...y_reason=None)&#10;  &#10;  Use -v to get more diff">tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/frozen-consumer-wave-d273/pytest-basetemp/test_latest_candidate_occurren0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x1423d2190&gt;
+
+    @pytest.mark.asyncio
+    async def test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        """Replay both fixture appearances and bind only the latest through CAS owners.
+    
+        The opaque hashes and test grounding/value/completion fixtures establish no
+        source provenance, N5 truth, or deployment-currentness claim. The observed
+        refusal is the real pre-N9 policy-admission gate; no signed N9 admission is
+        required for this B28 occurrence-binding witness.
+        """
+    
+        problem = _problem("same_subject_persisted_occurrence")
+        problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+        root_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
+        graph = derive_recursive_design_graph(
+            design_ref=root_ref,
+            module_refs=(),
+            parent_child_edges=(),
+            rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
+        )
+        generator = _SameCandidateNewBasisGenerator()
+        recursive = RecursiveGenerationCycleController.for_contract_testing(
+            repo_root=REPO_ROOT,
+            cycle_controller_factory=lambda _node_ref, _problem: GenerationCycleController(
+                generation_port=generator,
+                grounding_port=_CurrentValidOnSecondCycleGrounding(),
+                value_port=_ReadyValuePort(),
+                repo_root=REPO_ROOT,
+            ),
+        )
+        recursive_run = await recursive.run(
+            graph,
+            problems_by_node={root_ref: problem},
+            budget_state=_budget(),
+            recursive_budget=RecursiveCycleBudget(
+                max_depth=0,
+                max_nodes=1,
+                min_cycles_per_leaf=2,
+                max_cycles_per_leaf=2,
+            ),
+        )
+        leaf_runs = tuple(
+            node.cycle_run
+            for node in recursive_run.leaf_nodes
+            if node.cycle_run is not None
+        )
+        assert len(leaf_runs) == 1
+        produced_run = leaf_runs[0]
+        assert produced_run.terminal_status == "completed"
+        assert tuple(
+            (row.candidate_id, row.content_hash, row.cycle_index)
+            for row in produced_run.candidate_summaries
+        ) == (
+            ("candidate_same_subject", "sha256:" + "1" * 64, 0),
+            ("candidate_same_subject", "sha256:" + "2" * 64, 1),
+        )
+        _assert_modern_value_receipt_roundtrips(produced_run)
+        _assert_actual_legacy_history_roundtrips()
+    
+        recursive_payload = recursive_run.model_dump(mode="json", exclude={"leaf_nodes"})
+        compiled_payload = {
+            "schema_version": COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,
+            "design_problem_ref": problem_ref,
+            "design_problem": problem.model_dump(mode="json"),
+            "cycle_substrate_context_ref": None,
+            "recursive_run": recursive_payload,
+        }
+        compiled = CompiledRecursiveGenerationCycleRun.model_validate(
+            {**compiled_payload, "content_hash": gy_content_hash(compiled_payload)}
+        )
+    
+        cas_root = tmp_path / "compiled-run-cas"
+        writer = FileSystemCAS(cas_root)
+        compiled_ref = writer.put_json(
+            compiled.model_dump(mode="json"),
+            ArtifactWriteOptions(
+                kind="runtime.compiled_recursive_generation_cycle",
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name="polisyos.runtime.CompiledRecursiveGenerationCycleRun",
+                    version="1.0",
+                ),
+            ),
+            canon_spec=canon.CanonSpec(forbid_floats=False),
+        )
+    
+        # Re-open the same CAS with fresh readers before constructing the consumer.
+        read_store = FileSystemCAS(cas_root)
+        assert read_store.verify(compiled_ref).ok
+        manifest = read_store.get_manifest(compiled_ref)
+        assert manifest.kind == "runtime.compiled_recursive_generation_cycle"
+        assert manifest.artifact_schema == SchemaInfo(
+            name="polisyos.runtime.CompiledRecursiveGenerationCycleRun",
+            version="1.0",
+        )
+        raw = read_store.get_bytes(compiled_ref)
+        assert str(compiled_ref.artifact_id) == f"sha256:{canon.content_hash(raw)}"
+        payload = canon.from_canonical_bytes(raw)
+        assert isinstance(payload, dict)
+        replayed = CompiledRecursiveGenerationCycleRun.model_validate(payload)
+        replayed_runs = tuple(
+            node.cycle_run
+            for node in replayed.recursive_run.leaf_nodes
+            if node.cycle_run is not None
+        )
+        assert len(replayed_runs) == 1
+        replayed_run = replayed_runs[0]
+&gt;       assert replayed_run == produced_run
+E       assert GenerationCyc...y_reason=None) == GenerationCyc...y_reason=None)
+E         
+E         Use -v to get more diff
+
+tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py:349: AssertionError</failure></testcase><testcase classname="tests.unit.runtime.quality.test_generation_cycle_history" name="test_source_free_package_replays_n6_v1_v2_v3_with_semantic_mutation" time="29.113"><properties><property name="wheel_build_wall_seconds" value="2.104" /><property name="wheel_build_command" value="uv --offline build --wheel --out-dir &lt;pytest-tmp&gt;/wheelhouse" /><property name="built_wheel_sha256" value="021c2c6cf15c0d40a6520b2a8be53f54bc7239051add18e2bd2806ad29fbe7e1" /><property name="wheel_python_module_count" value="2699" /><property name="wheel_registry_sha256" value="186078f2cd5c24cdef007449109d5667f60f4f7949c9b663026e5658e538bb5b" /></properties></testcase><testcase classname="tests.unit.runtime.quality.test_generation_cycle_history" name="test_all_current_and_pinned_historical_n6_runs_replay_byte_exactly" time="2.365"><properties><property name="tracked_json_jsonl_file_count" value="3094" /></properties></testcase><testcase classname="tests.unit.runtime.quality.test_generation_cycle_history" name="test_v3_history_freeze_rejects_dotted_target_slot_while_markers_remain" time="0.002" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle_history" name="test_v3_history_accepts_nested_design_problem_v2_dotted_target_slot" time="0.003" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle_history" name="test_v3_history_accepts_nested_design_problem_v3_qualified_outcome" time="0.004" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle_history" name="test_history_rejects_qualified_outcome_without_v3_nested_owner[policyos.runtime.design_problem.v1]" time="0.002" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle_history" name="test_history_rejects_qualified_outcome_without_v3_nested_owner[policyos.runtime.design_problem.v2]" time="0.002" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle_history" name="test_history_rejects_qualified_outcome_without_v3_nested_owner[policyos.runtime.design_problem.v3]" time="0.002" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle_history" name="test_v3_history_projects_n5_artifact_root_model_as_scalar_wire" time="0.001" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle_history" name="test_v3_blocked_terminal_semantics_remain_enforced_in_history" time="0.012" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle_history" name="test_v3_history_preserves_arbitrary_design_problem_schema_strings" time="0.004" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle_history" name="test_frozen_vocabulary_and_wire_schema_cover_the_complete_model_graph" time="0.001" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle_history" name="test_v1_projection_removal_probe_rejects_post_v1_field_with_markers_retained" time="0.003" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle_history" name="test_v2_history_rejects_post_version_nested_fields_with_markers_retained[path0-grounding_issue_codes-value0]" time="0.014" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle_history" name="test_v2_history_rejects_post_version_nested_fields_with_markers_retained[path1-design_problem_basis_ref-sha256:0000000000000000000000000000000000000000000000000000000000000000]" time="0.014" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle_history" name="test_v2_history_rejects_post_version_nested_fields_with_markers_retained[path2-simulation_result_ref-value2]" time="0.014" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle_history" name="test_v2_history_rejects_post_version_nested_fields_with_markers_retained[path3-source_file_count-0]" time="0.014" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle_history" name="test_history_replay_is_read_only_and_does_not_consult_current_source" time="0.049" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle_history" name="test_v1_v2_history_rejects_current_only_literal_or_alias_values[path0-status-not_established]" time="0.005" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle_history" name="test_v1_v2_history_rejects_current_only_literal_or_alias_values[path1-status-stopped]" time="0.004" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle_history" name="test_v1_v2_history_rejects_current_only_literal_or_alias_values[path2-value_status-value_conditional]" time="0.005" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle_history" name="test_v1_v2_history_rejects_current_only_literal_or_alias_values[path3-decision-stop]" time="0.004" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle_history" name="test_v2_nested_future_enum_strategy_is_rejected_by_historical_projection" time="0.002" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle_history" name="test_historical_vocabulary_guard_uses_reflected_mapping_and_sequence_paths" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle_history" name="test_currentness_unknown_preserves_the_saved_historical_status" time="0.021" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle_history" name="test_all_method_selection_receipts_in_n6_history_replay" time="0.006" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle_history" name="test_source_comment_preserves_actual_v1_v2_history[.v1]" time="0.025" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle_history" name="test_source_comment_preserves_actual_v1_v2_history[.v2]" time="0.040" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle_history" name="test_currentness_uses_ledger_observation_without_source_replay" time="0.048" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle_history" name="test_source_census_records_observations_but_holds_production_verdict_unrun" time="0.005" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle_history" name="test_source_census_rebinding_falsifier_and_controls_keep_root_unrun" time="0.002" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle_history" name="test_source_census_scan_time_directory_error_marks_denominator_incomplete" time="0.001" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle_history" name="test_candidate_census_removal_stays_unrun_and_unrelated_control" time="0.002" /><testcase classname="tests.unit.runtime.quality.test_generation_cycle_outer_artifact_replay" name="test_source_limited_n6_v4_replays_through_guarded_compiled_artifact_owner" time="0.127" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_value_choice_provenance_record_is_strict_replayable_and_mandate_bounded" time="0.001" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_authorized_value_schedule_requires_s6_mandate_firewall_pass" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_pareto_archive_cannot_rank_without_authorized_value_schedule" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_shadowless_name_cannot_mint_authority_while_resolver_is_absent" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_shadow_kind_is_refused_under_sh4dow_q3_name" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_unresolvable_value_schedule_ref_fails_closed_with_specific_code" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_shadow_kind_is_refused_under_a_name_invented_at_test_time" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_pareto_archive_model_cannot_bypass_ranked_admission_guard" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_pareto_archive_unvalidated_minting_seams_revalidate[model_copy]" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_pareto_archive_unvalidated_minting_seams_revalidate[model_construct]" time="0.001" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_pareto_archive_unvalidated_minting_seams_revalidate[copy]" time="0.001" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_pareto_archive_unvalidated_minting_seams_revalidate[construct]" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_pareto_archive_unvalidated_minting_seams_revalidate[__replace__]" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_pareto_archive_unvalidated_minting_seams_revalidate[copy_replace]" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_p20_rejects_llm_or_corpus_derived_social_weights" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_p22_rejects_absent_limit_block_or_candidate_unverified_mandate_source" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_shadow_scenario_value_schedule_is_visible_but_not_authority" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_multi_principal_conflict_is_contested_not_silent_average" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_s7_human_decision_refs_cannot_substitute_for_s8_value_authority" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_s7_value_authorization_route_requires_governance_decision_class_and_five_rights" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_value_tradeoff_disclosure_has_audience_bounded_public_projection" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_value_choice_records_are_exported_from_runtime_quality" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_ranked_bundle_persistence_requires_owner_verification" time="0.003" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_generation_source_reader_replays_historical_schema_by_its_manifest" time="0.143" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_separate_signed_authorization_produces_persists_resolves_and_projects" time="0.078" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_signed_authority_refuses_without_a_signature_capability" time="0.040" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_signature_capability_must_be_bound_to_the_exact_store" time="0.003" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_signature_verifier_receives_a_normalized_artifact_id" time="0.059" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_signed_owner_uses_runtime_guarded_proxy_and_executes_through_guard" time="0.060" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_invalid_authority_keeps_frontier_and_persists_typed_request[missing-p20_normative_authorization_missing]" time="0.038" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_invalid_authority_keeps_frontier_and_persists_typed_request[missing_schedule-p20_value_schedule_ref_unresolvable]" time="0.041" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_invalid_authority_keeps_frontier_and_persists_typed_request[empty-p20_normative_authority_slot_empty]" time="0.039" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_invalid_authority_keeps_frontier_and_persists_typed_request[self_grading-p20_normative_self_grading]" time="0.045" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_invalid_authority_keeps_frontier_and_persists_typed_request[role-p20_normative_authority_scope_mismatch]" time="0.041" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_invalid_authority_keeps_frontier_and_persists_typed_request[purpose-p20_normative_authority_scope_mismatch]" time="0.042" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_invalid_authority_keeps_frontier_and_persists_typed_request[scope-p20_normative_authority_scope_mismatch]" time="0.041" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_invalid_authority_keeps_frontier_and_persists_typed_request[case-p20_normative_authority_scope_mismatch]" time="0.041" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_invalid_authority_keeps_frontier_and_persists_typed_request[stale-p20_normative_authorization_stale]" time="0.041" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_invalid_authority_keeps_frontier_and_persists_typed_request[shadow-p20_resolved_schedule_not_authorized]" time="0.045" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_invalid_authority_keeps_frontier_and_persists_typed_request[signature-p20_normative_signature_unverified]" time="0.042" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_ranked_persistence_and_projection_recheck_ttl_and_exact_selection" time="0.070" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_authorized_projection_cannot_grade_its_own_mapping" time="0.000" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_persisted_authorization_status_is_derived_from_the_verified_result[]" time="0.067" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_persisted_authorization_status_is_derived_from_the_verified_result[role]" time="0.041" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_admission_cannot_replace_verified_claimant_with_an_asserted_identity" time="0.057" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_nested_sibling_ranked_payload_must_use_the_same_owner" time="0.032" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_trust_cannot_turn_one_key_into_two_independent_parties" time="0.002" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_schedule_bytes_remain_bound_after_a_valid_signature" time="0.042" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_selection_permission_sets_a_whole_authority_ceiling" time="0.067" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_permission_projection_never_grades_candidate_auxiliary_premises[REVIEWER]" time="0.089" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_permission_projection_never_grades_candidate_auxiliary_premises[MACHINE]" time="0.089" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_registered_advisory_disclosure_rejects_all_modified_assessment_fields[REVIEWER]" time="0.010" /><testcase classname="tests.unit.runtime.quality.test_design_axes_value_choice_provenance" name="test_registered_advisory_disclosure_rejects_all_modified_assessment_fields[MACHINE]" time="0.009" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_empty_eval_safety_map_is_rejected_before_n4_dispatch" time="0.009" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_production_recursive_owner_rejects_substrate_without_execution_intent" time="0.016" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_non_simulation_context_without_admission_is_not_candidate_fallback" time="0.034" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_protected_intent_cannot_route_through_context_free_custom_factory" time="0.001" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_implicit_contract_testing_candidate_rejects_subclassed_n9_dispatch[controller]" time="0.001" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_implicit_contract_testing_candidate_rejects_subclassed_n9_dispatch[promotion_port]" time="0.001" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_candidate_or_simulation_intent_preserves_context_free_n4_dispatch[candidate_only]" time="0.015" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_candidate_or_simulation_intent_preserves_context_free_n4_dispatch[simulate_only]" time="0.016" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_data_trust_modes_report_their_missing_owner_separately_from_eval_safety[retrospective]" time="0.009" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_data_trust_modes_report_their_missing_owner_separately_from_eval_safety[measurement_audit]" time="0.008" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4[missing-sandbox_pilot]" time="0.010" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4[missing-field_pilot]" time="0.009" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4[missing-deployment]" time="0.009" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4[extra-sandbox_pilot]" time="0.009" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4[extra-field_pilot]" time="0.009" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4[extra-deployment]" time="0.010" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4[wrong_key-sandbox_pilot]" time="0.010" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4[wrong_key-field_pilot]" time="0.010" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_eval_safety_mode_requires_exact_leaf_context_denominator_before_n4[wrong_key-deployment]" time="0.009" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_default_recursive_generation_factory_binds_subject_authority_and_gate" time="0.008" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_direct_recursive_controller_rejects_foreign_epoch_dependencies" time="0.016" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_production_recursive_owner_requires_explicit_eval_safety_context_mapping" time="0.009" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_non_simulation_leaf_requires_current_eval_safety_head" time="1.893"><failure message="TypeError: test_non_simulation_leaf_requires_current_eval_safety_head.&lt;locals&gt;.actual_n5_input_ref() got an unexpected keyword argument 'artifact_store'">tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/frozen-consumer-wave-d273/pytest-basetemp/test_non_simulation_leaf_requi0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x146bb1da0&gt;
+
+    @pytest.mark.asyncio
+    async def test_non_simulation_leaf_requires_current_eval_safety_head(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        from polisyos.runtime.http.services.control import evaluation_safety as c02
+        from polisyos.runtime.quality import evaluation_safety as es
+        from polisyos.runtime.quality import generation_cycle as generation_cycle_owner
+        from polisyos.runtime.quality import recursive_generation_cycle as recursive_cycle_owner
+        from polisyos.runtime.quality.generation_cycle import (
+            JointSimulationPort,
+            RealValueOwnerGateway,
+            ValueOwnerAccessError,
+            currentness_for_generation_cycle_run,
+            validate_generation_cycle_candidate_run,
+            validate_generation_cycle_run,
+        )
+        from tests.unit.runtime.http.services import test_evaluation_safety as c02_test
+        from tests.unit.runtime.quality.test_generation_cycle import (
+            REPO_ROOT,
+            _Atom,
+            _budget,
+            _Candidate,
+            _CgfGenerationPort,
+            _problem,
+        )
+        from tests.unit.runtime.quality.test_value_gate import (
+            _execution_ref,
+            _simulation,
+            _world_record,
+        )
+    
+        runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "promotion-cas"))
+        problem = _problem(f"recursive_eval_safety_{uuid4().hex}")
+        problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+        root_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
+        graph = derive_recursive_design_graph(
+            design_ref=root_ref,
+            module_refs=(),
+            parent_child_edges=(),
+            rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
+        )
+        recursive_budget = RecursiveCycleBudget(
+            max_depth=0,
+            max_nodes=1,
+            min_cycles_per_leaf=1,
+            max_cycles_per_leaf=1,
+        )
+        candidate = _Candidate(
+            candidate_id="candidate_cgf_shadow",
+            atom=_Atom(
+                "candidate_cgf_shadow",
+                "sha256:" + "4" * 64,
+                target_world_slots=("firm_survival",),
+            ),
+            diversity_key=("grant", "firms", "cgf_shadow", "baseline"),
+        )
+        world = _world_record("7")
+        simulation = _simulation(world, candidate_id=candidate.candidate_id)
+        bound_candidate_ref = _execution_ref(
+            candidate.candidate_id,
+            candidate.atom.content_hash,
+            artifact_type="candidate",
+            schema_ref="policyos.runtime.candidate.v1",
+        )
+        bound_world_model_record_ref = _execution_ref(
+            world.world_model_record_id,
+            world.content_hash,
+            artifact_type="world_model_record",
+            schema_ref="policyos.runtime.world_model_record.v1",
+        )
+        original_intake = c02_test.EvaluationAttemptIntake
+    
+        def bound_intake(**values: object) -&gt; es.EvaluationAttemptIntake:
+            values.update(
+                {
+                    "candidate_ref": bound_candidate_ref,
+                    "world_model_record_ref": bound_world_model_record_ref,
+                }
+            )
+            return original_intake(**values)
+    
+        monkeypatch.setattr(c02_test, "EvaluationAttemptIntake", bound_intake)
+        fixture = c02_test._passing_fixture(  # noqa: SLF001
+            tmp_path / "eval-safety",
+            design_problem_ref=problem_ref,
+        )
+    
+        def actual_n5_input_ref(
+            observation: object,
+        ) -&gt; object:
+            assert observation is simulation
+            return fixture.execution_context.evaluation_input_refs[0]
+    
+        monkeypatch.setattr(
+            generation_cycle_owner,
+            "simulation_evaluation_input_ref",
+            actual_n5_input_ref,
+        )
+    
+        class CurrentStateResolver:
+            def resolve(
+                self,
+                context: es.EvaluationExecutionContext,
+            ) -&gt; c02.EvaluationSafetyReplayMaterial:
+                del context
+                return fixture.replay_material
+    
+        concrete_verifier = c02.EvaluationSafetyAdmissionVerifier(
+            persistence_service=fixture.service,
+            current_state_resolver=CurrentStateResolver(),
+            authority_resolver=fixture.authority_resolver,
+            appointment_resolver=fixture.appointment_resolver,
+            verifier_registry=fixture.verifier_registry,
+        )
+    
+        class ReplayFirstPositive:
+            def __init__(self) -&gt; None:
+                self.first: es.EvalSafetyConsumerAdmissionReceipt | None = None
+    
+            def require_admission(
+                self,
+                context: es.EvaluationExecutionContext,
+                challenge: es.EvalSafetyAdmissionChallenge,
+            ) -&gt; es.EvalSafetyConsumerAdmissionReceipt:
+                if self.first is None:
+                    self.first = concrete_verifier.require_admission(context, challenge)
+                return self.first
+    
+        owner_calls: list[str] = []
+        n4_calls = 0
+        n5_calls = 0
+    
+        def actual_n5(
+            self: JointSimulationPort,
+            *,
+            candidate: object,
+            problem: object,
+            cycle_index: int,
+        ) -&gt; object:
+            nonlocal n5_calls
+            del self, problem, cycle_index
+            n5_calls += 1
+            assert candidate.candidate_id == simulation.candidate_id  # type: ignore[attr-defined]
+            return simulation
+    
+        def value_owner_spy(
+            self: RealValueOwnerGateway,
+            **values: object,
+        ) -&gt; object:
+            del self, values
+            owner_calls.append("load_value_data_profile")
+            raise ValueOwnerAccessError("value_owner_data_profile_invalid")
+    
+        monkeypatch.setattr(JointSimulationPort, "__call__", actual_n5)
+        monkeypatch.setattr(RealValueOwnerGateway, "load_value_data_profile", value_owner_spy)
+    
+        class _CanonicalFixtureN4Port(N4GenerationPort):
+            def __init__(self) -&gt; None:
+                super().__init__(model_id="fixture-model")
+                self._delegate = _CgfGenerationPort()
+    
+            async def __call__(self, problem, *, cycle_index):
+                nonlocal n4_calls
+                n4_calls += 1
+                return await self._delegate(problem, cycle_index=cycle_index)
+    
+        async def run_leaf(
+            *,
+            context: es.EvaluationExecutionContext,
+            verifier: object,
+            context_bindings: dict[str, es.EvaluationExecutionContext] | None = None,
+        ):
+            controller = build_default_recursive_generation_cycle_controller(
+                repo_root=REPO_ROOT,
+                promotion_runtime=runtime,
+                eval_safety_verifier=verifier,
+            )
+            return await controller.run(
+                graph,
+                problems_by_node={root_ref: problem},
+                budget_state=_budget(),
+                recursive_budget=recursive_budget,
+                n4_generation_ports_by_node={root_ref: _CanonicalFixtureN4Port()},
+                evaluation_contexts_by_node=(
+                    {root_ref: context} if context_bindings is None else context_bindings
+                ),
+                execution_intents_by_node={root_ref: "field_pilot"},
+            )
+    
+&gt;       current = await run_leaf(
+            context=fixture.execution_context,
+            verifier=concrete_verifier,
+        )
+
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:1429: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:1417: in run_leaf
+    return await controller.run(
+src/polisyos/runtime/quality/recursive_generation_cycle.py:1345: in run
+    root = await route(recursive_graph.root_design_ref)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/runtime/quality/recursive_generation_cycle.py:1203: in route
+    cycle_run = await controller.run(
+src/polisyos/runtime/quality/generation_cycle.py:6156: in run
+    cycle, cycle_summaries = await self._run_cycle(
+src/polisyos/runtime/quality/generation_cycle.py:6874: in _run_cycle
+    finished = await self._engine.run_async(state)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/scientist/orchestration/workflows/engine_simple.py:51: in run_async
+    next_state = fn(state)
+                 ^^^^^^^^^
+src/polisyos/runtime/quality/generation_cycle.py:8798: in _joint_value_node
+    value = value_port(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = &lt;polisyos.runtime.quality.generation_cycle.FoundryValuePort object at 0x146b375f0&gt;
+
+    def __call__(
+        self,
+        *,
+        candidate: object,
+        simulation: SimulationPortObservation,
+        problem: DesignProblem,
+        cycle_index: int,
+    ) -&gt; ValuePortObservation:
+        """Compute value over a named WMR or fail closed with typed blockers."""
+    
+        started = time.monotonic()
+        del cycle_index
+        candidate_id = _candidate_id(candidate)
+        context = self._evaluation_context
+        mode = context.evaluation_mode
+        if context.evaluator_owner_id != FOUNDRY_VALUE_PORT_EVALUATOR_ID:
+            return _blocked_value_observation(
+                code="eval_safety_evaluator_owner_mismatch",
+                reason="EvalSafety context is bound to another evaluator owner.",
+                mode=mode,
+                started=started,
+                candidate_id=candidate_id,
+            )
+        if context.design_problem_ref != _problem_ref(problem):
+            return _blocked_value_observation(
+                code="eval_safety_design_problem_binding_mismatch",
+                reason="EvalSafety context does not bind this DesignProblem.",
+                mode=mode,
+                started=started,
+                candidate_id=candidate_id,
+            )
+&gt;       actual_input_ref = simulation_evaluation_input_ref(
+            simulation, artifact_store=self._artifact_store
+        )
+E       TypeError: test_non_simulation_leaf_requires_current_eval_safety_head.&lt;locals&gt;.actual_n5_input_ref() got an unexpected keyword argument 'artifact_store'
+
+src/polisyos/runtime/quality/generation_cycle.py:4984: TypeError</failure></testcase><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_http_contextless_explicit_n4_refuses_before_n4" time="0.013" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_http_recursive_route_carries_one_cycle_context_without_manual_context" time="0.054"><failure message="AssertionError: assert 'generation_c...isite_not_met' == 'generation_c...not_appointed'&#10;  &#10;  - generation_cycle_n6_census_not_established:n6_census_issuer_not_appointed&#10;  + generation_cycle_blocked_before_n9:n5_preflight_blocked:n5_grounding_prerequisite_not_met">tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/frozen-consumer-wave-d273/pytest-basetemp/test_http_recursive_route_carr0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x143f88bb0&gt;
+
+    @pytest.mark.asyncio
+    async def test_http_recursive_route_carries_one_cycle_context_without_manual_context(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        """HTTP → recursion → N6 must retain one content-bound substrate envelope."""
+    
+        from polisyos.runtime.quality.design_problem import DesignProblemAuthorityError
+        from tests.unit.runtime.quality.test_generation_cycle import (
+            REPO_ROOT,
+            _budget,
+            _cyc01_owner_bound_n5_case,
+            _GenerationResult,
+            _Ranking,
+        )
+    
+        problem, substrate_context, candidate = _cyc01_owner_bound_n5_case()
+        runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    
+        class _NeverCalledVerifier:
+            def require_admission(self, *_args, **_kwargs):
+                raise AssertionError("ordinary HTTP test unexpectedly called EvalSafety verifier")
+    
+        async def compile_problem(**kwargs):
+            del kwargs
+            return problem
+    
+        monkeypatch.setattr(
+            generation_cycle_service,
+            "build_design_problem_from_nl_request",
+            compile_problem,
+        )
+    
+        def source_scan_must_not_run(*_args, **_kwargs):
+            pytest.fail("served_candidate_reentry_scanned_source_tree")
+    
+        monkeypatch.setattr(StrangleReceipt, "recompute", source_scan_must_not_run)
+    
+        class _ContextFixtureN4Port(N4GenerationPort):
+            def __init__(self) -&gt; None:
+                super().__init__(model_id="fixture-model")
+                self.calls = 0
+    
+            async def __call__(self, problem, *, cycle_index):
+                del problem, cycle_index
+                self.calls += 1
+                return _GenerationResult(
+                    status="generated",
+                    candidates=(candidate,),
+                    surrogate_rankings=(
+                        _Ranking(
+                            candidate_id=candidate.candidate_id,
+                            score=0.91,
+                            voi_estimate=0.1,
+                        ),
+                    ),
+                    grounding_dispositions=(),
+                )
+    
+        recursive_budget = RecursiveCycleBudget(
+            max_depth=0,
+            max_nodes=1,
+            min_cycles_per_leaf=1,
+            max_cycles_per_leaf=1,
+        )
+        n4_port = _ContextFixtureN4Port()
+        compiled = await generation_cycle_service.compile_and_run_recursive_generation_cycle(
+            raw_request=problem.nl_provenance.raw_request,
+            context={},
+            model_name="fixture-model",
+            execution_intent="simulate_only",
+            compiler_gateway=object(),  # type: ignore[arg-type]
+            budget_state=_budget(),
+            recursive_budget=recursive_budget,
+            root_evaluation_context=None,
+            eval_safety_verifier=_NeverCalledVerifier(),
+            cycle_substrate_context=substrate_context,
+            root_n4_generation_port=n4_port,
+            promotion_runtime=runtime,
+            repo_root=REPO_ROOT,
+        )
+    
+        assert compiled.recursive_run.leaf_nodes[0].cycle_run is not None
+        leaf_cycle = compiled.recursive_run.leaf_nodes[0].cycle_run
+        assert leaf_cycle.cycles
+        simulation = leaf_cycle.cycles[0].simulation
+        assert leaf_cycle.strangle_receipt.status == "not_established"
+        assert leaf_cycle.promotion_port.status == "not_promoted"
+&gt;       assert leaf_cycle.promotion_port.reason == (
+            "generation_cycle_n6_census_not_established:n6_census_issuer_not_appointed"
+        )
+E       AssertionError: assert 'generation_c...isite_not_met' == 'generation_c...not_appointed'
+E         
+E         - generation_cycle_n6_census_not_established:n6_census_issuer_not_appointed
+E         + generation_cycle_blocked_before_n9:n5_preflight_blocked:n5_grounding_prerequisite_not_met
+
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:1728: AssertionError</failure></testcase><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_http_recursive_route_carries_one_context_to_n5_owner_block" time="0.055"><failure message="AssertionError: assert None == 'simulate_only'&#10; +  where None = ValuePortObservation(status='value_blocked', candidate_id='candidate_cyc_n5_builder', value_ref=None, authority_blocke...t_receipt=None, calibration_receipt=None, value_receipt=None, conditional_interaction_evidence=None, wall_time_ms=None).evaluation_mode&#10; +    where ValuePortObservation(status='value_blocked', candidate_id='candidate_cyc_n5_builder', value_ref=None, authority_blocke...t_receipt=None, calibration_receipt=None, value_receipt=None, conditional_interaction_evidence=None, wall_time_ms=None) = GenerationCycleRecord(cycle_index=0, design_problem_ref='sha256:5af6fafda89678e99f8ea0afb688f0340d78fc44b5168d2b19fd87...on_receipt=None, acquisition_routing_report=None, acquisition_cost_basis_record=None, acquisition_cost_basis_hash=None).value_port">tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/frozen-consumer-wave-d273/pytest-basetemp/test_http_recursive_route_carr1')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x143f89320&gt;
+
+    @pytest.mark.asyncio
+    async def test_http_recursive_route_carries_one_context_to_n5_owner_block(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        """HTTP → leaf → N5 must retain the one owner WMR on a typed NCM block."""
+    
+        from tests.unit.runtime.quality.test_generation_cycle import (
+            REPO_ROOT,
+            _budget,
+            _cyc01_owner_bound_n5_case,
+            _GenerationResult,
+            _GroundingDisposition,
+            _Ranking,
+        )
+    
+        problem, substrate_context, candidate = _cyc01_owner_bound_n5_case()
+        runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    
+        class _NeverCalledVerifier:
+            def require_admission(self, *_args, **_kwargs):
+                raise AssertionError("owner-blocked N5 path unexpectedly called EvalSafety verifier")
+    
+        class _BoundN4Port(N4GenerationPort):
+            def __init__(self) -&gt; None:
+                super().__init__(model_id="fixture-model")
+                self.calls = 0
+    
+            async def __call__(self, problem, *, cycle_index):
+                del problem, cycle_index
+                self.calls += 1
+                return _GenerationResult(
+                    status="generated",
+                    candidates=(candidate,),
+                    surrogate_rankings=(
+                        _Ranking(
+                            candidate_id=candidate.candidate_id,
+                            score=0.91,
+                            voi_estimate=0.1,
+                        ),
+                    ),
+                    grounding_dispositions=(
+                        _GroundingDisposition(
+                            proposal_id=candidate.candidate_id,
+                            candidate_id=candidate.candidate_id,
+                            raw_candidate_hash=candidate.atom.content_hash,
+                            disposition="shadow_bound",
+                            selected_relation="exact",
+                            shadow_atom_content_hash=candidate.atom.content_hash,
+                        ),
+                    ),
+                )
+    
+        async def compile_problem(**kwargs):
+            del kwargs
+            return problem
+    
+        monkeypatch.setattr(
+            generation_cycle_service,
+            "build_design_problem_from_nl_request",
+            compile_problem,
+        )
+        n4_port = _BoundN4Port()
+        compiled = await generation_cycle_service.compile_and_run_recursive_generation_cycle(
+            raw_request=problem.nl_provenance.raw_request,
+            context={},
+            model_name="fixture-model",
+            execution_intent="simulate_only",
+            compiler_gateway=object(),  # type: ignore[arg-type]
+            budget_state=_budget(),
+            recursive_budget=RecursiveCycleBudget(
+                max_depth=0,
+                max_nodes=1,
+                min_cycles_per_leaf=1,
+                max_cycles_per_leaf=1,
+            ),
+            root_evaluation_context=None,
+            eval_safety_verifier=_NeverCalledVerifier(),
+            cycle_substrate_context=substrate_context,
+            root_n4_generation_port=n4_port,
+            promotion_runtime=runtime,
+            repo_root=REPO_ROOT,
+        )
+    
+        assert n4_port.calls == 1
+        assert compiled.cycle_substrate_context_ref == substrate_context.content_hash
+        leaf = compiled.recursive_run.leaf_nodes[0]
+        assert leaf.cycle_run is not None
+        assert leaf.cycle_run.cycles
+&gt;       assert leaf.cycle_run.cycles[0].value_port.evaluation_mode == "simulate_only"
+E       AssertionError: assert None == 'simulate_only'
+E        +  where None = ValuePortObservation(status='value_blocked', candidate_id='candidate_cyc_n5_builder', value_ref=None, authority_blocke...t_receipt=None, calibration_receipt=None, value_receipt=None, conditional_interaction_evidence=None, wall_time_ms=None).evaluation_mode
+E        +    where ValuePortObservation(status='value_blocked', candidate_id='candidate_cyc_n5_builder', value_ref=None, authority_blocke...t_receipt=None, calibration_receipt=None, value_receipt=None, conditional_interaction_evidence=None, wall_time_ms=None) = GenerationCycleRecord(cycle_index=0, design_problem_ref='sha256:5af6fafda89678e99f8ea0afb688f0340d78fc44b5168d2b19fd87...on_receipt=None, acquisition_routing_report=None, acquisition_cost_basis_record=None, acquisition_cost_basis_hash=None).value_port
+
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:1881: AssertionError</failure></testcase><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_http_recursive_route_without_owner_context_fails_closed_before_boundary_wmr" time="0.018" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_http_protected_explicit_n4_without_owner_context_fails_closed_before_boundary_wmr" time="0.016" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_recursive_leaf_preserves_history_and_current_problem_binding" time="0.030" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_recursive_constructor_denominator_has_no_unwrapped_n9_call" time="18.427"><failure message="AssertionError: assert {('polisyos.r...repo_root'}))} == {('polisyos.r...repo_root'}))}&#10;  &#10;  Extra items in the left set:&#10;  ('polisyos.runtime.quality.generation_cycle', 'src/polisyos/runtime/quality/generation_cycle.py', 'GenerationCycleCont...der', 'epoch_n9_evidence_resolver', 'measurement_catalog', 'measurement_providers', 'promotion_runtime', 'repo_root'}))&#10;  ('polisyos.runtime.quality.acquisition_world_growth', 'src/polisyos/runtime/quality/acquisition_world_growth.py', 'Acq...runtime.quality.generation_cycle.GenerationCycleController', frozenset({'model_id', 'promotion_runtime', 'repo_root'}))&#10;  ('polisyos.runtime.quality.recursive_generation_cycle', 'src/polisyo...&#10;  &#10;  ...Full output truncated (5 lines hidden), use '-vv' to show">def test_recursive_constructor_denominator_has_no_unwrapped_n9_call() -&gt; None:
+        repo_root = Path(__file__).resolve().parents[4]
+        git_paths, filesystem_paths = _production_python_paths(repo_root)
+        assert git_paths == filesystem_paths
+    
+        constructors: list[_CallSite] = []
+        promotion_calls: list[_CallSite] = []
+        ambiguous: list[str] = []
+        for relative_path in sorted(git_paths):
+            source_path = repo_root / relative_path
+            found_constructors, found_ports, found_ambiguous = _scan_python_source(
+                source=source_path.read_text(encoding="utf-8"),
+                module=_module_name(repo_root, source_path),
+                source_path=relative_path,
+            )
+            constructors.extend(found_constructors)
+            promotion_calls.extend(found_ports)
+            ambiguous.extend(found_ambiguous)
+&gt;       _assert_constructor_contract(tuple(constructors), tuple(promotion_calls), tuple(ambiguous))
+
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:2143: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+constructors = (_CallSite(module='polisyos.runtime.http.services.control.generation_cycle', source_path='src/polisyos/runtime/http/se...ulation_port', 'grounding_port', 'value_port'}), has_keyword_expansion=False, authority_scope='contract_testing'), ...)
+promotion_calls = (_CallSite(module='polisyos.runtime.quality.generation_cycle', source_path='src/polisyos/runtime/quality/generation_cy...tion_port', keyword_names=frozenset({'admitted_batch', 'problem'}), has_keyword_expansion=False, authority_scope=None))
+ambiguous = ()
+
+    def _assert_constructor_contract(
+        constructors: tuple[_CallSite, ...],
+        promotion_calls: tuple[_CallSite, ...],
+        ambiguous: tuple[str, ...],
+    ) -&gt; None:
+        assert ambiguous == ()
+        expected_production = {
+            (
+                "polisyos.runtime.http.services.control.generation_cycle",
+                "src/polisyos/runtime/http/services/control/generation_cycle.py",
+                "compile_and_run_recursive_generation_cycle",
+                "polisyos.runtime.quality.recursive_generation_cycle."
+                "build_default_recursive_generation_cycle_controller",
+                frozenset(
+                    {"repo_root", "model_id", "promotion_runtime", "eval_safety_verifier"}
+                ),
+            ),
+            (
+                "polisyos.runtime.quality.recursive_generation_cycle",
+                "src/polisyos/runtime/quality/recursive_generation_cycle.py",
+                "build_default_recursive_generation_cycle_controller",
+                "polisyos.runtime.quality.recursive_generation_cycle."
+                "RecursiveGenerationCycleController",
+                frozenset(
+                    {"repo_root", "model_id", "promotion_runtime", "eval_safety_verifier"}
+                ),
+            ),
+            (
+                "polisyos.runtime.quality.recursive_generation_cycle",
+                "src/polisyos/runtime/quality/recursive_generation_cycle.py",
+                "RecursiveGenerationCycleController.run.route",
+                "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+                frozenset(
+                    {
+                        "generation_port",
+                        "repo_root",
+                        "model_id",
+                        "cycle_substrate_context",
+                        "promotion_runtime",
+                        "value_port",
+                    }
+                ),
+            ),
+            (
+                "polisyos.runtime.quality.generation_cycle",
+                "src/polisyos/runtime/quality/generation_cycle.py",
+                "GenerationCycleController.__init__",
+                "polisyos.runtime.quality.promotion_sequence.CanonicalN9PromotionPort",
+                frozenset({"repo_root", "promotion_runtime", "epoch_n9_evidence_resolver"}),
+            ),
+        }
+        observed_production = {
+            (row.module, row.source_path, row.enclosing, row.target, row.keyword_names)
+            for row in constructors
+            if row.source_path.startswith("src/")
+        }
+&gt;       assert observed_production == expected_production
+E       AssertionError: assert {('polisyos.r...repo_root'}))} == {('polisyos.r...repo_root'}))}
+E         
+E         Extra items in the left set:
+E         ('polisyos.runtime.quality.generation_cycle', 'src/polisyos/runtime/quality/generation_cycle.py', 'GenerationCycleCont...der', 'epoch_n9_evidence_resolver', 'measurement_catalog', 'measurement_providers', 'promotion_runtime', 'repo_root'}))
+E         ('polisyos.runtime.quality.acquisition_world_growth', 'src/polisyos/runtime/quality/acquisition_world_growth.py', 'Acq...runtime.quality.generation_cycle.GenerationCycleController', frozenset({'model_id', 'promotion_runtime', 'repo_root'}))
+E         ('polisyos.runtime.quality.recursive_generation_cycle', 'src/polisyo...
+E         
+E         ...Full output truncated (5 lines hidden), use '-vv' to show
+
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:936: AssertionError</failure></testcase><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_task_44_public_export_denominator_is_exact" time="0.009" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_implicit_contract_testing_candidate_rejects_instance_shadowed_n9_methods[run]" time="0.002" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_implicit_contract_testing_candidate_rejects_instance_shadowed_n9_methods[_promote_completed_generation]" time="0.001" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_implicit_contract_testing_candidate_rejects_instance_shadowed_n9_methods[deployment_identity_refusal]" time="0.001" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_implicit_contract_testing_candidate_completes_without_n9_authority" time="0.041" /><testcase classname="tests.unit.remediation.test_e02_source_strangle_owner_resolution" name="test_strangle_census_resolves_aliased_owner_import_and_receiver_alias" time="0.002" /><testcase classname="tests.unit.remediation.test_e02_source_strangle_owner_resolution" name="test_strangle_census_ignores_unrelated_class_with_same_method_name" time="0.002" /><testcase classname="tests.unit.remediation.test_e02_source_strangle_owner_resolution" name="test_strangle_census_allows_only_the_two_workspace_loop_delegations" time="0.001" /><testcase classname="tests.unit.remediation.test_e02_source_strangle_owner_resolution" name="test_strangle_census_does_not_promote_missing_source_root" time="0.001" /><testcase classname="tests.unit.remediation.test_e02_source_strangle_owner_resolution" name="test_strangle_census_does_not_promote_parse_error" time="0.001" /><testcase classname="tests.unit.remediation.test_e02_source_strangle_owner_resolution" name="test_strangle_census_does_not_promote_read_error" time="0.001" /><testcase classname="tests.unit.remediation.test_e02_source_strangle_owner_resolution" name="test_strangle_census_does_not_treat_symlink_directory_as_complete" time="0.001" /><testcase classname="tests.unit.remediation.test_e02_source_strangle_owner_resolution" name="test_strangle_census_leaves_reflection_unresolved" time="0.002" /><testcase classname="tests.unit.remediation.test_e02_source_strangle_owner_resolution" name="test_strangle_census_leaves_rebound_receiver_unresolved" time="0.002" /><testcase classname="tests.unit.remediation.test_e02_source_strangle_owner_resolution" name="test_strangle_census_leaves_inherited_owner_member_unresolved" time="0.001" /><testcase classname="tests.unit.remediation.test_e02_source_strangle_owner_resolution" name="test_strangle_census_leaves_qualified_reflection_unresolved[qualified-getattr]" time="0.002" /><testcase classname="tests.unit.remediation.test_e02_source_strangle_owner_resolution" name="test_strangle_census_leaves_qualified_reflection_unresolved[qualified-getattribute]" time="0.002" /><testcase classname="tests.unit.remediation.test_e02_source_strangle_owner_resolution" name="test_strangle_census_resolves_bound_method_alias_with_arbitrary_name" time="0.002" /><testcase classname="tests.unit.remediation.test_e02_source_strangle_owner_resolution" name="test_strangle_census_leaves_nested_attribute_receiver_unresolved" time="0.002" /><testcase classname="tests.unit.remediation.test_e02_source_strangle_owner_resolution" name="test_strangle_census_keeps_nested_owner_call_with_unknown_outer_dispatch" time="0.001" /><testcase classname="tests.unit.remediation.test_e02_source_strangle_owner_resolution" name="test_strangle_census_keeps_forbidden_owner_call_sharing_allowed_call_line" time="0.001" /><testcase classname="tests.integration.core_runtime.test_e02_hard_feasibility_before_voi" name="test_hard_n5_feasibility_filters_before_voi_and_serves_real_owner_result" time="18.431" /><testcase classname="tests.integration.core_runtime.test_e02_hard_feasibility_before_voi" name="test_expression_valued_candidate_falls_back_to_numeric_ncm_candidate" time="18.938" /><testcase classname="tests.integration.core_runtime.test_e02_hard_feasibility_before_voi" name="test_all_hard_infeasible_candidates_block_before_n5_and_voi" time="0.114" /><testcase classname="tests.integration.core_runtime.test_e02_hard_feasibility_before_voi" name="test_removing_candidate_filter_keeps_refusal_marker_but_selects_refused_candidate" time="0.949" /><testcase classname="tests.integration.core_runtime.test_e02_hard_feasibility_before_voi" name="test_prepared_n5_digest_rejects_changed_atom_problem_and_profile_route" time="0.866" /><testcase classname="tests.integration.core_runtime.test_e02_hard_feasibility_before_voi" name="test_subclass_atom_identity_is_distinct_but_preflight_refuses_it" time="0.030" /><testcase classname="tests.integration.core_runtime.test_e02_hard_feasibility_before_voi" name="test_request_digest_refuses_unserialized_live_engine_plan_state" time="1.657" /><testcase classname="tests.integration.core_runtime.test_e02_hard_feasibility_before_voi" name="test_injected_legacy_controller_keeps_one_argument_run_shape" time="0.034" /><testcase classname="tests.integration.core_runtime.test_e02_hard_feasibility_before_voi" name="test_preflight_decimal_codec_rejects_nonfinite_values[NaN]" time="0.000" /><testcase classname="tests.integration.core_runtime.test_e02_hard_feasibility_before_voi" name="test_preflight_decimal_codec_rejects_nonfinite_values[Infinity]" time="0.000" /><testcase classname="tests.integration.core_runtime.test_e02_hard_feasibility_before_voi" name="test_preflight_decimal_codec_rejects_nonfinite_values[-Infinity]" time="0.000" /><testcase classname="tests.integration.core_runtime.test_e02_hard_feasibility_before_voi" name="test_preflight_decimal_codec_binds_exact_value_and_separates_fake_mapping" time="0.001" /></testsuite></testsuites>

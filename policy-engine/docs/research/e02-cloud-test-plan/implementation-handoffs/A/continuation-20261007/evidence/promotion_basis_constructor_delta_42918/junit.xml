@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="2" time="42.928" timestamp="2026-10-07T15:26:22.794935+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.runtime.quality.test_e02_candidate_occurrence_readback" name="test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback" time="0.598" /><testcase classname="tests.unit.runtime.quality.test_recursive_generation_cycle_epoch_gate" name="test_recursive_constructor_denominator_has_no_unwrapped_n9_call" time="27.129"><failure message="AssertionError: assert 3 == 2&#10; +  where 3 = len((_CallSite(module='polisyos.runtime.quality.generation_cycle', source_path='src/polisyos/runtime/quality/generation_cy...tion_port', keyword_names=frozenset({'admitted_batch', 'problem'}), has_keyword_expansion=False, authority_scope=None)))&#10; +  and   2 = len({('polisyos.runtime.quality.generation_cycle', 'src/polisyos/runtime/quality/generation_cycle.py', 'GenerationCycleCon...ration_cycle.py', 'GenerationCycleController._promote_completed_generation', frozenset({'admitted_batch', 'problem'}))})">def test_recursive_constructor_denominator_has_no_unwrapped_n9_call() -&gt; None:
+        repo_root = Path(__file__).resolve().parents[4]
+        git_paths, filesystem_paths = _production_python_paths(repo_root)
+        assert git_paths == filesystem_paths
+    
+        constructors: list[_CallSite] = []
+        promotion_calls: list[_CallSite] = []
+        ambiguous: list[str] = []
+        for relative_path in sorted(git_paths):
+            source_path = repo_root / relative_path
+            found_constructors, found_ports, found_ambiguous = _scan_python_source(
+                source=source_path.read_text(encoding="utf-8"),
+                module=_module_name(repo_root, source_path),
+                source_path=relative_path,
+            )
+            constructors.extend(found_constructors)
+            promotion_calls.extend(found_ports)
+            ambiguous.extend(found_ambiguous)
+&gt;       _assert_constructor_contract(tuple(constructors), tuple(promotion_calls), tuple(ambiguous))
+
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:2431: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+constructors = (_CallSite(module='polisyos.runtime.http.services.control.generation_cycle', source_path='src/polisyos/runtime/http/se...neration_port', 'repo_root', 'promotion_port'}), has_keyword_expansion=False, authority_scope='contract_testing'), ...)
+promotion_calls = (_CallSite(module='polisyos.runtime.quality.generation_cycle', source_path='src/polisyos/runtime/quality/generation_cy...tion_port', keyword_names=frozenset({'admitted_batch', 'problem'}), has_keyword_expansion=False, authority_scope=None))
+ambiguous = ()
+
+    def _assert_constructor_contract(
+        constructors: tuple[_CallSite, ...],
+        promotion_calls: tuple[_CallSite, ...],
+        ambiguous: tuple[str, ...],
+    ) -&gt; None:
+        assert ambiguous == ()
+        # These are the accepted production owner roles, not a copy of whatever the
+        # current source scan happens to observe. Each leaf constructor stays behind
+        # its HTTP/recursive, per-node, or admitted acquisition bridge; N9 is derived
+        # only inside the canonical cycle owner.
+        expected_production = {
+            (
+                "polisyos.runtime.http.services.control.generation_cycle",
+                "src/polisyos/runtime/http/services/control/generation_cycle.py",
+                "compile_and_run_recursive_generation_cycle",
+                "polisyos.runtime.quality.recursive_generation_cycle."
+                "build_default_recursive_generation_cycle_controller",
+                frozenset(
+                    {"repo_root", "model_id", "promotion_runtime", "eval_safety_verifier"}
+                ),
+            ),
+            (
+                "polisyos.runtime.quality.recursive_generation_cycle",
+                "src/polisyos/runtime/quality/recursive_generation_cycle.py",
+                "build_default_recursive_generation_cycle_controller",
+                "polisyos.runtime.quality.recursive_generation_cycle."
+                "RecursiveGenerationCycleController",
+                frozenset(
+                    {"repo_root", "model_id", "promotion_runtime", "eval_safety_verifier"}
+                ),
+            ),
+            (
+                "polisyos.runtime.quality.recursive_generation_cycle",
+                "src/polisyos/runtime/quality/recursive_generation_cycle.py",
+                "RecursiveGenerationCycleController.run.route",
+                "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+                frozenset(
+                    {
+                        "generation_port",
+                        "eval_safety_verifier",
+                        "repo_root",
+                        "model_id",
+                        "cycle_substrate_context",
+                        "candidate_simulation_handoff",
+                        "candidate_simulation_currentness_resolver",
+                        "promotion_runtime",
+                        "value_port",
+                        "artifact_store",
+                    }
+                ),
+            ),
+            (
+                "polisyos.runtime.quality.acquisition_world_growth",
+                "src/polisyos/runtime/quality/acquisition_world_growth.py",
+                "AcquisitionWorldGrowthBridge.resume",
+                "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+                frozenset(
+                    {
+                        "repo_root",
+                        "model_id",
+                        "promotion_runtime",
+                        "cycle_substrate_context",
+                        "candidate_simulation_handoff",
+                        "candidate_simulation_currentness_resolver",
+                    }
+                ),
+            ),
+            (
+                "polisyos.runtime.quality.generation_cycle",
+                "src/polisyos/runtime/quality/generation_cycle.py",
+                "GenerationCycleController.__init__",
+                "polisyos.runtime.quality.promotion_sequence.CanonicalN9PromotionPort",
+                frozenset(
+                    {
+                        "repo_root",
+                        "context_provider",
+                        "promotion_runtime",
+                        "epoch_n9_evidence_resolver",
+                        "measurement_catalog",
+                        "measurement_providers",
+                    }
+                ),
+            ),
+        }
+        observed_production = {
+            (row.module, row.source_path, row.enclosing, row.target, row.keyword_names)
+            for row in constructors
+            if row.source_path.startswith("src/")
+        }
+        assert observed_production == expected_production
+        assert all(
+            row.authority_scope is None for row in constructors if row.source_path.startswith("src/")
+        )
+    
+        expected_verification = {
+            (
+                "tools.quality.validation.check_layer3_gy_composition_artifacts",
+                "tools/quality/validation/check_layer3_gy_composition_artifacts.py",
+                "_build_lane0_depth_n_run._lane0_leaf_controller",
+                "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+                frozenset(
+                    {
+                        "authority_scope",
+                        "generation_port",
+                        "grounding_port",
+                        "promotion_port",
+                        "repo_root",
+                        "simulation_port",
+                        "value_port",
+                    }
+                ),
+                "contract_testing",
+            ),
+            (
+                "tools.quality.validation.check_layer3_gy_composition_artifacts",
+                "tools/quality/validation/check_layer3_gy_composition_artifacts.py",
+                "_build_lane0_depth_n_run",
+                "polisyos.runtime.quality.recursive_generation_cycle."
+                "RecursiveGenerationCycleController.for_contract_testing",
+                frozenset({"cycle_controller_factory", "repo_root"}),
+                None,
+            ),
+            (
+                "tools.quality.validation.check_layer3_gy_depth_n_universality_contract",
+                "tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py",
+                "_governed_verification_recursive_controller.build_leaf_controller",
+                "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+                frozenset(
+                    {
+                        "authority_scope",
+                        "cycle_substrate_context",
+                        "generation_port",
+                        "model_id",
+                        "promotion_port",
+                        "repo_root",
+                    }
+                ),
+                "contract_testing",
+            ),
+            (
+                "tools.quality.validation.check_layer3_gy_depth_n_universality_contract",
+                "tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py",
+                "_governed_verification_recursive_controller.build_leaf_controller",
+                "polisyos.runtime.quality.promotion_sequence."
+                "CanonicalN9PromotionPort._for_verification",
+                frozenset({"confidence_ledger_session", "repo_root"}),
+                None,
+            ),
+            (
+                "tools.quality.validation.check_layer3_gy_depth_n_universality_contract",
+                "tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py",
+                "_governed_verification_recursive_controller",
+                "polisyos.runtime.quality.recursive_generation_cycle."
+                "RecursiveGenerationCycleController.for_contract_testing",
+                frozenset({"cycle_controller_factory", "repo_root"}),
+                None,
+            ),
+            (
+                "tools.quality.validation.check_layer3_gy_epoch_chronology_contract",
+                "tools/quality/validation/check_layer3_gy_epoch_chronology_contract.py",
+                "_run_generation_cycle",
+                "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+                frozenset({"generation_port", "promotion_runtime", "repo_root"}),
+                None,
+            ),
+            (
+                "tools.quality.validation.check_layer3_gy_epoch_chronology_contract",
+                "tools/quality/validation/check_layer3_gy_epoch_chronology_contract.py",
+                "_n9_and_public_probe",
+                "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+                frozenset({"generation_port", "promotion_runtime", "repo_root"}),
+                None,
+            ),
+            (
+                "tools.quality.validation.check_layer3_gy_generation_cycle_contract",
+                "tools/quality/validation/check_layer3_gy_generation_cycle_contract.py",
+                "_build_live_payload_in_verification_namespace",
+                "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+                frozenset(
+                    {
+                        "authority_scope",
+                        "generated_at",
+                        "generation_port",
+                        "grounding_port",
+                        "promotion_port",
+                        "repo_root",
+                        "value_port",
+                    }
+                ),
+                "contract_testing",
+            ),
+            (
+                "tools.quality.validation.check_layer3_gy_generation_cycle_contract",
+                "tools/quality/validation/check_layer3_gy_generation_cycle_contract.py",
+                "_build_live_payload_in_verification_namespace",
+                "polisyos.runtime.quality.promotion_sequence."
+                "CanonicalN9PromotionPort._for_verification",
+                frozenset({"confidence_ledger_session_factory", "repo_root"}),
+                None,
+            ),
+            (
+                "tools.quality.validation.check_layer3_gy_generation_cycle_disposition_ledger",
+                "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+                "_n8_value_gate_evidence",
+                "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+                frozenset({"authority_scope", "repo_root"}),
+                "contract_testing",
+            ),
+            (
+                "tools.quality.validation.check_layer3_gy_second_domain_pack",
+                "tools/quality/validation/check_layer3_gy_second_domain_pack.py",
+                "_build_cycle_trace.run",
+                "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+                frozenset(
+                    {
+                        "authority_scope",
+                        "cycle_substrate_context",
+                        "generation_port",
+                        "promotion_port",
+                        "repo_root",
+                    }
+                ),
+                "contract_testing",
+            ),
+            (
+                "tools.quality.validation.check_layer3_gy_second_domain_pack",
+                "tools/quality/validation/check_layer3_gy_second_domain_pack.py",
+                "_build_cycle_trace.run",
+                "polisyos.runtime.quality.promotion_sequence."
+                "CanonicalN9PromotionPort._for_verification",
+                frozenset({"confidence_ledger_session", "repo_root"}),
+                None,
+            ),
+            (
+                "tools.quality.validation.check_layer3_gy_value_gate_contract",
+                "tools/quality/validation/check_layer3_gy_value_gate_contract.py",
+                "_run_real_first_vertical_cycle",
+                "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+                frozenset(
+                    {
+                        "authority_scope",
+                        "cycle_substrate_context",
+                        "generation_port",
+                        "promotion_port",
+                        "repo_root",
+                    }
+                ),
+                "contract_testing",
+            ),
+        }
+        observed_verification = {
+            (
+                row.module,
+                row.source_path,
+                row.enclosing,
+                row.target,
+                row.keyword_names,
+                row.authority_scope,
+            )
+            for row in constructors
+            if row.source_path.startswith("tools/")
+        }
+        assert observed_verification == expected_verification
+        assert len(constructors) == len(expected_production) + len(expected_verification)
+        assert {
+            (row.module, row.source_path, row.enclosing, row.target)
+            for row in constructors
+            if row.has_keyword_expansion
+        } == {
+            (
+                "polisyos.runtime.quality.acquisition_world_growth",
+                "src/polisyos/runtime/quality/acquisition_world_growth.py",
+                "AcquisitionWorldGrowthBridge.resume",
+                "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+            )
+        }
+        expected_promotion_calls = {
+            (
+                "polisyos.runtime.quality.generation_cycle",
+                "src/polisyos/runtime/quality/generation_cycle.py",
+                "GenerationCycleController._promote_completed_generation",
+                frozenset({"summaries", "problem"}),
+            ),
+            (
+                "polisyos.runtime.quality.generation_cycle",
+                "src/polisyos/runtime/quality/generation_cycle.py",
+                "GenerationCycleController._promote_completed_generation",
+                frozenset({"admitted_batch", "problem"}),
+            ),
+        }
+&gt;       assert len(promotion_calls) == len(expected_promotion_calls)
+E       AssertionError: assert 3 == 2
+E        +  where 3 = len((_CallSite(module='polisyos.runtime.quality.generation_cycle', source_path='src/polisyos/runtime/quality/generation_cy...tion_port', keyword_names=frozenset({'admitted_batch', 'problem'}), has_keyword_expansion=False, authority_scope=None)))
+E        +  and   2 = len({('polisyos.runtime.quality.generation_cycle', 'src/polisyos/runtime/quality/generation_cycle.py', 'GenerationCycleCon...ration_cycle.py', 'GenerationCycleController._promote_completed_generation', frozenset({'admitted_batch', 'problem'}))})
+
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:1331: AssertionError</failure></testcase></testsuite></testsuites>

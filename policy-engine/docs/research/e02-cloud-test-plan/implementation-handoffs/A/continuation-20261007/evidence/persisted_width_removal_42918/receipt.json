@@ -1,0 +1,64 @@
+{
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "e02_origin",
+    "-p",
+    "e02_remove_width_property_probe",
+    "-s",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "-q",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/persisted-width-removal-42918/junit.xml",
+    "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/persisted-width-removal-42918/pytest-basetemp",
+    "tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py::test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+  "candidate_sha": "42918ff1dd88299fd68d412e9ddceff580558ed7",
+  "candidate_tree": "72669e9472f8e9409c13ad48a714d61964e22b1b",
+  "exit_code": 1,
+  "wall_s": 15.637671166972723,
+  "environment": {
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/persisted-width-removal-42918:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-full-queue/remove-width-property-probe:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "JAX_PLATFORMS": "cpu"
+  },
+  "probe_environment": {},
+  "mutation_plugin": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-full-queue/remove-width-property-probe/e02_remove_width_property_probe.py",
+    "sha256": "c76e69a2dc69028302d67a4a3bbd4ef55f24f6269acf5072b56dde2bb484803e"
+  },
+  "launcher": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_width_probe.py",
+    "sha256": "6199d28330b8dc0ffeb5516643a5d60ed3f5e2fe99a8ce439c8abfccc9657392"
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 8676,
+      "sha256": "fcf3c987f11a29c6d8293130c75c267f185fd9d4d1a23c5d784c55a02f4dc815"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "e02_origin.py": {
+      "bytes": 656,
+      "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+    },
+    "junit.xml": {
+      "bytes": 8702,
+      "sha256": "814bf7bd49a12f2dfffa3c65c419af75581c960c00492ed5ed680dac2b46ba09"
+    },
+    "origins.json": {
+      "bytes": 1095,
+      "sha256": "fecf1791272b19650db5c03ea3cb93edd68bc430d9ca55efbac03b2ad7801d4d"
+    }
+  }
+}

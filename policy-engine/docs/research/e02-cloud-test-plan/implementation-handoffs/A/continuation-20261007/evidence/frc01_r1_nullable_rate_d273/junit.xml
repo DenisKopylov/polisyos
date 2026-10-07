@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="3" time="14.810" timestamp="2026-10-07T14:18:54.050717+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.remediation.test_frc_01" name="test_gateway_preserves_missing_calibration_metric_as_distinct_from_observed_zero[unavailable-observation]" time="14.451"><failure message="AssertionError: S10 projection must preserve nullable pass_rate; got 0.0 for denominator 0&#10;assert 0.0 == None">tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/s10-nullable-rate-removal-d273/pytest-basetemp/test_gateway_preserves_missing0')
+observations = (None,), expected_numerator = 0, expected_denominator = 0
+expected_rate = None
+
+    @pytest.mark.parametrize(
+        ("observations", "expected_numerator", "expected_denominator", "expected_rate"),
+        [
+            pytest.param((None,), 0, 0, None, id="unavailable-observation"),
+            pytest.param((False,), 0, 1, 0.0, id="observed-zero-rate"),
+        ],
+    )
+    def test_gateway_preserves_missing_calibration_metric_as_distinct_from_observed_zero(
+        tmp_path: Path,
+        observations: tuple[bool | None, ...],
+        expected_numerator: int,
+        expected_denominator: int,
+        expected_rate: float | None,
+    ) -&gt; None:
+        """Canonical E readback keeps absence distinct from a measured zero."""
+    
+        if os.environ.get("POLISYOS_TEST_S10_NULLABLE_RATE_REMOVAL") == "1":
+            _install_nullable_rate_removal()
+    
+        store, evidence_ref, evidence = _persisted_bridge_fixture(
+            tmp_path,
+            observations=observations,
+        )
+        assert evidence.recomputed_numerator == expected_numerator
+        assert evidence.recomputed_denominator == expected_denominator
+        assert evidence.recomputed_pass_rate == expected_rate
+    
+        projection, projection_error = _generation_cycle("_s10_empirical_projection")(
+            evidence_ref=evidence_ref,
+            evidence=evidence,
+        )
+        assert projection_error is None
+        assert projection is not None
+        assert projection["numerator"] == expected_numerator
+        assert projection["denominator"] == expected_denominator
+&gt;       assert projection["pass_rate"] == expected_rate, (
+            "S10 projection must preserve nullable pass_rate; got "
+            f"{projection['pass_rate']!r} for denominator {projection['denominator']}"
+        )
+E       AssertionError: S10 projection must preserve nullable pass_rate; got 0.0 for denominator 0
+E       assert 0.0 == None
+
+tests/unit/remediation/test_frc_01.py:407: AssertionError</failure></testcase><testcase classname="tests.unit.remediation.test_frc_01" name="test_gateway_preserves_missing_calibration_metric_as_distinct_from_observed_zero[observed-zero-rate]" time="0.111" /><testcase classname="tests.unit.remediation.test_frc_01" name="test_zero_denominator_projection_mutant_does_not_emit_calibration_record" time="0.110" /></testsuite></testsuites>

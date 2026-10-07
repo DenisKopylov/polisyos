@@ -1,0 +1,72 @@
+{
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "src/polisyos/runtime/quality/capability_discovery.py",
+    "src/polisyos/runtime/quality/data_state_substrate.py",
+    "src/polisyos/runtime/quality/design_axes/coupling_composition.py",
+    "src/polisyos/runtime/quality/design_axes/value_choice_provenance.py",
+    "src/polisyos/runtime/quality/generation_cycle.py",
+    "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+    "src/polisyos/runtime/quality/production_invocation.py",
+    "src/polisyos/runtime/quality/recursive_generation_cycle.py",
+    "src/polisyos/scientist/policy_design/search.py",
+    "tests/integration/core_runtime/test_e02_empirical_member_intake.py",
+    "tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py",
+    "tests/unit/remediation/test_e02_source_strangle_owner_resolution.py",
+    "tests/unit/remediation/test_frc_01.py",
+    "tests/unit/remediation/test_sim_01.py",
+    "tests/unit/runtime/quality/test_design_axes_coupling_composition.py",
+    "tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py",
+    "tests/unit/runtime/quality/test_e02_configured_n7_resolver.py",
+    "tests/unit/runtime/quality/test_generation_cycle.py",
+    "tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+    "tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+    "tests/unit/runtime/quality/test_workspace_composition.py",
+    "tests/unit/scientist/policy_design/test_structure_context_bridge.py",
+    "tests/unit/scientist/search/test_voi_scheduler.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+  "candidate_sha": "d273659a117d20c70f2598309fec558c8e753b77",
+  "candidate_tree": "eb27248291194b311689f2ef3244bc738d1628bd",
+  "base": "579788751baefe065fd5b94c446ab665eb65861a",
+  "input_denominator": [
+    "src/polisyos/runtime/quality/capability_discovery.py",
+    "src/polisyos/runtime/quality/data_state_substrate.py",
+    "src/polisyos/runtime/quality/design_axes/coupling_composition.py",
+    "src/polisyos/runtime/quality/design_axes/value_choice_provenance.py",
+    "src/polisyos/runtime/quality/generation_cycle.py",
+    "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+    "src/polisyos/runtime/quality/production_invocation.py",
+    "src/polisyos/runtime/quality/recursive_generation_cycle.py",
+    "src/polisyos/scientist/policy_design/search.py",
+    "tests/integration/core_runtime/test_e02_empirical_member_intake.py",
+    "tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py",
+    "tests/unit/remediation/test_e02_source_strangle_owner_resolution.py",
+    "tests/unit/remediation/test_frc_01.py",
+    "tests/unit/remediation/test_sim_01.py",
+    "tests/unit/runtime/quality/test_design_axes_coupling_composition.py",
+    "tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py",
+    "tests/unit/runtime/quality/test_e02_configured_n7_resolver.py",
+    "tests/unit/runtime/quality/test_generation_cycle.py",
+    "tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+    "tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+    "tests/unit/runtime/quality/test_workspace_composition.py",
+    "tests/unit/scientist/policy_design/test_structure_context_bridge.py",
+    "tests/unit/scientist/search/test_voi_scheduler.py"
+  ],
+  "exit_code": 0,
+  "wall_s": 0.24071558302966878,
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 19,
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

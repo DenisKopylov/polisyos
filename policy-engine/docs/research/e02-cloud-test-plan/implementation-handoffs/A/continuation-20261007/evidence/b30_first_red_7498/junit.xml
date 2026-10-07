@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="5" skipped="0" tests="9" time="15.191" timestamp="2026-10-07T13:38:18.525848+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.remediation.test_e02_source_strangle_owner_resolution" name="test_strangle_census_resolves_aliased_owner_import_and_receiver_alias" time="0.006" /><testcase classname="tests.unit.remediation.test_e02_source_strangle_owner_resolution" name="test_strangle_census_ignores_unrelated_class_with_same_method_name" time="0.002"><failure message="AssertionError: assert 'drift' == 'strangled'&#10;  &#10;  - strangled&#10;  + drift">tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b30-owner-census-red/pytest-basetemp/test_strangle_census_ignores_u0')
+
+    def test_strangle_census_ignores_unrelated_class_with_same_method_name(
+        tmp_path: Path,
+    ) -&gt; None:
+        _workspace_loop(tmp_path)
+        _write_source(
+            tmp_path,
+            "src/polisyos/runtime/quality/other_loop.py",
+            "class OtherLoop:\n"
+            "    def run_fixture(self, name):\n"
+            "        return name\n"
+            "\n"
+            "def dispatch():\n"
+            "    other = OtherLoop()\n"
+            "    return other.run_fixture('fixture')\n",
+        )
+    
+        receipt = StrangleReceipt.recompute(tmp_path)
+    
+&gt;       assert receipt.status == "strangled"
+E       AssertionError: assert 'drift' == 'strangled'
+E         
+E         - strangled
+E         + drift
+
+tests/unit/remediation/test_e02_source_strangle_owner_resolution.py:73: AssertionError</failure></testcase><testcase classname="tests.unit.remediation.test_e02_source_strangle_owner_resolution" name="test_strangle_census_allows_only_the_two_workspace_loop_delegations" time="0.002"><failure message="AssertionError: assert 'strangled' == 'drift'&#10;  &#10;  - drift&#10;  + strangled">tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b30-owner-census-red/pytest-basetemp/test_strangle_census_allows_on0')
+
+    def test_strangle_census_allows_only_the_two_workspace_loop_delegations(
+        tmp_path: Path,
+    ) -&gt; None:
+        _workspace_loop(
+            tmp_path,
+            "class WorkspaceLoop:\n"
+            "    def run_fixture(self, name):\n"
+            "        return name\n"
+            "\n"
+            "    def decompose_fixture(self):\n"
+            "        return self.run_fixture('decomposed')\n"
+            "\n"
+            "    def run_control_plane_fixture(self):\n"
+            "        return self.run_fixture('control-plane')\n"
+            "\n"
+            "    def unrelated_dispatch(self):\n"
+            "        return self.run_fixture('unrelated')\n",
+        )
+    
+        receipt = StrangleReceipt.recompute(tmp_path)
+    
+&gt;       assert receipt.status == "drift"
+E       AssertionError: assert 'strangled' == 'drift'
+E         
+E         - drift
+E         + strangled
+
+tests/unit/remediation/test_e02_source_strangle_owner_resolution.py:99: AssertionError</failure></testcase><testcase classname="tests.unit.remediation.test_e02_source_strangle_owner_resolution" name="test_strangle_census_does_not_promote_missing_source_root" time="0.000" /><testcase classname="tests.unit.remediation.test_e02_source_strangle_owner_resolution" name="test_strangle_census_does_not_promote_parse_error" time="0.001" /><testcase classname="tests.unit.remediation.test_e02_source_strangle_owner_resolution" name="test_strangle_census_does_not_promote_read_error" time="0.001" /><testcase classname="tests.unit.remediation.test_e02_source_strangle_owner_resolution" name="test_strangle_census_does_not_treat_symlink_directory_as_complete" time="0.001"><failure message="AssertionError: assert 'strangled' == 'not_established'&#10;  &#10;  - not_established&#10;  + strangled">tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b30-owner-census-red/pytest-basetemp/test_strangle_census_does_not_3')
+
+    def test_strangle_census_does_not_treat_symlink_directory_as_complete(
+        tmp_path: Path,
+    ) -&gt; None:
+        source_root = tmp_path / "src" / "polisyos"
+        source_root.mkdir(parents=True)
+        (source_root / "ordinary.py").write_text("value = 1\n", encoding="utf-8")
+        outside = tmp_path / "outside"
+        outside.mkdir()
+        (outside / "hidden.py").write_text("value = 1\n", encoding="utf-8")
+        link = source_root / "linked-package"
+        try:
+            link.symlink_to(outside, target_is_directory=True)
+        except OSError as exc:
+            pytest.skip(f"directory symlinks unavailable: {exc}")
+    
+        receipt = StrangleReceipt.recompute(tmp_path)
+    
+&gt;       assert receipt.status == "not_established"
+E       AssertionError: assert 'strangled' == 'not_established'
+E         
+E         - not_established
+E         + strangled
+
+tests/unit/remediation/test_e02_source_strangle_owner_resolution.py:165: AssertionError</failure></testcase><testcase classname="tests.unit.remediation.test_e02_source_strangle_owner_resolution" name="test_strangle_census_leaves_reflection_unresolved" time="0.002"><failure message="AssertionError: assert 'strangled' == 'not_established'&#10;  &#10;  - not_established&#10;  + strangled">tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b30-owner-census-red/pytest-basetemp/test_strangle_census_leaves_re0')
+
+    def test_strangle_census_leaves_reflection_unresolved(
+        tmp_path: Path,
+    ) -&gt; None:
+        _workspace_loop(tmp_path)
+        _write_source(
+            tmp_path,
+            "src/polisyos/runtime/http/services/control/reflective.py",
+            "def dispatch(receiver):\n"
+            "    return getattr(receiver, 'run_fixture')('fixture')\n",
+        )
+    
+        receipt = StrangleReceipt.recompute(tmp_path)
+    
+&gt;       assert receipt.status == "not_established"
+E       AssertionError: assert 'strangled' == 'not_established'
+E         
+E         - not_established
+E         + strangled
+
+tests/unit/remediation/test_e02_source_strangle_owner_resolution.py:181: AssertionError</failure></testcase><testcase classname="tests.unit.remediation.test_e02_source_strangle_owner_resolution" name="test_strangle_census_leaves_rebound_receiver_unresolved" time="0.002"><failure message="AssertionError: assert 'drift' == 'not_established'&#10;  &#10;  - not_established&#10;  + drift">tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/b30-owner-census-red/pytest-basetemp/test_strangle_census_leaves_re1')
+
+    def test_strangle_census_leaves_rebound_receiver_unresolved(
+        tmp_path: Path,
+    ) -&gt; None:
+        _workspace_loop(tmp_path)
+        _write_source(
+            tmp_path,
+            "src/polisyos/runtime/http/services/control/rebound.py",
+            f"from {_OWNER_MODULE} import WorkspaceLoop as LoopOwner\n"
+            "\n"
+            "def dispatch():\n"
+            "    receiver = LoopOwner()\n"
+            "    receiver = lookup_receiver()\n"
+            "    return receiver.run_fixture('fixture')\n",
+        )
+    
+        receipt = StrangleReceipt.recompute(tmp_path)
+    
+&gt;       assert receipt.status == "not_established"
+E       AssertionError: assert 'drift' == 'not_established'
+E         
+E         - not_established
+E         + drift
+
+tests/unit/remediation/test_e02_source_strangle_owner_resolution.py:201: AssertionError</failure></testcase></testsuite></testsuites>

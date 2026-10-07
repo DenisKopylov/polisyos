@@ -1,0 +1,1095 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "A",
+  "slice": "persisted-value-hard-feasibility",
+  "closure_ids": [],
+  "bundle_ids": [
+    "CYC-02",
+    "CYC-03",
+    "CYC-04",
+    "EMP-01",
+    "SIM-01",
+    "SIM-02",
+    "SIM-03"
+  ],
+  "slice_base_sha": "7cdac9c5e9012e7bf80aeb397c0ec778aac122fd",
+  "slice_base_tree_sha": "970db27c0111fe5bdc87bfd59f09063c5af91687",
+  "implementation_commits": [
+    "58ff1ccb318486ab586a7b1cbf0d7de910640629",
+    "4586393e38f149b3d2bc0fbd205b2a7dda353a91",
+    "f5cfba1e1bdafcc562c0d191a1c47b37f59cfba8",
+    "6c214bdec28ea169741557e195749281d89a4a89"
+  ],
+  "implementation_commit_records": [
+    {
+      "sha": "58ff1ccb318486ab586a7b1cbf0d7de910640629",
+      "tree": "d7dd285dc57e5a640638f420d542cea8e82d9741",
+      "parents": [
+        "7cdac9c5e9012e7bf80aeb397c0ec778aac122fd"
+      ],
+      "subject": "fix(e02-A): use canonical persisted value checksum reader",
+      "changed_paths": [
+        {
+          "status": "M",
+          "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py"
+        }
+      ]
+    },
+    {
+      "sha": "4586393e38f149b3d2bc0fbd205b2a7dda353a91",
+      "tree": "60c94d774acae2f3e9f59ff96987ed7e3a0d41fd",
+      "parents": [
+        "beae22caa2494a008084aa6dd556ab10a2e6a0c7"
+      ],
+      "subject": "fix(e02-A): route normative history through persisted N6 reader",
+      "changed_paths": [
+        {
+          "status": "M",
+          "path": "policy-engine/src/polisyos/runtime/quality/design_axes/value_choice_provenance.py"
+        }
+      ]
+    },
+    {
+      "sha": "f5cfba1e1bdafcc562c0d191a1c47b37f59cfba8",
+      "tree": "413f52aae666aeb5dece2a2a15238bc9b2ae2a9e",
+      "parents": [
+        "4c4e37d0d0bde0cc8e825af011539c3cb5fc84f5"
+      ],
+      "subject": "fix(e02): preserve modern value checksums and validate hard N5 refusal",
+      "changed_paths": [
+        {
+          "status": "M",
+          "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+        },
+        {
+          "status": "M",
+          "path": "policy-engine/tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py"
+        }
+      ]
+    },
+    {
+      "sha": "6c214bdec28ea169741557e195749281d89a4a89",
+      "tree": "6d0dcfc58662bce81a6d42dc8aa75b2fb63f4748",
+      "parents": [
+        "628ff642f6467cd72fcddb7dc34e5abcd8c0c60d"
+      ],
+      "subject": "fix(e02): enforce the VOI cycle identity tested by 628ff642f",
+      "changed_paths": [
+        {
+          "status": "M",
+          "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
+        }
+      ]
+    }
+  ],
+  "candidate_sha": "6c214bdec28ea169741557e195749281d89a4a89",
+  "candidate_tree_sha": "6d0dcfc58662bce81a6d42dc8aa75b2fb63f4748",
+  "branch": "codex/e02-A-delivery-attached",
+  "pull_request": null,
+  "full_path_footprint": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/design_axes/value_choice_provenance.py",
+      "base_blob": "74e4b4c08db5f0b29514997e5d1067e0191bfb91",
+      "candidate_blob": "029219fe7ecd80c340725201c7be9df2994a455b",
+      "net_status": "modified",
+      "touched_in": [
+        {
+          "commit": "4586393e38f149b3d2bc0fbd205b2a7dda353a91",
+          "status_in_commit": "M",
+          "tree_after_commit": "60c94d774acae2f3e9f59ff96987ed7e3a0d41fd"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "base_blob": "7d6217caf1261f6a41003f868d444c45ea810a4e",
+      "candidate_blob": "fad2bc0d218fa5fb2c315f0c83d9b1f949544d58",
+      "net_status": "modified",
+      "touched_in": [
+        {
+          "commit": "58ff1ccb318486ab586a7b1cbf0d7de910640629",
+          "status_in_commit": "M",
+          "tree_after_commit": "d7dd285dc57e5a640638f420d542cea8e82d9741"
+        },
+        {
+          "commit": "f5cfba1e1bdafcc562c0d191a1c47b37f59cfba8",
+          "status_in_commit": "M",
+          "tree_after_commit": "413f52aae666aeb5dece2a2a15238bc9b2ae2a9e"
+        },
+        {
+          "commit": "6c214bdec28ea169741557e195749281d89a4a89",
+          "status_in_commit": "M",
+          "tree_after_commit": "6d0dcfc58662bce81a6d42dc8aa75b2fb63f4748"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "base_blob": "71aa5c2956ba7033924f90be715ce3b8afb9f798",
+      "candidate_blob": "6bb5df68dcacb5f39688f4b558ad165ac5b06ec1",
+      "net_status": "modified",
+      "touched_in": [
+        {
+          "commit": "58ff1ccb318486ab586a7b1cbf0d7de910640629",
+          "status_in_commit": "M",
+          "tree_after_commit": "d7dd285dc57e5a640638f420d542cea8e82d9741"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py",
+      "base_blob": "750b3153271b10489a504ea798834a982cb9cc4e",
+      "candidate_blob": "011d8fefbb442f1be6b60f46d3484600e0ad4626",
+      "net_status": "modified",
+      "touched_in": [
+        {
+          "commit": "f5cfba1e1bdafcc562c0d191a1c47b37f59cfba8",
+          "status_in_commit": "M",
+          "tree_after_commit": "413f52aae666aeb5dece2a2a15238bc9b2ae2a9e"
+        },
+        {
+          "commit": "628ff642f6467cd72fcddb7dc34e5abcd8c0c60d",
+          "status_in_commit": "M",
+          "tree_after_commit": "20b29b6cd6b2fedd9359f481d13f1140c9d54f0d"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_e02_source_strangle_owner_resolution.py",
+      "base_blob": null,
+      "candidate_blob": "55846b621aaee75f5c940f6023b297e5306ef427",
+      "net_status": "added",
+      "touched_in": [
+        {
+          "commit": "7498bfeb017c2d0eb86d3d8d981113789e4dc7ff",
+          "status_in_commit": "A",
+          "tree_after_commit": "a751aa143d6e02688167d6cbfff03f0392b4793a"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_frc_01.py",
+      "base_blob": "9e7cc88679e2222de97066d654ccd4a2a5925993",
+      "candidate_blob": "216f49a504dcd9fd2a502d6fd1b18c9b3d1849f6",
+      "net_status": "modified",
+      "touched_in": [
+        {
+          "commit": "4c4e37d0d0bde0cc8e825af011539c3cb5fc84f5",
+          "status_in_commit": "M",
+          "tree_after_commit": "9e33704fce12fed2e54bd81bb73354a0aa4eb433"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_sim_01.py",
+      "base_blob": "c66badc3bb07c5853d5149ff66ad33fcf7ab7a06",
+      "candidate_blob": "03af57d500d296d00f5ea7733f8fef6e8a1b1fc9",
+      "net_status": "modified",
+      "touched_in": [
+        {
+          "commit": "6ed1d657d17ffded499525d9937b6c0ba35b5667",
+          "status_in_commit": "M",
+          "tree_after_commit": "36a8e56372e90b02a81ca4469502e17889e1eddc"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py",
+      "base_blob": "65ab492f7c906591b571732ffb2a6782d8e0e7bc",
+      "candidate_blob": "618e62f5abc7d5089c60285df14e39a76c2cf267",
+      "net_status": "modified",
+      "touched_in": [
+        {
+          "commit": "beae22caa2494a008084aa6dd556ab10a2e6a0c7",
+          "status_in_commit": "M",
+          "tree_after_commit": "dac8fd5247c0b9d0b6210845a71402982299f89b"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "base_blob": "a2a91d5c7ca06718c41bfe5cfa77740e9a11a9dd",
+      "candidate_blob": "9ee645eeab136058ba34c111ea0371d3401e91cd",
+      "net_status": "modified",
+      "touched_in": [
+        {
+          "commit": "6ed1d657d17ffded499525d9937b6c0ba35b5667",
+          "status_in_commit": "M",
+          "tree_after_commit": "36a8e56372e90b02a81ca4469502e17889e1eddc"
+        }
+      ]
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_workspace_composition.py",
+      "base_blob": "764df3321530c268a1447602b06c81b6a9add9e4",
+      "candidate_blob": "021684614cebbdcaed672c2a004902dc4b6eccc2",
+      "net_status": "modified",
+      "touched_in": [
+        {
+          "commit": "6ed1d657d17ffded499525d9937b6c0ba35b5667",
+          "status_in_commit": "M",
+          "tree_after_commit": "36a8e56372e90b02a81ca4469502e17889e1eddc"
+        }
+      ]
+    }
+  ],
+  "baseline_cells": [],
+  "property": {
+    "statement": "Persisted value/history reads use the canonical N6 reader; hard feasibility is enforced before VOI/admission on the bounded path.",
+    "runtime_path": [
+      "N5 feasibility/context producer",
+      "persisted N6/N8 artifact",
+      "canonical persisted reader",
+      "value/history and VOI consumer"
+    ],
+    "proxy_divergence": "A clean source scan, marker, hash, or exit status alone does not establish the consumer property; deciding checks must exercise the named persisted/owner-bound path.",
+    "negative_controls": []
+  },
+  "predicate_basis": "not_established",
+  "capability_state_or_finding_state": "provisional_source_receipt_only_G_acceptance_pending",
+  "limitations_and_next_owner": [
+    "Source target is 6c214; the 355-test composite check is on later d273 and is not a check on 6c214 alone."
+  ],
+  "handoff_state": "source receipt assembled; independent code review and G integration acceptance pending",
+  "candidate_role": "historical_as_of_source_implementation_candidate_not_current_HEAD",
+  "footprint_note": "full_path_footprint includes all touched paths, including mandatory tests and companions; it does not classify every path as an implementation mechanism.",
+  "progress_source": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+    "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+    "denominator_pointer": "#/denominator_and_reconciliation/A_slice",
+    "criterion_source_pins_pointer": "#/source_pins",
+    "finding_rows_pointer_template": "#/finding_rows/{index}",
+    "note": "Original historical statuses, source closure state, provisional finding outcomes, and carried-forward check states remain in the append-only progress rows cited below; this handoff does not change them."
+  },
+  "criterion_and_finding_refs": [
+    {
+      "id": "B04",
+      "primary_bundle": "CYC-02",
+      "owner_bundle_ids": [
+        "CYC-02"
+      ],
+      "progress_row_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+        "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+        "json_pointer": "#/finding_rows/3"
+      },
+      "historical_status_ref": "#/finding_rows/3/historical_status",
+      "provisional_finding_outcome_ref": "#/finding_rows/3/provisional_finding_outcome",
+      "criterion_check_state_ref": "#/finding_rows/3/criterion_check_state_carried_forward",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "criterion_id": "B04",
+          "bundle_occurrence": "CYC-02",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "source_lines_inclusive": [
+            241,
+            252
+          ],
+          "criterion_block_sha256": "2f664b147db7753604b3fa729f42e5d1560d9ed43de9643169255d6b8270df26",
+          "progress_ref": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+            "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+            "json_pointer": "#/finding_rows/3/criterion_occurrences/0"
+          }
+        }
+      ],
+      "binding_correction_ref": null,
+      "adjudication": "not_adjudicated_by_source_slice_receipt"
+    },
+    {
+      "id": "B05",
+      "primary_bundle": "CYC-02",
+      "owner_bundle_ids": [
+        "CYC-02"
+      ],
+      "progress_row_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+        "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+        "json_pointer": "#/finding_rows/4"
+      },
+      "historical_status_ref": "#/finding_rows/4/historical_status",
+      "provisional_finding_outcome_ref": "#/finding_rows/4/provisional_finding_outcome",
+      "criterion_check_state_ref": "#/finding_rows/4/criterion_check_state_carried_forward",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "criterion_id": "B05",
+          "bundle_occurrence": "CYC-02",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "source_lines_inclusive": [
+            253,
+            264
+          ],
+          "criterion_block_sha256": "7ab0816d8b7cc9f46a900842951a67c92b12ff09362616d87afd82223bcd7970",
+          "progress_ref": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+            "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+            "json_pointer": "#/finding_rows/4/criterion_occurrences/0"
+          }
+        }
+      ],
+      "binding_correction_ref": {
+        "ref": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/original-A-binding-corrections.json@9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7#/records/0",
+        "record_index": 0,
+        "applies_to_occurrences": [
+          "CYC-02"
+        ],
+        "operative_text": "Use the pinned correction record; no criterion text is duplicated here."
+      },
+      "adjudication": "not_adjudicated_by_source_slice_receipt"
+    },
+    {
+      "id": "B06",
+      "primary_bundle": "SIM-01",
+      "owner_bundle_ids": [
+        "SIM-01"
+      ],
+      "progress_row_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+        "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+        "json_pointer": "#/finding_rows/5"
+      },
+      "historical_status_ref": "#/finding_rows/5/historical_status",
+      "provisional_finding_outcome_ref": "#/finding_rows/5/provisional_finding_outcome",
+      "criterion_check_state_ref": "#/finding_rows/5/criterion_check_state_carried_forward",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "criterion_id": "B06",
+          "bundle_occurrence": "SIM-01",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "source_lines_inclusive": [
+            265,
+            276
+          ],
+          "criterion_block_sha256": "5b44bf92e85922ef58847a555400c95c7f2dfee9108946f258d287cd31d161e1",
+          "progress_ref": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+            "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+            "json_pointer": "#/finding_rows/5/criterion_occurrences/0"
+          }
+        }
+      ],
+      "binding_correction_ref": null,
+      "adjudication": "not_adjudicated_by_source_slice_receipt"
+    },
+    {
+      "id": "B07",
+      "primary_bundle": "SIM-01",
+      "owner_bundle_ids": [
+        "SIM-01"
+      ],
+      "progress_row_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+        "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+        "json_pointer": "#/finding_rows/6"
+      },
+      "historical_status_ref": "#/finding_rows/6/historical_status",
+      "provisional_finding_outcome_ref": "#/finding_rows/6/provisional_finding_outcome",
+      "criterion_check_state_ref": "#/finding_rows/6/criterion_check_state_carried_forward",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "criterion_id": "B07",
+          "bundle_occurrence": "SIM-01",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "source_lines_inclusive": [
+            277,
+            288
+          ],
+          "criterion_block_sha256": "a81abf22f14ad4405e6f867082275cd232a6a18bc591b99a4594cd4613dfc567",
+          "progress_ref": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+            "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+            "json_pointer": "#/finding_rows/6/criterion_occurrences/0"
+          }
+        }
+      ],
+      "binding_correction_ref": null,
+      "adjudication": "not_adjudicated_by_source_slice_receipt"
+    },
+    {
+      "id": "B08",
+      "primary_bundle": "CYC-02",
+      "owner_bundle_ids": [
+        "CYC-02"
+      ],
+      "progress_row_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+        "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+        "json_pointer": "#/finding_rows/7"
+      },
+      "historical_status_ref": "#/finding_rows/7/historical_status",
+      "provisional_finding_outcome_ref": "#/finding_rows/7/provisional_finding_outcome",
+      "criterion_check_state_ref": "#/finding_rows/7/criterion_check_state_carried_forward",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "criterion_id": "B08",
+          "bundle_occurrence": "CYC-02",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "source_lines_inclusive": [
+            289,
+            300
+          ],
+          "criterion_block_sha256": "ca0c9f2ceb0a7fd1323082c9a317a509a1ee78f25ec73185c59b3de1d019ffb9",
+          "progress_ref": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+            "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+            "json_pointer": "#/finding_rows/7/criterion_occurrences/0"
+          }
+        }
+      ],
+      "binding_correction_ref": null,
+      "adjudication": "not_adjudicated_by_source_slice_receipt"
+    },
+    {
+      "id": "B09",
+      "primary_bundle": "CYC-03",
+      "owner_bundle_ids": [
+        "CYC-03"
+      ],
+      "progress_row_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+        "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+        "json_pointer": "#/finding_rows/8"
+      },
+      "historical_status_ref": "#/finding_rows/8/historical_status",
+      "provisional_finding_outcome_ref": "#/finding_rows/8/provisional_finding_outcome",
+      "criterion_check_state_ref": "#/finding_rows/8/criterion_check_state_carried_forward",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "criterion_id": "B09",
+          "bundle_occurrence": "CYC-03",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "source_lines_inclusive": [
+            301,
+            312
+          ],
+          "criterion_block_sha256": "62b0ba80257fe40aee4e48fda73caf00a617fa55d29c54693185e6996b0ce64c",
+          "progress_ref": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+            "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+            "json_pointer": "#/finding_rows/8/criterion_occurrences/0"
+          }
+        }
+      ],
+      "binding_correction_ref": null,
+      "adjudication": "not_adjudicated_by_source_slice_receipt"
+    },
+    {
+      "id": "B10",
+      "primary_bundle": "CYC-04",
+      "owner_bundle_ids": [
+        "CYC-04"
+      ],
+      "progress_row_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+        "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+        "json_pointer": "#/finding_rows/9"
+      },
+      "historical_status_ref": "#/finding_rows/9/historical_status",
+      "provisional_finding_outcome_ref": "#/finding_rows/9/provisional_finding_outcome",
+      "criterion_check_state_ref": "#/finding_rows/9/criterion_check_state_carried_forward",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "criterion_id": "B10",
+          "bundle_occurrence": "CYC-04",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "source_lines_inclusive": [
+            313,
+            324
+          ],
+          "criterion_block_sha256": "9fc056a6b1bbde89fd8ffb6f7da36b6f8d7cdf81480f0ef395adec5e6ef1c246",
+          "progress_ref": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+            "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+            "json_pointer": "#/finding_rows/9/criterion_occurrences/0"
+          }
+        }
+      ],
+      "binding_correction_ref": null,
+      "adjudication": "not_adjudicated_by_source_slice_receipt"
+    },
+    {
+      "id": "B11",
+      "primary_bundle": "CYC-04",
+      "owner_bundle_ids": [
+        "CYC-04"
+      ],
+      "progress_row_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+        "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+        "json_pointer": "#/finding_rows/10"
+      },
+      "historical_status_ref": "#/finding_rows/10/historical_status",
+      "provisional_finding_outcome_ref": "#/finding_rows/10/provisional_finding_outcome",
+      "criterion_check_state_ref": "#/finding_rows/10/criterion_check_state_carried_forward",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "criterion_id": "B11",
+          "bundle_occurrence": "CYC-04",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "source_lines_inclusive": [
+            325,
+            336
+          ],
+          "criterion_block_sha256": "37f6f0543710b466822aa39ffeb7d3ce5b9a4b57bed99dc429087a3a61ff268c",
+          "progress_ref": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+            "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+            "json_pointer": "#/finding_rows/10/criterion_occurrences/0"
+          }
+        }
+      ],
+      "binding_correction_ref": {
+        "ref": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/original-A-binding-corrections.json@9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7#/records/1",
+        "record_index": 1,
+        "applies_to_occurrences": [
+          "CYC-04"
+        ],
+        "operative_text": "Use the pinned correction record; no criterion text is duplicated here."
+      },
+      "adjudication": "not_adjudicated_by_source_slice_receipt"
+    },
+    {
+      "id": "B16",
+      "primary_bundle": "EMP-01",
+      "owner_bundle_ids": [
+        "EMP-01"
+      ],
+      "progress_row_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+        "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+        "json_pointer": "#/finding_rows/13"
+      },
+      "historical_status_ref": "#/finding_rows/13/historical_status",
+      "provisional_finding_outcome_ref": "#/finding_rows/13/provisional_finding_outcome",
+      "criterion_check_state_ref": "#/finding_rows/13/criterion_check_state_carried_forward",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "criterion_id": "B16",
+          "bundle_occurrence": "EMP-01",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "source_lines_inclusive": [
+            387,
+            398
+          ],
+          "criterion_block_sha256": "fddf1601c092be1f87a19a79a3f6975264850d8df9428e3f54bd3f8fe48d8706",
+          "progress_ref": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+            "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+            "json_pointer": "#/finding_rows/13/criterion_occurrences/0"
+          }
+        }
+      ],
+      "binding_correction_ref": {
+        "ref": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/original-A-binding-corrections.json@9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7#/records/2",
+        "record_index": 2,
+        "applies_to_occurrences": [
+          "EMP-01"
+        ],
+        "operative_text": "Use the pinned correction record; no criterion text is duplicated here."
+      },
+      "adjudication": "not_adjudicated_by_source_slice_receipt"
+    },
+    {
+      "id": "B18",
+      "primary_bundle": "SIM-02",
+      "owner_bundle_ids": [
+        "SIM-02"
+      ],
+      "progress_row_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+        "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+        "json_pointer": "#/finding_rows/14"
+      },
+      "historical_status_ref": "#/finding_rows/14/historical_status",
+      "provisional_finding_outcome_ref": "#/finding_rows/14/provisional_finding_outcome",
+      "criterion_check_state_ref": "#/finding_rows/14/criterion_check_state_carried_forward",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "criterion_id": "B18",
+          "bundle_occurrence": "SIM-02",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "source_lines_inclusive": [
+            411,
+            424
+          ],
+          "criterion_block_sha256": "7a231693e1ff776923bcae7ffaf37eafcdec6e7738a8f2f22f4e853cb7826dd2",
+          "progress_ref": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+            "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+            "json_pointer": "#/finding_rows/14/criterion_occurrences/0"
+          }
+        }
+      ],
+      "binding_correction_ref": null,
+      "adjudication": "not_adjudicated_by_source_slice_receipt"
+    },
+    {
+      "id": "B19",
+      "primary_bundle": "SIM-03",
+      "owner_bundle_ids": [
+        "SIM-03"
+      ],
+      "progress_row_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+        "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+        "json_pointer": "#/finding_rows/15"
+      },
+      "historical_status_ref": "#/finding_rows/15/historical_status",
+      "provisional_finding_outcome_ref": "#/finding_rows/15/provisional_finding_outcome",
+      "criterion_check_state_ref": "#/finding_rows/15/criterion_check_state_carried_forward",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "criterion_id": "B19",
+          "bundle_occurrence": "SIM-03",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "source_lines_inclusive": [
+            425,
+            438
+          ],
+          "criterion_block_sha256": "db1ff4d20be85b6c4370b73aecc9f8f68ac09568e7e98163e639f67c2f15a733",
+          "progress_ref": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+            "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+            "json_pointer": "#/finding_rows/15/criterion_occurrences/0"
+          }
+        }
+      ],
+      "binding_correction_ref": null,
+      "adjudication": "not_adjudicated_by_source_slice_receipt"
+    },
+    {
+      "id": "B20",
+      "primary_bundle": "SIM-02",
+      "owner_bundle_ids": [
+        "SIM-02"
+      ],
+      "progress_row_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+        "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+        "json_pointer": "#/finding_rows/16"
+      },
+      "historical_status_ref": "#/finding_rows/16/historical_status",
+      "provisional_finding_outcome_ref": "#/finding_rows/16/provisional_finding_outcome",
+      "criterion_check_state_ref": "#/finding_rows/16/criterion_check_state_carried_forward",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "criterion_id": "B20",
+          "bundle_occurrence": "SIM-02",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "source_lines_inclusive": [
+            439,
+            450
+          ],
+          "criterion_block_sha256": "ed3aedc0aa1d801dff49f931a0789190350d32f64039e946c5dc4468469b7838",
+          "progress_ref": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+            "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+            "json_pointer": "#/finding_rows/16/criterion_occurrences/0"
+          }
+        }
+      ],
+      "binding_correction_ref": null,
+      "adjudication": "not_adjudicated_by_source_slice_receipt"
+    },
+    {
+      "id": "B21",
+      "primary_bundle": "SIM-03",
+      "owner_bundle_ids": [
+        "SIM-03"
+      ],
+      "progress_row_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+        "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+        "json_pointer": "#/finding_rows/17"
+      },
+      "historical_status_ref": "#/finding_rows/17/historical_status",
+      "provisional_finding_outcome_ref": "#/finding_rows/17/provisional_finding_outcome",
+      "criterion_check_state_ref": "#/finding_rows/17/criterion_check_state_carried_forward",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "criterion_id": "B21",
+          "bundle_occurrence": "SIM-03",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "source_lines_inclusive": [
+            451,
+            464
+          ],
+          "criterion_block_sha256": "f2e8020b22206a84bcdcbf796bfb0c00545c4d8b211d75f20c45a91283c16084",
+          "progress_ref": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+            "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+            "json_pointer": "#/finding_rows/17/criterion_occurrences/0"
+          }
+        }
+      ],
+      "binding_correction_ref": null,
+      "adjudication": "not_adjudicated_by_source_slice_receipt"
+    },
+    {
+      "id": "B22",
+      "primary_bundle": "SIM-02",
+      "owner_bundle_ids": [
+        "SIM-02"
+      ],
+      "progress_row_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+        "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+        "json_pointer": "#/finding_rows/18"
+      },
+      "historical_status_ref": "#/finding_rows/18/historical_status",
+      "provisional_finding_outcome_ref": "#/finding_rows/18/provisional_finding_outcome",
+      "criterion_check_state_ref": "#/finding_rows/18/criterion_check_state_carried_forward",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "criterion_id": "B22",
+          "bundle_occurrence": "SIM-02",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "source_lines_inclusive": [
+            465,
+            476
+          ],
+          "criterion_block_sha256": "e9a1b5a2974b1a75054280ce4be8e31f20ccf352a522af4dd1be8a0187459cbc",
+          "progress_ref": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+            "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+            "json_pointer": "#/finding_rows/18/criterion_occurrences/0"
+          }
+        }
+      ],
+      "binding_correction_ref": null,
+      "adjudication": "not_adjudicated_by_source_slice_receipt"
+    },
+    {
+      "id": "B23",
+      "primary_bundle": "SIM-03",
+      "owner_bundle_ids": [
+        "SIM-03"
+      ],
+      "progress_row_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+        "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+        "json_pointer": "#/finding_rows/19"
+      },
+      "historical_status_ref": "#/finding_rows/19/historical_status",
+      "provisional_finding_outcome_ref": "#/finding_rows/19/provisional_finding_outcome",
+      "criterion_check_state_ref": "#/finding_rows/19/criterion_check_state_carried_forward",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "criterion_id": "B23",
+          "bundle_occurrence": "SIM-03",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "source_lines_inclusive": [
+            477,
+            488
+          ],
+          "criterion_block_sha256": "af2f16d4d1ff1f7927be15f39270b6032ac27ec95c56b0f20a3f058e8e32f5ae",
+          "progress_ref": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+            "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+            "json_pointer": "#/finding_rows/19/criterion_occurrences/0"
+          }
+        }
+      ],
+      "binding_correction_ref": null,
+      "adjudication": "not_adjudicated_by_source_slice_receipt"
+    },
+    {
+      "id": "B25",
+      "primary_bundle": "SIM-03",
+      "owner_bundle_ids": [
+        "SIM-03"
+      ],
+      "progress_row_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+        "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+        "json_pointer": "#/finding_rows/20"
+      },
+      "historical_status_ref": "#/finding_rows/20/historical_status",
+      "provisional_finding_outcome_ref": "#/finding_rows/20/provisional_finding_outcome",
+      "criterion_check_state_ref": "#/finding_rows/20/criterion_check_state_carried_forward",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "criterion_id": "B25",
+          "bundle_occurrence": "SIM-03",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "source_lines_inclusive": [
+            503,
+            516
+          ],
+          "criterion_block_sha256": "f7e4a5e349589575920d7885587f7cce2b62c0148bf8ef57b7f8b9f684959c81",
+          "progress_ref": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+            "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+            "json_pointer": "#/finding_rows/20/criterion_occurrences/0"
+          }
+        }
+      ],
+      "binding_correction_ref": null,
+      "adjudication": "not_adjudicated_by_source_slice_receipt"
+    },
+    {
+      "id": "B26",
+      "primary_bundle": "SIM-03",
+      "owner_bundle_ids": [
+        "SIM-03"
+      ],
+      "progress_row_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+        "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+        "json_pointer": "#/finding_rows/21"
+      },
+      "historical_status_ref": "#/finding_rows/21/historical_status",
+      "provisional_finding_outcome_ref": "#/finding_rows/21/provisional_finding_outcome",
+      "criterion_check_state_ref": "#/finding_rows/21/criterion_check_state_carried_forward",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "criterion_id": "B26",
+          "bundle_occurrence": "SIM-03",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "source_lines_inclusive": [
+            517,
+            530
+          ],
+          "criterion_block_sha256": "5463d473d7e526f8ae3debc24fee9850889ed6c33dfbd4bcd44ae05dab8ea5a2",
+          "progress_ref": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+            "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+            "json_pointer": "#/finding_rows/21/criterion_occurrences/0"
+          }
+        }
+      ],
+      "binding_correction_ref": null,
+      "adjudication": "not_adjudicated_by_source_slice_receipt"
+    },
+    {
+      "id": "B27",
+      "primary_bundle": "CYC-03",
+      "owner_bundle_ids": [
+        "CYC-03"
+      ],
+      "progress_row_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+        "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+        "json_pointer": "#/finding_rows/22"
+      },
+      "historical_status_ref": "#/finding_rows/22/historical_status",
+      "provisional_finding_outcome_ref": "#/finding_rows/22/provisional_finding_outcome",
+      "criterion_check_state_ref": "#/finding_rows/22/criterion_check_state_carried_forward",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "criterion_id": "B27",
+          "bundle_occurrence": "CYC-03",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "source_lines_inclusive": [
+            537,
+            550
+          ],
+          "criterion_block_sha256": "052dfe6a01330cee3d1975a69adaed578a7c1d3259c9c9889c09ce9e867ecc44",
+          "progress_ref": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+            "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+            "json_pointer": "#/finding_rows/22/criterion_occurrences/0"
+          }
+        }
+      ],
+      "binding_correction_ref": null,
+      "adjudication": "not_adjudicated_by_source_slice_receipt"
+    },
+    {
+      "id": "B28",
+      "primary_bundle": "CYC-03",
+      "owner_bundle_ids": [
+        "CYC-03"
+      ],
+      "progress_row_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+        "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+        "json_pointer": "#/finding_rows/23"
+      },
+      "historical_status_ref": "#/finding_rows/23/historical_status",
+      "provisional_finding_outcome_ref": "#/finding_rows/23/provisional_finding_outcome",
+      "criterion_check_state_ref": "#/finding_rows/23/criterion_check_state_carried_forward",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "criterion_id": "B28",
+          "bundle_occurrence": "CYC-03",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "source_lines_inclusive": [
+            551,
+            564
+          ],
+          "criterion_block_sha256": "24bde0d2e6c00856b28cf4cc5bc1be23c22e6395760df1a5c615bc74ab99b343",
+          "progress_ref": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+            "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+            "json_pointer": "#/finding_rows/23/criterion_occurrences/0"
+          }
+        }
+      ],
+      "binding_correction_ref": {
+        "ref": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/original-A-binding-corrections.json@9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7#/records/3",
+        "record_index": 3,
+        "applies_to_occurrences": [
+          "CYC-03"
+        ],
+        "operative_text": "Use the pinned correction record; no criterion text is duplicated here."
+      },
+      "adjudication": "not_adjudicated_by_source_slice_receipt"
+    },
+    {
+      "id": "B31",
+      "primary_bundle": "EMP-01",
+      "owner_bundle_ids": [
+        "EMP-01"
+      ],
+      "progress_row_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+        "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+        "json_pointer": "#/finding_rows/26"
+      },
+      "historical_status_ref": "#/finding_rows/26/historical_status",
+      "provisional_finding_outcome_ref": "#/finding_rows/26/provisional_finding_outcome",
+      "criterion_check_state_ref": "#/finding_rows/26/criterion_check_state_carried_forward",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "criterion_id": "B31",
+          "bundle_occurrence": "EMP-01",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "source_lines_inclusive": [
+            593,
+            606
+          ],
+          "criterion_block_sha256": "9311ba1b0fb2e6a3f180546c6118406c5781dbbfb57e27b28075b95a92fe371f",
+          "progress_ref": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+            "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+            "json_pointer": "#/finding_rows/26/criterion_occurrences/0"
+          }
+        }
+      ],
+      "binding_correction_ref": {
+        "ref": "policy-engine/docs/research/e02-cloud-test-plan/integration/reviews/2026-10-07-all-six/original-A-binding-corrections.json@9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7#/records/5",
+        "record_index": 5,
+        "applies_to_occurrences": [
+          "EMP-01"
+        ],
+        "operative_text": "Use the pinned correction record; no criterion text is duplicated here."
+      },
+      "adjudication": "not_adjudicated_by_source_slice_receipt"
+    },
+    {
+      "id": "B33",
+      "primary_bundle": "EMP-01",
+      "owner_bundle_ids": [
+        "EMP-01"
+      ],
+      "progress_row_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+        "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+        "json_pointer": "#/finding_rows/27"
+      },
+      "historical_status_ref": "#/finding_rows/27/historical_status",
+      "provisional_finding_outcome_ref": "#/finding_rows/27/provisional_finding_outcome",
+      "criterion_check_state_ref": "#/finding_rows/27/criterion_check_state_carried_forward",
+      "criterion_occurrences": [
+        {
+          "occurrence": 1,
+          "criterion_id": "B33",
+          "bundle_occurrence": "EMP-01",
+          "source_path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+          "source_git_blob": "d800082eebfc12eaf647b0c0257c4f06e135d25a",
+          "source_lines_inclusive": [
+            621,
+            634
+          ],
+          "criterion_block_sha256": "8c095310505a69341c5faa680dfa7c46888374c0f46f4b617fa87d9d1fbf9d03",
+          "progress_ref": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007-progress.json",
+            "sha256": "78da3dae3eb8066c15d6169b6e62abdd7e1711f99fa98c14a3ed8004642260bf",
+            "json_pointer": "#/finding_rows/27/criterion_occurrences/0"
+          }
+        }
+      ],
+      "binding_correction_ref": null,
+      "adjudication": "not_adjudicated_by_source_slice_receipt"
+    }
+  ],
+  "bundle_context_only_refs": [],
+  "check_catalogue_ref": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/checks.json",
+    "schema": "policyos.e02.implementation_handoff_checks.v1",
+    "check_ids": [
+      "frozen_consumer_wave_d273",
+      "frc01_r1_nullable_rate_d273",
+      "b23_physical_positive_f5cf",
+      "b23_physical_seed_removal_f5cf",
+      "b23_physical_plan_removal_f5cf",
+      "promotion_basis_constructor_delta_42918",
+      "persisted_width_removal_42918",
+      "affected_consumer_delta_4912"
+    ],
+    "note": "Full commands, immutable check targets, output hashes, environment/origin inputs, and copied-output paths are recorded once in checks.json. Check results are not source-slice acceptance or finding closure."
+  },
+  "review_and_acceptance": {
+    "ancestry_review_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/continuation-20261007/review/accepted-ancestry-handoff.json",
+      "sha256": "ac0b42e7d50f36d3dac40aedcf9f9c63d2a88d3d4add511143436d4839f2ef99",
+      "verdict": "bounded_GO_after_pin_label_corrections",
+      "scope": "ancestry, trees, complete footprints, original nine check pins and output hashes only; not code review or G acceptance"
+    },
+    "independent_code_review": "pending",
+    "G_acceptance": "pending",
+    "formal_closure": false,
+    "closure_ids": []
+  },
+  "source_candidate_pin_as_of": {
+    "sha": "6c214bdec28ea169741557e195749281d89a4a89",
+    "tree": "6d0dcfc58662bce81a6d42dc8aa75b2fb63f4748",
+    "status": "historical_as_of_source_implementation_candidate_not_current_HEAD",
+    "note": "The candidate SHA/tree pin is the last implementation commit in this slice; it describes the historical as-of source snapshot only, not the current workspace or dirty files."
+  }
+}

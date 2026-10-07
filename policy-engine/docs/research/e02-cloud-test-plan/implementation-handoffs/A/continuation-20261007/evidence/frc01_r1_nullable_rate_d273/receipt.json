@@ -1,0 +1,61 @@
+{
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "e02_origin",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "-q",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/s10-nullable-rate-removal-d273/junit.xml",
+    "--basetemp=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/s10-nullable-rate-removal-d273/pytest-basetemp",
+    "tests/unit/remediation/test_frc_01.py::test_gateway_preserves_missing_calibration_metric_as_distinct_from_observed_zero[unavailable-observation]",
+    "tests/unit/remediation/test_frc_01.py::test_gateway_preserves_missing_calibration_metric_as_distinct_from_observed_zero[observed-zero-rate]",
+    "tests/unit/remediation/test_frc_01.py::test_zero_denominator_projection_mutant_does_not_emit_calibration_record"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+  "candidate_sha": "d273659a117d20c70f2598309fec558c8e753b77",
+  "candidate_tree": "eb27248291194b311689f2ef3244bc738d1628bd",
+  "exit_code": 1,
+  "wall_s": 18.632976458990015,
+  "environment": {
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/s10-nullable-rate-removal-d273:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "JAX_PLATFORMS": "cpu"
+  },
+  "probe_environment": {
+    "POLISYOS_TEST_S10_NULLABLE_RATE_REMOVAL": "1"
+  },
+  "launcher": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/run_check.py",
+    "sha256": "928c32ba9a42cd2c1e28652bf9d6ba3bddf038de5d17abfef3ac701fcd04c7e2"
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 2762,
+      "sha256": "789aac77fdfa74bb5c3ac415ea8bb78f153a51081ed712d999503861f47d15d6"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "e02_origin.py": {
+      "bytes": 656,
+      "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+    },
+    "junit.xml": {
+      "bytes": 3163,
+      "sha256": "90bd9ac0746d4104efa2612bd044347808ae3262de276d3216eb0f52a2c161bb"
+    },
+    "origins.json": {
+      "bytes": 1270,
+      "sha256": "109afc05f7b6d88f1c55726c09127366efb2b412cba48f219707076583ece603"
+    }
+  }
+}

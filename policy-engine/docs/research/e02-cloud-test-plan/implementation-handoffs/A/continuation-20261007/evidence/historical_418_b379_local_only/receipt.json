@@ -1,0 +1,64 @@
+{
+  "argv": [
+    "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "pytest",
+    "-p",
+    "e02_origin",
+    "-o",
+    "addopts=",
+    "--import-mode=importlib",
+    "--strict-markers",
+    "-q",
+    "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/affected-wave-b379-importlib/junit.xml",
+    "tests/unit/remediation/test_frc_01.py",
+    "tests/unit/remediation/test_sim_01.py",
+    "tests/unit/runtime/quality/test_joint_simulation_horizon.py",
+    "tests/unit/runtime/quality/test_joint_simulation_e02_semantics.py",
+    "tests/unit/runtime/quality/test_design_axes_coupling_composition.py",
+    "tests/unit/runtime/quality/test_workspace_composition.py",
+    "tests/unit/scientist/search/test_voi_scheduler.py",
+    "tests/unit/remediation/test_sim_03.py",
+    "tests/unit/remediation/test_cyc_02.py",
+    "tests/integration/core_runtime/test_e02_empirical_member_intake.py",
+    "tests/integration/core_runtime/test_e02_hard_feasibility_before_voi.py",
+    "tests/unit/runtime/quality/test_e02_configured_n7_resolver.py",
+    "tests/unit/scientist/policy_design/test_structure_context_bridge.py",
+    "tests/unit/runtime/quality/test_generation_cycle.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+  "candidate_sha": "b379d01f6561120eac77ed3dd871a8983b4a1bf5",
+  "candidate_tree": "ef36f25d343e95f23f8b09cb91990b048fad34e7",
+  "exit_code": 1,
+  "wall_s": 414.5503087909892,
+  "environment": {
+    "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/affected-wave-b379-importlib:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "JAX_PLATFORMS": "cpu"
+  },
+  "outputs": {
+    "stdout.txt": {
+      "bytes": 536814,
+      "sha256": "ceb95027e6080e1ef26d37270537b112a410441f3d022904bc1a2c7c57f95c8d"
+    },
+    "stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "e02_origin.py": {
+      "bytes": 656,
+      "sha256": "b1de6f71122edcae14e460c0be79c5bce9efc0891590ac337538ce6c5b86d951"
+    },
+    "junit.xml": {
+      "bytes": 622259,
+      "sha256": "c4d5939ba23bae7922dbbc1fdb51fc957c23d2af9c9c8936b4161e385994b54a"
+    },
+    "origins.json": {
+      "bytes": 1270,
+      "sha256": "109afc05f7b6d88f1c55726c09127366efb2b412cba48f219707076583ece603"
+    }
+  }
+}

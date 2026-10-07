@@ -1,0 +1,836 @@
+F...F................................................................... [ 73%]
+.....................F.FFF                                               [100%]
+=================================== FAILURES ===================================
+___ test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback ___
+
+tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/affected-consumer-delta-4912/pytest-basetemp/test_latest_candidate_occurren0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x112a210f0>
+
+    @pytest.mark.asyncio
+    async def test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Replay both fixture appearances and bind only the latest through CAS owners.
+    
+        The opaque hashes and test grounding/value/completion fixtures establish no
+        source provenance, N5 truth, or deployment-currentness claim. The observed
+        refusal is the real pre-N9 policy-admission gate; no signed N9 admission is
+        required for this B28 occurrence-binding witness.
+        """
+    
+        problem = _problem("same_subject_persisted_occurrence")
+        problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+        root_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
+        graph = derive_recursive_design_graph(
+            design_ref=root_ref,
+            module_refs=(),
+            parent_child_edges=(),
+            rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
+        )
+        generator = _SameCandidateNewBasisGenerator()
+        recursive = RecursiveGenerationCycleController.for_contract_testing(
+            repo_root=REPO_ROOT,
+            cycle_controller_factory=lambda _node_ref, _problem: GenerationCycleController(
+                generation_port=generator,
+                grounding_port=_CurrentValidOnSecondCycleGrounding(),
+                value_port=_ReadyValuePort(),
+                repo_root=REPO_ROOT,
+            ),
+        )
+        recursive_run = await recursive.run(
+            graph,
+            problems_by_node={root_ref: problem},
+            budget_state=_budget(),
+            recursive_budget=RecursiveCycleBudget(
+                max_depth=0,
+                max_nodes=1,
+                min_cycles_per_leaf=2,
+                max_cycles_per_leaf=2,
+            ),
+        )
+        leaf_runs = tuple(
+            node.cycle_run
+            for node in recursive_run.leaf_nodes
+            if node.cycle_run is not None
+        )
+        assert len(leaf_runs) == 1
+        produced_run = leaf_runs[0]
+        assert produced_run.terminal_status == "completed"
+        assert tuple(
+            (row.candidate_id, row.content_hash, row.cycle_index)
+            for row in produced_run.candidate_summaries
+        ) == (
+            ("candidate_same_subject", "sha256:" + "1" * 64, 0),
+            ("candidate_same_subject", "sha256:" + "2" * 64, 1),
+        )
+        _assert_modern_value_receipt_roundtrips(produced_run)
+        _assert_actual_legacy_history_roundtrips()
+    
+        recursive_payload = recursive_run.model_dump(mode="json", exclude={"leaf_nodes"})
+        compiled_payload = {
+            "schema_version": COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,
+            "design_problem_ref": problem_ref,
+            "design_problem": problem.model_dump(mode="json"),
+            "cycle_substrate_context_ref": None,
+            "recursive_run": recursive_payload,
+        }
+        compiled = CompiledRecursiveGenerationCycleRun.model_validate(
+            {**compiled_payload, "content_hash": gy_content_hash(compiled_payload)}
+        )
+    
+        cas_root = tmp_path / "compiled-run-cas"
+        writer = FileSystemCAS(cas_root)
+        compiled_ref = writer.put_json(
+            compiled.model_dump(mode="json"),
+            ArtifactWriteOptions(
+                kind="runtime.compiled_recursive_generation_cycle",
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name="polisyos.runtime.CompiledRecursiveGenerationCycleRun",
+                    version="1.0",
+                ),
+            ),
+            canon_spec=canon.CanonSpec(forbid_floats=False),
+        )
+    
+        # Re-open the same CAS with fresh readers before constructing the consumer.
+        read_store = FileSystemCAS(cas_root)
+        assert read_store.verify(compiled_ref).ok
+        manifest = read_store.get_manifest(compiled_ref)
+        assert manifest.kind == "runtime.compiled_recursive_generation_cycle"
+        assert manifest.artifact_schema == SchemaInfo(
+            name="polisyos.runtime.CompiledRecursiveGenerationCycleRun",
+            version="1.0",
+        )
+        raw = read_store.get_bytes(compiled_ref)
+        assert str(compiled_ref.artifact_id) == f"sha256:{canon.content_hash(raw)}"
+        payload = canon.from_canonical_bytes(raw)
+        assert isinstance(payload, dict)
+        replayed = CompiledRecursiveGenerationCycleRun.model_validate(payload)
+        replayed_runs = tuple(
+            node.cycle_run
+            for node in replayed.recursive_run.leaf_nodes
+            if node.cycle_run is not None
+        )
+        assert len(replayed_runs) == 1
+        replayed_run = replayed_runs[0]
+        # Compare the persisted projection: CandidateSummary.value_receipt is an
+        # intentionally excluded in-memory cache, not part of the CAS artifact.
+        wire_spec = canon.CanonSpec(forbid_floats=False)
+        assert canon.to_canonical_bytes(
+            replayed_run.model_dump(mode="json"), wire_spec
+        ) == canon.to_canonical_bytes(produced_run.model_dump(mode="json"), wire_spec)
+        assert tuple(
+            (row.candidate_id, row.content_hash, row.cycle_index)
+            for row in replayed_run.candidate_summaries
+        ) == (
+            ("candidate_same_subject", "sha256:" + "1" * 64, 0),
+            ("candidate_same_subject", "sha256:" + "2" * 64, 1),
+        )
+        latest = replayed_run.candidate_summaries[1]
+        assert produced_run.candidate_summaries[1].value_receipt is not None
+        assert latest.value_receipt is None
+        assert _current_candidate_summaries(replayed_run.candidate_summaries) == (latest,)
+        front_ids = tuple(
+            candidate_id
+            for candidate_ids in replayed_run.fronts.candidate_ids_by_front().values()
+            for candidate_id in candidate_ids
+        )
+        assert front_ids == (latest.candidate_id,)
+    
+        consumer_runtime = PromotionRuntime(store=read_store)
+        consumer = GenerationCycleController(
+            promotion_runtime=consumer_runtime,
+            repo_root=REPO_ROOT,
+        )
+        prepared_calls: list[
+            tuple[
+                tuple[CandidateSummary, ...],
+                PromotionRuntimeBatch | PromotionOwnerQueryContextNonReceipt,
+            ]
+        ] = []
+        prepare = consumer_runtime._prepare_completed_generation
+    
+        def capture_prepare(
+            *, problem: Any, summaries: Sequence[CandidateSummary]
+        ) -> PromotionRuntimeBatch | PromotionOwnerQueryContextNonReceipt:
+            frozen_summaries = tuple(summaries)
+            result = prepare(problem=problem, summaries=frozen_summaries)
+            prepared_calls.append((frozen_summaries, result))
+            return result
+    
+        gate_calls: list[tuple[ArtifactRef, object]] = []
+        reconcile = consumer_runtime.epoch_validity_gate.reconcile_before_n9
+    
+        def capture_gate(*, subject_ref: ArtifactRef) -> object:
+            result = reconcile(subject_ref=subject_ref)
+            gate_calls.append((subject_ref, result))
+            return result
+    
+        monkeypatch.setattr(
+            consumer_runtime, "_prepare_completed_generation", capture_prepare
+        )
+        monkeypatch.setattr(
+            consumer_runtime.epoch_validity_gate,
+            "reconcile_before_n9",
+            capture_gate,
+        )
+        final_cycle = replayed_run.cycles[-1]
+        refusal = consumer._promote_completed_generation(
+            summaries=replayed_run.candidate_summaries,
+            problem=final_cycle.revision_request.revised_problem,
+            design_problem_basis_ref=final_cycle.design_problem_basis_ref,
+            deployment_identity=replayed_run.deployment_identity,
+        )
+    
+>       assert refusal.reason == "epoch_validity_refused:policy_admission_missing"
+E       AssertionError: assert 'epoch_validi...asis_mismatch' == 'epoch_validi...ssion_missing'
+E         
+E         - epoch_validity_refused:policy_admission_missing
+E         + epoch_validity_refused:generation_cycle_promotion_basis_mismatch
+
+tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py:418: AssertionError
+_______ test_recursive_constructor_denominator_has_no_unwrapped_n9_call ________
+
+    def test_recursive_constructor_denominator_has_no_unwrapped_n9_call() -> None:
+        repo_root = Path(__file__).resolve().parents[4]
+        git_paths, filesystem_paths = _production_python_paths(repo_root)
+        assert git_paths == filesystem_paths
+    
+        constructors: list[_CallSite] = []
+        promotion_calls: list[_CallSite] = []
+        ambiguous: list[str] = []
+        for relative_path in sorted(git_paths):
+            source_path = repo_root / relative_path
+            found_constructors, found_ports, found_ambiguous = _scan_python_source(
+                source=source_path.read_text(encoding="utf-8"),
+                module=_module_name(repo_root, source_path),
+                source_path=relative_path,
+            )
+            constructors.extend(found_constructors)
+            promotion_calls.extend(found_ports)
+            ambiguous.extend(found_ambiguous)
+>       _assert_constructor_contract(tuple(constructors), tuple(promotion_calls), tuple(ambiguous))
+
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:2431: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+constructors = (_CallSite(module='polisyos.runtime.http.services.control.generation_cycle', source_path='src/polisyos/runtime/http/se...on_port', 'generation_port', 'promotion_port'}), has_keyword_expansion=False, authority_scope='contract_testing'), ...)
+promotion_calls = (_CallSite(module='polisyos.runtime.quality.generation_cycle', source_path='src/polisyos/runtime/quality/generation_cy...tion_port', keyword_names=frozenset({'problem', 'admitted_batch'}), has_keyword_expansion=False, authority_scope=None))
+ambiguous = ()
+
+    def _assert_constructor_contract(
+        constructors: tuple[_CallSite, ...],
+        promotion_calls: tuple[_CallSite, ...],
+        ambiguous: tuple[str, ...],
+    ) -> None:
+        assert ambiguous == ()
+        # These are the accepted production owner roles, not a copy of whatever the
+        # current source scan happens to observe. Each leaf constructor stays behind
+        # its HTTP/recursive, per-node, or admitted acquisition bridge; N9 is derived
+        # only inside the canonical cycle owner.
+        expected_production = {
+            (
+                "polisyos.runtime.http.services.control.generation_cycle",
+                "src/polisyos/runtime/http/services/control/generation_cycle.py",
+                "compile_and_run_recursive_generation_cycle",
+                "polisyos.runtime.quality.recursive_generation_cycle."
+                "build_default_recursive_generation_cycle_controller",
+                frozenset(
+                    {"repo_root", "model_id", "promotion_runtime", "eval_safety_verifier"}
+                ),
+            ),
+            (
+                "polisyos.runtime.quality.recursive_generation_cycle",
+                "src/polisyos/runtime/quality/recursive_generation_cycle.py",
+                "build_default_recursive_generation_cycle_controller",
+                "polisyos.runtime.quality.recursive_generation_cycle."
+                "RecursiveGenerationCycleController",
+                frozenset(
+                    {"repo_root", "model_id", "promotion_runtime", "eval_safety_verifier"}
+                ),
+            ),
+            (
+                "polisyos.runtime.quality.recursive_generation_cycle",
+                "src/polisyos/runtime/quality/recursive_generation_cycle.py",
+                "RecursiveGenerationCycleController.run.route",
+                "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+                frozenset(
+                    {
+                        "generation_port",
+                        "eval_safety_verifier",
+                        "repo_root",
+                        "model_id",
+                        "cycle_substrate_context",
+                        "candidate_simulation_handoff",
+                        "candidate_simulation_currentness_resolver",
+                        "promotion_runtime",
+                        "value_port",
+                        "artifact_store",
+                    }
+                ),
+            ),
+            (
+                "polisyos.runtime.quality.acquisition_world_growth",
+                "src/polisyos/runtime/quality/acquisition_world_growth.py",
+                "AcquisitionWorldGrowthBridge.resume",
+                "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+                frozenset(
+                    {
+                        "repo_root",
+                        "model_id",
+                        "promotion_runtime",
+                        "cycle_substrate_context",
+                        "candidate_simulation_handoff",
+                        "candidate_simulation_currentness_resolver",
+                    }
+                ),
+            ),
+            (
+                "polisyos.runtime.quality.generation_cycle",
+                "src/polisyos/runtime/quality/generation_cycle.py",
+                "GenerationCycleController.__init__",
+                "polisyos.runtime.quality.promotion_sequence.CanonicalN9PromotionPort",
+                frozenset(
+                    {
+                        "repo_root",
+                        "context_provider",
+                        "promotion_runtime",
+                        "epoch_n9_evidence_resolver",
+                        "measurement_catalog",
+                        "measurement_providers",
+                    }
+                ),
+            ),
+        }
+        observed_production = {
+            (row.module, row.source_path, row.enclosing, row.target, row.keyword_names)
+            for row in constructors
+            if row.source_path.startswith("src/")
+        }
+        assert observed_production == expected_production
+        assert all(
+            row.authority_scope is None for row in constructors if row.source_path.startswith("src/")
+        )
+    
+        expected_verification = {
+            (
+                "tools.quality.validation.check_layer3_gy_composition_artifacts",
+                "tools/quality/validation/check_layer3_gy_composition_artifacts.py",
+                "_build_lane0_depth_n_run._lane0_leaf_controller",
+                "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+                frozenset(
+                    {
+                        "authority_scope",
+                        "generation_port",
+                        "grounding_port",
+                        "promotion_port",
+                        "repo_root",
+                        "simulation_port",
+                        "value_port",
+                    }
+                ),
+                "contract_testing",
+            ),
+            (
+                "tools.quality.validation.check_layer3_gy_composition_artifacts",
+                "tools/quality/validation/check_layer3_gy_composition_artifacts.py",
+                "_build_lane0_depth_n_run",
+                "polisyos.runtime.quality.recursive_generation_cycle."
+                "RecursiveGenerationCycleController.for_contract_testing",
+                frozenset({"cycle_controller_factory", "repo_root"}),
+                None,
+            ),
+            (
+                "tools.quality.validation.check_layer3_gy_depth_n_universality_contract",
+                "tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py",
+                "_governed_verification_recursive_controller.build_leaf_controller",
+                "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+                frozenset(
+                    {
+                        "authority_scope",
+                        "cycle_substrate_context",
+                        "generation_port",
+                        "model_id",
+                        "promotion_port",
+                        "repo_root",
+                    }
+                ),
+                "contract_testing",
+            ),
+            (
+                "tools.quality.validation.check_layer3_gy_depth_n_universality_contract",
+                "tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py",
+                "_governed_verification_recursive_controller.build_leaf_controller",
+                "polisyos.runtime.quality.promotion_sequence."
+                "CanonicalN9PromotionPort._for_verification",
+                frozenset({"confidence_ledger_session", "repo_root"}),
+                None,
+            ),
+            (
+                "tools.quality.validation.check_layer3_gy_depth_n_universality_contract",
+                "tools/quality/validation/check_layer3_gy_depth_n_universality_contract.py",
+                "_governed_verification_recursive_controller",
+                "polisyos.runtime.quality.recursive_generation_cycle."
+                "RecursiveGenerationCycleController.for_contract_testing",
+                frozenset({"cycle_controller_factory", "repo_root"}),
+                None,
+            ),
+            (
+                "tools.quality.validation.check_layer3_gy_epoch_chronology_contract",
+                "tools/quality/validation/check_layer3_gy_epoch_chronology_contract.py",
+                "_run_generation_cycle",
+                "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+                frozenset({"generation_port", "promotion_runtime", "repo_root"}),
+                None,
+            ),
+            (
+                "tools.quality.validation.check_layer3_gy_epoch_chronology_contract",
+                "tools/quality/validation/check_layer3_gy_epoch_chronology_contract.py",
+                "_n9_and_public_probe",
+                "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+                frozenset({"generation_port", "promotion_runtime", "repo_root"}),
+                None,
+            ),
+            (
+                "tools.quality.validation.check_layer3_gy_generation_cycle_contract",
+                "tools/quality/validation/check_layer3_gy_generation_cycle_contract.py",
+                "_build_live_payload_in_verification_namespace",
+                "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+                frozenset(
+                    {
+                        "authority_scope",
+                        "generated_at",
+                        "generation_port",
+                        "grounding_port",
+                        "promotion_port",
+                        "repo_root",
+                        "value_port",
+                    }
+                ),
+                "contract_testing",
+            ),
+            (
+                "tools.quality.validation.check_layer3_gy_generation_cycle_contract",
+                "tools/quality/validation/check_layer3_gy_generation_cycle_contract.py",
+                "_build_live_payload_in_verification_namespace",
+                "polisyos.runtime.quality.promotion_sequence."
+                "CanonicalN9PromotionPort._for_verification",
+                frozenset({"confidence_ledger_session", "repo_root"}),
+                None,
+            ),
+            (
+                "tools.quality.validation.check_layer3_gy_generation_cycle_disposition_ledger",
+                "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+                "_n8_value_gate_evidence",
+                "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+                frozenset({"authority_scope", "repo_root"}),
+                "contract_testing",
+            ),
+            (
+                "tools.quality.validation.check_layer3_gy_second_domain_pack",
+                "tools/quality/validation/check_layer3_gy_second_domain_pack.py",
+                "_build_cycle_trace.run",
+                "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+                frozenset(
+                    {
+                        "authority_scope",
+                        "cycle_substrate_context",
+                        "generation_port",
+                        "promotion_port",
+                        "repo_root",
+                    }
+                ),
+                "contract_testing",
+            ),
+            (
+                "tools.quality.validation.check_layer3_gy_second_domain_pack",
+                "tools/quality/validation/check_layer3_gy_second_domain_pack.py",
+                "_build_cycle_trace.run",
+                "polisyos.runtime.quality.promotion_sequence."
+                "CanonicalN9PromotionPort._for_verification",
+                frozenset({"confidence_ledger_session", "repo_root"}),
+                None,
+            ),
+            (
+                "tools.quality.validation.check_layer3_gy_value_gate_contract",
+                "tools/quality/validation/check_layer3_gy_value_gate_contract.py",
+                "_run_real_first_vertical_cycle",
+                "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+                frozenset(
+                    {
+                        "authority_scope",
+                        "cycle_substrate_context",
+                        "generation_port",
+                        "promotion_port",
+                        "repo_root",
+                    }
+                ),
+                "contract_testing",
+            ),
+        }
+        observed_verification = {
+            (
+                row.module,
+                row.source_path,
+                row.enclosing,
+                row.target,
+                row.keyword_names,
+                row.authority_scope,
+            )
+            for row in constructors
+            if row.source_path.startswith("tools/")
+        }
+>       assert observed_verification == expected_verification
+E       AssertionError: assert {('tools.qual...), None), ...} == {('tools.qual...), None), ...}
+E         
+E         Extra items in the left set:
+E         ('tools.quality.validation.check_layer3_gy_generation_cycle_contract', 'tools/quality/validation/check_layer3_gy_gener...uence.CanonicalN9PromotionPort._for_verification', frozenset({'confidence_ledger_session_factory', 'repo_root'}), None)
+E         Extra items in the right set:
+E         ('tools.quality.validation.check_layer3_gy_generation_cycle_contract', 'tools/quality/validation/check_layer3_gy_gener...tion_sequence.CanonicalN9PromotionPort._for_verification', frozenset({'confidence_ledger_session', 'repo_root'}), None)
+E         Use -v to get more diff
+
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py:1303: AssertionError
+_ test_value_port_selects_then_routes_missing_owner_assignment_to_acquisition __
+
+    def test_value_port_selects_then_routes_missing_owner_assignment_to_acquisition() -> None:
+        world = _world_record()
+        problem = _avg_income_problem()
+        candidate = _avg_income_candidate()
+        simulation = _simulation(world, candidate_id="candidate_avg_income_real")
+        observation = FoundryValuePort(
+>           evaluation_context=_simulation_execution_context(
+                candidate=candidate,
+                simulation=simulation,
+                problem=problem,
+            ),
+            repo_root=Path.cwd(),
+        )(
+            candidate=candidate,
+            simulation=simulation,
+            problem=problem,
+            cycle_index=0,
+        )
+
+tests/unit/runtime/quality/test_value_gate.py:2712: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/runtime/quality/test_value_gate.py:170: in _simulation_execution_context
+    return simulation_value_execution_context(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def simulation_value_execution_context(
+        *,
+        candidate: object,
+        simulation: SimulationPortObservation,
+        problem: DesignProblem,
+        artifact_store: ArtifactStore | None = None,
+    ) -> EvaluationExecutionContext:
+        """Build an explicit certificate-free context from the actual N5 output."""
+    
+        input_ref = simulation_evaluation_input_ref(simulation, artifact_store=artifact_store)
+        world = simulation.world_model_record
+        if input_ref is None or world is None:
+>           raise ValueError("eval_safety_simulation_input_unresolved")
+E           ValueError: eval_safety_simulation_input_unresolved
+
+src/polisyos/runtime/quality/generation_cycle.py:4806: ValueError
+________ test_n8_value_port_accepts_recomputed_foundry_receipt_context _________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x13b618bb0>
+
+    def test_n8_value_port_accepts_recomputed_foundry_receipt_context(
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """An ordinary N8 call accepts the advisor receipt against recomputed context."""
+        from polisyos.core.artifacts.ids import ArtifactID as CoreArtifactID
+        from polisyos.core.artifacts.manifest import ArtifactRef as CoreArtifactRef
+        from polisyos.data_forge.domains.catalog.knowledge.overlay import (
+            ActivatedAcquisitionObservationProjection,
+            CanonicalAcquisitionObservation,
+            ObservationProvenanceClass,
+        )
+    
+        candidate = _avg_income_candidate()
+        problem = _avg_income_problem()
+        world = _world_record()
+        rows = []
+        for unit_index in range(3):
+            for period_id in range(4):
+                row_fields = {
+                    "unit_id": f"unit_{unit_index}",
+                    "period_id": period_id,
+                    "outcome_value": float(period_id + unit_index),
+                    "source_row_content_hashes": (_hash("a"),),
+                }
+                rows.append(
+                    ValueOwnerRow(
+                        **row_fields,
+                        row_content_hash=gy_content_hash(row_fields),
+                    )
+                )
+        rows_payload = [row.model_dump(mode="json") for row in rows]
+        profile_payload = {
+            "schema_version": "policyos.runtime.value_data_profile.v1",
+            "outcome": "avg_income",
+            "rows": rows_payload,
+            "owner_row_count": len(rows_payload),
+            "unit_count": 3,
+            "period_count": 4,
+            "available_data_modalities": ["panel", "tabular"],
+            "treatment_assignment_status": "owner_assignment_unresolved",
+            "owner_access_ref": "test://synthetic-n8-owner-profile",
+            "owner_rows_content_hash": gy_content_hash(rows_payload),
+        }
+        profile = ValueDataProfile.model_validate(
+            {**profile_payload, "content_hash": gy_content_hash(profile_payload)}
+        )
+    
+        receipt_ref = CoreArtifactRef(
+            artifact_id=CoreArtifactID(_hash("1")),
+            kind="epoch.activated_overlay_admission_receipt",
+            media_type="application/json",
+        )
+        passport_ref = CoreArtifactRef(
+            artifact_id=CoreArtifactID(_hash("2")),
+            kind="epoch.acquisition_passport_snapshot",
+            media_type="application/json",
+        )
+        projection = ActivatedAcquisitionObservationProjection.issue(
+            receipt_ref=receipt_ref,
+            receipt_content_sha256=_hash("3"),
+            passport_ref=passport_ref,
+            passport_content_sha256=_hash("4"),
+            variable_id="avg_income",
+            epoch_id=1,
+            passport_id="fixture-passport",
+            admission_content_sha256=_hash("5"),
+            observations=(
+                CanonicalAcquisitionObservation(
+                    observation_id="fixture-active-avg-income",
+                    dataset_id="fixture-acquired-avg-income",
+                    raw_variable="avg_income",
+                    canonical_var="avg_income",
+                    country_code="AM",
+                    year=2024,
+                    value=1.0,
+                    condition_json='{"unit":"usd"}',
+                    acquisition_method="fixture",
+                    source_watermark="fixture",
+                    dataset_version="1",
+                    observation_class=ObservationProvenanceClass.OBSERVED,
+                ),
+            ),
+        )
+    
+        def load_fixture_profile(
+            _gateway: RealValueOwnerGateway,
+            *,
+            candidate: object,
+            problem: DesignProblem,
+            world_record: object,
+        ) -> ValueDataProfile:
+            assert candidate is candidate_arg
+            assert problem is problem_arg
+            assert world_record is world_arg
+            return profile
+    
+        candidate_arg = candidate
+        problem_arg = problem
+        world_arg = world
+        monkeypatch.setattr(
+            RealValueOwnerGateway,
+            "load_value_data_profile",
+            load_fixture_profile,
+        )
+    
+        accepted_contexts: list[str] = []
+        verify_context = MethodSelectionReceipt.verify_selection_context
+    
+        def capture_context(
+            receipt: MethodSelectionReceipt, expected_selection_context_hash: str
+        ) -> MethodSelectionReceipt:
+            accepted_contexts.append(expected_selection_context_hash)
+            return verify_context(receipt, expected_selection_context_hash)
+    
+        monkeypatch.setattr(
+            MethodSelectionReceipt, "verify_selection_context", capture_context
+        )
+        simulation = _simulation(world, candidate_id=candidate.candidate_id)
+        observation = FoundryValuePort(
+>           evaluation_context=_simulation_execution_context(
+                candidate=candidate, simulation=simulation, problem=problem
+            ),
+            owner_gateway=RealValueOwnerGateway(
+                repo_root=Path.cwd(),
+                activated_observation_projection=projection,
+            ),
+        )(candidate=candidate, simulation=simulation, problem=problem, cycle_index=0)
+
+tests/unit/runtime/quality/test_value_gate.py:2897: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/runtime/quality/test_value_gate.py:170: in _simulation_execution_context
+    return simulation_value_execution_context(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def simulation_value_execution_context(
+        *,
+        candidate: object,
+        simulation: SimulationPortObservation,
+        problem: DesignProblem,
+        artifact_store: ArtifactStore | None = None,
+    ) -> EvaluationExecutionContext:
+        """Build an explicit certificate-free context from the actual N5 output."""
+    
+        input_ref = simulation_evaluation_input_ref(simulation, artifact_store=artifact_store)
+        world = simulation.world_model_record
+        if input_ref is None or world is None:
+>           raise ValueError("eval_safety_simulation_input_unresolved")
+E           ValueError: eval_safety_simulation_input_unresolved
+
+src/polisyos/runtime/quality/generation_cycle.py:4806: ValueError
+_ test_value_port_rejects_selection_receipt_replayed_from_other_owner_profile __
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x13d36fd20>
+
+    def test_value_port_rejects_selection_receipt_replayed_from_other_owner_profile(
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        from polisyos.runtime.quality import generation_cycle
+    
+        problem = _avg_income_problem()
+        wrong_problem = {
+            "design_problem_id": problem.design_problem_id,
+            "problem_statement": problem.problem_statement,
+            "domain": problem.domain,
+            "outcome_of_interest": problem.outcome_of_interest.model_dump(mode="json"),
+            "runtime_hints": {
+                "value_required_data_modalities": ("tabular",),
+                "value_data_characteristics": {
+                    "n_obs": 64,
+                    "n_units": 16,
+                    "n_periods": 4,
+                    "is_panel": True,
+                    "treatment_is_binary": None,
+                    "outcome_is_continuous": None,
+                },
+                "value_data_profile_content_hash": _hash("f"),
+            },
+        }
+        replayed = select_value_method_for_problem(
+            candidate=_avg_income_candidate(),
+            problem=wrong_problem,
+        )
+        monkeypatch.setattr(generation_cycle, "_select_value_method", lambda **_kwargs: replayed)
+    
+        candidate = _avg_income_candidate()
+        simulation = _simulation(
+            _world_record(), candidate_id="candidate_avg_income_real"
+        )
+        observation = FoundryValuePort(
+>           evaluation_context=_simulation_execution_context(
+                candidate=candidate,
+                simulation=simulation,
+                problem=problem,
+            ),
+            repo_root=Path.cwd(),
+        )(
+            candidate=candidate,
+            simulation=simulation,
+            problem=problem,
+            cycle_index=0,
+        )
+
+tests/unit/runtime/quality/test_value_gate.py:2958: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/runtime/quality/test_value_gate.py:170: in _simulation_execution_context
+    return simulation_value_execution_context(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def simulation_value_execution_context(
+        *,
+        candidate: object,
+        simulation: SimulationPortObservation,
+        problem: DesignProblem,
+        artifact_store: ArtifactStore | None = None,
+    ) -> EvaluationExecutionContext:
+        """Build an explicit certificate-free context from the actual N5 output."""
+    
+        input_ref = simulation_evaluation_input_ref(simulation, artifact_store=artifact_store)
+        world = simulation.world_model_record
+        if input_ref is None or world is None:
+>           raise ValueError("eval_safety_simulation_input_unresolved")
+E           ValueError: eval_safety_simulation_input_unresolved
+
+src/polisyos/runtime/quality/generation_cycle.py:4806: ValueError
+___________ test_value_port_rejects_unowned_method_selection_receipt ___________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x139233ee0>
+
+    def test_value_port_rejects_unowned_method_selection_receipt(
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        from polisyos.runtime.quality import generation_cycle
+    
+        monkeypatch.setattr(
+            generation_cycle,
+            "_select_value_method",
+            lambda **_kwargs: {
+                "status": "selected",
+                "selected_method_fqn": "bayesian.regression.linear_regression@1.0.0",
+                "selection_source": "caller_asserted_advisor",
+                "denominator": ("bayesian.regression.linear_regression@1.0.0",),
+                "score_trace": (),
+                "blockers": (),
+            },
+        )
+    
+        problem = _avg_income_problem()
+        candidate = _avg_income_candidate()
+        simulation = _simulation(
+            _world_record(), candidate_id="candidate_avg_income_real"
+        )
+        observation = FoundryValuePort(
+>           evaluation_context=_simulation_execution_context(
+                candidate=candidate,
+                simulation=simulation,
+                problem=problem,
+            ),
+            repo_root=Path.cwd(),
+        )(
+            candidate=candidate,
+            simulation=simulation,
+            problem=problem,
+            cycle_index=0,
+        )
+
+tests/unit/runtime/quality/test_value_gate.py:3052: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/runtime/quality/test_value_gate.py:170: in _simulation_execution_context
+    return simulation_value_execution_context(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def simulation_value_execution_context(
+        *,
+        candidate: object,
+        simulation: SimulationPortObservation,
+        problem: DesignProblem,
+        artifact_store: ArtifactStore | None = None,
+    ) -> EvaluationExecutionContext:
+        """Build an explicit certificate-free context from the actual N5 output."""
+    
+        input_ref = simulation_evaluation_input_ref(simulation, artifact_store=artifact_store)
+        world = simulation.world_model_record
+        if input_ref is None or world is None:
+>           raise ValueError("eval_safety_simulation_input_unresolved")
+E           ValueError: eval_safety_simulation_input_unresolved
+
+src/polisyos/runtime/quality/generation_cycle.py:4806: ValueError
+=========================== short test summary info ============================
+FAILED tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py::test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback
+FAILED tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py::test_recursive_constructor_denominator_has_no_unwrapped_n9_call
+FAILED tests/unit/runtime/quality/test_value_gate.py::test_value_port_selects_then_routes_missing_owner_assignment_to_acquisition
+FAILED tests/unit/runtime/quality/test_value_gate.py::test_n8_value_port_accepts_recomputed_foundry_receipt_context
+FAILED tests/unit/runtime/quality/test_value_gate.py::test_value_port_rejects_selection_receipt_replayed_from_other_owner_profile
+FAILED tests/unit/runtime/quality/test_value_gate.py::test_value_port_rejects_unowned_method_selection_receipt
+6 failed, 92 passed in 230.94s (0:03:50)

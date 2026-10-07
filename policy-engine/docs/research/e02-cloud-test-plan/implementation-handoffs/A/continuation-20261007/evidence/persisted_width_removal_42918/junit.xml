@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="11.863" timestamp="2026-10-07T15:28:45.088859+03:00" hostname="MacBook-Air-Denis.local"><testcase classname="tests.unit.runtime.quality.test_e02_candidate_occurrence_readback" name="test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback" time="0.166"><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">tmp_path = PosixPath('/Users/deniskopylov/.codex/worktrees/e02-a-delivery-attached/polisyos/policy-engine/_build/e02-A-continuation-20261007/persisted-width-removal-42918/pytest-basetemp/test_latest_candidate_occurren0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x13b6b9a70&gt;
+
+    @pytest.mark.asyncio
+    async def test_latest_candidate_occurrence_survives_cas_replay_and_pre_n9_readback(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -&gt; None:
+        """Replay both fixture appearances and bind only the latest through CAS owners.
+    
+        The opaque hashes and test grounding/value/completion fixtures establish no
+        source provenance, N5 truth, or deployment-currentness claim. The observed
+        refusal is the real pre-N9 policy-admission gate; no signed N9 admission is
+        required for this B28 occurrence-binding witness.
+        """
+    
+        problem = _problem("same_subject_persisted_occurrence")
+        problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+        root_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
+        graph = derive_recursive_design_graph(
+            design_ref=root_ref,
+            module_refs=(),
+            parent_child_edges=(),
+            rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
+        )
+        generator = _SameCandidateNewBasisGenerator()
+        recursive = RecursiveGenerationCycleController.for_contract_testing(
+            repo_root=REPO_ROOT,
+            cycle_controller_factory=lambda _node_ref, _problem: GenerationCycleController(
+                generation_port=generator,
+                grounding_port=_CurrentValidOnSecondCycleGrounding(),
+                value_port=_ReadyValuePort(),
+                repo_root=REPO_ROOT,
+            ),
+        )
+        recursive_run = await recursive.run(
+            graph,
+            problems_by_node={root_ref: problem},
+            budget_state=_budget(),
+            recursive_budget=RecursiveCycleBudget(
+                max_depth=0,
+                max_nodes=1,
+                min_cycles_per_leaf=2,
+                max_cycles_per_leaf=2,
+            ),
+        )
+        leaf_runs = tuple(
+            node.cycle_run
+            for node in recursive_run.leaf_nodes
+            if node.cycle_run is not None
+        )
+        assert len(leaf_runs) == 1
+        produced_run = leaf_runs[0]
+        assert produced_run.terminal_status == "completed"
+        assert tuple(
+            (row.candidate_id, row.content_hash, row.cycle_index)
+            for row in produced_run.candidate_summaries
+        ) == (
+            ("candidate_same_subject", "sha256:" + "1" * 64, 0),
+            ("candidate_same_subject", "sha256:" + "2" * 64, 1),
+        )
+&gt;       _assert_modern_value_receipt_roundtrips(produced_run)
+
+tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py:298: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+run = GenerationCycleRun(schema_version='policyos.runtime.generation_cycle_controller.v4', run_id='generation_cycle_ee246ca7...e-deployment:sha256:f3dcecdac76e7c9257099d288b6597fc73a7d8bf79b9eb638276c2d8b8e5a489', deployment_identity_reason=None)
+
+    def _assert_modern_value_receipt_roundtrips(run: GenerationCycleRun) -&gt; None:
+        """Exercise real root and cycle receipts through modern v3/v4 readers."""
+    
+        spec = canon.CanonSpec(forbid_floats=False)
+        versions = (
+            ("v3", "policyos.runtime.generation_cycle_controller.v3"),
+            ("v4", "policyos.runtime.generation_cycle_controller.v4"),
+        )
+        for version, schema_version in versions:
+            # Keep the owner-emitted run and all actual value receipts. The v3
+            # projection only removes the v4-only source-custody limitation.
+            updates: dict[str, Any] = {"schema_version": schema_version}
+            if version != "v4":
+                updates["source_custody_limitation"] = None
+            versioned_run = run.model_copy(update=updates)
+            run_payload = versioned_run.model_dump(mode="json")
+            run_bytes = canon.to_canonical_bytes(run_payload, spec)
+            decoded_run = canon.from_canonical_bytes(run_bytes)
+            assert isinstance(decoded_run, dict), version
+            replayed_run = GenerationCycleRun.from_persisted_payload(decoded_run)
+            assert (
+                canon.to_canonical_bytes(replayed_run.model_dump(mode="json"), spec)
+                == run_bytes
+            ), version
+    
+            receipt_locations: list[tuple[str, tuple[str | int, ...]]] = [
+                ("root", ("value_port", "value_receipt")),
+            ]
+            receipt_locations.extend(
+                (f"cycle-{index}", ("cycles", index, "value_port", "value_receipt"))
+                for index in range(len(run_payload["cycles"]))
+            )
+            assert len(receipt_locations) == 1 + len(run_payload["cycles"]), version
+    
+            for label, path in receipt_locations:
+                receipt_payload = _mapping_at_path(run_payload, path)
+                outer_payload = receipt_payload["value_outer_set"]
+                assert "width" in outer_payload, (version, label)
+                receipt_bytes = canon.to_canonical_bytes(receipt_payload, spec)
+                decoded_receipt = canon.from_canonical_bytes(receipt_bytes)
+                assert isinstance(decoded_receipt, dict), (version, label)
+                receipt = ValueGateReceipt.from_persisted_payload(decoded_receipt)
+                assert (
+                    canon.to_canonical_bytes(receipt.model_dump(mode="json"), spec)
+                    == receipt_bytes
+                ), (version, label)
+    
+                live_outer_payload = copy.deepcopy(outer_payload)
+                if "width" not in live_outer_payload:
+                    live_outer_payload["width"] = [
+                        max(0.0, round(float(upper) - float(lower), 12))
+                        for lower, upper in zip(
+                            live_outer_payload["lower"],
+                            live_outer_payload["upper"],
+                            strict=True,
+                        )
+                    ]
+                with pytest.raises(ValidationError) as live_width_error:
+                    ValueOuterSet.model_validate(live_outer_payload)
+                assert any(
+                    "value_outer_set_width_supplied_not_derived" in issue["msg"]
+                    for issue in live_width_error.value.errors()
+                ), (version, label)
+    
+                negative_cases = (
+                    ("tampered_width", _set_width((1.0,)), "value_outer_set_width_tampered"),
+                    ("boolean_width", _set_width((False,)), "value_outer_set_width_tampered"),
+                    ("missing_width", _remove_width, "value_outer_set_persisted_width_missing"),
+                    ("unknown_receipt_field", _add_unknown_receipt_field, "extra_forbidden"),
+                    ("unknown_value_set_field", _add_unknown_value_set_field, "extra_forbidden"),
+                )
+                for case_name, mutate, expected in negative_cases:
+                    altered_payload = copy.deepcopy(run_payload)
+                    altered_receipt = _mapping_at_path(altered_payload, path)
+                    mutate(altered_receipt)
+                    if expected == "extra_forbidden":
+                        with pytest.raises(ValidationError) as extra_error:
+                            GenerationCycleRun.from_persisted_payload(altered_payload)
+                        assert any(
+                            issue["type"] == "extra_forbidden"
+                            for issue in extra_error.value.errors()
+                        ), (version, label, case_name)
+                    else:
+&gt;                       with pytest.raises(ValueError, match=expected):
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E                       Failed: DID NOT RAISE &lt;class 'ValueError'&gt;
+
+tests/unit/runtime/quality/test_e02_candidate_occurrence_readback.py:177: Failed</failure></testcase></testsuite></testsuites>

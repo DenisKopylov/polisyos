@@ -1,0 +1,49 @@
+{
+  "command": [
+    "git",
+    "-c",
+    "merge.stat=false",
+    "merge",
+    "--ff-only",
+    "25cdea9064ddea2c3a812fd68670076bd4b088cb"
+  ],
+  "cwd": "/workspace/e02-F-cau-20261006",
+  "environment": {
+    "PYTHONPATH": "src:.",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "command_executable": "git",
+    "capture_python": "3.12.14",
+    "capture_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+  },
+  "source_begin": {
+    "head": "4d8eaec43d09d9c7df3a2ac8bd244e4d132d03f9",
+    "tree": "d24808dc3eeed4881256f2a70cdeb02357c425c7",
+    "branch": "codex/e02-F-cau-20261006",
+    "status": ""
+  },
+  "source_end": {
+    "head": "25cdea9064ddea2c3a812fd68670076bd4b088cb",
+    "tree": "ed4a4fd6864e8b60cb45124fb8e6fa9b7c503b66",
+    "branch": "codex/e02-F-cau-20261006",
+    "status": ""
+  },
+  "exit": 0,
+  "elapsed_s": 1.2045436339976732,
+  "peak_rss_platform_units": 105984,
+  "source_identity_unchanged": false,
+  "stdout": {
+    "path": "/tmp/e02-F-graph-profile-20261007/cau/append-only-root-merge.stdout",
+    "bytes": 43,
+    "sha256": "b2941098264c09ae55937ea710636dadfea240514d8c92152c5ffa4eabbd4c2c"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-graph-profile-20261007/cau/append-only-root-merge.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "replayer": {
+    "path": "/tmp/e02-F-graph-profile-20261007/cau/capture.py",
+    "bytes": 2519,
+    "sha256": "b5b0029131ec016cf570d015f34d5c29eec85b1560e6c993d7283532d5b37b7b"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "command": [
+    "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "-m",
+    "ruff",
+    "format",
+    "--check",
+    "benchmarks/natural_experiments/policy_natural_experiments.py"
+  ],
+  "cwd": "/workspace/e02-F-cau-20261006/policy-engine",
+  "environment": {
+    "PYTHONPATH": "src:.",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "command_executable": "/workspace/e02-F-closeout-20261006/policy-engine/.venv/bin/python",
+    "capture_python": "3.12.14",
+    "capture_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+  },
+  "source_begin": {
+    "head": "e1c4bb28c9d5ff936ae1c047619c56cf12ba5347",
+    "tree": "7ae6991cb8424e93b22dee4234914a6c99c88141",
+    "branch": "codex/e02-F-cau-20261006",
+    "status": ""
+  },
+  "source_end": {
+    "head": "e1c4bb28c9d5ff936ae1c047619c56cf12ba5347",
+    "tree": "7ae6991cb8424e93b22dee4234914a6c99c88141",
+    "branch": "codex/e02-F-cau-20261006",
+    "status": ""
+  },
+  "exit": 0,
+  "elapsed_s": 0.22460549499373883,
+  "peak_rss_platform_units": 22428,
+  "source_identity_unchanged": true,
+  "stdout": {
+    "path": "/tmp/e02-F-graph-profile-20261007/cau/frozen-format.stdout",
+    "bytes": 25,
+    "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+  },
+  "stderr": {
+    "path": "/tmp/e02-F-graph-profile-20261007/cau/frozen-format.stderr",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "replayer": {
+    "path": "/tmp/e02-F-graph-profile-20261007/cau/capture.py",
+    "bytes": 2519,
+    "sha256": "b5b0029131ec016cf570d015f34d5c29eec85b1560e6c993d7283532d5b37b7b"
+  }
+}

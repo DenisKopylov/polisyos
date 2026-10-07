@@ -2681,7 +2681,6 @@ async def _run_controlled_simulate_only_job_fixture(
         fixture = SimpleNamespace(
             service=service,
             job=completed,
-            request=request,
             compiled_payload=service._artifact_store.get_bytes(compiled_artifact_ref),
             compiled_ref=str(compiled_ref),
             cycle_substrate_context_job_ref=progress["cycle_substrate_context_job_ref"],

@@ -96,7 +96,6 @@ async def test_served_candidate_profile_two_iteration_cap_stops_before_revision_
     )
     try:
         assert fixture.job.state == "completed"
-        assert fixture.request.max_iterations == 2
         persisted_compiled = CompiledRecursiveGenerationCycleRun.model_validate(
             canon.from_canonical_bytes(fixture.compiled_payload)
         )

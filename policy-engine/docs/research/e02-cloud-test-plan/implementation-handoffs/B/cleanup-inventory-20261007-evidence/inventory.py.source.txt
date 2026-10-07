@@ -1,0 +1,132 @@
+"""Read-only metadata inventory; no content reads, moves, deletion or cleanup grant."""
+from __future__ import annotations
+import hashlib
+import json
+import os
+from pathlib import Path
+import stat
+import subprocess
+import sys
+import time
+from datetime import UTC, datetime
+
+OWN = Path('/workspace/e02-B-current-execution-state')
+ROOT = Path('/workspace/e02-B-current-coordination')
+RAW = ROOT / '.polisyos/e02-B-current/raw'
+OUT = Path('/tmp/e02-B-cleanup-inventory-20261007')
+EXPECTED = '050136941152ef975c7e4c393197b1575419c0af'
+LEGACY = ROOT / '.polisyos/e02-B-current/tools/final_cleanup_inventory.py'
+ACTIVE = {
+ str(ROOT / '.polisyos/e02-B-current/environment'): 'root194 environment: active/future declared native input; preserve',
+ '/tmp/e02-B38-pg-profile': 'pinned psycopg dependency target used by PostgreSQL consumers; preserve',
+ '/tmp/e02-B38-pg-evidence': 'task-owned PostgreSQL data, OCI archives, private DSN and immutable setup/evidence; preserve',
+ '/tmp/e02-B-la057-final-1862c021df74-run/installed-env': 'installed wheel environment/source profile; input/custody retained, current future use not independently settled',
+ '/workspace/e02-B-completed-architecture-1862c021df74-runtime-ml-ready/policy-engine/.venv': 'old architecture optional-backend environment; original input identity retained',
+ '/home/agent/.cache/uv': 'shared UV/wheel cache: existing task input, no ownership or cleanup authority',
+}
+BLOCK_NAMES = {'production-data','production_dataset','production-dataset','production_data','production','.git'}
+METHOD = 'One non-following os.scandir/lstat traversal per disjoint root; regular file st_size sum and all-entry st_blocks*512. Hardlinks counted as namespace entries, not globally deduplicated. Parent/child rows overlap and must never be summed as a global physical total.'
+
+def git(*args): return subprocess.check_output(['git','-C',str(OWN),*args],text=True).strip()
+def stamp(): return datetime.now(UTC).isoformat()
+def meta(path):
+ try:
+  s=path.lstat()
+ except OSError as exc:
+  return {'exists':False,'metadata_error':type(exc).__name__}
+ return {'exists':True,'mode':stat.filemode(s.st_mode),'device':s.st_dev,'inode':s.st_ino,'inode_bytes':s.st_size,'blocks_bytes':s.st_blocks*512,'links':s.st_nlink,'mtime_ns':s.st_mtime_ns,'directory':stat.S_ISDIR(s.st_mode),'symlink':stat.S_ISLNK(s.st_mode)}
+
+def main():
+ assert git('rev-parse','HEAD')==EXPECTED
+ start=stamp(); start_mono=time.monotonic()
+ worktrees=git('worktree','list','--porcelain')
+ protected=[line.removeprefix('worktree ') for line in worktrees.splitlines() if line.startswith('worktree ')]
+ top=[]; excluded_named_files=[]
+ for parent,prefix in [(Path('/tmp'),'e02-B-'),(Path('/dev/shm'),'e02-B-')]:
+  for entry in os.scandir(parent):
+   if entry.name.startswith(prefix):
+    p=Path(entry.path)
+    if entry.is_dir(follow_symlinks=False) or entry.is_symlink(): top.append(p)
+    else: excluded_named_files.append({'path':str(p),'metadata':meta(p),'purpose':'named unique evidence/tool/file; not considered repeatable fixture or deletion-eligible'})
+ selected=[RAW,*top,*(Path(p) for p in ACTIVE if p!='/home/agent/.cache/uv')]
+ selected=sorted(set(selected),key=lambda p:(len(p.parts),str(p)))
+ forest=[]
+ for p in selected:
+  if not any(p.is_relative_to(parent) for parent in forest): forest.append(p)
+ rows=[]; edges=[]; skips=[]; errors=[]; hardlinked={}; seen_roots=[]
+ def choose(path):
+  if path in selected: return True
+  if path.is_relative_to(RAW):
+   relative=path.relative_to(RAW)
+   return len(relative.parts)<=2 or (path.name in {'pytest','fixtures','installed-env','environment'} and len(relative.parts)<=5) or path.name.endswith(('-pytest','-pytests'))
+  return False
+ def describe(path,before,totals,after):
+  value=str(path)
+  if value in ACTIVE: purpose=ACTIVE[value]; classification='RETAIN_DECLARED_INPUT_OR_UNIQUE_BACKEND'
+  elif path==RAW or (path.is_relative_to(RAW) and len(path.relative_to(RAW).parts)<=2 and not path.name.endswith(('-pytest','-pytests')) and path.name not in {'pytest','fixtures'}):
+   purpose='mixed root raw inputs/evidence/admissions; never blanket eligible';classification='RETAIN_MIXED_UNIQUE_RAW'
+  elif path.name in {'pytest','fixtures'} or path.name.endswith(('-pytest','-pytests')):
+   purpose='named test-fixture directory; repeatability/custody/live-use require separate owner adjudication';classification='CANDIDATE_ONLY_UNREVIEWED_REPEATABLE_FIXTURES'
+  elif value==str(OUT): purpose='active inventory output/instrument namespace';classification='RETAIN_CURRENT_OUTPUT'
+  else: purpose='named task scratch mixes fixtures, unique effects, logs and/or environments; unique-byte custody not exhaustively reconciled';classification='RETAIN_PENDING_PURPOSE_AND_CUSTODY_REVIEW'
+  rows.append({'path':value,'classification':classification,'purpose':purpose,'uniqueness_status':'not_established: metadata cannot prove reproduction or complete Git custody; preserve unique outputs/ledger/CAS/history/projections',
+   'cleanup_eligible':False,'performed_action':'NONE/PRESERVED','measurement_method':METHOD,'metadata_before':before,'metadata_after':after,**totals,
+   'directory_entry_metadata_changed_during_walk':before.get('mtime_ns')!=after.get('mtime_ns'),
+   'live_consumer_status':'not independently established; no process/service inspection or termination',
+   'cleanup_preconditions':'No cleanup authorized. A future human/G decision needs current consumer release, exact unique-byte custody, ownership and repeatability; this inventory does not grant it.'})
+ def walk(path):
+  before=meta(path)
+  total={'regular_file_apparent_bytes':0,'all_entry_allocated_blocks_bytes':0,'entry_count':0,'regular_file_count':0,'directory_count':0,'symlink_count':0,'hardlinked_entry_count':0,'complete_for_nonfollowed_namespace':True,'excluded_subtree_count':0,'read_error_count':0}
+  if not before['exists']:
+   total['complete_for_nonfollowed_namespace']=False;total['read_error_count']=1
+  else:
+   total['entry_count']=1;total['all_entry_allocated_blocks_bytes']=before['blocks_bytes']
+   if before['symlink']:
+    total['symlink_count']=1
+    try:
+     raw_target=os.readlink(path); target=os.path.normpath(os.path.join(str(path.parent),raw_target)) if not os.path.isabs(raw_target) else raw_target
+     edges.append({'path':str(path),'link_text':raw_target,'absolute_target':target,'target_metadata_only':meta(Path(target)),'followed_for_inventory':False})
+    except OSError as exc: errors.append({'path':str(path),'operation':'readlink','error':type(exc).__name__});total['read_error_count']=1
+   elif before['directory']:
+    total['directory_count']=1
+    if path.name in BLOCK_NAMES or str(path) in protected or path==OUT:
+     total['complete_for_nonfollowed_namespace']=False;total['excluded_subtree_count']=1
+     skips.append({'path':str(path),'reason':'production/code/worktree protected name or current output namespace; no descendant walk','metadata':before})
+    else:
+     try:
+      children=list(os.scandir(path))
+     except OSError as exc:
+      children=[];errors.append({'path':str(path),'operation':'scandir','error':type(exc).__name__});total['complete_for_nonfollowed_namespace']=False;total['read_error_count']=1
+     for entry in children:
+      child=walk(Path(entry.path))
+      for key in total:
+       if key=='complete_for_nonfollowed_namespace': total[key]=total[key] and child[key]
+       else: total[key]+=child[key]
+   elif before['mode'].startswith('-'):
+    total['regular_file_count']=1;total['regular_file_apparent_bytes']=before['inode_bytes']
+    if before['links']>1:
+     total['hardlinked_entry_count']=1
+     key=(before['device'],before['inode']); item=hardlinked.setdefault(key,{'device':key[0],'inode':key[1],'reported_link_count':before['links'],'apparent_bytes_per_entry':before['inode_bytes'],'observed_path_count':0,'path_examples':[]})
+     item['observed_path_count']+=1
+     if len(item['path_examples'])<4: item['path_examples'].append(str(path))
+  after=meta(path)
+  if choose(path): describe(path,before,total,after)
+  return total
+ for p in forest:
+  totals=walk(p);seen_roots.append({'path':str(p),**totals})
+  print('INVENTORY_ROOT '+json.dumps({'path':str(p),'regular_file_apparent_bytes':totals['regular_file_apparent_bytes'],'entries':totals['entry_count'],'complete':totals['complete_for_nonfollowed_namespace']}),flush=True)
+ shared={}
+ for edge in edges: shared.setdefault(edge['absolute_target'],[]).append(edge['path'])
+ cache={'path':'/home/agent/.cache/uv','metadata':meta(Path('/home/agent/.cache/uv')),'purpose':ACTIVE['/home/agent/.cache/uv'],'method':'lstat of shared-cache directory inode only; no cache traversal or size-total claim','recursive_size_bytes':None,'cleanup_eligible':False,'performed_action':'NONE/PRESERVED'}
+ result={'schema':'policyos.e02.cleanup_inventory.readonly.v1','utc_started':start,'utc_finished':stamp(),'wall_s':time.monotonic()-start_mono,'own_source_sha':EXPECTED,'own_tree':git('rev-parse','HEAD^{tree}'),'own_head_after':git('rev-parse','HEAD'),
+ 'scope':{'root_raw':str(RAW),'tmp_named_prefix':'/tmp/e02-B-* directories/symlinks plus explicitB38 target/data','shm_named_prefix':'/dev/shm/e02-B-* directories/symlinks','legacy_script':str(LEGACY),'legacy_script_sha256':hashlib.sha256(LEGACY.read_bytes()).hexdigest(),'legacy_text_is_navigation_not_current_service_state':True},
+ 'measurement_method':METHOD,'no_global_deduplicated_total':True,'content_reads':'No inspected fixture/file content; only this task legacy inventory script and Git metadata read. Secret DSN/password files measured via lstat only, never read/printed.',
+ 'row_count':len(rows),'rows':sorted(rows,key=lambda r:r['path']),'disjoint_walk_roots':seen_roots,'shared_cache_metadata_only':cache,'symlink_edges':edges,'symlink_shared_targets':[{'target':target,'observed_links':links} for target,links in shared.items() if len(links)>1],
+ 'hardlink_namespace_groups':list(hardlinked.values()),'protected_skipped_subtrees':skips,'read_errors':errors,'excluded_named_unique_files':excluded_named_files,'registered_worktrees_all_preserved':protected,
+ 'performed_move_delete_trash_service_change':False,'cleanup_authority':'NONE: exact preserved candidates/context inventory only; no path is authorized for deletion/move/Trash.',
+ 'limitations':['Sizes are observations across the stated interval, not an atomic filesystem snapshot; changed directory metadata and read errors are explicit.','Parent/child rows overlap; hardlinks and aliases may share bytes; never sum rows or namespace totals as globally unique physical space.','No full content/hash/custody reconciliation or process-liveness claim; unique outputs, actual ledgers/CAS/backend state and active194/PG/wheel inputs remain retained.','Production-data names and registered worktree roots excluded from traversal; symlinks are never followed. SharedUVcache only metadata, recursive size not established.']}
+ assert result['own_head_after']==EXPECTED
+ output=OUT/'inventory.json'
+ with output.open('x') as stream: json.dump(result,stream,indent=2);stream.write('\n')
+ print('INVENTORY_COMPLETE '+json.dumps({'rows':len(rows),'symlinks':len(edges),'hardlink_groups':len(hardlinked),'errors':len(errors),'skipped_subtrees':len(skips),'wall_s':result['wall_s'],'performed_cleanup':False}))
+if __name__=='__main__': main()

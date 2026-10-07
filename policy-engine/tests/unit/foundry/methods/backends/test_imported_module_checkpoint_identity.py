@@ -104,6 +104,17 @@ class _BuiltinConsumer:
         return {"total": _IMPORTED_HELPERS.fabs(state)}
 
 
+class _DynamicImportConsumer:
+    signature: ClassVar = replace(_CONSUMER_SIGNATURE, name="dynamic_import_increment")
+    metadata: ClassVar = _METADATA
+
+    @staticmethod
+    def pure_step(state: int, params: dict[str, Any]) -> dict[str, int]:
+        return {
+            "total": __import__("math")._e02_b74_checkpoint_helper(state, params["effect_path"])
+        }
+
+
 def _chain(consumer: type):
     registry = MethodRegistry._create_fresh()
     registry.register(_Source)
@@ -197,7 +208,7 @@ def test_same_version_imported_member_change_refuses_before_replacement_effect(
     assert math.__name__ == original_name
     try:
         with pytest.raises((CheckpointDigestMismatchError, CheckpointIdentityError)):
-            reopened.execute(
+            wrongly_resumed = reopened.execute(
                 chain,
                 initial_state={"x": 3},
                 params_per_node=params,
@@ -205,6 +216,8 @@ def test_same_version_imported_member_change_refuses_before_replacement_effect(
                 seed=7,
                 artifact_context=context,
             )
+            # This branch exists only when the refusal property is absent.
+            print("WRONGLY_RESUMED_TOTAL", wrongly_resumed.final_state["total"])  # noqa: T201
     finally:
         # Retain the physical-effect discriminator in the deciding pytest log.
         print("REPLACEMENT_EFFECTS", effects.read_text().splitlines())  # noqa: T201
@@ -232,3 +245,40 @@ def test_unchanged_imported_builtin_has_real_cold_resume_parity(tmp_path):
     )
     assert original.final_state["total"] == resumed.final_state["total"] == 6.0
     assert path.read_bytes() == pointer
+
+
+def test_dynamic_import_is_refused_before_any_checkpoint_consumer_effect(tmp_path, monkeypatch):
+    monkeypatch.setattr(math, "_e02_b74_checkpoint_helper", _original_increment, raising=False)
+    effects = tmp_path / "dynamic-effects.txt"
+    try:
+        original, chain, params, context, checkpoint, path, reopened = _saved_prefix(
+            tmp_path, _DynamicImportConsumer, effects
+        )
+    except CheckpointIdentityError as error:
+        # The declared static graph has no identity for namespace-producing
+        # runtime lookup. Correct refusal must precede every physical body.
+        assert "source identity is unavailable" in str(error)
+        assert not effects.exists()
+        assert not (tmp_path / "checkpoints").exists()
+        return
+    # Keep the real checkpoint/resume discriminator when the unsupported cold
+    # intake was incorrectly admitted. This is not a module marker assertion.
+    assert original.final_state["total"] == 7
+    pointer = path.read_bytes()
+    monkeypatch.setattr(math, "_e02_b74_checkpoint_helper", _replacement_increment)
+    try:
+        resumed = reopened.execute(
+            chain,
+            initial_state={"x": 3},
+            params_per_node=params,
+            checkpoint=checkpoint,
+            seed=7,
+            artifact_context=context,
+        )
+    except (CheckpointDigestMismatchError, CheckpointIdentityError):
+        pytest.fail("Dynamic namespace cold intake ran despite the static-only identity profile")
+    assert path.read_bytes() == pointer
+    # Retain the counterexample's real return value and physical effects.
+    print("DYNAMIC_RESUMED_TOTAL", resumed.final_state["total"])  # noqa: T201
+    print("DYNAMIC_EFFECTS", effects.read_text().splitlines())  # noqa: T201
+    pytest.fail("Dynamic import was admitted and resumed changed imported implementation")

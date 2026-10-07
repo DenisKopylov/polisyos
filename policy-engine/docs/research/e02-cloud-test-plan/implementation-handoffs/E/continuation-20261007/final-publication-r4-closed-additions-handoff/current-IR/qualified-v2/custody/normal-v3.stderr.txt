@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/review_literal_custody.py", line 122, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/review_literal_custody.py", line 116, in main
+    source_text=Path(__file__).read_text();predicate="require(asset_binding(row,raw),'asset_custody')";require(source_text.count(predicate)==1,'one exact asset predicate')
+                                                                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-ir-G855-custody-lint-64d-20261007/review_literal_custody.py", line 15, in require
+    if not v:raise ValueError(msg)
+             ^^^^^^^^^^^^^^^^^^^^^
+ValueError: one exact asset predicate

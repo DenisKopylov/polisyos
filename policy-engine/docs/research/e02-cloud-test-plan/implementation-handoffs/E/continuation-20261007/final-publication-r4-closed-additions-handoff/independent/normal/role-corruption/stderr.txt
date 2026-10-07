@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-closed-additions-custody-independent-doe/normal/immutable-copy-closed-additions.py.txt", line 102, in <module>
+    rows = check_manifest(manifest)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/e02-E-closed-additions-custody-independent-doe/normal/immutable-copy-closed-additions.py.txt", line 98, in check_manifest
+    require(Counter(actual_members) == Counter(expected_members), 'exact anchored original selected-member multiset')
+  File "/tmp/e02-E-closed-additions-custody-independent-doe/normal/immutable-copy-closed-additions.py.txt", line 20, in require
+    raise ValueError(reason)
+ValueError: exact anchored original selected-member multiset

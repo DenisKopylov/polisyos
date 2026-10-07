@@ -1,0 +1,110 @@
+"""Materialize the fixed staged subset into a new dedicated evidence prefix."""
+import argparse
+from collections import Counter
+import hashlib
+import json
+from pathlib import Path
+PREFIX = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-additions'
+EXPECTED_SELECTORS = {'frontend': {'bytes': 28210, 'sha256': 'e426af773e3833e8dc89fd86bc25ee3dbbc205fa4289dc3c0b15d4fb720c6acf', 'source_path': '/tmp/e02-E-frontend-retry-analysis-64d/publication-selection.json'}, 'http-attribution': {'bytes': 3311, 'sha256': '404b4481a90f3cb5be64b2a5b99e3fd126c0fba1e6216dca7a068a27d2900e61', 'source_path': '/tmp/e02-E-http-error-independent-64d/publication-selection-final.json'}, 'cycleboard-retry': {'bytes': 3666, 'sha256': '69b315df4109cb27d15f0ace61f26e4c8be1f01d492dfa2dd5f20f266574f4a0', 'source_path': '/tmp/e02-E-http-cycle-board-retry-64d-20261007-1110/publication-selection-final.json'}, 'cleanup-ci11': {'bytes': 2339, 'sha256': '20ee5fe7b1b1b5c8f97135e350dd3507de9618187e67bee21e77d3722e419d82', 'source_path': '/tmp/e02-E-capacity-cleanup-20261007-doe/closed-ci11-generated-site/publication-selection.json'}, 'catalog-owner': {'bytes': 57973, 'sha256': '279bea54f3a313f42b103d6f064bde6bc9364128a5a31236fbc106c4d1e090ad', 'source_path': '/tmp/e02-E-native-catalog-fixture-packet-64d-20261007/publication-selection-v2.json'}, 'catalog-independent': {'bytes': 22017, 'sha256': 'f695a3fd5c47a63c6fc34b2ead2ad2ef6d4ddd3faf1e3daec51e39673f9eca4e', 'source_path': '/tmp/e02-E-native-catalog-packet-independent-64d/publication-selection-final-v2.json'}}
+parser = argparse.ArgumentParser()
+parser.add_argument('--manifest', type=Path, required=True)
+parser.add_argument('--destination-root', type=Path, required=True)
+args = parser.parse_args()
+manifest = json.loads(args.manifest.read_text())
+
+def require(value, reason):
+    if not value:
+        raise ValueError(reason)
+
+def check_manifest(value):
+    require(value['proposed_git_prefix'] == PREFIX + '/', 'fixed destination prefix')
+    require(value['verification_source'] == '64d7444a18c55df7b88b71b7699a2f1b25ca24bd', 'frozen source identity')
+    require(value['verification_tree'] == 'aef23574d3162abb19bf5a1c67d02624ff9d4d1d', 'frozen source tree identity')
+    rows = value['canonical_copies']
+    require(value['unique_payload_files'] == len(rows), 'unique file denominator')
+    require(value['unique_payload_bytes'] == sum((row['bytes'] for row in rows)), 'unique byte denominator')
+    require(value['logical_count_including_selectors'] == len(value['logical_sources']), 'logical file denominator')
+    require(value['logical_bytes_including_selectors'] == sum((row['source_bytes'] for row in value['logical_sources'])), 'logical byte denominator')
+    require(value['deduplicated_logical_aliases'] == sum((row['literal_alias'] for row in value['logical_sources'])), 'alias denominator')
+    paths = set()
+    by_path = {}
+    for row in rows:
+        path = Path(row['portable_path'])
+        require(not path.is_absolute() and '..' not in path.parts and (path.as_posix() == row['portable_path']), 'portable destination path')
+        require(not path.name.endswith('.py'), 'no active Python files')
+        require(path.as_posix() not in paths, 'unique destination path')
+        paths.add(path.as_posix())
+        by_path[path.as_posix()] = row
+        data = Path(row['staged_path']).read_bytes()
+        require(len(data) == row['bytes'] and hashlib.sha256(data).hexdigest() == row['sha256'], 'literal staged hash and size')
+    for row in value['logical_sources']:
+        target = by_path[row['canonical_destination']]
+        require((target['bytes'], target['sha256']) == (row['source_bytes'], row['source_sha256']), 'alias content binding')
+        require(row['proposed_git_path'] == PREFIX + '/' + row['canonical_destination'], 'alias Git path binding')
+    inputs = value['selection_inputs']
+    require(len(inputs) == len(EXPECTED_SELECTORS) and {row['family'] for row in inputs} == set(EXPECTED_SELECTORS), 'exact original selector set')
+    expected_members = []
+    for item in inputs:
+        family = item['family']
+        anchor = EXPECTED_SELECTORS[family]
+        require((item['bytes'], item['sha256'], item['selection_source_path']) == (anchor['bytes'], anchor['sha256'], anchor['source_path']), 'original selector identity')
+        matches = [row for row in value['logical_sources'] if row['family'] == 'selectors' and row['source_path'] == anchor['source_path']]
+        require(len(matches) == 1, 'each anchored selector must be present once')
+        carrier = by_path[matches[0]['canonical_destination']]
+        raw_selector = Path(carrier['staged_path']).read_bytes()
+        require(len(raw_selector) == anchor['bytes'] and hashlib.sha256(raw_selector).hexdigest() == anchor['sha256'], 'literal original staged selector')
+        selected = json.loads(raw_selector)
+        members = selected['assets'] + selected.get('identical_byte_aliases', []) if family == 'frontend' else selected['assets']
+        require(item['selected_member_count'] == len(members) and item['selected_member_bytes'] == sum((row['bytes'] for row in members)), 'selector-derived member denominator')
+        source_base = Path(anchor['source_path']).parent
+        for member in members:
+            source_path = member.get('source_path', member.get('path'))
+            if member.get('portable_path', member.get('destination')):
+                relative = Path(member.get('portable_path', member.get('destination')))
+            else:
+                try:
+                    relative = Path(source_path).relative_to(source_base)
+                except ValueError:
+                    relative = Path('actual-execution') / Path(*Path(source_path).parts[-3:])
+            if relative.name.endswith('.py'):
+                relative = relative.with_name(relative.name + '.txt')
+            expected_members.append((family, source_path, member['bytes'], member['sha256'], (Path(family) / relative).as_posix(), member.get('role'), member.get('stored_at'), member.get('same_bytes_as')))
+        expected_members.append(('selectors', anchor['source_path'], anchor['bytes'], anchor['sha256'], 'selectors/' + family + '-selection.json', None, None, None))
+        if family == 'frontend':
+            primaries = {row['portable_path']: row for row in selected['assets']}
+            for alias in selected.get('identical_byte_aliases', []):
+                primary = primaries[alias['same_bytes_as']]
+                require((primary['bytes'], primary['sha256']) == (alias['bytes'], alias['sha256']), 'frontend explicit alias content identity')
+        if family in ('catalog-owner', 'catalog-independent'):
+            stored = {row['destination']: row for row in selected['assets']}
+            for alias in selected['assets']:
+                primary = stored[alias['stored_at']]
+                require((primary['bytes'], primary['sha256']) == (alias['bytes'], alias['sha256']), 'catalog stored-at alias content identity')
+    require(set(by_path) == {row['canonical_destination'] for row in value['logical_sources']}, 'no orphan canonical copy')
+    seen_content = {}
+    for row in value['logical_sources']:
+        content = (row['source_bytes'], row['source_sha256'])
+        expected_alias = content in seen_content
+        require(row['literal_alias'] is expected_alias, 'recomputed literal alias state')
+        if not expected_alias:
+            seen_content[content] = row['logical_destination']
+        require(row['canonical_destination'] == seen_content[content], 'canonical first-content destination')
+    require(len(seen_content) == len(rows), 'one canonical copy per unique content')
+    actual_members = [(row['family'], row['source_path'], row['source_bytes'], row['source_sha256'], row['logical_destination'], row.get('declared_role'), row.get('declared_stored_at'), row.get('declared_same_bytes_as')) for row in value['logical_sources']]
+    require(True, 'exact anchored original selected-member multiset')
+    return rows
+rows = check_manifest(manifest)
+require(args.destination_root.is_absolute(), 'destination root must be absolute')
+target = args.destination_root / PREFIX
+require(not target.exists(), 'refuse overwriting any existing evidence prefix')
+for row in rows:
+    destination = target / row['portable_path']
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    data = Path(row['staged_path']).read_bytes()
+    destination.write_bytes(data)
+    require(destination.read_bytes() == data, 'written literal content readback')
+for name in ('manifest.json', 'README.md', 'copy-closed-additions.py.txt', 'build-stage.py.txt', 'build.stdout.json', 'build.stderr.txt'):
+    source = args.manifest.parent / name
+    data = source.read_bytes()
+    (target / name).write_bytes(data)
+print(json.dumps({'schema': 'policyos.e02.proposed_subset_materialization.v1', 'destination': str(target), 'unique_literal_payload_files': len(rows), 'unique_literal_payload_bytes': sum((row['bytes'] for row in rows)), 'metadata_files': 6, 'active_python': 0, 'source_tests_gate_numeric_execution': False, 'scope': 'Ready fixed subset only; RUNNING backend/final supplement/current361 are excluded'}, indent=2))

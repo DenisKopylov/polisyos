@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-closed-additions-publication-r4-stage/build-handoff.py.txt", line 81, in <module>
+    'negative_controls':{'count_per_mode':10,'normal_argv_and_output':'independent/normal/independent-review.json#actual_cli_controls','optimized_argv_and_output':'independent/optimized/independent-review.json#actual_cli_controls','cases':[r['name'] for r in normal['actual_cli_controls'] if r['exit_code']!=0],'actual_outcome':'each corrupt/omission CLI exits1 before any destination creation'},
+                                                                                                                                                                                                                                                                                                    ~^^^^^^^^^^^^^
+KeyError: 'exit_code'

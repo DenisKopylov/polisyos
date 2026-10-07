@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "python3",
+    "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-owner-inputs/legal_presence_probe.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+  "exit_code": 0,
+  "stdin": null,
+  "source_script_sha256": "bdcf5984fb0ac7574cb293ab79a26714006f93865ea825a04808a3dadf16031e",
+  "stdout_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-owner-inputs/legal-paired-input-presence.json",
+  "stdout_sha256": "20b193a6c45f59b4e27fd02d62073adad4befd94e2462b28faf6bb3ea04c1085",
+  "stderr_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-owner-inputs/legal-presence.stderr.txt",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "first_nondeciding_observation_preserved": ".tmp/e02-C5/raw/intake/legal-paired-input-presence-initial.json@1ef9371f9227e8dfbb1521a0bc86bff1f63e2928fe104c703eff0a1f08172f52"
+}

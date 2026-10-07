@@ -1,0 +1,62 @@
+{
+  "schema": "policyos.e02.c5.legal-paired-input-presence.v1",
+  "captured_at_utc": "2026-10-07T19:15:57.302080+00:00",
+  "operation": "lstat of exact selected DB/index directory paths only",
+  "db_payload_or_row_reads": false,
+  "db_hash_computed": false,
+  "profile_assumed": false,
+  "membership_digest": "not_established: no selected generation at inspected paths",
+  "paths": [
+    {
+      "path": "/Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb",
+      "present": true,
+      "mode": "0o444",
+      "bytes": 19336278016,
+      "mtime_ns": 1777622991000000000,
+      "inode": 42883250,
+      "device": 16777231,
+      "symlink": false
+    },
+    {
+      "path": "/Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/.legal_embedding_generations/lex_entity_embeddings/embedding_generation.json",
+      "present": false
+    },
+    {
+      "path": "/Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_entity_embeddings.npz",
+      "present": false
+    },
+    {
+      "path": "/Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_entity_index.hnsw",
+      "present": false
+    },
+    {
+      "path": "/Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/.legal_embedding_generations/lex_fact_embeddings/embedding_generation.json",
+      "present": false
+    },
+    {
+      "path": "/Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_fact_embeddings.npz",
+      "present": false
+    },
+    {
+      "path": "/Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_fact_index.hnsw",
+      "present": false
+    },
+    {
+      "path": "/Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/.legal_embedding_generations/lex_provision_embeddings/embedding_generation.json",
+      "present": false
+    },
+    {
+      "path": "/Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_provision_embeddings.npz",
+      "present": false
+    },
+    {
+      "path": "/Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/lex_provision_index.hnsw",
+      "present": false
+    },
+    {
+      "path": "/Users/deniskopylov/polisyos/policy-engine/production_data/lex/lex-amendment-only-optimized-20260501-v3/finalize/manifests/embed_local.json",
+      "present": false
+    }
+  ],
+  "scope": "Selected bundle and DB-parent index layout; no global model/corpus absence claim. C60 fixture query binding does not supply production paired inputs."
+}

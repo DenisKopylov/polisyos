@@ -1274,8 +1274,8 @@
   },
   "c4_input": {
     "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-c4-current-root-adjudication-input.json",
-    "sha256": "d653f8ea97550c7acd17bfb49c73d4fe6408f66aa685f4d03c7a6b35c904c3ca",
-    "bytes": 83772,
+    "sha256": "2a28e729aeb7ef02740745a3a73c4dbbcf7af4464c567a98547f1b6ca23ac93d",
+    "bytes": 83777,
     "schema": "policyos.e02.c54.c4.current-root-adjudication-input.v2"
   },
   "pointer_validation": {
@@ -3334,7 +3334,7 @@
         "current_status": "current_root_adjudicated",
         "scoped_proven_part": "Each source artifact is copied to a private per-run temporary file before first yield. Streaming and fallback read that same copy; a row offset plus confirmed metric-frame ordinal resumes after a reader error and retains the prefix without duplicate observation IDs.",
         "missing_input_or_skipped_backend": "The cited handoff does not name a finding-specific missing input or skipped backend; see remaining verification for bounded limitations.",
-        "next_action": "G integration reviewer: record _iter_observation_metric_frames using a private immutable per-source snapshot before first yield; confirm row_offset plus confirmed metric-frame ordinal resume before/after yield and between metrics; check D2 downstream shards, counters, and no duplicate observation IDs. Ensure mask, schema, and semantic errors do not become format-fallback events.",
+        "next_action": "G integration reviewer: record _iter_observation_metric_frames using a private immutable per-source snapshot before first yield; confirm row_offset plus confirmed metric-frame ordinal resume before/after yield and between metrics; check D2 downstream shards, counters, and no duplicate observation IDs. Ensure admission, schema, and semantic errors do not become format-fallback events.",
         "next_action_source_pointer": "/root_current_adjudications/B147/next_action",
         "next_owner_source_pointer": "/root_current_adjudications/B147/next_owner",
         "evidence_classification": "unchanged_source_prior_criterion_evidence_reviewed",

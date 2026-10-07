@@ -510,7 +510,7 @@
       "value": "closed",
       "basis": "unchanged_source_prior_criterion_evidence_reviewed",
       "reason": "Closed for the original bounded criterion after reviewing unchanged_source_prior_criterion_evidence_reviewed: Each source artifact is copied to a private per-run temporary file before first yield. Streaming and fallback read that same copy; a row offset plus confirmed metric-frame ordinal resumes after a reader error and retains the prefix without duplicate observation IDs. This disposition does not assign G formal closure.",
-      "next_action": "G integration reviewer: record _iter_observation_metric_frames using a private immutable per-source snapshot before first yield; confirm row_offset plus confirmed metric-frame ordinal resume before/after yield and between metrics; check D2 downstream shards, counters, and no duplicate observation IDs. Ensure mask, schema, and semantic errors do not become format-fallback events.",
+      "next_action": "G integration reviewer: record _iter_observation_metric_frames using a private immutable per-source snapshot before first yield; confirm row_offset plus confirmed metric-frame ordinal resume before/after yield and between metrics; check D2 downstream shards, counters, and no duplicate observation IDs. Ensure admission, schema, and semantic errors do not become format-fallback events.",
       "next_owner": "G integration reviewer for B147"
     },
     "B17": {

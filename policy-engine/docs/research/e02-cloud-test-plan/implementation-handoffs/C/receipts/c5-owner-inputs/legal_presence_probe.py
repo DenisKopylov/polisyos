@@ -9,6 +9,7 @@ from pathlib import Path
 
 
 def main() -> None:
+    """Print metadata for the exact selected local paths without opening payloads."""
     db = Path(
         "/Users/deniskopylov/polisyos/policy-engine/production_data/lex/"
         "lex-amendment-only-optimized-20260501-v3/finalize/lex_knowledge_graph.duckdb"
@@ -46,11 +47,11 @@ def main() -> None:
                 "symlink": path.is_symlink(),
             }
         )
-    print(
+    print(  # noqa: T201 - This standalone observer emits its JSON receipt on stdout.
         json.dumps(
             {
                 "schema": "policyos.e02.c5.legal-paired-input-presence.v1",
-                "captured_at_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                "captured_at_utc": datetime.datetime.now(datetime.UTC).isoformat(),
                 "operation": "lstat of exact selected DB/index directory paths only",
                 "db_payload_or_row_reads": False,
                 "db_hash_computed": False,

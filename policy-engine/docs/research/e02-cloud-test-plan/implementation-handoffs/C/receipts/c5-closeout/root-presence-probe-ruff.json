@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "/Users/deniskopylov/polisyos/policy-engine/.venv/bin/python",
+    "-m",
+    "ruff",
+    "check",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c5-owner-inputs/legal_presence_probe.py"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+  "exit_code": 0,
+  "stdout": "root-presence-probe-ruff.stdout",
+  "stdout_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+  "stderr": "root-presence-probe-ruff.stderr",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "source_scope": "Only Root local-presence observer script; CLI print is deliberate with rule annotation; UTC alias/docstring style fixed. No payload or new source presence observation run.",
+  "prior_lint": "Initial uncaptured-to-file lint was Root-owned T201+UP017, not inherited. Its output remains in session record.",
+  "historical_probe": "Original executed script and exact observation stay bound to immutable2a/C5decision-source; command metadata is not retroactively rewritten.",
+  "updated_source_sha256": "1dd06915e2e35b05fdb8bad56037db95e6b7e944e9d6a554d3a43c459ebcdb23"
+}

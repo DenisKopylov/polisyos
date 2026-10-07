@@ -1,0 +1,282 @@
+============================= test session starts ==============================
+platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0 -- /workspace/polisyos/policy-engine/.venv/bin/python
+hypothesis profile 'polisyos' -> database=DirectoryBasedExampleDatabase(PosixPath('/workspace/e02-B-current-composition/policy-engine/_cache/hypothesis'))
+benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
+test taxonomy enabled; active pytest quarantines=0
+rootdir: /workspace/e02-B-current-composition/policy-engine
+configfile: pytest.ini
+plugins: anyio-4.12.0, hypothesis-6.151.2, jaxtyping-0.3.4, langsmith-0.6.0, asyncio-1.3.0, benchmark-5.2.3, xdist-3.8.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 109 items
+
+tests/unit/foundry/methods/backends/test_module_source_identity.py::test_same_version_imported_member_change_refuses_actual_stale_prefix PASSED [  0%]
+tests/unit/foundry/methods/backends/test_module_source_identity.py::test_unchanged_imported_builtin_retains_actual_arithmetic_resume PASSED [  1%]
+tests/unit/foundry/methods/backends/test_module_source_identity.py::test_selected_constant_and_nested_module_are_bound_before_resume[_ImportedConstantSource] PASSED [  2%]
+tests/unit/foundry/methods/backends/test_module_source_identity.py::test_selected_constant_and_nested_module_are_bound_before_resume[_NestedSource] PASSED [  3%]
+tests/unit/foundry/methods/backends/test_module_source_identity.py::test_selected_constant_and_nested_module_are_bound_before_resume[_NestedFunctionSource] PASSED [  4%]
+tests/unit/foundry/methods/backends/test_module_source_identity.py::test_unselected_module_member_does_not_invalidate_real_prefix PASSED [  5%]
+tests/unit/foundry/methods/backends/test_module_source_identity.py::test_unsupported_module_access_refuses_before_actual_dispatch[_ReflectiveSource] PASSED [  6%]
+tests/unit/foundry/methods/backends/test_module_source_identity.py::test_unsupported_module_access_refuses_before_actual_dispatch[_TransportSource] PASSED [  7%]
+tests/unit/foundry/methods/backends/test_module_source_identity.py::test_unsupported_module_access_refuses_before_actual_dispatch[_MutableModuleSource] PASSED [  8%]
+tests/unit/foundry/methods/backends/test_module_source_identity.py::test_unsupported_module_access_refuses_before_actual_dispatch[_DynamicImportSource] PASSED [  9%]
+tests/unit/foundry/methods/backends/test_module_source_identity.py::test_unsupported_module_access_refuses_before_actual_dispatch[_LocalImportSource] PASSED [ 10%]
+tests/unit/foundry/methods/backends/test_module_source_identity.py::test_unsupported_module_access_refuses_before_actual_dispatch[_NamespaceSource] PASSED [ 11%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_actual_registry_source_or_abi_replacement_refuses_original_history[source] PASSED [ 11%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_actual_registry_source_or_abi_replacement_refuses_original_history[abi] PASSED [ 12%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_unrelated_registration_preserves_exact_effective_checkpoint_request PASSED [ 13%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_exact_selected_artifact_view_resumes_real_required_suffix_and_joint_generation PASSED [ 14%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_actual_cas_identity_change_refuses_before_required_suffix[input-content] PASSED [ 15%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_actual_cas_identity_change_refuses_before_required_suffix[input-view] PASSED [ 16%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_actual_cas_identity_change_refuses_before_required_suffix[config-content] PASSED [ 17%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_actual_cas_identity_change_refuses_before_required_suffix[config-origin] PASSED [ 18%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_actual_cas_identity_change_refuses_before_required_suffix[same-content-new-origin] PASSED [ 19%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_actual_cas_identity_change_refuses_before_required_suffix[dependency] PASSED [ 20%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_actual_cas_identity_change_refuses_before_required_suffix[cache-content] PASSED [ 21%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_actual_cas_identity_change_refuses_before_required_suffix[cache-view] PASSED [ 22%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_actual_cas_identity_change_refuses_before_required_suffix[input-role] PASSED [ 22%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_actual_cas_identity_change_refuses_before_required_suffix[legacy-profile] PASSED [ 23%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_protected_checkpoint_refuses_changed_actual_ambient_scope[scope0] PASSED [ 24%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_protected_checkpoint_refuses_changed_actual_ambient_scope[scope1] PASSED [ 25%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_strict_unestablished_ref_identity_refuses_before_any_dispatch[no-store] PASSED [ 26%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_strict_unestablished_ref_identity_refuses_before_any_dispatch[selector-missing] PASSED [ 27%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_strict_unestablished_ref_identity_refuses_before_any_dispatch[unknown-cache-node] PASSED [ 28%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_strict_unestablished_ref_identity_refuses_before_any_dispatch[tampered-blob] PASSED [ 29%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_strict_unestablished_ref_identity_refuses_before_any_dispatch[missing-selected-view] PASSED [ 30%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_strict_unestablished_ref_identity_refuses_before_any_dispatch[forged-kind] PASSED [ 31%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_strict_unavailable_actual_source_is_typed_refusal_not_artifact_authority PASSED [ 32%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_same_source_signature_new_immutable_capture_refuses_actual_stale_output PASSED [ 33%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_source_class_attribute_change_refuses_actual_stale_output PASSED [ 33%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_actual_class_helper_replacement_refuses_stale_required_resume[static] PASSED [ 34%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_actual_class_helper_replacement_refuses_stale_required_resume[class] PASSED [ 35%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_actual_class_helper_replacement_refuses_stale_required_resume[method] PASSED [ 36%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_actual_class_helper_replacement_refuses_stale_required_resume[property] PASSED [ 37%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_actual_consumed_frozen_metadata_change_refuses_stale_resume PASSED [ 38%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_unsupported_helper_graph_refuses_before_dispatch_with_real_removal_control[custom-descriptor] PASSED [ 39%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_unsupported_helper_graph_refuses_before_dispatch_with_real_removal_control[mutable-capture] PASSED [ 40%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_unsupported_helper_graph_refuses_before_dispatch_with_real_removal_control[wrapped-function] PASSED [ 41%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_mutable_nested_frozen_metadata_is_not_immutable_source_authority PASSED [ 42%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_mutable_source_capture_is_explicit_strict_boundary PASSED [ 43%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_registry_change_during_actual_producer_uses_pinned_source_snapshot PASSED [ 44%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_actual_source_mutation_during_dispatch_cannot_ack_old_identity PASSED [ 44%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_declared_runtime_dependency_without_exact_version_refuses_strict_dispatch PASSED [ 45%]
+tests/unit/foundry/methods/backends/test_checkpoint_identity.py::test_operational_checkpoint_policy_change_reuses_actual_numerical_prefix PASSED [ 46%]
+tests/unit/foundry/methods/test_compiler_e02.py::test_real_jax_same_fqn_source_replacement_matches_cold_preserves_old_handle PASSED [ 47%]
+tests/unit/foundry/methods/test_compiler_e02.py::test_real_jax_same_class_helper_replacement_matches_cold_preserves_old_handle PASSED [ 48%]
+tests/unit/foundry/methods/test_compiler_e02.py::test_untraced_handle_refuses_helper_replacement_before_real_trace PASSED [ 49%]
+tests/unit/foundry/methods/test_compiler_e02.py::test_actual_miss_before_claim_rechecks_peer_terminal_publication PASSED [ 50%]
+tests/unit/foundry/methods/test_compiler_e02.py::test_unestablished_mutable_code_capture_is_typed_compiler_boundary PASSED [ 51%]
+tests/unit/foundry/methods/test_compiler_e02.py::test_real_materialized_dtype_reconciles_prepared_consumer_specialization[False] FAILED [ 52%]
+tests/unit/foundry/methods/test_compiler_e02.py::test_real_materialized_dtype_reconciles_prepared_consumer_specialization[True] FAILED [ 53%]
+tests/unit/foundry/methods/test_compiler_e02.py::test_actual_required_alias_runtime_uses_real_producer_output[False] PASSED [ 54%]
+tests/unit/foundry/methods/test_compiler_e02.py::test_actual_required_alias_runtime_uses_real_producer_output[True] PASSED [ 55%]
+tests/unit/foundry/methods/test_compiler_e02.py::test_real_required_compiled_alias_edge_has_no_numeric_preparation[False] PASSED [ 55%]
+tests/unit/foundry/methods/test_compiler_e02.py::test_real_required_compiled_alias_edge_has_no_numeric_preparation[True] PASSED [ 56%]
+tests/unit/foundry/methods/test_compiler.py::TestShapeSpec::test_from_array_1d PASSED [ 57%]
+tests/unit/foundry/methods/test_compiler.py::TestShapeSpec::test_from_array_2d PASSED [ 58%]
+tests/unit/foundry/methods/test_compiler.py::TestShapeSpec::test_hash_determinism PASSED [ 59%]
+tests/unit/foundry/methods/test_compiler.py::TestShapeSpec::test_hash_different_shape PASSED [ 60%]
+tests/unit/foundry/methods/test_compiler.py::TestShapeSpec::test_hash_different_dtype PASSED [ 61%]
+tests/unit/foundry/methods/test_compiler.py::TestShapeSpec::test_canonical_str PASSED [ 62%]
+tests/unit/foundry/methods/test_compiler.py::TestShapeSpec::test_ndim_and_size PASSED [ 63%]
+tests/unit/foundry/methods/test_compiler.py::TestBackendSpec::test_current_defaults_to_cpu_in_tests PASSED [ 64%]
+tests/unit/foundry/methods/test_compiler.py::TestBackendSpec::test_custom_precision PASSED [ 65%]
+tests/unit/foundry/methods/test_compiler.py::TestBackendSpec::test_hash_determinism PASSED [ 66%]
+tests/unit/foundry/methods/test_compiler.py::TestBackendSpec::test_canonical_str PASSED [ 66%]
+tests/unit/foundry/methods/test_compiler.py::TestBackendSpec::test_xla_flags_in_canonical_str PASSED [ 67%]
+tests/unit/foundry/methods/test_compiler.py::TestStaticParamsHash::test_same_dict_same_hash PASSED [ 68%]
+tests/unit/foundry/methods/test_compiler.py::TestStaticParamsHash::test_different_key_order_same_hash PASSED [ 69%]
+tests/unit/foundry/methods/test_compiler.py::TestStaticParamsHash::test_different_values_different_hash PASSED [ 70%]
+tests/unit/foundry/methods/test_compiler.py::TestStaticParamsHash::test_nested_dict_order_invariant PASSED [ 71%]
+tests/unit/foundry/methods/test_compiler.py::TestStaticParamsHash::test_float_handling PASSED [ 72%]
+tests/unit/foundry/methods/test_compiler.py::TestStaticParamsHash::test_array_handling PASSED [ 73%]
+tests/unit/foundry/methods/test_compiler.py::TestStaticParamsHash::test_array_nan_inf_handling PASSED [ 74%]
+tests/unit/foundry/methods/test_compiler.py::TestStaticParamsHash::test_hash_is_32_chars PASSED [ 75%]
+tests/unit/foundry/methods/test_compiler.py::TestSpecialization::test_build_specialization_basic PASSED [ 76%]
+tests/unit/foundry/methods/test_compiler.py::TestSpecialization::test_cache_key_determinism PASSED [ 77%]
+tests/unit/foundry/methods/test_compiler.py::TestSpecialization::test_different_fqn_different_key PASSED [ 77%]
+tests/unit/foundry/methods/test_compiler.py::TestSpecialization::test_different_static_params_different_key PASSED [ 78%]
+tests/unit/foundry/methods/test_compiler.py::TestSpecialization::test_different_shapes_different_key PASSED [ 79%]
+tests/unit/foundry/methods/test_compiler.py::TestSpecialization::test_different_dtypes_different_key PASSED [ 80%]
+tests/unit/foundry/methods/test_compiler.py::TestSpecialization::test_different_jit_setting_different_key PASSED [ 81%]
+tests/unit/foundry/methods/test_compiler.py::TestSpecialization::test_signature_summary PASSED [ 82%]
+tests/unit/foundry/methods/test_compiler.py::TestCompilationCache::test_cache_miss_then_hit PASSED [ 83%]
+tests/unit/foundry/methods/test_compiler.py::TestCompilationCache::test_lru_eviction PASSED [ 84%]
+tests/unit/foundry/methods/test_compiler.py::TestCompilationCache::test_contains PASSED [ 85%]
+tests/unit/foundry/methods/test_compiler.py::TestCompilationCache::test_invalidate PASSED [ 86%]
+tests/unit/foundry/methods/test_compiler.py::TestCompilationCache::test_clear PASSED [ 87%]
+tests/unit/foundry/methods/test_compiler.py::TestCompilationCache::test_reset_stats PASSED [ 88%]
+tests/unit/foundry/methods/test_compiler.py::TestCompilationCache::test_invalidate_all_advances_generation_and_blocks_stale_publication PASSED [ 88%]
+tests/unit/foundry/methods/test_compiler.py::TestCompilationCache::test_reset_global_cache_preserves_singleton_identity PASSED [ 89%]
+tests/unit/foundry/methods/test_compiler.py::TestMethodCompiler::test_compile_basic PASSED [ 90%]
+tests/unit/foundry/methods/test_compiler.py::TestMethodCompiler::test_compile_cache_hit PASSED [ 91%]
+tests/unit/foundry/methods/test_compiler.py::TestMethodCompiler::test_compile_retries_after_generation_invalidation PASSED [ 92%]
+tests/unit/foundry/methods/test_compiler.py::TestMethodCompiler::test_compile_cache_miss_different_static PASSED [ 93%]
+tests/unit/foundry/methods/test_compiler.py::TestMethodCompiler::test_jit_execution_correctness PASSED [ 94%]
+tests/unit/foundry/methods/test_compiler.py::TestMethodCompiler::test_no_jit_execution PASSED [ 95%]
+tests/unit/foundry/methods/test_compiler.py::TestMethodCompiler::test_static_param_changes_result PASSED [ 96%]
+tests/unit/foundry/methods/test_compiler.py::TestMethodCompiler::test_dynamic_param_changes_without_recompile PASSED [ 97%]
+tests/unit/foundry/methods/test_compiler.py::TestMethodCompiler::test_dynamic_param_unknown_key_raises PASSED [ 98%]
+tests/unit/foundry/methods/test_compiler.py::TestSingleFlight::test_single_flight_compilation PASSED [ 99%]
+tests/unit/foundry/methods/test_compiler.py::TestCompiledChainExecutor::test_chain_shape_inference_eager FAILED [100%]E02_B74_SOURCE_ORIGINS 168 5deffd11efd0bba0db6e78d47259601149d3ae0b
+
+
+=================================== FAILURES ===================================
+_ test_real_materialized_dtype_reconciles_prepared_consumer_specialization[False] _
+src/polisyos/foundry/methods/compiler/__init__.py:540: in _implementation_digest
+    "source": implementation_identity_projection(method_class),
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/artifacts/_implementation_identity.py:114: in implementation_identity_projection
+    "implementation": _project(implementation, strict=strict, visiting=set()),
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/artifacts/_implementation_identity.py:322: in _project
+    name: _project(item, strict=strict, visiting=visiting)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/artifacts/_implementation_identity.py:249: in _project
+    "function": _project(value.__func__, strict=strict, visiting=visiting),
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/artifacts/_implementation_identity.py:329: in _project
+    _module_capture(value, name, item, strict=strict, visiting=visiting)
+src/polisyos/foundry/methods/artifacts/_implementation_identity.py:211: in _module_capture
+    member = _project(current, strict=strict, visiting=visiting)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/artifacts/_implementation_identity.py:331: in _project
+    else _project(item, strict=strict, visiting=visiting)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/artifacts/_implementation_identity.py:311: in _project
+    return _unavailable(value, strict)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/artifacts/_implementation_identity.py:120: in _unavailable
+    raise SourceIdentityUnavailableError(
+E   polisyos.foundry.methods.artifacts._implementation_identity.SourceIdentityUnavailableError: source identity is unavailable for ArrayMeta
+
+The above exception was the direct cause of the following exception:
+tests/unit/foundry/methods/test_compiler_e02.py:271: in test_real_materialized_dtype_reconciles_prepared_consumer_specialization
+    compiled = compiler.compile_chain(composer.build(), sample, jit=jit)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/compiler/__init__.py:854: in compile_chain
+    compiled = self.compile(
+src/polisyos/foundry/methods/compiler/__init__.py:617: in compile
+    implementation_hash=_implementation_digest(method_class, sig),
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/compiler/__init__.py:544: in _implementation_digest
+    raise CompilationError(signature.fqn, str(exc)) from exc
+E   polisyos.foundry.methods.exceptions.CompilationError: Compilation failed for tests.compiler_e02.producer@1.0.0: source identity is unavailable for ArrayMeta
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 07:47:51 [info     ] method_registered              backend=jax fqn=tests.compiler_e02.producer@1.0.0 lazy=False namespace=tests.compiler_e02 override=False tags=['test'] version=1.0.0
+2026-10-07 07:47:51 [info     ] method_registered              backend=jax fqn=tests.compiler_e02.consumer@1.0.0 lazy=False namespace=tests.compiler_e02 override=False tags=['test'] version=1.0.0
+_ test_real_materialized_dtype_reconciles_prepared_consumer_specialization[True] _
+src/polisyos/foundry/methods/compiler/__init__.py:540: in _implementation_digest
+    "source": implementation_identity_projection(method_class),
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/artifacts/_implementation_identity.py:114: in implementation_identity_projection
+    "implementation": _project(implementation, strict=strict, visiting=set()),
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/artifacts/_implementation_identity.py:322: in _project
+    name: _project(item, strict=strict, visiting=visiting)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/artifacts/_implementation_identity.py:249: in _project
+    "function": _project(value.__func__, strict=strict, visiting=visiting),
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/artifacts/_implementation_identity.py:329: in _project
+    _module_capture(value, name, item, strict=strict, visiting=visiting)
+src/polisyos/foundry/methods/artifacts/_implementation_identity.py:211: in _module_capture
+    member = _project(current, strict=strict, visiting=visiting)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/artifacts/_implementation_identity.py:331: in _project
+    else _project(item, strict=strict, visiting=visiting)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/artifacts/_implementation_identity.py:311: in _project
+    return _unavailable(value, strict)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/artifacts/_implementation_identity.py:120: in _unavailable
+    raise SourceIdentityUnavailableError(
+E   polisyos.foundry.methods.artifacts._implementation_identity.SourceIdentityUnavailableError: source identity is unavailable for ArrayMeta
+
+The above exception was the direct cause of the following exception:
+tests/unit/foundry/methods/test_compiler_e02.py:271: in test_real_materialized_dtype_reconciles_prepared_consumer_specialization
+    compiled = compiler.compile_chain(composer.build(), sample, jit=jit)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/compiler/__init__.py:854: in compile_chain
+    compiled = self.compile(
+src/polisyos/foundry/methods/compiler/__init__.py:617: in compile
+    implementation_hash=_implementation_digest(method_class, sig),
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/compiler/__init__.py:544: in _implementation_digest
+    raise CompilationError(signature.fqn, str(exc)) from exc
+E   polisyos.foundry.methods.exceptions.CompilationError: Compilation failed for tests.compiler_e02.producer@1.0.0: source identity is unavailable for ArrayMeta
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 07:47:51 [info     ] method_registered              backend=jax fqn=tests.compiler_e02.producer@1.0.0 lazy=False namespace=tests.compiler_e02 override=False tags=['test'] version=1.0.0
+2026-10-07 07:47:51 [info     ] method_registered              backend=jax fqn=tests.compiler_e02.consumer@1.0.0 lazy=False namespace=tests.compiler_e02 override=False tags=['test'] version=1.0.0
+__________ TestCompiledChainExecutor.test_chain_shape_inference_eager __________
+src/polisyos/foundry/methods/compiler/__init__.py:540: in _implementation_digest
+    "source": implementation_identity_projection(method_class),
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/artifacts/_implementation_identity.py:114: in implementation_identity_projection
+    "implementation": _project(implementation, strict=strict, visiting=set()),
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/artifacts/_implementation_identity.py:322: in _project
+    name: _project(item, strict=strict, visiting=visiting)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/artifacts/_implementation_identity.py:249: in _project
+    "function": _project(value.__func__, strict=strict, visiting=visiting),
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/artifacts/_implementation_identity.py:329: in _project
+    _module_capture(value, name, item, strict=strict, visiting=visiting)
+src/polisyos/foundry/methods/artifacts/_implementation_identity.py:211: in _module_capture
+    member = _project(current, strict=strict, visiting=visiting)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/artifacts/_implementation_identity.py:331: in _project
+    else _project(item, strict=strict, visiting=visiting)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/artifacts/_implementation_identity.py:329: in _project
+    _module_capture(value, name, item, strict=strict, visiting=visiting)
+src/polisyos/foundry/methods/artifacts/_implementation_identity.py:211: in _module_capture
+    member = _project(current, strict=strict, visiting=visiting)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/artifacts/_implementation_identity.py:331: in _project
+    else _project(item, strict=strict, visiting=visiting)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/artifacts/_implementation_identity.py:322: in _project
+    name: _project(item, strict=strict, visiting=visiting)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/artifacts/_implementation_identity.py:254: in _project
+    "get": _project(value.fget, strict=strict, visiting=visiting),
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/artifacts/_implementation_identity.py:331: in _project
+    else _project(item, strict=strict, visiting=visiting)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/artifacts/_implementation_identity.py:294: in _project
+    return _unavailable(value, strict)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/artifacts/_implementation_identity.py:120: in _unavailable
+    raise SourceIdentityUnavailableError(
+E   polisyos.foundry.methods.artifacts._implementation_identity.SourceIdentityUnavailableError: source identity is unavailable for builtin_function_or_method
+
+The above exception was the direct cause of the following exception:
+tests/unit/foundry/methods/test_compiler.py:1044: in test_chain_shape_inference_eager
+    executor = compiler.compile_chain(chain, sample_state)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/compiler/__init__.py:854: in compile_chain
+    compiled = self.compile(
+src/polisyos/foundry/methods/compiler/__init__.py:617: in compile
+    implementation_hash=_implementation_digest(method_class, sig),
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/polisyos/foundry/methods/compiler/__init__.py:544: in _implementation_digest
+    raise CompilationError(signature.fqn, str(exc)) from exc
+E   polisyos.foundry.methods.exceptions.CompilationError: Compilation failed for fiscal.taxation.sum_tax@1.0.0: source identity is unavailable for builtin_function_or_method
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 07:47:53 [info     ] method_registered              backend=jax fqn=fiscal.taxation.sum_tax@1.0.0 lazy=False namespace=fiscal.taxation override=False tags=['test'] version=1.0.0
+2026-10-07 07:47:53 [info     ] method_registered              backend=jax fqn=fiscal.budget.revenue@1.0.0 lazy=False namespace=fiscal.budget override=False tags=['test'] version=1.0.0
+=============================== warnings summary ===============================
+../../polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428
+  /workspace/polisyos/policy-engine/.venv/lib/python3.14/site-packages/_pytest/config/__init__.py:1428: PytestConfigWarning: Unknown config option: cache_dir
+  
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+- generated xml file: /workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/candidate-5de/native.xml -
+=========================== short test summary info ============================
+FAILED tests/unit/foundry/methods/test_compiler_e02.py::test_real_materialized_dtype_reconciles_prepared_consumer_specialization[False]
+FAILED tests/unit/foundry/methods/test_compiler_e02.py::test_real_materialized_dtype_reconciles_prepared_consumer_specialization[True]
+FAILED tests/unit/foundry/methods/test_compiler.py::TestCompiledChainExecutor::test_chain_shape_inference_eager
+================== 3 failed, 106 passed, 1 warning in 12.73s ===================

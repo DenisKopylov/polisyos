@@ -1,0 +1,1423 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "current-imported-module-source-identity",
+  "owner": "/root/cmp_res_probe",
+  "closure_ids": [],
+  "finding_ids": [
+    "B74"
+  ],
+  "criterion_ids": [
+    "B74"
+  ],
+  "bundle_ids": [
+    "RES-04"
+  ],
+  "slice_base_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+  "implementation_commits": [
+    "2a2e97e1a68f7b566f8be7bab0a16f10e7bf6bfe",
+    "5bbbc90d7aa7f5bdf0c07517a17a7a03d2656197",
+    "5deffd11efd0bba0db6e78d47259601149d3ae0b",
+    "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+    "b9406000f57f6cdbff458a156142a8ca6bb95186"
+  ],
+  "implementation_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+  "candidate_tree_sha": "b6639d158cadc1d6d7f52fa5d2b4806c7918a2cf",
+  "production_source_sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+  "production_source_tree_sha": "0b7134be3ac0fa5c7cbe07d4783f6d31a65c3e3e",
+  "branch": "codex/e02-B-current-composition",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/45",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/baseline-2a/module-origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/baseline-2a/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/baseline-2a/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/baseline-2a/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/baseline-2a/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/baseline-resolution.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/candidate-5de/module-origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/candidate-5de/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/candidate-5de/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/candidate-5de/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/candidate-5de/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/candidate-eb4/module-origins.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/candidate-eb4/native.xml",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/candidate-eb4/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/candidate-eb4/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/candidate-eb4/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/fixture-closure.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/fixture-final-prefix/cas/artifacts/sha256/1f/6c/1f6cc535d545c493085d9554876926bc5d383fa72eccc2826d5ca3b8b5d8456b.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/fixture-final-prefix/cas/artifacts/sha256/1f/6c/1f6cc535d545c493085d9554876926bc5d383fa72eccc2826d5ca3b8b5d8456b.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/fixture-final-prefix/cas/artifacts/sha256/1f/6c/1f6cc535d545c493085d9554876926bc5d383fa72eccc2826d5ca3b8b5d8456b.view.d0781446623cb15730b4660e7370ed2ca39352fe447b4d3e3a1d88d7f371ba33.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/fixture-final-prefix/cas/artifacts/sha256/4e/9e/4e9e9062c4cb2d1a3310dc8b4819525800efc4f5e77f367c8e9d02870cf004ae.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/fixture-final-prefix/cas/artifacts/sha256/4e/9e/4e9e9062c4cb2d1a3310dc8b4819525800efc4f5e77f367c8e9d02870cf004ae.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/fixture-final-prefix/cas/artifacts/sha256/4e/9e/4e9e9062c4cb2d1a3310dc8b4819525800efc4f5e77f367c8e9d02870cf004ae.view.53a935e13bbbbeb42a838d3ecf0e62e36d144df455d207dd38603afe6c9860a5.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/fixture-final-prefix/cas/artifacts/sha256/50/d1/50d1cf2bfffe543934cd0ccc0d3a8c28489f7077e03514ba87464865f5a4d8b1.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/fixture-final-prefix/cas/artifacts/sha256/50/d1/50d1cf2bfffe543934cd0ccc0d3a8c28489f7077e03514ba87464865f5a4d8b1.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/fixture-final-prefix/cas/artifacts/sha256/50/d1/50d1cf2bfffe543934cd0ccc0d3a8c28489f7077e03514ba87464865f5a4d8b1.view.4b8ca8fe00bdb4d5112c9cac2a4d34cb617352cc8a712f90e837e862b1585b61.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/fixture-final-prefix/cas/artifacts/sha256/54/af/54afd0d590e6b277d9cd1ce46e5480f683682e43b6b480f7d24906d9e935e44c.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/fixture-final-prefix/cas/artifacts/sha256/54/af/54afd0d590e6b277d9cd1ce46e5480f683682e43b6b480f7d24906d9e935e44c.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/fixture-final-prefix/cas/artifacts/sha256/54/af/54afd0d590e6b277d9cd1ce46e5480f683682e43b6b480f7d24906d9e935e44c.view.896bcd82a984d8e7891171c414f6b97cba69e2b564de5bd0169995bf6a0bdfc3.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/fixture-final-prefix/cas/artifacts/sha256/82/ef/82efa4cadfd760a830325f23095d858a8288960861a180431111b7780ca6c0eb.blob",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/fixture-final-prefix/cas/artifacts/sha256/82/ef/82efa4cadfd760a830325f23095d858a8288960861a180431111b7780ca6c0eb.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/fixture-final-prefix/cas/artifacts/sha256/82/ef/82efa4cadfd760a830325f23095d858a8288960861a180431111b7780ca6c0eb.view.90007d2337069532f2676129c26e41573a24489a9943362b152fcdad96108754.manifest.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/fixture-final-prefix/checkpoints/.checkpoint_5618c4f9_0000_20261007T075208.json.generations/0596efa9b5b2456094b98d2f23711662/snapshot.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/fixture-final-prefix/checkpoints/checkpoint_5618c4f9_0000_20261007T075208.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/foreign-object-readback.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/format-eb4.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/format-eb4.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/mypy-5bb.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/mypy-5bb.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/mypy-5de.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/mypy-5de.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/mypy-eb4.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/mypy-eb4.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/native-summary.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/pytest-child.py.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/query-B74.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/query-unit-B-failures.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/ruff-eb4.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/ruff-eb4.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/run-native.py.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/run-static-corrected.py.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/run-static.py.source.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/source-binding-eb4.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/static-corrected-eb4/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/static-corrected-eb4/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/static-corrected-eb4/wrapper.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/static-eb4/invalid-empty-denominator-full.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/static-eb4/profile.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/static-eb4/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/static-eb4/wrapper.json",
+    "policy-engine/release-fragments/unreleased/2026-10-07-foundry-imported-module-identity.toml",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+    "policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py"
+  ],
+  "production_and_companion_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-07-foundry-imported-module-identity.toml",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+    "policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py"
+  ],
+  "baseline_cells": [
+    {
+      "id": "F01-P044",
+      "job": "F01",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "state": "PASS",
+      "collected": "6",
+      "calls": "6",
+      "call_pass": "6",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.89",
+      "rss_kib": "174068",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F01.txt",
+      "source_line": "161",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F03-P065",
+      "job": "F03",
+      "source_sha": "69780761ae091d8fcc6ab8778c7f5f7227eeef0b",
+      "path": "policy-engine/tests/unit/remediation/test_res_04.py",
+      "state": "PASS",
+      "collected": "16",
+      "calls": "16",
+      "call_pass": "16",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.04",
+      "rss_kib": "165492.0",
+      "receipt_status": "valid_bound",
+      "source_file": "received/F03.txt",
+      "source_line": "195",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F05-P065",
+      "job": "F05",
+      "source_sha": "78187878ee188ff6d27442ba1498bd094da9785b",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "state": "PASS",
+      "collected": "5",
+      "calls": "5",
+      "call_pass": "5",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.67",
+      "rss_kib": "259996",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F05.txt",
+      "source_line": "475",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F07-P041",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "state": "PASS",
+      "collected": "6",
+      "calls": "6",
+      "call_pass": "6",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.371877431869507",
+      "rss_kib": "259564.0",
+      "receipt_status": "valid",
+      "source_file": "received/F07.txt",
+      "source_line": "47",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F07-P059",
+      "job": "F07",
+      "source_sha": "00d946c2b7d052522be092f9c70eb9902f6521c2",
+      "path": "policy-engine/tests/unit/remediation/test_res_04.py",
+      "state": "PASS",
+      "collected": "16",
+      "calls": "16",
+      "call_pass": "16",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "2.220776319503784",
+      "rss_kib": "255460.0",
+      "receipt_status": "valid",
+      "source_file": "received/F07.txt",
+      "source_line": "65",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F12-P052",
+      "job": "F12",
+      "source_sha": "5fd3ebcc15637e98bbd4938de5d62ee5004504a8",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "state": "PASS",
+      "collected": "5",
+      "calls": "5",
+      "call_pass": "5",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "8.00252217599973",
+      "rss_kib": "246516.0",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F12.txt",
+      "source_line": "637",
+      "extra_json": "{\"reason\":\"native\"}"
+    },
+    {
+      "id": "F14-P054",
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/foundry/methods/backends/test_checkpointing.py",
+      "state": "PASS",
+      "collected": "6",
+      "calls": "6",
+      "call_pass": "6",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "7.704198632000043",
+      "rss_kib": "271952",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "404",
+      "extra_json": "{}"
+    },
+    {
+      "id": "F14-P077",
+      "job": "F14",
+      "source_sha": "0213101b6d124e6f855b1aff7c442bb0912a61c2",
+      "path": "policy-engine/tests/unit/remediation/test_res_04.py",
+      "state": "PASS",
+      "collected": "16",
+      "calls": "16",
+      "call_pass": "16",
+      "call_failed": "0",
+      "setup_error": "0",
+      "teardown_error": "0",
+      "skip": "0",
+      "xfail": "0",
+      "xpass": "0",
+      "collection_skip": "0",
+      "collection_error": "0",
+      "wall_s": "7.841175300000032",
+      "rss_kib": "269232",
+      "receipt_status": "valid_reconciled",
+      "source_file": "received/F14.txt",
+      "source_line": "427",
+      "extra_json": "{}"
+    }
+  ],
+  "baseline_source_resolution": {
+    "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/baseline-resolution.json",
+    "bytes": 53452,
+    "sha256": "9a489db3dfc0fd2443b188131ea4ec208e19a8f14bb06a1a2b42d2464f47d18b"
+  },
+  "baseline_grade": "source-reported navigation only; 8exactrouted cells/6sourceSHA-ref cuts/source environment/inputclosure text reconciled; raw archives0, not candidate proof",
+  "checks": [
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/pytest-child.py",
+        "/workspace/e02-B-current-composition",
+        "2a2e97e1a68f7b566f8be7bab0a16f10e7bf6bfe",
+        "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/baseline-2a/module-origins.json",
+        "tests/unit/foundry/methods/backends/test_module_source_identity.py",
+        "-vv",
+        "--tb=short",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "/dev/shm/e02-B-module-baseline-2a-653371",
+        "--junitxml",
+        "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/baseline-2a/native.xml"
+      ],
+      "target_sha": "2a2e97e1a68f7b566f8be7bab0a16f10e7bf6bfe",
+      "environment": {
+        "argv": [
+          "/workspace/polisyos/policy-engine/.venv/bin/python",
+          "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/pytest-child.py",
+          "/workspace/e02-B-current-composition",
+          "2a2e97e1a68f7b566f8be7bab0a16f10e7bf6bfe",
+          "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/baseline-2a/module-origins.json",
+          "tests/unit/foundry/methods/backends/test_module_source_identity.py",
+          "-vv",
+          "--tb=short",
+          "--import-mode=importlib",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "/dev/shm/e02-B-module-baseline-2a-653371",
+          "--junitxml",
+          "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/baseline-2a/native.xml"
+        ],
+        "cwd": "/workspace/e02-B-current-composition/policy-engine",
+        "source_before": {
+          "sha": "2a2e97e1a68f7b566f8be7bab0a16f10e7bf6bfe",
+          "tree": "34f5301b7b772fbab140477b419bb979a56a7268",
+          "status": ""
+        },
+        "environment": {
+          "PYTHONPATH": "/workspace/e02-B-current-composition/policy-engine/src:/workspace/e02-B-current-composition/policy-engine/product",
+          "POLISYOS_METRICS_PORT": "0",
+          "XLA_FLAGS": null,
+          "JAX_NUM_THREADS": null,
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "RAYON_NUM_THREADS": null,
+          "TF_NUM_INTEROP_THREADS": null,
+          "TF_NUM_INTRAOP_THREADS": null,
+          "NUMBA_NUM_THREADS": null,
+          "LOKY_MAX_CPU_COUNT": null,
+          "PYTEST_XDIST_AUTO_NUM_WORKERS": null
+        },
+        "python_version": "Python 3.14.2",
+        "fixture": "/dev/shm/e02-B-module-baseline-2a-653371",
+        "fixtures_preserved": true,
+        "no_caps_added": true,
+        "test_input_bytes": [
+          {
+            "path": "tests/unit/foundry/methods/backends/test_module_source_identity.py",
+            "bytes": 4005,
+            "sha256": "fae0c9d34a2fde02f85959e2cfee7f171d89c1cf1537df6f32b8922af64619d9"
+          }
+        ]
+      },
+      "input_closure": {
+        "tree": "34f5301b7b772fbab140477b419bb979a56a7268",
+        "source_before_after_equal": true,
+        "complete_test_files": [
+          {
+            "path": "tests/unit/foundry/methods/backends/test_module_source_identity.py",
+            "bytes": 4005,
+            "sha256": "fae0c9d34a2fde02f85959e2cfee7f171d89c1cf1537df6f32b8922af64619d9"
+          }
+        ],
+        "origin_census": {
+          "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/baseline-2a/module-origins.json",
+          "bytes": 70852,
+          "sha256": "fb1372dd1e6f9e7c723be3438795177889353e76e14346738f914974398b40c4"
+        },
+        "scope": "all file-backed imported polisyos origins at sessionfinish plus exact four whole test inputs/config/interpreter/fixture; not universal resource/network/child/in-memory readset"
+      },
+      "outcome": "FAIL",
+      "output": {
+        "stdout": {
+          "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/baseline-2a/stdout.txt",
+          "bytes": 6051,
+          "sha256": "9ffcb61d5af4a4eb03d050d492254310dcc9d6f95607f5390801fe2b5f7a2d5a"
+        },
+        "junit": {
+          "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/baseline-2a/native.xml",
+          "bytes": 1123,
+          "sha256": "7f3e7d657161e61111f12f2758f1597b8adab7be75a334924424d703b2c7d9de"
+        },
+        "wait4": {
+          "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/baseline-2a/wrapper.json",
+          "bytes": 1588,
+          "sha256": "778968969eb61fc6369e8ceca22477ce0da2678f5b96ca318525b8c243ae1981"
+        }
+      },
+      "actual_exit_code": 1,
+      "wall_seconds": 3.574214481981471,
+      "max_rss_kib": 176096,
+      "qualification": "Actual two-case author baseline1PASS1FAIL; changed cold10 vs unchanged7, stale resume did not refuse."
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/pytest-child.py",
+        "/workspace/e02-B-current-composition",
+        "5deffd11efd0bba0db6e78d47259601149d3ae0b",
+        "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/candidate-5de/module-origins.json",
+        "tests/unit/foundry/methods/backends/test_module_source_identity.py",
+        "tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+        "tests/unit/foundry/methods/test_compiler_e02.py",
+        "tests/unit/foundry/methods/test_compiler.py",
+        "-vv",
+        "--tb=short",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "/dev/shm/e02-B-module-candidate-5de-703059",
+        "--junitxml",
+        "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/candidate-5de/native.xml"
+      ],
+      "target_sha": "5deffd11efd0bba0db6e78d47259601149d3ae0b",
+      "environment": {
+        "argv": [
+          "/workspace/polisyos/policy-engine/.venv/bin/python",
+          "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/pytest-child.py",
+          "/workspace/e02-B-current-composition",
+          "5deffd11efd0bba0db6e78d47259601149d3ae0b",
+          "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/candidate-5de/module-origins.json",
+          "tests/unit/foundry/methods/backends/test_module_source_identity.py",
+          "tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+          "tests/unit/foundry/methods/test_compiler_e02.py",
+          "tests/unit/foundry/methods/test_compiler.py",
+          "-vv",
+          "--tb=short",
+          "--import-mode=importlib",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "/dev/shm/e02-B-module-candidate-5de-703059",
+          "--junitxml",
+          "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/candidate-5de/native.xml"
+        ],
+        "cwd": "/workspace/e02-B-current-composition/policy-engine",
+        "source_before": {
+          "sha": "5deffd11efd0bba0db6e78d47259601149d3ae0b",
+          "tree": "2ab20eed4d4d3ceeb59332f9bcaa5512518f6f0e",
+          "status": ""
+        },
+        "environment": {
+          "PYTHONPATH": "/workspace/e02-B-current-composition/policy-engine/src:/workspace/e02-B-current-composition/policy-engine/product",
+          "POLISYOS_METRICS_PORT": "0",
+          "XLA_FLAGS": null,
+          "JAX_NUM_THREADS": null,
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "RAYON_NUM_THREADS": null,
+          "TF_NUM_INTEROP_THREADS": null,
+          "TF_NUM_INTRAOP_THREADS": null,
+          "NUMBA_NUM_THREADS": null,
+          "LOKY_MAX_CPU_COUNT": null,
+          "PYTEST_XDIST_AUTO_NUM_WORKERS": null
+        },
+        "python_version": "Python 3.14.2",
+        "fixture": "/dev/shm/e02-B-module-candidate-5de-703059",
+        "fixtures_preserved": true,
+        "no_caps_added": true,
+        "test_input_bytes": [
+          {
+            "path": "tests/unit/foundry/methods/backends/test_module_source_identity.py",
+            "bytes": 10336,
+            "sha256": "a7e304187010ae6514c3ef908f9c7771c0fbb421bf6e664062263722e3b3118a"
+          },
+          {
+            "path": "tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+            "bytes": 33264,
+            "sha256": "23f3a815adb38d2b18ef9f68b320300788941a45e4d32bac2e9e2cfe734d13fd"
+          },
+          {
+            "path": "tests/unit/foundry/methods/test_compiler_e02.py",
+            "bytes": 11608,
+            "sha256": "75673416c70a2f82ca72194c015a8a1c1e5d0372ffeeb103c4658667121ba462"
+          },
+          {
+            "path": "tests/unit/foundry/methods/test_compiler.py",
+            "bytes": 34246,
+            "sha256": "a015d14b41eb7bce0ab0b9ed96e79663be29e71aebd1f19f1f7801e646a5805f"
+          }
+        ]
+      },
+      "input_closure": {
+        "tree": "2ab20eed4d4d3ceeb59332f9bcaa5512518f6f0e",
+        "source_before_after_equal": true,
+        "complete_test_files": [
+          {
+            "path": "tests/unit/foundry/methods/backends/test_module_source_identity.py",
+            "bytes": 10336,
+            "sha256": "a7e304187010ae6514c3ef908f9c7771c0fbb421bf6e664062263722e3b3118a"
+          },
+          {
+            "path": "tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+            "bytes": 33264,
+            "sha256": "23f3a815adb38d2b18ef9f68b320300788941a45e4d32bac2e9e2cfe734d13fd"
+          },
+          {
+            "path": "tests/unit/foundry/methods/test_compiler_e02.py",
+            "bytes": 11608,
+            "sha256": "75673416c70a2f82ca72194c015a8a1c1e5d0372ffeeb103c4658667121ba462"
+          },
+          {
+            "path": "tests/unit/foundry/methods/test_compiler.py",
+            "bytes": 34246,
+            "sha256": "a015d14b41eb7bce0ab0b9ed96e79663be29e71aebd1f19f1f7801e646a5805f"
+          }
+        ],
+        "origin_census": {
+          "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/candidate-5de/module-origins.json",
+          "bytes": 71754,
+          "sha256": "1c753d0dea3064ce11e4b75f59575bce88af910f25bf504be11339a9d0137073"
+        },
+        "scope": "all file-backed imported polisyos origins at sessionfinish plus exact four whole test inputs/config/interpreter/fixture; not universal resource/network/child/in-memory readset"
+      },
+      "outcome": "FAIL",
+      "output": {
+        "stdout": {
+          "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/candidate-5de/stdout.txt",
+          "bytes": 28268,
+          "sha256": "912ab1dbab34c31a4c1ec05f0b2b0abe7067b8b09f8c1baa524d8167c9bb1a58"
+        },
+        "junit": {
+          "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/candidate-5de/native.xml",
+          "bytes": 27993,
+          "sha256": "55e27112b9008e15bcbaa3773ae462f525e7024c0c2c976a0f37e2ff308e9648"
+        },
+        "wait4": {
+          "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/candidate-5de/wrapper.json",
+          "bytes": 1783,
+          "sha256": "5bb61e616c9b24e1c1e641a53314ad9cea25ee83cd1a04370adbc1c0e2f349f9"
+        }
+      },
+      "actual_exit_code": 1,
+      "wall_seconds": 15.271197673981078,
+      "max_rss_kib": 268756,
+      "qualification": "Actual109=106PASS3JAXFAIL. Newmodule12 + strictcheckpoint39 passed; genuine external FunctionType static-identity read fallback bug preserved."
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/pytest-child.py",
+        "/workspace/e02-B-current-composition",
+        "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+        "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/candidate-eb4/module-origins.json",
+        "tests/unit/foundry/methods/backends/test_module_source_identity.py",
+        "tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+        "tests/unit/foundry/methods/test_compiler_e02.py",
+        "tests/unit/foundry/methods/test_compiler.py",
+        "-vv",
+        "--tb=short",
+        "--import-mode=importlib",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp",
+        "/dev/shm/e02-B-module-candidate-eb4-705633",
+        "--junitxml",
+        "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/candidate-eb4/native.xml"
+      ],
+      "target_sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+      "environment": {
+        "argv": [
+          "/workspace/polisyos/policy-engine/.venv/bin/python",
+          "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/pytest-child.py",
+          "/workspace/e02-B-current-composition",
+          "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+          "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/candidate-eb4/module-origins.json",
+          "tests/unit/foundry/methods/backends/test_module_source_identity.py",
+          "tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+          "tests/unit/foundry/methods/test_compiler_e02.py",
+          "tests/unit/foundry/methods/test_compiler.py",
+          "-vv",
+          "--tb=short",
+          "--import-mode=importlib",
+          "-p",
+          "no:cacheprovider",
+          "--basetemp",
+          "/dev/shm/e02-B-module-candidate-eb4-705633",
+          "--junitxml",
+          "/workspace/e02-B-current-composition/.polisyos/e02-B-current/raw/continuation-20261007/b74-module/candidate-eb4/native.xml"
+        ],
+        "cwd": "/workspace/e02-B-current-composition/policy-engine",
+        "source_before": {
+          "sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+          "tree": "0b7134be3ac0fa5c7cbe07d4783f6d31a65c3e3e",
+          "status": ""
+        },
+        "environment": {
+          "PYTHONPATH": "/workspace/e02-B-current-composition/policy-engine/src:/workspace/e02-B-current-composition/policy-engine/product",
+          "POLISYOS_METRICS_PORT": "0",
+          "XLA_FLAGS": null,
+          "JAX_NUM_THREADS": null,
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "RAYON_NUM_THREADS": null,
+          "TF_NUM_INTEROP_THREADS": null,
+          "TF_NUM_INTRAOP_THREADS": null,
+          "NUMBA_NUM_THREADS": null,
+          "LOKY_MAX_CPU_COUNT": null,
+          "PYTEST_XDIST_AUTO_NUM_WORKERS": null
+        },
+        "python_version": "Python 3.14.2",
+        "fixture": "/dev/shm/e02-B-module-candidate-eb4-705633",
+        "fixtures_preserved": true,
+        "no_caps_added": true,
+        "test_input_bytes": [
+          {
+            "path": "tests/unit/foundry/methods/backends/test_module_source_identity.py",
+            "bytes": 10336,
+            "sha256": "a7e304187010ae6514c3ef908f9c7771c0fbb421bf6e664062263722e3b3118a"
+          },
+          {
+            "path": "tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+            "bytes": 33264,
+            "sha256": "23f3a815adb38d2b18ef9f68b320300788941a45e4d32bac2e9e2cfe734d13fd"
+          },
+          {
+            "path": "tests/unit/foundry/methods/test_compiler_e02.py",
+            "bytes": 11608,
+            "sha256": "75673416c70a2f82ca72194c015a8a1c1e5d0372ffeeb103c4658667121ba462"
+          },
+          {
+            "path": "tests/unit/foundry/methods/test_compiler.py",
+            "bytes": 34246,
+            "sha256": "a015d14b41eb7bce0ab0b9ed96e79663be29e71aebd1f19f1f7801e646a5805f"
+          }
+        ]
+      },
+      "input_closure": {
+        "tree": "0b7134be3ac0fa5c7cbe07d4783f6d31a65c3e3e",
+        "source_before_after_equal": true,
+        "complete_test_files": [
+          {
+            "path": "tests/unit/foundry/methods/backends/test_module_source_identity.py",
+            "bytes": 10336,
+            "sha256": "a7e304187010ae6514c3ef908f9c7771c0fbb421bf6e664062263722e3b3118a"
+          },
+          {
+            "path": "tests/unit/foundry/methods/backends/test_checkpoint_identity.py",
+            "bytes": 33264,
+            "sha256": "23f3a815adb38d2b18ef9f68b320300788941a45e4d32bac2e9e2cfe734d13fd"
+          },
+          {
+            "path": "tests/unit/foundry/methods/test_compiler_e02.py",
+            "bytes": 11608,
+            "sha256": "75673416c70a2f82ca72194c015a8a1c1e5d0372ffeeb103c4658667121ba462"
+          },
+          {
+            "path": "tests/unit/foundry/methods/test_compiler.py",
+            "bytes": 34246,
+            "sha256": "a015d14b41eb7bce0ab0b9ed96e79663be29e71aebd1f19f1f7801e646a5805f"
+          }
+        ],
+        "origin_census": {
+          "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/candidate-eb4/module-origins.json",
+          "bytes": 71754,
+          "sha256": "95cd09fe3332574d34270e3636dde03d07801c491b0914f236e54122abbd14aa"
+        },
+        "scope": "all file-backed imported polisyos origins at sessionfinish plus exact four whole test inputs/config/interpreter/fixture; not universal resource/network/child/in-memory readset"
+      },
+      "outcome": "PASS",
+      "output": {
+        "stdout": {
+          "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/candidate-eb4/stdout.txt",
+          "bytes": 16305,
+          "sha256": "cd085ef87dd70d09faaef96817d4c70e5594f3ca8ef565bc71522fb57a8ea051"
+        },
+        "junit": {
+          "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/candidate-eb4/native.xml",
+          "bytes": 17629,
+          "sha256": "78184e2269b0f701fcc9903c80786911c7cae6fa4a0c8194c00d3d8f656a9304"
+        },
+        "wait4": {
+          "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/candidate-eb4/wrapper.json",
+          "bytes": 1782,
+          "sha256": "d12a19fcb1e929d7250eae57a06a05fce9cb9a25f82f336e45d9408f4ed4fea0"
+        }
+      },
+      "actual_exit_code": 0,
+      "wall_seconds": 15.204863550985465,
+      "max_rss_kib": 267096,
+      "qualification": "Actual109PASS: full four whole files, including12defining module cases,39strictcheckpoint cases,11compiler_e02 and47compiler cases. JAX actualprepared dtype/importer positive controls pass."
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "mypy",
+        "--follow-imports=normal",
+        "src/polisyos/foundry/methods/artifacts/_implementation_identity.py"
+      ],
+      "target_sha": "5bbbc90d7aa7f5bdf0c07517a17a7a03d2656197",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-composition/policy-engine",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "profile": "normal-imports selected owner mypy; repository Ruff check/format on exact source+defining test",
+        "ruff_version": null
+      },
+      "input_closure": {
+        "scope": [
+          "src/polisyos/foundry/methods/artifacts/_implementation_identity.py"
+        ],
+        "frozen_source": "own Git at exact target; first mypy5bb source unchanged but test file dirty while split-fixture drafting",
+        "skip_imports_used": false
+      },
+      "outcome": "FAIL",
+      "output": {
+        "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/mypy-5bb.txt",
+        "bytes": 353,
+        "sha256": "6eaff989a7af7e7ac0a7a7a6524dc9c8d214f81b680e79796f92e337b184e475"
+      },
+      "metadata": {
+        "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/mypy-5bb.json",
+        "bytes": 672,
+        "sha256": "d6db5fc0bd1e978c1d464da1c01ec380c26043fc5079fe07c1cf386c511a5d7d"
+      },
+      "actual_exit_code": 1
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "mypy",
+        "--follow-imports=normal",
+        "src/polisyos/foundry/methods/artifacts/_implementation_identity.py"
+      ],
+      "target_sha": "5deffd11efd0bba0db6e78d47259601149d3ae0b",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-composition/policy-engine",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "profile": "normal-imports selected owner mypy; repository Ruff check/format on exact source+defining test",
+        "ruff_version": null
+      },
+      "input_closure": {
+        "scope": [
+          "src/polisyos/foundry/methods/artifacts/_implementation_identity.py"
+        ],
+        "frozen_source": "own Git at exact target; first mypy5bb source unchanged but test file dirty while split-fixture drafting",
+        "skip_imports_used": false
+      },
+      "outcome": "FAIL",
+      "output": {
+        "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/mypy-5de.txt",
+        "bytes": 331,
+        "sha256": "37ff93f7b2d15afe94b6465caa93faa51db8aa3a99836f968b2bd3e8f725d4c2"
+      },
+      "metadata": {
+        "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/mypy-5de.json",
+        "bytes": 600,
+        "sha256": "7682552fdfebdcba06407465135b019353f78124eaec273abd65ba0478b3a997"
+      },
+      "actual_exit_code": 1
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "mypy",
+        "--follow-imports=normal",
+        "src/polisyos/foundry/methods/artifacts/_implementation_identity.py"
+      ],
+      "target_sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-composition/policy-engine",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "profile": "normal-imports selected owner mypy; repository Ruff check/format on exact source+defining test",
+        "ruff_version": null
+      },
+      "input_closure": {
+        "scope": [
+          "src/polisyos/foundry/methods/artifacts/_implementation_identity.py"
+        ],
+        "frozen_source": "own Git at exact target; first mypy5bb source unchanged but test file dirty while split-fixture drafting",
+        "skip_imports_used": false
+      },
+      "outcome": "PASS",
+      "output": {
+        "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/mypy-eb4.txt",
+        "bytes": 42,
+        "sha256": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e"
+      },
+      "metadata": {
+        "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/mypy-eb4.json",
+        "bytes": 601,
+        "sha256": "316a921a151b8c72f770404527a1f0711c474e2ee48e6579ba4a4fdffdc2d68c"
+      },
+      "actual_exit_code": 0
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+        "tests/unit/foundry/methods/backends/test_module_source_identity.py"
+      ],
+      "target_sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-composition/policy-engine",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "profile": "normal-imports selected owner mypy; repository Ruff check/format on exact source+defining test",
+        "ruff_version": "ruff 0.14.10"
+      },
+      "input_closure": {
+        "scope": [
+          "src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+          "tests/unit/foundry/methods/backends/test_module_source_identity.py"
+        ],
+        "frozen_source": "own Git at exact target; first mypy5bb source unchanged but test file dirty while split-fixture drafting",
+        "skip_imports_used": false
+      },
+      "outcome": "PASS",
+      "output": {
+        "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/ruff-eb4.txt",
+        "bytes": 19,
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "metadata": {
+        "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/ruff-eb4.json",
+        "bytes": 693,
+        "sha256": "0b9d3018594e11ade2406e7766315df8652acfcc597a74ad323a20342de9086f"
+      },
+      "actual_exit_code": 0
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "ruff",
+        "format",
+        "--check",
+        "src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+        "tests/unit/foundry/methods/backends/test_module_source_identity.py"
+      ],
+      "target_sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-composition/policy-engine",
+        "python_executable": "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "profile": "normal-imports selected owner mypy; repository Ruff check/format on exact source+defining test",
+        "ruff_version": "ruff 0.14.10"
+      },
+      "input_closure": {
+        "scope": [
+          "src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+          "tests/unit/foundry/methods/backends/test_module_source_identity.py"
+        ],
+        "frozen_source": "own Git at exact target; first mypy5bb source unchanged but test file dirty while split-fixture drafting",
+        "skip_imports_used": false
+      },
+      "outcome": "PASS",
+      "output": {
+        "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/format-eb4.txt",
+        "bytes": 26,
+        "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+      },
+      "metadata": {
+        "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/format-eb4.json",
+        "bytes": 711,
+        "sha256": "bbec099199d906859c468a6c1775ee6bbaf2c0f8aa17fd6b1f9ff2b8f1f48390"
+      },
+      "actual_exit_code": 0
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "polisyos.runtime.quality.production_invocation",
+        "--repo-root",
+        "/workspace/e02-B-current-composition",
+        "--base",
+        "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+        "--receipt",
+        "/dev/shm/e02-B-module-static-eb4-707038/production-invocation-full.json"
+      ],
+      "target_sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+      "environment": {
+        "argv": [
+          "/workspace/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "polisyos.runtime.quality.production_invocation",
+          "--repo-root",
+          "/workspace/e02-B-current-composition",
+          "--base",
+          "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+          "--receipt",
+          "/dev/shm/e02-B-module-static-eb4-707038/production-invocation-full.json"
+        ],
+        "cwd": "/workspace/e02-B-current-composition/policy-engine",
+        "source_before": {
+          "sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+          "tree": "0b7134be3ac0fa5c7cbe07d4783f6d31a65c3e3e",
+          "status": ""
+        },
+        "environment": {
+          "PYTHONPATH": "/workspace/e02-B-current-composition/policy-engine/src:/workspace/e02-B-current-composition/policy-engine/product",
+          "POLISYOS_METRICS_PORT": "0",
+          "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "JAX_NUM_THREADS": null,
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "RAYON_NUM_THREADS": null,
+          "TF_NUM_INTEROP_THREADS": null,
+          "TF_NUM_INTRAOP_THREADS": null,
+          "NUMBA_NUM_THREADS": null,
+          "LOKY_MAX_CPU_COUNT": null,
+          "PYTEST_XDIST_AUTO_NUM_WORKERS": null,
+          "XLA_FLAGS": null
+        },
+        "python_version": "Python 3.14.2",
+        "full_output_directory": "/dev/shm/e02-B-module-static-eb4-707038",
+        "no_caps_added": true
+      },
+      "input_closure": {
+        "source_before_after": {
+          "sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+          "tree": "0b7134be3ac0fa5c7cbe07d4783f6d31a65c3e3e",
+          "status": ""
+        },
+        "source_unchanged": true,
+        "base": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+        "product_root": "/workspace/e02-B-current-composition/policy-engine",
+        "admission": "invalid_empty_denominator"
+      },
+      "outcome": "UNRUN",
+      "output": {
+        "stdout": {
+          "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/static-eb4/stdout.txt",
+          "bytes": 1348,
+          "sha256": "6f9d72d48d49c7966cd0c91291aef40f8dbcd3fcdaeade14aeeed160d5431984"
+        },
+        "wait4": {
+          "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/static-eb4/wrapper.json",
+          "bytes": 1374,
+          "sha256": "4cd2edfd779870540f3f64eccb64188b12e256e2db5059b7dd9422c9a7db18bf"
+        },
+        "invalid_complete_empty_graph": {
+          "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/static-eb4/invalid-empty-denominator-full.json",
+          "bytes": 2138,
+          "sha256": "4213945dd7bcd97d9d355e8f6d83c131e7efabc3a3183e0704f7adf3dca8a991"
+        }
+      },
+      "actual_exit_code": 0,
+      "actual_signal": null,
+      "full_receipt": {
+        "path": "/dev/shm/e02-B-module-static-eb4-707038/production-invocation-full.json",
+        "exists": true,
+        "bytes": 2138,
+        "sha256": "4213945dd7bcd97d9d355e8f6d83c131e7efabc3a3183e0704f7adf3dca8a991"
+      },
+      "qualification": "Wrong Git-root argument produced zero-file/root denominator. Actualexit0 is rejected as invalid input admission; no source scanner PASS.",
+      "P41_inherited_red": "not_established"
+    },
+    {
+      "command": [
+        "/workspace/polisyos/policy-engine/.venv/bin/python",
+        "-m",
+        "polisyos.runtime.quality.production_invocation",
+        "--repo-root",
+        "/workspace/e02-B-current-composition/policy-engine",
+        "--base",
+        "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+        "--receipt",
+        "/dev/shm/e02-B-module-static-corrected-eb4-708059/production-invocation-full.json"
+      ],
+      "target_sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+      "environment": {
+        "argv": [
+          "/workspace/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "polisyos.runtime.quality.production_invocation",
+          "--repo-root",
+          "/workspace/e02-B-current-composition/policy-engine",
+          "--base",
+          "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+          "--receipt",
+          "/dev/shm/e02-B-module-static-corrected-eb4-708059/production-invocation-full.json"
+        ],
+        "cwd": "/workspace/e02-B-current-composition/policy-engine",
+        "source_before": {
+          "sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+          "tree": "0b7134be3ac0fa5c7cbe07d4783f6d31a65c3e3e",
+          "status": ""
+        },
+        "environment": {
+          "PYTHONPATH": "/workspace/e02-B-current-composition/policy-engine/src:/workspace/e02-B-current-composition/policy-engine/product",
+          "POLISYOS_METRICS_PORT": "0",
+          "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+          "JAX_NUM_THREADS": null,
+          "OMP_NUM_THREADS": null,
+          "OPENBLAS_NUM_THREADS": null,
+          "MKL_NUM_THREADS": null,
+          "BLIS_NUM_THREADS": null,
+          "VECLIB_MAXIMUM_THREADS": null,
+          "NUMEXPR_NUM_THREADS": null,
+          "RAYON_NUM_THREADS": null,
+          "TF_NUM_INTEROP_THREADS": null,
+          "TF_NUM_INTRAOP_THREADS": null,
+          "NUMBA_NUM_THREADS": null,
+          "LOKY_MAX_CPU_COUNT": null,
+          "PYTEST_XDIST_AUTO_NUM_WORKERS": null,
+          "XLA_FLAGS": null
+        },
+        "python_version": "Python 3.14.2",
+        "full_output_directory": "/dev/shm/e02-B-module-static-corrected-eb4-708059",
+        "no_caps_added": true
+      },
+      "input_closure": {
+        "source_before_after": {
+          "sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+          "tree": "0b7134be3ac0fa5c7cbe07d4783f6d31a65c3e3e",
+          "status": ""
+        },
+        "source_unchanged": true,
+        "base": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+        "product_root": "/workspace/e02-B-current-composition/policy-engine",
+        "admission": "valid_product_root_incomplete_execution"
+      },
+      "outcome": "UNRUN",
+      "output": {
+        "stdout": {
+          "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/static-corrected-eb4/stdout.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "wait4": {
+          "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/static-corrected-eb4/wrapper.json",
+          "bytes": 1344,
+          "sha256": "362b34d49c87dc04c89ffa59f48b5838c1f57404cf6c74f253324340590c5eaa"
+        },
+        "invalid_complete_empty_graph": null
+      },
+      "actual_exit_code": -9,
+      "actual_signal": 9,
+      "full_receipt": {
+        "path": "/dev/shm/e02-B-module-static-corrected-eb4-708059/production-invocation-full.json",
+        "exists": false,
+        "bytes": null,
+        "sha256": null
+      },
+      "qualification": "Correct product root and true pre-slice base. ActualSIGKILL9 after56.3389s/RSS3422864; zero stdout/no fullreceipt. Complete scanner verdict/cause not_established.",
+      "P41_inherited_red": "not_established"
+    },
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "-s",
+        "-p",
+        "e02_b74_input_custody",
+        "tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py",
+        "--basetemp",
+        "/tmp/e02-B-cas-b74-20261007/final-eb4/pytest",
+        "--junitxml",
+        "/tmp/e02-B-cas-b74-20261007/final-eb4/native.xml",
+        "-o",
+        "cache_dir=/tmp/e02-B-cas-b74-20261007/final-eb4/cache"
+      ],
+      "target_sha": "1970df7b049c6f70b918d453d7051d497f73aa21",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+        "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/tmp/e02-B-cas-b74-20261007/final-eb4",
+        "removed_thread_cap_env": {},
+        "started_utc": "2026-10-07T07:52:15Z",
+        "native_header": "Python3.14.2/pytest9.0.2, full plugins/versions in retained stdout",
+        "process_or_cpu_quota": "none"
+      },
+      "input_closure": {
+        "actual_head": "1970df7b049c6f70b918d453d7051d497f73aa21",
+        "actual_tree": "2b87aedcd039624be7243988bd4a47df811b1208",
+        "actual_head_before_after_equal": true,
+        "canonical_source_projection_sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+        "test_sha256": "1c22fd256f2038def925ed5467c5bc842d680bfa0669cee202a75ea881cc71f8",
+        "source_identity_sha256": "a72ef4227aa04d2b6447cc553f0d9194b17a6dbc6394b2dfc0a2a442f820bc73",
+        "full_inputs": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-eb4-input-custody.json",
+          "sha256": "943f142ef786bb99fa1216e89cbfcce7bab122f8b0be1dfea27af360bfa3a298",
+          "bytes": 1521
+        },
+        "actual_module_origins": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-eb4-module-origins.json",
+          "sha256": "826843e4678ddbd49612c99e7c0260312c9b504ca47a5f8b58e579fad7b9f54c",
+          "bytes": 44211
+        },
+        "source_status_before_after_clean": true,
+        "tracked_inputs": 6252,
+        "drift": [],
+        "origin_git_hash_mismatch": [],
+        "profile": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-eb4-profile.json",
+          "sha256": "aa543275c3dc9ee1d06db5202e23b7d9f764cd931a273e2b8626cc6493967a74",
+          "bytes": 1590
+        },
+        "instrument": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/native.py.txt",
+          "sha256": "e411f7554ed691f73061da58e2fcb06195b201d2c92b6764df02e36f0b680f03",
+          "bytes": 3916
+        },
+        "input_origin_plugin": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-eb4-e02_b74_input_custody.py.txt",
+          "sha256": "8489c4b0e7cfe19d3474019776c89ca855edf62f001765330b606703897fa765",
+          "bytes": 617
+        },
+        "mutation": "none"
+      },
+      "outcome": "PASS",
+      "output": {
+        "stdout_stderr": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-eb4-native.txt",
+          "sha256": "aafd42e6fc2ad41da57ab9b038b8e1ae06e673a2df3cb236e464fb9c9e99b1fa",
+          "bytes": 7074
+        },
+        "junit": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-eb4-native.xml",
+          "sha256": "a65cba0c486e51bd0940ef9a7afec069858b038c9a3446c36c338b0bb75d9e43",
+          "bytes": 997
+        },
+        "result": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/final-eb4-result.json",
+          "sha256": "faf129b3e8fce8840e3ad761be335cdec7e6e0a9bd678b3f727c4d67ca92133d",
+          "bytes": 640
+        },
+        "counts": {
+          "PASS": 4,
+          "FAIL": 0,
+          "ERROR": 0,
+          "SKIP": 0
+        },
+        "exit_code": 0,
+        "wall_s": 2.990443216986023,
+        "rss_kib": 223304,
+        "deciding_literal": "Actual four cases PASS: same-version member changed refuses before replacement; unchanged ordinary helper7 and builtin6.0 persisted prefix reopen/resume; dynamic unsupported strict cold intake refuses before every helper/checkpoint effect."
+      },
+      "qualification": "Finite independent ordinary Python checkpoint profile; dynamic cold refusal quantity differs from successful resume producer profile. Independent CAS run/source review; source canonical projection eb4, actual own merge1970 is kept distinct."
+    },
+    {
+      "command": [
+        "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "-m",
+        "pytest",
+        "-vv",
+        "-s",
+        "-p",
+        "e02_b74_input_custody",
+        "-p",
+        "e02_b74_remove_imported_members",
+        "tests/unit/foundry/methods/backends/test_imported_module_checkpoint_identity.py::test_same_version_imported_member_change_refuses_before_replacement_effect",
+        "--basetemp",
+        "/tmp/e02-B-cas-b74-20261007/removal-eb4/pytest",
+        "--junitxml",
+        "/tmp/e02-B-cas-b74-20261007/removal-eb4/native.xml",
+        "-o",
+        "cache_dir=/tmp/e02-B-cas-b74-20261007/removal-eb4/cache"
+      ],
+      "target_sha": "1970df7b049c6f70b918d453d7051d497f73aa21",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-cas-generation/policy-engine",
+        "python_executable": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python",
+        "PYTHONPATH": "/workspace/e02-B-current-cas-generation/policy-engine/src:/tmp/e02-B-cas-b74-20261007/removal-eb4",
+        "removed_thread_cap_env": {},
+        "started_utc": "2026-10-07T07:52:52Z",
+        "native_header": "Python3.14.2/pytest9.0.2, full plugins/versions in retained stdout",
+        "process_or_cpu_quota": "none"
+      },
+      "input_closure": {
+        "actual_head": "1970df7b049c6f70b918d453d7051d497f73aa21",
+        "actual_tree": "2b87aedcd039624be7243988bd4a47df811b1208",
+        "actual_head_before_after_equal": true,
+        "canonical_source_projection_sha": "eb4a86032a5b787114c597c8a105a1f501e4abe4",
+        "test_sha256": "1c22fd256f2038def925ed5467c5bc842d680bfa0669cee202a75ea881cc71f8",
+        "source_identity_sha256": "a72ef4227aa04d2b6447cc553f0d9194b17a6dbc6394b2dfc0a2a442f820bc73",
+        "full_inputs": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/removal-eb4-input-custody.json",
+          "sha256": "62a01bab00cfefa1b63345e98caae58387acd171d9b07a91f258fe39e1c659b1",
+          "bytes": 1527
+        },
+        "actual_module_origins": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/removal-eb4-module-origins.json",
+          "sha256": "826843e4678ddbd49612c99e7c0260312c9b504ca47a5f8b58e579fad7b9f54c",
+          "bytes": 44211
+        },
+        "source_status_before_after_clean": true,
+        "tracked_inputs": 6252,
+        "drift": [],
+        "origin_git_hash_mismatch": [],
+        "profile": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/removal-eb4-profile.json",
+          "sha256": "2ba7d4a52e40e771e52be2ae3dafc9d85e6a8a9ba5e065f2ec503a65ef5768d2",
+          "bytes": 2107
+        },
+        "instrument": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/native-removal.py.txt",
+          "sha256": "8af1fcd497f524a93e44feb577131f5d1c50ab8b56eecbb32b3d26c7d5fd005f",
+          "bytes": 4907
+        },
+        "input_origin_plugin": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/removal-eb4-e02_b74_input_custody.py.txt",
+          "sha256": "af0f477fb61fdafbffd1a84341349a1ab5f29f9979d1968bc3baaf0bc265ff8e",
+          "bytes": 619
+        },
+        "mutation": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/removal-eb4-mutation.py.txt",
+          "sha256": "db7dea6c9817daa5eb2a254bf1047e110fd9c71ef7a8e78732521bfb9fa4f100",
+          "bytes": 598
+        }
+      },
+      "outcome": "FAIL",
+      "output": {
+        "stdout_stderr": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/removal-eb4-native.txt",
+          "sha256": "97b2402c846cca2278e2d72b1c15337e13efdb81f086b2a969470b734f2b419b",
+          "bytes": 5145
+        },
+        "junit": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/removal-eb4-native.xml",
+          "sha256": "bf8fcd15a9ec282b17ef5cbde956c3569a079baf16e8d17286236429a6635ce0",
+          "bytes": 2268
+        },
+        "result": {
+          "git_sha": "211c5c5f30cf8ed0ba8c7b589b4941ecbce130f2",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-successor-evidence/removal-eb4-result.json",
+          "sha256": "1170c61676ef8e1ee0a7d4920845700a0353abf196ada35ea80b2c3e6af6ca6a",
+          "bytes": 645
+        },
+        "counts": {
+          "PASS": 0,
+          "FAIL": 1,
+          "ERROR": 0,
+          "SKIP": 0
+        },
+        "exit_code": 1,
+        "wall_s": 2.8005271639849525,
+        "rss_kib": 224164,
+        "deciding_literal": "Actual defining test FAIL/DIDNOTRAISE. WRONGLY_RESUMED_TOTAL107; REPLACEMENT_EFFECTS [original,replacement]. Only in-memory selected-member quantity removed; actual CAS selected ref/history/source/version markers and physical calls retained."
+      },
+      "qualification": "Expected mutation FAIL establishes the defining guard quantity; it is not a clean product test PASS. Independent CAS run/source review; source canonical projection eb4, actual own merge1970 is kept distinct."
+    }
+  ],
+  "property": {
+    "statement": "For strict supported checkpoint/compiler graph identity, bind actual statically selected imported ModuleType members (including nested Python code references), so same module name/distribution version cannot admit stale prefix reuse or stale specialization after a supported selected helper/constant replacement. Unsupported dynamic namespace lookup refuses before strict execution.",
+    "runtime_path": [
+      "current MethodRegistry implementation → canonical implementation_identity_projection strict supported-code-graph-v2",
+      "checkpointing._capture_execution_identity → guarded current exact ArtifactRef/context and immutable generation/pointer",
+      "fresh ChainCheckpoint.load → checkpoint digest/identity reconciliation before prefix restoration and suffix dispatch",
+      "actual supported imported helper selected by remaining consumer → independently observed filesystem effect; refusal preserves pointer/effects",
+      "MethodCompiler._implementation_digest/current handle reconciliation consume the SAME canonical projection; actual eager/JAX prepared dtype importer controls"
+    ],
+    "proxy_divergence": "Old module name/Python version stayed equal while selected helper changed; real cold/resume replacement body produced107 and wrote replacement after original persisted producer6. Module-version proxy measured the wrong quantity. Narrow property removal retains profile/schema/CAS/refs/identity checks but restores this107/physical effect; current gate refuses before replacement.",
+    "negative_controls": [
+      "Author2a:actual1FAIL1PASS, original/unchanged7; changedcold10; stale prefix falsely admitted.",
+      "Independentf796/f4 static case actual2PASS1FAIL with original/replacement physical effects.",
+      "Intermediate5bb dynamic __import__ actual1FAIL resumed107 and replacement effect; originaldynamiccoldwaswronglyadmitted.",
+      "Finaleb4 actual4 independentPASS; exact static changed helper refusal before effect, unchanged ordinary/builtin parity, dynamic strict cold refusal before all bodies.",
+      "Finaleb4 independent selected-member removal actual1FAIL/107 and replacement filesystem effect.",
+      "Finaleb4 own12 defining cases distinguish helper/constant/nestedmodule/nestedCodeType mutation, unused-member positive, reflection/transport/mutablemember/dynamicimport/localimport/namespacealias strict refusals, all through actual executor/CAS."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "per_premise_basis": {
+    "actual_selected_member_projection": "recomputed",
+    "cold_resume_arithmetic_and_physical_effect_negative": "independently_reconciled",
+    "fixture_scope_artifact_context": "consumer_asserted",
+    "installed_external_mutable_internals": "not_established",
+    "production_invocation_complete_verdict": "not_established",
+    "baseline_behavior": "not_established"
+  },
+  "capability_state_or_finding_state": "B74 LIMITED: concrete imported selected-member identity class implemented and independently verified in finite supported static Python graph; formal ROOT/G closure/admission remains separate",
+  "formal_closure": false,
+  "pattern_pass": {
+    "P27": "one existing canonical source graph and owner source hash; checkpoint/compiler share projection, no parallel graph/hash",
+    "P29_P37_P38": "actual persisted prefix readback and physical replacement consumer; removal detects lost quantity with marker fields intact",
+    "P40": "SAME source-identity class deeper: previousclasshelper descriptor, now importedModuleType versionproxy and dynamic namespace sibling. One static-selection/captured-namespace admission invariant; unsupported capabilities typedrefuse rather than helper-name patches.",
+    "P41": "No inherited attribution. Current3JAXFAIL and typing diagnostics preserved; corrected scannerSIGKILL/cause and zero-denominator first input not_established; no near-base waiver."
+  },
+  "finite_profile": {
+    "supported": "ordinary inspectable Python functions/classes/captures; static global/nonlocal module member paths; recursive nested code referenced globals; selected actual supported helper/immutable value graph",
+    "unsupported_strict": "bare module transport/alias, mutable selected members, reflective/namespace builtins including aliases, local/dynamic imports, namespace introspection/class-held modules/non-module path traversal",
+    "opaque_external_boundary": "selected installed numerical callable source/type/FQN/version, builtin Python/distribution version. Mutable installed internals/transitive code/external effects/hostile concurrent hot reload not secured.",
+    "finite_falsifier": "An installed callable can mutate its opaque internal state with unchanged selectedsource/type/FQN/version; this profile does not attest that property. Static selected caller replacement with source-readable Python helper does change or refuses identity, proved by checkpoint controls.",
+    "smallest_missing_capability": "Canonical owner-backed transitive implementation/resource/binary identity or behavioral validity evidence for opaque external internals; unavailable here, no new authority fabricated."
+  },
+  "independent_review": {
+    "reviewer": "/root/cas_probe",
+    "source_verdict": "NONBLOCKING finite static supported-member/explicit installed opaque boundary",
+    "canonical_receipt": {
+      "git_sha": "ed4fca3916562b56ff293fc93ccb3464b7a30e0b",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-checkpoint-oracle.json",
+      "bytes": 49062,
+      "sha256": "5925dc8151b4aa1ee20d9ec26f50fc88851b5e663ed8dcb4914b51ea5cdefaaf"
+    },
+    "deciding_refs": "peer checks2(final4PASS)/3(removal1FAIL), full7source/style/nativechecks retained bypeer",
+    "readback": {
+      "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/foreign-object-readback.json",
+      "bytes": 11650,
+      "sha256": "e6cf36291b91d426755afa41d461163935a2f5050c2188a422026166b1a5fc01"
+    },
+    "author_self_review": false
+  },
+  "evidence_index": {
+    "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/index.json",
+    "bytes": 19430,
+    "sha256": "7dcd16051db6dd7deb06808ae44cb1fe874b308f0b19bce3217224307b70e8f7"
+  },
+  "fixture_closure": {
+    "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/fixture-closure.json",
+    "bytes": 9391,
+    "sha256": "16282e18306b8123d8d117c8cd0b8513cfe05f66cdedf7fb51f8e8dbf4e1e417"
+  },
+  "source_identity": {
+    "git_sha": "b9406000f57f6cdbff458a156142a8ca6bb95186",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-imported-module-source-identity-evidence/source-binding-eb4.json",
+    "bytes": 4091,
+    "sha256": "e55cea08b7a44f6b7489416f7c8e6d28afe8c0cc3bbc499005de10b93e9ff725"
+  },
+  "limitations_and_next_owner": [
+    "ROOT/G fetch exact topic/source and independent CASreceipt; ownauthor does not claim all-B/formalclosure or globalsourcequalitygreen. Current corrected scanner execution incomplete SIGKILL9, cause not_established; ROOT combined frozen-base198 gate is separate future execution.",
+    "Opaque external numerical mutableinternals/transitivecode, arbitrary hostile Python/hotreload/concurrentnamespace mutation and in-memory/resource/network/childinputclosure are not attested; strict=False legacy unavailable markers do not carry complete source closure.",
+    "Graph profilev2 requires checkpoint/compiler recomputation; prior v1 snapshots cannot be silently treated as supported selected-member identity. No historical source publication/permission/billing/scientificprefix law is granted.",
+    "A/C-owned generation_cycle/run_lifecycle/streaming source intersections0 under complete5matching sourcepath enum; no lifecycle/served-stream changes or claim. Productiondataset stayslocal; this generic importedmember quantity uses boundedactualfixtures.",
+    "B47 historical review is preserved; currentf796→eb4 linker/composer/semanticvalidator not changed. Historical solver runtime not restamped as new current fullCMP proof.",
+    "All actualred native/mypy/invalidscanner attempts preserved. Initial transient lint diagnostics existed in tooloutputs only (I001/B009), not admitted as complete immutable acceptance bytes; final Ruff/format completePASS logs are committed."
+  ],
+  "dependency_checkpoint": {
+    "fetched_G_sha": "9a187afa4ef75af4a7b01ca49f1cc8194f7b6fe7",
+    "resume_base_sha": "f7967b420a0f80f32c35b2c7e4b5a90a017ff5a1",
+    "resume_admission_root_locator": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/admission/composition-resume.json",
+    "no_new_worktree_helpers_cleanup_numericquota": true
+  },
+  "per_premise_qualifications": {
+    "fixture_scope_artifact_context": "consumer_asserted operational fixture premise; actual CAS bytes/profile/scope independently guarded, no institutional authority",
+    "installed_external_mutable_internals": "not_established explicit finite opaque boundary",
+    "baseline_behavior": "not_established source_reported text only"
+  },
+  "metadata_correction": {
+    "predecessor_receipt_sha": "528f40cf6da8b50d3b96a0d9d76e5f3d015200f1",
+    "reason": "Keep every P37 predicate-basis label one exact registered enum; original descriptive qualifications separately retained. No source/evidence/implementationfootprint/check outcome change."
+  }
+}

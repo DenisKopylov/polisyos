@@ -39,7 +39,7 @@ async def test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_
     from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.data_forge.read_api import catalog as catalog_api
     from polisyos.pdc import gy_content_hash
-    from polisyos.runtime.http import jwt_auth_middleware
+    from polisyos.runtime.http import dev_identity_middleware
     from polisyos.runtime.http.app import create_runtime_api_app
     from polisyos.runtime.http.container import RuntimeContainerOverrides
     from polisyos.runtime.http.dependencies import build_runtime_api_context
@@ -157,6 +157,7 @@ async def test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_
         assert accepted["status"] == "accepted"
         service = first_app.state._control_service
         compiled_refs: dict[str, ArtifactRef] = {}
+        observed_job_scopes: dict[str, tuple[str | None, str | None]] = {}
 
         def persist_manual_partial_for_owned_job(
             owner_service: Any,
@@ -174,6 +175,7 @@ async def test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_
                 expected_tenant_id,
                 expected_cell_id,
             )
+            observed_job_scopes[job.job_id] = (scope.tenant_id, scope.cell_id)
 
             with owner_service._install_execution_scope(scope):
                 core_run_id, core_context = owner_service._start_generation_run_context(
@@ -301,7 +303,7 @@ async def test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_
             }
         )
         monkeypatch.setattr(
-            jwt_auth_middleware,
+            dev_identity_middleware,
             "build_fixture_identity_claims",
             lambda: foreign_claims,
         )
@@ -335,6 +337,10 @@ async def test_partial_checkpoint_survives_owned_core_cas_and_fresh_run_details_
         )
         foreign_job = foreign_service._control_store.get_job(foreign_job_id)
         assert foreign_job is not None and foreign_job.state == "completed"
+        assert observed_job_scopes[foreign_job_id] == (
+            foreign_claims.tenant_id,
+            foreign_claims.cell_id,
+        )
         foreign_projection = foreign_service.resolve_recursive_cycle_checkpoint(
             core_run_id,
             control_job_id=foreign_job_id,

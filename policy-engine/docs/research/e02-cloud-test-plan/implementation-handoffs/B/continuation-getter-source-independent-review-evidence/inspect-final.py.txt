@@ -1,0 +1,141 @@
+"""Read Git-only input custody for the independent getter source review.
+
+No Polisyos modules, functions, descriptors or scientific bodies are imported
+or executed. This is a metadata inspection instrument, not a runtime test.
+"""
+from pathlib import Path
+import ast
+import hashlib
+import json
+import os
+import subprocess
+import sys
+
+ROOT = Path('/workspace/e02-B-current-cas-generation')
+OBJECTS = '/tmp/e02-B-jit-data-getattr-20261007/git-objects'
+ALT = '/workspace/polisyos/.git/objects'
+BASE = '6fa9b7142ba590c3173f1cd3be097286db5acc4d'
+AUTHORED_BASE = 'e82ac5834ee481051f905edfe0bd68ba19dcc6ad'
+INITIAL = '8aa69009572bdec3b4906257208c601bed4fd9a6'
+SYMBOLS = '5fdd09d3b772ca84a95c0bbf13e0b3ef74018640'
+FINAL = '0903e31d1b9090560280c2e15aea0575da97ec20'
+PATHS = [
+    'policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py',
+    'policy-engine/src/polisyos/foundry/methods/artifacts/README.md',
+    'policy-engine/release-fragments/unreleased/2026-10-07-foundry-imported-module-identity.toml',
+    'policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py',
+]
+env = os.environ.copy()
+env['GIT_ALTERNATE_OBJECT_DIRECTORIES'] = OBJECTS + ':' + ALT
+
+def git(*args):
+    return subprocess.check_output(['git', *args], cwd=ROOT, env=env)
+
+def source(ref, path):
+    data = git('show', ref + ':' + path)
+    return data, {
+        'source_sha': ref,
+        'source_tree': git('rev-parse', ref + '^{tree}').decode().strip(),
+        'path': path,
+        'git_blob': git('rev-parse', ref + ':' + path).decode().strip(),
+        'bytes': len(data),
+        'sha256': hashlib.sha256(data).hexdigest(),
+    }
+
+def functions(data):
+    parsed = ast.parse(data.decode())
+    return {
+        node.name: ast.dump(node, include_attributes=False)
+        for node in parsed.body
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    }
+
+head_before = git('rev-parse', 'HEAD').decode().strip()
+status_before = git('status', '--porcelain=v1').decode()
+source_refs = []
+contents = {}
+for ref in [BASE, INITIAL, SYMBOLS, FINAL]:
+    for path in PATHS:
+        data, identity = source(ref, path)
+        source_refs.append(identity)
+        contents[(ref, path)] = data
+production = PATHS[0]
+old_functions = functions(contents[(BASE, production)])
+new_functions = functions(contents[(FINAL, production)])
+preserved = ['_instructions', '_function_captures', '_module_paths',
+             '_module_capture', '_external_member_boundary', '_unavailable',
+             '_version', 'implementation_identity_projection']
+unchanged_ast = {name: old_functions[name] == new_functions[name] for name in preserved}
+getter = new_functions['_data_field_getattr']
+source_text = contents[(FINAL, production)].decode()
+test_text = contents[(FINAL, PATHS[3])].decode()
+doc_text = contents[(FINAL, PATHS[1])].decode()
+release_text = contents[(FINAL, PATHS[2])].decode()
+root_names = [line for line in source_text.splitlines() if any(
+    marker in line for marker in ['scope.get_type()', 'scope.get_name()',
+                                'scope.get_lineno()', 'is_assigned()', 'is_imported()'])]
+errors = []
+if not all(unchanged_ast.values()):
+    errors.append('unexpected changed preserved guard function AST')
+if 'symtable.SymbolTableType.FUNCTION' not in getter:
+    # AST attribute spelling is separate nodes; inspect the source literal too.
+    if 'scope.get_type() == symtable.SymbolTableType.FUNCTION' not in source_text:
+        errors.append('missing actual FUNCTION scope predicate')
+expected_paths = set(PATHS)
+actual_paths = set(git('diff', '--name-only', AUTHORED_BASE, FINAL).decode().splitlines())
+if actual_paths != expected_paths:
+    errors.append({'unexpected_full_delta': sorted(actual_paths ^ expected_paths)})
+for marker in ['class _ReboundFieldSource:', 'except ValueError as state:',
+               'class _GenericFieldSource:', 'def pure_step[T](state, params):',
+               'with pytest.raises(CheckpointIdentityError):', 'assert dispatcher.calls == []']:
+    if marker not in test_text:
+        errors.append('missing reviewed native input/assertion: ' + marker)
+for data, markers in [(doc_text, ['Generic functions', 'runtime targets, descriptors',
+                                  'counterexample', 'B74 is therefore LIMITED.']),
+                      (release_text, ['Generic type-parameter scopes refuse',
+                                      'B74 remains LIMITED', 'no target type or descriptor authority'])]:
+    for marker in markers:
+        if marker not in data:
+            errors.append('missing boundary companion text: ' + marker)
+head_after = git('rev-parse', 'HEAD').decode().strip()
+status_after = git('status', '--porcelain=v1').decode()
+if head_after != head_before or status_after != status_before:
+    errors.append('read-only checkout changed')
+result = {
+    'schema': 'policyos.e02.foreign_source_custody.v1',
+    'source_sha': FINAL,
+    'source_tree': git('rev-parse', FINAL + '^{tree}').decode().strip(),
+    'comparison_refs': [BASE, INITIAL, SYMBOLS],
+    'authored_slice_base_sha': AUTHORED_BASE,
+    'authored_slice_base_tree': git('rev-parse', AUTHORED_BASE + '^{tree}').decode().strip(),
+    'root6fa_comparison': 'Selected four-file source/input projection only; no whole foreign branch equals root6fa claim.',
+    'source_inputs': source_refs,
+    'full_owned_slice_delta_paths': sorted(actual_paths),
+    'preserved_guard_function_ast_equal': unchanged_ast,
+    'final_root_scope_predicates': root_names,
+    'test_input_classification': {
+        'exception_binding': 'real current registered source; strict typed intake refuses before dispatcher calls',
+        'generic_type_parameters': 'same real registered source; unsupported table refuses via existing typed boundary',
+        'finite_alias_numeric': 'existing actual builtin alias and immutable fields; JAX/non-JAX cold/warm numerical consumers',
+        'known_frame_counterexample': 'remaining admitted returned-context identity gap, not xfail or closure',
+    },
+    'verdict': 'NONBLOCKING source-only within declared ordinary-function finite getter profile',
+    'reviewer_runtime': 'UNRUN',
+    'scope_limits': [
+        'Actual root FUNCTION/name/line selected before parameter lookup; no generic scope support inferred.',
+        'Assignment/import census widens ordinary binding class; Store/Del/comprehension checks retained.',
+        'Every actual builtin alias use must be a direct supported call with complete immutable public selectors.',
+        'Runtime target types, descriptors, returned contexts and opaque numerical internals remain unproved.',
+        'B74 LIMITED remains; no all-B, code-quality, runtime, finding or publication-authority acceptance.',
+    ],
+    'actual_review_checkout': {'head_before': head_before, 'head_after': head_after,
+                              'status_before': status_before, 'status_after': status_after},
+    'metadata_interpreter': sys.executable,
+    'read_only_git_environment': {'GIT_ALTERNATE_OBJECT_DIRECTORIES': env['GIT_ALTERNATE_OBJECT_DIRECTORIES']},
+    'audit_errors': errors,
+}
+Path(sys.argv[1]).write_text(json.dumps(result, ensure_ascii=False, indent=2) + '\n')
+print(json.dumps({key: result[key] for key in ['source_sha', 'source_tree',
+      'full_owned_slice_delta_paths', 'preserved_guard_function_ast_equal',
+      'verdict', 'reviewer_runtime', 'audit_errors']}, ensure_ascii=False, indent=2))
+raise SystemExit(bool(errors))

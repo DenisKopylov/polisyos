@@ -1,0 +1,127 @@
+"""Read and reconcile the published foreign final-0903 consumer packet.
+
+Only Git/JSON/XML/literal measured output are read. No candidate module import,
+native run, scientific body, setup, fixture mutation or cleanup occurs here.
+"""
+from pathlib import Path
+import ast
+import hashlib
+import json
+import os
+import subprocess
+import sys
+import xml.etree.ElementTree as ET
+
+ROOT = Path('/workspace/e02-B-current-cas-generation')
+FINAL = '0903e31d1b9090560280c2e15aea0575da97ec20'
+RECEIPT_SHA = 'f6a3e0c8a6e6b4393dc81bb8f15b19815b48638b'
+RECEIPT_PATH = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-independent-final.json'
+env = os.environ.copy()
+env['GIT_ALTERNATE_OBJECT_DIRECTORIES'] = '/tmp/e02-B-jit-data-getattr-20261007/git-objects:/workspace/polisyos/.git/objects'
+
+def git(*args):
+    return subprocess.check_output(['git', *args], cwd=ROOT, env=env)
+
+raw = git('show', RECEIPT_SHA + ':' + RECEIPT_PATH)
+receipt = json.loads(raw)
+refs = {}
+errors = []
+
+def visit(value):
+    if isinstance(value, dict):
+        if all(key in value for key in ['path', 'bytes', 'sha256', 'git_sha']):
+            identity = (value['git_sha'], value['path'])
+            data = git('show', value['git_sha'] + ':' + value['path'])
+            actual = {'git_sha': value['git_sha'], 'path': value['path'],
+                      'git_blob': git('rev-parse', value['git_sha'] + ':' + value['path']).decode().strip(),
+                      'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+            refs[identity] = actual
+            if (actual['bytes'], actual['sha256']) != (value['bytes'], value['sha256']):
+                errors.append({'artifact_hash_mismatch': actual})
+        for child in value.values():
+            visit(child)
+    elif isinstance(value, list):
+        for child in value:
+            visit(child)
+
+visit(receipt)
+check = receipt['checks'][0]
+def read_ref(row):
+    return git('show', row['git_sha'] + ':' + row['path'])
+
+profile = json.loads(read_ref(check['input_closure']['full_origin_before_after']))
+wrapper = json.loads(read_ref(check['wrapper']))
+native = read_ref(check['output']).decode()
+xml = ET.fromstring(read_ref(check['junit']))
+cases = [{'classname': c.attrib.get('classname'), 'name': c.attrib['name'],
+          'outcome': 'FAIL' if c.find('failure') is not None else
+          'ERROR' if c.find('error') is not None else
+          'SKIP' if c.find('skipped') is not None else 'PASS'}
+         for c in xml.iter('testcase')]
+if len(cases) != 3 or any(c['outcome'] != 'PASS' for c in cases):
+    errors.append({'native_case_partition': cases})
+if wrapper['actual_exit'] != 0 or profile['pytest_exit'] != 0:
+    errors.append('nonzero foreign final wrapper or pytest exit')
+for key in ['source_before', 'source_after']:
+    expected_tree = git('rev-parse', FINAL + '^{tree}').decode().strip()
+    if profile[key] != {'sha': FINAL, 'tree': expected_tree, 'status': ''}:
+        errors.append({'source_profile_mismatch': key})
+origins = profile['actual_source_origins']
+for origin in origins:
+    data = git('show', FINAL + ':' + origin['path'])
+    if (len(data), hashlib.sha256(data).hexdigest()) != (origin['bytes'], origin['sha256']):
+        errors.append({'origin_mismatch': origin['module']})
+if len(origins) != 152 or profile['origin_mismatches']:
+    errors.append('filebacked origin census mismatch')
+metrics = [ast.literal_eval(line.split('GETTER_NUMERIC ', 1)[1])
+           for line in native.splitlines() if line.startswith('GETTER_NUMERIC ')]
+arithmetic = []
+settings = {'cold': (2.0, 0.25), 'warm': (-0.5, 3.0),
+            'override': (4.0, -1.0), 'cold_again': (2.0, 0.25)}
+for measured in metrics:
+    for label, (scale, offset) in settings.items():
+        expected = [(left - right) * scale + offset
+                    for left, right in zip([3.0, 8.0, -2.0], [1.5, 2.0, 0.5])]
+        result = measured['outputs'][label]
+        okay = result['score'] == expected and result['spread'] == [4.5, 10.0, -1.5]
+        arithmetic.append({'jit': measured['jit'], 'label': label,
+                           'actual_score': result['score'], 'expected_score': expected,
+                           'actual_spread': result['spread'], 'matches': okay})
+        if not okay:
+            errors.append({'numeric_quantity_mismatch': arithmetic[-1]})
+    if measured['same_kernel'] is not True:
+        errors.append('actual warm kernel not reused')
+if {m['jit'] for m in metrics} != {False, True} or len(metrics) != 2:
+    errors.append('incomplete numerical profile observations')
+refusals = [ast.literal_eval(line.split('GETTER_REFUSAL ', 1)[1])
+            for line in native.splitlines() if line.startswith('GETTER_REFUSAL ')]
+if len(refusals) != 1 or refusals[0]['type'] != 'CompilationError' or refusals[0]['physical_body_exists'] is not False:
+    errors.append('missing typed captured-module refusal observation')
+result = {
+    'schema': 'policyos.e02.foreign_packet_custody.v1',
+    'source_sha': FINAL, 'source_tree': expected_tree,
+    'canonical_peer_receipt': {'git_sha': RECEIPT_SHA, 'path': RECEIPT_PATH,
+                               'bytes': len(raw), 'sha256': hashlib.sha256(raw).hexdigest(),
+                               'tree': git('rev-parse', RECEIPT_SHA + '^{tree}').decode().strip()},
+    'distinct_declared_artifacts': list(refs.values()),
+    'checked_artifact_count': len(refs),
+    'full_junit_cases': cases, 'actual_loaded_filebacked_origin_count': len(origins),
+    'numeric_recomputation': arithmetic,
+    'typed_refusal_observation': refusals,
+    'foreign_wrapper_status': wrapper['actual_exit'],
+    'reviewer_runtime': 'UNRUN',
+    'predicate_basis': 'independently_reconciled',
+    'per_premise_basis': {'hashes_xml_source_origins_and_arithmetic': 'independently_reconciled',
+                          'physical_body_absence_and_handle_identity': 'consumer_asserted by independently authored actual native fixture'},
+    'qualifications': ['Native is the peer actual final0903 run, not replayed by this reviewer.',
+                       '152 denotes loaded local Polisyos filebacked origins; no all-dependency or scientific authority closure.',
+                       'Three PASS arithmetic/refusal cases do not erase the separate admitted frame namespace counterexample.',
+                       'No global quality/cohort/B74 acceptance or inherited grade.'],
+    'audit_errors': errors,
+}
+Path(sys.argv[1]).write_text(json.dumps(result, ensure_ascii=False, indent=2) + '\n')
+print(json.dumps({key: result[key] for key in ['source_sha', 'source_tree',
+    'canonical_peer_receipt', 'checked_artifact_count', 'full_junit_cases',
+    'actual_loaded_filebacked_origin_count', 'numeric_recomputation',
+    'reviewer_runtime', 'audit_errors']}, ensure_ascii=False, indent=2))
+raise SystemExit(bool(errors))

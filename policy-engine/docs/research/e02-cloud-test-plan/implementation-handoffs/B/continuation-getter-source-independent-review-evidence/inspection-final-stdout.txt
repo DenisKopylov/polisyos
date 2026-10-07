@@ -1,0 +1,23 @@
+{
+  "source_sha": "0903e31d1b9090560280c2e15aea0575da97ec20",
+  "source_tree": "67f0998c3da674ab0a3836b22336016b82b348ed",
+  "full_owned_slice_delta_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-07-foundry-imported-module-identity.toml",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/README.md",
+    "policy-engine/src/polisyos/foundry/methods/artifacts/_implementation_identity.py",
+    "policy-engine/tests/unit/foundry/methods/backends/test_module_source_identity.py"
+  ],
+  "preserved_guard_function_ast_equal": {
+    "_instructions": true,
+    "_function_captures": true,
+    "_module_paths": true,
+    "_module_capture": true,
+    "_external_member_boundary": true,
+    "_unavailable": true,
+    "_version": true,
+    "implementation_identity_projection": true
+  },
+  "verdict": "NONBLOCKING source-only within declared ordinary-function finite getter profile",
+  "reviewer_runtime": "UNRUN",
+  "audit_errors": []
+}

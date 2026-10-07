@@ -7,6 +7,11 @@ Imports that depend on JAX stay guarded so non-calibration environments can
 still import the package and inspect the stable model contracts.
 """
 
+from .bayesian_fit_bridge import (
+    BayesianFitBinding,
+    PersistedBayesianFit,
+    persist_bayesian_fit_envelopes,
+)
 from .dp_ci import (
     CIFPRInflationBound,
     CISampleSizeRequirement,
@@ -110,6 +115,9 @@ except (ImportError, ModuleNotFoundError, SyntaxError, IndentationError):  # pra
     inverse_bijector = None  # type: ignore[assignment]
 
 __all__ = [
+    "BayesianFitBinding",
+    "PersistedBayesianFit",
+    "persist_bayesian_fit_envelopes",
     "AuxLossComponent",
     "CIFPRInflationBound",
     "CISampleSizeRequirement",

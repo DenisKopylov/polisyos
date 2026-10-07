@@ -369,6 +369,138 @@ def _gateway_inputs_for_bridge_evidence(
     return inputs, resolver
 
 
+def test_resolver_failures_change_and_survive_fresh_forecast_disposition(
+    tmp_path: Path,
+) -> None:
+    """Canonical resolver failures survive ForecastSupport and a fresh consumer read."""
+
+    from polisyos.calibration.forecast_bridge import EmpiricalCalibrationEvidenceRef
+    from polisyos.ir.artifacts import ArtifactID
+    from polisyos.runtime.quality.design_axes.outcome_prediction import ForecastSupport
+    from polisyos.runtime.quality.generation_cycle import RealValueOwnerGateway
+
+    store, evidence_ref, evidence = _persisted_bridge_fixture(tmp_path)
+    ref_payload = evidence_ref.model_dump(mode="python")
+    missing_artifact_id = ArtifactID.from_sha256_hex("f" * 64)
+    assert all(
+        str(artifact_id) != str(missing_artifact_id)
+        for artifact_id in store.iter_artifact_ids()
+    )
+    unresolved_ref = EmpiricalCalibrationEvidenceRef.model_validate(
+        {**ref_payload, "artifact_id": missing_artifact_id}
+    )
+    wrong_kind_ref = {**ref_payload, "kind": "ir.forecast_support"}
+    roles = {
+        "prediction_time": evidence.prediction_time,
+        "observation_time": evidence.observation_time,
+        "policy_effective_time": evidence.policy_effective_time,
+        "data_valid_time": evidence.data_valid_time,
+        "calibration_window_start": evidence.calibration_window_start,
+        "calibration_window_end": evidence.calibration_window_end,
+    }
+    cases = (
+        ("missing_ref", "empirical_evidence_ref_missing", None, None, roles),
+        (
+            "unresolved_ref",
+            "empirical_evidence_ref_unresolved",
+            unresolved_ref,
+            None,
+            roles,
+        ),
+        (
+            "wrong_kind",
+            "empirical_evidence_ref_kind_mismatch",
+            wrong_kind_ref,
+            None,
+            roles,
+        ),
+        (
+            "wrong_time",
+            "empirical_evidence_time_mismatch",
+            evidence_ref,
+            None,
+            {
+                **roles,
+                "prediction_time": evidence.prediction_time + timedelta(hours=1),
+            },
+        ),
+        (
+            "wrong_rule",
+            "empirical_evidence_rule_mismatch",
+            evidence_ref,
+            "rolling-origin-residual-conformal.wrong-version",
+            roles,
+        ),
+    )
+    report_reason = _generation_cycle("_s10_calibration_evidence_from_report")(
+        _finite_estimator_report()
+    )["forecast_authority_disposition_reason"]
+    reasons: set[str] = set()
+
+    for case_id, error_code, raw_ref, rule_ref, temporal_roles in cases:
+        candidate, problem, world_record = _frc01_subjects()
+        output: dict[str, object] = {"report": _finite_estimator_report()}
+        if raw_ref is not None:
+            output["empirical_calibration_evidence_ref"] = raw_ref
+        if rule_ref is not None:
+            output["expected_rule_version_ref"] = rule_ref
+        else:
+            output["expected_rule_version_ref"] = "rolling-origin-residual-conformal.v1"
+        resolver = _PersistedForecastEvidenceResolver(store)
+        inputs = RealValueOwnerGateway(
+            repo_root=store.root,
+            empirical_evidence_resolver=resolver,
+        ).produce_forecast_inputs(
+            candidate=candidate,
+            problem=problem,
+            world_record=world_record,
+            method_result=SimpleNamespace(
+                output=output,
+                temporal_roles=SimpleNamespace(**temporal_roles),
+            ),
+            selected_method_fqn="forecasting.univariate.exponential_smoothing@1.0.0",
+        )
+
+        support = inputs["forecast_support"]
+        reason = support.forecast_authority_disposition_reason
+        assert resolver.resolved_refs == [raw_ref], case_id
+        assert error_code in reason, case_id
+        assert reason != report_reason, case_id
+        assert (
+            f"s10://calibration/fail-closed/{error_code}" in support.s6_limitation_refs
+        ), case_id
+        assert support.forecast_tier == "blocked", case_id
+        assert support.calibration_record_ref is None, case_id
+        assert inputs["forecast_calibration_record"] is None, case_id
+        assert {
+            "causal_effect_authority",
+            "treatment_assignment_authority",
+            "s10_authority",
+        }.issubset(support.may_not_use_for), case_id
+
+        # ForecastSupport is not persisted by this path. Round-trip its actual
+        # bytes through a fresh file and the existing typed value consumer;
+        # this tests disposition content without inventing a CAS artifact kind.
+        support_path = tmp_path / f"{case_id}-forecast-support.json"
+        support_path.write_bytes(support.model_dump_json().encode("utf-8"))
+        fresh_bytes = support_path.read_bytes()
+        assert error_code.encode("utf-8") in fresh_bytes, case_id
+        fresh_support = ForecastSupport.model_validate_json(fresh_bytes)
+        assert fresh_support.forecast_authority_disposition_reason == reason, case_id
+        fresh_inputs = dict(inputs)
+        fresh_inputs["forecast_support"] = fresh_support
+        fresh_receipt = _generation_cycle("_value_calibration_receipt")(
+            inputs=fresh_inputs,
+            world_record=world_record,
+        )
+        assert fresh_receipt.status == "blocked", case_id
+        assert fresh_receipt.forecast_tier == "blocked", case_id
+        assert "uncalibrated_forecast_minted_value" in fresh_receipt.issue_codes, case_id
+        reasons.add(reason)
+
+    assert len(reasons) == len(cases)
+
+
 @pytest.mark.parametrize(
     ("observations", "expected_numerator", "expected_denominator", "expected_rate"),
     [

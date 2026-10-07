@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/validate-final-companions-corrected.py.txt", line 25, in <module>
+    h=json.loads((d/'final-companions.json').read_text());healthy=validate(h);controls=[]
+                                                                  ^^^^^^^^^^^
+  File "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/validate-final-companions-corrected.py.txt", line 19, in validate
+    patch=ref(h['direct_tracked_final3932_patch']).decode();paths=[m.group(2) for m in re.finditer(r'^diff --git a/(.*?) b/(.*?)$',patch,re.M)];need(len(paths)==9 and len(set(paths))==9,'complete9_patch')
+                                                                                                                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/validate-final-companions-corrected.py.txt", line 6, in need
+    if not v:raise ValueError(m)
+             ^^^^^^^^^^^^^^^^^^^
+ValueError: complete9_patch

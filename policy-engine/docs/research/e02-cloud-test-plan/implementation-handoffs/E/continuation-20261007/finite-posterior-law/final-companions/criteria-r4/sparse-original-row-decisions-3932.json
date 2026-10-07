@@ -1,0 +1,892 @@
+{
+  "schema": "policyos.e02.E.sparse_accountable_original_row_dispositions.v1",
+  "candidate": "3932cded22a29254a7dfced99723e147d6fea7cb",
+  "tree": "8d19c30199666cf97dd3934f60d772baa3071f7e",
+  "ROOT_frozen_source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "ROOT_tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "accountable_owner": "E root; helper independently binds original criteria and receipts",
+  "scope": "Four affected original criteria; no duplicate54plans or auto-ledger rewrite.",
+  "historical_ledger_preserved": {
+    "partial": 49,
+    "held": 4,
+    "closed": 1
+  },
+  "old43_9_2_proposal_immutable": true,
+  "ROOT64d_current_proposals_preserved": {
+    "closed": 41,
+    "limited": 9,
+    "held": 2,
+    "open": 2
+  },
+  "3932_topic_qualified_proposals_after_explicit_E_decision": {
+    "closed": 43,
+    "limited": 9,
+    "held": 2
+  },
+  "G_formal_intake_or_ROOT3932_integration_asserted": false,
+  "appointment": "a0ac10fc11975c345312034d0e568b4cfc330d76",
+  "four_recorded_semantic_decisions": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+  "recorded_technical_compatibility_qualification": "55422d4f179f56d796794938be66bcb0741b13ed",
+  "source_footprint": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-3932cded/full-source-footprint-3932.json",
+    "bytes": 5582,
+    "sha256": "3c77497c5fac05926bb20c0f1550622371f690cb1fce6df6b379cbbb09578eef"
+  },
+  "property_paths_and_native_consumers": [
+    {
+      "role": "producer",
+      "revision": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "bytes": 17155,
+      "sha256": "0ca1f285756508e86ccfadd1ceba011a777dafd91ac2defdc843172985bf3e05"
+    },
+    {
+      "role": "profile_and_reader",
+      "revision": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "bytes": 30919,
+      "sha256": "737af1672db198c1465da8fcf009cd470f479ac342327e4699fb831b91dd0b24"
+    },
+    {
+      "role": "common_law_admission",
+      "revision": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "bytes": 22618,
+      "sha256": "a29fff79a9d9d7cf47f66809f2fcfcc6188722af6f5f1617eb5a78ce5c5a0f4a"
+    },
+    {
+      "role": "common_stochastic_transform",
+      "revision": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "bytes": 71486,
+      "sha256": "4860382fe26db3ad6a29c206aada4b94123b7cd4d941ee79c58beae342f5c47f"
+    },
+    {
+      "role": "native_Node",
+      "revision": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py",
+      "bytes": 20893,
+      "sha256": "a77d35527d03e3c8d25ef33678ecd988c547941353d810460055f1a3eb043e41"
+    },
+    {
+      "role": "single_Welfare_consumer",
+      "revision": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "path": "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py",
+      "bytes": 193138,
+      "sha256": "3e0690590297b52e1fc69b3e52812eba8d3c3c2e73469bc498bba0deca52be23"
+    }
+  ],
+  "rows": [
+    {
+      "id": "B188",
+      "bundle_ids": [
+        "UQP-02"
+      ],
+      "historical_ledger_status": "partial",
+      "original_ownership": {
+        "finding_id": "B188",
+        "unit": "E",
+        "docx_analytical_package": "P30",
+        "source_closure_owner": "UQP-02",
+        "source_bundle_ids": "UQP-02",
+        "source_status": "partial"
+      },
+      "candidate": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "tree": "8d19c30199666cf97dd3934f60d772baa3071f7e",
+      "accountable_owner": "E root",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "decision_scope": "Original bounded mechanical criterion on3932 only",
+      "decision_basis": "One admitted supported joint law precedes backend selection; common Gaussian full covariance/nullspace and explicit empirical paired identity are preserved. Unknown dependence does not imply independent stochastic inputs.",
+      "formal_G_intake": "pending",
+      "formal_ledger_change": false,
+      "previous_ROOT64d_disposition": "closed",
+      "change_kind": "Retained bounded acceptance with affected common-law companion",
+      "original_criterion": {
+        "revision": "3932cded22a29254a7dfced99723e147d6fea7cb",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "lines": [
+          4732,
+          4741
+        ],
+        "sha256": "845944fcb63293d09ccc282370335bbe03a508973c704ac6a58175d019e86771",
+        "text": "## B188. Выбор стратегии меняет совместный закон параметров\n\n**Основание и причина.** Delta использует `build_covariance_matrix`, а analytical суммирует w²σ² без перекрёстных членов. MC создаёт отдельный случайный поток для каждого параметра; QMC отдельно преобразует координаты. Ни analytical-dispatch, ни показанные sampling-loop не используют заявленную covariance и не устанавливают независимость как условие применимости. C18.R04–R08; P12–P14.\n\n**Воспроизведение.** Для a=b, unit variance и y=a−b правильная дисперсия 0. При выровненных метаданных (B187 исключён из опыта) delta дал 0; analytical — 2; MC на 1000 запросах — 1,923327. Контроль совместного draw z для обеих координат дал 0. При действительно независимых a,b analytical=2 является правильным: внутренняя формула не ошибочна в собственной области применимости.\n\n**Предпочтительное исправление.** Разрешить общий совместный входной закон до выбора вычислительного backend. Для допустимой совместной Gaussian-модели переиспользовать covariance: analytical считает wᵀΣw, sampling использует совместные draw. Эмпирические совместные наблюдения сохраняют пары по индексу реплики. Для общей нелинейной зависимости одной covariance недостаточно: нужен подходящий совместный carrier, явно принятая модель зависимости либо набор допустимых альтернатив.\n\n**Оговорки и приёмка.** Независимость остаётся дешёвым полезным режимом, когда она действительно объявлена или обоснована. Она не является консервативной заменой неизвестной зависимости: для суммы и разности направление ошибки разное. Сначала совместимые входы, потом любой fallback. Проверять эквивалентность backend на линейном Gaussian-случае и сохранение нелинейной семантики отдельно. Полная проектная валидация сертификатов не запускалась; опыт устанавливает математическое расхождение локальных производителей, не институциональный допуск результата.\n\n"
+      },
+      "original_card": {
+        "revision": "3932cded22a29254a7dfced99723e147d6fea7cb",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQP-02.md"
+      },
+      "defining_property_and_negative_bindings": [
+        {
+          "id": "actual_all_backend_paired_law_halton",
+          "scope": "Qualified immutable law observation, not new3932 run",
+          "receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+            "bytes": 51924,
+            "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340",
+            "fragment": "#/current_controls/4"
+          }
+        },
+        {
+          "id": "actual_all_backend_paired_law_random",
+          "scope": "Qualified immutable law observation, not new3932 run",
+          "receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+            "bytes": 51924,
+            "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340",
+            "fragment": "#/current_controls/5"
+          }
+        },
+        {
+          "id": "actual_all_backend_paired_law_sobol",
+          "scope": "Qualified immutable law observation, not new3932 run",
+          "receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+            "bytes": 51924,
+            "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340",
+            "fragment": "#/current_controls/6"
+          }
+        },
+        {
+          "id": "producer_missing_joint_premise_refused",
+          "scope": "Qualified immutable law observation, not new3932 run",
+          "receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+            "bytes": 51924,
+            "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340",
+            "fragment": "#/current_controls/19"
+          }
+        },
+        {
+          "id": "fresh_CAS_forged_alignment_shared_admission_removal",
+          "scope": "Qualified immutable law observation, not new3932 run",
+          "receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+            "bytes": 51924,
+            "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340",
+            "fragment": "#/current_controls/16"
+          }
+        },
+        {
+          "id": "nearest_float_proxy_diverges_effective_rounding_removal",
+          "scope": "Qualified immutable law observation, not new3932 run",
+          "receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+            "bytes": 51924,
+            "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340",
+            "fragment": "#/current_controls/18"
+          }
+        },
+        {
+          "id": "unreachable_positive_atom_before_callback_random",
+          "scope": "Qualified immutable law observation, not new3932 run",
+          "receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+            "bytes": 51924,
+            "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340",
+            "fragment": "#/current_controls/22"
+          }
+        },
+        {
+          "id": "unreachable_positive_atom_before_callback_sobol",
+          "scope": "Qualified immutable law observation, not new3932 run",
+          "receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+            "bytes": 51924,
+            "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340",
+            "fragment": "#/current_controls/23"
+          }
+        },
+        {
+          "id": "unreachable_positive_atom_before_callback_halton",
+          "scope": "Qualified immutable law observation, not new3932 run",
+          "receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+            "bytes": 51924,
+            "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340",
+            "fragment": "#/current_controls/21"
+          }
+        }
+      ],
+      "prior_bounded_original_row_input": {
+        "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+        "bytes": 314142,
+        "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+        "fragment": "#/rows/32"
+      },
+      "check_outcomes_separate": [
+        {
+          "outcome": "PASS",
+          "source": "2c0fb5e26172129ab3ae032c24b35ed2ced6c80f",
+          "scope": "414 native affected family cases; context, not closure predicate.",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/author-checks.json",
+            "bytes": 10454,
+            "sha256": "d2494d20b3462061216919ffcccaf0b756ff40f25076beb4356107bd497e28b4"
+          },
+          "JUnit": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/immutable-candidate-family.xml",
+            "bytes": 70209,
+            "sha256": "4b65b1181b54ac151196e2cbbf32379e72d1b521992a12a139ccaf6c9c0e8bcb"
+          }
+        },
+        {
+          "outcome": "PASS",
+          "source": "ca17a489559eb574285bb1c7291cc3c56a9e29da",
+          "scope": "33 distinct qualified independent law controls under exact dependency equality; historical observer errors and three corrective cases retained separately.",
+          "receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+            "bytes": 51924,
+            "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340"
+          }
+        },
+        {
+          "outcome": "PASS",
+          "source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+          "scope": "13 native DTO/CAS/new/old7 replay cases; unchanged function/method/V1 AST.",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-delta-author-proof.json",
+            "bytes": 901,
+            "sha256": "5096f5331c6471b50c4976fc88ecc9f7c68a3b9d8765a98420f39fc23b07fcb1"
+          },
+          "JUnit": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-native-delta.xml",
+            "bytes": 2333,
+            "sha256": "46a70c6b02b7c6ee1f7ae8685c1430478376dec309d71c79a32853c0d725c83b"
+          }
+        },
+        {
+          "outcome": "PASS",
+          "source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+          "scope": "Independent final bounded API/DTO/schema/source GO, separate global typing red.",
+          "receipt": {
+            "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/dto-append-independent-review.json",
+            "bytes": 34502,
+            "sha256": "f295adf3fae520a0f31022c15f2e8f4f4000092a5124c2a9864524fdf50c388c"
+          }
+        }
+      ],
+      "predicate_basis": {
+        "finite_ratio_mass_CDF_sorted_quantile_joint_digest_raw_type_refusal": "recomputed",
+        "supplied_alignment_unit_estimand_context_premise": "consumer_asserted",
+        "posterior_fit_noise_coverage_or_authority": "not_established",
+        "gate_eligible": false
+      },
+      "remaining_original_mechanical_input": null,
+      "release_and_external_consumers": {
+        "capability_state": "surface_missing",
+        "G": "Canonical full103-model/public20-package runtime/client generation; separate formal code and individual finding intake.",
+        "C_F": "Profile2-aware reader and declared alignment/context premises at their own consumers; preserving old literal replay. No C/F acceptance asserted by E."
+      }
+    },
+    {
+      "id": "B192",
+      "bundle_ids": [
+        "UQP-02"
+      ],
+      "historical_ledger_status": "partial",
+      "original_ownership": {
+        "finding_id": "B192",
+        "unit": "E",
+        "docx_analytical_package": "P30",
+        "source_closure_owner": "UQP-02",
+        "source_bundle_ids": "UQP-02",
+        "source_status": "partial"
+      },
+      "candidate": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "tree": "8d19c30199666cf97dd3934f60d772baa3071f7e",
+      "accountable_owner": "E root",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "decision_scope": "Original bounded mechanical criterion on3932 only",
+      "decision_basis": "Random/Sobol/Halton consume the supplied finite carrier and canonical ratio weights through one inverse-CDF transform; atoms and joint rows are not reconstructed from point/interval or silently replaced by Normal.",
+      "formal_G_intake": "pending",
+      "formal_ledger_change": false,
+      "previous_ROOT64d_disposition": "closed",
+      "change_kind": "Retained bounded acceptance with affected common-law companion",
+      "original_criterion": {
+        "revision": "3932cded22a29254a7dfced99723e147d6fea7cb",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "lines": [
+          4772,
+          4781
+        ],
+        "sha256": "3ba8c9b9a37ba35d3d7e210af7d91ecdfaebbc6d642739172a988840a9c2ef34",
+        "text": "## B192. Сохранённый эмпирический закон не используется в повторном распространении\n\n**Основание и причина.** MC `_build_results` сохраняет выборку в `PosteriorSamplesCarrier`, но `_sample_from_envelope` и QMC-transform не читают `distribution_payload`. Для BOOTSTRAP и остальных неразобранных семейств используется Normal с point и std=(hi−lo)/4. Поэтому следующий переход может стереть уже вычисленный закон. C18.R08; P24–P26.\n\n**Воспроизведение.** Два эмпирических carrier с поддержками [-1,1] и [-1,0,0,1], общими point=0 и interval=[−1,1], дали побитово одинаковые 1000 Normal-draw при одном seed. Ни один draw не попал на заявленные атомы. QMC-точки u=0,125/0,375/0,625/0,875 дали приблизительно [−0,575;−0,159;0,159;0,575] вместо эмпирических [−1;−1;1;1]. Контроль, реально выбирающий атомы второго carrier, сохранил поддержку и включил 490 нулей.\n\n**Предпочтительное исправление.** Общий адаптер закона должен сначала использовать имеющийся типизированный carrier: действительные draws/weights, параметрический закон или явный поддерживаемый transform. Для эмпирического закона random sampling и inverse-CDF/QMC должны представлять один предмет. Совместные пары draws сохраняются по B188. Новый resampling уменьшает лишь вычислительную ошибку относительно сохранённого закона, но не создаёт новое эмпирическое основание.\n\n**Оговорки и приёмка.** Normal-аппроксимация допустима как явно выбранная компрессия с проверкой ошибки, областью использования и происхождением. Нельзя автоматически реконструировать полный закон по двум концам интервала. Запрет всех эмпирических priors тоже неоптимален: носитель уже предусмотрен. Проверены helper-функции с carrier-фикстурами, не весь граф IR-валидации. Для первого ремонта достаточно поддержать реально используемое семейство и точно обозначить остальные, без нового универсального sampler.\n\n"
+      },
+      "original_card": {
+        "revision": "3932cded22a29254a7dfced99723e147d6fea7cb",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQP-02.md"
+      },
+      "defining_property_and_negative_bindings": [
+        {
+          "id": "actual_all_backend_paired_law_halton",
+          "scope": "Qualified immutable law observation, not new3932 run",
+          "receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+            "bytes": 51924,
+            "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340",
+            "fragment": "#/current_controls/4"
+          }
+        },
+        {
+          "id": "actual_all_backend_paired_law_random",
+          "scope": "Qualified immutable law observation, not new3932 run",
+          "receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+            "bytes": 51924,
+            "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340",
+            "fragment": "#/current_controls/5"
+          }
+        },
+        {
+          "id": "actual_all_backend_paired_law_sobol",
+          "scope": "Qualified immutable law observation, not new3932 run",
+          "receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+            "bytes": 51924,
+            "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340",
+            "fragment": "#/current_controls/6"
+          }
+        },
+        {
+          "id": "hundred_atoms_fresh_CAS_exact_law_not_old_residual",
+          "scope": "Qualified immutable law observation, not new3932 run",
+          "receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+            "bytes": 51924,
+            "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340",
+            "fragment": "#/current_controls/17"
+          }
+        },
+        {
+          "id": "nearest_float_proxy_diverges_effective_rounding_removal",
+          "scope": "Qualified immutable law observation, not new3932 run",
+          "receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+            "bytes": 51924,
+            "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340",
+            "fragment": "#/current_controls/18"
+          }
+        },
+        {
+          "id": "actual_native_fresh_E_named_mean_consumer",
+          "scope": "Qualified immutable law observation, not new3932 run",
+          "receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+            "bytes": 51924,
+            "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340",
+            "fragment": "#/current_controls/7"
+          }
+        }
+      ],
+      "prior_bounded_original_row_input": {
+        "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+        "bytes": 314142,
+        "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+        "fragment": "#/rows/36"
+      },
+      "check_outcomes_separate": [
+        {
+          "outcome": "PASS",
+          "source": "2c0fb5e26172129ab3ae032c24b35ed2ced6c80f",
+          "scope": "414 native affected family cases; context, not closure predicate.",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/author-checks.json",
+            "bytes": 10454,
+            "sha256": "d2494d20b3462061216919ffcccaf0b756ff40f25076beb4356107bd497e28b4"
+          },
+          "JUnit": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/immutable-candidate-family.xml",
+            "bytes": 70209,
+            "sha256": "4b65b1181b54ac151196e2cbbf32379e72d1b521992a12a139ccaf6c9c0e8bcb"
+          }
+        },
+        {
+          "outcome": "PASS",
+          "source": "ca17a489559eb574285bb1c7291cc3c56a9e29da",
+          "scope": "33 distinct qualified independent law controls under exact dependency equality; historical observer errors and three corrective cases retained separately.",
+          "receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+            "bytes": 51924,
+            "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340"
+          }
+        },
+        {
+          "outcome": "PASS",
+          "source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+          "scope": "13 native DTO/CAS/new/old7 replay cases; unchanged function/method/V1 AST.",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-delta-author-proof.json",
+            "bytes": 901,
+            "sha256": "5096f5331c6471b50c4976fc88ecc9f7c68a3b9d8765a98420f39fc23b07fcb1"
+          },
+          "JUnit": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-native-delta.xml",
+            "bytes": 2333,
+            "sha256": "46a70c6b02b7c6ee1f7ae8685c1430478376dec309d71c79a32853c0d725c83b"
+          }
+        },
+        {
+          "outcome": "PASS",
+          "source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+          "scope": "Independent final bounded API/DTO/schema/source GO, separate global typing red.",
+          "receipt": {
+            "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/dto-append-independent-review.json",
+            "bytes": 34502,
+            "sha256": "f295adf3fae520a0f31022c15f2e8f4f4000092a5124c2a9864524fdf50c388c"
+          }
+        }
+      ],
+      "predicate_basis": {
+        "finite_ratio_mass_CDF_sorted_quantile_joint_digest_raw_type_refusal": "recomputed",
+        "supplied_alignment_unit_estimand_context_premise": "consumer_asserted",
+        "posterior_fit_noise_coverage_or_authority": "not_established",
+        "gate_eligible": false
+      },
+      "remaining_original_mechanical_input": null,
+      "release_and_external_consumers": {
+        "capability_state": "surface_missing",
+        "G": "Canonical full103-model/public20-package runtime/client generation; separate formal code and individual finding intake.",
+        "C_F": "Profile2-aware reader and declared alignment/context premises at their own consumers; preserving old literal replay. No C/F acceptance asserted by E."
+      }
+    },
+    {
+      "id": "B201",
+      "bundle_ids": [
+        "UQS-01"
+      ],
+      "historical_ledger_status": "held",
+      "original_ownership": {
+        "finding_id": "B201",
+        "unit": "E",
+        "docx_analytical_package": "P32",
+        "source_closure_owner": "UQS-01",
+        "source_bundle_ids": "UQS-01",
+        "source_status": "held"
+      },
+      "candidate": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "tree": "8d19c30199666cf97dd3934f60d772baa3071f7e",
+      "accountable_owner": "E root",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "decision_scope": "Original bounded mechanical criterion on3932 only",
+      "decision_basis": "Already computed asymmetric draws are representable with explicitly labelled median as the compatible internal point, separate named exact mean and genuine equal-tail interval. No additional Bayesian fitting or changed Envelope1.1 is needed.",
+      "formal_G_intake": "pending",
+      "formal_ledger_change": false,
+      "previous_ROOT64d_disposition": "open",
+      "change_kind": "New individual correction acceptance",
+      "original_criterion": {
+        "revision": "3932cded22a29254a7dfced99723e147d6fea7cb",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "lines": [
+          4978,
+          4991
+        ],
+        "sha256": "8069cd2dfd13bbfca1d2bbf02a7cc761d6614a5e967d7c11b1de299e64960474",
+        "text": "## B201. Корректная асимметричная posterior-summary отвергается требованием «среднее внутри интервала»\n\n**Основание.** `summarize_bayesian_calibration_posterior` вычисляет posterior mean и центральный equal-tail интервал через quantile. `UncertaintyEnvelope._validate_fields` требует включения point_estimate в этот интервал независимо от вида функционала. Для асимметричного закона такое включение среднего не является математической необходимостью. [C19.R03; C19.R06]\n\n**Различающий пример.** Сто конечных draws: 99 нулей и один 100. Среднее равно 1, а квантили 0,05 и 0,95 равны 0. Выбранный настоящий numerical validator дал `ValidationError`: mean=1 вне [0,0]. Симметричная выборка прошла; NaN по-прежнему правильно отвергался ещё адаптером. C19-P25–P28. Квантили и среднее — разные функционалы, а не два кодирования одного числа. [C19.E02]\n\n**Рекомендуемое исправление.** Отдельно типизировать функционал точки и содержание интервала. Условие включения должно следовать из конкретной семантики, а не применяться ко всем статистическим summaries. Сохранить posterior mean и действительный equal-tail интервал без искажения; по возможности — также исходный carrier.\n\n**Небольшой совместимый путь.** Когда текущий downstream обязательно требует внутреннюю точку, можно явно передать median как такой point, пометив `point_functional=median`, и сохранить mean отдельно в уже существующем `posterior_means`. Это только совместимый вариант для потребителя, который понимает такую метку. Нельзя молча назвать median средним или раздвинуть интервал до mean, продолжая называть его прежним equal-tail.\n\n**Приёмка.** Асимметричная конечная выборка может быть представлена без новых прогонов; точка и интервал сохраняют заявленные смыслы. Проверены симметрия, атомы, ограниченная поддержка, нечисловые значения и серийное чтение. Снятие одного условия не разрешает произвольные несовместимые bounds или отказы от finite-check.\n\n**Статус.** Полный adapter, настоящий NumPy/Pydantic и скопированное без изменения тело numerical validator; остальные IR-типы и decomposition — явные фикстуры. Полный native IR и Bayesian sampler не запускались. Это свойство представления корректных draws, не доказательство достоверности самих draws.\n\n"
+      },
+      "original_card": {
+        "revision": "3932cded22a29254a7dfced99723e147d6fea7cb",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQS-01.md"
+      },
+      "defining_property_and_negative_bindings": [
+        {
+          "id": "hundred_atoms_fresh_CAS_exact_law_not_old_residual",
+          "scope": "Qualified immutable law observation, not new3932 run",
+          "receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+            "bytes": 51924,
+            "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340",
+            "fragment": "#/current_controls/17"
+          }
+        },
+        {
+          "id": "actual_native_fresh_E_named_mean_consumer",
+          "scope": "Qualified immutable law observation, not new3932 run",
+          "receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+            "bytes": 51924,
+            "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340",
+            "fragment": "#/current_controls/7"
+          }
+        },
+        {
+          "id": "actual_E_raw_before_builder_inline_bool",
+          "scope": "Qualified immutable law observation, not new3932 run",
+          "receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+            "bytes": 51924,
+            "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340",
+            "fragment": "#/current_controls/0"
+          }
+        },
+        {
+          "id": "actual_E_raw_before_builder_inline_string",
+          "scope": "Qualified immutable law observation, not new3932 run",
+          "receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+            "bytes": 51924,
+            "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340",
+            "fragment": "#/current_controls/1"
+          }
+        },
+        {
+          "id": "actual_E_raw_before_builder_raw_bool",
+          "scope": "Qualified immutable law observation, not new3932 run",
+          "receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+            "bytes": 51924,
+            "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340",
+            "fragment": "#/current_controls/2"
+          }
+        },
+        {
+          "id": "actual_E_raw_before_builder_raw_string",
+          "scope": "Qualified immutable law observation, not new3932 run",
+          "receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+            "bytes": 51924,
+            "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340",
+            "fragment": "#/current_controls/3"
+          }
+        },
+        {
+          "id": "seven_literal_old700_profile1_mean_ABI_bytes_replay",
+          "scope": "Qualified immutable law observation, not new3932 run",
+          "receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+            "bytes": 51924,
+            "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340",
+            "fragment": "#/current_controls/20"
+          }
+        },
+        {
+          "id": "value_sorted_tiny_tail_refused",
+          "scope": "Qualified immutable law observation, not new3932 run",
+          "receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+            "bytes": 51924,
+            "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340",
+            "fragment": "#/current_controls/24"
+          }
+        }
+      ],
+      "prior_bounded_original_row_input": {
+        "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+        "bytes": 314142,
+        "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+        "fragment": "#/rows/45"
+      },
+      "check_outcomes_separate": [
+        {
+          "outcome": "PASS",
+          "source": "2c0fb5e26172129ab3ae032c24b35ed2ced6c80f",
+          "scope": "414 native affected family cases; context, not closure predicate.",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/author-checks.json",
+            "bytes": 10454,
+            "sha256": "d2494d20b3462061216919ffcccaf0b756ff40f25076beb4356107bd497e28b4"
+          },
+          "JUnit": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/immutable-candidate-family.xml",
+            "bytes": 70209,
+            "sha256": "4b65b1181b54ac151196e2cbbf32379e72d1b521992a12a139ccaf6c9c0e8bcb"
+          }
+        },
+        {
+          "outcome": "PASS",
+          "source": "ca17a489559eb574285bb1c7291cc3c56a9e29da",
+          "scope": "33 distinct qualified independent law controls under exact dependency equality; historical observer errors and three corrective cases retained separately.",
+          "receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+            "bytes": 51924,
+            "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340"
+          }
+        },
+        {
+          "outcome": "PASS",
+          "source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+          "scope": "13 native DTO/CAS/new/old7 replay cases; unchanged function/method/V1 AST.",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-delta-author-proof.json",
+            "bytes": 901,
+            "sha256": "5096f5331c6471b50c4976fc88ecc9f7c68a3b9d8765a98420f39fc23b07fcb1"
+          },
+          "JUnit": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-native-delta.xml",
+            "bytes": 2333,
+            "sha256": "46a70c6b02b7c6ee1f7ae8685c1430478376dec309d71c79a32853c0d725c83b"
+          }
+        },
+        {
+          "outcome": "PASS",
+          "source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+          "scope": "Independent final bounded API/DTO/schema/source GO, separate global typing red.",
+          "receipt": {
+            "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/dto-append-independent-review.json",
+            "bytes": 34502,
+            "sha256": "f295adf3fae520a0f31022c15f2e8f4f4000092a5124c2a9864524fdf50c388c"
+          }
+        }
+      ],
+      "predicate_basis": {
+        "finite_ratio_mass_CDF_sorted_quantile_joint_digest_raw_type_refusal": "recomputed",
+        "supplied_alignment_unit_estimand_context_premise": "consumer_asserted",
+        "posterior_fit_noise_coverage_or_authority": "not_established",
+        "gate_eligible": false
+      },
+      "remaining_original_mechanical_input": null,
+      "release_and_external_consumers": {
+        "capability_state": "surface_missing",
+        "G": "Canonical full103-model/public20-package runtime/client generation; separate formal code and individual finding intake.",
+        "C_F": "Profile2-aware reader and declared alignment/context premises at their own consumers; preserving old literal replay. No C/F acceptance asserted by E."
+      }
+    },
+    {
+      "id": "B202",
+      "bundle_ids": [
+        "UQS-01"
+      ],
+      "historical_ledger_status": "held",
+      "original_ownership": {
+        "finding_id": "B202",
+        "unit": "E",
+        "docx_analytical_package": "P32",
+        "source_closure_owner": "UQS-01",
+        "source_bundle_ids": "UQS-01",
+        "source_status": "held"
+      },
+      "candidate": "3932cded22a29254a7dfced99723e147d6fea7cb",
+      "tree": "8d19c30199666cf97dd3934f60d772baa3071f7e",
+      "accountable_owner": "E root",
+      "owner_decision": "accepted",
+      "proposed_finding_outcome": "closed",
+      "decision_scope": "Original bounded mechanical criterion on3932 only",
+      "decision_basis": "The real summary producer attaches the exact supplied corpus, sample axis/order, canonical ratio weights and explicit shared supplied draw IDs. Fresh CAS readback and complete-group consumer admission preserve supported law-dependent operations.",
+      "formal_G_intake": "pending",
+      "formal_ledger_change": false,
+      "previous_ROOT64d_disposition": "open",
+      "change_kind": "New individual correction acceptance",
+      "original_criterion": {
+        "revision": "3932cded22a29254a7dfced99723e147d6fea7cb",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+        "lines": [
+          4992,
+          5005
+        ],
+        "sha256": "8d507abb668fd82e3a58b5b416e8d011d07927198cfae69949d218a6328a16ab",
+        "text": "## B202. Bayesian-summary не сохраняет путь обратно к уже вычисленному закону\n\n**Основание.** Функция принимает полные posterior draws и формирует Bayesian envelopes с `sample_size` и `posterior_basis=posterior_draws`, но не помещает draws/weights в `distribution_payload` и не добавляет точную ссылку на их артефакт. Межпараметрическая принадлежность одной совместной реплике также не представлена. В IR уже существует `PosteriorSamplesCarrier`; создание нового универсального носителя не требуется. [C19.R03; C19.R06]\n\n**Различающие проверки.** Два массива по 100 draws с одинаковыми mean, STD и центральным интервалом дали одинаковые envelopes, хотя P(X=0) равнялась 0,4 и 0,7. Для двух параметров совместные draws с корреляцией +1 и −1 дали одинаковые маргинальные envelopes. Контроль с сохранённым массивом и draw-index восстановил нужный запрос P(X=0)=0,7. C19-P29–P31.\n\n**Рекомендуемое исправление.** Summary остаётся компактной, но содержит доступ к точному породившему её корпусу: carrier для малых массивов, существующий CAS-ref для больших. Сохраняются sample-axis, идентичности и веса реплик, совместное соответствие параметров, сведения о thinning/компрессии и происхождении. Обозначение posterior ещё не доказывает качество смешивания цепей или эффективный sample-size.\n\n**Почему это расширение, а не запрет.** Для просмотра mean и интервала lossy-summary может быть полностью достаточна. Проблема возникает, когда её передают дальше как доступный закон для нового functional/propagation, а точная связь с draws отсутствует. Не нужно заново запускать дорогое обучение ради информации, которая была на входе адаптера. Исходный posterior мог сохраниться в другом артефакте — его глобальная потеря не установлена.\n\n**Связь с B192.** B192 — потребитель игнорирует carrier, когда он есть. B202 — другой производитель не прикрепляет carrier/ref, когда он его получил. Исправлять необходимо обе стороны соответствующего маршрута, не пересчитывая это как одно и то же наблюдение.\n\n**Приёмка.** Одинаковые mean/CI не сливают различные законы. Изменение batch, порядка сохранения или чтения не теряет совместные draw-идентичности. Компрессия явно ограничивает поддерживаемые запросы и не превращает маргинальные samples в независимые совместные draws.\n\n"
+      },
+      "original_card": {
+        "revision": "3932cded22a29254a7dfced99723e147d6fea7cb",
+        "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/UQS-01.md"
+      },
+      "defining_property_and_negative_bindings": [
+        {
+          "id": "actual_all_backend_paired_law_halton",
+          "scope": "Qualified immutable law observation, not new3932 run",
+          "receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+            "bytes": 51924,
+            "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340",
+            "fragment": "#/current_controls/4"
+          }
+        },
+        {
+          "id": "actual_all_backend_paired_law_random",
+          "scope": "Qualified immutable law observation, not new3932 run",
+          "receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+            "bytes": 51924,
+            "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340",
+            "fragment": "#/current_controls/5"
+          }
+        },
+        {
+          "id": "actual_all_backend_paired_law_sobol",
+          "scope": "Qualified immutable law observation, not new3932 run",
+          "receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+            "bytes": 51924,
+            "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340",
+            "fragment": "#/current_controls/6"
+          }
+        },
+        {
+          "id": "producer_missing_joint_premise_refused",
+          "scope": "Qualified immutable law observation, not new3932 run",
+          "receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+            "bytes": 51924,
+            "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340",
+            "fragment": "#/current_controls/19"
+          }
+        },
+        {
+          "id": "fresh_CAS_forged_alignment_shared_admission_removal",
+          "scope": "Qualified immutable law observation, not new3932 run",
+          "receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+            "bytes": 51924,
+            "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340",
+            "fragment": "#/current_controls/16"
+          }
+        },
+        {
+          "id": "hundred_atoms_fresh_CAS_exact_law_not_old_residual",
+          "scope": "Qualified immutable law observation, not new3932 run",
+          "receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+            "bytes": 51924,
+            "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340",
+            "fragment": "#/current_controls/17"
+          }
+        },
+        {
+          "id": "seven_literal_old700_profile1_mean_ABI_bytes_replay",
+          "scope": "Qualified immutable law observation, not new3932 run",
+          "receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+            "bytes": 51924,
+            "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340",
+            "fragment": "#/current_controls/20"
+          }
+        }
+      ],
+      "prior_bounded_original_row_input": {
+        "path": "/tmp/e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json",
+        "bytes": 314142,
+        "sha256": "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8",
+        "fragment": "#/rows/46"
+      },
+      "check_outcomes_separate": [
+        {
+          "outcome": "PASS",
+          "source": "2c0fb5e26172129ab3ae032c24b35ed2ced6c80f",
+          "scope": "414 native affected family cases; context, not closure predicate.",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/author-checks.json",
+            "bytes": 10454,
+            "sha256": "d2494d20b3462061216919ffcccaf0b756ff40f25076beb4356107bd497e28b4"
+          },
+          "JUnit": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/immutable-candidate-family.xml",
+            "bytes": 70209,
+            "sha256": "4b65b1181b54ac151196e2cbbf32379e72d1b521992a12a139ccaf6c9c0e8bcb"
+          }
+        },
+        {
+          "outcome": "PASS",
+          "source": "ca17a489559eb574285bb1c7291cc3c56a9e29da",
+          "scope": "33 distinct qualified independent law controls under exact dependency equality; historical observer errors and three corrective cases retained separately.",
+          "receipt": {
+            "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-final-review-ca17.json",
+            "bytes": 51924,
+            "sha256": "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340"
+          }
+        },
+        {
+          "outcome": "PASS",
+          "source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+          "scope": "13 native DTO/CAS/new/old7 replay cases; unchanged function/method/V1 AST.",
+          "receipt": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-delta-author-proof.json",
+            "bytes": 901,
+            "sha256": "5096f5331c6471b50c4976fc88ecc9f7c68a3b9d8765a98420f39fc23b07fcb1"
+          },
+          "JUnit": {
+            "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/dto-native-delta.xml",
+            "bytes": 2333,
+            "sha256": "46a70c6b02b7c6ee1f7ae8685c1430478376dec309d71c79a32853c0d725c83b"
+          }
+        },
+        {
+          "outcome": "PASS",
+          "source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+          "scope": "Independent final bounded API/DTO/schema/source GO, separate global typing red.",
+          "receipt": {
+            "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/dto-append-independent-review.json",
+            "bytes": 34502,
+            "sha256": "f295adf3fae520a0f31022c15f2e8f4f4000092a5124c2a9864524fdf50c388c"
+          }
+        }
+      ],
+      "predicate_basis": {
+        "finite_ratio_mass_CDF_sorted_quantile_joint_digest_raw_type_refusal": "recomputed",
+        "supplied_alignment_unit_estimand_context_premise": "consumer_asserted",
+        "posterior_fit_noise_coverage_or_authority": "not_established",
+        "gate_eligible": false
+      },
+      "remaining_original_mechanical_input": null,
+      "release_and_external_consumers": {
+        "capability_state": "surface_missing",
+        "G": "Canonical full103-model/public20-package runtime/client generation; separate formal code and individual finding intake.",
+        "C_F": "Profile2-aware reader and declared alignment/context premises at their own consumers; preserving old literal replay. No C/F acceptance asserted by E."
+      }
+    }
+  ],
+  "exact_supported_law_semantics": {
+    "Envelope": "Existing v1.1 unchanged; new metadata profile has distinct Profile2 $id.",
+    "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+    "profile_version": "2.0",
+    "weights": "Canonical power-of-two binary64 ratio weights need not sum1. Exact Fraction(w)/sum(w) binds mean and quantile/sampling partitions.",
+    "uniform_mesh": "Finite U classification uses upward CDF cuts/searchsorted right; finite random/QMC meshes approximate the continuous rational law. No exact arbitrary-real sampling/expectation guarantee.",
+    "unsupported": "Positive atom reachability/canonical ratio collapse or absent shared supplied alignment is refused before nominal and evaluator callbacks.",
+    "old_replay": "Profile1 seven literal payloads display/decode/replay byte-preserved; old positional multi-coordinate carriers gain no stochastic authority.",
+    "compression": "No new thinning or compression. Supplied provenance is preserved without inventing missing scientific alignment evidence."
+  },
+  "independent_original_controls": {
+    "B201": "99zeros+100 => named mean1, labelled median0, true q05/q95[0,0], freshCAS and actual nativeNode nominal1; no widened interval. Invalid raw bool/string refuses before builder/evaluator; wholeprofile/named discriminator controls retained.",
+    "B202": "Same-summary distinct atom corpora remain distinct; actual1:1:2 paired law complete256 Sobol/Halton callback counts64/64/128, analyticmean21/4,var243/16. Missing IDs and integrity-valid forged alignment refuse beforecallbacks; admission removal retaining fields/digests yields257callbacks and fails oracle.",
+    "B188_B192": "Existing Gaussian/fullcov/nullspace controls stay independently qualified. Common finite paired law and exact boundary-neighbor tests now include 100-atom residual and nearestfloat1/3 divergent proxy; no independent marginal replacement or backend-specific CDF law."
+  },
+  "public_generation_packet": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent/generator-3932cded/qualified-owner-projection-packet.json",
+    "bytes": 7773,
+    "sha256": "4e072a6c180495a39bce0341625ed7a6253403852e5c8111a08a073cdb2469d3"
+  },
+  "historical_defining_reds": [
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/actual-conditions-counterexamples.json",
+      "bytes": 18774,
+      "sha256": "d4827c252f4da22f69be8fb920dde6e6a5737553df43a199f886e115637b8042"
+    },
+    {
+      "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/independent-owner-response.json",
+      "bytes": 11390,
+      "sha256": "f3878619073bf02ed4b66f89525958d0cb5c5d929cd1f860a9535a438e1ae5ca"
+    },
+    {
+      "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/candidate-type.stdout.json",
+      "bytes": 2390,
+      "sha256": "c123df6c3dd55ded5ff7e567faf4bc1c9758afc3cc50c468c67b52c8f9a3c153"
+    },
+    {
+      "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/scoped-type-correction.json",
+      "bytes": 3936,
+      "sha256": "89a8a0c02a444f74bc4d2a7d97ef552d88617eb8ba9a9e38426850d56f5c58d2"
+    },
+    {
+      "path": "/tmp/e02-E-MC-public-api-review-ca17-20261007/base-resolved-type.stdout.json",
+      "bytes": 844,
+      "sha256": "3c2e733201331a4923c9175f5c6e4dc749165a3751300b829bf8dbc01fd2edba"
+    }
+  ],
+  "neighboring_scope": {
+    "B194": "Held: absent actual served evaluator/source law/domain remains external.",
+    "B197": "Held: actual source/fit/noise/target join and configured welfare consumer; representation of alreadycomputed draws does not prove those inputs.",
+    "B200": "Limited: content-bound information-unit relationship evidence remains absent.",
+    "B192_vs_B202": "B192 carrier consumption and B202 producer attachment are distinct rows."
+  },
+  "next_results": [
+    "G fetch3932 plus evidence descendants, independently accept code and adjudicate each original finding; ROOT64d evidence never retroactively becomes3932 current PASS.",
+    "G/generator review actual full103-model nine-path patch and current source-dependent 1494-entry runtime confidence projection; regenerate on actual integration source.",
+    "C/F use typed Profile2/oldProfile1 discrimination at their consumers; resolve existing configuredCAS carrier and declare scientific alignment/context premises as nongating unless independently authorized; law-dependent unsupported requests refuse."
+  ],
+  "ROOT_backend": {
+    "execution_state": "running",
+    "outcome": null,
+    "scope": "Separate frozen64d fullbackend retry; no terminal claim here."
+  }
+}

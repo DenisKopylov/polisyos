@@ -1,0 +1,356 @@
+import hashlib
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+REPO = Path("/workspace/e02-E-mc-20261006")
+TMP = Path("/tmp")  # noqa: S108 -- read existing literal content-pinned receipts only
+WORK = Path("/workspace/e02-E-pr38-r3-receipts")
+SOURCE = "3932cded22a29254a7dfced99723e147d6fea7cb"
+TREE = "8d19c30199666cf97dd3934f60d772baa3071f7e"
+BASE = "64d7444a18c55df7b88b71b7699a2f1b25ca24bd"
+ROOT_TREE = "aef23574d3162abb19bf5a1c67d02624ff9d4d1d"
+OLD = Path(TMP / "e02-E-criteria-r4-current54-v2/current-prewave-all-54-owner-dispositions-v2.json")
+MATH = Path(TMP / "e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e")
+API = Path(TMP / "e02-E-MC-public-api-review-ca17-20261007")
+GEN = WORK / "ir-compat-independent/generator-3932cded"
+ORIGINAL = (
+    "policy-engine/docs/plans/active/agent-packages/"
+    "PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md"
+)
+
+
+def require(condition: bool, message: str) -> None:
+    if not condition:
+        raise ValueError(message)
+
+
+def ref(path: Path, fragment: str | None = None) -> dict[str, object]:
+    body = path.read_bytes()
+    value: dict[str, object] = {
+        "path": str(path),
+        "bytes": len(body),
+        "sha256": hashlib.sha256(body).hexdigest(),
+    }
+    if fragment is not None:
+        value["fragment"] = fragment
+    return value
+
+
+def blob(path: str) -> bytes:
+    # Fixed source SHA and internal repository paths, no shell or caller-supplied arguments.
+    return subprocess.run(  # noqa: S603
+        ["/usr/bin/git", "-C", str(REPO), "show", SOURCE + ":" + path],
+        capture_output=True,
+        check=True,
+    ).stdout
+
+
+for input_path, expected in [
+    (OLD, "b82193c49a760c1766970f06ef66485bb5121d54e3052b7cdf01e1acdab611d8"),
+    (
+        MATH / "independent-final-review-ca17.json",
+        "81f32f772907604ca7608f0e85a7229f25b0f94d33568de1f24e6e7cafa00340",
+    ),
+    (
+        API / "dto-append-independent-review.json",
+        "f295adf3fae520a0f31022c15f2e8f4f4000092a5124c2a9864524fdf50c388c",
+    ),
+]:
+    require(hashlib.sha256(input_path.read_bytes()).hexdigest() == expected, "input digest drift")
+
+prior = json.loads(OLD.read_text())
+rows = {r["id"]: r for r in prior["rows"]}
+math = json.loads((MATH / "independent-final-review-ca17.json").read_text())
+api = json.loads((API / "dto-append-independent-review.json").read_text())
+require(math["candidate"] == "ca17a489559eb574285bb1c7291cc3c56a9e29da", "math identity")
+require(api["candidate"] == SOURCE, "API identity")
+controls = {r["id"]: i for i, r in enumerate(math["current_controls"])}
+control_sets = {
+    "B188": [
+        "actual_all_backend_paired_law_halton",
+        "actual_all_backend_paired_law_random",
+        "actual_all_backend_paired_law_sobol",
+        "producer_missing_joint_premise_refused",
+        "fresh_CAS_forged_alignment_shared_admission_removal",
+        "nearest_float_proxy_diverges_effective_rounding_removal",
+        "unreachable_positive_atom_before_callback_random",
+        "unreachable_positive_atom_before_callback_sobol",
+        "unreachable_positive_atom_before_callback_halton",
+    ],
+    "B192": [
+        "actual_all_backend_paired_law_halton",
+        "actual_all_backend_paired_law_random",
+        "actual_all_backend_paired_law_sobol",
+        "hundred_atoms_fresh_CAS_exact_law_not_old_residual",
+        "nearest_float_proxy_diverges_effective_rounding_removal",
+        "actual_native_fresh_E_named_mean_consumer",
+    ],
+    "B201": [
+        "hundred_atoms_fresh_CAS_exact_law_not_old_residual",
+        "actual_native_fresh_E_named_mean_consumer",
+        "actual_E_raw_before_builder_inline_bool",
+        "actual_E_raw_before_builder_inline_string",
+        "actual_E_raw_before_builder_raw_bool",
+        "actual_E_raw_before_builder_raw_string",
+        "seven_literal_old700_profile1_mean_ABI_bytes_replay",
+        "value_sorted_tiny_tail_refused",
+    ],
+    "B202": [
+        "actual_all_backend_paired_law_halton",
+        "actual_all_backend_paired_law_random",
+        "actual_all_backend_paired_law_sobol",
+        "producer_missing_joint_premise_refused",
+        "fresh_CAS_forged_alignment_shared_admission_removal",
+        "hundred_atoms_fresh_CAS_exact_law_not_old_residual",
+        "seven_literal_old700_profile1_mean_ABI_bytes_replay",
+    ],
+}
+line_ranges = {
+    "B188": (4732, 4741),
+    "B192": (4772, 4781),
+    "B201": (4978, 4991),
+    "B202": (4992, 5005),
+}
+original = blob(ORIGINAL).decode().splitlines(keepends=True)
+properties = {
+    "B188": (
+        "One admitted supported joint law precedes backend selection; common Gaussian "
+        "full covariance/nullspace and explicit empirical paired identity are preserved. "
+        "Unknown dependence does not imply independent stochastic inputs."
+    ),
+    "B192": (
+        "Random/Sobol/Halton consume the supplied finite carrier and canonical ratio weights "
+        "through one inverse-CDF transform; atoms and joint rows are not reconstructed from "
+        "point/interval or silently replaced by Normal."
+    ),
+    "B201": (
+        "Already computed asymmetric draws are representable with explicitly labelled "
+        "median as the compatible internal point, separate named exact mean and genuine "
+        "equal-tail interval. No additional Bayesian fitting or changed Envelope1.1 is needed."
+    ),
+    "B202": (
+        "The real summary producer attaches the exact supplied corpus, sample axis/order, "
+        "canonical ratio weights and explicit shared supplied draw IDs. Fresh CAS readback "
+        "and complete-group consumer admission preserve supported law-dependent operations."
+    ),
+}
+source_paths = {
+    "producer": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+    "profile_and_reader": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+    "common_law_admission": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+    "common_stochastic_transform": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+    "native_Node": (
+        "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py"
+    ),
+    "single_Welfare_consumer": (
+        "policy-engine/src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py"
+    ),
+}
+source_refs = []
+for role, path in source_paths.items():
+    body = blob(path)
+    source_refs.append(
+        {
+            "role": role,
+            "revision": SOURCE,
+            "path": path,
+            "bytes": len(body),
+            "sha256": hashlib.sha256(body).hexdigest(),
+        }
+    )
+checks = [
+    {
+        "outcome": "PASS",
+        "source": "2c0fb5e26172129ab3ae032c24b35ed2ced6c80f",
+        "scope": "414 native affected family cases; context, not closure predicate.",
+        "receipt": ref(WORK / "mc-joint-law-r5/author-checks.json"),
+        "JUnit": ref(WORK / "mc-joint-law-r5/immutable-candidate-family.xml"),
+    },
+    {
+        "outcome": "PASS",
+        "source": "ca17a489559eb574285bb1c7291cc3c56a9e29da",
+        "scope": "33 distinct qualified independent law controls under exact dependency equality; "
+        "historical observer errors and three corrective cases retained separately.",
+        "receipt": ref(MATH / "independent-final-review-ca17.json"),
+    },
+    {
+        "outcome": "PASS",
+        "source": SOURCE,
+        "scope": "13 native DTO/CAS/new/old7 replay cases; unchanged function/method/V1 AST.",
+        "receipt": ref(WORK / "mc-joint-law-r5/dto-delta-author-proof.json"),
+        "JUnit": ref(WORK / "mc-joint-law-r5/dto-native-delta.xml"),
+    },
+    {
+        "outcome": "PASS",
+        "source": SOURCE,
+        "scope": "Independent final bounded API/DTO/schema/source GO, separate global typing red.",
+        "receipt": ref(API / "dto-append-independent-review.json"),
+    },
+]
+packet_rows = []
+for identifier in ["B188", "B192", "B201", "B202"]:
+    start, end = line_ranges[identifier]
+    fragment = "".join(original[start - 1 : end])
+    bindings = []
+    for control in control_sets[identifier]:
+        require(control in controls, "missing actual defining control")
+        index = controls[control]
+        require(math["current_controls"][index]["outcome"] == "PASS", "control did not pass")
+        bindings.append(
+            {
+                "id": control,
+                "scope": "Qualified immutable law observation, not new3932 run",
+                "receipt": ref(
+                    MATH / "independent-final-review-ca17.json", f"#/current_controls/{index}"
+                ),
+            }
+        )
+    packet_rows.append(
+        {
+            "id": identifier,
+            "bundle_ids": rows[identifier]["bundle_ids"],
+            "historical_ledger_status": rows[identifier]["historical_ledger_status"],
+            "original_ownership": rows[identifier]["canonical_ownership"],
+            "candidate": SOURCE,
+            "tree": TREE,
+            "accountable_owner": "E root",
+            "owner_decision": "accepted",
+            "proposed_finding_outcome": "closed",
+            "decision_scope": "Original bounded mechanical criterion on3932 only",
+            "decision_basis": properties[identifier],
+            "formal_G_intake": "pending",
+            "formal_ledger_change": False,
+            "previous_ROOT64d_disposition": "open" if identifier in ["B201", "B202"] else "closed",
+            "change_kind": "New individual correction acceptance"
+            if identifier in ["B201", "B202"]
+            else "Retained bounded acceptance with affected common-law companion",
+            "original_criterion": {
+                "revision": SOURCE,
+                "path": ORIGINAL,
+                "lines": [start, end],
+                "sha256": hashlib.sha256(fragment.encode()).hexdigest(),
+                "text": fragment,
+            },
+            "original_card": {
+                "revision": SOURCE,
+                "path": (
+                    "policy-engine/docs/plans/active/agent-packages/"
+                    "PolicyOS_E02_Combined_Agent_Package/bundles/"
+                    + rows[identifier]["bundle_ids"][0]
+                    + ".md"
+                ),
+            },
+            "defining_property_and_negative_bindings": bindings,
+            "prior_bounded_original_row_input": ref(
+                OLD, f"#/rows/{prior['rows'].index(rows[identifier])}"
+            ),
+            "check_outcomes_separate": checks,
+            "predicate_basis": {
+                "finite_ratio_mass_CDF_sorted_quantile_joint_digest_raw_type_refusal": "recomputed",
+                "supplied_alignment_unit_estimand_context_premise": "consumer_asserted",
+                "posterior_fit_noise_coverage_or_authority": "not_established",
+                "gate_eligible": False,
+            },
+            "remaining_original_mechanical_input": None,
+            "release_and_external_consumers": {
+                "capability_state": "surface_missing",
+                "G": "Canonical full103-model/public20-package runtime/client generation; "
+                "separate formal code and individual finding intake.",
+                "C_F": "Profile2-aware reader and declared alignment/context premises at their own "
+                "consumers; preserving old literal replay. No C/F acceptance asserted by E.",
+            },
+        }
+    )
+output = {
+    "schema": "policyos.e02.E.sparse_accountable_original_row_dispositions.v1",
+    "candidate": SOURCE,
+    "tree": TREE,
+    "ROOT_frozen_source": BASE,
+    "ROOT_tree": ROOT_TREE,
+    "accountable_owner": "E root; helper independently binds original criteria and receipts",
+    "scope": "Four affected original criteria; no duplicate54plans or auto-ledger rewrite.",
+    "historical_ledger_preserved": {"partial": 49, "held": 4, "closed": 1},
+    "old43_9_2_proposal_immutable": True,
+    "ROOT64d_current_proposals_preserved": {"closed": 41, "limited": 9, "held": 2, "open": 2},
+    "3932_topic_qualified_proposals_after_explicit_E_decision": {
+        "closed": 43,
+        "limited": 9,
+        "held": 2,
+    },
+    "G_formal_intake_or_ROOT3932_integration_asserted": False,
+    "appointment": "a0ac10fc11975c345312034d0e568b4cfc330d76",
+    "four_recorded_semantic_decisions": "cdaea067935c8062a6a13fab8d7ffb53ae5fd401",
+    "recorded_technical_compatibility_qualification": "55422d4f179f56d796794938be66bcb0741b13ed",
+    "source_footprint": ref(GEN / "full-source-footprint-3932.json"),
+    "property_paths_and_native_consumers": source_refs,
+    "rows": packet_rows,
+    "exact_supported_law_semantics": {
+        "Envelope": "Existing v1.1 unchanged; new metadata profile has distinct Profile2 $id.",
+        "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+        "profile_version": "2.0",
+        "weights": "Canonical power-of-two binary64 ratio weights need not sum1. "
+        "Exact Fraction(w)/sum(w) binds mean and quantile/sampling partitions.",
+        "uniform_mesh": "Finite U classification uses upward CDF cuts/searchsorted right; "
+        "finite random/QMC meshes approximate the continuous rational law. "
+        "No exact arbitrary-real sampling/expectation guarantee.",
+        "unsupported": "Positive atom reachability/canonical ratio collapse or absent shared "
+        "supplied alignment is refused before nominal and evaluator callbacks.",
+        "old_replay": "Profile1 seven literal payloads display/decode/replay byte-preserved; "
+        "old positional multi-coordinate carriers gain no stochastic authority.",
+        "compression": "No new thinning or compression. Supplied provenance is preserved "
+        "without inventing missing scientific alignment evidence.",
+    },
+    "independent_original_controls": {
+        "B201": "99zeros+100 => named mean1, labelled median0, true q05/q95[0,0], freshCAS "
+        "and actual nativeNode nominal1; no widened interval. Invalid raw bool/string "
+        "refuses before builder/evaluator; wholeprofile/named discriminator controls retained.",
+        "B202": "Same-summary distinct atom corpora remain distinct; actual1:1:2 paired law "
+        "complete256 Sobol/Halton callback counts64/64/128, analyticmean21/4,var243/16. "
+        "Missing IDs and integrity-valid forged alignment refuse beforecallbacks; "
+        "admission removal retaining fields/digests yields257callbacks and fails oracle.",
+        "B188_B192": "Existing Gaussian/fullcov/nullspace controls stay independently qualified. "
+        "Common finite paired law and exact boundary-neighbor tests now include "
+        "100-atom residual and nearestfloat1/3 divergent proxy; no independent "
+        "marginal replacement or backend-specific CDF law.",
+    },
+    "public_generation_packet": ref(GEN / "qualified-owner-projection-packet.json"),
+    "historical_defining_reds": [
+        ref(
+            Path(TMP / "e02-E-ir-G855-conditions-independent-64d/")
+            / "actual-conditions-counterexamples.json"
+        ),
+        ref(
+            Path(TMP / "e02-E-ir-G855-conditions-independent-64d/")
+            / "independent-owner-response.json"
+        ),
+        ref(API / "candidate-type.stdout.json"),
+        ref(API / "scoped-type-correction.json"),
+        ref(API / "base-resolved-type.stdout.json"),
+    ],
+    "neighboring_scope": {
+        "B194": "Held: absent actual served evaluator/source law/domain remains external.",
+        "B197": "Held: actual source/fit/noise/target join and configured welfare consumer; "
+        "representation of alreadycomputed draws does not prove those inputs.",
+        "B200": "Limited: content-bound information-unit relationship evidence remains absent.",
+        "B192_vs_B202": "B192 carrier consumption and B202 producer attachment are distinct rows.",
+    },
+    "next_results": [
+        "G fetch3932 plus evidence descendants, independently accept code and adjudicate each "
+        "original finding; ROOT64d evidence never retroactively becomes3932 current PASS.",
+        "G/generator review actual full103-model nine-path patch and current source-dependent "
+        "1494-entry runtime confidence projection; regenerate on actual integration source.",
+        "C/F use typed Profile2/oldProfile1 discrimination at their consumers; resolve existing "
+        "configuredCAS carrier and declare scientific alignment/context premises as nongating "
+        "unless independently authorized; law-dependent unsupported requests refuse.",
+    ],
+    "ROOT_backend": {
+        "execution_state": "running",
+        "outcome": None,
+        "scope": "Separate frozen64d fullbackend retry; no terminal claim here.",
+    },
+}
+p = WORK / "criteria-r4/sparse-original-row-decisions-3932.json"
+p.write_text(json.dumps(output, indent=2, ensure_ascii=False) + "\n")
+sys.stdout.write(json.dumps(ref(p), indent=2) + "\n")

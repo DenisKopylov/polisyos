@@ -1,0 +1,266 @@
+import ast
+import copy
+import hashlib
+import json
+import sys
+from pathlib import Path
+
+WORK = Path("/workspace/e02-E-pr38-r3-receipts")
+GEN = WORK / "ir-compat-independent/generator-3932cded"
+SOURCE = "3932cded22a29254a7dfced99723e147d6fea7cb"
+TREE = "8d19c30199666cf97dd3934f60d772baa3071f7e"
+BASE = "64d7444a18c55df7b88b71b7699a2f1b25ca24bd"
+SOURCE_AGGREGATE = "2924a8116e1d1dbd7c9116ab43deedcd13a8266a0bd2382c9d46e2d7aedd5ffa"
+EXPECTED_PATHS = {
+    "policy-engine/architecture/public_surface/inventory.json",
+    "policy-engine/docs/reference/ir/schema-catalog.md",
+    "policy-engine/docs/reference/public-surface.md",
+    "policy-engine/docs/reference/schemas.md",
+    "policy-engine/schemas/runtime_api_v1.openapi.json",
+    "policy-engine/schemas/snapshots/ir/_manifest.json",
+    "policy-engine/schemas/snapshots/ir/feedback_solve_result.schema.json",
+    "policy-engine/schemas/snapshots/ir/posterior_summary_profile.schema.json",
+    "policy-engine/schemas/snapshots/ir/posterior_summary_profile_v2.schema.json",
+}
+
+
+def need(condition: bool, reason: str) -> None:
+    if not condition:
+        raise ValueError(reason)
+
+
+def read_ref(value: dict[str, object]) -> bytes:
+    need(type(value["bytes"]) is int and value["bytes"] >= 0, "ref count type")
+    digest = value["sha256"]
+    need(isinstance(digest, str) and len(digest) == 64, "ref digest type")
+    need(all(c in "0123456789abcdef" for c in digest), "ref digest format")
+    path = Path(str(value["path"]))
+    need(path.is_absolute() and ".." not in path.parts, "ref path admission")
+    need(str(path).startswith(str(WORK) + "/"), "ref source scope")
+    body = path.read_bytes()
+    need(len(body) == value["bytes"], "ref size drift")
+    need(hashlib.sha256(body).hexdigest() == digest, "ref hash drift")
+    return body
+
+
+def validate(projection: dict[str, object], owner: dict[str, object]) -> None:
+    need(projection["candidate"] == owner["candidate"] == SOURCE, "candidate identity")
+    need(projection["tree"] == owner["tree"] == TREE, "tree identity")
+    need(projection["base"] == owner["ROOT_frozen_source"] == BASE, "base identity")
+    need(projection["outcome"] == "PASS", "projection outcome")
+    need(projection["canonical_full_ABI_count"] == 103, "full ABI denominator")
+    need(projection["IR_models"] == 101 and projection["fabric_models"] == 2, "module denominator")
+    need(projection["old99IR_keys_retained"] is True, "old keys retained")
+    need(
+        projection["full_public_packages"] == 20 and projection["public_families"] == 13,
+        "complete public inventory",
+    )
+    companions = projection["changed_generated_companions"]
+    need(len(companions) == 9, "complete generated companions")
+    need({r["path"] for r in companions} == EXPECTED_PATHS, "generated companion identity")
+    need(projection["runtime_confidence_dependencies"] == 1494, "runtime dependency denominator")
+    need(projection["runtime_source_aggregate"] == SOURCE_AGGREGATE, "runtime aggregate identity")
+    need(projection["capability_state"] == "surface_missing", "current generated capability")
+    need(projection["global_required_gate_outcome"] is None, "no global gate projection PASS")
+    need(projection["shared_generated_files_changed"] is False, "shared owner boundary")
+    need(projection["ROOT_source_environment_or_outputs_changed"] is False, "ROOT custody")
+    need(projection["numeric_or_broad_wave_repeated"] is False, "wave custody")
+    census = json.loads(read_ref(projection["full103_schema_equality_census"]))
+    need(census["candidate"] == SOURCE and census["tree"] == TREE, "census candidate")
+    need(census["all_complete103_before_after_equal"] is True, "schema reuse equality")
+    need(census["all_projected103_model_schema_values_equal"] is True, "projected schema equality")
+    before = json.loads(read_ref(census["before"]))
+    after = json.loads(read_ref(census["after"]))
+    need(before == after, "raw schema array equality")
+    model_rows = {r["abi_key"]: r for r in before["schemas"]}
+    need(len(model_rows) == len(census["models"]) == 103, "census model count")
+    for row in census["models"]:
+        need(row["abi_key"] in model_rows, "unknown model")
+        model = model_rows[row["abi_key"]]
+        need(model["fqn"] == row["fqn"], "census model FQN")
+        need(json.loads(read_ref(row["projected"])) == model["schema"], "actual schema value")
+    footprint = json.loads(read_ref(projection["source_footprint"]))
+    need(footprint["candidate"] == SOURCE and footprint["tree"] == TREE, "footprint identity")
+    need(footprint["full_path_count"] == len(footprint["paths"]) == 24, "full footprint")
+    need(
+        footprint["python_path_count"]
+        == sum(r["path"].endswith(".py") for r in footprint["paths"])
+        == 12,
+        "Python footprint",
+    )
+    runtime = json.loads(read_ref(projection["new_affected_runtime_projection"]))
+    need(runtime["candidate"] == SOURCE and runtime["outcome"] == "PASS", "native runtime identity")
+    need(type(runtime["exit_code"]) is int and runtime["exit_code"] == 0, "native runtime exit")
+    raw_runtime = json.loads(read_ref(runtime["runtime_output"]))
+    need(len(raw_runtime["components"]["schemas"]) == 573, "actual runtime schema count")
+    stack = [raw_runtime]
+    confidence_pairs = []
+    while stack:
+        current = stack.pop()
+        if isinstance(current, dict):
+            if (
+                "bound_dependency_count" in current
+                and "bound_dependency_aggregate_identity" in current
+            ):
+                confidence_pairs.append(
+                    (
+                        current["bound_dependency_count"],
+                        current["bound_dependency_aggregate_identity"],
+                    )
+                )
+            stack.extend(current.values())
+        elif isinstance(current, list):
+            stack.extend(current)
+    need((1494, "sha256:" + SOURCE_AGGREGATE) in confidence_pairs, "actual confidence projection")
+    patch = read_ref(projection["direct_tracked_final_patch"]).decode()
+    need(sum(line.startswith("+++ ") for line in patch.splitlines()) == 9, "full patch paths")
+    need(projection["patch_check"]["exit_code"] == 0, "actual directtracked patch check")
+    need(read_ref(projection["patch_check"]["stdout"]) == b"", "patch check stdout")
+    need(read_ref(projection["patch_check"]["stderr"]) == b"", "patch check stderr")
+    need(
+        owner["historical_ledger_preserved"] == {"partial": 49, "held": 4, "closed": 1},
+        "historical ledger preservation",
+    )
+    need(
+        owner["ROOT64d_current_proposals_preserved"]
+        == {"closed": 41, "limited": 9, "held": 2, "open": 2},
+        "ROOT technical open preservation",
+    )
+    need(
+        owner["3932_topic_qualified_proposals_after_explicit_E_decision"]
+        == {"closed": 43, "limited": 9, "held": 2},
+        "new bounded individual decision layer",
+    )
+    need(
+        owner["G_formal_intake_or_ROOT3932_integration_asserted"] is False,
+        "G acceptance separation",
+    )
+    rows = owner["rows"]
+    need([r["id"] for r in rows] == ["B188", "B192", "B201", "B202"], "sparse original denominator")
+    for row in rows:
+        need(row["candidate"] == SOURCE and row["tree"] == TREE, "row candidate")
+        need(
+            row["owner_decision"] == "accepted" and row["proposed_finding_outcome"] == "closed",
+            "explicit frozen E decision",
+        )
+        need(
+            row["formal_G_intake"] == "pending" and row["formal_ledger_change"] is False,
+            "row formal intake separation",
+        )
+        expected_ledger = "held" if row["id"] in ["B201", "B202"] else "partial"
+        need(row["historical_ledger_status"] == expected_ledger, "row historical ledger")
+        fragment = row["original_criterion"]
+        need(
+            hashlib.sha256(fragment["text"].encode()).hexdigest() == fragment["sha256"],
+            "original criterion bytes",
+        )
+        need(row["predicate_basis"]["gate_eligible"] is False, "non-gating actual purpose")
+        need(
+            row["predicate_basis"]["supplied_alignment_unit_estimand_context_premise"]
+            == "consumer_asserted",
+            "scientific alignment premise",
+        )
+        need(
+            row["predicate_basis"]["posterior_fit_noise_coverage_or_authority"]
+            == "not_established",
+            "posterior authority boundary",
+        )
+        need(len(row["defining_property_and_negative_bindings"]) > 1, "defining negatives bound")
+    law = owner["exact_supported_law_semantics"]
+    need(
+        law["profile_id"] == "urn:policyos:ir:bayesian-posterior-summary-profile:2",
+        "Profile2 identity",
+    )
+    need(law["profile_version"] == "2.0", "distinct profile version")
+    need("need not sum1" in law["weights"], "ratio weights semantics")
+    need(
+        "approximate" in law["uniform_mesh"] and "No exact arbitrary-real" in law["uniform_mesh"],
+        "finite mesh approximation admission",
+    )
+    need(owner["ROOT_backend"]["outcome"] is None, "no running backend PASS")
+
+
+if __name__ == "__main__":
+    projection = json.loads((GEN / "qualified-owner-projection-packet.json").read_text())
+    owner = json.loads((WORK / "criteria-r4/sparse-original-row-decisions-3932.json").read_text())
+    validate(projection, owner)
+    mutations = [
+        ("projection", ["canonical_full_ABI_count"], 102),
+        ("projection", ["canonical_full_ABI_count"], 104),
+        ("projection", ["old99IR_keys_retained"], False),
+        ("projection", ["changed_generated_companions", 0, "path"], "fake/property-present.json"),
+        ("projection", ["runtime_confidence_dependencies"], 1493),
+        ("projection", ["runtime_source_aggregate"], "0" * 64),
+        ("projection", ["global_required_gate_outcome"], "PASS"),
+        ("projection", ["capability_state"], "authority"),
+        ("projection", ["numeric_or_broad_wave_repeated"], True),
+        ("owner", ["ROOT64d_current_proposals_preserved", "closed"], 43),
+        ("owner", ["historical_ledger_preserved", "held"], 0),
+        ("owner", ["G_formal_intake_or_ROOT3932_integration_asserted"], True),
+        ("owner", ["rows", 2, "predicate_basis", "gate_eligible"], True),
+        (
+            "owner",
+            ["rows", 3, "predicate_basis", "supplied_alignment_unit_estimand_context_premise"],
+            "recomputed",
+        ),
+        ("owner", ["rows", 2, "original_criterion", "text"], "same marker but replaced criterion"),
+        (
+            "owner",
+            ["exact_supported_law_semantics", "uniform_mesh"],
+            "Exact arbitrary-real sampling",
+        ),
+        ("owner", ["ROOT_backend", "outcome"], "PASS"),
+    ]
+    results = [{"case": "healthy complete projection and sparse original rows", "outcome": "PASS"}]
+    for kind, keys, value in mutations:
+        p, o = copy.deepcopy(projection), copy.deepcopy(owner)
+        target = p if kind == "projection" else o
+        for key in keys[:-1]:
+            target = target[key]
+        target[keys[-1]] = value
+        try:
+            validate(p, o)
+        except ValueError as exc:
+            results.append({"case": [kind, keys], "outcome": "PASS", "actual_refusal": str(exc)})
+        else:
+            raise ValueError("negative not rejected: " + repr(keys))
+    removal_projection = copy.deepcopy(projection)
+    removal_projection["runtime_confidence_dependencies"] = 1493
+    removal_projection["global_required_gate_outcome"] = "PASS"
+    source_ast = ast.parse(Path(__file__).read_text())
+    nodes = [n for n in source_ast.body if isinstance(n, ast.FunctionDef) and n.name == "validate"]
+    need(len(nodes) == 1, "actual validator removal target")
+    nodes[0].body = [ast.Return(value=ast.Constant(value=None))]
+    ast.fix_missing_locations(source_ast)
+    namespace: dict[str, object] = {"__name__": "effective_property_removal"}
+    exec(compile(source_ast, __file__, "exec"), namespace)  # noqa: S102 -- own immutable AST control
+    namespace["validate"](removal_projection, owner)
+    need(
+        removal_projection["candidate"] == SOURCE
+        and removal_projection["global_required_gate_outcome"] == "PASS",
+        "removal lost markers",
+    )
+    results.append(
+        {
+            "case": "effective summary admission removal retains source and property markers",
+            "outcome": "PASS",
+            "actual_divergence": (
+                "1493 and false global PASS admitted only after actual validator AST-body removal"
+            ),
+        }
+    )
+    sys.stdout.write(
+        json.dumps(
+            {
+                "schema": "policyos.e02.E.author_packet_controls.v1",
+                "candidate": SOURCE,
+                "tree": TREE,
+                "optimized": not __debug__,
+                "outcome": "PASS",
+                "scope": "Author recomputing controls, independent review separate.",
+                "cases": results,
+            },
+            indent=2,
+        )
+        + "\n"
+    )

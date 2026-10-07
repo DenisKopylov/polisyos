@@ -513,8 +513,6 @@ def _normative_generation_sources(
     persist: bool,
     compiled_artifact_ref: ArtifactRef | None = None,
 ) -> dict[str, NormativeGenerationBinding]:
-    from polisyos.runtime.quality.generation_cycle import GENERATION_CYCLE_SCHEMA_VERSION
-
     compiled = CompiledRecursiveGenerationCycleRun.model_validate(
         _read_normative_source(
             store,
@@ -539,7 +537,7 @@ def _normative_generation_sources(
                     media_type="application/json",
                     schema=artifacts.SchemaInfo(
                         name=NORMATIVE_GENERATION_SOURCE_KIND,
-                        version=GENERATION_CYCLE_SCHEMA_VERSION,
+                        version=node.cycle_run.schema_version,
                     ),
                 ),
                 canon_spec=canon.CanonSpec(forbid_floats=False),

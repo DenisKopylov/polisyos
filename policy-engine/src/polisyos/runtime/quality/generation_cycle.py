@@ -207,8 +207,30 @@ GENERATION_CYCLE_SCHEMA_VERSION = "policyos.runtime.generation_cycle_controller.
 _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION = (
     "policyos.runtime.generation_cycle_controller.v4"
 )
+_GENERATION_CYCLE_INTERACTION_SCHEMA_VERSION = (
+    "policyos.runtime.generation_cycle_controller.v5"
+)
+_GENERATION_CYCLE_SOURCE_LIMITED_INTERACTION_SCHEMA_VERSION = (
+    "policyos.runtime.generation_cycle_controller.v6"
+)
+_GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSIONS = frozenset(
+    {
+        _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION,
+        _GENERATION_CYCLE_SOURCE_LIMITED_INTERACTION_SCHEMA_VERSION,
+    }
+)
+_GENERATION_CYCLE_INTERACTION_SCHEMA_VERSIONS = frozenset(
+    {
+        _GENERATION_CYCLE_INTERACTION_SCHEMA_VERSION,
+        _GENERATION_CYCLE_SOURCE_LIMITED_INTERACTION_SCHEMA_VERSION,
+    }
+)
 _GENERATION_CYCLE_CURRENT_SEMANTIC_SCHEMA_VERSIONS = frozenset(
-    {GENERATION_CYCLE_SCHEMA_VERSION, _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION}
+    {
+        GENERATION_CYCLE_SCHEMA_VERSION,
+        *_GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSIONS,
+        *_GENERATION_CYCLE_INTERACTION_SCHEMA_VERSIONS,
+    }
 )
 GENERATION_CYCLE_CONTRACT_SCHEMA_VERSION = (
     "policyos.policy_design_case.layer3_gy.generation_cycle_contract.v2"
@@ -2295,6 +2317,8 @@ class GenerationCycleRun(_StrictModel):
         "policyos.runtime.generation_cycle_controller.v2",
         "policyos.runtime.generation_cycle_controller.v3",
         "policyos.runtime.generation_cycle_controller.v4",
+        "policyos.runtime.generation_cycle_controller.v5",
+        "policyos.runtime.generation_cycle_controller.v6",
     ] = GENERATION_CYCLE_SCHEMA_VERSION
     run_id: str = Field(..., min_length=1)
     design_problem_ref: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
@@ -2406,7 +2430,8 @@ class GenerationCycleRun(_StrictModel):
             elif self.deployment_identity is not None or self.deployment_identity_reason is None:
                 raise ValueError("generation_cycle_deployment_identity_binding_mismatch")
         limitation = self.source_custody_limitation
-        if self.schema_version == _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION:
+        self._require_interaction_evidence_epoch()
+        if self.schema_version in _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSIONS:
             if limitation is None:
                 raise ValueError("generation_cycle_limited_v4_requires_source_limitation")
             if self.source_preservation_receipt is not None:
@@ -2421,6 +2446,33 @@ class GenerationCycleRun(_StrictModel):
         ):
             raise ValueError("generation_source_run_receipt_binding_mismatch")
         return self
+
+    def _require_interaction_evidence_epoch(self) -> None:
+        """Keep the interaction owner outside every frozen legacy epoch."""
+
+        has_interaction_evidence = (
+            self.value_port.conditional_interaction_evidence is not None
+            or any(
+                cycle.value_port.conditional_interaction_evidence is not None
+                for cycle in self.cycles
+            )
+        )
+        if has_interaction_evidence and (
+            self.schema_version not in _GENERATION_CYCLE_INTERACTION_SCHEMA_VERSIONS
+        ):
+            raise ValueError("generation_cycle_interaction_evidence_requires_v5")
+        if (
+            self.schema_version in _GENERATION_CYCLE_INTERACTION_SCHEMA_VERSIONS
+            and not has_interaction_evidence
+        ):
+            raise ValueError("generation_cycle_interaction_evidence_missing")
+        if (
+            self.schema_version in _GENERATION_CYCLE_INTERACTION_SCHEMA_VERSIONS
+            and self.cycles
+            and self.value_port.conditional_interaction_evidence
+            != self.cycles[-1].value_port.conditional_interaction_evidence
+        ):
+            raise ValueError("generation_cycle_interaction_evidence_projection_mismatch")
 
     def verify_strangle_receipt(self, repo_root: Path | None = None) -> None:
         """Require the owner-issued deployment-currentness observation.
@@ -2447,13 +2499,14 @@ class GenerationCycleRun(_StrictModel):
 
     @model_serializer(mode="wrap")
     def _serialize_own_epoch(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:
+        self._require_interaction_evidence_epoch()
         if (
             self.source_custody_limitation is not None
-            and self.schema_version != _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION
+            and self.schema_version not in _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSIONS
         ):
             raise ValueError("generation_cycle_source_limitation_requires_v4")
         if (
-            self.schema_version == _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION
+            self.schema_version in _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSIONS
             and self.source_custody_limitation is None
         ):
             raise ValueError("generation_cycle_limited_v4_requires_source_limitation")
@@ -2469,15 +2522,32 @@ class GenerationCycleRun(_StrictModel):
         elif self.schema_version == GENERATION_CYCLE_SCHEMA_VERSION:
             # Keep every pre-existing v3 field/value while excluding the v4-only field.
             payload.pop("source_custody_limitation", None)
-        elif self.schema_version == _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION:
+        elif self.schema_version == _GENERATION_CYCLE_INTERACTION_SCHEMA_VERSION:
+            payload.pop("source_custody_limitation", None)
+            supplied = _historical_generation_cycle_field_tree(
+                self, payload, version="v5"
+            )
+            if not isinstance(supplied, dict):
+                raise TypeError("historical_generation_payload_invalid")
+            payload = supplied
+        elif self.schema_version in _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSIONS:
             limitation = payload.pop("source_custody_limitation", None)
             if not isinstance(limitation, dict):
                 raise TypeError("generation_cycle_limited_v4_projection_invalid")
-            v3_payload = dict(payload)
-            v3_payload["schema_version"] = GENERATION_CYCLE_SCHEMA_VERSION
-            v3_run = GenerationCycleRun.from_persisted_payload(v3_payload)
+            has_interaction_epoch = (
+                self.schema_version
+                == _GENERATION_CYCLE_SOURCE_LIMITED_INTERACTION_SCHEMA_VERSION
+            )
+            core_version = "v5" if has_interaction_epoch else "v3"
+            core_payload = dict(payload)
+            core_payload["schema_version"] = (
+                _GENERATION_CYCLE_INTERACTION_SCHEMA_VERSION
+                if has_interaction_epoch
+                else GENERATION_CYCLE_SCHEMA_VERSION
+            )
+            core_run = GenerationCycleRun.from_persisted_payload(core_payload)
             supplied = _historical_generation_cycle_field_tree(
-                v3_run, v3_payload, version="v3"
+                core_run, core_payload, version=core_version
             )
             if not isinstance(supplied, dict):
                 raise TypeError("historical_generation_payload_invalid")
@@ -2623,11 +2693,11 @@ def _historical_generation_cycle_run_projection(
     """Return the schema-owned persisted projection for historical N6 replay."""
 
     payload = run.model_dump(mode="json")
-    if not run.schema_version.endswith(".v3"):
-        # The run model serializer already freezes v4 as its v3 core plus limitation.
+    if not run.schema_version.endswith((".v3", ".v5")):
+        # Limited epochs already project their corresponding core plus limitation.
         return payload
     projection = _historical_generation_cycle_field_tree(
-        run, payload, version="v3"
+        run, payload, version=run.schema_version.rsplit(".", 1)[-1]
     )
     if not isinstance(projection, dict):
         raise TypeError("historical_generation_payload_invalid")
@@ -6624,11 +6694,23 @@ class GenerationCycleController:
             promotion_evidence_resolver=self._promotion_evidence_resolver,
         )
         fronts = _derive_fronts(tuple(summaries))
+        has_interaction_evidence = any(
+            cycle.value_port.conditional_interaction_evidence is not None
+            for cycle in cycles
+        )
         run = GenerationCycleRun(
             schema_version=(
-                _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION
+                (
+                    _GENERATION_CYCLE_SOURCE_LIMITED_INTERACTION_SCHEMA_VERSION
+                    if has_interaction_evidence
+                    else _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION
+                )
                 if self._source_custody_limitation is not None
-                else GENERATION_CYCLE_SCHEMA_VERSION
+                else (
+                    _GENERATION_CYCLE_INTERACTION_SCHEMA_VERSION
+                    if has_interaction_evidence
+                    else GENERATION_CYCLE_SCHEMA_VERSION
+                )
             ),
             run_id=run_id,
             design_problem_ref=design_problem_ref,

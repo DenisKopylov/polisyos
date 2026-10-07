@@ -2322,10 +2322,18 @@ _v3_history_models[
         "eligibility_source",
     ],
 }
-# v3 also carries recomputed N5 interaction coverage on candidate-grade N8
-# observations. Keep this optional owner explicit: old v3/v4 wires omit it,
-# while current non-null values must survive historical replay in full.
-_value_port_shape = _v3_history_models[
+# New interaction evidence belongs to a new epoch; v3 stays frozen.
+_v5_history_models = json.loads(json.dumps(_v3_history_models))
+_v5_run_shape = _v5_history_models[
+    "polisyos.runtime.quality.generation_cycle.GenerationCycleRun"
+]
+_v5_run_shape["literal_values"]["schema_version"] = [
+    "policyos.runtime.generation_cycle_controller.v5"
+]
+for _schema_descriptor in _v5_run_shape["field_vocabulary"]["schema_version"]:
+    if _schema_descriptor["kind"] == "literal":
+        _schema_descriptor["values"] = ["policyos.runtime.generation_cycle_controller.v5"]
+_value_port_shape = _v5_history_models[
     "polisyos.runtime.quality.generation_cycle.ValuePortObservation"
 ]
 _value_port_shape["declared_fields"].insert(
@@ -2342,7 +2350,7 @@ _value_port_shape["typed_model_edges"]["conditional_interaction_evidence"] = [
         "polisyos.core.contracts.runtime.ConditionalSimulationInteractionEvidence",
     ]
 ]
-_v3_history_models[
+_v5_history_models[
     "polisyos.core.contracts.runtime.ConditionalSimulationInteractionEvidence"
 ] = {
     "computed_fields": [],
@@ -2445,4 +2453,5 @@ _v3_history_models[
 FROZEN_N6_HISTORY_SCHEMA: Final[dict[str, dict[str, dict[str, object]]]] = {
     **json.loads(_FROZEN_SCHEMA_JSON),
     "v3": _v3_history_models,
+    "v5": _v5_history_models,
 }

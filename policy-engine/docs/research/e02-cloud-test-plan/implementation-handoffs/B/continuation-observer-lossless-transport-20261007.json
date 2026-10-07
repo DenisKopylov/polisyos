@@ -1,0 +1,144 @@
+{
+  "schema": "policyos.e02.implementation_handoff.v1",
+  "unit": "B",
+  "slice": "continuation-observer-lossless-transport-20261007",
+  "closure_ids": [],
+  "bundle_ids": [],
+  "slice_base_sha": "920fed5d97c2a7572e4073f556c51f5b8a190977",
+  "implementation_commits": [
+    "8795fa4d1150b3a67e855cb2987b8558a8cf80d8"
+  ],
+  "candidate_tree_sha": "08f44851ad6ba828be474d97f3a4a0d57e1340bc",
+  "branch": "codex/e02-B-current-runtime",
+  "pull_request": "https://github.com/DenisKopylov/polisyos/pull/46",
+  "changed_paths": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/README.md",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/index.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-custody.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/journal/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/without-journal/stdout.txt",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/representation-forward.json"
+  ],
+  "baseline_cells": [],
+  "checks": [
+    {
+      "command": "git diff --check",
+      "target_sha": "8795fa4d1150b3a67e855cb2987b8558a8cf80d8",
+      "environment": {
+        "cwd": "/workspace/e02-B-current-runtime",
+        "tool": "Git; data-only format and representation check"
+      },
+      "input_closure": {
+        "declared_changed_paths": [
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/README.md",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/index.json",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-custody.json",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/journal/stdout.txt",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/without-journal/stdout.txt",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/representation-forward.json"
+        ],
+        "original_raw_refs": [
+          {
+            "git_sha": "920fed5d97c2a7572e4073f556c51f5b8a190977",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/journal/stdout.txt",
+            "bytes": 1094,
+            "sha256": "d700695c86bd3d2a0a9cec8b3aa5d8075942a9551eca78c3a5cd0abaa62ce52d",
+            "git_blob": "93337d4405b43d7f9fe23a07f36de96b083ea912"
+          },
+          {
+            "git_sha": "920fed5d97c2a7572e4073f556c51f5b8a190977",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/without-journal/stdout.txt",
+            "bytes": 1102,
+            "sha256": "9f7c7ba6bd9369a7d2349454f399dd7f33e4b43920bac97767b2d33f7b9dd163",
+            "git_blob": "2609f7a7c5c1b2eedb01a2a08f2f22fd108d45e8"
+          }
+        ],
+        "representation_rule": "JSON.text UTF-8 decode yields all original bytes, including trailing spaces and final newlines"
+      },
+      "outcome": "PASS",
+      "output": {
+        "diff_check_exit": 0,
+        "diff_check_stdout": "",
+        "full_lossless_bindings": [
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/journal/stdout.txt",
+            "decode_equals_original": true,
+            "raw_bytes": 1094,
+            "raw_sha256": "d700695c86bd3d2a0a9cec8b3aa5d8075942a9551eca78c3a5cd0abaa62ce52d"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/without-journal/stdout.txt",
+            "decode_equals_original": true,
+            "raw_bytes": 1102,
+            "raw_sha256": "9f7c7ba6bd9369a7d2349454f399dd7f33e4b43920bac97767b2d33f7b9dd163"
+          }
+        ],
+        "forward": {
+          "git_sha": "8795fa4d1150b3a67e855cb2987b8558a8cf80d8",
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/representation-forward.json",
+          "bytes": 2169,
+          "sha256": "6051e6fc993d4c113991b3750a70d7eeb3428ceee080f24348cae287c8dfc0d8"
+        }
+      }
+    }
+  ],
+  "property": {
+    "statement": "Preserve complete native stdout evidence while moving trailing whitespace into explicit lossless transport representation.",
+    "runtime_path": [
+      "Original native stdout captured in immutable920fed Git objects",
+      "JSON.text wrapper retains exact raw text and byte/hash identity",
+      "Current index and custody distinguish stored wrapper from decoded stdout",
+      "Receiver decodes text before treating content as native output"
+    ],
+    "proxy_divergence": "Whitespace-clean transport does not imply normalized or rerun native output; decoded original SIGKILL stdout remains unchanged.",
+    "negative_controls": [
+      "Exact byte equality includes trailing native final_line spaces and all newlines; neither output is trimmed.",
+      "Historical source/results/receipt objects remain available; no native rerun or session completion claim."
+    ]
+  },
+  "predicate_basis": "recomputed",
+  "capability_state_or_finding_state": "Representation-only forward correction; original finite review verdicts and empty formal closure unchanged.",
+  "limitations_and_next_owner": [
+    "Root/G must decode JSON.text before reading these two stdout.txt paths; extension is a payload locator, not a raw-text format promise.",
+    "This slice keeps all paths and original Git objects, performs no deletion/history rewrite and no runtime replay.",
+    "Existing historical920fed review references remain bound to the original raw evidence, not silently relabeled current wrappers."
+  ],
+  "evidence_files": [
+    {
+      "git_sha": "8795fa4d1150b3a67e855cb2987b8558a8cf80d8",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/README.md",
+      "bytes": 3552,
+      "sha256": "e77592771b66485c6b72c57eccb6328cc7cd2ebc872c869b8b401cc68f007144"
+    },
+    {
+      "git_sha": "8795fa4d1150b3a67e855cb2987b8558a8cf80d8",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/index.json",
+      "bytes": 6042,
+      "sha256": "5587151db99d754898b76e85dec108d5c18d91c561decf08e1bd7b2406ba3773"
+    },
+    {
+      "git_sha": "8795fa4d1150b3a67e855cb2987b8558a8cf80d8",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-custody.json",
+      "bytes": 6553,
+      "sha256": "7f1a367c8b2062bacf4a6ee56d05dbaa4efa1d3e3047bea74b6edc568f51449f"
+    },
+    {
+      "git_sha": "8795fa4d1150b3a67e855cb2987b8558a8cf80d8",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/journal/stdout.txt",
+      "bytes": 1813,
+      "sha256": "288d9f59feb51b4f807af25fcb300448aa3d3ce698808b864592b4a610f18822"
+    },
+    {
+      "git_sha": "8795fa4d1150b3a67e855cb2987b8558a8cf80d8",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/without-journal/stdout.txt",
+      "bytes": 1829,
+      "sha256": "acdb8c12292a9bcf0abf0e02f1e2427c18b5df382cff7246f8f266a239d61ade"
+    },
+    {
+      "git_sha": "8795fa4d1150b3a67e855cb2987b8558a8cf80d8",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/representation-forward.json",
+      "bytes": 2169,
+      "sha256": "6051e6fc993d4c113991b3750a70d7eeb3428ceee080f24348cae287c8dfc0d8"
+    }
+  ]
+}

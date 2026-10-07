@@ -76,6 +76,169 @@ def _resolve(expr: ast.AST, scope: _Scope) -> str | None:
     return None
 
 
+@dataclass(frozen=True)
+class DirectOwnerReferences:
+    """Lexically resolved direct calls and unresolved references to one owner member."""
+
+    call_sites: tuple[tuple[int, int], ...]
+    unresolved_lines: tuple[int, ...]
+
+    @property
+    def call_lines(self) -> tuple[int, ...]:
+        """Return the source-line denominator without losing stored call columns."""
+
+        return tuple(sorted({line for line, _ in self.call_sites}))
+
+
+def inspect_direct_owner_references(
+    source: str,
+    *,
+    module: str,
+    owner: str,
+    member: str,
+    is_package: bool = False,
+) -> DirectOwnerReferences:
+    """Resolve a bounded direct-call census without asserting runtime reachability.
+
+    Imports, concrete local/owner construction, receiver aliases and annotated
+    parameters use the same lexical binding resolver as the invocation graph.
+    Unknown receivers, escaped member values, reflection and rebinding withhold
+    a clean census. An annotation establishes only this static source binding.
+
+    Args:
+        source: Complete source bytes decoded as UTF-8 by the census owner.
+        module: Canonical module name derived from the declared source path.
+        owner: Fully qualified class whose member is being inspected.
+        member: Exact member name; same-named methods of other owners are excluded.
+        is_package: Whether the source is the package's ``__init__.py``.
+
+    Returns:
+        Resolved call coordinates and unresolved source sites. Neither proves
+        that a runtime entrypoint reaches the call.
+    """
+
+    tree = ast.parse(source, filename=module)
+    top = _Scope(module, module, module, tree, None)
+    classes: set[str] = {owner}
+    calls: set[tuple[int, int]] = set()
+    unresolved: set[int] = set()
+    target = f"{owner}.{member}"
+
+    def bind_import(node: ast.Import | ast.ImportFrom, scope: _Scope) -> None:
+        if isinstance(node, ast.ImportFrom):
+            package = module.split(".") if is_package else module.split(".")[:-1]
+            prefix = node.module or ""
+            if node.level:
+                prefix = ".".join(
+                    package[: len(package) - node.level + 1] + ([prefix] if prefix else [])
+                )
+            for alias in node.names:
+                if alias.name == "*":
+                    unresolved.add(node.lineno)
+                scope.bindings[alias.asname or alias.name] = f"{prefix}.{alias.name}"
+        else:
+            for alias in node.names:
+                scope.bindings[alias.asname or alias.name.split(".")[0]] = (
+                    alias.name if alias.asname else alias.name.split(".")[0]
+                )
+
+    def annotation_binding(node: ast.AST | None, scope: _Scope) -> str | None:
+        if isinstance(node, ast.Constant) and isinstance(node.value, str):
+            try:
+                node = ast.parse(node.value, mode="eval").body
+            except SyntaxError:
+                return None
+        return _resolve(node, scope) if node is not None else None
+
+    def walk(node: ast.AST, scope: _Scope, *, direct_callee: bool = False) -> None:
+        if isinstance(node, (ast.Import, ast.ImportFrom)):
+            bind_import(node, scope)
+            return
+        if isinstance(node, ast.ClassDef):
+            for expression in [*node.decorator_list, *node.bases]:
+                walk(expression, scope)
+            name = f"{scope.name}.{node.name}"
+            scope.bindings[node.name] = name
+            classes.add(name)
+            child = _Scope(name, module, module, node, scope)
+            for statement in node.body:
+                walk(statement, child)
+            return
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)):
+            for expression in [*node.args.defaults, *node.args.kw_defaults]:
+                if expression is not None:
+                    walk(expression, scope)
+            for expression in getattr(node, "decorator_list", ()):
+                walk(expression, scope)
+            name = f"{scope.name}.{getattr(node, 'name', '<lambda>')}"
+            child = _Scope(name, module, module, node, scope)
+            arguments = [*node.args.posonlyargs, *node.args.args, *node.args.kwonlyargs]
+            arguments += [arg for arg in (node.args.vararg, node.args.kwarg) if arg]
+            child.bindings.update(
+                {arg.arg: annotation_binding(arg.annotation, scope) for arg in arguments}
+            )
+            static_method = any(
+                isinstance(decorator, ast.Name) and decorator.id == "staticmethod"
+                for decorator in getattr(node, "decorator_list", ())
+            )
+            if isinstance(scope.node, ast.ClassDef) and arguments and not static_method:
+                child.bindings[arguments[0].arg] = scope.name
+            body = [node.body] if isinstance(node, ast.Lambda) else node.body
+            for statement in body:
+                walk(statement, child)
+            return
+        if isinstance(node, (ast.Assign, ast.AnnAssign)):
+            value = node.value
+            targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+            resolved = _resolve(value, scope) if value is not None else None
+            if isinstance(value, ast.Call):
+                constructed = _resolve(value.func, scope)
+                resolved = constructed if constructed in classes else None
+            for binding in targets:
+                if isinstance(binding, ast.Name):
+                    previous = scope.bindings.get(binding.id)
+                    if previous in {owner, target} and previous != resolved:
+                        unresolved.add(node.lineno)
+                    scope.bindings[binding.id] = resolved
+                elif _resolve(binding, scope) == target:
+                    unresolved.add(node.lineno)
+            if value is not None:
+                walk(
+                    value,
+                    scope,
+                    direct_callee=resolved == target
+                    and all(isinstance(binding, ast.Name) for binding in targets),
+                )
+            return
+        if isinstance(node, ast.Call):
+            resolved = _resolve(node.func, scope)
+            if resolved == target:
+                calls.add((node.lineno, node.col_offset))
+            elif isinstance(node.func, ast.Attribute) and node.func.attr == member:
+                if _resolve(node.func.value, scope) is None:
+                    unresolved.add(node.lineno)
+            elif isinstance(node.func, ast.Name) and node.func.id == member and resolved is None:
+                unresolved.add(node.lineno)
+            if isinstance(node.func, ast.Name) and node.func.id in {"getattr", "setattr"}:
+                attribute = node.args[1] if len(node.args) > 1 else None
+                if not isinstance(attribute, ast.Constant) or attribute.value == member:
+                    unresolved.add(node.lineno)
+            walk(node.func, scope, direct_callee=True)
+            for argument in [*node.args, *(keyword.value for keyword in node.keywords)]:
+                walk(argument, scope)
+            return
+        if isinstance(node, (ast.Name, ast.Attribute)) and (
+            _resolve(node, scope) == target and not direct_callee
+        ):
+            unresolved.add(node.lineno)
+        for child in ast.iter_child_nodes(node):
+            walk(child, scope)
+
+    for statement in tree.body:
+        walk(statement, top)
+    return DirectOwnerReferences(tuple(sorted(calls)), tuple(sorted(unresolved)))
+
+
 def _concrete(node: ast.FunctionDef | ast.AsyncFunctionDef) -> bool:
     body = [
         n

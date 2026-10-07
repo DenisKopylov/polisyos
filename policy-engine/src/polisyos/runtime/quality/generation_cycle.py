@@ -1864,10 +1864,10 @@ class StrangleReceipt(_StrictModel):
     """Source-bound receipt proving ``run_fixture`` is not the production N6 cycle.
 
     The positive claim is deliberately limited to the ``src/polisyos`` source
-    slice and the direct AST symbol census named by ``census_rule``.  It does
-    not establish deployment identity, build identity, or alias/dynamic-call
-    completeness; those are explicit residual limitations rather than hidden
-    claims of enforcement.
+    slice and the bounded direct AST owner census named by ``census_rule``.
+    Lexical imports, concrete receivers and aliases are resolved; unknown
+    binding sites withhold a positive result. It does not establish runtime
+    reachability, deployment identity or dynamic-call completeness.
     """
 
     status: Literal["strangled", "drift", "not_established"]
@@ -1931,12 +1931,12 @@ class StrangleReceipt(_StrictModel):
             allowed_fixture_callers=tuple(
                 caller
                 for caller in census.callers
-                if _is_allowed_fixture_caller(caller)
+                if caller in census.allowed_callers
             ),
             production_single_pass_callers=tuple(
                 caller
                 for caller in census.callers
-                if not _is_allowed_fixture_caller(caller)
+                if caller not in census.allowed_callers
             ),
         )
 
@@ -13818,10 +13818,11 @@ class _StrangleSourceCensus:
     source_file_count: int
     parse_errors: tuple[str, ...]
     callers: tuple[str, ...]
+    allowed_callers: tuple[str, ...] = ()
 
 
 def _collect_strangle_source_census(repo_root: Path) -> _StrangleSourceCensus:
-    """Collect the complete direct-AST census for ``src/polisyos``.
+    """Collect the complete bounded owner-reference census for ``src/polisyos``.
 
     The byte digest is withheld unless every discovered Python file is both
     readable and syntactically parseable.  This keeps a partial denominator
@@ -13830,6 +13831,15 @@ def _collect_strangle_source_census(repo_root: Path) -> _StrangleSourceCensus:
 
     root = repo_root.resolve()
     source_root = root / "src" / "polisyos"
+    if source_root.is_symlink():
+        return _StrangleSourceCensus(
+            status="not_established",
+            source_state="not_established",
+            source_content_hash=None,
+            source_file_count=0,
+            parse_errors=(),
+            callers=(),
+        )
     if not source_root.is_dir():
         return _StrangleSourceCensus(
             status="not_established",
@@ -13839,21 +13849,18 @@ def _collect_strangle_source_census(repo_root: Path) -> _StrangleSourceCensus:
             parse_errors=(),
             callers=(),
         )
-    try:
-        paths = tuple(sorted(source_root.rglob("*.py")))
-    except OSError as exc:
-        return _StrangleSourceCensus(
-            status="not_established",
-            source_state="read_error",
-            source_content_hash=None,
-            source_file_count=0,
-            parse_errors=(f"src/polisyos:read_error:{type(exc).__name__}",),
-            callers=(),
-        )
+    from polisyos.runtime.quality.production_invocation import (
+        inspect_direct_owner_references,
+    )
+
+    unresolved: set[str] = set()
+    paths = _enumerate_n6_source_paths(source_root, unresolved)
 
     source_files: dict[str, str] = {}
     parse_errors: list[str] = []
     callers: list[str] = []
+    allowed_callers: list[str] = []
+    forbidden_callers: set[str] = set()
     for path in paths:
         relative = path.relative_to(root).as_posix()
         try:
@@ -13863,16 +13870,49 @@ def _collect_strangle_source_census(repo_root: Path) -> _StrangleSourceCensus:
             continue
         source_files[relative] = "sha256:" + hashlib.sha256(raw).hexdigest()
         try:
-            tree = ast.parse(raw.decode("utf-8"), filename=str(path))
+            source = raw.decode("utf-8")
+            tree = ast.parse(source, filename=str(path))
         except (SyntaxError, UnicodeDecodeError) as exc:
             parse_errors.append(f"{relative}:parse_error:{type(exc).__name__}")
             continue
-        for node in ast.walk(tree):
-            if isinstance(node, ast.Call) and _call_name(node.func) == "run_fixture":
-                callers.append(f"{relative}:{node.lineno}")
+        module = relative.removeprefix("src/").removesuffix(".py").replace("/", ".")
+        if module.endswith(".__init__"):
+            module = module.removesuffix(".__init__")
+        references = inspect_direct_owner_references(
+            source,
+            module=module,
+            owner="polisyos.runtime.quality.workspace.loop.WorkspaceLoop",
+            member="run_fixture",
+            is_package=path.name == "__init__.py",
+        )
+        parent_by_node = {
+            child: parent
+            for parent in ast.walk(tree)
+            for child in ast.iter_child_nodes(parent)
+        }
+        by_site = {
+            (node.lineno, node.col_offset): node
+            for node in ast.walk(tree)
+            if isinstance(node, ast.Call)
+        }
+        for line, column in references.call_sites:
+            caller = f"{relative}:{line}"
+            callers.append(caller)
+            call = by_site.get((line, column))
+            if call is not None and _is_allowed_n6_fixture_owner_dispatch(
+                relative, call, parent_by_node
+            ):
+                allowed_callers.append(caller)
+            else:
+                forbidden_callers.add(caller)
+        unresolved.update(
+            f"{relative}:{line}:fixture_owner_binding_not_established"
+            for line in references.unresolved_lines
+        )
 
     ordered_errors = tuple(sorted(set(parse_errors)))
     ordered_callers = tuple(sorted(set(callers)))
+    ordered_allowed_callers = tuple(sorted(set(allowed_callers) - forbidden_callers))
     if ordered_errors:
         source_state: Literal[
             "available",
@@ -13892,8 +13932,9 @@ def _collect_strangle_source_census(repo_root: Path) -> _StrangleSourceCensus:
             source_file_count=len(paths),
             parse_errors=ordered_errors,
             callers=ordered_callers,
+            allowed_callers=ordered_allowed_callers,
         )
-    if not source_files:
+    if not source_files or unresolved:
         return _StrangleSourceCensus(
             status="not_established",
             source_state="not_established",
@@ -13901,6 +13942,7 @@ def _collect_strangle_source_census(repo_root: Path) -> _StrangleSourceCensus:
             source_file_count=len(paths),
             parse_errors=(),
             callers=ordered_callers,
+            allowed_callers=ordered_allowed_callers,
         )
     source_content_hash = gy_content_hash(
         {
@@ -13909,7 +13951,7 @@ def _collect_strangle_source_census(repo_root: Path) -> _StrangleSourceCensus:
         }
     )
     production_callers = tuple(
-        caller for caller in ordered_callers if not _is_allowed_fixture_caller(caller)
+        caller for caller in ordered_callers if caller not in ordered_allowed_callers
     )
     return _StrangleSourceCensus(
         status="drift" if production_callers else "strangled",
@@ -13918,6 +13960,7 @@ def _collect_strangle_source_census(repo_root: Path) -> _StrangleSourceCensus:
         source_file_count=len(source_files),
         parse_errors=(),
         callers=ordered_callers,
+        allowed_callers=ordered_allowed_callers,
     )
 
 
@@ -14151,6 +14194,7 @@ def _enumerate_n6_source_paths(
                     elif entry.name.endswith(".py") and entry.is_file(
                         follow_symlinks=True
                     ):
+                        unresolved.add("source_denominator_symlink_file_not_reconciled")
                         paths.append(entry_path)
                 elif entry.is_dir(follow_symlinks=False):
                     pending.append(entry_path)

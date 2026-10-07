@@ -10004,6 +10004,18 @@ class GenerationCycleController:
                     "reason": candidate_reason,
                 }
             )
+        if (
+            next_action.next_action == "advance"
+            and self._cycle_substrate_context is not None
+            and self._cycle_substrate_context.design_problem_ref
+            != _problem_ref(revision.revised_problem)
+        ):
+            next_action = next_action.model_copy(
+                update={
+                    "next_action": "blocked",
+                    "reason": "cycle_substrate_context_reissue_required",
+                }
+            )
         decision = _refinement_decision(
             problem=problem,
             cycle_index=cycle_index,

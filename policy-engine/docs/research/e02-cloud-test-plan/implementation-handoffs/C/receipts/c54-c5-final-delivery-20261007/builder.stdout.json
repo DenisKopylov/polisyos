@@ -1,0 +1,25 @@
+{
+  "json_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-c5-v1.json",
+  "json_sha256": "a955000a989ec0d2ae3b4956ab42b4f3304659279e6897c29ea42cdc6876a41c",
+  "json_bytes": 655130,
+  "markdown_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-c5-v1.md",
+  "markdown_sha256": "7566489e46a19e51d6b914986e33cc298bc5b215e004db7941b519f7caae174a",
+  "markdown_bytes": 195659,
+  "rows": 54,
+  "criterion_occurrences": 59,
+  "bundles": 33,
+  "c4_recommendation_counts": {
+    "closed": 31,
+    "held": 14,
+    "limited": 9
+  },
+  "current_root_verdict_counts": {
+    "closed": 31,
+    "held": 11,
+    "limited": 12
+  },
+  "g_formal_status_counts": {
+    "not_adjudicated": 54
+  },
+  "c5_verdicts_assigned": true
+}

@@ -1,0 +1,30 @@
+{
+  "schema": "policyos.e02.c54.c5.negative-control-index.v1",
+  "source_review_commit": "04eb30817d16f270feae316650994f2e2f273a44",
+  "source_review_result": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c5-final-delivery-20261007/c5-independent-review-result.json",
+    "sha256": "29164aa3bb03b5c25b0e37baf9137fa97932ff0f49b99127feb189b15093909a",
+    "source_original_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c5-independent-review-20261007/review-result.json",
+    "source_original_commit": "04eb30817d16f270feae316650994f2e2f273a44"
+  },
+  "full_command_and_output_receipt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c5-final-delivery-20261007/c5-independent-review-command-results.json",
+    "sha256": "d47f5e4c2913a29fe7024f0b3ace72a834b26d33ac0d89aa24faa8cf5646b8f0",
+    "bytes": 50499,
+    "source_original_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c5-independent-review-20261007/command-results.json",
+    "source_original_sha256": "d47f5e4c2913a29fe7024f0b3ace72a834b26d33ac0d89aa24faa8cf5646b8f0"
+  },
+  "expected": 8,
+  "rejected": 8,
+  "control_names": [
+    "override-source-pointer",
+    "omitted-carry-id",
+    "criterion-hash",
+    "criterion-wording-pointer",
+    "g-status",
+    "stale-source-bytes",
+    "omitted-decision-scope",
+    "untrusted-authority-label"
+  ],
+  "control_outputs": "Complete argv, stdout, and stderr are in the cited command-results JSON."
+}

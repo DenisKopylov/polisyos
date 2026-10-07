@@ -1,0 +1,61 @@
+{
+  "schema": "policyos.e02.c54.c5.preservation-boundaries.v1",
+  "generated_c5_cut": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-c5-v1.json",
+    "sha256": "a955000a989ec0d2ae3b4956ab42b4f3304659279e6897c29ea42cdc6876a41c",
+    "bytes": 655130,
+    "markdown_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/C54-current-root-20261007-c5-v1.md",
+    "markdown_sha256": "7566489e46a19e51d6b914986e33cc298bc5b215e004db7941b519f7caae174a",
+    "markdown_bytes": 195659
+  },
+  "complete_denominators": {
+    "pinned_all_g": {
+      "bundles": 127,
+      "findings": 282,
+      "criterion_occurrences": 291
+    },
+    "c_scope": {
+      "bundles": 33,
+      "findings": 54,
+      "criterion_occurrences": 59
+    }
+  },
+  "layer_counts": {
+    "c4_recommendations_preserved": {
+      "closed": 31,
+      "held": 14,
+      "limited": 9
+    },
+    "c5_root_dispositions": {
+      "closed": 31,
+      "held": 11,
+      "limited": 12
+    },
+    "g_formal_status": {
+      "not_adjudicated": 54
+    }
+  },
+  "compatibility": {
+    "c4_frozen_json_sha256": "4c15e33ea012250934a28d80392fa8483674a5e04b5f3072b4bfc49d087faa84",
+    "c4_frozen_markdown_sha256": "21dc4f7d4c579b6e2a8cff1e85e8ad917e77d1ace631cc504fd13bf561167bad",
+    "c2_source_validator": "PASS",
+    "c2_source_sha256": "38db6cac4195f210425502bd4c7fdf2884ccdb5ae42ef87170d17020a6358dcc",
+    "c2_resolved_pointer_count": 282,
+    "c4_validator": "PASS",
+    "c4_source_commit": "847929e3e0cac30fb49ff61a47ecaf46d41ac94d"
+  },
+  "bounded_claims": {
+    "c5_source_and_projection_admission": "GO per independent source review; all rows have current root dispositions from the pinned input",
+    "new_product_runtime_property": "not_established for every row",
+    "g_formal_closure": "not_adjudicated for all 54 rows",
+    "institutional_root_signature_verification": "not_established; authority is internal source-declared root authority bound to committed bytes",
+    "p41_prior_c3_default_mode_red": "not_established because modified shared paths have no proven zero-overlap denominator",
+    "hooks": "UNRUN; documented one-command core.hooksPath=/dev/null commit override after Lefthook binary was unavailable",
+    "local_legal_presence": "path-presence-only record; no DB payload/row read or hash, and no selected generation/profile/membership digest established"
+  },
+  "independent_review_ref": {
+    "commit": "04eb30817d16f270feae316650994f2e2f273a44",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/C/receipts/c54-c5-independent-review-20261007/review.md",
+    "sha256": "c5acb8243f02079a5c53958d6146516a28afa74527cc2b38ce9ee34a54f78d73"
+  }
+}

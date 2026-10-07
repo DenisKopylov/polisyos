@@ -1,0 +1,30 @@
+{
+  "json_path": ".tmp/e02-C5/raw/c54/compat/C54-current-root-20261007-c4-replay-v2.json",
+  "json_sha256": "4c15e33ea012250934a28d80392fa8483674a5e04b5f3072b4bfc49d087faa84",
+  "json_bytes": 671142,
+  "markdown_path": ".tmp/e02-C5/raw/c54/compat/C54-current-root-20261007-c4-replay-v2.md",
+  "markdown_sha256": "21dc4f7d4c579b6e2a8cff1e85e8ad917e77d1ace631cc504fd13bf561167bad",
+  "markdown_bytes": 457947,
+  "rows": 54,
+  "criterion_occurrences": 59,
+  "bundles": 33,
+  "g_formal_status_counts": {
+    "not_adjudicated": 54
+  },
+  "current_evaluation_state_counts": {
+    "c2_frozen_evidence_carried_forward": 44,
+    "criterion_binding_corrected": 5,
+    "fresh_criterion_evidence_reviewed": 5
+  },
+  "c2_root_verdict_counts_context_only": {
+    "closed": 31,
+    "held": 14,
+    "limited": 9
+  },
+  "current_root_verdict_counts": {
+    "closed": 31,
+    "held": 14,
+    "limited": 9
+  },
+  "final_verdicts_assigned": true
+}

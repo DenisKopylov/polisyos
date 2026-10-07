@@ -1,0 +1,114 @@
+{
+  "schema": "policyos.e02.E.mandatory_selection_membership_controls.v1",
+  "source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+  "tree": "0cb448febf461d0bbdf31645712ad774f5425b72",
+  "trusted_closed_selection": {
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/publication-selection-v2.json",
+    "bytes": 217218,
+    "sha256": "57df05d909ff9838aaaf1e54170518d6259ac1323e2748987e7a41b209054b72"
+  },
+  "trusted_source_sha_pinned": "57df05d909ff9838aaaf1e54170518d6259ac1323e2748987e7a41b209054b72",
+  "trusted_source_bytes_pinned": 217218,
+  "optimized": false,
+  "healthy": true,
+  "complete_member_counts": {
+    "logical": 197,
+    "storage": 127
+  },
+  "old_V2_actual_false_admissions": [
+    {
+      "case": "native_receipt_retotalled_omission",
+      "old_V2_false_admission": true,
+      "retotalled_logical_count": 196,
+      "retotalled_unique_count": 126,
+      "source_tree_native_current_markers_unchanged": true
+    },
+    {
+      "case": "current_selector_packet_retotalled_omission",
+      "old_V2_false_admission": true,
+      "retotalled_logical_count": 195,
+      "retotalled_unique_count": 126,
+      "source_tree_native_current_markers_unchanged": true
+    },
+    {
+      "case": "full_source_gzip_retotalled_omission",
+      "old_V2_false_admission": true,
+      "retotalled_logical_count": 181,
+      "retotalled_unique_count": 126,
+      "source_tree_native_current_markers_unchanged": true
+    }
+  ],
+  "omission_controls": [
+    {
+      "case": "native_receipt_retotalled_omission",
+      "outcome": "PASS",
+      "actual_refusal": "mandatory closed full member Counter assets",
+      "native_source_stdout_files_unchanged": true
+    },
+    {
+      "case": "current_selector_packet_retotalled_omission",
+      "outcome": "PASS",
+      "actual_refusal": "mandatory closed full member Counter assets",
+      "native_source_stdout_files_unchanged": true
+    },
+    {
+      "case": "full_source_gzip_retotalled_omission",
+      "outcome": "PASS",
+      "actual_refusal": "mandatory closed full member Counter assets",
+      "native_source_stdout_files_unchanged": true
+    }
+  ],
+  "other_type_header_controls": [
+    {
+      "case": "source_header_wrong",
+      "outcome": "PASS",
+      "actual_refusal": "trusted selection semantic/source/native headers"
+    },
+    {
+      "case": "current_packet_digest_fake",
+      "outcome": "PASS",
+      "actual_refusal": "trusted selection semantic/source/native headers"
+    },
+    {
+      "case": "retotal_original_logical_bytes_false",
+      "outcome": "PASS",
+      "actual_refusal": "trusted complete member denominator original_logical_bytes"
+    },
+    {
+      "case": "logical_member_replacement",
+      "outcome": "PASS",
+      "actual_refusal": "mandatory closed full member Counter logical_aliases"
+    },
+    {
+      "case": "native_count_bool",
+      "outcome": "PASS",
+      "actual_refusal": "trusted complete member denominator unique_asset_count"
+    }
+  ],
+  "effective_actual_admission_removal": [
+    {
+      "case": "native_receipt_retotalled_omission",
+      "outcome": "PASS",
+      "actual_new_guard_removed_false_admission": true,
+      "expected_independent_membership_assertion": "FAIL",
+      "old_physical_types_gzip_validation_remains_active": true
+    },
+    {
+      "case": "current_selector_packet_retotalled_omission",
+      "outcome": "PASS",
+      "actual_new_guard_removed_false_admission": true,
+      "expected_independent_membership_assertion": "FAIL",
+      "old_physical_types_gzip_validation_remains_active": true
+    },
+    {
+      "case": "full_source_gzip_retotalled_omission",
+      "outcome": "PASS",
+      "actual_new_guard_removed_false_admission": true,
+      "expected_independent_membership_assertion": "FAIL",
+      "old_physical_types_gzip_validation_remains_active": true
+    }
+  ],
+  "original_helpers_selectors_native_bytes_unchanged": true,
+  "new_native_or_math_reexecution": false,
+  "scope": "Typed mandatorylogical/storage Counters against hash-pinned originalclosed denominator, plus all priorphysical/gzip/alias controls. Independentpeerreview separate."
+}

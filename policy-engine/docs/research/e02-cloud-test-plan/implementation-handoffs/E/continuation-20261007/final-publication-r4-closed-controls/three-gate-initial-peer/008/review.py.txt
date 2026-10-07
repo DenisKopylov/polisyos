@@ -1,0 +1,380 @@
+"""Review immutable three-gate receipt custody without running native gates."""
+
+import argparse
+import ast
+import copy
+import gzip
+import hashlib
+import json
+import sys
+from collections import Counter
+from pathlib import Path
+from typing import Any
+
+SOURCE = "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4"
+TREE = "0cb448febf461d0bbdf31645712ad774f5425b72"
+PACKET_SHA = "2d704be9fb2448e6f2453971f7ecfa633873db7540f0f39fa7952a6969037249"
+SELECTION_SHA = "57df05d909ff9838aaaf1e54170518d6259ac1323e2748987e7a41b209054b72"
+
+
+def require(condition: bool, reason: str) -> None:
+    if not condition:
+        raise ValueError(reason)
+
+
+def typed_equal(actual: object, expected: object) -> bool:
+    if type(actual) is not type(expected):
+        return False
+    if isinstance(expected, dict):
+        return actual.keys() == expected.keys() and all(
+            typed_equal(actual[k], value) for k, value in expected.items()
+        )
+    if isinstance(expected, list):
+        return len(actual) == len(expected) and all(
+            typed_equal(a, b) for a, b in zip(actual, expected, strict=True)
+        )
+    return actual == expected
+
+
+def reference(path: Path) -> dict[str, Any]:
+    digest = hashlib.sha256()
+    size = 0
+    with path.open("rb") as stream:
+        while block := stream.read(1048576):
+            size += len(block)
+            digest.update(block)
+    return {"path": str(path), "bytes": size, "sha256": digest.hexdigest()}
+
+
+def read_ref(record: dict[str, Any]) -> bytes:
+    require(type(record["bytes"]) is int and record["bytes"] >= 0, "bad reference size")
+    require(typed_equal(reference(Path(record["path"])), record), "literal reference changed")
+    return Path(record["path"]).read_bytes()
+
+
+def admit_members(actual: dict[str, Any], expected: dict[str, Any]) -> None:
+    actual_logical = Counter(json.dumps(r, sort_keys=True) for r in actual["logical_aliases"])
+    expected_logical = Counter(json.dumps(r, sort_keys=True) for r in expected["logical_aliases"])
+    actual_storage = Counter(json.dumps(r, sort_keys=True) for r in actual["assets"])
+    expected_storage = Counter(json.dumps(r, sort_keys=True) for r in expected["assets"])
+    require(
+        actual_logical == expected_logical and actual_storage == expected_storage,
+        "mandatory closed selected-source/logical/storage denominator changed",
+    )
+
+
+def custody(selection: dict[str, Any]) -> dict[str, Any]:
+    require(
+        type(selection["logical_asset_count"]) is int
+        and type(selection["unique_asset_count"]) is int
+        and type(selection["publication_bytes"]) is int,
+        "publication count type drift",
+    )
+    require(
+        selection["logical_asset_count"] == len(selection["logical_aliases"]) == 197
+        and selection["unique_asset_count"] == len(selection["assets"]) == 127,
+        "complete197/127 denominator drift",
+    )
+    require(
+        sum(a["bytes"] for a in selection["assets"]) == selection["publication_bytes"],
+        "publication byte total drift",
+    )
+    assets = {a["portable_path"]: a for a in selection["assets"]}
+    require(len(assets) == 127, "duplicate portable path")
+    decoded = []
+    for name, asset in assets.items():
+        p = Path(name)
+        require(not p.is_absolute() and ".." not in p.parts, "unsafe portable path")
+        actual = reference(Path(asset["source_path"]))
+        require(
+            type(asset["bytes"]) is int
+            and actual["bytes"] == asset["bytes"]
+            and actual["sha256"] == asset["sha256"],
+            "storage physical bytes changed",
+        )
+        storage = asset["storage"]
+        if storage["mode"] == "gzip_literal_archive":
+            digest = hashlib.sha256()
+            size = 0
+            with gzip.open(asset["source_path"], "rb") as stream:
+                while block := stream.read(1048576):
+                    digest.update(block)
+                    size += len(block)
+            original = storage["decoded_original"]
+            require(
+                type(original["bytes"]) is int
+                and size == original["bytes"]
+                and digest.hexdigest() == original["sha256"],
+                "complete decoded stream changed",
+            )
+            decoded.append(
+                {
+                    "archive": actual,
+                    "decoded_original": original,
+                    "actual_streamed_bytes": size,
+                    "actual_streamed_sha256": digest.hexdigest(),
+                }
+            )
+        else:
+            require(storage["mode"] == "literal", "unsupported storage mode")
+            require(typed_equal(storage["original"], actual), "literal identity changed")
+    for alias in selection["logical_aliases"]:
+        original = alias["source"]
+        require(
+            typed_equal(reference(Path(original["path"])), original), "logical physical alias drift"
+        )
+        stored = assets[alias["portable_path"]]
+        require(
+            typed_equal(alias["storage"], stored["storage"]), "logical/storage identity mismatch"
+        )
+        require(
+            not original["path"].endswith("production-invocation.raw.json")
+            and not original["path"].endswith("git-config-private.nul"),
+            "raw/private input selected",
+        )
+    require(
+        sum(a["source"]["bytes"] for a in selection["logical_aliases"])
+        == selection["original_logical_bytes"],
+        "original logical byte total drift",
+    )
+    require(len(decoded) == 9, "nine decoded archive denominator changed")
+    return {
+        "unique_assets": 127,
+        "logical_source_members": 197,
+        "publication_bytes": selection["publication_bytes"],
+        "original_logical_bytes": selection["original_logical_bytes"],
+        "decoded_archive_count": 9,
+        "decoded_archives": decoded,
+        "new_extractions_or_plaintext_materialization": 0,
+    }
+
+
+def reconcile_packet(packet: dict[str, Any], base: Path) -> list[dict[str, Any]]:
+    require(packet["source"] == SOURCE and packet["tree"] == TREE, "source identity changed")
+    require(len(packet["attempts"]) == 8, "attempt denominator changed")
+    require(
+        packet["finding_closure"] is False
+        and packet["global_wave_repeated"] is False
+        and packet["source_or_generated_edits"] is False,
+        "scope/authority marker changed",
+    )
+    observations = []
+    for attempt in packet["attempts"]:
+        native = json.loads(read_ref(attempt["receipt"]))
+        require(native["source"] == SOURCE and native["tree"] == TREE, "native source mismatch")
+        for summary_key, native_key in [
+            ("command", "command"),
+            ("cwd", "cwd"),
+            ("outcome", "outcome"),
+            ("canonical_selector_outcome", "canonical_selector_outcome"),
+            ("native_exit_code", "exit_code"),
+            ("wall_seconds", "wall_seconds"),
+            ("stdout", "stdout"),
+            ("stderr", "stderr"),
+            ("source_frame", "source_before"),
+            ("source_immutable", "source_immutable"),
+            ("ROOT_environment_metadata_unchanged", "ROOT_environment_metadata_unchanged"),
+        ]:
+            require(
+                typed_equal(attempt[summary_key], native[native_key]),
+                "actual attempt/receipt field mismatch: " + summary_key,
+            )
+        require(type(attempt["native_exit_code"]) is int, "native exit type changed")
+        require(
+            native["source_before"] == native["source_after"]
+            and native["source_immutable"] is True,
+            "recorded source frame changed",
+        )
+        before = native["ROOT_environment_metadata_before"]
+        after = native["ROOT_environment_metadata_after"]
+        require(typed_equal(before, after), "recorded environment metadata changed")
+        require(len(before["metadata_rows"]) == 207, "ROOT207 metadata denominator changed")
+        read_ref(attempt["stdout"])
+        read_ref(attempt["stderr"])
+        observations.append(
+            {
+                "stage": attempt["stage"],
+                "native_receipt": attempt["receipt"],
+                "outcome": native["outcome"],
+                "canonical_selector_outcome": native["canonical_selector_outcome"],
+                "native_exit_code": native["exit_code"],
+                "recorded_source_frame_equal": True,
+                "recorded_ROOT207_metadata_equal": True,
+            }
+        )
+    static = json.loads((base / "static-native-deciding-summary.json").read_bytes())
+    raw_proof = json.loads((base / "static-raw-once-reconciliation.json").read_bytes())
+    owners = json.loads((base / "static-complete-20-95-owner-attribution.json").read_bytes())
+    witness = json.loads((base / "posterior-nine-proxy-native-witness-join.json").read_bytes())
+    current = packet["current"]
+    by_stage = {a["stage"]: a for a in packet["attempts"]}
+    for value in current.values():
+        stage = by_stage[value["stage"]]
+        require(
+            value["outcome"] == stage["outcome"] == "FAIL"
+            and type(value["native_exit_code"]) is int
+            and value["native_exit_code"] == stage["native_exit_code"] == 1,
+            "current selector does not bind terminal nativeFAIL1",
+        )
+    require(
+        typed_equal(
+            current["static_invocation"]["fresh_complete_mechanism_counts"], static["counts"]
+        )
+        and typed_equal(static["counts"], raw_proof["actual_counts"]),
+        "static counts differ from raw reconciliation",
+    )
+    require(
+        len(static["regressions"]) == 20
+        and len(static["new_unresolved"]) == 95
+        and len(owners["complete_rows"]) == 115,
+        "full20/95 owner denominator changed",
+    )
+    require(
+        typed_equal(current["static_invocation"]["full_input_denominator"], static["denominator"]),
+        "5939/5904/source2702 mapping claim mismatch",
+    )
+    require(
+        current["static_invocation"]["runtime_invocation_established"] is False,
+        "static proxy promoted to runtime",
+    )
+    require(
+        len(witness["rows"]) == 9
+        and witness["IR_helper_count"] == 8
+        and witness["Foundry_producer_count"] == 1,
+        "posterior9 source-witness subgroup mismatch",
+    )
+    rendered = read_ref(current["runtime_api_contract"]["OpenAPI_render"])
+    require(
+        rendered == read_ref(current["runtime_api_contract"]["same_render_architecture"]),
+        "two actual native runtime renders differ",
+    )
+    api = json.loads(rendered)
+    require(
+        len(api["components"]["schemas"])
+        == current["runtime_api_contract"]["schema_components"]
+        == 573,
+        "actual component denominator differs",
+    )
+    for record in packet["deciding_supplements"].values():
+        read_ref(record)
+    return observations
+
+
+def extracted_validator(path: Path) -> dict[str, Any]:
+    nodes = []
+    for node in ast.parse(path.read_text()).body:
+        if isinstance(node, ast.Assign) and any(
+            isinstance(t, ast.Name) and t.id == "v" for t in node.targets
+        ):
+            break
+        nodes.append(node)
+    namespace = {"__name__": "readonly_existing_validator", "__file__": str(path)}
+    exec(compile(ast.Module(body=nodes, type_ignores=[]), str(path), "exec"), namespace)  # noqa: S102
+    return namespace
+
+
+def omission(selection: dict[str, Any]) -> dict[str, Any]:
+    value = copy.deepcopy(selection)
+    removed = [
+        r
+        for r in value["logical_aliases"]
+        if r["source"]["path"].endswith("/runtime-api-contract/receipt.json")
+    ]
+    require(len(removed) == 1, "required native receipt input not unique")
+    portable = removed[0]["portable_path"]
+    value["logical_aliases"] = [
+        r for r in value["logical_aliases"] if r["portable_path"] != portable
+    ]
+    value["assets"] = [r for r in value["assets"] if r["portable_path"] != portable]
+    value["logical_asset_count"] = len(value["logical_aliases"])
+    value["unique_asset_count"] = len(value["assets"])
+    value["publication_bytes"] = sum(r["bytes"] for r in value["assets"])
+    value["original_logical_bytes"] = sum(r["source"]["bytes"] for r in value["logical_aliases"])
+    return value
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--base", type=Path, required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--controls-only", action="store_true")
+    args = parser.parse_args()
+    base = args.base
+    require(
+        reference(base / "three-selector-packet-v3.json")["sha256"] == PACKET_SHA,
+        "immutable source packet changed",
+    )
+    require(
+        reference(base / "publication-selection-v2.json")["sha256"] == SELECTION_SHA,
+        "immutable publication selection changed",
+    )
+    packet = json.loads((base / "three-selector-packet-v3.json").read_bytes())
+    selection = json.loads((base / "publication-selection-v2.json").read_bytes())
+    validate = extracted_validator(base / "validate_publication_selection_v2.py.txt")["validate"]
+    validate(selection)
+    omitted = omission(selection)
+    require(validate(omitted) is True, "original omission escape unexpectedly changed")
+    try:
+        admit_members(omitted, selection)
+    except ValueError:
+        actual_refusal = True
+    else:
+        raise ValueError("independent mandatory member counter admitted omission")
+    tree = ast.parse(Path(__file__).read_text())
+    for node in tree.body:
+        if isinstance(node, ast.FunctionDef) and node.name == "admit_members":
+            node.body = [ast.Pass()]
+    namespace = {"__name__": "removed_member_conservation", "__file__": __file__}
+    exec(compile(ast.fix_missing_locations(tree), __file__, "exec"), namespace)  # noqa: S102
+    namespace["admit_members"](omitted, selection)
+    controls = [
+        {"name": "original_closed197logical127storage_healthy", "outcome": "PASS"},
+        {
+            "name": "actual_original_V2_native_receipt_retotted_omission",
+            "observation": "ADMITTED; CHANGE_REQUIRED custody validation only",
+            "original_source_tree_current_packet_and_raw_markers_unchanged": True,
+        },
+        {
+            "name": "independent_exact_required_member_counter_refuses_same_omission",
+            "outcome": "PASS",
+            "actual_refusal": actual_refusal,
+        },
+        {
+            "name": "independent_member_counter_guard_removal_readmits_same_omission",
+            "outcome": "PASS",
+            "removed_property": "admit_members body only",
+        },
+    ]
+    output = {
+        "schema": "policyos.e02.E.current_three_gate_independent_custody.v1",
+        "source": SOURCE,
+        "tree": TREE,
+        "optimized": not __debug__,
+        "packet": reference(base / "three-selector-packet-v3.json"),
+        "selection": reference(base / "publication-selection-v2.json"),
+        "validator": reference(base / "validate_publication_selection_v2.py.txt"),
+        "controls": controls,
+        "native_or_math_gates_reexecuted": False,
+        "source_or_ROOT_environment_modified": False,
+        "disposition": (
+            "CHANGE_REQUIRED for mandatory selected-source admission; "
+            "original literal custody separate."
+        ),
+    }
+    if not args.controls_only:
+        output["complete_storage_and_logical_custody"] = custody(selection)
+        output["eight_native_attempt_bindings"] = reconcile_packet(packet, base)
+        output["literal_custody_disposition"] = (
+            "GO for literal full source/receipt/decoded archive custody only"
+        )
+        output["current_three_selector_outcomes"] = {
+            k: v["outcome"] for k, v in packet["current"].items()
+        }
+        output["P41"] = packet["P41"]
+        output["scope_qualification"] = packet["canonical_client_dashboard_limit"]
+    args.output.write_text(json.dumps(output, ensure_ascii=False, indent=2, sort_keys=True) + "\n")
+    sys.stdout.write(json.dumps(reference(args.output), sort_keys=True) + "\n")
+
+
+if __name__ == "__main__":
+    main()

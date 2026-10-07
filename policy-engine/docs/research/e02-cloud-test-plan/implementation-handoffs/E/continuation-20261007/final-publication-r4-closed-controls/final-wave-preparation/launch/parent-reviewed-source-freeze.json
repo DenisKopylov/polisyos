@@ -1,0 +1,89 @@
+{
+  "schema": "policyos.e02.reviewed_source_freeze.v1",
+  "repo": "/workspace/e02-E-continuation-20261006",
+  "branch": "codex/e02-E-continuation-20261006",
+  "base": "c3a0057059b258c30224aac06709523cab2dc9cc",
+  "candidate": "31782b55f8f35556cfc581449b040c393f00c78f",
+  "candidate_tree": "746f50214f70c0fa34cd8bb6d42e72440adc9f96",
+  "merges": [
+    {
+      "name": "FRC-utility-reviewed",
+      "incoming": "2350edfba4e71909fbc615fe3101793b1b13945a",
+      "before": "c3a0057059b258c30224aac06709523cab2dc9cc",
+      "exit_code": 0,
+      "after": "fc7183186445d0f4a0e4f38e13edd493f9d1ce46",
+      "tree": "e673f55f84cf3b7d49e0f99af1e50f61832f53b5"
+    },
+    {
+      "name": "DOE-P37-reviewed",
+      "incoming": "2824114d97d804b1894075ed8f78cb1c6a8a4076",
+      "before": "fc7183186445d0f4a0e4f38e13edd493f9d1ce46",
+      "exit_code": 0,
+      "after": "31782b55f8f35556cfc581449b040c393f00c78f",
+      "tree": "746f50214f70c0fa34cd8bb6d42e72440adc9f96"
+    }
+  ],
+  "tracked_clean": true,
+  "untracked_unique_preserved": [
+    "policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/",
+    "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/"
+  ],
+  "reviews": {
+    "finite_law_SOURCE3932": "retained immutable independent GO;12 product/test source bodies qualified at Root290324be",
+    "utility_SOURCE2350": "independent lint actualCLI/sourcepreflight/Ruff/format GO;21 malformed cases before0Gitcallbacks; solecallremoval2readcallbacksthenrefusal",
+    "DOE_P37_SOURCE2824": "independent actualCLI22author/10peer typedunknown status/recordcontrols normal/-O and sole inletremovalfalsePASS re-admission; passiveDOCsourceonly",
+    "ROOT_checkpoint15a_and_P37_companion": "independent source/ref/count/canonical10basis GO; no numerical replay"
+  },
+  "source_frozen_for_final_affected_E_defining_wave": true,
+  "final_wave_executed": false,
+  "recorded_at": "2026-10-07T14:23:55.764477+00:00",
+  "predicate_basis": {
+    "Git_identity_and_merge": "recomputed",
+    "existing_immutable_source_reviews": "independently_reconciled",
+    "current_numerical_case_outcomes": "not_established",
+    "formal_G_finding_acceptance": "not_established"
+  },
+  "limitations": [
+    "Native full backend old64d incomplete137/noJUnit/nullcounts/inputmutationFAIL remains historical; thisfreeze does notrepairitscompletion.",
+    "Two IR facade lease decisions pending; no exceptionbaseline/typeignore widening.",
+    "A/D/G/C/F external shared consumer/generator/productioninput boundaries remain separatelyowned.",
+    "Only evidence/docs publication after thisfreeze; additional sourcefix would invalidatefreeze andrequireaffectedreview."
+  ],
+  "files": [
+    {
+      "path": "/tmp/e02-E-root-reviewed-source-freeze-20261007/DOE-P37-reviewed.paths.nul",
+      "bytes": 2659,
+      "sha256": "01c8ebf33f299c34ddf95c223ad7fe2af5152fb1feb21d70a23b04a8da62d529"
+    },
+    {
+      "path": "/tmp/e02-E-root-reviewed-source-freeze-20261007/DOE-P37-reviewed.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-root-reviewed-source-freeze-20261007/DOE-P37-reviewed.stdout.txt",
+      "bytes": 4037,
+      "sha256": "e0afc331e40959c0bac7980c376a0623ebc6a8f67640f3a134fe02ab44d0732d"
+    },
+    {
+      "path": "/tmp/e02-E-root-reviewed-source-freeze-20261007/FRC-utility-reviewed.paths.nul",
+      "bytes": 159256,
+      "sha256": "f28f04d0a99ca42a5945773eabb0d455aac2859365ad6a5ee2549886761e7cb6"
+    },
+    {
+      "path": "/tmp/e02-E-root-reviewed-source-freeze-20261007/FRC-utility-reviewed.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-root-reviewed-source-freeze-20261007/FRC-utility-reviewed.stdout.txt",
+      "bytes": 220221,
+      "sha256": "fb41794ec592a8bbf6e256632d8c700f191cc40ef08e3e61f66bf224c924ef94"
+    },
+    {
+      "path": "/tmp/e02-E-root-reviewed-source-freeze-20261007/source-runtime-paths.nul",
+      "bytes": 545333,
+      "sha256": "6061e5f9e95275ac9c58aca38c338135763f240446fc8435a875c03cb490484f"
+    }
+  ]
+}

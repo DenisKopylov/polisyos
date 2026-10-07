@@ -1,0 +1,34 @@
+{
+  "source": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/triage-terminal-backend-v2.py.txt",
+    "bytes": 25871,
+    "sha256": "61e8345f0ba90ddf06ec039fc04e77fce7db9cb16df30d4f4f23fe1b1622586f"
+  },
+  "checks": [
+    {
+      "argv": [
+        "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/ruff",
+        "check",
+        "--stdin-filename",
+        "tools/triage_terminal_backend.py"
+      ],
+      "cwd": "/workspace/e02-E-mc-20261006/policy-engine",
+      "exit_code": 0,
+      "stdout": "All checks passed!\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/ruff",
+        "format",
+        "--check",
+        "--stdin-filename",
+        "tools/triage_terminal_backend.py"
+      ],
+      "cwd": "/workspace/e02-E-mc-20261006/policy-engine",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ]
+}

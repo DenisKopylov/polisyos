@@ -1,0 +1,55 @@
+{
+  "source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+  "tree": "0cb448febf461d0bbdf31645712ad774f5425b72",
+  "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "full_mapping": {
+    "current_files": 5939,
+    "base_files": 5904,
+    "source_files": 2702,
+    "current_sha256": "e2baaea008ec325222bfd1faaa3a8342747b93707a644dc94a9d28b19911b548",
+    "base_sha256": "a1ffd1bdd0c8b2549a5c0c7a8c4ce56dc6645e0416ba4dda5c95e43b274a84c5"
+  },
+  "current_input_index": {
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/static-complete-current-input-mapping.json",
+    "bytes": 1251848,
+    "sha256": "208209647ee49f19fe692dc591622a466de5d781d2205c83b3eb61f58f651e4f"
+  },
+  "base_input_index": {
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/static-complete-base-input-mapping.json",
+    "bytes": 1244371,
+    "sha256": "e718f7c920899cd05d0c705d4f80e94875f977607e073a1359fbccbeac761291"
+  },
+  "canonical_algorithm": {
+    "path": "/workspace/e02-E-mc-20261006/policy-engine/src/polisyos/runtime/quality/production_invocation.py",
+    "bytes": 27007,
+    "sha256": "cf3ce1dcc120fe321a2d2e77295a368f178764a9d0158b8896307f146400b286"
+  },
+  "scope": "Calls only actual unmodified canonical _read_tree; no graph/check/backend repetition",
+  "roots_current": [
+    "polisyos.foundry.plugins.cli:main",
+    "tools.ops_runners.runtime_cli:main",
+    "polisyos.foundry.methods.catalog.causal.capabilities:main",
+    "tools.ops_runners.runtime_cli:foundry_main",
+    "tools.cli:main",
+    "polisyos.data_forge.domains.ukraine.cli:main"
+  ],
+  "roots_base": [
+    "polisyos.foundry.plugins.cli:main",
+    "tools.ops_runners.runtime_cli:main",
+    "polisyos.foundry.methods.catalog.causal.capabilities:main",
+    "tools.ops_runners.runtime_cli:foundry_main",
+    "tools.cli:main",
+    "polisyos.data_forge.domains.ukraine.cli:main"
+  ],
+  "native_raw": {
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/static-invocation-retry4/production-invocation.raw.json",
+    "bytes": 171837783,
+    "sha256": "f67477ef9598cb1f9a4628dcacf574146f9c753fd42efc57a482505957fcd776"
+  },
+  "raw_publication": "ignored external raw only; complete moderate index retained",
+  "complete_native_summary": {
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/static-native-deciding-summary.json",
+    "bytes": 386695,
+    "sha256": "a92fcd37cfc2dc37b6e98a691a85609cd8fc9c1b064e52396e86cff19bbe5287"
+  }
+}

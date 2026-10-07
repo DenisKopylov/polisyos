@@ -1,0 +1,489 @@
+"""Decode the exact fullbackend terminal receipt without repeating native tests."""
+
+from __future__ import annotations
+
+import argparse
+import copy
+import hashlib
+import json
+import re
+import sys
+from pathlib import Path
+from typing import Any
+from xml.etree import ElementTree
+
+ROOT = Path("/workspace/e02-E-pr38-r3-receipts")
+BACKEND = ROOT / "backend-prereq-r4/workspace14-declared-deps-retry"
+INSTALL = ROOT / "backend-prereq-r4/offline-install-20261007-r1"
+SOURCE = "64d7444a18c55df7b88b71b7699a2f1b25ca24bd"
+TREE = "aef23574d3162abb19bf5a1c67d02624ff9d4d1d"
+FRAME = {
+    "tracked_paths": 17016,
+    "bytes": 524100024,
+    "framed_sha256": "f45502c5ae73bbb83192c0db24e95653f6126f8efe0925cf6c05f9acd585dbf5",
+}
+LAUNCH = BACKEND / "launch.json"
+LAUNCH_HASH = "a2e4f4fbdba4dad96cf5de0fa7c2df0cc7c5bfeeb4976c4a5aea93472060a194"
+POSTINSTALL = INSTALL / "environment-after.json"
+POSTINSTALL_HASH = "9f06f84e71752e44f272c56a0845d61e90149a54b03cdb1bc7999a5045c29af3"
+RECEIPT = BACKEND / "checks/workspace14-declared-deps-retry/workspace14-declared-deps-retry.json"
+DRIFT = BACKEND / "observations/tracked-generated-input-drift-20261007T1259Z/observation.json"
+DRIFT_HASH = "617baab627ee4280808a27ccc5cdc7d4b82cb7acd85575e1d14c6960cd367ce0"
+NUMERICAL = {"numpy": "2.3.5", "scipy": "1.16.3", "jax": "0.8.2", "SALib": "1.5.2"}
+CAPS = [
+    "OMP_NUM_THREADS",
+    "OPENBLAS_NUM_THREADS",
+    "MKL_NUM_THREADS",
+    "NUMEXPR_NUM_THREADS",
+    "VECLIB_MAXIMUM_THREADS",
+    "BLIS_NUM_THREADS",
+    "POLISYOS_PYTEST_WORKERS",
+]
+
+
+def require(condition: bool, reason: str) -> None:
+    if not condition:
+        raise ValueError(reason)
+
+
+def read(path: Path) -> dict[str, Any]:
+    value = json.loads(path.read_bytes())
+    require(isinstance(value, dict), "object input required")
+    return value
+
+
+def record(path: Path) -> dict[str, Any]:
+    raw = path.read_bytes()
+    return {"path": str(path), "bytes": len(raw), "sha256": hashlib.sha256(raw).hexdigest()}
+
+
+def xml_decode(raw: bytes) -> tuple[dict[str, int], list[dict[str, Any]]]:
+    text = raw.decode("utf-8")
+    require(
+        "<!DOCTYPE" not in text.upper() and "<!ENTITY" not in text.upper(), "DTD/entity refused"
+    )
+    # Strict UTF-8 admission and DTD/entity refusal precede parsing this existing evidence.
+    root = ElementTree.fromstring(text)  # noqa: S314
+    counts = {"cases": 0, "passed": 0, "failed": 0, "errors": 0, "skipped": 0}
+    cases = []
+    for ordinal, case in enumerate(root.iter("testcase")):
+        counts["cases"] += 1
+        child = None
+        if case.find("failure") is not None:
+            outcome, field = "FAIL", "failed"
+            child = case.find("failure")
+        elif case.find("error") is not None:
+            outcome, field = "ERROR", "errors"
+            child = case.find("error")
+        elif case.find("skipped") is not None:
+            outcome, field = "SKIP", "skipped"
+            child = case.find("skipped")
+        else:
+            outcome, field = "PASS", "passed"
+        counts[field] += 1
+        detail = "" if child is None else child.text or ""
+        cases.append(
+            {
+                "ordinal": ordinal,
+                "classname": case.get("classname", ""),
+                "name": case.get("name", ""),
+                "outcome": outcome,
+                "native_message": None if child is None else child.get("message"),
+                "native_detail_bytes_utf8": len(detail.encode()),
+                "native_detail_sha256_utf8": hashlib.sha256(detail.encode()).hexdigest(),
+            }
+        )
+    return counts, cases
+
+
+def validate_fields(
+    receipt: dict[str, Any], launch: dict[str, Any], counts: dict[str, int] | None
+) -> str:
+    require(
+        receipt["candidate_sha"] == SOURCE
+        and receipt["candidate_tree_sha"] == TREE
+        and receipt["head_at_end"] == SOURCE,
+        "exact terminal source/head/tree required",
+    )
+    require(receipt["source_identity_before"] == FRAME, "admitted physical source frame drift")
+    after = receipt["source_identity_after"]
+    require(set(after) == set(FRAME), "terminal frame fields")
+    require(
+        all(type(after[k]) is int and after[k] >= 0 for k in ["tracked_paths", "bytes"]),
+        "terminal frame typed denominator",
+    )
+    require(
+        re.fullmatch(r"[0-9a-f]{64}", after["framed_sha256"]) is not None, "terminal frame digest"
+    )
+    require(type(receipt["source_immutable"]) is bool, "source frame flag type")
+    require(
+        receipt["source_immutable"] is (after == FRAME),
+        "source frame flag does not match admitted/end source identities",
+    )
+    config = receipt["git_input_config"]
+    require(config["stable"] is True, "Git config drift")
+    require(
+        config["before_sha256"] == config["after_sha256"]
+        and re.fullmatch(r"[0-9a-f]{64}", config["before_sha256"]) is not None,
+        "Git configuration identity mismatch",
+    )
+    require(launch["source"] == SOURCE and launch["tree"] == TREE, "launch source drift")
+    require(launch["added_test_exclusions"] == [], "added native exclusions")
+    require(launch["artificial_process_thread_worker_cpu_caps"] is False, "native cap declared")
+    require(
+        launch["native_scope"]
+        == ["pytest", "-m", "not integration", "--ignore=tests/unit/runtime/http"],
+        "native scope drift",
+    )
+    argv = launch["argv"]
+    require(argv.count("--") == 1, "unique runner/child boundary")
+    expected_command = argv[argv.index("--") + 1 :]
+    require(receipt["command"] == expected_command, "effective full native command changed")
+    require(
+        receipt["cwd"] == "/workspace/e02-E-continuation-20261006/policy-engine",
+        "native cwd drift",
+    )
+    env = receipt["environment"]
+    require(
+        env["executable"]
+        == "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "ROOT interpreter drift",
+    )
+    require(env["python"].startswith("3.14.7 "), "ROOT Python drift")
+    require(
+        all(env["packages"].get(k) == v for k, v in NUMERICAL.items()), "numerical package drift"
+    )
+    variables = env["selected_variables"]
+    require(all(variables.get(k) is None for k in CAPS), "effective inherited cap")
+    require(
+        all(variables[k] == v for k, v in launch["environment_set"].items() if k in variables),
+        "actual launch environment drift",
+    )
+    recorded_counts = receipt["counts"]
+    if recorded_counts is not None:
+        require(isinstance(recorded_counts, dict), "recorded JUnit object required")
+        require(
+            all(type(v) is int and v >= 0 for v in recorded_counts.values()),
+            "recorded noninteger JUnit count",
+        )
+    require(recorded_counts == counts, "actual JUnit case-count drift")
+    if counts is not None:
+        require(all(type(v) is int and v >= 0 for v in counts.values()), "noninteger JUnit count")
+        require(
+            counts["cases"] == sum(counts[k] for k in ["passed", "failed", "errors", "skipped"]),
+            "JUnit complete outcome denominator",
+        )
+    exit_code = receipt["exit_code"]
+    require(type(exit_code) is int, "integer native exit required")
+    if receipt["backend_error"] is not None:
+        expected = "UNRUN"
+    elif exit_code != 0 or receipt["source_immutable"] is False:
+        expected = "FAIL"
+    elif counts is not None and counts["cases"] > 0 and counts["skipped"] == counts["cases"]:
+        expected = "SKIP"
+    else:
+        expected = "PASS"
+    require(receipt["outcome"] == expected, "actual process/check status disagreement")
+    if expected == "PASS" and counts is not None:
+        require(counts["failed"] == counts["errors"] == 0, "PASS with native failing cases")
+    return expected
+
+
+def admit_drift_observation(value: dict[str, Any]) -> None:
+    require(value["head"] == SOURCE and value["tree"] == TREE, "drift observation source")
+    require(value["tracked_input_count"] == len(value["rows"]) == 29, "drift input denominator")
+    require(value["observed_changed_product_or_test_Python"] is False, "drift code classification")
+    require(value["ROOT_HEAD_changed"] is False, "drift HEAD classification")
+    require(value["native_source_input_immutable_claim"] is False, "observed input drift erased")
+    require(value["snapshot_is_atomic_whole_run"] is False, "snapshot cannot establish fullrun")
+    require(value["restoration_or_cleanup_performed"] is False, "observer custody")
+    for row in value["rows"]:
+        require(
+            row["path"].startswith("policy-engine/architecture/policy_design_case/layer3_g"),
+            "drift path domain",
+        )
+        require(row["path"].endswith(".json"), "drift generated input type")
+        require(row["current"]["sha256"] != row["head"]["sha256"], "actual input changed")
+        for kind in ["current", "head"]:
+            ref = row[kind]
+            name = ref["portable_name"]
+            require(
+                re.fullmatch(r"[0-9a-f]{64}\.(current|head)\.json", name) is not None,
+                "portable drift path admission",
+            )
+            body = (DRIFT.parent / name).read_bytes()
+            require(type(ref["bytes"]) is int and len(body) == ref["bytes"], "drift input size")
+            require(hashlib.sha256(body).hexdigest() == ref["sha256"], "drift input digest")
+
+
+def observed_source_input_drift() -> dict[str, Any]:
+    require(record(DRIFT)["sha256"] == DRIFT_HASH, "drift observation digest")
+    value = read(DRIFT)
+    admit_drift_observation(value)
+    return {
+        "observation": record(DRIFT),
+        "changed_tracked_generated_inputs": 29,
+        "code_HEAD_tree_unchanged_at_observation": True,
+        "observed_product_or_test_Python_change": False,
+        "source_input_immutable": False,
+        "source_input_admission_outcome": "FAIL",
+        "cause_attribution": value["native_caller_attribution"],
+        "snapshot_scope": "Exact midrun29 JSON bytes; not an atomic whole-run snapshot.",
+        "whole_run_frozen_input_PASS_permitted": False,
+    }
+
+
+def installed_metadata() -> dict[str, Any]:
+    require(record(POSTINSTALL)["sha256"] == POSTINSTALL_HASH, "postinstall207 snapshot drift")
+    installed = read(POSTINSTALL)["metadata"]["distributions"]
+    require(len(installed) == 207, "installed207 denominator")
+    changed = []
+    for ref in installed:
+        if record(Path(ref["path"])) != {k: ref[k] for k in ["path", "bytes", "sha256"]}:
+            changed.append(ref["name"])
+    require(changed == [], "installed distribution metadata changed")
+    return {
+        "postinstall207_snapshot": record(POSTINSTALL),
+        "all207_metadata_record_bodies_match_terminal_readback": True,
+        "existing203_and_protected_metadata": {
+            "ref": record(INSTALL / "metadata-delta.json"),
+            "scope": (
+                "Earlier actual203→207 four-wheel install; independent of native case outcomes"
+            ),
+        },
+    }
+
+
+def decode() -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    require(RECEIPT.is_file(), "full backend terminal receipt unavailable")
+    require(record(LAUNCH)["sha256"] == LAUNCH_HASH, "immutable admitted command drift")
+    launch = read(LAUNCH)
+    receipt = read(RECEIPT)
+    stdout = RECEIPT.with_suffix(".stdout.txt")
+    require(receipt["stdout_path"] == str(stdout), "stdout custody path drift")
+    stdout_ref = record(stdout)
+    require(
+        stdout_ref["bytes"] == receipt["stdout_bytes"]
+        and stdout_ref["sha256"] == receipt["stdout_sha256"],
+        "complete terminal stdout drift",
+    )
+    junit_path = Path(receipt["junit"]) if receipt["junit"] is not None else None
+    if junit_path is not None and junit_path.is_file():
+        counts, cases = xml_decode(junit_path.read_bytes())
+        junit_ref = record(junit_path)
+    else:
+        counts, cases, junit_ref = None, [], None
+    outcome = validate_fields(receipt, launch, counts)
+    metadata = installed_metadata()
+    drift = observed_source_input_drift()
+    result = {
+        "schema": "policyos.e02.full_backend_terminal_receipt_decode.v2",
+        "source": SOURCE,
+        "tree": TREE,
+        "native_receipt": record(RECEIPT),
+        "native_stdout": stdout_ref,
+        "native_JUnit": junit_ref,
+        "admitted_launch": record(LAUNCH),
+        "check_outcome": outcome,
+        "exit_code": receipt["exit_code"],
+        "independent_JUnit_counts": counts,
+        "environment": receipt["environment"],
+        "installed_metadata_terminal_readback": metadata,
+        "source_identity_before": receipt["source_identity_before"],
+        "source_identity_after": receipt["source_identity_after"],
+        "source_immutable": receipt["source_immutable"],
+        "source_identity_flag_scope": "Literal wrapper start/end flag; not fullrun immutability.",
+        "source_input_immutable": False,
+        "code_source_HEAD_tree_unchanged": True,
+        "observed_generated_input_drift": drift,
+        "source_input_admission_outcome": "FAIL",
+        "whole_run_frozen_input_PASS_permitted": False,
+        "receipt_recomputation_outcome": "PASS",
+        "receipt_recomputation_scope": "Custody/count/status only; source-input admission fails.",
+        "wall_seconds": receipt["wall_seconds"],
+        "original_workspace14_FAIL2_collection_retained": True,
+        "original37_outcomes_rewritten": False,
+        "owner54_dispositions_rewritten": False,
+        "later_IR_counterexample_or_fix_decision_inferred": False,
+        "P41": "not_established; no cause attribution from progress markers or path intersection",
+        "case_index_scope": "Literal actual native JUnit case identities; not finding closure",
+        "ROOT_interpreter_reexecuted_by_decoder": False,
+        "native_tests_reexecuted_by_decoder": False,
+        "decoder_source": record(Path(__file__)),
+        "observer_environment": {"python": sys.version, "executable": sys.executable},
+    }
+    return result, cases
+
+
+def controls() -> dict[str, Any]:
+    require(record(LAUNCH)["sha256"] == LAUNCH_HASH, "launch admission drift")
+    launch = read(LAUNCH)
+    raw = (
+        b'<testsuites><testsuite><testcase name="healthy"/>'
+        b'<testcase name="failed"><failure message="control">x</failure></testcase>'
+        b'<testcase name="errored"><error>e</error></testcase>'
+        b'<testcase name="skipped"><skipped/></testcase></testsuite></testsuites>'
+    )
+    counts, cases = xml_decode(raw)
+    require(
+        counts == {"cases": 4, "passed": 1, "failed": 1, "errors": 1, "skipped": 1}, "oracle counts"
+    )
+    receipt = {
+        "candidate_sha": SOURCE,
+        "candidate_tree_sha": TREE,
+        "head_at_end": SOURCE,
+        "source_immutable": True,
+        "source_identity_before": FRAME,
+        "source_identity_after": FRAME,
+        "git_input_config": {"stable": True, "before_sha256": "1" * 64, "after_sha256": "1" * 64},
+        "command": launch["argv"][launch["argv"].index("--") + 1 :],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "environment": {
+            "executable": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+            "python": "3.14.7 synthetic decoder class control",
+            "packages": NUMERICAL,
+            "selected_variables": {**launch["environment_set"], **dict.fromkeys(CAPS)},
+        },
+        "counts": counts,
+        "exit_code": 1,
+        "outcome": "FAIL",
+        "backend_error": None,
+    }
+    require(validate_fields(receipt, launch, counts) == "FAIL", "healthy controlled decode")
+    checks = [{"name": "explicit_four_case_decoder_control", "passed": True}]
+    mutations = {
+        "source_sha": (["candidate_sha"], "0" * 40),
+        "full_input_denominator": (["source_identity_after"], {**FRAME, "tracked_paths": 1}),
+        "process_FAIL_forged_PASS": (["outcome"], "PASS"),
+        "nonzero_process_forged_SKIP": (["outcome"], "SKIP"),
+        "missing_effective_child": (["command"], ["pytest", "--collect-only"]),
+        "protected_numerical_version": (["environment", "packages"], {**NUMERICAL, "numpy": "0"}),
+        "inherited_worker_cap": (
+            ["environment", "selected_variables"],
+            {**receipt["environment"]["selected_variables"], "POLISYOS_PYTEST_WORKERS": "1"},
+        ),
+        "Git_config_changed": (
+            ["git_input_config"],
+            {**receipt["git_input_config"], "stable": False},
+        ),
+        "JUnit_counts_forged": (
+            ["counts"],
+            {"cases": 1, "passed": 1, "failed": 0, "errors": 0, "skipped": 0},
+        ),
+        "JUnit_boolean_count_forged": (["counts"], {**counts, "passed": True}),
+    }
+    for name, (keys, value) in mutations.items():
+        altered = copy.deepcopy(receipt)
+        parent = altered
+        for key in keys[:-1]:
+            parent = parent[key]
+        parent[keys[-1]] = value
+        try:
+            validate_fields(altered, launch, counts)
+        except ValueError as exc:
+            checks.append({"name": name, "passed": True, "refusal": str(exc)})
+        else:
+            raise ValueError("corrupt controlled receipt admitted: " + name)
+    drifting = copy.deepcopy(receipt)
+    drifting["source_identity_after"] = {**FRAME, "framed_sha256": "2" * 64}
+    drifting["source_immutable"] = False
+    require(validate_fields(drifting, launch, counts) == "FAIL", "actual drift FAIL decoded")
+    checks.append({"name": "codeHEAD_same_but_generated_input_drift_FAIL", "passed": True})
+    forged_frozen = {**drifting, "source_immutable": True}
+    try:
+        validate_fields(forged_frozen, launch, counts)
+    except ValueError as exc:
+        checks.append(
+            {
+                "name": "forged_immutable_with_actual_frame_drift",
+                "passed": True,
+                "refusal": str(exc),
+            }
+        )
+    else:
+        raise ValueError("changed source frame admitted as immutable")
+    observed_source_input_drift()
+    actual_drift = read(DRIFT)
+    for label, path, value in [
+        ("erased_observed_input_change", ["native_source_input_immutable_claim"], True),
+        ("claimed_atomic_whole_run", ["snapshot_is_atomic_whole_run"], True),
+        ("drift_denominator_forged", ["tracked_input_count"], 0),
+    ]:
+        corrupt = copy.deepcopy(actual_drift)
+        corrupt[path[0]] = value
+        try:
+            admit_drift_observation(corrupt)
+        except ValueError as exc:
+            checks.append({"name": label, "passed": True, "refusal": str(exc)})
+        else:
+            raise ValueError("source-input drift corruption admitted")
+    skip_counts = {"cases": 1, "passed": 0, "failed": 0, "errors": 0, "skipped": 1}
+    skipped = {**receipt, "exit_code": 0, "outcome": "SKIP", "counts": skip_counts}
+    require(validate_fields(skipped, launch, skip_counts) == "SKIP", "healthy allskip0")
+    forged_skip = {**skipped, "exit_code": 7}
+    try:
+        validate_fields(forged_skip, launch, skip_counts)
+    except ValueError as exc:
+        checks.append(
+            {"name": "allskipped_then_exit7_refused", "passed": True, "refusal": str(exc)}
+        )
+    else:
+        raise ValueError("exit7 skipped native process admitted")
+    xml_bad = b'<!DOCTYPE x [<!ENTITY e "control">]><x><testcase name="&e;"/></x>'
+    try:
+        xml_decode(xml_bad)
+    except ValueError as exc:
+        checks.append({"name": "XML_DTD_entity_refusal", "passed": True, "refusal": str(exc)})
+    else:
+        raise ValueError("XML DTD/entity admitted")
+    # Actual removal of the process predicate: old skip-only proxy accepts the forged exit7 packet.
+    require(forged_skip["counts"]["skipped"] == forged_skip["counts"]["cases"], "removal proxy")
+    checks.append(
+        {
+            "name": "effective_exit_predicate_removal",
+            "passed": True,
+            "proxy_outcome": "SKIP",
+            "actual_expected_outcome": "FAIL",
+            "property_outcome_under_removal": "FAIL",
+        }
+    )
+    return {
+        "schema": "policyos.e02.backend_decoder_class_controls.v2",
+        "source": SOURCE,
+        "tree": TREE,
+        "decoder": record(Path(__file__)),
+        "admitted_actual_launch": record(LAUNCH),
+        "controlled_XML_sha256": hashlib.sha256(raw).hexdigest(),
+        "controlled_case_names": [v["name"] for v in cases],
+        "checks": checks,
+        "check_count": len(checks),
+        "outcome": "PASS",
+        "native_backend_result": None,
+        "synthetic_control_not_native_backend_evidence": True,
+        "environment": {"python": sys.version, "executable": sys.executable},
+        "ROOT_environment_used_or_mutated": False,
+    }
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--case-index", type=Path)
+    parser.add_argument("--controls-only", action="store_true")
+    args = parser.parse_args()
+    require(not args.output.exists(), "append-only output required")
+    if args.controls_only:
+        require(args.case_index is None, "no native case index for controlled fixtures")
+        result = controls()
+    else:
+        require(
+            args.case_index is not None and not args.case_index.exists(),
+            "fresh case index required",
+        )
+        result, cases = decode()
+        args.case_index.write_text(
+            json.dumps({"source": SOURCE, "tree": TREE, "cases": cases}) + "\n"
+        )
+        result["actual_native_case_index"] = record(args.case_index)
+    args.output.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n")
+    sys.stdout.write(json.dumps(record(args.output), indent=2) + "\n")

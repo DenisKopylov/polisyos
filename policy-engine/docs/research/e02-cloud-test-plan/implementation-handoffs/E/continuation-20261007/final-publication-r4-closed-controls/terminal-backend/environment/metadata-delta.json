@@ -1,0 +1,40 @@
+{
+  "schema": "policyos.e02.declared_package_delta.v1",
+  "old_distributions": 203,
+  "current_distributions": 207,
+  "existing_metadata_changed": [],
+  "added": [
+    {
+      "name": "hatchling",
+      "version": "1.27.0",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/hatchling-1.27.0.dist-info/METADATA",
+      "bytes": 3812,
+      "sha256": "a224ea37d2658f75ccf569e61d849ff7e9297cdac2396022278e82a47b9fed3e"
+    },
+    {
+      "name": "immutabledict",
+      "version": "4.2.2",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/immutabledict-4.2.2.dist-info/METADATA",
+      "bytes": 3506,
+      "sha256": "a7420cb9a3fff63567977f171e698a18c01c9808e382655bbd731ff9a81eb2b9"
+    },
+    {
+      "name": "ortools",
+      "version": "9.15.6755",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/ortools-9.15.6755.dist-info/METADATA",
+      "bytes": 3337,
+      "sha256": "fb373ef11eed8e84ba0b59675ec06489ff6d317f6b2a773396e1f6ad8cd0b598"
+    },
+    {
+      "name": "trove-classifiers",
+      "version": "2026.9.21.13",
+      "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/trove_classifiers-2026.9.21.13.dist-info/METADATA",
+      "bytes": 2350,
+      "sha256": "ca7e96493232b21f92aeccf456b2e01f1d4dbcaa8e17a9e1b5e6f03c6eb7461f"
+    }
+  ],
+  "protected_numerical_packages_unchanged": true,
+  "before_path": "/tmp/e02-E-backend-prereq-observation-20261007-1110.json",
+  "after_path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/environment-after.json",
+  "runtime_check_outcome": "pending"
+}

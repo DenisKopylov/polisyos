@@ -1,0 +1,58 @@
+{
+  "schema": "policyos.e02.closed_independent_utility_DOC_publication_GO.v1",
+  "candidate": "5739c0fa4037ddf91fbca425e3fd3190dc7aa969",
+  "tree": "835e7f612368f3c1d7b67a9e2caf918ce7cd0038",
+  "parent_source": "2350edfba4e71909fbc615fe3101793b1b13945a",
+  "parent_source_tree": "fb4486cb39dc44b1ef09ea1e280df8b640b772ba",
+  "outcome": "GO bounded DOC custody only",
+  "full_added_passive_DOC_path_count": 101,
+  "active_python_path_count": 0,
+  "literal_copies": 97,
+  "literal_bytes": 534326,
+  "metadata_files": [
+    "README.md",
+    "copy-index.json",
+    "implementation-handoff.json",
+    "independent-member-index.json"
+  ],
+  "independent_logical_members": 34,
+  "independent_physical_carriers": 20,
+  "independent_physical_bytes": 252830,
+  "structured_claims_modes_equal": true,
+  "false_summary_and_preflight_controls_per_mode": 12,
+  "actual_source3path_byte_unchanged": true,
+  "original_author_pending_byte_custody_preserved": true,
+  "separate_current_literal_byte_custody": "independently_reconciled against all97 source/candidate/physical inputs and34 logical member aliases",
+  "current_source_GO_separate": {
+    "outcome": "GO",
+    "bytes": 2922,
+    "sha256": "f41521d4b5efd65c1bf74720ec5411369d1b93f9dab497ea61a916cdea8827df",
+    "selection_bytes": 14505,
+    "selection_sha256": "8ffd7b4dcd5afe132087a6ecdcb405fcc525dd2cc0fa90775e56ec637e4329df",
+    "independent_malformed_source_controls_per_mode": 21,
+    "Git_callbacks_each": 0,
+    "source_current_CLI_controls_per_mode": 14,
+    "logical_members": 34,
+    "physical_carriers": 20,
+    "physical_bytes": 252830
+  },
+  "saved_environment_frame": {
+    "METADATA_count": 207,
+    "claim": "Closed saved207 frame; no current environment mutation or quiescence measurement."
+  },
+  "normal": {
+    "path": "/tmp/e02-E-validator-current-DOC-independent-5739-20261007/review-normal-v2.stdout.json",
+    "bytes": 80070,
+    "sha256": "3a69fcf98857d82fb37012b67834ff4df9a6d538fe127c7268300a6926d9fd2e"
+  },
+  "optimized": {
+    "path": "/tmp/e02-E-validator-current-DOC-independent-5739-20261007/review-optimized-v2.stdout.json",
+    "bytes": 80073,
+    "sha256": "6c8e7efb9ea602c6f4306eeb4b25b6caaad1aabc5885bc8e73f3d2b5f48817e9"
+  },
+  "source_or_CLI_or_numerical_or_native_gate_repeats": false,
+  "source_root_environment_writes": false,
+  "finding_or_global_gate_acceptance": null,
+  "P41": "not_established",
+  "prior_review_v1": "Original preliminary literal custody source/stdout/stderr preserved; current observer additionally reconciles structured deciding counts/versions/types. No raw native or original publication byte rewrite."
+}

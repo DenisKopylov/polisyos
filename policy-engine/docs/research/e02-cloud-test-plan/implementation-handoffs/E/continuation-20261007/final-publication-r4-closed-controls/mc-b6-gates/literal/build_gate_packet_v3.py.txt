@@ -1,0 +1,49 @@
+import ast,copy,hashlib,json,pathlib,sys
+R=pathlib.Path('/tmp/e02-E-MC-b6-gates-20261007')
+old=R/'build_gate_packet_v2.py.txt';nodes=[]
+for node in ast.parse(old.read_text()).body:
+ if isinstance(node,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='summary' for t in node.targets):break
+ nodes.append(node)
+exec(compile(ast.Module(body=nodes,type_ignores=[]),str(old),'exec'),globals())
+old_derive=derive
+STAGES=[*STAGES,'static-invocation-retry4']
+def ref(p):
+ h=hashlib.sha256();size=0
+ with p.open('rb') as f:
+  while b:=f.read(1048576):h.update(b);size+=len(b)
+ return {'path':str(p),'bytes':size,'sha256':h.hexdigest()}
+def derive():
+ v=old_derive();native=load(R/'static-native-deciding-summary.json');reconciliation=load(R/'static-raw-once-reconciliation.json');denom=load(R/'static-input-denominator-recomputation.json');owner=load(R/'static-complete-20-95-owner-attribution.json');witness=load(R/'posterior-nine-proxy-native-witness-join.json');qualified=load(R/'ABI-emitter-source-qualification-v3.json')
+ require(typed_equal(reconciliation['actual_counts'],native['counts']) and reconciliation['complete20_and95_rows_byte_value_equal'] is True,'actual fullraw exceptionalcounts/records reconciliation')
+ require(typed_equal(reconciliation['raw_ref'],ref(R/'static-invocation-retry4/production-invocation.raw.json')),'fullraw literalSHA/bytes')
+ require(typed_equal(denom['full_mapping'],{k:native['denominator'][k] for k in ('current_files','base_files','source_files','current_sha256','base_sha256')}),'canonical mappinginput recomputation')
+ require(typed_equal(owner['counts'],{'regressions':20,'new_unresolved':95,'all_rows':115,'paths':45}) and len(owner['complete_rows'])==115,'complete exceptionalowner rows')
+ require(witness['regression_count']==9 and witness['IR_helper_count']==8 and witness['Foundry_producer_count']==1 and len(witness['rows'])==9,'posterior exact9=8+1 source/nativejoin')
+ require(qualified['prior3932_and_two_fresh_b6_renders_exact_hash_size_equal'] is True,'fresh/qualified runtime exactequality')
+ v['schema']='policyos.e02.E.current_three_full_selector_packet.v2';v['current']['static_invocation']={'outcome':v['attempts'][-1]['outcome'],'native_exit_code':v['attempts'][-1]['native_exit_code'],'stage':'static-invocation-retry4','full_native_raw_receipt':v['attempts'][-1]['native_raw_receipt'],'fresh_complete_mechanism_counts':native['counts'],'root_count':native['root_count'],'full_input_denominator':native['denominator'],'coverage':native['coverage'],'runtime_invocation_established':False,'predicate_provenance':native['predicate_provenance'],'historical_abnormal_exit_PID_kill_cause':'not_established','latest_native_abnormal_exit':False}
+ require(v['current']['static_invocation']['outcome']=='FAIL' and v['current']['static_invocation']['native_exit_code']==1,'closed currentnative staticFAIL1')
+ v['current']['runtime_api_contract']['prior3932_actual_native_render_byte_equal']=True
+ v['current']['runtime_api_contract']['additional_b6_projection_delta_established']=False
+ v['deciding_supplements']={k:ref(R/p) for k,p in {'complete_native_static_summary':'static-native-deciding-summary.json','raw_once_reconciliation':'static-raw-once-reconciliation.json','full_static_input_recomputation':'static-input-denominator-recomputation.json','all20_95_owner_attribution':'static-complete-20-95-owner-attribution.json','posterior9_native_witness_join':'posterior-nine-proxy-native-witness-join.json','architecture_full151_owner_census':'architecture-complete-edge-census-owner-v2.json','architecture_tuple_comparison':'architecture-reported-edge-comparison.json','guard_negative_reuse_source_basis':'guard-source-reuse-basis.json','ABI_emitter_native_render_qualification':'ABI-emitter-source-qualification-v3.json'}.items()}
+ v['remaining_owners']['static_scanner']='Canonical team-runtime/instruments checker owner: native full20regressions/95newunresolved current/basemap available, partialcoverage; E actualnative3932witnessqualified separately. Actual AST/cache reuse proposal requires writer lease; no source edit or dummy call.'
+ v['remaining_owners']['public_inventory_reference']='Canonical IR/publicsurface inventory generator and G: actual unchanged103model/9path3932 ownerpacket reused via exact allmodel/emitter identity. Two fresh b6 runtime renders equal actual3932native701b; tracked1489 vs generated1494 remains drift; no new b6projection delta established.'
+ v['historical_current_separation']={'original_v1_v2_static_ERROR_packets_preserved':True,'current_available_selectors':{'architecture':'FAIL','runtime_api_contract':'FAIL','static_invocation':'FAIL'},'no_current_available_selector_UNRUN':True,'historical_ERROR_and_UNRUN_attempts_preserved':True,'original_summary_type_escapes_preserved':ref(R/'packet-v1-type-escapes.json'),'older_V2_control_scope':'Seven attempts with staticERROR; current V3 adds exactfourthclosedstatic/full20+95/inputreconciliation; no historical stdout/metadata rewrite'}
+ return v
+def validate(summary,expected=None):
+ expected=derive() if expected is None else expected
+ require(type(summary) is dict and typed_equal(summary,expected),'typed claim differs from complete nativebytes/frames/raw/denominator/witnessrefs')
+ require(summary['finding_closure'] is False and summary['global_wave_repeated'] is False,'scope flags')
+ return True
+summary=derive();validate(summary,summary)
+dest=R/('three-selector-packet-v3-optimized.json' if sys.flags.optimize else 'three-selector-packet-v3.json')
+with dest.open('x') as f:json.dump(summary,f,indent=2);f.write('\n')
+mutators=[('native_exit_bool',lambda s:s['current']['architecture'].__setitem__('native_exit_code',True)),('source_guard_integer',lambda s:s.__setitem__('source_immutable',1)),('stdout_size_bool_zero',lambda s:s['attempts'][1]['stdout'].__setitem__('bytes',False)),('architecture_claims_PASS',lambda s:s['current']['architecture'].__setitem__('outcome','PASS')),('drop_deep_edges_keepnative',lambda s:s['current']['architecture'].__setitem__('deep_edge_count',0)),('architecture_UNRUN_misclassification',lambda s:s['current']['architecture'].__setitem__('UNRUN',True)),('schema_bool_escape',lambda s:s['current']['runtime_api_contract'].__setitem__('schema_components',True)),('confidence_forged_count',lambda s:s['current']['runtime_api_contract'].__setitem__('confidence_dependency_count',1)),('bound_source_digest_old',lambda s:s['current']['runtime_api_contract'].__setitem__('source_dependency_hash','sha256:'+'0'*64)),('static_FAIL_as_PASS',lambda s:s['current']['static_invocation'].__setitem__('outcome','PASS')),('static_regression_count_zero',lambda s:s['current']['static_invocation']['fresh_complete_mechanism_counts'].__setitem__('regressions',0)),('static_mechanism_count_bool',lambda s:s['current']['static_invocation']['fresh_complete_mechanism_counts'].__setitem__('mechanisms',True)),('static_mapping_digest_fake',lambda s:s['current']['static_invocation']['full_input_denominator'].__setitem__('current_sha256','0'*64)),('infer_PIDcause_from_globalcounter',lambda s:s['current']['static_invocation'].__setitem__('historical_abnormal_exit_PID_kill_cause','oom_kill')),('claim_finding_closure',lambda s:s.__setitem__('finding_closure',True)),('drop_source_frame_marker',lambda s:s['attempts'][0]['source_frame'].__setitem__('framed_sha256','0'*64)),('posterior_witness_false_ref',lambda s:s['deciding_supplements']['posterior9_native_witness_join'].__setitem__('sha256','0'*64)),('static_fullraw_wrong_hash',lambda s:s['current']['static_invocation']['full_native_raw_receipt'].__setitem__('sha256','0'*64))]
+controls=[]
+for name,mutate in mutators:
+ bad=copy.deepcopy(summary);mutate(bad)
+ try:validate(bad,summary)
+ except ValueError as e:controls.append({'case':name,'outcome':'PASS','expected_refusal':str(e),'actual_native_receipt_source_and_stdout_unchanged':True})
+ else:raise RuntimeError('corrupt packet admitted '+name)
+control={'schema':'policyos.e02.E.three_selector_packet_recomputing_controls.v2','packet':ref(dest),'source':SOURCE,'optimized':bool(sys.flags.optimize),'healthy':True,'raw_claim_recomputation':True,'controls':controls,'control_count':len(controls),'scope':'Native custody/typedsummary only; not new runtime/property/findingclosure'}
+with (R/('packet-controls-v3-optimized.json' if sys.flags.optimize else 'packet-controls-v3-normal.json')).open('x') as f:json.dump(control,f,indent=2);f.write('\n')
+print(json.dumps({'packet':ref(dest),'healthy':True,'corrupt_controls':len(controls),'current':summary['current']},indent=2))

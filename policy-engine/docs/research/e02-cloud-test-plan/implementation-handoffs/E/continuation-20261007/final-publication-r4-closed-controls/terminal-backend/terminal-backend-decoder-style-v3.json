@@ -1,0 +1,34 @@
+{
+  "source": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/decode-terminal-backend-v3.py.txt",
+    "bytes": 24112,
+    "sha256": "62cafcbf1506978947bafb7fa4b88c92857840a2b6cbb25c08e9bb1c498c171c"
+  },
+  "checks": [
+    {
+      "argv": [
+        "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/ruff",
+        "check",
+        "--stdin-filename",
+        "tools/decode_terminal_backend.py"
+      ],
+      "cwd": "/workspace/e02-E-mc-20261006/policy-engine",
+      "exit_code": 0,
+      "stdout": "All checks passed!\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/ruff",
+        "format",
+        "--check",
+        "--stdin-filename",
+        "tools/decode_terminal_backend.py"
+      ],
+      "cwd": "/workspace/e02-E-mc-20261006/policy-engine",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "selection": {
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/publication-selection.json",
+    "bytes": 212566,
+    "sha256": "3258af2239902206efe418a708fe52da1c91212dc2508a2d6c5fa4fcf539ca81"
+  },
+  "logical": 194,
+  "unique": 123,
+  "publication_bytes": 8229294,
+  "raw_ignored": {
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/static-invocation-retry4/production-invocation.raw.json",
+    "bytes": 171837783,
+    "sha256": "f67477ef9598cb1f9a4628dcacf574146f9c753fd42efc57a482505957fcd776"
+  },
+  "archive_count": 9
+}

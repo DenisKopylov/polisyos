@@ -1,0 +1,56 @@
+{
+  "schema": "policyos.e02.E.parent_packet_claim_controls.v1",
+  "packet": {
+    "path": "/tmp/e02-E-ROOT31782-umbrella-gates-20261007/current-parent-packet.json",
+    "bytes": 35737,
+    "sha256": "f7689f0cd708721e32e02eeba79f84d95bd4b523e280207b14052ede0a2530e5"
+  },
+  "optimized": false,
+  "healthy": true,
+  "controls": [
+    {
+      "case": "workspace_FAIL_as_PASS",
+      "outcome": "PASS",
+      "nativeframes_stdout_refs_unchanged": true,
+      "expected_typed_claim_refusal": true
+    },
+    {
+      "case": "CI_UNRUN_as_PASS",
+      "outcome": "PASS",
+      "nativeframes_stdout_refs_unchanged": true,
+      "expected_typed_claim_refusal": true
+    },
+    {
+      "case": "CI_stage_count_bool",
+      "outcome": "PASS",
+      "nativeframes_stdout_refs_unchanged": true,
+      "expected_typed_claim_refusal": true
+    },
+    {
+      "case": "native_exit_bool",
+      "outcome": "PASS",
+      "nativeframes_stdout_refs_unchanged": true,
+      "expected_typed_claim_refusal": true
+    },
+    {
+      "case": "source_frame_fake",
+      "outcome": "PASS",
+      "nativeframes_stdout_refs_unchanged": true,
+      "expected_typed_claim_refusal": true
+    },
+    {
+      "case": "claim_backend_repeated_green",
+      "outcome": "PASS",
+      "nativeframes_stdout_refs_unchanged": true,
+      "expected_typed_claim_refusal": true
+    },
+    {
+      "case": "fullCI_claim",
+      "outcome": "PASS",
+      "nativeframes_stdout_refs_unchanged": true,
+      "expected_typed_claim_refusal": true
+    }
+  ],
+  "control_count": 7,
+  "native_stage_or_backend_reexecution": false
+}

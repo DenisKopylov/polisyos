@@ -1,0 +1,36 @@
+{
+  "conversion_input_rows": [
+    {
+      "case_id": "ua-msme-affordable-loans-2022",
+      "g4_promotion_record_ref": null,
+      "g5_conversion_record_ref": "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
+      "may_not_use_for": [
+        "production_authority",
+        "production_claim_authority",
+        "rollout_authority",
+        "publication_authority",
+        "approval_authority",
+        "scorecard_authority",
+        "closeout_authority",
+        "runtime_closeout_authority",
+        "public_recommendation",
+        "policy_recommendation",
+        "legal_advice",
+        "claim_authority",
+        "obligation_authority",
+        "causal_effect_authority",
+        "proof_authority",
+        "legal_authority",
+        "recommendation_authority",
+        "universal_claim_authority",
+        "universal_claim_authority_without_s14",
+        "s14_universality_claim_without_s14_gate",
+        "g8_metric_governance_authority"
+      ],
+      "source_class": "persisted_current_g5_record"
+    }
+  ],
+  "region_ref": "region://ua/msme-adjacent",
+  "rule_version": "policyos.layer3.g7.region_widening.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g7_region_widening.v1"
+}

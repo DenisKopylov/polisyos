@@ -1,0 +1,22 @@
+{
+  "schema": "policyos.e02.E.architecture_finished_edge_comparison.v1",
+  "old_source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+  "old_full_stdout": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/checks/architecture-full-retry/architecture-full-retry.stdout.txt",
+    "bytes": 123571,
+    "sha256": "8240df44dd7f4a899c3c9e25a1945e1bf15680b19fbfcbc38a378c05fb3354af"
+  },
+  "current_full_stdout": {
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retry2/stdout.txt",
+    "bytes": 123647,
+    "sha256": "cf26c5c38db3ab7bc5c16f2f2ceb556daabd8118306a7645ae1750c5c9cb40be"
+  },
+  "old_edge_count": 151,
+  "current_edge_count": 151,
+  "added_edges": [],
+  "removed_edges": [],
+  "comparison_scope": "Exact reported deep-import tuples, not inheritance of full command outcome or other generated/input properties",
+  "P41": "not_established: full slice-base198 command/denominator not executed here",
+  "global_pass": false
+}

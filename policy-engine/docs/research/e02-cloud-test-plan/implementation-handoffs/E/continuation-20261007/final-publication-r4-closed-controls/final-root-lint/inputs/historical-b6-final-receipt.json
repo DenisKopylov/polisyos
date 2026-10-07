@@ -1,0 +1,82 @@
+{
+  "schema": "policyos.e02.actual_current_complete_lint_closeout.v1",
+  "source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+  "tree": "0cb448febf461d0bbdf31645712ad774f5425b72",
+  "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "check_outcome": "FAIL",
+  "finding_outcome": null,
+  "summary": {
+    "candidate": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+    "tree": "0cb448febf461d0bbdf31645712ad774f5425b72",
+    "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "full_changed_path_count": 5412,
+    "complete_changed_python_denominator": 366,
+    "actual_Ruff_exit_code": 1,
+    "actual_Ruff_diagnostic_count": 143,
+    "actual_Ruff_diagnostic_path_count": 7,
+    "Ruff_diagnostics_by_factual_writer": {
+      "A": 1,
+      "B": 35,
+      "E": 0,
+      "G": 107
+    },
+    "actual_format_exit_code": 1,
+    "actual_format_path_count": 8,
+    "already_formatted_count": 358,
+    "format_by_factual_writer": {
+      "A": 1,
+      "B": 2,
+      "E": 1,
+      "G": 4
+    },
+    "Ruff_E_owned_diagnostic_count": 0,
+    "E_owned_format_required_count": 1,
+    "source_and_config_immutable": true,
+    "metadata_count": 184,
+    "metadata_before_after_unchanged": true,
+    "G_C_distinction": "Four failing incoming utilities were authored/published by G for canonical C mechanism; E has no foreign writer lease.",
+    "P41": "not_established",
+    "full_global_outcome": "FAIL",
+    "finding_dispositions_changed": false
+  },
+  "independent_native_capture": {
+    "path": "/tmp/e02-E-actual-lint-b6b0d415-20261007/capture-receipt.json",
+    "bytes": 92324,
+    "sha256": "9081186987a285392c3726c7ea5735a8a4afaf66e023f2e92c6edf95723082be"
+  },
+  "complete_actual_inputs": {
+    "path": "/tmp/e02-E-actual-lint-b6b0d415-20261007/inputs.json",
+    "bytes": 473384,
+    "sha256": "00c11956fb919358ec52dcde1fa6ba77c4da5a15fb1cd68d6ce2ccae049ff3bb"
+  },
+  "closed_classification_normal": {
+    "path": "/tmp/e02-E-actual-lint-b6b0d415-20261007/classification-normal.stdout.json",
+    "bytes": 125666,
+    "sha256": "e18e966b1b0e4bcc49ee12bbdd13b615c2a97b20fc7e99726f71500255103657"
+  },
+  "closed_classification_optimized": {
+    "path": "/tmp/e02-E-actual-lint-b6b0d415-20261007/classification-optimized.stdout.json",
+    "bytes": 125669,
+    "sha256": "e3234983ea6af1e573a308cbd03e5ea21cddf839c75d627d9ead154dafbd8e1a"
+  },
+  "normal_optimized_claims_equal": true,
+  "author_summary_controls_per_mode": 9,
+  "root_or_candidate_code_environment_mutated": false,
+  "non_E_code_changes": false,
+  "owner_ready_E_defect": "One E-scoped FRC-authored publication validator requires format. Root assigned canonical FRC author; this observer does not apply or review its own source.",
+  "foreign_next_owners": "A compiler utility1diagnostic/1format; B settlement utilities35diagnostics/2formats; G-published C-canon utilities107diagnostics/4formats. Canonical C mechanism ownership is separate from G publication writer.",
+  "P41": "not_established; no inherited waiver",
+  "historical_observer_errors": "First classifier argv offset refused before summary; second classifier defaultdict included format-only E path in diagnostic count8. Literal source/stdout/stderr retained. Corrected current counts independently derive raw7diagnostic paths; native Ruff/format commands were executed once and never repeated.",
+  "old_prospective366_and_frozen360": "Preserved history. Actual current366 comes from native Git main198\u2192b6, all5412 changed paths and all366 physical/candidate hashes.",
+  "format_proposal": "Unapplied formatter stdout8239B f1658865..., native diff and full AST equality; canonical author controls/review needed if applied.",
+  "cleanup_candidates": [
+    "cache-version",
+    "cache-python",
+    "cache-settings",
+    "cache-ruff",
+    "cache-format",
+    "cache-E-format-diff",
+    "cache-E-format-proposal"
+  ],
+  "cleanup_performed": false
+}

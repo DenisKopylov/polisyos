@@ -1,0 +1,19 @@
+import ast,copy,hashlib,json,pathlib,sys
+R=pathlib.Path('/tmp/e02-E-MC-b6-gates-20261007');p=R/'build_gate_packet_v3.py.txt';nodes=[]
+for n in ast.parse(p.read_text()).body:
+ if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='summary' for t in n.targets):break
+ nodes.append(n)
+ns={'__name__':'e02_scratch_removal_observer'};exec(compile(ast.Module(body=nodes,type_ignores=[]),str(p),'exec'),ns)
+healthy=ns['derive']();ns['validate'](healthy,healthy)
+old=ast.parse((R/'build_gate_packet_v2.py.txt').read_text());target=next(n for n in old.body if isinstance(n,ast.FunctionDef) and n.name=='typed_equal');target.body=[ast.Return(value=ast.Compare(left=ast.Name(id='actual',ctx=ast.Load()),ops=[ast.Eq()],comparators=[ast.Name(id='expected',ctx=ast.Load())]))];ast.fix_missing_locations(target);exec(compile(ast.Module(body=[target],type_ignores=[]),'scratch_actual_guard_removed','exec'),ns)
+cases=[('native_exit_bool',lambda s:s['current']['architecture'].__setitem__('native_exit_code',True)),('source_guard_integer',lambda s:s.__setitem__('source_immutable',1)),('zero_stderr_size_bool',lambda s:s['attempts'][-1]['stderr'].__setitem__('bytes',False))]
+controls=[]
+for name,mutate in cases:
+ bad=copy.deepcopy(healthy);mutate(bad)
+ admitted=ns['validate'](bad,healthy)
+ if admitted is not True:raise RuntimeError('typedguard removal did not expose real escape')
+ controls.append({'case':name,'outcome':'PASS','actual_removed_guard_validator_false_admission':True,'expected_independent_admission_assertion':'FAIL: strict bool/int claim corruption was accepted','native_source_stdout_and_refs_preserved':True})
+v={'schema':'policyos.e02.E.summary_typedguard_removal.v2','source':ns['SOURCE'],'optimized':bool(sys.flags.optimize),'healthy_before_removal':True,'only_actual_typed_equal_body_removed':True,'production_or_architecture_source_changed':False,'controls':controls,'control_count':3,'no_new_native_gate':True}
+out=R/('packet-v3-removal-optimized.json' if sys.flags.optimize else 'packet-v3-removal-normal.json')
+with out.open('x') as f:json.dump(v,f,indent=2);f.write('\n')
+print(json.dumps(v,indent=2))

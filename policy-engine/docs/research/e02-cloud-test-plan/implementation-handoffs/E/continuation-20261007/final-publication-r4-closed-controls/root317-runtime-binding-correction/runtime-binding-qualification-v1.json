@@ -1,0 +1,103 @@
+{
+  "schema": "policyos.e02.root_confidence_binding_qualification.v1",
+  "source": "31782b55f8f35556cfc581449b040c393f00c78f",
+  "tree": "746f50214f70c0fa34cd8bb6d42e72440adc9f96",
+  "prior_source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+  "closed_native_receipt": {
+    "path": "/tmp/e02-E-ROOT31782-umbrella-gates-20261007/ci-parity/receipt.json",
+    "bytes": 95897,
+    "sha256": "2c9bcd9b63506b11e260d4e2af20fc76629ce83bfba25791bd517d5ed82ae04c"
+  },
+  "closed_native_stdout": {
+    "path": "/tmp/e02-E-ROOT31782-umbrella-gates-20261007/ci-parity/stdout.txt",
+    "bytes": 8551,
+    "sha256": "bdd50b61c0d490a820465750ae04e2b39aaff9f0be2ad9964f7204e178f38ef6"
+  },
+  "current_native_diff_values": {
+    "bound_dependency_count": 1494,
+    "bound_dependency_aggregate_identity": "sha256:ac34b1d112d9dee2b2a9eb9e26fe7d0f1df8af7da2301898b550e3c611a9dede",
+    "projection_hash": "sha256:c0db0c6b66c019b68d5a9f08c4087fab69764762c8e99353fb1211e77217efed",
+    "worker_validation_receipt_hash": "sha256:fc266d56bbaf5ccc6fa61018f67b6e3abf106f9cd8eda716b002f0ca6ffe5567"
+  },
+  "prior_b6_complete_output": {
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/runtime-api-contract/tmp/retained-runtime-openapi.raw.json",
+    "bytes": 2812414,
+    "sha256": "701b5d6fe04afc283518f96ec5461db0fb3f7beb9fe33b82813a63b20e614ca0"
+  },
+  "prior_b6_confidence_aggregate": "sha256:2924a8116e1d1dbd7c9116ab43deedcd13a8266a0bd2382c9d46e2d7aedd5ffa",
+  "dependency_count_changed": false,
+  "aggregate_changed": true,
+  "underlying_source_comparison": {
+    "command": [
+      "git",
+      "diff",
+      "--name-status",
+      "--find-renames",
+      "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+      "31782b55f8f35556cfc581449b040c393f00c78f",
+      "--",
+      "policy-engine/src",
+      "policy-engine/tools",
+      "policy-engine/tests",
+      "policy-engine/schemas",
+      "policy-engine/architecture",
+      "policy-engine/pyproject.toml",
+      "policy-engine/uv.lock",
+      "policy-engine/package.json",
+      "policy-engine/pnpm-lock.yaml"
+    ],
+    "stdout": "",
+    "all_comparison_paths": [
+      "policy-engine/src",
+      "policy-engine/tools",
+      "policy-engine/tests",
+      "policy-engine/schemas",
+      "policy-engine/architecture",
+      "policy-engine/pyproject.toml",
+      "policy-engine/uv.lock",
+      "policy-engine/package.json",
+      "policy-engine/pnpm-lock.yaml"
+    ]
+  },
+  "binding_implementation_source": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/governed_projection_dependencies.py",
+      "source": "31782b55f8f35556cfc581449b040c393f00c78f",
+      "bytes": 7934,
+      "sha256": "fdc36162cefd57c807e70026fca9d27608ecf540930cece436dcf6a75d4dc6aa",
+      "same_bytes_at_b6": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/governed_projection_validation_worker.py",
+      "source": "31782b55f8f35556cfc581449b040c393f00c78f",
+      "bytes": 38045,
+      "sha256": "e913ddef94876b7a54eb524d4577c489c8ee79f3f5b87092a8232d7a33b70536",
+      "same_bytes_at_b6": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/governed_projections.py",
+      "source": "31782b55f8f35556cfc581449b040c393f00c78f",
+      "bytes": 106265,
+      "sha256": "f697b9bd324cafd7d90ca0d3dd6e641d9c2db131b2a49d9d1af0ebb024e9668a",
+      "same_bytes_at_b6": true
+    }
+  ],
+  "binding_implementation_observation": "DependencyTracker binds file byte hashes, directory entry name/kind maps and missing-path observations under the actual repository root, plus loaded module paths; equal product bytes do not establish equal dependency manifests.",
+  "dependency_manifest_delta_cause": "not_established",
+  "current_complete_runtime_json_retained": false,
+  "current_complete_dependency_bindings_retained": false,
+  "qualification": "Reuse prior model schemas/ABI/emitter source facts under actual byte equality; the b6 rendered JSON and confidence aggregate are historical and are not the fresh ROOT317 rendered output. Current doctor native FAIL/source/environment receipts and stdout diff are the deciding current facts. No parent or global gate PASS, fresh served consumer or P41 inheritance is established.",
+  "native_gate_rerun": false,
+  "finding_closure": false,
+  "P41": "not_established",
+  "immutable_parent_packet": {
+    "path": "/tmp/e02-E-ROOT31782-umbrella-gates-20261007/current-parent-packet.json",
+    "bytes": 35737,
+    "sha256": "f7689f0cd708721e32e02eeba79f84d95bd4b523e280207b14052ede0a2530e5"
+  },
+  "immutable_parent_selection": {
+    "path": "/tmp/e02-E-ROOT31782-umbrella-gates-20261007/publication-selection.json",
+    "bytes": 48232,
+    "sha256": "5e3ad90315847c13b6b4b2ead6b447a455a454ebae435eaeecbc3d4c92ea93b8"
+  }
+}

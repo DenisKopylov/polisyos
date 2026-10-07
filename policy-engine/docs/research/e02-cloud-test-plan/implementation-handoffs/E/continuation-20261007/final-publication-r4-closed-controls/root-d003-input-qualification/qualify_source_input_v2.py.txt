@@ -1,0 +1,89 @@
+"""Call only canonical read-only denominator/edge collectors, never native gates."""
+import ast
+import collections
+import dataclasses
+import hashlib
+import importlib.util
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+OUT = Path(__file__).parent
+ROOT = Path('/workspace/e02-E-continuation-20261006')
+PRODUCT = ROOT / 'policy-engine'
+SOURCE = 'd0038a6e52867e820fd96f4706746ec501a80273'
+PARENT = '31782b55f8f35556cfc581449b040c393f00c78f'
+B6 = 'b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4'
+BASE = '198076863e143dea9f89f02734b13d50dae3eed5'
+TEST = 'policy-engine/tests/unit/calibration/test_evidence_facades.py'
+PRIOR = Path('/tmp/e02-E-MC-b6-gates-20261007')
+
+def git(*args):
+    return subprocess.run(['git', *args], cwd=ROOT, check=True, capture_output=True).stdout
+
+def blob(ref, path): return git('show', ref + ':' + path)
+def sha(raw): return hashlib.sha256(raw).hexdigest()
+def source_ref(ref, path):
+    raw=blob(ref,path)
+    return {'source':ref,'path':path,'bytes':len(raw),'sha256':sha(raw),'git_blob':git('rev-parse',ref+':'+path).decode().strip()}
+def file_ref(path):
+    raw=path.read_bytes();return {'path':str(path),'bytes':len(raw),'sha256':sha(raw)}
+def write(name,data):
+    with (OUT/name).open('x') as stream:json.dump(data,stream,indent=2);stream.write('\n')
+def ast_census(raw):
+    tree=ast.parse(raw.decode());imports=[];calls=[]
+    for node in ast.walk(tree):
+        if isinstance(node,(ast.Import,ast.ImportFrom)):
+            imports.append(ast.dump(node,include_attributes=False))
+        if isinstance(node,ast.Call): calls.append(ast.dump(node.func,include_attributes=False))
+    functions={node.name:ast.dump(node,include_attributes=False) for node in tree.body if isinstance(node,(ast.FunctionDef,ast.AsyncFunctionDef))}
+    return imports,collections.Counter(calls),functions
+
+if git('rev-parse','HEAD').decode().strip()!=SOURCE:raise RuntimeError('source_not_pinned')
+footprint=git('diff','--name-status','--find-renames',PARENT,SOURCE).decode()
+if footprint!='M\t'+TEST+'\n':raise RuntimeError('unexpected_source_footprint')
+status_before=git('status','--porcelain=v1').decode()
+old=blob(PARENT,TEST);new=blob(SOURCE,TEST)
+if (ROOT/TEST).read_bytes()!=new:raise RuntimeError('physical_test_differs_pinned_source')
+old_i,old_c,old_f=ast_census(old);new_i,new_c,new_f=ast_census(new)
+
+prior_den=json.loads((PRIOR/'static-input-denominator-recomputation.json').read_text())
+completed_index=json.loads((OUT/'complete-current-static-input-index.json').read_text())
+if completed_index['source'] != SOURCE or completed_index['files'] != 5939:raise RuntimeError('completed_stage_not_pinned')
+current={row['path']: None for row in completed_index['rows']}
+base={i:None for i in range(prior_den['full_mapping']['base_files'])}
+current_hash=completed_index['mapping_sha256'];base_hash=prior_den['full_mapping']['base_sha256']
+roots_current=prior_den['roots_current'];roots_base=prior_den['roots_base']
+from tools.devx.architecture import guardrails
+policies=guardrails._parse_public_surface(guardrails.DEFAULT_PUBLIC_MANIFEST)
+files=guardrails._iter_py_files()
+architecture_indices=[{'path':str(p.relative_to(PRODUCT)),'bytes':p.stat().st_size,'sha256':sha(p.read_bytes())}for p in files]
+edges=guardrails.collect_deep_import_edges(policies)
+edge_values=[dataclasses.asdict(edge) for edge in edges]
+prior_edges=json.loads((PRIOR/'architecture-complete-edge-census-owner-v2.json').read_text())
+a={(e['source_module'],e['target_module'])for e in edge_values}
+b={(e['source_module'],e['target_module'])for e in prior_edges['complete_rows']}
+baseline=guardrails._load_deep_import_baseline(guardrails.DEFAULT_DEEP_IMPORT_BASELINE)
+violations=guardrails._check_deep_import_creep(baseline_path=guardrails.DEFAULT_DEEP_IMPORT_BASELINE,current_edges=edges)
+exceptions=guardrails._parse_guardrail_exceptions(guardrails.DEFAULT_EXCEPTION_FILE)
+reported=[v for v in violations if not any(guardrails._exception_matches_violation(e,v)for e in exceptions)]
+reported_tuples={(v.source_module,v.target_module)for v in reported}
+if reported_tuples!=b or len(reported_tuples)!=151:raise RuntimeError('actual_reported_architecture_edge_delta')
+write('complete-current-architecture-input-edge-index.json',{'source':SOURCE,'files':len(files),'input_mapping_sha256':sha(json.dumps(architecture_indices,sort_keys=True).encode()),'input_files':architecture_indices,'edges':edge_values,'edge_count':len(edges),'source_paths':len({e['source_file']for e in edge_values}),'raw_violations':len(violations),'reported_violations':len(reported),'reported_tuples':[list(x)for x in sorted(reported_tuples)]})
+paths=['policy-engine/src','policy-engine/tools','policy-engine/schemas','policy-engine/architecture','policy-engine/pyproject.toml','policy-engine/uv.lock','policy-engine/package.json','policy-engine/pnpm-lock.yaml']
+non_test_delta=git('diff','--name-status','--find-renames',B6,SOURCE,'--',*paths).decode()
+if non_test_delta:raise RuntimeError('unexpected_product_or_gate_dependency_delta')
+newcall=list((new_c-old_c).elements());removedcall=list((old_c-new_c).elements())
+result={
+ 'schema':'policyos.e02.current_source_input_qualification.v1','source':SOURCE,'tree':git('rev-parse',SOURCE+'^{tree}').decode().strip(),'parent_source':PARENT,'prior_native_source':B6,'full_rename_aware_footprint':footprint,
+ 'changed_input':{'old':source_ref(PARENT,TEST),'new':source_ref(SOURCE,TEST),'imports_added':sorted(set(new_i)-set(old_i)),'imports_removed':sorted(set(old_i)-set(new_i)),'call_expressions_added_with_multiplicity':newcall,'call_expressions_removed_with_multiplicity':removedcall,'functions_changed':sorted(k for k in old_f.keys()|new_f.keys() if old_f.get(k)!=new_f.get(k))},
+ 'static_denominator':{'current_files':len(current),'base_files':len(base),'source_files':sum(p.startswith('src/')for p in current),'current_sha256':current_hash,'prior_b6_current_sha256':prior_den['full_mapping']['current_sha256'],'base_sha256':base_hash,'roots_current':roots_current,'roots_base':roots_base,'complete_current_index':file_ref(OUT/'complete-current-static-input-index.json'),'canonical_algorithm':source_ref(SOURCE,'policy-engine/src/polisyos/runtime/quality/production_invocation.py'),'native_graph_or_gate_rerun':False,'qualified_old_result':'Original b6 full20regressions/95new-unresolved remains an old full graph observation. New test changes canonical input; no current full-graph counts or reachability verdict is inferred from this read-only denominator comparison.'},
+ 'architecture_collector':{'files':len(files),'complete_edges':len(edges),'raw_violations':len(violations),'reported_edges':len(reported),'source_paths':len({e['source_file']for e in edge_values}),'complete_index':file_ref(OUT/'complete-current-architecture-input-edge-index.json'),'prior_b6_reported_tuples_equal':True,'canonical_baseline_keys':len(baseline),'canonical_exception_entries':len(exceptions),'test_is_outside_actual_src_only_collector':True,'policy_baseline_exception_and_product_diff':non_test_delta,'native_full_gate_rerun':False,'qualification':'Only full source-only deep-import collector property reused/recomputed. Full native architecture151FAIL and generated freshness observations remain pinned b6; workspace roots and filesystem directory bindings may differ.'},
+ 'product_tools_generator_ABI_dependency_comparison':{'paths':paths,'stdout':non_test_delta,'actual_complete_underlying_code_equal':True,'fresh_runtime_confidence_binding_qualification':'ROOT317 actual native1494/ac34 binding differs b6 raw1494/2924; cause not_established, distinct correction receipt retained. No raw equality claim on d003.'},
+ 'source_before_status':status_before,'source_after_status':git('status','--porcelain=v1').decode(),'source_immutable':git('rev-parse','HEAD').decode().strip()==SOURCE and (ROOT/TEST).read_bytes()==new,
+ 'P41':'not_established','finding_closure':False,'no_global_gate_repeat':True,'observer':file_ref(Path(__file__)),'historical_observer_error':{'source':file_ref(OUT/'qualify_source_input.py.txt'),'stderr':file_ref(OUT/'observer.stderr.txt'),'reason':'Entire collector wrongly compared to reported violations; static denominator stage completed and its full index is retained and reused; only affected architecture interpretation is corrected'},
+}
+if result['source_before_status']!=result['source_after_status'] or result['source_immutable']is not True:raise RuntimeError('source_guard')
+write('current-source-input-qualification.json',result)
+print(json.dumps({'source':SOURCE,'current_files':len(current),'base_files':len(base),'current_mapping_sha256':current_hash,'complete_deep_edges':len(edges),'reported_deep_edges':len(reported),'deep_paths':len({e['source_file']for e in edge_values}),'full_static_graph_current':'UNMEASURED','source_immutable':True}))

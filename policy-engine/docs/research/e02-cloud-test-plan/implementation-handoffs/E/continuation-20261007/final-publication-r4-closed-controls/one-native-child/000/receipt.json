@@ -1,0 +1,148 @@
+{
+  "schema": "policyos.e02.one_closed_native_fixture_archive.v1",
+  "authorization": "Parent explicitly authorized exactly this one closed18575file527866253B fixture child, full verified tar.gz ignored overlay, no fake archive symlink; stop after one.",
+  "source_path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/pytest-base/test_generated_family_probe_an0",
+  "archive": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/closed-native-fixture-archives-20261007/test_generated_family_probe_an0.tar.gz",
+    "bytes": 116892698,
+    "sha256": "59fe87ef275be44536403f38eb739b2f91dba64cd88f79eb6dc35481d9f71441"
+  },
+  "inventory_before": {
+    "path": "/tmp/e02-E-one-closed-native-child-archive-20261007/inventory-before.json",
+    "bytes": 8081306,
+    "sha256": "8d4ad4c2662bd1a1d60e909066913f27b73db31a622179dac74eb86abdb266ce"
+  },
+  "inventory_before_retirement": {
+    "path": "/tmp/e02-E-one-closed-native-child-archive-20261007/inventory-before-retirement.json",
+    "bytes": 8081306,
+    "sha256": "8d4ad4c2662bd1a1d60e909066913f27b73db31a622179dac74eb86abdb266ce"
+  },
+  "complete_tar_member_readback": {
+    "path": "/tmp/e02-E-one-closed-native-child-archive-20261007/archive-complete-member-readback.json",
+    "bytes": 6139101,
+    "sha256": "fbd510b6574a183b80ff45a5a2ba603edf0a3cf741417e046ac7175cfc9f435a"
+  },
+  "counts": {
+    "regular_source_files": 18575,
+    "regular_source_bytes_path_sum": 527866253,
+    "source_directories": 2024,
+    "symlinks": 3,
+    "full_tar_members": 20602,
+    "tar_regular_payload_members": 18575,
+    "tar_hardlink_members": 0,
+    "tar_stored_regular_payload_bytes": 527866253
+  },
+  "exact_scope_admission": {
+    "Git_or_env_paths": 0,
+    "special_objects": 0,
+    "initial_expected_denominator": true,
+    "worst_archive_raw_tar_manifest_and_guard_bytes": 813578637,
+    "fresh_statvfs": {
+      "unix": 1791382632.367531,
+      "overlay": {
+        "writable_available_bytes": 1234894848,
+        "all_free_including_reserved_bytes": 2969657344,
+        "total_bytes": 33770192896,
+        "device": 27
+      },
+      "tmpfs": {
+        "writable_available_bytes": 5088808960,
+        "all_free_including_reserved_bytes": 5088808960,
+        "total_bytes": 9441349632,
+        "device": 33
+      },
+      "memory_current": "9298493440",
+      "memory_max": "17179869184",
+      "memory_stat": "anon 80502784\nfile 7641772032\nkernel 1575309312\nkernel_stack 524288\npagetables 1589248\nsec_pagetables 0\npercpu 13776\nsock 0\nvmalloc 0\nshmem 4352540672\nfile_mapped 24576\nfile_dirty 311296\nfile_writeback 0\nswapcached 0\nanon_thp 0\nfile_thp 0\nshmem_thp 0\ninactive_anon 518569984\nactive_anon 3914326016\ninactive_file 1371967488\nactive_file 1917263872\nunevictable 0\nslab_reclaimable 1404829656\nslab_unreclaimable 168340840\nslab 1573170496\nworkingset_refault_anon 0\nworkingset_refault_file 167442457\nworkingset_activate_anon 0\nworkingset_activate_file 26815122\nworkingset_restore_anon 0\nworkingset_restore_file 13342065\nworkingset_nodereclaim 0\npgdemote_kswapd 0\npgdemote_direct 0\npgdemote_khugepaged 0\npgdemote_proactive 0\npgscan 6890169057\npgsteal 174999972\npswpin 0\npswpout 0\npgscan_kswapd 8718590\npgscan_direct 6881444835\npgscan_khugepaged 5632\npgscan_proactive 0\npgsteal_kswapd 8299014\npgsteal_direct 166695510\npgsteal_khugepaged 5448\npgsteal_proactive 0\npgfault 723294123\npgmajfault 242827\npgrefill 54546537\npgactivate 27676276\npgdeactivate 50095821\npglazyfree 1293602\npglazyfreed 0\nswpin_zero 0\nswpout_zero 0\nthp_fault_alloc 1221\nthp_collapse_alloc 82\nthp_swpout 0\nthp_swpout_fallback 0\n",
+      "memory_events": "low 0\nhigh 0\nmax 3935153\noom 94\noom_kill 12\noom_group_kill 0\n",
+      "swap_current": "0"
+    }
+  },
+  "process_observations": [
+    {
+      "path": "/tmp/e02-E-one-closed-native-child-archive-20261007/process-before.json",
+      "bytes": 475,
+      "sha256": "4ee7e1d19366e19369ee1b5b2d41a806ef541752ca8dc5455eaa81924536d44e"
+    },
+    {
+      "path": "/tmp/e02-E-one-closed-native-child-archive-20261007/process-before-retirement.json",
+      "bytes": 476,
+      "sha256": "7efe9e2f300498bc33578ea1d0a6be9a5ad4ffc4e99db5d3087a1b4348eaca2e"
+    }
+  ],
+  "source_plain_path_unavailable_until_explicit_reopen": true,
+  "source_retired_only_after_complete_archive_and_second_inventory_proof": true,
+  "compressed_path_never_masquerades_as_fixture_directory": true,
+  "ROOT_before": {
+    "HEAD": "c3a0057059b258c30224aac06709523cab2dc9cc",
+    "tree": "e5d743266cf965680019f39509061207df234080",
+    "status": "?? policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/\n"
+  },
+  "ROOT_after": {
+    "HEAD": "c3a0057059b258c30224aac06709523cab2dc9cc",
+    "tree": "e5d743266cf965680019f39509061207df234080",
+    "status": "?? policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/\n?? policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/\n"
+  },
+  "operation_ROOT_code_Git_env_package_or_other_fixture_write": false,
+  "before": {
+    "unix": 1791382622.3493154,
+    "overlay": {
+      "writable_available_bytes": 1234898944,
+      "all_free_including_reserved_bytes": 2969661440,
+      "total_bytes": 33770192896,
+      "device": 27
+    },
+    "tmpfs": {
+      "writable_available_bytes": 5096906752,
+      "all_free_including_reserved_bytes": 5096906752,
+      "total_bytes": 9441349632,
+      "device": 33
+    },
+    "memory_current": "8715157504",
+    "memory_max": "17179869184",
+    "memory_stat": "anon 75558912\nfile 7061594112\nkernel 1577168896\nkernel_stack 851968\npagetables 2600960\nsec_pagetables 0\npercpu 14336\nsock 0\nvmalloc 0\nshmem 4344442880\nfile_mapped 11063296\nfile_dirty 266240\nfile_writeback 0\nswapcached 0\nanon_thp 0\nfile_thp 0\nshmem_thp 0\ninactive_anon 505552896\nactive_anon 3914338304\ninactive_file 799895552\nactive_file 1917259776\nunevictable 0\nslab_reclaimable 1404888216\nslab_unreclaimable 168690592\nslab 1573578808\nworkingset_refault_anon 0\nworkingset_refault_file 167312174\nworkingset_activate_anon 0\nworkingset_activate_file 26815122\nworkingset_restore_anon 0\nworkingset_restore_file 13342065\nworkingset_nodereclaim 0\npgdemote_kswapd 0\npgdemote_direct 0\npgdemote_khugepaged 0\npgdemote_proactive 0\npgscan 6890169057\npgsteal 174999972\npswpin 0\npswpout 0\npgscan_kswapd 8718590\npgscan_direct 6881444835\npgscan_khugepaged 5632\npgscan_proactive 0\npgsteal_kswapd 8299014\npgsteal_direct 166695510\npgsteal_khugepaged 5448\npgsteal_proactive 0\npgfault 723243749\npgmajfault 242827\npgrefill 54546537\npgactivate 27676271\npgdeactivate 50095821\npglazyfree 1293602\npglazyfreed 0\nswpin_zero 0\nswpout_zero 0\nthp_fault_alloc 1221\nthp_collapse_alloc 82\nthp_swpout 0\nthp_swpout_fallback 0\n",
+    "memory_events": "low 0\nhigh 0\nmax 3935153\noom 94\noom_kill 12\noom_group_kill 0\n",
+    "swap_current": "0"
+  },
+  "after": {
+    "unix": 1791382653.5222151,
+    "overlay": {
+      "writable_available_bytes": 1698734080,
+      "all_free_including_reserved_bytes": 3433496576,
+      "total_bytes": 33770192896,
+      "device": 27
+    },
+    "tmpfs": {
+      "writable_available_bytes": 5071192064,
+      "all_free_including_reserved_bytes": 5071192064,
+      "total_bytes": 9441349632,
+      "device": 33
+    },
+    "memory_current": "8888918016",
+    "memory_max": "17179869184",
+    "memory_stat": "anon 151998464\nfile 7205195776\nkernel 1530896384\nkernel_stack 524288\npagetables 1642496\nsec_pagetables 0\npercpu 13776\nsock 0\nvmalloc 0\nshmem 4370157568\nfile_mapped 24576\nfile_dirty 131272704\nfile_writeback 0\nswapcached 0\nanon_thp 0\nfile_thp 0\nshmem_thp 0\ninactive_anon 596344832\nactive_anon 3925811200\ninactive_file 793341952\nactive_file 2041683968\nunevictable 0\nslab_reclaimable 1360312512\nslab_unreclaimable 168368960\nslab 1528681472\nworkingset_refault_anon 0\nworkingset_refault_file 167442708\nworkingset_activate_anon 0\nworkingset_activate_file 26815122\nworkingset_restore_anon 0\nworkingset_restore_file 13342065\nworkingset_nodereclaim 0\npgdemote_kswapd 0\npgdemote_direct 0\npgdemote_khugepaged 0\npgdemote_proactive 0\npgscan 6890169057\npgsteal 174999972\npswpin 0\npswpout 0\npgscan_kswapd 8718590\npgscan_direct 6881444835\npgscan_khugepaged 5632\npgscan_proactive 0\npgsteal_kswapd 8299014\npgsteal_direct 166695510\npgsteal_khugepaged 5448\npgsteal_proactive 0\npgfault 723854904\npgmajfault 242828\npgrefill 54546537\npgactivate 27848719\npgdeactivate 50095821\npglazyfree 1293602\npglazyfreed 0\nswpin_zero 0\nswpout_zero 0\nthp_fault_alloc 1221\nthp_collapse_alloc 82\nthp_swpout 0\nthp_swpout_fallback 0\n",
+    "memory_events": "low 0\nhigh 0\nmax 3935153\noom 94\noom_kill 12\noom_group_kill 0\n",
+    "swap_current": "0"
+  },
+  "elapsed_seconds": 31.219627618789673,
+  "reopen_recipe": {
+    "archive_source": "/workspace/e02-E-pr38-r3-receipts/closed-native-fixture-archives-20261007/test_generated_family_probe_an0.tar.gz",
+    "argv": [
+      "tar",
+      "-xzf",
+      "/workspace/e02-E-pr38-r3-receipts/closed-native-fixture-archives-20261007/test_generated_family_probe_an0.tar.gz",
+      "-C",
+      "/tmp/e02-E-reopened-generated-family-probe-20261007"
+    ],
+    "precondition": "Create this exact fresh destination explicitly; do not extract over ROOT/Git/env. Old absolute symlink targets are retained literally; fresh-parent relocation does not automatically rebind external links or claim caller compatibility.",
+    "verification": "Recompute full per-file mode/bytes/SHA and target strings against inventory-before.json before using reconstructed fixtures; all complete readback outputs retained.",
+    "plain_original_path": "retired; no automatic restore/symlink. Historical native input/receipt references remain literal archived observations."
+  },
+  "limitations": [
+    "Readable proc observation is point-in-time, infra199/250 unreadable scoped; no hostwide quiescence lock established.",
+    "All original fixture bytes including any useful/unique code/doc/data remain in full archive; real ROOT code/Git/env registrations and every other fixture/raw/receipt/observation untouched by operation.",
+    "Root may append authorized Git checkpoints during closed fixture archival; root identity delta is independently observed, never rewritten by operation or assumed immutable.",
+    "No native/mathematical/global test rerun or propertyPASS inferred from capacity change; original nativeFAIL137/nullJUnit retained.",
+    "Hardlinks within tar preserved through first verified body and exact link identity; original physical allocation recovery cannot be inferred from logical bytes alone."
+  ]
+}

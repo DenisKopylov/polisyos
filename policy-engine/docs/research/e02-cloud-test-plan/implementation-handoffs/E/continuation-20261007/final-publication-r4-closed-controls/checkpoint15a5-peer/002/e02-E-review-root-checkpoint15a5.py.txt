@@ -1,0 +1,32 @@
+from pathlib import Path
+import copy,hashlib,json,subprocess
+R=Path('/workspace/e02-E-continuation-20261006');O=Path('/tmp/e02-E-root-checkpoint15a5-independent');O.mkdir(exist_ok=True)
+DOC='15a5cd7b764f8839bc31b493e7a16cf3d12a114a';P='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/root-checkpoints/append-finite-law-290324be.json'
+def git(*args):return subprocess.check_output(['git',*args],cwd=R)
+def need(q,m):
+ if not q:raise ValueError(m)
+def ref(p):b=p.read_bytes();return {'path':str(p),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+b=git('show',DOC+':'+P);d=json.loads(b);delta=git('diff','--name-only',DOC+'^',DOC).decode().splitlines();need(delta==[P],'only single JSON checkpoint delta');need(len(b)==667777 and hashlib.sha256(b).hexdigest()=='4126c544b316941db92e652c816e1fd35693ed57f3fa8f4207f441222134361f','immutable original metadata')
+actual=git('diff','--name-only',d['base'],d['candidate']).decode().splitlines();PY=[x for x in actual if x.endswith('.py') and ('/src/' in x or '/tests/' in x)]
+refs=[]
+for name,x in d['defining_evidence_source_receipts'].items():need(ref(Path(x['path']))==x,'exact complete referred bytes '+name);refs.append({'name':name,**x})
+need(git('rev-parse',d['original_implementation_source']+'^{tree}').decode().strip()==d['original_source_tree'],'original3932 tree');pyrows=[]
+for x in d['changed_product_or_test_Python']:
+ p=x['path'];candidate=git('show',d['candidate']+':'+p);original=git('show',d['original_implementation_source']+':'+p)
+ need(candidate==original and len(candidate)==x['bytes'] and hashlib.sha256(candidate).hexdigest()==x['sha256'],'reused source3932 byte identity '+p);pyrows.append(x)
+def validate(q):
+ need(git('rev-parse',q['candidate']+'^{tree}').decode().strip()==q['candidate_tree'],'candidate immutable tree')
+ need(len(q['all_changed_paths'])==len(actual)==2106 and {x['path'] for x in q['all_changed_paths']}==set(actual),'complete source/doc/test footprint names')
+ need(len(q['changed_product_or_test_Python'])==len(PY)==12 and {x['path'] for x in q['changed_product_or_test_Python']}==set(PY),'actual product/test Python denominator')
+ need(q['historical_ledger']=={'partial':49,'held':4,'closed':1} and q['SOURCE3932_E_owner_dispositions']=={'closed':43,'limited':9,'held':2},'historical versus owner proposals')
+ need(q['frozen_final_candidate'] is False and q['evidence_commit_self_reference'] is False and q['no_history_rewrite'] is True,'no future sourcefreeze/selfreference/history')
+ need(q['global_checks']['full_backend']=='FAIL137; no JUnit/counts/full-scope completion; generated input mutation means input admission FAIL' and q['global_checks']['final_E_defining_wave'].startswith('UNRUN;') and q['G_formal_finding_acceptance'].startswith('pending separate original-criterion decisions;'),'no retrospective outcomes/acceptance')
+ return True
+validate(d);controls=[]
+for name,edit in [('omitted_source_companion',lambda q:q['changed_product_or_test_Python'].pop()),('omitted_full_path',lambda q:q['all_changed_paths'].pop()),('historical_autoclosure',lambda q:q['historical_ledger'].__setitem__('closed',43)),('nativePASS',lambda q:q['global_checks'].__setitem__('full_backend','PASS')),('future_wavePASS',lambda q:q['global_checks'].__setitem__('final_E_defining_wave','PASS')),('Gacceptance',lambda q:q.__setitem__('G_formal_finding_acceptance','accepted')),('source_frozen',lambda q:q.__setitem__('frozen_final_candidate',True))]:
+ q=copy.deepcopy(d);edit(q)
+ try:validate(q)
+ except ValueError as e:controls.append({'case':name,'outcome':'refused','reason':str(e)})
+ else:raise ValueError('admitted corrupted metadata '+name)
+result={'schema':'policyos.e02.independent_sparse_append_checkpoint_review.v1','outcome':'CHANGE_REQUIRED metadata-only P37 basis absent','checkpoint':DOC,'checkpoint_tree':git('rev-parse',DOC+'^{tree}').decode().strip(),'parent':git('rev-parse',DOC+'^').decode().strip(),'path':P,'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest(),'scope':'Only sole newJSON, all2106 actualdiff path names, all12 product/test Python actual bodies versus original3932, seven exact decidingrefs; unchanged2106 DOC contents not reread or retested.','changed_product_or_test_Python':pyrows,'references':refs,'control_results':controls,'source_math_reviews_reused':True,'source_numeric_global_execution':False,'required_correction':'Record structured canonical P37 basis for exact Git ancestry/footprint/reference/importer predicates versus inherited source3932 reviewer/oracle and absent native caller/fullscope/G authority. No new observations or source rerun required.','qualified_result':'Git/source reuse and factual scope/outcome separation GO; receipt protocol metadata requires additive repair; historical49partial4held1closed and43closed9limited2held owner proposals preserved, formalGintake separate.'}
+p=O/'review.json';p.write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))

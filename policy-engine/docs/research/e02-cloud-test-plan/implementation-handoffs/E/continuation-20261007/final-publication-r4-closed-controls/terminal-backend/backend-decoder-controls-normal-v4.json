@@ -1,0 +1,137 @@
+{
+  "schema": "policyos.e02.backend_decoder_class_controls.v2",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "decoder": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/decode-terminal-backend-v3.py.txt",
+    "bytes": 24112,
+    "sha256": "62cafcbf1506978947bafb7fa4b88c92857840a2b6cbb25c08e9bb1c498c171c"
+  },
+  "admitted_actual_launch": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/launch.json",
+    "bytes": 3601,
+    "sha256": "a2e4f4fbdba4dad96cf5de0fa7c2df0cc7c5bfeeb4976c4a5aea93472060a194"
+  },
+  "controlled_XML_sha256": "f87eac2bcb2aac4930d7cb46bca312a2f77a5b59b779cf49b1ffc36461ceadcf",
+  "controlled_case_names": [
+    "healthy",
+    "failed",
+    "errored",
+    "skipped"
+  ],
+  "checks": [
+    {
+      "name": "explicit_four_case_decoder_control",
+      "passed": true
+    },
+    {
+      "name": "source_sha",
+      "passed": true,
+      "refusal": "exact terminal source/head/tree required"
+    },
+    {
+      "name": "full_input_denominator",
+      "passed": true,
+      "refusal": "source frame flag does not match admitted/end source identities"
+    },
+    {
+      "name": "process_FAIL_forged_PASS",
+      "passed": true,
+      "refusal": "actual process/check status disagreement"
+    },
+    {
+      "name": "nonzero_process_forged_SKIP",
+      "passed": true,
+      "refusal": "actual process/check status disagreement"
+    },
+    {
+      "name": "missing_effective_child",
+      "passed": true,
+      "refusal": "effective full native command changed"
+    },
+    {
+      "name": "protected_numerical_version",
+      "passed": true,
+      "refusal": "numerical package drift"
+    },
+    {
+      "name": "inherited_worker_cap",
+      "passed": true,
+      "refusal": "effective inherited cap"
+    },
+    {
+      "name": "Git_config_changed",
+      "passed": true,
+      "refusal": "Git config drift"
+    },
+    {
+      "name": "JUnit_counts_forged",
+      "passed": true,
+      "refusal": "actual JUnit case-count drift"
+    },
+    {
+      "name": "JUnit_boolean_count_forged",
+      "passed": true,
+      "refusal": "recorded noninteger JUnit count"
+    },
+    {
+      "name": "codeHEAD_same_but_generated_input_drift_FAIL",
+      "passed": true
+    },
+    {
+      "name": "forged_immutable_with_actual_frame_drift",
+      "passed": true,
+      "refusal": "source frame flag does not match admitted/end source identities"
+    },
+    {
+      "name": "native137_missing_JUnit_counts_null",
+      "passed": true
+    },
+    {
+      "name": "missing_JUnit_forged_zero_case_denominator",
+      "passed": true,
+      "refusal": "actual JUnit case-count drift"
+    },
+    {
+      "name": "erased_observed_input_change",
+      "passed": true,
+      "refusal": "observed input drift erased"
+    },
+    {
+      "name": "claimed_atomic_whole_run",
+      "passed": true,
+      "refusal": "snapshot cannot establish fullrun"
+    },
+    {
+      "name": "drift_denominator_forged",
+      "passed": true,
+      "refusal": "drift input denominator"
+    },
+    {
+      "name": "allskipped_then_exit7_refused",
+      "passed": true,
+      "refusal": "actual process/check status disagreement"
+    },
+    {
+      "name": "XML_DTD_entity_refusal",
+      "passed": true,
+      "refusal": "DTD/entity refused"
+    },
+    {
+      "name": "effective_exit_predicate_removal",
+      "passed": true,
+      "proxy_outcome": "SKIP",
+      "actual_expected_outcome": "FAIL",
+      "property_outcome_under_removal": "FAIL"
+    }
+  ],
+  "check_count": 21,
+  "outcome": "PASS",
+  "native_backend_result": null,
+  "synthetic_control_not_native_backend_evidence": true,
+  "environment": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+  },
+  "ROOT_environment_used_or_mutated": false
+}

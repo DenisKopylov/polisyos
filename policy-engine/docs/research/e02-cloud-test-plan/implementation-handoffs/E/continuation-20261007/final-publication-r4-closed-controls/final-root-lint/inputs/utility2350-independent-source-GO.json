@@ -1,0 +1,67 @@
+{
+  "schema": "policyos.e02.closed_independent_utility_source_GO.v1",
+  "source": "2350edfba4e71909fbc615fe3101793b1b13945a",
+  "tree": "fb4486cb39dc44b1ef09ea1e280df8b640b772ba",
+  "base": "c29a58197a7a51f3605857e573de50a4f7a8da61",
+  "outcome": "GO bounded utility source only",
+  "actual_CLI_current": {
+    "normal": 0,
+    "optimized": 0,
+    "actual_corrupt_controls_each": 14
+  },
+  "actual_CLI_default": {
+    "normal": 1,
+    "optimized": 1,
+    "reason": "copy-index portable bytes mismatch; historical program212 index retained"
+  },
+  "old_Git212_actual_helpers": {
+    "healthy": "PASS",
+    "normal_corrupt_controls": 14,
+    "optimized_corrupt_controls": 14,
+    "tracked_files": 219,
+    "old_main_scope": "Author literal oldmain CLI replay remains independently-byte-bound author evidence; own exactGit originalhelper replay is separate, not claimed a newoldmain CLI invocation."
+  },
+  "malformed_whole_source_object_controls_each": 21,
+  "new_callback_count": 0,
+  "sole_entry_call_removal_late_None_dot_bool_callback_counts": [
+    2,
+    2,
+    2
+  ],
+  "old_red_None_dot_bool_callback_counts": [
+    2,
+    2,
+    2
+  ],
+  "Ruff_format_affected_program": [
+    0,
+    0
+  ],
+  "historical_original_unchanged_files": 218,
+  "validate_copy_index_AST_unchanged": true,
+  "validate_main_review_scope": {
+    "validate_copy_index_unchanged": true,
+    "validate_delta": "one complete source record admission entry call; obsolete late per-row guard removed",
+    "main_delta": "only explicit optional publication receipt selector +argparse import",
+    "remaining_function_bodies_unchanged": true
+  },
+  "normal_review": {
+    "path": "/tmp/e02-E-validator-format-independent-r4/review-2350-normal.stdout.json",
+    "bytes": 11661,
+    "sha256": "980d917c2c27f3a71a8c99ee46ea5761d89086a92569fdcb6ab173ee7589a9f4"
+  },
+  "optimized_review": {
+    "path": "/tmp/e02-E-validator-format-independent-r4/review-2350-optimized.stdout.json",
+    "bytes": 11704,
+    "sha256": "f13825f75b221c31690e1a6006ce41feda42651f5dfee3817b09df10d5d6d1af"
+  },
+  "affected_source_style_receipt": {
+    "path": "/tmp/e02-E-validator-format-independent-r4/source-Ruff-format-2350.json",
+    "bytes": 2934,
+    "sha256": "640424e4cfd43c2b44e3fb676ddc6fad64af1b95489d1ad4a23264cf739ee395"
+  },
+  "source_global_finding_outcomes": "No numerical/fullglobal repeat. This utilityGO does not accept scientific source700/current3932 findings or required globalgates. Historical scientific receipt/index literal; newfindingproposals{}; currentselfbinding derivative separate.",
+  "P41": "not_established",
+  "ROOT_FRC_source_environment_written": false,
+  "nondeciding_observer_history": "First live input late-path probe hit legacy selfhash refusal before path admission, so zero callbacks there do not measure pathpreflight. Exact immutable219Git replay then established old2callbacks; originalconfounded stdout retained as history."
+}

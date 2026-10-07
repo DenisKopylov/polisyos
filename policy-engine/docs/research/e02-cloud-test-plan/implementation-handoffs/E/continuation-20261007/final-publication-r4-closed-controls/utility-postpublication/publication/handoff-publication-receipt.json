@@ -1,0 +1,40 @@
+{
+  "schema": "policyos.e02.utility_handoff_publication_readback.v1",
+  "source_commit": "2350edfba4e71909fbc615fe3101793b1b13945a",
+  "handoff_commit": "5739c0fa4037ddf91fbca425e3fd3190dc7aa969",
+  "handoff_tree": "835e7f612368f3c1d7b67a9e2caf918ce7cd0038",
+  "normal_append_only_push_exit_code": 0,
+  "readback_commands": [
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD",
+        "HEAD^{tree}",
+        "refs/remotes/origin/codex/e02-E-frc-20261006",
+        "refs/remotes/origin/codex/e02-E-frc-20261006^{tree}"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006",
+      "exit_code": 0,
+      "stdout": "handoff-final-tracking-readback.stdout.txt",
+      "stderr": "handoff-final-tracking-readback.stderr.txt"
+    },
+    {
+      "argv": [
+        "git",
+        "ls-remote",
+        "--heads",
+        "origin",
+        "codex/e02-E-frc-20261006"
+      ],
+      "cwd": "/workspace/e02-E-frc-20261006",
+      "exit_code": 0,
+      "stdout": "handoff-final-remote-readback.stdout.txt",
+      "stderr": "handoff-final-remote-readback.stderr.txt"
+    }
+  ],
+  "source_source_tests_numeric_global_gate_execution": false,
+  "root_source_environment_mutations": false,
+  "finding_or_global_acceptance": false,
+  "independent_custody_GO": "source2350 and DOC5739 reviewed separately by lint_r4; current final-DOC-GO is published only as this closed later supplement, not rewritten into old handoff"
+}

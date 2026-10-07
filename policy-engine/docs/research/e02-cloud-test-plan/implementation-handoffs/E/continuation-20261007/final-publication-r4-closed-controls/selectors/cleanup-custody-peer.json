@@ -1,0 +1,140 @@
+{
+  "schema": "policyos.e02.E.independent_cleanup_custody_publication_selection.v1",
+  "disposition": "GO for completed byte-preserving custody only",
+  "assets": [
+    {
+      "path": "/tmp/e02-E-cleanup-custody-independent-20261007/cleanup-independent-moderate-summary-v3.json",
+      "bytes": 91145,
+      "sha256": "ceccd555ee2210407916a3a2b2717288d1010e53169705eea0b0e3366c7854cf",
+      "role": "cleanup-independent-moderate-summary-v3.json"
+    },
+    {
+      "path": "/tmp/e02-E-cleanup-custody-independent-20261007/review-cleanup-custody-v3.py.txt",
+      "bytes": 31259,
+      "sha256": "3c579582b2f4089b3c9fc0c82132588edce02a446eb1dbd10feae0da0f447787",
+      "role": "review-cleanup-custody-v3.py.txt"
+    },
+    {
+      "path": "/tmp/e02-E-cleanup-custody-independent-20261007/publish-custody-summary.py.txt",
+      "bytes": 4269,
+      "sha256": "87a1ad5e562a1ff0ed00f3122141786239d3b2afe679ccfdddfa1c0c5ec6515d",
+      "role": "publish-custody-summary.py.txt"
+    },
+    {
+      "path": "/tmp/e02-E-cleanup-custody-independent-20261007/controls-normal-v3.json",
+      "bytes": 1728,
+      "sha256": "272c2d13c9bb1e2573ba6d1a75d90af12173aada7b327f0aa3d06ad7cca0ec5e",
+      "role": "controls-normal-v3.json"
+    },
+    {
+      "path": "/tmp/e02-E-cleanup-custody-independent-20261007/controls-optimized-v3.json",
+      "bytes": 1727,
+      "sha256": "49f8d51385c540c46b4c1fdcbca12871bb8795c37954a35cacbe3c78efa40956",
+      "role": "controls-optimized-v3.json"
+    },
+    {
+      "path": "/tmp/e02-E-cleanup-custody-independent-20261007/controls-normal-v3.stdout.txt",
+      "bytes": 231,
+      "sha256": "6b89338995c13623d5ca83eddfcaaeaa84282cfb8ed4d83fef4be8e5d4b96aa4",
+      "role": "controls-normal-v3.stdout.txt"
+    },
+    {
+      "path": "/tmp/e02-E-cleanup-custody-independent-20261007/controls-normal-v3.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "controls-normal-v3.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-E-cleanup-custody-independent-20261007/controls-optimized-v3.stdout.txt",
+      "bytes": 234,
+      "sha256": "680782a8d6384765c46dda1468bb55453ebf5dd235efe63aa96d0a84a882eddf",
+      "role": "controls-optimized-v3.stdout.txt"
+    },
+    {
+      "path": "/tmp/e02-E-cleanup-custody-independent-20261007/controls-optimized-v3.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "controls-optimized-v3.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-E-cleanup-custody-independent-20261007/current-custody-review-v3.stdout.txt",
+      "bytes": 286,
+      "sha256": "2d0865a002a09ade9fb3b4d34d48fa4b98a93d9913cfffe3b95b0c112cfe3d1d",
+      "role": "current-custody-review-v3.stdout.txt"
+    },
+    {
+      "path": "/tmp/e02-E-cleanup-custody-independent-20261007/current-custody-review-v3.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "current-custody-review-v3.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-E-cleanup-custody-independent-20261007/publication-style-pass.json",
+      "bytes": 841,
+      "sha256": "8aaf83aea736d23620831edf6d3aeb92474b89bbc15f2b0e6a85505f8c5386f9",
+      "role": "publication-style-pass.json"
+    },
+    {
+      "path": "/tmp/e02-E-cleanup-custody-independent-20261007/publish-summary.stdout.json",
+      "bytes": 199,
+      "sha256": "25416a0471bbdea7dd38fb8eca3aa4b98fe68d44a60c837eb4b448217a25a421",
+      "role": "publish-summary.stdout.json"
+    },
+    {
+      "path": "/tmp/e02-E-cleanup-custody-independent-20261007/publish-summary.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "publish-summary.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-E-cleanup-custody-independent-20261007/review-cleanup-custody.py.txt",
+      "bytes": 26724,
+      "sha256": "7c5e226fc855faf0d9883c61ae7a9b88059ac3dfcbaf6f590f362e1d364c2b55",
+      "role": "review-cleanup-custody.py.txt"
+    },
+    {
+      "path": "/tmp/e02-E-cleanup-custody-independent-20261007/current-custody-review.stderr.txt",
+      "bytes": 870,
+      "sha256": "77814658c4c11fc7ca671ad1297f2eb1d92eb17bf670a58d7472fce6b1e15e48",
+      "role": "current-custody-review.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-E-cleanup-custody-independent-20261007/review-cleanup-custody-v2.py.txt",
+      "bytes": 27093,
+      "sha256": "ca2cda9d167bf73bfaf3fb20950bb0a1eccac37ebcc1fac87169c93f541aca03",
+      "role": "review-cleanup-custody-v2.py.txt"
+    },
+    {
+      "path": "/tmp/e02-E-cleanup-custody-independent-20261007/current-custody-review-v2.stderr.txt",
+      "bytes": 699,
+      "sha256": "a80ea98ea897136c84d0a4c5b2a603260844a6b7d3f4de3d9eb13cef93830942",
+      "role": "current-custody-review-v2.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/publication-selection-v2.json",
+      "bytes": 25758,
+      "sha256": "0885a038510c517aeff4a171561ddb4e15d8c234e32bbdb59f416017388a3e65",
+      "role": "operation_author_input_selection"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/publication-selection.json",
+      "bytes": 14879,
+      "sha256": "c470a41a0c5551b48020de6dc93c63972768f5a600bfee34db6f156484a96ae8",
+      "role": "operation_author_input_selection"
+    },
+    {
+      "path": "/tmp/e02-E-closed-static-raw-archive-20261007-oracle/publication-selection.json",
+      "bytes": 5207,
+      "sha256": "0032dbacb1dd7d00389b356e38883b06d1a02635439834a6ba6c895f5005d80d",
+      "role": "operation_author_input_selection"
+    }
+  ],
+  "asset_count": 21,
+  "total_bytes": 233149,
+  "ignored_complete_receipt": {
+    "path": "/tmp/e02-E-cleanup-custody-independent-20261007/current-custody-review-v3.json",
+    "bytes": 8793243,
+    "sha256": "530c87199b657854541d581e3b4930fff5fb3581838687d37314d27988746665"
+  },
+  "qualification": "No full inventories, gzip bodies, plaintext dumps, new cleanup action or native/scientific finding acceptance. Actual decoder separately FAIL137/noJUnit/countsnull/sourceinputimmutablefalse. Initial observer refusals preserved."
+}

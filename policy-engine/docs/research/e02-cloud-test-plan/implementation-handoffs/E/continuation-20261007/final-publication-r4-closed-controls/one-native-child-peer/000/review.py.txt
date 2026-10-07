@@ -1,0 +1,277 @@
+"""Independently verify one completed fixture archive, without extraction."""
+
+import argparse
+import ast
+import copy
+import hashlib
+import json
+import runpy
+import sys
+import tarfile
+from pathlib import Path
+from typing import Any
+
+EXPECTED_SHARED = "3c579582b2f4089b3c9fc0c82132588edce02a446eb1dbd10feae0da0f447787"
+EXPECTED_RECEIPT = "1ec5b9463914cdc30a6a29078961f8824315d174029f9fe69ca401850bcb984d"
+
+
+def require(condition: bool, reason: str) -> None:
+    if not condition:
+        raise ValueError(reason)
+
+
+def integer(value: object) -> int:
+    require(type(value) is int and value >= 0, "invalid integer claim")
+    return int(value)
+
+
+def reference(path: Path) -> dict[str, Any]:
+    digest = hashlib.sha256()
+    size = 0
+    with path.open("rb") as stream:
+        while block := stream.read(1048576):
+            size += len(block)
+            digest.update(block)
+    return {"path": str(path), "bytes": size, "sha256": digest.hexdigest()}
+
+
+def read_ref(value: dict[str, Any]) -> bytes:
+    actual = reference(Path(value["path"]))
+    require(type(value["bytes"]) is int and actual == value, "reference content mismatch")
+    return Path(value["path"]).read_bytes()
+
+
+def expected_members(rows: list[dict[str, Any]], root_name: str) -> dict[str, dict[str, Any]]:
+    output = {}
+    for row in rows:
+        relative = row["relative"]
+        require(type(relative) is str, "invalid relative path")
+        path = Path(relative)
+        require(not path.is_absolute() and ".." not in path.parts, "unsafe path")
+        name = root_name if relative == "." else root_name + "/" + relative
+        require(name not in output, "duplicate source member")
+        require(row["kind"] in {"file", "directory", "symlink"}, "unsupported source object")
+        member = {
+            "name": name,
+            "kind": row["kind"],
+            "mode": integer(row["mode"]),
+            "uid": integer(row["uid"]),
+            "gid": integer(row["gid"]),
+        }
+        if row["kind"] == "file":
+            member.update(bytes=integer(row["bytes"]), sha256=row["sha256"])
+        elif row["kind"] == "symlink":
+            require(type(row["target"]) is str, "invalid link target")
+            member["target"] = row["target"]
+        output[name] = member
+    return output
+
+
+def admit_membership(actual: dict[str, Any], expected: dict[str, Any]) -> None:
+    require(actual == expected, "complete member bytes/type/mode/link conservation failed")
+
+
+def admit_claims(receipt: dict[str, Any], rows: list[dict[str, Any]]) -> None:
+    counts = receipt["counts"]
+    expected = {
+        "regular_source_files": sum(r["kind"] == "file" for r in rows),
+        "regular_source_bytes_path_sum": sum(r.get("bytes", 0) for r in rows),
+        "source_directories": sum(r["kind"] == "directory" for r in rows),
+        "symlinks": sum(r["kind"] == "symlink" for r in rows),
+        "full_tar_members": len(rows),
+        "tar_regular_payload_members": sum(r["kind"] == "file" for r in rows),
+        "tar_hardlink_members": 0,
+        "tar_stored_regular_payload_bytes": sum(r.get("bytes", 0) for r in rows),
+    }
+    require(set(counts) == set(expected), "count claim denominator changed")
+    for name, value in expected.items():
+        require(integer(counts[name]) == value, "count claim changed: " + name)
+    for name in [
+        "source_plain_path_unavailable_until_explicit_reopen",
+        "source_retired_only_after_complete_archive_and_second_inventory_proof",
+        "compressed_path_never_masquerades_as_fixture_directory",
+    ]:
+        require(receipt[name] is True, "retirement qualification changed")
+    require(
+        receipt["operation_ROOT_code_Git_env_package_or_other_fixture_write"] is False,
+        "foreign operation claim changed",
+    )
+    require(receipt["ROOT_before"] == receipt["ROOT_after"], "historical ROOT frame changed")
+
+
+def controls(
+    receipt: dict[str, Any], rows: list[dict[str, Any]], expected: dict[str, Any]
+) -> list[dict[str, Any]]:
+    results = [{"name": "healthy_actual_closed_inventory_and_claims", "outcome": "PASS"}]
+    admit_claims(receipt, rows)
+    admit_membership(expected, expected)
+    variants = []
+    for label, value in [("bool", True), ("float", 18575.0), ("wrong", 1)]:
+        mutant = copy.deepcopy(receipt)
+        mutant["counts"]["regular_source_files"] = value
+        variants.append((label + "_count", lambda x=mutant: admit_claims(x, rows)))
+    for label, key, value in [
+        ("fake_retirement", "source_plain_path_unavailable_until_explicit_reopen", False),
+        ("foreign_write", "operation_ROOT_code_Git_env_package_or_other_fixture_write", True),
+    ]:
+        mutant = copy.deepcopy(receipt)
+        mutant[key] = value
+        variants.append((label, lambda x=mutant: admit_claims(x, rows)))
+    file_name = next(k for k, v in expected.items() if v["kind"] == "file")
+    link_name = next(k for k, v in expected.items() if v["kind"] == "symlink")
+    for label, key, field, value in [
+        ("file_digest", file_name, "sha256", "0" * 64),
+        ("file_mode", file_name, "mode", 0),
+        ("external_link_target", link_name, "target", "/other/not-followed"),
+    ]:
+        mutant = copy.deepcopy(expected)
+        mutant[key][field] = value
+        variants.append((label, lambda x=mutant: admit_membership(x, expected)))
+    omitted = dict(expected)
+    omitted.pop(file_name)
+    variants.append(("actual_one_member_omission", lambda: admit_membership(omitted, expected)))
+    for label, operation in variants:
+        try:
+            operation()
+        except ValueError:
+            results.append({"name": label, "outcome": "PASS", "actual_refusal": True})
+        else:
+            raise ValueError("mutation admitted: " + label)
+    source = Path(__file__).read_text()
+    tree = ast.parse(source)
+    for node in tree.body:
+        if isinstance(node, ast.FunctionDef) and node.name == "admit_membership":
+            node.body = [ast.Pass()]
+    namespace = {"__file__": __file__, "__name__": "removed_membership_guard"}
+    exec(compile(ast.fix_missing_locations(tree), __file__, "exec"), namespace)  # noqa: S102
+    namespace["admit_membership"](omitted, expected)
+    results.append(
+        {
+            "name": "actual_exact_member_guard_removal_readmits_same_omission",
+            "outcome": "PASS",
+            "removed_property": "admit_membership body only",
+        }
+    )
+    return results
+
+
+def stream_members(archive: Path) -> dict[str, dict[str, Any]]:
+    actual = {}
+    with tarfile.open(archive, mode="r|gz") as stream:
+        for member in stream:
+            require(member.name not in actual, "duplicate tar member")
+            require(
+                not Path(member.name).is_absolute() and ".." not in Path(member.name).parts,
+                "unsafe tar member path",
+            )
+            value = {"name": member.name, "mode": member.mode, "uid": member.uid, "gid": member.gid}
+            if member.isfile():
+                value["kind"] = "file"
+                body = stream.extractfile(member)
+                require(body is not None, "file body absent")
+                digest = hashlib.sha256()
+                size = 0
+                with body:
+                    while block := body.read(1048576):
+                        digest.update(block)
+                        size += len(block)
+                require(size == member.size, "tar payload size mismatch")
+                value.update(bytes=size, sha256=digest.hexdigest())
+            elif member.isdir():
+                value["kind"] = "directory"
+            elif member.issym():
+                value.update(kind="symlink", target=member.linkname)
+            else:
+                raise ValueError("unexpected hardlink or special tar member")
+            actual[member.name] = value
+    return actual
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--receipt", type=Path, required=True)
+    parser.add_argument("--shared-reviewed-helper", type=Path, required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--controls-only", action="store_true")
+    args = parser.parse_args()
+    require(reference(args.receipt)["sha256"] == EXPECTED_RECEIPT, "immutable receipt drift")
+    receipt = json.loads(args.receipt.read_bytes())
+    rows = json.loads(read_ref(receipt["inventory_before"]))
+    require(
+        read_ref(receipt["inventory_before"]) == read_ref(receipt["inventory_before_retirement"]),
+        "source changed before retirement",
+    )
+    expected = expected_members(rows, Path(receipt["source_path"]).name)
+    admit_claims(receipt, rows)
+    result = {
+        "schema": "policyos.e02.E.one_closed_native_archive_independent_review.v1",
+        "receipt": reference(args.receipt),
+        "observer": reference(Path(__file__)),
+        "reviewed_shared_helper": reference(args.shared_reviewed_helper),
+        "controls": controls(receipt, rows, expected),
+        "optimized": not __debug__,
+        "new_cleanup_or_native_operations": 0,
+        "scope": "Custody only; no source/finding/P41 acceptance.",
+    }
+    if not args.controls_only:
+        require(
+            reference(args.shared_reviewed_helper)["sha256"] == EXPECTED_SHARED,
+            "reviewed helper source changed",
+        )
+        helpers = runpy.run_path(str(args.shared_reviewed_helper), run_name="shared_custody_helper")
+        environment_before = helpers["environment_metadata"]()
+        root_before = helpers["git_identity"]()
+        require(
+            reference(Path(receipt["archive"]["path"])) == receipt["archive"], "archive body drift"
+        )
+        actual = stream_members(Path(receipt["archive"]["path"]))
+        admit_membership(actual, expected)
+        recorded = json.loads(read_ref(receipt["complete_tar_member_readback"]))
+        admit_membership({r["name"]: r for r in recorded}, expected)
+        for ref in receipt["process_observations"]:
+            observation = json.loads(read_ref(ref))
+            require(observation["exact_source"] == receipt["source_path"], "proc source mismatch")
+            require(
+                observation["users"] == [] and observation["unreadable_other"] == [],
+                "proc scope gap",
+            )
+            require(
+                {r["pid"] for r in observation["unreadable_infrastructure"]} == {199, 250},
+                "infra scope changed",
+            )
+        require(
+            not Path(receipt["source_path"]).exists()
+            and not Path(receipt["source_path"]).is_symlink(),
+            "plaintext still available or fake archive symlink",
+        )
+        environment_after = helpers["environment_metadata"]()
+        require(
+            environment_before == environment_after,
+            "protected installed metadata changed during review",
+        )
+        result.update(
+            disposition="GO for one completed full archive custody only",
+            actual_members=len(actual),
+            actual_regular_files=sum(r["kind"] == "file" for r in actual.values()),
+            actual_streamed_payload_bytes=sum(r.get("bytes", 0) for r in actual.values()),
+            literal_links=[r for r in actual.values() if r["kind"] == "symlink"],
+            archive=receipt["archive"],
+            complete_source_inventory_refs=[
+                receipt["inventory_before"],
+                receipt["inventory_before_retirement"],
+            ],
+            complete_member_readback_ref=receipt["complete_tar_member_readback"],
+            protected_environment=environment_after,
+            ROOT_before=root_before,
+            ROOT_after=helpers["git_identity"](),
+            plaintext_materialized_bytes=0,
+            symlink_targets_followed=0,
+            qualifications=receipt["limitations"],
+            reopen_recipe=receipt["reopen_recipe"],
+        )
+    args.output.write_text(json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True) + "\n")
+    sys.stdout.write(json.dumps(reference(args.output), sort_keys=True) + "\n")
+
+
+if __name__ == "__main__":
+    main()

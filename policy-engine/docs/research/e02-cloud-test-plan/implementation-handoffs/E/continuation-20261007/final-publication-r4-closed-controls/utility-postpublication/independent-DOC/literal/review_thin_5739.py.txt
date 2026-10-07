@@ -1,0 +1,98 @@
+from __future__ import annotations
+import ast,collections,copy,hashlib,json,os,pathlib,re,subprocess,sys
+R=pathlib.Path('/workspace/e02-E-frc-20261006');PREFIX='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/';P=R/PREFIX
+CAND='5739c0fa4037ddf91fbca425e3fd3190dc7aa969';TREE='835e7f612368f3c1d7b67a9e2caf918ce7cd0038';SOURCE='2350edfba4e71909fbc615fe3101793b1b13945a';SOURCE_TREE='fb4486cb39dc44b1ef09ea1e280df8b640b772ba';BASE='c29a58197a7a51f3605857e573de50a4f7a8da61'
+def need(ok,message):
+ if not ok:raise ValueError(message)
+def sha(b):return hashlib.sha256(b).hexdigest()
+def ref(p):
+ b=p.read_bytes();return {'path':str(p),'bytes':len(b),'sha256':sha(b)}
+def strict(a,b):
+ need(type(a) is type(b),'typed current claim mismatch')
+ if isinstance(b,dict):
+  need(set(a)==set(b),'complete claim denominator mismatch')
+  for k in b:strict(a[k],b[k])
+ elif isinstance(b,list):
+  need(len(a)==len(b),'list claim denominator mismatch')
+  for x,y in zip(a,b):strict(x,y)
+ else:need(a==b,'current claim contradicts closed input')
+def relpath(x):
+ need(type(x) is str and bool(x) and not x.startswith(('/', '-')) and '\\' not in x and not any(ord(c)<32 for c in x) and not set(x.split('/'))&{'','.', '..'},'invalid complete portable path')
+def record(row):
+ need(type(row) is dict,'record type');need(type(row.get('bytes')) is int and row['bytes']>=0,'count is nonnegative integer not boolean');need(type(row.get('sha256')) is str and re.fullmatch('[0-9a-f]{64}',row['sha256']) is not None,'content hash');need(type(row.get('source_path')) is str and pathlib.Path(row['source_path']).is_absolute(),'literal absolute input path')
+def preflight(copy_index,member_index):
+ need(type(copy_index) is dict and type(copy_index.get('copies')) is list,'complete copy record list')
+ for row in copy_index['copies']:record(row);relpath(row.get('portable_path'));need(not row['portable_path'].endswith('.py'),'passive source publication')
+ need(type(member_index) is dict and type(member_index.get('members')) is list,'complete member list')
+ for row in member_index['members']:record(row);relpath(row.get('logical_portable_path'));relpath(row.get('stored_at'))
+ need(len({r['portable_path'] for r in copy_index['copies']})==len(copy_index['copies']),'copy path duplicate')
+ need(len({r['logical_portable_path'] for r in member_index['members']})==len(member_index['members']),'logical path duplicate')
+ for data,names in [(copy_index,['copied_files','copied_bytes']),(member_index,['logical_files','logical_bytes','physical_carriers','physical_bytes'])]:
+  for name in names:need(type(data[name]) is int and data[name]>=0,'strict declared copy count')
+def git(*args):
+ p=subprocess.run(['git','-C',str(R),*args],capture_output=True,env={**os.environ,'GIT_OPTIONAL_LOCKS':'0'});need(p.returncode==0,'readonly Git failed '+str(args));return p.stdout
+h=json.loads((P/'implementation-handoff.json').read_text());ci=json.loads((P/'copy-index.json').read_text());mi=json.loads((P/'independent-member-index.json').read_text());preflight(ci,mi)
+need(git('rev-parse','HEAD').decode().strip()==CAND and git('rev-parse','HEAD^{tree}').decode().strip()==TREE,'immutable DOC candidate');status=git('status','--porcelain=v1','--untracked-files=no').decode();need(not status,'tracked DOC boundary clean');need(git('rev-parse',CAND+'^').decode().strip()==SOURCE,'source and DOC publication separate commits')
+raw=git('diff','--name-status','--no-renames','-z',SOURCE,CAND);vals=raw.decode().rstrip('\0').split('\0');need(len(vals)%2==0,'Git delta pair format');delta=list(zip(vals[::2],vals[1::2]));need(len(delta)==101 and all(s=='A' and p.startswith(PREFIX) and not p.endswith('.py') for s,p in delta),'complete101passive DOC footprint')
+entries={}
+for line in git('ls-tree','-r','-z',CAND).decode().rstrip('\0').split('\0'):
+ meta,path=line.split('\t');mode,kind,obj=meta.split(' ');entries[path]={'object':obj,'mode':mode,'kind':kind}
+def candidate_blob(path):
+ relpath(path);need(path in entries,'candidate tracked input missing');return git('cat-file','blob',entries[path]['object'])
+metadata=['README.md','copy-index.json','implementation-handoff.json','independent-member-index.json']
+need({p[len(PREFIX):] for _,p in delta}=={r['portable_path'] for r in ci['copies']}|set(metadata),'complete copies plus4metadata denominator')
+verified=[]
+for row in ci['copies']:
+ source=pathlib.Path(row['source_path']).read_bytes();stored=candidate_blob(PREFIX+row['portable_path']);physical=(P/row['portable_path']).read_bytes();need(source==stored==physical and len(source)==row['bytes'] and sha(source)==row['sha256'],'literal source/candidate/physical copy mismatch '+row['portable_path'])
+ if row['portable_path'].endswith('.json'):json.loads(stored)
+ verified.append({**row,'candidate_git_blob':entries[PREFIX+row['portable_path']]['object'],'source_candidate_physical_equal':True})
+for name in metadata:need((P/name).read_bytes()==candidate_blob(PREFIX+name),'metadata physical/candidate identity')
+need(ci['copied_files']==len(verified)==97 and ci['copied_bytes']==sum(r['bytes'] for r in verified)==534326,'actual97copy byte total')
+member_verified=[]
+for row in mi['members']:
+ b=pathlib.Path(row['source_path']).read_bytes();stored=candidate_blob(PREFIX+row['stored_at']);need(b==stored and len(b)==row['bytes'] and sha(b)==row['sha256'],'logical alias/source bytes mismatch');member_verified.append({**row,'literal_alias_equal':True})
+unique_member_paths={r['stored_at'] for r in mi['members']};unique_member_bytes=sum(len(candidate_blob(PREFIX+p)) for p in unique_member_paths)
+need(mi['logical_files']==len(mi['members'])==34 and mi['logical_bytes']==sum(r['bytes'] for r in mi['members'])==254748 and mi['physical_carriers']==len(unique_member_paths)==20 and mi['physical_bytes']==unique_member_bytes==252830,'complete independent alias denominator')
+original_peer_selection=pathlib.Path('/tmp/e02-E-validator-format-independent-r4/publication-selection-2350.json');peer=json.loads(original_peer_selection.read_text());published_peer=(P/'independent-review/publication-selection-2350.json').read_bytes();need(published_peer==original_peer_selection.read_bytes(),'exact closed peer selection original')
+peer_records=[(r['path'],r['portable_path'],r['bytes'],r['sha256']) for r in peer['assets']];member_records=[(r['source_path'],r['logical_portable_path'].removeprefix('independent-review/'),r['bytes'],r['sha256']) for r in mi['members']];need(collections.Counter(peer_records)==collections.Counter(member_records),'complete exact peer34logicalmember conservation')
+source_diff=git('diff','--name-only','-z',BASE,SOURCE).decode().rstrip('\0').split('\0');need(source_diff==sorted(source_diff) and len(source_diff)==3,'source3path native Git denominator');source_rows=[]
+for path in source_diff:
+ b=git('show',SOURCE+':'+path);need(b==candidate_blob(path),'source3path body unchanged by DOC');source_rows.append({'path':path,'bytes':len(b),'sha256':sha(b),'git_blob':entries[path]['object']})
+strict(h['source_footprint'],source_rows);need(git('rev-parse',SOURCE+'^{tree}').decode().strip()==SOURCE_TREE,'source actualtree');base_tree=git('rev-parse',BASE+'^{tree}').decode().strip()
+for row in h['historical_originals']:
+ b=git('show',BASE+':'+row['path']);need(b==candidate_blob(row['path']) and len(b)==row['bytes'] and sha(b)==row['sha256'] and row['unchanged'] is True,'historical original bytes preserved')
+def portable_json(name):return json.loads(candidate_blob(PREFIX+name))
+env=portable_json('outputs/environment-before.json');manifest=portable_json('outputs/source-execution-manifest.json');go=portable_json('independent-review/outputs/final-source-GO.json');publication=portable_json('outputs/source-publication-receipt.json');preflight_normal=portable_json('outputs/source-preflight-controls-normal.json');preflight_opt=portable_json('outputs/source-preflight-controls-optimized.json')
+need(len(env['metadata'])==env['metadata_count']==207 and sum(r['bytes'] for r in env['metadata'])==env['metadata_bytes']==2294815,'complete saved environment metadata denominator')
+# The historical installed frame is byte-custody; no live-environment or quiescence claim.
+for mode in ['normal','optimized']:
+ current=portable_json('outputs/preflight-current-'+mode+'.stdout.txt');old=portable_json('outputs/preflight-old-Git212-replay-'+mode+'.stdout.txt');need(current['validation']==old['validation']=='PASS' and len(current['controls'])==len(old['controls'])==14 and all(r['refused'] is True for r in current['controls']+old['controls']),'actual saved CLI control denominator')
+for r in [preflight_normal,preflight_opt]:
+ need(len(r['source_preflight_controls'])==14 and all(x['refused'] is True and type(x['Git_callback_count']) is int and x['Git_callback_count']==0 for x in r['source_preflight_controls']),'saved native whole record guard controls')
+ need(r['sole_preflight_call_removal']['Git_callback_count']==2 and r['sole_preflight_call_removal']['required_zero_callback_property']=='FAIL','actual effective-removal witness')
+ need([x['exit_code'] for x in r['actualCLI']]==[0,1,0],'actual current/default/old command outcomes')
+strict(manifest['source_footprint'],source_rows);need(manifest['source_native_numeric_global_gates_executed'] is False and publication['finding_or_global_gate_acceptance_inferred'] is False,'no native/global/finding claim')
+for row in publication['assets']:
+ b=candidate_blob(PREFIX+'outputs/'+row['path']);need(type(row['bytes']) is int and len(b)==row['bytes'] and sha(b)==row['sha256'],'source publication exact closed capture')
+tracking=candidate_blob(PREFIX+'outputs/final-tracking-readback.stdout.txt').decode().splitlines();remote=candidate_blob(PREFIX+'outputs/final-remote-readback.stdout.txt').decode().split();need(tracking==[SOURCE,SOURCE_TREE,SOURCE,SOURCE_TREE] and remote==[SOURCE,'refs/heads/codex/e02-E-frc-20261006'],'source actual saved remote/tracking readback')
+claims={'source_base_sha':BASE,'source_base_tree':base_tree,'candidate_sha':SOURCE,'candidate_tree_sha':SOURCE_TREE,'source_path_count':len(source_rows),'source_python_path_count':sum(r['path'].endswith('.py') for r in source_rows),'source_footprint':source_rows,'publication_original_files':len(verified),'publication_original_bytes':sum(r['bytes'] for r in verified),'environment_input':{'metadata_count':len(env['metadata']),'metadata_bytes':sum(r['bytes'] for r in env['metadata'])},'independent_source_review':{'outcome':'GO','bytes':len(candidate_blob(PREFIX+h['independent_source_review']['path'])),'sha256':sha(candidate_blob(PREFIX+h['independent_source_review']['path'])),'selection_bytes':len(published_peer),'selection_sha256':sha(published_peer),'independent_malformed_source_controls_per_mode':go['malformed_whole_source_object_controls_each'],'Git_callbacks_each':go['new_callback_count'],'source_current_CLI_controls_per_mode':go['actual_CLI_current']['actual_corrupt_controls_each'],'logical_members':len(mi['members']),'physical_carriers':len(unique_member_paths),'physical_bytes':unique_member_bytes},'source_publication_readback':{'published_candidate_sha':publication['candidate_sha'],'tracking_and_remote_exact':tracking==[SOURCE,SOURCE_TREE,SOURCE,SOURCE_TREE] and remote[0]==SOURCE},'predicate_basis':{k:v['basis'] for k,v in h['predicate_basis'].items()}}
+current_claims={k:h[k] for k in ['source_base_sha','source_base_tree','candidate_sha','candidate_tree_sha','source_path_count','source_python_path_count','source_footprint','publication_original_files','publication_original_bytes']};current_claims['environment_input']={'metadata_count':h['environment_input']['installedMETADATA_records'],'metadata_bytes':h['environment_input']['installedMETADATA_bytes']};current_claims['independent_source_review']={k:h['independent_source_review'][k] for k in claims['independent_source_review']};current_claims['source_publication_readback']={k:h['source_publication_readback'][k] for k in claims['source_publication_readback']};current_claims['predicate_basis']={k:v['basis'] for k,v in h['predicate_basis'].items()}
+need(claims['predicate_basis']['original_byte_custody']=='not_established' and claims['predicate_basis']['current_scientific_finding_authority']=='not_established' and claims['predicate_basis']['whole_ROOT_input_identity']=='not_established' and claims['predicate_basis']['independent_source_disposition']=='independently_reconciled','explicit bounded predicate authority states')
+def admit_summary(candidate_claims):strict(candidate_claims,claims)
+admit_summary(current_claims)
+controls=[]
+for name,mutate in [('copy-count',lambda x:x.__setitem__('publication_original_files',1)),('copy-bytes-bool',lambda x:x.__setitem__('publication_original_bytes',True)),('peer-control-count',lambda x:x['independent_source_review'].__setitem__('independent_malformed_source_controls_per_mode',14)),('source-footprint-removed',lambda x:x['source_footprint'].pop()),('environment-count',lambda x:x['environment_input'].__setitem__('metadata_count',184)),('false-scientific-authority',lambda x:x['predicate_basis'].__setitem__('current_scientific_finding_authority','independently_reconciled'))]:
+ bad=copy.deepcopy(current_claims);mutate(bad)
+ try:admit_summary(bad)
+ except ValueError as exc:controls.append({'case':name,'outcome':'PASS refusal','reason':str(exc),'raw_receipt_refs_and_GO_markers_preserved':True})
+ else:raise ValueError('corrupt current metadata claim admitted')
+node=next(n for n in ast.parse(pathlib.Path(__file__).read_text()).body if isinstance(n,ast.FunctionDef) and n.name=='admit_summary');node.body=[ast.Pass()];scope={};exec(compile(ast.fix_missing_locations(ast.Module(body=[node],type_ignores=[])),'<only-summary-admission-removed>','exec'),scope);bad=copy.deepcopy(current_claims);bad['publication_original_files']=1;scope['admit_summary'](bad);controls.append({'case':'sole summary-admission body removed','outcome':'PASS discriminator','required_claim_conservation_property':'FAIL: literal97 copies admitted as1 without changing source/refs/GO markers'})
+# Metadata class preflight is observed without touching any child/native/runtime.
+for value in [None,'.',False]:
+ bad=copy.deepcopy(ci);bad['copies'][-1]['portable_path']=value
+ try:preflight(bad,mi)
+ except ValueError as exc:controls.append({'case':'late portable path '+repr(value),'outcome':'PASS refusal','Git_callback_count':0,'reason':str(exc)})
+ else:raise ValueError('whole copy record path admitted')
+after={'HEAD':git('rev-parse','HEAD').decode().strip(),'tree':git('rev-parse','HEAD^{tree}').decode().strip(),'tracked_status':git('status','--porcelain=v1','--untracked-files=no').decode()};need(after=={'HEAD':CAND,'tree':TREE,'tracked_status':''},'DOC source immutable after review')
+result={'schema':'policyos.e02.independent_closed_utility_DOC_custody_review.v1','mode':'optimized' if sys.flags.optimize else 'normal','candidate':CAND,'tree':TREE,'parent_source':SOURCE,'parent_source_tree':SOURCE_TREE,'outcome':'GO bounded literal DOC custody only','full_added_passive_DOC_path_count':len(delta),'active_python_path_count':0,'literal_copy_count':len(verified),'literal_copy_bytes':sum(r['bytes'] for r in verified),'metadata_files':metadata,'complete_verified_copies':verified,'complete_verified_independent_logical_members':member_verified,'independent_logical_members':len(mi['members']),'independent_physical_carriers':len(unique_member_paths),'independent_physical_bytes':unique_member_bytes,'actual_source3path_unchanged':True,'source_history_originals_unchanged':h['historical_originals'],'saved_installed_environment_frame_count':len(env['metadata']),'saved_environment_claim_only':'207-frame saved input bytes, not fresh installation/environment mutation or quiescence measurement','admitted_current_claims':current_claims,'controls':controls,'original_author_pending_byte_custody_basis_preserved':True,'separate_current_original_byte_custody_disposition':'independently_reconciled by97 actual source/candidate/physical equalities plus34 logical member aliases','no_native_or_CLI_or_scientific_repeats':True,'ROOT_FRC_code_environment_written':False,'finding_or_global_gate_acceptance':None,'P41':'not_established','metadata_refs':{name:ref(P/name) for name in metadata},'unchanged_boundary_after':after,'observer':ref(pathlib.Path(__file__))}
+print(json.dumps(result,indent=2))

@@ -1,0 +1,43 @@
+from __future__ import annotations
+import ast,collections,copy,hashlib,json,pathlib,re,sys
+D=pathlib.Path('/tmp/e02-E-final-root-lint-31782b55-20261007');R=pathlib.Path('/workspace/e02-E-continuation-20261006')
+def need(ok,message):
+ if not ok:raise ValueError(message)
+def ref(p):
+ b=p.read_bytes();return {'path':str(p),'bytes':len(b),'sha256':hashlib.sha256(b).hexdigest()}
+def read_ref(r):
+ p=pathlib.Path(r['path']);b=p.read_bytes();need(type(r['bytes']) is int and len(b)==r['bytes'] and hashlib.sha256(b).hexdigest()==r['sha256'],'closed byte identity');return b
+inputs=json.loads((D/'inputs.json').read_text());receipt=json.loads((D/'capture-receipt.json').read_text());read_ref(receipt['inputs']);rows={r['path']:r for r in inputs['python_rows']};need(len(rows)==len(inputs['python_rows'])==inputs['command_python_path_count']==366,'complete actual denominator')
+checks={c['name']:c for c in receipt['checks']};need(set(checks)=={'ruff','ruff-format'},'complete check siblings')
+for c in checks.values():
+ need(c['source']==inputs['candidate'] and c['tree']==inputs['tree'] and c['exit_code']==1,'actual check source and failed command')
+ need(c['cwd']==str(R/'policy-engine'),'canonical cwd');need('--config' not in c['argv'] and '--fix' not in c['argv'],'unchanged native config/mechanism');prefix=[c['argv'][0],'-B','-m','ruff','check','--output-format','json'] if c['name']=='ruff' else [c['argv'][0],'-B','-m','ruff','format','--check'];need(c['argv']==prefix+[r['path'][len('policy-engine/'):] for r in inputs['python_rows']],'actual all366 argv denominator');read_ref(c['stderr'])
+diagnostics=json.loads(read_ref(checks['ruff']['stdout']));groups=collections.defaultdict(list)
+for d in diagnostics:
+ p=pathlib.Path(d['filename']).relative_to(R).as_posix();need(p in rows,'native diagnostic outside complete input denominator');groups[p].append(d)
+groups=dict(groups);native_diagnostic_paths={pathlib.Path(d['filename']).relative_to(R).as_posix() for d in diagnostics}
+format_text=read_ref(checks['ruff-format']['stdout']).decode();format_paths=['policy-engine/'+line[len('Would reformat: '):] for line in format_text.splitlines() if line.startswith('Would reformat: ')];tail=re.search(r'(\d+) files would be reformatted, (\d+) files already formatted',format_text);need(tail is not None and int(tail.group(1))==len(format_paths) and sum(map(int,tail.groups()))==len(rows),'native format summary denominator');need(len(set(format_paths))==len(format_paths) and set(format_paths)<=set(rows),'native actual format pathset')
+packets=[];writer_diagnostics=collections.Counter();writer_format=collections.Counter()
+for path in sorted(set(groups)|set(format_paths)):
+ row=rows[path];writer=row['writer_attribution']['writer'];writer_diagnostics[writer]+=len(groups.get(path,[]));writer_format[writer]+=int(path in format_paths);packets.append({'path':path,'source_input':row,'actual_Ruff_diagnostic_count':len(groups.get(path,[])),'native_Ruff_codes':dict(collections.Counter(d['code'] for d in groups.get(path,[]))),'actual_Ruff_diagnostics':groups.get(path,[]),'actual_format_change_required':path in format_paths,'next_owner':writer,'canonical_mechanism_unit':row['writer_attribution'].get('canonical_mechanism_unit'),'owner_result_required':'Canonical author-owned source fix with historical bytes retained; actual affected controls/review and refreshed canonical gate after append. No foreign edits or exceptions by E.'})
+need(set(groups)==native_diagnostic_paths,'immutable actual diagnostic path denominator')
+derived={'candidate':inputs['candidate'],'tree':inputs['tree'],'base':inputs['base'],'full_changed_path_count':inputs['full_changed_path_count'],'complete_changed_python_denominator':len(rows),'actual_Ruff_exit_code':checks['ruff']['exit_code'],'actual_Ruff_diagnostic_count':len(diagnostics),'actual_Ruff_diagnostic_path_count':len(native_diagnostic_paths),'Ruff_diagnostics_by_factual_writer':{k:writer_diagnostics[k] for k in ['E','A','B','C','F','G']},'actual_format_exit_code':checks['ruff-format']['exit_code'],'actual_format_path_count':len(format_paths),'already_formatted_count':int(tail.group(2)),'format_by_factual_writer':{k:writer_format[k] for k in ['E','A','B','C','F','G']},'Ruff_E_owned_diagnostic_count':writer_diagnostics['E'],'E_owned_format_required_count':writer_format['E'],'source_and_config_immutable':receipt['source_and_config_before_after_unchanged'],'metadata_count':inputs['environment_metadata_count'],'metadata_before_after_unchanged':receipt['metadata_before_after_unchanged'],'G_C_distinction':'Four failing incoming utilities were authored/published by G for canonical C mechanism; E has no foreign writer lease.','P41':'not_established','full_global_outcome':'FAIL','finding_dispositions_changed':False}
+def admit_summary(summary):
+ def strict(a,b):
+  need(type(a) is type(b),'strict summary JSON types')
+  if isinstance(b,dict):
+   need(set(a)==set(b),'complete actual claim fields')
+   for k in b:strict(a[k],b[k])
+  else:need(a==b,'summary contradicts actual native outputs')
+ strict(summary,derived)
+admit_summary(copy.deepcopy(derived));controls=[]
+for key,value in [('actual_Ruff_diagnostic_path_count',8),('actual_Ruff_diagnostic_count',36),('actual_format_path_count',3),('E_owned_format_required_count',1),('complete_changed_python_denominator',360),('metadata_count',184.0),('full_global_outcome','PASS'),('finding_dispositions_changed',True)]:
+ bad=copy.deepcopy(derived);bad[key]=value
+ try:admit_summary(bad)
+ except ValueError as exc:controls.append({'case':key,'outcome':'PASS refusal','reason':str(exc),'raw_input_and_command_markers_preserved':True})
+ else:raise ValueError('false actual summary admitted')
+# Effective removal changes only the actual summary admission body; outputs/basis remain.
+tree=ast.parse(pathlib.Path(__file__).read_text());fn=next(n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='admit_summary');fn.body=[ast.Pass()];module=ast.fix_missing_locations(ast.Module(body=[fn],type_ignores=[]));ns={'derived':derived,'need':need};exec(compile(module,'<effective-summary-admission-removal>','exec'),ns);bad=copy.deepcopy(derived);bad['E_owned_format_required_count']=1;ns['admit_summary'](bad);controls.append({'case':'only summary admission body removed','outcome':'PASS discriminator','required_property':'FAIL: false E-owned format requirement summary admitted with actual outputs and all markers intact'})
+result={'schema':'policyos.e02.actual_full_lint_writer_attribution.v1','mode':'optimized' if sys.flags.optimize else 'normal','summary':derived,'complete_source_inputs':ref(D/'inputs.json'),'actual_closed_capture':ref(D/'capture-receipt.json'),'complete_owner_packets':packets,'E_owner_previous_format_defect_corrected_source':{'source':'2350edfba4e71909fbc615fe3101793b1b13945a','root_source_body_equal':True,'independent_source_GO':'/tmp/e02-E-validator-format-independent-r4/final-source-GO.json','current_E_diagnostics':0,'current_E_format_required':0},'controls':controls,'canonical_writer_vs_formal_public_owner':'Factual E scoped IR authorship does not transfer general IR/Core facade/generator authority.','observer_history':'Earlier b6 classifier observer errors retained in original b6 publication; this final read-only derivative uses fixed exact argv and immutable native diagnostic pathsets. Final native commands executed once.',
+'historical_observations':'Frozen64d360, prior prospective366PLANONLY and actualb6beforeformatfix remain immutable historical receipts; none supplies final current PASS or inherited P41 waiver.','root_source_environment_written':False,'candidate_source_environment_written':False,'native_checks_rerun_by_classifier':False,'observer':ref(pathlib.Path(__file__))}
+print(json.dumps(result,indent=2))

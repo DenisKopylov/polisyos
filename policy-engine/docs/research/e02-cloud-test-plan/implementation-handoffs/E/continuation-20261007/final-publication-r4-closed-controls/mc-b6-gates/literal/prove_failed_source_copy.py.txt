@@ -1,0 +1,60 @@
+import hashlib
+import json
+import os
+import pathlib
+import subprocess
+
+base=pathlib.Path('/tmp/e02-E-MC-b6-gates-20261007')
+copy=base/'architecture-retained/source'
+MC=pathlib.Path('/workspace/e02-E-mc-20261006')
+PE=MC/'policy-engine'
+sha='b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4'
+def git(*a):return subprocess.check_output(['git','--no-optional-locks',*a],cwd=MC)
+def hashbyte(b):return hashlib.sha256(b).hexdigest()
+tracked={p.decode() for p in git('ls-files','-z').split(b'\0') if p}
+rows=[];untracked=[];mismatch=[];symlinks=[];unique=[];framed=hashlib.sha256()
+for root,dirs,files in os.walk(copy,followlinks=False):
+ for n in dirs+files:
+  p=pathlib.Path(root)/n
+  if not p.is_symlink() and p.is_dir():continue
+  rel=p.relative_to(copy).as_posix();repo='policy-engine/'+rel
+  if p.is_symlink():
+   target=os.readlink(p);orig=PE/rel
+   if orig.is_symlink():same=target==os.readlink(orig);kind='copied existing source symlink'
+   else:same=p.resolve()==orig.resolve() and orig.is_dir();kind='canonical added node_modules directory symlink'
+   symlinks.append({'relative':rel,'target':target,'same_existing_target':same,'kind':kind})
+   if not same:mismatch.append(rel)
+   continue
+  data=p.read_bytes();got=hashbyte(data)
+  if repo in tracked:
+   expected=git('show',sha+':'+repo)
+   if data!=expected:mismatch.append(rel)
+   row={'relative':rel,'bytes':len(data),'sha256':got,'git_blob':git('rev-parse',sha+':'+repo).decode().strip()};rows.append(row)
+   framed.update(rel.encode()+b'\0'+str(len(data)).encode()+b'\0'+got.encode()+b'\n')
+  else:
+   orig=PE/rel;same=orig.is_file() and orig.read_bytes()==data
+   untracked.append({'relative':rel,'bytes':len(data),'sha256':got,'original_exists_byte_equal':same})
+   if not same:unique.append(rel)
+users=[];scan_errors=[]
+for proc in pathlib.Path('/proc').iterdir():
+ if not proc.name.isdigit():continue
+ try:
+  cmd=(proc/'cmdline').read_bytes().replace(b'\0',b' ').decode(errors='replace')
+  # Exclude this literal observer; it reads the copy to prove custody.
+  if int(proc.name)==os.getpid():continue
+  candidates=[]
+  for n in ['cwd','exe']:
+   try:candidates.append((n,os.readlink(proc/n)))
+   except FileNotFoundError:pass
+  for fd in (proc/'fd').iterdir():
+   try:candidates.append(('fd/'+fd.name,os.readlink(fd)))
+   except FileNotFoundError:pass
+  matches=[{'role':n,'target':value} for n,value in candidates if value.startswith(str(copy))]
+  if str(copy) in cmd or matches:users.append({'pid':int(proc.name),'command_mentions_copy':str(copy) in cmd,'open_matches':matches})
+ except FileNotFoundError:pass
+ except PermissionError as exc:scan_errors.append({'pid':proc.name,'error':str(exc)})
+result={'schema':'policyos.e02.failed_repeatable_source_copy_cleanup_preflight.v1','candidate':sha,'copy':str(copy),'tracked_regular_file_count':len(rows),'tracked_regular_bytes':sum(r['bytes'] for r in rows),'tracked_files_exact_Git_blob_binding':not mismatch,'tracked_file_digest_frame':framed.hexdigest(),'mismatch_paths':mismatch,'untracked_regular_files':untracked,'unique_untracked_files':unique,'symlinks':symlinks,'active_users':users,'proc_scan_permissions_errors':scan_errors,'private_env_exists':(copy.parent/'environment').exists(),'outputs_regular_files':[str(p) for p in (copy.parent/'outputs').rglob('*') if p.is_file()],'source_head_now':git('rev-parse','HEAD').decode().strip(),'source_status_now':git('status','--porcelain').decode(),'deciding_files_outside_copy':[]}
+for p in [base/'architecture/receipt.json',base/'architecture/stdout.txt',base/'architecture/stderr.txt',base/'architecture/complete-source-inputs-before.json',base/'architecture/complete-source-inputs-after.json',base/'run_gate.py.txt']:
+ data=p.read_bytes();result['deciding_files_outside_copy'].append({'path':str(p),'bytes':len(data),'sha256':hashbyte(data)})
+with (base/'failed-source-copy-preflight.json').open('x') as f:json.dump(result,f,indent=2);f.write('\n')
+print(json.dumps({k:v for k,v in result.items() if k not in ['symlinks','deciding_files_outside_copy']},indent=2))

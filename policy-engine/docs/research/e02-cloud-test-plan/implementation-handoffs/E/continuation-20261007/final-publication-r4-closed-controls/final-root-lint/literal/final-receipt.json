@@ -1,0 +1,90 @@
+{
+  "schema": "policyos.e02.final_frozen_complete_lint_closeout.v1",
+  "source": "31782b55f8f35556cfc581449b040c393f00c78f",
+  "tree": "746f50214f70c0fa34cd8bb6d42e72440adc9f96",
+  "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "check_outcome": "FAIL",
+  "finding_outcome": null,
+  "summary": {
+    "candidate": "31782b55f8f35556cfc581449b040c393f00c78f",
+    "tree": "746f50214f70c0fa34cd8bb6d42e72440adc9f96",
+    "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "full_changed_path_count": 6289,
+    "complete_changed_python_denominator": 366,
+    "actual_Ruff_exit_code": 1,
+    "actual_Ruff_diagnostic_count": 143,
+    "actual_Ruff_diagnostic_path_count": 7,
+    "Ruff_diagnostics_by_factual_writer": {
+      "E": 0,
+      "A": 1,
+      "B": 35,
+      "C": 0,
+      "F": 0,
+      "G": 107
+    },
+    "actual_format_exit_code": 1,
+    "actual_format_path_count": 7,
+    "already_formatted_count": 359,
+    "format_by_factual_writer": {
+      "E": 0,
+      "A": 1,
+      "B": 2,
+      "C": 0,
+      "F": 0,
+      "G": 4
+    },
+    "Ruff_E_owned_diagnostic_count": 0,
+    "E_owned_format_required_count": 0,
+    "source_and_config_immutable": true,
+    "metadata_count": 184,
+    "metadata_before_after_unchanged": true,
+    "G_C_distinction": "Four failing incoming utilities were authored/published by G for canonical C mechanism; E has no foreign writer lease.",
+    "P41": "not_established",
+    "full_global_outcome": "FAIL",
+    "finding_dispositions_changed": false
+  },
+  "independent_native_capture": {
+    "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/capture-receipt.json",
+    "bytes": 93234,
+    "sha256": "799d19e3b7de110b2b5da67879485140fdc5ef2f1e28aab9656a2cd74a0e6087"
+  },
+  "complete_actual_inputs": {
+    "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/inputs.json",
+    "bytes": 489645,
+    "sha256": "5a884ec11520c98b1d277215b40bad95b381c0ce61ff9e08576ef6b5663d7537"
+  },
+  "closed_classification_normal": {
+    "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/classification-normal.stdout.json",
+    "bytes": 122493,
+    "sha256": "365d38664f3ebfdede71f16eff9a698adc47d00108374ca9f06347413a77c906"
+  },
+  "closed_classification_optimized": {
+    "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/classification-optimized.stdout.json",
+    "bytes": 122496,
+    "sha256": "c787706c683a28cdcab1bf8a039ba03879837fd809b56459e2ab656aa6f80587"
+  },
+  "normal_optimized_claims_equal": true,
+  "author_summary_controls_per_mode": 9,
+  "source_qualification": {
+    "path": "/tmp/e02-E-validator-format-independent-r4/final-source-GO.json",
+    "bytes": 2922,
+    "sha256": "f41521d4b5efd65c1bf74720ec5411369d1b93f9dab497ea61a916cdea8827df"
+  },
+  "root_or_candidate_code_environment_mutated": false,
+  "non_E_code_changes": false,
+  "E_scoped_current_style_result": "All344 factual E input paths have zero Ruff diagnostics and zero format-required paths after independently reviewed source2350. This is a scoped style observation, not global or finding closure.",
+  "foreign_next_owners": "A compiler utility1 diagnostic/1 format; B settlement utilities35 diagnostics/2 formats; G-published canonical C utilities107 diagnostics/4 formats. Canonical C mechanism ownership is separate from G factual publication writer.",
+  "P41": "not_established; no exact historical full-command/input replay and no inherited waiver",
+  "historical_observations": "Frozen64d360; prior prospective366 PLAN_ONLY; actualb6 before the format/source-preflight fix. Historical classifier argv/defaultdict observer errors remain in the old b6 selection. No historical outputs were rewritten or supplied as current PASS.",
+  "current_actual_denominator": "Native Git main198\u2192ROOT31782 full6289 changed-path delta; all366 existing Python paths, no absent/deleted Python input; all physical/candidate/config/environment metadata hashes before/after equal.",
+  "current_configuration": "Actual policy-engine cwd native nearest ruff.toml plus recursive generated.toml extends; no explicit --config, fix, exclusions or baseline changes.",
+  "native_gate_commands_executed_once": true,
+  "cleanup_candidates": [
+    "cache-version",
+    "cache-python",
+    "cache-settings",
+    "cache-ruff",
+    "cache-format"
+  ],
+  "cleanup_performed": false
+}

@@ -1,0 +1,18 @@
+{
+  "retained_workspace": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained",
+  "existing_uv_cache": "/workspace/.polisyos-environment/cache/uv",
+  "required_by_unmodified_tool": true,
+  "ROOT207_environment_readonly": true,
+  "offline_cache_exists": true,
+  "launch_capacity": {
+    "memory_current": 17048854528,
+    "memory_max": 17179869184,
+    "inactive_file": 887435264,
+    "slab_reclaimable": 1561783432,
+    "shmem": 2915549184,
+    "tmp_free": 6525800448,
+    "source_copy_bytes": 562221164,
+    "existing_ROOT207_extra_inclusive_file_observation": 1616733347
+  },
+  "capacity_limitation": "Kernel reclaimable budget is observed, not an OOM guarantee; default frozen/declared extras actual sync outcome retained. No active newenv/uvsync writer observed."
+}

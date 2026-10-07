@@ -1,0 +1,87 @@
+from pathlib import Path
+import os,stat,time,json,hashlib,tarfile,shutil,subprocess
+S=Path('/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/pytest-base/test_generated_family_probe_an0')
+D=Path('/tmp/e02-E-one-closed-native-child-archive-20261007');A=Path('/workspace/e02-E-pr38-r3-receipts/closed-native-fixture-archives-20261007/test_generated_family_probe_an0.tar.gz')
+ROOT=Path('/workspace/e02-E-continuation-20261006')
+def need(q,m):
+ if not q:raise ValueError(m)
+def dump(p,d):p.write_text(json.dumps(d,indent=2)+'\n')
+def sha(stream):
+ h=hashlib.sha256();n=0
+ while True:
+  b=stream.read(1024*1024)
+  if not b:break
+  h.update(b);n+=len(b)
+ return {'bytes':n,'sha256':h.hexdigest()}
+def ref(p):
+ with p.open('rb') as f:r=sha(f)
+ return {'path':str(p),**r}
+def resources():
+ def fs(p):s=os.statvfs(p);return {'writable_available_bytes':s.f_bavail*s.f_frsize,'all_free_including_reserved_bytes':s.f_bfree*s.f_frsize,'total_bytes':s.f_blocks*s.f_frsize,'device':os.stat(p).st_dev}
+ return {'unix':time.time(),'overlay':fs('/workspace'),'tmpfs':fs('/tmp'),'memory_current':Path('/sys/fs/cgroup/memory.current').read_text().strip(),'memory_max':Path('/sys/fs/cgroup/memory.max').read_text().strip(),'memory_stat':Path('/sys/fs/cgroup/memory.stat').read_text(),'memory_events':Path('/sys/fs/cgroup/memory.events').read_text(),'swap_current':Path('/sys/fs/cgroup/memory.swap.current').read_text().strip()}
+def source_id():
+ return {'HEAD':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),'tree':subprocess.check_output(['git','rev-parse','HEAD^{tree}'],cwd=ROOT,text=True).strip(),'status':subprocess.check_output(['git','status','--porcelain=v1'],cwd=ROOT,text=True)}
+def readers():
+ result={'unix':time.time(),'exact_source':str(S),'users':[],'readable_non_zombie':0,'unreadable_infrastructure':[],'unreadable_other':[]}
+ for p in Path('/proc').iterdir():
+  if not p.name.isdigit() or int(p.name)==os.getpid():continue
+  try:
+   status=(p/'status').read_text();state=next(x for x in status.splitlines() if x.startswith('State:')).split()[1]
+   if state=='Z':continue
+   argv=[x.decode(errors='replace') for x in (p/'cmdline').read_bytes().split(b'\0') if x];cwd=os.readlink(p/'cwd');e=[];q=str(S)
+   if cwd==q or cwd.startswith(q+'/'):e.append({'kind':'cwd','value':cwd})
+   for arg in argv:
+    if q in arg:e.append({'kind':'cmdline','value':arg})
+   for f in (p/'fd').iterdir():
+    try:v=os.readlink(f)
+    except FileNotFoundError:continue
+    if v==q or v.startswith(q+'/'):e.append({'kind':'fd','value':v})
+   result['readable_non_zombie']+=1
+   if e:result['users'].append({'pid':int(p.name),'evidence':e})
+  except (FileNotFoundError,ProcessLookupError):pass
+  except PermissionError as e:result['unreadable_infrastructure' if int(p.name) in {199,250} else 'unreadable_other'].append({'pid':int(p.name),'error':str(e)})
+ return result
+
+def inventory():
+ need(S.is_dir() and not S.is_symlink(),'exact one existing plain fixture child')
+ rows=[];stack=[S]
+ while stack:
+  p=stack.pop();s=p.lstat();rel=p.relative_to(S).as_posix();need(not ({'.git','.venv','venv','site-packages'} & set(Path(rel).parts)),'Git/environment within archive candidate forbidden')
+  row={'relative':rel,'mode':stat.S_IMODE(s.st_mode),'mtime_ns':s.st_mtime_ns,'uid':s.st_uid,'gid':s.st_gid,'device':s.st_dev,'inode':s.st_ino,'nlink':s.st_nlink,'allocated_bytes':s.st_blocks*512}
+  if stat.S_ISDIR(s.st_mode):
+   row['kind']='directory'
+   with os.scandir(p) as it:stack.extend(Path(x.path) for x in it)
+  elif stat.S_ISLNK(s.st_mode):row.update(kind='symlink',target=os.readlink(p))
+  elif stat.S_ISREG(s.st_mode):
+   with p.open('rb') as f:row.update(kind='file',**sha(f))
+   need(row['bytes']==s.st_size,'closed regular input size stable')
+  else:raise ValueError('unsupported special fixture object '+str(p))
+  rows.append(row)
+ rows.sort(key=lambda r:r['relative']);return rows
+need(not D.exists(),'exclusive fresh operation namespace');D.mkdir();before=resources();initial=readers();dump(D/'process-before.json',initial);need(not initial['users'] and not initial['unreadable_other'],'observable source user/admission unknown');root_before=source_id();start=time.time();print('Admitted fresh readable no-users, inventory hashing exact closed child.',flush=True)
+rows=inventory();need(sum(r.get('bytes',0) for r in rows)==527866253 and sum(r['kind']=='file' for r in rows)==18575,'exact admitted initial candidate denominator')
+manifest=D/'inventory-before.json';dump(manifest,rows);count=len(rows);worst=sum(r.get('bytes',0) for r in rows)+4096*count+64*1024**2+128*1024**2;fresh=resources();need(fresh['overlay']['writable_available_bytes']>worst,'fresh real writable overlay conservative raw/tar/manifest/128MiB budget');need(not A.exists(),'exclusive ignored archive destination');A.parent.mkdir(exist_ok=True);print(json.dumps({'inventory':ref(manifest),'writable_budget_guard':worst,'fresh_writable_overlay':fresh['overlay']['writable_available_bytes']}),flush=True)
+# Exactly the admitted one-child hierarchy; no follow/dereference of symlinks.
+with tarfile.open(A,'x:gz',format=tarfile.PAX_FORMAT,dereference=False,compresslevel=6) as t:
+ for row in rows:
+  rel=row['relative'];p=S if rel=='.' else S/rel;arc=S.name if rel=='.' else S.name+'/'+rel;t.add(p,arcname=arc,recursive=False)
+print('Archive closed; independently stream reading complete actual tar members/bodies.',flush=True)
+expected={S.name if r['relative']=='.' else S.name+'/'+r['relative']:r for r in rows};seen={};proof=[]
+with tarfile.open(A,'r|gz') as t:
+ for m in t:
+  need(m.name in expected and m.name not in seen,'exact tar member Counter');r=expected[m.name];need(m.mode==r['mode'] and m.uid==r['uid'] and m.gid==r['gid'],'member mode/uid/gid')
+  actual={'name':m.name,'mode':m.mode,'uid':m.uid,'gid':m.gid}
+  if r['kind']=='directory':need(m.isdir(),'directory member kind');actual['kind']='directory'
+  elif r['kind']=='symlink':need(m.issym() and m.linkname==r['target'],'exact symlink target/kind');actual.update(kind='symlink',target=m.linkname)
+  elif m.islnk():
+   need(m.linkname in seen and seen[m.linkname].get('bytes')==r['bytes'] and seen[m.linkname].get('sha256')==r['sha256'],'hardlink target complete previously verified body');actual.update(kind='hardlink',linkname=m.linkname,bytes=r['bytes'],sha256=r['sha256'])
+  else:
+   need(m.isfile() and m.size==r['bytes'],'regular member kind/size');f=t.extractfile(m);need(f is not None,'actual regular payload stream');got=sha(f);need(got=={k:r[k] for k in ('bytes','sha256')},'complete actual tar payload hash/bytes');actual.update(kind='file',**got)
+  seen[m.name]=actual;proof.append(actual)
+need(set(seen)==set(expected),'complete exact tar member set');dump(D/'archive-complete-member-readback.json',proof)
+with A.open('rb') as f:arch=sha(f)
+# Full second original inventory proof and fresh observed no-user recheck before one plaintext retirement.
+again=inventory();dump(D/'inventory-before-retirement.json',again);need(again==rows,'complete source stat/mode/hash/link inventory unchanged while archive verification');final=readers();dump(D/'process-before-retirement.json',final);need(not final['users'] and not final['unreadable_other'],'fresh observable no-users before exact child retirement')
+print('Full archive/body/source inventory equal; retiring only one authorized closed plain child.',flush=True);shutil.rmtree(S);need(not S.exists() and not S.is_symlink() and A.is_file(),'exact plain child retired, no compressed symlink');after=resources();root_after=source_id()
+result={'schema':'policyos.e02.one_closed_native_fixture_archive.v1','authorization':'Parent explicitly authorized exactly this one closed18575file527866253B fixture child, full verified tar.gz ignored overlay, no fake archive symlink; stop after one.','source_path':str(S),'archive':{'path':str(A),**arch},'inventory_before':ref(manifest),'inventory_before_retirement':ref(D/'inventory-before-retirement.json'),'complete_tar_member_readback':ref(D/'archive-complete-member-readback.json'),'counts':{'regular_source_files':18575,'regular_source_bytes_path_sum':527866253,'source_directories':sum(r['kind']=='directory' for r in rows),'symlinks':sum(r['kind']=='symlink' for r in rows),'full_tar_members':len(proof),'tar_regular_payload_members':sum(r['kind']=='file' for r in proof),'tar_hardlink_members':sum(r['kind']=='hardlink' for r in proof),'tar_stored_regular_payload_bytes':sum(r.get('bytes',0) for r in proof if r['kind']=='file')},'exact_scope_admission':{'Git_or_env_paths':0,'special_objects':0,'initial_expected_denominator':True,'worst_archive_raw_tar_manifest_and_guard_bytes':worst,'fresh_statvfs':fresh},'process_observations':[ref(D/'process-before.json'),ref(D/'process-before-retirement.json')],'source_plain_path_unavailable_until_explicit_reopen':True,'source_retired_only_after_complete_archive_and_second_inventory_proof':True,'compressed_path_never_masquerades_as_fixture_directory':True,'ROOT_before':root_before,'ROOT_after':root_after,'operation_ROOT_code_Git_env_package_or_other_fixture_write':False,'before':before,'after':after,'elapsed_seconds':time.time()-start,'reopen_recipe':{'archive_source':str(A),'argv':['tar','-xzf',str(A),'-C','/tmp/e02-E-reopened-generated-family-probe-20261007'],'precondition':'Create this exact fresh destination explicitly; do not extract over ROOT/Git/env. Old absolute symlink targets are retained literally; fresh-parent relocation does not automatically rebind external links or claim caller compatibility.','verification':'Recompute full per-file mode/bytes/SHA and target strings against inventory-before.json before using reconstructed fixtures; all complete readback outputs retained.','plain_original_path':'retired; no automatic restore/symlink. Historical native input/receipt references remain literal archived observations.'},'limitations':['Readable proc observation is point-in-time, infra199/250 unreadable scoped; no hostwide quiescence lock established.','All original fixture bytes including any useful/unique code/doc/data remain in full archive; real ROOT code/Git/env registrations and every other fixture/raw/receipt/observation untouched by operation.','Root may append authorized Git checkpoints during closed fixture archival; root identity delta is independently observed, never rewritten by operation or assumed immutable.','No native/mathematical/global test rerun or propertyPASS inferred from capacity change; original nativeFAIL137/nullJUnit retained.','Hardlinks within tar preserved through first verified body and exact link identity; original physical allocation recovery cannot be inferred from logical bytes alone.']}
+p=D/'receipt.json';dump(p,result);print(json.dumps({'receipt':ref(p),'archive':result['archive'],'counts':result['counts'],'overlay_writable_after':after['overlay']['writable_available_bytes']},indent=2),flush=True)

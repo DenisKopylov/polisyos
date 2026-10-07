@@ -1,0 +1,59 @@
+{
+  "schema": "policyos.e02.E.one_closed_native_archive_peer_selection.v1",
+  "disposition": "GO for one completed full archive custody only",
+  "assets": [
+    {
+      "path": "/tmp/e02-E-one-native-archive-custody-independent-20261007/review.py.txt",
+      "bytes": 12098,
+      "sha256": "7ab3f1af918fd76264215bc884e8ed223bd592e88165072d9df8b3bc04cdb8e9"
+    },
+    {
+      "path": "/tmp/e02-E-one-native-archive-custody-independent-20261007/actual-review.json",
+      "bytes": 10573,
+      "sha256": "6519f721a459efb35f70d39002cd7021c9fd01a8b282d6040bd7f9ebabd75ea9"
+    },
+    {
+      "path": "/tmp/e02-E-one-native-archive-custody-independent-20261007/actual-review.stdout.json",
+      "bytes": 184,
+      "sha256": "64241eb92c3a72101ce98a1b73ec32978e028091035ca241a5365f6dbca15681"
+    },
+    {
+      "path": "/tmp/e02-E-one-native-archive-custody-independent-20261007/actual-review.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-one-native-archive-custody-independent-20261007/optimized-controls.json",
+      "bytes": 2023,
+      "sha256": "bcbeb6ea0d8d4adf43ea0bc11d817e624447e9a5b58021ad539b5a2ab9f107b4"
+    },
+    {
+      "path": "/tmp/e02-E-one-native-archive-custody-independent-20261007/optimized-controls.stdout.json",
+      "bytes": 188,
+      "sha256": "9bc5e69369882b71150bc603a6e07bbae5204becd4cb8f1531812e3bf2a9566a"
+    },
+    {
+      "path": "/tmp/e02-E-one-native-archive-custody-independent-20261007/optimized-controls.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-one-native-archive-custody-independent-20261007/style-pass.json",
+      "bytes": 644,
+      "sha256": "a37bd35c009079dd25025adc25e3b214e4cc4bf9274b2ca9241516761b869686"
+    },
+    {
+      "path": "/tmp/e02-E-one-closed-native-child-archive-20261007/receipt.json",
+      "bytes": 10789,
+      "sha256": "1ec5b9463914cdc30a6a29078961f8824315d174029f9fe69ca401850bcb984d"
+    },
+    {
+      "path": "/tmp/e02-E-cleanup-custody-independent-20261007/review-cleanup-custody-v3.py.txt",
+      "bytes": 31259,
+      "sha256": "3c579582b2f4089b3c9fc0c82132588edce02a446eb1dbd10feae0da0f447787"
+    }
+  ],
+  "asset_count": 10,
+  "total_bytes": 67758,
+  "qualifications": "One complete streaming tar readback against all20602 original members;18575file bodies527866253B;3literal links never followed; no plaintext materialization/new operation/source finding acceptance. Complete inventory/archive bodies remain ignored content-bound inputs."
+}

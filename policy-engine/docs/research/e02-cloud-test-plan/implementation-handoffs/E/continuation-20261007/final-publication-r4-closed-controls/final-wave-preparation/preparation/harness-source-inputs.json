@@ -1,0 +1,78 @@
+{
+  "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+  "source_tree": "746f50214f70c0fa34cd8bb6d42e72440adc9f96",
+  "assets": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/prepare_current_owner_wave.py.txt",
+      "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+      "git_blob": "fe95df49868fe7b3a5971434bef72dfa9146a344",
+      "bytes": 11136,
+      "sha256": "b225fb80d578a55d5a268a124315521fe390c5c023b1ca391abd0e613cb6c641"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/common-wave-wrapper/retained_runtime_api_cli.py.txt",
+      "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+      "git_blob": "1502160e1e3c33eaa50106740e6832e0db932e46",
+      "bytes": 5478,
+      "sha256": "514257634b01416c608ba2a65723f3cd51fecaba6dd082e86350f75275f9a288"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/plan_wave.py",
+      "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+      "git_blob": "ad35e3b7cce69e2e1baf316ef99ea74f28187638",
+      "bytes": 25922,
+      "sha256": "3e1367f35392c8334a849da655035113c543066425d2bdb67643468a5b8038e4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/run_check.py",
+      "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+      "git_blob": "423b1ba6187047fd852be570dde28bd63ddcdd57",
+      "bytes": 12609,
+      "sha256": "16caf0aecfe2c247b211f5a7611e9ce423f238dc2506e72dc99de16802ce8fec"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/collect_wave.py",
+      "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+      "git_blob": "008ade1c13a250c7cb14c78333ec32501f426a84",
+      "bytes": 41358,
+      "sha256": "3e80760446ed4a6fda0f46dde07b0efbb8aa4da29a28d2779a8a6737b63450ac"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+      "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+      "git_blob": "06de7485b52139234316419370e899e95f29d6f2",
+      "bytes": 7221,
+      "sha256": "13b50c23a2636baaccd7e07ea29abc5e0a21c8c2a0db61e1ef73a7b37292b67e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/proposal.json",
+      "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+      "git_blob": "b1b77b16de95fa677d6d3aa02cdd02fe26c70906",
+      "bytes": 2477,
+      "sha256": "183a0cd6b4fc8364ae086d1a5e921a7b06b09a241a1041359be855261125cf63"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/original-wave-groups.json",
+      "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+      "git_blob": "85cb24b324e971759a87b5853f3d75eb983b1a31",
+      "bytes": 9604,
+      "sha256": "a5578a4dd8bc8e622603e5b538a412594eafb507ca640518bf527d8c0c5168af"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/a-status-reason-tests.py.txt",
+      "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+      "git_blob": "6046e1770339def66d96c457778e2cbb03078d6f",
+      "bytes": 5982,
+      "sha256": "293110a89223941ae3a772ea59226831aef2a459ca9b17bcefc8157ef574455c"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/backends/config.py",
+      "source_sha": "31782b55f8f35556cfc581449b040c393f00c78f",
+      "git_blob": "93c144f77b44c9e9300d7479b7f5b8c86e766345",
+      "bytes": 8035,
+      "sha256": "0c942402af1a304c32bccd285fd78a3aeeebc13a1f02c23b3242c1f6ead2f99d"
+    }
+  ],
+  "pre_import_binding": "candidate/physical planner and all6 companions compared before source loading by unchanged reviewed wrapper",
+  "new_executor": false
+}

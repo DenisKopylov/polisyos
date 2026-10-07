@@ -1,0 +1,5 @@
+{
+  "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/actual-terminal-backend-decoded-v3.json",
+  "bytes": 8010,
+  "sha256": "201d44b003da6b4e63c5cea4384c752f44f8996b0da4ebe0a73fd1c8ead3227a"
+}

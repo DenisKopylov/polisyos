@@ -1,0 +1,3 @@
+[codex/e02-E-continuation-20261006 15a5cd7b7] docs(e02): pin append-only E source checkpoint and incomplete backend
+ 1 file changed, 10685 insertions(+)
+ create mode 100644 policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/root-checkpoints/append-finite-law-290324be.json

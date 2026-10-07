@@ -1,0 +1,1 @@
+{"output": {"path": "/tmp/e02-E-cleanup-custody-independent-20261007/controls-normal-v3.json", "bytes": 1728, "sha256": "272c2d13c9bb1e2573ba6d1a75d90af12173aada7b327f0aa3d06ad7cca0ec5e"}, "disposition": null, "control_count": 12}

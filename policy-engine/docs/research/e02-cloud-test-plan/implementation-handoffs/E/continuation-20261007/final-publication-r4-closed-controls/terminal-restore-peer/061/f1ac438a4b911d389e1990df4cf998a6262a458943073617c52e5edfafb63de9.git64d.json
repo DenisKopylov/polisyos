@@ -1,0 +1,22 @@
+{
+  "issue_codes": [],
+  "rows": [
+    {
+      "case_id": "ua-msme-affordable-loans-2022",
+      "g4_a_completeness_ledger_ref": null,
+      "g4_g5_handoff_ref": null,
+      "g4_grounded_contract_set_ref": null,
+      "g4_human_decision_integrity_gate_ref": null,
+      "g4_promotion_record_ref": null,
+      "g4_weakest_boundary_composition_ref": null,
+      "issue_codes": [
+        "layer3_g7_grounded_case_without_governed_promotion",
+        "layer3_g7_current_g5_unchanged_blocker"
+      ],
+      "status": "missing"
+    }
+  ],
+  "rule_version": "policyos.layer3.g7.region_widening.v1",
+  "schema_version": "policyos.policy_design_case.layer3_g7_region_widening.v1",
+  "status": "blocked_current_seed_only"
+}

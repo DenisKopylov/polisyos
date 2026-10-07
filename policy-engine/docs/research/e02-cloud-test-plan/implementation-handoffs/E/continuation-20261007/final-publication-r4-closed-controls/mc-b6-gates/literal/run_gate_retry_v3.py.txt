@@ -1,0 +1,85 @@
+import hashlib
+import importlib.metadata
+import json
+import os
+import pathlib
+import platform
+import resource
+import subprocess
+import sys
+import time
+
+MC=pathlib.Path('/workspace/e02-E-mc-20261006')
+PE=MC/'policy-engine'
+ROOTENV=pathlib.Path('/workspace/e02-E-continuation-20261006/policy-engine/.venv')
+OUT=pathlib.Path('/tmp/e02-E-MC-b6-gates-20261007')
+SOURCE='b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4'
+TREE='0cb448febf461d0bbdf31645712ad774f5425b72'
+UV='/workspace/.polisyos-environment/uv/bin/uv'
+name=sys.argv[1]
+selector=name.split('-retry',1)[0]
+def git(*argv):
+ return subprocess.check_output(['git','--no-optional-locks',*argv],cwd=MC)
+def sha(data):return hashlib.sha256(data).hexdigest()
+def write(path,data):
+ with path.open('xb') as stream:stream.write(data)
+def jwrite(path,value):write(path,(json.dumps(value,indent=2)+'\n').encode())
+def source_snapshot():
+ framed=hashlib.sha256();rows=[]
+ for value in git('ls-files','-z').split(b'\0'):
+  if not value:continue
+  path=value.decode();p=MC/path
+  data=p.read_bytes() if not p.is_symlink() else os.readlink(p).encode()
+  row={'path':path,'bytes':len(data),'sha256':sha(data),'symlink':p.is_symlink()}
+  framed.update(path.encode()+b'\0'+str(len(data)).encode()+b'\0'+row['sha256'].encode()+b'\n');rows.append(row)
+ return {'tracked_paths':len(rows),'bytes':sum(r['bytes'] for r in rows),'framed_sha256':framed.hexdigest()},rows
+def env_metadata():
+ rows=[]
+ for p in sorted(ROOTENV.rglob('*.dist-info/METADATA')):
+  d=p.read_bytes();rows.append({'path':str(p.relative_to(ROOTENV)),'bytes':len(d),'sha256':sha(d)})
+ for name in ['pyvenv.cfg','bin/python','bin/polisyos-tools']:
+  p=ROOTENV/name
+  if p.is_symlink():rows.append({'path':name,'symlink':os.readlink(p)})
+  elif p.exists():
+   d=p.read_bytes();rows.append({'path':name,'bytes':len(d),'sha256':sha(d)})
+ return {'metadata_rows':rows,'metadata_framed_sha256':sha(json.dumps(rows,sort_keys=True).encode())}
+if git('rev-parse','HEAD').decode().strip()!=SOURCE or git('status','--porcelain'):
+ raise RuntimeError('current MC source not exact clean b6')
+stage=OUT/name;stage.mkdir();tmp=stage/'tmp';tmp.mkdir();cache=stage/'cache';cache.mkdir()
+env=os.environ.copy();env.update({'UV_PROJECT_ENVIRONMENT':str(ROOTENV),'UV_NO_SYNC':'1','UV_CACHE_DIR':str(cache/'uv'),'PYTHONPATH':str(PE)+':'+str(PE/'src'),'PYTHONDONTWRITEBYTECODE':'1','TMPDIR':str(tmp),'RUFF_CACHE_DIR':str(cache/'ruff'),'NODE_COMPILE_CACHE':str(cache/'node-compile'),'XDG_CACHE_HOME':str(cache/'xdg'),'POLISYOS_DATA_DIR':str(tmp/'data')})
+for cap in ['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','NUMEXPR_NUM_THREADS','VECLIB_MAXIMUM_THREADS','BLIS_NUM_THREADS','POLISYOS_PYTEST_WORKERS','POLISYOS_PYTEST_DIST','PYTEST_ADDOPTS']:
+ env.pop(cap,None)
+python=str(ROOTENV/'bin/python')
+if selector=='static-invocation':
+ command=[python,'tools/quality/validation/check_production_invocation.py','--repo-root',str(PE),'--base','198076863e143dea9f89f02734b13d50dae3eed5','--receipt',str(stage/'production-invocation.raw.json')];cwd=PE
+elif selector=='runtime-api-contract':
+ checker=PE/'tools/ops_runners/runtime/check_runtime_api_contract.py'
+ wrapper=pathlib.Path('/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/retained_runtime_api_cli.py')
+ command=[python,str(wrapper),'--checker',str(checker),'--expected-checker-sha256',sha(checker.read_bytes()),'--catalog',str(stage/'retained-runtime-catalog.json'),'--'];cwd=tmp
+elif selector=='architecture':
+ config=json.loads((OUT/(name+'-launch-config.json')).read_text())
+ env['PATH']=str(pathlib.Path(UV).parent)+os.pathsep+env['PATH']
+ command=[UV,'run','--no-sync','polisyos-tools','architecture','guardrails','check','--generated-freshness-workspace-root',config['retained_workspace'],'--generated-freshness-uv-cache-dir',config['existing_uv_cache']];cwd=PE
+else:raise RuntimeError('unknown exact gate')
+config=git('config','--null','--list','--show-origin');write(stage/'git-config-private.nul',config)
+before,rows=source_snapshot();jwrite(stage/'complete-source-inputs-before.json',rows)
+env_before=env_metadata()
+mem_before={p.name:p.read_text() for p in [pathlib.Path('/sys/fs/cgroup/memory.events'),pathlib.Path('/sys/fs/cgroup/memory.stat'),pathlib.Path('/sys/fs/cgroup/memory.current'),pathlib.Path('/sys/fs/cgroup/memory.max')]}
+pre={'schema':'policyos.e02.E.actual_current_gate_started.v1','source':SOURCE,'tree':TREE,'command':command,'cwd':str(cwd),'parent_pid':os.getpid(),'started_unix':time.time(),'source_before':before,'ROOT_environment_metadata_before':env_before,'cgroup_before':mem_before,'selector':selector,'observer_source_original_sha256':'e96299e509da11702010268a1604dbdda36a98fc024b9ccbf93d7718ec6c187f','selected_environment':{k:env.get(k) for k in ['UV_PROJECT_ENVIRONMENT','UV_NO_SYNC','UV_CACHE_DIR','PYTHONPATH','PYTHONDONTWRITEBYTECODE','TMPDIR','RUFF_CACHE_DIR','NODE_COMPILE_CACHE','XDG_CACHE_HOME','POLISYOS_DATA_DIR','PATH','COREPACK_HOME','PLAYWRIGHT_BROWSERS_PATH']},'resource_caps':{k:env.get(k) for k in ['OMP_NUM_THREADS','OPENBLAS_NUM_THREADS','MKL_NUM_THREADS','POLISYOS_PYTEST_WORKERS']},'private_git_config_sha256':sha(config),'private_git_config_bytes':len(config),'scope':'Actual full canonical selector with exact source/base substitution; no source/checker algorithm changes, no baseline/exception edits.'}
+jwrite(stage/'started.json',pre)
+started=time.time()
+with (stage/'stdout.txt').open('xb') as stdout,(stage/'stderr.txt').open('xb') as stderr:
+ result=subprocess.run(command,cwd=cwd,env=env,stdout=stdout,stderr=stderr)
+after,afterrows=source_snapshot();jwrite(stage/'complete-source-inputs-after.json',afterrows)
+env_after=env_metadata()
+mem_after={p.name:p.read_text() for p in [pathlib.Path('/sys/fs/cgroup/memory.events'),pathlib.Path('/sys/fs/cgroup/memory.stat'),pathlib.Path('/sys/fs/cgroup/memory.current'),pathlib.Path('/sys/fs/cgroup/memory.max')]}
+stdout=(stage/'stdout.txt').read_bytes();stderr=(stage/'stderr.txt').read_bytes()
+code=result.returncode
+if code==0:outcome='PASS'
+elif code==1:outcome='FAIL'
+else:outcome='ERROR'
+# Canonical CLI unavailable/partial states remain separate from wrapper return classification.
+canonical='UNRUN' if b'UNRUN' in stdout and (code==2 or b'no complete verdict' in stdout) else outcome
+receipt={**pre,'schema':'policyos.e02.E.actual_current_full_gate_receipt.v1','exit_code':code,'outcome':outcome,'canonical_selector_outcome':canonical,'wall_seconds':time.time()-started,'source_after':after,'source_immutable':before==after,'head_after':git('rev-parse','HEAD').decode().strip(),'status_after':git('status','--porcelain').decode(),'ROOT_environment_metadata_after':env_after,'cgroup_after':mem_after,'cgroup_pid_cause':'not_established: global counters alone do not attribute an event to this PID','ROOT_environment_metadata_unchanged':env_before==env_after,'ROOT_environment_full_binary_byte_guard':'not_established; complete package metadata and protected interpreter/control refs bracketed, no mutation command directed at ROOT207','stdout':{'path':str(stage/'stdout.txt'),'bytes':len(stdout),'sha256':sha(stdout)},'stderr':{'path':str(stage/'stderr.txt'),'bytes':len(stderr),'sha256':sha(stderr)},'P41':'not_established absent exact full slice-base command/input replay','finding_closure':False,'global_wave_repeated':False}
+jwrite(stage/'receipt.json',receipt)
+print(json.dumps({'stage':name,'outcome':outcome,'canonical':canonical,'exit_code':code,'source_immutable':receipt['source_immutable'],'root_env_metadata_unchanged':env_before==env_after,'wall_seconds':receipt['wall_seconds']},indent=2))

@@ -1,0 +1,37 @@
+{
+  "candidate": "31782b55f8f35556cfc581449b040c393f00c78f",
+  "tree": "746f50214f70c0fa34cd8bb6d42e72440adc9f96",
+  "tracked_dirty": "",
+  "native_paths": 102,
+  "owner_packets": 1,
+  "numerical_families": 7,
+  "runtime_metadata_count": 207,
+  "resources": {
+    "memory.current": "8846352384\n",
+    "memory.max": "17179869184\n",
+    "memory.events": "low 0\nhigh 0\nmax 3935153\noom 94\noom_kill 12\noom_group_kill 0\n"
+  },
+  "storage": {
+    "/tmp": {
+      "available_bytes": 5058400256,
+      "total_bytes": 9441349632
+    },
+    "/workspace": {
+      "available_bytes": 1686519808,
+      "total_bytes": 33770192896
+    }
+  },
+  "tmpfs_memory_boundary": "/tmp tmpfs is charged to same cgroup, no extra RAM inference",
+  "source_freeze": {
+    "path": "/tmp/e02-E-root-reviewed-source-freeze-20261007/freeze.json",
+    "bytes": 4199,
+    "sha256": "fce72ed50a0fccf418f033f787fba625608253d315ce288e56cf4e90fd9475ba",
+    "candidate": "31782b55f8f35556cfc581449b040c393f00c78f",
+    "tree": "746f50214f70c0fa34cd8bb6d42e72440adc9f96",
+    "review_requirement": "parent explicit freeze after all immutable source reviews"
+  },
+  "parent_explicit_authorization": true,
+  "launched_unix": 1791383367.9426856,
+  "global_gates_executed": false,
+  "unchanged24CAL_numerical_selectors_executed": false
+}

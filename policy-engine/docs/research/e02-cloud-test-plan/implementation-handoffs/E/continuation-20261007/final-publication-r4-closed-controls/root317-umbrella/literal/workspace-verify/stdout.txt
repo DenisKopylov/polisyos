@@ -1,0 +1,15 @@
+ WARN  Unsupported engine: wanted: {"node":">=22 <23"} (current: {"node":"v24.19.0","pnpm":"10.33.2"})
+apps/runtime-dashboard                   |  WARN  Unsupported engine: wanted: {"node":">=22 <23"} (current: {"node":"v24.19.0","pnpm":"10.33.2"})
+apps/runtime-reference-shell             |  WARN  Unsupported engine: wanted: {"node":">=22 <23"} (current: {"node":"v24.19.0","pnpm":"10.33.2"})
+packages/runtime-api-client              |  WARN  Unsupported engine: wanted: {"node":">=22 <23"} (current: {"node":"v24.19.0","pnpm":"10.33.2"})
+Scope: all 6 workspace projects
+Done in 3.2s using pnpm v10.33.2
+[PASS] python: Python 3.14.7 via /workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python
+[FAIL] node: Expected Node 22.x, found v24.19.0
+[PASS] uv: uv 0.9.21 at /workspace/.polisyos-environment/uv/bin/uv
+[FAIL] playwright: Chromium launch smoke-check failed in apps/runtime-dashboard (Command '['node', '-e', 'const { chromium } = require("playwright");\n(async () => {\n  const browser = await chromium.launch({ headless: true });\n  await browser.close();\n})().catch((error) => {\n  console.error(error);\n  process.exit(1);\n});']' returned non-zero exit status 1.)
+[PASS] uv.lock: uv.lock is up to date
+[PASS] pnpm-lock: pnpm-lock.yaml matches package manifests
+[PASS] optional-surfaces: No optional surfaces selected
+doctor failed with 2 issue(s).
+[run] doctor

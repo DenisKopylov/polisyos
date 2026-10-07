@@ -1,0 +1,71 @@
+{
+  "schema": "policyos.e02.publication_selection.v1",
+  "scope": "Independent CLOSED31782 historical XML/custody, no source finding or future wave acceptance",
+  "source": "31782b55f8f35556cfc581449b040c393f00c78f",
+  "assets": [
+    {
+      "path": "/tmp/e02-E-historical-wave31782-independent-20261007/review.py.txt",
+      "portable_name": "review.py.txt",
+      "bytes": 13412,
+      "sha256": "404d964ea0955224af135fd91ed1320f2acd130963677f04f0275fad4c5281c9"
+    },
+    {
+      "path": "/tmp/e02-E-historical-wave31782-independent-20261007/normal.stdout.json",
+      "portable_name": "normal.stdout.json",
+      "bytes": 7244,
+      "sha256": "aca2651aecdde9d238a74eaf0245045e835ae27de58a37102ba99ff1dd86b771"
+    },
+    {
+      "path": "/tmp/e02-E-historical-wave31782-independent-20261007/normal.stderr.txt",
+      "portable_name": "normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-historical-wave31782-independent-20261007/review-v2.py.txt",
+      "portable_name": "review-v2.py.txt",
+      "bytes": 13475,
+      "sha256": "9fc54285ddfda1326b102716de1001dcf4df949e150a0a0dec771cd068088b73"
+    },
+    {
+      "path": "/tmp/e02-E-historical-wave31782-independent-20261007/normal-v2.stdout.json",
+      "portable_name": "normal-v2.stdout.json",
+      "bytes": 7244,
+      "sha256": "aca2651aecdde9d238a74eaf0245045e835ae27de58a37102ba99ff1dd86b771"
+    },
+    {
+      "path": "/tmp/e02-E-historical-wave31782-independent-20261007/normal-v2.stderr.txt",
+      "portable_name": "normal-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-historical-wave31782-independent-20261007/optimized-v2.stdout.json",
+      "portable_name": "optimized-v2.stdout.json",
+      "bytes": 7244,
+      "sha256": "aca2651aecdde9d238a74eaf0245045e835ae27de58a37102ba99ff1dd86b771"
+    },
+    {
+      "path": "/tmp/e02-E-historical-wave31782-independent-20261007/optimized-v2.stderr.txt",
+      "portable_name": "optimized-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-historical-wave31782-independent-20261007/style-final-v2.json",
+      "portable_name": "style-final-v2.json",
+      "bytes": 679,
+      "sha256": "27d73d7c5495de757cbc71dc5fc8198dccc70bb8a854f79f581d12aa54bf37d1"
+    },
+    {
+      "path": "/tmp/e02-E-historical-wave31782-independent-20261007/observer-qualification.json",
+      "portable_name": "observer-qualification.json",
+      "bytes": 497,
+      "sha256": "64f8fa6296fc287dd8450335d93d9623450b5cd1b87f0a460a6a9be3c6277276"
+    }
+  ],
+  "files": 10,
+  "stored_bytes": 49795,
+  "native_gate_rerun": false,
+  "finding_closure": false
+}

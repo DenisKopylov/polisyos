@@ -1,0 +1,251 @@
+{
+  "A_function_origins": {
+    "test_missing_ref_tier_and_s6_share_named_missing_ref_reason": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/a-status-reason-tests.py.txt"
+    ],
+    "test_native_gateway_tier_s6_and_disposition_share_resolver_reason": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/a-status-reason-tests.py.txt"
+    ],
+    "test_resolved_limited_evidence_keeps_floor_failure_reason": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/a-status-reason-tests.py.txt"
+    ]
+  },
+  "A_packet_counts": {
+    "cases": 7,
+    "errors": 0,
+    "failed": 7,
+    "passed": 0,
+    "skipped": 0
+  },
+  "all_counts": {
+    "cases": 1317,
+    "errors": 0,
+    "failed": 9,
+    "passed": 1308,
+    "skipped": 0
+  },
+  "controls": [
+    {
+      "case": "healthy_full_XML_case_and_native_split",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": "case_count_typed",
+      "case": "bool_case_count",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": "receipt_claim:numeric_counts",
+      "case": "reported_numeric_failure_zero",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": "actual_A_cases",
+      "case": "A_packet_claimed_native",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": "receipt_claim:finding_closure",
+      "case": "finding_closure_from_test_counts",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": "complete_ordered_JUnit_case_sequence",
+      "case": "flat_case_omission_markers_retained",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": "case_source",
+      "case": "source_identity_retag",
+      "outcome": "PASS"
+    },
+    {
+      "actual_refusal": "unsafe_XML_entities",
+      "case": "XML_entity_refused_before_parse",
+      "outcome": "PASS"
+    },
+    {
+      "case": "actual_case_conservation_body_removed_readmits_omission",
+      "outcome": "PASS",
+      "retained_native_summary_markers": true
+    }
+  ],
+  "current_source_or_future_wave_claim": false,
+  "declared_test_source_paths": 103,
+  "disposition": "GO",
+  "failed_cases": [
+    {
+      "classname": "tests.unit.calibration.test_evidence_facades",
+      "file": null,
+      "job_name": "pcl-continuous-persistence",
+      "name": "test_public_finite_law_admission_preserves_atoms_and_domain",
+      "outcome": "failed",
+      "seconds": "0.002"
+    },
+    {
+      "classname": "tests.unit.remediation.test_frc_01",
+      "file": null,
+      "job_name": "bkt-frc-s10-and-adjacent-report-consumers",
+      "name": "test_missing_calibration_evidence_refs_stays_typed_blocked",
+      "outcome": "failed",
+      "seconds": "0.001"
+    },
+    {
+      "classname": "",
+      "file": null,
+      "job_name": "bkt-frc-s10-and-adjacent-report-consumers",
+      "name": "test_missing_ref_tier_and_s6_share_named_missing_ref_reason",
+      "outcome": "failed",
+      "seconds": "0.001"
+    },
+    {
+      "classname": "",
+      "file": null,
+      "job_name": "bkt-frc-s10-and-adjacent-report-consumers",
+      "name": "test_resolved_limited_evidence_keeps_floor_failure_reason",
+      "outcome": "failed",
+      "seconds": "0.651"
+    },
+    {
+      "classname": "",
+      "file": null,
+      "job_name": "bkt-frc-s10-and-adjacent-report-consumers",
+      "name": "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[missing_ref-empirical_evidence_ref_missing]",
+      "outcome": "failed",
+      "seconds": "0.596"
+    },
+    {
+      "classname": "",
+      "file": null,
+      "job_name": "bkt-frc-s10-and-adjacent-report-consumers",
+      "name": "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[unresolved_ref-empirical_evidence_ref_unresolved]",
+      "outcome": "failed",
+      "seconds": "0.597"
+    },
+    {
+      "classname": "",
+      "file": null,
+      "job_name": "bkt-frc-s10-and-adjacent-report-consumers",
+      "name": "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[wrong_kind-empirical_evidence_ref_kind_mismatch]",
+      "outcome": "failed",
+      "seconds": "0.604"
+    },
+    {
+      "classname": "",
+      "file": null,
+      "job_name": "bkt-frc-s10-and-adjacent-report-consumers",
+      "name": "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[wrong_time-empirical_evidence_time_mismatch]",
+      "outcome": "failed",
+      "seconds": "0.616"
+    },
+    {
+      "classname": "",
+      "file": null,
+      "job_name": "bkt-frc-s10-and-adjacent-report-consumers",
+      "name": "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[wrong_rule-empirical_evidence_rule_mismatch]",
+      "outcome": "failed",
+      "seconds": "0.617"
+    }
+  ],
+  "finding_acceptance": false,
+  "historical_collector_cleanup_text": "Preserved. Current cloud deletion authorization/local-only Trash is a separate qualifier.",
+  "literal_xml_case_sequence_matches_collector_and_flat_index": true,
+  "moderate_selection": {
+    "all_physical_refs": true,
+    "bytes": 3244283,
+    "files": 64
+  },
+  "native_counts": {
+    "cases": 1310,
+    "errors": 0,
+    "failed": 2,
+    "passed": 1308,
+    "skipped": 0
+  },
+  "native_tests_repeated": false,
+  "numeric_jobs": [
+    {
+      "counts": {
+        "cases": 99,
+        "errors": 0,
+        "failed": 1,
+        "passed": 98,
+        "skipped": 0
+      },
+      "name": "pcl-continuous-persistence",
+      "outcome": "FAIL"
+    },
+    {
+      "counts": {
+        "cases": 82,
+        "errors": 0,
+        "failed": 0,
+        "passed": 82,
+        "skipped": 0
+      },
+      "name": "ddm-runtime-and-facade",
+      "outcome": "PASS"
+    },
+    {
+      "counts": {
+        "cases": 321,
+        "errors": 0,
+        "failed": 8,
+        "passed": 313,
+        "skipped": 0
+      },
+      "name": "bkt-frc-s10-and-adjacent-report-consumers",
+      "outcome": "FAIL"
+    },
+    {
+      "counts": {
+        "cases": 69,
+        "errors": 0,
+        "failed": 0,
+        "passed": 69,
+        "skipped": 0
+      },
+      "name": "cal-and-welfare-consumer",
+      "outcome": "PASS"
+    },
+    {
+      "counts": {
+        "cases": 466,
+        "errors": 0,
+        "failed": 0,
+        "passed": 466,
+        "skipped": 0
+      },
+      "name": "mc-joint-law-support-and-scientist-consumer",
+      "outcome": "PASS"
+    },
+    {
+      "counts": {
+        "cases": 221,
+        "errors": 0,
+        "failed": 0,
+        "passed": 221,
+        "skipped": 0
+      },
+      "name": "doe-salib-and-consumer-factory",
+      "outcome": "PASS"
+    },
+    {
+      "counts": {
+        "cases": 59,
+        "errors": 0,
+        "failed": 0,
+        "passed": 59,
+        "skipped": 0
+      },
+      "name": "g-checkpoint10-controlplanestore-companion",
+      "outcome": "PASS"
+    }
+  ],
+  "observation_scope": "Closed31782 historical observation; not the future d003/composition source wave",
+  "old24CAL_current_claim": false,
+  "optional_source_asset_input_present": false,
+  "schema": "policyos.e02.independent_closed_numeric_case_recomputation.v1",
+  "source": "31782b55f8f35556cfc581449b040c393f00c78f",
+  "tree": "746f50214f70c0fa34cd8bb6d42e72440adc9f96"
+}

@@ -1,0 +1,765 @@
+"""Verify completed receipt relocations and reversible raw archives, read-only."""
+
+from __future__ import annotations
+
+import argparse
+import ast
+import copy
+import gzip
+import hashlib
+import json
+import os
+import re
+import stat
+import subprocess
+import sys
+import time
+from collections import Counter
+from pathlib import Path
+from typing import Any
+
+ROOT = Path("/workspace/e02-E-continuation-20261006")
+SOURCE = "64d7444a18c55df7b88b71b7699a2f1b25ca24bd"
+TREE = "aef23574d3162abb19bf5a1c67d02624ff9d4d1d"
+BASES = [
+    Path("/tmp/e02-E-closed-receipt-relocation-20261007-oracle"),  # noqa: S108
+    Path("/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle"),  # noqa: S108
+]
+SELECTORS = [BASES[0] / "publication-selection-v2.json", BASES[1] / "publication-selection.json"]
+SELECTOR_HASHES = [
+    "0885a038510c517aeff4a171561ddb4e15d8c234e32bbdb59f416017388a3e65",
+    "c470a41a0c5551b48020de6dc93c63972768f5a600bfee34db6f156484a96ae8",
+]
+RESULT_HASHES = [
+    "6c50cf5d853194eff32ae2902df81579960f34ba2c48e56cccd011f824ac747b",
+    "5addc6af30503ea9076a544edc127df04359a5947d6c13f09ad2614965551665",
+]
+# Existing hash-pinned capture paths are read only; no predictable temporary file is created.
+ARCHIVE_RESULT = Path(
+    "/tmp/e02-E-closed-static-raw-archive-20261007-oracle/archive-result.json"  # noqa: S108
+)
+ARCHIVE_SELECTOR = ARCHIVE_RESULT.parent / "publication-selection.json"
+ARCHIVE_SELECTOR_HASH = "0032dbacb1dd7d00389b356e38883b06d1a02635439834a6ba6c895f5005d80d"
+ARCHIVE_HASH = "71a2b41f0d4512b7e4dc38ab0f789ae4f01fa6e3ff6337a7006a637ffc4bad77"
+ENVIRONMENT = Path(
+    "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/environment-after.json"
+)
+ENVIRONMENT_HASH = "9f06f84e71752e44f272c56a0845d61e90149a54b03cdb1bc7999a5045c29af3"
+BUFFER_BYTES = 1024 * 1024
+
+
+def require(condition: bool, reason: str) -> None:
+    if not condition:
+        raise ValueError(reason)
+
+
+def integer(value: object, reason: str) -> int:
+    if type(value) is not int or value < 0:
+        raise ValueError(reason)
+    return value
+
+
+def stream_hash(path: Path) -> dict[str, Any]:
+    hashed = hashlib.sha256()
+    size = 0
+    with path.open("rb") as stream:
+        for data in iter(lambda: stream.read(BUFFER_BYTES), b""):
+            size += len(data)
+            hashed.update(data)
+    return {"path": str(path), "bytes": size, "sha256": hashed.hexdigest()}
+
+
+def read_ref(ref: dict[str, Any]) -> bytes:
+    integer(ref["bytes"], "exact integer ref size")
+    path = Path(ref["path"])
+    require(path.is_absolute(), "absolute closed receipt reference required")
+    actual = stream_hash(path)
+    require(
+        actual["bytes"] == ref["bytes"] and actual["sha256"] == ref["sha256"],
+        "closed receipt byte custody",
+    )
+    return path.read_bytes()
+
+
+def read_pinned(path: Path, digest: str) -> dict[str, Any]:
+    raw = path.read_bytes()
+    require(hashlib.sha256(raw).hexdigest() == digest, "exact fixed input digest")
+    value = json.loads(raw)
+    require(isinstance(value, dict), "object evidence required")
+    return value
+
+
+def canonical_relative(value: object) -> str:
+    if not isinstance(value, str) or not value or value.startswith("/"):
+        raise ValueError("nonempty inventory relative path required")
+    require(
+        not any(part in ("", ".", "..") for part in value.split("/")), "inventory traversal refused"
+    )
+    return value
+
+
+def inventory_counts(rows: list[dict[str, Any]]) -> dict[str, int]:
+    require(len({row["path"] for row in rows}) == len(rows), "inventory paths unique")
+    values = {"records": len(rows), "files": 0, "directories": 0, "symlinks": 0, "bytes": 0}
+    for row in rows:
+        canonical_relative(row["path"])
+        integer(row["mode"], "typed inventory mode")
+        kind = row["type"]
+        require(kind in ("file", "directory", "symlink"), "complete admitted object types")
+        if kind == "file":
+            values["files"] += 1
+            values["bytes"] += integer(row["bytes"], "typed inventory file size")
+            require(
+                isinstance(row["sha256"], str)
+                and re.fullmatch(r"[0-9a-f]{64}", row["sha256"]) is not None,
+                "inventory content digest",
+            )
+        elif kind == "directory":
+            values["directories"] += 1
+        else:
+            values["symlinks"] += 1
+            require(
+                isinstance(row["target"], str) and row["target"].startswith("/"),
+                "original absolute link literal",
+            )
+    return values
+
+
+def admit_inventory_triple(arrays: list[list[dict[str, Any]]]) -> list[dict[str, Any]]:
+    require(len(arrays) == 3, "complete before/copy/old-link inventory triple")
+    counters = []
+    for rows in arrays:
+        inventory_counts(rows)
+        for row in rows:
+            if "allocated_bytes" in row:
+                integer(row["allocated_bytes"], "typed allocation metadata")
+        counters.append(
+            Counter(
+                json.dumps(
+                    {key: value for key, value in row.items() if key != "allocated_bytes"},
+                    sort_keys=True,
+                )
+                for row in rows
+            )
+        )
+    require(
+        counters[0] == counters[1] == counters[2],
+        "all defining path/type/mode/bytes/hash/links inventory fields conserved",
+    )
+    original = {row["path"]: row for row in arrays[0]}
+    changes = []
+    for number in (1, 2):
+        for row in arrays[number]:
+            before = original[row["path"]].get("allocated_bytes")
+            after = row.get("allocated_bytes")
+            if before != after:
+                changes.append(
+                    {
+                        "path": row["path"],
+                        "inventory_index": number,
+                        "allocated_bytes_before": before,
+                        "allocated_bytes_after": after,
+                    }
+                )
+    return changes
+
+
+def admit_expected_actions(results: list[dict[str, Any]], expected: list[str]) -> None:
+    actual = Counter(action["source"] for result in results for action in result["actions"])
+    require(actual == Counter(expected), "complete expected21 relocation source multiset")
+    require(len(expected) == 21 and len(actual) == 21, "exact21 source denominator")
+
+
+def admit_action_counts(action: dict[str, Any], values: dict[str, int]) -> None:
+    for field, key in [
+        ("path_records", "records"),
+        ("file_count", "files"),
+        ("symlink_count", "symlinks"),
+        ("logical_file_bytes", "bytes"),
+    ]:
+        require(
+            integer(action[field], "typed action " + field) == values[key],
+            "action counts recomputed from complete inventory",
+        )
+    require(
+        action["source_replaced_by_symlink"] is True
+        and action["all_bytes_modes_links_verified_before_removal"] is True
+        and action["old_path_full_readback_equal"] is True,
+        "historical verified-copy sequence markers retained",
+    )
+
+
+def current_members(destination: Path) -> set[str]:
+    values = set()
+    pending = [destination]
+    while pending:
+        parent = pending.pop()
+        for child in parent.iterdir():
+            relative = child.relative_to(destination).as_posix()
+            values.add(relative)
+            if child.is_dir() and not child.is_symlink():
+                pending.append(child)
+    return values
+
+
+def admit_current_members(actual: set[str], rows: list[dict[str, Any]], retired: set[str]) -> None:
+    expected = {row["path"] for row in rows} - retired
+    require(
+        actual == expected,
+        "complete current membership equals inventory minus exact3 archived plaintext files",
+    )
+
+
+def check_proc(ref: dict[str, Any], source: str) -> dict[str, Any]:
+    value = json.loads(read_ref(ref))
+    require(
+        value["prefix"] == source
+        and value["active_users"] == []
+        and value["unreadable_other_processes"] == [],
+        "closed relocation scoped user admission",
+    )
+    for process in value["readable_processes"]:
+        require(process["candidate_evidence"] == [], "recorded readable user proof")
+    infra = value["unreadable_infrastructure"]
+    require(
+        {integer(item["pid"], "typed unreadable infrastructure PID") for item in infra}
+        == {199, 250},
+        "exact unreadable infrastructure qualification",
+    )
+    return {
+        "reference": ref,
+        "readable_processes": len(value["readable_processes"]),
+        "active_candidate_users": 0,
+        "unreadable_infrastructure": [199, 250],
+        "scope": (
+            "Two historical point-in-time readable-process windows, "
+            "not locks or hostwide visibility."
+        ),
+    }
+
+
+def environment_metadata() -> dict[str, Any]:
+    value = read_pinned(ENVIRONMENT, ENVIRONMENT_HASH)["metadata"]
+    require(
+        integer(value["count"], "exact installed distribution count") == 207,
+        "protected207 baseline",
+    )
+    records = value["distributions"]
+    require(len(records) == 207, "complete207 installed metadata records")
+    actual_paths = {
+        str(path)
+        for path in (ROOT / "policy-engine/.venv/lib/python3.14/site-packages").glob(
+            "*.dist-info/METADATA"
+        )
+    }
+    require(
+        actual_paths == {item["path"] for item in records},
+        "complete current installed metadata denominator",
+    )
+    for item in records:
+        read_ref(item)
+    return {
+        "reference": stream_hash(ENVIRONMENT),
+        "METADATA_records": 207,
+        "all207_digest_and_sizes_match_postinstall_baseline": True,
+        "protected_numerical_records": value["protected_numerical_packages"],
+        "scope": "Distribution METADATA bytes only; no claim of every environment file byte.",
+    }
+
+
+def archive_decode(action: dict[str, Any]) -> dict[str, Any]:
+    integer(action["bytes"], "typed original archive size")
+    ref = action["archive"]
+    compressed = stream_hash(Path(ref["path"]))
+    require(compressed == ref, "actual compressed archive digest and size")
+    hashed = hashlib.sha256()
+    size = 0
+    with gzip.open(ref["path"], "rb") as reader:
+        for block in iter(lambda: reader.read(BUFFER_BYTES), b""):
+            size += len(block)
+            hashed.update(block)
+    actual = {"bytes": size, "sha256": hashed.hexdigest()}
+    expected = {"bytes": action["bytes"], "sha256": action["sha256"]}
+    require(
+        actual == expected == action["input_stream"] == action["complete_decoded_stream"],
+        "all decoded bytes match original plaintext refs",
+    )
+    require(
+        action["plaintext_unavailable_until_decode"] is True
+        and action["old_path_is_not_compressed_symlink"] is True
+        and action["complete_bytes_verified_before_plaintext_retirement"] is True,
+        "archive retirement sequence and type labels retained",
+    )
+    require(
+        not Path(action["old"]).exists() and not Path(action["real"]).exists(),
+        "exact plaintext paths retired",
+    )
+    require(
+        not Path(action["old"]).is_symlink() and not Path(action["real"]).is_symlink(),
+        "compressed bytes never disguised as JSON symlink",
+    )
+    require(
+        action["reopen_recipe"]["shell_argv"] == ["gzip", "-dc", "--", ref["path"]],
+        "exact explicit reopen recipe",
+    )
+    return {
+        "old_path": action["old"],
+        "real_path": action["real"],
+        "archive": compressed,
+        "actual_complete_decoded_stream": actual,
+        "materialized_plaintext_bytes": 0,
+        "buffer_bytes": BUFFER_BYTES,
+    }
+
+
+def git_identity() -> dict[str, Any]:
+    # Fixed read-only identity/status commands; optional index writes disabled.
+    identity = (
+        subprocess.run(
+            ["/usr/bin/git", "--no-optional-locks", "show", "--no-patch", "--format=%H %T", "HEAD"],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+        )
+        .stdout.decode()
+        .strip()
+        .split()
+    )
+    require(
+        len(identity) == 2 and all(re.fullmatch(r"[0-9a-f]{40}", item) for item in identity),
+        "actual current ROOT HEAD/tree",
+    )
+    # Actual HEAD is admitted above as exact40-hex; only fixed read-only ancestry argv.
+    subprocess.run(  # noqa: S603
+        ["/usr/bin/git", "--no-optional-locks", "merge-base", "--is-ancestor", SOURCE, identity[0]],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+    )
+    status = subprocess.run(
+        ["/usr/bin/git", "--no-optional-locks", "status", "--porcelain=v1"],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+    ).stdout
+    paths = [line[3:] for line in status.decode().splitlines()]
+    # Current parent integration and untracked native outputs are observations, not cleanup gates.
+    tracked = [line[3:] for line in status.decode().splitlines() if not line.startswith("?? ")]
+    untracked = [line[3:] for line in status.decode().splitlines() if line.startswith("?? ")]
+    return {
+        "operation_source": SOURCE,
+        "operation_tree": TREE,
+        "current_HEAD": identity[0],
+        "current_tree": identity[1],
+        "frozen_source_is_ancestor_of_current_ROOT": True,
+        "current_status_paths": paths,
+        "current_tracked_changed_paths": tracked,
+        "current_untracked_paths": untracked,
+        "only_historical_generated_JSON_class_currently_dirty": all(
+            path.startswith("policy-engine/architecture/policy_design_case/layer3_g")
+            and path.endswith(".json")
+            for path in tracked
+        ),
+        "current_status_bytes": len(status),
+        "current_status_sha256": hashlib.sha256(status).hexdigest(),
+        "whole_source_input_immutable": False,
+        "scope": (
+            "Current commit/tree and dirty-path observation permits authorized append-only "
+            "parent integration after terminal; no full physical input equality or P41 attribution."
+        ),
+    }
+
+
+def actual_counter_controls(
+    results: list[dict[str, Any]], expected: list[str]
+) -> list[dict[str, Any]]:
+    admitted = copy.deepcopy(results)
+    omitted = admitted[-1]["actions"].pop()
+    try:
+        admit_expected_actions(admitted, expected)
+    except ValueError:
+        refusal = True
+    else:
+        raise ValueError("actual closed source omitted without refusal")
+    module = ast.parse(Path(__file__).read_text())
+    target = next(
+        node
+        for node in module.body
+        if isinstance(node, ast.FunctionDef) and node.name == "admit_expected_actions"
+    )
+    target.body = [ast.Pass()]
+    namespace = {"__name__": "actual_cleanup_source_counter_removal", "__file__": __file__}
+    exec(compile(ast.fix_missing_locations(module), __file__, "exec"), namespace)  # noqa: S102
+    namespace["admit_expected_actions"](admitted, expected)
+    require(
+        len(expected) == 21 and sum(len(value["actions"]) for value in admitted) == 20,
+        "actual21 source marker and divergent20 retained",
+    )
+    return [
+        {
+            "name": "actual_closed21_source_omission_refused",
+            "outcome": "PASS",
+            "actual_refusal": refusal,
+            "omitted_source": omitted["source"],
+        },
+        {
+            "name": "actual_source_counter_removal_readmits20_without_transfer",
+            "outcome": "PASS",
+            "removed_property": "admit_expected_actions body only",
+            "all_original_inventory_and_archive_refs_unchanged": True,
+        },
+    ]
+
+
+def review() -> dict[str, Any]:
+    started = time.time()
+    metadata_before = environment_metadata()
+    source_before = git_identity()
+    archive_selector = read_pinned(ARCHIVE_SELECTOR, ARCHIVE_SELECTOR_HASH)
+    require(
+        archive_selector["source"] == SOURCE and archive_selector["tree"] == TREE,
+        "actual archive operation source",
+    )
+    require(
+        integer(archive_selector["file_count"], "typed archive moderation count") == 17,
+        "complete17 archive publication assets",
+    )
+    require(
+        integer(archive_selector["total_bytes"], "typed archive moderation bytes")
+        == sum(item["bytes"] for item in archive_selector["files"]),
+        "all archive moderation bytes",
+    )
+    for item in archive_selector["files"]:
+        read_ref(item)
+    archive_qualification = json.loads(
+        (ARCHIVE_RESULT.parent / "publication-qualification.json").read_bytes()
+    )
+    require(
+        archive_qualification["ROOT_boundary"]["whole_input_byte_immutable"] is False
+        and archive_qualification["ROOT_boundary"]["specific_current_native_mutating_caller_P41"]
+        == "not_established",
+        "archive input/P41 qualification retained",
+    )
+    require(
+        "overwritten" in archive_qualification["initial_observer_gap"],
+        "lost initial observer scan qualification retained",
+    )
+    archive = read_pinned(ARCHIVE_RESULT, ARCHIVE_HASH)
+    require(
+        archive["source_backend_environment_Git_or_production_modified"] is False
+        and len(archive["actions"]) == 3,
+        "exact3 archive scope",
+    )
+    expected_sources, results, selection_refs = [], [], []
+    for number, selector_path in enumerate(SELECTORS):
+        selector = read_pinned(selector_path, SELECTOR_HASHES[number])
+        require(
+            selector["source"] == SOURCE and selector["tree"] == TREE,
+            "source identity of each fixed publication input",
+        )
+        files = selector["files"]
+        require(
+            integer(selector["file_count"], "typed complete selection count") == len(files),
+            "whole publication selection count",
+        )
+        require(
+            integer(selector["total_bytes"], "typed selection size")
+            == sum(item["bytes"] for item in files),
+            "whole publication selection bytes",
+        )
+        for item in files:
+            read_ref(item)
+        result = read_pinned(BASES[number] / "relocation-result.json", RESULT_HASHES[number])
+        require(
+            result["ROOT_checkout_env_packages_or_backend_modified"] is False,
+            "no source/environment/backend mutation claimed by operation",
+        )
+        qualification = json.loads((BASES[number] / "relocation-qualification.json").read_bytes())
+        require(
+            qualification["ROOT"]["full_input_bytes_immutable"] is False
+            and qualification["ROOT"]["individual_mutating_caller_P41"] == "not_established",
+            "generated-input/P41 qualification preserved",
+        )
+        expected_sources.extend(action["source"] for action in result["actions"])
+        results.append(result)
+        selection_refs.append(stream_hash(selector_path))
+    admit_expected_actions(results, expected_sources)
+    action_outcomes, total_files, total_bytes, raw_refs = [], 0, 0, []
+    for result in results:
+        for action in result["actions"]:
+            source, destination = Path(action["source"]), Path(action["destination"])
+            require(
+                source.is_symlink()
+                and os.readlink(source) == action["symlink_target"] == str(destination)
+                and destination.is_dir(),
+                "stable absolute old-directory symlink",
+            )
+            refs = action["full_inventory_refs"]
+            require(len(refs) == 3, "before/copied/old-link full inventory triple")
+            raw_values = [read_ref(ref) for ref in refs]
+            arrays = [json.loads(raw) for raw in raw_values]
+            allocation_deltas = admit_inventory_triple(arrays)
+            rows = arrays[0]
+            require(isinstance(rows, list), "complete inventory list")
+            values = inventory_counts(rows)
+            admit_action_counts(action, values)
+            retired = {}
+            for item in archive["actions"]:
+                old = Path(item["old"])
+                if old.is_relative_to(source):
+                    relative = old.relative_to(source).as_posix()
+                    require(
+                        Path(item["real"]) == destination / relative,
+                        "archive exact old and real alias",
+                    )
+                    retired[relative] = item
+            actual = current_members(destination)
+            admit_current_members(actual, rows, set(retired))
+            for row in rows:
+                relative = row["path"]
+                if relative in retired:
+                    item = retired[relative]
+                    require(
+                        row["type"] == "file"
+                        and row["bytes"] == item["bytes"]
+                        and row["sha256"] == item["sha256"],
+                        "retired raw exact inventory membership",
+                    )
+                    continue
+                path = destination / relative
+                info = path.lstat()
+                require(stat.S_IMODE(info.st_mode) == row["mode"], "current preserved object modes")
+                if row["type"] == "file":
+                    require(stat.S_ISREG(info.st_mode), "current inventory file type")
+                    require(
+                        info.st_nlink == integer(row["hardlinks"], "typed file link count"),
+                        "current recorded hardlink count preserved",
+                    )
+                    value = stream_hash(path)
+                    require(
+                        value["bytes"] == row["bytes"] and value["sha256"] == row["sha256"],
+                        "all current file bytes match complete original inventory",
+                    )
+                elif row["type"] == "directory":
+                    require(stat.S_ISDIR(info.st_mode), "current inventory directory type")
+                else:
+                    require(
+                        stat.S_ISLNK(info.st_mode) and os.readlink(path) == row["target"],
+                        "current original absolute link literal",
+                    )
+            proc = [check_proc(ref, str(source)) for ref in action["fresh_no_users_observations"]]
+            require(len(proc) == 2, "two original no-user windows")
+            raw_refs.extend(refs)
+            total_files += values["files"]
+            total_bytes += values["bytes"]
+            action_outcomes.append(
+                {
+                    "source": str(source),
+                    "destination": str(destination),
+                    "original_inventory": values,
+                    "all_defining_before_copy_readback_fields_equal": True,
+                    "raw_inventory_JSON_byte_identical": raw_values[0]
+                    == raw_values[1]
+                    == raw_values[2],
+                    "allocation_metadata_deltas": allocation_deltas,
+                    "current_plaintext_files": values["files"] - len(retired),
+                    "current_plaintext_bytes": values["bytes"]
+                    - sum(item["bytes"] for item in retired.values()),
+                    "current_whole_membership_and_types_modes_files_links_verified": True,
+                    "retired_raw_aliases": sorted(retired),
+                    "raw_inventory_refs": refs,
+                    "proc_windows": proc,
+                }
+            )
+    require(
+        total_files == 77469 and total_bytes == 1704659000, "whole21 original file/byte denominator"
+    )
+    archive_results = [archive_decode(item) for item in archive["actions"]]
+    require(
+        integer(archive["total_original_bytes"], "archive original total")
+        == sum(item["actual_complete_decoded_stream"]["bytes"] for item in archive_results),
+        "whole3 original archive byte total",
+    )
+    require(
+        integer(archive["total_archive_bytes"], "archive compressed total")
+        == sum(item["archive"]["bytes"] for item in archive_results),
+        "whole3 compressed archive total",
+    )
+    actual_controls = actual_counter_controls(results, expected_sources)
+    metadata_after = environment_metadata()
+    source_after = git_identity()
+    require(
+        metadata_before == metadata_after, "all207 protected metadata stable over independent read"
+    )
+    return {
+        "schema": "policyos.e02.E.independent_completed_cloud_cleanup_custody.v1",
+        "disposition": "GO for completed byte-preserving custody only",
+        "source": SOURCE,
+        "tree": TREE,
+        "started_unix": started,
+        "ended_unix": time.time(),
+        "relocation_selection_refs": selection_refs,
+        "archive_operation": stream_hash(ARCHIVE_RESULT),
+        "archive_moderate_selection": stream_hash(ARCHIVE_SELECTOR),
+        "catalogs": len(action_outcomes),
+        "original_files": total_files,
+        "original_logical_bytes": total_bytes,
+        "current_plaintext_files": total_files - 3,
+        "current_plaintext_logical_bytes": total_bytes - archive["total_original_bytes"],
+        "all63_retained_full_inventory_refs": raw_refs,
+        "actions": action_outcomes,
+        "archives": archive_results,
+        "ROOT_commit_status_before": source_before,
+        "ROOT_commit_status_after": source_after,
+        "protected_installed_metadata": metadata_after,
+        "actual_closed_metadata_omission_removal_controls": actual_controls,
+        "whole_ROOT_input_immutable": False,
+        "actual_native_caller_P41": "not_established",
+        "native_backend_terminal_outcome": None,
+        "all_historical_observer_limitations_and_plaintext_reopen_qualifications_preserved": True,
+        "allocation_free_space_or_RAM_cause_attribution": (
+            "not_established; no cross-filesystem byte sum"
+        ),
+        "new_cleanup_copy_retirement_or_delete_operations": 0,
+        "ROOT_source_environment_or_outputs_modified": False,
+        "native_numeric_architecture_static_or_all54_reviews_repeated": False,
+    }
+
+
+def controls() -> dict[str, Any]:
+    rows = [
+        {"path": "folder", "mode": 448, "type": "directory"},
+        {"path": "folder/x", "mode": 384, "type": "file", "bytes": 5, "sha256": "a" * 64},
+        {"path": "alias", "mode": 511, "type": "symlink", "target": "/absolute/target"},
+    ]
+    values = inventory_counts(rows)
+    allocation_variant = copy.deepcopy(rows)
+    allocation_variant[1]["allocated_bytes"] = 4096
+    original_variant = copy.deepcopy(rows)
+    original_variant[1]["allocated_bytes"] = 8192
+    require(
+        len(admit_inventory_triple([original_variant, allocation_variant, allocation_variant]))
+        == 2,
+        "allocation changes do not alter defining byte/type comparison",
+    )
+    corrupted_inventory = copy.deepcopy(allocation_variant)
+    corrupted_inventory[1]["sha256"] = "0" * 64
+    try:
+        admit_inventory_triple([original_variant, corrupted_inventory, allocation_variant])
+    except ValueError:
+        pass
+    else:
+        raise ValueError("content hash drift admitted as allocation accounting")
+    action = {
+        "path_records": 3,
+        "file_count": 1,
+        "symlink_count": 1,
+        "logical_file_bytes": 5,
+        "source_replaced_by_symlink": True,
+        "all_bytes_modes_links_verified_before_removal": True,
+        "old_path_full_readback_equal": True,
+    }
+    admit_action_counts(action, values)
+    admit_current_members({"folder", "folder/x", "alias"}, rows, set())
+    expected = ["/workspace/closed/" + str(number) for number in range(21)]
+    results = [{"actions": [{"source": source} for source in expected]}]
+    admit_expected_actions(results, expected)
+    outputs = [
+        {"name": "healthy_typed_full_inventory_and_exact21_counter", "outcome": "PASS"},
+        {"name": "allocation_only_difference_admitted_separately", "outcome": "PASS"},
+        {"name": "copied_content_hash_difference_refused", "outcome": "PASS"},
+    ]
+    for name, field, value in [
+        ("bool_file_count", "file_count", True),
+        ("float_bytes", "logical_file_bytes", 5.0),
+        ("wrong_count", "path_records", 2),
+        ("fake_verified_flag", "old_path_full_readback_equal", 1),
+    ]:
+        changed = dict(action)
+        changed[field] = value
+        try:
+            admit_action_counts(changed, values)
+        except ValueError:
+            outputs.append({"name": name, "outcome": "PASS", "actual_refusal": True})
+        else:
+            raise ValueError("typed corrupt action admitted: " + name)
+    for name, actual, retired in [
+        ("missing_preserved_member", {"folder", "alias"}, set()),
+        ("extra_preserved_member", {"folder", "folder/x", "alias", "fake"}, set()),
+        ("unjustified_raw_retirement", {"folder", "folder/x", "alias"}, {"folder/x"}),
+    ]:
+        try:
+            admit_current_members(actual, rows, retired)
+        except ValueError:
+            outputs.append({"name": name, "outcome": "PASS", "actual_refusal": True})
+        else:
+            raise ValueError("membership corrupt input admitted: " + name)
+    omitted = copy.deepcopy(results)
+    omitted[0]["actions"].pop()
+    try:
+        admit_expected_actions(omitted, expected)
+    except ValueError:
+        outputs.append(
+            {
+                "name": "whole21_source_omission_with_other_markers_preserved",
+                "outcome": "PASS",
+                "actual_refusal": True,
+            }
+        )
+    else:
+        raise ValueError("source omission admitted")
+    parsed = ast.parse(Path(__file__).read_text())
+    node = next(
+        item
+        for item in parsed.body
+        if isinstance(item, ast.FunctionDef) and item.name == "admit_expected_actions"
+    )
+    node.body = [ast.Pass()]
+    namespace = {"__name__": "cleanup_counter_removal", "__file__": __file__}
+    exec(compile(ast.fix_missing_locations(parsed), __file__, "exec"), namespace)  # noqa: S102
+    namespace["admit_expected_actions"](omitted, expected)
+    require(
+        len(expected) == 21 and len(omitted[0]["actions"]) == 20,
+        "actual targeted removal remains divergent",
+    )
+    outputs.append(
+        {
+            "name": "actual_exact21_counter_removal_readmits20_with_same_markers",
+            "outcome": "PASS",
+            "removed_property": "admit_expected_actions body only",
+        }
+    )
+    return {
+        "schema": "policyos.e02.E.completed_cleanup_custody_controls.v1",
+        "source": SOURCE,
+        "tree": TREE,
+        "controls": outputs,
+        "control_count": len(outputs),
+        "optimized": not __debug__,
+        "scope": "Custody admission controls only; no transfer/archive/deletion/native operations",
+        "ROOT_source_environment_or_outputs_modified": False,
+    }
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--controls", action="store_true")
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args()
+    require(not args.output.exists(), "fresh append-only output required")
+    result = controls() if args.controls else review()
+    args.output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
+    sys.stdout.write(
+        json.dumps(
+            {
+                "output": stream_hash(args.output),
+                "disposition": result.get("disposition"),
+                "control_count": result.get("control_count"),
+            }
+        )
+        + "\n"
+    )
+
+
+if __name__ == "__main__":
+    main()

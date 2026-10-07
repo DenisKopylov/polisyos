@@ -1,0 +1,511 @@
+{
+  "schema": "policyos.e02.E.current_three_full_selector_packet.v2",
+  "source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+  "tree": "0cb448febf461d0bbdf31645712ad774f5425b72",
+  "attempts": [
+    {
+      "stage": "runtime-api-contract",
+      "receipt": {
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/runtime-api-contract/receipt.json",
+        "bytes": 92082,
+        "sha256": "16089c4dc26510f37bb0928671f52a6bfddd684133e380ca0877b5fffbfbc2b9"
+      },
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-pr38-r3-receipts/doe-r4/common-wrapper-preparation-20261007/retained_runtime_api_cli.py",
+        "--checker",
+        "/workspace/e02-E-mc-20261006/policy-engine/tools/ops_runners/runtime/check_runtime_api_contract.py",
+        "--expected-checker-sha256",
+        "210f376a6b95310fdedcbbea3917b7e0dc8a59d176d24631772522794d6877b1",
+        "--catalog",
+        "/tmp/e02-E-MC-b6-gates-20261007/runtime-api-contract/retained-runtime-catalog.json",
+        "--"
+      ],
+      "cwd": "/tmp/e02-E-MC-b6-gates-20261007/runtime-api-contract/tmp",
+      "outcome": "FAIL",
+      "canonical_selector_outcome": "FAIL",
+      "native_exit_code": 1,
+      "wall_seconds": 102.43061423301697,
+      "stdout": {
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/runtime-api-contract/stdout.txt",
+        "bytes": 6266,
+        "sha256": "3d14437ddfbc1ca299658d5b2a66c485e89e8b40f19d682a10f340fb1d407b95"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/runtime-api-contract/stderr.txt",
+        "bytes": 6851,
+        "sha256": "5ab0517ff43a5e518c57f18c7488d8554f9323f06279f671f684ce481084e139"
+      },
+      "source_frame": {
+        "tracked_paths": 18989,
+        "bytes": 562393744,
+        "framed_sha256": "d7a5eef7f610f3f5b262de365cbfacb51975af64387dca0ff03de7df2bd3b8c8"
+      },
+      "source_immutable": true,
+      "ROOT_environment_metadata_unchanged": true,
+      "environment_guard_scope": "not_established; complete package metadata and protected interpreter/control refs bracketed, no mutation command directed at ROOT207",
+      "cgroup_PID_kill_cause": "not_established",
+      "native_raw_receipt": null
+    },
+    {
+      "stage": "static-invocation",
+      "receipt": {
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/static-invocation/receipt.json",
+        "bytes": 91885,
+        "sha256": "791790f2944108744708fedb2bdbb9611f2d47214e059d4412845b37d1648c8a"
+      },
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "tools/quality/validation/check_production_invocation.py",
+        "--repo-root",
+        "/workspace/e02-E-mc-20261006/policy-engine",
+        "--base",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "--receipt",
+        "/tmp/e02-E-MC-b6-gates-20261007/static-invocation/production-invocation.raw.json"
+      ],
+      "cwd": "/workspace/e02-E-mc-20261006/policy-engine",
+      "outcome": "ERROR",
+      "canonical_selector_outcome": "ERROR",
+      "native_exit_code": -9,
+      "wall_seconds": 371.57015585899353,
+      "stdout": {
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/static-invocation/stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/static-invocation/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source_frame": {
+        "tracked_paths": 18989,
+        "bytes": 562393744,
+        "framed_sha256": "d7a5eef7f610f3f5b262de365cbfacb51975af64387dca0ff03de7df2bd3b8c8"
+      },
+      "source_immutable": true,
+      "ROOT_environment_metadata_unchanged": true,
+      "environment_guard_scope": "not_established; complete package metadata and protected interpreter/control refs bracketed, no mutation command directed at ROOT207",
+      "cgroup_PID_kill_cause": "not_established",
+      "native_raw_receipt": null
+    },
+    {
+      "stage": "architecture",
+      "receipt": {
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture/receipt.json",
+        "bytes": 91819,
+        "sha256": "c6b7c9ef624cf295f36fe9f1489b26f181373cc7c07e16061b28339bbbf783fc"
+      },
+      "command": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "run",
+        "--no-sync",
+        "polisyos-tools",
+        "architecture",
+        "guardrails",
+        "check",
+        "--generated-freshness-workspace-root",
+        "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained",
+        "--generated-freshness-uv-cache-dir",
+        "/workspace/.polisyos-environment/cache/uv"
+      ],
+      "cwd": "/workspace/e02-E-mc-20261006/policy-engine",
+      "outcome": "ERROR",
+      "canonical_selector_outcome": "UNRUN",
+      "native_exit_code": 2,
+      "wall_seconds": 52.22743844985962,
+      "stdout": {
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture/stdout.txt",
+        "bytes": 124511,
+        "sha256": "12d11758f7acd53f4ca1fbeaf8661f3da3732ec62127910238b7cf9db40fa200"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source_frame": {
+        "tracked_paths": 18989,
+        "bytes": 562393744,
+        "framed_sha256": "d7a5eef7f610f3f5b262de365cbfacb51975af64387dca0ff03de7df2bd3b8c8"
+      },
+      "source_immutable": true,
+      "ROOT_environment_metadata_unchanged": true,
+      "environment_guard_scope": "not_established; complete package metadata and protected interpreter/control refs bracketed, no mutation command directed at ROOT207",
+      "cgroup_PID_kill_cause": "not_established",
+      "native_raw_receipt": null
+    },
+    {
+      "stage": "static-invocation-retry1",
+      "receipt": {
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/static-invocation-retry1/receipt.json",
+        "bytes": 95135,
+        "sha256": "14f6600919eedf864c7820a660d61208b6e726f9e2419694a1c3e7e12a146c7e"
+      },
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "tools/quality/validation/check_production_invocation.py",
+        "--repo-root",
+        "/workspace/e02-E-mc-20261006/policy-engine",
+        "--base",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "--receipt",
+        "/tmp/e02-E-MC-b6-gates-20261007/static-invocation-retry1/production-invocation.raw.json"
+      ],
+      "cwd": "/workspace/e02-E-mc-20261006/policy-engine",
+      "outcome": "ERROR",
+      "canonical_selector_outcome": "ERROR",
+      "native_exit_code": -9,
+      "wall_seconds": 270.3316581249237,
+      "stdout": {
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/static-invocation-retry1/stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/static-invocation-retry1/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source_frame": {
+        "tracked_paths": 18989,
+        "bytes": 562393744,
+        "framed_sha256": "d7a5eef7f610f3f5b262de365cbfacb51975af64387dca0ff03de7df2bd3b8c8"
+      },
+      "source_immutable": true,
+      "ROOT_environment_metadata_unchanged": true,
+      "environment_guard_scope": "not_established; complete package metadata and protected interpreter/control refs bracketed, no mutation command directed at ROOT207",
+      "cgroup_PID_kill_cause": "not_established",
+      "native_raw_receipt": null
+    },
+    {
+      "stage": "architecture-retry1",
+      "receipt": {
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retry1/receipt.json",
+        "bytes": 95066,
+        "sha256": "3ca6de3453a549e9476ff584871db2ea6401ae4580ad0c2582faba8e88a541e7"
+      },
+      "command": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "run",
+        "--no-sync",
+        "polisyos-tools",
+        "architecture",
+        "guardrails",
+        "check",
+        "--generated-freshness-workspace-root",
+        "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained-retry1",
+        "--generated-freshness-uv-cache-dir",
+        "/workspace/.polisyos-environment/cache/uv"
+      ],
+      "cwd": "/workspace/e02-E-mc-20261006/policy-engine",
+      "outcome": "ERROR",
+      "canonical_selector_outcome": "UNRUN",
+      "native_exit_code": 2,
+      "wall_seconds": 52.95637249946594,
+      "stdout": {
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retry1/stdout.txt",
+        "bytes": 124938,
+        "sha256": "083783b424b11d34606ab741e9be193e7653e61d62723164bedb6ff7c3453be7"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retry1/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source_frame": {
+        "tracked_paths": 18989,
+        "bytes": 562393744,
+        "framed_sha256": "d7a5eef7f610f3f5b262de365cbfacb51975af64387dca0ff03de7df2bd3b8c8"
+      },
+      "source_immutable": true,
+      "ROOT_environment_metadata_unchanged": true,
+      "environment_guard_scope": "not_established; complete package metadata and protected interpreter/control refs bracketed, no mutation command directed at ROOT207",
+      "cgroup_PID_kill_cause": "not_established",
+      "native_raw_receipt": null
+    },
+    {
+      "stage": "architecture-retry2",
+      "receipt": {
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retry2/receipt.json",
+        "bytes": 95116,
+        "sha256": "3c358260a5a75977e56ca646f2b42d096cbbee3936567007c8f2da302c5f3e45"
+      },
+      "command": [
+        "/workspace/.polisyos-environment/uv/bin/uv",
+        "run",
+        "--no-sync",
+        "polisyos-tools",
+        "architecture",
+        "guardrails",
+        "check",
+        "--generated-freshness-workspace-root",
+        "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained-retry2",
+        "--generated-freshness-uv-cache-dir",
+        "/workspace/.polisyos-environment/cache/uv"
+      ],
+      "cwd": "/workspace/e02-E-mc-20261006/policy-engine",
+      "outcome": "FAIL",
+      "canonical_selector_outcome": "FAIL",
+      "native_exit_code": 1,
+      "wall_seconds": 292.5458357334137,
+      "stdout": {
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retry2/stdout.txt",
+        "bytes": 123647,
+        "sha256": "cf26c5c38db3ab7bc5c16f2f2ceb556daabd8118306a7645ae1750c5c9cb40be"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retry2/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source_frame": {
+        "tracked_paths": 18989,
+        "bytes": 562393744,
+        "framed_sha256": "d7a5eef7f610f3f5b262de365cbfacb51975af64387dca0ff03de7df2bd3b8c8"
+      },
+      "source_immutable": true,
+      "ROOT_environment_metadata_unchanged": true,
+      "environment_guard_scope": "not_established; complete package metadata and protected interpreter/control refs bracketed, no mutation command directed at ROOT207",
+      "cgroup_PID_kill_cause": "not_established",
+      "native_raw_receipt": null
+    },
+    {
+      "stage": "static-invocation-retry3",
+      "receipt": {
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/static-invocation-retry3/receipt.json",
+        "bytes": 95130,
+        "sha256": "c448da3c6ee140fd44ba24a268ab23e4c7327ea644a75f8721fd87cbea87149d"
+      },
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "tools/quality/validation/check_production_invocation.py",
+        "--repo-root",
+        "/workspace/e02-E-mc-20261006/policy-engine",
+        "--base",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "--receipt",
+        "/tmp/e02-E-MC-b6-gates-20261007/static-invocation-retry3/production-invocation.raw.json"
+      ],
+      "cwd": "/workspace/e02-E-mc-20261006/policy-engine",
+      "outcome": "ERROR",
+      "canonical_selector_outcome": "ERROR",
+      "native_exit_code": -9,
+      "wall_seconds": 242.3117218017578,
+      "stdout": {
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/static-invocation-retry3/stdout.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/static-invocation-retry3/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source_frame": {
+        "tracked_paths": 18989,
+        "bytes": 562393744,
+        "framed_sha256": "d7a5eef7f610f3f5b262de365cbfacb51975af64387dca0ff03de7df2bd3b8c8"
+      },
+      "source_immutable": true,
+      "ROOT_environment_metadata_unchanged": true,
+      "environment_guard_scope": "not_established; complete package metadata and protected interpreter/control refs bracketed, no mutation command directed at ROOT207",
+      "cgroup_PID_kill_cause": "not_established",
+      "native_raw_receipt": null
+    },
+    {
+      "stage": "static-invocation-retry4",
+      "receipt": {
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/static-invocation-retry4/receipt.json",
+        "bytes": 95111,
+        "sha256": "d9e7c250799b996d73395f04a0420fcaceb8b78ad007ab2686a581009867cc69"
+      },
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "tools/quality/validation/check_production_invocation.py",
+        "--repo-root",
+        "/workspace/e02-E-mc-20261006/policy-engine",
+        "--base",
+        "198076863e143dea9f89f02734b13d50dae3eed5",
+        "--receipt",
+        "/tmp/e02-E-MC-b6-gates-20261007/static-invocation-retry4/production-invocation.raw.json"
+      ],
+      "cwd": "/workspace/e02-E-mc-20261006/policy-engine",
+      "outcome": "FAIL",
+      "canonical_selector_outcome": "FAIL",
+      "native_exit_code": 1,
+      "wall_seconds": 281.4101996421814,
+      "stdout": {
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/static-invocation-retry4/stdout.txt",
+        "bytes": 10375,
+        "sha256": "ca40e783f682bc05de4d8e3d7256a6864964eed9f2f828ae9a73f15898efad06"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/static-invocation-retry4/stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "source_frame": {
+        "tracked_paths": 18989,
+        "bytes": 562393744,
+        "framed_sha256": "d7a5eef7f610f3f5b262de365cbfacb51975af64387dca0ff03de7df2bd3b8c8"
+      },
+      "source_immutable": true,
+      "ROOT_environment_metadata_unchanged": true,
+      "environment_guard_scope": "not_established; complete package metadata and protected interpreter/control refs bracketed, no mutation command directed at ROOT207",
+      "cgroup_PID_kill_cause": "not_established",
+      "native_raw_receipt": {
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/static-invocation-retry4/production-invocation.raw.json",
+        "bytes": 171837783,
+        "sha256": "f67477ef9598cb1f9a4628dcacf574146f9c753fd42efc57a482505957fcd776"
+      }
+    }
+  ],
+  "current": {
+    "architecture": {
+      "outcome": "FAIL",
+      "native_exit_code": 1,
+      "stage": "architecture-retry2",
+      "deep_edge_count": 151,
+      "deep_path_count": 79,
+      "required_generator_families": 4,
+      "complete_observed_output_count": 6,
+      "UNRUN": false
+    },
+    "runtime_api_contract": {
+      "outcome": "FAIL",
+      "native_exit_code": 1,
+      "stage": "runtime-api-contract",
+      "OpenAPI_render": {
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/runtime-api-contract/tmp/retained-runtime-openapi.raw.json",
+        "bytes": 2812414,
+        "sha256": "701b5d6fe04afc283518f96ec5461db0fb3f7beb9fe33b82813a63b20e614ca0"
+      },
+      "same_render_architecture": {
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained-retry2/outputs/runtime-openapi-snapshot/schemas/runtime_api_v1.openapi.json",
+        "bytes": 2812414,
+        "sha256": "701b5d6fe04afc283518f96ec5461db0fb3f7beb9fe33b82813a63b20e614ca0"
+      },
+      "schema_components": 573,
+      "confidence_dependency_count": 1494,
+      "source_dependency_hash": "sha256:2924a8116e1d1dbd7c9116ab43deedcd13a8266a0bd2382c9d46e2d7aedd5ffa",
+      "validation_receipt_hash": "sha256:71cf23848b8cfea79c0abbdd2af381769070138f0758bba151e6a91b7e2e357d",
+      "validation_status": "passed",
+      "validator_id": "tools.quality.validation.check_layer3_gy_confidence_ledger:validate_payload",
+      "endpoint_or_authorization_execution": false,
+      "prior3932_actual_native_render_byte_equal": true,
+      "additional_b6_projection_delta_established": false
+    },
+    "static_invocation": {
+      "outcome": "FAIL",
+      "native_exit_code": 1,
+      "stage": "static-invocation-retry4",
+      "full_native_raw_receipt": {
+        "path": "/tmp/e02-E-MC-b6-gates-20261007/static-invocation-retry4/production-invocation.raw.json",
+        "bytes": 171837783,
+        "sha256": "f67477ef9598cb1f9a4628dcacf574146f9c753fd42efc57a482505957fcd776"
+      },
+      "fresh_complete_mechanism_counts": {
+        "mechanisms": 13140,
+        "regressions": 20,
+        "new_unresolved_by_construction": 95,
+        "unresolved_by_construction": 9243,
+        "indirect_boundaries": 34683,
+        "unresolved_receiver_calls": 140192
+      },
+      "root_count": 401,
+      "full_input_denominator": {
+        "paths": "all tracked src/**/*.py, tools/**/*.py, tests/**/*.py",
+        "current_files": 5939,
+        "base_files": 5904,
+        "source_files": 2702,
+        "current_sha256": "e2baaea008ec325222bfd1faaa3a8342747b93707a644dc94a9d28b19911b548",
+        "base_sha256": "a1ffd1bdd0c8b2549a5c0c7a8c4ce56dc6645e0416ba4dda5c95e43b274a84c5"
+      },
+      "coverage": "partial",
+      "runtime_invocation_established": false,
+      "predicate_provenance": "recomputed",
+      "historical_abnormal_exit_PID_kill_cause": "not_established",
+      "latest_native_abnormal_exit": false
+    }
+  },
+  "source_immutable": true,
+  "ROOT_environment_guard": "complete METADATA and protected interpreter/control refs only; fullbinary guard not_established",
+  "P41": "not_established: full exact slice-base198 command/input replay absent",
+  "finding_closure": false,
+  "global_wave_repeated": false,
+  "canonical_client_dashboard_limit": "Native clean observations use their declared committed OpenAPI input; fresh upstream render not applied/consumed by these families",
+  "remaining_owners": {
+    "generated_runtime_OpenAPI": "Canonical runtime/frontend generator owners and G integration publisher; only confidence binding drift observed in fullruntime checker",
+    "public_inventory_reference": "Canonical IR/publicsurface inventory generator and G: actual unchanged103model/9path3932 ownerpacket reused via exact allmodel/emitter identity. Two fresh b6 runtime renders equal actual3932native701b; tracked1489 vs generated1494 remains drift; no new b6projection delta established.",
+    "trust_posture": "Canonical team-architecture posture generator owner; actual fresh output drift retained",
+    "deep_imports": "Actual151 edges/79paths with canonical package owners; original historical12 has11fixed/remaining private forecast loader; CanonSpec separate pending IR root admission",
+    "static_scanner": "Canonical team-runtime/instruments checker owner: native full20regressions/95newunresolved current/basemap available, partialcoverage; E actualnative3932witnessqualified separately. Actual AST/cache reuse proposal requires writer lease; no source edit or dummy call."
+  },
+  "available_defined_numerical_law_tests": "Prior3932 family414/qualifiedindie33/DTO13 not rerun or rebranded here",
+  "source_or_generated_edits": false,
+  "deciding_supplements": {
+    "complete_native_static_summary": {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/static-native-deciding-summary.json",
+      "bytes": 386695,
+      "sha256": "a92fcd37cfc2dc37b6e98a691a85609cd8fc9c1b064e52396e86cff19bbe5287"
+    },
+    "raw_once_reconciliation": {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/static-raw-once-reconciliation.json",
+      "bytes": 1355,
+      "sha256": "4c7b3bbed36acc7f66aa903b3f19dc3cabd6c41cba2497049e45b6335abd6755"
+    },
+    "full_static_input_recomputation": {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/static-input-denominator-recomputation.json",
+      "bytes": 2360,
+      "sha256": "d1b6d79cab3743e7f447776998f5ec99ecc859fedab0fab5c0f56d4aaec27e49"
+    },
+    "all20_95_owner_attribution": {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/static-complete-20-95-owner-attribution.json",
+      "bytes": 767388,
+      "sha256": "27db8bf8544f8df52b6d1bb3fc8853f3aa23ff4d1a3b8cc56831fe5abc16bdf9"
+    },
+    "posterior9_native_witness_join": {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/posterior-nine-proxy-native-witness-join.json",
+      "bytes": 75231,
+      "sha256": "bf8f9d78d833229f0dac6c01057a087d15d4645241d7daa49b1a7c937d461270"
+    },
+    "architecture_full151_owner_census": {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-complete-edge-census-owner-v2.json",
+      "bytes": 190985,
+      "sha256": "45654d7a5beca73948b0a7cb49e3b91f22fdaa5f0eab8d1f01ed42ffd119a773"
+    },
+    "architecture_tuple_comparison": {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/architecture-reported-edge-comparison.json",
+      "bytes": 1033,
+      "sha256": "982fa855db78be3069f1fcf2feb23a2d3e5357ae945f77f0ed5eb877597b8915"
+    },
+    "guard_negative_reuse_source_basis": {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/guard-source-reuse-basis.json",
+      "bytes": 3990,
+      "sha256": "d229b42f18f0d65d57c3665dac313ac0b47f902fec387a323158b954aadb1234"
+    },
+    "ABI_emitter_native_render_qualification": {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/ABI-emitter-source-qualification-v3.json",
+      "bytes": 6241,
+      "sha256": "58d68f2ab1551cf2eb9ad5321937fd3d620d56080a5f051e9e3afc1fd68cd2a0"
+    }
+  },
+  "historical_current_separation": {
+    "original_v1_v2_static_ERROR_packets_preserved": true,
+    "current_available_selectors": {
+      "architecture": "FAIL",
+      "runtime_api_contract": "FAIL",
+      "static_invocation": "FAIL"
+    },
+    "no_current_available_selector_UNRUN": true,
+    "historical_ERROR_and_UNRUN_attempts_preserved": true,
+    "original_summary_type_escapes_preserved": {
+      "path": "/tmp/e02-E-MC-b6-gates-20261007/packet-v1-type-escapes.json",
+      "bytes": 742,
+      "sha256": "1f3759b796d28f9390df783d5769598775d14d06c768d3cd5cfdf2ffe4962603"
+    },
+    "older_V2_control_scope": "Seven attempts with staticERROR; current V3 adds exactfourthclosedstatic/full20+95/inputreconciliation; no historical stdout/metadata rewrite"
+  }
+}

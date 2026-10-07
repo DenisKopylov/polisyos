@@ -1,0 +1,67 @@
+{
+  "schema": "policyos.e02.closed_controls_qualification.v1",
+  "scope": "Literal closed receipts, member/alias custody and declared historical observations only. This carrier runs no source, native, numeric, global gate or cleanup action.",
+  "historical_source_epochs": [
+    "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "31782b55f8f35556cfc581449b040c393f00c78f"
+  ],
+  "terminal_backend": {
+    "original_actual_exit_code": 137,
+    "actual_JUnit_present": false,
+    "retrospective_native_PASS": false,
+    "termination_cause": "not_established; source-bound terminal decoder and status custody distinct from method/case outcome"
+  },
+  "root317": {
+    "wave": "closed historical observation, nine failing cases; later source/wave not accepted by this carrier",
+    "Ruff": "FAIL:143 foreign diagnostics on seven paths; E zero",
+    "format": "FAIL:seven foreign paths; E zero",
+    "workspace_verify": "one PASS,one FAIL,13 UNRUN across15 stages",
+    "CI_parity": "zero PASS,one FAIL,23 UNRUN across24 stages"
+  },
+  "MC_b6": {
+    "actual_three_gates": "FAIL observations retained; exact scope and full moderate receipts selected",
+    "projected_generated_patch": "comparison oracle only; no application to integration",
+    "runtime_API_binding_cause": "not_established; current reason correction retained",
+    "private_raw_static_and_source_trees": "ignored references/reopen recipes only"
+  },
+  "source_d003": {
+    "scope": "complete static/input qualification, test-only change; no graph or native gate repeat",
+    "tracked_source_and_handoff": "d003 source and62f4 receipt remain ROOT-owned Git references; no duplicated31-path handoff"
+  },
+  "utility2350_and5739": {
+    "source_GO": "bounded independent utility source/CLI GO",
+    "DOC_GO": "independent literal byte custody only",
+    "finding_or_global_PASS": false
+  },
+  "ROOT_observations": {
+    "before": {
+      "head": "57790f050e0e6583c5bd25d4474326ea1aece9aa",
+      "tree": "3d6bb296e96e737dcd03aa4a92f18c578deaefd8",
+      "tracked_status": "",
+      "observed_at": "2026-10-07T15:00:32.982184+00:00",
+      "atomic": false,
+      "scope": "read-only sequential HEAD/tree/physical tracked status; no input freeze or native caller assertion"
+    },
+    "after": {
+      "head": "57790f050e0e6583c5bd25d4474326ea1aece9aa",
+      "tree": "3d6bb296e96e737dcd03aa4a92f18c578deaefd8",
+      "tracked_status": "",
+      "observed_at": "2026-10-07T15:00:33.946025+00:00",
+      "atomic": false,
+      "scope": "read-only sequential HEAD/tree/physical tracked status; no input freeze or native caller assertion"
+    },
+    "whole_input_identity": "not_established",
+    "native_caller_P41": "not_established",
+    "old_generated_29_path_drift": "frozen historical64d observation; no retrospective sourcefreeze waiver"
+  },
+  "pending": {
+    "new_IR_ratio_runtime_owner_actions": "canonical E writer/reviews pending; not accepted here",
+    "actual_calibration_fit_bridge": "canonical E writer/review pending; not accepted here",
+    "final_source_freeze_numeric_wave_and_current54": "pending separate root decision layer"
+  },
+  "source_tests_native_numeric_globalgate_executed": false,
+  "ROOT_source_env_locks_outputs_written": false,
+  "cleanup_or_remote_body_updated": false,
+  "formal_G_or_finding_closure": false,
+  "new_active_Python": 0
+}

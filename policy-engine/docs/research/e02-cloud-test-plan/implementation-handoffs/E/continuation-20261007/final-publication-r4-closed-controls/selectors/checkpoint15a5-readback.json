@@ -1,0 +1,87 @@
+{
+  "schema": "policyos.e02.topic_publication_readback.v1",
+  "branch": "codex/e02-E-continuation-20261006",
+  "head": "15a5cd7b764f8839bc31b493e7a16cf3d12a114a",
+  "tree": "e3b1a18736587a67025aaaa5da87698388a14f5a",
+  "remote_head": "15a5cd7b764f8839bc31b493e7a16cf3d12a114a",
+  "remote_tree": "e3b1a18736587a67025aaaa5da87698388a14f5a",
+  "ls_remote_head": "15a5cd7b764f8839bc31b493e7a16cf3d12a114a",
+  "commands": [
+    {
+      "name": "push",
+      "command": [
+        "git",
+        "push",
+        "origin",
+        "codex/e02-E-continuation-20261006"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "fetch",
+      "command": [
+        "git",
+        "fetch",
+        "origin",
+        "codex/e02-E-continuation-20261006:refs/remotes/origin/codex/e02-E-continuation-20261006"
+      ],
+      "exit_code": 0
+    },
+    {
+      "name": "lsremote",
+      "command": [
+        "git",
+        "ls-remote",
+        "origin",
+        "refs/heads/codex/e02-E-continuation-20261006"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "completed_at": "2026-10-07T14:07:57.654486+00:00",
+  "normal_hooks": true,
+  "history_rewrite": false,
+  "integration_or_main_written": false,
+  "files": [
+    {
+      "path": "/tmp/e02-E-root-checkpoint-publication-20261007/commit.stderr.txt",
+      "bytes": 653,
+      "sha256": "f56f69d80ad7e806ac737d22a3b30ba086d5cae31f9508324cefaf6829fd9c27"
+    },
+    {
+      "path": "/tmp/e02-E-root-checkpoint-publication-20261007/commit.stdout.txt",
+      "bytes": 318,
+      "sha256": "4b2eab0f9d44ae238a3569562a4c3b31ae3b8e597c95c183614de567e9d3e90e"
+    },
+    {
+      "path": "/tmp/e02-E-root-checkpoint-publication-20261007/fetch.stderr.txt",
+      "bytes": 149,
+      "sha256": "77cba47b361b08384d004aa31dd03e2367a33d90efa9b2e580584401c9245c94"
+    },
+    {
+      "path": "/tmp/e02-E-root-checkpoint-publication-20261007/fetch.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-root-checkpoint-publication-20261007/lsremote.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-root-checkpoint-publication-20261007/lsremote.stdout.txt",
+      "bytes": 86,
+      "sha256": "4367090746734c88ec89ec0a94ae36b06e05723220d753f094852b913e1c3079"
+    },
+    {
+      "path": "/tmp/e02-E-root-checkpoint-publication-20261007/push.stderr.txt",
+      "bytes": 144,
+      "sha256": "5b3f4bf0badbe3a0a9fe519d65c6c392451fa019a3bfd2d3c6dd30b8945822e2"
+    },
+    {
+      "path": "/tmp/e02-E-root-checkpoint-publication-20261007/push.stdout.txt",
+      "bytes": 486,
+      "sha256": "299b77e8c8fcc3520bb608afc38c21f8768db67d1bf4efe8fff2c9f68d38544b"
+    }
+  ]
+}

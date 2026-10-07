@@ -1,0 +1,42 @@
+{
+  "retained_workspace": "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained-retry2",
+  "existing_uv_cache": "/workspace/.polisyos-environment/cache/uv",
+  "repair": "native PATH prepended with existing repo-bootstrap uv0.9.21, aligning inner/outer cache format",
+  "old_inner_uv": {
+    "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/uv",
+    "version": "uv 0.12.19 (x86_64-unknown-linux-gnu)"
+  },
+  "new_inner_uv": {
+    "path": "/workspace/.polisyos-environment/uv/bin/uv",
+    "version": "uv 0.9.21"
+  },
+  "cache_v5_pyarrow_link": "/workspace/.polisyos-environment/cache/uv/archive-v0/wHUgQniSZIPso3_G5-oub",
+  "cache_v6_pyarrow_payload_present": false,
+  "free": {
+    "/tmp": {
+      "total": 9441349632,
+      "used": 5108998144,
+      "free": 4332351488
+    },
+    "/workspace": {
+      "total": 33770192896,
+      "used": 30618587136,
+      "free": 1416843264
+    }
+  },
+  "memory": {
+    "memory.events": "low 0\nhigh 0\nmax 3649000\noom 89\noom_kill 10\noom_group_kill 0\n",
+    "memory.current": "12610105344\n",
+    "memory.max": "17179869184\n",
+    "memory.stat": "anon 5149696000\nfile 6436839424\nkernel 1022779392\nkernel_stack 1540096\npagetables 15380480\nsec_pagetables 0\npercpu 14448\nsock 0\nvmalloc 0\nshmem 5108998144\nfile_mapped 68931584\nfile_dirty 503808\nfile_writeback 0\nswapcached 0\nanon_thp 33554432\nfile_thp 0\nshmem_thp 0\ninactive_anon 6159847424\nactive_anon 4098686976\ninactive_file 1206202368\nactive_file 121630720\nunevictable 0\nslab_reclaimable 820654152\nslab_unreclaimable 185161952\nslab 1005816104\nworkingset_refault_anon 0\nworkingset_refault_file 153597405\nworkingset_activate_anon 0\nworkingset_activate_file 26456899\nworkingset_restore_anon 0\nworkingset_restore_file 13269903\nworkingset_nodereclaim 0\npgdemote_kswapd 0\npgdemote_direct 0\npgdemote_khugepaged 0\npgdemote_proactive 0\npgscan 6679855602\npgsteal 161548609\npswpin 0\npswpout 0\npgscan_kswapd 8388301\npgscan_direct 6671461669\npgscan_khugepaged 5632\npgscan_proactive 0\npgsteal_kswapd 7986424\npgsteal_direct 153556737\npgsteal_khugepaged 5448\npgsteal_proactive 0\npgfault 705378960\npgmajfault 229496\npgrefill 53381896\npgactivate 26014971\npgdeactivate 49007451\npglazyfree 1292018\npglazyfreed 0\nswpin_zero 0\nswpout_zero 0\nthp_fault_alloc 1221\nthp_collapse_alloc 82\nthp_swpout 0\nthp_swpout_fallback 0\n"
+  },
+  "time_unix": 1791380689.04751,
+  "observer": {
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/run_gate_retry_v3.py.txt",
+    "bytes": 7589,
+    "sha256": "b7f803c6154cbc1428b1f1826440ca22571f3b709e9a90eb4f2d80e2aee56493"
+  },
+  "source_or_algorithm_changes": false,
+  "root_environment_mutation": false,
+  "new_dependency_requested": false
+}

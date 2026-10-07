@@ -1,0 +1,339 @@
+"""Independent closed XML/receipt custody; no numerical or gate execution."""
+
+import ast
+import copy
+import hashlib
+import json
+import pathlib
+import subprocess
+import sys
+import tempfile
+import xml.etree.ElementTree as ET
+from collections import Counter
+
+SOURCE = "31782b55f8f35556cfc581449b040c393f00c78f"
+TREE = "746f50214f70c0fa34cd8bb6d42e72440adc9f96"
+TEMP = pathlib.Path(tempfile.gettempdir())
+BASE = TEMP / "e02-E-final-wave-collection-31782b55-20261007"
+PREP = TEMP / "e02-E-final-wave-preparation-31782b55-20261007"
+REPO = pathlib.Path("/workspace/e02-E-continuation-20261006")
+PACKET = (
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/"
+    "continuation-20261007/frc-native-cas/a-status-reason-tests.py.txt"
+)
+PINNED = {
+    "receipt": (
+        BASE / "publication-receipt.json",
+        521985,
+        "f651a7db8e06e059ae93c04ea949b4a9c9cf364d7fbaeaf2cd1e874ca7cc3457",
+    ),
+    "case_index": (
+        PREP / "current-case-index.json",
+        400305,
+        "db2f606a91d9543ea34c14fd4b46ac3e84d7093926610f6ee8d04c4c8cb901ba",
+    ),
+}
+
+
+def require(value: object, message: str) -> None:
+    if not value:
+        raise ValueError(message)
+
+
+def token(value: object) -> str:
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False)
+
+
+def same(actual: object, expected: object, message: str) -> None:
+    require(token(actual) == token(expected), message)
+
+
+def checked(path: pathlib.Path, size: int, digest: str) -> bytes:
+    require(type(size) is int and size >= 0, "typed_bytes")
+    raw = path.read_bytes()
+    same(len(raw), size, "content_size")
+    same(hashlib.sha256(raw).hexdigest(), digest, "content_digest")
+    return raw
+
+
+def pinned(name: str) -> dict[str, object]:
+    return json.loads(checked(*PINNED[name]))
+
+
+def parse_cases(raw: bytes, job: str) -> list[dict[str, object]]:
+    require(
+        b"<!DOCTYPE" not in raw.upper() and b"<!ENTITY" not in raw.upper(), "unsafe_XML_entities"
+    )
+    # DTD/entity declarations explicitly refused before stdlib parser entry.
+    root = ET.fromstring(raw)  # noqa: S314
+    cases = []
+    for case in root.iter("testcase"):
+        outcome = (
+            "errors"
+            if case.find("error") is not None
+            else "failed"
+            if case.find("failure") is not None
+            else "skipped"
+            if case.find("skipped") is not None
+            else "passed"
+        )
+        cases.append(
+            {
+                "name": case.get("name"),
+                "classname": case.get("classname", ""),
+                "file": case.get("file"),
+                "seconds": case.get("time", "0"),
+                "outcome": outcome,
+                "job_name": job,
+            }
+        )
+    return cases
+
+
+def counts(cases: list[dict[str, object]]) -> dict[str, int]:
+    counter = Counter(case["outcome"] for case in cases)
+    require(set(counter) <= {"passed", "failed", "errors", "skipped"}, "case_outcome")
+    return {
+        "cases": len(cases),
+        **{k: counter[k] for k in ("passed", "failed", "errors", "skipped")},
+    }
+
+
+def admit_cases(actual: list[dict[str, object]], expected: list[dict[str, object]]) -> None:
+    same(actual, expected, "complete_ordered_JUnit_case_sequence")
+
+
+def admit_claims(
+    receipt: dict[str, object],
+    case_index: dict[str, object],
+    all_cases: list[dict[str, object]],
+    a_cases: list[dict[str, object]],
+) -> None:
+    for key, value in {
+        "candidate_sha": SOURCE,
+        "candidate_tree_sha": TREE,
+        "collection_state": "COMPLETE_BOUND",
+        "finding_closure": False,
+        "numeric_counts": counts(all_cases),
+        "native_numeric_counts_excluding_A_packets": counts(
+            [c for c in all_cases if c not in a_cases]
+        ),
+        "unattributed_owner_packet_counts": counts([]),
+        "native_numeric_attribution_complete": True,
+    }.items():
+        same(receipt[key], value, "receipt_claim:" + key)
+    same(case_index["source_sha"], SOURCE, "case_source")
+    same(case_index["source_tree"], TREE, "case_tree")
+    same(case_index["case_count"], len(all_cases), "case_count_typed")
+    same(case_index["numeric_counts"], counts(all_cases), "flat_case_counts")
+    same(case_index["finding_closure"], False, "flat_finding_closure")
+    admit_cases(case_index["cases"], all_cases)
+    same(receipt["foreign_owner_A_packet_cases"][0]["cases"], a_cases, "actual_A_cases")
+    same(receipt["foreign_owner_A_packet_cases"][0]["counts"], counts(a_cases), "actual_A_counts")
+
+
+def source_blob(path: str, admitted: set[str]) -> bytes:
+    require(path in admitted and not path.startswith("-"), "admitted_source_path")
+    require(
+        "\x00" not in path and ".." not in pathlib.PurePosixPath(path).parts,
+        "canonical_source_path",
+    )
+    # Constant executable/revision and paths admitted by the closed immutable plan; no shell.
+    return subprocess.check_output(  # noqa: S603
+        ["/usr/bin/git", "show", SOURCE + ":" + path], cwd=REPO, shell=False
+    )
+
+
+def remove_body(name: str) -> object:
+    tree = ast.parse(pathlib.Path(__file__).read_text())
+    tree.body = [node for node in tree.body if not isinstance(node, ast.If)]
+    functions = [
+        node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == name
+    ]
+    require(len(functions) == 1, "one_actual_guard")
+    functions[0].body = [ast.Pass()]
+    scope = {"__file__": __file__}
+    # Own observer source only; this transformation removes one measured admission body.
+    exec(compile(ast.fix_missing_locations(tree), __file__, "exec"), scope)  # noqa: S102
+    return scope[name]
+
+
+def refusal(callback: object, name: str) -> dict[str, object]:
+    try:
+        callback()
+    except ValueError as error:
+        return {"case": name, "outcome": "PASS", "actual_refusal": str(error)}
+    raise ValueError("actual_corruption_readmitted:" + name)
+
+
+def main() -> None:
+    receipt = pinned("receipt")
+    index = pinned("case_index")
+    selection = json.loads((PREP / "publication-selection.json").read_bytes())
+    same(selection["file_count"], 64, "complete_moderate_selection_count")
+    same(len(selection["files"]), 64, "complete_moderate_members")
+    same(sum(row["bytes"] for row in selection["files"]), 3244283, "selection_total")
+    for row in selection["files"]:
+        checked(pathlib.Path(row["source"]), row["bytes"], row["sha256"])
+    copy_index = json.loads((BASE / "copy-index.json").read_bytes())
+    for row in copy_index["files"]:
+        checked(BASE / row["path"], row["bytes"], row["sha256"])
+    source_assets = (
+        json.loads((PREP / "wave-input-and-source-binding.json").read_bytes())
+        if (PREP / "wave-input-and-source-binding.json").exists()
+        else None
+    )
+    plan = json.loads(
+        (TEMP / "e02-E-final-defining-wave-31782b55-20261007T1424Z" / "plan.json").read_bytes()
+    )
+    paths = {path for group in plan["groups"].values() for path in group} | {PACKET}
+    same(len(paths), 103, "complete_declared_test_source_paths")
+    origins = {}
+    for path in sorted(paths):
+        raw = source_blob(path, paths)
+        for node in ast.walk(ast.parse(raw)):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name.startswith(
+                "test_"
+            ):
+                origins.setdefault(node.name, []).append(path)
+    packet_raw = source_blob(PACKET, paths)
+    same(
+        hashlib.sha256(packet_raw).hexdigest(),
+        "293110a89223941ae3a772ea59226831aef2a459ca9b17bcefc8157ef574455c",
+        "actual_A_packet_blob",
+    )
+    a_functions = {
+        node.name
+        for node in ast.walk(ast.parse(packet_raw))
+        if isinstance(node, ast.FunctionDef) and node.name.startswith("test_")
+    }
+    same(len(a_functions), 3, "three_declared_A_functions")
+    require(all(origins[name] == [PACKET] for name in a_functions), "A_function_origin_unique")
+    all_cases = []
+    job_results = []
+    for projected in receipt["jobs"]:
+        name = projected["name"]
+        native = json.loads((BASE / "checks" / name / (name + ".json")).read_bytes())
+        for key, expected in {
+            "candidate_sha": SOURCE,
+            "candidate_tree_sha": TREE,
+            "head_at_end": SOURCE,
+            "source_immutable": True,
+            "finding_closure": False,
+        }.items():
+            same(native[key], expected, "native_binding:" + key)
+        same(
+            native["source_identity_before"],
+            native["source_identity_after"],
+            "native_full_source_bracket",
+        )
+        same(native["outcome"], projected["outcome"], "native_command_outcome")
+        same(native["exit_code"], projected["exit_code"], "native_exit_code")
+        require(
+            all(v is True for v in projected["binding_predicates"].values()), "all_native_bindings"
+        )
+        if projected["kind"] == "numerical":
+            cases = parse_cases((BASE / "checks" / name / "pytest.xml").read_bytes(), name)
+            admit_cases(projected["cases"], cases)
+            same(native["counts"], counts(cases), "native_counts_from_XML")
+            same(projected["case_counts"], counts(cases), "projection_counts_from_XML")
+            same(
+                native["environment"]["selected_variables"]["POLISYOS_METRICS_PORT"],
+                "0",
+                "actual_numeric_port_isolation",
+            )
+            for cap in [
+                "OMP_NUM_THREADS",
+                "OPENBLAS_NUM_THREADS",
+                "MKL_NUM_THREADS",
+                "XLA_FLAGS",
+                "POLISYOS_PYTEST_WORKERS",
+                "PYTEST_ADDOPTS",
+            ]:
+                same(
+                    native["environment"]["selected_variables"][cap],
+                    None,
+                    "no_artificial_cap:" + cap,
+                )
+            all_cases.extend(cases)
+            job_results.append(
+                {"name": name, "outcome": native["outcome"], "counts": counts(cases)}
+            )
+    a_cases = [c for c in all_cases if c["name"].split("[", 1)[0] in a_functions]
+    require(
+        all(
+            c["job_name"] == "bkt-frc-s10-and-adjacent-report-consumers"
+            and c["classname"] == ""
+            and c["file"] is None
+            for c in a_cases
+        ),
+        "exact_anonymous_A_origin",
+    )
+    same(
+        counts(a_cases),
+        {"cases": 7, "passed": 0, "failed": 7, "errors": 0, "skipped": 0},
+        "seven_actual_A_failures",
+    )
+    admit_claims(receipt, index, all_cases, a_cases)
+    controls = [{"case": "healthy_full_XML_case_and_native_split", "outcome": "PASS"}]
+    for name, mutate in [
+        ("bool_case_count", lambda r, i: i.update(case_count=True)),
+        ("reported_numeric_failure_zero", lambda r, i: r["numeric_counts"].update(failed=0)),
+        (
+            "A_packet_claimed_native",
+            lambda r, i: r["foreign_owner_A_packet_cases"][0].update(cases=[]),
+        ),
+        ("finding_closure_from_test_counts", lambda r, i: r.update(finding_closure=True)),
+        ("flat_case_omission_markers_retained", lambda r, i: i["cases"].pop()),
+        (
+            "source_identity_retag",
+            lambda r, i: i.update(source_sha="d0038a6e52867e820fd96f4706746ec501a80273"),
+        ),
+    ]:
+        mr, mi = copy.deepcopy(receipt), copy.deepcopy(index)
+        mutate(mr, mi)
+        controls.append(refusal(lambda r=mr, i=mi: admit_claims(r, i, all_cases, a_cases), name))
+    controls.append(
+        refusal(
+            lambda: parse_cases(b'<!DOCTYPE x [<!ENTITY y "bad">]><testsuites/>', "negative"),
+            "XML_entity_refused_before_parse",
+        )
+    )
+    mutant = copy.deepcopy(index)
+    mutant["cases"].pop()
+    remove_body("admit_cases")(mutant["cases"], all_cases)
+    controls.append(
+        {
+            "case": "actual_case_conservation_body_removed_readmits_omission",
+            "outcome": "PASS",
+            "retained_native_summary_markers": True,
+        }
+    )
+    report = {
+        "schema": "policyos.e02.independent_closed_numeric_case_recomputation.v1",
+        "source": SOURCE,
+        "tree": TREE,
+        "disposition": "GO",
+        "observation_scope": "Closed31782 historical observation; not the future d003/composition source wave",
+        "all_counts": counts(all_cases),
+        "native_counts": counts([c for c in all_cases if c not in a_cases]),
+        "A_packet_counts": counts(a_cases),
+        "numeric_jobs": job_results,
+        "failed_cases": [c for c in all_cases if c["outcome"] != "passed"],
+        "moderate_selection": {"files": 64, "bytes": 3244283, "all_physical_refs": True},
+        "declared_test_source_paths": len(paths),
+        "A_function_origins": {n: origins[n] for n in sorted(a_functions)},
+        "literal_xml_case_sequence_matches_collector_and_flat_index": True,
+        "controls": controls,
+        "native_tests_repeated": False,
+        "finding_acceptance": False,
+        "current_source_or_future_wave_claim": False,
+        "old24CAL_current_claim": False,
+        "historical_collector_cleanup_text": "Preserved. Current cloud deletion authorization/local-only Trash is a separate qualifier.",
+        "optional_source_asset_input_present": source_assets is not None,
+    }
+    sys.stdout.write(json.dumps(report, sort_keys=True, indent=2) + "\n")
+
+
+if __name__ == "__main__":
+    main()

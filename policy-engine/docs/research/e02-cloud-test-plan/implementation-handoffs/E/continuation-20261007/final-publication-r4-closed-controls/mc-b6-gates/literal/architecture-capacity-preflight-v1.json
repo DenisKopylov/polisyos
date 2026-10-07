@@ -1,0 +1,30 @@
+{
+  "source_copy_path_count": 18963,
+  "source_copy_regular_bytes": 562221164,
+  "source_copy_ignore_names": [
+    ".cache",
+    ".git",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".venv",
+    "__pycache__",
+    "_build",
+    "_cache",
+    "node_modules",
+    "production_data"
+  ],
+  "old_canonical_private_env": "/workspace/e02-E-pr38-r3-receipts/runtime-export-retry-64d7444a-20261007-r1/architecture-retained/environment",
+  "old_env_exists": false,
+  "old_env_regular_files": 0,
+  "old_env_regular_bytes": 0,
+  "current_memory": 17179799552,
+  "memory_max": 17179869184,
+  "uncommitted_memory": 69632,
+  "inactive_file": 863846400,
+  "slab_reclaimable": 2150033912,
+  "shmem": 2877640704,
+  "tmp_free": 6563708928,
+  "workspace_free": 378499072,
+  "scan_scope": "Stat-only exact canonical copy ignores; symlinks retain links, no content/env/source writes. Prior env size is observation if it still exists, not promise new sync size."
+}

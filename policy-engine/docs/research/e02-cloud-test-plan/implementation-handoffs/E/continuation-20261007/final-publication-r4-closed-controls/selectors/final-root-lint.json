@@ -1,0 +1,424 @@
+{
+  "schema": "policyos.e02.closed_final_frozen_lint_publication_selection.v1",
+  "source": "31782b55f8f35556cfc581449b040c393f00c78f",
+  "tree": "746f50214f70c0fa34cd8bb6d42e72440adc9f96",
+  "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "check_outcome": "FAIL",
+  "finding_outcome": null,
+  "asset_count": 54,
+  "logical_bytes": 3147078,
+  "content_unique_count": 44,
+  "content_unique_bytes": 3146487,
+  "assets": [
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/after-git-status.json",
+      "bytes": 591,
+      "sha256": "a7c60b0ac367462f2d6978c4285b6934676f4c0cf1c266abe5737f4adc5cd01d",
+      "portable_path": "literal/after-git-status.json",
+      "role": "closed final native input, complete deciding output or literal read-only observer"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/before-git-status.json",
+      "bytes": 591,
+      "sha256": "a7c60b0ac367462f2d6978c4285b6934676f4c0cf1c266abe5737f4adc5cd01d",
+      "portable_path": "literal/before-git-status.json",
+      "role": "closed final native input, complete deciding output or literal read-only observer",
+      "content_alias_of": "literal/after-git-status.json"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/build_publication.py",
+      "bytes": 10204,
+      "sha256": "a274543625b3565238c701440620583999b34bfe54b2cb3a7721a004e3fe661e",
+      "portable_path": "literal/build_publication.py.txt",
+      "role": "closed final native input, complete deciding output or literal read-only observer"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/capture-receipt.json",
+      "bytes": 93234,
+      "sha256": "799d19e3b7de110b2b5da67879485140fdc5ef2f1e28aab9656a2cd74a0e6087",
+      "portable_path": "literal/capture-receipt.json",
+      "role": "closed final native input, complete deciding output or literal read-only observer"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/classification-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "literal/classification-normal.stderr.txt",
+      "role": "closed final native input, complete deciding output or literal read-only observer"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/classification-normal.stdout.json",
+      "bytes": 122493,
+      "sha256": "365d38664f3ebfdede71f16eff9a698adc47d00108374ca9f06347413a77c906",
+      "portable_path": "literal/classification-normal.stdout.json",
+      "role": "closed final native input, complete deciding output or literal read-only observer"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/classification-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "literal/classification-optimized.stderr.txt",
+      "role": "closed final native input, complete deciding output or literal read-only observer",
+      "content_alias_of": "literal/classification-normal.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/classification-optimized.stdout.json",
+      "bytes": 122496,
+      "sha256": "c787706c683a28cdcab1bf8a039ba03879837fd809b56459e2ab656aa6f80587",
+      "portable_path": "literal/classification-optimized.stdout.json",
+      "role": "closed final native input, complete deciding output or literal read-only observer"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/classify_closed_checks.py",
+      "bytes": 7766,
+      "sha256": "2e3a867d5c3e60b4204343f9768d6c999740215572c83521f2e22add8b24e8d2",
+      "portable_path": "literal/classify_closed_checks.py.txt",
+      "role": "closed final native input, complete deciding output or literal read-only observer"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/final-receipt.json",
+      "bytes": 4275,
+      "sha256": "428f0dc5edff455a48896b7028efc2bb9fc6e625bba8706465af96201825496c",
+      "portable_path": "literal/final-receipt.json",
+      "role": "closed final native input, complete deciding output or literal read-only observer"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/full-git-delta.name-status.bin",
+      "bytes": 1060547,
+      "sha256": "186b74696e651d5f5486132e80b25e009888b65bf61acfceea709c3b365ea2d8",
+      "portable_path": "literal/full-git-delta.name-status.bin",
+      "role": "closed final native input, complete deciding output or literal read-only observer"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/inputs.json",
+      "bytes": 489645,
+      "sha256": "5a884ec11520c98b1d277215b40bad95b381c0ce61ff9e08576ef6b5663d7537",
+      "portable_path": "literal/inputs.json",
+      "role": "closed final native input, complete deciding output or literal read-only observer"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/native-discovered-settings.json",
+      "bytes": 1160,
+      "sha256": "4b401e5cbe86ad6d19f73f6e59d910e06e39f50ed05fdefbc8d914d56ad2133a",
+      "portable_path": "literal/native-discovered-settings.json",
+      "role": "closed final native input, complete deciding output or literal read-only observer"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/native-discovered-settings.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "literal/native-discovered-settings.stderr.txt",
+      "role": "closed final native input, complete deciding output or literal read-only observer",
+      "content_alias_of": "literal/classification-normal.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/native-discovered-settings.stdout.txt",
+      "bytes": 115530,
+      "sha256": "5043b1efa9b6d9f2e80f9d82d29ec9993e57d5e8c85283b0a6890cb83b602b46",
+      "portable_path": "literal/native-discovered-settings.stdout.txt",
+      "role": "closed final native input, complete deciding output or literal read-only observer"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/python-version.json",
+      "bytes": 1116,
+      "sha256": "68e2fef73ee609b09f5d6a89fec2a0e11b27cee5aea0c15ab239e41f7e146450",
+      "portable_path": "literal/python-version.json",
+      "role": "closed final native input, complete deciding output or literal read-only observer"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/python-version.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "literal/python-version.stderr.txt",
+      "role": "closed final native input, complete deciding output or literal read-only observer",
+      "content_alias_of": "literal/classification-normal.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/python-version.stdout.txt",
+      "bytes": 146,
+      "sha256": "34f27a7c255332c79405c5112987bbcefd0dd12a90acf6cbddb40e1c4c867192",
+      "portable_path": "literal/python-version.stdout.txt",
+      "role": "closed final native input, complete deciding output or literal read-only observer"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/record_and_check.py",
+      "bytes": 10698,
+      "sha256": "ae6c527b4821a7f623e7e8caba380bc6e2ddee35c3e5eb3a20eb1350527bd53b",
+      "portable_path": "literal/record_and_check.py.txt",
+      "role": "closed final native input, complete deciding output or literal read-only observer"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/recorder.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "literal/recorder.stderr.txt",
+      "role": "closed final native input, complete deciding output or literal read-only observer",
+      "content_alias_of": "literal/classification-normal.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/recorder.stdout.json",
+      "bytes": 1516,
+      "sha256": "21b8c2a0cb32205ca787dc38119ca15a714703c2cb9804a2a04ab9fe0596dcc6",
+      "portable_path": "literal/recorder.stdout.json",
+      "role": "closed final native input, complete deciding output or literal read-only observer"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/ruff-format.json",
+      "bytes": 43967,
+      "sha256": "db8d1f4b07d64703cdb536b1d576c4b6812e4212b5aa1afe0bb4b51cf753e125",
+      "portable_path": "literal/ruff-format.json",
+      "role": "closed final native input, complete deciding output or literal read-only observer"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/ruff-format.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "literal/ruff-format.stderr.txt",
+      "role": "closed final native input, complete deciding output or literal read-only observer",
+      "content_alias_of": "literal/classification-normal.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/ruff-format.stdout.txt",
+      "bytes": 939,
+      "sha256": "215d13af0363c35c4c9c69469a1b8f0b7a7043e4f498f972efdd3ad23529fd17",
+      "portable_path": "literal/ruff-format.stdout.txt",
+      "role": "closed final native input, complete deciding output or literal read-only observer"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/ruff-version.json",
+      "bytes": 1040,
+      "sha256": "5eb6c179d3d278a1815ee570c196a05dc7931a08ef79b8660563bb1c5c05873b",
+      "portable_path": "literal/ruff-version.json",
+      "role": "closed final native input, complete deciding output or literal read-only observer"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/ruff-version.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "literal/ruff-version.stderr.txt",
+      "role": "closed final native input, complete deciding output or literal read-only observer",
+      "content_alias_of": "literal/classification-normal.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/ruff-version.stdout.txt",
+      "bytes": 13,
+      "sha256": "5c218bad3d3966fc0a61f2d77271435aacd471038e833636bfa8cf5fe743f4ab",
+      "portable_path": "literal/ruff-version.stdout.txt",
+      "role": "closed final native input, complete deciding output or literal read-only observer"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/ruff.json",
+      "bytes": 43965,
+      "sha256": "2df1ec5014fd618a78d73ad8d094b06955e2bd8bc4d3f2e555998050c35e92e7",
+      "portable_path": "literal/ruff.json",
+      "role": "closed final native input, complete deciding output or literal read-only observer"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/ruff.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "literal/ruff.stderr.txt",
+      "role": "closed final native input, complete deciding output or literal read-only observer",
+      "content_alias_of": "literal/classification-normal.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/ruff.stdout.txt",
+      "bytes": 86385,
+      "sha256": "81f893c34ef05c42c9b503e9df1a35d28132d3a0bd51916e2faf8d94574960df",
+      "portable_path": "literal/ruff.stdout.txt",
+      "role": "closed final native input, complete deciding output or literal read-only observer"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/tool-origin-rebinding.json",
+      "bytes": 2393,
+      "sha256": "77dd7b387aa039f1a2ec8bd2bf85454e9fa8486a31bdc7bb3ac79a2d4da35087",
+      "portable_path": "literal/tool-origin-rebinding.json",
+      "role": "closed final native input, complete deciding output or literal read-only observer"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/source-snapshots/d9ff9803aebf2641ed4e2bd8680a50a8edcf95ba.py.txt",
+      "bytes": 19187,
+      "sha256": "d99f6f850f2c3c2465a9aba926c95121a24eacd8425d828ac07a5bc88095df0f",
+      "portable_path": "exact-source/d9ff9803aebf2641ed4e2bd8680a50a8edcf95ba.py.txt",
+      "role": "actual foreign failing source archived passively",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/source-snapshots/78be2e7776629829175e0653cd6cc22bf97a31c6.py.txt",
+      "bytes": 2448,
+      "sha256": "0d36f842bea61660fd40cbf9bb8faeae993d93f2cb1e512f9f5ebdaf13b54406",
+      "portable_path": "exact-source/78be2e7776629829175e0653cd6cc22bf97a31c6.py.txt",
+      "role": "actual foreign failing source archived passively",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/source-snapshots/82d034330843b5dd069c23bc46d8cd5c11ec4ece.py.txt",
+      "bytes": 2670,
+      "sha256": "aaca0830027093fceac650e2b247074fc2db102a35c28d9e84809bb646242b88",
+      "portable_path": "exact-source/82d034330843b5dd069c23bc46d8cd5c11ec4ece.py.txt",
+      "role": "actual foreign failing source archived passively",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/source-snapshots/cfaa910075caf561906970210186f71053f53994.py.txt",
+      "bytes": 8256,
+      "sha256": "a8782f96386cf9502de662dea4116df66f61c24537bcf8d22f5c0da2ff940bbb",
+      "portable_path": "exact-source/cfaa910075caf561906970210186f71053f53994.py.txt",
+      "role": "actual foreign failing source archived passively",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/probe_runner.py"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/source-snapshots/52c285f11632a8eab8ff103b25ea5763e8ebfc14.py.txt",
+      "bytes": 6261,
+      "sha256": "1ad19f77f3e1f367ff5d21c1efc1b6f9bc18175c0bbdda2b3dc36fba93ed1215",
+      "portable_path": "exact-source/52c285f11632a8eab8ff103b25ea5763e8ebfc14.py.txt",
+      "role": "actual foreign failing source archived passively",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/source-snapshots/68f426228d4c69ef749e814a980933846c181018.py.txt",
+      "bytes": 1958,
+      "sha256": "c591f36d662b717d67f439ebf9504c2cf5531f80b6cb9a6dcdc685a11582e936",
+      "portable_path": "exact-source/68f426228d4c69ef749e814a980933846c181018.py.txt",
+      "role": "actual foreign failing source archived passively",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/supervise.py"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/source-snapshots/c74e2d8b560619f21e9f82294e6696dd6c55ba55.py.txt",
+      "bytes": 3049,
+      "sha256": "66b6af1abfea1b715c4b0e7fa23ee77c84de3f0dc7fa4c94c04fd846bdae1234",
+      "portable_path": "exact-source/c74e2d8b560619f21e9f82294e6696dd6c55ba55.py.txt",
+      "role": "actual foreign failing source archived passively",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/supervise_attempt2.py"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/source-snapshots/fd459340890a9173421e7281c30ba8c1c38ebc12.py.txt",
+      "bytes": 10661,
+      "sha256": "6f1e4c188a978b4da6298f3939e32ef71e9839bcf6eb77d41239b29f0ba57e3f",
+      "portable_path": "exact-source/fd459340890a9173421e7281c30ba8c1c38ebc12.py.txt",
+      "role": "exact independently qualified E source, canonical config or writer admission source",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/validate.py"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/source-snapshots/a0928fffdad2d96d6030fc23584801beac45b560.toml",
+      "bytes": 247,
+      "sha256": "543068227742e00057e19329f2df8ee944090f828a40b3e5da0b72f8e3b06fbd",
+      "portable_path": "exact-source/a0928fffdad2d96d6030fc23584801beac45b560.toml",
+      "role": "exact independently qualified E source, canonical config or writer admission source",
+      "source_path": "policy-engine/ruff.toml"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/source-snapshots/b4e4d47dc80dbd45234e806f44073fd575ebf56d.toml",
+      "bytes": 26782,
+      "sha256": "209e31295f4d719755669ae492b454b474f9b7371143307ddd0c7fe52723d607",
+      "portable_path": "exact-source/b4e4d47dc80dbd45234e806f44073fd575ebf56d.toml",
+      "role": "exact independently qualified E source, canonical config or writer admission source",
+      "source_path": "policy-engine/architecture/tooling/ruff/generated.toml"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/source-snapshots/78b4385b8a9a3752d84d3389c8c4a972dd65f16b.tsv",
+      "bytes": 12413,
+      "sha256": "f587df5256ebef909b4060a588c2f947f31b173adf8d44b32e7f4eea5abd1f75",
+      "portable_path": "exact-source/78b4385b8a9a3752d84d3389c8c4a972dd65f16b.tsv",
+      "role": "exact independently qualified E source, canonical config or writer admission source",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/bundle-owners.tsv"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/source-snapshots/515c70d29f59f3175521642e72d04f1aaffc72d7.tsv",
+      "bytes": 9504,
+      "sha256": "b5b36f75d54d4c94bb20c37e1a76827dd1028da1c15942cc5dae331907811722",
+      "portable_path": "exact-source/515c70d29f59f3175521642e72d04f1aaffc72d7.tsv",
+      "role": "exact independently qualified E source, canonical config or writer admission source",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/execution-organization/finding-owners.tsv"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/source-snapshots/d15031fbcd5be9a560cf57568b4a9f18dc507195.json",
+      "bytes": 9918,
+      "sha256": "5b2878f83c817dfa4d1de5e8e3cec5751581c9eb08df910cfa98dc1de610440b",
+      "portable_path": "exact-source/d15031fbcd5be9a560cf57568b4a9f18dc507195.json",
+      "role": "exact independently qualified E source, canonical config or writer admission source",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/receipt.json"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/source-snapshots/38f1e8c0454e11d8620fad8976ab723c46c4b89c.json",
+      "bytes": 74846,
+      "sha256": "5e635ed1c51789d9b38f6aee980568211fce982b5dd491fbf463830214d02424",
+      "portable_path": "exact-source/38f1e8c0454e11d8620fad8976ab723c46c4b89c.json",
+      "role": "exact independently qualified E source, canonical config or writer admission source",
+      "source_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/ir-posterior-summary/implementation-handoff.json"
+    },
+    {
+      "path": "/tmp/e02-E-final-lint-admitted-source-plan-3932-20261007/plan-v3.json",
+      "bytes": 722104,
+      "sha256": "106a280d6fd0fb60893392e9f67408e76b712dff8b16cce5bbb2f697f6d52f74",
+      "portable_path": "inputs/historical-prospective-plan-v3.json",
+      "role": "Historical PLAN_ONLY writer/lease attribution source, reused only after actual current Git set and byte qualifications"
+    },
+    {
+      "path": "/tmp/e02-E-root-reviewed-source-freeze-20261007/freeze.json",
+      "bytes": 4199,
+      "sha256": "fce72ed50a0fccf418f033f787fba625608253d315ce288e56cf4e90fd9475ba",
+      "portable_path": "inputs/root-reviewed-source-freeze.json",
+      "role": "Current actual ROOT source freeze receipt"
+    },
+    {
+      "path": "/tmp/e02-E-validator-format-independent-r4/final-source-GO.json",
+      "bytes": 2922,
+      "sha256": "f41521d4b5efd65c1bf74720ec5411369d1b93f9dab497ea61a916cdea8827df",
+      "portable_path": "inputs/utility2350-independent-source-GO.json",
+      "role": "Independent source qualification for the sole current Python body delta"
+    },
+    {
+      "path": "/tmp/e02-E-actual-lint-b6b0d415-20261007/tool-origins.json",
+      "bytes": 1893,
+      "sha256": "35bae4259dc49c420c1ed6c2b02de2d398d5813b2f8be541903be1ebe98a2105",
+      "portable_path": "inputs/historical-native-tool-origins.json",
+      "role": "Prior actually measured module/interpreter/launcher origin, explicitly historical"
+    },
+    {
+      "path": "/tmp/e02-E-actual-lint-b6b0d415-20261007/tool-origins.stdout.json",
+      "bytes": 274,
+      "sha256": "ca3148e060b06ec91858ee528e036e870db3cdeaadbfb39242895f10616d451a",
+      "portable_path": "inputs/historical-native-tool-origins.stdout.json",
+      "role": "Closed prior actual origin stdout"
+    },
+    {
+      "path": "/tmp/e02-E-actual-lint-b6b0d415-20261007/tool-origins.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "inputs/historical-native-tool-origins.stderr.txt",
+      "role": "Closed prior actual origin stderr",
+      "content_alias_of": "literal/classification-normal.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-E-actual-lint-b6b0d415-20261007/final-receipt.json",
+      "bytes": 3868,
+      "sha256": "9766e352f630d4507f09ec8db21a551dab511c569fed8fa046398a85fbca9bd0",
+      "portable_path": "inputs/historical-b6-final-receipt.json",
+      "role": "Historical actualb6 gate observation; E format debt there is fixed in current source2350"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/source-snapshots/tool-__init__.py.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "portable_path": "exact-source/tool-__init__.py.txt",
+      "role": "Exact native Python launcher module source, passively archived",
+      "content_alias_of": "literal/classification-normal.stderr.txt"
+    },
+    {
+      "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/source-snapshots/tool-__main__.py.txt",
+      "bytes": 2908,
+      "sha256": "c351217f3cf2f2d30ceebedd16b2a68b70e499367257fc49e342bfb31a0ee97d",
+      "portable_path": "exact-source/tool-__main__.py.txt",
+      "role": "Exact native Python launcher module source, passively archived"
+    }
+  ],
+  "native_commands_executed_once": true,
+  "all_inputs_complete_and_exact": true,
+  "no_full_numeric_repeat": true,
+  "root_code_environment_writes": false,
+  "empty_JSON_count": 0,
+  "Ruff_cache_and_large_interpreter_binaries_excluded": "Only repeatable external caches and32MB/35MB interpreter/Ruff binaries; their exact file hashes/origins are bound in tool-origin-rebinding.json.",
+  "pending_builder_stdout_excluded": true,
+  "historical_qualification": "Earlier360/prospective366/b6 outputs are observations with explicit source identities; no current PASS or inherited P41 waiver."
+}

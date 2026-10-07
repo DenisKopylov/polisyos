@@ -1,0 +1,3289 @@
+{
+  "schema": "policyos.e02.actual_full_lint_writer_attribution.v1",
+  "mode": "normal",
+  "summary": {
+    "candidate": "31782b55f8f35556cfc581449b040c393f00c78f",
+    "tree": "746f50214f70c0fa34cd8bb6d42e72440adc9f96",
+    "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+    "full_changed_path_count": 6289,
+    "complete_changed_python_denominator": 366,
+    "actual_Ruff_exit_code": 1,
+    "actual_Ruff_diagnostic_count": 143,
+    "actual_Ruff_diagnostic_path_count": 7,
+    "Ruff_diagnostics_by_factual_writer": {
+      "E": 0,
+      "A": 1,
+      "B": 35,
+      "C": 0,
+      "F": 0,
+      "G": 107
+    },
+    "actual_format_exit_code": 1,
+    "actual_format_path_count": 7,
+    "already_formatted_count": 359,
+    "format_by_factual_writer": {
+      "E": 0,
+      "A": 1,
+      "B": 2,
+      "C": 0,
+      "F": 0,
+      "G": 4
+    },
+    "Ruff_E_owned_diagnostic_count": 0,
+    "E_owned_format_required_count": 0,
+    "source_and_config_immutable": true,
+    "metadata_count": 184,
+    "metadata_before_after_unchanged": true,
+    "G_C_distinction": "Four failing incoming utilities were authored/published by G for canonical C mechanism; E has no foreign writer lease.",
+    "P41": "not_established",
+    "full_global_outcome": "FAIL",
+    "finding_dispositions_changed": false
+  },
+  "complete_source_inputs": {
+    "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/inputs.json",
+    "bytes": 489645,
+    "sha256": "5a884ec11520c98b1d277215b40bad95b381c0ce61ff9e08576ef6b5663d7537"
+  },
+  "actual_closed_capture": {
+    "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/capture-receipt.json",
+    "bytes": 93234,
+    "sha256": "799d19e3b7de110b2b5da67879485140fdc5ef2f1e28aab9656a2cd74a0e6087"
+  },
+  "complete_owner_packets": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py",
+      "source_input": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py",
+        "status": "A",
+        "mode": "100644",
+        "object_id": "d9ff9803aebf2641ed4e2bd8680a50a8edcf95ba",
+        "bytes": 19187,
+        "sha256": "d99f6f850f2c3c2465a9aba926c95121a24eacd8425d828ac07a5bc88095df0f",
+        "kind": "publication_or_verification_utility",
+        "writer_attribution": {
+          "writer": "A",
+          "basis": "Publication path unit and explicit E-root publication writer lease; this does not transfer product ownership",
+          "canonical_product_writer": null
+        },
+        "attribution_basis": "Reuse explicit prior actual writer/lease attribution only after actual Git set and full physical/object byte equality; no prospective count assumed.",
+        "physical_equals_candidate": true,
+        "delta_source_qualification": null
+      },
+      "actual_Ruff_diagnostic_count": 1,
+      "native_Ruff_codes": {
+        "I001": 1
+      },
+      "actual_Ruff_diagnostics": [
+        {
+          "cell": null,
+          "code": "I001",
+          "end_location": {
+            "column": 23,
+            "row": 13
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/A/compiler-full/census_tracked_python.py",
+          "fix": {
+            "applicability": "safe",
+            "edits": [
+              {
+                "content": "from __future__ import annotations\n\nimport ast\nimport importlib.util\nimport json\nimport shutil\nimport subprocess\nimport sys\nfrom collections import Counter\nfrom pathlib import Path, PurePosixPath\nfrom typing import Any\n\n\n",
+                "end_location": {
+                  "column": 1,
+                  "row": 15
+                },
+                "location": {
+                  "column": 1,
+                  "row": 3
+                }
+              }
+            ],
+            "message": "Organize imports"
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          },
+          "message": "Import block is un-sorted or un-formatted",
+          "noqa_row": 3,
+          "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+        }
+      ],
+      "actual_format_change_required": true,
+      "next_owner": "A",
+      "canonical_mechanism_unit": null,
+      "owner_result_required": "Canonical author-owned source fix with historical bytes retained; actual affected controls/review and refreshed canonical gate after append. No foreign edits or exceptions by E."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+      "source_input": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+        "status": "A",
+        "mode": "100644",
+        "object_id": "78be2e7776629829175e0653cd6cc22bf97a31c6",
+        "bytes": 2448,
+        "sha256": "0d36f842bea61660fd40cbf9bb8faeae993d93f2cb1e512f9f5ebdaf13b54406",
+        "kind": "publication_or_verification_utility",
+        "writer_attribution": {
+          "writer": "B",
+          "basis": "Publication path unit and explicit E-root publication writer lease; this does not transfer product ownership",
+          "canonical_product_writer": null
+        },
+        "attribution_basis": "Reuse explicit prior actual writer/lease attribution only after actual Git set and full physical/object byte equality; no prospective count assumed.",
+        "physical_equals_candidate": true,
+        "delta_source_qualification": null
+      },
+      "actual_Ruff_diagnostic_count": 16,
+      "native_Ruff_codes": {
+        "E401": 1,
+        "I001": 1,
+        "S607": 3,
+        "ANN201": 1,
+        "S101": 1,
+        "E501": 5,
+        "S603": 1,
+        "S314": 1,
+        "T201": 2
+      },
+      "actual_Ruff_diagnostics": [
+        {
+          "cell": null,
+          "code": "E401",
+          "end_location": {
+            "column": 97,
+            "row": 1
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+          "fix": {
+            "applicability": "safe",
+            "edits": [
+              {
+                "content": "import datetime\nimport hashlib\nimport json\nimport os\nimport resource\nimport subprocess\nimport sys\nimport time\nimport xml.etree.ElementTree as ET",
+                "end_location": {
+                  "column": 97,
+                  "row": 1
+                },
+                "location": {
+                  "column": 1,
+                  "row": 1
+                }
+              }
+            ],
+            "message": "Split imports"
+          },
+          "location": {
+            "column": 1,
+            "row": 1
+          },
+          "message": "Multiple imports on one line",
+          "noqa_row": 1,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-imports-on-one-line"
+        },
+        {
+          "cell": null,
+          "code": "I001",
+          "end_location": {
+            "column": 25,
+            "row": 2
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+          "fix": {
+            "applicability": "safe",
+            "edits": [
+              {
+                "content": "import datetime\nimport hashlib\nimport json\nimport os\nimport resource\nimport subprocess\nimport sys\nimport time\nimport xml.etree.ElementTree as ET\nfrom pathlib import Path\n\n",
+                "end_location": {
+                  "column": 1,
+                  "row": 3
+                },
+                "location": {
+                  "column": 1,
+                  "row": 1
+                }
+              }
+            ],
+            "message": "Organize imports"
+          },
+          "location": {
+            "column": 1,
+            "row": 1
+          },
+          "message": "Import block is un-sorted or un-formatted",
+          "noqa_row": 1,
+          "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+        },
+        {
+          "cell": null,
+          "code": "S607",
+          "end_location": {
+            "column": 59,
+            "row": 8
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+          "fix": null,
+          "location": {
+            "column": 31,
+            "row": 8
+          },
+          "message": "Starting a process with a partial executable path",
+          "noqa_row": 8,
+          "url": "https://docs.astral.sh/ruff/rules/start-process-with-partial-path"
+        },
+        {
+          "cell": null,
+          "code": "S607",
+          "end_location": {
+            "column": 67,
+            "row": 9
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+          "fix": null,
+          "location": {
+            "column": 32,
+            "row": 9
+          },
+          "message": "Starting a process with a partial executable path",
+          "noqa_row": 9,
+          "url": "https://docs.astral.sh/ruff/rules/start-process-with-partial-path"
+        },
+        {
+          "cell": null,
+          "code": "ANN201",
+          "end_location": {
+            "column": 11,
+            "row": 10
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+          "fix": null,
+          "location": {
+            "column": 5,
+            "row": 10
+          },
+          "message": "Missing return type annotation for public function `status`",
+          "noqa_row": 10,
+          "url": "https://docs.astral.sh/ruff/rules/missing-return-type-undocumented-public-function"
+        },
+        {
+          "cell": null,
+          "code": "S607",
+          "end_location": {
+            "column": 68,
+            "row": 11
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+          "fix": null,
+          "location": {
+            "column": 36,
+            "row": 11
+          },
+          "message": "Starting a process with a partial executable path",
+          "noqa_row": 11,
+          "url": "https://docs.astral.sh/ruff/rules/start-process-with-partial-path"
+        },
+        {
+          "cell": null,
+          "code": "S101",
+          "end_location": {
+            "column": 7,
+            "row": 12
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+          "fix": null,
+          "location": {
+            "column": 1,
+            "row": 12
+          },
+          "message": "Use of `assert` detected",
+          "noqa_row": 12,
+          "url": "https://docs.astral.sh/ruff/rules/assert"
+        },
+        {
+          "cell": null,
+          "code": "E501",
+          "end_location": {
+            "column": 105,
+            "row": 15
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+          "fix": null,
+          "location": {
+            "column": 101,
+            "row": 15
+          },
+          "message": "Line too long (104 > 100)",
+          "noqa_row": 15,
+          "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+        },
+        {
+          "cell": null,
+          "code": "S603",
+          "end_location": {
+            "column": 25,
+            "row": 22
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+          "fix": null,
+          "location": {
+            "column": 11,
+            "row": 22
+          },
+          "message": "`subprocess` call: check for execution of untrusted input",
+          "noqa_row": 22,
+          "url": "https://docs.astral.sh/ruff/rules/subprocess-without-shell-equals-true"
+        },
+        {
+          "cell": null,
+          "code": "E501",
+          "end_location": {
+            "column": 106,
+            "row": 22
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+          "fix": null,
+          "location": {
+            "column": 101,
+            "row": 22
+          },
+          "message": "Line too long (105 > 100)",
+          "noqa_row": 22,
+          "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+        },
+        {
+          "cell": null,
+          "code": "S314",
+          "end_location": {
+            "column": 23,
+            "row": 24
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+          "fix": null,
+          "location": {
+            "column": 10,
+            "row": 24
+          },
+          "message": "Using `xml` to parse untrusted data is known to be vulnerable to XML attacks; use `defusedxml` equivalents",
+          "noqa_row": 24,
+          "url": "https://docs.astral.sh/ruff/rules/suspicious-xml-element-tree-usage"
+        },
+        {
+          "cell": null,
+          "code": "E501",
+          "end_location": {
+            "column": 112,
+            "row": 31
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+          "fix": null,
+          "location": {
+            "column": 101,
+            "row": 31
+          },
+          "message": "Line too long (111 > 100)",
+          "noqa_row": 31,
+          "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+        },
+        {
+          "cell": null,
+          "code": "E501",
+          "end_location": {
+            "column": 225,
+            "row": 32
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+          "fix": null,
+          "location": {
+            "column": 101,
+            "row": 32
+          },
+          "message": "Line too long (224 > 100)",
+          "noqa_row": 32,
+          "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+        },
+        {
+          "cell": null,
+          "code": "E501",
+          "end_location": {
+            "column": 153,
+            "row": 33
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+          "fix": null,
+          "location": {
+            "column": 101,
+            "row": 33
+          },
+          "message": "Line too long (152 > 100)",
+          "noqa_row": 33,
+          "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+        },
+        {
+          "cell": null,
+          "code": "T201",
+          "end_location": {
+            "column": 6,
+            "row": 35
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+          "fix": {
+            "applicability": "unsafe",
+            "edits": [
+              {
+                "content": "",
+                "end_location": {
+                  "column": 1,
+                  "row": 36
+                },
+                "location": {
+                  "column": 1,
+                  "row": 35
+                }
+              }
+            ],
+            "message": "Remove `print`"
+          },
+          "location": {
+            "column": 1,
+            "row": 35
+          },
+          "message": "`print` found",
+          "noqa_row": 35,
+          "url": "https://docs.astral.sh/ruff/rules/print"
+        },
+        {
+          "cell": null,
+          "code": "T201",
+          "end_location": {
+            "column": 6,
+            "row": 36
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/run_frozen.py",
+          "fix": {
+            "applicability": "unsafe",
+            "edits": [
+              {
+                "content": "",
+                "end_location": {
+                  "column": 1,
+                  "row": 37
+                },
+                "location": {
+                  "column": 1,
+                  "row": 36
+                }
+              }
+            ],
+            "message": "Remove `print`"
+          },
+          "location": {
+            "column": 1,
+            "row": 36
+          },
+          "message": "`print` found",
+          "noqa_row": 36,
+          "url": "https://docs.astral.sh/ruff/rules/print"
+        }
+      ],
+      "actual_format_change_required": true,
+      "next_owner": "B",
+      "canonical_mechanism_unit": null,
+      "owner_result_required": "Canonical author-owned source fix with historical bytes retained; actual affected controls/review and refreshed canonical gate after append. No foreign edits or exceptions by E."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+      "source_input": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+        "status": "A",
+        "mode": "100644",
+        "object_id": "82d034330843b5dd069c23bc46d8cd5c11ec4ece",
+        "bytes": 2670,
+        "sha256": "aaca0830027093fceac650e2b247074fc2db102a35c28d9e84809bb646242b88",
+        "kind": "publication_or_verification_utility",
+        "writer_attribution": {
+          "writer": "B",
+          "basis": "Publication path unit and explicit E-root publication writer lease; this does not transfer product ownership",
+          "canonical_product_writer": null
+        },
+        "attribution_basis": "Reuse explicit prior actual writer/lease attribution only after actual Git set and full physical/object byte equality; no prospective count assumed.",
+        "physical_equals_candidate": true,
+        "delta_source_qualification": null
+      },
+      "actual_Ruff_diagnostic_count": 19,
+      "native_Ruff_codes": {
+        "E401": 1,
+        "I001": 1,
+        "S101": 7,
+        "S603": 2,
+        "S607": 1,
+        "E501": 4,
+        "S102": 1,
+        "C408": 1,
+        "T201": 1
+      },
+      "actual_Ruff_diagnostics": [
+        {
+          "cell": null,
+          "code": "E401",
+          "end_location": {
+            "column": 42,
+            "row": 2
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+          "fix": {
+            "applicability": "safe",
+            "edits": [
+              {
+                "content": "import hashlib\nimport json\nimport os\nimport subprocess\nimport sys",
+                "end_location": {
+                  "column": 42,
+                  "row": 2
+                },
+                "location": {
+                  "column": 1,
+                  "row": 2
+                }
+              }
+            ],
+            "message": "Split imports"
+          },
+          "location": {
+            "column": 1,
+            "row": 2
+          },
+          "message": "Multiple imports on one line",
+          "noqa_row": 2,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-imports-on-one-line"
+        },
+        {
+          "cell": null,
+          "code": "I001",
+          "end_location": {
+            "column": 84,
+            "row": 6
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+          "fix": {
+            "applicability": "safe",
+            "edits": [
+              {
+                "content": "import hashlib\nimport json\nimport os\nimport subprocess\nimport sys\nfrom decimal import Decimal\nfrom pathlib import Path\n\nfrom polisyos.scientist.orchestration.engine import budget_ledger as module\nfrom polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState\n\n",
+                "end_location": {
+                  "column": 1,
+                  "row": 7
+                },
+                "location": {
+                  "column": 1,
+                  "row": 2
+                }
+              }
+            ],
+            "message": "Organize imports"
+          },
+          "location": {
+            "column": 1,
+            "row": 2
+          },
+          "message": "Import block is un-sorted or un-formatted",
+          "noqa_row": 2,
+          "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+        },
+        {
+          "cell": null,
+          "code": "S101",
+          "end_location": {
+            "column": 7,
+            "row": 10
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+          "fix": null,
+          "location": {
+            "column": 1,
+            "row": 10
+          },
+          "message": "Use of `assert` detected",
+          "noqa_row": 10,
+          "url": "https://docs.astral.sh/ruff/rules/assert"
+        },
+        {
+          "cell": null,
+          "code": "S101",
+          "end_location": {
+            "column": 7,
+            "row": 12
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+          "fix": null,
+          "location": {
+            "column": 1,
+            "row": 12
+          },
+          "message": "Use of `assert` detected",
+          "noqa_row": 12,
+          "url": "https://docs.astral.sh/ruff/rules/assert"
+        },
+        {
+          "cell": null,
+          "code": "S603",
+          "end_location": {
+            "column": 39,
+            "row": 13
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+          "fix": null,
+          "location": {
+            "column": 16,
+            "row": 13
+          },
+          "message": "`subprocess` call: check for execution of untrusted input",
+          "noqa_row": 13,
+          "url": "https://docs.astral.sh/ruff/rules/subprocess-without-shell-equals-true"
+        },
+        {
+          "cell": null,
+          "code": "S607",
+          "end_location": {
+            "column": 143,
+            "row": 13
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+          "fix": null,
+          "location": {
+            "column": 40,
+            "row": 13
+          },
+          "message": "Starting a process with a partial executable path",
+          "noqa_row": 13,
+          "url": "https://docs.astral.sh/ruff/rules/start-process-with-partial-path"
+        },
+        {
+          "cell": null,
+          "code": "E501",
+          "end_location": {
+            "column": 153,
+            "row": 13
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+          "fix": null,
+          "location": {
+            "column": 101,
+            "row": 13
+          },
+          "message": "Line too long (152 > 100)",
+          "noqa_row": 13,
+          "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+        },
+        {
+          "cell": null,
+          "code": "S101",
+          "end_location": {
+            "column": 7,
+            "row": 14
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+          "fix": null,
+          "location": {
+            "column": 1,
+            "row": 14
+          },
+          "message": "Use of `assert` detected",
+          "noqa_row": 14,
+          "url": "https://docs.astral.sh/ruff/rules/assert"
+        },
+        {
+          "cell": null,
+          "code": "S101",
+          "end_location": {
+            "column": 7,
+            "row": 17
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+          "fix": null,
+          "location": {
+            "column": 1,
+            "row": 17
+          },
+          "message": "Use of `assert` detected",
+          "noqa_row": 17,
+          "url": "https://docs.astral.sh/ruff/rules/assert"
+        },
+        {
+          "cell": null,
+          "code": "S102",
+          "end_location": {
+            "column": 9,
+            "row": 20
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+          "fix": null,
+          "location": {
+            "column": 5,
+            "row": 20
+          },
+          "message": "Use of `exec` detected",
+          "noqa_row": 20,
+          "url": "https://docs.astral.sh/ruff/rules/exec-builtin"
+        },
+        {
+          "cell": null,
+          "code": "S101",
+          "end_location": {
+            "column": 11,
+            "row": 22
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+          "fix": null,
+          "location": {
+            "column": 5,
+            "row": 22
+          },
+          "message": "Use of `assert` detected",
+          "noqa_row": 22,
+          "url": "https://docs.astral.sh/ruff/rules/assert"
+        },
+        {
+          "cell": null,
+          "code": "C408",
+          "end_location": {
+            "column": 168,
+            "row": 25
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+          "fix": {
+            "applicability": "unsafe",
+            "edits": [
+              {
+                "content": "{'event_id': 'observed-producer-1:run','key': 'run','amount': Decimal('2'),'provider': 'provider','payload_digest': hashlib.sha256(b'actual immutable result').hexdigest()}",
+                "end_location": {
+                  "column": 168,
+                  "row": 25
+                },
+                "location": {
+                  "column": 8,
+                  "row": 25
+                }
+              }
+            ],
+            "message": "Rewrite as a literal"
+          },
+          "location": {
+            "column": 8,
+            "row": 25
+          },
+          "message": "Unnecessary `dict()` call (rewrite as a literal)",
+          "noqa_row": 25,
+          "url": "https://docs.astral.sh/ruff/rules/unnecessary-collection-call"
+        },
+        {
+          "cell": null,
+          "code": "E501",
+          "end_location": {
+            "column": 168,
+            "row": 25
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+          "fix": null,
+          "location": {
+            "column": 101,
+            "row": 25
+          },
+          "message": "Line too long (167 > 100)",
+          "noqa_row": 25,
+          "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+        },
+        {
+          "cell": null,
+          "code": "S603",
+          "end_location": {
+            "column": 24,
+            "row": 29
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+          "fix": null,
+          "location": {
+            "column": 10,
+            "row": 29
+          },
+          "message": "`subprocess` call: check for execution of untrusted input",
+          "noqa_row": 29,
+          "url": "https://docs.astral.sh/ruff/rules/subprocess-without-shell-equals-true"
+        },
+        {
+          "cell": null,
+          "code": "E501",
+          "end_location": {
+            "column": 480,
+            "row": 29
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+          "fix": null,
+          "location": {
+            "column": 101,
+            "row": 29
+          },
+          "message": "Line too long (479 > 100)",
+          "noqa_row": 29,
+          "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+        },
+        {
+          "cell": null,
+          "code": "T201",
+          "end_location": {
+            "column": 6,
+            "row": 31
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+          "fix": {
+            "applicability": "unsafe",
+            "edits": [
+              {
+                "content": "",
+                "end_location": {
+                  "column": 1,
+                  "row": 32
+                },
+                "location": {
+                  "column": 1,
+                  "row": 31
+                }
+              }
+            ],
+            "message": "Remove `print`"
+          },
+          "location": {
+            "column": 1,
+            "row": 31
+          },
+          "message": "`print` found",
+          "noqa_row": 31,
+          "url": "https://docs.astral.sh/ruff/rules/print"
+        },
+        {
+          "cell": null,
+          "code": "E501",
+          "end_location": {
+            "column": 362,
+            "row": 31
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+          "fix": null,
+          "location": {
+            "column": 101,
+            "row": 31
+          },
+          "message": "Line too long (361 > 100)",
+          "noqa_row": 31,
+          "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+        },
+        {
+          "cell": null,
+          "code": "S101",
+          "end_location": {
+            "column": 7,
+            "row": 32
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+          "fix": null,
+          "location": {
+            "column": 1,
+            "row": 32
+          },
+          "message": "Use of `assert` detected",
+          "noqa_row": 32,
+          "url": "https://docs.astral.sh/ruff/rules/assert"
+        },
+        {
+          "cell": null,
+          "code": "S101",
+          "end_location": {
+            "column": 7,
+            "row": 33
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/current-durability-evidence/settlement/settlement_removal.py",
+          "fix": null,
+          "location": {
+            "column": 1,
+            "row": 33
+          },
+          "message": "Use of `assert` detected",
+          "noqa_row": 33,
+          "url": "https://docs.astral.sh/ruff/rules/assert"
+        }
+      ],
+      "actual_format_change_required": true,
+      "next_owner": "B",
+      "canonical_mechanism_unit": null,
+      "owner_result_required": "Canonical author-owned source fix with historical bytes retained; actual affected controls/review and refreshed canonical gate after append. No foreign edits or exceptions by E."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/probe_runner.py",
+      "source_input": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/probe_runner.py",
+        "status": "A",
+        "mode": "100644",
+        "object_id": "cfaa910075caf561906970210186f71053f53994",
+        "bytes": 8256,
+        "sha256": "a8782f96386cf9502de662dea4116df66f61c24537bcf8d22f5c0da2ff940bbb",
+        "kind": "publication_or_verification_utility",
+        "writer_attribution": {
+          "writer": "G",
+          "canonical_mechanism_unit": "C",
+          "basis": {
+            "source": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/receipt.json",
+            "git_object_id": "d15031fbcd5be9a560cf57568b4a9f18dc507195",
+            "sha256": "5b2878f83c817dfa4d1de5e8e3cec5751581c9eb08df910cfa98dc1de610440b",
+            "task": "G local exact-candidate C canonical IR consumer/probe check",
+            "full_bundle_owner_row": "CAN-01/C/C-W02"
+          },
+          "scope": "Exact incoming G855 independent C-canon publication utility; foreign input, no E repair/waiver"
+        },
+        "attribution_basis": "Reuse explicit prior actual writer/lease attribution only after actual Git set and full physical/object byte equality; no prospective count assumed.",
+        "physical_equals_candidate": true,
+        "delta_source_qualification": null
+      },
+      "actual_Ruff_diagnostic_count": 21,
+      "native_Ruff_codes": {
+        "E501": 8,
+        "T201": 2,
+        "ANN201": 3,
+        "ANN001": 5,
+        "S603": 1,
+        "S607": 1,
+        "S324": 1
+      },
+      "actual_Ruff_diagnostics": [
+        {
+          "cell": null,
+          "code": "E501",
+          "end_location": {
+            "column": 103,
+            "row": 22
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/probe_runner.py",
+          "fix": null,
+          "location": {
+            "column": 101,
+            "row": 22
+          },
+          "message": "Line too long (102 > 100)",
+          "noqa_row": 22,
+          "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+        },
+        {
+          "cell": null,
+          "code": "T201",
+          "end_location": {
+            "column": 10,
+            "row": 24
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/probe_runner.py",
+          "fix": {
+            "applicability": "unsafe",
+            "edits": [
+              {
+                "content": "",
+                "end_location": {
+                  "column": 1,
+                  "row": 25
+                },
+                "location": {
+                  "column": 1,
+                  "row": 24
+                }
+              }
+            ],
+            "message": "Remove `print`"
+          },
+          "location": {
+            "column": 5,
+            "row": 24
+          },
+          "message": "`print` found",
+          "noqa_row": 24,
+          "url": "https://docs.astral.sh/ruff/rules/print"
+        },
+        {
+          "cell": null,
+          "code": "ANN201",
+          "end_location": {
+            "column": 18,
+            "row": 30
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/probe_runner.py",
+          "fix": null,
+          "location": {
+            "column": 9,
+            "row": 30
+          },
+          "message": "Missing return type annotation for public function `find_spec`",
+          "noqa_row": 30,
+          "url": "https://docs.astral.sh/ruff/rules/missing-return-type-undocumented-public-function"
+        },
+        {
+          "cell": null,
+          "code": "ANN001",
+          "end_location": {
+            "column": 33,
+            "row": 30
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/probe_runner.py",
+          "fix": null,
+          "location": {
+            "column": 25,
+            "row": 30
+          },
+          "message": "Missing type annotation for function argument `fullname`",
+          "noqa_row": 30,
+          "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+        },
+        {
+          "cell": null,
+          "code": "ANN001",
+          "end_location": {
+            "column": 39,
+            "row": 30
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/probe_runner.py",
+          "fix": null,
+          "location": {
+            "column": 35,
+            "row": 30
+          },
+          "message": "Missing type annotation for function argument `path`",
+          "noqa_row": 30,
+          "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+        },
+        {
+          "cell": null,
+          "code": "ANN001",
+          "end_location": {
+            "column": 52,
+            "row": 30
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/probe_runner.py",
+          "fix": null,
+          "location": {
+            "column": 46,
+            "row": 30
+          },
+          "message": "Missing type annotation for function argument `target`",
+          "noqa_row": 30,
+          "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+        },
+        {
+          "cell": null,
+          "code": "E501",
+          "end_location": {
+            "column": 102,
+            "row": 43
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/probe_runner.py",
+          "fix": null,
+          "location": {
+            "column": 101,
+            "row": 43
+          },
+          "message": "Line too long (101 > 100)",
+          "noqa_row": 43,
+          "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+        },
+        {
+          "cell": null,
+          "code": "E501",
+          "end_location": {
+            "column": 108,
+            "row": 98
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/probe_runner.py",
+          "fix": null,
+          "location": {
+            "column": 101,
+            "row": 98
+          },
+          "message": "Line too long (107 > 100)",
+          "noqa_row": 98,
+          "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+        },
+        {
+          "cell": null,
+          "code": "ANN201",
+          "end_location": {
+            "column": 22,
+            "row": 108
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/probe_runner.py",
+          "fix": null,
+          "location": {
+            "column": 13,
+            "row": 108
+          },
+          "message": "Missing return type annotation for public function `get_bytes`",
+          "noqa_row": 108,
+          "url": "https://docs.astral.sh/ruff/rules/missing-return-type-undocumented-public-function"
+        },
+        {
+          "cell": null,
+          "code": "ANN001",
+          "end_location": {
+            "column": 32,
+            "row": 108
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/probe_runner.py",
+          "fix": null,
+          "location": {
+            "column": 29,
+            "row": 108
+          },
+          "message": "Missing type annotation for function argument `key`",
+          "noqa_row": 108,
+          "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+        },
+        {
+          "cell": null,
+          "code": "ANN201",
+          "end_location": {
+            "column": 25,
+            "row": 111
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/probe_runner.py",
+          "fix": null,
+          "location": {
+            "column": 13,
+            "row": 111
+          },
+          "message": "Missing return type annotation for public function `get_manifest`",
+          "noqa_row": 111,
+          "url": "https://docs.astral.sh/ruff/rules/missing-return-type-undocumented-public-function"
+        },
+        {
+          "cell": null,
+          "code": "ANN001",
+          "end_location": {
+            "column": 35,
+            "row": 111
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/probe_runner.py",
+          "fix": null,
+          "location": {
+            "column": 32,
+            "row": 111
+          },
+          "message": "Missing type annotation for function argument `key`",
+          "noqa_row": 111,
+          "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+        },
+        {
+          "cell": null,
+          "code": "E501",
+          "end_location": {
+            "column": 128,
+            "row": 128
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/probe_runner.py",
+          "fix": null,
+          "location": {
+            "column": 101,
+            "row": 128
+          },
+          "message": "Line too long (127 > 100)",
+          "noqa_row": 128,
+          "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+        },
+        {
+          "cell": null,
+          "code": "S603",
+          "end_location": {
+            "column": 34,
+            "row": 136
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/probe_runner.py",
+          "fix": null,
+          "location": {
+            "column": 11,
+            "row": 136
+          },
+          "message": "`subprocess` call: check for execution of untrusted input",
+          "noqa_row": 136,
+          "url": "https://docs.astral.sh/ruff/rules/subprocess-without-shell-equals-true"
+        },
+        {
+          "cell": null,
+          "code": "S607",
+          "end_location": {
+            "column": 80,
+            "row": 137
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/probe_runner.py",
+          "fix": null,
+          "location": {
+            "column": 5,
+            "row": 137
+          },
+          "message": "Starting a process with a partial executable path",
+          "noqa_row": 137,
+          "url": "https://docs.astral.sh/ruff/rules/start-process-with-partial-path"
+        },
+        {
+          "cell": null,
+          "code": "E501",
+          "end_location": {
+            "column": 108,
+            "row": 160
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/probe_runner.py",
+          "fix": null,
+          "location": {
+            "column": 101,
+            "row": 160
+          },
+          "message": "Line too long (107 > 100)",
+          "noqa_row": 160,
+          "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+        },
+        {
+          "cell": null,
+          "code": "S324",
+          "end_location": {
+            "column": 24,
+            "row": 164
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/probe_runner.py",
+          "fix": null,
+          "location": {
+            "column": 12,
+            "row": 164
+          },
+          "message": "Probable use of insecure hash functions in `hashlib`: `sha1`",
+          "noqa_row": 164,
+          "url": "https://docs.astral.sh/ruff/rules/hashlib-insecure-hash-function"
+        },
+        {
+          "cell": null,
+          "code": "E501",
+          "end_location": {
+            "column": 123,
+            "row": 176
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/probe_runner.py",
+          "fix": null,
+          "location": {
+            "column": 101,
+            "row": 176
+          },
+          "message": "Line too long (122 > 100)",
+          "noqa_row": 176,
+          "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+        },
+        {
+          "cell": null,
+          "code": "E501",
+          "end_location": {
+            "column": 103,
+            "row": 192
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/probe_runner.py",
+          "fix": null,
+          "location": {
+            "column": 101,
+            "row": 192
+          },
+          "message": "Line too long (102 > 100)",
+          "noqa_row": 192,
+          "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+        },
+        {
+          "cell": null,
+          "code": "E501",
+          "end_location": {
+            "column": 102,
+            "row": 193
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/probe_runner.py",
+          "fix": null,
+          "location": {
+            "column": 101,
+            "row": 193
+          },
+          "message": "Line too long (101 > 100)",
+          "noqa_row": 193,
+          "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+        },
+        {
+          "cell": null,
+          "code": "T201",
+          "end_location": {
+            "column": 6,
+            "row": 194
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/probe_runner.py",
+          "fix": {
+            "applicability": "unsafe",
+            "edits": [
+              {
+                "content": "",
+                "end_location": {
+                  "column": 1,
+                  "row": 195
+                },
+                "location": {
+                  "column": 1,
+                  "row": 194
+                }
+              }
+            ],
+            "message": "Remove `print`"
+          },
+          "location": {
+            "column": 1,
+            "row": 194
+          },
+          "message": "`print` found",
+          "noqa_row": 194,
+          "url": "https://docs.astral.sh/ruff/rules/print"
+        }
+      ],
+      "actual_format_change_required": true,
+      "next_owner": "G",
+      "canonical_mechanism_unit": "C",
+      "owner_result_required": "Canonical author-owned source fix with historical bytes retained; actual affected controls/review and refreshed canonical gate after append. No foreign edits or exceptions by E."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+      "source_input": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+        "status": "A",
+        "mode": "100644",
+        "object_id": "52c285f11632a8eab8ff103b25ea5763e8ebfc14",
+        "bytes": 6261,
+        "sha256": "1ad19f77f3e1f367ff5d21c1efc1b6f9bc18175c0bbdda2b3dc36fba93ed1215",
+        "kind": "publication_or_verification_utility",
+        "writer_attribution": {
+          "writer": "G",
+          "canonical_mechanism_unit": "C",
+          "basis": {
+            "source": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/receipt.json",
+            "git_object_id": "d15031fbcd5be9a560cf57568b4a9f18dc507195",
+            "sha256": "5b2878f83c817dfa4d1de5e8e3cec5751581c9eb08df910cfa98dc1de610440b",
+            "task": "G local exact-candidate C canonical IR consumer/probe check",
+            "full_bundle_owner_row": "CAN-01/C/C-W02"
+          },
+          "scope": "Exact incoming G855 independent C-canon publication utility; foreign input, no E repair/waiver"
+        },
+        "attribution_basis": "Reuse explicit prior actual writer/lease attribution only after actual Git set and full physical/object byte equality; no prospective count assumed.",
+        "physical_equals_candidate": true,
+        "delta_source_qualification": null
+      },
+      "actual_Ruff_diagnostic_count": 56,
+      "native_Ruff_codes": {
+        "I001": 2,
+        "E401": 1,
+        "E701": 13,
+        "ANN201": 4,
+        "ANN001": 6,
+        "E501": 9,
+        "E702": 13,
+        "E402": 3,
+        "ANN204": 1,
+        "S603": 1,
+        "S607": 1,
+        "S324": 1,
+        "T201": 1
+      },
+      "actual_Ruff_diagnostics": [
+        {
+          "cell": null,
+          "code": "I001",
+          "end_location": {
+            "column": 25,
+            "row": 6
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": {
+            "applicability": "safe",
+            "edits": [
+              {
+                "content": "from __future__ import annotations\n\nimport hashlib\nimport json\nimport os\nimport subprocess\nimport sys\nfrom collections.abc import Mapping\nfrom importlib.abc import MetaPathFinder\nfrom importlib.machinery import PathFinder\nfrom pathlib import Path\n\n",
+                "end_location": {
+                  "column": 1,
+                  "row": 7
+                },
+                "location": {
+                  "column": 1,
+                  "row": 1
+                }
+              }
+            ],
+            "message": "Organize imports"
+          },
+          "location": {
+            "column": 1,
+            "row": 1
+          },
+          "message": "Import block is un-sorted or un-formatted",
+          "noqa_row": 1,
+          "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+        },
+        {
+          "cell": null,
+          "code": "E401",
+          "end_location": {
+            "column": 42,
+            "row": 2
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": {
+            "applicability": "safe",
+            "edits": [
+              {
+                "content": "import hashlib\nimport json\nimport os\nimport subprocess\nimport sys",
+                "end_location": {
+                  "column": 42,
+                  "row": 2
+                },
+                "location": {
+                  "column": 1,
+                  "row": 2
+                }
+              }
+            ],
+            "message": "Split imports"
+          },
+          "location": {
+            "column": 1,
+            "row": 2
+          },
+          "message": "Multiple imports on one line",
+          "noqa_row": 2,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-imports-on-one-line"
+        },
+        {
+          "cell": null,
+          "code": "E701",
+          "end_location": {
+            "column": 14,
+            "row": 13
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 13,
+            "row": 13
+          },
+          "message": "Multiple statements on one line (colon)",
+          "noqa_row": 13,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-colon"
+        },
+        {
+          "cell": null,
+          "code": "ANN201",
+          "end_location": {
+            "column": 18,
+            "row": 15
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 9,
+            "row": 15
+          },
+          "message": "Missing return type annotation for public function `find_spec`",
+          "noqa_row": 15,
+          "url": "https://docs.astral.sh/ruff/rules/missing-return-type-undocumented-public-function"
+        },
+        {
+          "cell": null,
+          "code": "ANN001",
+          "end_location": {
+            "column": 33,
+            "row": 15
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 25,
+            "row": 15
+          },
+          "message": "Missing type annotation for function argument `fullname`",
+          "noqa_row": 15,
+          "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+        },
+        {
+          "cell": null,
+          "code": "ANN001",
+          "end_location": {
+            "column": 39,
+            "row": 15
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 35,
+            "row": 15
+          },
+          "message": "Missing type annotation for function argument `path`",
+          "noqa_row": 15,
+          "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+        },
+        {
+          "cell": null,
+          "code": "ANN001",
+          "end_location": {
+            "column": 52,
+            "row": 15
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 46,
+            "row": 15
+          },
+          "message": "Missing type annotation for function argument `target`",
+          "noqa_row": 15,
+          "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+        },
+        {
+          "cell": null,
+          "code": "E701",
+          "end_location": {
+            "column": 74,
+            "row": 16
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 73,
+            "row": 16
+          },
+          "message": "Multiple statements on one line (colon)",
+          "noqa_row": 16,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-colon"
+        },
+        {
+          "cell": null,
+          "code": "E701",
+          "end_location": {
+            "column": 25,
+            "row": 18
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 24,
+            "row": 18
+          },
+          "message": "Multiple statements on one line (colon)",
+          "noqa_row": 18,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-colon"
+        },
+        {
+          "cell": null,
+          "code": "E701",
+          "end_location": {
+            "column": 69,
+            "row": 20
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 68,
+            "row": 20
+          },
+          "message": "Multiple statements on one line (colon)",
+          "noqa_row": 20,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-colon"
+        },
+        {
+          "cell": null,
+          "code": "E501",
+          "end_location": {
+            "column": 115,
+            "row": 20
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 101,
+            "row": 20
+          },
+          "message": "Line too long (114 > 100)",
+          "noqa_row": 20,
+          "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+        },
+        {
+          "cell": null,
+          "code": "E701",
+          "end_location": {
+            "column": 44,
+            "row": 21
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 43,
+            "row": 21
+          },
+          "message": "Multiple statements on one line (colon)",
+          "noqa_row": 21,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-colon"
+        },
+        {
+          "cell": null,
+          "code": "E501",
+          "end_location": {
+            "column": 121,
+            "row": 21
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 101,
+            "row": 21
+          },
+          "message": "Line too long (120 > 100)",
+          "noqa_row": 21,
+          "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+        },
+        {
+          "cell": null,
+          "code": "E702",
+          "end_location": {
+            "column": 47,
+            "row": 25
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 46,
+            "row": 25
+          },
+          "message": "Multiple statements on one line (semicolon)",
+          "noqa_row": 25,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+        },
+        {
+          "cell": null,
+          "code": "E402",
+          "end_location": {
+            "column": 72,
+            "row": 27
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 1,
+            "row": 27
+          },
+          "message": "Module level import not at top of file",
+          "noqa_row": 27,
+          "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+        },
+        {
+          "cell": null,
+          "code": "I001",
+          "end_location": {
+            "column": 74,
+            "row": 29
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": {
+            "applicability": "safe",
+            "edits": [
+              {
+                "content": "from polisyos.core.artifacts.ir_adapter import ensure_ir_artifact_store\nfrom polisyos.core.artifacts.store import FileSystemCAS\nfrom polisyos.ir.artifacts.io import get_json_artifact, put_json_artifact\n\n",
+                "end_location": {
+                  "column": 1,
+                  "row": 30
+                },
+                "location": {
+                  "column": 1,
+                  "row": 27
+                }
+              }
+            ],
+            "message": "Organize imports"
+          },
+          "location": {
+            "column": 1,
+            "row": 27
+          },
+          "message": "Import block is un-sorted or un-formatted",
+          "noqa_row": 27,
+          "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+        },
+        {
+          "cell": null,
+          "code": "E402",
+          "end_location": {
+            "column": 56,
+            "row": 28
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 1,
+            "row": 28
+          },
+          "message": "Module level import not at top of file",
+          "noqa_row": 28,
+          "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+        },
+        {
+          "cell": null,
+          "code": "E402",
+          "end_location": {
+            "column": 74,
+            "row": 29
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 1,
+            "row": 29
+          },
+          "message": "Module level import not at top of file",
+          "noqa_row": 29,
+          "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+        },
+        {
+          "cell": null,
+          "code": "E702",
+          "end_location": {
+            "column": 30,
+            "row": 31
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 29,
+            "row": 31
+          },
+          "message": "Multiple statements on one line (semicolon)",
+          "noqa_row": 31,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+        },
+        {
+          "cell": null,
+          "code": "E702",
+          "end_location": {
+            "column": 32,
+            "row": 34
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 31,
+            "row": 34
+          },
+          "message": "Multiple statements on one line (semicolon)",
+          "noqa_row": 34,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+        },
+        {
+          "cell": null,
+          "code": "ANN201",
+          "end_location": {
+            "column": 19,
+            "row": 36
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 5,
+            "row": 36
+          },
+          "message": "Missing return type annotation for public function `canonical_json`",
+          "noqa_row": 36,
+          "url": "https://docs.astral.sh/ruff/rules/missing-return-type-undocumented-public-function"
+        },
+        {
+          "cell": null,
+          "code": "ANN001",
+          "end_location": {
+            "column": 25,
+            "row": 36
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 20,
+            "row": 36
+          },
+          "message": "Missing type annotation for function argument `value`",
+          "noqa_row": 36,
+          "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+        },
+        {
+          "cell": null,
+          "code": "E501",
+          "end_location": {
+            "column": 107,
+            "row": 36
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 101,
+            "row": 36
+          },
+          "message": "Line too long (106 > 100)",
+          "noqa_row": 36,
+          "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+        },
+        {
+          "cell": null,
+          "code": "E702",
+          "end_location": {
+            "column": 39,
+            "row": 38
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 38,
+            "row": 38
+          },
+          "message": "Multiple statements on one line (semicolon)",
+          "noqa_row": 38,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+        },
+        {
+          "cell": null,
+          "code": "E501",
+          "end_location": {
+            "column": 122,
+            "row": 38
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 101,
+            "row": 38
+          },
+          "message": "Line too long (121 > 100)",
+          "noqa_row": 38,
+          "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+        },
+        {
+          "cell": null,
+          "code": "ANN204",
+          "end_location": {
+            "column": 17,
+            "row": 42
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": {
+            "applicability": "unsafe",
+            "edits": [
+              {
+                "content": " -> None",
+                "end_location": {
+                  "column": 23,
+                  "row": 42
+                },
+                "location": {
+                  "column": 23,
+                  "row": 42
+                }
+              }
+            ],
+            "message": "Add return type annotation: `None`"
+          },
+          "location": {
+            "column": 9,
+            "row": 42
+          },
+          "message": "Missing return type annotation for special method `__init__`",
+          "noqa_row": 42,
+          "url": "https://docs.astral.sh/ruff/rules/missing-return-type-special-method"
+        },
+        {
+          "cell": null,
+          "code": "E702",
+          "end_location": {
+            "column": 48,
+            "row": 42
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 47,
+            "row": 42
+          },
+          "message": "Multiple statements on one line (semicolon)",
+          "noqa_row": 42,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+        },
+        {
+          "cell": null,
+          "code": "ANN201",
+          "end_location": {
+            "column": 21,
+            "row": 43
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 9,
+            "row": 43
+          },
+          "message": "Missing return type annotation for public function `get_manifest`",
+          "noqa_row": 43,
+          "url": "https://docs.astral.sh/ruff/rules/missing-return-type-undocumented-public-function"
+        },
+        {
+          "cell": null,
+          "code": "ANN001",
+          "end_location": {
+            "column": 30,
+            "row": 43
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 27,
+            "row": 43
+          },
+          "message": "Missing type annotation for function argument `key`",
+          "noqa_row": 43,
+          "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+        },
+        {
+          "cell": null,
+          "code": "E701",
+          "end_location": {
+            "column": 39,
+            "row": 44
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 38,
+            "row": 44
+          },
+          "message": "Multiple statements on one line (colon)",
+          "noqa_row": 44,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-colon"
+        },
+        {
+          "cell": null,
+          "code": "ANN201",
+          "end_location": {
+            "column": 18,
+            "row": 48
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 9,
+            "row": 48
+          },
+          "message": "Missing return type annotation for public function `get_bytes`",
+          "noqa_row": 48,
+          "url": "https://docs.astral.sh/ruff/rules/missing-return-type-undocumented-public-function"
+        },
+        {
+          "cell": null,
+          "code": "ANN001",
+          "end_location": {
+            "column": 27,
+            "row": 48
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 24,
+            "row": 48
+          },
+          "message": "Missing type annotation for function argument `key`",
+          "noqa_row": 48,
+          "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+        },
+        {
+          "cell": null,
+          "code": "E702",
+          "end_location": {
+            "column": 41,
+            "row": 51
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 40,
+            "row": 51
+          },
+          "message": "Multiple statements on one line (semicolon)",
+          "noqa_row": 51,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+        },
+        {
+          "cell": null,
+          "code": "E702",
+          "end_location": {
+            "column": 19,
+            "row": 52
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 18,
+            "row": 52
+          },
+          "message": "Multiple statements on one line (semicolon)",
+          "noqa_row": 52,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+        },
+        {
+          "cell": null,
+          "code": "E701",
+          "end_location": {
+            "column": 5,
+            "row": 53
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 4,
+            "row": 53
+          },
+          "message": "Multiple statements on one line (colon)",
+          "noqa_row": 53,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-colon"
+        },
+        {
+          "cell": null,
+          "code": "E701",
+          "end_location": {
+            "column": 25,
+            "row": 54
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 24,
+            "row": 54
+          },
+          "message": "Multiple statements on one line (colon)",
+          "noqa_row": 54,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-colon"
+        },
+        {
+          "cell": null,
+          "code": "E501",
+          "end_location": {
+            "column": 118,
+            "row": 54
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 101,
+            "row": 54
+          },
+          "message": "Line too long (117 > 100)",
+          "noqa_row": 54,
+          "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+        },
+        {
+          "cell": null,
+          "code": "S603",
+          "end_location": {
+            "column": 27,
+            "row": 58
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 4,
+            "row": 58
+          },
+          "message": "`subprocess` call: check for execution of untrusted input",
+          "noqa_row": 58,
+          "url": "https://docs.astral.sh/ruff/rules/subprocess-without-shell-equals-true"
+        },
+        {
+          "cell": null,
+          "code": "S607",
+          "end_location": {
+            "column": 88,
+            "row": 58
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 28,
+            "row": 58
+          },
+          "message": "Starting a process with a partial executable path",
+          "noqa_row": 58,
+          "url": "https://docs.astral.sh/ruff/rules/start-process-with-partial-path"
+        },
+        {
+          "cell": null,
+          "code": "E702",
+          "end_location": {
+            "column": 34,
+            "row": 61
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 33,
+            "row": 61
+          },
+          "message": "Multiple statements on one line (semicolon)",
+          "noqa_row": 61,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+        },
+        {
+          "cell": null,
+          "code": "E701",
+          "end_location": {
+            "column": 21,
+            "row": 62
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 20,
+            "row": 62
+          },
+          "message": "Multiple statements on one line (colon)",
+          "noqa_row": 62,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-colon"
+        },
+        {
+          "cell": null,
+          "code": "E701",
+          "end_location": {
+            "column": 62,
+            "row": 65
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 61,
+            "row": 65
+          },
+          "message": "Multiple statements on one line (colon)",
+          "noqa_row": 65,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-colon"
+        },
+        {
+          "cell": null,
+          "code": "E701",
+          "end_location": {
+            "column": 81,
+            "row": 69
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 80,
+            "row": 69
+          },
+          "message": "Multiple statements on one line (colon)",
+          "noqa_row": 69,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-colon"
+        },
+        {
+          "cell": null,
+          "code": "E501",
+          "end_location": {
+            "column": 150,
+            "row": 69
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 101,
+            "row": 69
+          },
+          "message": "Line too long (149 > 100)",
+          "noqa_row": 69,
+          "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+        },
+        {
+          "cell": null,
+          "code": "E702",
+          "end_location": {
+            "column": 95,
+            "row": 70
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 94,
+            "row": 70
+          },
+          "message": "Multiple statements on one line (semicolon)",
+          "noqa_row": 70,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+        },
+        {
+          "cell": null,
+          "code": "E702",
+          "end_location": {
+            "column": 35,
+            "row": 71
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 34,
+            "row": 71
+          },
+          "message": "Multiple statements on one line (semicolon)",
+          "noqa_row": 71,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+        },
+        {
+          "cell": null,
+          "code": "E702",
+          "end_location": {
+            "column": 85,
+            "row": 71
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 84,
+            "row": 71
+          },
+          "message": "Multiple statements on one line (semicolon)",
+          "noqa_row": 71,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+        },
+        {
+          "cell": null,
+          "code": "E702",
+          "end_location": {
+            "column": 28,
+            "row": 72
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 27,
+            "row": 72
+          },
+          "message": "Multiple statements on one line (semicolon)",
+          "noqa_row": 72,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+        },
+        {
+          "cell": null,
+          "code": "S324",
+          "end_location": {
+            "column": 47,
+            "row": 72
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 35,
+            "row": 72
+          },
+          "message": "Probable use of insecure hash functions in `hashlib`: `sha1`",
+          "noqa_row": 72,
+          "url": "https://docs.astral.sh/ruff/rules/hashlib-insecure-hash-function"
+        },
+        {
+          "cell": null,
+          "code": "E501",
+          "end_location": {
+            "column": 132,
+            "row": 72
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 101,
+            "row": 72
+          },
+          "message": "Line too long (131 > 100)",
+          "noqa_row": 72,
+          "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+        },
+        {
+          "cell": null,
+          "code": "E702",
+          "end_location": {
+            "column": 105,
+            "row": 72
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 104,
+            "row": 72
+          },
+          "message": "Multiple statements on one line (semicolon)",
+          "noqa_row": 72,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+        },
+        {
+          "cell": null,
+          "code": "E501",
+          "end_location": {
+            "column": 216,
+            "row": 73
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 101,
+            "row": 73
+          },
+          "message": "Line too long (215 > 100)",
+          "noqa_row": 73,
+          "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+        },
+        {
+          "cell": null,
+          "code": "E701",
+          "end_location": {
+            "column": 30,
+            "row": 74
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 29,
+            "row": 74
+          },
+          "message": "Multiple statements on one line (colon)",
+          "noqa_row": 74,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-colon"
+        },
+        {
+          "cell": null,
+          "code": "E501",
+          "end_location": {
+            "column": 1042,
+            "row": 76
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 101,
+            "row": 76
+          },
+          "message": "Line too long (1041 > 100)",
+          "noqa_row": 76,
+          "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+        },
+        {
+          "cell": null,
+          "code": "T201",
+          "end_location": {
+            "column": 6,
+            "row": 77
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": {
+            "applicability": "unsafe",
+            "edits": [
+              {
+                "content": "",
+                "end_location": {
+                  "column": 1,
+                  "row": 78
+                },
+                "location": {
+                  "column": 1,
+                  "row": 77
+                }
+              }
+            ],
+            "message": "Remove `print`"
+          },
+          "location": {
+            "column": 1,
+            "row": 77
+          },
+          "message": "`print` found",
+          "noqa_row": 77,
+          "url": "https://docs.astral.sh/ruff/rules/print"
+        },
+        {
+          "cell": null,
+          "code": "E701",
+          "end_location": {
+            "column": 65,
+            "row": 78
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/probe.py",
+          "fix": null,
+          "location": {
+            "column": 64,
+            "row": 78
+          },
+          "message": "Multiple statements on one line (colon)",
+          "noqa_row": 78,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-colon"
+        }
+      ],
+      "actual_format_change_required": true,
+      "next_owner": "G",
+      "canonical_mechanism_unit": "C",
+      "owner_result_required": "Canonical author-owned source fix with historical bytes retained; actual affected controls/review and refreshed canonical gate after append. No foreign edits or exceptions by E."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/supervise.py",
+      "source_input": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/supervise.py",
+        "status": "A",
+        "mode": "100644",
+        "object_id": "68f426228d4c69ef749e814a980933846c181018",
+        "bytes": 1958,
+        "sha256": "c591f36d662b717d67f439ebf9504c2cf5531f80b6cb9a6dcdc685a11582e936",
+        "kind": "publication_or_verification_utility",
+        "writer_attribution": {
+          "writer": "G",
+          "canonical_mechanism_unit": "C",
+          "basis": {
+            "source": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/receipt.json",
+            "git_object_id": "d15031fbcd5be9a560cf57568b4a9f18dc507195",
+            "sha256": "5b2878f83c817dfa4d1de5e8e3cec5751581c9eb08df910cfa98dc1de610440b",
+            "task": "G local exact-candidate C canonical IR consumer/probe check",
+            "full_bundle_owner_row": "CAN-01/C/C-W02"
+          },
+          "scope": "Exact incoming G855 independent C-canon publication utility; foreign input, no E repair/waiver"
+        },
+        "attribution_basis": "Reuse explicit prior actual writer/lease attribution only after actual Git set and full physical/object byte equality; no prospective count assumed.",
+        "physical_equals_candidate": true,
+        "delta_source_qualification": null
+      },
+      "actual_Ruff_diagnostic_count": 23,
+      "native_Ruff_codes": {
+        "I001": 1,
+        "E401": 1,
+        "E702": 13,
+        "UP017": 2,
+        "E701": 2,
+        "S603": 2,
+        "E501": 1,
+        "T201": 1
+      },
+      "actual_Ruff_diagnostics": [
+        {
+          "cell": null,
+          "code": "I001",
+          "end_location": {
+            "column": 25,
+            "row": 3
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/supervise.py",
+          "fix": {
+            "applicability": "safe",
+            "edits": [
+              {
+                "content": "from __future__ import annotations\n\nimport datetime as dt\nimport hashlib\nimport json\nimport os\nimport resource\nimport shutil\nimport subprocess\nimport time\nfrom pathlib import Path\n\n",
+                "end_location": {
+                  "column": 1,
+                  "row": 4
+                },
+                "location": {
+                  "column": 1,
+                  "row": 1
+                }
+              }
+            ],
+            "message": "Organize imports"
+          },
+          "location": {
+            "column": 1,
+            "row": 1
+          },
+          "message": "Import block is un-sorted or un-formatted",
+          "noqa_row": 1,
+          "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+        },
+        {
+          "cell": null,
+          "code": "E401",
+          "end_location": {
+            "column": 70,
+            "row": 2
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/supervise.py",
+          "fix": {
+            "applicability": "safe",
+            "edits": [
+              {
+                "content": "import datetime as dt\nimport hashlib\nimport json\nimport os\nimport resource\nimport shutil\nimport subprocess\nimport time",
+                "end_location": {
+                  "column": 70,
+                  "row": 2
+                },
+                "location": {
+                  "column": 1,
+                  "row": 2
+                }
+              }
+            ],
+            "message": "Split imports"
+          },
+          "location": {
+            "column": 1,
+            "row": 2
+          },
+          "message": "Multiple imports on one line",
+          "noqa_row": 2,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-imports-on-one-line"
+        },
+        {
+          "cell": null,
+          "code": "E702",
+          "end_location": {
+            "column": 38,
+            "row": 4
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/supervise.py",
+          "fix": null,
+          "location": {
+            "column": 37,
+            "row": 4
+          },
+          "message": "Multiple statements on one line (semicolon)",
+          "noqa_row": 4,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+        },
+        {
+          "cell": null,
+          "code": "E702",
+          "end_location": {
+            "column": 81,
+            "row": 5
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/supervise.py",
+          "fix": null,
+          "location": {
+            "column": 80,
+            "row": 5
+          },
+          "message": "Multiple statements on one line (semicolon)",
+          "noqa_row": 5,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+        },
+        {
+          "cell": null,
+          "code": "E702",
+          "end_location": {
+            "column": 42,
+            "row": 8
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/supervise.py",
+          "fix": null,
+          "location": {
+            "column": 41,
+            "row": 8
+          },
+          "message": "Multiple statements on one line (semicolon)",
+          "noqa_row": 8,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+        },
+        {
+          "cell": null,
+          "code": "E702",
+          "end_location": {
+            "column": 65,
+            "row": 8
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/supervise.py",
+          "fix": null,
+          "location": {
+            "column": 64,
+            "row": 8
+          },
+          "message": "Multiple statements on one line (semicolon)",
+          "noqa_row": 8,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+        },
+        {
+          "cell": null,
+          "code": "UP017",
+          "end_location": {
+            "column": 40,
+            "row": 9
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/supervise.py",
+          "fix": {
+            "applicability": "safe",
+            "edits": [
+              {
+                "content": "import datetime as dt,hashlib,json,os,resource,shutil,subprocess,time",
+                "end_location": {
+                  "column": 70,
+                  "row": 2
+                },
+                "location": {
+                  "column": 1,
+                  "row": 2
+                }
+              },
+              {
+                "content": "dt.UTC",
+                "end_location": {
+                  "column": 40,
+                  "row": 9
+                },
+                "location": {
+                  "column": 25,
+                  "row": 9
+                }
+              }
+            ],
+            "message": "Convert to `datetime.UTC` alias"
+          },
+          "location": {
+            "column": 25,
+            "row": 9
+          },
+          "message": "Use `datetime.UTC` alias",
+          "noqa_row": 9,
+          "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+        },
+        {
+          "cell": null,
+          "code": "E702",
+          "end_location": {
+            "column": 54,
+            "row": 9
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/supervise.py",
+          "fix": null,
+          "location": {
+            "column": 53,
+            "row": 9
+          },
+          "message": "Multiple statements on one line (semicolon)",
+          "noqa_row": 9,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+        },
+        {
+          "cell": null,
+          "code": "E702",
+          "end_location": {
+            "column": 89,
+            "row": 9
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/supervise.py",
+          "fix": null,
+          "location": {
+            "column": 88,
+            "row": 9
+          },
+          "message": "Multiple statements on one line (semicolon)",
+          "noqa_row": 9,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+        },
+        {
+          "cell": null,
+          "code": "E701",
+          "end_location": {
+            "column": 5,
+            "row": 10
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/supervise.py",
+          "fix": null,
+          "location": {
+            "column": 4,
+            "row": 10
+          },
+          "message": "Multiple statements on one line (colon)",
+          "noqa_row": 10,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-colon"
+        },
+        {
+          "cell": null,
+          "code": "S603",
+          "end_location": {
+            "column": 21,
+            "row": 10
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/supervise.py",
+          "fix": null,
+          "location": {
+            "column": 7,
+            "row": 10
+          },
+          "message": "`subprocess` call: check for execution of untrusted input",
+          "noqa_row": 10,
+          "url": "https://docs.astral.sh/ruff/rules/subprocess-without-shell-equals-true"
+        },
+        {
+          "cell": null,
+          "code": "E702",
+          "end_location": {
+            "column": 81,
+            "row": 10
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/supervise.py",
+          "fix": null,
+          "location": {
+            "column": 80,
+            "row": 10
+          },
+          "message": "Multiple statements on one line (semicolon)",
+          "noqa_row": 10,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+        },
+        {
+          "cell": null,
+          "code": "E702",
+          "end_location": {
+            "column": 125,
+            "row": 10
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/supervise.py",
+          "fix": null,
+          "location": {
+            "column": 124,
+            "row": 10
+          },
+          "message": "Multiple statements on one line (semicolon)",
+          "noqa_row": 10,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+        },
+        {
+          "cell": null,
+          "code": "E701",
+          "end_location": {
+            "column": 39,
+            "row": 11
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/supervise.py",
+          "fix": null,
+          "location": {
+            "column": 38,
+            "row": 11
+          },
+          "message": "Multiple statements on one line (colon)",
+          "noqa_row": 11,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-colon"
+        },
+        {
+          "cell": null,
+          "code": "E702",
+          "end_location": {
+            "column": 89,
+            "row": 11
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/supervise.py",
+          "fix": null,
+          "location": {
+            "column": 88,
+            "row": 11
+          },
+          "message": "Multiple statements on one line (semicolon)",
+          "noqa_row": 11,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+        },
+        {
+          "cell": null,
+          "code": "E702",
+          "end_location": {
+            "column": 25,
+            "row": 12
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/supervise.py",
+          "fix": null,
+          "location": {
+            "column": 24,
+            "row": 12
+          },
+          "message": "Multiple statements on one line (semicolon)",
+          "noqa_row": 12,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+        },
+        {
+          "cell": null,
+          "code": "UP017",
+          "end_location": {
+            "column": 62,
+            "row": 12
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/supervise.py",
+          "fix": {
+            "applicability": "safe",
+            "edits": [
+              {
+                "content": "import datetime as dt,hashlib,json,os,resource,shutil,subprocess,time",
+                "end_location": {
+                  "column": 70,
+                  "row": 2
+                },
+                "location": {
+                  "column": 1,
+                  "row": 2
+                }
+              },
+              {
+                "content": "dt.UTC",
+                "end_location": {
+                  "column": 62,
+                  "row": 12
+                },
+                "location": {
+                  "column": 47,
+                  "row": 12
+                }
+              }
+            ],
+            "message": "Convert to `datetime.UTC` alias"
+          },
+          "location": {
+            "column": 47,
+            "row": 12
+          },
+          "message": "Use `datetime.UTC` alias",
+          "noqa_row": 12,
+          "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+        },
+        {
+          "cell": null,
+          "code": "E702",
+          "end_location": {
+            "column": 76,
+            "row": 12
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/supervise.py",
+          "fix": null,
+          "location": {
+            "column": 75,
+            "row": 12
+          },
+          "message": "Multiple statements on one line (semicolon)",
+          "noqa_row": 12,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+        },
+        {
+          "cell": null,
+          "code": "E702",
+          "end_location": {
+            "column": 98,
+            "row": 12
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/supervise.py",
+          "fix": null,
+          "location": {
+            "column": 97,
+            "row": 12
+          },
+          "message": "Multiple statements on one line (semicolon)",
+          "noqa_row": 12,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+        },
+        {
+          "cell": null,
+          "code": "E501",
+          "end_location": {
+            "column": 821,
+            "row": 13
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/supervise.py",
+          "fix": null,
+          "location": {
+            "column": 101,
+            "row": 13
+          },
+          "message": "Line too long (820 > 100)",
+          "noqa_row": 13,
+          "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+        },
+        {
+          "cell": null,
+          "code": "S603",
+          "end_location": {
+            "column": 308,
+            "row": 13
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/supervise.py",
+          "fix": null,
+          "location": {
+            "column": 285,
+            "row": 13
+          },
+          "message": "`subprocess` call: check for execution of untrusted input",
+          "noqa_row": 13,
+          "url": "https://docs.astral.sh/ruff/rules/subprocess-without-shell-equals-true"
+        },
+        {
+          "cell": null,
+          "code": "E702",
+          "end_location": {
+            "column": 76,
+            "row": 14
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/supervise.py",
+          "fix": null,
+          "location": {
+            "column": 75,
+            "row": 14
+          },
+          "message": "Multiple statements on one line (semicolon)",
+          "noqa_row": 14,
+          "url": "https://docs.astral.sh/ruff/rules/multiple-statements-on-one-line-semicolon"
+        },
+        {
+          "cell": null,
+          "code": "T201",
+          "end_location": {
+            "column": 81,
+            "row": 14
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/results/mapping-exact/supervise.py",
+          "fix": {
+            "applicability": "unsafe",
+            "edits": [
+              {
+                "content": "",
+                "end_location": {
+                  "column": 107,
+                  "row": 14
+                },
+                "location": {
+                  "column": 76,
+                  "row": 14
+                }
+              }
+            ],
+            "message": "Remove `print`"
+          },
+          "location": {
+            "column": 76,
+            "row": 14
+          },
+          "message": "`print` found",
+          "noqa_row": 14,
+          "url": "https://docs.astral.sh/ruff/rules/print"
+        }
+      ],
+      "actual_format_change_required": true,
+      "next_owner": "G",
+      "canonical_mechanism_unit": "C",
+      "owner_result_required": "Canonical author-owned source fix with historical bytes retained; actual affected controls/review and refreshed canonical gate after append. No foreign edits or exceptions by E."
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/supervise_attempt2.py",
+      "source_input": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/supervise_attempt2.py",
+        "status": "A",
+        "mode": "100644",
+        "object_id": "c74e2d8b560619f21e9f82294e6696dd6c55ba55",
+        "bytes": 3049,
+        "sha256": "66b6af1abfea1b715c4b0e7fa23ee77c84de3f0dc7fa4c94c04fd846bdae1234",
+        "kind": "publication_or_verification_utility",
+        "writer_attribution": {
+          "writer": "G",
+          "canonical_mechanism_unit": "C",
+          "basis": {
+            "source": "855cb26a7a2c9fea60356663cf81e7d01e20c738",
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/receipt.json",
+            "git_object_id": "d15031fbcd5be9a560cf57568b4a9f18dc507195",
+            "sha256": "5b2878f83c817dfa4d1de5e8e3cec5751581c9eb08df910cfa98dc1de610440b",
+            "task": "G local exact-candidate C canonical IR consumer/probe check",
+            "full_bundle_owner_row": "CAN-01/C/C-W02"
+          },
+          "scope": "Exact incoming G855 independent C-canon publication utility; foreign input, no E repair/waiver"
+        },
+        "attribution_basis": "Reuse explicit prior actual writer/lease attribution only after actual Git set and full physical/object byte equality; no prospective count assumed.",
+        "physical_equals_candidate": true,
+        "delta_source_qualification": null
+      },
+      "actual_Ruff_diagnostic_count": 7,
+      "native_Ruff_codes": {
+        "F401": 1,
+        "UP017": 2,
+        "S603": 2,
+        "E501": 1,
+        "T201": 1
+      },
+      "actual_Ruff_diagnostics": [
+        {
+          "cell": null,
+          "code": "F401",
+          "end_location": {
+            "column": 11,
+            "row": 10
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/supervise_attempt2.py",
+          "fix": {
+            "applicability": "safe",
+            "edits": [
+              {
+                "content": "",
+                "end_location": {
+                  "column": 1,
+                  "row": 11
+                },
+                "location": {
+                  "column": 1,
+                  "row": 10
+                }
+              }
+            ],
+            "message": "Remove unused import: `sys`"
+          },
+          "location": {
+            "column": 8,
+            "row": 10
+          },
+          "message": "`sys` imported but unused",
+          "noqa_row": 10,
+          "url": "https://docs.astral.sh/ruff/rules/unused-import"
+        },
+        {
+          "cell": null,
+          "code": "UP017",
+          "end_location": {
+            "column": 42,
+            "row": 36
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/supervise_attempt2.py",
+          "fix": {
+            "applicability": "safe",
+            "edits": [
+              {
+                "content": "import datetime as dt",
+                "end_location": {
+                  "column": 22,
+                  "row": 3
+                },
+                "location": {
+                  "column": 1,
+                  "row": 3
+                }
+              },
+              {
+                "content": "dt.UTC",
+                "end_location": {
+                  "column": 42,
+                  "row": 36
+                },
+                "location": {
+                  "column": 27,
+                  "row": 36
+                }
+              }
+            ],
+            "message": "Convert to `datetime.UTC` alias"
+          },
+          "location": {
+            "column": 27,
+            "row": 36
+          },
+          "message": "Use `datetime.UTC` alias",
+          "noqa_row": 36,
+          "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+        },
+        {
+          "cell": null,
+          "code": "S603",
+          "end_location": {
+            "column": 26,
+            "row": 39
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/supervise_attempt2.py",
+          "fix": null,
+          "location": {
+            "column": 12,
+            "row": 39
+          },
+          "message": "`subprocess` call: check for execution of untrusted input",
+          "noqa_row": 39,
+          "url": "https://docs.astral.sh/ruff/rules/subprocess-without-shell-equals-true"
+        },
+        {
+          "cell": null,
+          "code": "UP017",
+          "end_location": {
+            "column": 40,
+            "row": 49
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/supervise_attempt2.py",
+          "fix": {
+            "applicability": "safe",
+            "edits": [
+              {
+                "content": "import datetime as dt",
+                "end_location": {
+                  "column": 22,
+                  "row": 3
+                },
+                "location": {
+                  "column": 1,
+                  "row": 3
+                }
+              },
+              {
+                "content": "dt.UTC",
+                "end_location": {
+                  "column": 40,
+                  "row": 49
+                },
+                "location": {
+                  "column": 25,
+                  "row": 49
+                }
+              }
+            ],
+            "message": "Convert to `datetime.UTC` alias"
+          },
+          "location": {
+            "column": 25,
+            "row": 49
+          },
+          "message": "Use `datetime.UTC` alias",
+          "noqa_row": 49,
+          "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+        },
+        {
+          "cell": null,
+          "code": "E501",
+          "end_location": {
+            "column": 154,
+            "row": 60
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/supervise_attempt2.py",
+          "fix": null,
+          "location": {
+            "column": 101,
+            "row": 60
+          },
+          "message": "Line too long (153 > 100)",
+          "noqa_row": 60,
+          "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+        },
+        {
+          "cell": null,
+          "code": "S603",
+          "end_location": {
+            "column": 46,
+            "row": 61
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/supervise_attempt2.py",
+          "fix": null,
+          "location": {
+            "column": 23,
+            "row": 61
+          },
+          "message": "`subprocess` call: check for execution of untrusted input",
+          "noqa_row": 61,
+          "url": "https://docs.astral.sh/ruff/rules/subprocess-without-shell-equals-true"
+        },
+        {
+          "cell": null,
+          "code": "T201",
+          "end_location": {
+            "column": 6,
+            "row": 81
+          },
+          "filename": "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/integration/checks/2026-10-07-tenth-wave/C-canon/supervise_attempt2.py",
+          "fix": {
+            "applicability": "unsafe",
+            "edits": [
+              {
+                "content": "",
+                "end_location": {
+                  "column": 1,
+                  "row": 82
+                },
+                "location": {
+                  "column": 1,
+                  "row": 81
+                }
+              }
+            ],
+            "message": "Remove `print`"
+          },
+          "location": {
+            "column": 1,
+            "row": 81
+          },
+          "message": "`print` found",
+          "noqa_row": 81,
+          "url": "https://docs.astral.sh/ruff/rules/print"
+        }
+      ],
+      "actual_format_change_required": true,
+      "next_owner": "G",
+      "canonical_mechanism_unit": "C",
+      "owner_result_required": "Canonical author-owned source fix with historical bytes retained; actual affected controls/review and refreshed canonical gate after append. No foreign edits or exceptions by E."
+    }
+  ],
+  "E_owner_previous_format_defect_corrected_source": {
+    "source": "2350edfba4e71909fbc615fe3101793b1b13945a",
+    "root_source_body_equal": true,
+    "independent_source_GO": "/tmp/e02-E-validator-format-independent-r4/final-source-GO.json",
+    "current_E_diagnostics": 0,
+    "current_E_format_required": 0
+  },
+  "controls": [
+    {
+      "case": "actual_Ruff_diagnostic_path_count",
+      "outcome": "PASS refusal",
+      "reason": "summary contradicts actual native outputs",
+      "raw_input_and_command_markers_preserved": true
+    },
+    {
+      "case": "actual_Ruff_diagnostic_count",
+      "outcome": "PASS refusal",
+      "reason": "summary contradicts actual native outputs",
+      "raw_input_and_command_markers_preserved": true
+    },
+    {
+      "case": "actual_format_path_count",
+      "outcome": "PASS refusal",
+      "reason": "summary contradicts actual native outputs",
+      "raw_input_and_command_markers_preserved": true
+    },
+    {
+      "case": "E_owned_format_required_count",
+      "outcome": "PASS refusal",
+      "reason": "summary contradicts actual native outputs",
+      "raw_input_and_command_markers_preserved": true
+    },
+    {
+      "case": "complete_changed_python_denominator",
+      "outcome": "PASS refusal",
+      "reason": "summary contradicts actual native outputs",
+      "raw_input_and_command_markers_preserved": true
+    },
+    {
+      "case": "metadata_count",
+      "outcome": "PASS refusal",
+      "reason": "strict summary JSON types",
+      "raw_input_and_command_markers_preserved": true
+    },
+    {
+      "case": "full_global_outcome",
+      "outcome": "PASS refusal",
+      "reason": "summary contradicts actual native outputs",
+      "raw_input_and_command_markers_preserved": true
+    },
+    {
+      "case": "finding_dispositions_changed",
+      "outcome": "PASS refusal",
+      "reason": "summary contradicts actual native outputs",
+      "raw_input_and_command_markers_preserved": true
+    },
+    {
+      "case": "only summary admission body removed",
+      "outcome": "PASS discriminator",
+      "required_property": "FAIL: false E-owned format requirement summary admitted with actual outputs and all markers intact"
+    }
+  ],
+  "canonical_writer_vs_formal_public_owner": "Factual E scoped IR authorship does not transfer general IR/Core facade/generator authority.",
+  "observer_history": "Earlier b6 classifier observer errors retained in original b6 publication; this final read-only derivative uses fixed exact argv and immutable native diagnostic pathsets. Final native commands executed once.",
+  "historical_observations": "Frozen64d360, prior prospective366PLANONLY and actualb6beforeformatfix remain immutable historical receipts; none supplies final current PASS or inherited P41 waiver.",
+  "root_source_environment_written": false,
+  "candidate_source_environment_written": false,
+  "native_checks_rerun_by_classifier": false,
+  "observer": {
+    "path": "/tmp/e02-E-final-root-lint-31782b55-20261007/classify_closed_checks.py",
+    "bytes": 7766,
+    "sha256": "2e3a867d5c3e60b4204343f9768d6c999740215572c83521f2e22add8b24e8d2"
+  }
+}

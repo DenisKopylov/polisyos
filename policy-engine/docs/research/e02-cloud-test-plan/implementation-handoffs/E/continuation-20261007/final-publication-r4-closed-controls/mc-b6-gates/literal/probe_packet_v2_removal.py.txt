@@ -1,0 +1,20 @@
+import ast,copy,hashlib,json,pathlib,sys
+r=pathlib.Path('/tmp/e02-E-MC-b6-gates-20261007');p=r/'build_gate_packet_v2.py.txt';tree=ast.parse(p.read_text());body=[]
+for n in tree.body:
+ if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='summary' for t in n.targets):break
+ body.append(n)
+original=ast.Module(body=body,type_ignores=[]);ns={'__name__':'packet_v2_effective_guard'};exec(compile(original,str(p),'exec'),ns)
+removed=copy.deepcopy(original)
+for n in removed.body:
+ if isinstance(n,ast.FunctionDef) and n.name=='typed_equal':n.body=[ast.Return(ast.Compare(left=ast.Name(id='actual',ctx=ast.Load()),ops=[ast.Eq()],comparators=[ast.Name(id='expected',ctx=ast.Load())]))]
+ast.fix_missing_locations(removed);off={'__name__':'packet_v2_removed_guard'};exec(compile(removed,str(p),'exec'),off);healthy=json.loads((r/'three-selector-packet-v2.json').read_text());cases=[]
+for label,mutate in [('native_exit_bool',lambda x:x['current']['architecture'].__setitem__('native_exit_code',True)),('top_source_guard_int',lambda x:x.__setitem__('source_immutable',1)),('stdout_zero_as_bool',lambda x:x['attempts'][1]['stdout'].__setitem__('bytes',False))]:
+ bad=copy.deepcopy(healthy);mutate(bad)
+ try:ns['validate'](bad)
+ except ValueError:healthy_refused=True
+ else:raise RuntimeError('actual typed guard did not refuse '+label)
+ if off['validate'](bad) is not True:raise RuntimeError('removed guard did not reproduce type escape')
+ cases.append({'case':label,'actual_guard_refusal':'PASS','required_negative_after_removal':'FAIL','removed_guard_false_admission':True,'native_receipt_source_and_outcome_refs_unchanged':True})
+v={'schema':'policyos.e02.E.effective_summary_type_guard_controls.v1','source':'b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4','observer_source':{'path':str(p),'bytes':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()},'optimized':bool(sys.flags.optimize),'healthy':ns['validate'](healthy),'cases':cases,'controls':len(cases),'actual_removed_property':'typed_equal recursive exact primitive/container types only, recomputing native claim checks remain active','gate_source_or_generator_rerun':False,'full_Python_source_changed':False}
+with (r/('packet-v2-removal-optimized.json' if sys.flags.optimize else 'packet-v2-removal-normal.json')).open('x') as f:json.dump(v,f,indent=2);f.write('\n')
+print(json.dumps(v,indent=2))

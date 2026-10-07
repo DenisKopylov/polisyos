@@ -1,0 +1,2042 @@
+{
+  "ROOT_commit_status_after": {
+    "current_HEAD": "15a5cd7b764f8839bc31b493e7a16cf3d12a114a",
+    "current_status_bytes": 342,
+    "current_status_paths": [
+      "policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/",
+      "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/root-checkpoints/append-finite-law-290324be-predicate-basis.json"
+    ],
+    "current_status_sha256": "3a4bfbd2eeaab76373c214325bf068f5af56c22e50c45943bf5e37c87b64e93d",
+    "current_tracked_changed_paths": [],
+    "current_tree": "e3b1a18736587a67025aaaa5da87698388a14f5a",
+    "current_untracked_paths": [
+      "policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/",
+      "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/root-checkpoints/append-finite-law-290324be-predicate-basis.json"
+    ],
+    "frozen_source_is_ancestor_of_current_ROOT": true,
+    "only_historical_generated_JSON_class_currently_dirty": true,
+    "operation_source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "operation_tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+    "scope": "Current commit/tree and dirty-path observation permits authorized append-only parent integration after terminal; no full physical input equality or P41 attribution.",
+    "whole_source_input_immutable": false
+  },
+  "ROOT_commit_status_before": {
+    "current_HEAD": "15a5cd7b764f8839bc31b493e7a16cf3d12a114a",
+    "current_status_bytes": 342,
+    "current_status_paths": [
+      "policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/",
+      "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/root-checkpoints/append-finite-law-290324be-predicate-basis.json"
+    ],
+    "current_status_sha256": "3a4bfbd2eeaab76373c214325bf068f5af56c22e50c45943bf5e37c87b64e93d",
+    "current_tracked_changed_paths": [],
+    "current_tree": "e3b1a18736587a67025aaaa5da87698388a14f5a",
+    "current_untracked_paths": [
+      "policy-engine/apps/runtime-dashboard/src/features/runs/export/__screenshots__/",
+      "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/root-checkpoints/append-finite-law-290324be-predicate-basis.json"
+    ],
+    "frozen_source_is_ancestor_of_current_ROOT": true,
+    "only_historical_generated_JSON_class_currently_dirty": true,
+    "operation_source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+    "operation_tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+    "scope": "Current commit/tree and dirty-path observation permits authorized append-only parent integration after terminal; no full physical input equality or P41 attribution.",
+    "whole_source_input_immutable": false
+  },
+  "ROOT_source_environment_or_outputs_modified": false,
+  "actions": [
+    {
+      "all_defining_before_copy_readback_fields_equal": true,
+      "allocation_delta_bytes_observed": 0,
+      "allocation_metadata_complete_deltas": {
+        "bytes": 8793243,
+        "path": "/tmp/e02-E-cleanup-custody-independent-20261007/current-custody-review-v3.json",
+        "sha256": "530c87199b657854541d581e3b4930fff5fb3581838687d37314d27988746665"
+      },
+      "allocation_metadata_delta_count": 0,
+      "current_plaintext_bytes": 12826785,
+      "current_plaintext_files": 10406,
+      "current_whole_membership_and_types_modes_files_links_verified": true,
+      "destination": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/preserved-catalogs/frc-r4",
+      "original_inventory_summary": {
+        "bytes": 12826785,
+        "directories": 8980,
+        "files": 10406,
+        "records": 19439,
+        "symlinks": 53
+      },
+      "proc_windows": [
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 10,
+          "reference": {
+            "bytes": 2379,
+            "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/frc-r4-proc-initial.json",
+            "sha256": "5df4eb0ebcc4f82b0e65a7a9b07316157d2e099a653cd3adc15f98d10cb0c7e4"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        },
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 10,
+          "reference": {
+            "bytes": 2378,
+            "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/frc-r4-proc-before-switch.json",
+            "sha256": "d04b32eb51a844cf1804ebc4ccaf1ecf6a28fca2d2f93d7decf3f010192b29f0"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        }
+      ],
+      "raw_inventory_JSON_byte_identical": true,
+      "raw_inventory_refs": [
+        {
+          "bytes": 5188370,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/frc-r4-inventory-before.json",
+          "sha256": "c0a8a920cd4028cca5d232271bb1e79fc6421f5f297b020681d275c085593733"
+        },
+        {
+          "bytes": 5188370,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/frc-r4-inventory-copied.json",
+          "sha256": "c0a8a920cd4028cca5d232271bb1e79fc6421f5f297b020681d275c085593733"
+        },
+        {
+          "bytes": 5188370,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/frc-r4-inventory-through-old-symlink.json",
+          "sha256": "c0a8a920cd4028cca5d232271bb1e79fc6421f5f297b020681d275c085593733"
+        }
+      ],
+      "retired_raw_aliases": [],
+      "source": "/workspace/e02-E-pr38-r3-receipts/frc-r4"
+    },
+    {
+      "all_defining_before_copy_readback_fields_equal": true,
+      "allocation_delta_bytes_observed": -73728,
+      "allocation_metadata_complete_deltas": {
+        "bytes": 8793243,
+        "path": "/tmp/e02-E-cleanup-custody-independent-20261007/current-custody-review-v3.json",
+        "sha256": "530c87199b657854541d581e3b4930fff5fb3581838687d37314d27988746665"
+      },
+      "allocation_metadata_delta_count": 18,
+      "current_plaintext_bytes": 45503439,
+      "current_plaintext_files": 2828,
+      "current_whole_membership_and_types_modes_files_links_verified": true,
+      "destination": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/preserved-catalogs/owner-export-independent",
+      "original_inventory_summary": {
+        "bytes": 45503439,
+        "directories": 2019,
+        "files": 2828,
+        "records": 4856,
+        "symlinks": 9
+      },
+      "proc_windows": [
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 10,
+          "reference": {
+            "bytes": 2397,
+            "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/owner-export-independent-proc-initial.json",
+            "sha256": "7e7febe8fa0b7b75e3a5e7204336e1c0d990131cd784523e9fb12b6e491a34ea"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        },
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 11,
+          "reference": {
+            "bytes": 2638,
+            "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/owner-export-independent-proc-before-switch.json",
+            "sha256": "aa853b9b34890f3bdca483556b9622c2d12057fdaadf70cfd46357ba3a4eceb3"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        }
+      ],
+      "raw_inventory_JSON_byte_identical": false,
+      "raw_inventory_refs": [
+        {
+          "bytes": 1324174,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/owner-export-independent-inventory-before.json",
+          "sha256": "cdc7b72bb85ab42aac9f0973b22f71339dcf6af554be3c259c37a1d91663e0a5"
+        },
+        {
+          "bytes": 1324174,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/owner-export-independent-inventory-copied.json",
+          "sha256": "8dd6bd134190434b5f2f75ea2ab174a62ca0ed4cdc1f115b058274b1bf6a2cde"
+        },
+        {
+          "bytes": 1324174,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/owner-export-independent-inventory-through-old-symlink.json",
+          "sha256": "8dd6bd134190434b5f2f75ea2ab174a62ca0ed4cdc1f115b058274b1bf6a2cde"
+        }
+      ],
+      "retired_raw_aliases": [],
+      "source": "/workspace/e02-E-pr38-r3-receipts/owner-export-independent"
+    },
+    {
+      "all_defining_before_copy_readback_fields_equal": true,
+      "allocation_delta_bytes_observed": 0,
+      "allocation_metadata_complete_deltas": {
+        "bytes": 8793243,
+        "path": "/tmp/e02-E-cleanup-custody-independent-20261007/current-custody-review-v3.json",
+        "sha256": "530c87199b657854541d581e3b4930fff5fb3581838687d37314d27988746665"
+      },
+      "allocation_metadata_delta_count": 0,
+      "current_plaintext_bytes": 23113894,
+      "current_plaintext_files": 5778,
+      "current_whole_membership_and_types_modes_files_links_verified": true,
+      "destination": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/preserved-catalogs/ir-compat-independent",
+      "original_inventory_summary": {
+        "bytes": 23113894,
+        "directories": 4842,
+        "files": 5778,
+        "records": 10622,
+        "symlinks": 2
+      },
+      "proc_windows": [
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 11,
+          "reference": {
+            "bytes": 2634,
+            "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/ir-compat-independent-proc-initial.json",
+            "sha256": "b343c9e66c256c617d083057793b3825b601e24d4d25d23a36ca86aa0aa7de39"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        },
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 11,
+          "reference": {
+            "bytes": 2635,
+            "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/ir-compat-independent-proc-before-switch.json",
+            "sha256": "ed476b8c1ce8678b87791f2e3a9c25d7dbd1af4f047f0a2ffd16c03c2ac6f770"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        }
+      ],
+      "raw_inventory_JSON_byte_identical": true,
+      "raw_inventory_refs": [
+        {
+          "bytes": 2729669,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/ir-compat-independent-inventory-before.json",
+          "sha256": "2353de49a34a22ee43a4b891a988658142b3295b6777d779f3178897ce7dd477"
+        },
+        {
+          "bytes": 2729669,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/ir-compat-independent-inventory-copied.json",
+          "sha256": "2353de49a34a22ee43a4b891a988658142b3295b6777d779f3178897ce7dd477"
+        },
+        {
+          "bytes": 2729669,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/ir-compat-independent-inventory-through-old-symlink.json",
+          "sha256": "2353de49a34a22ee43a4b891a988658142b3295b6777d779f3178897ce7dd477"
+        }
+      ],
+      "retired_raw_aliases": [],
+      "source": "/workspace/e02-E-pr38-r3-receipts/ir-compat-independent"
+    },
+    {
+      "all_defining_before_copy_readback_fields_equal": true,
+      "allocation_delta_bytes_observed": 0,
+      "allocation_metadata_complete_deltas": {
+        "bytes": 8793243,
+        "path": "/tmp/e02-E-cleanup-custody-independent-20261007/current-custody-review-v3.json",
+        "sha256": "530c87199b657854541d581e3b4930fff5fb3581838687d37314d27988746665"
+      },
+      "allocation_metadata_delta_count": 0,
+      "current_plaintext_bytes": 51665124,
+      "current_plaintext_files": 767,
+      "current_whole_membership_and_types_modes_files_links_verified": true,
+      "destination": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/preserved-catalogs/doe-r4",
+      "original_inventory_summary": {
+        "bytes": 51665124,
+        "directories": 353,
+        "files": 767,
+        "records": 1120,
+        "symlinks": 0
+      },
+      "proc_windows": [
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 10,
+          "reference": {
+            "bytes": 2378,
+            "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/doe-r4-proc-initial.json",
+            "sha256": "5abc2cd4c9fbd317d0dfd2ec793a190dfb4a454f90493f2aac27b96477572543"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        },
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 10,
+          "reference": {
+            "bytes": 2379,
+            "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/doe-r4-proc-before-switch.json",
+            "sha256": "bf83e34fb44c5868e0c2a4b0ffb08275ffe8010c6741a6f8388e2d8f47066fdf"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        }
+      ],
+      "raw_inventory_JSON_byte_identical": true,
+      "raw_inventory_refs": [
+        {
+          "bytes": 305139,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/doe-r4-inventory-before.json",
+          "sha256": "9aa48ff85501ef16c6195e18d2e78e322c904cc4cc324ecef81cfc79d669dad3"
+        },
+        {
+          "bytes": 305139,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/doe-r4-inventory-copied.json",
+          "sha256": "9aa48ff85501ef16c6195e18d2e78e322c904cc4cc324ecef81cfc79d669dad3"
+        },
+        {
+          "bytes": 305139,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/doe-r4-inventory-through-old-symlink.json",
+          "sha256": "9aa48ff85501ef16c6195e18d2e78e322c904cc4cc324ecef81cfc79d669dad3"
+        }
+      ],
+      "retired_raw_aliases": [],
+      "source": "/workspace/e02-E-pr38-r3-receipts/doe-r4"
+    },
+    {
+      "all_defining_before_copy_readback_fields_equal": true,
+      "allocation_delta_bytes_observed": 0,
+      "allocation_metadata_complete_deltas": {
+        "bytes": 8793243,
+        "path": "/tmp/e02-E-cleanup-custody-independent-20261007/current-custody-review-v3.json",
+        "sha256": "530c87199b657854541d581e3b4930fff5fb3581838687d37314d27988746665"
+      },
+      "allocation_metadata_delta_count": 0,
+      "current_plaintext_bytes": 48004289,
+      "current_plaintext_files": 5137,
+      "current_whole_membership_and_types_modes_files_links_verified": true,
+      "destination": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/preserved-catalogs/frozen-successor-dispatch",
+      "original_inventory_summary": {
+        "bytes": 48004289,
+        "directories": 220,
+        "files": 5137,
+        "records": 5357,
+        "symlinks": 0
+      },
+      "proc_windows": [
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 10,
+          "reference": {
+            "bytes": 2398,
+            "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/frozen-successor-dispatch-proc-initial.json",
+            "sha256": "39ce664b9fbcc8ae06c8c52aadc03a90c2e29b5271a22ab804f422250f3b03c5"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        },
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 10,
+          "reference": {
+            "bytes": 2397,
+            "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/frozen-successor-dispatch-proc-before-switch.json",
+            "sha256": "32c7fed123b8bacb24db5c3e2ad893ad695bc30e5738693f46f6186c6b3b3780"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        }
+      ],
+      "raw_inventory_JSON_byte_identical": true,
+      "raw_inventory_refs": [
+        {
+          "bytes": 1631525,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/frozen-successor-dispatch-inventory-before.json",
+          "sha256": "c2a495ac30f7433f54e0ca565ac3b41813ac2ad9f4e7b6956e0d036168cd6c1b"
+        },
+        {
+          "bytes": 1631525,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/frozen-successor-dispatch-inventory-copied.json",
+          "sha256": "c2a495ac30f7433f54e0ca565ac3b41813ac2ad9f4e7b6956e0d036168cd6c1b"
+        },
+        {
+          "bytes": 1631525,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/frozen-successor-dispatch-inventory-through-old-symlink.json",
+          "sha256": "c2a495ac30f7433f54e0ca565ac3b41813ac2ad9f4e7b6956e0d036168cd6c1b"
+        }
+      ],
+      "retired_raw_aliases": [],
+      "source": "/workspace/e02-E-pr38-r3-receipts/frozen-successor-dispatch"
+    },
+    {
+      "all_defining_before_copy_readback_fields_equal": true,
+      "allocation_delta_bytes_observed": 0,
+      "allocation_metadata_complete_deltas": {
+        "bytes": 8793243,
+        "path": "/tmp/e02-E-cleanup-custody-independent-20261007/current-custody-review-v3.json",
+        "sha256": "530c87199b657854541d581e3b4930fff5fb3581838687d37314d27988746665"
+      },
+      "allocation_metadata_delta_count": 0,
+      "current_plaintext_bytes": 19218192,
+      "current_plaintext_files": 1128,
+      "current_whole_membership_and_types_modes_files_links_verified": true,
+      "destination": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/preserved-catalogs/lint-independent",
+      "original_inventory_summary": {
+        "bytes": 19218192,
+        "directories": 295,
+        "files": 1128,
+        "records": 1423,
+        "symlinks": 0
+      },
+      "proc_windows": [
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 10,
+          "reference": {
+            "bytes": 2388,
+            "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/lint-independent-proc-initial.json",
+            "sha256": "ada8441f5c109015499a4843978802a1369aff57969368d9229d21238dc6d58c"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        },
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 10,
+          "reference": {
+            "bytes": 2389,
+            "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/lint-independent-proc-before-switch.json",
+            "sha256": "807df41bf57f617f080f2a80af4a576412ec16873de7b1831929ca7ab435dd17"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        }
+      ],
+      "raw_inventory_JSON_byte_identical": true,
+      "raw_inventory_refs": [
+        {
+          "bytes": 411662,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/lint-independent-inventory-before.json",
+          "sha256": "8be8ba4daa6bc5c5d25cc05e04272ed78d068d6e54be470ecaa6590d7ca21f65"
+        },
+        {
+          "bytes": 411662,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/lint-independent-inventory-copied.json",
+          "sha256": "8be8ba4daa6bc5c5d25cc05e04272ed78d068d6e54be470ecaa6590d7ca21f65"
+        },
+        {
+          "bytes": 411662,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/lint-independent-inventory-through-old-symlink.json",
+          "sha256": "8be8ba4daa6bc5c5d25cc05e04272ed78d068d6e54be470ecaa6590d7ca21f65"
+        }
+      ],
+      "retired_raw_aliases": [],
+      "source": "/workspace/e02-E-pr38-r3-receipts/lint-independent"
+    },
+    {
+      "all_defining_before_copy_readback_fields_equal": true,
+      "allocation_delta_bytes_observed": 0,
+      "allocation_metadata_complete_deltas": {
+        "bytes": 8793243,
+        "path": "/tmp/e02-E-cleanup-custody-independent-20261007/current-custody-review-v3.json",
+        "sha256": "530c87199b657854541d581e3b4930fff5fb3581838687d37314d27988746665"
+      },
+      "allocation_metadata_delta_count": 0,
+      "current_plaintext_bytes": 12938504,
+      "current_plaintext_files": 155,
+      "current_whole_membership_and_types_modes_files_links_verified": true,
+      "destination": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/preserved-catalogs/ir-import-independent",
+      "original_inventory_summary": {
+        "bytes": 12938504,
+        "directories": 131,
+        "files": 155,
+        "records": 286,
+        "symlinks": 0
+      },
+      "proc_windows": [
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 10,
+          "reference": {
+            "bytes": 2394,
+            "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/ir-import-independent-proc-initial.json",
+            "sha256": "25f984ab851b9f5ec3849cce641a83759ca5117673c88e46e9ab00c64cebda24"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        },
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 10,
+          "reference": {
+            "bytes": 2394,
+            "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/ir-import-independent-proc-before-switch.json",
+            "sha256": "44a69db511d99dc918dca9f3e8154676a61ce7cfc21e0cf5d5c3880ca02e7894"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        }
+      ],
+      "raw_inventory_JSON_byte_identical": true,
+      "raw_inventory_refs": [
+        {
+          "bytes": 57910,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/ir-import-independent-inventory-before.json",
+          "sha256": "578940c5415bc18f7dc0fc19854276d58042f31777024ffebbd1e940781aabd0"
+        },
+        {
+          "bytes": 57910,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/ir-import-independent-inventory-copied.json",
+          "sha256": "578940c5415bc18f7dc0fc19854276d58042f31777024ffebbd1e940781aabd0"
+        },
+        {
+          "bytes": 57910,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/ir-import-independent-inventory-through-old-symlink.json",
+          "sha256": "578940c5415bc18f7dc0fc19854276d58042f31777024ffebbd1e940781aabd0"
+        }
+      ],
+      "retired_raw_aliases": [],
+      "source": "/workspace/e02-E-pr38-r3-receipts/ir-import-independent"
+    },
+    {
+      "all_defining_before_copy_readback_fields_equal": true,
+      "allocation_delta_bytes_observed": 0,
+      "allocation_metadata_complete_deltas": {
+        "bytes": 8793243,
+        "path": "/tmp/e02-E-cleanup-custody-independent-20261007/current-custody-review-v3.json",
+        "sha256": "530c87199b657854541d581e3b4930fff5fb3581838687d37314d27988746665"
+      },
+      "allocation_metadata_delta_count": 0,
+      "current_plaintext_bytes": 2589297,
+      "current_plaintext_files": 2108,
+      "current_whole_membership_and_types_modes_files_links_verified": true,
+      "destination": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/preserved-catalogs/ir-semantic-independent",
+      "original_inventory_summary": {
+        "bytes": 2589297,
+        "directories": 1950,
+        "files": 2108,
+        "records": 4058,
+        "symlinks": 0
+      },
+      "proc_windows": [
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 10,
+          "reference": {
+            "bytes": 2396,
+            "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/ir-semantic-independent-proc-initial.json",
+            "sha256": "63a14d456a8157c793a62358aa64716179a344affabe05338e2f08a9aee5a67d"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        },
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 10,
+          "reference": {
+            "bytes": 2396,
+            "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/ir-semantic-independent-proc-before-switch.json",
+            "sha256": "9b7e0623e13f5df9e348c8545a78aed2da71b892e4864a501920d695b8dd428f"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        }
+      ],
+      "raw_inventory_JSON_byte_identical": true,
+      "raw_inventory_refs": [
+        {
+          "bytes": 951357,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/ir-semantic-independent-inventory-before.json",
+          "sha256": "998e4883c0ae67d207762d3af9b90031c874c32581b803a7e22136944d2d7f01"
+        },
+        {
+          "bytes": 951357,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/ir-semantic-independent-inventory-copied.json",
+          "sha256": "998e4883c0ae67d207762d3af9b90031c874c32581b803a7e22136944d2d7f01"
+        },
+        {
+          "bytes": 951357,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/ir-semantic-independent-inventory-through-old-symlink.json",
+          "sha256": "998e4883c0ae67d207762d3af9b90031c874c32581b803a7e22136944d2d7f01"
+        }
+      ],
+      "retired_raw_aliases": [],
+      "source": "/workspace/e02-E-pr38-r3-receipts/ir-semantic-independent"
+    },
+    {
+      "all_defining_before_copy_readback_fields_equal": true,
+      "allocation_delta_bytes_observed": 0,
+      "allocation_metadata_complete_deltas": {
+        "bytes": 8793243,
+        "path": "/tmp/e02-E-cleanup-custody-independent-20261007/current-custody-review-v3.json",
+        "sha256": "530c87199b657854541d581e3b4930fff5fb3581838687d37314d27988746665"
+      },
+      "allocation_metadata_delta_count": 0,
+      "current_plaintext_bytes": 79725,
+      "current_plaintext_files": 15,
+      "current_whole_membership_and_types_modes_files_links_verified": true,
+      "destination": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/preserved-catalogs/frozen-wave-64d7444a-20261007/raw",
+      "original_inventory_summary": {
+        "bytes": 171895855,
+        "directories": 0,
+        "files": 16,
+        "records": 16,
+        "symlinks": 0
+      },
+      "proc_windows": [
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 10,
+          "reference": {
+            "bytes": 2406,
+            "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/frozen-wave-64d7444a-20261007--raw-proc-initial.json",
+            "sha256": "9b9a70e675c26384191c6e0c79389c50e1e37fc66d77836839e7273a28c9d5cb"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        },
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 10,
+          "reference": {
+            "bytes": 2405,
+            "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/frozen-wave-64d7444a-20261007--raw-proc-before-switch.json",
+            "sha256": "cb7242ee5d13df45666f90d4d127072ef3811a397af7a0d35f36ec1c976aced9"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        }
+      ],
+      "raw_inventory_JSON_byte_identical": true,
+      "raw_inventory_refs": [
+        {
+          "bytes": 4097,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/frozen-wave-64d7444a-20261007--raw-inventory-before.json",
+          "sha256": "db83ed061176ea236c426ee321db3daa8a42698fdfc6a1eaf25b08e0333be1e9"
+        },
+        {
+          "bytes": 4097,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/frozen-wave-64d7444a-20261007--raw-inventory-copied.json",
+          "sha256": "db83ed061176ea236c426ee321db3daa8a42698fdfc6a1eaf25b08e0333be1e9"
+        },
+        {
+          "bytes": 4097,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/frozen-wave-64d7444a-20261007--raw-inventory-through-old-symlink.json",
+          "sha256": "db83ed061176ea236c426ee321db3daa8a42698fdfc6a1eaf25b08e0333be1e9"
+        }
+      ],
+      "retired_raw_aliases": [
+        "production-invocation.raw.json"
+      ],
+      "source": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/raw"
+    },
+    {
+      "all_defining_before_copy_readback_fields_equal": true,
+      "allocation_delta_bytes_observed": 0,
+      "allocation_metadata_complete_deltas": {
+        "bytes": 8793243,
+        "path": "/tmp/e02-E-cleanup-custody-independent-20261007/current-custody-review-v3.json",
+        "sha256": "530c87199b657854541d581e3b4930fff5fb3581838687d37314d27988746665"
+      },
+      "allocation_metadata_delta_count": 0,
+      "current_plaintext_bytes": 2281740,
+      "current_plaintext_files": 2298,
+      "current_whole_membership_and_types_modes_files_links_verified": true,
+      "destination": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/preserved-catalogs/root-composed-frc",
+      "original_inventory_summary": {
+        "bytes": 2281740,
+        "directories": 1989,
+        "files": 2298,
+        "records": 4299,
+        "symlinks": 12
+      },
+      "proc_windows": [
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 14,
+          "reference": {
+            "bytes": 3074,
+            "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/root-composed-frc-proc-initial.json",
+            "sha256": "e58ab704cad64f517d9051c89fb2413a65fe45754317aeeb62837460567a11fc"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        },
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 10,
+          "reference": {
+            "bytes": 2390,
+            "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/root-composed-frc-proc-before-switch.json",
+            "sha256": "b1572fe118642b6740ae7e0b3ba65b9213fceb615366df5481658e9dc2f8e0eb"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        }
+      ],
+      "raw_inventory_JSON_byte_identical": true,
+      "raw_inventory_refs": [
+        {
+          "bytes": 1113780,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/root-composed-frc-inventory-before.json",
+          "sha256": "624ceb3b8c998b2ff06f6151a233095da70957cd82e6199f448dfe777909f9b1"
+        },
+        {
+          "bytes": 1113780,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/root-composed-frc-inventory-copied.json",
+          "sha256": "624ceb3b8c998b2ff06f6151a233095da70957cd82e6199f448dfe777909f9b1"
+        },
+        {
+          "bytes": 1113780,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/root-composed-frc-inventory-through-old-symlink.json",
+          "sha256": "624ceb3b8c998b2ff06f6151a233095da70957cd82e6199f448dfe777909f9b1"
+        }
+      ],
+      "retired_raw_aliases": [],
+      "source": "/workspace/e02-E-pr38-r3-receipts/root-composed-frc"
+    },
+    {
+      "all_defining_before_copy_readback_fields_equal": true,
+      "allocation_delta_bytes_observed": -1335296,
+      "allocation_metadata_complete_deltas": {
+        "bytes": 8793243,
+        "path": "/tmp/e02-E-cleanup-custody-independent-20261007/current-custody-review-v3.json",
+        "sha256": "530c87199b657854541d581e3b4930fff5fb3581838687d37314d27988746665"
+      },
+      "allocation_metadata_delta_count": 326,
+      "current_plaintext_bytes": 27105210,
+      "current_plaintext_files": 468,
+      "current_whole_membership_and_types_modes_files_links_verified": true,
+      "destination": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/preserved-catalogs/lint-r4",
+      "original_inventory_summary": {
+        "bytes": 27105210,
+        "directories": 163,
+        "files": 468,
+        "records": 631,
+        "symlinks": 0
+      },
+      "proc_windows": [
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 10,
+          "reference": {
+            "bytes": 2380,
+            "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/lint-r4-proc-initial.json",
+            "sha256": "8acc5538455ad0aae0eeef5a52176d13ff900f410a7c097dbd5e4ecd14fd1bd5"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        },
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 10,
+          "reference": {
+            "bytes": 2379,
+            "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/lint-r4-proc-before-switch.json",
+            "sha256": "eff1fe2b6d63dcce743df994258cec2cc3201879a976f9b1780f844c031e824b"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        }
+      ],
+      "raw_inventory_JSON_byte_identical": false,
+      "raw_inventory_refs": [
+        {
+          "bytes": 185862,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/lint-r4-inventory-before.json",
+          "sha256": "216e6596b9d17ad10306cdd3ebfd1d91c38d6172c9bb97a0b6d42d3d3ce97116"
+        },
+        {
+          "bytes": 185373,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/lint-r4-inventory-copied.json",
+          "sha256": "659314fb1717d76379f5dd8b7f1b8afda7cd40656a7f78b4b1d63225866e4721"
+        },
+        {
+          "bytes": 185373,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/lint-r4-inventory-through-old-symlink.json",
+          "sha256": "659314fb1717d76379f5dd8b7f1b8afda7cd40656a7f78b4b1d63225866e4721"
+        }
+      ],
+      "retired_raw_aliases": [],
+      "source": "/workspace/e02-E-pr38-r3-receipts/lint-r4"
+    },
+    {
+      "all_defining_before_copy_readback_fields_equal": true,
+      "allocation_delta_bytes_observed": -57344,
+      "allocation_metadata_complete_deltas": {
+        "bytes": 8793243,
+        "path": "/tmp/e02-E-cleanup-custody-independent-20261007/current-custody-review-v3.json",
+        "sha256": "530c87199b657854541d581e3b4930fff5fb3581838687d37314d27988746665"
+      },
+      "allocation_metadata_delta_count": 14,
+      "current_plaintext_bytes": 16940564,
+      "current_plaintext_files": 151,
+      "current_whole_membership_and_types_modes_files_links_verified": true,
+      "destination": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/preserved-catalogs/postfreeze-import-attribution",
+      "original_inventory_summary": {
+        "bytes": 16940564,
+        "directories": 7,
+        "files": 151,
+        "records": 158,
+        "symlinks": 0
+      },
+      "proc_windows": [
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 10,
+          "reference": {
+            "bytes": 2402,
+            "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/postfreeze-import-attribution-proc-initial.json",
+            "sha256": "f4edffab1c994c00c36c12d5255e015a17fc2ac0569095df4c1a5bf72f79f38e"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        },
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 10,
+          "reference": {
+            "bytes": 2402,
+            "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/postfreeze-import-attribution-proc-before-switch.json",
+            "sha256": "1bdf4bec9dc9e7544d5902c61d312a37e87b38db84fc64dd89285235017e8043"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        }
+      ],
+      "raw_inventory_JSON_byte_identical": false,
+      "raw_inventory_refs": [
+        {
+          "bytes": 39888,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/postfreeze-import-attribution-inventory-before.json",
+          "sha256": "58a7001e848f6b07dec47a4b4217c1066898e3d44b2e8c28d63f2425ef935139"
+        },
+        {
+          "bytes": 39867,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/postfreeze-import-attribution-inventory-copied.json",
+          "sha256": "6b9ec45b8d899bd7588b09a62eb0bfe5da05a47076e974d2823a4c778b6bd192"
+        },
+        {
+          "bytes": 39867,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/postfreeze-import-attribution-inventory-through-old-symlink.json",
+          "sha256": "6b9ec45b8d899bd7588b09a62eb0bfe5da05a47076e974d2823a4c778b6bd192"
+        }
+      ],
+      "retired_raw_aliases": [],
+      "source": "/workspace/e02-E-pr38-r3-receipts/postfreeze-import-attribution"
+    },
+    {
+      "all_defining_before_copy_readback_fields_equal": true,
+      "allocation_delta_bytes_observed": -16392192,
+      "allocation_metadata_complete_deltas": {
+        "bytes": 8793243,
+        "path": "/tmp/e02-E-cleanup-custody-independent-20261007/current-custody-review-v3.json",
+        "sha256": "530c87199b657854541d581e3b4930fff5fb3581838687d37314d27988746665"
+      },
+      "allocation_metadata_delta_count": 4002,
+      "current_plaintext_bytes": 3423439,
+      "current_plaintext_files": 2308,
+      "current_whole_membership_and_types_modes_files_links_verified": true,
+      "destination": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/preserved-catalogs/root-composed-frc-overlay",
+      "original_inventory_summary": {
+        "bytes": 3423439,
+        "directories": 1989,
+        "files": 2308,
+        "records": 4309,
+        "symlinks": 12
+      },
+      "proc_windows": [
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 10,
+          "reference": {
+            "bytes": 2397,
+            "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/root-composed-frc-overlay-proc-initial.json",
+            "sha256": "d67bb5538dadccc7db859c9c813e110be5a99e702b9a95713e46f1e5e06a95f2"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        },
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 10,
+          "reference": {
+            "bytes": 2398,
+            "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/root-composed-frc-overlay-proc-before-switch.json",
+            "sha256": "0fc35ffb74486426fc4da284c07d21d1534f03f2727a78fd8aec9c72c3d8e261"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        }
+      ],
+      "raw_inventory_JSON_byte_identical": false,
+      "raw_inventory_refs": [
+        {
+          "bytes": 1174352,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/root-composed-frc-overlay-inventory-before.json",
+          "sha256": "51fb8f2a530b06d6bc8d70dc726ecc082a11f6aaab48bf194e28a112659e89c9"
+        },
+        {
+          "bytes": 1168349,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/root-composed-frc-overlay-inventory-copied.json",
+          "sha256": "7475b7ab1a92ff3dca0c212f220310d652d27902bb148d848f87a07ebcdc4a46"
+        },
+        {
+          "bytes": 1168349,
+          "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/root-composed-frc-overlay-inventory-through-old-symlink.json",
+          "sha256": "7475b7ab1a92ff3dca0c212f220310d652d27902bb148d848f87a07ebcdc4a46"
+        }
+      ],
+      "retired_raw_aliases": [],
+      "source": "/workspace/e02-E-pr38-r3-receipts/root-composed-frc-overlay"
+    },
+    {
+      "all_defining_before_copy_readback_fields_equal": true,
+      "allocation_delta_bytes_observed": -3883008,
+      "allocation_metadata_complete_deltas": {
+        "bytes": 8793243,
+        "path": "/tmp/e02-E-cleanup-custody-independent-20261007/current-custody-review-v3.json",
+        "sha256": "530c87199b657854541d581e3b4930fff5fb3581838687d37314d27988746665"
+      },
+      "allocation_metadata_delta_count": 940,
+      "current_plaintext_bytes": 75746769,
+      "current_plaintext_files": 3845,
+      "current_whole_membership_and_types_modes_files_links_verified": true,
+      "destination": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/preserved-catalogs/mc",
+      "original_inventory_summary": {
+        "bytes": 75746769,
+        "directories": 470,
+        "files": 3845,
+        "records": 4315,
+        "symlinks": 0
+      },
+      "proc_windows": [
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 10,
+          "reference": {
+            "bytes": 2375,
+            "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/mc-proc-initial.json",
+            "sha256": "b83a8402daab8e0934f97251e963b6cddde997eda327d3ac55e2e65b6581bc20"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        },
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 10,
+          "reference": {
+            "bytes": 2373,
+            "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/mc-proc-before-switch.json",
+            "sha256": "0c7a7d8da28ec00f02634c226e61ca0899e6d61811fced21cf5af95e9dbc9ce4"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        }
+      ],
+      "raw_inventory_JSON_byte_identical": false,
+      "raw_inventory_refs": [
+        {
+          "bytes": 1230298,
+          "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/mc-inventory-before.json",
+          "sha256": "837709c8f4202c2249c69b0001d2f8e84653c5193ca6359fefe11b007aaf5c7b"
+        },
+        {
+          "bytes": 1228886,
+          "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/mc-inventory-copied.json",
+          "sha256": "475cc32f64ba06396782b1ee2314c05b19c9f3fb30ab7c47ca7162864f58974e"
+        },
+        {
+          "bytes": 1228886,
+          "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/mc-inventory-through-old-symlink.json",
+          "sha256": "475cc32f64ba06396782b1ee2314c05b19c9f3fb30ab7c47ca7162864f58974e"
+        }
+      ],
+      "retired_raw_aliases": [],
+      "source": "/workspace/e02-E-pr38-r2-receipts/mc"
+    },
+    {
+      "all_defining_before_copy_readback_fields_equal": true,
+      "allocation_delta_bytes_observed": -4644864,
+      "allocation_metadata_complete_deltas": {
+        "bytes": 8793243,
+        "path": "/tmp/e02-E-cleanup-custody-independent-20261007/current-custody-review-v3.json",
+        "sha256": "530c87199b657854541d581e3b4930fff5fb3581838687d37314d27988746665"
+      },
+      "allocation_metadata_delta_count": 1126,
+      "current_plaintext_bytes": 79124935,
+      "current_plaintext_files": 3895,
+      "current_whole_membership_and_types_modes_files_links_verified": true,
+      "destination": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/preserved-catalogs/public-surface-packet",
+      "original_inventory_summary": {
+        "bytes": 79124935,
+        "directories": 563,
+        "files": 3895,
+        "records": 4458,
+        "symlinks": 0
+      },
+      "proc_windows": [
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 10,
+          "reference": {
+            "bytes": 2394,
+            "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/public-surface-packet-proc-initial.json",
+            "sha256": "7fd774255a59e1a196cdd37ca61e275300481da7295545399d0a8fae5f032bda"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        },
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 10,
+          "reference": {
+            "bytes": 2394,
+            "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/public-surface-packet-proc-before-switch.json",
+            "sha256": "11b4b5fcd522157fd6a18a9ffb30e7d0a1ba386ff181d6f5ddd43a4263eaa032"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        }
+      ],
+      "raw_inventory_JSON_byte_identical": false,
+      "raw_inventory_refs": [
+        {
+          "bytes": 1243963,
+          "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/public-surface-packet-inventory-before.json",
+          "sha256": "5644de9ce9c72d67fa4c0d8679358376d6ee6b35d6506426354d73984c53b6bb"
+        },
+        {
+          "bytes": 1242272,
+          "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/public-surface-packet-inventory-copied.json",
+          "sha256": "ee55ee3d29b0805c0b942138b5c35cd3f3173ac64d2d595fd226cecf0cd662f8"
+        },
+        {
+          "bytes": 1242272,
+          "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/public-surface-packet-inventory-through-old-symlink.json",
+          "sha256": "ee55ee3d29b0805c0b942138b5c35cd3f3173ac64d2d595fd226cecf0cd662f8"
+        }
+      ],
+      "retired_raw_aliases": [],
+      "source": "/workspace/e02-E-pr38-r2-receipts/public-surface-packet"
+    },
+    {
+      "all_defining_before_copy_readback_fields_equal": true,
+      "allocation_delta_bytes_observed": -5029888,
+      "allocation_metadata_complete_deltas": {
+        "bytes": 8793243,
+        "path": "/tmp/e02-E-cleanup-custody-independent-20261007/current-custody-review-v3.json",
+        "sha256": "530c87199b657854541d581e3b4930fff5fb3581838687d37314d27988746665"
+      },
+      "allocation_metadata_delta_count": 1202,
+      "current_plaintext_bytes": 149299000,
+      "current_plaintext_files": 5169,
+      "current_whole_membership_and_types_modes_files_links_verified": true,
+      "destination": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/preserved-catalogs/backtest-old58-overlay",
+      "original_inventory_summary": {
+        "bytes": 149299000,
+        "directories": 601,
+        "files": 5169,
+        "records": 5770,
+        "symlinks": 0
+      },
+      "proc_windows": [
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 10,
+          "reference": {
+            "bytes": 2395,
+            "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/backtest-old58-overlay-proc-initial.json",
+            "sha256": "a862fe0a22bfc007ef5e4161c843b52cb4085c00c3dd95cab4a7529b0e1e1565"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        },
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 10,
+          "reference": {
+            "bytes": 2395,
+            "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/backtest-old58-overlay-proc-before-switch.json",
+            "sha256": "289e9a412b31f477d284c757ea4a7073479c42427a0276d96b2bc006a878145e"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        }
+      ],
+      "raw_inventory_JSON_byte_identical": false,
+      "raw_inventory_refs": [
+        {
+          "bytes": 1575204,
+          "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/backtest-old58-overlay-inventory-before.json",
+          "sha256": "e55b59607e40b3cc31668949fd3327ccf3e873966468b7e9065c26de849cbd18"
+        },
+        {
+          "bytes": 1573398,
+          "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/backtest-old58-overlay-inventory-copied.json",
+          "sha256": "fe71ddd86443b83c5500468bfa25bf136f7ba45f58ea68d92f69922af5565bc6"
+        },
+        {
+          "bytes": 1573398,
+          "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/backtest-old58-overlay-inventory-through-old-symlink.json",
+          "sha256": "fe71ddd86443b83c5500468bfa25bf136f7ba45f58ea68d92f69922af5565bc6"
+        }
+      ],
+      "retired_raw_aliases": [],
+      "source": "/workspace/e02-E-pr38-r2-receipts/backtest-old58-overlay"
+    },
+    {
+      "all_defining_before_copy_readback_fields_equal": true,
+      "allocation_delta_bytes_observed": -4104192,
+      "allocation_metadata_complete_deltas": {
+        "bytes": 8793243,
+        "path": "/tmp/e02-E-cleanup-custody-independent-20261007/current-custody-review-v3.json",
+        "sha256": "530c87199b657854541d581e3b4930fff5fb3581838687d37314d27988746665"
+      },
+      "allocation_metadata_delta_count": 976,
+      "current_plaintext_bytes": 134036209,
+      "current_plaintext_files": 4418,
+      "current_whole_membership_and_types_modes_files_links_verified": true,
+      "destination": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/preserved-catalogs/cal-frozen58",
+      "original_inventory_summary": {
+        "bytes": 134036209,
+        "directories": 488,
+        "files": 4418,
+        "records": 4906,
+        "symlinks": 0
+      },
+      "proc_windows": [
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 10,
+          "reference": {
+            "bytes": 2384,
+            "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/cal-frozen58-proc-initial.json",
+            "sha256": "28de7a472c9b63b3e49f856901cbdd4edaa6411b2dd77548cef5db19a5149a03"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        },
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 10,
+          "reference": {
+            "bytes": 2385,
+            "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/cal-frozen58-proc-before-switch.json",
+            "sha256": "1478ea33f8ffbb9eef67df99bf7145b403c29b0b377e0e2c9a734cd4e862c247"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        }
+      ],
+      "raw_inventory_JSON_byte_identical": false,
+      "raw_inventory_refs": [
+        {
+          "bytes": 1329278,
+          "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/cal-frozen58-inventory-before.json",
+          "sha256": "3ca44765c357aa6bb23ad398a2e0b95a840d8c5f88423b22cf4913dcd03fc6e2"
+        },
+        {
+          "bytes": 1327811,
+          "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/cal-frozen58-inventory-copied.json",
+          "sha256": "aebae161635909d532489a966cfa7ff6bcad22e23218f19834451c63bf2f0569"
+        },
+        {
+          "bytes": 1327811,
+          "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/cal-frozen58-inventory-through-old-symlink.json",
+          "sha256": "aebae161635909d532489a966cfa7ff6bcad22e23218f19834451c63bf2f0569"
+        }
+      ],
+      "retired_raw_aliases": [],
+      "source": "/workspace/e02-E-pr38-r2-receipts/cal-frozen58"
+    },
+    {
+      "all_defining_before_copy_readback_fields_equal": true,
+      "allocation_delta_bytes_observed": -14467072,
+      "allocation_metadata_complete_deltas": {
+        "bytes": 8793243,
+        "path": "/tmp/e02-E-cleanup-custody-independent-20261007/current-custody-review-v3.json",
+        "sha256": "530c87199b657854541d581e3b4930fff5fb3581838687d37314d27988746665"
+      },
+      "allocation_metadata_delta_count": 3456,
+      "current_plaintext_bytes": 415862803,
+      "current_plaintext_files": 13801,
+      "current_whole_membership_and_types_modes_files_links_verified": true,
+      "destination": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/preserved-catalogs/independent-cal-reviewer",
+      "original_inventory_summary": {
+        "bytes": 415862803,
+        "directories": 1728,
+        "files": 13801,
+        "records": 15529,
+        "symlinks": 0
+      },
+      "proc_windows": [
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 10,
+          "reference": {
+            "bytes": 2396,
+            "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/independent-cal-reviewer-proc-initial.json",
+            "sha256": "33c6857c9674b013bab0e330ce9096fc0b61eeab6a5e310261268dfe03147527"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        },
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 12,
+          "reference": {
+            "bytes": 2673,
+            "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/independent-cal-reviewer-proc-before-switch.json",
+            "sha256": "3e1fcd682347ea7f627cfcf7fef1c576d883f72a14fc04cbbd2a56a2d99d1151"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        }
+      ],
+      "raw_inventory_JSON_byte_identical": false,
+      "raw_inventory_refs": [
+        {
+          "bytes": 4716838,
+          "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/independent-cal-reviewer-inventory-before.json",
+          "sha256": "6f2ca2dbda4446de5ad497fd365bf4f55fe80acadad3b5bc0cb065aed2d14713"
+        },
+        {
+          "bytes": 4711645,
+          "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/independent-cal-reviewer-inventory-copied.json",
+          "sha256": "a03f804fab33f79647864e47009896cc22a57d791c8c179bfcf5179e1796e305"
+        },
+        {
+          "bytes": 4711645,
+          "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/independent-cal-reviewer-inventory-through-old-symlink.json",
+          "sha256": "a03f804fab33f79647864e47009896cc22a57d791c8c179bfcf5179e1796e305"
+        }
+      ],
+      "retired_raw_aliases": [],
+      "source": "/workspace/e02-E-pr38-r2-receipts/independent-cal-reviewer"
+    },
+    {
+      "all_defining_before_copy_readback_fields_equal": true,
+      "allocation_delta_bytes_observed": -8192,
+      "allocation_metadata_complete_deltas": {
+        "bytes": 8793243,
+        "path": "/tmp/e02-E-cleanup-custody-independent-20261007/current-custody-review-v3.json",
+        "sha256": "530c87199b657854541d581e3b4930fff5fb3581838687d37314d27988746665"
+      },
+      "allocation_metadata_delta_count": 2,
+      "current_plaintext_bytes": 79320,
+      "current_plaintext_files": 15,
+      "current_whole_membership_and_types_modes_files_links_verified": true,
+      "destination": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/preserved-catalogs/common-wave-a9f78817c-corrected/raw",
+      "original_inventory_summary": {
+        "bytes": 171851622,
+        "directories": 0,
+        "files": 16,
+        "records": 16,
+        "symlinks": 0
+      },
+      "proc_windows": [
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 12,
+          "reference": {
+            "bytes": 2684,
+            "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-a9f78817c-corrected--raw-proc-initial.json",
+            "sha256": "fa1aa82e4ab4ded16170121e1fd93eced9c8b40a0982ca8ed8980f9f8a2cc3dd"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        },
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 12,
+          "reference": {
+            "bytes": 2683,
+            "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-a9f78817c-corrected--raw-proc-before-switch.json",
+            "sha256": "eaaf5051176c90815deb19b391b5d338665cb8bec155c9a64045e62cc3dabd7f"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        }
+      ],
+      "raw_inventory_JSON_byte_identical": false,
+      "raw_inventory_refs": [
+        {
+          "bytes": 4097,
+          "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-a9f78817c-corrected--raw-inventory-before.json",
+          "sha256": "4f556ee94c535658fe6c3cf8ad7189254a5cf455c465f1d817902d2f432691cb"
+        },
+        {
+          "bytes": 4097,
+          "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-a9f78817c-corrected--raw-inventory-copied.json",
+          "sha256": "e12610b6d7a7da91b2d6bf7eeb66e7055aee2e4e28039596abb8b05d2f93b672"
+        },
+        {
+          "bytes": 4097,
+          "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-a9f78817c-corrected--raw-inventory-through-old-symlink.json",
+          "sha256": "e12610b6d7a7da91b2d6bf7eeb66e7055aee2e4e28039596abb8b05d2f93b672"
+        }
+      ],
+      "retired_raw_aliases": [
+        "production-invocation.raw.json"
+      ],
+      "source": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/raw"
+    },
+    {
+      "all_defining_before_copy_readback_fields_equal": true,
+      "allocation_delta_bytes_observed": -95887360,
+      "allocation_metadata_complete_deltas": {
+        "bytes": 8793243,
+        "path": "/tmp/e02-E-cleanup-custody-independent-20261007/current-custody-review-v3.json",
+        "sha256": "530c87199b657854541d581e3b4930fff5fb3581838687d37314d27988746665"
+      },
+      "allocation_metadata_delta_count": 23402,
+      "current_plaintext_bytes": 69379207,
+      "current_plaintext_files": 12761,
+      "current_whole_membership_and_types_modes_files_links_verified": true,
+      "destination": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/preserved-catalogs/common-wave-a9f78817c-corrected/temporary",
+      "original_inventory_summary": {
+        "bytes": 69379207,
+        "directories": 11692,
+        "files": 12761,
+        "records": 24657,
+        "symlinks": 204
+      },
+      "proc_windows": [
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 12,
+          "reference": {
+            "bytes": 2690,
+            "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-a9f78817c-corrected--temporary-proc-initial.json",
+            "sha256": "21e614da70ec731114d6345b303c43fe83afa97e597becca95de0182bbc139f5"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        },
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 12,
+          "reference": {
+            "bytes": 2690,
+            "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-a9f78817c-corrected--temporary-proc-before-switch.json",
+            "sha256": "be666c46595da5a30cf49775b111c6f5bb2d9bff8755e9d1049a3a6245556006"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        }
+      ],
+      "raw_inventory_JSON_byte_identical": false,
+      "raw_inventory_refs": [
+        {
+          "bytes": 7307693,
+          "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-a9f78817c-corrected--temporary-inventory-before.json",
+          "sha256": "821637426651278ead3a0aa2d825fb3e999631fb64bda0fc9128cafee1bab7af"
+        },
+        {
+          "bytes": 7272616,
+          "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-a9f78817c-corrected--temporary-inventory-copied.json",
+          "sha256": "3ed1573e00a940596101633807d6cd6a2192c3b58f57fb17c4d93cfbb2b11b46"
+        },
+        {
+          "bytes": 7272616,
+          "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-a9f78817c-corrected--temporary-inventory-through-old-symlink.json",
+          "sha256": "3ed1573e00a940596101633807d6cd6a2192c3b58f57fb17c4d93cfbb2b11b46"
+        }
+      ],
+      "retired_raw_aliases": [],
+      "source": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/temporary"
+    },
+    {
+      "all_defining_before_copy_readback_fields_equal": true,
+      "allocation_delta_bytes_observed": 0,
+      "allocation_metadata_complete_deltas": {
+        "bytes": 8793243,
+        "path": "/tmp/e02-E-cleanup-custody-independent-20261007/current-custody-review-v3.json",
+        "sha256": "530c87199b657854541d581e3b4930fff5fb3581838687d37314d27988746665"
+      },
+      "allocation_metadata_delta_count": 0,
+      "current_plaintext_bytes": 79320,
+      "current_plaintext_files": 15,
+      "current_whole_membership_and_types_modes_files_links_verified": true,
+      "destination": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/preserved-catalogs/common-wave-5e3e37276/raw",
+      "original_inventory_summary": {
+        "bytes": 171852123,
+        "directories": 0,
+        "files": 16,
+        "records": 16,
+        "symlinks": 0
+      },
+      "proc_windows": [
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 12,
+          "reference": {
+            "bytes": 2674,
+            "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-5e3e37276--raw-proc-initial.json",
+            "sha256": "ed43bd37ae4a8d21deb94c103c9efd5b3efa0326f559164ab624cb6b012db268"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        },
+        {
+          "active_candidate_users": 0,
+          "readable_processes": 13,
+          "reference": {
+            "bytes": 2825,
+            "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-5e3e37276--raw-proc-before-switch.json",
+            "sha256": "6ba010c13e07e16788c1bb1fdd391990283bb11596396916727e5e4f4bbd5b1c"
+          },
+          "scope": "Two historical point-in-time readable-process windows, not locks or hostwide visibility.",
+          "unreadable_infrastructure": [
+            199,
+            250
+          ]
+        }
+      ],
+      "raw_inventory_JSON_byte_identical": true,
+      "raw_inventory_refs": [
+        {
+          "bytes": 4097,
+          "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-5e3e37276--raw-inventory-before.json",
+          "sha256": "e34d4521f5af9ae79bb574238951379a27f4aa8615ee6435c340796037373557"
+        },
+        {
+          "bytes": 4097,
+          "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-5e3e37276--raw-inventory-copied.json",
+          "sha256": "e34d4521f5af9ae79bb574238951379a27f4aa8615ee6435c340796037373557"
+        },
+        {
+          "bytes": 4097,
+          "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-5e3e37276--raw-inventory-through-old-symlink.json",
+          "sha256": "e34d4521f5af9ae79bb574238951379a27f4aa8615ee6435c340796037373557"
+        }
+      ],
+      "retired_raw_aliases": [
+        "production-invocation.raw.json"
+      ],
+      "source": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/raw"
+    }
+  ],
+  "actual_closed_metadata_omission_removal_controls": [
+    {
+      "actual_refusal": true,
+      "name": "actual_closed21_source_omission_refused",
+      "omitted_source": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/raw",
+      "outcome": "PASS"
+    },
+    {
+      "all_original_inventory_and_archive_refs_unchanged": true,
+      "name": "actual_source_counter_removal_readmits20_without_transfer",
+      "outcome": "PASS",
+      "removed_property": "admit_expected_actions body only"
+    }
+  ],
+  "actual_native_caller_P41": "not_established",
+  "all63_retained_full_inventory_refs": [
+    {
+      "bytes": 5188370,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/frc-r4-inventory-before.json",
+      "sha256": "c0a8a920cd4028cca5d232271bb1e79fc6421f5f297b020681d275c085593733"
+    },
+    {
+      "bytes": 5188370,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/frc-r4-inventory-copied.json",
+      "sha256": "c0a8a920cd4028cca5d232271bb1e79fc6421f5f297b020681d275c085593733"
+    },
+    {
+      "bytes": 5188370,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/frc-r4-inventory-through-old-symlink.json",
+      "sha256": "c0a8a920cd4028cca5d232271bb1e79fc6421f5f297b020681d275c085593733"
+    },
+    {
+      "bytes": 1324174,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/owner-export-independent-inventory-before.json",
+      "sha256": "cdc7b72bb85ab42aac9f0973b22f71339dcf6af554be3c259c37a1d91663e0a5"
+    },
+    {
+      "bytes": 1324174,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/owner-export-independent-inventory-copied.json",
+      "sha256": "8dd6bd134190434b5f2f75ea2ab174a62ca0ed4cdc1f115b058274b1bf6a2cde"
+    },
+    {
+      "bytes": 1324174,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/owner-export-independent-inventory-through-old-symlink.json",
+      "sha256": "8dd6bd134190434b5f2f75ea2ab174a62ca0ed4cdc1f115b058274b1bf6a2cde"
+    },
+    {
+      "bytes": 2729669,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/ir-compat-independent-inventory-before.json",
+      "sha256": "2353de49a34a22ee43a4b891a988658142b3295b6777d779f3178897ce7dd477"
+    },
+    {
+      "bytes": 2729669,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/ir-compat-independent-inventory-copied.json",
+      "sha256": "2353de49a34a22ee43a4b891a988658142b3295b6777d779f3178897ce7dd477"
+    },
+    {
+      "bytes": 2729669,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/ir-compat-independent-inventory-through-old-symlink.json",
+      "sha256": "2353de49a34a22ee43a4b891a988658142b3295b6777d779f3178897ce7dd477"
+    },
+    {
+      "bytes": 305139,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/doe-r4-inventory-before.json",
+      "sha256": "9aa48ff85501ef16c6195e18d2e78e322c904cc4cc324ecef81cfc79d669dad3"
+    },
+    {
+      "bytes": 305139,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/doe-r4-inventory-copied.json",
+      "sha256": "9aa48ff85501ef16c6195e18d2e78e322c904cc4cc324ecef81cfc79d669dad3"
+    },
+    {
+      "bytes": 305139,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/doe-r4-inventory-through-old-symlink.json",
+      "sha256": "9aa48ff85501ef16c6195e18d2e78e322c904cc4cc324ecef81cfc79d669dad3"
+    },
+    {
+      "bytes": 1631525,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/frozen-successor-dispatch-inventory-before.json",
+      "sha256": "c2a495ac30f7433f54e0ca565ac3b41813ac2ad9f4e7b6956e0d036168cd6c1b"
+    },
+    {
+      "bytes": 1631525,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/frozen-successor-dispatch-inventory-copied.json",
+      "sha256": "c2a495ac30f7433f54e0ca565ac3b41813ac2ad9f4e7b6956e0d036168cd6c1b"
+    },
+    {
+      "bytes": 1631525,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/frozen-successor-dispatch-inventory-through-old-symlink.json",
+      "sha256": "c2a495ac30f7433f54e0ca565ac3b41813ac2ad9f4e7b6956e0d036168cd6c1b"
+    },
+    {
+      "bytes": 411662,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/lint-independent-inventory-before.json",
+      "sha256": "8be8ba4daa6bc5c5d25cc05e04272ed78d068d6e54be470ecaa6590d7ca21f65"
+    },
+    {
+      "bytes": 411662,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/lint-independent-inventory-copied.json",
+      "sha256": "8be8ba4daa6bc5c5d25cc05e04272ed78d068d6e54be470ecaa6590d7ca21f65"
+    },
+    {
+      "bytes": 411662,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/lint-independent-inventory-through-old-symlink.json",
+      "sha256": "8be8ba4daa6bc5c5d25cc05e04272ed78d068d6e54be470ecaa6590d7ca21f65"
+    },
+    {
+      "bytes": 57910,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/ir-import-independent-inventory-before.json",
+      "sha256": "578940c5415bc18f7dc0fc19854276d58042f31777024ffebbd1e940781aabd0"
+    },
+    {
+      "bytes": 57910,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/ir-import-independent-inventory-copied.json",
+      "sha256": "578940c5415bc18f7dc0fc19854276d58042f31777024ffebbd1e940781aabd0"
+    },
+    {
+      "bytes": 57910,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/ir-import-independent-inventory-through-old-symlink.json",
+      "sha256": "578940c5415bc18f7dc0fc19854276d58042f31777024ffebbd1e940781aabd0"
+    },
+    {
+      "bytes": 951357,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/ir-semantic-independent-inventory-before.json",
+      "sha256": "998e4883c0ae67d207762d3af9b90031c874c32581b803a7e22136944d2d7f01"
+    },
+    {
+      "bytes": 951357,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/ir-semantic-independent-inventory-copied.json",
+      "sha256": "998e4883c0ae67d207762d3af9b90031c874c32581b803a7e22136944d2d7f01"
+    },
+    {
+      "bytes": 951357,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/ir-semantic-independent-inventory-through-old-symlink.json",
+      "sha256": "998e4883c0ae67d207762d3af9b90031c874c32581b803a7e22136944d2d7f01"
+    },
+    {
+      "bytes": 4097,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/frozen-wave-64d7444a-20261007--raw-inventory-before.json",
+      "sha256": "db83ed061176ea236c426ee321db3daa8a42698fdfc6a1eaf25b08e0333be1e9"
+    },
+    {
+      "bytes": 4097,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/frozen-wave-64d7444a-20261007--raw-inventory-copied.json",
+      "sha256": "db83ed061176ea236c426ee321db3daa8a42698fdfc6a1eaf25b08e0333be1e9"
+    },
+    {
+      "bytes": 4097,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/frozen-wave-64d7444a-20261007--raw-inventory-through-old-symlink.json",
+      "sha256": "db83ed061176ea236c426ee321db3daa8a42698fdfc6a1eaf25b08e0333be1e9"
+    },
+    {
+      "bytes": 1113780,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/root-composed-frc-inventory-before.json",
+      "sha256": "624ceb3b8c998b2ff06f6151a233095da70957cd82e6199f448dfe777909f9b1"
+    },
+    {
+      "bytes": 1113780,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/root-composed-frc-inventory-copied.json",
+      "sha256": "624ceb3b8c998b2ff06f6151a233095da70957cd82e6199f448dfe777909f9b1"
+    },
+    {
+      "bytes": 1113780,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/root-composed-frc-inventory-through-old-symlink.json",
+      "sha256": "624ceb3b8c998b2ff06f6151a233095da70957cd82e6199f448dfe777909f9b1"
+    },
+    {
+      "bytes": 185862,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/lint-r4-inventory-before.json",
+      "sha256": "216e6596b9d17ad10306cdd3ebfd1d91c38d6172c9bb97a0b6d42d3d3ce97116"
+    },
+    {
+      "bytes": 185373,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/lint-r4-inventory-copied.json",
+      "sha256": "659314fb1717d76379f5dd8b7f1b8afda7cd40656a7f78b4b1d63225866e4721"
+    },
+    {
+      "bytes": 185373,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/lint-r4-inventory-through-old-symlink.json",
+      "sha256": "659314fb1717d76379f5dd8b7f1b8afda7cd40656a7f78b4b1d63225866e4721"
+    },
+    {
+      "bytes": 39888,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/postfreeze-import-attribution-inventory-before.json",
+      "sha256": "58a7001e848f6b07dec47a4b4217c1066898e3d44b2e8c28d63f2425ef935139"
+    },
+    {
+      "bytes": 39867,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/postfreeze-import-attribution-inventory-copied.json",
+      "sha256": "6b9ec45b8d899bd7588b09a62eb0bfe5da05a47076e974d2823a4c778b6bd192"
+    },
+    {
+      "bytes": 39867,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/postfreeze-import-attribution-inventory-through-old-symlink.json",
+      "sha256": "6b9ec45b8d899bd7588b09a62eb0bfe5da05a47076e974d2823a4c778b6bd192"
+    },
+    {
+      "bytes": 1174352,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/root-composed-frc-overlay-inventory-before.json",
+      "sha256": "51fb8f2a530b06d6bc8d70dc726ecc082a11f6aaab48bf194e28a112659e89c9"
+    },
+    {
+      "bytes": 1168349,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/root-composed-frc-overlay-inventory-copied.json",
+      "sha256": "7475b7ab1a92ff3dca0c212f220310d652d27902bb148d848f87a07ebcdc4a46"
+    },
+    {
+      "bytes": 1168349,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/root-composed-frc-overlay-inventory-through-old-symlink.json",
+      "sha256": "7475b7ab1a92ff3dca0c212f220310d652d27902bb148d848f87a07ebcdc4a46"
+    },
+    {
+      "bytes": 1230298,
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/mc-inventory-before.json",
+      "sha256": "837709c8f4202c2249c69b0001d2f8e84653c5193ca6359fefe11b007aaf5c7b"
+    },
+    {
+      "bytes": 1228886,
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/mc-inventory-copied.json",
+      "sha256": "475cc32f64ba06396782b1ee2314c05b19c9f3fb30ab7c47ca7162864f58974e"
+    },
+    {
+      "bytes": 1228886,
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/mc-inventory-through-old-symlink.json",
+      "sha256": "475cc32f64ba06396782b1ee2314c05b19c9f3fb30ab7c47ca7162864f58974e"
+    },
+    {
+      "bytes": 1243963,
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/public-surface-packet-inventory-before.json",
+      "sha256": "5644de9ce9c72d67fa4c0d8679358376d6ee6b35d6506426354d73984c53b6bb"
+    },
+    {
+      "bytes": 1242272,
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/public-surface-packet-inventory-copied.json",
+      "sha256": "ee55ee3d29b0805c0b942138b5c35cd3f3173ac64d2d595fd226cecf0cd662f8"
+    },
+    {
+      "bytes": 1242272,
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/public-surface-packet-inventory-through-old-symlink.json",
+      "sha256": "ee55ee3d29b0805c0b942138b5c35cd3f3173ac64d2d595fd226cecf0cd662f8"
+    },
+    {
+      "bytes": 1575204,
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/backtest-old58-overlay-inventory-before.json",
+      "sha256": "e55b59607e40b3cc31668949fd3327ccf3e873966468b7e9065c26de849cbd18"
+    },
+    {
+      "bytes": 1573398,
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/backtest-old58-overlay-inventory-copied.json",
+      "sha256": "fe71ddd86443b83c5500468bfa25bf136f7ba45f58ea68d92f69922af5565bc6"
+    },
+    {
+      "bytes": 1573398,
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/backtest-old58-overlay-inventory-through-old-symlink.json",
+      "sha256": "fe71ddd86443b83c5500468bfa25bf136f7ba45f58ea68d92f69922af5565bc6"
+    },
+    {
+      "bytes": 1329278,
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/cal-frozen58-inventory-before.json",
+      "sha256": "3ca44765c357aa6bb23ad398a2e0b95a840d8c5f88423b22cf4913dcd03fc6e2"
+    },
+    {
+      "bytes": 1327811,
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/cal-frozen58-inventory-copied.json",
+      "sha256": "aebae161635909d532489a966cfa7ff6bcad22e23218f19834451c63bf2f0569"
+    },
+    {
+      "bytes": 1327811,
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/cal-frozen58-inventory-through-old-symlink.json",
+      "sha256": "aebae161635909d532489a966cfa7ff6bcad22e23218f19834451c63bf2f0569"
+    },
+    {
+      "bytes": 4716838,
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/independent-cal-reviewer-inventory-before.json",
+      "sha256": "6f2ca2dbda4446de5ad497fd365bf4f55fe80acadad3b5bc0cb065aed2d14713"
+    },
+    {
+      "bytes": 4711645,
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/independent-cal-reviewer-inventory-copied.json",
+      "sha256": "a03f804fab33f79647864e47009896cc22a57d791c8c179bfcf5179e1796e305"
+    },
+    {
+      "bytes": 4711645,
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/independent-cal-reviewer-inventory-through-old-symlink.json",
+      "sha256": "a03f804fab33f79647864e47009896cc22a57d791c8c179bfcf5179e1796e305"
+    },
+    {
+      "bytes": 4097,
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-a9f78817c-corrected--raw-inventory-before.json",
+      "sha256": "4f556ee94c535658fe6c3cf8ad7189254a5cf455c465f1d817902d2f432691cb"
+    },
+    {
+      "bytes": 4097,
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-a9f78817c-corrected--raw-inventory-copied.json",
+      "sha256": "e12610b6d7a7da91b2d6bf7eeb66e7055aee2e4e28039596abb8b05d2f93b672"
+    },
+    {
+      "bytes": 4097,
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-a9f78817c-corrected--raw-inventory-through-old-symlink.json",
+      "sha256": "e12610b6d7a7da91b2d6bf7eeb66e7055aee2e4e28039596abb8b05d2f93b672"
+    },
+    {
+      "bytes": 7307693,
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-a9f78817c-corrected--temporary-inventory-before.json",
+      "sha256": "821637426651278ead3a0aa2d825fb3e999631fb64bda0fc9128cafee1bab7af"
+    },
+    {
+      "bytes": 7272616,
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-a9f78817c-corrected--temporary-inventory-copied.json",
+      "sha256": "3ed1573e00a940596101633807d6cd6a2192c3b58f57fb17c4d93cfbb2b11b46"
+    },
+    {
+      "bytes": 7272616,
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-a9f78817c-corrected--temporary-inventory-through-old-symlink.json",
+      "sha256": "3ed1573e00a940596101633807d6cd6a2192c3b58f57fb17c4d93cfbb2b11b46"
+    },
+    {
+      "bytes": 4097,
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-5e3e37276--raw-inventory-before.json",
+      "sha256": "e34d4521f5af9ae79bb574238951379a27f4aa8615ee6435c340796037373557"
+    },
+    {
+      "bytes": 4097,
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-5e3e37276--raw-inventory-copied.json",
+      "sha256": "e34d4521f5af9ae79bb574238951379a27f4aa8615ee6435c340796037373557"
+    },
+    {
+      "bytes": 4097,
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-5e3e37276--raw-inventory-through-old-symlink.json",
+      "sha256": "e34d4521f5af9ae79bb574238951379a27f4aa8615ee6435c340796037373557"
+    }
+  ],
+  "all_historical_observer_limitations_and_plaintext_reopen_qualifications_preserved": true,
+  "allocation_free_space_or_RAM_cause_attribution": "not_established; no cross-filesystem byte sum",
+  "archive_moderate_selection": {
+    "bytes": 5207,
+    "path": "/tmp/e02-E-closed-static-raw-archive-20261007-oracle/publication-selection.json",
+    "sha256": "0032dbacb1dd7d00389b356e38883b06d1a02635439834a6ba6c895f5005d80d"
+  },
+  "archive_operation": {
+    "bytes": 31202,
+    "path": "/tmp/e02-E-closed-static-raw-archive-20261007-oracle/archive-result.json",
+    "sha256": "71a2b41f0d4512b7e4dc38ab0f789ae4f01fa6e3ff6337a7006a637ffc4bad77"
+  },
+  "archives": [
+    {
+      "actual_complete_decoded_stream": {
+        "bytes": 171816130,
+        "sha256": "2db8bd7e6e2517bc18b8f0e53d4f79617802b15fdf24e8e0ba1a9b64b895a3b9"
+      },
+      "archive": {
+        "bytes": 6518181,
+        "path": "/workspace/e02-E-pr38-r3-receipts/closed-static-raw-archives-20261007/frozen-wave-64d7444a.production-invocation.raw.json.gz",
+        "sha256": "2203291c8ac19de0d9c37c675f3164c179355c260baf76c784dfb40d12d88f1c"
+      },
+      "buffer_bytes": 1048576,
+      "materialized_plaintext_bytes": 0,
+      "old_path": "/workspace/e02-E-pr38-r3-receipts/frozen-wave-64d7444a-20261007/raw/production-invocation.raw.json",
+      "real_path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/preserved-catalogs/frozen-wave-64d7444a-20261007/raw/production-invocation.raw.json"
+    },
+    {
+      "actual_complete_decoded_stream": {
+        "bytes": 171772302,
+        "sha256": "438665b9b62b5860d17d388b0ac9466a0d628773e93059e2ada9fdf410990635"
+      },
+      "archive": {
+        "bytes": 6513037,
+        "path": "/workspace/e02-E-pr38-r3-receipts/closed-static-raw-archives-20261007/corrected-wave-a9f78817.production-invocation.raw.json.gz",
+        "sha256": "b975e44dbadf1de0d57df53ad4faa9c2c16d310652580caa576ff58aa3017953"
+      },
+      "buffer_bytes": 1048576,
+      "materialized_plaintext_bytes": 0,
+      "old_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-a9f78817c-corrected/raw/production-invocation.raw.json",
+      "real_path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/preserved-catalogs/common-wave-a9f78817c-corrected/raw/production-invocation.raw.json"
+    },
+    {
+      "actual_complete_decoded_stream": {
+        "bytes": 171772803,
+        "sha256": "404cdb1543a96433016ca3880c3d557e2d027f9fa62060be40d9b8e266b16fbd"
+      },
+      "archive": {
+        "bytes": 6513079,
+        "path": "/workspace/e02-E-pr38-r3-receipts/closed-static-raw-archives-20261007/historical-wave-5e3e3727.production-invocation.raw.json.gz",
+        "sha256": "7f3769dc47c7109cdb03347e50a821abc044023b332e3f252210109a817b7910"
+      },
+      "buffer_bytes": 1048576,
+      "materialized_plaintext_bytes": 0,
+      "old_path": "/workspace/e02-E-pr38-r2-receipts/common-wave-5e3e37276/raw/production-invocation.raw.json",
+      "real_path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/preserved-catalogs/common-wave-5e3e37276/raw/production-invocation.raw.json"
+    }
+  ],
+  "catalogs": 21,
+  "current_plaintext_files": 77466,
+  "current_plaintext_logical_bytes": 1189297765,
+  "disposition": "GO for completed byte-preserving custody only",
+  "ended_unix": 1791382389.5605614,
+  "full_ignored_receipt": {
+    "bytes": 8793243,
+    "path": "/tmp/e02-E-cleanup-custody-independent-20261007/current-custody-review-v3.json",
+    "sha256": "530c87199b657854541d581e3b4930fff5fb3581838687d37314d27988746665"
+  },
+  "full_receipt_native_backend_field_qualification": {
+    "historical_value": null,
+    "native_JUnit_present": false,
+    "native_counts": null,
+    "native_exit_code": 137,
+    "native_outcome": "FAIL",
+    "rule": "This custody observation does not decode native execution; the separate terminal decoder is authoritative.",
+    "source_input_immutable": false,
+    "terminal_decoder": {
+      "bytes": 8010,
+      "path": "/workspace/e02-E-pr38-r3-receipts/criteria-r4/actual-terminal-backend-decoded-v3.json",
+      "sha256": "201d44b003da6b4e63c5cea4384c752f44f8996b0da4ebe0a73fd1c8ead3227a"
+    }
+  },
+  "native_backend_terminal_outcome": null,
+  "native_numeric_architecture_static_or_all54_reviews_repeated": false,
+  "new_cleanup_copy_retirement_or_delete_operations": 0,
+  "original_files": 77469,
+  "original_logical_bytes": 1704659000,
+  "protected_installed_metadata": {
+    "METADATA_records": 207,
+    "all207_digest_and_sizes_match_postinstall_baseline": true,
+    "protected_numerical_records": [
+      {
+        "bytes": 13409,
+        "name": "jax",
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/jax-0.8.2.dist-info/METADATA",
+        "sha256": "814bff75113dc832e236125fd9ec53390fec2d6e4494c17cb92d69c1b9509f8c",
+        "version": "0.8.2"
+      },
+      {
+        "bytes": 1339,
+        "name": "jaxlib",
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/jaxlib-0.8.2.dist-info/METADATA",
+        "sha256": "83b52e6b98bb35a5dfb4a760174382eb7946bf67ec782f392d238aa034384960",
+        "version": "0.8.2"
+      },
+      {
+        "bytes": 62117,
+        "name": "numpy",
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/numpy-2.3.5.dist-info/METADATA",
+        "sha256": "6002f29765e5bc1a3be4a1b92ed56b64968a0fecba73e7f81cd536d0c40f4fa3",
+        "version": "2.3.5"
+      },
+      {
+        "bytes": 11832,
+        "name": "SALib",
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/salib-1.5.2.dist-info/METADATA",
+        "sha256": "fe5e530e9552269f51db14bcd0f0bd3b7123002d171ef06ec1ecfde3dac11dfc",
+        "version": "1.5.2"
+      },
+      {
+        "bytes": 62003,
+        "name": "scipy",
+        "path": "/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/scipy-1.16.3.dist-info/METADATA",
+        "sha256": "a54602d0aa61fb25ac030b1d7b0faf0c8cfec508290d4d824198d6b43647ec1b",
+        "version": "1.16.3"
+      }
+    ],
+    "reference": {
+      "bytes": 70628,
+      "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/offline-install-20261007-r1/environment-after.json",
+      "sha256": "9f06f84e71752e44f272c56a0845d61e90149a54b03cdb1bc7999a5045c29af3"
+    },
+    "scope": "Distribution METADATA bytes only; no claim of every environment file byte."
+  },
+  "publication_qualification": {
+    "archive_streams": "All515361235 decoded bytes were independently hashed using1MiB buffers; no plaintext materialization.",
+    "current_ROOT_append": "Before/after identity is a point observation of authorized parent integration, not a request to keep historical64d HEAD.",
+    "full_allocation_delta_lists_and_inventory_entries": "Allocation deltas retained in the ignored complete receipt; entries in all63 content-bound inventories; not duplicated in Git.",
+    "initial_observer_refusals": [
+      "V1 current status assumption was narrower than authorized append integration",
+      "V2 required allocation metadata equality between filesystems; defining bytes/fields were equal"
+    ],
+    "scope": "Custody GO only; no native/scientific finding acceptance, production authority, causal attribution, or new cleanup operation."
+  },
+  "relocation_selection_refs": [
+    {
+      "bytes": 25758,
+      "path": "/tmp/e02-E-closed-receipt-relocation-20261007-oracle/publication-selection-v2.json",
+      "sha256": "0885a038510c517aeff4a171561ddb4e15d8c234e32bbdb59f416017388a3e65"
+    },
+    {
+      "bytes": 14879,
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/publication-selection.json",
+      "sha256": "c470a41a0c5551b48020de6dc93c63972768f5a600bfee34db6f156484a96ae8"
+    }
+  ],
+  "schema": "policyos.e02.E.completed_cleanup_independent_moderate_summary.v1",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "started_unix": 1791382371.696836,
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "whole_ROOT_input_immutable": false
+}

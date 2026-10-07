@@ -1,0 +1,38 @@
+{
+  "schema": "policyos.e02.E.effective_summary_type_guard_controls.v1",
+  "source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+  "observer_source": {
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/build_gate_packet_v2.py.txt",
+    "bytes": 9801,
+    "sha256": "a1bf643a1141c77df1291ec56989d631a777ba1fc9781ed81389ef40267c75d9"
+  },
+  "optimized": true,
+  "healthy": true,
+  "cases": [
+    {
+      "case": "native_exit_bool",
+      "actual_guard_refusal": "PASS",
+      "required_negative_after_removal": "FAIL",
+      "removed_guard_false_admission": true,
+      "native_receipt_source_and_outcome_refs_unchanged": true
+    },
+    {
+      "case": "top_source_guard_int",
+      "actual_guard_refusal": "PASS",
+      "required_negative_after_removal": "FAIL",
+      "removed_guard_false_admission": true,
+      "native_receipt_source_and_outcome_refs_unchanged": true
+    },
+    {
+      "case": "stdout_zero_as_bool",
+      "actual_guard_refusal": "PASS",
+      "required_negative_after_removal": "FAIL",
+      "removed_guard_false_admission": true,
+      "native_receipt_source_and_outcome_refs_unchanged": true
+    }
+  ],
+  "controls": 3,
+  "actual_removed_property": "typed_equal recursive exact primitive/container types only, recomputing native claim checks remain active",
+  "gate_source_or_generator_rerun": false,
+  "full_Python_source_changed": false
+}

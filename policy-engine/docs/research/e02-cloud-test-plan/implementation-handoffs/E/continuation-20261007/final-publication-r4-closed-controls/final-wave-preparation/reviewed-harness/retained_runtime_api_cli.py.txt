@@ -1,0 +1,138 @@
+"""Capture one canonical runtime API check while retaining its generated inputs."""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import importlib.util
+import json
+import os
+import sys
+import tempfile
+from pathlib import Path
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--checker", type=Path, required=True)
+    parser.add_argument("--expected-checker-sha256", required=True)
+    parser.add_argument("--catalog", type=Path, required=True)
+    parser.add_argument("arguments", nargs=argparse.REMAINDER)
+    args = parser.parse_args()
+    arguments = args.arguments[1:] if args.arguments[:1] == ["--"] else args.arguments
+    source = args.checker.read_bytes()
+    if hashlib.sha256(source).hexdigest() != args.expected_checker_sha256:
+        raise RuntimeError(
+            "runtime API checker source differs from admitted candidate bytes"
+        )
+    root = Path(os.environ["TMPDIR"]).resolve()
+    if args.catalog.exists() or args.catalog.is_symlink():
+        raise RuntimeError("retained runtime catalog exists; refuse overwrite")
+    raw = root / "retained-runtime-openapi.raw.json"
+    if raw.exists() or raw.is_symlink():
+        raise RuntimeError("retained OpenAPI output exists; refuse overwrite")
+    original_temporary = tempfile.TemporaryDirectory
+    temporary_catalog = []
+
+    def retained_temporary(
+        *positional: object, **keywords: object
+    ) -> tempfile.TemporaryDirectory[str]:
+        if positional:
+            raise RuntimeError(
+                "canonical runtime temporary directory uses named arguments"
+            )
+        directory_root = Path(keywords.get("dir") or root).resolve()
+        if not directory_root.is_relative_to(root):
+            raise RuntimeError(
+                "runtime client temporary request escapes the stage TMPDIR"
+            )
+        keywords["dir"] = str(directory_root)
+        keywords["delete"] = False
+        directory = original_temporary(**keywords)
+        name = Path(directory.name).resolve()
+        if not name.is_relative_to(root):
+            raise RuntimeError(
+                "runtime client temporary directory escapes the stage TMPDIR"
+            )
+        temporary_catalog.append(str(name))
+        return directory
+
+    module_spec = importlib.util.spec_from_file_location(
+        "e02_canonical_runtime_api_check", args.checker
+    )
+    if module_spec is None or module_spec.loader is None:
+        raise RuntimeError("canonical runtime API checker cannot be loaded")
+    module = importlib.util.module_from_spec(module_spec)
+    module_spec.loader.exec_module(module)
+    original_canonical_json = module._canonical_json
+    captures = []
+
+    def captured_canonical_json(payload: dict) -> str:
+        rendered = original_canonical_json(payload)
+        data = rendered.encode("utf-8")
+        with raw.open("xb") as handle:
+            handle.write(data)
+        captures.append(
+            {
+                "path": str(raw),
+                "bytes": len(data),
+                "sha256": hashlib.sha256(data).hexdigest(),
+            }
+        )
+        return rendered
+
+    tempfile.TemporaryDirectory = retained_temporary
+    module._canonical_json = captured_canonical_json
+    sys.argv = [str(args.checker), *arguments]
+    code = None
+    try:
+        code = module.main()
+        return code
+    finally:
+        tempfile.TemporaryDirectory = original_temporary
+        module._canonical_json = original_canonical_json
+        outputs = []
+        for directory in temporary_catalog:
+            for path in sorted(Path(directory).rglob("*")):
+                if path.is_file():
+                    data = path.read_bytes()
+                    outputs.append(
+                        {
+                            "path": str(path),
+                            "bytes": len(data),
+                            "sha256": hashlib.sha256(data).hexdigest(),
+                        }
+                    )
+        args.catalog.parent.mkdir(parents=True, exist_ok=True)
+        with args.catalog.open("x") as handle:
+            json.dump(
+                {
+                    "schema": "policyos.e02.retained_runtime_api_cli.v1",
+                    "checker": str(args.checker),
+                    "checker_source_sha256": hashlib.sha256(source).hexdigest(),
+                    "original_cli_arguments": arguments,
+                    "actual_checker_exit_code": code,
+                    "cwd": str(Path.cwd()),
+                    "stage_TMPDIR": str(root),
+                    "canonical_json_capture_count": len(captures),
+                    "openapi_captures_raw_only": captures,
+                    "temporary_directories_retained": temporary_catalog,
+                    "complete_generated_client_outputs_raw_only": outputs,
+                    "temporary_directory_operational_variant": (
+                        "Original tempfile.TemporaryDirectory(delete=False); "
+                        "comparisons and returned canonical bytes unchanged"
+                    ),
+                    "scope": (
+                        "Actual canonical CLI main; no second emitter "
+                        "and no source/product contract edits"
+                    ),
+                    "finding_closure": False,
+                },
+                handle,
+                indent=2,
+            )
+            handle.write("\n")
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,0 +1,69 @@
+import datetime, hashlib, re, importlib.machinery, importlib.util, json, platform, subprocess
+from pathlib import Path
+S=Path('/tmp/e02-E-final-moderate-publication-r4-stage')
+INPUT=Path('/tmp/e02-E-final-moderate-publication-inputs-r4.json')
+ROOT=Path('/workspace/e02-E-continuation-20261006')
+LEAF=Path('/workspace/e02-E-frc-20261006')
+def git(repo,*args):return subprocess.check_output(['git','-C',str(repo),*args],text=True).strip()
+def snapshot(repo):
+ return {'head':git(repo,'rev-parse','HEAD'),'tree':git(repo,'rev-parse','HEAD^{tree}'),'tracked_status':git(repo,'status','--porcelain=v1','-uno'),'observed_at':datetime.datetime.now(datetime.UTC).isoformat(),'atomic':False,'scope':'read-only sequential HEAD/tree/physical tracked status; no input freeze or native caller assertion'}
+def load(path):
+ l=importlib.machinery.SourceFileLoader('closed_controls',str(path));sp=importlib.util.spec_from_loader(l.name,l);m=importlib.util.module_from_spec(sp);l.exec_module(m);return m
+m=load(S/'copy-closed-controls.py.txt')
+inputs=json.loads(INPUT.read_text());expected=[];rows=[]
+root_before=snapshot(ROOT);leaf_before=snapshot(LEAF)
+if leaf_before['head']!='5739c0fa4037ddf91fbca425e3fd3190dc7aa969' or leaf_before['tracked_status']:raise ValueError('own exact clean published boundary')
+for entry in inputs:
+ p=Path(entry['path']);body=p.read_bytes();d=m.strict_json(body)
+ kind='logical_aliases' if 'logical_aliases'in d else 'assets' if isinstance(d.get('assets'),list) else 'files' if isinstance(d.get('files'),list) else 'none'
+ spec={'family':entry['name'],'path':entry['path'],'bytes':len(body),'sha256':m.sha(body),'input_kind':entry['kind'],'member_class':kind,'members':len(d[kind]) if kind != 'none' else 0}
+ expected.append(spec);rows.extend(m.expand(spec,d));rows.append(m.selector_row(spec))
+logical,copies=m.carriers(rows)
+for row in copies:
+ b=Path(row['stored']['path']).read_bytes()
+ if len(b)!=row['stored']['bytes'] or m.sha(b)!=row['stored']['sha256']:raise ValueError('original changed before stage')
+ p=S/'payload'/row['destination'];p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(b)
+root_after=snapshot(ROOT);leaf_after=snapshot(LEAF)
+q={
+ 'schema':'policyos.e02.closed_controls_qualification.v1',
+ 'scope':'Literal closed receipts, member/alias custody and declared historical observations only. This carrier runs no source, native, numeric, global gate or cleanup action.',
+ 'historical_source_epochs':['64d7444a18c55df7b88b71b7699a2f1b25ca24bd','31782b55f8f35556cfc581449b040c393f00c78f'],
+ 'terminal_backend':{'original_actual_exit_code':137,'actual_JUnit_present':False,'retrospective_native_PASS':False,'termination_cause':'not_established; source-bound terminal decoder and status custody distinct from method/case outcome'},
+ 'root317':{'wave':'closed historical observation, nine failing cases; later source/wave not accepted by this carrier','Ruff':'FAIL:143 foreign diagnostics on seven paths; E zero','format':'FAIL:seven foreign paths; E zero','workspace_verify':'one PASS,one FAIL,13 UNRUN across15 stages','CI_parity':'zero PASS,one FAIL,23 UNRUN across24 stages'},
+ 'MC_b6':{'actual_three_gates':'FAIL observations retained; exact scope and full moderate receipts selected','projected_generated_patch':'comparison oracle only; no application to integration','runtime_API_binding_cause':'not_established; current reason correction retained','private_raw_static_and_source_trees':'ignored references/reopen recipes only'},
+ 'source_d003':{'scope':'complete static/input qualification, test-only change; no graph or native gate repeat','tracked_source_and_handoff':'d003 source and62f4 receipt remain ROOT-owned Git references; no duplicated31-path handoff'},
+ 'utility2350_and5739':{'source_GO':'bounded independent utility source/CLI GO','DOC_GO':'independent literal byte custody only','finding_or_global_PASS':False},
+ 'ROOT_observations':{'before':root_before,'after':root_after,'whole_input_identity':'not_established','native_caller_P41':'not_established','old_generated_29_path_drift':'frozen historical64d observation; no retrospective sourcefreeze waiver'},
+ 'pending':{'new_IR_ratio_runtime_owner_actions':'canonical E writer/reviews pending; not accepted here','actual_calibration_fit_bridge':'canonical E writer/review pending; not accepted here','final_source_freeze_numeric_wave_and_current54':'pending separate root decision layer'},
+ 'source_tests_native_numeric_globalgate_executed':False,'ROOT_source_env_locks_outputs_written':False,'cleanup_or_remote_body_updated':False,'formal_G_or_finding_closure':False,'new_active_Python':0}
+prefix='policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/final-publication-r4-closed-controls'
+header={'schema':'policyos.e02.closed_controls_selector_custody.v1','publication_base':leaf_before['head'],'publication_base_tree':leaf_before['tree'],'proposed_git_prefix':prefix,'own_lane_before':leaf_before,'own_lane_after':leaf_after,'ROOT_before':root_before,'ROOT_after':root_after,'environment':{'python':platform.python_version(),'platform':platform.platform(),'backend':'stdlib byte/JSON/gzip custody only; no numerical backend invocation'},'source_native_numeric_globalgate_execution':False,'ROOT_source_env_locks_outputs_written':False,'new_active_Python':0,'final_source_wave_or_finding_acceptance':False,
+ 'predicate_basis':{
+ 'original_selector_identity':{'basis':'recomputed','explanation':'all24 exact selectors/readback receipts size/hash and original member schemas fixed'},
+ 'all_logical_occurrences_and_aliases':{'basis':'recomputed','explanation':'complete rawselected record Counter including flat declared files and compressed decoded originals'},
+ 'physical_and_decoded_bytes':{'basis':'recomputed','explanation':'literal stored bytes/hash and eachgzip full decompressed original bytes/hash before destination writes'},
+ 'metadata_program_and_counts':{'basis':'recomputed','explanation':'complete mandatory companions, cached executing program bytes, strict recursive typed JSON header/qualification and denominators'},
+ 'closed_original_independent_observations':{'basis':'independently_reconciled','explanation':'selected original author/peer receipts retained; no gate rerun by this carrier'},
+ 'ROOT_temporal_HEAD_tree_status':{'basis':'recomputed','explanation':'read-only sequential temporal observation, not atomic input freeze'},
+ 'native_caller_full_input_P41':{'basis':'not_established','explanation':'no whole-input reconstruction or actual native caller attribution by publication'},
+ 'final_source_finding_and_institutional_authority':{'basis':'not_established','explanation':'pending newsource/reviews/finalwave/current54; code accepted separately from finding closure'}}}
+counts={'logical_count':len(rows),'original_logical_bytes':sum(r['original']['bytes'] for r in rows),'stored_logical_bytes':sum(r['stored']['bytes'] for r in rows),'unique_payload_files':len(copies),'unique_payload_bytes':sum(r['stored']['bytes'] for r in copies),'deduplicated_occurrences':len(rows)-len(copies)}
+manifest=header|{'selection_inputs':expected,'logical_sources':logical,'canonical_copies':copies,'qualification':q}|counts
+(S/'manifest.json').write_text(json.dumps(manifest,indent=2,ensure_ascii=False,allow_nan=False)+'\n')
+(S/'qualification.json').write_text(json.dumps(q,indent=2,ensure_ascii=False,allow_nan=False)+'\n')
+(S/'README.md').write_text('Closed control receipts — evidence carrier\n\nThis DOC-only packet retains all24 original selectors/readback receipts and every logical member/alias. Compressed storage is copied literally and its full decoded source hash/size is independently bound by the copier. Large raw archives, source trees, production data and private Git configuration are excluded with original refs retained.\n\nThe64d terminal backend exit137 has no JUnit; old317 numerical/global observations remain historical FAIL/UNRUN. G generator patches are comparison-only and must not be copied into integration. New IR ratio/runtime and calibration fit seams, finalfreeze/wave/current54 are pending. Custody PASS conveys no finding closure or global PASS.\n\nReplay: use the archived copier with --manifest this manifest and --destination-root a fresh scratch directory. All24 source receipts and complete typed metadata are admitted before any destination write. No native backend or ROOT mutation occurs. Recipes are passive .py.txt; malformed or empty original JSON streams are stored as .txt while source identity remains unchanged.\n')
+summary=counts|{'metadata_files':len(m.METADATA),'expected_git_paths':len(copies)+len(m.METADATA)}
+(S/'build.stdout.json').write_text(json.dumps(summary,indent=2)+'\n')
+program=(S/'copy-closed-controls.py.txt').read_text()
+for key,value in [('EXPECTED',expected),('FIXED_HEADER',header),('QUALIFICATION',q),('PREFIX',prefix)]:
+ old=key+' = None'
+ program=re.sub(r'^'+key+r' = .*$',lambda match:key+' = '+repr(value),program,count=1,flags=re.MULTILINE)
+fixed={}
+for name in m.METADATA:
+ if name not in ('manifest.json','copy-closed-controls.py.txt','build.stdout.json'):
+  b=(S/name).read_bytes();fixed[name]={'bytes':len(b),'sha256':m.sha(b)}
+program=re.sub(r'^FIXED_METADATA = .*$',lambda match:'FIXED_METADATA = '+repr(fixed),program,count=1,flags=re.MULTILINE)
+(S/'copy-closed-controls.py.txt').write_text(program)
+# Validate complete staged packet via its final actual module, before any publication target write.
+f=load(S/'copy-closed-controls.py.txt');f.validate(S/'manifest.json',f.strict_json((S/'manifest.json').read_bytes()))
+print(json.dumps(summary|{'family_member_counts':{s['family']:s['members'] for s in expected},'source_execution':False},indent=2))

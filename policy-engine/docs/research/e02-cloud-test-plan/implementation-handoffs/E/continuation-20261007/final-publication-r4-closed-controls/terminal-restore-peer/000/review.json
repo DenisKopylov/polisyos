@@ -1,0 +1,345 @@
+{
+  "schema": "policyos.e02.independent_terminal_restore_custody_review.v1",
+  "outcome": "GO bounded byte restoration custody",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "receipt": {
+    "path": "/tmp/e02-E-terminal-root-restore-20261007/receipt.json",
+    "bytes": 39147,
+    "sha256": "c510fbc75c2eaca00e8b352dbe3ddfb1ee3aefc81f52dc4dff17820da26191de"
+  },
+  "operation_source": {
+    "path": "/tmp/e02-E-terminal-root-restore-20261007.py",
+    "bytes": 5378,
+    "sha256": "25f1418303e454f22e8654107799ee4dbb9a90d3cc4f6b6e572d1d3a73a37204"
+  },
+  "native_closed_receipt": {
+    "path": "/workspace/e02-E-pr38-r3-receipts/backend-prereq-r4/workspace14-declared-deps-retry/checks/workspace14-declared-deps-retry/workspace14-declared-deps-retry.json",
+    "bytes": 8998,
+    "sha256": "702ac93791ad935f5e67763854197c10ebdbad2aae26fc2a6336f62769165793"
+  },
+  "rows": [
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g6_agent_run_records.json",
+      "terminal_bytes": 139777,
+      "Git_bytes": 139777,
+      "permission_bits": 384,
+      "terminal_changed_from_Git": true,
+      "terminal_matches_midrun": true,
+      "saved_and_live_restored_bytes_equal_immutable64d": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g6_design_record_candidate_handoff.json",
+      "terminal_bytes": 3548,
+      "Git_bytes": 3548,
+      "permission_bits": 384,
+      "terminal_changed_from_Git": true,
+      "terminal_matches_midrun": true,
+      "saved_and_live_restored_bytes_equal_immutable64d": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g6_hypothesis_ledger_projection.json",
+      "terminal_bytes": 4172,
+      "Git_bytes": 4172,
+      "permission_bits": 384,
+      "terminal_changed_from_Git": true,
+      "terminal_matches_midrun": true,
+      "saved_and_live_restored_bytes_equal_immutable64d": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g6_orchestration_continuity.json",
+      "terminal_bytes": 8225,
+      "Git_bytes": 8225,
+      "permission_bits": 384,
+      "terminal_changed_from_Git": true,
+      "terminal_matches_midrun": true,
+      "saved_and_live_restored_bytes_equal_immutable64d": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g6_prompt_tool_ledger_projection.json",
+      "terminal_bytes": 89288,
+      "Git_bytes": 89288,
+      "permission_bits": 384,
+      "terminal_changed_from_Git": true,
+      "terminal_matches_midrun": true,
+      "saved_and_live_restored_bytes_equal_immutable64d": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g6_public_export_projection_refs.json",
+      "terminal_bytes": 51341,
+      "Git_bytes": 51341,
+      "permission_bits": 384,
+      "terminal_changed_from_Git": true,
+      "terminal_matches_midrun": true,
+      "saved_and_live_restored_bytes_equal_immutable64d": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g6_readiness_manifest.json",
+      "terminal_bytes": 3730,
+      "Git_bytes": 3730,
+      "permission_bits": 384,
+      "terminal_changed_from_Git": true,
+      "terminal_matches_midrun": true,
+      "saved_and_live_restored_bytes_equal_immutable64d": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g6_replay_manifest.json",
+      "terminal_bytes": 13719,
+      "Git_bytes": 13719,
+      "permission_bits": 384,
+      "terminal_changed_from_Git": true,
+      "terminal_matches_midrun": true,
+      "saved_and_live_restored_bytes_equal_immutable64d": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g6_request_envelope.json",
+      "terminal_bytes": 2150,
+      "Git_bytes": 2150,
+      "permission_bits": 384,
+      "terminal_changed_from_Git": true,
+      "terminal_matches_midrun": true,
+      "saved_and_live_restored_bytes_equal_immutable64d": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_dependency_readiness_snapshot.json",
+      "terminal_bytes": 4384,
+      "Git_bytes": 5002,
+      "permission_bits": 384,
+      "terminal_changed_from_Git": true,
+      "terminal_matches_midrun": true,
+      "saved_and_live_restored_bytes_equal_immutable64d": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_g5_g6_authority_boundary_report.json",
+      "terminal_bytes": 756,
+      "Git_bytes": 1290,
+      "permission_bits": 384,
+      "terminal_changed_from_Git": true,
+      "terminal_matches_midrun": true,
+      "saved_and_live_restored_bytes_equal_immutable64d": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_governed_promotion_join.json",
+      "terminal_bytes": 1148,
+      "Git_bytes": 715,
+      "permission_bits": 384,
+      "terminal_changed_from_Git": true,
+      "terminal_matches_midrun": true,
+      "saved_and_live_restored_bytes_equal_immutable64d": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_orchestration_continuity.json",
+      "terminal_bytes": 10036,
+      "Git_bytes": 10036,
+      "permission_bits": 384,
+      "terminal_changed_from_Git": true,
+      "terminal_matches_midrun": true,
+      "saved_and_live_restored_bytes_equal_immutable64d": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_readiness_manifest.json",
+      "terminal_bytes": 6446,
+      "Git_bytes": 6446,
+      "permission_bits": 384,
+      "terminal_changed_from_Git": true,
+      "terminal_matches_midrun": true,
+      "saved_and_live_restored_bytes_equal_immutable64d": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_region_case_conversion_inputs.json",
+      "terminal_bytes": 1290,
+      "Git_bytes": 1236,
+      "permission_bits": 384,
+      "terminal_changed_from_Git": true,
+      "terminal_matches_midrun": true,
+      "saved_and_live_restored_bytes_equal_immutable64d": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_region_conversion_records.json",
+      "terminal_bytes": 3852,
+      "Git_bytes": 3374,
+      "permission_bits": 384,
+      "terminal_changed_from_Git": true,
+      "terminal_matches_midrun": true,
+      "saved_and_live_restored_bytes_equal_immutable64d": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_region_conversion_status_matrix.json",
+      "terminal_bytes": 5052,
+      "Git_bytes": 4574,
+      "permission_bits": 384,
+      "terminal_changed_from_Git": true,
+      "terminal_matches_midrun": true,
+      "saved_and_live_restored_bytes_equal_immutable64d": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_region_grounding_matrix.json",
+      "terminal_bytes": 15841,
+      "Git_bytes": 15916,
+      "permission_bits": 384,
+      "terminal_changed_from_Git": true,
+      "terminal_matches_midrun": true,
+      "saved_and_live_restored_bytes_equal_immutable64d": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_region_scorecard.json",
+      "terminal_bytes": 4747,
+      "Git_bytes": 4747,
+      "permission_bits": 384,
+      "terminal_changed_from_Git": true,
+      "terminal_matches_midrun": true,
+      "saved_and_live_restored_bytes_equal_immutable64d": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_region_widening_audit_surface.json",
+      "terminal_bytes": 51494,
+      "Git_bytes": 51494,
+      "permission_bits": 384,
+      "terminal_changed_from_Git": true,
+      "terminal_matches_midrun": true,
+      "saved_and_live_restored_bytes_equal_immutable64d": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_replay_manifest.json",
+      "terminal_bytes": 24026,
+      "Git_bytes": 24026,
+      "permission_bits": 384,
+      "terminal_changed_from_Git": true,
+      "terminal_matches_midrun": true,
+      "saved_and_live_restored_bytes_equal_immutable64d": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_s12_growth_thermometer_projection.json",
+      "terminal_bytes": 6514,
+      "Git_bytes": 6021,
+      "permission_bits": 384,
+      "terminal_changed_from_Git": true,
+      "terminal_matches_midrun": true,
+      "saved_and_live_restored_bytes_equal_immutable64d": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g7_s14_mechanism_generality_projection.json",
+      "terminal_bytes": 5016,
+      "Git_bytes": 4018,
+      "permission_bits": 384,
+      "terminal_changed_from_Git": true,
+      "terminal_matches_midrun": true,
+      "saved_and_live_restored_bytes_equal_immutable64d": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g8_cross_metric_diagnosis.json",
+      "terminal_bytes": 4240,
+      "Git_bytes": 4328,
+      "permission_bits": 384,
+      "terminal_changed_from_Git": true,
+      "terminal_matches_midrun": true,
+      "saved_and_live_restored_bytes_equal_immutable64d": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g8_domain_vs_search_ceiling_gate.json",
+      "terminal_bytes": 3949,
+      "Git_bytes": 4008,
+      "permission_bits": 384,
+      "terminal_changed_from_Git": true,
+      "terminal_matches_midrun": true,
+      "saved_and_live_restored_bytes_equal_immutable64d": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g8_metric_source_snapshot.json",
+      "terminal_bytes": 39666,
+      "Git_bytes": 39666,
+      "permission_bits": 384,
+      "terminal_changed_from_Git": true,
+      "terminal_matches_midrun": true,
+      "saved_and_live_restored_bytes_equal_immutable64d": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g8_metric_trend_report.json",
+      "terminal_bytes": 12452,
+      "Git_bytes": 12452,
+      "permission_bits": 384,
+      "terminal_changed_from_Git": true,
+      "terminal_matches_midrun": true,
+      "saved_and_live_restored_bytes_equal_immutable64d": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g8_normalized_metric_signals.json",
+      "terminal_bytes": 168010,
+      "Git_bytes": 168010,
+      "permission_bits": 384,
+      "terminal_changed_from_Git": true,
+      "terminal_matches_midrun": true,
+      "saved_and_live_restored_bytes_equal_immutable64d": true
+    },
+    {
+      "path": "policy-engine/architecture/policy_design_case/layer3_g8_open_question_answer_ledger.json",
+      "terminal_bytes": 8861,
+      "Git_bytes": 8861,
+      "permission_bits": 384,
+      "terminal_changed_from_Git": true,
+      "terminal_matches_midrun": true,
+      "saved_and_live_restored_bytes_equal_immutable64d": true
+    }
+  ],
+  "counts": {
+    "tracked_restored": 29,
+    "terminal_snapshot_bytes": 693730,
+    "immutable_Git_snapshot_bytes": 692170,
+    "unique_original_and_saved_artifacts": 12,
+    "unique_saved_bytes": 95619,
+    "corrupt_metadata_refusals": 6
+  },
+  "controls": [
+    {
+      "case": "omitted_row_adjusted_count",
+      "outcome": "refused",
+      "reason": "exact terminal path denominator"
+    },
+    {
+      "case": "count_bool",
+      "outcome": "refused",
+      "reason": "exact terminal path denominator"
+    },
+    {
+      "case": "wrong_tree",
+      "outcome": "refused",
+      "reason": "immutable source tree"
+    },
+    {
+      "case": "false_native_PASS",
+      "outcome": "refused",
+      "reason": "no retrospective native/fullinput/caller authority"
+    },
+    {
+      "case": "false_full_input_immutable",
+      "outcome": "refused",
+      "reason": "no retrospective native/fullinput/caller authority"
+    },
+    {
+      "case": "false_native_caller",
+      "outcome": "refused",
+      "reason": "no retrospective native/fullinput/caller authority"
+    }
+  ],
+  "qualifications": [
+    "29 terminal bodies match fixed midrun observations; restored bodies independently equal immutable64d Git objects, retained generated permissions, all58 snapshot bodies retain exact recorded hashes.",
+    "Status snapshots show exact29 tracked M before and only retained two untracked directory prefixes afterwards. These are historical moment snapshots; current HEAD may append-merge and no requirement live HEAD remain64d.",
+    "No execution of restoring script or native backend by reviewer. Restoration script source only performs admitted29 atomic byte replacements after saved snapshot and rechecks; no Git reset/checkout/history change.",
+    "12 unique original/saved files retained including one screenshot and eleven lock files.",
+    "Native closed receipt FAIL exit137 with countsnull/noJUnit remains. No retrospective PASS, full denominator completion, cause attribution or global process quiescence established."
+  ],
+  "P37_basis": [
+    {
+      "predicate": "saved snapshots versus immutable64d original objects and midrun bytes",
+      "basis": "independently_reconciled"
+    },
+    {
+      "predicate": "captured status/path/hash/mode/unique preservation and corrupt claims",
+      "basis": "recomputed"
+    },
+    {
+      "predicate": "native individual caller, full scope completion, historical full input immutability, global quiescence",
+      "basis": "not_established"
+    }
+  ]
+}

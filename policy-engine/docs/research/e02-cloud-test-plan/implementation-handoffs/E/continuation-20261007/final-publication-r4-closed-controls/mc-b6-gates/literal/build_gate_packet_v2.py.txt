@@ -1,0 +1,50 @@
+import copy,hashlib,json,pathlib,re,subprocess,time,sys
+R=pathlib.Path('/tmp/e02-E-MC-b6-gates-20261007');MC=pathlib.Path('/workspace/e02-E-mc-20261006');SOURCE='b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4';TREE='0cb448febf461d0bbdf31645712ad774f5425b72';STAGES=['runtime-api-contract','static-invocation','architecture','static-invocation-retry1','architecture-retry1','architecture-retry2','static-invocation-retry3']
+def sha(data):return hashlib.sha256(data).hexdigest()
+def ref(p):d=p.read_bytes();return {'path':str(p),'bytes':len(d),'sha256':sha(d)}
+def load(p):return json.loads(p.read_text())
+def require(v,msg):
+ if not v:raise ValueError(msg)
+def source_frame(p):
+ rows=load(p);f=hashlib.sha256()
+ for x in rows:f.update(x['path'].encode()+b'\0'+str(x['bytes']).encode()+b'\0'+x['sha256'].encode()+b'\n')
+ return {'tracked_paths':len(rows),'bytes':sum(x['bytes'] for x in rows),'framed_sha256':f.hexdigest()}
+def derive():
+ rows=[]
+ for name in STAGES:
+  p=R/name;v=load(p/'receipt.json');stdout=(p/'stdout.txt').read_bytes();code=v['exit_code'];outcome='PASS' if code==0 else 'FAIL' if code==1 else 'ERROR';canonical='UNRUN' if b'UNRUN' in stdout and (code==2 or b'no complete verdict' in stdout) else outcome
+  require(v['source']==SOURCE and v['tree']==TREE,'execution source identity')
+  require(v['outcome']==outcome and v['canonical_selector_outcome']==canonical,'native exit/output-derived outcome mismatch')
+  require(source_frame(p/'complete-source-inputs-before.json')==v['source_before'],'complete before source frame')
+  require(source_frame(p/'complete-source-inputs-after.json')==v['source_after'],'complete after source frame')
+  require(v['source_before']==v['source_after'] and v['source_immutable'] is True,'trackedsource guard')
+  for key in ('stdout','stderr'):
+   require(v[key]==ref(p/(key+'.txt')),'actual complete deciding bytes')
+  require(v['ROOT_environment_metadata_before']==v['ROOT_environment_metadata_after'] and v['ROOT_environment_metadata_unchanged'] is True,'ROOT metadata guard')
+  rows.append({'stage':name,'receipt':ref(p/'receipt.json'),'command':v['command'],'cwd':v['cwd'],'outcome':outcome,'canonical_selector_outcome':canonical,'native_exit_code':code,'wall_seconds':v['wall_seconds'],'stdout':v['stdout'],'stderr':v['stderr'],'source_frame':v['source_before'],'source_immutable':True,'ROOT_environment_metadata_unchanged':True,'environment_guard_scope':v['ROOT_environment_full_binary_byte_guard'],'cgroup_PID_kill_cause':'not_established','native_raw_receipt':ref(p/'production-invocation.raw.json') if (p/'production-invocation.raw.json').exists() else None})
+ a=R/'architecture-retry2/stdout.txt';text=a.read_text();edges=re.findall(r'^- New deep-import creep detected: (\S+) -> (\S+) \(([^)]+)\)',text,re.M);require('UNRUN' not in text and 'Architecture guardrail check FAILED:' in text,'full current architecture completion')
+ render=R/'runtime-api-contract/tmp/retained-runtime-openapi.raw.json';other=R/'architecture-retained-retry2/outputs/runtime-openapi-snapshot/schemas/runtime_api_v1.openapi.json';data=render.read_bytes();require(data==other.read_bytes(),'independent native render equality');v=json.loads(data);example=v['paths']['/api/v1/exports/governed-projections/confidence-ledger-risk-spend']['get']['responses']['200']['content']['application/json']['examples']['default']['value'];validation=example['source']['validation'];count=validation['bound_dependency_count'];require(type(count) is int,'dependency count strict integer');require(validation['status']=='passed' and validation['issue_codes']==[],'worker binding validation observation')
+ require(example['source_dependency_hash']==validation['bound_dependency_aggregate_identity'],'fresh aggregate scope binding')
+ return {'schema':'policyos.e02.E.current_three_full_selector_packet.v1','source':SOURCE,'tree':TREE,'attempts':rows,'current':{'architecture':{'outcome':'FAIL','native_exit_code':1,'stage':'architecture-retry2','deep_edge_count':len(edges),'deep_path_count':len(set(x[2] for x in edges)),'required_generator_families':4,'complete_observed_output_count':6,'UNRUN':False},'runtime_api_contract':{'outcome':'FAIL','native_exit_code':1,'stage':'runtime-api-contract','OpenAPI_render':ref(render),'same_render_architecture':ref(other),'schema_components':len(v['components']['schemas']),'confidence_dependency_count':count,'source_dependency_hash':example['source_dependency_hash'],'validation_receipt_hash':validation['worker_validation_receipt_hash'],'validation_status':validation['status'],'validator_id':validation['validator_id'],'endpoint_or_authorization_execution':False},'static_invocation':{'outcome':rows[-1]['outcome'],'native_exit_code':rows[-1]['native_exit_code'],'stage':rows[-1]['stage'],'full_native_raw_receipt':rows[-1]['native_raw_receipt'],'fresh_complete_mechanism_counts':None,'PID_kill_cause':'not_established'}},'source_immutable':True,'ROOT_environment_guard':'complete METADATA and protected interpreter/control refs only; fullbinary guard not_established','P41':'not_established: full exact slice-base198 command/input replay absent','finding_closure':False,'global_wave_repeated':False,'canonical_client_dashboard_limit':'Native clean observations use their declared committed OpenAPI input; fresh upstream render not applied/consumed by these families','remaining_owners':{'generated_runtime_OpenAPI':'Canonical runtime/frontend generator owners and G integration publisher; only confidence binding drift observed in fullruntime checker','public_inventory_reference':'Canonical IR/publicsurface inventory generator; existing103model/9path3932 packet remains owner-ready under exact input equality, current runtime aggregate must use fresh render','trust_posture':'Canonical team-architecture posture generator owner; actual fresh output drift retained','deep_imports':'Actual151 edges/79paths with canonical package owners; original historical12 has11fixed/remaining private forecast loader; CanonSpec separate pending IR root admission','static_scanner':'Canonical team-runtime/instruments checker owner: full current/base AST resource gap, no fresh raw verdict established'},'available_defined_numerical_law_tests':'Prior3932 family414/qualifiedindie33/DTO13 not rerun or rebranded here','source_or_generated_edits':False}
+def typed_equal(actual, expected):
+ if type(actual) is not type(expected):return False
+ if isinstance(expected,dict):return actual.keys()==expected.keys() and all(typed_equal(actual[k],v) for k,v in expected.items())
+ if isinstance(expected,list):return len(actual)==len(expected) and all(typed_equal(a,b) for a,b in zip(actual,expected,strict=True))
+ return actual==expected
+def validate(summary):
+ expected=derive();require(type(summary) is dict,'typed packet object');require(typed_equal(summary,expected),'claims/types diverge from complete native bytes/frames/raw artifacts')
+ require(type(summary['current']['runtime_api_contract']['schema_components']) is int and type(summary['current']['runtime_api_contract']['confidence_dependency_count']) is int,'counts cannot be bool')
+ require(summary['finding_closure'] is False and summary['global_wave_repeated'] is False,'scope flags')
+ return True
+summary=derive();validate(summary);dest=R/('three-selector-packet-v2-optimized.json' if sys.flags.optimize else 'three-selector-packet-v2.json')
+with dest.open('x') as f:json.dump(summary,f,indent=2);f.write('\n')
+controls=[]
+mutators=[('native_exit_bool',lambda s:s['current']['architecture'].__setitem__('native_exit_code',True)),('source_guard_integer',lambda s:s.__setitem__('source_immutable',1)),('stdout_size_bool_zero',lambda s:s['attempts'][1]['stdout'].__setitem__('bytes',False)),('architecture_claims_PASS',lambda s:s['current']['architecture'].__setitem__('outcome','PASS')),('drop_deep_edges_keepnative',lambda s:s['current']['architecture'].__setitem__('deep_edge_count',0)),('architecture_UNRUN_misclassification',lambda s:s['current']['architecture'].__setitem__('UNRUN',True)),('schema_bool_escape',lambda s:s['current']['runtime_api_contract'].__setitem__('schema_components',True)),('confidence_forged_count',lambda s:s['current']['runtime_api_contract'].__setitem__('confidence_dependency_count',1)),('bound_source_digest_old',lambda s:s['current']['runtime_api_contract'].__setitem__('source_dependency_hash','sha256:'+'0'*64)),('static_ERROR_as_PASS',lambda s:s['current']['static_invocation'].__setitem__('outcome','PASS')),('invent_static_counts',lambda s:s['current']['static_invocation'].__setitem__('fresh_complete_mechanism_counts',{'PASS':5939})),('infer_PIDcause_from_global_counter',lambda s:s['current']['static_invocation'].__setitem__('PID_kill_cause','oom_kill')),('claim_finding_closure',lambda s:s.__setitem__('finding_closure',True)),('drop_source_frame_marker',lambda s:s['attempts'][0]['source_frame'].__setitem__('framed_sha256','0'*64))]
+for name,mutate in mutators:
+ bad=copy.deepcopy(summary);mutate(bad)
+ try:validate(bad)
+ except ValueError as e:controls.append({'case':name,'outcome':'PASS','expected_refusal':str(e),'native_receipt_and_source_refs_preserved':True})
+ else:raise RuntimeError('corrupt packet accepted '+name)
+control={'schema':'policyos.e02.E.three_selector_packet_recomputing_controls.v1','packet':ref(dest),'source':SOURCE,'optimized':bool(sys.flags.optimize),'healthy':validate(summary),'controls':controls,'control_count':len(controls),'scope':'Native execution/custody/summary integrity only; no property/authority/finding closure inferred'}
+with (R/('packet-controls-v2-optimized.json' if sys.flags.optimize else 'packet-controls-v2-normal.json')).open('x') as f:json.dump(control,f,indent=2);f.write('\n')
+print(json.dumps({'packet':ref(dest),'healthy':True,'corrupt_controls':len(controls),'current':summary['current']},indent=2))

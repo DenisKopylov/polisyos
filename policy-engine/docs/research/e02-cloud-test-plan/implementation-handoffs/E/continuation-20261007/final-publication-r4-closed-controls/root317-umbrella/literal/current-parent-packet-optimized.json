@@ -1,0 +1,979 @@
+{
+  "schema": "policyos.e02.E.final_required_parent_gates.v1",
+  "source": "31782b55f8f35556cfc581449b040c393f00c78f",
+  "tree": "746f50214f70c0fa34cd8bb6d42e72440adc9f96",
+  "current": {
+    "workspace_verify": {
+      "stage": "workspace-verify-retry2",
+      "receipt": {
+        "path": "/tmp/e02-E-ROOT31782-umbrella-gates-20261007/workspace-verify-retry2/receipt.json",
+        "bytes": 96076,
+        "sha256": "eb62740b8771eef36250914761e3ad1ea28f4ea52fc0ac27d7c9c7818b986177"
+      },
+      "plan_and_outcomes": {
+        "path": "/tmp/e02-E-ROOT31782-umbrella-gates-20261007/workspace-verify-retry2/internal-stages.json",
+        "bytes": 8762,
+        "sha256": "b07b3b2064d1d555a710611c2e1d78274af0c14d8130c8585952a2a0d4f11a93"
+      },
+      "outcome": "FAIL",
+      "native_exit_code": 1,
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+        "--repo",
+        "/workspace/e02-E-continuation-20261006",
+        "--gate",
+        "verify",
+        "--stages-output",
+        "/tmp/e02-E-ROOT31782-umbrella-gates-20261007/workspace-verify-retry2/internal-stages.json",
+        "--temp-root",
+        "/tmp/e02-E-ROOT31782-umbrella-gates-20261007/workspace-verify-retry2/umbrella-tmp",
+        "--backend-only"
+      ],
+      "wall_seconds": 6.790433406829834,
+      "complete_stage_count": 15,
+      "counts": {
+        "PASS": 1,
+        "FAIL": 1,
+        "UNRUN": 13
+      },
+      "actual_failing_step": "lint imports",
+      "steps": [
+        {
+          "label": "doctor",
+          "command": [
+            "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+            "-m",
+            "tools.devx.workspace.doctor",
+            "--skip-contract-checks"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "PASS",
+          "env": {},
+          "started_unix": 1791383636.8895495,
+          "exit_code": 0,
+          "wall_seconds": 1.956449270248413
+        },
+        {
+          "label": "lint imports",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--no-sync",
+            "python",
+            "tools/quality/lint/lint_imports.py",
+            "--policy",
+            "architecture/imports/policy.toml",
+            "--exceptions",
+            "architecture/imports/exceptions.toml"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "FAIL",
+          "env": {},
+          "started_unix": 1791383638.8460686,
+          "error_type": "CalledProcessError",
+          "reason": "Command '['/workspace/.polisyos-environment/uv/bin/uv', 'run', '--no-sync', 'python', 'tools/quality/lint/lint_imports.py', '--policy', 'architecture/imports/policy.toml', '--exceptions', 'architecture/imports/exceptions.toml']' returned non-zero exit status 1.",
+          "exit_code": 1,
+          "wall_seconds": 3.2905735969543457
+        },
+        {
+          "label": "check package import gates (shell-package closure)",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "polisyos-tools",
+            "validation",
+            "check-package-import-gates",
+            "--fail-closed",
+            "--json-output",
+            "_build/.tmp/last-mile/package-import-gates.json"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after lint imports"
+        },
+        {
+          "label": "lint foundry",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "python",
+            "-m",
+            "tools.quality.lint.lint_foundry",
+            "--repo-root",
+            "."
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after lint imports"
+        },
+        {
+          "label": "check state reads",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "python",
+            "tools/quality/diagnostics/check_state_reads.py"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after lint imports"
+        },
+        {
+          "label": "check scholar imports",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "python",
+            "tools/quality/lint/check_scholar_imports.py"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after lint imports"
+        },
+        {
+          "label": "check connector contracts",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "polisyos-tools",
+            "connectors",
+            "check-contracts",
+            "--check"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after lint imports"
+        },
+        {
+          "label": "check schema freshness",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--extra",
+            "ml",
+            "python",
+            "tools/quality/diagnostics/gen_schema.py",
+            "--check"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after lint imports"
+        },
+        {
+          "label": "check runtime API contract",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--extra",
+            "runtime",
+            "--extra",
+            "ml",
+            "python",
+            "tools/ops_runners/runtime/check_runtime_api_contract.py"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after lint imports"
+        },
+        {
+          "label": "check last-mile inventory baseline",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "python",
+            "tools/quality/validation/repository_last_mile_inventory.py",
+            "--json-output",
+            "_build/.tmp/last-mile/inventory.json",
+            "--check"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after lint imports"
+        },
+        {
+          "label": "build honest diagnostics coverage dashboard",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "python",
+            "tools/quality/validation/build_honest_diagnostics_coverage.py",
+            "--repo-root",
+            ".",
+            "--output-dir",
+            "_build/honest-diagnostics/coverage"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after lint imports"
+        },
+        {
+          "label": "check honest diagnostics substrate drift",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "python",
+            "tools/quality/validation/check_substrate_drift.py",
+            "--repo-root",
+            ".",
+            "--require-passing"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after lint imports"
+        },
+        {
+          "label": "check extension example contract coverage",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "python",
+            "tools/quality/validation/check_extension_examples.py",
+            "--skip-install",
+            "--skip-discovery",
+            "--skip-pytest"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after lint imports"
+        },
+        {
+          "label": "check schemas pure-data closure",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "python",
+            "-c",
+            "from pathlib import Path\n\nroot = Path(\"schemas\")\noutput = Path(\"_build/.tmp/last-mile/schemas-python-residue.txt\")\noutput.parent.mkdir(parents=True, exist_ok=True)\nmatches = []\nif root.exists():\n    for path in sorted(root.rglob(\"*\")):\n        if path.name == \"__pycache__\" or path.suffix == \".py\":\n            matches.append(path.as_posix())\noutput.write_text(\"\\n\".join(matches) + (\"\\n\" if matches else \"\"), encoding=\"utf-8\")\nif matches:\n    print(\"\\n\".join(matches))\n    raise SystemExit(1)"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after lint imports"
+        },
+        {
+          "label": "pytest fast backend gate",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "pytest",
+            "-m",
+            "not integration",
+            "--ignore=tests/unit/runtime/http"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after lint imports"
+        }
+      ],
+      "source_frame": {
+        "tracked_paths": 19866,
+        "bytes": 571786329,
+        "framed_sha256": "9cc647194472099f63f6d5bf66b5ee61dec31127977491722f5f6c1407ce176f"
+      },
+      "source_immutable": true,
+      "ROOT_METADATA_and_protected_controls_unchanged": true,
+      "ROOT_distribution_rows": 207,
+      "ROOT_protected_controls": 3,
+      "stdout": {
+        "path": "/tmp/e02-E-ROOT31782-umbrella-gates-20261007/workspace-verify-retry2/stdout.txt",
+        "bytes": 7427,
+        "sha256": "7a6e55a37a2c73362037e7f6c1b4459e544eed6ea3de6443f77fa238e4116a9d"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-ROOT31782-umbrella-gates-20261007/workspace-verify-retry2/stderr.txt",
+        "bytes": 30,
+        "sha256": "41e0661e9eb584ebbc3c2959cfb7395a1ad9d3f3ff39fcab70b59dfe6e064092"
+      }
+    },
+    "CI_parity": {
+      "stage": "ci-parity",
+      "receipt": {
+        "path": "/tmp/e02-E-ROOT31782-umbrella-gates-20261007/ci-parity/receipt.json",
+        "bytes": 95897,
+        "sha256": "2c9bcd9b63506b11e260d4e2af20fc76629ce83bfba25791bd517d5ed82ae04c"
+      },
+      "plan_and_outcomes": {
+        "path": "/tmp/e02-E-ROOT31782-umbrella-gates-20261007/ci-parity/internal-stages.json",
+        "bytes": 11244,
+        "sha256": "244504902d4cd3ac92e2c416e938df0d73108de3bea4e2607b39663d3da0cfee"
+      },
+      "outcome": "FAIL",
+      "native_exit_code": 1,
+      "command": [
+        "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+        "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+        "--repo",
+        "/workspace/e02-E-continuation-20261006",
+        "--gate",
+        "ci-parity",
+        "--stages-output",
+        "/tmp/e02-E-ROOT31782-umbrella-gates-20261007/ci-parity/internal-stages.json",
+        "--temp-root",
+        "/tmp/e02-E-ROOT31782-umbrella-gates-20261007/ci-parity/umbrella-tmp"
+      ],
+      "wall_seconds": 91.26245188713074,
+      "complete_stage_count": 24,
+      "counts": {
+        "PASS": 0,
+        "FAIL": 1,
+        "UNRUN": 23
+      },
+      "actual_failing_step": "doctor",
+      "steps": [
+        {
+          "label": "doctor",
+          "command": [
+            "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+            "-m",
+            "tools.devx.workspace.doctor"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "FAIL",
+          "env": {},
+          "started_unix": 1791383709.508704,
+          "error_type": "CalledProcessError",
+          "reason": "Command '['/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python', '-m', 'tools.devx.workspace.doctor']' returned non-zero exit status 1.",
+          "exit_code": 1,
+          "wall_seconds": 88.45075392723083
+        },
+        {
+          "label": "verify backend fast gate",
+          "command": [
+            "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+            "-m",
+            "tools.devx.workspace.verify",
+            "--backend-only",
+            "--skip-doctor"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "pytest runtime/http",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "pytest",
+            "tests/unit/runtime/http"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "check directory health ratchet",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "python",
+            "tools/quality/validation/directory_health.py",
+            "--repo-root",
+            ".",
+            "--json-output",
+            "_build/.tmp/last-mile/directory-health.json",
+            "--markdown-output",
+            "_build/.tmp/last-mile/directory-health.md",
+            "--fail-on-regression"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "check test ratchets and helper topology",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "python",
+            "tools/quality/testing/report_test_ratchets.py",
+            "--format",
+            "json",
+            "--output",
+            "_build/.tmp/last-mile/test-ratchets.json",
+            "--fail-on-regression"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "check architecture phase6-1 report-only contracts",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "python",
+            "tools/quality/validation/architecture_report_only_contracts.py",
+            "--report",
+            "phase6-1",
+            "--json-output",
+            "_build/.tmp/last-mile/architecture-phase6-1.json",
+            "--fail-on-contract-errors"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "check validator module-size budget",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "python",
+            "tools/quality/validation/architecture_report_only_contracts.py",
+            "--report",
+            "module-size",
+            "--json-output",
+            "_build/.tmp/last-mile/module-size.json",
+            "--fail-on-contract-errors"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "report debt ledger reconciliation",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "python",
+            "tools/quality/validation/check_debt_ledger.py",
+            "--check",
+            "--report-only"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "check extension example installability",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "python",
+            "tools/quality/validation/check_extension_examples.py"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "check ADR thematic index freshness",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "python",
+            "tools/quality/validation/generate_adr_index.py",
+            "--check"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "check docs accuracy",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--extra",
+            "docs",
+            "python",
+            "tools/quality/validation/check_docs_accuracy.py",
+            "--repo-root",
+            "."
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "build docs in strict mode",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--extra",
+            "docs",
+            "python",
+            "-m",
+            "mkdocs",
+            "build",
+            "--strict"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "check semantic docstring quality",
+          "command": [
+            "/workspace/.polisyos-environment/uv/bin/uv",
+            "run",
+            "--extra",
+            "docs",
+            "python",
+            "tools/quality/validation/check_docstring_quality.py",
+            "--repo-root",
+            ".",
+            "--allowlist",
+            "tools/quality/validation/docstring_quality_allowlist.txt",
+            "--coverage-scope",
+            "public-surface",
+            "--minimum-coverage",
+            "85"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "npm typecheck",
+          "command": [
+            "npm",
+            "run",
+            "typecheck"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "npm lint",
+          "command": [
+            "npm",
+            "run",
+            "lint"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "npm format check",
+          "command": [
+            "npm",
+            "run",
+            "format:check"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "npm architecture check",
+          "command": [
+            "npm",
+            "run",
+            "check:architecture"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "npm contract fixtures",
+          "command": [
+            "npm",
+            "run",
+            "contracts:verify"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "npm coverage",
+          "command": [
+            "npm",
+            "run",
+            "test:coverage"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "npm build",
+          "command": [
+            "npm",
+            "run",
+            "build"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "npm build-storybook",
+          "command": [
+            "npm",
+            "run",
+            "build-storybook"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "Playwright browser install",
+          "command": [
+            "npm",
+            "run",
+            "playwright:install"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "npm Storybook interaction tests",
+          "command": [
+            "npm",
+            "run",
+            "test:storybook"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after doctor"
+        },
+        {
+          "label": "npm accessibility suite",
+          "command": [
+            "npm",
+            "run",
+            "test:a11y"
+          ],
+          "cwd": "/workspace/e02-E-continuation-20261006/policy-engine/apps/runtime-dashboard",
+          "outcome": "UNRUN",
+          "reason": "actual fail-fast after doctor"
+        }
+      ],
+      "source_frame": {
+        "tracked_paths": 19866,
+        "bytes": 571786329,
+        "framed_sha256": "9cc647194472099f63f6d5bf66b5ee61dec31127977491722f5f6c1407ce176f"
+      },
+      "source_immutable": true,
+      "ROOT_METADATA_and_protected_controls_unchanged": true,
+      "ROOT_distribution_rows": 207,
+      "ROOT_protected_controls": 3,
+      "stdout": {
+        "path": "/tmp/e02-E-ROOT31782-umbrella-gates-20261007/ci-parity/stdout.txt",
+        "bytes": 8551,
+        "sha256": "bdd50b61c0d490a820465750ae04e2b39aaff9f0be2ad9964f7204e178f38ef6"
+      },
+      "stderr": {
+        "path": "/tmp/e02-E-ROOT31782-umbrella-gates-20261007/ci-parity/stderr.txt",
+        "bytes": 6785,
+        "sha256": "8b2c56396bfa6bacd21a44e6ff51bd6ff3e3dba329dcaf4f297b90c4b640f322"
+      }
+    }
+  },
+  "historical_first_environment_failure": {
+    "stage": "workspace-verify",
+    "receipt": {
+      "path": "/tmp/e02-E-ROOT31782-umbrella-gates-20261007/workspace-verify/receipt.json",
+      "bytes": 95863,
+      "sha256": "36752303b60343c3b996e4e1b9a4a369ea98ac54d8dfdff4390944e7abdca37b"
+    },
+    "plan_and_outcomes": {
+      "path": "/tmp/e02-E-ROOT31782-umbrella-gates-20261007/workspace-verify/internal-stages.json",
+      "bytes": 8493,
+      "sha256": "0b5d2fb5a5c90ecec4d7b7e838cb2ad523e8b660cadf19464f31669730edf60c"
+    },
+    "outcome": "FAIL",
+    "native_exit_code": 1,
+    "command": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "/workspace/e02-E-continuation-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261006/pr38-r2/wave-controls/uncapped_umbrella.py",
+      "--repo",
+      "/workspace/e02-E-continuation-20261006",
+      "--gate",
+      "verify",
+      "--stages-output",
+      "/tmp/e02-E-ROOT31782-umbrella-gates-20261007/workspace-verify/internal-stages.json",
+      "--temp-root",
+      "/tmp/e02-E-ROOT31782-umbrella-gates-20261007/workspace-verify/umbrella-tmp",
+      "--backend-only"
+    ],
+    "wall_seconds": 17.96009135246277,
+    "complete_stage_count": 15,
+    "counts": {
+      "PASS": 0,
+      "FAIL": 1,
+      "UNRUN": 14
+    },
+    "actual_failing_step": "doctor",
+    "steps": [
+      {
+        "label": "doctor",
+        "command": [
+          "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+          "-m",
+          "tools.devx.workspace.doctor",
+          "--skip-contract-checks"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "FAIL",
+        "env": {},
+        "started_unix": 1791383390.5016458,
+        "error_type": "CalledProcessError",
+        "reason": "Command '['/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python', '-m', 'tools.devx.workspace.doctor', '--skip-contract-checks']' returned non-zero exit status 1.",
+        "exit_code": 1,
+        "wall_seconds": 12.002519845962524
+      },
+      {
+        "label": "lint imports",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "tools/quality/lint/lint_imports.py",
+          "--policy",
+          "architecture/imports/policy.toml",
+          "--exceptions",
+          "architecture/imports/exceptions.toml"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      },
+      {
+        "label": "check package import gates (shell-package closure)",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "polisyos-tools",
+          "validation",
+          "check-package-import-gates",
+          "--fail-closed",
+          "--json-output",
+          "_build/.tmp/last-mile/package-import-gates.json"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      },
+      {
+        "label": "lint foundry",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "-m",
+          "tools.quality.lint.lint_foundry",
+          "--repo-root",
+          "."
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      },
+      {
+        "label": "check state reads",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "tools/quality/diagnostics/check_state_reads.py"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      },
+      {
+        "label": "check scholar imports",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "tools/quality/lint/check_scholar_imports.py"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      },
+      {
+        "label": "check connector contracts",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "polisyos-tools",
+          "connectors",
+          "check-contracts",
+          "--check"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      },
+      {
+        "label": "check schema freshness",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "--extra",
+          "ml",
+          "python",
+          "tools/quality/diagnostics/gen_schema.py",
+          "--check"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      },
+      {
+        "label": "check runtime API contract",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "--extra",
+          "runtime",
+          "--extra",
+          "ml",
+          "python",
+          "tools/ops_runners/runtime/check_runtime_api_contract.py"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      },
+      {
+        "label": "check last-mile inventory baseline",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/repository_last_mile_inventory.py",
+          "--json-output",
+          "_build/.tmp/last-mile/inventory.json",
+          "--check"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      },
+      {
+        "label": "build honest diagnostics coverage dashboard",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/build_honest_diagnostics_coverage.py",
+          "--repo-root",
+          ".",
+          "--output-dir",
+          "_build/honest-diagnostics/coverage"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      },
+      {
+        "label": "check honest diagnostics substrate drift",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/check_substrate_drift.py",
+          "--repo-root",
+          ".",
+          "--require-passing"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      },
+      {
+        "label": "check extension example contract coverage",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "tools/quality/validation/check_extension_examples.py",
+          "--skip-install",
+          "--skip-discovery",
+          "--skip-pytest"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      },
+      {
+        "label": "check schemas pure-data closure",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "python",
+          "-c",
+          "from pathlib import Path\n\nroot = Path(\"schemas\")\noutput = Path(\"_build/.tmp/last-mile/schemas-python-residue.txt\")\noutput.parent.mkdir(parents=True, exist_ok=True)\nmatches = []\nif root.exists():\n    for path in sorted(root.rglob(\"*\")):\n        if path.name == \"__pycache__\" or path.suffix == \".py\":\n            matches.append(path.as_posix())\noutput.write_text(\"\\n\".join(matches) + (\"\\n\" if matches else \"\"), encoding=\"utf-8\")\nif matches:\n    print(\"\\n\".join(matches))\n    raise SystemExit(1)"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      },
+      {
+        "label": "pytest fast backend gate",
+        "command": [
+          "/workspace/.polisyos-environment/uv/bin/uv",
+          "run",
+          "pytest",
+          "-m",
+          "not integration",
+          "--ignore=tests/unit/runtime/http"
+        ],
+        "cwd": "/workspace/e02-E-continuation-20261006/policy-engine",
+        "outcome": "UNRUN",
+        "reason": "actual fail-fast after doctor"
+      }
+    ],
+    "source_frame": {
+      "tracked_paths": 19866,
+      "bytes": 571786329,
+      "framed_sha256": "9cc647194472099f63f6d5bf66b5ee61dec31127977491722f5f6c1407ce176f"
+    },
+    "source_immutable": true,
+    "ROOT_METADATA_and_protected_controls_unchanged": true,
+    "ROOT_distribution_rows": 207,
+    "ROOT_protected_controls": 3,
+    "stdout": {
+      "path": "/tmp/e02-E-ROOT31782-umbrella-gates-20261007/workspace-verify/stdout.txt",
+      "bytes": 1403,
+      "sha256": "2fec46f7eb0861b2cef59adaa171176a15aba72cf2baf057e3135baf1f691935"
+    },
+    "stderr": {
+      "path": "/tmp/e02-E-ROOT31782-umbrella-gates-20261007/workspace-verify/stderr.txt",
+      "bytes": 1106,
+      "sha256": "2d9782459860b47926b52b22d345dc25fd7de95434bf896efa6c83e1d8504650"
+    }
+  },
+  "historical_pre_native_recorder_parse_error": {
+    "path": "/tmp/e02-E-ROOT31782-umbrella-gates-20261007/workspace-retry1-parent-runner.stderr.txt",
+    "bytes": 355,
+    "sha256": "4d1ea6f618d13fd24dd5a5944d82e44208b9aa6d1a06f533bc276bb85a7540a7"
+  },
+  "environment_repair": {
+    "path": "/tmp/e02-E-ROOT31782-umbrella-gates-20261007/environment-correction-v2.json",
+    "bytes": 1551,
+    "sha256": "83075f6a18cdcf309eca723a36391bc086d9ae5ea5e610b33b44fdab0d05451f"
+  },
+  "actual_current_recorder": {
+    "path": "/tmp/e02-E-ROOT31782-umbrella-gates-20261007/run_root_umbrella_v3.py.txt",
+    "bytes": 8496,
+    "sha256": "f9d11c07d9a50b5b91e3fe5ea92ff8ff1476b58b3aceb7fc252e163859e740f4"
+  },
+  "qualified_b6_three_selector_input_delta": {
+    "path": "/tmp/e02-E-ROOT31782-umbrella-gates-20261007/launch-preflight.json",
+    "bytes": 722,
+    "sha256": "b40428a44301acdef81e752b6aa76664643f82ed63b3278b7c9d8d2bdedf1b2b"
+  },
+  "qualification": "Complete underlying src/tools/tests/schemas/architecture/project+lock diff b6\u219231782 empty; b6available3FAIL can qualify this source only. Anylaterchangedtest needs distinctpartialqualification; no newstaticfullgraph verdict claimed",
+  "source_fixture_stage_started": false,
+  "full_backend_repeated": false,
+  "no_parentstage_skipped_or_bypassed": true,
+  "available_required_parents_completed": true,
+  "unrun_successors_separate": "13workspace/23CI realfailfast; oldavailable standalone successorreceipts remain originalsource observations, notnewattempts",
+  "ROOT_full_binary_guard": "not_established; complete207installedMETADATA+3protectedrefs checked beforeafter; no sync/install directedatROOT207",
+  "P41": "not_established",
+  "finding_closure": false,
+  "global_CI_PASS": false
+}

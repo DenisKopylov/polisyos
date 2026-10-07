@@ -1,0 +1,107 @@
+{
+  "schema": "policyos.e02.E.current_guard_source_reuse_basis.v1",
+  "source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+  "base": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "rows": [
+    {
+      "path": "policy-engine/tools/devx/architecture/guardrails.py",
+      "old": {
+        "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "bytes": 103077,
+        "sha256": "65f0daa51b96910c04cd6dd69676040f9b41b1674955c66e7c479106cd9d187a"
+      },
+      "current": {
+        "source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+        "bytes": 103077,
+        "sha256": "65f0daa51b96910c04cd6dd69676040f9b41b1674955c66e7c479106cd9d187a"
+      },
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/architecture/public_surface/contract.toml",
+      "old": {
+        "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "bytes": 19715,
+        "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6"
+      },
+      "current": {
+        "source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+        "bytes": 19715,
+        "sha256": "14ae5db4c9f137e2d5b434fd1cdf259151216e7952b50da04218754eef3bdce6"
+      },
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/architecture/baselines/imports/deep_import.json",
+      "old": {
+        "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "bytes": 947189,
+        "sha256": "da9b5c9bdaccc4efcdabcd3512f451850e072f24a381d31ad18b16376e8543a7"
+      },
+      "current": {
+        "source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+        "bytes": 947189,
+        "sha256": "da9b5c9bdaccc4efcdabcd3512f451850e072f24a381d31ad18b16376e8543a7"
+      },
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/architecture/exceptions/guardrails.toml",
+      "old": {
+        "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "bytes": 1500,
+        "sha256": "74ae792dcdf30f565b9ff2798519a89e6da048aeaf0f9e5426d600f8a3cc0274"
+      },
+      "current": {
+        "source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+        "bytes": 1500,
+        "sha256": "74ae792dcdf30f565b9ff2798519a89e6da048aeaf0f9e5426d600f8a3cc0274"
+      },
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/architecture/guardrail_exceptions_registry.md",
+      "old": {
+        "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "bytes": 693,
+        "sha256": "aaeebf20154db7724f3abc3af7d4be25539461c55d296b9eb3d8f9bc9f317650"
+      },
+      "current": {
+        "source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+        "bytes": 693,
+        "sha256": "aaeebf20154db7724f3abc3af7d4be25539461c55d296b9eb3d8f9bc9f317650"
+      },
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/production_invocation.py",
+      "old": {
+        "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "bytes": 27007,
+        "sha256": "cf3ce1dcc120fe321a2d2e77295a368f178764a9d0158b8896307f146400b286"
+      },
+      "current": {
+        "source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+        "bytes": 27007,
+        "sha256": "cf3ce1dcc120fe321a2d2e77295a368f178764a9d0158b8896307f146400b286"
+      },
+      "byte_equal": true
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/check_production_invocation.py",
+      "old": {
+        "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+        "bytes": 241,
+        "sha256": "783347e6bf973eb7c3e598965dbadac541f7c8f09b7f27210c0b1806ba6f2ea3"
+      },
+      "current": {
+        "source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+        "bytes": 241,
+        "sha256": "783347e6bf973eb7c3e598965dbadac541f7c8f09b7f27210c0b1806ba6f2ea3"
+      },
+      "byte_equal": true
+    }
+  ],
+  "reuse_scope": "Only unchanged algorithm/config/baseline negative controls; complete current source input expansion and actual full selector outcomes remain new measurements, no global PASS/inherited red",
+  "P41": "not_established"
+}

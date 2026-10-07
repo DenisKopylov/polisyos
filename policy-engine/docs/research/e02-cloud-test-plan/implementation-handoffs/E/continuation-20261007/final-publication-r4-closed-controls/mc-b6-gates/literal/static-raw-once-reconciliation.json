@@ -1,0 +1,35 @@
+{
+  "schema": "policyos.e02.E.static_raw_once_reconciliation.v1",
+  "source": "b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4",
+  "tree": "0cb448febf461d0bbdf31645712ad774f5425b72",
+  "base": "198076863e143dea9f89f02734b13d50dae3eed5",
+  "raw_ref": {
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/static-invocation-retry4/production-invocation.raw.json",
+    "bytes": 171837783,
+    "sha256": "f67477ef9598cb1f9a4628dcacf574146f9c753fd42efc57a482505957fcd776"
+  },
+  "actual_counts": {
+    "mechanisms": 13140,
+    "regressions": 20,
+    "new_unresolved_by_construction": 95,
+    "unresolved_by_construction": 9243,
+    "indirect_boundaries": 34683,
+    "unresolved_receiver_calls": 140192
+  },
+  "complete_input_denominator": {
+    "paths": "all tracked src/**/*.py, tools/**/*.py, tests/**/*.py",
+    "current_files": 5939,
+    "base_files": 5904,
+    "source_files": 2702,
+    "current_sha256": "e2baaea008ec325222bfd1faaa3a8342747b93707a644dc94a9d28b19911b548",
+    "base_sha256": "a1ffd1bdd0c8b2549a5c0c7a8c4ce56dc6645e0416ba4dda5c95e43b274a84c5"
+  },
+  "root_count": 401,
+  "complete20_and95_rows_byte_value_equal": true,
+  "runtime_invocation_established": false,
+  "coverage": "partial",
+  "predicate_provenance": "recomputed",
+  "complete_receipt_read_only_parse": true,
+  "canonical_graph_or_gate_rerun": false,
+  "raw_retained_ignored_notGit": true
+}

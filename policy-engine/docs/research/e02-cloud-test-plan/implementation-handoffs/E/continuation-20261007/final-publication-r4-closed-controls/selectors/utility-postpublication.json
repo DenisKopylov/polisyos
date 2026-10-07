@@ -1,0 +1,223 @@
+{
+  "schema": "policyos.e02.utility_handoff_postpublication_selection.v1",
+  "source_commit": "2350edfba4e71909fbc615fe3101793b1b13945a",
+  "handoff_commit": "5739c0fa4037ddf91fbca425e3fd3190dc7aa969",
+  "handoff_tree": "835e7f612368f3c1d7b67a9e2caf918ce7cd0038",
+  "asset_count": 29,
+  "logical_bytes": 463066,
+  "content_unique_count": 23,
+  "content_unique_bytes": 463066,
+  "assets": [
+    {
+      "source_path": "/tmp/e02-E-validator-current-DOC-independent-5739-20261007/build_selection.py",
+      "portable_path": "independent-DOC/literal/build_selection.py.txt",
+      "bytes": 5054,
+      "sha256": "4e6c867e25c7a2f0780ea7bcbc301af26781f796f1c7d74e014010d0029af149",
+      "role": "closed post-source DOC custody observation; no source or scientific rerun"
+    },
+    {
+      "source_path": "/tmp/e02-E-validator-current-DOC-independent-5739-20261007/final-DOC-GO.json",
+      "portable_path": "independent-DOC/literal/final-DOC-GO.json",
+      "bytes": 2618,
+      "sha256": "93fbe2d2ab8576041a55075f58a9e48c02e2d1a4d1b254cabea35b9745092364",
+      "role": "closed post-source DOC custody observation; no source or scientific rerun"
+    },
+    {
+      "source_path": "/tmp/e02-E-validator-current-DOC-independent-5739-20261007/review-normal-v2.stderr.txt",
+      "portable_path": "independent-DOC/literal/review-normal-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "closed post-source DOC custody observation; no source or scientific rerun"
+    },
+    {
+      "source_path": "/tmp/e02-E-validator-current-DOC-independent-5739-20261007/review-normal-v2.stdout.json",
+      "portable_path": "independent-DOC/literal/review-normal-v2.stdout.json",
+      "bytes": 80070,
+      "sha256": "3a69fcf98857d82fb37012b67834ff4df9a6d538fe127c7268300a6926d9fd2e",
+      "role": "closed post-source DOC custody observation; no source or scientific rerun"
+    },
+    {
+      "source_path": "/tmp/e02-E-validator-current-DOC-independent-5739-20261007/review-normal.stderr.txt",
+      "portable_path": "independent-DOC/literal/review-normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "closed post-source DOC custody observation; no source or scientific rerun",
+      "content_alias_of": "independent-DOC/literal/review-normal-v2.stderr.txt"
+    },
+    {
+      "source_path": "/tmp/e02-E-validator-current-DOC-independent-5739-20261007/review-normal.stdout.json",
+      "portable_path": "independent-DOC/literal/review-normal.stdout.json",
+      "bytes": 78136,
+      "sha256": "53a83961480f1161b95ee6f85a0c757c67e26d12af6beacd1a15c29bf742746c",
+      "role": "closed post-source DOC custody observation; no source or scientific rerun"
+    },
+    {
+      "source_path": "/tmp/e02-E-validator-current-DOC-independent-5739-20261007/review-optimized-v2.stderr.txt",
+      "portable_path": "independent-DOC/literal/review-optimized-v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "closed post-source DOC custody observation; no source or scientific rerun",
+      "content_alias_of": "independent-DOC/literal/review-normal-v2.stderr.txt"
+    },
+    {
+      "source_path": "/tmp/e02-E-validator-current-DOC-independent-5739-20261007/review-optimized-v2.stdout.json",
+      "portable_path": "independent-DOC/literal/review-optimized-v2.stdout.json",
+      "bytes": 80073,
+      "sha256": "6c8e7efb9ea602c6f4306eeb4b25b6caaad1aabc5885bc8e73f3d2b5f48817e9",
+      "role": "closed post-source DOC custody observation; no source or scientific rerun"
+    },
+    {
+      "source_path": "/tmp/e02-E-validator-current-DOC-independent-5739-20261007/review-optimized.stderr.txt",
+      "portable_path": "independent-DOC/literal/review-optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "closed post-source DOC custody observation; no source or scientific rerun",
+      "content_alias_of": "independent-DOC/literal/review-normal-v2.stderr.txt"
+    },
+    {
+      "source_path": "/tmp/e02-E-validator-current-DOC-independent-5739-20261007/review-optimized.stdout.json",
+      "portable_path": "independent-DOC/literal/review-optimized.stdout.json",
+      "bytes": 78139,
+      "sha256": "aea2c9af3fd22df94ea31e45ea05fc4eefc899bc50fb9ae328e55887868fc474",
+      "role": "closed post-source DOC custody observation; no source or scientific rerun"
+    },
+    {
+      "source_path": "/tmp/e02-E-validator-current-DOC-independent-5739-20261007/review_thin_5739.py",
+      "portable_path": "independent-DOC/literal/review_thin_5739.py.txt",
+      "bytes": 16390,
+      "sha256": "a11d36cd93514da8dd099ac051d7d83fa8408c751659cd55aa1a7e2f77c46665",
+      "role": "closed post-source DOC custody observation; no source or scientific rerun"
+    },
+    {
+      "source_path": "/tmp/e02-E-validator-current-DOC-independent-5739-20261007/review_thin_5739_v2.py",
+      "portable_path": "independent-DOC/literal/review_thin_5739_v2.py.txt",
+      "bytes": 19858,
+      "sha256": "f9ba925c6e7b216a1a3457a9db5f72aee681408a52a191d68d1823098dee2fc8",
+      "role": "closed post-source DOC custody observation; no source or scientific rerun"
+    },
+    {
+      "source_path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/README.md",
+      "portable_path": "independent-DOC/inputs/README.md",
+      "bytes": 1309,
+      "sha256": "95ba366fe01850f98f9b3fc50b5f7a6bc3870f0eee2fae6126291b7e4fac6045",
+      "role": "closed post-source DOC custody observation; no source or scientific rerun"
+    },
+    {
+      "source_path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/copy-index.json",
+      "portable_path": "independent-DOC/inputs/copy-index.json",
+      "bytes": 39860,
+      "sha256": "95a0966c8024c6f1805d7f49a64502e37904f78edce3b77557246de41fd30b52",
+      "role": "closed post-source DOC custody observation; no source or scientific rerun"
+    },
+    {
+      "source_path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/implementation-handoff.json",
+      "portable_path": "independent-DOC/inputs/implementation-handoff.json",
+      "bytes": 10682,
+      "sha256": "d74a5844d316279a621f1fdbc8f667a69489e7452c45a66290efbecace9521f2",
+      "role": "closed post-source DOC custody observation; no source or scientific rerun"
+    },
+    {
+      "source_path": "/workspace/e02-E-frc-20261006/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/utility-validator-current/independent-member-index.json",
+      "portable_path": "independent-DOC/inputs/independent-member-index.json",
+      "bytes": 17086,
+      "sha256": "6c5b10a2e0309d728e4a2da3eb948e6ff84bca0e5e50934ff4249740a811a7f3",
+      "role": "closed post-source DOC custody observation; no source or scientific rerun"
+    },
+    {
+      "source_path": "/tmp/e02-E-validator-current-DOC-independent-5739-20261007/publication-selection.json",
+      "portable_path": "independent-DOC/publication-selection.json",
+      "bytes": 7234,
+      "sha256": "3ea9560d2248dd3dc59ec27b9a5308f55c73037d43e30b2fa71d8364f6a64e25",
+      "role": "original fixed selector for complete peer member chain"
+    },
+    {
+      "source_path": "/tmp/e02-E-validator-format-current-r4/handoff-commit.stdout.txt",
+      "portable_path": "publication/handoff-commit.stdout.txt",
+      "bytes": 19185,
+      "sha256": "b05a793335d2909efa9e16d23343dc7ff72fef55cee15fe139de4bb57ed137d0",
+      "role": "literal source/handoff publication command/output; separate exact frozen identities"
+    },
+    {
+      "source_path": "/tmp/e02-E-validator-format-current-r4/handoff-commit.stderr.txt",
+      "portable_path": "publication/handoff-commit.stderr.txt",
+      "bytes": 653,
+      "sha256": "3533b17cc773bf537567de8740c25c4159551571b6a11eab30a8b3305bd5e8ba",
+      "role": "literal source/handoff publication command/output; separate exact frozen identities"
+    },
+    {
+      "source_path": "/tmp/e02-E-validator-format-current-r4/handoff-push.stdout.txt",
+      "portable_path": "publication/handoff-push.stdout.txt",
+      "bytes": 486,
+      "sha256": "2ac0055af8fa4dcd26a0ac0c5fa7da4077bd15e9e42bb78919267c413a887fc5",
+      "role": "literal source/handoff publication command/output; separate exact frozen identities"
+    },
+    {
+      "source_path": "/tmp/e02-E-validator-format-current-r4/handoff-push.stderr.txt",
+      "portable_path": "publication/handoff-push.stderr.txt",
+      "bytes": 126,
+      "sha256": "b93f64d62ddc0de283211910e26f186b4d304e5fd92324bb2fedf772f081116d",
+      "role": "literal source/handoff publication command/output; separate exact frozen identities"
+    },
+    {
+      "source_path": "/tmp/e02-E-validator-format-current-r4/handoff-fetch-readback.stdout.txt",
+      "portable_path": "publication/handoff-fetch-readback.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "literal source/handoff publication command/output; separate exact frozen identities",
+      "content_alias_of": "independent-DOC/literal/review-normal-v2.stderr.txt"
+    },
+    {
+      "source_path": "/tmp/e02-E-validator-format-current-r4/handoff-fetch-readback.stderr.txt",
+      "portable_path": "publication/handoff-fetch-readback.stderr.txt",
+      "bytes": 131,
+      "sha256": "e734f32ac4016a2d33fe0a144d6cea7b750d6f24a429938a45bd6128237f55ae",
+      "role": "literal source/handoff publication command/output; separate exact frozen identities"
+    },
+    {
+      "source_path": "/tmp/e02-E-validator-format-current-r4/handoff-final-tracking-readback.stdout.txt",
+      "portable_path": "publication/handoff-final-tracking-readback.stdout.txt",
+      "bytes": 164,
+      "sha256": "43978e4eee9f835b6b51d77e063723021d309ad1f08ab214d00c402488baa3b0",
+      "role": "literal source/handoff publication command/output; separate exact frozen identities"
+    },
+    {
+      "source_path": "/tmp/e02-E-validator-format-current-r4/handoff-final-tracking-readback.stderr.txt",
+      "portable_path": "publication/handoff-final-tracking-readback.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "literal source/handoff publication command/output; separate exact frozen identities",
+      "content_alias_of": "independent-DOC/literal/review-normal-v2.stderr.txt"
+    },
+    {
+      "source_path": "/tmp/e02-E-validator-format-current-r4/handoff-final-remote-readback.stdout.txt",
+      "portable_path": "publication/handoff-final-remote-readback.stdout.txt",
+      "bytes": 77,
+      "sha256": "904c2cc1807f7e645260ea938d6c35406813ee10b2786b975803a68d66c356fc",
+      "role": "literal source/handoff publication command/output; separate exact frozen identities"
+    },
+    {
+      "source_path": "/tmp/e02-E-validator-format-current-r4/handoff-final-remote-readback.stderr.txt",
+      "portable_path": "publication/handoff-final-remote-readback.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "literal source/handoff publication command/output; separate exact frozen identities",
+      "content_alias_of": "independent-DOC/literal/review-normal-v2.stderr.txt"
+    },
+    {
+      "source_path": "/tmp/e02-E-validator-format-current-r4/handoff-publication-receipt.json",
+      "portable_path": "publication/handoff-publication-receipt.json",
+      "bytes": 1424,
+      "sha256": "1d2096e6b9b2b180f89344de3464a36292867269d5640f5ba256a389d09b588e",
+      "role": "literal source/handoff publication command/output; separate exact frozen identities"
+    },
+    {
+      "source_path": "/tmp/e02-E-validator-format-current-r4/build-postpublication-selection.py.txt",
+      "portable_path": "publication/build-postpublication-selection.py.txt",
+      "bytes": 4311,
+      "sha256": "e01134da8301cfa1d0ce45d3d597b338cceea7bc8ed0b607a4e1b01bb6395358",
+      "role": "passive literal publication selector/replay recipe"
+    }
+  ],
+  "scope": "Closed postpublication and thin independent DOC custody supplement; original source2350 and handoff5739 bytes unchanged. No current scientific finding or global gate closure inferred.",
+  "source_scientific_or_global_gate_execution": false
+}

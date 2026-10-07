@@ -1,0 +1,309 @@
+{
+  "schema": "policyos.e02.moderate-publication-selection.v1",
+  "source": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "tree": "aef23574d3162abb19bf5a1c67d02624ff9d4d1d",
+  "whole_ROOT_inputs_immutable": false,
+  "files": [
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/ROOT-post-relocation-identity.stdout.txt",
+      "bytes": 82,
+      "sha256": "4b7845b2580dfeb860bc35bee8e8ab1fced7e8cf6302eda3d7a47b6b2a362d73"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/ROOT-post-relocation-status.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/ROOT-post-relocation-status.stdout.txt",
+      "bytes": 2812,
+      "sha256": "f56e41e23534bb0108f8073026b2752c96f33adb9ec67a08fd036657a19621a9"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/backtest-old58-overlay-proc-before-switch.json",
+      "bytes": 2395,
+      "sha256": "289e9a412b31f477d284c757ea4a7073479c42427a0276d96b2bc006a878145e"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/backtest-old58-overlay-proc-initial.json",
+      "bytes": 2395,
+      "sha256": "a862fe0a22bfc007ef5e4161c843b52cb4085c00c3dd95cab4a7529b0e1e1565"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/cal-frozen58-proc-before-switch.json",
+      "bytes": 2385,
+      "sha256": "1478ea33f8ffbb9eef67df99bf7145b403c29b0b377e0e2c9a734cd4e862c247"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/cal-frozen58-proc-initial.json",
+      "bytes": 2384,
+      "sha256": "28de7a472c9b63b3e49f856901cbdd4edaa6411b2dd77548cef5db19a5149a03"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-5e3e37276--raw-proc-before-switch.json",
+      "bytes": 2825,
+      "sha256": "6ba010c13e07e16788c1bb1fdd391990283bb11596396916727e5e4f4bbd5b1c"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-5e3e37276--raw-proc-initial.json",
+      "bytes": 2674,
+      "sha256": "ed43bd37ae4a8d21deb94c103c9efd5b3efa0326f559164ab624cb6b012db268"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-a9f78817c-corrected--raw-proc-before-switch.json",
+      "bytes": 2683,
+      "sha256": "eaaf5051176c90815deb19b391b5d338665cb8bec155c9a64045e62cc3dabd7f"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-a9f78817c-corrected--raw-proc-initial.json",
+      "bytes": 2684,
+      "sha256": "fa1aa82e4ab4ded16170121e1fd93eced9c8b40a0982ca8ed8980f9f8a2cc3dd"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-a9f78817c-corrected--temporary-proc-before-switch.json",
+      "bytes": 2690,
+      "sha256": "be666c46595da5a30cf49775b111c6f5bb2d9bff8755e9d1049a3a6245556006"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-a9f78817c-corrected--temporary-proc-initial.json",
+      "bytes": 2690,
+      "sha256": "21e614da70ec731114d6345b303c43fe83afa97e597becca95de0182bbc139f5"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/custody-controls.normal.json",
+      "bytes": 2060,
+      "sha256": "3b42c1d07fd630dae881907a1fe3dffc063f43ef940c14e62bac7536d03f3095"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/custody-controls.normal.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/custody-controls.normal.stdout.txt",
+      "bytes": 2060,
+      "sha256": "3b42c1d07fd630dae881907a1fe3dffc063f43ef940c14e62bac7536d03f3095"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/custody-controls.optimized.json",
+      "bytes": 2060,
+      "sha256": "3b42c1d07fd630dae881907a1fe3dffc063f43ef940c14e62bac7536d03f3095"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/custody-controls.optimized.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/custody-controls.optimized.stdout.txt",
+      "bytes": 2060,
+      "sha256": "3b42c1d07fd630dae881907a1fe3dffc063f43ef940c14e62bac7536d03f3095"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/independent-cal-reviewer-proc-before-switch.json",
+      "bytes": 2673,
+      "sha256": "3e1fcd682347ea7f627cfcf7fef1c576d883f72a14fc04cbbd2a56a2d99d1151"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/independent-cal-reviewer-proc-initial.json",
+      "bytes": 2396,
+      "sha256": "33c6857c9674b013bab0e330ce9096fc0b61eeab6a5e310261268dfe03147527"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/link-resolution-readback.json",
+      "bytes": 90578,
+      "sha256": "1cd0904693d4de7c3ee430209fbac63cc47bfdc28da08c20755de403a9739441"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/mc-proc-before-switch.json",
+      "bytes": 2373,
+      "sha256": "0c7a7d8da28ec00f02634c226e61ca0899e6d61811fced21cf5af95e9dbc9ce4"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/mc-proc-initial.json",
+      "bytes": 2375,
+      "sha256": "b83a8402daab8e0934f97251e963b6cddde997eda327d3ac55e2e65b6581bc20"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/public-surface-packet-proc-before-switch.json",
+      "bytes": 2394,
+      "sha256": "11b4b5fcd522157fd6a18a9ffb30e7d0a1ba386ff181d6f5ddd43a4263eaa032"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/public-surface-packet-proc-initial.json",
+      "bytes": 2394,
+      "sha256": "7fd774255a59e1a196cdd37ca61e275300481da7295545399d0a8fae5f032bda"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/relocate_closed_historical_receipts.py.txt",
+      "bytes": 9368,
+      "sha256": "f0951439edbc7196aee8ea25a68089b94a0a0c9cb3958b0126fcd483c37731a9"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/relocation-first.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/relocation-first.stdout.jsonl",
+      "bytes": 1264,
+      "sha256": "46dc2d5e0d360c831702b100e6791f9cd6ad0dfa5a424d9b250eb5bdcefd9245"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/relocation-qualification.json",
+      "bytes": 3815,
+      "sha256": "721a877589a02b87f641c5a80fe37199806daa863737ba28382bbb268e1a9884"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/relocation-rest.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/relocation-rest.stdout.jsonl",
+      "bytes": 1341,
+      "sha256": "843ea77e0f3828b58824072a8a1263b4c6f4990511f29218d4c21ab71cc08b0a"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/relocation-result-first.json",
+      "bytes": 51525,
+      "sha256": "ebfb97b0a78cb2d6e88eb0c3284528c304218cbcd0b2e8a61afd94936dae0f04"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/relocation-result.json",
+      "bytes": 99038,
+      "sha256": "5addc6af30503ea9076a544edc127df04359a5947d6c13f09ad2614965551665"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/validate-relocation-custody.py.txt",
+      "bytes": 6286,
+      "sha256": "305dbc73df822fe27698ea914788d1ef9b755adc308ffd5b874a2348455e5e63"
+    }
+  ],
+  "file_count": 35,
+  "total_bytes": 314759,
+  "raw_complete_inventories_retained_references": [
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/mc-inventory-before.json",
+      "bytes": 1230298,
+      "sha256": "837709c8f4202c2249c69b0001d2f8e84653c5193ca6359fefe11b007aaf5c7b"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/mc-inventory-copied.json",
+      "bytes": 1228886,
+      "sha256": "475cc32f64ba06396782b1ee2314c05b19c9f3fb30ab7c47ca7162864f58974e"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/mc-inventory-through-old-symlink.json",
+      "bytes": 1228886,
+      "sha256": "475cc32f64ba06396782b1ee2314c05b19c9f3fb30ab7c47ca7162864f58974e"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/public-surface-packet-inventory-before.json",
+      "bytes": 1243963,
+      "sha256": "5644de9ce9c72d67fa4c0d8679358376d6ee6b35d6506426354d73984c53b6bb"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/public-surface-packet-inventory-copied.json",
+      "bytes": 1242272,
+      "sha256": "ee55ee3d29b0805c0b942138b5c35cd3f3173ac64d2d595fd226cecf0cd662f8"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/public-surface-packet-inventory-through-old-symlink.json",
+      "bytes": 1242272,
+      "sha256": "ee55ee3d29b0805c0b942138b5c35cd3f3173ac64d2d595fd226cecf0cd662f8"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/backtest-old58-overlay-inventory-before.json",
+      "bytes": 1575204,
+      "sha256": "e55b59607e40b3cc31668949fd3327ccf3e873966468b7e9065c26de849cbd18"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/backtest-old58-overlay-inventory-copied.json",
+      "bytes": 1573398,
+      "sha256": "fe71ddd86443b83c5500468bfa25bf136f7ba45f58ea68d92f69922af5565bc6"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/backtest-old58-overlay-inventory-through-old-symlink.json",
+      "bytes": 1573398,
+      "sha256": "fe71ddd86443b83c5500468bfa25bf136f7ba45f58ea68d92f69922af5565bc6"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/cal-frozen58-inventory-before.json",
+      "bytes": 1329278,
+      "sha256": "3ca44765c357aa6bb23ad398a2e0b95a840d8c5f88423b22cf4913dcd03fc6e2"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/cal-frozen58-inventory-copied.json",
+      "bytes": 1327811,
+      "sha256": "aebae161635909d532489a966cfa7ff6bcad22e23218f19834451c63bf2f0569"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/cal-frozen58-inventory-through-old-symlink.json",
+      "bytes": 1327811,
+      "sha256": "aebae161635909d532489a966cfa7ff6bcad22e23218f19834451c63bf2f0569"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/independent-cal-reviewer-inventory-before.json",
+      "bytes": 4716838,
+      "sha256": "6f2ca2dbda4446de5ad497fd365bf4f55fe80acadad3b5bc0cb065aed2d14713"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/independent-cal-reviewer-inventory-copied.json",
+      "bytes": 4711645,
+      "sha256": "a03f804fab33f79647864e47009896cc22a57d791c8c179bfcf5179e1796e305"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/independent-cal-reviewer-inventory-through-old-symlink.json",
+      "bytes": 4711645,
+      "sha256": "a03f804fab33f79647864e47009896cc22a57d791c8c179bfcf5179e1796e305"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-a9f78817c-corrected--raw-inventory-before.json",
+      "bytes": 4097,
+      "sha256": "4f556ee94c535658fe6c3cf8ad7189254a5cf455c465f1d817902d2f432691cb"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-a9f78817c-corrected--raw-inventory-copied.json",
+      "bytes": 4097,
+      "sha256": "e12610b6d7a7da91b2d6bf7eeb66e7055aee2e4e28039596abb8b05d2f93b672"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-a9f78817c-corrected--raw-inventory-through-old-symlink.json",
+      "bytes": 4097,
+      "sha256": "e12610b6d7a7da91b2d6bf7eeb66e7055aee2e4e28039596abb8b05d2f93b672"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-a9f78817c-corrected--temporary-inventory-before.json",
+      "bytes": 7307693,
+      "sha256": "821637426651278ead3a0aa2d825fb3e999631fb64bda0fc9128cafee1bab7af"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-a9f78817c-corrected--temporary-inventory-copied.json",
+      "bytes": 7272616,
+      "sha256": "3ed1573e00a940596101633807d6cd6a2192c3b58f57fb17c4d93cfbb2b11b46"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-a9f78817c-corrected--temporary-inventory-through-old-symlink.json",
+      "bytes": 7272616,
+      "sha256": "3ed1573e00a940596101633807d6cd6a2192c3b58f57fb17c4d93cfbb2b11b46"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-5e3e37276--raw-inventory-before.json",
+      "bytes": 4097,
+      "sha256": "e34d4521f5af9ae79bb574238951379a27f4aa8615ee6435c340796037373557"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-5e3e37276--raw-inventory-copied.json",
+      "bytes": 4097,
+      "sha256": "e34d4521f5af9ae79bb574238951379a27f4aa8615ee6435c340796037373557"
+    },
+    {
+      "path": "/tmp/e02-E-closed-historical-receipt-relocation-20261007-oracle/common-wave-5e3e37276--raw-inventory-through-old-symlink.json",
+      "bytes": 4097,
+      "sha256": "e34d4521f5af9ae79bb574238951379a27f4aa8615ee6435c340796037373557"
+    }
+  ],
+  "control_scope": "Normal/-O nine corrupt/omission refusals each; effective expected8 sourceCounter removal admits7 while markers+real remaining hashes intact; no further transfer/native execution.",
+  "no_archives_raw171MB_or_fixture_copies_published": true
+}

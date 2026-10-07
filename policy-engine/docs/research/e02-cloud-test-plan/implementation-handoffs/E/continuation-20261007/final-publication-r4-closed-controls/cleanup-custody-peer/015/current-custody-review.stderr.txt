@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "/tmp/e02-E-cleanup-custody-independent-20261007/review-cleanup-custody.py.txt", line 658, in <module>
+    main()
+  File "/tmp/e02-E-cleanup-custody-independent-20261007/review-cleanup-custody.py.txt", line 643, in main
+    result = controls() if args.controls else review()
+                                              ^^^^^^^^
+  File "/tmp/e02-E-cleanup-custody-independent-20261007/review-cleanup-custody.py.txt", line 335, in review
+    source_before = git_identity()
+                    ^^^^^^^^^^^^^^
+  File "/tmp/e02-E-cleanup-custody-independent-20261007/review-cleanup-custody.py.txt", line 307, in git_identity
+    require(
+  File "/tmp/e02-E-cleanup-custody-independent-20261007/review-cleanup-custody.py.txt", line 53, in require
+    raise ValueError(reason)
+ValueError: current observed generated input drift only

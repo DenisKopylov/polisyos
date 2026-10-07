@@ -1,0 +1,11 @@
+{
+  "all_absent": true,
+  "deleted_exact_paths": [
+    "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained-retry2/source",
+    "/tmp/e02-E-MC-b6-gates-20261007/architecture-retained-retry2/environment"
+  ],
+  "tmp_free_before": 3584172032,
+  "tmp_free_after": 5313110016,
+  "memory_before": "15309078528\n",
+  "memory_after": "13533175808\n"
+}

@@ -1,0 +1,58 @@
+import ast, hashlib, json, pathlib, subprocess
+R=pathlib.Path('/tmp/e02-E-MC-b6-gates-20261007');MC=pathlib.Path('/workspace/e02-E-mc-20261006');S='b6b0d4154e6aadb24db4c7044da7cc9f6d3725b4';N='3932cded22a29254a7dfced99723e147d6fea7cb';ROOT=MC/'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law'
+def sha(b):return hashlib.sha256(b).hexdigest()
+def ref(p):b=p.read_bytes();return {'path':str(p),'bytes':len(b),'sha256':sha(b)}
+def git(*args):return subprocess.check_output(['git','-C',str(MC),*args])
+def blob(c,p):return git('show',c+':policy-engine/'+p)
+def load(p):return json.loads(p.read_text())
+def req(x,s):
+ if not x:raise ValueError(s)
+summary=load(R/'static-native-deciding-summary.json');oracle_path=ROOT/'independent/independent-final-review-ca17.json';oracle=load(oracle_path);dto_path=ROOT/'independent-typed/independent-DTO-delta-3932.json';dto=load(dto_path)
+controls={x['id']:x for x in oracle['current_controls']}
+paths=['src/polisyos/ir/analytics/posterior_summary.py','src/polisyos/ir/analytics/__init__.py','src/polisyos/foundry/calibration/uncertainty_adapter.py','src/polisyos/foundry/uncertainty/sampling_admission.py','src/polisyos/foundry/uncertainty/monte_carlo.py','src/polisyos/scientist/nodes/builtins/simulate/propagate_uncertainty.py','src/polisyos/scientist/nodes/builtins/simulate/propagate_welfare.py']
+base='polisyos.ir.analytics.posterior_summary.';targets={base+n:n for n in ['admit_posterior_summary_profiles','load_posterior_summary_envelope','posterior_carrier_content_hash','posterior_joint_carrier_digest','posterior_nominal_mean','posterior_population_std_v2','read_posterior_summary_profile','validate_raw_posterior_summary_envelope']};producer='polisyos.foundry.calibration.uncertainty_adapter.summarize_bayesian_calibration_posterior'; targets[producer]='summarize_bayesian_calibration_posterior'
+actualcalls={s:[] for s in targets};sourcebindings=[]
+for p in paths:
+ b=blob(S,p);old=blob(N,p);req(b==old,'native reviewed source changed3932→b6');txt=b.decode();tree=ast.parse(txt);imports={};mod=p.removeprefix('src/').removesuffix('.py').replace('/','.');
+ for node in ast.walk(tree):
+  if isinstance(node,ast.ImportFrom) and node.module:
+   for a in node.names:
+    if a.name in targets.values() and node.module in ('polisyos.ir.analytics','polisyos.ir.analytics.posterior_summary','polisyos.foundry.calibration.uncertainty_adapter'):
+     impl=producer if a.name==targets[producer] else base+a.name;imports[a.asname or a.name]=impl
+ if p.endswith('/posterior_summary.py'):
+  imports.update({n:s for s,n in targets.items() if s.startswith(base)})
+ class Observe(ast.NodeVisitor):
+  def __init__(self):self.scope=[]
+  def visit_FunctionDef(self,n):
+   self.scope.append(n.name);self.generic_visit(n);self.scope.pop()
+  visit_AsyncFunctionDef=visit_FunctionDef
+  def visit_ClassDef(self,n):
+   self.scope.append(n.name);self.generic_visit(n);self.scope.pop()
+  def visit_Call(self,n):
+   if isinstance(n.func,ast.Name) and n.func.id in imports:
+    symbol=imports[n.func.id];actualcalls[symbol].append({'source_path':'policy-engine/'+p,'source_line':n.lineno,'source_scope':mod+'.'+'.'.join(self.scope),'actual_call_binding':n.func.id,'import_resolution':symbol,'expression':ast.get_source_segment(txt,n),'source_sha256':sha(b),'evidence_kind':'exact syntactic qualified-binding caller only; not runtime reachability'})
+   self.generic_visit(n)
+ Observe().visit(tree)
+ sourcebindings.append({'path':'policy-engine/'+p,'qualified_source':N,'candidate':S,'Git_blob':git('rev-parse',S+':policy-engine/'+p).decode().strip(),'bytes':len(b),'sha256':sha(b),'unchanged_reviewed_native_source':True})
+common=['actual_native_fresh_E_named_mean_consumer','hundred_atoms_fresh_CAS_exact_law_not_old_residual']
+per={
+ 'admit_posterior_summary_profiles':['fresh_CAS_forged_alignment_shared_admission_removal','actual_all_backend_paired_law_sobol'],
+ 'load_posterior_summary_envelope':['actual_native_fresh_E_named_mean_consumer','fresh_CAS_forged_alignment_shared_admission_removal'],
+ 'posterior_carrier_content_hash':['hundred_atoms_fresh_CAS_exact_law_not_old_residual','fresh_CAS_forged_alignment_shared_admission_removal'],
+ 'posterior_joint_carrier_digest':['actual_all_backend_paired_law_sobol','actual_all_backend_paired_law_halton','actual_all_backend_paired_law_random','fresh_CAS_forged_alignment_shared_admission_removal'],
+ 'posterior_nominal_mean':common,
+ 'posterior_population_std_v2':['actual_public_facade_ABI_inventory_and_large_finite_spread','hundred_atoms_fresh_CAS_exact_law_not_old_residual'],
+ 'read_posterior_summary_profile':common+['fresh_CAS_forged_alignment_shared_admission_removal'],
+ 'validate_raw_posterior_summary_envelope':['actual_E_raw_before_builder_inline_bool','actual_E_raw_before_builder_inline_string','actual_E_raw_before_builder_raw_bool','actual_E_raw_before_builder_raw_string'],
+ 'summarize_bayesian_calibration_posterior':common,
+}
+rows=[]
+for native in summary['regressions']:
+ symbol=native['symbol']
+ if symbol not in targets:continue
+ ids=per[targets[symbol]]; req(all(i in controls for i in ids),'missing actual literal witness ID')
+ rows.append({'symbol':symbol,'exact_native_static_record':native,'actual_qualified_source_calls':actualcalls[symbol],'qualified_prior_native_controls':[controls[i] for i in ids],'control_origin':'Literal observations on2c/ca; DTO-only3932 delta and current b6 exact7-sourcebyte equality qualify reuse. No fresh native/math execution by this join','DTO_delta_receipt':ref(dto_path),'real_consumer_scope':'Actual configuredCAS producer→persist→fresh strictIR reader→PropagateUncertaintyNode/MCSampler callback and per-draw receipts; raw admission negatives beforebuilder/callback','Welfare_boundary':'Actual source import/calls enumerated; fresh3932/b6 default or HTTP Welfare execution not measured by this static gate or this witness join','remaining_default_boundary':'HTTP/router/dependency-injection/served dispatch and production evaluator/source law remain unmeasured; runtime owner/A and actual consumer owner must provide fresh persisted served witness where original criterion requires it','proxy_divergence':'Native static record is uninvoked while qualified actual native producer/CAS/reader/callback observations exist. Facade/name-alias resolution misses these routes; this does not upgrade partial scanner to runtime/served PASS','canonical_writer':'E scoped B201/B202+sharedMC companion; general IR facade/C/F/A consumers retain their owners','check_outcome':'staticFAIL retained','finding_disposition_changed':False,'gate_eligible':False})
+req(len(rows)==9,'8IR+1producer denominator')
+v={'schema':'policyos.e02.E.posterior_static_native_witness_join.v1','source':S,'qualified_native_source':N,'regression_count':9,'IR_helper_count':8,'Foundry_producer_count':1,'complete_static_summary':ref(R/'static-native-deciding-summary.json'),'literal_oracle':ref(oracle_path),'literal_DTO_qualification':ref(dto_path),'source_bindings':sourcebindings,'rows':rows,'measured':'Read-only exact current syntactic calls, immutablesourcebytequalification and literal native receipts; no newruntime/mathcheck','unmeasured':['Fresh default/HTTP Welfare/served consumer','production evaluator/source law','Static root reachability throughallfacades/DI/reflection'],'P41':'not_established','static_runtime_invocation_established':False,'source_or_generated_edit':False}
+with (R/'posterior-nine-proxy-native-witness-join.json').open('x') as f:json.dump(v,f,indent=2);f.write('\n')
+print(json.dumps({'packet':ref(R/'posterior-nine-proxy-native-witness-join.json'),'rows':len(rows),'actual_calls':{k:len(v) for k,v in actualcalls.items()},'actual_all_native_controls_reused_not_rerun':True},indent=2))

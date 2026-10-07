@@ -1,0 +1,20 @@
+{
+  "packet": {
+    "path": "/tmp/e02-E-MC-b6-gates-20261007/posterior-nine-proxy-native-witness-join.json",
+    "bytes": 75231,
+    "sha256": "bf8f9d78d833229f0dac6c01057a087d15d4645241d7daa49b1a7c937d461270"
+  },
+  "rows": 9,
+  "actual_calls": {
+    "polisyos.ir.analytics.posterior_summary.admit_posterior_summary_profiles": 3,
+    "polisyos.ir.analytics.posterior_summary.load_posterior_summary_envelope": 7,
+    "polisyos.ir.analytics.posterior_summary.posterior_carrier_content_hash": 2,
+    "polisyos.ir.analytics.posterior_summary.posterior_joint_carrier_digest": 3,
+    "polisyos.ir.analytics.posterior_summary.posterior_nominal_mean": 3,
+    "polisyos.ir.analytics.posterior_summary.posterior_population_std_v2": 1,
+    "polisyos.ir.analytics.posterior_summary.read_posterior_summary_profile": 2,
+    "polisyos.ir.analytics.posterior_summary.validate_raw_posterior_summary_envelope": 2,
+    "polisyos.foundry.calibration.uncertainty_adapter.summarize_bayesian_calibration_posterior": 0
+  },
+  "actual_all_native_controls_reused_not_rerun": true
+}

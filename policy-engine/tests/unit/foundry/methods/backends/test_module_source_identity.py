@@ -7,7 +7,7 @@ import math
 import sys
 from dataclasses import replace
 from types import ModuleType
-from typing import ClassVar
+from typing import ClassVar, NamedTuple
 
 import pytest
 
@@ -18,7 +18,7 @@ from polisyos.foundry.methods.backends.checkpointing import (
     CheckpointIdentityError,
     CheckpointingChainExecutor,
 )
-from polisyos.foundry.methods.base import ParameterSpec
+from polisyos.foundry.methods.base import ComputeBackend, ParameterSpec
 from polisyos.foundry.methods.components.composer import MethodComposer
 
 from .test_checkpoint_identity import (
@@ -30,6 +30,82 @@ from .test_checkpoint_identity import (
     _RecordingDispatcher,
     _strict_context,
 )
+
+_DATA_GETTER = getattr
+_DATA_FIELDS = ("product",)
+
+
+class _DataFieldState(NamedTuple):
+    operand: object
+    product: object
+
+
+class _DataFieldMethod:
+    signature: ClassVar = replace(
+        _PRODUCER_SIGNATURE,
+        name="data_field",
+        backend=ComputeBackend.JAX,
+        input_slots=_CONSUMER_SIGNATURE.input_slots,
+        parameters=(ParameterSpec("factor", default=2, is_static=False),),
+        supports_jit=True,
+    )
+    metadata: ClassVar = _METADATA
+
+    @staticmethod
+    def pure_step(state, params):
+        return state._replace(product=state.operand * params["factor"])
+
+    @staticmethod
+    def dematerialize_output(output):
+        return {field: _DATA_GETTER(output, field, output) for field in _DATA_FIELDS}
+
+
+@pytest.mark.parametrize("jit", [False, True])
+def test_finite_aliased_data_getter_keeps_real_numeric_warm_handles(jit):
+    import jax.numpy as jnp
+
+    from polisyos.foundry.methods.compiler import CompilationCache, MethodCompiler
+
+    _, registry = _chain()
+    registry.register(_DataFieldMethod)
+    compiler = MethodCompiler(registry=registry, cache=CompilationCache())
+    state = _DataFieldState(jnp.asarray(10.0), jnp.asarray(0.0))
+    cold = compiler.compile(
+        method_name=_DataFieldMethod.signature.fqn,
+        params={"factor": 2},
+        sample_inputs={"operand": state.operand},
+        jit=jit,
+    )
+    warm = compiler.compile(
+        method_name=_DataFieldMethod.signature.fqn,
+        params={"factor": 3},
+        sample_inputs={"operand": state.operand},
+        jit=jit,
+    )
+    assert cold._kernel is warm._kernel
+    assert float(_DataFieldMethod.dematerialize_output(cold.step_fn(state, {}))["product"]) == 20
+    assert float(_DataFieldMethod.dematerialize_output(warm.step_fn(state, {}))["product"]) == 30
+
+
+class _DynamicFieldSource:
+    signature: ClassVar = _PRODUCER_SIGNATURE
+    metadata: ClassVar = _METADATA
+
+    @staticmethod
+    def pure_step(state, params):
+        return {"product": _DATA_GETTER(state, params["field"], state)}
+
+
+def test_runtime_selector_does_not_gain_data_field_identity_from_getter_alias(tmp_path):
+    chain, registry = _chain()
+    registry.register(_DynamicFieldSource, override=True)
+    store = FileSystemCAS(tmp_path / "cas")
+    dispatcher = _RecordingDispatcher()
+    with pytest.raises(CheckpointIdentityError):
+        CheckpointingChainExecutor(
+            registry=registry, dispatcher=dispatcher, artifact_store=store
+        ).execute(chain, initial_state={"x": 3}, artifact_context=_strict_context(store, chain))
+    assert dispatcher.calls == []
 
 
 def _frame_original_increment(value, effect_path):

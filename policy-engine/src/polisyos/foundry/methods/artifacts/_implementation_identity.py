@@ -7,10 +7,12 @@ executes a helper or descriptor to discover its implementation.
 
 from __future__ import annotations
 
+import ast
 import builtins
 import dis
 import inspect
 import sys
+import textwrap
 from collections.abc import Callable, Iterator
 from dataclasses import fields, is_dataclass
 from enum import Enum
@@ -223,6 +225,118 @@ def _module_capture(
     return {"module": module.__name__, "version": version, "selected_members": members}
 
 
+def _data_field_getattr(
+    function: FunctionType, name: str, captures: dict[str, Any]
+) -> dict[str, Any] | None:
+    """Bind finite public field selection on an unrebound runtime parameter.
+
+    This binds code, the actual builtin and complete immutable field selectors.
+    It does not infer the runtime target's type or descriptor/context identity.
+    Captured module reflection still has no static member paths and is refused.
+    """
+    try:
+        tree = ast.parse(textwrap.dedent(inspect.getsource(function)))
+    except (OSError, TypeError, SyntaxError):
+        return None
+    definitions = [
+        node
+        for node in tree.body
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        and node.name == function.__name__
+    ]
+    if len(definitions) != 1:
+        return None
+    definition = definitions[0]
+    parameters = {
+        arg.arg
+        for arg in (definition.args.posonlyargs + definition.args.args + definition.args.kwonlyargs)
+    }
+    nodes = list(ast.walk(definition))
+    parents = {child: parent for parent in nodes for child in ast.iter_child_nodes(parent)}
+    rebound = {
+        node.id
+        for node in nodes
+        if isinstance(node, ast.Name) and isinstance(node.ctx, (ast.Store, ast.Del))
+    }
+    fields: set[str] = set()
+    targets: set[str] = set()
+    uses = [
+        node
+        for node in nodes
+        if isinstance(node, ast.Name) and node.id == name and isinstance(node.ctx, ast.Load)
+    ]
+    for use in uses:
+        ancestor = parents.get(use)
+        while ancestor is not None and ancestor is not definition:
+            if isinstance(
+                ancestor, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda, ast.ClassDef)
+            ):
+                return None
+            ancestor = parents.get(ancestor)
+        call = parents.get(use)
+        if not (
+            isinstance(call, ast.Call)
+            and call.func is use
+            and len(call.args) in {2, 3}
+            and not call.keywords
+            and isinstance(call.args[0], ast.Name)
+            and call.args[0].id in parameters - rebound
+        ):
+            return None
+        target = call.args[0].id
+        if len(call.args) == 3 and not (
+            isinstance(call.args[2], ast.Name) and call.args[2].id == target
+        ):
+            return None
+        selector = call.args[1]
+        selected: Any = None
+        if isinstance(selector, ast.Constant):
+            selected = (selector.value,)
+        elif isinstance(selector, ast.Name):
+            captured = captures.get(selector.id)
+            if isinstance(captured, str) and selector.id not in rebound:
+                selected = (captured,)
+            else:
+                for comprehension in nodes:
+                    if not isinstance(
+                        comprehension, (ast.DictComp, ast.ListComp, ast.SetComp, ast.GeneratorExp)
+                    ):
+                        continue
+                    if call not in ast.walk(comprehension):
+                        continue
+                    if len(comprehension.generators) != 1:
+                        return None
+                    for generator in comprehension.generators:
+                        if (
+                            not generator.is_async
+                            and isinstance(generator.target, ast.Name)
+                            and generator.target.id == selector.id
+                            and isinstance(generator.iter, ast.Name)
+                            and generator.iter.id not in rebound
+                        ):
+                            selected = captures.get(generator.iter.id)
+        if (
+            not isinstance(selected, (tuple, frozenset))
+            or not selected
+            or not all(
+                isinstance(field, str) and field.isidentifier() and not field.startswith("_")
+                for field in selected
+            )
+        ):
+            return None
+        fields.update(selected)
+        targets.add(target)
+    if not uses:
+        return None
+    return {
+        "symbol": "builtins.getattr",
+        "distribution_version": sys.version,
+        "selected_data_fields": sorted(fields),
+        "runtime_parameters": sorted(targets),
+        "runtime_target_type_and_internals": "not_bound",
+    }
+
+
 def _project(value: Any, *, strict: bool, visiting: set[int]) -> Any:
     if isinstance(value, Enum):
         return {
@@ -330,13 +444,18 @@ def _project(value: Any, *, strict: bool, visiting: set[int]) -> Any:
                     if name not in _CLASS_STRUCTURE
                 }
             else:
+                captures = _function_captures(value)
                 result["captures"] = {
                     name: (
                         _module_capture(value, name, item, strict=strict, visiting=visiting)
                         if isinstance(item, ModuleType)
+                        else (
+                            _data_field_getattr(value, name, captures) or _unavailable(item, strict)
+                        )
+                        if item is builtins.getattr
                         else _project(item, strict=strict, visiting=visiting)
                     )
-                    for name, item in sorted(_function_captures(value).items())
+                    for name, item in sorted(captures.items())
                 }
                 result["defaults"] = _project(value.__defaults__, strict=strict, visiting=visiting)
                 result["keyword_defaults"] = {

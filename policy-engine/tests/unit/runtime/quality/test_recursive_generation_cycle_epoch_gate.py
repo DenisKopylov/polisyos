@@ -700,16 +700,16 @@ def _scan_python_source(
         for keyword in call.keywords
         if keyword.arg is None and isinstance(keyword.value, ast.Name)
     }
-    mapping_assignments: dict[tuple[tuple[str, ...], str], list[frozenset[str] | None]] = {}
-    unresolved_mapping_bindings: set[tuple[tuple[str, ...], str]] = set()
+    mapping_assignments: dict[tuple[tuple[int, ...], str], list[frozenset[str] | None]] = {}
+    unresolved_mapping_bindings: set[tuple[tuple[int, ...], str]] = set()
     recognized_mapping_stores: set[int] = set()
 
     class _MappingBindingVisitor(ast.NodeVisitor):
         def __init__(self) -> None:
-            self.scope: list[str] = []
+            self.scope_nodes: list[int] = []
 
-        def _visit_scope(self, node: ast.AST, name: str) -> None:
-            self.scope.append(name)
+        def _visit_scope(self, node: ast.AST) -> None:
+            self.scope_nodes.append(id(node))
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 arguments = node.args
                 argument_names = (
@@ -723,27 +723,27 @@ def _scan_python_source(
                     )
                 )
                 unresolved_mapping_bindings.update(
-                    (tuple(self.scope), item)
+                    (tuple(self.scope_nodes), item)
                     for item in argument_names
                     if item in expansion_names
                 )
             self.generic_visit(node)
-            self.scope.pop()
+            self.scope_nodes.pop()
 
         def visit_ClassDef(self, node: ast.ClassDef) -> None:  # noqa: N802
-            self._visit_scope(node, node.name)
+            self._visit_scope(node)
 
         def visit_FunctionDef(self, node: ast.FunctionDef) -> None:  # noqa: N802
-            self._visit_scope(node, node.name)
+            self._visit_scope(node)
 
         def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:  # noqa: N802
-            self._visit_scope(node, node.name)
+            self._visit_scope(node)
 
         def _record_assignment(self, target: ast.expr, value: ast.expr) -> None:
             if isinstance(target, ast.Name) and target.id in expansion_names:
                 name = target.id
                 recognized_mapping_stores.add(id(target))
-                key = (tuple(self.scope), name)
+                key = (tuple(self.scope_nodes), name)
                 keys = _literal_mapping_keys(value)
                 mapping_assignments.setdefault(key, []).append(keys)
                 if keys is None:
@@ -751,7 +751,7 @@ def _scan_python_source(
                 return
             for item in ast.walk(target):
                 if isinstance(item, ast.Name) and item.id in expansion_names:
-                    unresolved_mapping_bindings.add((tuple(self.scope), item.id))
+                    unresolved_mapping_bindings.add((tuple(self.scope_nodes), item.id))
 
         def visit_Assign(self, node: ast.Assign) -> None:  # noqa: N802
             for target in node.targets:
@@ -764,23 +764,23 @@ def _scan_python_source(
             else:
                 for item in ast.walk(node.target):
                     if isinstance(item, ast.Name) and item.id in expansion_names:
-                        unresolved_mapping_bindings.add((tuple(self.scope), item.id))
+                        unresolved_mapping_bindings.add((tuple(self.scope_nodes), item.id))
             self.generic_visit(node)
 
         def visit_Global(self, node: ast.Global) -> None:  # noqa: N802
             for name in node.names:
                 if name in expansion_names:
-                    unresolved_mapping_bindings.add((tuple(self.scope), name))
+                    unresolved_mapping_bindings.add((tuple(self.scope_nodes), name))
                     unresolved_mapping_bindings.add(((), name))
 
         def visit_Nonlocal(self, node: ast.Nonlocal) -> None:  # noqa: N802
             for name in node.names:
                 if name in expansion_names:
-                    unresolved_mapping_bindings.add((tuple(self.scope), name))
+                    unresolved_mapping_bindings.add((tuple(self.scope_nodes), name))
 
         def visit_Name(self, node: ast.Name) -> None:  # noqa: N802
             if node.id in expansion_names:
-                key = (tuple(self.scope), node.id)
+                key = (tuple(self.scope_nodes), node.id)
                 if isinstance(node.ctx, ast.Load):
                     if id(node) not in allowed_expansion_loads:
                         unresolved_mapping_bindings.add(key)
@@ -813,6 +813,7 @@ def _scan_python_source(
     class _Visitor(ast.NodeVisitor):
         def __init__(self) -> None:
             self.scope: list[str] = []
+            self.scope_nodes: list[int] = []
             self.shadowed: list[frozenset[str]] = []
 
         def _visit_scope(
@@ -822,9 +823,11 @@ def _scan_python_source(
             shadowed: frozenset[str] = frozenset(),
         ) -> None:
             self.scope.append(name)
+            self.scope_nodes.append(id(node))
             self.shadowed.append(shadowed)
             self.generic_visit(node)
             self.shadowed.pop()
+            self.scope_nodes.pop()
             self.scope.pop()
 
         @staticmethod
@@ -861,7 +864,7 @@ def _scan_python_source(
                     expanded = _literal_mapping_keys(item.value)
                 elif isinstance(item.value, ast.Name) and item.value.id not in active_shadows:
                     expanded = literal_mapping_keys_by_scope.get(
-                        (tuple(self.scope), item.value.id)
+                        (tuple(self.scope_nodes), item.value.id)
                     )
                 else:
                     expanded = None
@@ -2623,6 +2626,46 @@ class AcquisitionWorldGrowthBridge:
             (*constructors, *dynamic_name_expansion),
             tuple(promotion_calls),
             tuple(dynamic_name_ambiguity),
+        )
+
+    duplicate_scope_expansion, _, duplicate_scope_ambiguity = _scan_python_source(
+        source='''
+from polisyos.runtime.quality.generation_cycle import GenerationCycleController
+
+class AcquisitionWorldGrowthBridge:
+    def resume(self):
+        controller_kwargs = {
+            "cycle_substrate_context": context,
+            "candidate_simulation_handoff": handoff,
+            "candidate_simulation_currentness_resolver": currentness_resolver,
+        }
+
+    def resume(self):
+        return GenerationCycleController(
+            repo_root=repo_root,
+            model_id=model_id,
+            promotion_runtime=promotion_runtime,
+            **controller_kwargs,
+        )
+''',
+        module="polisyos.runtime.quality.acquisition_world_growth",
+        source_path="src/polisyos/runtime/quality/acquisition_world_growth.py",
+    )
+    assert len(duplicate_scope_expansion) == 1
+    assert duplicate_scope_expansion[0].enclosing == "AcquisitionWorldGrowthBridge.resume"
+    assert duplicate_scope_expansion[0].has_keyword_expansion
+    assert any(
+        "unresolved_constructor_keyword_expansion" in row
+        for row in duplicate_scope_ambiguity
+    )
+    with pytest.raises(AssertionError):
+        _assert_constructor_contract(
+            tuple(
+                duplicate_scope_expansion[0] if row == acquisition_call else row
+                for row in constructors
+            ),
+            tuple(promotion_calls),
+            tuple(duplicate_scope_ambiguity),
         )
 
     unwrapped_constructor, _, unwrapped_ambiguity = _scan_python_source(

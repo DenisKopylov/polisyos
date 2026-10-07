@@ -49,6 +49,7 @@ _MODEL_MUTATIONS = (
     "top_level_attribute",
     "state_copy_update",
     "detached_ref_rebind",
+    "root_delete",
 )
 
 
@@ -311,6 +312,8 @@ class _ModelScopeProducer(_ScopeProducer):
                         update={"media_type": "application/octet-stream"}
                     )
                     state.inputs["source"] = detached
+                case "root_delete":
+                    del state.reports_index
                 case _:
                     raise AssertionError("unsupported model mutation")
         except ValueError as exc:

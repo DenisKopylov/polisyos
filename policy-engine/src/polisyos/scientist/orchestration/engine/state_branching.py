@@ -132,6 +132,14 @@ class _JournaledExperimentState(ExperimentState):
             setattr(copied, name, value)
         return copied
 
+    def __delattr__(self, name: str) -> None:
+        journal = mutation_journal_for_state(self)
+        if journal is not None and journal.enforce_write_scope:
+            if name not in journal.isolated_paths:
+                raise ValueError(f"undeclared state_writes at live paths: {[name]}")
+            raise TypeError("model field deletion is not replayable")
+        super().__delattr__(name)
+
 
 StateMutationOperation = Literal[
     "set",

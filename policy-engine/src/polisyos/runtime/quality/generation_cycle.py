@@ -3529,6 +3529,12 @@ class JointSimulationPort:
                 )
         k_world_ref = request.world_model_record.content_hash
         status, authority_blockers = _joint_simulation_port_outcome(result)
+        if candidate_simulation_input is not None:
+            # Preserve the admitted candidate purpose for persisted readers.
+            # Numerical execution never upgrades this input's authority band.
+            authority_blockers = tuple(
+                dict.fromkeys((*authority_blockers, "candidate_scenario_n5_only"))
+            )
         if status == "simulation_blocked" and program_binding_failures:
             authority_blockers = tuple(
                 dict.fromkeys((*authority_blockers, *program_binding_failures.values()))

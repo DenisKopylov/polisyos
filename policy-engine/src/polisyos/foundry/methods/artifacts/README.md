@@ -26,10 +26,23 @@ The supported graph uses ordinary Python classes and inspectable, undecorated
 Python functions with immutable scalar, bytes, tuple, frozenset and string-keyed
 mapping-proxy captures. Frozen dataclass records bind their directly stored
 immutable field values and declared class source; arbitrary record methods and
-dynamic record attribute access are outside that data-value profile. Imported
-module and builtin implementation boundaries use installed distribution or
-Python versions; this does not establish mutable module contents or external
-effects. Dynamic imports/reflection, hostile runtime mutation, unavailable
+dynamic record attribute access are outside that data-value profile. Captured
+ordinary modules require static attribute paths from referenced globals or
+nonlocals. The graph reads those members directly from module dictionaries,
+without running getters, and projects their supported Python helper graph;
+same-version member replacement therefore invalidates checkpoint reuse and
+compiler specialization. Unused module members are outside the selected graph.
+Module transport/aliasing, reflection, dynamic imports, class-held modules and
+paths through non-module objects are unsupported in the strict profile.
+
+Builtin implementations retain the Python/distribution version boundary.
+Installed external callables whose internals cannot be projected retain an
+explicit opaque boundary binding their selected source/type/FQN and installed
+version. This keeps existing numerical extension/JAX callables usable, but does
+not establish their mutable internal state, transitive library code, external
+effects or arbitrary runtime hot-reload. Replacing a selected member with a
+source-readable Python helper still binds that actual helper. Unsupported
+Python functions, hostile runtime mutation, unavailable
 Python functions, wrapped functions, custom descriptors/metaclasses, callable
 instances and mutable captured values do not establish strict code closure.
 Known unsupported graph values raise `SourceIdentityUnavailableError` before

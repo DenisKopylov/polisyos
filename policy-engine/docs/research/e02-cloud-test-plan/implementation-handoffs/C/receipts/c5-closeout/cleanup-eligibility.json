@@ -1,0 +1,793 @@
+{
+  "baseline": {
+    "basis": "Parent task instruction plus reviewer completion report that the frozen install created ignored node_modules in the isolated review worktree.",
+    "fresh_review_had_no_node_modules": true
+  },
+  "candidate_count": 6,
+  "candidates": [
+    {
+      "classification": "ELIGIBILITY_CANDIDATE",
+      "initial_lstat": {
+        "ctime_ns": 1791399947191391241,
+        "device": 16777231,
+        "gid": 20,
+        "inode": 174262277,
+        "is_symlink": false,
+        "mode_octal": "0o40755",
+        "mtime_ns": 1791399947191391241,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/node_modules",
+        "size_bytes": 160,
+        "symlink_target": null,
+        "uid": 501
+      },
+      "lsof": {
+        "argv": [
+          "/usr/sbin/lsof",
+          "-nP",
+          "-Fpcfn",
+          "+D",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/node_modules"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos",
+        "exit": 1,
+        "stderr": "",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout": "",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "timed_out": false,
+        "timeout_seconds": 15.0,
+        "wall_seconds": 1.164
+      },
+      "no_open_evidence": "no_matching_open_files",
+      "nofollow_census": {
+        "directories_below_root": 8777,
+        "regular_files": 55248,
+        "special_or_vanished_entries": 0,
+        "sum_regular_file_logical_bytes": 595786567,
+        "symlink_entries_not_followed": 3714,
+        "symlink_examples_max20": [
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/node_modules/.pnpm/strip-ansi@4.0.0/node_modules/ansi-regex",
+            "target": "../../ansi-regex@3.0.1/node_modules/ansi-regex"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/node_modules/.pnpm/babel-plugin-polyfill-corejs2@0.4.17_@babel+core@7.29.0/node_modules/semver",
+            "target": "../../semver@6.3.1/node_modules/semver"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/node_modules/.pnpm/babel-plugin-polyfill-corejs2@0.4.17_@babel+core@7.29.0/node_modules/@babel/core",
+            "target": "../../../@babel+core@7.29.0/node_modules/@babel/core"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/node_modules/.pnpm/babel-plugin-polyfill-corejs2@0.4.17_@babel+core@7.29.0/node_modules/@babel/compat-data",
+            "target": "../../../@babel+compat-data@7.29.3/node_modules/@babel/compat-data"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/node_modules/.pnpm/babel-plugin-polyfill-corejs2@0.4.17_@babel+core@7.29.0/node_modules/@babel/helper-define-polyfill-provider",
+            "target": "../../../@babel+helper-define-polyfill-provider@0.6.8_@babel+core@7.29.0/node_modules/@babel/helper-define-polyfill-provider"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/node_modules/.pnpm/@vitest+utils@3.2.4/node_modules/loupe",
+            "target": "../../loupe@3.2.1/node_modules/loupe"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/node_modules/.pnpm/@vitest+utils@3.2.4/node_modules/tinyrainbow",
+            "target": "../../tinyrainbow@2.0.0/node_modules/tinyrainbow"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/node_modules/.pnpm/@vitest+utils@3.2.4/node_modules/@vitest/pretty-format",
+            "target": "../../../@vitest+pretty-format@3.2.4/node_modules/@vitest/pretty-format"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/node_modules/.pnpm/@babel+preset-modules@0.1.6-no-external-plugins_@babel+core@7.29.0/node_modules/esutils",
+            "target": "../../esutils@2.0.3/node_modules/esutils"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/node_modules/.pnpm/@babel+preset-modules@0.1.6-no-external-plugins_@babel+core@7.29.0/node_modules/@babel/types",
+            "target": "../../../@babel+types@7.29.0/node_modules/@babel/types"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/node_modules/.pnpm/@babel+preset-modules@0.1.6-no-external-plugins_@babel+core@7.29.0/node_modules/@babel/helper-plugin-utils",
+            "target": "../../../@babel+helper-plugin-utils@7.28.6/node_modules/@babel/helper-plugin-utils"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/node_modules/.pnpm/@babel+preset-modules@0.1.6-no-external-plugins_@babel+core@7.29.0/node_modules/@babel/core",
+            "target": "../../../@babel+core@7.29.0/node_modules/@babel/core"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/node_modules/.pnpm/call-bind@1.0.9/node_modules/call-bind-apply-helpers",
+            "target": "../../call-bind-apply-helpers@1.0.2/node_modules/call-bind-apply-helpers"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/node_modules/.pnpm/call-bind@1.0.9/node_modules/es-define-property",
+            "target": "../../es-define-property@1.0.1/node_modules/es-define-property"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/node_modules/.pnpm/call-bind@1.0.9/node_modules/get-intrinsic",
+            "target": "../../get-intrinsic@1.3.0/node_modules/get-intrinsic"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/node_modules/.pnpm/call-bind@1.0.9/node_modules/set-function-length",
+            "target": "../../set-function-length@1.2.2/node_modules/set-function-length"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/node_modules/.pnpm/@radix-ui+react-scroll-area@1.2.10_@types+react-dom@19.2.3_@types+react@19.2.14__@types_9212dbb4854fc0df3bc51a9a380688e2/node_modules/react-dom",
+            "target": "../../react-dom@19.2.5_react@19.2.5/node_modules/react-dom"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/node_modules/.pnpm/@radix-ui+react-scroll-area@1.2.10_@types+react-dom@19.2.3_@types+react@19.2.14__@types_9212dbb4854fc0df3bc51a9a380688e2/node_modules/react",
+            "target": "../../react@19.2.5/node_modules/react"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/node_modules/.pnpm/@radix-ui+react-scroll-area@1.2.10_@types+react-dom@19.2.3_@types+react@19.2.14__@types_9212dbb4854fc0df3bc51a9a380688e2/node_modules/@radix-ui/react-context",
+            "target": "../../../@radix-ui+react-context@1.1.2_@types+react@19.2.14_react@19.2.5/node_modules/@radix-ui/react-context"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/node_modules/.pnpm/@radix-ui+react-scroll-area@1.2.10_@types+react-dom@19.2.3_@types+react@19.2.14__@types_9212dbb4854fc0df3bc51a9a380688e2/node_modules/@radix-ui/react-direction",
+            "target": "../../../@radix-ui+react-direction@1.1.1_@types+react@19.2.14_react@19.2.5/node_modules/@radix-ui/react-direction"
+          }
+        ]
+      },
+      "post_lsof_lstat": {
+        "ctime_ns": 1791399947191391241,
+        "device": 16777231,
+        "gid": 20,
+        "inode": 174262277,
+        "is_symlink": false,
+        "mode_octal": "0o40755",
+        "mtime_ns": 1791399947191391241,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/node_modules",
+        "size_bytes": 160,
+        "symlink_target": null,
+        "uid": 501
+      }
+    },
+    {
+      "classification": "ELIGIBILITY_CANDIDATE",
+      "initial_lstat": {
+        "ctime_ns": 1791399947025926488,
+        "device": 16777231,
+        "gid": 20,
+        "inode": 174330044,
+        "is_symlink": false,
+        "mode_octal": "0o40755",
+        "mtime_ns": 1791399947025926488,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/apps/runtime-dashboard/node_modules",
+        "size_bytes": 2464,
+        "symlink_target": null,
+        "uid": 501
+      },
+      "lsof": {
+        "argv": [
+          "/usr/sbin/lsof",
+          "-nP",
+          "-Fpcfn",
+          "+D",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/apps/runtime-dashboard/node_modules"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos",
+        "exit": 1,
+        "stderr": "",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout": "",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "timed_out": false,
+        "timeout_seconds": 15.0,
+        "wall_seconds": 0.086
+      },
+      "no_open_evidence": "no_matching_open_files",
+      "nofollow_census": {
+        "directories_below_root": 19,
+        "regular_files": 20,
+        "special_or_vanished_entries": 0,
+        "sum_regular_file_logical_bytes": 28422,
+        "symlink_entries_not_followed": 101,
+        "symlink_examples_max20": [
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/apps/runtime-dashboard/node_modules/zod",
+            "target": "../../../node_modules/.pnpm/zod@4.4.2/node_modules/zod"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/apps/runtime-dashboard/node_modules/idb",
+            "target": "../../../node_modules/.pnpm/idb@8.0.3/node_modules/idb"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/apps/runtime-dashboard/node_modules/globals",
+            "target": "../../../node_modules/.pnpm/globals@17.6.0/node_modules/globals"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/apps/runtime-dashboard/node_modules/workbox-precaching",
+            "target": "../../../node_modules/.pnpm/workbox-precaching@7.4.0/node_modules/workbox-precaching"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/apps/runtime-dashboard/node_modules/vitest-axe",
+            "target": "../../../node_modules/.pnpm/vitest-axe@0.1.0_vitest@4.1.5/node_modules/vitest-axe"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/apps/runtime-dashboard/node_modules/tailwind-merge",
+            "target": "../../../node_modules/.pnpm/tailwind-merge@3.5.0/node_modules/tailwind-merge"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/apps/runtime-dashboard/node_modules/storybook",
+            "target": "../../../node_modules/.pnpm/storybook@9.1.20_@testing-library+dom@10.4.1_msw@2.14.2_@types+node@24.12.2_typescript@_dc5e9d0702005ab2fb4ab60d1c92b50d/node_modules/storybook"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/apps/runtime-dashboard/node_modules/web-vitals",
+            "target": "../../../node_modules/.pnpm/web-vitals@5.2.0/node_modules/web-vitals"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/apps/runtime-dashboard/node_modules/prettier-plugin-tailwindcss",
+            "target": "../../../node_modules/.pnpm/prettier-plugin-tailwindcss@0.7.4_prettier@3.8.3/node_modules/prettier-plugin-tailwindcss"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/apps/runtime-dashboard/node_modules/intl-messageformat",
+            "target": "../../../node_modules/.pnpm/intl-messageformat@10.7.18/node_modules/intl-messageformat"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/apps/runtime-dashboard/node_modules/eslint-plugin-import",
+            "target": "../../../node_modules/.pnpm/eslint-plugin-import@2.32.0_@typescript-eslint+parser@8.59.1_eslint@9.39.4_jiti@2.6.1___d890fce0b1c7cadf194ce57b59f31224/node_modules/eslint-plugin-import"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/apps/runtime-dashboard/node_modules/eslint-plugin-unused-imports",
+            "target": "../../../node_modules/.pnpm/eslint-plugin-unused-imports@4.4.1_@typescript-eslint+eslint-plugin@8.59.1_@typescript-_a87bdfb65229d09ed65802086fccee3d/node_modules/eslint-plugin-unused-imports"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/apps/runtime-dashboard/node_modules/lefthook",
+            "target": "../../../node_modules/.pnpm/lefthook@2.1.6/node_modules/lefthook"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/apps/runtime-dashboard/node_modules/dependency-cruiser",
+            "target": "../../../node_modules/.pnpm/dependency-cruiser@16.10.4/node_modules/dependency-cruiser"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/apps/runtime-dashboard/node_modules/prettier",
+            "target": "../../../node_modules/.pnpm/prettier@3.8.3/node_modules/prettier"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/apps/runtime-dashboard/node_modules/typescript-eslint",
+            "target": "../../../node_modules/.pnpm/typescript-eslint@8.59.1_eslint@9.39.4_jiti@2.6.1__typescript@5.9.3/node_modules/typescript-eslint"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/apps/runtime-dashboard/node_modules/vitest",
+            "target": "../../../node_modules/.pnpm/vitest@4.1.5_@types+node@24.12.2_@vitest+browser-playwright@4.1.5_@vitest+coverage-v8@4_5a0df7f6c822d847e3d5462c0680e92f/node_modules/vitest"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/apps/runtime-dashboard/node_modules/axe-core",
+            "target": "../../../node_modules/.pnpm/axe-core@4.11.4/node_modules/axe-core"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/apps/runtime-dashboard/node_modules/eslint-plugin-storybook",
+            "target": "../../../node_modules/.pnpm/eslint-plugin-storybook@9.1.20_eslint@9.39.4_jiti@2.6.1__storybook@9.1.20_@testing-libr_b7590fa3cdac7660a87ae7be6b4a097e/node_modules/eslint-plugin-storybook"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/apps/runtime-dashboard/node_modules/typescript",
+            "target": "../../../node_modules/.pnpm/typescript@5.9.3/node_modules/typescript"
+          }
+        ]
+      },
+      "post_lsof_lstat": {
+        "ctime_ns": 1791399947025926488,
+        "device": 16777231,
+        "gid": 20,
+        "inode": 174330044,
+        "is_symlink": false,
+        "mode_octal": "0o40755",
+        "mtime_ns": 1791399947025926488,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/apps/runtime-dashboard/node_modules",
+        "size_bytes": 2464,
+        "symlink_target": null,
+        "uid": 501
+      }
+    },
+    {
+      "classification": "ELIGIBILITY_CANDIDATE",
+      "initial_lstat": {
+        "ctime_ns": 1791399947023556066,
+        "device": 16777231,
+        "gid": 20,
+        "inode": 174330051,
+        "is_symlink": false,
+        "mode_octal": "0o40755",
+        "mtime_ns": 1791399947023556066,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/apps/runtime-reference-shell/node_modules",
+        "size_bytes": 256,
+        "symlink_target": null,
+        "uid": 501
+      },
+      "lsof": {
+        "argv": [
+          "/usr/sbin/lsof",
+          "-nP",
+          "-Fpcfn",
+          "+D",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/apps/runtime-reference-shell/node_modules"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos",
+        "exit": 1,
+        "stderr": "",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout": "",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "timed_out": false,
+        "timeout_seconds": 15.0,
+        "wall_seconds": 0.084
+      },
+      "no_open_evidence": "no_matching_open_files",
+      "nofollow_census": {
+        "directories_below_root": 2,
+        "regular_files": 4,
+        "special_or_vanished_entries": 0,
+        "sum_regular_file_logical_bytes": 5280,
+        "symlink_entries_not_followed": 5,
+        "symlink_examples_max20": [
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/apps/runtime-reference-shell/node_modules/globals",
+            "target": "../../../node_modules/.pnpm/globals@17.6.0/node_modules/globals"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/apps/runtime-reference-shell/node_modules/prettier",
+            "target": "../../../node_modules/.pnpm/prettier@3.8.3/node_modules/prettier"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/apps/runtime-reference-shell/node_modules/typescript",
+            "target": "../../../node_modules/.pnpm/typescript@5.9.3/node_modules/typescript"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/apps/runtime-reference-shell/node_modules/eslint",
+            "target": "../../../node_modules/.pnpm/eslint@9.39.4_jiti@2.6.1/node_modules/eslint"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/apps/runtime-reference-shell/node_modules/@eslint/js",
+            "target": "../../../../node_modules/.pnpm/@eslint+js@9.39.4/node_modules/@eslint/js"
+          }
+        ]
+      },
+      "post_lsof_lstat": {
+        "ctime_ns": 1791399947023556066,
+        "device": 16777231,
+        "gid": 20,
+        "inode": 174330051,
+        "is_symlink": false,
+        "mode_octal": "0o40755",
+        "mtime_ns": 1791399947023556066,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/apps/runtime-reference-shell/node_modules",
+        "size_bytes": 256,
+        "symlink_target": null,
+        "uid": 501
+      }
+    },
+    {
+      "classification": "ELIGIBILITY_CANDIDATE",
+      "initial_lstat": {
+        "ctime_ns": 1791399947025558112,
+        "device": 16777231,
+        "gid": 20,
+        "inode": 174330052,
+        "is_symlink": false,
+        "mode_octal": "0o40755",
+        "mtime_ns": 1791399947025558112,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/atlas-ui/node_modules",
+        "size_bytes": 832,
+        "symlink_target": null,
+        "uid": 501
+      },
+      "lsof": {
+        "argv": [
+          "/usr/sbin/lsof",
+          "-nP",
+          "-Fpcfn",
+          "+D",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/atlas-ui/node_modules"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos",
+        "exit": 1,
+        "stderr": "",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout": "",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "timed_out": false,
+        "timeout_seconds": 15.0,
+        "wall_seconds": 0.085
+      },
+      "no_open_evidence": "no_matching_open_files",
+      "nofollow_census": {
+        "directories_below_root": 8,
+        "regular_files": 5,
+        "special_or_vanished_entries": 0,
+        "sum_regular_file_logical_bytes": 7214,
+        "symlink_entries_not_followed": 32,
+        "symlink_examples_max20": [
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/atlas-ui/node_modules/globals",
+            "target": "../../../node_modules/.pnpm/globals@17.6.0/node_modules/globals"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/atlas-ui/node_modules/vitest-axe",
+            "target": "../../../node_modules/.pnpm/vitest-axe@0.1.0_vitest@4.1.5/node_modules/vitest-axe"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/atlas-ui/node_modules/tailwind-merge",
+            "target": "../../../node_modules/.pnpm/tailwind-merge@3.5.0/node_modules/tailwind-merge"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/atlas-ui/node_modules/typescript-eslint",
+            "target": "../../../node_modules/.pnpm/typescript-eslint@8.59.1_eslint@9.39.4_jiti@2.6.1__typescript@5.9.3/node_modules/typescript-eslint"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/atlas-ui/node_modules/vitest",
+            "target": "../../../node_modules/.pnpm/vitest@4.1.5_@types+node@24.12.2_@vitest+browser-playwright@4.1.5_@vitest+coverage-v8@4_5a0df7f6c822d847e3d5462c0680e92f/node_modules/vitest"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/atlas-ui/node_modules/typescript",
+            "target": "../../../node_modules/.pnpm/typescript@5.9.3/node_modules/typescript"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/atlas-ui/node_modules/lucide-react",
+            "target": "../../../node_modules/.pnpm/lucide-react@1.14.0_react@19.2.5/node_modules/lucide-react"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/atlas-ui/node_modules/jsdom",
+            "target": "../../../node_modules/.pnpm/jsdom@27.4.0/node_modules/jsdom"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/atlas-ui/node_modules/react-dom",
+            "target": "../../../node_modules/.pnpm/react-dom@19.2.5_react@19.2.5/node_modules/react-dom"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/atlas-ui/node_modules/clsx",
+            "target": "../../../node_modules/.pnpm/clsx@2.1.1/node_modules/clsx"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/atlas-ui/node_modules/vite",
+            "target": "../../../node_modules/.pnpm/vite@7.3.2_@types+node@24.12.2_jiti@2.6.1_lightningcss@1.32.0_terser@5.46.2/node_modules/vite"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/atlas-ui/node_modules/class-variance-authority",
+            "target": "../../../node_modules/.pnpm/class-variance-authority@0.7.1/node_modules/class-variance-authority"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/atlas-ui/node_modules/react-router-dom",
+            "target": "../../../node_modules/.pnpm/react-router-dom@7.14.2_react-dom@19.2.5_react@19.2.5__react@19.2.5/node_modules/react-router-dom"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/atlas-ui/node_modules/eslint",
+            "target": "../../../node_modules/.pnpm/eslint@9.39.4_jiti@2.6.1/node_modules/eslint"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/atlas-ui/node_modules/react",
+            "target": "../../../node_modules/.pnpm/react@19.2.5/node_modules/react"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/atlas-ui/node_modules/cmdk",
+            "target": "../../../node_modules/.pnpm/cmdk@1.1.1_@types+react-dom@19.2.3_@types+react@19.2.14__@types+react@19.2.14_react-dom_3d47b27abe92d75583fac7218a36b921/node_modules/cmdk"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/atlas-ui/node_modules/@testing-library/react",
+            "target": "../../../../node_modules/.pnpm/@testing-library+react@16.3.2_@testing-library+dom@10.4.1_@types+react-dom@19.2.3_@type_42bd4be5b674570827b99e11cad0b44b/node_modules/@testing-library/react"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/atlas-ui/node_modules/@testing-library/jest-dom",
+            "target": "../../../../node_modules/.pnpm/@testing-library+jest-dom@6.9.1/node_modules/@testing-library/jest-dom"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/atlas-ui/node_modules/@radix-ui/react-tooltip",
+            "target": "../../../../node_modules/.pnpm/@radix-ui+react-tooltip@1.2.8_@types+react-dom@19.2.3_@types+react@19.2.14__@types+reac_4c45f64f49c2624f242574345c841a4e/node_modules/@radix-ui/react-tooltip"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/atlas-ui/node_modules/@radix-ui/react-slider",
+            "target": "../../../../node_modules/.pnpm/@radix-ui+react-slider@1.3.6_@types+react-dom@19.2.3_@types+react@19.2.14__@types+react_bc6705c94abdae56af6b7d4e76cb8620/node_modules/@radix-ui/react-slider"
+          }
+        ]
+      },
+      "post_lsof_lstat": {
+        "ctime_ns": 1791399947025558112,
+        "device": 16777231,
+        "gid": 20,
+        "inode": 174330052,
+        "is_symlink": false,
+        "mode_octal": "0o40755",
+        "mtime_ns": 1791399947025558112,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/atlas-ui/node_modules",
+        "size_bytes": 832,
+        "symlink_target": null,
+        "uid": 501
+      }
+    },
+    {
+      "classification": "ELIGIBILITY_CANDIDATE",
+      "initial_lstat": {
+        "ctime_ns": 1791399947026591281,
+        "device": 16777231,
+        "gid": 20,
+        "inode": 174330055,
+        "is_symlink": false,
+        "mode_octal": "0o40755",
+        "mtime_ns": 1791399947026591281,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/cli/node_modules",
+        "size_bytes": 320,
+        "symlink_target": null,
+        "uid": 501
+      },
+      "lsof": {
+        "argv": [
+          "/usr/sbin/lsof",
+          "-nP",
+          "-Fpcfn",
+          "+D",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/cli/node_modules"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos",
+        "exit": 1,
+        "stderr": "",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout": "",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "timed_out": false,
+        "timeout_seconds": 15.0,
+        "wall_seconds": 0.085
+      },
+      "no_open_evidence": "no_matching_open_files",
+      "nofollow_census": {
+        "directories_below_root": 3,
+        "regular_files": 4,
+        "special_or_vanished_entries": 0,
+        "sum_regular_file_logical_bytes": 5684,
+        "symlink_entries_not_followed": 7,
+        "symlink_examples_max20": [
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/cli/node_modules/globals",
+            "target": "../../../node_modules/.pnpm/globals@17.6.0/node_modules/globals"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/cli/node_modules/typescript-eslint",
+            "target": "../../../node_modules/.pnpm/typescript-eslint@8.59.1_eslint@9.39.4_jiti@2.6.1__typescript@5.9.3/node_modules/typescript-eslint"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/cli/node_modules/vitest",
+            "target": "../../../node_modules/.pnpm/vitest@4.1.5_@types+node@24.12.2_@vitest+browser-playwright@4.1.5_@vitest+coverage-v8@4_5a0df7f6c822d847e3d5462c0680e92f/node_modules/vitest"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/cli/node_modules/typescript",
+            "target": "../../../node_modules/.pnpm/typescript@5.9.3/node_modules/typescript"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/cli/node_modules/eslint",
+            "target": "../../../node_modules/.pnpm/eslint@9.39.4_jiti@2.6.1/node_modules/eslint"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/cli/node_modules/@eslint/js",
+            "target": "../../../../node_modules/.pnpm/@eslint+js@9.39.4/node_modules/@eslint/js"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/cli/node_modules/@types/node",
+            "target": "../../../../node_modules/.pnpm/@types+node@24.12.2/node_modules/@types/node"
+          }
+        ]
+      },
+      "post_lsof_lstat": {
+        "ctime_ns": 1791399947026591281,
+        "device": 16777231,
+        "gid": 20,
+        "inode": 174330055,
+        "is_symlink": false,
+        "mode_octal": "0o40755",
+        "mtime_ns": 1791399947026591281,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/cli/node_modules",
+        "size_bytes": 320,
+        "symlink_target": null,
+        "uid": 501
+      }
+    },
+    {
+      "classification": "ELIGIBILITY_CANDIDATE",
+      "initial_lstat": {
+        "ctime_ns": 1791399947026525989,
+        "device": 16777231,
+        "gid": 20,
+        "inode": 174330056,
+        "is_symlink": false,
+        "mode_octal": "0o40755",
+        "mtime_ns": 1791399947026525989,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/runtime-api-client/node_modules",
+        "size_bytes": 320,
+        "symlink_target": null,
+        "uid": 501
+      },
+      "lsof": {
+        "argv": [
+          "/usr/sbin/lsof",
+          "-nP",
+          "-Fpcfn",
+          "+D",
+          "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/runtime-api-client/node_modules"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos",
+        "exit": 1,
+        "stderr": "",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout": "",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "timed_out": false,
+        "timeout_seconds": 15.0,
+        "wall_seconds": 0.086
+      },
+      "no_open_evidence": "no_matching_open_files",
+      "nofollow_census": {
+        "directories_below_root": 2,
+        "regular_files": 5,
+        "special_or_vanished_entries": 0,
+        "sum_regular_file_logical_bytes": 6732,
+        "symlink_entries_not_followed": 7,
+        "symlink_examples_max20": [
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/runtime-api-client/node_modules/globals",
+            "target": "../../../node_modules/.pnpm/globals@17.6.0/node_modules/globals"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/runtime-api-client/node_modules/prettier",
+            "target": "../../../node_modules/.pnpm/prettier@3.8.3/node_modules/prettier"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/runtime-api-client/node_modules/typescript-eslint",
+            "target": "../../../node_modules/.pnpm/typescript-eslint@8.59.1_eslint@9.39.4_jiti@2.6.1__typescript@5.9.3/node_modules/typescript-eslint"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/runtime-api-client/node_modules/typescript",
+            "target": "../../../node_modules/.pnpm/typescript@5.9.3/node_modules/typescript"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/runtime-api-client/node_modules/eslint",
+            "target": "../../../node_modules/.pnpm/eslint@9.39.4_jiti@2.6.1/node_modules/eslint"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/runtime-api-client/node_modules/openapi-typescript",
+            "target": "../../../node_modules/.pnpm/openapi-typescript@7.13.0_typescript@5.9.3/node_modules/openapi-typescript"
+          },
+          {
+            "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/runtime-api-client/node_modules/@eslint/js",
+            "target": "../../../../node_modules/.pnpm/@eslint+js@9.39.4/node_modules/@eslint/js"
+          }
+        ]
+      },
+      "post_lsof_lstat": {
+        "ctime_ns": 1791399947026525989,
+        "device": 16777231,
+        "gid": 20,
+        "inode": 174330056,
+        "is_symlink": false,
+        "mode_octal": "0o40755",
+        "mtime_ns": 1791399947026525989,
+        "path": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/runtime-api-client/node_modules",
+        "size_bytes": 320,
+        "symlink_target": null,
+        "uid": 501
+      }
+    }
+  ],
+  "captured_epoch": 1791401232.7736351,
+  "decision": {
+    "eligible": true,
+    "next_step": "Run one final scoped no-open and inode preflight, then use native FileManager.default.trashItem for these exact six paths only. Preserve all sources and reports.",
+    "scope": "Only the six ignored, direct workspace node_modules roots installed by the frozen review setup; candidate trees were counted without following symlinks; no unique product, documentation, raw audit, source, primary env, or package-store data is included by provenance."
+  },
+  "ignore_rules": {
+    "argv": [
+      "git",
+      "check-ignore",
+      "-v",
+      "policy-engine/node_modules",
+      "policy-engine/apps/runtime-dashboard/node_modules",
+      "policy-engine/apps/runtime-reference-shell/node_modules",
+      "policy-engine/packages/atlas-ui/node_modules",
+      "policy-engine/packages/cli/node_modules",
+      "policy-engine/packages/runtime-api-client/node_modules"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos",
+    "exit": 0,
+    "stderr": "",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout": "policy-engine/.gitignore:81:node_modules/\tpolicy-engine/node_modules\npolicy-engine/apps/runtime-dashboard/.gitignore:1:node_modules/\tpolicy-engine/apps/runtime-dashboard/node_modules\npolicy-engine/.gitignore:95:apps/runtime-reference-shell/node_modules/\tpolicy-engine/apps/runtime-reference-shell/node_modules\npolicy-engine/.gitignore:96:packages/*/node_modules/\tpolicy-engine/packages/atlas-ui/node_modules\npolicy-engine/.gitignore:96:packages/*/node_modules/\tpolicy-engine/packages/cli/node_modules\npolicy-engine/.gitignore:96:packages/*/node_modules/\tpolicy-engine/packages/runtime-api-client/node_modules\n",
+    "stdout_sha256": "90702f3b96415d36c6320bd2171578b8bc6e4878faeb41655707d75b4d55ec75"
+  },
+  "inventory_artifact": {
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/inventory-v2.json",
+    "sha256": "37e85d8f47bdb3bd32e1126e5f0c8d2442178e0dc2d11b1a93fef290082e49ad"
+  },
+  "limitations": [
+    "Installer raw stdout/stderr was not saved by reviewer; preserve this exact reviewer follow-up and the command summary, do not present it as raw output.",
+    "lsof is point-in-time and does not prove future non-use.",
+    "Trash is reversible via macOS Trash; this packet does not empty Trash."
+  ],
+  "provenance": {
+    "argv": [
+      "corepack",
+      "pnpm",
+      "install",
+      "--frozen-lockfile"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine",
+    "exit": 0,
+    "raw_stderr_file_available": false,
+    "raw_stdout_file_available": false,
+    "reviewer_confirmed_process_finished": true,
+    "reviewer_report_text": "Frozen install is finished; I have no pnpm command/process still running. Exact argv: corepack pnpm install --frozen-lockfile, cwd /Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine. It exited 0. I did not save stdout/stderr to raw files; the complete tool output is in the conversation record, with no separate stderr. Output reported 6 workspace projects, lockfile up to date, 1,215 packages linked (1,213 reused, zero downloaded), prepare ran tools/devx/install_repo_hooks.mjs, and ignored build scripts for lefthook/esbuild/etc.",
+    "source": "follow-up confirmation from the completed independent reviewer, preserved here because no standalone raw install stdout/stderr files were retained",
+    "stderr": "none reported; reviewer says no separate stderr file",
+    "stdout_summary": [
+      "6 workspace projects",
+      "lockfile up to date",
+      "1,215 packages linked",
+      "1,213 reused",
+      "0 downloaded",
+      "prepare ran tools/devx/install_repo_hooks.mjs",
+      "ignored build scripts for lefthook/esbuild/etc."
+    ]
+  },
+  "review_checkout": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos",
+  "schema": "c5-legal-review-node-modules-eligibility-v1",
+  "source_identity": {
+    "branch": "refs/heads/codex/e02-C-legal-review-20261007",
+    "head": "77c5cd319c92e52932b1bf15c342b24a41e7b051",
+    "parent": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+    "status": "## codex/e02-C-legal-review-20261007\n",
+    "tree": "751a1a854e2c4332ae68c545c739b4d8046c7149"
+  },
+  "workspace_profile": {
+    "pnpm_lock_bytes": 482583,
+    "pnpm_lock_sha256": "436723e8090a442f7ecb2d544ddac5ac2ee2c8a9680f64ef28d3444da2f4161e",
+    "pnpm_workspace_yaml_sha256": "08d75840c97ab0e72d1d9b5b84a17e47a2e06cb159a5fbec5ee0a6a56682dad7",
+    "pnpm_workspace_yaml_text": "packages:\n  - \"apps/*\"\n  - \"packages/*\"\n",
+    "root_package_manager": "pnpm@10.33.2",
+    "tracked_manifest_count": 6,
+    "tracked_manifests": [
+      {
+        "bytes": 11599,
+        "git_blob": "0eca7ad3345d1492d108b8847d79ea55c7719615",
+        "package_manager": null,
+        "package_name": "@polisyos/runtime-dashboard",
+        "path": "policy-engine/apps/runtime-dashboard/package.json",
+        "sha256": "e8d8ad4efe1e7e2b17cdbda770ed31157b94cdea51de2ab721ef1fabadb72f6a"
+      },
+      {
+        "bytes": 828,
+        "git_blob": "fd9a84037fde21b4d615bb685434531d288bc424",
+        "package_manager": null,
+        "package_name": "@polisyos/runtime-reference-shell",
+        "path": "policy-engine/apps/runtime-reference-shell/package.json",
+        "sha256": "bd7a1d8bcebcab06a029084b2f9e4bf20235ad4c98ced0f08a87225ab2271ecc"
+      },
+      {
+        "bytes": 802,
+        "git_blob": "05c08c9dad38ef14ff9c32b28f555a7647b6cb85",
+        "package_manager": "pnpm@10.33.2",
+        "package_name": "@polisyos/policy-engine-workspace",
+        "path": "policy-engine/package.json",
+        "sha256": "9b0fda729ff501b08fa5f4b1a2d783e3000425b187776b0fc6831a9e04ee070f"
+      },
+      {
+        "bytes": 2091,
+        "git_blob": "dbe706af077fc79395eb8b995977a2a784c825ff",
+        "package_manager": null,
+        "package_name": "@polisyos/atlas-ui",
+        "path": "policy-engine/packages/atlas-ui/package.json",
+        "sha256": "42f9107e67288cd945849ae324226827b1b323ea93f225889d58fc1cdb2ab386"
+      },
+      {
+        "bytes": 593,
+        "git_blob": "1da90d088c42d656f3b1f95906bbcd1af90eaf3a",
+        "package_manager": null,
+        "package_name": "@polisyos/cli",
+        "path": "policy-engine/packages/cli/package.json",
+        "sha256": "71693e64b8c2b2f09d10cc440e1df8b52bb56b197d682c0b8bfa2ce82fd28bab"
+      },
+      {
+        "bytes": 1549,
+        "git_blob": "dfa28841133283414ab747f18731dc844cb9652d",
+        "package_manager": null,
+        "package_name": "@polisyos/runtime-api-client",
+        "path": "policy-engine/packages/runtime-api-client/package.json",
+        "sha256": "b64b9a9b3cbe11d874948964166e047c530a5f680c1fcda5d9c59c4cb40e17ac"
+      }
+    ]
+  }
+}

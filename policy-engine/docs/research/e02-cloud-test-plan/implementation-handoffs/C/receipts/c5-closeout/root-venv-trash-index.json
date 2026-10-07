@@ -1,0 +1,141 @@
+{
+  "artifacts": [
+    {
+      "bytes": 2928,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/root-partial-venv/build-index-v1.py",
+      "sha256": "2fd5f24e4985d2ab4ed82a5cc1401666c9401e883cda4ad1939b140bdba2c228"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/root-partial-venv/build-index-v1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/root-partial-venv/build-index-v1.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 3597,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/root-partial-venv/fresh-inventory-v1.py",
+      "sha256": "01e8f7938458a1e4ef37092bd64e91e7bda5e7b43a32be92b95a94cfb11b6bf2"
+    },
+    {
+      "bytes": 16966,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/root-partial-venv/fresh-inventory-v2.json",
+      "sha256": "ce57cddcd5895e7372b10f6934151505012078034c95c0673e3966360173cf85"
+    },
+    {
+      "bytes": 5962,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/root-partial-venv/fresh-inventory-v2.py",
+      "sha256": "8cae368e123c60eead65a9b6bb1555c66deb54b899f69c7129dbd3b6b1b32e47"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/root-partial-venv/fresh-inventory-v2.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 16966,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/root-partial-venv/fresh-inventory-v2.stdout",
+      "sha256": "ce57cddcd5895e7372b10f6934151505012078034c95c0673e3966360173cf85"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/root-partial-venv/native-trash-dryrun-v1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 271,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/root-partial-venv/native-trash-dryrun-v1.stdout",
+      "sha256": "ad32190f9ab7b888733d4bee1470ec6975d383d2d0a0a16cf28c65b70bd66ef5"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/root-partial-venv/native-trash-v1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 425,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/root-partial-venv/native-trash-v1.stdout",
+      "sha256": "ec6b77af472437a28f8a99bfa451af803330ea8fd8543fab25f5c76170c64012"
+    },
+    {
+      "bytes": 4514,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/root-partial-venv/native-trash-v1.swift",
+      "sha256": "c19e73d88ee0d5c634841f6117bff87fbb2faefbc7709982a59ab2dc801b3c06"
+    },
+    {
+      "bytes": 1056,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/root-partial-venv/posttrash-verify-v1.json",
+      "sha256": "40983b074d6c1dc5622456a19420203295782e4a18cfa3110b3234023f32b48b"
+    },
+    {
+      "bytes": 2465,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/root-partial-venv/posttrash-verify-v1.py",
+      "sha256": "1696a2c201e1087c7221d1e2c799137ec327685b621373ef3ad5a9cb98e90cec"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/root-partial-venv/posttrash-verify-v1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1056,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/root-partial-venv/posttrash-verify-v1.stdout",
+      "sha256": "40983b074d6c1dc5622456a19420203295782e4a18cfa3110b3234023f32b48b"
+    }
+  ],
+  "candidate": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv",
+  "captured_epoch": 1791402249.754358,
+  "decision": {
+    "basis": "Exact same 21-entry/14-regular-stub venv as the committed C5 preflight; only _virtualenv.pth and _virtualenv.py are under site-packages; no installed project or dist-info package. Fresh scoped lsof found no open handles. Parent confirms no further admission/UV commands are planned for C5. Native Trash will move this directory itself, leaving all absolute interpreter targets intact.",
+    "eligible": true,
+    "parent_confirms_no_further_c5_uv_or_admission_commands": true,
+    "scoped_lsof_exit": 1,
+    "scoped_lsof_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "scoped_lsof_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "native_operation": {
+    "argv": [
+      "/usr/bin/swift",
+      ".tmp/e02-C5/raw/cleanup/root-partial-venv/native-trash-v1.swift",
+      "--trash",
+      ".tmp/e02-C5/raw/cleanup/root-partial-venv/fresh-inventory-v2.json"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit": 0,
+    "method": "Foundation FileManager.default.trashItem",
+    "source": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv",
+    "source_device_inode": [
+      16777231,
+      174144835
+    ],
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_sha256": "ec6b77af472437a28f8a99bfa451af803330ea8fd8543fab25f5c76170c64012",
+    "trash_destination": "/Users/deniskopylov/.Trash/.venv",
+    "trash_device_inode": [
+      16777231,
+      174144835
+    ]
+  },
+  "preserved_external_interpreter_target": "/Users/deniskopylov/.local/share/uv/python/cpython-3.14-macos-aarch64-none/bin/python3.14",
+  "prior_receipt": {
+    "commit": "23ec3ab0b9d91bb7814fbdaa4b895a0bb06416a9",
+    "fresh_child_entries": 21,
+    "native_trash_action": "none",
+    "regular_stubs": 14,
+    "same_complete_inventory_identity": true,
+    "site_packages_entries": 2
+  },
+  "readback": {
+    "all_verified": true,
+    "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/root-partial-venv/posttrash-verify-v1.json",
+    "same_object_identity": true,
+    "sha256": "40983b074d6c1dc5622456a19420203295782e4a18cfa3110b3234023f32b48b",
+    "source_absent": true
+  },
+  "schema": "c5-root-partial-venv-trash-index-v1",
+  "source_branch": "refs/heads/codex/e02-C-continuation-20261006",
+  "source_head": "6dcca1d49484459d9b5d0c4bf4eba17aa2e29bb4"
+}

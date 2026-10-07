@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "git",
+    "push",
+    "origin",
+    "4576f67b1ff1f8d09b6a4223779b53fff9b369ae:refs/heads/codex/e02-C-dfk-lifecycle-20261007"
+  ],
+  "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos",
+  "stdout": "dfk-push.stdout",
+  "stderr": "dfk-push.stderr",
+  "git_exit_code": "not retained; orchestration assertion exited1",
+  "classification": "Tooling UNRUN: absent Lefthook binary; no remote publication or checks occurred in that attempt.",
+  "command_scoped_bypass_authorization": "C publication explicitly authorized by user; no new TS proof/dependency provisioning needed for this Git transfer; prepush checks are not claimed PASS."
+}

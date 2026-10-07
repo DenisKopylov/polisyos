@@ -1,0 +1,30 @@
+{
+  "all_verified": true,
+  "candidate": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine/.venv",
+  "captured_epoch": 1791402231.9876428,
+  "destination_identity": {
+    "device": 16777231,
+    "inode": 174144835,
+    "is_directory": true,
+    "is_symlink": false,
+    "mode": "0o40755"
+  },
+  "expected_identity": {
+    "device": 16777231,
+    "inode": 174144835,
+    "mode": "0o40755"
+  },
+  "external_interpreter_target_touched": false,
+  "git_after": {
+    "branch": "refs/heads/codex/e02-C-continuation-20261006",
+    "head": "6dcca1d49484459d9b5d0c4bf4eba17aa2e29bb4",
+    "status": "## codex/e02-C-continuation-20261006\n",
+    "status_exit": 0
+  },
+  "native_stdout_sha256": "ec6b77af472437a28f8a99bfa451af803330ea8fd8543fab25f5c76170c64012",
+  "operation": "Foundation FileManager.default.trashItem; no deletion, unlink, or Trash emptying",
+  "same_object_identity": true,
+  "schema": "c5-root-partial-venv-posttrash-v1",
+  "source_absent": true,
+  "trash_destination": "/Users/deniskopylov/.Trash/.venv"
+}

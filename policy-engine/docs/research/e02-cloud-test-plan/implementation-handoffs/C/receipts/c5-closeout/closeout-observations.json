@@ -1,0 +1,109 @@
+{
+  "schema": "policyos.e02.c5.closeout-observations.v1",
+  "G_frozen_source": {
+    "commit": "9806442ddb47d624a2940bac75d9d6248e934c48",
+    "tree": "4a1caafc331990e0ebf0130a9051c08ae1ffcbd4"
+  },
+  "G_late_fetched": {
+    "commit": "2abc17f46a033a7879663486ff9946a95786601f",
+    "tree": "375301dd0c86a6168f4f747d8c56d9e0acb9567c"
+  },
+  "late_G_diff": {
+    "all_changed_paths": 76,
+    "all_documentation": true,
+    "source_test_runtime_changes": 0,
+    "C_status_decisions_unchanged": true,
+    "no_new_formal_closures_or_source_acceptance": "G thirteenth-wave README explicitly says none; code and source hash comparison do not infer closure."
+  },
+  "source_invocation_diagnostics": [
+    {
+      "lane": "dfk",
+      "source_candidate": "a13f6c1acfe15a6750d71c6e86521f119d794def",
+      "base": "28b04149e6477216f37c2ab2e0abfc54b8857ac6",
+      "exit_code": 0,
+      "wall_seconds": 377.4645255000214,
+      "role": "Static partial direct-call diagnostic only; runtime_invocation_established=false.",
+      "runtime_result": "not_established",
+      "new_unresolved_by_construction": [],
+      "large_ignored_receipt": {
+        "path": ".tmp/e02-C5/raw/invocation/dfk-diagnostic.json",
+        "bytes": 170904646,
+        "sha256": "a29217c0525a93ca1c247a481d197f60de949b057d7bb0f9acb58d37443d1480"
+      },
+      "remaining_owner": "G source admission; no new direct-path regression in staticmodel; current archive/installed layer UNRUN."
+    },
+    {
+      "lane": "legal",
+      "source_candidate": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+      "base": "f428b114f4afb5c9cdde93a8e9bf036abe5ac329",
+      "exit_code": 3,
+      "wall_seconds": 434.2835700419964,
+      "role": "Static partial direct-call diagnostic only; runtime_invocation_established=false.",
+      "runtime_result": "not_established",
+      "new_unresolved_by_construction": [
+        "LegalKnowledgeGraph.hybrid_search",
+        "LegalKnowledgeGraph.query_profile_error",
+        "LegalKnowledgeGraph.search_entities",
+        "LegalKnowledgeGraph.search_facts",
+        "LegalKnowledgeGraph.search_provisions",
+        "LegalKnowledgeStore.search_entities_by_vector",
+        "LegalKnowledgeStore.search_facts_by_vector",
+        "LegalKnowledgeStore.search_provisions_by_vector"
+      ],
+      "large_ignored_receipt": {
+        "path": ".tmp/e02-C5/raw/invocation/legal-diagnostic.json",
+        "bytes": 170715063,
+        "sha256": "d5e0fe6ce8d0dcb20248d070ca34be1cc8586ab8dad34b28db37664017668d8c"
+      },
+      "remaining_owner": "C-W04+serving provider owner then G composed runtime readback; no static caller claim replaces native fixture proof or production bridge."
+    }
+  ],
+  "procedural_deviations": {
+    "Legal_review_primary_reports": {
+      "paths": [
+        "/Users/deniskopylov/polisyos/policy-engine/docs/system-design-decisions/reviews/2026-10-07-legal-query-profile-binding/review.md",
+        "/Users/deniskopylov/polisyos/policy-engine/docs/system-design-decisions/reviews/2026-10-07-legal-query-profile-binding/review.json"
+      ],
+      "action": "Preserved in place; corrected candidate copies are committed at77c5. No primary tracked source change.",
+      "hashes": [
+        "56eb5620a251cb5d2cbdcf2cf846b0e431537f96f4c4abdbbd64e3cbc25b1114",
+        "013dd59ac102e27307fd06295bcca416b7bf54a20c56ca1db2193693b028032c"
+      ],
+      "note": "Primary JSON is historical and predates committed command correction; do not treat it as deciding evidence."
+    },
+    "Legal_review_dependency_install": {
+      "status": "completed frozen corepack pnpm install,1215linked/1213reused/0downloads, six workspace projects",
+      "raw_install_logs": "not retained by reviewer; conversation summary only, never a deciding TS or packaging receipt",
+      "cleanup": "Six exact ignored node_modules roots moved to native Trash after review evidence; all source/docs/audits preserved."
+    },
+    "Git_push_hooks": {
+      "status": "UNRUN for missingLefthook entrypoint; firstfailedattempt retained",
+      "bypass": "Command-local core.hooksPath=/dev/null for explicitly authorized C-topic publication; no globalconfig changes, no hook PASS claim."
+    }
+  },
+  "cleanup": {
+    "native_operation_only": true,
+    "trash_emptied": false,
+    "node_modules_roots_moved": 6,
+    "root_partial_venv_moved": 1,
+    "primary_python_environment_preserved": true,
+    "shared_UV_interpreter_and_pnpm_store_preserved": true,
+    "own_ignored_audit_reports_preserved": true,
+    "no_physical_space_recovery_claim": true
+  },
+  "pattern_pass": {
+    "register": "policy-engine/docs/reference/policy-design-case-failure-patterns.md read again atcloseout",
+    "ids": [
+      "P13",
+      "P29",
+      "P35",
+      "P37",
+      "P38",
+      "P39",
+      "P40",
+      "P41"
+    ],
+    "classification": "Source/data/owner projection provenance verified; protected product gates or finding closure are not inferred. Global gate red attribution remains not_established without exact-base/full-input disjointness."
+  },
+  "future_same_check_timeout_seconds_after_measurement": 900
+}

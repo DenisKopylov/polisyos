@@ -1,0 +1,438 @@
+{
+  "artifacts": [
+    {
+      "bytes": 2993,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/build-index-v1.py",
+      "sha256": "31ac3acb67176290026d44eb0a32ca6a8b386d0751c79bf3f5fe7cb631a43491"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/build-index-v1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/build-index-v1.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 44019,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/eligibility-v1.json",
+      "sha256": "61b101c5f8f1d950efdb3cbd621c7f114e4e8f23e33ea3af872f419a43126938"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/eligibility-v1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 44019,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/eligibility-v1.stdout",
+      "sha256": "61b101c5f8f1d950efdb3cbd621c7f114e4e8f23e33ea3af872f419a43126938"
+    },
+    {
+      "bytes": 6833,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/inventory-v1.py",
+      "sha256": "b24e9eb2e7e14e476e4cfd36f2df790dc1813af23b127ed604a571aad2e7cfdd"
+    },
+    {
+      "bytes": 1072,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/inventory-v1.stderr",
+      "sha256": "cbf737e3ec39817d5f87ecae977d8fd4b70e678cc00d7ba3c1a115f8375dfec8"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/inventory-v1.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 42618,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/inventory-v2.json",
+      "sha256": "37e85d8f47bdb3bd32e1126e5f0c8d2442178e0dc2d11b1a93fef290082e49ad"
+    },
+    {
+      "bytes": 6852,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/inventory-v2.py",
+      "sha256": "8e75b70ebb12aae31c2e7260ba04c28ddfde4e62b3b5cbfabadeb6b4d0c93a05"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/inventory-v2.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 42618,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/inventory-v2.stdout",
+      "sha256": "37e85d8f47bdb3bd32e1126e5f0c8d2442178e0dc2d11b1a93fef290082e49ad"
+    },
+    {
+      "bytes": 394,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/native-trash-dryrun-v2.stderr",
+      "sha256": "bdbc798b84b08c363f0e3a6fd74758a45943b6de63d1b6379622fe79253717ed"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/native-trash-dryrun-v2.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 4518,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/native-trash-dryrun-v3.stderr",
+      "sha256": "f98fd265f4a129ef310f6ed70eccfae424618b2c4f3677cf46620e2e12230b39"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/native-trash-dryrun-v3.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1205,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/native-trash-dryrun-v4.stderr",
+      "sha256": "9ce1d04b5945a73a8a8b7d2c215c23a998e8fb291ca5a2b9960627006b9e06b0"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/native-trash-dryrun-v4.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 229,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/native-trash-dryrun-v5.stderr",
+      "sha256": "8d41936538c4822d392f0e93cbe0252a4b7afdb774ea88ee50661e7de66bc8a2"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/native-trash-dryrun-v5.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/native-trash-dryrun-v6.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1471,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/native-trash-dryrun-v6.stdout",
+      "sha256": "a837fd2fab128ecbad020882823a3303c48810939d963825a9e06c74d670cf23"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/native-trash-dryrun-v7.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1471,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/native-trash-dryrun-v7.stdout",
+      "sha256": "a837fd2fab128ecbad020882823a3303c48810939d963825a9e06c74d670cf23"
+    },
+    {
+      "bytes": 879,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/native-trash-dryrun.stderr",
+      "sha256": "6958b241c0c5c8ea71522ef5d3aa2193a01334270507b4cf9983caa25127eff1"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/native-trash-dryrun.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 4855,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/native-trash-v1.swift",
+      "sha256": "db3084ec0c6e90031001eece3711b30b163ffa0681566bcba86a9c1e6f173c3b"
+    },
+    {
+      "bytes": 4906,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/native-trash-v2.swift",
+      "sha256": "191b567361faa05b9d452d7c58bdddec3c1afebcc6b0453db0a0d5a8312254fe"
+    },
+    {
+      "bytes": 4913,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/native-trash-v3.swift",
+      "sha256": "8027e2a5293e9d9c6689d34e8c6c926ba052c55951eb19818b9f5d0db63a4ab3"
+    },
+    {
+      "bytes": 4935,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/native-trash-v4.swift",
+      "sha256": "37596b59c3b2d8859c0d02469bae59ef7e2c89725e83547bae95208d75e51dac"
+    },
+    {
+      "bytes": 4956,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/native-trash-v5.swift",
+      "sha256": "9e54160670b595160fc93d4e48a94c98cebefec3870734da8ac8fb2d2f4458db"
+    },
+    {
+      "bytes": 5066,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/native-trash-v6.swift",
+      "sha256": "fe4576d67493e5af3d92f293ac324526ad172ae9ce1cddf235b09ce7479a3ee7"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/native-trash-v7.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2544,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/native-trash-v7.stdout",
+      "sha256": "0e149f18f49c7a66373b034db9117b13c4d889d8007a35d8b15c05c9f114dbed"
+    },
+    {
+      "bytes": 5066,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/native-trash-v7.swift",
+      "sha256": "9c35023a15c6c4bdc4d776584a82a0fb7c3d2cf5937378b44724c281390762f2"
+    },
+    {
+      "bytes": 7920,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/posttrash-verify-v1.json",
+      "sha256": "027b9e872a62954a614338305d27c192244dcdc9396b76c635f57031429b37b6"
+    },
+    {
+      "bytes": 2931,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/posttrash-verify-v1.py",
+      "sha256": "198084b8a283cc23e256ceb1c807ec01179353b7de060d5346669f5fd50a7875"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/posttrash-verify-v1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 7920,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/posttrash-verify-v1.stdout",
+      "sha256": "027b9e872a62954a614338305d27c192244dcdc9396b76c635f57031429b37b6"
+    },
+    {
+      "bytes": 5587,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/prepare-eligibility-v1.py",
+      "sha256": "61316096c505f9dc04a0ad43bf74c37e3937bf2cb424d88d34d1df284a3aa087"
+    },
+    {
+      "bytes": 9597,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/pretrash-preflight-v1.json",
+      "sha256": "549f90083d38ef6fb23a577a889c5ba524d786e9d23aa23787f726cc74f3f9ee"
+    },
+    {
+      "bytes": 3338,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/pretrash-preflight-v1.py",
+      "sha256": "a32005b7282c0a1523862d7c75872cd0296d5e671eca8781a0cba0a867d4e371"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/pretrash-preflight-v1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 9597,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/pretrash-preflight-v1.stdout",
+      "sha256": "549f90083d38ef6fb23a577a889c5ba524d786e9d23aa23787f726cc74f3f9ee"
+    },
+    {
+      "bytes": 9595,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/pretrash-preflight-v2.json",
+      "sha256": "f7c1a53c4ad580aea72ee7e6f22ea58e1fd4677c6108b5a5715f127ff7a1e3c6"
+    },
+    {
+      "bytes": 3338,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/pretrash-preflight-v2.py",
+      "sha256": "24ae5bc1e9da9d73d529706acd8df6c8e31f8fdca71ef9fed68cb8d28644da7b"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/pretrash-preflight-v2.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 9595,
+      "path": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/pretrash-preflight-v2.stdout",
+      "sha256": "f7c1a53c4ad580aea72ee7e6f22ea58e1fd4677c6108b5a5715f127ff7a1e3c6"
+    }
+  ],
+  "attempt_history": [
+    "inventory-v1.py attempted its first no-follow capture but had an incorrectly resolved output destination; full traceback is saved in inventory-v1.stderr; no candidate path changed. inventory-v2 is the complete successful capture.",
+    "native-trash-v1 through v5 were dry-run-only utility compilation/validation attempts and did not move anything; each exact script/stdout/stderr is preserved. native-trash-v6 dry-run passed; native-trash-v7 dry-run passed and its exact v7 script performed the Trash operation."
+  ],
+  "candidates": [
+    {
+      "destination_device": 16777231,
+      "destination_exists": true,
+      "destination_inode": 174262277,
+      "destination_is_symlink": false,
+      "native_result": {
+        "before_device": 16777231,
+        "before_inode": 174262277,
+        "destination_device": 16777231,
+        "destination_inode": 174262277,
+        "identity_preserved": true,
+        "mode": "trash",
+        "result": "moved_to_native_trash",
+        "source": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/node_modules",
+        "source_absent": true,
+        "trash_destination": "/Users/deniskopylov/.Trash/node_modules"
+      },
+      "same_object_identity": true,
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/node_modules",
+      "source_absent": true,
+      "source_matches_expected": true,
+      "trash_destination": "/Users/deniskopylov/.Trash/node_modules"
+    },
+    {
+      "destination_device": 16777231,
+      "destination_exists": true,
+      "destination_inode": 174330044,
+      "destination_is_symlink": false,
+      "native_result": {
+        "before_device": 16777231,
+        "before_inode": 174330044,
+        "destination_device": 16777231,
+        "destination_inode": 174330044,
+        "identity_preserved": true,
+        "mode": "trash",
+        "result": "moved_to_native_trash",
+        "source": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/apps/runtime-dashboard/node_modules",
+        "source_absent": true,
+        "trash_destination": "/Users/deniskopylov/.Trash/node_modules 22-28-54-362"
+      },
+      "same_object_identity": true,
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/apps/runtime-dashboard/node_modules",
+      "source_absent": true,
+      "source_matches_expected": true,
+      "trash_destination": "/Users/deniskopylov/.Trash/node_modules 22-28-54-362"
+    },
+    {
+      "destination_device": 16777231,
+      "destination_exists": true,
+      "destination_inode": 174330051,
+      "destination_is_symlink": false,
+      "native_result": {
+        "before_device": 16777231,
+        "before_inode": 174330051,
+        "destination_device": 16777231,
+        "destination_inode": 174330051,
+        "identity_preserved": true,
+        "mode": "trash",
+        "result": "moved_to_native_trash",
+        "source": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/apps/runtime-reference-shell/node_modules",
+        "source_absent": true,
+        "trash_destination": "/Users/deniskopylov/.Trash/node_modules 22-28-54-363"
+      },
+      "same_object_identity": true,
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/apps/runtime-reference-shell/node_modules",
+      "source_absent": true,
+      "source_matches_expected": true,
+      "trash_destination": "/Users/deniskopylov/.Trash/node_modules 22-28-54-363"
+    },
+    {
+      "destination_device": 16777231,
+      "destination_exists": true,
+      "destination_inode": 174330052,
+      "destination_is_symlink": false,
+      "native_result": {
+        "before_device": 16777231,
+        "before_inode": 174330052,
+        "destination_device": 16777231,
+        "destination_inode": 174330052,
+        "identity_preserved": true,
+        "mode": "trash",
+        "result": "moved_to_native_trash",
+        "source": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/atlas-ui/node_modules",
+        "source_absent": true,
+        "trash_destination": "/Users/deniskopylov/.Trash/node_modules 22-28-54-364"
+      },
+      "same_object_identity": true,
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/atlas-ui/node_modules",
+      "source_absent": true,
+      "source_matches_expected": true,
+      "trash_destination": "/Users/deniskopylov/.Trash/node_modules 22-28-54-364"
+    },
+    {
+      "destination_device": 16777231,
+      "destination_exists": true,
+      "destination_inode": 174330055,
+      "destination_is_symlink": false,
+      "native_result": {
+        "before_device": 16777231,
+        "before_inode": 174330055,
+        "destination_device": 16777231,
+        "destination_inode": 174330055,
+        "identity_preserved": true,
+        "mode": "trash",
+        "result": "moved_to_native_trash",
+        "source": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/cli/node_modules",
+        "source_absent": true,
+        "trash_destination": "/Users/deniskopylov/.Trash/node_modules 22-28-54-365"
+      },
+      "same_object_identity": true,
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/cli/node_modules",
+      "source_absent": true,
+      "source_matches_expected": true,
+      "trash_destination": "/Users/deniskopylov/.Trash/node_modules 22-28-54-365"
+    },
+    {
+      "destination_device": 16777231,
+      "destination_exists": true,
+      "destination_inode": 174330056,
+      "destination_is_symlink": false,
+      "native_result": {
+        "before_device": 16777231,
+        "before_inode": 174330056,
+        "destination_device": 16777231,
+        "destination_inode": 174330056,
+        "identity_preserved": true,
+        "mode": "trash",
+        "result": "moved_to_native_trash",
+        "source": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/runtime-api-client/node_modules",
+        "source_absent": true,
+        "trash_destination": "/Users/deniskopylov/.Trash/node_modules 22-28-54-366"
+      },
+      "same_object_identity": true,
+      "source": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine/packages/runtime-api-client/node_modules",
+      "source_absent": true,
+      "source_matches_expected": true,
+      "trash_destination": "/Users/deniskopylov/.Trash/node_modules 22-28-54-366"
+    }
+  ],
+  "captured_epoch": 1791401364.7507992,
+  "installer": {
+    "argv": [
+      "corepack",
+      "pnpm",
+      "install",
+      "--frozen-lockfile"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos/policy-engine",
+    "downloaded": 0,
+    "exit": 0,
+    "linked_packages": 1215,
+    "provenance_note": "The reviewer follow-up is verbatim in eligibility-v1.json; reviewer said the full tool output existed only in conversation and was not saved separately.",
+    "raw_stdout_stderr_retained": false,
+    "reused": 1213,
+    "reviewer_confirmed_done": true,
+    "workspace_projects": 6
+  },
+  "native_operation": {
+    "command": [
+      "/usr/bin/swift",
+      ".tmp/e02-C5/raw/cleanup/native-trash-v7.swift",
+      "--trash",
+      ".tmp/e02-C5/raw/cleanup/eligibility-v1.json",
+      ".tmp/e02-C5/raw/cleanup/pretrash-preflight-v2.json"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit": 0,
+    "method": "Foundation FileManager.default.trashItem",
+    "no_permanent_delete_or_trash_empty": true,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_sha256": "0e149f18f49c7a66373b034db9117b13c4d889d8007a35d8b15c05c9f114dbed"
+  },
+  "posttrash_all_verified": true,
+  "readback": {
+    "all_verified": true,
+    "sha256": "027b9e872a62954a614338305d27c192244dcdc9396b76c635f57031429b37b6",
+    "verification_json": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/.tmp/e02-C5/raw/cleanup/posttrash-verify-v1.json"
+  },
+  "review_checkout": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos",
+  "review_parent": "c60e37e7833b2dbb22af1868e31dc3f519d6a4f2",
+  "schema": "c5-legal-review-node-modules-cleanup-index-v1",
+  "scope": "Only the six fresh ignored pnpm workspace node_modules roots in the isolated Legal review checkout.",
+  "source_commit": "77c5cd319c92e52932b1bf15c342b24a41e7b051",
+  "source_tree": "751a1a854e2c4332ae68c545c739b4d8046c7149"
+}

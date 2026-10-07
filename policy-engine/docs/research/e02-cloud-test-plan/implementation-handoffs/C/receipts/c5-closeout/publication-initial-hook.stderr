@@ -1,0 +1,2 @@
+PolicyOS hook: missing binary: /Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos/policy-engine/apps/runtime-dashboard/node_modules/.bin/lefthook; run corepack pnpm install --frozen-lockfile in policy-engine.
+error: failed to push some refs to 'https://github.com/DenisKopylov/polisyos.git'

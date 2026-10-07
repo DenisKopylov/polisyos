@@ -1,0 +1,111 @@
+[
+  {
+    "name": "c54-review-create-canonical",
+    "argv": [
+      "zsh",
+      "-c",
+      "E02_TOPIC_BRANCH='codex/e02-C-c54-review-20261007'; E02_WORKTREE_ROOT='/Users/deniskopylov/.codex/worktrees/e02-c-c54-review-20261007/polisyos'; (cd policy-engine && uv run --no-sync polisyos-tools workspace doctor --worktree-admission create --branch \"${E02_TOPIC_BRANCH:?set actual branch}\" --path \"${E02_WORKTREE_ROOT:?set absolute worktree root}\")"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 2,
+    "wall_seconds": 0.10302166698966175,
+    "stdout": "c54-review-create-canonical.stdout",
+    "stderr": "c54-review-create-canonical.stderr"
+  },
+  {
+    "name": "c54-review-create-local",
+    "argv": [
+      "python3",
+      "-m",
+      "tools.cli",
+      "workspace",
+      "doctor",
+      "--worktree-admission",
+      "create",
+      "--branch",
+      "codex/e02-C-c54-review-20261007",
+      "--path",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-c54-review-20261007/polisyos"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine",
+    "exit_code": 0,
+    "wall_seconds": 1.7108050410170108,
+    "stdout": "c54-review-create-local.stdout",
+    "stderr": "c54-review-create-local.stderr"
+  },
+  {
+    "name": "c54-review-git-create",
+    "argv": [
+      "git",
+      "worktree",
+      "add",
+      "-b",
+      "codex/e02-C-c54-review-20261007",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-c54-review-20261007/polisyos",
+      "96cf53a6cfbd8e6b753779d4b56fab456a13c159"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 0,
+    "stdout": "c54-review-git-create.stdout",
+    "stderr": "c54-review-git-create.stderr"
+  },
+  {
+    "name": "c54-review-resume-canonical",
+    "argv": [
+      "zsh",
+      "-c",
+      "E02_TOPIC_BRANCH='codex/e02-C-c54-review-20261007'; E02_WORKTREE_ROOT='/Users/deniskopylov/.codex/worktrees/e02-c-c54-review-20261007/polisyos'; (cd policy-engine && uv run --no-sync polisyos-tools workspace doctor --worktree-admission resume --branch \"${E02_TOPIC_BRANCH:?set actual branch}\" --path \"${E02_WORKTREE_ROOT:?set absolute worktree root}\")"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 2,
+    "wall_seconds": 0.01576087501598522,
+    "stdout": "c54-review-resume-canonical.stdout",
+    "stderr": "c54-review-resume-canonical.stderr"
+  },
+  {
+    "name": "c54-review-resume-local",
+    "argv": [
+      "python3",
+      "-m",
+      "tools.cli",
+      "workspace",
+      "doctor",
+      "--worktree-admission",
+      "resume",
+      "--branch",
+      "codex/e02-C-c54-review-20261007",
+      "--path",
+      "/Users/deniskopylov/.codex/worktrees/e02-c-c54-review-20261007/polisyos"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos/policy-engine",
+    "exit_code": 0,
+    "wall_seconds": 1.5462092499947175,
+    "stdout": "c54-review-resume-local.stdout",
+    "stderr": "c54-review-resume-local.stderr"
+  },
+  {
+    "name": "c54-review-state",
+    "argv": [
+      "git",
+      "status",
+      "-sb"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-review-20261007/polisyos",
+    "exit_code": 0,
+    "stdout": "c54-review-state.stdout",
+    "stderr": "c54-review-state.stderr"
+  },
+  {
+    "name": "c54-review-identity",
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD",
+      "HEAD^{tree}"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-c54-review-20261007/polisyos",
+    "exit_code": 0,
+    "stdout": "c54-review-identity.stdout",
+    "stderr": "c54-review-identity.stderr"
+  }
+]

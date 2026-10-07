@@ -1,0 +1,402 @@
+[
+  {
+    "name": "dfk-attachment-v2",
+    "argv": [
+      "git",
+      "symbolic-ref",
+      "-q",
+      "HEAD"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.006227791018318385,
+    "stdout": ".tmp/e02-C5/raw/publication/leaves/dfk-attachment-v2.stdout",
+    "stdout_sha256": "f0240ebf76ca19c01127d3dc675fc6950767cca14037554ba41b82781828126b",
+    "stderr": ".tmp/e02-C5/raw/publication/leaves/dfk-attachment-v2.stderr",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "dfk-head-v2",
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.005759332969319075,
+    "stdout": ".tmp/e02-C5/raw/publication/leaves/dfk-head-v2.stdout",
+    "stdout_sha256": "3570c05b666d03e55bf66341ac7af4eacded3d2a46369db1fd543b3ff68cbb66",
+    "stderr": ".tmp/e02-C5/raw/publication/leaves/dfk-head-v2.stderr",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "dfk-clean-v2",
+    "argv": [
+      "git",
+      "status",
+      "--porcelain"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.0687410410027951,
+    "stdout": ".tmp/e02-C5/raw/publication/leaves/dfk-clean-v2.stdout",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr": ".tmp/e02-C5/raw/publication/leaves/dfk-clean-v2.stderr",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "dfk-push-v2",
+    "argv": [
+      "git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "push",
+      "origin",
+      "4576f67b1ff1f8d09b6a4223779b53fff9b369ae:refs/heads/codex/e02-C-dfk-lifecycle-20261007"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 2.1466960829566233,
+    "stdout": ".tmp/e02-C5/raw/publication/leaves/dfk-push-v2.stdout",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr": ".tmp/e02-C5/raw/publication/leaves/dfk-push-v2.stderr",
+    "stderr_sha256": "68b2467ddd6238f2d64e4aee4bd0624647432727639efc2c8d393b532977b96c"
+  },
+  {
+    "name": "dfk-remote-readback-v2",
+    "argv": [
+      "git",
+      "ls-remote",
+      "origin",
+      "refs/heads/codex/e02-C-dfk-lifecycle-20261007"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-lifecycle-20261007/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.5974125000066124,
+    "stdout": ".tmp/e02-C5/raw/publication/leaves/dfk-remote-readback-v2.stdout",
+    "stdout_sha256": "68474261bf15d444809e164c8e16e6c147dc0c4920ffd4c5540cbb0833513d0a",
+    "stderr": ".tmp/e02-C5/raw/publication/leaves/dfk-remote-readback-v2.stderr",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "dfk-review-attachment-v2",
+    "argv": [
+      "git",
+      "symbolic-ref",
+      "-q",
+      "HEAD"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.01809645799221471,
+    "stdout": ".tmp/e02-C5/raw/publication/leaves/dfk-review-attachment-v2.stdout",
+    "stdout_sha256": "a51e95648257556e0aa94c1ea3340f381df51c4fc0612479c1950d8012187496",
+    "stderr": ".tmp/e02-C5/raw/publication/leaves/dfk-review-attachment-v2.stderr",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "dfk-review-head-v2",
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.01118058298015967,
+    "stdout": ".tmp/e02-C5/raw/publication/leaves/dfk-review-head-v2.stdout",
+    "stdout_sha256": "bf8e4114d5dbeb38bea9c8fb22b47420666eab95a9a9489c2feae16558fa65af",
+    "stderr": ".tmp/e02-C5/raw/publication/leaves/dfk-review-head-v2.stderr",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "dfk-review-clean-v2",
+    "argv": [
+      "git",
+      "status",
+      "--porcelain"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.1155865000328049,
+    "stdout": ".tmp/e02-C5/raw/publication/leaves/dfk-review-clean-v2.stdout",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr": ".tmp/e02-C5/raw/publication/leaves/dfk-review-clean-v2.stderr",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "dfk-review-push-v2",
+    "argv": [
+      "git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "push",
+      "origin",
+      "341f92fb2b18e163778ab28db13b6b67a90e7d44:refs/heads/codex/e02-C-dfk-review-20261007"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 1.7033759579644538,
+    "stdout": ".tmp/e02-C5/raw/publication/leaves/dfk-review-push-v2.stdout",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr": ".tmp/e02-C5/raw/publication/leaves/dfk-review-push-v2.stderr",
+    "stderr_sha256": "1fc3001ced107041f5f8729c1cbe99501692e2cdfca4f2addd4ec56b93c6c87b"
+  },
+  {
+    "name": "dfk-review-remote-readback-v2",
+    "argv": [
+      "git",
+      "ls-remote",
+      "origin",
+      "refs/heads/codex/e02-C-dfk-review-20261007"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-dfk-review-20261007/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.5852264579734765,
+    "stdout": ".tmp/e02-C5/raw/publication/leaves/dfk-review-remote-readback-v2.stdout",
+    "stdout_sha256": "4a94b3132feffec2c1a2c49b18dbcd4f5e3fe906c1eaef358228eaabb913dc77",
+    "stderr": ".tmp/e02-C5/raw/publication/leaves/dfk-review-remote-readback-v2.stderr",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "legal-attachment-v2",
+    "argv": [
+      "git",
+      "symbolic-ref",
+      "-q",
+      "HEAD"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-query-20261007/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.012410583032760769,
+    "stdout": ".tmp/e02-C5/raw/publication/leaves/legal-attachment-v2.stdout",
+    "stdout_sha256": "361665f31e7d21746cd2a184813c95e7f71117fc9ae7c63ed4252b8ff92510cd",
+    "stderr": ".tmp/e02-C5/raw/publication/leaves/legal-attachment-v2.stderr",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "legal-head-v2",
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-query-20261007/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.00788429199019447,
+    "stdout": ".tmp/e02-C5/raw/publication/leaves/legal-head-v2.stdout",
+    "stdout_sha256": "c2e7c66b21f7780772a0210b0ea9081c99e6515a4cd881e13e1fa1163bd4acb9",
+    "stderr": ".tmp/e02-C5/raw/publication/leaves/legal-head-v2.stderr",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "legal-clean-v2",
+    "argv": [
+      "git",
+      "status",
+      "--porcelain"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-query-20261007/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.10973787499824539,
+    "stdout": ".tmp/e02-C5/raw/publication/leaves/legal-clean-v2.stdout",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr": ".tmp/e02-C5/raw/publication/leaves/legal-clean-v2.stderr",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "legal-push-v2",
+    "argv": [
+      "git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "push",
+      "origin",
+      "51609922447716115c22287ac79c218d13cd9067:refs/heads/codex/e02-C-legal-query-20261007"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-query-20261007/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 1.9805932080489583,
+    "stdout": ".tmp/e02-C5/raw/publication/leaves/legal-push-v2.stdout",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr": ".tmp/e02-C5/raw/publication/leaves/legal-push-v2.stderr",
+    "stderr_sha256": "fca78b0a4a22a97065eee16755c76365174531c6076f24d478455db94800788f"
+  },
+  {
+    "name": "legal-remote-readback-v2",
+    "argv": [
+      "git",
+      "ls-remote",
+      "origin",
+      "refs/heads/codex/e02-C-legal-query-20261007"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-query-20261007/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.5294082080363296,
+    "stdout": ".tmp/e02-C5/raw/publication/leaves/legal-remote-readback-v2.stdout",
+    "stdout_sha256": "8692ef2d670ce7a139ee1c46f6c3f3ec266e8e705f42ad24bad61276d121cf59",
+    "stderr": ".tmp/e02-C5/raw/publication/leaves/legal-remote-readback-v2.stderr",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "legal-review-attachment-v2",
+    "argv": [
+      "git",
+      "symbolic-ref",
+      "-q",
+      "HEAD"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.01763166702585295,
+    "stdout": ".tmp/e02-C5/raw/publication/leaves/legal-review-attachment-v2.stdout",
+    "stdout_sha256": "18eb3106ba38eb2d6131cf633c8a04f091e6fec990f5e3f9f34de01e9acb7c6a",
+    "stderr": ".tmp/e02-C5/raw/publication/leaves/legal-review-attachment-v2.stderr",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "legal-review-head-v2",
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.01039345801109448,
+    "stdout": ".tmp/e02-C5/raw/publication/leaves/legal-review-head-v2.stdout",
+    "stdout_sha256": "c4f374e00a6d54a3283cda36a89728942999bba74abdd59479dc5719579b0aea",
+    "stderr": ".tmp/e02-C5/raw/publication/leaves/legal-review-head-v2.stderr",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "legal-review-clean-v2",
+    "argv": [
+      "git",
+      "status",
+      "--porcelain"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.11311000003479421,
+    "stdout": ".tmp/e02-C5/raw/publication/leaves/legal-review-clean-v2.stdout",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr": ".tmp/e02-C5/raw/publication/leaves/legal-review-clean-v2.stderr",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "legal-review-push-v2",
+    "argv": [
+      "git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "push",
+      "origin",
+      "77c5cd319c92e52932b1bf15c342b24a41e7b051:refs/heads/codex/e02-C-legal-review-20261007"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 1.8695686670253053,
+    "stdout": ".tmp/e02-C5/raw/publication/leaves/legal-review-push-v2.stdout",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr": ".tmp/e02-C5/raw/publication/leaves/legal-review-push-v2.stderr",
+    "stderr_sha256": "7aedabbd5e352a31c35716b14fcc36810bddbcab12a3a14f73c87a11a1b19d1f"
+  },
+  {
+    "name": "legal-review-remote-readback-v2",
+    "argv": [
+      "git",
+      "ls-remote",
+      "origin",
+      "refs/heads/codex/e02-C-legal-review-20261007"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-legal-review-20261007/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.5108932090224698,
+    "stdout": ".tmp/e02-C5/raw/publication/leaves/legal-review-remote-readback-v2.stdout",
+    "stdout_sha256": "9635c52231827c1e349cc65b1f2d50e7ad6fc9b442c9a5871366e7cebacad0a4",
+    "stderr": ".tmp/e02-C5/raw/publication/leaves/legal-review-remote-readback-v2.stderr",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "root-inputs-attachment-v2",
+    "argv": [
+      "git",
+      "symbolic-ref",
+      "-q",
+      "HEAD"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.017265249975025654,
+    "stdout": ".tmp/e02-C5/raw/publication/leaves/root-inputs-attachment-v2.stdout",
+    "stdout_sha256": "79e88bafb76f56794c85efe5894a25c8bc04686ee001a05697510d314f1ee557",
+    "stderr": ".tmp/e02-C5/raw/publication/leaves/root-inputs-attachment-v2.stderr",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "root-inputs-head-v2",
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.010566500015556812,
+    "stdout": ".tmp/e02-C5/raw/publication/leaves/root-inputs-head-v2.stdout",
+    "stdout_sha256": "1ab849eac3c1802f30bb013b7b95454f908faa2176e87891973622a1fc156eb4",
+    "stderr": ".tmp/e02-C5/raw/publication/leaves/root-inputs-head-v2.stderr",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "root-inputs-clean-v2",
+    "argv": [
+      "git",
+      "status",
+      "--porcelain"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.11924395797541365,
+    "stdout": ".tmp/e02-C5/raw/publication/leaves/root-inputs-clean-v2.stdout",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr": ".tmp/e02-C5/raw/publication/leaves/root-inputs-clean-v2.stderr",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "root-inputs-push-v2",
+    "argv": [
+      "git",
+      "-c",
+      "core.hooksPath=/dev/null",
+      "push",
+      "origin",
+      "6dcca1d49484459d9b5d0c4bf4eba17aa2e29bb4:refs/heads/codex/e02-C-continuation-20261006"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 1.8235176249872893,
+    "stdout": ".tmp/e02-C5/raw/publication/leaves/root-inputs-push-v2.stdout",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr": ".tmp/e02-C5/raw/publication/leaves/root-inputs-push-v2.stderr",
+    "stderr_sha256": "4ba9f5c3de967fcd9435761ef5ea87cb16096916891aecb45895cdacd0f97407"
+  },
+  {
+    "name": "root-inputs-remote-readback-v2",
+    "argv": [
+      "git",
+      "ls-remote",
+      "origin",
+      "refs/heads/codex/e02-C-continuation-20261006"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-c-continuation-20261006/polisyos",
+    "exit_code": 0,
+    "wall_seconds": 0.5245650829747319,
+    "stdout": ".tmp/e02-C5/raw/publication/leaves/root-inputs-remote-readback-v2.stdout",
+    "stdout_sha256": "61c618bdeaf912d12208c3943f0531225ed7518bd81376fb2cdefcb7929ec55d",
+    "stderr": ".tmp/e02-C5/raw/publication/leaves/root-inputs-remote-readback-v2.stderr",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

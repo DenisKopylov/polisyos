@@ -1,0 +1,19 @@
+{
+  "command": [
+    "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/wheel-env/bin/python",
+    "-I",
+    "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis/probe_installed_defaults.py",
+    "/tmp/e02-F-continuation-20261007/foundry/installed-continuation-final/installed-config.json",
+    "wheel"
+  ],
+  "cwd": "/tmp/e02-F-continuation-20261007/graph/packaged-default-diagnosis",
+  "source_sha": "b5a421d83336e0b50ad9a6747f3f7d041d4c1b5a",
+  "source_tree": "055871c409ce72e6a29619b235698aa45a6844d4",
+  "exit": 0,
+  "wall_s": 1.9412816920084879,
+  "stdout_bytes": 78329,
+  "stdout_sha256": "7b8594ba5ae407652c7dbf9ea8238d3d8f00870aff87e73913fd1f085526039f",
+  "stderr_bytes": 2148,
+  "stderr_sha256": "c16e26774c3edbde5bc943e79d497018bec1d477f7fb6b35eaf8e1511ce28ba7",
+  "scope": "read-only native installed defaultloader characterization; no test/wheel rerun/no assets mutated"
+}

@@ -180,6 +180,24 @@ def test_unprofiled_invalid_map_keeps_legacy_callback_coercion_order():
     assert calls == [0.0]
 
 
+@pytest.mark.parametrize("operation", ["push", "pull"])
+def test_unprofiled_v10_input_retains_legacy_v11_output_and_fresh_codec(tmp_path, operation):
+    source = _source([0.0, 1.0]).model_copy(update={"metadata": {}, "schema_version": "1.0"})
+    if operation == "push":
+        result = push_forward_envelope(lambda x: x, source)
+        expected_interval = (0.0, pytest.approx(0.9))
+    else:
+        result = pull_back_envelope(lambda x: x, source, upstream_particles=(0.0, 1.0))
+        expected_interval = (0.0, 1.0)
+    fresh = _fresh(tmp_path, result)
+    assert fresh.schema_version == "1.1"
+    assert fresh.point_estimate == 0.5
+    assert fresh.confidence_interval == expected_interval
+    assert fresh.distribution_payload.samples == (0.0, 1.0)
+    assert read_posterior_summary_profile(fresh) is None
+    assert result.model_dump(mode="json") == fresh.model_dump(mode="json")
+
+
 @pytest.mark.parametrize("invalid", [True, np.bool_(True), "1", 1j, np.nan, np.inf, -np.inf])
 def test_invalid_transformed_draw_refuses_whole_profile_publication(invalid):
     source = _source([0.0, 1.0])

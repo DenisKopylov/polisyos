@@ -2011,7 +2011,7 @@ def push_forward_envelope(
         notes={"cert_policy": cert_policy},
     )
     result = UncertaintyEnvelope(
-        schema_version=envelope.schema_version,
+        schema_version="1.1",
         numeric_policy=envelope.numeric_policy,
         point_estimate=float(point_estimate),
         confidence_interval=(float(min(lower, upper)), float(max(lower, upper))),
@@ -2186,7 +2186,7 @@ def pull_back_envelope(
         notes=notes,
     )
     return UncertaintyEnvelope(
-        schema_version=envelope.schema_version,
+        schema_version="1.1",
         numeric_policy=envelope.numeric_policy,
         point_estimate=float(point_estimate),
         confidence_interval=(float(min(lower, upper)), float(max(lower, upper))),

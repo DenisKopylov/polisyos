@@ -24,7 +24,17 @@
       "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/journal/stdout.txt",
       "retained_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/journal/stdout.txt",
       "bytes": 1094,
-      "sha256": "d700695c86bd3d2a0a9cec8b3aa5d8075942a9551eca78c3a5cd0abaa62ce52d"
+      "sha256": "d700695c86bd3d2a0a9cec8b3aa5d8075942a9551eca78c3a5cd0abaa62ce52d",
+      "representation": "lossless_utf8_wrapper",
+      "original_git_ref": {
+        "git_sha": "920fed5d97c2a7572e4073f556c51f5b8a190977",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/journal/stdout.txt",
+        "bytes": 1094,
+        "sha256": "d700695c86bd3d2a0a9cec8b3aa5d8075942a9551eca78c3a5cd0abaa62ce52d",
+        "git_blob": "93337d4405b43d7f9fe23a07f36de96b083ea912"
+      },
+      "stored_bytes": 1813,
+      "stored_sha256": "288d9f59feb51b4f807af25fcb300448aa3d3ce698808b864592b4a610f18822"
     },
     {
       "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/journal/stderr.txt",
@@ -42,7 +52,17 @@
       "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/without-journal/stdout.txt",
       "retained_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/without-journal/stdout.txt",
       "bytes": 1102,
-      "sha256": "9f7c7ba6bd9369a7d2349454f399dd7f33e4b43920bac97767b2d33f7b9dd163"
+      "sha256": "9f7c7ba6bd9369a7d2349454f399dd7f33e4b43920bac97767b2d33f7b9dd163",
+      "representation": "lossless_utf8_wrapper",
+      "original_git_ref": {
+        "git_sha": "920fed5d97c2a7572e4073f556c51f5b8a190977",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/without-journal/stdout.txt",
+        "bytes": 1102,
+        "sha256": "9f7c7ba6bd9369a7d2349454f399dd7f33e4b43920bac97767b2d33f7b9dd163",
+        "git_blob": "2609f7a7c5c1b2eedb01a2a08f2f22fd108d45e8"
+      },
+      "stored_bytes": 1829,
+      "stored_sha256": "acdb8c12292a9bcf0abf0e02f1e2427c18b5df382cff7246f8f266a239d61ade"
     },
     {
       "original_path": "/workspace/e02-B-current-coordination/.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/without-journal/stderr.txt",
@@ -63,5 +83,6 @@
       "sha256": "56262daf90bc7a13a9de1ff7042564fc783588d7f75067ff2e898164af2bd7e2"
     }
   ],
-  "input_role": "Python fixture and observer inputs are preserved as .source.txt, not collected as new tests or run as package helpers. Original bytes and original execution paths remain unchanged."
+  "input_role": "Python fixture and observer inputs are preserved as .source.txt, not collected as new tests or run as package helpers. Original bytes and original execution paths remain unchanged.",
+  "representation_qualification": "Two stdout.txt paths now contain lossless JSON.text wrappers. Original bytes/SHA remain the decoded payload identities; stored_bytes/stored_sha256 bind current transport. All ten original input/output objects remain recoverable without trimming or deletion."
 }

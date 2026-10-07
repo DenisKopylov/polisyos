@@ -1,12 +1,14 @@
-============================= test session starts ==============================
-platform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0 -- /workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python
-cachedir: .polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/without-journal/cache
-benchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)
-hypothesis profile 'default'
-rootdir: /workspace/e02-B-current-coordination
-plugins: benchmark-5.2.3, hypothesis-6.151.2, anyio-4.12.0, langsmith-0.6.0, asyncio-1.3.0, xdist-3.8.0, jaxtyping-0.3.4
-asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
-collecting ... collected 2 items
-
-.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/test_real_phase_journal.py::test_first PASSED [ 50%]
-.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/test_real_phase_journal.py::test_explicit_death 
+{
+  "schema": "e02.lossless_utf8/v1",
+  "representation": "JSON.text contains complete original UTF-8 bytes; decode text before treating this payload as stdout",
+  "original_git_ref": {
+    "git_sha": "920fed5d97c2a7572e4073f556c51f5b8a190977",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-foreign-oracles-review-20261007/observer-probe/without-journal/stdout.txt",
+    "bytes": 1102,
+    "sha256": "9f7c7ba6bd9369a7d2349454f399dd7f33e4b43920bac97767b2d33f7b9dd163",
+    "git_blob": "2609f7a7c5c1b2eedb01a2a08f2f22fd108d45e8"
+  },
+  "original_bytes": 1102,
+  "original_sha256": "9f7c7ba6bd9369a7d2349454f399dd7f33e4b43920bac97767b2d33f7b9dd163",
+  "text": "============================= test session starts ==============================\nplatform linux -- Python 3.14.2, pytest-9.0.2, pluggy-1.6.0 -- /workspace/e02-B-current-coordination/.polisyos/e02-B-current/environment/bin/python\ncachedir: .polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/without-journal/cache\nbenchmark: 5.2.3 (defaults: timer=time.perf_counter disable_gc=False min_rounds=5 min_time=0.000005 max_time=1.0 calibration_precision=10 warmup=False warmup_iterations=100000)\nhypothesis profile 'default'\nrootdir: /workspace/e02-B-current-coordination\nplugins: benchmark-5.2.3, hypothesis-6.151.2, anyio-4.12.0, langsmith-0.6.0, asyncio-1.3.0, xdist-3.8.0, jaxtyping-0.3.4\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollecting ... collected 2 items\n\n.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/test_real_phase_journal.py::test_first PASSED [ 50%]\n.polisyos/e02-B-current/raw/continuation-20261007/journal-probe-72965/test_real_phase_journal.py::test_explicit_death "
+}

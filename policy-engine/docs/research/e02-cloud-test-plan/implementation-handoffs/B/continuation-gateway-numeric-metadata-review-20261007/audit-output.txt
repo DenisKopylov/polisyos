@@ -1,0 +1,182 @@
+{
+  "verdict": "NONBLOCKING",
+  "check_count": 619,
+  "mismatches": [],
+  "own_payloads": 33,
+  "foreign_payloads": 274,
+  "foreign_payload_bytes": 9336474,
+  "unique_git_content_reads": 1927,
+  "own_native_rows": [
+    {
+      "id": "before",
+      "exit": 1,
+      "XML_counts": {
+        "FAIL": 20,
+        "PASS": 10
+      },
+      "collected": 30,
+      "phase_count": 90,
+      "origins": 81,
+      "failing_cases": [
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[total_cost_usd-1e-1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[total_cost_usd--1e-1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[total_cost_usd-1e1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[total_cost_usd--1e1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost_usd-1e-1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost_usd--1e-1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost_usd-1e1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost_usd--1e1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost-1e-1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost--1e-1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost-1e1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost--1e1000]",
+        "test_http_cost_component_preserves_invalid_nonzero_evidence[1e-1000-base_cost_usd]",
+        "test_http_cost_component_preserves_invalid_nonzero_evidence[1e-1000-platform_fee_usd]",
+        "test_http_cost_component_preserves_invalid_nonzero_evidence[-1e-1000-base_cost_usd]",
+        "test_http_cost_component_preserves_invalid_nonzero_evidence[-1e-1000-platform_fee_usd]",
+        "test_http_fractional_token_evidence_cannot_become_observed_integer_zero[1e-1000]",
+        "test_http_fractional_token_evidence_cannot_become_observed_integer_zero[-1e-1000]",
+        "test_http_fractional_token_evidence_cannot_become_observed_integer_zero[0.9999999999999999999999]",
+        "test_http_top_level_cost_and_ordinary_tool_arguments_keep_separate_contracts"
+      ]
+    },
+    {
+      "id": "candidate",
+      "exit": 0,
+      "XML_counts": {
+        "PASS": 30
+      },
+      "collected": 30,
+      "phase_count": 90,
+      "origins": 81,
+      "failing_cases": []
+    },
+    {
+      "id": "removal",
+      "exit": 1,
+      "XML_counts": {
+        "FAIL": 20,
+        "PASS": 10
+      },
+      "collected": 30,
+      "phase_count": 90,
+      "origins": 81,
+      "failing_cases": [
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[total_cost_usd-1e-1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[total_cost_usd--1e-1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[total_cost_usd-1e1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[total_cost_usd--1e1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost_usd-1e-1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost_usd--1e-1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost_usd-1e1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost_usd--1e1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost-1e-1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost--1e-1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost-1e1000]",
+        "test_http_nonrepresentable_cost_is_unknown_not_reported_zero[cost--1e1000]",
+        "test_http_cost_component_preserves_invalid_nonzero_evidence[1e-1000-base_cost_usd]",
+        "test_http_cost_component_preserves_invalid_nonzero_evidence[1e-1000-platform_fee_usd]",
+        "test_http_cost_component_preserves_invalid_nonzero_evidence[-1e-1000-base_cost_usd]",
+        "test_http_cost_component_preserves_invalid_nonzero_evidence[-1e-1000-platform_fee_usd]",
+        "test_http_fractional_token_evidence_cannot_become_observed_integer_zero[1e-1000]",
+        "test_http_fractional_token_evidence_cannot_become_observed_integer_zero[-1e-1000]",
+        "test_http_fractional_token_evidence_cannot_become_observed_integer_zero[0.9999999999999999999999]",
+        "test_http_top_level_cost_and_ordinary_tool_arguments_keep_separate_contracts"
+      ]
+    },
+    {
+      "id": "affected",
+      "exit": 4,
+      "XML_counts": {},
+      "collected": 0,
+      "phase_count": 0,
+      "origins": 64,
+      "failing_cases": []
+    },
+    {
+      "id": "affected-qualified",
+      "exit": 1,
+      "XML_counts": {
+        "PASS": 541,
+        "FAIL": 13
+      },
+      "collected": 554,
+      "phase_count": 1662,
+      "origins": 1530,
+      "failing_cases": [
+        "test_prompt_slice_uses_pack_candidate_levers_without_binding_them",
+        "test_prompt_slice_rejects_context_for_another_design_problem",
+        "test_prompt_slice_uses_context_bound_l6_vocabulary_not_model_filter",
+        "test_cgf_binding_recovers_legacy_exact_match_rejection",
+        "test_content_bound_candidate_persists_real_l6_refusal_on_cgf_disposition",
+        "test_content_bound_candidate_resolves_candidate_lever_id_not_trinity_kind",
+        "test_novel_candidate_with_false_analog_evidence_routes_to_cg3",
+        "test_recorded_llm_organs_emit_diverse_cg3_dispositions_without_authority",
+        "test_problem_variation_recordings_produce_different_candidate_sets",
+        "test_gateway_only_model_is_accepted_from_live_catalog",
+        "test_fake_surrogate_owner_ref_fails_closed",
+        "test_phase5_surrogate_rejects_fake_route_targets_without_certifying_candidates",
+        "test_candidate_proposal_link_requires_matching_revalidated_l6_context_bundle"
+      ]
+    }
+  ],
+  "foreign_native_rows": [
+    {
+      "id": "foreign-exe-0",
+      "name": "baseline-original",
+      "XML_counts": {
+        "FAIL": 10,
+        "PASS": 5
+      },
+      "cases": 15,
+      "qualification": "Original wrong PendingError class assertion preserved (actual RequiredError fence worked); does not attribute those class mismatches to product."
+    },
+    {
+      "id": "foreign-exe-1",
+      "name": "candidate-parent-absent",
+      "XML_counts": {
+        "ERROR": 15
+      },
+      "cases": 15,
+      "qualification": "All15 setup errors before HTTP/property due missing parent fixture directory; actual executed pytest retained, runtime property UNRUN."
+    },
+    {
+      "id": "foreign-exe-2",
+      "name": "candidate-original",
+      "XML_counts": {
+        "FAIL": 10,
+        "PASS": 5
+      },
+      "cases": 15,
+      "qualification": "Original wrong PendingError class assertion preserved (actual RequiredError fence worked); does not attribute those class mismatches to product."
+    },
+    {
+      "id": "foreign-exe-3",
+      "name": "baseline",
+      "XML_counts": {
+        "FAIL": 2,
+        "PASS": 13
+      },
+      "cases": 15,
+      "qualification": "Same corrected native test input, source-bound actual physical artifacts and D reader."
+    },
+    {
+      "id": "foreign-exe-4",
+      "name": "candidate",
+      "XML_counts": {
+        "PASS": 15
+      },
+      "cases": 15,
+      "qualification": "Same corrected native test input, source-bound actual physical artifacts and D reader."
+    },
+    {
+      "id": "foreign-exe-5",
+      "name": "removal",
+      "XML_counts": {
+        "FAIL": 2
+      },
+      "cases": 2,
+      "qualification": "Same corrected native test input, source-bound actual physical artifacts and D reader."
+    }
+  ]
+}

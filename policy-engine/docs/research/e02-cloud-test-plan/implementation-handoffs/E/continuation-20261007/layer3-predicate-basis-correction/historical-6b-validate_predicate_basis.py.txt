@@ -38,25 +38,7 @@ def asset(repo,record):
   require(subprocess.run(['git','-C',str(repo),'rev-parse',record['source_sha']+':'+record['path']],check=True,capture_output=True).stdout.decode().strip()==record['git_blob'],'Git blob binding')
  return data
 
-UNKNOWN_STATUS={
- 'full_native_fixture_outcome':'UNRUN',
- 'complete_input_isolation':'UNRUN',
- 'current_native_caller_P41':'not_established',
- 'finding_closure_or_institutional_authority':'not_established',
-}
-
-def admit_unknown_authority_records(packet):
- """Admit each unknown record's complete typed status and claim context before IO."""
- bounds=packet.get('authority_bounds')
- require(type(bounds) is dict and set(bounds)==set(UNKNOWN_STATUS),'complete typed unknown authority scopes')
- for name,record in bounds.items():
-  require(type(record) is dict and set(record)=={'basis','positive_claim','check_status'},'exact typed unknown authority field set')
-  require(record['basis']=='not_established','unknown authority basis remains unknown')
-  require(record['positive_claim'] is False,'unknown authority cannot claim positive context')
-  require(type(record['check_status']) is str and record['check_status']==UNKNOWN_STATUS[name],'exact scoped unknown authority check status')
-
-def admit(repo,packet,*,remove_basis=False,remove_unknown_records=False):
- if not remove_unknown_records:admit_unknown_authority_records(packet)
+def admit(repo,packet,*,remove_basis=False):
  require(packet['prior_publication_sha']==PRIOR and packet['prior_publication_tree_sha']==TREE,'prior publication identity')
  require(subprocess.run(['git','-C',str(repo),'rev-parse',PRIOR+'^{tree}'],check=True,capture_output=True).stdout.decode().strip()==TREE,'prior actual tree')
  require(packet['runtime_source_sha']=='64d7444a18c55df7b88b71b7699a2f1b25ca24bd' and packet['runtime_source_tree_sha']=='aef23574d3162abb19bf5a1c67d02624ff9d4d1d','runtime source remains64d')
@@ -101,16 +83,7 @@ def main():
  probe('claim_full_input_isolation_under_unknown',lambda x:x['authority_bounds']['complete_input_isolation'].__setitem__('positive_claim',True))
  probe('invent_current_native_PASS',lambda x:x.__setitem__('native_execution',True))
  probe('unknown_basis_word',lambda x:x['predicate_basis'][0].__setitem__('basis','verified_here'))
- for name in UNKNOWN_STATUS:
-  probe('promote_'+name+'_check_status_KEEP_bases_and_refs',lambda x,n=name:x['authority_bounds'][n].__setitem__('check_status','PASS'))
-  probe('add_'+name+'_asserted_authority_context_KEEP_positive_false',lambda x,n=name:x['authority_bounds'][n].__setitem__('institutionally_signed',True))
-  probe('promote_'+name+'_positive_claim',lambda x,n=name:x['authority_bounds'][n].__setitem__('positive_claim',True))
- probe('wrong_unknown_record_type',lambda x:x['authority_bounds'].__setitem__('current_native_caller_P41',[]))
- probe('bool_unknown_check_status',lambda x:x['authority_bounds']['full_native_fixture_outcome'].__setitem__('check_status',True))
- status_promoted=copy.deepcopy(packet);status_promoted['authority_bounds']['full_native_fixture_outcome']['check_status']='PASS'
- unknown_removed=admit(args.repo,status_promoted,remove_unknown_records=True)
- require(status_promoted['authority_bounds']['full_native_fixture_outcome']['check_status']=='PASS','unknown record removal divergence')
  removed=admit(args.repo,bad,remove_basis=True)
  require(next(r for r in bad['predicate_basis'] if r['predicate']=='current_native_caller_P41')['basis']!=EXPECTED['current_native_caller_P41'],'removal divergence')
- print(json.dumps({'schema':'policyos.e02.passive_P37_metadata_validation.v1','outcome':'PASS','prior_publication_sha':PRIOR,'prior_publication_tree_sha':TREE,'prior111DOC_paths_byte_identical':True,'preserved_literal_copies':len(literal),'preserved_literal_bytes':sum(r['bytes'] for r in literal),'healthy':healthy,'controls':controls,'controls_refused':len(controls),'effective_removal':{'sole_predicate_removed':'frozen predicate basis','marker_preservation':True,'actual_corrupt_P41_basis_admitted':removed,'defining_provenance_property':'FAIL'},'complete_unknown_record_removal':{'sole_predicate_removed':'admit_unknown_authority_records','all_ten_canonical_bases_refs_and_positive_false_retained':True,'actual_corrupt_native_PASS_admitted':unknown_removed,'defining_status_truthfulness_property':'FAIL'},'native_or_global_test_callbacks':0,'author_verification_not_independent_GO':True},indent=2))
+ print(json.dumps({'schema':'policyos.e02.passive_P37_metadata_validation.v1','outcome':'PASS','prior_publication_sha':PRIOR,'prior_publication_tree_sha':TREE,'prior111DOC_paths_byte_identical':True,'preserved_literal_copies':len(literal),'preserved_literal_bytes':sum(r['bytes'] for r in literal),'healthy':healthy,'controls':controls,'controls_refused':len(controls),'effective_removal':{'sole_predicate_removed':'frozen predicate basis','marker_preservation':True,'actual_corrupt_P41_basis_admitted':removed,'defining_provenance_property':'FAIL'},'native_or_global_test_callbacks':0,'author_verification_not_independent_GO':True},indent=2))
 if __name__=='__main__':main()

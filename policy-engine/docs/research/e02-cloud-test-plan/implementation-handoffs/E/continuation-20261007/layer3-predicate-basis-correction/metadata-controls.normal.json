@@ -49,9 +49,65 @@
     {
       "case": "unknown_basis_word",
       "outcome": "REFUSED"
+    },
+    {
+      "case": "promote_full_native_fixture_outcome_check_status_KEEP_bases_and_refs",
+      "outcome": "REFUSED"
+    },
+    {
+      "case": "add_full_native_fixture_outcome_asserted_authority_context_KEEP_positive_false",
+      "outcome": "REFUSED"
+    },
+    {
+      "case": "promote_full_native_fixture_outcome_positive_claim",
+      "outcome": "REFUSED"
+    },
+    {
+      "case": "promote_complete_input_isolation_check_status_KEEP_bases_and_refs",
+      "outcome": "REFUSED"
+    },
+    {
+      "case": "add_complete_input_isolation_asserted_authority_context_KEEP_positive_false",
+      "outcome": "REFUSED"
+    },
+    {
+      "case": "promote_complete_input_isolation_positive_claim",
+      "outcome": "REFUSED"
+    },
+    {
+      "case": "promote_current_native_caller_P41_check_status_KEEP_bases_and_refs",
+      "outcome": "REFUSED"
+    },
+    {
+      "case": "add_current_native_caller_P41_asserted_authority_context_KEEP_positive_false",
+      "outcome": "REFUSED"
+    },
+    {
+      "case": "promote_current_native_caller_P41_positive_claim",
+      "outcome": "REFUSED"
+    },
+    {
+      "case": "promote_finding_closure_or_institutional_authority_check_status_KEEP_bases_and_refs",
+      "outcome": "REFUSED"
+    },
+    {
+      "case": "add_finding_closure_or_institutional_authority_asserted_authority_context_KEEP_positive_false",
+      "outcome": "REFUSED"
+    },
+    {
+      "case": "promote_finding_closure_or_institutional_authority_positive_claim",
+      "outcome": "REFUSED"
+    },
+    {
+      "case": "wrong_unknown_record_type",
+      "outcome": "REFUSED"
+    },
+    {
+      "case": "bool_unknown_check_status",
+      "outcome": "REFUSED"
     }
   ],
-  "controls_refused": 8,
+  "controls_refused": 22,
   "effective_removal": {
     "sole_predicate_removed": "frozen predicate basis",
     "marker_preservation": true,
@@ -67,6 +123,22 @@
       "native_execution": false
     },
     "defining_provenance_property": "FAIL"
+  },
+  "complete_unknown_record_removal": {
+    "sole_predicate_removed": "admit_unknown_authority_records",
+    "all_ten_canonical_bases_refs_and_positive_false_retained": true,
+    "actual_corrupt_native_PASS_admitted": {
+      "predicate_count": 10,
+      "basis_counts": {
+        "consumer_asserted": 0,
+        "independently_reconciled": 3,
+        "institutionally_supplied": 0,
+        "not_established": 4,
+        "recomputed": 3
+      },
+      "native_execution": false
+    },
+    "defining_status_truthfulness_property": "FAIL"
   },
   "native_or_global_test_callbacks": 0,
   "author_verification_not_independent_GO": true

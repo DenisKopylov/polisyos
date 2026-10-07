@@ -5029,11 +5029,17 @@ def simulation_evaluation_input_ref(
             )
         except GenerationCycleError:
             return None
-        if (
-            result.schema_version != JOINT_SIMULATION_HORIZON_SCHEMA_VERSION
-            or not set(result.promotion_ready_value_packet.get("authority_blockers", ()))
-            .issubset(blockers)
-        ):
+        artifact_version = next(
+            (
+                version
+                for version, schema in _JOINT_SIMULATION_RESULT_VERSIONS.items()
+                if schema == result.schema_version
+            ),
+            None,
+        )
+        if artifact_version is None or not set(
+            result.promotion_ready_value_packet.get("authority_blockers", ())
+        ).issubset(blockers):
             return None
     content_hash = (
         str(result_ref.artifact_id)
@@ -5041,7 +5047,7 @@ def simulation_evaluation_input_ref(
         else str(simulation.simulation_ref)
     )
     schema_ref = (
-        f"{JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA}.v1"
+        f"{JOINT_SIMULATION_RESULT_ARTIFACT_SCHEMA}.v{artifact_version.split('.', 1)[0]}"
         if result_ref is not None
         else "policyos.runtime.n5.joint_simulation_observation.v1"
     )
@@ -5052,7 +5058,7 @@ def simulation_evaluation_input_ref(
             content_hash=content_hash,
             schema_ref=schema_ref,
             uri=f"runtime://n5/simulation/{simulation.candidate_id}",
-            version="1.0.0",
+            version=artifact_version if result_ref is not None else "1.0.0",
         )
     except ValueError:
         return None

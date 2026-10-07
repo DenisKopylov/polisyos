@@ -759,6 +759,62 @@ def test_direct_foundry_value_port_refuses_sparse_owner_profile(
                 problem=problem,
                 artifact_store=witness.store,
             )
+            assert len(evaluation_context.evaluation_input_refs) == 1
+            simulation_input_ref = evaluation_context.evaluation_input_refs[0]
+            simulation_result_ref = witness.simulation.simulation_result_ref
+            assert simulation_result_ref is not None
+            assert simulation_input_ref.artifact_type == "joint_simulation_observation"
+            assert simulation_input_ref.artifact_id == (
+                f"polisyos.runtime.n5.simulation.{witness.candidate.candidate_id}"
+            )
+            assert simulation_input_ref.content_hash == str(simulation_result_ref.artifact_id)
+            assert simulation_input_ref.schema_ref == (
+                "policyos.runtime.n5.joint_simulation_result.v2"
+            )
+            assert simulation_input_ref.version == "2.0.0"
+
+            foreign_ref = witness.world_model_build.record_ref
+            assert witness.store.get_manifest(foreign_ref).kind == "runtime.quality.world_model_record"
+            foreign_result = witness.simulation.model_copy(
+                update={"simulation_result_ref": foreign_ref}
+            )
+            assert generation_cycle.simulation_evaluation_input_ref(
+                foreign_result,
+                artifact_store=witness.store,
+                candidate=witness.candidate,
+                problem=problem,
+            ) is None
+            with pytest.raises(
+                ValueError,
+                match="eval_safety_simulation_input_unresolved",
+            ):
+                generation_cycle.simulation_value_execution_context(
+                    candidate=witness.candidate,
+                    simulation=foreign_result,
+                    problem=problem,
+                    artifact_store=witness.store,
+                )
+
+            tampered_receipt = witness.simulation.model_copy(
+                update={"simulation_ref": "sha256:" + "0" * 64}
+            )
+            assert generation_cycle.simulation_evaluation_input_ref(
+                tampered_receipt,
+                artifact_store=witness.store,
+                candidate=witness.candidate,
+                problem=problem,
+            ) is None
+            with pytest.raises(
+                ValueError,
+                match="eval_safety_simulation_input_unresolved",
+            ):
+                generation_cycle.simulation_value_execution_context(
+                    candidate=witness.candidate,
+                    simulation=tampered_receipt,
+                    problem=problem,
+                    artifact_store=witness.store,
+                )
+
             value = generation_cycle.FoundryValuePort(
                 evaluation_context=evaluation_context,
                 repo_root=tmp_path,

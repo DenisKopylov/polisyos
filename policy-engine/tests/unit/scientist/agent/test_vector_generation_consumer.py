@@ -106,6 +106,10 @@ def test_exact_transfer_reference_beyond_1000_keys_survives_fresh_native_reader(
     assert len(memory) == len(discovered) == 1002
     selected = next(run for run in discovered if run.run_id == source.run_id)
     assert selected.history_ref == source.history_ref
+    for discovery_limit in (1, 2):
+        bounded = manager.find_similar_runs(target, top_k=discovery_limit)
+        reselected = next(run for run in bounded if run.run_id == source.run_id)
+        assert reselected.history_ref == selected.history_ref
     assert memory.metadata_for_key(source.run_id)["history_ref"] == source.history_ref.model_dump(
         mode="json"
     )

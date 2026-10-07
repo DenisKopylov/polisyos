@@ -1,0 +1,36 @@
+{
+  "payload_count": 6,
+  "payload_bytes": 51293,
+  "files": {
+    "native.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-lexical-final-evidence/native.txt",
+      "bytes": 3034,
+      "sha256": "721eb5eefa9d245905f008a3f8eba21ff70cb3bcf74dcf967867eb0886d2b6cb"
+    },
+    "native.xml": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-lexical-final-evidence/native.xml",
+      "bytes": 605,
+      "sha256": "405043ccd0980d2a82aad0c1d6cdca0e0cfa1e700560c97d2010a40856c00628"
+    },
+    "wrapper.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-lexical-final-evidence/wrapper.json",
+      "bytes": 1175,
+      "sha256": "584b64e114c2158caacea28148b2e2447b93b871c540ec24d216dd52ea7c948c"
+    },
+    "profile.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-lexical-final-evidence/profile.json",
+      "bytes": 38615,
+      "sha256": "0ebe4aab023f8ad3e568dd213cdfa474399b09ec8fc8c96e9ed7318ebdd498b2"
+    },
+    "run-native.source.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-lexical-final-evidence/run-native.source.txt",
+      "bytes": 4634,
+      "sha256": "a2f31be166bca3eac46ab2c43c1073e707641ebbb72580dc1ba64cc23c56663f"
+    },
+    "review.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/continuation-jit-getter-lexical-final-evidence/review.json",
+      "bytes": 3230,
+      "sha256": "502cd079072ae0535b7df3590e3451ebe8178feeead1d80e4921faebbd89ea49"
+    }
+  }
+}

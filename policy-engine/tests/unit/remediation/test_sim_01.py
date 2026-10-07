@@ -490,10 +490,30 @@ def _registered_seir_input_preflight_case(
     ("susceptible", "expected_issue"),
     [
         pytest.param(0.0, None, id="valid-zero-scalar"),
-        pytest.param("0.0", "registered_input_non_numeric:susceptible", id="string"),
-        pytest.param([0.0], "registered_input_non_numeric:susceptible", id="array-rank"),
-        pytest.param(True, "registered_input_non_numeric:susceptible", id="boolean"),
-        pytest.param(float("nan"), "registered_input_non_finite:susceptible", id="non-finite"),
+        pytest.param(
+            "0.0",
+            "registered_input_validation_failed:JointSimulationControllerError:"
+            "registered_input_non_numeric: susceptible",
+            id="string",
+        ),
+        pytest.param(
+            [0.0],
+            "registered_input_validation_failed:JointSimulationControllerError:"
+            "registered_input_non_numeric: susceptible",
+            id="array-rank",
+        ),
+        pytest.param(
+            True,
+            "registered_input_validation_failed:JointSimulationControllerError:"
+            "registered_input_non_numeric: susceptible",
+            id="boolean",
+        ),
+        pytest.param(
+            float("nan"),
+            "registered_input_validation_failed:JointSimulationControllerError:"
+            "registered_input_non_finite: susceptible",
+            id="non-finite",
+        ),
     ],
 )
 def test_registered_seir_scalar_inputs_are_preflighted_before_method_engine(

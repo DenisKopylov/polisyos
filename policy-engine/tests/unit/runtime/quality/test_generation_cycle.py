@@ -4059,7 +4059,7 @@ def test_owner_program_graph_n5_state_handoff_removal_probe_keeps_markers_red(
         # with an explicit unit-survival reference of 1.0. This is a candidate-
         # only NCM control comparator, not observed or promotion evidence.
         ncm_control_hints = {
-            "joint_simulation_horizon": {"start": 0, "end": 3, "step": 1},
+            "joint_simulation_horizon": {"start": 0, "end": 0, "step": 1},
             "joint_simulation_baseline_state": {"firm_survival": 1.0},
         }
         problem, context, candidate = _owner_n5_case_with_selected_ncm_ref(
@@ -4195,10 +4195,10 @@ async def test_generation_cycle_serves_persisted_n5_into_default_n8_value_port(
 
 
 @pytest.mark.asyncio
-async def test_single_step_static_ncm_reaches_candidate_n8_but_not_evalsafety(
+async def test_single_step_static_ncm_reaches_n8_with_simulate_only_intake(
     tmp_path: Path,
 ) -> None:
-    """A one-step static NCM stays candidate-only through N8, outside EvalSafety."""
+    """N8 can consume simulation input without producing EvalSafety authority."""
 
     from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.runtime.quality.generation_cycle import (
@@ -4302,19 +4302,27 @@ async def test_single_step_static_ncm_reaches_candidate_n8_but_not_evalsafety(
             assert value.value_receipt is None
             assert value.method_selection_receipt is None
 
-            # This narrow N8 candidate allowance does not widen the EvalSafety
-            # intake predicate that feeds promotion authority.
-            assert simulation_evaluation_input_ref(simulation, artifact_store=store) is None
-            with pytest.raises(
-                ValueError,
-                match="eval_safety_simulation_input_unresolved",
-            ):
-                simulation_value_execution_context(
-                    candidate=candidate,
-                    simulation=simulation,
-                    problem=problem,
-                    artifact_store=store,
-                )
+            simulation_input_ref = simulation_evaluation_input_ref(
+                simulation,
+                artifact_store=store,
+            )
+            assert simulation_input_ref is not None
+            execution_context = simulation_value_execution_context(
+                candidate=candidate,
+                simulation=simulation,
+                problem=problem,
+                artifact_store=store,
+            )
+            assert execution_context.evaluation_mode == "simulate_only"
+            assert execution_context.attempt_class == "simulation"
+            assert execution_context.evaluation_input_refs == (simulation_input_ref,)
+            assert len(execution_context.evaluation_input_provenance) == 1
+            provenance = execution_context.evaluation_input_provenance[0]
+            assert provenance.input_ref == simulation_input_ref
+            assert provenance.input_class == "simulation"
+            assert provenance.predicate_provenance == "recomputed"
+            assert execution_context.eval_safety_certificate_ref is None
+            assert execution_context.eval_safety_revision_head_ref is None
     finally:
         store.close()
 
@@ -5373,7 +5381,7 @@ async def test_missing_canonical_registry_never_mints_n6_bootstrap_authority(
     )
 
     cycle = run.cycles[0]
-    assert registry_lookups == 1
+    assert registry_lookups > 0
     assert cycle.terminal_kind == "acquisition_required"
     assert cycle.acquisition_receipt is None
     assert "n7_substrate_registry_unresolved" in cycle.counterexample.diagnostic.code

@@ -215,6 +215,16 @@ def _coupling_graph(
                         f"fixture://workspace-composition/{graph_id}/bounded-no-interaction"
                     ),
                 ),
+                CouplingEdge(
+                    boundary_ref=f"boundary://composition/{graph_id}/chapter-pair-reverse",
+                    source_module_ref="ws-chapter-b",
+                    target_module_ref="ws-chapter-a",
+                    relation="observed_independent_measurement",
+                    interaction_strength="none",
+                    evidence_ref=(
+                        f"fixture://workspace-composition/{graph_id}/bounded-no-interaction-reverse"
+                    ),
+                ),
             )
             if evidence_state == "observed"
             else ()

@@ -11515,7 +11515,14 @@ def _load_value_data_profile_from_l1_dcat(
         for (unit_id, period_id), values in sorted(grouped.items())
     )
     if len(owner_rows) < 4:
-        return None
+        raise ValueOwnerAccessError(
+            "acquire_data:value_owner_rows_insufficient",
+            (
+                f"selected owner profile has {len(owner_rows)} usable rows; "
+                "at least 4 are required"
+            ),
+            owner_access_ref=f"{owner_access_ref}#selected-row-count",
+        )
     measurement_units = tuple(sorted({row[3] for values in grouped.values() for row in values}))
     if not measurement_units or "" in measurement_units:
         raise ValueOwnerAccessError(

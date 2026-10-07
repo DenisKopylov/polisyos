@@ -1,0 +1,435 @@
+{
+  "schema": "policyos.e02.evidence-index.v1",
+  "target_sha": "590e5d18e7f56c7c4d2e42070dcc687c79acc58c",
+  "files": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/actual-case-partition.json",
+      "bytes": 374841,
+      "sha256": "397868f31bd78c0b60605b0c69e9008eb627abe89170dacbe0532adef53dbbdd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/candidate-590/native.txt.lossless.json",
+      "bytes": 3799665,
+      "sha256": "bc70196e2d63bb56d1ab0bf5d1d79621540e55022d1f00b50048ae5e14dc9e57"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/candidate-590/native.xml.lossless.json",
+      "bytes": 3378,
+      "sha256": "b1250ddaa8ae77e1e54da7089f7499c4050b5f02b0e0d5346423507f5f6c7bac"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/candidate-590/profile.json",
+      "bytes": 31398,
+      "sha256": "af2c39a677f863007c2caf5c07c885aacb005544e6ab4420f878f430e1b6f373"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/candidate-590/wrapper.json",
+      "bytes": 2793,
+      "sha256": "ab70c14f3e7dfec918940f5beb51f4927f647fcc156808f34587de7d65a546de"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/capture.source.txt",
+      "bytes": 6401,
+      "sha256": "b85e539272d21070692fabaf75b4ec3a9428320d476b599f2e7efc26c947be13"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/package.source.txt",
+      "bytes": 7150,
+      "sha256": "704ec0e2c40590d008bdc5cef25ee10b3239a001557fefcefb3b9fa1bcffd742"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom0/budget.json",
+      "bytes": 2443,
+      "sha256": "5a3403c6d9a78999d0efa55e51f7860a2cb2584a66cf50f8f1c44f1fa1cf5b5e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom0/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom0/fresh-reader.stdout.txt",
+      "bytes": 215958,
+      "sha256": "d16ce45ee6990d2e9077c09b5d3f41a978ce08b6979f0555ec3c421657de2f31"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom0/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "28e0996278d3f5546ac20ffb826392e98b09ffa28814c84d3ec43d573eeb8696"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom0/response.bin",
+      "bytes": 269,
+      "sha256": "ec8f798ff6e1ec510b6cf7b778b2e2b4e9638cc89e51922e3ddc7b63cdbdf4d4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom1/budget.json",
+      "bytes": 2443,
+      "sha256": "d9df2fec2c56e73eee92b07ba0870dbcecf1dbb0c552009783cc6ccd316a5e98"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom1/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom1/fresh-reader.stdout.txt",
+      "bytes": 215958,
+      "sha256": "69501a84b87d309550fd15ce4c122204b271aa718fec6157a3de693caae9b373"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom1/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "ab83c3642ca686e29c8c7586d80718f3188ef78c80270bc7b0def8178893c630"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom1/response.bin",
+      "bytes": 270,
+      "sha256": "4e65449ed8320d36c2b9e93de4206dc777e83bd204d4cce9828e20c1161fb6c8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom10/budget.json",
+      "bytes": 2443,
+      "sha256": "6d5a6d8a24d060543c02ee8d18fdad147a0afbe07cb34b19044539be9f3ec83d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom10/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom10/fresh-reader.stdout.txt",
+      "bytes": 215958,
+      "sha256": "3d6ef73455cc9866c8ef206db84236dd6ecd14d60edd36afcda1d458a062e350"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom10/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "a9761f8d707b3de0adb61c39a0cb75da876b44cc9b629c76e4f90995091db0c2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom10/response.bin",
+      "bytes": 266,
+      "sha256": "e96d4b45debdf674b5546eb7100a8ecfe32601b0642abb0c00330aaa24288105"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom11/budget.json",
+      "bytes": 2443,
+      "sha256": "639e138bf44fdbcf1916fe5ae3f5cd49b74253efaed1727894798347949a4956"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom11/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom11/fresh-reader.stdout.txt",
+      "bytes": 215958,
+      "sha256": "fc843c7f4b004605e24fd0828d048ed8f8f257562e0be65f9ea56b50710d637b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom11/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "3f73c815d055a3c140aa4f92bc1af1f26d51ad8d7d9de2082f149e1d7cbc7f4d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom11/response.bin",
+      "bytes": 267,
+      "sha256": "f1f4ba4145598fa0139c3cfad4499a8aecab7c1ddc873ffbe0457bc6405126e6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom12/budget.json",
+      "bytes": 2443,
+      "sha256": "e56894d4bcdbf7b3ac19a7a3d3610bab54504629f3646e3f07fd82f94bce4b5d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom12/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom12/fresh-reader.stdout.txt",
+      "bytes": 215958,
+      "sha256": "50d494e1554ff92e07154c4bd1c702fdea809909882e24b4d2217c3a52ed2ea9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom12/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "8804e205bd1b52061d7af3daee340a52a5da939794b156b3a6c6d1a11572200e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom12/response.bin",
+      "bytes": 265,
+      "sha256": "4dfc238aedb4de550d19c6ea0c03e1770cd0731e259c39f4943b0e9beba572e4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom13/budget.json",
+      "bytes": 2443,
+      "sha256": "944737552fc3ca49470850b729a9f00958028455183dfffe5eb50571ffce7948"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom13/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom13/fresh-reader.stdout.txt",
+      "bytes": 215958,
+      "sha256": "14487651d31fbd876e25d95c4f881955e99a0d166fa4b8ce4e273811434ce85c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom13/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "31f6c1f0545ce1b88dcb8ba0f3d389b9c789ff7da39953cefc0f83b40c33b313"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom13/response.bin",
+      "bytes": 270,
+      "sha256": "6dbd4c4ef695bcfba83fa03cc40b74931e265784a03adcd12ee09b43cadd6df8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom14/budget.json",
+      "bytes": 2443,
+      "sha256": "5beb6c29a7e286625d95c16a4739fed95f725bc3f0b5f6515264d38e3467cdb7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom14/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom14/fresh-reader.stdout.txt",
+      "bytes": 215958,
+      "sha256": "438e84506a03940d60588cc9b14baeb02be8c5d49e7f2414eeb8442aef2c81a3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom14/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "e2d7f2a0cd6e997d9ce24a7f3d3b3e3790d712812bb0fcc499b24c35ac7fae07"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom14/response.bin",
+      "bytes": 271,
+      "sha256": "be791a91d8fdc188a7753db9f0026727b52dbc9fc6e8b16ef82454929d30062b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom2/budget.json",
+      "bytes": 2443,
+      "sha256": "aba0498433d5e75a6e64b1e2a36b642ba4f0d4f9fe49964eceababe3be88d6fc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom2/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom2/fresh-reader.stdout.txt",
+      "bytes": 215958,
+      "sha256": "d8268ac1713b781d9265a695c210a151e8c98371704fb1fc8b2c09b53101897f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom2/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "5a95371eda3b16afd43f7ed9a9ce026e49214e7dd481d7d09b0a7e2440c49051"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom2/response.bin",
+      "bytes": 251,
+      "sha256": "229b8cb550c23fbf40fb062f54b0656fcd3ef3130b6bab606b5c1e10dbe6499e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom3/budget.json",
+      "bytes": 2443,
+      "sha256": "0e0be0fb48a7bc326b1e0474c5d9d9197c4f94a93dcc7a83221bcccfcadfb3ba"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom3/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom3/fresh-reader.stdout.txt",
+      "bytes": 215958,
+      "sha256": "6f5bf73b0b46f70a3df20feb8cff5439e1a36827aa1503af6de503dbb9b4f4a4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom3/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "5fdc4b46cab6e5dbccd16c9f918bfb7cc9d8b7ee394cc4e8baee3a35381b20a4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom3/response.bin",
+      "bytes": 266,
+      "sha256": "c8e10e4abd456b535e7decf879e50bd2ae2dffd8f78b22f0fe77dd678d6958d9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom4/budget.json",
+      "bytes": 3265,
+      "sha256": "2970c1e0ca8c62bc7f2e4739fc35237eab931d30e0e84e796dd3e6ea83c386a2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom4/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom4/fresh-reader.stdout.txt",
+      "bytes": 216661,
+      "sha256": "4374e75439934aa6b30f03ef8595da9e76341e54d6ffa4ddae06d8388f393886"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom4/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "4d92ec5ed2190e07c90f3f8b9bbdf469a5b5bc3bd5c410f913987952a4c9fb2a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom4/response.bin",
+      "bytes": 263,
+      "sha256": "6d5398a184aa58fcd21deb2d94702facc50db836d63bba1fa741bc46c0d6c553"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom5/budget.json",
+      "bytes": 3265,
+      "sha256": "8dbd6ee734590dbd7fcac322f56e858f27a090941939163063c1606309e79262"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom5/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom5/fresh-reader.stdout.txt",
+      "bytes": 216661,
+      "sha256": "cc56b808f082c1ae0c6df93d4cd24c7dde939de1065d80e50b2d7138f91d8395"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom5/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "d8f135de9156bc33b83a2699c4216f444770cd745987f6a74181398b07d77fda"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom5/response.bin",
+      "bytes": 265,
+      "sha256": "bbf90bfde3f98f5dbba0abd943e4e689196c617e8bc9f6a5a495864587a2683f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom6/budget.json",
+      "bytes": 3265,
+      "sha256": "a9117255ecfa6b6b345d4e325846993d9038de9866b882419aa1812f69b78a21"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom6/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom6/fresh-reader.stdout.txt",
+      "bytes": 216661,
+      "sha256": "f0a97390a726bd8282bfd749d56d9ed146d544cc4c5f15f374e0ad8a1ecc363b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom6/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "a7a8865fafd28ca6e9e91a07603bb18f49a5940cb5c42cc612a260baa33104c7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom6/response.bin",
+      "bytes": 264,
+      "sha256": "764d5323e35e88200da3e85a91d909eb7589ef0c298a15c0b83bcc1de517d9c9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom7/budget.json",
+      "bytes": 3268,
+      "sha256": "4fa33b79e43f4c1140a9fd2b85e9e0558335cc66f93fe26872c85d5f0813ef55"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom7/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom7/fresh-reader.stdout.txt",
+      "bytes": 216664,
+      "sha256": "4f7c5339fd9e58e631d1a2fea2a5b758225a3cf2dbdc32edd241f297ecbaca40"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom7/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "8e5769bfceb4a3c416dfbf541624a09364fb6569dc0884e092a7ff091820acaa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom7/response.bin",
+      "bytes": 266,
+      "sha256": "fe915f60fe5e68749da9d4960588fe87e65c61daf7ace5f56523866241c645a2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom8/budget.json",
+      "bytes": 3270,
+      "sha256": "bb46f4b9d2325876a0f0d5c0d5af75dacb68095f03926acd6c3aac4e49291eaa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom8/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom8/fresh-reader.stdout.txt",
+      "bytes": 216667,
+      "sha256": "6d25650f4bad8500af89eabffbcf07c3765acbf849ce9a633fa75f185f012707"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom8/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "60290d90f7e901fd476ef56bf15e96f07d9646eb3b73c87fac938dcc7bb265d9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom8/response.bin",
+      "bytes": 266,
+      "sha256": "15220d4298fb5621dac7f16063a24a613372bcdec77aff0f5f918d94d6f8df84"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom9/budget.json",
+      "bytes": 2443,
+      "sha256": "c743b571eb439d6cf16c4420840a4e10bf2730013479b8ba4f0f54a4eba29bac"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom9/fresh-reader.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom9/fresh-reader.stdout.txt",
+      "bytes": 215958,
+      "sha256": "39715fe8e3da944e786cc978a584dc61d4dfd322349f6cd8e21f84e430c64f48"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom9/http-work.jsonl",
+      "bytes": 181,
+      "sha256": "1a925031ee84824dbab34615ccc144d6820ee04b5926e5154b72c58b04b06ae5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/physical-inputs/test_http_money_does_not_becom9/response.bin",
+      "bytes": 267,
+      "sha256": "138d04f93864e46446df597039b4c0b1719adfc7116706b8d9f6c77eb8fc81e7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/read-notes.md",
+      "bytes": 3375,
+      "sha256": "92f0629247b2a310cab63caa5f8556ae82c5ea76fa1f1cadcf6f7dec30581ed0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/source-custody.json",
+      "bytes": 270955,
+      "sha256": "defb142d778724da6532d9d7a26a6cd15934fbe13a926008b8ff912af44ff0ab"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/B/tenth-wave-gateway-custody-evidence/source-custody.source.txt",
+      "bytes": 7252,
+      "sha256": "76a460260e1e47bbf076041696ea3cb52c0cf1750fadb83de3e21b3bd2ccaeb3"
+    }
+  ],
+  "payload_count": 85,
+  "payload_bytes": 7797566,
+  "deciding_bytes": "Complete moderate stdout, XML, wrapper, phase/source partition and actual filesystem backings; stdout/XML use lossless JSON.text.",
+  "retained_old_receipts": "Source-custody.json binds old E7 HTTP30/removal20F10P and independent15/base/removal pins without restamping."
+}

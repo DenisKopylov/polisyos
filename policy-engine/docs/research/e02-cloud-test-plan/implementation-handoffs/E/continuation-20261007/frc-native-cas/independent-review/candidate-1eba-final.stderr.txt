@@ -1,0 +1,3 @@
+/workspace/e02-E-continuation-20261006/policy-engine/.venv/lib/python3.14/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+  PydanticSerializationUnexpectedValue(Expected `ArtifactID` - serialized value may not be as expected [field_name='artifact_id', input_value='sha256:fffffffffffffffff...fffffffffffffffffffffff', input_type=str])
+  return self.__pydantic_serializer__.to_python(

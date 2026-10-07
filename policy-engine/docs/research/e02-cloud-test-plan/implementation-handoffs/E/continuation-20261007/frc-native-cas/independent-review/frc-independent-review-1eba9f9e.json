@@ -1,0 +1,556 @@
+{
+  "schema": "policyos.e02.independent_review.v1",
+  "reviewer": "E oracle_r4 (no source authorship)",
+  "disposition": "GO for bounded native witness and unapplied A packet; A default/HTTP remains pending",
+  "source_base_sha": "cd450453cd1dab88e5890ea4f67ae2a6b65269dc",
+  "source_base_tree": "211636937e6e9c3d9fcb8480084d624c7ae746f3",
+  "candidate_sha": "1eba9f9e47a82cca1db341314a748b4980e015fc",
+  "candidate_tree": "0b79095f9293a04ca263356b24d22478b46e6688",
+  "complete_footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/a-owner-contract.json",
+      "git_blob": "f47621903cd61cc843aeb8b61480dd677e0291d2",
+      "sha256": "f4981ba0117e18a80290555c545bf11d666a8585395cb5f4ada7fed796163fd1",
+      "bytes": 5746
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/a-status-reason-tests.py.txt",
+      "git_blob": "6046e1770339def66d96c457778e2cbb03078d6f",
+      "sha256": "293110a89223941ae3a772ea59226831aef2a459ca9b17bcefc8157ef574455c",
+      "bytes": 5982
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/frc-native-cas/a-status-reason.patch.txt",
+      "git_blob": "9a69d4d9da18acfbbd305a40f011b4f780a7e1fe",
+      "sha256": "8653a775b1432c961a61c53f752196856c724b1f3509f891434c610c43b653bb",
+      "bytes": 2485
+    },
+    {
+      "path": "policy-engine/tests/_helpers/forecast.py",
+      "git_blob": "b6cfe5afd6506e05cc5acde0e63c9decbf5288ea",
+      "sha256": "3cecf5c250f701cbc04f2bc1165eefab275958ddeb8b1c92bf6461cf98ff028c",
+      "bytes": 4547
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_frc_01.py",
+      "git_blob": "2e70c6bfc908ad4d15096eec9cf5bb0b2b091a80",
+      "sha256": "26339b905dd7cf1e00e13469644818fe8a25e602bfb30b803d073350bc0bb0a9",
+      "bytes": 16018
+    },
+    {
+      "path": "policy-engine/tests/unit/scientist/methods/backtesting/test_forecast_owner.py",
+      "git_blob": "484bc3420fe8d8d521e483b090e0862e967b0c2e",
+      "sha256": "272ed2a9220769af6bbf79a13a9221da3926254284755cde5188ec59e0227dec",
+      "bytes": 14611
+    }
+  ],
+  "source_bytes_unchanged": true,
+  "product_source_change": false,
+  "finding_ids": [
+    "B32",
+    "LA-051"
+  ],
+  "ledger_disposition": "partial retained; code review does not accept original finding closure",
+  "property_path": [
+    "strict ForecastOwnerRequest with resolved synthetic schema/request/profile/rule",
+    "actual ETS NumPy dispatcher",
+    "separate persisted candidate receipt/empirical evidence in configured CAS",
+    "fresh canonical resolver and native RealValueOwnerGateway",
+    "fresh S10 typed support/calibration record with six distinct time roles"
+  ],
+  "independent_oracle": "Noise-free 1..30 linear source: derive 31..34 from last value and first difference independently of ETS/accounting loops; fresh raw source rows and issued interval bytes yield 4/4 or 0/4. Threshold .8 is fixture admission only.",
+  "native_cases": [
+    {
+      "case": "healthy",
+      "outcome": "PASS",
+      "expected_points": [
+        31.0,
+        32.0,
+        33.0,
+        34.0
+      ],
+      "actual_source_holdout": [
+        31.0,
+        32.0,
+        33.0,
+        34.0
+      ],
+      "issued_intervals": [
+        [
+          31.0,
+          31.0
+        ],
+        [
+          32.0,
+          32.0
+        ],
+        [
+          33.0,
+          33.0
+        ],
+        [
+          34.0,
+          34.0
+        ]
+      ],
+      "manual_hits": 4,
+      "denominator": 4,
+      "candidate_ref": {
+        "artifact_id": "sha256:2592a156800c62dabfdaaf037c19f6e0cb5129f286292f73e8e98d8aacd82b6a",
+        "kind": "ir.forecast_candidate_receipt",
+        "media_type": "application/json"
+      },
+      "empirical_ref": {
+        "artifact_id": "sha256:944958f8cc7164970de4a7e63ea0bf8ae6dc083e4f4860a3395a74607f685e95",
+        "kind": "ir.empirical_calibration_evidence",
+        "media_type": "application/json"
+      },
+      "six_roles": {
+        "data_valid_time": "2026-01-01T00:00:00Z",
+        "calibration_window_start": "2026-01-02T00:00:00Z",
+        "calibration_window_end": "2026-01-03T00:00:00Z",
+        "policy_effective_time": "2026-01-04T00:00:00Z",
+        "prediction_time": "2026-01-05T00:00:00Z",
+        "observation_time": "2026-01-06T00:00:00Z"
+      },
+      "unit": {
+        "schema_ref": {
+          "artifact_id": "sha256:48f43b6dd6c6f5bbe06e928be399d0b5d7aa6517d69c13ed19242a97d2ec04d2",
+          "kind": "fabric.data_schema",
+          "media_type": "application/json"
+        },
+        "schema_id": "test.forecast",
+        "schema_version": "1.0.0",
+        "target_metric": "metric",
+        "field_id": "metric",
+        "unit_id": "count",
+        "scale": "source_native",
+        "data_type": "float64",
+        "decimal_storage_scale": null
+      },
+      "consumer_tier": "observable_calibrated",
+      "consumer_limitations": [],
+      "consumer_disposition_reason": "persisted predictive interval observations were recomputed from held-out data",
+      "producer_failure_codes": [],
+      "default_HTTP_verified": false
+    },
+    {
+      "case": "floor_limited",
+      "outcome": "PASS",
+      "expected_points": [
+        31.0,
+        32.0,
+        33.0,
+        34.0
+      ],
+      "actual_source_holdout": [
+        1000.0,
+        1000.0,
+        1000.0,
+        1000.0
+      ],
+      "issued_intervals": [
+        [
+          31.0,
+          31.0
+        ],
+        [
+          32.0,
+          32.0
+        ],
+        [
+          33.0,
+          33.0
+        ],
+        [
+          34.0,
+          34.0
+        ]
+      ],
+      "manual_hits": 0,
+      "denominator": 4,
+      "candidate_ref": {
+        "artifact_id": "sha256:4f9babc81daa2fbe02fedde6aee66e43d591f9ca52e615754ca99ff6b2b113d3",
+        "kind": "ir.forecast_candidate_receipt",
+        "media_type": "application/json"
+      },
+      "empirical_ref": {
+        "artifact_id": "sha256:6e59c20094ed8e861f3336d4b4fecab45826c687993bc1645a89ee5139551764",
+        "kind": "ir.empirical_calibration_evidence",
+        "media_type": "application/json"
+      },
+      "six_roles": {
+        "data_valid_time": "2026-01-01T00:00:00Z",
+        "calibration_window_start": "2026-01-02T00:00:00Z",
+        "calibration_window_end": "2026-01-03T00:00:00Z",
+        "policy_effective_time": "2026-01-04T00:00:00Z",
+        "prediction_time": "2026-01-05T00:00:00Z",
+        "observation_time": "2026-01-06T00:00:00Z"
+      },
+      "unit": {
+        "schema_ref": {
+          "artifact_id": "sha256:48f43b6dd6c6f5bbe06e928be399d0b5d7aa6517d69c13ed19242a97d2ec04d2",
+          "kind": "fabric.data_schema",
+          "media_type": "application/json"
+        },
+        "schema_id": "test.forecast",
+        "schema_version": "1.0.0",
+        "target_metric": "metric",
+        "field_id": "metric",
+        "unit_id": "count",
+        "scale": "source_native",
+        "data_type": "float64",
+        "decimal_storage_scale": null
+      },
+      "consumer_tier": "blocked",
+      "consumer_limitations": [
+        "s10://calibration/insufficient-history"
+      ],
+      "consumer_disposition_reason": "empirical calibration evidence is limited: calibration_floor_not_met",
+      "producer_failure_codes": [
+        "calibration_floor_not_met"
+      ],
+      "default_HTTP_verified": false
+    },
+    {
+      "case": "missing_ref",
+      "outcome": "PASS",
+      "record": null,
+      "tier": "blocked",
+      "reason": "empirical_evidence_ref_missing",
+      "S6": [
+        "s10://calibration/fail-closed/empirical_evidence_ref_missing"
+      ],
+      "disposition_reason": "S10 owner refused value because the Foundry report was missing."
+    },
+    {
+      "case": "unresolved_ref",
+      "outcome": "PASS",
+      "record": null,
+      "tier": "blocked",
+      "reason": "empirical_evidence_ref_unresolved",
+      "S6": [
+        "s10://calibration/fail-closed/empirical_evidence_ref_unresolved"
+      ],
+      "disposition_reason": "S10 owner refused value because the Foundry report was missing."
+    },
+    {
+      "case": "wrong_kind",
+      "outcome": "PASS",
+      "record": null,
+      "tier": "blocked",
+      "reason": "empirical_evidence_ref_kind_mismatch",
+      "S6": [
+        "s10://calibration/fail-closed/empirical_evidence_ref_kind_mismatch"
+      ],
+      "disposition_reason": "S10 owner refused value because the Foundry report was missing."
+    },
+    {
+      "case": "wrong_time",
+      "outcome": "PASS",
+      "record": null,
+      "tier": "blocked",
+      "reason": "empirical_evidence_time_mismatch",
+      "S6": [
+        "s10://calibration/fail-closed/empirical_evidence_time_mismatch"
+      ],
+      "disposition_reason": "S10 owner refused value because the Foundry report was missing."
+    },
+    {
+      "case": "wrong_rule",
+      "outcome": "PASS",
+      "record": null,
+      "tier": "blocked",
+      "reason": "empirical_evidence_rule_mismatch",
+      "S6": [
+        "s10://calibration/fail-closed/empirical_evidence_rule_mismatch"
+      ],
+      "disposition_reason": "S10 owner refused value because the Foundry report was missing."
+    }
+  ],
+  "actual_backend_dispatches": [
+    {
+      "case": "healthy",
+      "method_fqn": "forecasting.univariate.exponential_smoothing@1.0.0",
+      "method_class": "polisyos.foundry.methods.catalog.forecasting.univariate.ExponentialSmoothingEstimator",
+      "seed": 17,
+      "backend": "numpy"
+    },
+    {
+      "case": "floor_limited",
+      "method_fqn": "forecasting.univariate.exponential_smoothing@1.0.0",
+      "method_class": "polisyos.foundry.methods.catalog.forecasting.univariate.ExponentialSmoothingEstimator",
+      "seed": 17,
+      "backend": "numpy"
+    }
+  ],
+  "property_removal": {
+    "outcome": "PASS",
+    "negative_gate_outcome": "FAIL",
+    "assertion": "CAS resolution removed: present-but-fake ref minted a calibration record",
+    "fake_ref_present": true,
+    "markers_preserved": [
+      "candidate_receipt_ref",
+      "method_ref",
+      "rule_ref",
+      "six_temporal_roles",
+      "measurement_binding",
+      "predictive_denials"
+    ],
+    "record_minted": true,
+    "scope": "faulty injected resolver deliberately bypasses CAS; does not claim trusted A default verifier"
+  },
+  "A_packet_checks": [
+    {
+      "name": "A-unpatched",
+      "outcome": "FAIL",
+      "tests": 7,
+      "failures": 7,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "test_missing_ref_tier_and_s6_share_named_missing_ref_reason",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_resolved_limited_evidence_keeps_floor_failure_reason",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[missing_ref-empirical_evidence_ref_missing]",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[unresolved_ref-empirical_evidence_ref_unresolved]",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[wrong_kind-empirical_evidence_ref_kind_mismatch]",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[wrong_time-empirical_evidence_time_mismatch]",
+          "outcome": "FAIL"
+        },
+        {
+          "name": "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[wrong_rule-empirical_evidence_rule_mismatch]",
+          "outcome": "FAIL"
+        }
+      ]
+    },
+    {
+      "name": "A-overlay",
+      "outcome": "PASS",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "cases": [
+        {
+          "name": "test_missing_ref_tier_and_s6_share_named_missing_ref_reason",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_resolved_limited_evidence_keeps_floor_failure_reason",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[missing_ref-empirical_evidence_ref_missing]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[unresolved_ref-empirical_evidence_ref_unresolved]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[wrong_kind-empirical_evidence_ref_kind_mismatch]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[wrong_time-empirical_evidence_time_mismatch]",
+          "outcome": "PASS"
+        },
+        {
+          "name": "test_native_gateway_tier_s6_and_disposition_share_resolver_reason[wrong_rule-empirical_evidence_rule_mismatch]",
+          "outcome": "PASS"
+        }
+      ]
+    }
+  ],
+  "A_packet_application": {
+    "source_sha": "1eba9f9e47a82cca1db341314a748b4980e015fc",
+    "A_canonical_source_path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+    "canonical_source_sha256": "8f0bb20ac85d357f4443ebdefc206e6069bb8738e1baeacad9b836cfa2e9ea44",
+    "patch_sha256": "8653a775b1432c961a61c53f752196856c724b1f3509f891434c610c43b653bb",
+    "test_packet_sha256": "293110a89223941ae3a772ea59226831aef2a459ca9b17bcefc8157ef574455c",
+    "overlay_source_sha256": "5ba218ff24b37b461d0db11dc76a4e0e68fe3a500488e3249da21f51f337fcb1",
+    "patch_command": [
+      "patch",
+      "--forward",
+      "-p1",
+      "--directory=/workspace/e02-E-pr38-r3-receipts/frc-independent/A-overlay",
+      "--input=/workspace/e02-E-pr38-r3-receipts/frc-independent/A-owner-packet.patch"
+    ],
+    "patch_exit_code": 0,
+    "repository_source_unchanged": true,
+    "ownership": "A packet applied only to ignored isolated scratch; A owner review/application remains pending"
+  },
+  "author_saved_checks_reviewed": {
+    "native": {
+      "tests": 30,
+      "pass": 29,
+      "fail": 1,
+      "cause": "A missing-ref S6 propagation (not inherited; exact candidate test is red)"
+    },
+    "unpatched_A_packet": {
+      "tests": 7,
+      "pass": 0,
+      "fail": 7
+    },
+    "isolated_A_packet_plus_native": {
+      "tests": 20,
+      "pass": 20,
+      "fail": 0
+    },
+    "A_reason_property_removal": {
+      "tests": 7,
+      "pass": 2,
+      "fail": 5,
+      "property_removed": "resolver-error priority in disposition only; error marker suffix retained but obscured by existing evidence reason"
+    }
+  },
+  "candidate_delta_review": "a305\u21921eba changes Core import bindings/qualified uses in four fixture/test paths and packet three-hunk wording only; same definitions/functions through existing Core artifacts/canon module exports. All six complete final paths reviewed.",
+  "deciding_output_refs": [
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frc-independent/candidate-1eba-final/native-fRC-review-results.json",
+      "sha256": "d12b4bf0fcbafcb6e864e9f5af444dc64989497b8423b1510bd4b15507da529e",
+      "bytes": 10648
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frc-independent/candidate-1eba-final.stdout.txt",
+      "sha256": "832dea50b5f4917d344fa041fa189dfdc245f32d75f56ab645d16fe73fbe5a1b",
+      "bytes": 4727
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frc-independent/candidate-1eba-final.stderr.txt",
+      "sha256": "40e5860a66ceceac7a1d275f51ac24b7d3c22f64c04ddc26908048c4d8a80168",
+      "bytes": 415
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frc-independent/A-overlay-inputs.json",
+      "sha256": "c75be684bcd0380b43c29a708ff0bf93c3167a688be617720a19b4e72b1ec77f",
+      "bytes": 934
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frc-independent/A-unpatched.xml",
+      "sha256": "4db99ac917f967fb2cc67d166b169c2bd7ac6319b73b13233f5e0b042decf33e",
+      "bytes": 23312
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frc-independent/A-unpatched.stdout.txt",
+      "sha256": "ecc41a66a245f8d7320a8734db97cd34b8f260688e6785cd7e6dcadef8f5dcfc",
+      "bytes": 28157
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frc-independent/A-unpatched.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frc-independent/A-overlay.xml",
+      "sha256": "e38a152278b7ff88c2dd7edc6d23a019a5b93d8444851e6a99865c4a070262e9",
+      "bytes": 1245
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frc-independent/A-overlay.stdout.txt",
+      "sha256": "e61f867ac3e35b20a83b3273722b748701a6b74e41f7bf22f50d258cbbb65cdc",
+      "bytes": 712
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frc-independent/A-overlay.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frc-independent/A-patch-application.stdout.txt",
+      "sha256": "c4594f3f3536d6a3640135375ccca41dbaf02a246f7283224b6e8a4ad4fb75b0",
+      "bytes": 77
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frc-independent/A-patch-application.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frc-independent/probe_native_frc.py",
+      "sha256": "b506635baada115153afaf03bbdd3e8d6c59ef781b7c5616532ad51db84d710e",
+      "bytes": 11146
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frc-independent/test_independent_A_packet.py",
+      "sha256": "293110a89223941ae3a772ea59226831aef2a459ca9b17bcefc8157ef574455c",
+      "bytes": 5982
+    },
+    {
+      "path": "/workspace/e02-E-pr38-r3-receipts/frc-independent/independent_A_overlay.py",
+      "sha256": "a85fc4778f78b5add643e3ac6d8fac4c824aaf596bd87d9716624ded03017586",
+      "bytes": 651
+    }
+  ],
+  "commands": {
+    "native_probe": [
+      "/workspace/e02-E-continuation-20261006/policy-engine/.venv/bin/python",
+      "/workspace/e02-E-pr38-r3-receipts/frc-independent/probe_native_frc.py",
+      "--ref",
+      "1eba9f9e47a82cca1db341314a748b4980e015fc",
+      "--output-dir",
+      "/workspace/e02-E-pr38-r3-receipts/frc-independent/candidate-1eba-final"
+    ],
+    "A_unpatched": [
+      "python",
+      "-m",
+      "pytest",
+      "-c",
+      "/dev/null",
+      "-q",
+      "/workspace/e02-E-pr38-r3-receipts/frc-independent/test_independent_A_packet.py",
+      "--basetemp=/workspace/e02-E-pr38-r3-receipts/frc-independent/A-unpatched-tmp",
+      "--junitxml=/workspace/e02-E-pr38-r3-receipts/frc-independent/A-unpatched.xml"
+    ],
+    "A_overlay": [
+      "python",
+      "-m",
+      "pytest",
+      "-c",
+      "/dev/null",
+      "-q",
+      "-p",
+      "independent_A_overlay",
+      "/workspace/e02-E-pr38-r3-receipts/frc-independent/test_independent_A_packet.py",
+      "--basetemp=/workspace/e02-E-pr38-r3-receipts/frc-independent/A-overlay-tmp",
+      "--junitxml=/workspace/e02-E-pr38-r3-receipts/frc-independent/A-overlay.xml"
+    ]
+  },
+  "environment": {
+    "python": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+    "packages": {
+      "NumPy": "2.3.5",
+      "SciPy": "1.16.3",
+      "pydantic": "2.12.5"
+    }
+  },
+  "caps_added": false,
+  "limitations": [
+    "Synthetic admitted predictive profile threshold .8 is a fixture, not trusted issuer/profile authority.",
+    "Native configured gateway freshCAS proves bounded producer/reader handoff; A default/HTTP persisted verifier remains owner work.",
+    "Unpatched missing-ref/floor reason propagation tested separately as expected FAIL; packet overlay PASS is not an applied A fix.",
+    "All causal/treatment/policy authority remains denied.",
+    "No source/producer flags confer trusted verifier authority. Fresh configured native reader is distinct from default/HTTP persisted verifier.",
+    "A owns generation_cycle.py/run_lifecycle.py; patch applied only to isolated scratch and neither shared writer edited.",
+    "Initial a305 independent probe emitted an AttributeError from scratch receipt timing after assertions; preserved as harness ERROR, final corrected 1eba receipt is deciding.",
+    "Pytest /dev/null isolated configuration emitted cache permission warnings; all test statuses/JUnit retained. No global gate or CI PASS claimed."
+  ],
+  "next_owner": "A: accept/apply typed reason packet; resolve/recompute admitted profile/source/unit/split/horizon/pairs/counts/purpose/six roles under default+HTTP composition, persist own verifier decision and independently fresh-read it. G accepts code separately."
+}

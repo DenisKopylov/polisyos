@@ -63,6 +63,18 @@ valid zero counts, missing fields and invalid fields; cache serialization preser
 An observed valid reported cost takes precedence over usage pricing. Missing cost is estimated
 only from validated observed counts; invalid or inaccessible cost evidence remains unknown.
 
+Successful HTTP completion bodies decode fractional/exponent JSON numbers as exact `Decimal`
+values in `GatewayLLMResponse.raw`; integer and boolean tokens keep their distinct types.
+The existing normalized monetary interface remains `float | None`: a finite nonzero report
+that would underflow to float zero is invalid evidence and retains an unknown completion,
+rather than acquiring a reported-zero receipt. Literal zero and representable valid costs
+remain known. Prompt-cache raw snapshots preserve these exact numbers as numeric strings
+and retain their usage/cost knowledge statuses. Consumers serializing the diagnostic raw payload
+must support `Decimal` or use the existing JSON-safe conversion; it is not a float-only payload.
+Model catalogs, HTTP error-code parsing and embedded tool-argument strings keep their existing
+non-accounting decoder contracts. This boundary does not establish an external invoice amount
+for a cost outside the normalized monetary profile.
+
 With an initialized filesystem ledger, `LLMBudgetEnforcer` atomically reserves all target keys
 and persists an exact request intent before the client is entered. Constructor-bound live-owner
 identity permits concurrent owned in-flight calls. A fresh owner blocks unresolved old intents;

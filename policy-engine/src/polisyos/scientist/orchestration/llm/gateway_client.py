@@ -8,6 +8,7 @@ import uuid
 from collections.abc import AsyncIterator
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
+from decimal import Decimal
 from email.utils import parsedate_to_datetime
 from typing import TYPE_CHECKING, Any
 
@@ -517,7 +518,9 @@ class GatewayLLMClient:
                         raise err
                     if not raw_text:
                         return {}
-                    decoded = json.loads(raw_text)
+                    # Monetary/usage admission must see the provider's exact
+                    # number, not a float rounded to zero or an integer.
+                    decoded = json.loads(raw_text, parse_float=Decimal)
                     if isinstance(decoded, dict):
                         response_headers = {
                             str(key): str(value)

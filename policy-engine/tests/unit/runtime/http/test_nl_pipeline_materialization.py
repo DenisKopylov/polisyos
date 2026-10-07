@@ -13,8 +13,9 @@ from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.contracts.control import NaturalLanguageRunRequest
 from polisyos.core.contracts.execution_plan import MethodCatalogSnapshot, MethodCatalogSnapshotRef
-from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
+from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver, RuntimePrincipal
 from polisyos.runtime.http.services.control import ControlPlaneService
 from polisyos.runtime.http.services.control.nl_pipeline import (
     _DESIGN_PROBLEM_COMPILER_OUTPUT_POLICY,
@@ -37,6 +38,9 @@ from polisyos.runtime.quality.design_problem import DesignProblem, DesignProblem
 from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMResponse, GatewayToolCall
 from polisyos.scientist.orchestration.llm.simulated_gateway import SimulatedGatewayLLMClient
 from polisyos.scientist.validation.policy_grounding import build_policy_grounding_matrix_report
+from tests._helpers.control_worker import dispatch_one_control_job
+from tests.unit.runtime.http.control_service_test_support import bound_nl_authorization_proof
+from tests.unit.runtime.http.test_control_service_di import _fixture_claims
 from tools.ops_runners.runtime.canary_evidence import assemble_canary_evidence
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -3149,43 +3153,105 @@ def test_nl_pipeline_simulated_multimodel_honors_run_budget_guard_without_networ
         ),
         registry_providers=_registry_providers(),
     )
-    job_id = "job_nl_simulated_multimodel_budget"
-    service._control_store.create_job(
-        job_id=job_id,
-        kind="natural_language_run",
-        run_id="R_nl_simulated_multimodel_budget",
-        pipeline_id=None,
-        requested_execution_profile=None,
-        effective_execution_profile="dev",
-        policy_flags={},
-        capability_manifest_ref=None,
-        payload_ref=None,
-        submitted_by="tester",
+    claims = _fixture_claims()
+    request = NaturalLanguageRunRequest(
+        request="Compare deterministic simulated model variants for MSME support.",
+        context=_intent_context(
+            tenant_id=claims.tenant_id,
+            cell_id=claims.cell_id,
+            requested_authority_level="dev",
+        ),
+        domain_hint="Ukraine wartime MSME support policy",
+        max_iterations=1,
+        llm_models=["simulated-qwen", "simulated-llama"],
+        max_parallel_models=1,
+        # A nonzero cap distinguishes unknown spend from a reported zero.
+        run_budget_usd=0.10,
+        checkpoint_policy="strict",
+        stop_criteria={},
+        governance_constraints=[],
+        expected_outputs=[],
+        execution_profile="dev",
     )
+    principal = RuntimePrincipal.from_user_claims(claims)
+    launch = async_tools.run_coro_sync(
+        service.launch_nl_run(
+            request,
+            principal=principal,
+            authorization_proof=bound_nl_authorization_proof(claims, request),
+        )
+    )
+    job_id = launch.job_id
+    run_id = launch.run_id
+
+    def _run_bounded_helper_under_admission(job: Any) -> None:
+        # This is an explicit nondefault helper route: production dispatch currently
+        # runs its NL branch inline in _process_control_job_admitted.
+        admission = service._control_store.current_execution_job_admission()
+        assert admission.job.job_id == job.job_id
+        assert admission.scope.status == "established"
+        assert (
+            service._current_admitted_nl_execution_scope(
+                control_job_id=job.job_id,
+                execution_scope=None,
+            )
+            is None
+        )
+        forged_scope = replace(admission.scope, tenant_id="tenant-forged")
+        assert (
+            service._current_admitted_nl_execution_scope(
+                control_job_id=job.job_id,
+                execution_scope=forged_scope,
+            )
+            is None
+        )
+        assert admission.job.payload_ref is not None
+        with service._install_execution_scope(admission.scope):
+            payload = service._load_payload_ref(admission.job.payload_ref)
+            assert isinstance(payload, dict)
+            service._execute_nl_pipeline(
+                run_id=admission.job.run_id or run_id,
+                nl_request=str(payload["request"]),
+                context=dict(payload.get("context") or {}),
+                domain_hint=payload.get("domain_hint"),
+                data_source=request.data_source,
+                max_iterations=int(payload["max_iterations"]),
+                llm_models=list(payload["llm_models"]),
+                max_parallel_models=int(payload["max_parallel_models"]),
+                run_budget_usd=payload.get("run_budget_usd"),
+                per_model_budget_usd=payload.get("per_model_budget_usd"),
+                checkpoint_policy=str(payload["checkpoint_policy"]),
+                execution_plan_ref=payload.get("execution_plan_ref"),
+                execution_plan_payload=payload.get("execution_plan"),
+                stop_criteria_payload=payload.get("stop_criteria"),
+                governance_constraints_payload=list(
+                    payload.get("governance_constraints") or []
+                ),
+                expected_outputs_payload=list(payload.get("expected_outputs") or []),
+                control_job_id=admission.job.job_id,
+                execution_profile=admission.job.effective_execution_profile,
+                capability_manifest_ref=admission.admission_capability_manifest_ref,
+                allow_mock_fallback=False,
+                provider_preflight_payload=payload.get("provider_preflight"),
+                execution_scope=admission.scope,
+            )
+        completed = service._control_store.get_job(job.job_id)
+        assert completed is not None
+        service._control_store.complete_job(
+            job_id=job.job_id,
+            run_id=job.run_id,
+            capability_manifest_ref=admission.job.capability_manifest_ref,
+            progress=completed.progress,
+        )
 
     try:
-        service._execute_nl_pipeline(
-            run_id="R_nl_simulated_multimodel_budget",
-            nl_request="Compare deterministic simulated model variants for MSME support.",
-            context=_intent_context(requested_authority_level="dev"),
-            domain_hint="Ukraine wartime MSME support policy",
-            data_source=None,
-            max_iterations=1,
-            llm_models=["simulated-qwen", "simulated-llama"],
-            max_parallel_models=1,
-            # A nonzero cap distinguishes unknown spend from a reported zero.
-            run_budget_usd=0.10,
-            per_model_budget_usd=None,
-            checkpoint_policy="strict",
-            execution_plan_ref=None,
-            execution_plan_payload=None,
-            stop_criteria_payload={},
-            governance_constraints_payload=[],
-            expected_outputs_payload=[],
-            control_job_id=job_id,
-            allow_mock_fallback=False,
-        )
+        assert dispatch_one_control_job(
+            store=service._control_store,
+            handler=_run_bounded_helper_under_admission,
+            expected_job_id=job_id,
+        ) == job_id
         record = service._control_store.get_job(job_id)
+        diagnostic_records = service._control_store.list_diagnostic_events(job_id=job_id)
     finally:
         service.close()
 
@@ -3213,6 +3279,18 @@ def test_nl_pipeline_simulated_multimodel_honors_run_budget_guard_without_networ
     assert params["run_performance_summary"]["llm"]["usage_status"] == "missing"
 
     assert record is not None
+    assert record.state == "completed"
+    assert record.progress["diagnostic_event_status"] == "persisted"
+    assert record.progress["diagnostic_event_scope_status"] == "established"
+    progress_event_ids = record.progress["diagnostic_event_ids"]
+    assert len(progress_event_ids) == 1
+    persisted_event_ids = {item.event.event_id for item in diagnostic_records}
+    assert progress_event_ids[0] in persisted_event_ids
+    progress_event = next(
+        item.event for item in diagnostic_records if item.event.event_id == progress_event_ids[0]
+    )
+    assert progress_event.tenant_id == claims.tenant_id
+    assert progress_event.cell_id == claims.cell_id
     progress_variants = record.progress["variants"]
     first_progress = progress_variants[variants[0]["model_variant_id"]]
     skipped_progress = progress_variants[variants[1]["model_variant_id"]]

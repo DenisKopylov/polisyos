@@ -101,6 +101,7 @@ logger = get_logger(__name__)
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.runtime.http.services.control_plane_store import ControlJobExecutionScope
 
 
 class NaturalLanguagePipelineRefusalError(RuntimeError):
@@ -2004,6 +2005,37 @@ def _serialize_critique_report(critique: object) -> dict[str, Any]:
 class NaturalLanguageRunMixin:
     """Natural-language runtime path split out of ControlPlaneService."""
 
+    def _current_admitted_nl_execution_scope(
+        self,
+        *,
+        control_job_id: str,
+        execution_scope: ControlJobExecutionScope | None,
+    ) -> ControlJobExecutionScope | None:
+        """Return only the exact scope currently admitted for this live job lease."""
+        from ..control_plane_store import ControlJobExecutionScope
+
+        if not control_job_id.strip() or type(execution_scope) is not ControlJobExecutionScope:
+            return None
+        control_store = getattr(self, "_control_store", None)
+        current_admission = getattr(control_store, "current_execution_job_admission", None)
+        if not callable(current_admission):
+            return None
+        try:
+            admission = current_admission()
+        except Exception:
+            # A helper may continue producing candidate artifacts without an
+            # audit event when it has no verifiable live job admission.
+            return None
+        admitted_scope = getattr(admission, "scope", None)
+        admitted_job = getattr(admission, "job", None)
+        if (
+            type(admitted_scope) is not ControlJobExecutionScope
+            or getattr(admitted_job, "job_id", None) != control_job_id
+            or admitted_scope != execution_scope
+        ):
+            return None
+        return admitted_scope
+
     def _execute_nl_pipeline(
         self,
         run_id: str,
@@ -2028,6 +2060,7 @@ class NaturalLanguageRunMixin:
         allow_mock_fallback: Literal[False] = False,
         capability_manifest_updater: Callable[[list[str]], str] | None = None,
         provider_preflight_payload: dict[str, Any] | None = None,
+        execution_scope: ControlJobExecutionScope | None = None,
     ) -> dict[str, Any]:
         """Run the production NL path; mock authority is structurally unavailable."""
 
@@ -2063,6 +2096,7 @@ class NaturalLanguageRunMixin:
             capability_manifest_ref=capability_manifest_ref,
             capability_manifest_updater=capability_manifest_updater,
             provider_preflight_payload=provider_preflight_payload,
+            execution_scope=execution_scope,
             contract_testing_agent_factory=None,
         )
         result["nl_authority"] = _NLProductionAuthorityStamp().model_dump(mode="json")
@@ -2091,6 +2125,7 @@ class NaturalLanguageRunMixin:
         capability_manifest_ref: str | None = None,
         capability_manifest_updater: Callable[[list[str]], str] | None = None,
         provider_preflight_payload: dict[str, Any] | None = None,
+        execution_scope: ControlJobExecutionScope | None = None,
     ) -> dict[str, Any]:
         """Run the explicit non-promotable mock lane for contract tests only."""
 
@@ -2121,6 +2156,7 @@ class NaturalLanguageRunMixin:
             capability_manifest_ref=capability_manifest_ref,
             capability_manifest_updater=capability_manifest_updater,
             provider_preflight_payload=provider_preflight_payload,
+            execution_scope=execution_scope,
             contract_testing_agent_factory=build_nl_contract_testing_agents,
         )
         result["contract_testing_authority"] = NLContractTestingAuthorityStamp().model_dump(
@@ -2152,6 +2188,7 @@ class NaturalLanguageRunMixin:
         capability_manifest_updater: Callable[[list[str]], str] | None = None,
         provider_preflight_payload: dict[str, Any] | None = None,
         contract_testing_agent_factory: Callable[[], tuple[object, ...]] | None = None,
+        execution_scope: ControlJobExecutionScope | None = None,
     ) -> dict[str, Any]:
         """Shared implementation used by the fenced production and contract-test routers."""
         from polisyos.common.async_tools import run_coro_sync
@@ -2392,31 +2429,60 @@ class NaturalLanguageRunMixin:
                     for variant in progress_variants.values()
                 )
                 emit_diagnostic_event = getattr(self, "_emit_runtime_diagnostic_event", None)
-                if callable(emit_diagnostic_event):
-                    diagnostic_event_id = emit_diagnostic_event(
-                        job_id=control_job_id,
-                        run_id=run_id,
-                        execution_profile=execution_profile,
-                        phase=phase,
-                        event_type="polisyos.runtime.diagnostic.ref_publication.v1",
-                        state_after=state,
-                        payload={
-                            "tenant_id": context.get("tenant_id"),
-                            "cell_id": context.get("cell_id"),
-                        },
-                        event_payload={
-                            "phase": phase,
-                            "state": state,
-                            "variant_id": variant_id,
-                            "selected_variant_id": selected_variant_id,
-                            "details": _progress_json(details or {}),
-                            "progress_authority": "progress_reference_only",
-                        },
-                        artifact_refs=list(runtime_quality_refs.values()),
+                if control_job_id:
+                    admitted_scope = self._current_admitted_nl_execution_scope(
+                        control_job_id=control_job_id,
+                        execution_scope=execution_scope,
                     )
-                    if diagnostic_event_id:
-                        snapshot["diagnostic_event_ids"] = [diagnostic_event_id]
-                        snapshot["diagnostic_event_authority"] = "progress_reference_only"
+                    if admitted_scope is None:
+                        snapshot.update(
+                            {
+                                "diagnostic_event_status": "not_persisted",
+                                "diagnostic_event_scope_status": "not_established",
+                                "diagnostic_event_limitation_code": (
+                                    "control_job_execution_scope_not_established"
+                                ),
+                            }
+                        )
+                    elif not callable(emit_diagnostic_event):
+                        snapshot.update(
+                            {
+                                "diagnostic_event_status": "not_persisted",
+                                "diagnostic_event_scope_status": "established",
+                                "diagnostic_event_limitation_code": (
+                                    "runtime_diagnostic_event_emitter_unavailable"
+                                ),
+                            }
+                        )
+                    else:
+                        emission = emit_diagnostic_event(
+                            job_id=control_job_id,
+                            run_id=run_id,
+                            execution_profile=execution_profile,
+                            phase=phase,
+                            event_type="polisyos.runtime.diagnostic.ref_publication.v1",
+                            state_after=state,
+                            payload={},
+                            event_payload={
+                                "phase": phase,
+                                "state": state,
+                                "variant_id": variant_id,
+                                "selected_variant_id": selected_variant_id,
+                                "details": _progress_json(details or {}),
+                                "progress_authority": "progress_reference_only",
+                            },
+                            artifact_refs=list(runtime_quality_refs.values()),
+                            execution_scope=admitted_scope,
+                        )
+                        snapshot["diagnostic_event_status"] = emission.status
+                        snapshot["diagnostic_event_scope_status"] = emission.scope_status
+                        if emission.limitation_code is not None:
+                            snapshot["diagnostic_event_limitation_code"] = (
+                                emission.limitation_code
+                            )
+                        if emission.event_id is not None:
+                            snapshot["diagnostic_event_ids"] = [emission.event_id]
+                            snapshot["diagnostic_event_authority"] = "progress_reference_only"
                 try:
                     self._control_store.update_progress_state(
                         job_id=control_job_id,

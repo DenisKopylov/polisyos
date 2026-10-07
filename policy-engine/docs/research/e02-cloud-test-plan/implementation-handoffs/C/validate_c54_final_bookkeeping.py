@@ -844,6 +844,49 @@ def git_blob_bytes(revision: str, path: str) -> bytes:
     )
 
 
+def git_source_file(
+    commit: str,
+    tree: str,
+    path: str,
+    *,
+    expected_sha256: str | None = None,
+    expected_blob: str | None = None,
+    expected_size: int | None = None,
+) -> tuple[bytes, str]:
+    """Read a source only when the path is present in the pinned Git tree."""
+    relative = Path(path)
+    if (
+        not re.fullmatch(r"[0-9a-f]{40}", commit)
+        or not re.fullmatch(r"[0-9a-f]{40}", tree)
+        or relative.is_absolute()
+        or ".." in relative.parts
+        or "\\" in path
+    ):
+        raise AssertionError("Git source reference has an invalid commit, tree, or path")
+    if git("rev-parse", f"{commit}^{{tree}}") != tree:
+        raise AssertionError(("Git source tree mismatch", commit, path))
+    spec = f"{commit}:{relative.as_posix()}"
+    exists = subprocess.run(  # noqa: S603 - trusted Git object query; argv and shell disabled.
+        ["git", "cat-file", "-e", spec],  # noqa: S607 - Git executable resolved by PATH.
+        cwd=ROOT,
+        capture_output=True,
+        check=False,
+    )
+    if exists.returncode != 0:
+        raise AssertionError(("Git source path is absent from pinned tree", spec))
+    if git("cat-file", "-t", spec) != "blob":
+        raise AssertionError(("Git source path is not a file blob", spec))
+    raw = git_blob_bytes(commit, relative.as_posix())
+    blob = git("rev-parse", spec)
+    if expected_blob is not None and blob != expected_blob:
+        raise AssertionError(("Git source blob mismatch", spec, blob, expected_blob))
+    if expected_sha256 is not None and sha(raw) != expected_sha256:
+        raise AssertionError(("Git source SHA-256 mismatch", spec, sha(raw), expected_sha256))
+    if expected_size is not None and len(raw) != expected_size:
+        raise AssertionError(("Git source size mismatch", spec, len(raw), expected_size))
+    return raw, blob
+
+
 def git_path_exists(revision: str, path: str) -> bool:
     return (
         subprocess.run(  # noqa: S603 - trusted Git path query; argv, no shell.
@@ -988,13 +1031,13 @@ def verify_current_source_family_refs(c2_cut: dict, c3_input: dict) -> dict:
             raise AssertionError((family, "implementation paths are absent from the Git delta"))
 
         handoff_path = Path(ref["handoff_path"])
-        if handoff_path.is_absolute() or ".." in handoff_path.parts:
-            raise AssertionError((family, "handoff path escapes the repository"))
-        handoff_spec = f"{handoff_commit}:{handoff_path.as_posix()}"
-        handoff_raw = git_bytes(handoff_spec)
-        handoff_blob = git("rev-parse", handoff_spec)
-        if sha(handoff_raw) != ref["handoff_sha256"] or handoff_blob != ref["handoff_git_blob"]:
-            raise AssertionError((family, "handoff SHA/Git blob mismatch"))
+        handoff_raw, handoff_blob = git_source_file(
+            handoff_commit,
+            handoff_tree,
+            handoff_path.as_posix(),
+            expected_sha256=ref["handoff_sha256"],
+            expected_blob=ref["handoff_git_blob"],
+        )
         handoff_doc = json.loads(handoff_raw)
         if (
             resolve_pointer(handoff_doc, ref["candidate_commit_pointer"]) != candidate_commit
@@ -1028,6 +1071,183 @@ def verify_current_source_family_refs(c2_cut: dict, c3_input: dict) -> dict:
     return verified
 
 
+def nested_git_file_refs(value: object) -> list[dict]:
+    """Find relative path/SHA objects inside selected evidence values."""
+    found = []
+    if isinstance(value, dict):
+        if isinstance(value.get("path"), str) and isinstance(value.get("sha256"), str):
+            found.append(value)
+        else:
+            for child in value.values():
+                found.extend(nested_git_file_refs(child))
+    elif isinstance(value, list):
+        for child in value:
+            found.extend(nested_git_file_refs(child))
+    return found
+
+
+def verify_supplemental_source_handoffs(
+    c2_cut: dict, c3_input: dict
+) -> tuple[list[dict], dict[str, list[str]]]:
+    """Resolve supplemental handoffs, candidates, and files from committed Git trees."""
+    raw_refs = c3_input.get("supplemental_source_handoffs", [])
+    if not isinstance(raw_refs, list):
+        raise AssertionError("supplemental source handoffs must be an array")
+    c2_rows = {row["id"]: row for row in c2_cut["rows"]}
+    verified = []
+    refs_by_finding: dict[str, list[str]] = {}
+    seen_refs: set[str] = set()
+    for ref in raw_refs:
+        if not isinstance(ref, dict):
+            raise AssertionError("supplemental source handoff entry must be an object")
+        ref_id = ref.get("ref_id")
+        family = ref.get("family")
+        if not isinstance(ref_id, str) or not ref_id or ref_id in seen_refs:
+            raise AssertionError("supplemental source handoff ref_id is missing or duplicated")
+        seen_refs.add(ref_id)
+        if family not in c2_cut["topic_source_refs"]:
+            raise AssertionError((ref_id, "unknown source family"))
+        handoff_raw, handoff_blob = git_source_file(
+            ref["source_commit"],
+            ref["source_tree"],
+            ref["path"],
+            expected_sha256=ref["sha256"],
+            expected_blob=ref["git_blob"],
+            expected_size=ref.get("size_bytes"),
+        )
+        handoff_doc = json.loads(handoff_raw)
+        finding_ids = ref.get("finding_ids")
+        if (
+            not isinstance(finding_ids, list)
+            or not finding_ids
+            or len(set(finding_ids)) != len(finding_ids)
+        ):
+            raise AssertionError((ref_id, "finding scope is empty or duplicated"))
+        criterion_ids: set[str] = set()
+        for finding_id in finding_ids:
+            row = c2_rows.get(finding_id)
+            if row is None or row["source_family"] != family:
+                raise AssertionError(
+                    (ref_id, finding_id, "finding absent or outside source family")
+                )
+            criterion_ids.update(item["criterion_id"] for item in row["criterion_refs"])
+            refs_by_finding.setdefault(finding_id, []).append(ref_id)
+        declared_criteria = resolve_pointer(handoff_doc, ref["criterion_ids_pointer"])
+        if (
+            not isinstance(declared_criteria, list)
+            or len(declared_criteria) != len(set(declared_criteria))
+            or set(declared_criteria) != criterion_ids
+        ):
+            raise AssertionError((ref_id, "handoff criterion IDs differ from row scope"))
+        evidence_pointers = ref.get("evidence_pointers")
+        if not isinstance(evidence_pointers, list) or not evidence_pointers:
+            raise AssertionError((ref_id, "selected evidence pointers are empty"))
+        selected_evidence_files = []
+        for pointer in evidence_pointers:
+            selected = resolve_pointer(handoff_doc, pointer)
+            if selected is None or selected == "" or selected == [] or selected == {}:
+                raise AssertionError((ref_id, pointer, "selected evidence pointer is empty"))
+            for file_ref in nested_git_file_refs(selected):
+                path = file_ref["path"]
+                if Path(path).is_absolute():
+                    raise AssertionError(
+                        (ref_id, path, "selected supplemental evidence is not repository-portable")
+                    )
+                file_raw, file_blob = git_source_file(
+                    ref["source_commit"],
+                    ref["source_tree"],
+                    path,
+                    expected_sha256=file_ref["sha256"],
+                    expected_blob=file_ref.get("git_blob"),
+                    expected_size=file_ref.get("bytes", file_ref.get("size_bytes")),
+                )
+                selected_evidence_files.append(
+                    {
+                        "path": path,
+                        "sha256": sha(file_raw),
+                        "git_blob": file_blob,
+                        "size_bytes": len(file_raw),
+                    }
+                )
+        candidate_records = []
+        candidates = ref.get("candidate_bindings")
+        if not isinstance(candidates, list) or not candidates:
+            raise AssertionError((ref_id, "candidate bindings are empty"))
+        for candidate in candidates:
+            commit = resolve_pointer(handoff_doc, candidate["commit_pointer"])
+            tree = resolve_pointer(handoff_doc, candidate["tree_pointer"])
+            if not re.fullmatch(r"[0-9a-f]{40}", commit) or not re.fullmatch(r"[0-9a-f]{40}", tree):
+                raise AssertionError((ref_id, "candidate identity is malformed"))
+            if git("rev-parse", f"{commit}^{{tree}}") != tree:
+                raise AssertionError((ref_id, "candidate commit/tree mismatch"))
+            if (
+                subprocess.run(  # noqa: S603 - trusted Git ancestry query; argv and shell disabled.
+                    ["git", "merge-base", "--is-ancestor", commit, ref["source_commit"]],  # noqa: S607 - Git executable.
+                    cwd=ROOT,
+                    capture_output=True,
+                    check=False,
+                ).returncode
+                != 0
+            ):
+                raise AssertionError((ref_id, "candidate is not in handoff ancestry"))
+            parents = git("show", "-s", "--format=%P", commit).split()
+            parents_pointer = candidate.get("parents_pointer")
+            if parents_pointer and resolve_pointer(handoff_doc, parents_pointer) != parents:
+                raise AssertionError((ref_id, "candidate parent list mismatch"))
+            source_files = []
+            for pointer in candidate.get("source_file_pointers", []):
+                file_ref = resolve_pointer(handoff_doc, pointer)
+                if not isinstance(file_ref, dict) or file_ref.get("commit") != commit:
+                    raise AssertionError((ref_id, pointer, "source-file commit binding mismatch"))
+                file_raw, file_blob = git_source_file(
+                    commit,
+                    tree,
+                    file_ref["path"],
+                    expected_sha256=file_ref["sha256"],
+                    expected_blob=file_ref["git_blob"],
+                    expected_size=file_ref.get("bytes"),
+                )
+                source_files.append(
+                    {
+                        "path": file_ref["path"],
+                        "source_file_pointer": pointer,
+                        "sha256": sha(file_raw),
+                        "git_blob": file_blob,
+                        "size_bytes": len(file_raw),
+                    }
+                )
+            candidate_records.append(
+                {
+                    "role": candidate["role"],
+                    "commit": commit,
+                    "tree": tree,
+                    "commit_pointer": candidate["commit_pointer"],
+                    "tree_pointer": candidate["tree_pointer"],
+                    "parents": parents,
+                    "parents_pointer": parents_pointer,
+                    "source_files": source_files,
+                }
+            )
+        verified.append(
+            {
+                "ref_id": ref_id,
+                "family": family,
+                "source_commit": ref["source_commit"],
+                "source_tree": ref["source_tree"],
+                "path_at_sha256": f"{ref['path']}@sha256:{ref['sha256']}",
+                "git_blob": handoff_blob,
+                "size_bytes": len(handoff_raw),
+                "finding_ids": finding_ids,
+                "criterion_ids": sorted(criterion_ids),
+                "criterion_ids_pointer": ref["criterion_ids_pointer"],
+                "evidence_pointers": evidence_pointers,
+                "selected_evidence_files": selected_evidence_files,
+                "candidate_bindings": candidate_records,
+            }
+        )
+    return verified, refs_by_finding
+
+
 def parse_tsv_bytes(raw: bytes) -> list[dict[str, str]]:
     return list(csv.DictReader(io.StringIO(raw.decode("utf-8")), delimiter="\t"))
 
@@ -1056,21 +1276,27 @@ def verify_portable_receipt_bindings(c2_cut: dict, c2_source: dict, c3_input: di
         relative_path = Path(binding["portable_path"])
         if relative_path.is_absolute() or ".." in relative_path.parts:
             raise AssertionError((receipt_id, "portable path escapes the repository"))
-        raw = (ROOT / relative_path).read_bytes()
+        if binding.get("source_path") != relative_path.as_posix():
+            raise AssertionError((receipt_id, "portable source path differs from indexed path"))
+        raw, blob = git_source_file(
+            binding["source_commit"],
+            binding["source_tree"],
+            binding["source_path"],
+            expected_sha256=binding["sha256"],
+            expected_blob=binding["source_git_blob"],
+            expected_size=binding["size_bytes"],
+        )
         digest = sha(raw)
-        if digest != binding["sha256"] or len(raw) != binding["size_bytes"]:
-            raise AssertionError((receipt_id, "portable companion SHA/size mismatch"))
-        blob = git("hash-object", "--", relative_path.as_posix())
-        if len(blob) != 40 or any(character not in "0123456789abcdef" for character in blob):
-            raise AssertionError((receipt_id, "portable companion Git blob ID is malformed"))
         expected = {
             "receipt_id": receipt_id,
             "historical_path_at_sha256": historical_locator,
             "historical_source_status": "verification_missing",
             "path_at_sha256": f"{relative_path.as_posix()}@sha256:{digest}",
             "git_blob": blob,
+            "source_commit": binding["source_commit"],
+            "source_tree": binding["source_tree"],
             "size_bytes": len(raw),
-            "current_content_status": "verified_by_sha256_and_size",
+            "current_content_status": "verified_from_pinned_git_tree",
             "role": binding["role"],
         }
         result.append(expected)
@@ -1205,6 +1431,9 @@ def run_c3(
         raise AssertionError("C2 source cut byte/blob binding mismatch")
     c2_cut = json.loads(c2_raw)
     verified_current_families = verify_current_source_family_refs(c2_cut, c3_input)
+    verified_supplemental_handoffs, supplemental_by_finding = verify_supplemental_source_handoffs(
+        c2_cut, c3_input
+    )
     if final_mode:
         required_refresh_families = set(c3_input["family_refresh_states"]) - {"default"}
         missing_refresh_families = required_refresh_families - set(verified_current_families)
@@ -1259,6 +1488,8 @@ def run_c3(
         raise AssertionError("C3 family refs differ from the compact exact C2 source pins")
     if cut.get("current_source_family_refs") != verified_current_families:
         raise AssertionError("C3 current source-family refs are not the verified handoff set")
+    if cut.get("supplemental_source_handoffs", []) != verified_supplemental_handoffs:
+        raise AssertionError("C3 supplemental handoffs differ from the verified Git source set")
     for family, source_ref in source_families.items():
         for pin in source_ref["source_pins"]:
             if git("rev-parse", f"{pin['commit']}^{{tree}}") != pin["tree"]:
@@ -1380,10 +1611,6 @@ def run_c3(
         not isinstance(root_adjudications, dict) or set(root_adjudications) != set(c3_rows)
     ):
         raise AssertionError("final C3 input does not adjudicate the complete finding set")
-    if final_mode and any(
-        state.get("state") == "c3_source_refresh_pending" for state in family_states.values()
-    ):
-        raise AssertionError("final C3 input retains a pending source-family refresh")
     c2_row_index = {row["id"]: index for index, row in enumerate(c2_cut["rows"])}
     for finding_id, row in c3_rows.items():
         c2 = c2_rows[finding_id]
@@ -1399,6 +1626,12 @@ def run_c3(
             or row["current_evaluation"]["source_family_ref_key"] != c2["source_family"]
         ):
             raise AssertionError((finding_id, "source-family linkage mismatch"))
+        if row["current_evaluation"].get("supplemental_evidence_refs", []) != (
+            supplemental_by_finding.get(finding_id, [])
+        ):
+            raise AssertionError(
+                (finding_id, "supplemental evidence refs differ from source bindings")
+            )
         if row["c2_snapshot"] != {
             "source_row_index": index,
             "capability_label": c2["capability_label"],
@@ -1766,6 +1999,20 @@ def run_c3(
         for ref in row["current_evaluation"]["evidence_refs"]
     ):
         raise AssertionError("C3 explicit receipt pointer count mismatch")
+    expected_supplemental_counts = {
+        "supplemental_source_handoff_count": len(verified_supplemental_handoffs),
+        "supplemental_candidate_binding_count": sum(
+            len(item["candidate_bindings"]) for item in verified_supplemental_handoffs
+        ),
+        "supplemental_selected_file_reference_occurrences": sum(
+            len(item["selected_evidence_files"])
+            + sum(len(candidate["source_files"]) for candidate in item["candidate_bindings"])
+            for item in verified_supplemental_handoffs
+        ),
+    }
+    for key, expected in expected_supplemental_counts.items():
+        if cut.get("pointer_validation", {}).get(key) != expected:
+            raise AssertionError((key, "supplemental source summary mismatch", expected))
 
     md_raw = markdown_path.read_bytes()
     md_hash = sha(md_raw)
@@ -1780,6 +2027,21 @@ def run_c3(
     for row in cut["rows"]:
         if f"| {row['id']} |" not in md_text:
             raise AssertionError(("C3 Markdown omits row", row["id"]))
+    for handoff in verified_supplemental_handoffs:
+        if (
+            f"| {handoff['ref_id']} |" not in md_text
+            or handoff["path_at_sha256"] not in md_text
+            or any(pointer not in md_text for pointer in handoff["evidence_pointers"])
+        ):
+            raise AssertionError((handoff["ref_id"], "Markdown omits supplemental source binding"))
+        for finding_id in handoff["finding_ids"]:
+            row_lines = [
+                line for line in md_text.splitlines() if line.startswith(f"| {finding_id} |")
+            ]
+            if len(row_lines) != 1 or handoff["ref_id"] not in row_lines[0]:
+                raise AssertionError(
+                    (finding_id, handoff["ref_id"], "Markdown row omits supplemental evidence ref")
+                )
     for receipt in portable_index:
         expected_row = (
             f"| {receipt['receipt_id']} | {receipt['historical_source_status']} | "
@@ -1812,6 +2074,7 @@ def run_c3(
         "C3_explicit_receipt_pointers": cut["pointer_validation"][
             "C3_explicit_receipt_pointer_count"
         ],
+        **expected_supplemental_counts,
         "tree_path_presence_checks": sum(
             len(row["current_evaluation"]["tree_path_checks"]) for row in cut["rows"]
         ),

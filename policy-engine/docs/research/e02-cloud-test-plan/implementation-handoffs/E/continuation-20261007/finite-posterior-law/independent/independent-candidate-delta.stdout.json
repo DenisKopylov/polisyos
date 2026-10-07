@@ -1,0 +1,15 @@
+{
+  "outcome": "GO bounded reviewed defining mechanisms only",
+  "candidate": "2c0fb5e26172129ab3ae032c24b35ed2ced6c80f",
+  "tree": "237320d4c5db41330b3d61ff6611f0de8e64549f",
+  "receipt": {
+    "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/independent-candidate-delta-results.json",
+    "bytes": 10329,
+    "sha256": "f15fb2a9b18e67a6ba6ab63c3ed932d2f46c2d1a98af83409656bba29757d068"
+  },
+  "counts": {
+    "PASS": 3
+  },
+  "failed_cases": [],
+  "source_unchanged": true
+}

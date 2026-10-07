@@ -1,0 +1,62 @@
+
+{
+    "version": "1.39.0",
+    "time": "1791376371263",
+    "generalDiagnostics": [
+        {
+            "file": "/workspace/e02-E-mc-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "error",
+            "message": "\"profile_id\" overrides symbol of same name in class \"PosteriorSummaryProfile\"\n  Variable is mutable so its type is invariant\n    Override type \"Literal['urn:policyos:ir:bayesian-posterior-summary-profile…']\" is not the same as base type \"Literal['urn:policyos:ir:bayesian-posterior-summary-profile…']\"",
+            "range": {
+                "start": {
+                    "line": 133,
+                    "character": 4
+                },
+                "end": {
+                    "line": 133,
+                    "character": 14
+                }
+            },
+            "rule": "reportIncompatibleVariableOverride"
+        },
+        {
+            "file": "/workspace/e02-E-mc-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "error",
+            "message": "\"profile_version\" overrides symbol of same name in class \"PosteriorSummaryProfile\"\n  Variable is mutable so its type is invariant\n    Override type \"Literal['2.0']\" is not the same as base type \"Literal['1.0']\"",
+            "range": {
+                "start": {
+                    "line": 134,
+                    "character": 4
+                },
+                "end": {
+                    "line": 134,
+                    "character": 19
+                }
+            },
+            "rule": "reportIncompatibleVariableOverride"
+        },
+        {
+            "file": "/workspace/e02-E-mc-20261006/policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+            "severity": "error",
+            "message": "\"model_dump\" is not a known attribute of \"None\"",
+            "range": {
+                "start": {
+                    "line": 441,
+                    "character": 53
+                },
+                "end": {
+                    "line": 441,
+                    "character": 63
+                }
+            },
+            "rule": "reportOptionalMemberAccess"
+        }
+    ],
+    "summary": {
+        "filesAnalyzed": 1,
+        "errorCount": 3,
+        "warningCount": 0,
+        "informationCount": 0,
+        "timeInSec": 2.192
+    }
+}

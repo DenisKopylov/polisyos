@@ -1,0 +1,240 @@
+{
+  "schema": "policyos.e02.finite_law_independent_source_bracket.v1",
+  "source_base": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "precode_decision": "55422d4f179f56d796794938be66bcb0741b13ed",
+  "reviewed_numeric_source": "2c0fb5e26172129ab3ae032c24b35ed2ced6c80f",
+  "reviewed_numeric_tree": "237320d4c5db41330b3d61ff6611f0de8e64549f",
+  "candidate": "ca17a489559eb574285bb1c7291cc3c56a9e29da",
+  "tree": "f2ce9f70a02fa7184a5caac3faaeddd95f6e1d3e",
+  "clean": true,
+  "implementation_paths": 23,
+  "Python_paths": 12,
+  "complete_implementation_footprint": {
+    "policy-engine/release-fragments/unreleased/2026-10-07-posterior-ratio-law-v2.toml": {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-07-posterior-ratio-law-v2.toml",
+      "bytes": 1316,
+      "sha256": "5cfbb8a2d2b6dcf32564a98454dea5b6110e56d01bf6227e41de55ae52be2b93"
+    },
+    "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py": {
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "bytes": 17155,
+      "sha256": "0ca1f285756508e86ccfadd1ceba011a777dafd91ac2defdc843172985bf3e05"
+    },
+    "policy-engine/src/polisyos/foundry/uncertainty/README.md": {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/README.md",
+      "bytes": 5838,
+      "sha256": "de85beb0c0fcf5475fd56bddcb69eec0b19369455bc69401c1339e4d2740c646"
+    },
+    "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py": {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "bytes": 71486,
+      "sha256": "4860382fe26db3ad6a29c206aada4b94123b7cd4d941ee79c58beae342f5c47f"
+    },
+    "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py": {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "bytes": 22618,
+      "sha256": "a29fff79a9d9d7cf47f66809f2fcfcc6188722af6f5f1617eb5a78ce5c5a0f4a"
+    },
+    "policy-engine/src/polisyos/ir/__init__.py": {
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "bytes": 39467,
+      "sha256": "f7ae4be784059917c8602267231896d0d53755636f04851f149f614faf68c0bc"
+    },
+    "policy-engine/src/polisyos/ir/analytics/README.md": {
+      "path": "policy-engine/src/polisyos/ir/analytics/README.md",
+      "bytes": 8091,
+      "sha256": "f882de5d506b4c71cdd774742c5b3e6c41c4d47193f43b7afe795b8689782fe6"
+    },
+    "policy-engine/src/polisyos/ir/analytics/posterior_summary.py": {
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "bytes": 29806,
+      "sha256": "d5bc3c3351a53ce5da3f8c561bc44362108b8667f115bab5d1531eab6ebc3373"
+    },
+    "policy-engine/src/polisyos/ir/api.py": {
+      "path": "policy-engine/src/polisyos/ir/api.py",
+      "bytes": 50093,
+      "sha256": "44200deaa78c8abc9707ebd67f730d10287c07c51d2d3b7246c080e82d11e486"
+    },
+    "policy-engine/src/polisyos/schemas/abi_models.py": {
+      "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+      "bytes": 27715,
+      "sha256": "5d4366804bc9fa2b0e9c1193d1b9412fb5a1408064ffc35c3d72f4025d82de84"
+    },
+    "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/062af073068907c37495e43f204f32b8e743a3c70e6c1d68e66a5e699d1fe112.json": {
+      "path": "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/062af073068907c37495e43f204f32b8e743a3c70e6c1d68e66a5e699d1fe112.json",
+      "bytes": 2633,
+      "sha256": "062af073068907c37495e43f204f32b8e743a3c70e6c1d68e66a5e699d1fe112"
+    },
+    "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/6bb6dcc0e57c9bae2a12eccd64b2f212d77f1d5afc277b16e706b2b54592ea01.json": {
+      "path": "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/6bb6dcc0e57c9bae2a12eccd64b2f212d77f1d5afc277b16e706b2b54592ea01.json",
+      "bytes": 2636,
+      "sha256": "6bb6dcc0e57c9bae2a12eccd64b2f212d77f1d5afc277b16e706b2b54592ea01"
+    },
+    "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/9ee56651abefd7cfb475a1d3b3401eb6f06fbad53cc5d2c9bf080e1eae7857f5.json": {
+      "path": "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/9ee56651abefd7cfb475a1d3b3401eb6f06fbad53cc5d2c9bf080e1eae7857f5.json",
+      "bytes": 13717,
+      "sha256": "9ee56651abefd7cfb475a1d3b3401eb6f06fbad53cc5d2c9bf080e1eae7857f5"
+    },
+    "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/a446b56443f4ec5c3a4090227c46cf9fcda1b7b3f52229a513c78730323e55ed.json": {
+      "path": "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/a446b56443f4ec5c3a4090227c46cf9fcda1b7b3f52229a513c78730323e55ed.json",
+      "bytes": 2636,
+      "sha256": "a446b56443f4ec5c3a4090227c46cf9fcda1b7b3f52229a513c78730323e55ed"
+    },
+    "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/aefdbc77c4a25fa2c8c05d5a9b83ad4d882612b7233d32c0185464a1031d6704.json": {
+      "path": "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/aefdbc77c4a25fa2c8c05d5a9b83ad4d882612b7233d32c0185464a1031d6704.json",
+      "bytes": 2633,
+      "sha256": "aefdbc77c4a25fa2c8c05d5a9b83ad4d882612b7233d32c0185464a1031d6704"
+    },
+    "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/b1cb47300150f7bc69d379d2ef15703bab83ef5bd3ebea5b27c2011221aadc67.json": {
+      "path": "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/b1cb47300150f7bc69d379d2ef15703bab83ef5bd3ebea5b27c2011221aadc67.json",
+      "bytes": 2636,
+      "sha256": "b1cb47300150f7bc69d379d2ef15703bab83ef5bd3ebea5b27c2011221aadc67"
+    },
+    "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/f6fb5f18767393517c00379eca41f69502b821ee15c5b15c2c5cdfcb9e3daf48.json": {
+      "path": "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/f6fb5f18767393517c00379eca41f69502b821ee15c5b15c2c5cdfcb9e3daf48.json",
+      "bytes": 2636,
+      "sha256": "f6fb5f18767393517c00379eca41f69502b821ee15c5b15c2c5cdfcb9e3daf48"
+    },
+    "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/index.json": {
+      "path": "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/index.json",
+      "bytes": 7754,
+      "sha256": "d48a6a2c4b823351bf121584d7c9ba10e2eec7d23827aa8b0fb69c28b597f23f"
+    },
+    "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py": {
+      "path": "policy-engine/tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py",
+      "bytes": 9725,
+      "sha256": "f533dd8d0c7cd97bb3ffd8ef9bd8e820757f2658656a5319d9dd634e9d084fe5"
+    },
+    "policy-engine/tests/unit/foundry/uncertainty/test_finite_empirical_law.py": {
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_finite_empirical_law.py",
+      "bytes": 8500,
+      "sha256": "ce5988c98b2377f21b50d124c1ab1181c9e9b63b1b55d88e7a42972acf3401fc"
+    },
+    "policy-engine/tests/unit/ir/test_posterior_ratio_law.py": {
+      "path": "policy-engine/tests/unit/ir/test_posterior_ratio_law.py",
+      "bytes": 11522,
+      "sha256": "1335426176a93732e569d0c7c672bd99ed3b306af89c0ab6f43d4c69896669f6"
+    },
+    "policy-engine/tests/unit/ir/test_posterior_summary.py": {
+      "path": "policy-engine/tests/unit/ir/test_posterior_summary.py",
+      "bytes": 15759,
+      "sha256": "70cb3db1833afa669859b7dbefdee06265bfd001ce80194f71110431835ace64"
+    },
+    "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py": {
+      "path": "policy-engine/tests/unit/scientist/nodes/test_propagate_uncertainty_node.py",
+      "bytes": 17065,
+      "sha256": "9956dcdf865ac06ccbeccff7faa29c18cf0b77b07fa724b04ba96b10da0b270a"
+    }
+  },
+  "companion_delta_paths": [
+    "policy-engine/release-fragments/unreleased/2026-10-07-posterior-ratio-law-v2.toml",
+    "policy-engine/tests/unit/ir/test_posterior_ratio_law.py"
+  ],
+  "unchanged_product_Python": [
+    {
+      "path": "policy-engine/src/polisyos/foundry/calibration/uncertainty_adapter.py",
+      "bytes": 17155,
+      "sha256": "0ca1f285756508e86ccfadd1ceba011a777dafd91ac2defdc843172985bf3e05"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/monte_carlo.py",
+      "bytes": 71486,
+      "sha256": "4860382fe26db3ad6a29c206aada4b94123b7cd4d941ee79c58beae342f5c47f"
+    },
+    {
+      "path": "policy-engine/src/polisyos/foundry/uncertainty/sampling_admission.py",
+      "bytes": 22618,
+      "sha256": "a29fff79a9d9d7cf47f66809f2fcfcc6188722af6f5f1617eb5a78ce5c5a0f4a"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/__init__.py",
+      "bytes": 39467,
+      "sha256": "f7ae4be784059917c8602267231896d0d53755636f04851f149f614faf68c0bc"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/analytics/posterior_summary.py",
+      "bytes": 29806,
+      "sha256": "d5bc3c3351a53ce5da3f8c561bc44362108b8667f115bab5d1531eab6ebc3373"
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/api.py",
+      "bytes": 50093,
+      "sha256": "44200deaa78c8abc9707ebd67f730d10287c07c51d2d3b7246c080e82d11e486"
+    },
+    {
+      "path": "policy-engine/src/polisyos/schemas/abi_models.py",
+      "bytes": 27715,
+      "sha256": "5d4366804bc9fa2b0e9c1193d1b9412fb5a1408064ffc35c3d72f4025d82de84"
+    }
+  ],
+  "unchanged_literal_fixture_files": [
+    {
+      "path": "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/062af073068907c37495e43f204f32b8e743a3c70e6c1d68e66a5e699d1fe112.json",
+      "bytes": 2633,
+      "sha256": "062af073068907c37495e43f204f32b8e743a3c70e6c1d68e66a5e699d1fe112"
+    },
+    {
+      "path": "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/6bb6dcc0e57c9bae2a12eccd64b2f212d77f1d5afc277b16e706b2b54592ea01.json",
+      "bytes": 2636,
+      "sha256": "6bb6dcc0e57c9bae2a12eccd64b2f212d77f1d5afc277b16e706b2b54592ea01"
+    },
+    {
+      "path": "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/9ee56651abefd7cfb475a1d3b3401eb6f06fbad53cc5d2c9bf080e1eae7857f5.json",
+      "bytes": 13717,
+      "sha256": "9ee56651abefd7cfb475a1d3b3401eb6f06fbad53cc5d2c9bf080e1eae7857f5"
+    },
+    {
+      "path": "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/a446b56443f4ec5c3a4090227c46cf9fcda1b7b3f52229a513c78730323e55ed.json",
+      "bytes": 2636,
+      "sha256": "a446b56443f4ec5c3a4090227c46cf9fcda1b7b3f52229a513c78730323e55ed"
+    },
+    {
+      "path": "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/aefdbc77c4a25fa2c8c05d5a9b83ad4d882612b7233d32c0185464a1031d6704.json",
+      "bytes": 2633,
+      "sha256": "aefdbc77c4a25fa2c8c05d5a9b83ad4d882612b7233d32c0185464a1031d6704"
+    },
+    {
+      "path": "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/b1cb47300150f7bc69d379d2ef15703bab83ef5bd3ebea5b27c2011221aadc67.json",
+      "bytes": 2636,
+      "sha256": "b1cb47300150f7bc69d379d2ef15703bab83ef5bd3ebea5b27c2011221aadc67"
+    },
+    {
+      "path": "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/f6fb5f18767393517c00379eca41f69502b821ee15c5b15c2c5cdfcb9e3daf48.json",
+      "bytes": 2636,
+      "sha256": "f6fb5f18767393517c00379eca41f69502b821ee15c5b15c2c5cdfcb9e3daf48"
+    },
+    {
+      "path": "policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/index.json",
+      "bytes": 7754,
+      "sha256": "d48a6a2c4b823351bf121584d7c9ba10e2eec7d23827aa8b0fb69c28b597f23f"
+    }
+  ],
+  "unchanged_legacy_definitions": [
+    {
+      "symbol": "PosteriorSummaryProfile",
+      "AST_sha256": "9f825de628057bc0545c8b9d494bb971df195d12fbd45373a00ced5c80845fa4",
+      "source_base_equals_final": true
+    },
+    {
+      "symbol": "posterior_summary_functionals",
+      "AST_sha256": "4ffa60494ed1833e8980975ea4f734d4b27b56187f968bf8740ecc3a1992bf4b",
+      "source_base_equals_final": true
+    },
+    {
+      "symbol": "_posterior_cdf",
+      "AST_sha256": "4736b04517a296eaf408cf80b36ca6408e242f1171e9bf5121064cc066f487f4",
+      "source_base_equals_final": true
+    }
+  ],
+  "Envelope_v1_1_codec_byte_identity": {
+    "path": "policy-engine/src/polisyos/ir/analytics/uncertainty.py",
+    "source_base_equals_final": true,
+    "sha256": "cd1b451c24da469e0041786c2d5c9a58c28631c0aab8e01f0499e6ba81a190f7"
+  },
+  "numeric_execution_source_never_relabelled": true,
+  "public_helper_identity_and_actual_output": {
+    "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e/ca17-companion-delta-review.json",
+    "bytes": 998,
+    "sha256": "e777637b3f525a9ef55b5dd7e98ac0aaf096c612e7cc7fd2e38af976d02276bf"
+  }
+}

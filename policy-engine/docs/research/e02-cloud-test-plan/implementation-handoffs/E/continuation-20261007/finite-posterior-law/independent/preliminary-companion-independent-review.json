@@ -1,0 +1,405 @@
+{
+  "schema": "policyos.e02.independent_preliminary_finite_companion_assessment.v1",
+  "source_base": "64d7444a18c55df7b88b71b7699a2f1b25ca24bd",
+  "technical_plan": "55422d4f179f56d796794938be66bcb0741b13ed",
+  "author_lane": "/workspace/e02-E-mc-20261006",
+  "author_HEAD_at_observation": "55422d4f179f56d796794938be66bcb0741b13ed",
+  "candidate_immutable": false,
+  "source_acceptance": "PENDING immutable candidate; provisional test/trace compatibility review only",
+  "test_diff_snapshot": {
+    "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/preliminary-companion-delta.patch",
+    "bytes": 2940,
+    "sha256": "f25e1a1cf6f5fa0474c8ad9ead6d641d794f501feac1b7aa9a205dd560565935"
+  },
+  "new_test_snapshot": {
+    "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/preliminary-new-ratio-tests.py.txt",
+    "bytes": 10219,
+    "sha256": "500cbd6e8b495f9efa37d70b83ef30544f53c8c786dbc271eddff9d6edbe6c98"
+  },
+  "raw_closed_traces": [
+    {
+      "stem": "affected-first",
+      "JUnit": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/affected-first.xml",
+        "bytes": 19811,
+        "sha256": "92669adb518e1c55899a6157391b5c9a91892df8551222beeb247e0c0308e81e"
+      },
+      "stdout": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/affected-first.stdout.txt",
+        "bytes": 9679,
+        "sha256": "ebdd3f63bb1b46d9fc87c80d99105b3616c4eba3e2c30b76ba333907f714a011"
+      },
+      "stderr": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/affected-first.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "counts": {
+        "cases": 66,
+        "PASS": 60,
+        "FAIL": 6
+      },
+      "failed_cases": [
+        {
+          "classname": "tests.unit.ir.test_posterior_summary",
+          "name": "test_invalid_corpus_is_refused_by_real_producer[draws13-kwargs13]",
+          "failure_text": "draws = {'x': [0, 1, 2]}, kwargs = {'weights': [0.5, 1e-20, 0.5]}\n\n    @pytest.mark.parametrize(\n        (\"draws\", \"kwargs\"),\n        [\n            ({\"x\": [True, False]}, {}),\n            ({\"x\": [1, True]}, {}),\n            ({\"x\": [np.bool_(True)]}, {}),\n            ({\"x\": [np.nan]}, {}),\n            ({\"x\": [np.inf]}, {}),\n            ({\"x\": [\"1\"]}, {}),\n            ({\"x\": []}, {}),\n            ({\"x\": [[1, 2]]}, {}),\n            ({\"x\": [1, 2], \"y\": [3]}, {}),\n            ({\"x\": [0, 1]}, {\"weights\": [0, 0]}),\n            ({\"x\": [0, 1]}, {\"weights\": [1, -1]}),\n            ({\"x\": [0, 1]}, {\"weights\": [True, True]}),\n            ({\"x\": [0, 1]}, {\"weights\": [1, np.inf]}),\n            ({\"x\": [0, 1, 2]}, {\"weights\": [0.5, 1e-20, 0.5]}),\n            ({\"x\": [0, -1, 1]}, {\"weights\": [1e-20, 0.5, 0.5]}),\n            ({\"x\": [0, 1]}, {\"draw_ids\": [\"same\", \"same\"]}),\n        ],\n    )\n    def test_invalid_corpus_is_refused_by_real_producer(draws, kwargs):\n>       with pytest.raises((ValueError, TypeError)):\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       Failed: DID NOT RAISE any of (<class 'ValueError'>, <class 'TypeError'>)\n\ntests/unit/ir/test_posterior_summary.py:97: Failed"
+        },
+        {
+          "classname": "tests.unit.ir.test_posterior_summary",
+          "name": "test_invalid_corpus_is_refused_by_real_producer[draws14-kwargs14]",
+          "failure_text": "draws = {'x': [0, -1, 1]}, kwargs = {'weights': [1e-20, 0.5, 0.5]}\n\n    @pytest.mark.parametrize(\n        (\"draws\", \"kwargs\"),\n        [\n            ({\"x\": [True, False]}, {}),\n            ({\"x\": [1, True]}, {}),\n            ({\"x\": [np.bool_(True)]}, {}),\n            ({\"x\": [np.nan]}, {}),\n            ({\"x\": [np.inf]}, {}),\n            ({\"x\": [\"1\"]}, {}),\n            ({\"x\": []}, {}),\n            ({\"x\": [[1, 2]]}, {}),\n            ({\"x\": [1, 2], \"y\": [3]}, {}),\n            ({\"x\": [0, 1]}, {\"weights\": [0, 0]}),\n            ({\"x\": [0, 1]}, {\"weights\": [1, -1]}),\n            ({\"x\": [0, 1]}, {\"weights\": [True, True]}),\n            ({\"x\": [0, 1]}, {\"weights\": [1, np.inf]}),\n            ({\"x\": [0, 1, 2]}, {\"weights\": [0.5, 1e-20, 0.5]}),\n            ({\"x\": [0, -1, 1]}, {\"weights\": [1e-20, 0.5, 0.5]}),\n            ({\"x\": [0, 1]}, {\"draw_ids\": [\"same\", \"same\"]}),\n        ],\n    )\n    def test_invalid_corpus_is_refused_by_real_producer(draws, kwargs):\n>       with pytest.raises((ValueError, TypeError)):\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nE       Failed: DID NOT RAISE any of (<class 'ValueError'>, <class 'TypeError'>)\n\ntests/unit/ir/test_posterior_summary.py:97: Failed"
+        },
+        {
+          "classname": "tests.unit.ir.test_posterior_summary",
+          "name": "test_scoped_facade_resolves_actual_profile_and_reader",
+          "failure_text": "def test_scoped_facade_resolves_actual_profile_and_reader():\n        import polisyos.ir as root\n        from polisyos.ir.analytics import PosteriorSummaryProfile\n        from polisyos.ir.analytics.posterior_summary import PosteriorSummaryProfile as Defined\n    \n        assert PosteriorSummaryProfile is Defined\n>       assert root.PosteriorSummaryProfile is Defined\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/unit/ir/test_posterior_summary.py:210: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nname = 'PosteriorSummaryProfile'\n\n    def __getattr__(name: str) -> Any:\n        \"\"\"Resolve a public IR export on first access.\n    \n        Args:\n            name: Facade attribute requested by user code.\n    \n        Returns:\n            The lazily imported class, enum, or function bound to ``name``.\n    \n        Raises:\n            AttributeError: If ``name`` is not part of the stable facade surface.\n        \"\"\"\n        if name in _LAZY_IMPORTS:\n>           module_name, attr = _LAZY_IMPORTS[name]\n            ^^^^^^^^^^^^^^^^^\nE           ValueError: too many values to unpack (expected 2, got 3)\n\nsrc/polisyos/ir/__init__.py:1031: ValueError"
+        },
+        {
+          "classname": "tests.unit.ir.test_posterior_summary",
+          "name": "test_identical_summaries_do_not_merge_different_persisted_atom_laws",
+          "failure_text": "tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-245/test_identical_summaries_do_no0')\n\n    def test_identical_summaries_do_not_merge_different_persisted_atom_laws(tmp_path):\n        # Independent counts: both population second moments=.6 and equal-tail[-1,1].\n        laws = [\n            [-1.0] * 30 + [0.0] * 40 + [1.0] * 30,\n            [-4.0] + [-1.0] * 14 + [0.0] * 70 + [1.0] * 14 + [4.0],\n        ]\n        refs, readbacks = [], []\n        for values in laws:\n            env = summarize_bayesian_calibration_posterior({\"x\": values}).parameter_envelopes[\"x\"]\n            ref = persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), env)\n            refs.append(ref)\n            readbacks.append(load_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), ref))\n        assert refs[0].artifact_id != refs[1].artifact_id\n        for env in readbacks:\n            assert env.point_estimate == 0\n            assert env.confidence_interval == (-1, 1)\n            assert posterior_nominal_mean(env) == 0\n>       assert [\n            sum(\n                p\n                for x, p in zip(\n                    env.distribution_payload.samples, env.distribution_payload.weights, strict=True\n                )\n                if x == 0\n            )\n            for env in readbacks\n        ] == pytest.approx([0.4, 0.7])\nE       assert [20.0, 35.0] == approx([0.4 \u00b1....7 \u00b1 7.0e-07])\nE         \nE         comparison failed. Mismatched elements: 2 / 2:\nE         Max absolute difference: 34.3\nE         Max relative difference: 0.9800000000000001\nE         Index | Obtained | Expected     \nE         0     | 20.0     | 0.4 \u00b1 4.0e-07\nE         1     | 35.0     | 0.7 \u00b1 7.0e-07\n\ntests/unit/ir/test_posterior_summary.py:234: AssertionError"
+        },
+        {
+          "classname": "tests.unit.ir.test_posterior_summary",
+          "name": "test_quantile_sort_cdf_collapse_refuses_even_healthy_draw_order_law",
+          "failure_text": "def test_quantile_sort_cdf_collapse_refuses_even_healthy_draw_order_law():\n        from polisyos.foundry.uncertainty import sampling_admission\n    \n        probabilities = sampling_admission.admit_empirical_weights([1e-20, 0.5, 0.5], 3)\n        cumulative = sampling_admission.empirical_cdf(probabilities)\n>       assert cumulative.tolist() == [1e-20, 0.5, 1]\nE       assert [1e-20, 0.500...00000001, 1.0] == [1e-20, 0.5, 1]\nE         \nE         At index 1 diff: 0.5000000000000001 != 0.5\nE         Use -v to get more diff\n\ntests/unit/ir/test_posterior_summary.py:275: AssertionError"
+        },
+        {
+          "classname": "tests.unit.foundry.calibration.test_calibration_uncertainty_adapter",
+          "name": "test_summarize_bayesian_calibration_posterior_supports_emulator_diagnostics",
+          "failure_text": "def test_summarize_bayesian_calibration_posterior_supports_emulator_diagnostics() -> None:\n>       summary = summarize_bayesian_calibration_posterior(\n            {\n                \"node.tax_rate\": [0.21, 0.24, 0.25, 0.23, 0.22],\n                \"node.transfer\": [1.1, 1.0, 1.2, 1.05, 0.98],\n            },\n            credible_mass=0.9,\n            emulator_diagnostics={\n                \"emulator_name\": \"gp_surrogate\",\n                \"emulator_noise_std\": {\"node.tax_rate\": 0.01},\n            },\n            posterior_diagnostics={\"r_hat_max\": 1.01},\n        )\n\ntests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py:229: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nposterior_draws = {'node.tax_rate': [0.21, 0.24, 0.25, 0.23, 0.22], 'node.transfer': [1.1, 1.0, 1.2, 1.05, 0.98]}\n\n    def summarize_bayesian_calibration_posterior(\n        posterior_draws: Mapping[str, Sequence[float] | np.ndarray],\n        *,\n        credible_mass: float = 0.9,\n        emulator_diagnostics: Mapping[str, Any] | None = None,\n        posterior_diagnostics: Mapping[str, Any] | None = None,\n        weights: Sequence[float] | np.ndarray | None = None,\n        draw_ids: Sequence[str] | None = None,\n        sample_axis: str = \"draw\",\n        context: PosteriorSummaryContext | None = None,\n    ) -> BayesianCalibrationPosteriorSummary:\n        \"\"\"Summarize posterior draws from Bayesian calibration or emulator-assisted inference.\"\"\"\n    \n        if not (0.0 < credible_mass < 1.0):\n            raise ValueError(\"credible_mass must be in (0, 1)\")\n        if not posterior_draws or not isinstance(sample_axis, str) or not sample_axis.strip():\n            raise ValueError(\"posterior draws and sample axis must be non-empty\")\n        names = sorted(posterior_draws)\n        if any(not isinstance(name, str) or not name.strip() for name in names):\n            raise ValueError(\"posterior parameter names must be non-empty strings\")\n        if len(names) > 1 and draw_ids is None:\n>           raise ValueError(\"posterior joint law requires explicit producer-supplied aligned draw IDs\")\nE           ValueError: posterior joint law requires explicit producer-supplied aligned draw IDs\n\nsrc/polisyos/foundry/calibration/uncertainty_adapter.py:244: ValueError"
+        }
+      ]
+    },
+    {
+      "stem": "affected-second",
+      "JUnit": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/affected-second.xml",
+        "bytes": 14133,
+        "sha256": "a14b271509a77fdaf3eb087d497cc2d43b83fa5fe124e4d40570780fff0ce3ec"
+      },
+      "stdout": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/affected-second.stdout.txt",
+        "bytes": 1701,
+        "sha256": "82a2e970451d144b0bebc9b35112adc51eb0fec4b4df3f5a398aa79e9717eee5"
+      },
+      "stderr": {
+        "path": "/workspace/e02-E-pr38-r3-receipts/mc-joint-law-r5/affected-second.stderr.txt",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "counts": {
+        "cases": 81,
+        "PASS": 80,
+        "FAIL": 1
+      },
+      "failed_cases": [
+        {
+          "classname": "tests.unit.ir.test_posterior_summary",
+          "name": "test_scoped_facade_resolves_actual_profile_and_reader",
+          "failure_text": "def test_scoped_facade_resolves_actual_profile_and_reader():\n        import polisyos.ir as root\n        from polisyos.ir.analytics import PosteriorSummaryProfile\n        from polisyos.ir.analytics.posterior_summary import PosteriorSummaryProfile as Defined\n    \n        assert PosteriorSummaryProfile is Defined\n>       assert root.PosteriorSummaryProfile is Defined\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\ntests/unit/ir/test_posterior_summary.py:208: \n_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nname = 'PosteriorSummaryProfile'\n\n    def __getattr__(name: str) -> Any:\n        \"\"\"Resolve a public IR export on first access.\n    \n        Args:\n            name: Facade attribute requested by user code.\n    \n        Returns:\n            The lazily imported class, enum, or function bound to ``name``.\n    \n        Raises:\n            AttributeError: If ``name`` is not part of the stable facade surface.\n        \"\"\"\n        if name in _LAZY_IMPORTS:\n>           module_name, attr = _LAZY_IMPORTS[name]\n            ^^^^^^^^^^^^^^^^^\nE           ValueError: too many values to unpack (expected 2, got 3)\n\nsrc/polisyos/ir/__init__.py:1031: ValueError"
+        }
+      ]
+    }
+  ],
+  "classification": [
+    {
+      "cases": "two invalid-corpus tiny weights + sorted-CDF test",
+      "disposition": "Justified new positive support cases under exact rational convention",
+      "independent_basis": "Original/normalized rational CDF surrounds .5; float64 U=.5 reaches tiny interior category. Ceil cut .5\u2192nextafter(.5,+inf) distinguishes positive bucket. Exact value-sort quantile retains median0. Unsupported last1e-20 atom remains a negative."
+    },
+    {
+      "cases": "same summaries/different laws zero-mass sum20/35",
+      "disposition": "Justified ratio-weight test representation update",
+      "independent_basis": "100weights0.5 sum50, zero atoms40/70 have mass20/50=.4 and35/50=.7. Dividing raw weight sum by total preserves original law assertion."
+    },
+    {
+      "cases": "2-coordinate emulator diagnostics fixture",
+      "disposition": "Justified explicit shared-ID positive input",
+      "independent_basis": "New multiple-coordinate producer contract requires explicit shared row IDs; does not provide posterior-fit scientific authority."
+    },
+    {
+      "cases": "root facade Profile1 export ValueError tuple3",
+      "disposition": "Actual product regression, not an expectation change",
+      "independent_basis": "Old public symbol identity assertion remains unchanged. Product `_LAZY_IMPORTS` tuple requires exactly(module,attribute); separate source correction must pass immutable final controls."
+    }
+  ],
+  "literal_Profile1_fixtures": [
+    {
+      "fixture": {
+        "path": "/workspace/e02-E-mc-20261006/policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/6bb6dcc0e57c9bae2a12eccd64b2f212d77f1d5afc277b16e706b2b54592ea01.json",
+        "bytes": 2636,
+        "sha256": "6bb6dcc0e57c9bae2a12eccd64b2f212d77f1d5afc277b16e706b2b54592ea01"
+      },
+      "independent_old_CAS": {
+        "label": "generated_ids_same_marginals",
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/generated_ids_same_marginals-cas/artifacts/sha256/6b/b6/6bb6dcc0e57c9bae2a12eccd64b2f212d77f1d5afc277b16e706b2b54592ea01.blob",
+        "bytes": 2636,
+        "sha256": "6bb6dcc0e57c9bae2a12eccd64b2f212d77f1d5afc277b16e706b2b54592ea01",
+        "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+        "profile_version": "1.0",
+        "parameter_name": "a",
+        "expected_old_named_mean": {
+          "_type": "float",
+          "repr": "0"
+        },
+        "expected_generic_median": {
+          "_type": "float",
+          "repr": "-1"
+        },
+        "expected_equal_tail_interval": [
+          {
+            "_type": "float",
+            "repr": "-1"
+          },
+          {
+            "_type": "float",
+            "repr": "1"
+          }
+        ],
+        "expected_gate_eligible": false,
+        "row_identity_basis": "producer_input_order",
+        "role": "Exact immutable old700 profile1 producer/CAS payload for new reader compatibility review; not a new-profile/source authority or multivariate admission guarantee."
+      },
+      "byte_equal": true
+    },
+    {
+      "fixture": {
+        "path": "/workspace/e02-E-mc-20261006/policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/b1cb47300150f7bc69d379d2ef15703bab83ef5bd3ebea5b27c2011221aadc67.json",
+        "bytes": 2636,
+        "sha256": "b1cb47300150f7bc69d379d2ef15703bab83ef5bd3ebea5b27c2011221aadc67"
+      },
+      "independent_old_CAS": {
+        "label": "generated_ids_same_marginals",
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/generated_ids_same_marginals-cas/artifacts/sha256/b1/cb/b1cb47300150f7bc69d379d2ef15703bab83ef5bd3ebea5b27c2011221aadc67.blob",
+        "bytes": 2636,
+        "sha256": "b1cb47300150f7bc69d379d2ef15703bab83ef5bd3ebea5b27c2011221aadc67",
+        "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+        "profile_version": "1.0",
+        "parameter_name": "b",
+        "expected_old_named_mean": {
+          "_type": "float",
+          "repr": "0"
+        },
+        "expected_generic_median": {
+          "_type": "float",
+          "repr": "-1"
+        },
+        "expected_equal_tail_interval": [
+          {
+            "_type": "float",
+            "repr": "-1"
+          },
+          {
+            "_type": "float",
+            "repr": "1"
+          }
+        ],
+        "expected_gate_eligible": false,
+        "row_identity_basis": "producer_input_order",
+        "role": "Exact immutable old700 profile1 producer/CAS payload for new reader compatibility review; not a new-profile/source authority or multivariate admission guarantee."
+      },
+      "byte_equal": true
+    },
+    {
+      "fixture": {
+        "path": "/workspace/e02-E-mc-20261006/policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/a446b56443f4ec5c3a4090227c46cf9fcda1b7b3f52229a513c78730323e55ed.json",
+        "bytes": 2636,
+        "sha256": "a446b56443f4ec5c3a4090227c46cf9fcda1b7b3f52229a513c78730323e55ed"
+      },
+      "independent_old_CAS": {
+        "label": "generated_ids_reversed_marginals",
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/generated_ids_reversed_marginals-cas/artifacts/sha256/a4/46/a446b56443f4ec5c3a4090227c46cf9fcda1b7b3f52229a513c78730323e55ed.blob",
+        "bytes": 2636,
+        "sha256": "a446b56443f4ec5c3a4090227c46cf9fcda1b7b3f52229a513c78730323e55ed",
+        "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+        "profile_version": "1.0",
+        "parameter_name": "b",
+        "expected_old_named_mean": {
+          "_type": "float",
+          "repr": "0"
+        },
+        "expected_generic_median": {
+          "_type": "float",
+          "repr": "-1"
+        },
+        "expected_equal_tail_interval": [
+          {
+            "_type": "float",
+            "repr": "-1"
+          },
+          {
+            "_type": "float",
+            "repr": "1"
+          }
+        ],
+        "expected_gate_eligible": false,
+        "row_identity_basis": "producer_input_order",
+        "role": "Exact immutable old700 profile1 producer/CAS payload for new reader compatibility review; not a new-profile/source authority or multivariate admission guarantee."
+      },
+      "byte_equal": true
+    },
+    {
+      "fixture": {
+        "path": "/workspace/e02-E-mc-20261006/policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/f6fb5f18767393517c00379eca41f69502b821ee15c5b15c2c5cdfcb9e3daf48.json",
+        "bytes": 2636,
+        "sha256": "f6fb5f18767393517c00379eca41f69502b821ee15c5b15c2c5cdfcb9e3daf48"
+      },
+      "independent_old_CAS": {
+        "label": "generated_ids_reversed_marginals",
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/generated_ids_reversed_marginals-cas/artifacts/sha256/f6/fb/f6fb5f18767393517c00379eca41f69502b821ee15c5b15c2c5cdfcb9e3daf48.blob",
+        "bytes": 2636,
+        "sha256": "f6fb5f18767393517c00379eca41f69502b821ee15c5b15c2c5cdfcb9e3daf48",
+        "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+        "profile_version": "1.0",
+        "parameter_name": "a",
+        "expected_old_named_mean": {
+          "_type": "float",
+          "repr": "0"
+        },
+        "expected_generic_median": {
+          "_type": "float",
+          "repr": "-1"
+        },
+        "expected_equal_tail_interval": [
+          {
+            "_type": "float",
+            "repr": "-1"
+          },
+          {
+            "_type": "float",
+            "repr": "1"
+          }
+        ],
+        "expected_gate_eligible": false,
+        "row_identity_basis": "producer_input_order",
+        "role": "Exact immutable old700 profile1 producer/CAS payload for new reader compatibility review; not a new-profile/source authority or multivariate admission guarantee."
+      },
+      "byte_equal": true
+    },
+    {
+      "fixture": {
+        "path": "/workspace/e02-E-mc-20261006/policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/062af073068907c37495e43f204f32b8e743a3c70e6c1d68e66a5e699d1fe112.json",
+        "bytes": 2633,
+        "sha256": "062af073068907c37495e43f204f32b8e743a3c70e6c1d68e66a5e699d1fe112"
+      },
+      "independent_old_CAS": {
+        "label": "explicit_shared_ids_healthy",
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/explicit_shared_ids_healthy-cas/artifacts/sha256/06/2a/062af073068907c37495e43f204f32b8e743a3c70e6c1d68e66a5e699d1fe112.blob",
+        "bytes": 2633,
+        "sha256": "062af073068907c37495e43f204f32b8e743a3c70e6c1d68e66a5e699d1fe112",
+        "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+        "profile_version": "1.0",
+        "parameter_name": "a",
+        "expected_old_named_mean": {
+          "_type": "float",
+          "repr": "0"
+        },
+        "expected_generic_median": {
+          "_type": "float",
+          "repr": "-1"
+        },
+        "expected_equal_tail_interval": [
+          {
+            "_type": "float",
+            "repr": "-1"
+          },
+          {
+            "_type": "float",
+            "repr": "1"
+          }
+        ],
+        "expected_gate_eligible": false,
+        "row_identity_basis": "producer_supplied_ids",
+        "role": "Exact immutable old700 profile1 producer/CAS payload for new reader compatibility review; not a new-profile/source authority or multivariate admission guarantee."
+      },
+      "byte_equal": true
+    },
+    {
+      "fixture": {
+        "path": "/workspace/e02-E-mc-20261006/policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/aefdbc77c4a25fa2c8c05d5a9b83ad4d882612b7233d32c0185464a1031d6704.json",
+        "bytes": 2633,
+        "sha256": "aefdbc77c4a25fa2c8c05d5a9b83ad4d882612b7233d32c0185464a1031d6704"
+      },
+      "independent_old_CAS": {
+        "label": "explicit_shared_ids_healthy",
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/explicit_shared_ids_healthy-cas/artifacts/sha256/ae/fd/aefdbc77c4a25fa2c8c05d5a9b83ad4d882612b7233d32c0185464a1031d6704.blob",
+        "bytes": 2633,
+        "sha256": "aefdbc77c4a25fa2c8c05d5a9b83ad4d882612b7233d32c0185464a1031d6704",
+        "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+        "profile_version": "1.0",
+        "parameter_name": "b",
+        "expected_old_named_mean": {
+          "_type": "float",
+          "repr": "0"
+        },
+        "expected_generic_median": {
+          "_type": "float",
+          "repr": "-1"
+        },
+        "expected_equal_tail_interval": [
+          {
+            "_type": "float",
+            "repr": "-1"
+          },
+          {
+            "_type": "float",
+            "repr": "1"
+          }
+        ],
+        "expected_gate_eligible": false,
+        "row_identity_basis": "producer_supplied_ids",
+        "role": "Exact immutable old700 profile1 producer/CAS payload for new reader compatibility review; not a new-profile/source authority or multivariate admission guarantee."
+      },
+      "byte_equal": true
+    },
+    {
+      "fixture": {
+        "path": "/workspace/e02-E-mc-20261006/policy-engine/tests/fixtures/ir/posterior-summary-profile-v1/9ee56651abefd7cfb475a1d3b3401eb6f06fbad53cc5d2c9bf080e1eae7857f5.json",
+        "bytes": 13717,
+        "sha256": "9ee56651abefd7cfb475a1d3b3401eb6f06fbad53cc5d2c9bf080e1eae7857f5"
+      },
+      "independent_old_CAS": {
+        "label": "finite_probability_residual",
+        "path": "/tmp/e02-E-ir-G855-conditions-independent-64d/finite_probability_residual-cas/artifacts/sha256/9e/e5/9ee56651abefd7cfb475a1d3b3401eb6f06fbad53cc5d2c9bf080e1eae7857f5.blob",
+        "bytes": 13717,
+        "sha256": "9ee56651abefd7cfb475a1d3b3401eb6f06fbad53cc5d2c9bf080e1eae7857f5",
+        "profile_id": "urn:policyos:ir:bayesian-posterior-summary-profile:1",
+        "profile_version": "1.0",
+        "parameter_name": "x",
+        "expected_old_named_mean": {
+          "_type": "float",
+          "repr": "10000000000000"
+        },
+        "expected_generic_median": {
+          "_type": "float",
+          "repr": "0"
+        },
+        "expected_equal_tail_interval": [
+          {
+            "_type": "float",
+            "repr": "0"
+          },
+          {
+            "_type": "float",
+            "repr": "0"
+          }
+        ],
+        "expected_gate_eligible": false,
+        "row_identity_basis": "producer_input_order",
+        "role": "Exact immutable old700 profile1 producer/CAS payload for new reader compatibility review; not a new-profile/source authority or multivariate admission guarantee."
+      },
+      "byte_equal": true
+    }
+  ],
+  "all_literal7_equal_actual_old700_CAS_bytes": true,
+  "defining_assertion_preservation": "Invalid bool/nonfinite/negative/allzero guards, distinct-law CAS refs, actual mean/median/interval and nongating assertions remain. New tests add oldProfile1 exact raw replay, newProfile2 placement, missing IDs/fresh forged premise before callback, all3backends, ceil boundary neighbors and effective shared-admission removal. No source/finding GO from revised test counts.",
+  "new_test_quality_limits": [
+    "Boundary oracle uses exact Fraction condition separate from production ceil-floor search, appropriate independent specification oracle.",
+    "Hundred-atom test proves exact named mean and declared ratio-weight format; its >=CDF assertion alone is not a proof of exact law and will be independently supplemented by complete exact-boundary checks.",
+    "Literal fixtures were independently matched to actual old700 CAS payloads, so replay assertions are not generated from the new producer.",
+    "New nearweights assertion is an input oracle; independent final checks must exercise actual paired consumer refusal and CAS read/digest adversarial controls."
+  ],
+  "runtime_checks_repeated": false
+}

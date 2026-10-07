@@ -1,0 +1,69 @@
+{
+  "schema": "policyos.e02.final_split_source_handoff_recomputation.v1",
+  "healthy": {
+    "source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+    "tree": "8d19c30199666cf97dd3934f60d772baa3071f7e",
+    "footprint": 24,
+    "Python": 12,
+    "copied_unique_files": 150,
+    "copied_bytes": 4465527,
+    "numeric414_source": "2c0fb5e26172129ab3ae032c24b35ed2ced6c80f",
+    "qualified33_source": "ca17a489559eb574285bb1c7291cc3c56a9e29da",
+    "DTO13_source": "3932cded22a29254a7dfced99723e147d6fea7cb",
+    "historical_ledger_unchanged": true
+  },
+  "controls": [
+    {
+      "case": "wrong_candidate",
+      "outcome": "PASS refused",
+      "reason": "split_source_identities"
+    },
+    {
+      "case": "wrong_tree",
+      "outcome": "PASS refused",
+      "reason": "candidate_tree"
+    },
+    {
+      "case": "removed_footprint_with_markers",
+      "outcome": "PASS refused",
+      "reason": "full_footprint"
+    },
+    {
+      "case": "wrong_env_receipt",
+      "outcome": "PASS refused",
+      "reason": "changed_ref:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/author/runtime-environment-public-bindings.json"
+    },
+    {
+      "case": "wrong_finite_review",
+      "outcome": "PASS refused",
+      "reason": "changed_ref:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/independent/independent-final-review-ca17.json"
+    },
+    {
+      "case": "wrong_DTO_review",
+      "outcome": "PASS refused",
+      "reason": "changed_ref:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/owner-api/dto-append-independent-review.json"
+    },
+    {
+      "case": "forged_fullABI102",
+      "outcome": "PASS refused",
+      "reason": "actual_registry_denominators"
+    },
+    {
+      "case": "forged_IRABI103",
+      "outcome": "PASS refused",
+      "reason": "actual_registry_denominators"
+    },
+    {
+      "case": "numeric_rebranded_final",
+      "outcome": "PASS refused",
+      "reason": "split_source_identities"
+    },
+    {
+      "case": "supplementary_copy_hash_changed",
+      "outcome": "PASS refused",
+      "reason": "changed_ref:policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/supplementary-copy-index.json"
+    }
+  ],
+  "handoff_sha256": "ab824029f3a75cce79e6b050591ada23bd48f22cb32f338d5a61cd51e08cfda2",
+  "limitations": "Custody and complete immutable source/input denominator only. No new numeric/global wave, external generator acceptance or original finding decision. Raw prior stdout and history remain separate."
+}

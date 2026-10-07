@@ -1,0 +1,42 @@
+{
+  "schema": "policyos.e02.E.ca17_companion.v1",
+  "source": "ca17a489559eb574285bb1c7291cc3c56a9e29da",
+  "tree": "f2ce9f70a02fa7184a5caac3faaeddd95f6e1d3e",
+  "product_unchanged": true,
+  "facade": [
+    {
+      "name": "admit_empirical_weights",
+      "definition_module": "polisyos.foundry.uncertainty.sampling_admission",
+      "identity_equal": true,
+      "declared_export": true
+    },
+    {
+      "name": "empirical_cdf",
+      "definition_module": "polisyos.foundry.uncertainty.sampling_admission",
+      "identity_equal": true,
+      "declared_export": true
+    }
+  ],
+  "release_fragment": {
+    "sha256": "5cfbb8a2d2b6dcf32564a98454dea5b6110e56d01bf6227e41de55ae52be2b93",
+    "change_class": "persisted-artifact-format"
+  },
+  "native_internal_test_seams": [
+    {
+      "path": "polisyos.foundry.calibration.uncertainty_adapter",
+      "symbol": "summarize_bayesian_calibration_posterior",
+      "classification": "Native E producer fixture, no public alias claimed; canonical Calibration/Core API admission is separate owner packet."
+    },
+    {
+      "path": "polisyos.foundry.uncertainty.monte_carlo",
+      "symbol": "MonteCarloPropagator",
+      "classification": "Native E sampler fixture, no public alias claimed; Foundry facade export owner packet separate."
+    },
+    {
+      "path": "polisyos.foundry.uncertainty.sampling_admission",
+      "symbol": "module removal fixture",
+      "classification": "Canonical facade-bound internal module used only to remove the actual admission in a negative; not declared public API."
+    }
+  ],
+  "finding_closure": false
+}

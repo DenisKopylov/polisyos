@@ -1,0 +1,50 @@
+"""Recompute source/output custody, with content-corruption refusals under -O too."""
+from copy import deepcopy
+from pathlib import Path
+import argparse,hashlib,json,re,subprocess,xml.etree.ElementTree as ET
+P=argparse.ArgumentParser();P.add_argument('--root',required=True);P.add_argument('--controls',action='store_true');P.add_argument('--output',required=True);a=P.parse_args()
+ROOT=Path(a.root);D=ROOT/'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law'
+def require(v,msg):
+ if not v:raise ValueError(msg)
+def git(*args):return subprocess.check_output(['git','-C',str(ROOT),*args],text=True).strip()
+def validate(h):
+ for key in ['base','decision_commit','implementation_commit','companion_commit','candidate','numeric_candidate','tree','numeric_tree']:
+  require(re.fullmatch('[0-9a-f]{40}',h[key]),'nonexact_source_identity:'+key)
+ require(git('rev-parse',h['candidate']+'^{tree}')==h['tree'],'tree_identity')
+ require(git('rev-parse',h['numeric_candidate']+'^{tree}')==h['numeric_tree'],'numeric_tree_identity')
+ require(h['candidate']==h['companion_commit'],'companion_identity')
+ for parent,child in [(h['base'],h['decision_commit']),(h['decision_commit'],h['implementation_commit']),(h['implementation_commit'],h['candidate'])]:
+  require(subprocess.run(['git','-C',str(ROOT),'merge-base','--is-ancestor',parent,child],capture_output=True).returncode==0,'append_ancestry')
+ require(git('diff','--name-only',h['numeric_candidate'],h['candidate'],'--','policy-engine/src')=='','product_reuse_delta')
+ changed=git('diff','--name-only',h['base'],h['candidate']).splitlines()
+ require(sorted(changed)==sorted(h['diff_paths']),'full_changed_footprint')
+ def readref(ref):
+  p=ROOT/ref['path'];b=p.read_bytes();require(len(b)==ref['bytes'] and hashlib.sha256(b).hexdigest()==ref['sha256'],'changed_ref:'+ref['path']);return b
+ index=json.loads(readref(h['copy_index']));require(index['file_count']==len(index['files']),'copy_denominator');require(index['bytes']==sum(r['bytes'] for r in index['files']),'copy_size')
+ for row in index['files']:
+  b=(D/row['portable_path']).read_bytes();require(len(b)==row['bytes'] and hashlib.sha256(b).hexdigest()==row['sha256'],'copy_content:'+row['portable_path'])
+ footprint=json.loads(readref(h['full_footprint']));require(footprint['candidate']==h['candidate'] and footprint['tree']==h['tree'],'footprint_source')
+ require(sorted(r['path'] for r in footprint['rows'])==sorted(changed),'footprint_complete')
+ for row in footprint['rows']:
+  b=subprocess.check_output(['git','-C',str(ROOT),'show',h['candidate']+':'+row['path']]);require(len(b)==row['bytes'] and hashlib.sha256(b).hexdigest()==row['sha256'],'frozen_blob:'+row['path'])
+ family=ET.fromstring((D/'author/immutable-candidate-family.xml').read_bytes())
+ counts={'cases':len(list(family.iter('testcase'))),'failures':len(list(family.iter('failure'))),'errors':len(list(family.iter('error'))),'skipped':len(list(family.iter('skipped')))}
+ require(counts=={'cases':414,'failures':0,'errors':0,'skipped':0},'native_XML_denominator')
+ review=json.loads(readref(h['independent_oracle']));require(review['candidate']==h['candidate'] and review['numeric_candidate']==h['numeric_candidate'],'independent_source')
+ require(review['source_acceptance'].startswith('GO '),'independent_source_disposition')
+ require(review['reconciled_unique_controls']==33 and review['reconciled_current_control_outcomes']=={'PASS':33},'qualified_control_count')
+ require('not a newly executed' in review['count_scope'],'history_not_rebranded')
+ require(h['owner_ready_packets']['G_IR_schema_public_generator']['actual_ABI_models']==103,'actual_ABI_registry_count')
+ env=json.loads(readref(h['environment']));require(env['abi_count']==103 and len(env['packages'])==184,'actual_environment_count')
+ return {'source':h['candidate'],'tree':h['tree'],'copy_files':len(index['files']),'copy_bytes':index['bytes'],'footprint':len(changed),'Python':sum(x.endswith('.py') for x in changed),'native_XML':counts,'qualified_independent_controls':33}
+h=json.loads((D/'handoff.json').read_text());healthy=validate(h);controls=[]
+if a.controls:
+ changes=[('wrong_candidate',lambda x:x.update(candidate='0'*40)),('wrong_tree',lambda x:x.update(tree='0'*40)),('removed_path_keep_count_markers',lambda x:x['diff_paths'].pop()),('wrong_environment_ref',lambda x:x['environment'].update(sha256='0'*64)),('wrong_independent_ref',lambda x:x['independent_oracle'].update(sha256='0'*64)),('actual_ABI_count_forged',lambda x:x['owner_ready_packets']['G_IR_schema_public_generator'].update(actual_ABI_models=102)),('numeric_rebranded_as_companion',lambda x:x.update(numeric_candidate=x['candidate'])),('copy_index_changed_hash',lambda x:x['copy_index'].update(sha256='0'*64))]
+ for name,mutate in changes:
+  changed=deepcopy(h);mutate(changed)
+  try:validate(changed)
+  except (ValueError,FileNotFoundError,subprocess.CalledProcessError) as e:controls.append({'case':name,'outcome':'PASS refused','reason':str(e)})
+  else:raise ValueError('corruption_accepted:'+name)
+result={'schema':'policyos.e02.E.handoff_recomputing_validation.v1','healthy':healthy,'controls':controls,'limitations':'Custody/source/actual closed-output recomputation only; defining runtime math and original finding decision remain separate independent evidence. No new numerical or global gate run.'}
+with Path(a.output).open('x') as f:json.dump(result,f,indent=2);f.write('\n')
+print(json.dumps(result,indent=2))

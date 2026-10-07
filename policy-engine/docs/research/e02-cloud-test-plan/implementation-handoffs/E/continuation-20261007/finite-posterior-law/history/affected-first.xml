@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="6" skipped="0" tests="66" time="6.578" timestamp="2026-10-07T12:05:32.751223+00:00" hostname="b5f0914494dc"><testcase classname="tests.unit.ir.test_posterior_summary" name="test_asymmetric_native_adapter_fresh_read_keeps_independent_functionals" time="0.038" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_weighted_atoms_inverse_cdf_and_zero_mass_are_explicit" time="0.003" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_invalid_corpus_is_refused_by_real_producer[draws0-kwargs0]" time="0.001" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_invalid_corpus_is_refused_by_real_producer[draws1-kwargs1]" time="0.000" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_invalid_corpus_is_refused_by_real_producer[draws2-kwargs2]" time="0.000" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_invalid_corpus_is_refused_by_real_producer[draws3-kwargs3]" time="0.000" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_invalid_corpus_is_refused_by_real_producer[draws4-kwargs4]" time="0.001" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_invalid_corpus_is_refused_by_real_producer[draws5-kwargs5]" time="0.000" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_invalid_corpus_is_refused_by_real_producer[draws6-kwargs6]" time="0.000" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_invalid_corpus_is_refused_by_real_producer[draws7-kwargs7]" time="0.000" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_invalid_corpus_is_refused_by_real_producer[draws8-kwargs8]" time="0.000" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_invalid_corpus_is_refused_by_real_producer[draws9-kwargs9]" time="0.000" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_invalid_corpus_is_refused_by_real_producer[draws10-kwargs10]" time="0.001" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_invalid_corpus_is_refused_by_real_producer[draws11-kwargs11]" time="0.001" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_invalid_corpus_is_refused_by_real_producer[draws12-kwargs12]" time="0.000" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_invalid_corpus_is_refused_by_real_producer[draws13-kwargs13]" time="0.002"><failure message="Failed: DID NOT RAISE any of (&lt;class 'ValueError'&gt;, &lt;class 'TypeError'&gt;)">draws = {'x': [0, 1, 2]}, kwargs = {'weights': [0.5, 1e-20, 0.5]}
+
+    @pytest.mark.parametrize(
+        ("draws", "kwargs"),
+        [
+            ({"x": [True, False]}, {}),
+            ({"x": [1, True]}, {}),
+            ({"x": [np.bool_(True)]}, {}),
+            ({"x": [np.nan]}, {}),
+            ({"x": [np.inf]}, {}),
+            ({"x": ["1"]}, {}),
+            ({"x": []}, {}),
+            ({"x": [[1, 2]]}, {}),
+            ({"x": [1, 2], "y": [3]}, {}),
+            ({"x": [0, 1]}, {"weights": [0, 0]}),
+            ({"x": [0, 1]}, {"weights": [1, -1]}),
+            ({"x": [0, 1]}, {"weights": [True, True]}),
+            ({"x": [0, 1]}, {"weights": [1, np.inf]}),
+            ({"x": [0, 1, 2]}, {"weights": [0.5, 1e-20, 0.5]}),
+            ({"x": [0, -1, 1]}, {"weights": [1e-20, 0.5, 0.5]}),
+            ({"x": [0, 1]}, {"draw_ids": ["same", "same"]}),
+        ],
+    )
+    def test_invalid_corpus_is_refused_by_real_producer(draws, kwargs):
+&gt;       with pytest.raises((ValueError, TypeError)):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE any of (&lt;class 'ValueError'&gt;, &lt;class 'TypeError'&gt;)
+
+tests/unit/ir/test_posterior_summary.py:97: Failed</failure></testcase><testcase classname="tests.unit.ir.test_posterior_summary" name="test_invalid_corpus_is_refused_by_real_producer[draws14-kwargs14]" time="0.002"><failure message="Failed: DID NOT RAISE any of (&lt;class 'ValueError'&gt;, &lt;class 'TypeError'&gt;)">draws = {'x': [0, -1, 1]}, kwargs = {'weights': [1e-20, 0.5, 0.5]}
+
+    @pytest.mark.parametrize(
+        ("draws", "kwargs"),
+        [
+            ({"x": [True, False]}, {}),
+            ({"x": [1, True]}, {}),
+            ({"x": [np.bool_(True)]}, {}),
+            ({"x": [np.nan]}, {}),
+            ({"x": [np.inf]}, {}),
+            ({"x": ["1"]}, {}),
+            ({"x": []}, {}),
+            ({"x": [[1, 2]]}, {}),
+            ({"x": [1, 2], "y": [3]}, {}),
+            ({"x": [0, 1]}, {"weights": [0, 0]}),
+            ({"x": [0, 1]}, {"weights": [1, -1]}),
+            ({"x": [0, 1]}, {"weights": [True, True]}),
+            ({"x": [0, 1]}, {"weights": [1, np.inf]}),
+            ({"x": [0, 1, 2]}, {"weights": [0.5, 1e-20, 0.5]}),
+            ({"x": [0, -1, 1]}, {"weights": [1e-20, 0.5, 0.5]}),
+            ({"x": [0, 1]}, {"draw_ids": ["same", "same"]}),
+        ],
+    )
+    def test_invalid_corpus_is_refused_by_real_producer(draws, kwargs):
+&gt;       with pytest.raises((ValueError, TypeError)):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE any of (&lt;class 'ValueError'&gt;, &lt;class 'TypeError'&gt;)
+
+tests/unit/ir/test_posterior_summary.py:97: Failed</failure></testcase><testcase classname="tests.unit.ir.test_posterior_summary" name="test_invalid_corpus_is_refused_by_real_producer[draws15-kwargs15]" time="0.001" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_integrity_valid_forged_profile_refuses_fresh_named_computation[mean]" time="0.009" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_integrity_valid_forged_profile_refuses_fresh_named_computation[profile]" time="0.007" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_integrity_valid_forged_profile_refuses_fresh_named_computation[carrier]" time="0.009" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_integrity_valid_forged_profile_refuses_fresh_named_computation[rows]" time="0.007" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_integrity_valid_forged_profile_refuses_fresh_named_computation[required]" time="0.009" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_integrity_valid_forged_profile_refuses_fresh_named_computation[context]" time="0.007" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_v11_unprofiled_inline_carrier_replay_is_unchanged" time="0.008" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_named_functional_markers_cannot_fall_back_when_profile_removed[False]" time="0.002" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_named_functional_markers_cannot_fall_back_when_profile_removed[true]" time="0.002" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_named_functional_markers_cannot_fall_back_when_profile_removed[None]" time="0.002" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_v11_generic_functional_labels_are_legacy_without_new_profile_discriminator" time="0.010" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_new_profile_signed_zero_uses_existing_canonical_cas_representation[None]" time="0.008" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_new_profile_signed_zero_uses_existing_canonical_cas_representation[weights1]" time="0.009" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_scoped_facade_resolves_actual_profile_and_reader" time="0.000"><failure message="ValueError: too many values to unpack (expected 2, got 3)">def test_scoped_facade_resolves_actual_profile_and_reader():
+        import polisyos.ir as root
+        from polisyos.ir.analytics import PosteriorSummaryProfile
+        from polisyos.ir.analytics.posterior_summary import PosteriorSummaryProfile as Defined
+    
+        assert PosteriorSummaryProfile is Defined
+&gt;       assert root.PosteriorSummaryProfile is Defined
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/ir/test_posterior_summary.py:210: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+name = 'PosteriorSummaryProfile'
+
+    def __getattr__(name: str) -&gt; Any:
+        """Resolve a public IR export on first access.
+    
+        Args:
+            name: Facade attribute requested by user code.
+    
+        Returns:
+            The lazily imported class, enum, or function bound to ``name``.
+    
+        Raises:
+            AttributeError: If ``name`` is not part of the stable facade surface.
+        """
+        if name in _LAZY_IMPORTS:
+&gt;           module_name, attr = _LAZY_IMPORTS[name]
+            ^^^^^^^^^^^^^^^^^
+E           ValueError: too many values to unpack (expected 2, got 3)
+
+src/polisyos/ir/__init__.py:1031: ValueError</failure></testcase><testcase classname="tests.unit.ir.test_posterior_summary" name="test_identical_summaries_do_not_merge_different_persisted_atom_laws" time="0.033"><failure message="assert [20.0, 35.0] == approx([0.4 ±....7 ± 7.0e-07])&#10;  &#10;  comparison failed. Mismatched elements: 2 / 2:&#10;  Max absolute difference: 34.3&#10;  Max relative difference: 0.9800000000000001&#10;  Index | Obtained | Expected     &#10;  0     | 20.0     | 0.4 ± 4.0e-07&#10;  1     | 35.0     | 0.7 ± 7.0e-07">tmp_path = PosixPath('/tmp/pytest-of-agent/pytest-245/test_identical_summaries_do_no0')
+
+    def test_identical_summaries_do_not_merge_different_persisted_atom_laws(tmp_path):
+        # Independent counts: both population second moments=.6 and equal-tail[-1,1].
+        laws = [
+            [-1.0] * 30 + [0.0] * 40 + [1.0] * 30,
+            [-4.0] + [-1.0] * 14 + [0.0] * 70 + [1.0] * 14 + [4.0],
+        ]
+        refs, readbacks = [], []
+        for values in laws:
+            env = summarize_bayesian_calibration_posterior({"x": values}).parameter_envelopes["x"]
+            ref = persist_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), env)
+            refs.append(ref)
+            readbacks.append(load_uncertainty_envelope(core_artifacts.FileSystemCAS(tmp_path), ref))
+        assert refs[0].artifact_id != refs[1].artifact_id
+        for env in readbacks:
+            assert env.point_estimate == 0
+            assert env.confidence_interval == (-1, 1)
+            assert posterior_nominal_mean(env) == 0
+&gt;       assert [
+            sum(
+                p
+                for x, p in zip(
+                    env.distribution_payload.samples, env.distribution_payload.weights, strict=True
+                )
+                if x == 0
+            )
+            for env in readbacks
+        ] == pytest.approx([0.4, 0.7])
+E       assert [20.0, 35.0] == approx([0.4 ±....7 ± 7.0e-07])
+E         
+E         comparison failed. Mismatched elements: 2 / 2:
+E         Max absolute difference: 34.3
+E         Max relative difference: 0.9800000000000001
+E         Index | Obtained | Expected     
+E         0     | 20.0     | 0.4 ± 4.0e-07
+E         1     | 35.0     | 0.7 ± 7.0e-07
+
+tests/unit/ir/test_posterior_summary.py:234: AssertionError</failure></testcase><testcase classname="tests.unit.ir.test_posterior_summary" name="test_whole_row_reordering_preserves_functionals_changes_exact_identity" time="0.023" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_quantile_sort_cdf_collapse_refuses_even_healthy_draw_order_law" time="0.001"><failure message="assert [1e-20, 0.500...00000001, 1.0] == [1e-20, 0.5, 1]&#10;  &#10;  At index 1 diff: 0.5000000000000001 != 0.5&#10;  Use -v to get more diff">def test_quantile_sort_cdf_collapse_refuses_even_healthy_draw_order_law():
+        from polisyos.foundry.uncertainty import sampling_admission
+    
+        probabilities = sampling_admission.admit_empirical_weights([1e-20, 0.5, 0.5], 3)
+        cumulative = sampling_admission.empirical_cdf(probabilities)
+&gt;       assert cumulative.tolist() == [1e-20, 0.5, 1]
+E       assert [1e-20, 0.500...00000001, 1.0] == [1e-20, 0.5, 1]
+E         
+E         At index 1 diff: 0.5000000000000001 != 0.5
+E         Use -v to get more diff
+
+tests/unit/ir/test_posterior_summary.py:275: AssertionError</failure></testcase><testcase classname="tests.unit.ir.test_posterior_summary" name="test_public_functionals_refuse_non_real_or_bool_axes[samples-True]" time="0.001" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_public_functionals_refuse_non_real_or_bool_axes[samples-bad1]" time="0.001" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_public_functionals_refuse_non_real_or_bool_axes[samples-1.0]" time="0.001" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_public_functionals_refuse_non_real_or_bool_axes[probabilities-True]" time="0.001" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_public_functionals_refuse_non_real_or_bool_axes[probabilities-bad1]" time="0.001" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_public_functionals_refuse_non_real_or_bool_axes[probabilities-1.0]" time="0.001" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_single_profile_consistently_forged_joint_digest_is_recomputed" time="0.002" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_large_finite_corpus_preserves_law_without_intermediate_spread_overflow" time="0.009" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_profile_raw_cas_types_refuse_before_legacy_coercion[True]" time="0.012" /><testcase classname="tests.unit.ir.test_posterior_summary" name="test_profile_raw_cas_types_refuse_before_legacy_coercion[1.0]" time="0.008" /><testcase classname="tests.unit.foundry.calibration.test_calibration_uncertainty_adapter" name="test_envelope_from_calibration_param" time="0.001" /><testcase classname="tests.unit.foundry.calibration.test_calibration_uncertainty_adapter" name="test_envelope_from_calibration_param_none_when_uncertainty_missing" time="0.000" /><testcase classname="tests.unit.foundry.calibration.test_calibration_uncertainty_adapter" name="test_envelopes_from_calibration_filters_missing_std" time="0.001" /><testcase classname="tests.unit.foundry.calibration.test_calibration_uncertainty_adapter" name="test_envelopes_from_calibration_projects_tied_group_covariance" time="0.001" /><testcase classname="tests.unit.foundry.calibration.test_calibration_uncertainty_adapter" name="test_v2_report_without_projection_does_not_use_v1_name_identity" time="0.000" /><testcase classname="tests.unit.foundry.calibration.test_calibration_uncertainty_adapter" name="test_v2_projection_must_cover_every_reported_calibrated_field" time="0.001" /><testcase classname="tests.unit.foundry.calibration.test_calibration_uncertainty_adapter" name="test_v2_incomplete_projection_status_withholds_name_keyed_envelope" time="0.000" /><testcase classname="tests.unit.foundry.calibration.test_calibration_uncertainty_adapter" name="test_tied_projection_is_invariant_to_coordinate_name" time="0.001" /><testcase classname="tests.unit.foundry.calibration.test_calibration_uncertainty_adapter" name="test_historical_v1_serializer_preserves_pre_projection_wire_shape" time="0.005" /><testcase classname="tests.unit.foundry.calibration.test_calibration_uncertainty_adapter" name="test_summarize_bayesian_calibration_posterior_supports_emulator_diagnostics" time="0.001"><failure message="ValueError: posterior joint law requires explicit producer-supplied aligned draw IDs">def test_summarize_bayesian_calibration_posterior_supports_emulator_diagnostics() -&gt; None:
+&gt;       summary = summarize_bayesian_calibration_posterior(
+            {
+                "node.tax_rate": [0.21, 0.24, 0.25, 0.23, 0.22],
+                "node.transfer": [1.1, 1.0, 1.2, 1.05, 0.98],
+            },
+            credible_mass=0.9,
+            emulator_diagnostics={
+                "emulator_name": "gp_surrogate",
+                "emulator_noise_std": {"node.tax_rate": 0.01},
+            },
+            posterior_diagnostics={"r_hat_max": 1.01},
+        )
+
+tests/unit/foundry/calibration/test_calibration_uncertainty_adapter.py:229: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+posterior_draws = {'node.tax_rate': [0.21, 0.24, 0.25, 0.23, 0.22], 'node.transfer': [1.1, 1.0, 1.2, 1.05, 0.98]}
+
+    def summarize_bayesian_calibration_posterior(
+        posterior_draws: Mapping[str, Sequence[float] | np.ndarray],
+        *,
+        credible_mass: float = 0.9,
+        emulator_diagnostics: Mapping[str, Any] | None = None,
+        posterior_diagnostics: Mapping[str, Any] | None = None,
+        weights: Sequence[float] | np.ndarray | None = None,
+        draw_ids: Sequence[str] | None = None,
+        sample_axis: str = "draw",
+        context: PosteriorSummaryContext | None = None,
+    ) -&gt; BayesianCalibrationPosteriorSummary:
+        """Summarize posterior draws from Bayesian calibration or emulator-assisted inference."""
+    
+        if not (0.0 &lt; credible_mass &lt; 1.0):
+            raise ValueError("credible_mass must be in (0, 1)")
+        if not posterior_draws or not isinstance(sample_axis, str) or not sample_axis.strip():
+            raise ValueError("posterior draws and sample axis must be non-empty")
+        names = sorted(posterior_draws)
+        if any(not isinstance(name, str) or not name.strip() for name in names):
+            raise ValueError("posterior parameter names must be non-empty strings")
+        if len(names) &gt; 1 and draw_ids is None:
+&gt;           raise ValueError("posterior joint law requires explicit producer-supplied aligned draw IDs")
+E           ValueError: posterior joint law requires explicit producer-supplied aligned draw IDs
+
+src/polisyos/foundry/calibration/uncertainty_adapter.py:244: ValueError</failure></testcase><testcase classname="tests.unit.foundry.calibration.test_calibration_uncertainty_adapter" name="test_posterior_summary_decomposition_is_only_nongating_spread_diagnostic" time="0.007" /><testcase classname="tests.unit.foundry.uncertainty.test_monte_carlo.TestMonteCarloPropagator" name="test_mc_linear_fn_approximates_delta" time="0.238" /><testcase classname="tests.unit.foundry.uncertainty.test_monte_carlo.TestMonteCarloPropagator" name="test_mc_preserves_fixed_nominal_parameters_across_samples" time="0.003" /><testcase classname="tests.unit.foundry.uncertainty.test_monte_carlo.TestMonteCarloPropagator" name="test_mc_seed_determinism" time="0.088" /><testcase classname="tests.unit.foundry.uncertainty.test_monte_carlo.TestMonteCarloPropagator" name="test_unadmitted_legacy_adaptive_settings_run_fixed_maximum" time="0.158" /><testcase classname="tests.unit.foundry.uncertainty.test_monte_carlo.TestMonteCarloPropagator" name="test_mc_qmc_vs_random_consistency" time="0.209" /><testcase classname="tests.unit.foundry.uncertainty.test_monte_carlo.TestMonteCarloPropagator" name="test_mc_heuristic_fallback_on_sim_failures" time="0.003" /><testcase classname="tests.unit.foundry.uncertainty.test_monte_carlo.TestMonteCarloPropagator" name="test_mc_qmc_failure_path_counts_failures_and_avoids_input_metric_fallback" time="0.003" /><testcase classname="tests.unit.foundry.uncertainty.test_monte_carlo.TestMonteCarloPropagator" name="test_mc_empty_metrics_returns_empty" time="0.000" /><testcase classname="tests.unit.foundry.uncertainty.test_monte_carlo.TestMonteCarloPropagator" name="test_mc_sobol_chunking_preserves_complete_rounded_net" time="0.072" /><testcase classname="tests.unit.foundry.uncertainty.test_monte_carlo.TestMonteCarloPropagator" name="test_qmc_sampler_state_reuses_buffered_chunk" time="0.001" /></testsuite></testsuites>

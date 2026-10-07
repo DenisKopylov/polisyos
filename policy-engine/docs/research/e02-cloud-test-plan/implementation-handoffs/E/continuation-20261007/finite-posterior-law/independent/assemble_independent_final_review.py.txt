@@ -1,0 +1,279 @@
+"""Read-only Git/receipt reconciliation; no numeric selector is executed."""
+from __future__ import annotations
+
+import ast
+import hashlib
+import json
+import subprocess
+from pathlib import Path
+
+ROOT = Path('/workspace/e02-E-mc-20261006')
+OUT = Path('/tmp/e02-E-ir-G855-conditions-independent-64d/candidate-2c0fb5e')
+SOURCE_BASE = '64d7444a18c55df7b88b71b7699a2f1b25ca24bd'
+DECISION = '55422d4f179f56d796794938be66bcb0741b13ed'
+REVIEWED = '2c0fb5e26172129ab3ae032c24b35ed2ced6c80f'
+FINAL = 'ca17a489559eb574285bb1c7291cc3c56a9e29da'
+
+
+def git(*args: str) -> bytes:
+    return subprocess.check_output(['git', '-C', str(ROOT), *args])
+
+
+def require(predicate: bool, message: str) -> None:
+    if not predicate:
+        raise ValueError(message)
+
+
+def blob(sha: str, path: str) -> bytes:
+    return git('show', sha + ':' + path)
+
+
+def reference(path: Path) -> dict:
+    data = path.read_bytes()
+    return {'path': str(path), 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+
+
+def dump(path: Path, value: object) -> None:
+    path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + '\n')
+
+
+first_path = OUT / 'historical-two-observer-errors.results.json'
+first = json.loads(first_path.read_bytes())
+delta_path = OUT / 'independent-candidate-delta-results.json'
+delta = json.loads(delta_path.read_bytes())
+companion_path = OUT / 'ca17-companion-delta-review.json'
+companion = json.loads(companion_path.read_bytes())
+require(first['candidate'] == delta['candidate'] == REVIEWED, 'wrong numeric source')
+require(first['tree'] == delta['tree'] == git('rev-parse', REVIEWED + '^{tree}').decode().strip(), 'numeric tree mismatch')
+require(first['source_unchanged'] and delta['source_unchanged'], 'numeric source guard not complete')
+require(first['counts'] == {'PASS': 30, 'FAIL': 2} and delta['counts'] == {'PASS': 3}, 'wrong literal execution counts')
+require(first['complete_implementation_footprint'] == delta['complete_implementation_footprint'], 'delta source bracket differs')
+require(companion['candidate'] == FINAL and companion['parent_candidate'] == REVIEWED, 'wrong companion source')
+require(companion['public_helper_identity'], 'actual public helper binding lost')
+require(git('status', '--porcelain').strip() == b'', 'author lane not clean')
+require(git('rev-parse', 'HEAD').decode().strip() == FINAL, 'actual source no longer immutable final')
+
+paths = git('diff', '--name-only', DECISION, FINAL).decode().splitlines()
+require(len(paths) == 23 and sum(p.endswith('.py') for p in paths) == 12, 'implementation denominator')
+footprint = {}
+product_equality = []
+fixture_equality = []
+for path in paths:
+    data = blob(FINAL, path)
+    require((ROOT / path).read_bytes() == data, 'physical final source differs:' + path)
+    row = {'path': path, 'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+    footprint[path] = row
+    if path.startswith('policy-engine/src/') and path.endswith('.py'):
+        require(blob(REVIEWED, path) == data, 'product delta after reviewed numeric source:' + path)
+        product_equality.append(row)
+    if path.startswith('policy-engine/tests/fixtures/'):
+        require(blob(REVIEWED, path) == data, 'literal legacy fixture changed after review:' + path)
+        fixture_equality.append(row)
+require(len(product_equality) == 7 and len(fixture_equality) == 8, 'product/fixture denominator')
+actual_delta = git('diff', '--name-only', REVIEWED, FINAL).decode().splitlines()
+require(actual_delta == sorted(companion['delta_paths']), 'companion footprint mismatch')
+
+posterior_path = 'policy-engine/src/polisyos/ir/analytics/posterior_summary.py'
+legacy_names = ['PosteriorSummaryProfile', 'posterior_summary_functionals', '_posterior_cdf']
+legacy_ast = []
+for name in legacy_names:
+    parts = []
+    for sha in [SOURCE_BASE, FINAL]:
+        module = ast.parse(blob(sha, posterior_path))
+        nodes = [n for n in module.body if isinstance(n, (ast.ClassDef, ast.FunctionDef)) and n.name == name]
+        require(len(nodes) == 1, 'missing legacy AST identity:' + name)
+        parts.append(ast.dump(nodes[0], include_attributes=False))
+    require(parts[0] == parts[1], 'legacy definition changed:' + name)
+    legacy_ast.append({'symbol': name, 'AST_sha256': hashlib.sha256(parts[0].encode()).hexdigest(), 'source_base_equals_final': True})
+envelope_path = 'policy-engine/src/polisyos/ir/analytics/uncertainty.py'
+require(blob(SOURCE_BASE, envelope_path) == blob(FINAL, envelope_path), 'v1.1 envelope/codec changed')
+
+passed = {c['id']: dict(c, observation_receipt=reference(first_path)) for c in first['cases'] if c['outcome'] == 'PASS'}
+replacements = []
+historical_reds = {c['id']: c for c in first['cases'] if c['outcome'] != 'PASS'}
+for case in delta['cases']:
+    require(case['outcome'] == 'PASS', 'new actual delta failure')
+    if case['id'] in historical_reds:
+        replacements.append(case['id'])
+    require(case['id'] not in passed, 'repeated passing numerical selector')
+    passed[case['id']] = dict(case, observation_receipt=reference(delta_path))
+require(set(replacements) == set(historical_reds) and len(passed) == 33, 'corrected unique control denominator')
+corrections = [
+    {
+        'id': 'exact_boundary_sorted_quantile_[1e-20, 0.5, 0.5]',
+        'historical_outcome': 'FAIL observer expectation',
+        'cause': 'Reviewer reversed values, moving the rare atom to an unsupported sorted last tail. The actual typed refusal was correct.',
+        'current_delta': 'Use supported permutation (0,-1,1) and separately preserve sorted-tail typed-refusal witness.',
+        'source_changed': False,
+    },
+    {
+        'id': 'fresh_CAS_forged_alignment_shared_admission_removal',
+        'historical_outcome': 'FAIL observer API misuse',
+        'cause': 'Reviewer called ArtifactStore.verify(UncertaintyEnvelopeRef); canonical API requires ref.artifact_id.',
+        'current_delta': 'Actual canonical verify(ref.artifact_id) succeeds; strict fresh profile reader and shared inlet refuse integrity-valid positional-basis forgery before callbacks.',
+        'source_changed': False,
+    },
+]
+source_reconciliation = {
+    'schema': 'policyos.e02.finite_law_independent_source_bracket.v1',
+    'source_base': SOURCE_BASE,
+    'precode_decision': DECISION,
+    'reviewed_numeric_source': REVIEWED,
+    'reviewed_numeric_tree': first['tree'],
+    'candidate': FINAL,
+    'tree': git('rev-parse', FINAL + '^{tree}').decode().strip(),
+    'clean': True,
+    'implementation_paths': 23,
+    'Python_paths': 12,
+    'complete_implementation_footprint': footprint,
+    'companion_delta_paths': actual_delta,
+    'unchanged_product_Python': product_equality,
+    'unchanged_literal_fixture_files': fixture_equality,
+    'unchanged_legacy_definitions': legacy_ast,
+    'Envelope_v1_1_codec_byte_identity': {
+        'path': envelope_path,
+        'source_base_equals_final': True,
+        'sha256': hashlib.sha256(blob(FINAL, envelope_path)).hexdigest(),
+    },
+    'numeric_execution_source_never_relabelled': True,
+    'public_helper_identity_and_actual_output': reference(companion_path),
+}
+source_path = OUT / 'final-source-bracket-ca17.json'
+dump(source_path, source_reconciliation)
+
+historical_refs = [
+    OUT.parent / 'actual-conditions-counterexamples.json',
+    OUT.parent / 'independent-owner-response.json',
+    OUT.parent / 'exact-finite-oracle.json',
+    OUT.parent / 'literal-legacy-profile700-fixture-index.json',
+    OUT.parent / 'preliminary-companion-independent-review.json',
+]
+decision_path = 'policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/E/continuation-20261007/finite-posterior-law/technical-decision.json'
+review = {
+    'schema': 'policyos.e02.independent_finite_posterior_law_review.v2',
+    'reviewer': 'oracle_r4; read-only, independent of imports_r4 source authorship',
+    'candidate': FINAL,
+    'tree': source_reconciliation['tree'],
+    'numeric_candidate': REVIEWED,
+    'numeric_tree': first['tree'],
+    'source_base': SOURCE_BASE,
+    'source_base_tree': git('rev-parse', SOURCE_BASE + '^{tree}').decode().strip(),
+    'precode_decision': DECISION,
+    'precode_tracked_decision': {'path': decision_path, 'sha256': hashlib.sha256(blob(DECISION, decision_path)).hexdigest(), 'read_in_full': True},
+    'G_review': '855cb26a7a2c9fea60356663cf81e7d01e20c738',
+    'source_acceptance': 'GO bounded exact finite-law / actual fresh E consumer mechanisms and companion delta',
+    'finding_closure': 'Separate accountable-owner original-criterion decision; no closure inferred from tests or this source GO.',
+    'global_gate_or_broad_wave_claim': False,
+    'source_guard': reference(source_path),
+    'execution_observations': [
+        {'receipt': reference(first_path), 'source': REVIEWED, 'complete_literal_counts': {'PASS': 30, 'FAIL': 2}, 'historical_observer_errors_preserved': True},
+        {'receipt': reference(delta_path), 'source': REVIEWED, 'complete_literal_counts': {'PASS': 3}, 'scope': 'Only two corrected observer cases and one distinct sorted-tail refusal; no passing 30-case repeat.'},
+        {'receipt': reference(companion_path), 'source': FINAL, 'scope': 'Actual canonical facade identity and public helper output plus release-class/7-product-byte equality only; no family numerical repeat.'},
+    ],
+    'reconciled_unique_controls': 33,
+    'reconciled_current_control_outcomes': {'PASS': 33},
+    'count_scope': 'Thirty retained passing observations plus three corrected/current delta observations, under exact product-byte equality. This is not a newly executed 33-case wave on ca17.',
+    'observer_corrections': corrections,
+    'current_controls': [passed[k] for k in sorted(passed)],
+    'independent_oracle': {
+        'gold_derived_before_candidate': reference(OUT.parent / 'exact-finite-oracle.json'),
+        'source_mass_definition': 'Exact Fraction(float(input_weight))/sum exact finite binary input weights.',
+        'bucket_definition': 'For supplied finite U in [0,1), first exact rational cumulative mass greater than Fraction(U).',
+        'quantile_definition': 'For supplied finite q, first positive value-sorted atom with exact cumulative mass >= Fraction(q).',
+        'expected_values_do_not_call_candidate_helpers': True,
+        'dyadic_fixture': {'rows': [[0, 0], [1, 2], [4, 5]], 'masses': [1, 1, 2], 'y_mean': '21/4', 'y_variance': '243/16', 'complete_256_Sobol_row_counts': [64, 64, 128]},
+    },
+    'G_conditions': [
+        {
+            'condition': 'Equal-length arrays alone do not establish aligned source rows.',
+            'old_actual_counterexample': reference(historical_refs[0]),
+            'new_producer': 'New multi-coordinate producer refuses missing explicit producer-supplied draw IDs. Exact matching shared IDs/order/weights/context/carrier digest are bound across coordinate profiles.',
+            'new_strict_reader_and_callback_witness': passed['fresh_CAS_forged_alignment_shared_admission_removal'],
+            'effective_property_removal': 'Remove only common profile/group admission in memory, retaining valid CAS hashes/all identity markers: original callback0 predicate fails with 257 actual callbacks.',
+            'predicate_basis': 'recomputed',
+            'alignment_scientific_premise': 'consumer_asserted; caller-supplied IDs are not independent scientific proof of source alignment/fit quality',
+        },
+        {
+            'condition': 'Mean and CDF/quantiles must use the same admitted finite probabilities.',
+            'old_actual_counterexample': reference(historical_refs[0]),
+            'new_contract': 'Distinct Profile2 stores exact binary ratio weights; mean and finite-U/finite-q classifiers derive from the same exact normalized rational masses. Ceil/right and floor/left cuts preserve exact rational classification for supplied finite values.',
+            'mesh_scope': 'finite_uniform_mesh_discretization explicitly declared; sampler frequencies approximate the continuous ratio law. No arbitrary-real or continuous RNG exact-mean promise.',
+            'actual_fresh_CAS_witness': passed['hundred_atoms_fresh_CAS_exact_law_not_old_residual'],
+            'effective_property_removal': passed['nearest_float_proxy_diverges_effective_rounding_removal'],
+            'predicate_basis': 'independently_reconciled',
+        },
+    ],
+    'compatibility': {
+        'Envelope_v1_1_model_and_codec_unchanged': True,
+        'Profile1_class_and_legacy_functionals_unchanged_AST': legacy_ast,
+        'genuine_old_CAS_replay': passed['seven_literal_old700_profile1_mean_ABI_bytes_replay'],
+        'Profile2_distinct_id_version': 'urn:policyos:ir:bayesian-posterior-summary-profile:2 / 2.0',
+        'old_generated_multigroup': 'Decode/display/replay preserved; law-dependent stochastic use now independently refuses unestablished positional joint premise.',
+        'new_mean_in_E_consumer': passed['actual_native_fresh_E_named_mean_consumer'],
+        'public_model_inventory': passed['actual_public_facade_ABI_inventory_and_large_finite_spread'],
+        'source_review_says_nothing_about_unmeasured_C_or_F_consumers': True,
+    },
+    'environment': first['environment'],
+    'execution_commands': {
+        'first': ['PYTHONPATH=/workspace/e02-E-mc-20261006/policy-engine/src', '/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python', '-B', str(OUT / 'historical-two-observer-errors.py.txt')],
+        'delta': ['REVIEW_ONLY=exact_boundary_sorted_quantile_[1e-20, 0.5, 0.5]|fresh_CAS_forged_alignment_shared_admission_removal|value_sorted_tiny_tail_refused', 'PYTHONPATH=/workspace/e02-E-mc-20261006/policy-engine/src', '/workspace/e02-E-doe-20261006/policy-engine/.venv/bin/python', '-B', str(OUT / 'independent_candidate_review.py')],
+        'note': 'Archived first script is literal original observer source. Script source guard intentionally pins immutable2c; ca reuse is justified by complete seven-product byte equality, not an unrecorded replay on ca.',
+    },
+    'predicate_basis': {
+        'exact_weight_ratios_mean_quantile_and_dyadic_callback_rows': 'independently_reconciled',
+        'CAS_kind_schema_content_profile_context_joint_digest_and_callback0_admission': 'recomputed',
+        'producer_supplied_alignmentIDs_units_estimands_lineage_premise': 'consumer_asserted',
+        'posterior_fit_quality_coverage_causal_policy_authority_and_actual_production_history': 'not_established',
+    },
+    'limitations_and_next_owner': [
+        'All observed outputs remain gate_eligible=false; IDs/context digests do not confer posterior-quality, covariance, coverage or causal authority.',
+        'Canonical generator/public-surface owner must publish distinct Profile2 schemas/inventory/runtime API companions and validate their consumers; generated files were not edited by E here.',
+        'G accepts source separately from finding closure; E accountable owner must decide original B201/B202 criteria using these bounded receipts, not aggregate PASS counts.',
+        'C/F compatibility decisions belong to their canonical owners; this review measures real E producer/CAS/reader/sampler/node and genuine old payload replay only.',
+        'ROOT source/interpreter/package/backend are untouched; existing DOE helper interpreter only reads immutable MC source. No new environment, child agent or broad wave.',
+        'No cleanup performed. Repeatable CAS fixture directories are candidates after deciding receipts and no-users check; original source, scripts, receipts and unique data are retained.',
+    ],
+    'historical_original_refs': [reference(p) for p in historical_refs],
+    'cleanup_candidates': sorted(set(first['cleanup_candidates'] + delta['cleanup_candidates'])),
+}
+review_path = OUT / 'independent-final-review-ca17.json'
+dump(review_path, review)
+
+# Copy only small archived scripts; do not copy any CAS fixture directories.
+for original, archived in [
+    (OUT / 'independent_candidate_review.py', OUT / 'independent_candidate_review.py.txt'),
+    (OUT / 'assemble_independent_final_review.py', OUT / 'assemble_independent_final_review.py.txt'),
+    (OUT.parent / 'exact_finite_oracle.py', OUT.parent / 'exact_finite_oracle.py.txt'),
+]:
+    archived.write_bytes(original.read_bytes())
+selection_paths = [
+    source_path, review_path, companion_path,
+    first_path, OUT / 'historical-two-observer-errors.py.txt', OUT / 'historical-two-observer-errors.stdout.json', OUT / 'historical-two-observer-errors.stderr.txt',
+    delta_path, OUT / 'independent_candidate_review.py.txt', OUT / 'independent-candidate-delta.stdout.json', OUT / 'independent-candidate-delta.stderr.txt',
+    OUT / 'assemble_independent_final_review.py.txt',
+    *historical_refs,
+    OUT.parent / 'exact_finite_oracle.py.txt', OUT.parent / 'exact-oracle.stdout.json', OUT.parent / 'exact-oracle.stderr.txt',
+    OUT.parent / 'G855-E-IR-decision.md', OUT.parent / 'G855-E.md',
+    OUT.parent / 'probe_actual_conditions.py.txt', OUT.parent / 'probe.stdout.json', OUT.parent / 'probe.stderr.txt',
+    OUT.parent / 'preliminary-companion-delta.patch', OUT.parent / 'preliminary-new-ratio-tests.py.txt',
+    OUT / 'historical-selection-name-error.stdout.json', OUT / 'historical-selection-name-error.stderr.txt',
+]
+selection_paths = list(dict.fromkeys(selection_paths))
+rows = [reference(p) for p in selection_paths]
+selection = {
+    'schema': 'policyos.e02.independent_finite_law_moderate_publication_selection.v1',
+    'candidate': FINAL, 'tree': source_reconciliation['tree'],
+    'numeric_candidate': REVIEWED, 'numeric_tree': first['tree'],
+    'base': SOURCE_BASE, 'precode_decision': DECISION,
+    'source_acceptance': review['source_acceptance'],
+    'selected_files': len(rows), 'selected_bytes': sum(row['bytes'] for row in rows),
+    'files': rows,
+    'exclude': ['all CAS fixture directories', 'large raw dumps', 'ROOT environment/package data'],
+    'count_scope': review['count_scope'],
+    'old_publication_selection': reference(OUT.parent / 'publication-selection.json'),
+    'history_preserved': True,
+    'no_numerical_or_gate_execution_in_this_builder': True,
+}
+selection_path = OUT / 'publication-selection-candidate-ca17.json'
+dump(selection_path, selection)
+print(json.dumps({'outcome': 'GO bounded', 'review': reference(review_path), 'selection': reference(selection_path), 'selected_files': len(rows), 'selected_bytes': selection['selected_bytes'], 'retained_first': first['counts'], 'actual_delta': delta['counts'], 'unique_qualified_controls': len(passed), 'final_source_bracket': reference(source_path)}, ensure_ascii=False, indent=2))

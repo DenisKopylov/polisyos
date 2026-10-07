@@ -1,0 +1,27 @@
+id = "2026-10-07-causal-graph-intake"
+title = "Reconcile current causal graph content before reuse"
+type = "fixed"
+component = "scientist"
+owner = "team-scientist"
+summary = "Resolve actual selected graph manifests and bytes, recompute current source content, preserve known endpoint identity and refuse unsupported static graph profiles before admission."
+change_class = "internal"
+surface_classification = "internal: Scientist graph reconciliation and Foundry causal prior providers"
+compatibility = "Known static directed/bidirected graph paths remain supported. Presence-only cache success, malformed-input fallbacks and implicit orientation of unresolved or lagged inputs are refused. Graph wire schema 1.0 is unchanged."
+migration = "Retain the actual current source artifact/content; handle typed static-profile refusal. Do not erase endpoint uncertainty or lag to bypass intake."
+generated_client_compatibility = "not_required"
+migration_docs = ["docs/reference/scientist/causal-graph-intake.md"]
+runbook_docs = ["docs/reference/scientist/causal-graph-intake.md"]
+evidence = ["tests/unit/scientist/methods/causal/test_graph_intake_current_content.py", "tests/unit/scientist/methods/causal/test_reconcile_causal_graph_node.py"]
+
+[[compatibility_change]]
+id = "causal-graph-current-content-admission"
+change_class = "internal"
+impact = "breaking"
+surface = "internal: polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph and causal.prior.reconcile_causal_graph"
+owner = "team-scientist"
+version_owner = "team-foundry"
+deprecation_window = "not_applicable: correction of unsupported graph admission"
+release_note = "Graph intake resolves actual CAS content and source lineage before reuse; unsupported static endpoints and compact lags refuse before reconciliation."
+generated_client_compatibility = "not_required"
+migration_docs = ["docs/reference/scientist/causal-graph-intake.md"]
+runbook_docs = ["docs/reference/scientist/causal-graph-intake.md"]

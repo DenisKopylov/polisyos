@@ -32,12 +32,13 @@ def test_skip_when_no_data_causal_graph(execution_context, minimal_state):
 
 
 def test_already_reconciled_returns_ok(execution_context, minimal_state, artifact_ref_factory):
-    """If reconciled graph already in artifacts_index, short-circuit ok."""
+    """A shaped absent graph ref cannot authorize cached intake success."""
     ref = artifact_ref_factory(kind="ir.causal_graph_model")
     state = minimal_state.model_copy(deep=True)
     state.artifacts_index[ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF] = ref
     outcome = ReconcileCausalGraphNode().execute(execution_context, state)
-    assert outcome.status == "ok"
+    assert outcome.status == "fail"
+    assert outcome.error.code == node_errors.ERROR_INVALID_STATE
 
 
 def test_fail_when_reconcile_pure_step_returns_incomplete(execution_context, minimal_state):
@@ -161,10 +162,7 @@ def test_reconcile_literature_prior_assertion_is_not_swallowed(
         del args, kwargs
         raise AssertionError("literature prior invariant")
 
-    monkeypatch.setattr(
-        "polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph.load_literature_causal_prior",
-        _boom,
-    )
+    monkeypatch.setattr(execution_context.store, "get_manifest", _boom)
 
     with pytest.raises(AssertionError, match="literature prior invariant"):
         ReconcileCausalGraphNode().execute(execution_context, state)

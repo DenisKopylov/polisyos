@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.foundry.methods.catalog.causal.graph_reconciliation import (
     MAX_RECON_EDGES,
@@ -109,11 +111,7 @@ def _persist_latent_bridge_candidate(
     pair_key: str,
     human_verified: bool = False,
 ) -> LatentBridgeHypothesisRef:
-    status = (
-        LatentBridgeStatus.HUMAN_VERIFIED
-        if human_verified
-        else LatentBridgeStatus.PROPOSED
-    )
+    status = LatentBridgeStatus.HUMAN_VERIFIED if human_verified else LatentBridgeStatus.PROPOSED
     return persist_latent_bridge_hypothesis(
         store,
         LatentBridgeHypothesis(
@@ -305,10 +303,9 @@ def test_cycle_edge_with_lag_depth_limit_is_removed() -> None:
         max_lag_depth=2,
     )
 
-    result = ReconcileCausalGraph.pure_step(payload, params={})
-    pairs = {(edge.src, edge.dst, edge.lag) for edge in result["reconciled_graph"].edges}
-
-    assert ("C", "A", 2) not in pairs
+    # A supplied compact temporal relation cannot be removed to admit a static DAG.
+    with pytest.raises(ValueError, match="Unsupported static ADMG profile.*lag=2"):
+        ReconcileCausalGraph.pure_step(payload, params={})
 
 
 def test_triangle_conflict_produces_positive_cyclic_inconsistency_norm() -> None:
@@ -1065,9 +1062,7 @@ def test_compose_scm_fragments_defers_pending_latent_bridge_and_rejects_cycles(
     hypothesis_ref = _persist_latent_bridge_candidate(store, pair_key=pair_key)
     report, mapping = _verify_fragment_bundle_alignment_with_governance(
         [fragment_a, fragment_b],
-        config=AlignmentVerificationConfig(
-            explicit_latent_bridges={pair_key: hypothesis_ref}
-        ),
+        config=AlignmentVerificationConfig(explicit_latent_bridges={pair_key: hypothesis_ref}),
         artifact_store=store,
     )
 

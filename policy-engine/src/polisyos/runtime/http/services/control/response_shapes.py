@@ -164,7 +164,7 @@ def _event_usage_evidence(
         return None, None, None, "invalid"
     if usage_status != "known":
         if usage_status in {None, "missing"}:
-            return None, None, None, "missing"
+            return prompt, completion, latency, "missing"
         return None, None, None, "invalid"
 
     if (

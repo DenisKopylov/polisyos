@@ -115,7 +115,9 @@ def test_unknown_and_legacy_scalar_costs_do_not_become_zero_or_known() -> None:
     assert unknown["cost_origin"] == "unknown"
     assert unknown["estimated_cost_usd"] is None
     assert unknown["usage_status"] == "missing"
-    assert unknown["prompt_tokens"] == 0.0
+    assert unknown["prompt_tokens"] == 3.0
+    assert unknown["completion_tokens"] == 2.0
+    assert unknown["latency_ms"] == 5.0
 
     legacy = _sum_call_events([{"cost_usd": 0.0, "provider": "legacy-provider"}])
     assert legacy["cost_usd"] is None
@@ -123,6 +125,49 @@ def test_unknown_and_legacy_scalar_costs_do_not_become_zero_or_known() -> None:
     assert legacy["cost_origin"] == "unknown"
     assert legacy["cost_events"][0]["source_classification"] == "legacy_untyped"
     assert legacy["cost_events"][0]["cost_usd"] is None
+
+
+def test_legacy_trace_quantities_survive_missing_usage_status_without_authority() -> None:
+    summary = _sum_call_events(
+        [
+            {
+                "prompt_tokens": 7,
+                "completion_tokens": 3,
+                "latency_ms": 12.5,
+                "cost_usd": 0.10,
+            }
+        ]
+    )
+    assert summary["prompt_tokens"] == 7.0
+    assert summary["completion_tokens"] == 3.0
+    assert summary["latency_ms"] == 12.5
+    assert summary["usage_status"] == "missing"
+    assert summary["cost_usd"] is None
+    evidence = summary["cost_events"][0]
+    assert evidence["prompt_tokens"] == 7
+    assert evidence["completion_tokens"] == 3
+    assert evidence["latency_ms"] == 12.5
+    assert evidence["event_usage_status"] == "missing"
+
+
+def test_unverified_legacy_quantities_still_bind_the_event_prefix() -> None:
+    before_event = {
+        "prompt_tokens": 7,
+        "completion_tokens": 3,
+        "latency_ms": 12.5,
+        "cost_usd": 0.10,
+    }
+    after_event = {**before_event, "prompt_tokens": 8}
+    before = _sum_call_events([before_event])
+    after = _sum_call_events([after_event, _typed_event(event_identity="event-new")])
+
+    delta = _delta_usage(before, after)
+    assert delta["usage_status"] == "invalid"
+    assert delta["prompt_tokens"] is None
+    assert delta["completion_tokens"] is None
+    assert delta["latency_ms"] is None
+    assert delta["cost_status"] == "invalid"
+    assert delta["cost_usd"] is None
 
 
 @pytest.mark.parametrize(

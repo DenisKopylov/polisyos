@@ -5,6 +5,7 @@ from __future__ import annotations
 import math
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
+from decimal import Decimal, DecimalException
 from enum import Enum
 from typing import Any, Protocol
 
@@ -25,7 +26,13 @@ def _read_metric_aliases(results: dict[str, Any], aliases: tuple[str, ...]) -> o
             return _INVALID
         try:
             value = float(raw_value)
-        except (TypeError, ValueError, OverflowError):
+            if (
+                value == 0.0
+                and isinstance(raw_value, (Decimal, str))
+                and Decimal(raw_value) != 0
+            ):
+                return _INVALID
+        except (TypeError, ValueError, OverflowError, DecimalException):
             return _INVALID
         if not math.isfinite(value):
             return _INVALID

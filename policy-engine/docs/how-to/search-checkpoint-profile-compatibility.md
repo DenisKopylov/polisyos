@@ -383,3 +383,31 @@ Disposable membership is scoped by the recorded search ID and configuration, so
 sharing a canonical helper between different native runs cannot replace either
 run's own completed/pending evidence. It does not establish concurrency authority
 for two writers of the same run.
+
+## Fiscal objective float64 intake
+
+The existing fiscal aliases `gov_balance`, `government_balance`, `budget_deficit`
+and `deficit` admit finite values representable by the receiving float64 objective.
+A present Decimal or numeric text that is nonzero before conversion and becomes
+zero after conversion is unavailable: the objective returns `NaN` with
+`is_satisfied=false`, and the composite retains that unavailable result. It does
+not fall back to another fiscal alias or publish an optimal zero. Genuine zero,
+signed zero, ordinary numeric text and representable subnormal values retain the
+existing sign and alias rules. Conflicting aliases, booleans, nonfinite values
+and overflowing conversions still refuse.
+
+This widens the existing numeric refusal semantics; it is not an artifact-format
+migration or a new fiscal law. Preserve the original source value and refusal,
+then supply a supported representable value from its actual producer. Do not
+round the input to zero or edit a checkpoint build marker to force resume. Saved
+service profiles retain their existing source-bound compatibility requirement.
+Already rounded ordinary floats cannot recover a lost original lexeme; the
+canonical Gateway decoder preserves Decimal tokens before this consumer. This
+profile does not claim exact arbitrary-precision alias equality or appoint the
+fiscal unit/sign/alias authority required for a scientific conclusion.
+
+`BudgetDeficitObjective` and `CompositeObjective` remain exported by the existing
+lazy search child facade; that observable refusal behavior changes without a new
+name or signature. The reviewed `architecture/public_surface/inventory.json` has
+no dedicated search/objective entry, so `contract.toml` classifies these child
+paths as internal by default. This does not appoint a new stable public surface.

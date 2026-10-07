@@ -1,0 +1,17 @@
+id = "2026-10-07-fiscal-float64-admission"
+title = "Refuse nonzero fiscal inputs that underflow to zero"
+type = "fixed"
+component = "scientist-search"
+owner = "team-policyos-runtime"
+summary = "The existing shared fiscal alias consumer rejects nonzero Decimal and numeric text that convert to float64 zero, preserving genuine zero and unavailable values through BudgetDeficitObjective and CompositeObjective."
+change_class = "breaking"
+surface_classification = "internal: existing exported search child facade; canonical inventory internal-default applies"
+evidence = ["tests/unit/scientist/methods/search/test_fiscal_numeric_admission.py", "tests/unit/scientist/methods/search/test_objective.py"]
+compatibility = "No wire schema or decoder change. Previously accepted nonzero underflow now returns an unavailable objective with NaN and is_satisfied=false. Genuine signed zero, representable subnormal values, ordinary numeric text and existing alias/sign behavior remain supported. Unknown/nonfinite/boolean/overflow/conflict refusal remains intact."
+migration = "Retain original input and refusal; provide an actual producer value representable by the supported float64 objective. Do not normalize tiny nonzero to zero, silently reinterpret scientific units or edit source-bound checkpoint markers. Exact old continuation uses its recorded supported source; current source starts an explicitly new admitted run."
+api = "The existing four fiscal aliases share one numeric admission boundary. Existing search facade exports BudgetDeficitObjective and CompositeObjective retain identity and signatures; their observable refusal semantics change. No new API, parser, ledger, optimizer or backend dependency is added. Reviewed architecture/public_surface/inventory.json and contract.toml: no dedicated objective/search entry; the declared internal-default classification applies."
+limitations = "Already-rounded floats cannot reveal lost original nonzero; arbitrary-precision alias equality and fiscal issuer unit/sign law are not established by this bounded consumer profile."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]
+runbook_docs = ["docs/how-to/search-checkpoint-profile-compatibility.md"]
